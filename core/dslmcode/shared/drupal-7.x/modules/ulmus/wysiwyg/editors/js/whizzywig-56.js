@@ -72,7 +72,7 @@ Drupal.wysiwyg.editor.attach.whizzywig = function(context, params, settings) {
   wysiwygWhizzywig.currentField = params.field;
   wysiwygWhizzywig.fields[wysiwygWhizzywig.currentField] = '';
   // Whizzywig needs to have the width set 'inline'.
-  $field = $('#' + params.field);
+  var $field = $('#' + params.field);
   var originalValues = Drupal.wysiwyg.instances[params.field];
   originalValues.originalStyle = $field.attr('style');
   $field.css('width', $field.width() + 'px');
@@ -142,12 +142,13 @@ Drupal.wysiwyg.editor.instance.whizzywig = {
   },
 
   getContent: function () {
+    var $field = $('#' + this.field);
     // Whizzywig's tidyH() expects a document node. Clone the editing iframe's
     // document so tidyH() won't mess with it if this gets called while editing.
     var clone = $($('#whizzy' + this.field).contents()[0].documentElement).clone()[0].ownerDocument;
     // Whizzywig shows the original textarea in source mode so update the body.
     if ($field.css('display') == 'block') {
-     clone.body.innerHTML = $('#' + this.field).val();
+     clone.body.innerHTML = $field.val();
     }
     return tidyH(clone);
   }

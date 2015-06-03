@@ -145,19 +145,16 @@ function ds_ui_menu() {
     'access arguments' => array('admin_fields'),
     'type' => MENU_VISIBLE_IN_BREADCRUMB,
   );
-  // Block can be disabled.
-  if (module_exists('block')) {
-    $items['admin/structure/ds/fields/manage_block'] = array(
-      'title' => 'Add a block field',
-      'description' => 'Manage a block field',
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('ds_edit_block_field_form'),
-      'file' => 'includes/ds.fields.inc',
-      'access arguments' => array('admin_fields'),
-      'type' => MENU_LOCAL_ACTION,
-      'weight' => 2,
-    );
-  }
+  $items['admin/structure/ds/fields/manage_block'] = array(
+    'title' => 'Add a block field',
+    'description' => 'Manage a block field',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ds_edit_block_field_form'),
+    'file' => 'includes/ds.fields.inc',
+    'access arguments' => array('admin_fields'),
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 2,
+  );
 
   // CTools Modal add field.
   $items['admin/structure/ds/%ctools_js/add_field/%'] = array(

@@ -16,14 +16,19 @@ function jammer_generic_menu() {
     'page arguments' => array('_jammer_generic_admin_settings'),
     'access arguments' => array('administer site configuration'),
   );
-  $items['admin/config/user-interface/jammer_generic/delete/%'] = array(
+  $items['admin/config/user-interface/jammer_generic/delete/%jammer_generic'] = array(
     'title' => 'Delete generic jammer element',
-    'page callback' => '_jammer_generic_delete',
-    'page arguments' => array(5),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('jammer_generic_confirm_delete', 5),
     'access arguments' => array('administer site configuration'),
     'type' => MENU_CALLBACK,
   );
   return $items;
+}
+
+function jammer_generic_load($key) {
+  $current_settings = variable_get('jammer_generic_elements', array());
+  return isset($current_settings[$key]) ? $key : FALSE;
 }
 
 /**
@@ -37,10 +42,10 @@ function _jammer_generic_admin_settings() {
     'Review the information available at !drupal_url. Generic Jammer will go through each ' .
     'part of a form recursively setting !access_url, so make sure you have accounted for any side effects of ' .
     'removing the form elements you plan to remove. This includes making sure there are default values for the ' .
-    'element if needed and removing any dependant javascript that may rely on the element being there. Always test ' .
+    'element if needed and removing any dependent Javascript that may rely on the element being there. Always test ' .
     'before releasing changes to a live production site.',
       array(
-      '!drupal_url' => l('Form API Quickstart Guide', 'http://drupal.org/node/751826'),
+      '!drupal_url' => l(t('Form API Quickstart Guide'), 'http://drupal.org/node/751826'),
       '!access_url' => l('#access', 'http://api.drupal.org/api/drupal/developer--topics--forms_api_reference.html#access'),
     )
     ),
@@ -114,13 +119,27 @@ function _jammer_generic_admin_settings_submit($form, &$form_state) {
 }
 
 /**
- * Menu callback.
+ * Returns a confirmation page for deleting a jammed element.
+ *
+ * @return array
  */
-function _jammer_generic_delete($key) {
+function jammer_generic_confirm_delete($form, &$form_state, $key) {
+  $confirm_form['key'] = array(
+    '#type' => 'value',
+    '#value' => $key,
+  );
+
+  return confirm_form($confirm_form, t('Are you sure you want to un-jam this form element?'), 'admin/config/user-interface/jammer_generic', t('Deleting this setting will cause previously hidden form elements to display again. To review the settings on this jammed form element, please visit <a href="@content">Generic Jammer administration</a> first. This action cannot be undone.', array('@content' => url('admin/config/user-interface/jammer_generic'))), t('Delete'), t('Cancel'));
+}
+
+/**
+ * Deletes settings that would jam form elements.
+ */
+function jammer_generic_confirm_delete_submit($form, &$form_state) {
   $current_settings = variable_get('jammer_generic_elements', array());
-  unset($current_settings[$key]);
+  unset($current_settings[$form_state['values']['key']]);
   variable_set('jammer_generic_elements', $current_settings);
-  drupal_goto('admin/config/user-interface/jammer_generic');
+  $form_state['redirect'] = 'admin/config/user-interface/jammer_generic';
 }
 
 /**

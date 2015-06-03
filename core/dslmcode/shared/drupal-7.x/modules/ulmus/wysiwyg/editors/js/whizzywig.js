@@ -63,7 +63,7 @@ Drupal.wysiwyg.editor.attach.whizzywig = function(context, params, settings) {
   wysiwygWhizzywig.currentField = params.field;
   wysiwygWhizzywig.fields[wysiwygWhizzywig.currentField] = '';
   // Whizzywig needs to have the width set 'inline'.
-  $field = $('#' + params.field);
+  var $field = $('#' + params.field);
   var originalValues = Drupal.wysiwyg.instances[params.field];
   originalValues.originalStyle = $field.attr('style');
   $field.css('width', $field.width() + 'px');

@@ -279,5 +279,11 @@ function hook_wysiwyg_editor_settings_alter(&$settings, $context) {
   if ($context['profile']->editor == 'tinymce') {
     // Supported values to JSON data types.
     $settings['cleanup_on_startup'] = TRUE;
+    // Function references (callbacks) need special care.
+    // @see wysiwyg_wrap_js_callback()
+    $settings['file_browser_callback'] = wysiwyg_wrap_js_callback('myFileBrowserCallback');
+    // Regular Expressions need special care.
+    // @see wysiwyg_wrap_js_regexp()
+    $settings['stylesheetParser_skipSelectors'] = wysiwyg_wrap_js_regexp('(^body\.|^caption\.|\.high|^\.)', 'i');
   }
 }

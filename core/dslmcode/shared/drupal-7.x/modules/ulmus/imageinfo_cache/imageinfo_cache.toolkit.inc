@@ -8,9 +8,10 @@
 /**
  * Get details about an image.
  *
- * @param $image
+ * @param object $image
  *   An image object.
- * @return
+ *
+ * @return mixed
  *   FALSE, if the file could not be found or is not an image. Otherwise, a
  *   keyed array containing information about the image:
  *   - width: Width in pixels.
@@ -21,7 +22,7 @@
  *
  * @see image_get_info()
  */
-function image_imageinfo_cache_get_info(stdClass $image) {
+function image_imageinfo_cache_get_info($image) {
   // If not using the cache, bypass it.
   if (!variable_get('imageinfo_cache_getimagesize', IMAGEINFO_CACHE_GETIMAGESIZE)) {
     return _image_imageinfo_cache_get_details($image);
@@ -45,7 +46,7 @@ function image_imageinfo_cache_get_info(stdClass $image) {
     return $static_cache[$cid];
   }
 
-  // Try the cache backend.
+  // Try the cache back end.
   $cache = cache_get($cid, 'cache_imageinfo');
   if (!empty($cache) && !empty($cache->data)) {
     return $cache->data;
@@ -98,9 +99,10 @@ function image_imageinfo_cache_get_info(stdClass $image) {
 /**
  * Get details about an image.
  *
- * @param $image
+ * @param object $image
  *   An image object.
- * @return
+ *
+ * @return mixed
  *   FALSE, if the file could not be found or is not an image. Otherwise, a
  *   keyed array containing information about the image:
  *   - width: Width in pixels.
@@ -111,7 +113,7 @@ function image_imageinfo_cache_get_info(stdClass $image) {
  *
  * @see image_get_info()
  */
-function _image_imageinfo_cache_get_details(stdClass $image) {
+function _image_imageinfo_cache_get_details($image) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
   $details = image_toolkit_invoke('get_info', $image);
@@ -127,24 +129,24 @@ function _image_imageinfo_cache_get_details(stdClass $image) {
 /**
  * Crops an image to the given coordinates.
  *
- * @param $image
+ * @param object $image
  *   An image object. The $image->resource, $image->info['width'], and
  *   $image->info['height'] values will be modified by this call.
- * @param $x
+ * @param int $x
  *   The starting x offset at which to start the crop, in pixels.
- * @param $y
+ * @param int $y
  *   The starting y offset at which to start the crop, in pixels.
- * @param $width
+ * @param int $width
  *   The width of the cropped area, in pixels.
- * @param $height
+ * @param int $height
  *   The height of the cropped area, in pixels.
  *
- * @return
+ * @return bool
  *   TRUE or FALSE, based on success.
  *
  * @see image_crop()
  */
-function image_imageinfo_cache_crop(stdClass $image, $x, $y, $width, $height) {
+function image_imageinfo_cache_crop($image, $x, $y, $width, $height) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
   $return = image_toolkit_invoke('crop', $image, array($x, $y, $width, $height));
@@ -156,15 +158,15 @@ function image_imageinfo_cache_crop(stdClass $image, $x, $y, $width, $height) {
 /**
  * Converts an image into grayscale.
  *
- * @param $image
+ * @param object $image
  *   An image object. The $image->resource value will be modified by this call.
  *
- * @return
+ * @return bool
  *   TRUE or FALSE, based on success.
  *
  * @see image_desaturate()
  */
-function image_imageinfo_cache_desaturate(stdClass $image) {
+function image_imageinfo_cache_desaturate($image) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
   $return = image_toolkit_invoke('desaturate', $image);
@@ -176,15 +178,15 @@ function image_imageinfo_cache_desaturate(stdClass $image) {
 /**
  * Creates an image resource from a file.
  *
- * @param $image
+ * @param object $image
  *   An image object. The $image->resource value will populated by this call.
  *
- * @return
+ * @return bool
  *   TRUE or FALSE, based on success.
  *
  * @see image_load()
  */
-function image_imageinfo_cache_load(stdClass $image) {
+function image_imageinfo_cache_load($image) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
   $return = image_toolkit_invoke('load', $image);
@@ -196,20 +198,20 @@ function image_imageinfo_cache_load(stdClass $image) {
 /**
  * Scales an image to the specified size.
  *
- * @param $image
+ * @param object $image
  *   An image object. The $image->resource, $image->info['width'], and
  *   $image->info['height'] values will be modified by this call.
- * @param $width
+ * @param int $width
  *   The new width of the resized image, in pixels.
- * @param $height
+ * @param int $height
  *   The new height of the resized image, in pixels.
  *
- * @return
+ * @return bool
  *   TRUE or FALSE, based on success.
  *
  * @see image_resize()
  */
-function image_imageinfo_cache_resize(stdClass $image, $width, $height) {
+function image_imageinfo_cache_resize($image, $width, $height) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
   $return = image_toolkit_invoke('resize', $image, array($width, $height));
@@ -221,24 +223,24 @@ function image_imageinfo_cache_resize(stdClass $image, $width, $height) {
 /**
  * Rotates an image the given number of degrees.
  *
- * @param $image
+ * @param object $image
  *   An image object. The $image->resource, $image->info['width'], and
  *   $image->info['height'] values will be modified by this call.
- * @param $degrees
+ * @param float $degrees
  *   The number of (clockwise) degrees to rotate the image.
- * @param $background
+ * @param string $background
  *   An hexadecimal integer specifying the background color to use for the
  *   uncovered area of the image after the rotation. E.g. 0x000000 for black,
  *   0xff00ff for magenta, and 0xffffff for white. For images that support
  *   transparency, this will default to transparent. Otherwise it will
  *   be white.
  *
- * @return
+ * @return bool
  *   TRUE or FALSE, based on success.
  *
  * @see image_rotate()
  */
-function image_imageinfo_cache_rotate(stdClass $image, $degrees, $background = NULL) {
+function image_imageinfo_cache_rotate($image, $degrees, $background = NULL) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
   $return = image_toolkit_invoke('rotate', $image, array($degrees, $background));
@@ -250,17 +252,17 @@ function image_imageinfo_cache_rotate(stdClass $image, $degrees, $background = N
 /**
  * Writes an image resource to a destination file.
  *
- * @param $image
+ * @param object $image
  *   An image object.
- * @param $destination
+ * @param string $destination
  *   A string file URI or path where the image should be saved.
  *
- * @return
+ * @return bool
  *   TRUE or FALSE, based on success.
  *
  * @see image_save()
  */
-function image_imageinfo_cache_save(stdClass $image, $destination) {
+function image_imageinfo_cache_save($image, $destination) {
   // Change toolkit back to the original value.
   $image->toolkit = variable_get('image_toolkit_original', 'gd');
   $return = image_toolkit_invoke('save', $image, array($destination));
@@ -274,6 +276,9 @@ function image_imageinfo_cache_save(stdClass $image, $destination) {
 
 /**
  * Retrieve settings for the original toolkit.
+ *
+ * @return mixed
+ *   FALSE on failure; form array on success.
  */
 function image_imageinfo_cache_settings() {
   $toolkit = variable_get('image_toolkit_original', 'gd');

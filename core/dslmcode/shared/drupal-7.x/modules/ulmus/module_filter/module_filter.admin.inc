@@ -17,7 +17,7 @@ function module_filter_settings() {
   $form['module_filter_set_focus'] = array(
     '#type' => 'checkbox',
     '#title' => t('Set focus to filter field on page load'),
-    '#description' => t('Currently has no affect when using Overlay module.'),
+    '#description' => t('Currently has no effect when using Overlay module.'),
     '#default_value' => variable_get('module_filter_set_focus', 1),
   );
 

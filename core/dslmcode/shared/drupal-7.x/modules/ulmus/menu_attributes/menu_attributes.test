@@ -22,6 +22,7 @@ class MenuAttributesTestHelper extends DrupalWebTestCase {
 
     // Create and login user.
     $this->admin_user = $this->drupalCreateUser(array(
+      'administer menu attributes',
       'access administration pages',
       'administer content types',
       'administer menu',

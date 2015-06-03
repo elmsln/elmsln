@@ -4,9 +4,9 @@ This is the way that project founder btopro keeps life managable with how comple
 
 Use the elmsln-developer repository
 
-git clone --recursive https://github.com/btopro/elmsln-developer.git elmsln
+git clone --recursive https://github.com/elmsln/elmsln-developer.git elmsln
 
-Then review https://github.com/btopro/elmsln-developer/blob/master/README.md
+Then review https://github.com/elmsln/elmsln-developer/blob/master/README.md
 
 To stand up and best maintain your own instance..
 
@@ -15,7 +15,7 @@ Create a new 'origin' that's internal to your organization. This will mirror the
 Now go to the elmsln/instances directory of your larger repo and create a new repo that's hosted on an internal git server / private bitbucket.
 
 put files in there that mirror the default state of elmsln-config-example that comes with the developer package. Now when you deploy this you'll want to swap out the "rm -rf config
-git clone https://github.com/btopro/elmsln-config-example.git config"
+git clone https://github.com/elmsln/elmsln-config-example.git config"
 
 you'll want to deviate by referencing your in-house config repo
 
@@ -40,4 +40,4 @@ Transactions between systems are intentionally made via web services in the even
 
 The only piece that needs documented as to how to do this part is that the current /var/www/elmsln/config/jobs folder would effectively need to be rsynced to the other servers in the network so that they knew to build something (since that's currently just on 1 file system).
 
-There's an issue for this piece on github if interested: https://github.com/btopro/elmsln/issues/17
+There's an issue for this piece on github if interested: https://github.com/elmsln/elmsln/issues/17

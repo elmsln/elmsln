@@ -18,12 +18,12 @@ define('ADVAGG_JS_COMPRESSOR', 0);
 /**
  * Default value to see what compressor to use. 0 is Disabled.
  */
-define('ADVAGG_JS_INLINE_COMPRESSOR', 0);
+define('ADVAGG_JS_COMPRESS_INLINE', 0);
 
 /**
  * Default value to if inline compression is used if page is not cacheable.
  */
-define('ADVAGG_JS_INLINE_COMPRESS_IF_NOT_CACHEABLE', FALSE);
+define('ADVAGG_JS_COMPRESS_INLINE_IF_NOT_CACHEABLE', FALSE);
 
 /**
  * Default value for the compression ratio test.
@@ -33,12 +33,17 @@ define('ADVAGG_JS_COMPRESS_RATIO', 0.1);
 /**
  * Default value for the compression ratio test.
  */
-define('ADVAGG_JS_MAX_COMPRESS_RATIO', 0.9);
+define('ADVAGG_JS_COMPRESS_MAX_RATIO', 0.9);
 
 /**
  * Default value for per file compression settings.
  */
 define('ADVAGG_JS_COMPRESSOR_FILE_SETTINGS', -1);
+
+/**
+ * Default value to if inline compression is used if page is not cacheable.
+ */
+define('ADVAGG_JS_COMPRESS_ADD_LICENSE', TRUE);
 
 /**
  * Implements hook_menu().
@@ -68,7 +73,7 @@ function advagg_js_compress_menu() {
 function advagg_js_compress_advagg_current_hooks_hash_array_alter(&$aggregate_settings) {
   $aggregate_settings['variables']['advagg_js_compressor'] = variable_get('advagg_js_compressor', ADVAGG_JS_COMPRESSOR);
   $aggregate_settings['variables']['advagg_js_compress_packer'] = variable_get('advagg_js_compress_packer', ADVAGG_JS_COMPRESS_PACKER);
-  $aggregate_settings['variables']['advagg_js_max_compress_ratio'] = variable_get('advagg_js_max_compress_ratio', ADVAGG_JS_MAX_COMPRESS_RATIO);
+  $aggregate_settings['variables']['advagg_js_compress_max_ratio'] = variable_get('advagg_js_compress_max_ratio', ADVAGG_JS_COMPRESS_MAX_RATIO);
   $aggregate_settings['variables']['advagg_js_compressor_file_settings'] = variable_get('advagg_js_compressor_file_settings', array());
 }
 
@@ -79,8 +84,8 @@ function advagg_js_compress_advagg_current_hooks_hash_array_alter(&$aggregate_se
  */
 function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elements) {
   // Get variables.
-  $aggregate_settings['variables']['advagg_js_compressor'] = variable_get('advagg_js_inline_compressor', ADVAGG_JS_INLINE_COMPRESSOR);
-  $aggregate_settings['variables']['advagg_js_max_compress_ratio'] = variable_get('advagg_js_max_compress_ratio', ADVAGG_JS_MAX_COMPRESS_RATIO);
+  $aggregate_settings['variables']['advagg_js_compressor'] = variable_get('advagg_js_compress_inline', ADVAGG_JS_COMPRESS_INLINE);
+  $aggregate_settings['variables']['advagg_js_compress_max_ratio'] = variable_get('advagg_js_compress_max_ratio', ADVAGG_JS_COMPRESS_MAX_RATIO);
 
   // Do nothing if the compressor is disabled.
   if (empty($aggregate_settings['variables']['advagg_js_compressor'])) {
@@ -89,13 +94,30 @@ function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elem
 
   // Do nothing if the page is not cacheable and inline compress if not
   // cacheable is not checked.
-  if (!variable_get('advagg_js_inline_compress_if_not_cacheable', ADVAGG_JS_INLINE_COMPRESS_IF_NOT_CACHEABLE) && !drupal_page_is_cacheable()) {
+  if (!variable_get('advagg_js_compress_inline_if_not_cacheable', ADVAGG_JS_COMPRESS_INLINE_IF_NOT_CACHEABLE) && !drupal_page_is_cacheable()) {
     return;
   }
 
   // Compress any inline JS.
   module_load_include('inc', 'advagg_js_compress', 'advagg_js_compress.advagg');
-  foreach ($children as $key => &$values) {
+  foreach ($children as &$values) {
+    // Compress onload.
+    if (!empty($values['#attributes']['onload'])) {
+      $contents = $values['#attributes']['onload'];
+      $filename = drupal_hash_base64($contents);
+      advagg_js_compress_prep($contents, $filename, $aggregate_settings, FALSE);
+      $values['#attributes']['onload'] = $contents;
+    }
+
+    // Compress onerror.
+    if (!empty($values['#attributes']['onerror'])) {
+      $contents = $values['#attributes']['onerror'];
+      $filename = drupal_hash_base64($contents);
+      advagg_js_compress_prep($contents, $filename, $aggregate_settings, FALSE);
+      $values['#attributes']['onerror'] = $contents;
+    }
+
+    // Compress inline.
     if (!empty($values['#value'])) {
       $contents = $values['#value'];
       $filename = drupal_hash_base64($contents);
@@ -103,6 +125,7 @@ function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elem
       $values['#value'] = $contents;
     }
   }
+  unset($values);
 }
 
 /**
@@ -118,7 +141,7 @@ function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elem
  * @return array
  *   Array showing the results of the compression tests.
  */
-function advagg_js_compress_test_file($filename, $compressors, $cache_id) {
+function advagg_js_compress_test_file($filename, array $compressors, $cache_id) {
   $contents = file_get_contents($filename);
   // Get the JS string length before the compression operation.
   $contents_before = $contents;
@@ -130,7 +153,7 @@ function advagg_js_compress_test_file($filename, $compressors, $cache_id) {
   foreach ($compressors as $key => $name) {
     $contents = $contents_before;
     $aggregate_settings['variables']['advagg_js_compressor'] = $key;
-    $aggregate_settings['variables']['advagg_js_max_compress_ratio'] = variable_get('advagg_js_max_compress_ratio', ADVAGG_JS_MAX_COMPRESS_RATIO);
+    $aggregate_settings['variables']['advagg_js_compress_max_ratio'] = variable_get('advagg_js_compress_max_ratio', ADVAGG_JS_COMPRESS_MAX_RATIO);
 
     // Compress it.
     advagg_js_compress_prep($contents, $filename, $aggregate_settings, FALSE, FALSE, FALSE);
@@ -149,7 +172,7 @@ function advagg_js_compress_test_file($filename, $compressors, $cache_id) {
       );
     }
     // Set to "-3" if the compression ratio is way too good (bad js output).
-    elseif ($ratio > variable_get('advagg_js_max_compress_ratio', ADVAGG_JS_MAX_COMPRESS_RATIO)) {
+    elseif ($ratio > variable_get('advagg_js_compress_max_ratio', ADVAGG_JS_COMPRESS_MAX_RATIO)) {
       $results[$key] = array(
         'code' => -3,
         'ratio' => round($ratio, 5),

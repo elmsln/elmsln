@@ -1,4 +1,20 @@
 <?php
+// @codingStandardsIgnoreFile
+// @ignore comment_docblock_file:file
+// @ignore style_curly_braces:file
+// @ignore style_string_spacing:file
+// @ignore style_else_spacing:file
+// @ignore comment_comment_docblock_missing:file
+// @ignore comment_comment_eg:file
+// @ignore production_code:file
+// @ignore druplart_unary:file
+// @ignore style_uppercase_constants:file
+// @ignore comment_comment_space:file
+// @ignore druplart_conditional_assignment:file
+// @ignore style_paren_spacing:file
+// @ignore style_no_tabs:file
+// @ignore :file
+
 /**
  * JSMinPlus version 1.4
  *
@@ -1124,7 +1140,7 @@ class JSParser {
 
       case KEYWORD_CATCH:
       case KEYWORD_FINALLY:
-        throw $this->t->newSyntaxError($tt + ' without preceding try');
+        throw $this->t->newSyntaxError($tt . ' without preceding try');
 
       case KEYWORD_THROW:
         $n = new JSNode($this->t);

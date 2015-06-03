@@ -36,8 +36,8 @@ class LinkBaseTestClass extends DrupalWebTestCase {
       'fields[_add_new_field][type]' => 'link_field',
       'fields[_add_new_field][widget_type]' => 'link_field',
     );
-    $field_name = 'field_'. $name;
-    $this->drupalPost('admin/structure/types/manage/'. $node_type .'/fields', $edit, t('Save'));
+    $field_name = 'field_' . $name;
+    $this->drupalPost('admin/structure/types/manage/' . $node_type . '/fields', $edit, t('Save'));
     $this->drupalPost(NULL, array(), t('Save field settings'));
     $this->drupalPost(NULL, $settings, t('Save settings'));
 

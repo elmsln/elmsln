@@ -245,6 +245,102 @@
     }
   };
 
+  // This is only needed to provide ajax functionality
+  Drupal.behaviors.better_exposed_filters_select_as_links = {
+    attach: function(context, settings) {
+
+      $('.bef-select-as-links', context).once(function() {
+        var $element = $(this);
+
+        // Check if ajax submission is enabled. If it's not enabled then we
+        // don't need to attach our custom submission handling, because the
+        // links are already properly built.
+
+        // First check if any ajax views are contained in the current page.
+        if (typeof settings.views == 'undefined' || typeof settings.views.ajaxViews == 'undefined') {
+          return;
+        }
+
+        // Now check that the view for which the current filter block is used,
+        // is part of the configured ajax views.
+        var $uses_ajax = false;
+        $.each(settings.views.ajaxViews, function(i, item) {
+          var $view_name = item.view_name.replace(/_/g, '-');
+          var $view_display_id = item.view_display_id.replace(/_/g, '-');
+          var $id = 'views-exposed-form-' + $view_name + '-' + $view_display_id;
+          var $form_id = $element.parents('form').attr('id');
+          if ($form_id == $id) {
+            $uses_ajax = true;
+            return;
+          }
+        });
+
+        // If no ajax is used for form submission, we quit here.
+        if (!$uses_ajax) {
+          return;
+        }
+
+        // Attach selection toggle and form submit on click to each link.
+        $(this).find('a').click(function(event) {
+          var $wrapper = $(this).parents('.bef-select-as-links');
+          var $options = $wrapper.find('select option');
+          // We have to prevent the page load triggered by the links.
+          event.preventDefault();
+          event.stopPropagation();
+          // Un select old select value.
+          $wrapper.find('select option').removeAttr('selected');
+
+          // Set the corresponding option inside the select element as selected.
+          var link_text = $(this).text();
+          $selected = $options.filter(function() {
+            return $(this).text() == link_text;
+          });
+          $selected.attr('selected', 'selected');
+          $wrapper.find('.bef-new-value').val($selected.val());
+          $wrapper.find('a').removeClass('active');
+          $(this).addClass('active');
+          // Submit the form.
+          $wrapper.parents('form').find('.views-submit-button *[type=submit]').click();
+        });
+      });
+    }
+  };
+
+  Drupal.behaviors.betterExposedFiltersRequiredFilter = {
+    attach: function(context, settings) {
+      // Required checkboxes should re-check all inputs if a user un-checks
+      // them all.
+      $('.bef-select-as-checkboxes', context).once('bef-required-filter').ajaxComplete(function (e, xhr, s) {
+        var $element = $(this);
+
+        if (typeof settings.views == 'undefined' || typeof settings.views.ajaxViews == 'undefined') {
+          return;
+        }
+
+        // Now check that the view for which the current filter block is used,
+        // is part of the configured ajax views.
+        var $view_name;
+        var $view_display_id;
+        var $uses_ajax = false;
+        $.each(settings.views.ajaxViews, function(i, item) {
+          $view_name = item.view_name;
+          $view_display_id = item.view_display_id;
+          var $id = 'views-exposed-form-' + $view_name.replace(/_/g, '-') + '-' + $view_display_id.replace(/_/g, '-');
+          var $form_id = $element.parents('form').attr('id');
+          if ($form_id == $id) {
+            $uses_ajax = true;
+            return;
+          }
+        });
+
+        var $filter_name = $('input', this).attr('name').slice(0, -2);
+        if (Drupal.settings.better_exposed_filters.views[$view_name].displays[$view_display_id].filters[$filter_name].required && $('input:checked', this).length == 0) {
+          $('input', this).prop('checked', true);
+        }
+      });
+    }
+  }
+
   /*
    * Helper functions
    */

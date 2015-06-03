@@ -180,7 +180,7 @@ function token_theme() {
       'text' => NULL,
       'options' => array(),
       'dialog' => TRUE,
-    ),
+    ) + $info['token_tree']['variables'],
     'file' => 'token.pages.inc',
   );
 
@@ -273,8 +273,8 @@ function token_form_block_admin_configure_alter(&$form, $form_state) {
  * Implements hook_widget_form_alter().
  */
 function token_field_widget_form_alter(&$element, &$form_state, $context) {
-  if (!empty($element['#description']) && is_string($element['#description'])) {
-    $element['#description'] = filter_xss_admin(token_replace($element['#description']));
+  if (!empty($element['#description']) && !empty($context['instance']['description'])) {
+    $element['#description'] = filter_xss_admin(token_replace($context['instance']['description']));
   }
 }
 
@@ -412,12 +412,18 @@ function token_get_entity_mapping($value_type = 'token', $value = NULL, $fallbac
  */
 function token_entity_info_alter(&$info) {
   foreach (array_keys($info) as $entity_type) {
-    // Add a token view mode if it does not already exist.
-    if (!empty($info[$entity_type]['view modes']) && !isset($info[$entity_type]['view modes']['token'])) {
-      $info[$entity_type]['view modes']['token'] = array(
-        'label' => t('Tokens'),
-        'custom settings' => FALSE,
-      );
+    // Add a token view mode if it does not already exist. Only work with
+    // fieldable entities.
+    if (!empty($info[$entity_type]['fieldable'])) {
+      if (!isset($info[$entity_type])) {
+        $info[$entity_type]['view modes'] = array();
+      }
+      if (!isset($info[$entity_type]['view modes']['token'])) {
+        $info[$entity_type]['view modes']['token'] = array(
+          'label' => t('Tokens'),
+          'custom settings' => FALSE,
+        );
+      }
     }
 
     if (!empty($info[$entity_type]['token type'])) {
@@ -647,6 +653,10 @@ function token_get_invalid_tokens($type, $tokens) {
   $invalid_tokens = array();
 
   foreach ($tokens as $token => $full_token) {
+    if (isset($token_info['tokens'][$type][$token])) {
+      continue;
+    }
+
     // Split token up if it has chains.
     $parts = explode(':', $token, 2);
 

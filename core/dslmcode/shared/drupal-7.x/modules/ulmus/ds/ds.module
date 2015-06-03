@@ -302,6 +302,9 @@ function ds_get_fields($entity_type, $cache = TRUE) {
 
   static $static_fields, $fields_cached = array();
   static $loaded = FALSE;
+  // Load the ds file that handles ds call of hook_ds_fields_info, otherwise it
+  // doesn't get loaded
+  module_load_include('inc', 'ds', 'ds.ds_fields_info');
 
   // Get fields from cache.
   if (!$loaded) {
@@ -571,8 +574,13 @@ function ds_field_attach_view_alter(&$build, $context) {
     }
   }
 
+  $disable_css = FALSE;
+  if (!empty($layout['settings']['layout_disable_css'])) {
+    $disable_css = TRUE;
+  }
+
   // Add path to css file for this layout and disable block regions if necessary.
-  if (isset($layout['css']) && !isset($loaded_css[$layout['path'] . '/' . $layout['layout'] . '.css'])) {
+  if (!$disable_css && isset($layout['css']) && !isset($loaded_css[$layout['path'] . '/' . $layout['layout'] . '.css'])) {
     // Register css file.
     $loaded_css[$layout['path'] . '/' . $layout['layout'] . '.css'] = TRUE;
     // Add css file.
@@ -649,11 +657,12 @@ function ds_entity_variables(&$vars) {
         $layout['layout'] = $layout['panels']['theme'];
       }
 
+      $bundle = strtr($vars['elements']['#bundle'], '-', '_');
       $vars['theme_hook_suggestions'][] = $layout['layout'];
       $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'];
       $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'] . '_' . $vars['elements']['#view_mode'];
-      $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'] . '_' . $vars['elements']['#bundle'];
-      $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'] . '_' . $vars['elements']['#bundle'] . '_' . $vars['elements']['#view_mode'];
+      $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'] . '_' . $bundle;
+      $vars['theme_hook_suggestions'][] = $layout['layout'] . '__' . $vars['elements']['#entity_type'] . '_' . $bundle . '_' . $vars['elements']['#view_mode'];
     }
 
     // If the layout has wrapper class lets add it.
@@ -684,6 +693,11 @@ function ds_entity_variables(&$vars) {
       // Add extras classes to the region.
       if (empty($layout['flexible'])) {
         $vars[$region_name . '_classes'] = !empty($layout['settings']['classes'][$region_name]) ? ' ' . implode(' ', $layout['settings']['classes'][$region_name]) : '';
+
+        // Token support for region classes.
+        if (module_exists('token') && isset($var[$object])) {
+          $vars[$region_name . '_classes'] = token_replace($vars[$region_name . '_classes'], array($object => $vars[$object]), array('clear' => TRUE, 'sanitize' => TRUE));
+        }
       }
       // Add a wrapper to the region.
       if (empty($layout['flexible'])) {
@@ -700,7 +714,12 @@ function ds_entity_variables(&$vars) {
     // Add layout attributes if any.
     $vars['layout_attributes'] = '';
     if (!empty($layout['settings']['layout_attributes'])) {
-      $vars['layout_attributes'] .= ' ' . $layout['settings']['layout_attributes'];
+      if (isset($vars[$object])) {
+        $vars['layout_attributes'] .= ' ' . token_replace($layout['settings']['layout_attributes'], array($object => $vars[$object]), array('clear' => TRUE, 'sanitize' => TRUE));
+      }
+      else {
+        $vars['layout_attributes'] .= ' ' . $layout['settings']['layout_attributes'];
+      }
     }
     // Merge in other attributes which were passed to the template.
     if (!empty($layout['settings']['layout_attributes_merge'])) {
@@ -712,12 +731,24 @@ function ds_entity_variables(&$vars) {
       $vars['layout_attributes'] .= ' ' . drupal_attributes($vars['attributes_array']);
     }
 
+    // Token support for layout classes.
+    if (module_exists('token') && isset($var[$object])) {
+      foreach ($vars['classes_array'] as &$class) {
+        $class = token_replace($class, array($object => $vars[$object]), array('clear' => TRUE, 'sanitize' => TRUE));
+      }
+    }
+
     // Add an onclick attribute on the wrapper.
     if (!empty($layout['settings']['layout_link_attribute'])) {
       $url = '';
       switch ($layout['settings']['layout_link_attribute']) {
         case 'content':
-          $uri = entity_uri($vars['elements']['#entity_type'], $vars[$object]);
+          if ($object == 'user') {
+            $uri = entity_uri($vars['elements']['#entity_type'], $vars['elements']['#account']);
+          }
+          else {
+            $uri = entity_uri($vars['elements']['#entity_type'], $vars[$object]);
+          }
           if (!empty($uri)) {
             $url = $uri['path'];
           }
@@ -726,7 +757,7 @@ function ds_entity_variables(&$vars) {
           $url = $layout['settings']['layout_link_custom'];
           break;
         case 'tokens':
-          $url = token_replace($layout['settings']['layout_link_custom'], array($vars['elements']['#entity_type'] => $vars[$object]));
+          $url = token_replace($layout['settings']['layout_link_custom'], array($vars['elements']['#entity_type'] => $vars[$object]), array('clear' => TRUE));
           break;
       }
 
@@ -737,7 +768,7 @@ function ds_entity_variables(&$vars) {
 
     // Let other modules alter the ds array before creating the region variables.
     $context = array('entity' => isset($vars[$object]) ? $vars[$object] : (isset($vars['elements']['#' . $object]) ? $vars['elements']['#' . $object] : ''), 'entity_type' => $vars['elements']['#entity_type'], 'bundle' => $vars['elements']['#bundle'], 'view_mode' => $vars['elements']['#view_mode']);
-    drupal_alter('ds_pre_render', $layout_render_array, $context);
+    drupal_alter('ds_pre_render', $layout_render_array, $context, $vars);
     foreach ($layout_render_array as $region_name => $content) {
       // In case this is a panels layout, add the region to the $content variable.
       if (isset($layout['module']) && $layout['module'] == 'panels') {
@@ -772,16 +803,17 @@ function ds_create_entity_context($entity_type, $entity, &$contexts, $context_ar
  */
 function ds_render_code_field($field) {
   if (isset($field['properties']['code'])) {
+    $value = $field['properties']['code']['value'];
+    // Token support - check on token property so we don't run every single field through token.
+    if (isset($field['properties']['use_token']) && $field['properties']['use_token']) {
+      $value = token_replace($value, array($field['entity_type'] => $field['entity']), array('clear' => TRUE));
+    }
     $format = (isset($field['properties']['code']['format'])) ? $field['properties']['code']['format'] : 'plain_text';
     if ($format == 'ds_code' && module_exists('ds_format')) {
-      $value = ds_format_php_eval($field['properties']['code']['value'], $field['entity'], isset($field['build']) ? $field['build'] : array());
+      $value = ds_format_php_eval($value, $field['entity'], isset($field['build']) ? $field['build'] : array());
     }
     else {
-      $value = check_markup($field['properties']['code']['value'], $format);
-    }
-    // Token support - check on token property so we don't run every single field through token.
-    if (isset($field['properties']['use_token']) && $field['properties']['use_token'] == TRUE) {
-      $value = token_replace($value, array($field['entity_type'] => $field['entity']), array('clear' => TRUE));
+      $value = check_markup($value, $format);
     }
     return $value;
   }
@@ -802,7 +834,12 @@ function ds_render_ctools_field($field) {
     // 3) embed a view with the 2 taxonomies as fields.
     if (isset($field['formatter_settings']['load_terms']) && $field['formatter_settings']['load_terms']) {
       static $terms_loaded = array();
-      $language = $field['entity']->language;
+      if (isset($field['entity']->language)) {
+        $language = $field['entity']->language;
+      }
+      else {
+        $language = LANGUAGE_NONE;
+      }
       $instances = field_info_instances($field['entity_type'], $field['bundle']);
       foreach ($instances as $key => $instance) {
         $info = field_info_field($key);
@@ -816,7 +853,12 @@ function ds_render_ctools_field($field) {
           foreach ($field['entity']->{$key}[$language] as $tkey => $item) {
             if (isset($item['tid']) && !isset($item['taxonomy_term'])) {
               if (!isset($terms_loaded[$item['tid']])) {
-                $terms_loaded[$item['tid']] = taxonomy_term_load($item['tid']);
+                $term = taxonomy_term_load($item['tid']);
+                if (!is_object($term)) {
+                  // This term is missing in the database.
+                  continue;
+                }
+                $terms_loaded[$item['tid']] = $term;
               }
               $field['entity']->{$key}[$language][$tkey]['taxonomy_term'] = $terms_loaded[$item['tid']];
             }
@@ -848,7 +890,7 @@ function ds_render_ctools_field($field) {
       $content = '';
       if ($show_title) {
         if (empty($title_wrapper)) $title_wrapper = 'div';
-        $content .= '<' . check_plain($title_wrapper) . '>' . $data->title . '</' . check_plain($title_wrapper) . '>';
+        $content .= '<' . check_plain($title_wrapper) . ' class="title">' . $data->title . '</' . check_plain($title_wrapper) . '>';
       }
       if (is_array($data->content)) {
         $content .= drupal_render($data->content);
@@ -873,7 +915,7 @@ function ds_render_block_field($field) {
   $contextual_links = array();
   $contextual = module_exists('contextual') && user_access('access contextual links');
   if ($contextual) {
-    if (is_array($block['content']) && isset($block['content']['#contextual_links'])) {
+    if (isset($block['content']) && is_array($block['content']) && isset($block['content']['#contextual_links'])) {
       $contextual_links = $block['content']['#contextual_links'];
     }
   }
@@ -892,7 +934,9 @@ function ds_render_block_field($field) {
     }
 
     global $theme_key;
-    $full_block = db_query("SELECT * FROM {block} WHERE module = :module AND delta = :delta AND theme = :theme", array(':module' => $module, ':delta' => $delta, ':theme' => $theme_key))->fetchObject();
+    if (module_exists('block')) {
+      $full_block = db_query("SELECT * FROM {block} WHERE module = :module AND delta = :delta AND theme = :theme", array(':module' => $module, ':delta' => $delta, ':theme' => $theme_key))->fetchObject();
+    }
     if (!empty($full_block)) {
       if ($full_block->title == '<none>') {
         $block['subject'] = '';
@@ -955,7 +999,6 @@ function ds_render_block_field($field) {
  * Render a field.
  */
 function ds_render_field($field) {
-
   $title_field = FALSE;
 
   $output = '';
@@ -982,14 +1025,13 @@ function ds_render_field($field) {
 
   // Link.
   if ($settings['link']) {
-    if (isset($field['entity']->uri['path'])) {
-      $path = $field['entity']->uri['path'];
+    if (isset($field['entity']->uri)) {
+      $uri_info = $field['entity']->uri;
     }
     else {
       $uri_info = entity_uri($field['entity_type'], $field['entity']);
-      $path = $uri_info['path'];
     }
-    $output = l($output, $path);
+    $output = l($output, $uri_info['path'], $uri_info['options']);
     if ($title_field) {
       $output = ds_edit_support('title', $output, $field);
     }
@@ -1098,9 +1140,8 @@ function ds_render_user_picture($field) {
   $picture = ds_return_picture($field['entity']);
 
   if (!empty($picture)) {
-    $vars = array();
     $filepath = (isset($picture->uri)) ? $picture->uri : $picture;
-    $name = !empty($field['entity']->name) ? $field['entity']->name : variable_get('anonymous', t('Anonymous'));
+    $name = format_username($field['entity']);
     $alt = t("@user's picture", array('@user' => $name));
     $vars = array('path' => $filepath, 'alt' => $alt, 'title' => $alt);
 
@@ -1157,7 +1198,10 @@ function ds_field_formatter_info() {
       'label'       => t('Rendered taxonomy term'),
       'description' => t('Display the referenced term in a specific view mode'),
       'field types' => array('taxonomy_term_reference'),
-      'settings'    => array('taxonomy_term_reference_view_mode' => 'full'),
+      'settings'    => array(
+        'taxonomy_term_reference_view_mode' => 'full',
+        'use_content_language' => TRUE,
+      ),
     );
     $formatters['ds_taxonomy_separator'] = array(
       'label'       => t('Separated'),
@@ -1203,6 +1247,17 @@ function ds_field_formatter_view($entity_type, $entity, $field, $instance, $lang
       }
       else {
         $term = taxonomy_term_load($item['tid']);
+        if (module_exists('i18n_taxonomy')) {
+          $term = i18n_taxonomy_localize_terms($term);
+        }
+        if (!is_object($term)) {
+          // This term is missing in the database.
+          continue;
+        }
+        $settings = $display['settings'];
+        if ($settings['use_content_language'] && !empty($GLOBALS['language_content']->language)) {
+          $langcode = $GLOBALS['language_content']->language;
+        }
         if (!empty($term)) {
           $build = taxonomy_term_view($term, $view_mode, $langcode);
         }
@@ -1227,13 +1282,20 @@ function ds_field_formatter_view($entity_type, $entity, $field, $instance, $lang
       }
       else {
         $term = taxonomy_term_load($item['tid']);
+        if (module_exists('i18n_taxonomy')) {
+          $term = i18n_taxonomy_localize_terms($term);
+        }
+        if (!is_object($term)) {
+          // This term is missing in the database.
+          continue;
+        }
         if ($display['type'] == 'ds_taxonomy_separator_localized' && function_exists('i18n_taxonomy_term_name')) {
           $term->name = i18n_taxonomy_term_name($term, $language->language);
         }
         $item_display = check_plain($term->name);
         if ($linked) {
           $uri = entity_uri('taxonomy_term', $term);
-          $item_display = l($term->name, $uri['path']);
+          $item_display = l($term->name, $uri['path'], $uri['options']);
         }
       }
       $terms[] = $item_display;

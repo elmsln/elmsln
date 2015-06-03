@@ -1,4 +1,20 @@
 <?php
+// @codingStandardsIgnoreFile
+// @ignore comment_docblock_file:file
+// @ignore style_curly_braces:file
+// @ignore style_string_spacing:file
+// @ignore style_else_spacing:file
+// @ignore comment_comment_docblock_missing:file
+// @ignore comment_comment_eg:file
+// @ignore production_code:file
+// @ignore druplart_unary:file
+// @ignore style_uppercase_constants:file
+// @ignore comment_comment_space:file
+// @ignore druplart_conditional_assignment:file
+// @ignore style_paren_spacing:file
+// @ignore style_no_tabs:file
+// @ignore :file
+
 /* 9 April 2008. version 1.1
  *
  * This is the php version of the Dean Edwards JavaScript's Packer,
@@ -208,7 +224,7 @@ class JavaScriptPacker {
 
   private function _analyze($script, $regexp, $encode) {
     // analyse
-    // retreive all words in the script
+    // retrieve all words in the script
     $all = array();
     preg_match_all($regexp, $script, $all);
     $_sorted = array(); // list of words sorted by frequency

@@ -13,6 +13,7 @@ function placeholder_element_info_alter(&$types) {
     switch ($type) {
       case 'textfield':
       case 'textarea':
+      case 'password':
         $types[$type]['#process'][] = 'placeholder_process_placeholder';
         break;
     }
@@ -37,11 +38,7 @@ function placeholder_process_placeholder($element) {
     // Add the library, if it's available.
     if (($library = libraries_detect('placeholder')) && !empty($library['installed'])) {
       // Attach the library files.
-      $element['#attached']['libraries_load'][] = array('placeholder', 'minified');
-      // Attach the module js file. This will actually invoke the library.
-      $element['#attached']['js'] = array(
-        drupal_get_path('module', 'placeholder') . '/placeholder.js',
-      );
+      $element['#attached']['libraries_load'][] = array('placeholder');
     }
   }
 
@@ -63,15 +60,12 @@ function placeholder_libraries_info() {
         'jquery.placeholder.js',
       ),
     ),
-    'variants' => array(
-      'minified' => array(
-        'files' => array(
-          'js' => array(
-            'jquery.placeholder.min.js',
-          ),
-        ),
+    'integration files' => array(
+      'placeholder' => array(
+        'js' => array('placeholder.js' => array()),
       ),
     ),
+    'post-load integration files' => TRUE,
   );
 
   return $libraries;

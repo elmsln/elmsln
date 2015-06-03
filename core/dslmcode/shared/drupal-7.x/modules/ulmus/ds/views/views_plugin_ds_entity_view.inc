@@ -10,6 +10,8 @@
  */
 class views_plugin_ds_entity_view extends views_plugin_row {
 
+  protected $group_count;
+
   function init(&$view, &$display, $options = NULL) {
     parent::init($view, $display, $options);
     $this->base_table = $view->base_table;
@@ -18,6 +20,8 @@ class views_plugin_ds_entity_view extends views_plugin_row {
       $this->base_table = 'node';
     }
     $this->base_field = $this->ds_views_3_support();
+
+    $this->group_count = 0;
   }
 
   // Return base_field based on base_table. It might not be
@@ -59,6 +63,7 @@ class views_plugin_ds_entity_view extends views_plugin_row {
     $options['grouping_fieldset'] = array(
       'contains' => array(
         'grouping' => array('default' => FALSE, 'bool' => TRUE),
+        'group_odd_even' => array('default' => FALSE, 'bool' => TRUE),
         'group_field' => array('default' => ''),
         'group_field_function' => array('default' => ''),
       ),
@@ -241,6 +246,12 @@ class views_plugin_ds_entity_view extends views_plugin_row {
       $form['grouping_fieldset']['grouping']['#description'] = t('Grouping is disabled because you do not have any sort fields.');
     }
 
+    $form['grouping_fieldset']['group_odd_even'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Add odd/even group classes to the individual group elements'),
+      '#default_value' => FALSE,
+    );
+
     // Advanced function.
     $delta_fields = array();
     $field_api_fields = field_info_instances($this->entity_type);
@@ -362,7 +373,6 @@ class views_plugin_ds_entity_view extends views_plugin_row {
    * Render each $row.
    */
   function render($row) {
-
     // Set a variable to indicate if comments need to be loaded or not.
     $load_comments = isset($this->options['load_comments']) ? $this->options['load_comments'] : FALSE;
 
@@ -440,6 +450,7 @@ class views_plugin_ds_entity_view extends views_plugin_row {
       if (!isset($grouping[$view_name][$group_value])) {
         $group_value_content = '<h2 class="grouping-title">' . $group_value . '</h2>';
         $grouping[$view_name][$group_value] = $group_value;
+        $this->group_count++;
       }
     }
 
@@ -448,7 +459,17 @@ class views_plugin_ds_entity_view extends views_plugin_row {
       if (!empty($group_value_content)) {
         $content = $group_value_content . $content;
       }
-      $content = '<div class="grouping-content">' . $content . '</div>';
+      $classes = array('grouping-content');
+      if ($this->options['grouping_fieldset']['group_odd_even']) {
+        if ($this->group_count % 2 == 0) {
+          $classes[] = 'even';
+        }
+        else {
+          $classes[] = 'odd';
+        }
+      }
+
+      $content = '<div class="' . implode(' ', $classes) . '">' . $content . '</div>';
     }
 
     // Return the content.

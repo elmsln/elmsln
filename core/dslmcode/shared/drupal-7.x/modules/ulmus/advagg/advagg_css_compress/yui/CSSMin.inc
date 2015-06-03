@@ -1,7 +1,21 @@
 <?php
+// @codingStandardsIgnoreFile
+// @ignore comment_docblock_file:file
+// @ignore style_curly_braces:file
+// @ignore style_string_spacing:file
+// @ignore style_else_spacing:file
+// @ignore comment_comment_docblock_missing:file
+// @ignore comment_comment_eg:file
+// @ignore production_code:file
+// @ignore druplart_unary:file
+// @ignore style_uppercase_constants:file
+// @ignore comment_comment_space:file
+// @ignore druplart_conditional_assignment:file
+// @ignore style_paren_spacing:file
+// @ignore :file
 
 /*!
- * cssmin.php 2.4.8-2
+ * cssmin.php v2.4.8-4
  * Author: Tubal Martin - http://tubalmartin.me/
  * Repo: https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port
  *
@@ -107,7 +121,7 @@ class CSSmin
         $l = strlen($css);
 
 
-        // if the number of characters is 25000 or less, do not chunk
+        // if the number of characters is 5000 or less, do not chunk
         if ($l <= $css_chunk_length) {
             $css_chunks[] = $css;
         } else {
@@ -264,8 +278,8 @@ class CSSmin
         // Normalize all whitespace strings to single spaces. Easier to work with that way.
         $css = preg_replace('/\s+/', ' ', $css);
 
-        // Fix IE7 issue on matrix filters which browser accept whitespaces between Matrix parameters
-        $css = preg_replace_callback('/\s*filter\:\s*progid:DXImageTransform\.Microsoft\.Matrix\(([^\)]+)\)/', array($this, 'preserve_old_IE_specific_matrix_definition'), $css);
+    // Fix IE7 issue on matrix filters which browser accept whitespaces between Matrix parameters
+    $css = preg_replace_callback('/\s*filter\:\s*progid:DXImageTransform\.Microsoft\.Matrix\(([^\)]+)\)/', array($this, 'preserve_old_IE_specific_matrix_definition'), $css);
 
         // Shorten & preserve calculations calc(...) since spaces are important
         $css = preg_replace_callback('/calc(\(((?:[^\(\)]+|(?1))*)\))/i', array($this, 'replace_calc'), $css);
@@ -288,24 +302,19 @@ class CSSmin
         // Replace 0 length numbers with 0
         $css = preg_replace('/((?<!\\\\)\:|\s)\-?\.?0+([^\d])/S', '${1}0$2', $css);
 
-        // preg_replace_callback error on windows only.
-        // https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port/issues/4
-        $php_os = strtoupper(substr(PHP_OS, 0, 3));
-        if ($php_os !== 'WIN' && $php_os !== 'DAR') {
-          // Remove the spaces before the things that should not have spaces before them.
-          // But, be careful not to turn "p :link {...}" into "p:link{...}"
-          // Swap out any pseudo-class colons with the token, and then swap back.
-          $css = preg_replace_callback('/(?:^|\})(?:(?:[^\{\:])+\:)+(?:[^\{]*\{)/', array($this, 'replace_colon'), $css);
+        // Remove the spaces before the things that should not have spaces before them.
+        // But, be careful not to turn "p :link {...}" into "p:link{...}"
+        // Swap out any pseudo-class colons with the token, and then swap back.
+        $css = preg_replace_callback('/(?:^|\})[^\{]*\s+\:/', array($this, 'replace_colon'), $css);
 
-          // Remove spaces before the things that should not have spaces before them.
-          $css = preg_replace('/\s+([\!\{\}\;\:\>\+\(\)\]\~\=,])/', '$1', $css);
+        // Remove spaces before the things that should not have spaces before them.
+        $css = preg_replace('/\s+([\!\{\}\;\:\>\+\(\)\]\~\=,])/', '$1', $css);
 
-          // Restore spaces for !important
-          $css = preg_replace('/\!important/i', ' !important', $css);
+        // Restore spaces for !important
+        $css = preg_replace('/\!important/i', ' !important', $css);
 
-          // bring back the colon
-          $css = preg_replace('/' . self::CLASSCOLON . '/', ':', $css);
-        }
+        // bring back the colon
+        $css = preg_replace('/' . self::CLASSCOLON . '/', ':', $css);
 
         // retain space for special IE6 cases
         $css = preg_replace_callback('/\:first\-(line|letter)(\{|,)/i', array($this, 'lowercase_pseudo_first'), $css);
@@ -341,11 +350,13 @@ class CSSmin
         // to avoid issues on Symbian S60 3.x browsers.
         $css = preg_replace('/(\*[a-z0-9\-]+\s*\:[^;\}]+)(\})/', '$1;$2', $css);
 
-        // Replace 0 length units 0(px,em,%) with 0.
-        $css = preg_replace('/(^|[^0-9])(?:0?\.)?0(?:em|ex|ch|rem|vw|vh|vm|vmin|cm|mm|in|px|pt|pc|%|deg|g?rad|m?s|k?hz)/iS', '${1}0', $css);
+        // Replace 0 <length> and 0 <percentage> values with 0.
+        // <length> data type: https://developer.mozilla.org/en-US/docs/Web/CSS/length
+        // <percentage> data type: https://developer.mozilla.org/en-US/docs/Web/CSS/percentage
+        $css = preg_replace('/([^\\\\]\:|\s)0(?:em|ex|ch|rem|vw|vh|vm|vmin|cm|mm|in|px|pt|pc|%)/iS', '${1}0', $css);
 
-        // 0% step in a keyframe? restore the % unit
-        $css = preg_replace_callback('/(@[a-z\-]*?keyframes[^\{]*?\{)(.*?\}\s*\})/iS', array($this, 'replace_keyframe_zero'), $css);
+    // 0% step in a keyframe? restore the % unit
+    $css = preg_replace_callback('/(@[a-z\-]*?keyframes[^\{]+\{)(.*?)(\}\})/iS', array($this, 'replace_keyframe_zero'), $css);
 
         // Replace 0 0; or 0 0 0; or 0 0 0 0; with 0.
         $css = preg_replace('/\:0(?: 0){1,3}(;|\}| \!)/', ':0$1', $css);
@@ -384,7 +395,7 @@ class CSSmin
         // Add "/" back to fix Opera -o-device-pixel-ratio query
         $css = preg_replace('/'. self::QUERY_FRACTION .'/', '/', $css);
 
-        // Replace multiple semi-colons in a row by a single one
+    // Replace multiple semi-colons in a row by a single one
         // See SF bug #1980989
         $css = preg_replace('/;;+/', ';', $css);
 
@@ -593,15 +604,15 @@ class CSSmin
         return 'calc('. self::TOKEN . (count($this->preserved_tokens) - 1) . '___' . ')';
     }
 
-    private function preserve_old_IE_specific_matrix_definition($matches)
-    {
-        $this->preserved_tokens[] = $matches[1];
-        return 'filter:progid:DXImageTransform.Microsoft.Matrix(' . self::TOKEN . (count($this->preserved_tokens) - 1) . '___' . ')';
+  private function preserve_old_IE_specific_matrix_definition($matches)
+  {
+    $this->preserved_tokens[] = $matches[1];
+    return 'filter:progid:DXImageTransform.Microsoft.Matrix(' . self::TOKEN . (count($this->preserved_tokens) - 1) . '___' . ')';
     }
 
-    private function replace_keyframe_zero($matches)
+  private function replace_keyframe_zero($matches)
     {
-        return $matches[1] . preg_replace('/0\s*,/', '0%,', preg_replace('/\s*0\s*\{/', '0%{', $matches[2]));
+        return $matches[1] . preg_replace('/0(\{|,[^\)\{]+\{)/', '0%$1', $matches[2]) . $matches[3];
     }
 
     private function rgb_to_hex($matches)

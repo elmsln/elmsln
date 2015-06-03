@@ -6,6 +6,24 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function advagg_validator_install() {
+  module_load_include('install', 'advagg', 'advagg');
+  $tables = array(
+    'advagg_validator' => array(
+      'filename_hash',
+      'content_hash',
+    ),
+  );
+
+  foreach ($tables as $table => $fields) {
+    // Change utf8_bin to ascii_bin.
+    advagg_install_change_table_collation($table, $fields, 'ascii_bin');
+  }
+}
+
+/**
  * Implements hook_schema().
  */
 function advagg_validator_schema() {
@@ -21,17 +39,23 @@ function advagg_validator_schema() {
       ),
       'filename_hash' => array(
         'description' => 'Hash of path and filename. Used to join tables & for lookup.',
-        'type' => 'varchar',
+        'type' => 'char',
         'length' => 43,
         'not null' => TRUE,
         'default' => '',
+        'binary' => TRUE,
+        'collation' => 'ascii_bin',
+        'charset' => 'ascii',
       ),
       'content_hash' => array(
         'description' => 'Hash of the file content. Used to see if the file has changed.',
-        'type' => 'varchar',
+        'type' => 'char',
         'length' => 43,
         'not null' => TRUE,
         'default' => '',
+        'binary' => TRUE,
+        'collation' => 'ascii_bin',
+        'charset' => 'ascii',
       ),
       'filetype' => array(
         'description' => 'Filetype.',
@@ -39,6 +63,7 @@ function advagg_validator_schema() {
         'length' => 8,
         'not null' => TRUE,
         'default' => '',
+        'binary' => TRUE,
       ),
       'data' => array(
         'description' => 'Validation data about this file.',
@@ -57,4 +82,54 @@ function advagg_validator_schema() {
   );
 
   return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Update the schema making the varchar columns utf8_bin in MySQL.
+ */
+function advagg_validator_update_7201(&$sandbox) {
+  $db_type = Database::getConnection()->databaseType();
+  $tables_altered = array();
+  if ($db_type === 'mysql') {
+    $results = db_query("SHOW FULL FIELDS FROM {advagg_validator}")->fetchAllAssoc('Field');
+    foreach ($results as $row) {
+      if (stripos($row->Type, 'varchar') !== FALSE && $row->Collation !== 'utf8_bin') {
+        db_query("ALTER TABLE {advagg_validator} MODIFY {$row->Field} {$row->Type} CHARACTER SET utf8 COLLATE utf8_bin");
+        $tables_altered['advagg_validator'][] = $row->Field;
+      }
+    }
+  }
+
+  if (empty($tables_altered)) {
+    return t('Nothing needed to happen in AdvAgg Validator.');
+  }
+
+  return t('The following columns inside of these database tables where converted to utf8_bin: <br />@data', array('@data' => print_r($tables_altered, TRUE)));
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Update schema making the varchar columns char. Change utf8_bin to ascii_bin.
+ */
+function advagg_validator_update_7202(&$sandbox) {
+  module_load_include('install', 'advagg', 'advagg');
+  $tables = array(
+    'advagg_validator' => array(
+      'filename_hash',
+      'content_hash',
+    ),
+  );
+
+  $schema = advagg_validator_schema();
+  foreach ($tables as $table => $fields) {
+    foreach ($fields as $field) {
+      // Change varchar to char.
+      db_change_field($table, $field, $field, $schema[$table]['fields'][$field]);
+    }
+    // Change utf8_bin to ascii_bin.
+    advagg_install_change_table_collation($table, $fields, 'ascii_bin');
+  }
 }

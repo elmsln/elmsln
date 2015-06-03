@@ -107,7 +107,7 @@ function ctools_context_user_edit_form_settings_form($form, &$form_state) {
   );
 
   if (!empty($conf['uid'])) {
-    $info = db_query('SELECT * FROM {user} WHERE uid = :uid', array(':uid' => $conf['uid']))->fetchObject();
+    $info = db_query('SELECT * FROM {users} WHERE uid = :uid', array(':uid' => $conf['uid']))->fetchObject();
     if ($info) {
       $link = l(t("'%name' [user id %uid]", array('%name' => $info->name, '%uid' => $info->uid)), "user/$info->uid", array('attributes' => array('target' => '_blank', 'title' => t('Open in new window')), 'html' => TRUE));
       $form['user']['#description'] = t('Currently set to !link', array('!link' => $link));
@@ -154,10 +154,10 @@ function ctools_context_user_edit_form_settings_form_validate($form, &$form_stat
     $uid = $preg_matches[1];
   }
   if (is_numeric($uid)) {
-    $user = db_query('SELECT uid FROM {user} WHEREuid = :uid', array(':uid' => $uid))->fetchObject();
+    $user = db_query('SELECT uid FROM {users} WHERE uid = :uid', array(':uid' => $uid))->fetchObject();
   }
   else {
-    $user = db_query('SELECT uid FROM {user} WHERE LOWER(name) = LOWER(:name)', array(':name' => $uid))->fetchObject();
+    $user = db_query('SELECT uid FROM {users} WHERE LOWER(name) = LOWER(:name)', array(':name' => $uid))->fetchObject();
   }
 
   form_set_value($form['uid'], $user->uid, $form_state);

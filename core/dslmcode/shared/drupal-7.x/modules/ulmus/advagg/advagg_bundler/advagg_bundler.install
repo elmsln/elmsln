@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Handles Advanced Aggregation installation and upgrade tasks.
+ */
+
+/**
+ * Implements hook_update_N().
+ *
+ * Remove the advagg_bundler_info variable if set.
+ */
+function advagg_bundler_update_7201() {
+  $advagg_bundler_info = variable_get('advagg_bundler_info');
+  if (!empty($advagg_bundler_info)) {
+    variable_del('advagg_bundler_info');
+    return t('Removed the advagg_bundler_info variable.');
+  }
+  else {
+    return t('Nothing needed to happen.');
+  }
+}

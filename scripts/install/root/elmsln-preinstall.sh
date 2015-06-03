@@ -42,7 +42,7 @@ cd /var/www/elmsln
 
 # blow away old repo
 rm -rf config
-git clone https://github.com/btopro/elmsln-config-example.git config
+git clone https://github.com/elmsln/elmsln-config-example.git config
 cd /var/www/elmsln/config
 rm -rf .git
 

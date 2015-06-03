@@ -14,17 +14,17 @@ Version | PHP | Includes | Code Status
 
 FAQ
 ==============
-See the [wiki](https://github.com/btopro/elmsln/wiki) for more questions / answers and documentation. If you are developing for ELMSLN there's also [extensive documentation on the API site](http://api.elmsln.org).
+See the [wiki](https://github.com/elmsln/elmsln/wiki) for more questions / answers and documentation. If you are developing for ELMSLN there's also [extensive documentation on the API site](http://api.elmsln.org).
 
 ###Q. How can I get more involved?
-The easiest way is to setup an [ELMSLN Developer](http://github.com/btopro/elmsln-developer) envrionment and run [ELMSLN Vagrant](http://github.com/btopro/elmsln-vagrant). Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, PHONE or anywhere else that you can find pieces that will help build upon this work. We always welcome more issue reports.
+The easiest way is to setup an [ELMSLN Developer](http://github.com/elmsln/elmsln-developer) envrionment and run [ELMSLN Vagrant](http://github.com/elmsln/elmsln-vagrant). Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, PHONE or anywhere else that you can find pieces that will help build upon this work. We always welcome more issue reports.
 
 ###Q. When will there be a stable release?
 As soon as the blockers below are resolved (basically just time). If it helps you sleep at night, we've run this in production and have been actively building off of this framework since May 2013. The package is far more stable then the "master" moniker might otherwise suggest. Point releases require a different mindset from a developer / management perspective so we'll get there when the time is right.
 
 May 26, 2015 - We will be releasing 0.1.0 shortly. There have been issue threads marked as release blockers and they are being resolved as we speak. The new user experience will be the default when the system is rolled out as part of 0.1.0. This new UX is already being run in production instances and we want to really bug fix things prior to marking a full release.
 
-You can see the release blockers here: https://github.com/btopro/elmsln/milestones/Release%20blocker
+You can see the release blockers here: https://github.com/elmsln/elmsln/milestones/Release%20blocker
 
 ###Q. How would you classify a first release?
 Stable. master has been stable with three exceptions since Jan 2014. The branches outside of master are typically for major changes that require additional testing / development to race ahead of master. The many distributions of ELMS have been in usage for several months / years now. This ain't our first rodeo though we understand the desire for people to not be chasing the master branch.

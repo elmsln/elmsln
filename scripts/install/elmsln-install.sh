@@ -139,6 +139,14 @@ for build in "${buildlist[@]}"
   drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
 
+# modify the CIS distro symlink to point to 2.x instead of 1.x
+# this is because everything prior to release versions was running CIS 1.x
+# this ensures we don't break compatibility w/ those instances since it was a major change
+# @todo get this working so we run off 2.x and not 1.x
+#cd $elmsln/core/dslmcode/stacks/online/profiles
+#rm cis
+#ln -s ../../../profiles/cis-7.x-2.x cis
+
 COUNTER=0
 # install authority distributions like online, media, comply
 for tool in "${authoritylist[@]}"
@@ -275,7 +283,7 @@ elmslnecho "║   EEEEEEE  LLLLLLL  MM    MM   SSSSS      LLLLLLL  NN   NN    �
 elmslnecho "║                                                               ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
 elmslnecho "║ If you have issues, submit them to                            ║"
-elmslnecho "║   http://github.com/btopro/elmsln/issues                      ║"
+elmslnecho "║   http://github.com/elmsln/elmsln/issues                      ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
 elmslnecho "║ NOTES                                                         ║"
 elmslnecho "║ There is a module that was authored during installation at    ║"

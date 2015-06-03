@@ -81,7 +81,7 @@ function theme_select_as_checkboxes($vars) {
   }
 
   // The selected keys from #options.
-  $selected_options = empty($element['#value']) ? $element['#default_value'] : $element['#value'];
+  $selected_options = empty($element['#value']) ? (empty($element['#default_value']) ? array() : $element['#default_value']) : $element['#value'];
   if (!is_array($selected_options)) {
     $selected_options = array($selected_options);
   }
@@ -193,10 +193,11 @@ function theme_select_as_hidden($vars) {
       // Only render fields for selected values -- no selected values renders
       // zero fields.
       if (array_search($key, $selected_options) !== FALSE) {
+        // Custom ID for each hidden field based on the <select> element's
+        // original ID.
+        $id = drupal_html_id($element['#id'] . '-' . $key);
         $hidden = array(
-          // Custom ID for each hidden field based on the <select> element's
-          // original ID.
-          'id' => drupal_html_id($element['#id'] . '-' . $key),
+          'id' => $id,
           'name' => check_plain($element['#name']) . '[]',
           'value' => check_plain($key),
         );
@@ -458,8 +459,8 @@ function theme_select_as_links($vars) {
   // Collect selected values so we can properly style the links later.
   $selected_options = array();
   if (empty($element['#value'])) {
-    if (!empty($element['#default_values'])) {
-      $selected_options[] = $element['#default_values'];
+    if (!empty($element['#default_value'])) {
+      $selected_options[] = $element['#default_value'];
     }
   }
   else {
@@ -541,26 +542,25 @@ function theme_select_as_links($vars) {
         '#type' => 'bef-link',
         '#name' => $id,
       );
-      if (array_search($key, $selected_options) === FALSE) {
-        $elem['#children'] = l($value, bef_replace_query_string_arg($name, $key, $multiple, FALSE, $path));
-        //$output .= theme('form_element', array('element' => $elem));
-        $element_output = theme('form_element', array('element' => $elem));
 
-          if ($element['#name'] == 'sort_bef_combine' && !empty($element['#settings']['toggle_links'])) {
-            $sort_pair = explode(' ', $key);
-            if (count($sort_pair) == 2) {
-              // Highlight the link if it is the selected sort_by (can be either
-              // asc or desc, it doesn't matter).
-             if (strpos($selected_options[0], $sort_pair[0]) === 0) {
-                $element_output = str_replace('form-item', 'form-item selected', $element_output);
-              }
-            }
+      $link_options = array();
+      // Add "active" class to the currently active filter link.
+      if (in_array((string) $key, $selected_options)) {
+        $link_options['attributes'] = array('class' => 'active');
+      }
+      $url = bef_replace_query_string_arg($name, $key, $multiple, FALSE, $path);
+      $elem['#children'] = l($value, $url, $link_options);
+      $element_output = theme('form_element', array('element' => $elem));
+
+      if (!empty($element['#settings']['combine_param']) && $element['#name'] == $element['#settings']['combine_param'] && !empty($element['#settings']['toggle_links'])) {
+        $sort_pair = explode(' ', $key);
+        if (count($sort_pair) == 2) {
+          // Highlight the link if it is the selected sort_by (can be either
+          // asc or desc, it doesn't matter).
+         if (strpos($selected_options[0], $sort_pair[0]) === 0) {
+            $element_output = str_replace('form-item', 'form-item selected', $element_output);
           }
-        } else {
-        $elem['#children'] = l($value, bef_replace_query_string_arg($name, $key, $multiple, TRUE, $path));
-        _form_set_class($elem, array('bef-select-as-links-selected'));
-        //$output .= str_replace('form-item', 'form-item selected', theme('form_element', array('element' => $elem)));
-        $element_output = str_replace('form-item', 'form-item selected', theme('form_element', array('element' => $elem)));
+        }
       }
       $output .= $element_output;
 
@@ -574,14 +574,18 @@ function theme_select_as_links($vars) {
 
   $output = '<div class="bef-select-as-links">';
   $output .= theme('form_element', array('element' => $properties));
+
+  // Add attribute that hides the select form element.
+  $vars['element']['#attributes']['style'] = 'display: none;';
+  $output .= theme('select', array('element' => $vars['element']));
   if (!empty($element['#value'])) {
     if (is_array($element['#value'])) {
       foreach ($element['#value'] as $value) {
-        $output .= '<input type="hidden" name="' . $name . '[]" value="' . $value . '" />';
+        $output .= '<input type="hidden" class="bef-new-value" name="' . $name . '[]" value="' . $value . '" />';
       }
     }
     else {
-      $output .= '<input type="hidden" name="' . $name . '" value="' . $element['#value'] . '" />';
+      $output .= '<input type="hidden" class="bef-new-value" name="' . $name . '" value="' . $element['#value'] . '" />';
     }
   }
   $output .= '</div>';

@@ -56,12 +56,13 @@ class TypogrifySmartyPantsTestCase extends DrupalWebTestCase {
 <p>By J.D. Salinger, Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "Excepteur sint occaecat 'cupidatat' non proident" sunt RFID22 in.... </p>
 HTML;
     $after = <<<HTML
-<h2><span class="dquo">&#8220;</span>Jayhawks&#8221; <span class="amp">&amp;</span> <span class="caps">KU</span> fans act extremely&nbsp;obnoxiously</h2>
-<p>By <span class="caps">J.D.</span> Salinger, Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. &#8220;Excepteur sint occaecat &#8216;cupidatat&#8217; non proident&#8221; sunt <span class="caps">RFID22</span>&nbsp;in&#8230;. </p>
+<h2>“Jayhawks” <span class="amp">&amp;</span> <span class="caps">KU</span> fans act extremely&nbsp;obnoxiously</h2>
+<p>By <span class="caps">J.D.</span> Salinger, Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. “Excepteur sint occaecat ‘cupidatat’ non proident” sunt <span class="caps">RFID22</span>&nbsp;in&#8230;. </p>
 HTML;
 
     global $filter;
     $result = _typogrify_process($before, $filter, NULL, 'en', NULL, NULL);
     $this->assertEqual($result, $after, t('Original Typogrify example.'));
+
   }
 }

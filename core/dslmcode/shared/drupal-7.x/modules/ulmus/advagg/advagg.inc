@@ -2,33 +2,33 @@
 
 /**
  * @file
- * Advanced CSS/JS aggregation module
+ * Advanced CSS/JS aggregation module.
  *
  * These functions are needed for cache misses.
  */
 
 // Database operations.
-// @ignore sniffer_commenting_functioncomment_shortsingleline:2
 /**
- * Insert/Update data in advagg_files, advagg_aggregates, &
- * advagg_aggregates_versions tables.
+ * Insert/Update data in advagg tables.
+ *
+ * Tables: advagg_files, advagg_aggregates, & advagg_aggregates_versions.
  *
  * @param array $files
  *   List of files in the aggregate as well as the aggregate name.
  * @param string $type
- *   css or js.
+ *   String; css or js.
  * @param int $root
  *   Is this a root aggregate.
  *
  * @return bool
  *   Return TRUE if anything was written to the database.
  */
-function advagg_insert_update_db($files, $type, $root) {
+function advagg_insert_update_db(array $files, $type, $root) {
   // Record if a database write was done.
   $write_done = FALSE;
 
   // Loop through all files.
-  foreach ($files as $aggregate_file_name => $values) {
+  foreach ($files as $values) {
     // Insert files into the advagg_files table if it doesn't exist.
     // Update if needed.
     if (advagg_insert_update_files($values['files'], $type)) {
@@ -92,7 +92,7 @@ function advagg_insert_aggregate_version($aggregate_filenames_hash, $aggregate_c
  * @return bool
  *   Return TRUE if anything was written to the database.
  */
-function advagg_insert_aggregate($files, $aggregate_filenames_hash) {
+function advagg_insert_aggregate(array $files, $aggregate_filenames_hash) {
   // Record if a database write was done.
   $write_done = FALSE;
 
@@ -150,12 +150,12 @@ function advagg_insert_aggregate($files, $aggregate_filenames_hash) {
  * @param array $files
  *   List of files in the aggregate including files meta data.
  * @param string $type
- *   css or js.
+ *   String; css or js.
  *
  * @return bool
  *   Return TRUE if anything was written to the database.
  */
-function advagg_insert_update_files($files, $type) {
+function advagg_insert_update_files(array $files, $type) {
   // Record if a database write was done.
   $write_done = FALSE;
 
@@ -189,18 +189,23 @@ function advagg_insert_update_files($files, $type) {
 
     // Check the file in the database.
     if (empty($files_in_db[$filename])) {
-      // Insert into database.
-      $record['changes'] = 1;
+      try {
+        // Insert into database.
+        $record['changes'] = 1;
 
-      $return = db_merge('advagg_files')
-        ->key(array(
-          'filename_hash' => $record['filename_hash'],
-          ))
-        ->insertFields($record)
-        ->execute();
-
-      if ($return) {
-        $write_done = TRUE;
+        $return = db_merge('advagg_files')
+          ->key(array(
+            'filename_hash' => $record['filename_hash'],
+            ))
+          ->insertFields($record)
+          ->execute();
+        if ($return) {
+          $write_done = TRUE;
+        }
+      }
+      catch (PDOException $e) {
+        // If it fails we don't care, the file was added to the table by another
+        // process then.
       }
     }
     else {
@@ -218,7 +223,7 @@ function advagg_insert_update_files($files, $type) {
           ->key(array(
             'filename_hash' => $diff['filename_hash'],
             ))
-          ->updateFields($diff)
+          ->fields($diff)
           ->execute();
         if ($return) {
           $write_done = TRUE;
@@ -226,30 +231,6 @@ function advagg_insert_update_files($files, $type) {
       }
     }
   }
-  return $write_done;
-}
-
-/**
- * Update atime advagg_aggregates_versions table & cache_advagg_info cache bin.
- *
- * @param array $files
- *   List of files in the aggregate as well as the aggregate name.
- *
- * @return bool
- *   Return TRUE if anything was written to the database.
- */
-function advagg_update_all_atimes($files) {
-  // Record if a database write was done.
-  $write_done = FALSE;
-
-  // Loop through all files.
-  foreach ($files as $aggregate_file_name => $values) {
-    // Build lock name variable.
-    if (advagg_update_atime($values['aggregate_filenames_hash'], $values['aggregate_contents_hash'])) {
-      $write_done = TRUE;
-    }
-  }
-
   return $write_done;
 }
 
@@ -265,9 +246,9 @@ function advagg_update_all_atimes($files) {
  * @return array
  *   Files array.
  */
-function advagg_generate_filenames($groups, $type) {
+function advagg_generate_filenames(array $groups, $type) {
   $files = array();
-  foreach ($groups as $key => $data) {
+  foreach ($groups as $data) {
     foreach ($data as $files_with_meta_data) {
 
       // Get the aggregate filename & info about each file.
@@ -295,7 +276,7 @@ function advagg_generate_filenames($groups, $type) {
  *   array containing $aggregate_filename, $filenames,
  *   $aggregate_filenames_hash, $aggregate_contents_hash
  */
-function advagg_get_aggregate_info_from_files($type, $files_with_meta_data) {
+function advagg_get_aggregate_info_from_files($type, array $files_with_meta_data) {
   $filename_hashes = array();
   $content_hashes = array();
   $filenames = array();
@@ -342,6 +323,7 @@ function advagg_get_aggregate_info_from_files($type, $files_with_meta_data) {
  *
  * @return array
  *   $cached_data. key is $cache_id; value is an array which contains
+ *
  * @code
  *   'filesize' => filesize($filename),
  *   'mtime' => @filemtime($filename),
@@ -352,7 +334,7 @@ function advagg_get_aggregate_info_from_files($type, $files_with_meta_data) {
  *   'fileext' => $ext,
  * @endcode
  */
-function &advagg_load_files_info_into_static_cache($files) {
+function &advagg_load_files_info_into_static_cache(array $files) {
   // Get the static cache of this data.
   $cached_data = &drupal_static('advagg_get_info_on_file');
 
@@ -361,9 +343,9 @@ function &advagg_load_files_info_into_static_cache($files) {
   foreach ($files as $file) {
     $cache_id = 'advagg:file:' . advagg_drupal_hash_base64($file);
     // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-    if (   !empty($cached_data)
-        && !empty($cached_data[$cache_id])
-        ) {
+    if ( !empty($cached_data)
+      && !empty($cached_data[$cache_id])
+    ) {
       // Make sure the cache_id is included.
       $cached_data[$cache_id]['cache_id'] = $cache_id;
     }
@@ -417,6 +399,7 @@ function advagg_drupal_hash_base64($file) {
  *
  * @return array
  *   $return['filename'] which contains
+ *
  * @code
  *   'filesize' => filesize($filename),
  *   'mtime' => @filemtime($filename),
@@ -427,7 +410,7 @@ function advagg_drupal_hash_base64($file) {
  *   'fileext' => $ext,
  * @endcode
  */
-function advagg_get_info_on_files($files, $bypass_cache = FALSE, $run_alter = TRUE) {
+function advagg_get_info_on_files(array $files, $bypass_cache = FALSE, $run_alter = TRUE) {
   // Get the cached data.
   $cached_data = &advagg_load_files_info_into_static_cache($files);
 
@@ -438,10 +421,10 @@ function advagg_get_info_on_files($files, $bypass_cache = FALSE, $run_alter = TR
     $cache_id = 'advagg:file:' . $filename_hash;
     // If we are not bypassing the cache add cached data.
     // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-    if (   $bypass_cache == FALSE
-        && is_array($cached_data)
-        && array_key_exists($cache_id, $cached_data)
-        ) {
+    if ( $bypass_cache == FALSE
+      && is_array($cached_data)
+      && array_key_exists($cache_id, $cached_data)
+    ) {
       $return[$file] = $cached_data[$cache_id];
       continue;
     }
@@ -472,10 +455,23 @@ function advagg_get_info_on_files($files, $bypass_cache = FALSE, $run_alter = TR
     $file_contents = file_get_contents($file);
 
     $ext = pathinfo($file, PATHINFO_EXTENSION);
+    if ($ext !== 'css' && $ext !== 'js') {
+      // Get the $ext from the database,
+      $row = db_select('advagg_files', 'af')
+        ->fields('af')
+        ->condition('filename', $file)
+        ->execute()->fetchAssoc();
+      if (!empty($row['filetype'])) {
+        $ext = $row['filetype'];
+      }
+      if ($ext === 'less') {
+        $ext = 'css';
+      }
+    }
+
     if ($ext === 'css') {
       // Get the number of selectors.
-      // @ignore sniffer_files_linelength_toolong
-      // http://stackoverflow.com/questions/12567000/regex-matching-for-counting-css-selectors/12567381#12567381
+      // http://stackoverflow.com/a/12567381/125684
       $linecount = preg_match_all('/\{.+?\}|,/s', $file_contents, $matched);
     }
     else {
@@ -509,12 +505,12 @@ function advagg_get_info_on_files($files, $bypass_cache = FALSE, $run_alter = TR
       // If no cache is empty add/update the cached entry.
       // Update the cache if it is new or something changed.
       // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-      if (   empty($info['#no_cache'])
-          && !empty($info['cache_id'])
-          && (empty($cached_data[$info['cache_id']]) || $info !== $cached_data[$info['cache_id']])
-          ) {
+      if ( empty($info['#no_cache'])
+        && !empty($info['cache_id'])
+        && (empty($cached_data[$info['cache_id']]) || $info !== $cached_data[$info['cache_id']])
+      ) {
         // CACHE_PERMANENT isn't good here. Use 2 weeks from now + 0-45 days.
-        // The random 0 to 45 day addition is to prevent a cache stampeed.
+        // The random 0 to 45 day addition is to prevent a cache stampede.
         cache_set($info['cache_id'], $info, 'cache_advagg_info', round(REQUEST_TIME + 1209600 + mt_rand(0, 3888000), -3));
       }
 
@@ -530,7 +526,7 @@ function advagg_get_info_on_files($files, $bypass_cache = FALSE, $run_alter = TR
  * Given a filename calculate various hashes and gather meta data.
  *
  * @param string $filename
- *   String; filename containing path information
+ *   String; filename containing path information.
  * @param bool $bypass_cache
  *   (optional) Bool: TRUE to bypass the cache.
  * @param bool $run_alter
@@ -538,6 +534,7 @@ function advagg_get_info_on_files($files, $bypass_cache = FALSE, $run_alter = TR
  *
  * @return array
  *   Array containing key value pairs.
+ *
  * @code
  *   'filesize' => filesize($filename),
  *   'mtime' => @filemtime($filename),
@@ -557,7 +554,7 @@ function advagg_get_info_on_file($filename, $bypass_cache = FALSE, $run_alter = 
  * Build the filename.
  *
  * @param string $type
- *   css or js.
+ *   String; css or js.
  * @param string $aggregate_filenames_hash
  *   Hash of the groupings of files.
  * @param string $aggregate_contents_hash
@@ -568,8 +565,8 @@ function advagg_get_info_on_file($filename, $bypass_cache = FALSE, $run_alter = 
  * @return string
  *   String: The filename. No path info.
  */
-function advagg_build_filename($type, $aggregate_filenames_hash, $aggregate_contents_hash, $hooks_hash = NULL) {
-  if (is_null($hooks_hash)) {
+function advagg_build_filename($type, $aggregate_filenames_hash, $aggregate_contents_hash, $hooks_hash = '') {
+  if (empty($hooks_hash)) {
     $hooks_hash = advagg_get_current_hooks_hash();
   }
   return $type . ADVAGG_SPACE .
@@ -611,7 +608,7 @@ function advagg_clearstatcache($filename = NULL) {
  * @return array
  *   New version of groups.
  */
-function advagg_generate_groups($files_to_aggregate) {
+function advagg_generate_groups(array $files_to_aggregate) {
   $groups = array();
   $count = 0;
   $location = 0;
@@ -643,58 +640,110 @@ function advagg_generate_groups($files_to_aggregate) {
     foreach ($data as $values) {
 
       // Group into the biggest buckets possible.
-      $onload = array();
+      $last_ext = '';
       foreach ($values['items'] as $file_info) {
         $parts = array();
         // Check to see if media, browsers, defer, async, cache, or scope has
         // changed from the previous run of this loop.
         $changed = FALSE;
-        if (isset($file_info['media'])) {
-          if (variable_get('advagg_combine_css_media', ADVAGG_COMBINE_CSS_MEDIA)) {
-            $file_info['media_query'] = $file_info['media'];
+        $ext = isset($file_info['fileext']) ? $file_info['fileext'] : pathinfo($file_info['data'], PATHINFO_EXTENSION);
+        if ($ext !== 'css' && $ext !== 'js') {
+          if (empty($last_ext)) {
+            // Get the $ext from the database,
+            $row = db_select('advagg_files', 'af')
+              ->fields('af')
+              ->condition('filename', $file_info['data'])
+              ->execute()->fetchAssoc();
+            $ext = $row['filetype'];
           }
-          elseif ($media != $file_info['media']) {
-            $changed = TRUE;
-            $media = $file_info['media'];
+          else {
+            $ext = $last_ext;
           }
         }
+        $last_ext = $ext;
+        if ($ext === 'css') {
+          if (isset($file_info['media'])) {
+            if (variable_get('advagg_combine_css_media', ADVAGG_COMBINE_CSS_MEDIA)) {
+              $file_info['media_query'] = $file_info['media'];
+            }
+            elseif ($media != $file_info['media']) {
+              // Media changed.
+              $changed = TRUE;
+              $media = $file_info['media'];
+            }
+          }
+          if (empty($file_info['media']) && !empty($media)) {
+            // Media changed to empty.
+            $changed = TRUE;
+            $media = '';
+          }
+        }
+
         if (isset($file_info['browsers'])) {
+          // Browsers changed.
           $diff = array_merge(array_diff_assoc($file_info['browsers'], $browsers), array_diff_assoc($browsers, $file_info['browsers']));
           if (!empty($diff)) {
             $changed = TRUE;
             $browsers = $file_info['browsers'];
           }
         }
+        if (empty($file_info['browsers']) && !empty($browsers)) {
+          // Browsers changed to empty.
+          $changed = TRUE;
+          $browsers = array();
+        }
+
         if (isset($file_info['defer']) && $defer != $file_info['defer']) {
+          // Defer value changed.
           $changed = TRUE;
           $defer = $file_info['defer'];
         }
+        if (!empty($defer) && empty($file_info['defer'])) {
+          // Defer value changed to empty.
+          $changed = TRUE;
+          $defer = '';
+        }
         if (isset($file_info['async']) && $async != $file_info['async']) {
+          // Async value changed.
           $changed = TRUE;
           $async = $file_info['async'];
         }
+        if (!empty($async) && empty($file_info['async'])) {
+          // Async value changed to empty.
+          $changed = TRUE;
+          $async = '';
+        }
         if (isset($file_info['cache']) && $cache != $file_info['cache']) {
+          // Cache value changed.
           $changed = TRUE;
           $cache = $file_info['cache'];
         }
+        if (!empty($cache) && empty($file_info['cache'])) {
+          // Cache value changed to empty.
+          $changed = TRUE;
+          $cache = '';
+        }
         if (isset($file_info['scope']) && $scope != $file_info['scope']) {
+          // Scope value changed.
           $changed = TRUE;
           $scope = $file_info['scope'];
         }
-        if (isset($file_info['onload'])) {
-          $onload[] = trim(rtrim($file_info['onload'], ';'));
+        if (!empty($scope) && empty($file_info['scope'])) {
+          // Scope value changed to empty.
+          $changed = TRUE;
+          $scope = '';
         }
+
         if (variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)) {
           $file_info += $files_info[$file_info['data']];
           // Prevent CSS rules exceeding 4095 due to limits with IE9 and below.
-          $ext = isset($file_info['fileext']) ? $file_info['fileext'] : pathinfo($file_info['data'], PATHINFO_EXTENSION);
           if ($ext === 'css') {
             $selector_count += $file_info['linecount'];
             if ($selector_count > $limit_value) {
               $changed = TRUE;
               $selector_count = $file_info['linecount'];
 
-              // Break large file into multiple small files.
+              // Break large file into multiple smaller files.
               if ($file_info['linecount'] > $limit_value) {
                 $parts = advagg_split_css_file($file_info);
               }
@@ -705,13 +754,9 @@ function advagg_generate_groups($files_to_aggregate) {
         // If one of the above options changed, it needs to be in a different
         // aggregate.
         if (!empty($parts)) {
-          $onload_local = array_filter(array_unique($onload));
           foreach ($parts as $part) {
             ++$count;
             $groups[$location][$count][] = $part;
-            if (!empty($onload_local)) {
-              $groups[$location][$count][0]['onload'] = implode(';', $onload) . ';';
-            }
           }
         }
         else {
@@ -721,14 +766,11 @@ function advagg_generate_groups($files_to_aggregate) {
           $groups[$location][$count][] = $file_info;
         }
       }
-      $onload = array_filter(array_unique($onload));
-      if (!empty($onload)) {
-        $groups[$location][$count][0]['onload'] = implode(';', $onload) . ';';
-      }
     }
     // Grouping if inline is mixed between files.
     ++$location;
   }
+
   return $groups;
 }
 
@@ -741,7 +783,7 @@ function advagg_generate_groups($files_to_aggregate) {
  * @return array
  *   array array with advagg_get_info_on_file data & split data.
  */
-function advagg_split_css_file($file_info) {
+function advagg_split_css_file(array $file_info) {
   // Make advagg_parse_media_blocks() available.
   module_load_include('inc', 'advagg', 'advagg.missing');
 
@@ -757,9 +799,8 @@ function advagg_split_css_file($file_info) {
   // Group media queries together.
   foreach ($media_blocks as $media_block) {
     $matched = array();
-    // @ignore sniffer_files_linelength_toolong:2
     // Get the number of selectors.
-    // http://stackoverflow.com/questions/12567000/regex-matching-for-counting-css-selectors/12567381#12567381
+    // http://stackoverflow.com/a/12567381/125684
     $selector_count = preg_match_all('/\{.+?\}|,/s', $media_block, $matched);
     $part_selector_count += $selector_count;
 
@@ -787,6 +828,7 @@ function advagg_split_css_file($file_info) {
   $parts = array();
   $overall_split = 0;
   $split_at = $selector_split_value;
+  $chunk_split_value = (int) variable_get('advagg_ie_css_selector_limiter_value', ADVAGG_IE_CSS_SELECTOR_LIMITER_VALUE) - $selector_split_value - 1;
   foreach ($major_chunks as $chunk_key => $chunks) {
     $last_chunk = FALSE;
     $file_info['split_last_part'] = FALSE;
@@ -855,13 +897,34 @@ function advagg_split_css_file($file_info) {
         --$split_at;
       }
 
-      // Combine parts of the so that it can be saved to disk.
+      // Combine parts of the css so that it can be saved to disk.
       foreach ($new_css_chunk as $key => $value) {
-        $string_to_write .= $value;
-        unset($new_css_chunk[$key]);
-        if ($key == $split_at) {
-          $overall_split = $split_at;
-          $split_at += $selector_split_value;
+        if ($key !== $split_at) {
+          // Move this css row to the $string_to_write variable.
+          $string_to_write .= $value;
+          unset($new_css_chunk[$key]);
+        }
+        // We are at the split point.
+        else {
+          // Get the number of selectors in this chunk.
+          $matched = array();
+          $chunk_selector_count = preg_match_all('/\{.+?\}|,/s', $new_css_chunk[$key], $matched);
+          if ($chunk_selector_count < $chunk_split_value) {
+            // The number of selectors at this point is below the threshold;
+            // move this chunk to the write variable and break out of the loop.
+            $string_to_write .= $value;
+            unset($new_css_chunk[$key]);
+            $overall_split = $split_at;
+            $split_at += $selector_split_value;
+          }
+          else {
+            // The number of selectors with this chunk included is over the
+            // threshold; do not move it. Change split position so the next
+            // iteration of the while loop ends at the correct spot. Because we
+            // skip unset here, this chunk will start the next part file.
+            $overall_split = $split_at;
+            $split_at += $selector_split_value - $chunk_selector_count;
+          }
           break;
         }
       }
@@ -918,11 +981,11 @@ function advagg_split_css_file($file_info) {
  * @return array
  *   array with advagg_get_info_on_file data & split data.
  */
-function advagg_create_subfile($css, $overall_split, $file_info) {
+function advagg_create_subfile($css, $overall_split, array $file_info) {
   static $parts_uri;
   static $parts_path;
   if (!isset($parts_uri)) {
-    list($css_path, $js_path) = advagg_get_root_files_dir();
+    list($css_path) = advagg_get_root_files_dir();
     $parts_uri = $css_path[0] . '/parts';
     $parts_path = $css_path[1] . '/parts';
 
@@ -933,8 +996,26 @@ function advagg_create_subfile($css, $overall_split, $file_info) {
     module_load_include('inc', 'advagg', 'advagg.missing');
   }
 
+  // Get the path from $file_info['data'].
+  $uri_path = advagg_get_relative_path($file_info['data']);
+
   // Write the current chunk of the CSS into a file.
-  $new_filename = str_ireplace('.css', '.' . $overall_split . '.css', $file_info['data']);
+  $new_filename = str_ireplace('.css', '.' . $overall_split . '.css', $uri_path);
+
+  // Fix for things that write dynamically to the public file system.
+  $scheme = file_uri_scheme($new_filename);
+  if ($scheme) {
+    $wrapper = file_stream_wrapper_get_instance_by_scheme($scheme);
+    if ($wrapper) {
+      // Use the wrappers directory path.
+      $new_filename = $wrapper->getDirectoryPath() . '/' . file_uri_target($new_filename);
+    }
+    else {
+      // If the scheme does not have a wrapper; prefix file with the scheme.
+      $new_filename = $scheme . '/' . file_uri_target($new_filename);
+    }
+  }
+
   $part_uri = $parts_uri . '/' . $new_filename;
   $dirname = drupal_dirname($part_uri);
   file_prepare_directory($dirname, FILE_CREATE_DIRECTORY);
@@ -964,12 +1045,16 @@ function advagg_create_subfile($css, $overall_split, $file_info) {
  * @param array $files_to_aggregate
  *   An array of CSS/JS groups.
  * @param string $type
- *   css or js.
+ *   String; css or js.
  *
  * @return array
  *   array of aggregate files.
  */
-function advagg_build_aggregate_plans($files_to_aggregate, $type) {
+function advagg_build_aggregate_plans(array $files_to_aggregate, $type) {
+  if ($type !== 'css' && $type !== 'js') {
+    return array();
+  }
+
   // Place into biggest grouping possible.
   $groups = advagg_generate_groups($files_to_aggregate);
 
@@ -979,7 +1064,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
   // Insert/Update Database.
   advagg_insert_update_db($files, $type, 1);
   // Update atimes for root.
-  advagg_update_all_atimes($files);
+  advagg_multi_update_atime($files);
 
   // Run hooks to modify the aggregate.
   // Call hook_advagg_build_aggregate_plans_alter().
@@ -991,7 +1076,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
     // Insert/Update Database.
     advagg_insert_update_db($files, $type, 0);
     // Update atimes for non root.
-    advagg_update_all_atimes($files);
+    advagg_multi_update_atime($files);
   }
 
   // Get file paths.
@@ -1004,7 +1089,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
     if ($type === 'css') {
       $mixed_media = FALSE;
       $media = NULL;
-      foreach ($values['files'] as $key => $value) {
+      foreach ($values['files'] as $value) {
         if (!isset($value['media'])) {
           continue;
         }
@@ -1017,6 +1102,24 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
       }
     }
 
+    // Get onload.
+    $onload = array();
+    foreach ($values['files'] as $items) {
+      if (!empty($items['onload'])) {
+        $onload[] = $items['onload'];
+      }
+    }
+    $onload = implode(';', array_unique(array_filter($onload)));
+
+    // Get onerror.
+    $onerror = array();
+    foreach ($values['files'] as $items) {
+      if (!empty($items['onerror'])) {
+        $onload[] = $items['onerror'];
+      }
+    }
+    $onerror = implode(';', array_unique(array_filter($onerror)));
+
     $first = reset($values['files']);
     if (!empty($mixed_media)) {
       $first['media'] = 'all';
@@ -1028,7 +1131,8 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
       'media' => isset($first['media']) ? $first['media'] : '',
       'defer' => isset($first['defer']) ? $first['defer'] : '',
       'async' => isset($first['async']) ? $first['async'] : '',
-      'onload' => isset($first['onload']) ? $first['onload'] : '',
+      'onload' => $onload,
+      'onerror' => $onerror,
       'browsers' => isset($first['browsers']) ? $first['browsers'] : array(),
       'cache' => isset($first['cache']) ? $first['cache'] : TRUE,
       'type' => $first['type'],
@@ -1040,7 +1144,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
 
   // Create the aggregate files.
   if (variable_get('advagg_pregenerate_aggregate_files', ADVAGG_PREGENERATE_AGGREGATE_FILES)) {
-    $output = advagg_create_aggregate_files($plans, $type);
+    advagg_create_aggregate_files($plans, $type);
   }
 
   return $plans;
@@ -1052,12 +1156,12 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
  * @param array $plans
  *   An array of aggregate file names.
  * @param string $type
- *   css or js.
+ *   String; css or js.
  *
  * @return array
  *   An array of what was done when generating the file.
  */
-function advagg_create_aggregate_files($plans, $type) {
+function advagg_create_aggregate_files(array $plans, $type) {
   $filenames = array();
   $return = array();
   foreach ($plans as $plan) {
@@ -1066,10 +1170,13 @@ function advagg_create_aggregate_files($plans, $type) {
 
   // If the httprl module exists and we want to use it.
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-  if (   module_exists('httprl')
-      && variable_get('advagg_use_httprl', ADVAGG_USE_HTTPRL)
-      && (is_callable('httprl_is_background_callback_capable') && httprl_is_background_callback_capable() || !is_callable('httprl_is_background_callback_capable'))
-      ) {
+  if ( module_exists('httprl')
+    && variable_get('advagg_use_httprl', ADVAGG_USE_HTTPRL)
+    && ( is_callable('httprl_is_background_callback_capable')
+      && httprl_is_background_callback_capable()
+      || !is_callable('httprl_is_background_callback_capable')
+      )
+  ) {
     if (variable_get('advagg_fast_filesystem', ADVAGG_FAST_FILESYSTEM)) {
       list($css_path, $js_path) = advagg_get_root_files_dir();
       foreach ($filenames as $key => $filename) {
@@ -1120,17 +1227,19 @@ function advagg_create_aggregate_files($plans, $type) {
  * @param bool $optimize
  *   Defines if CSS contents should be compressed or not.
  * @param array $aggregate_settings
- *   array of settings.
+ *   Array of settings.
  *
  * @return string
  *   Contents of the stylesheet, including any resolved @import commands.
  */
-function advagg_load_css_stylesheet($file, $optimize, $aggregate_settings = NULL) {
+function advagg_load_css_stylesheet($file, $optimize, array $aggregate_settings = array()) {
+  $old_base_path = $GLOBALS['base_path'];
+
   // Change context to that of when this aggregate was created.
-  advagg_context_css($aggregate_settings, 0);
+  advagg_context_switch($aggregate_settings, 0);
 
   // Get the stylesheets contents.
-  $contents = drupal_load_stylesheet($file, $optimize);
+  $contents = advagg_load_stylesheet($file, $optimize);
 
   // Get the parent directory of this file, relative to the Drupal root.
   $css_base_url = substr($file, 0, strrpos($file, '/'));
@@ -1141,33 +1250,39 @@ function advagg_load_css_stylesheet($file, $optimize, $aggregate_settings = NULL
   if (count($url_parts) === 2) {
     $css_base_url = $url_parts[1];
   }
-  _advagg_build_css_path(NULL, $css_base_url . '/');
+  // Replace the old base path with the one that was passed in.
+  $pos = strpos($css_base_url, $old_base_path);
+  if ($pos !== FALSE) {
+    $css_base_url = substr_replace($css_base_url, $GLOBALS['base_path'], $pos, strlen($old_base_path));
+  }
 
-  // Anchor all paths in the CSS with its base URL, ignoring external and
-  // absolute paths.
-  $contents = preg_replace_callback('/url\(\s*[\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\s*\)/i', '_advagg_build_css_path', $contents);
+  _advagg_build_css_path(array(), $css_base_url . '/', $aggregate_settings);
+
+  // Anchor all paths in the CSS with its base URL, ignoring external,
+  // absolute paths, and urls that start with # or %23 (SVG).
+  $contents = preg_replace_callback('%url\(\s*+[\'"]?+(?![a-z]++:|/|\#|\%23+)([^\'"()\s]++)[\'"]?+\s*+\)%i', '_advagg_build_css_path', $contents);
 
   // Change context back.
-  advagg_context_css($aggregate_settings, 1);
+  advagg_context_switch($aggregate_settings, 1);
 
   // Return the stylesheets contents.
   return $contents;
 }
 
 /**
- * Changes context when generating CSS.
+ * Changes context when generating CSS or JS files.
  *
  * @param array $aggregate_settings
- *   array of settings.
+ *   Array of settings.
  * @param int $mode
- *   0 to change context to what is inside of $aggregate_settings.
- *   1 to change context back.
+ *   Use 0 to change context to what is inside of $aggregate_settings.
+ *   Use 1 to change context back.
  */
-function advagg_context_css($aggregate_settings, $mode) {
+function advagg_context_switch(array $aggregate_settings, $mode) {
   $original = &drupal_static(__FUNCTION__);
 
   // Use current $aggregate_settings if none was passed in.
-  if (is_null($aggregate_settings)) {
+  if (empty($aggregate_settings)) {
     $aggregate_settings = advagg_current_hooks_hash_array();
   }
 
@@ -1178,28 +1293,58 @@ function advagg_context_css($aggregate_settings, $mode) {
 /**
  * Prefixes all paths within a CSS file for drupal_build_css_cache().
  *
+ * @param array $matches
+ *   Array of matched items from preg_replace_callback().
+ * @param string $base
+ *   Base path.
+ * @param array $aggregate_settings
+ *   Array of settings.
+ *
+ * @return string
+ *   New version of the url() string from the css.
+ *
  * @see _drupal_build_css_path()
  * @see https://drupal.org/node/1961340#comment-7735815
  * @see https://drupal.org/node/1514182#comment-7875489
  */
-function _advagg_build_css_path($matches, $base = NULL) {
-  $_base = &drupal_static(__FUNCTION__);
+function _advagg_build_css_path(array $matches, $base = '', array $aggregate_settings = array()) {
+  $_base = &drupal_static(__FUNCTION__, '');
+  $_aggregate_settings = &drupal_static(__FUNCTION__ . '_aggregate_settings', array());
   // Store base path for preg_replace_callback.
-  if (isset($base)) {
+  if (!empty($base)) {
     $_base = $base;
+  }
+  if (!empty($aggregate_settings)) {
+    $_aggregate_settings = $aggregate_settings;
+  }
+  // Short circuit if no matches were passed in.
+  if (empty($matches)) {
+    return '';
   }
 
   // Prefix with base and remove '../' segments where possible.
-  $path = $_base . $matches[1];
+  $url = $_base . $matches[1];
   $last = '';
-  while ($path != $last) {
-    $last = $path;
-    $path = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $path);
+  while ($url != $last) {
+    $last = $url;
+    $url = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $url);
   }
 
-  $path = file_create_url($path);
-  // Decoding path because some browsers can not handle encoded urls inside of
-  // CSS. file_create_url() -> drupal_encode_path() -> rawurlencode().
-  $path = rawurldecode($path);
-  return 'url(' . $path . ')';
+  // Parse and build back the url without the query and fragment parts.
+  $parsed_url = parse_url($url);
+  $base_url  = advagg_glue_url($parsed_url, TRUE);
+
+  $query = isset($parsed_url['query']) ? $parsed_url['query'] : '';
+  // In the case of certain URLs, we may have simply a '?' character without
+  // further parameters. parse_url() misses this and leaves 'query' blank, so
+  // need to this back in.
+  // See http://www.fontspring.com/blog/the-new-bulletproof-font-face-syntax
+  // for more information.
+  if ($query != '' || strpos($url, $base_url . '?') === 0) {
+    $query = '?' . $query;
+  }
+  $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+
+  $url = advagg_file_create_url($base_url, $_aggregate_settings);
+  return 'url(' . $url . $query . $fragment . ')';
 }

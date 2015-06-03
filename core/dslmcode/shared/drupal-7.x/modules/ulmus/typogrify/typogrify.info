@@ -4,10 +4,11 @@ package = "Input filters"
 core = 7.x
 files[] = typogrify.class.php
 files[] = tests/typogrify-smartypants.test
+files[] = tests/typogrify.class.test
 
-; Information added by drupal.org packaging script on 2013-10-16
-version = "7.x-1.0-rc8"
+; Information added by Drupal.org packaging script on 2015-04-14
+version = "7.x-1.0-rc10"
 core = "7.x"
 project = "typogrify"
-datestamp = "1381911047"
+datestamp = "1429046883"
 

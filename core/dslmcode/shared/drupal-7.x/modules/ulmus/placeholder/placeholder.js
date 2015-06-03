@@ -7,7 +7,9 @@
 (function ($) {
   Drupal.behaviors.placeholder = {
     attach: function () {
-      $("input[placeholder], textarea[placeholder]").placeholder();
+      if(typeof($("input[placeholder], textarea[placeholder]").placeholder())=='function') {
+        $("input[placeholder], textarea[placeholder], password[placeholder]").placeholder();
+      }
     }
   };
 

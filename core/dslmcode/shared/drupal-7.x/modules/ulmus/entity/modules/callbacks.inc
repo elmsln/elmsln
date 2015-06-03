@@ -578,7 +578,7 @@ function entity_metadata_field_get_language($entity_type, $entity, $field, $lang
  */
 function entity_metadata_field_text_get($item, array $options, $name, $type, $context) {
   // $name is either 'value' or 'summary'.
-  if (!isset($item['safe_' . $name]) && isset($item[$name])) {
+  if (!isset($item['safe_' . $name])) {
     // Apply input formats.
     $langcode = isset($options['language']) ? $options['language']->language : '';
     $format = isset($item['format']) ? $item['format'] : filter_default_format();
@@ -586,7 +586,7 @@ function entity_metadata_field_text_get($item, array $options, $name, $type, $co
     // To speed up subsequent calls, update $item with the 'safe_value'.
     $context['parent']->set($item);
   }
-  return (isset($item['safe_' . $name]) ? $item['safe_' . $name] : '');
+  return $item['safe_' . $name];
 }
 
 /**

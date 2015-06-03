@@ -54,6 +54,10 @@ function ds_search_theme() {
  * Search page theming.
  */
 function theme_ds_search_page($build) {
+  // fix for Drupal 7.33+
+  if(isset($build['theme_hook_original'])) {
+    unset($build['theme_hook_original']);
+  }
 
   // Check on empty search results.
   if (empty($build['search_results'])) {
@@ -481,7 +485,7 @@ function node_ds_search_execute($keys = NULL, $conditions = NULL) {
   // Load results.
   $find = $query->execute();
   $results = array();
-  foreach ($find as $item) {
+  foreach ((array) $find as $item) {
     $node = node_load($item->sid);
     $node->entity_type = 'node';
     $node->entity_id = $item->sid;
@@ -496,7 +500,7 @@ function node_ds_search_execute($keys = NULL, $conditions = NULL) {
       // Render the node.
       $rendered = drupal_render($build);
       // Attach extra information to the rendered output.
-      $rendered .= ' ' . $node->search_extra;
+      $rendered .= ' ' . implode('', $node->search_extra);
       // Generate the snippet based on rendered content.
       $node->snippet = search_excerpt($keys, $rendered);
     }
@@ -704,6 +708,10 @@ function ds_search_process_results($results) {
 
       $load = entity_load($result['fields']['entity_type'], array($result['fields']['entity_id']));
       $entity = reset($load);
+      if (!$entity) {
+        watchdog('ds_search', "Empty entity loaded from results, possibly corrupt solr index? (@entity_type, @id)", array('@entity_type' => $result['fields']['entity_type'], '@id' => $result['fields']['entity_id']), WATCHDOG_DEBUG);
+        continue;
+      }
 
       // Add the snippet, url and extra info on the object.
       $entity->search_snippet = $result['snippet'];

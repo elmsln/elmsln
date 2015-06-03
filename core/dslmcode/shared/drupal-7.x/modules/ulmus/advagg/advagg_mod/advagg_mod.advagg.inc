@@ -11,20 +11,21 @@
  * Used to make sure the info is up to date in the cache.
  */
 function advagg_mod_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_cache) {
-  foreach ($return as $filename => &$info) {
+  foreach ($return as &$info) {
     if (empty($info['fileext']) || $info['fileext'] !== 'js') {
       continue;
     }
     // New or updated data or no advagg_js_compress data.
     // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-    if (   empty($cached_data[$info['cache_id']])
-        || empty($info['advagg_mod'])
-        || $info['content_hash'] != $cached_data[$info['cache_id']]['content_hash']
-        ) {
+    if ( empty($cached_data[$info['cache_id']])
+      || empty($info['advagg_mod'])
+      || $info['content_hash'] != $cached_data[$info['cache_id']]['content_hash']
+    ) {
       // Check the cache.
       $info['advagg_mod'] = advagg_mod_js_contains_jquery_drupal($info['data']);
     }
   }
+  unset($info);
 }
 
 /**
@@ -62,7 +63,7 @@ function advagg_mod_advagg_get_css_file_contents_alter(&$contents, $filename, $a
  * @return string
  *   Replaced String.
  */
-function advagg_mod_advagg_css_content_t_replace_callback($matches) {
+function advagg_mod_advagg_css_content_t_replace_callback(array $matches) {
   // Skip if equal to ; or }.
   if ($matches[1] === ';' || $matches[1] === '}') {
     return $matches[0];

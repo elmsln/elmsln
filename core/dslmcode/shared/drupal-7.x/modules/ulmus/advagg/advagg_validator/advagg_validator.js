@@ -1,12 +1,12 @@
-/* global jQuery:false */
-/* global Drupal:false */
-/* global JSHINT:false */
-/* global CSSLint:false */
-
 /**
  * @file
  * Run JSHINT in the browser against the servers JS.
  */
+
+/* global jQuery:false */
+/* global Drupal:false */
+/* global JSHINT:false */
+/* global CSSLint:false */
 
 /**
  * Have clicks to advagg_validator_js classes run JSHINT clientside.
@@ -33,7 +33,8 @@
               });
               if (JSHINT(x.responseText, Drupal.settings.jshint, Drupal.settings.jshint.predef)) {
                 $(results).append('<h4>' + filename + ' Passed!</h4>');
-              } else {
+              }
+              else {
                 $(results).append('<p><h4>' + filename + ' Failed!</h4>');
                 $(results).append('<ul>');
                 for (var i = 0; i < JSHINT.errors.length; i++) {
@@ -79,7 +80,8 @@
               });
               if (JSHINT(x.responseText, Drupal.settings.jshint, Drupal.settings.jshint.predef)) {
                 $(results).append('<h4>' + filename + ' Passed!</h4>');
-              } else {
+              }
+              else {
                 $(results).append('<p><h4>' + filename + ' Failed!</h4>');
                 $(results).append('<ul>');
                 for (var i = 0; i < JSHINT.errors.length; i++) {
@@ -128,7 +130,7 @@
               var z = y.messages;
               $(results).append('<p><h4>' + filename + '</h4>');
               $(results).append('<ul>');
-              for (var i=0, len=z.length; i < len; i++) {
+              for (var i = 0, len = z.length; i < len; i++) {
                 var w = z[i].message + ' (line ' + z[i].line + ', col ' + z[i].col + ')';
                 $(results).append('<li class="' + z[i].type + '">' + w.replace(/ /g, '&nbsp;') + '</li>');
               }
@@ -174,7 +176,7 @@
               var z = y.messages;
               $(results).append('<p><h4>' + filename + '</h4>');
               $(results).append('<ul>');
-              for (var i=0, len=z.length; i < len; i++) {
+              for (var i = 0, len = z.length; i < len; i++) {
                 var w = z[i].message + ' (line ' + z[i].line + ', col ' + z[i].col + ')';
                 $(results).append('<li class="' + z[i].type + '">' + w.replace(/ /g, '&nbsp;') + '</li>');
               }

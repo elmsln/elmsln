@@ -33,4 +33,4 @@ HOOKS
 -----
 
  * hook_imageinfo_cache_detect_image_widget_alter - Allow other widget types to
-   be pregenerated in imageinfo_cache.
+   be pre-generated in imageinfo_cache.

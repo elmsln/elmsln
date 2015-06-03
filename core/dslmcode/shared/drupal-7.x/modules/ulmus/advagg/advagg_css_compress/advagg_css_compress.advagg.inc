@@ -47,7 +47,7 @@ function advagg_css_compress_yui_cssmin(&$data) {
     include drupal_get_path('module', 'advagg_css_compress') . '/yui/CSSMin.inc';
   }
 
-  $cssmin = new CSSmin(FALSE);
+  $cssmin = new CSSmin(TRUE);
   // Compress the CSS splitting lines after 4k of text.
   $data = $cssmin->run($data, 4096);
 }

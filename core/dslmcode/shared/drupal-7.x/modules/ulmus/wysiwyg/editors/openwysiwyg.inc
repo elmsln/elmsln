@@ -22,6 +22,7 @@ function wysiwyg_openwysiwyg_editor() {
     ),
     'version callback' => 'wysiwyg_openwysiwyg_version',
     'themes callback' => 'wysiwyg_openwysiwyg_themes',
+    'settings form callback' => 'wysiwyg_openwysiwyg_settings_form',
     'settings callback' => 'wysiwyg_openwysiwyg_settings',
     'plugin callback' => 'wysiwyg_openwysiwyg_plugins',
     'versions' => array(
@@ -75,6 +76,29 @@ function wysiwyg_openwysiwyg_themes($editor, $profile) {
 }
 
 /**
+ * Enhances the editor profile settings form for openWYSIWYG.
+ */
+function wysiwyg_openwysiwyg_settings_form(&$form, &$form_state) {
+  $profile = $form_state['wysiwyg_profile'];
+  $settings = $profile->settings;
+  $settings += array(
+    'StatusBarEnabled' => TRUE,
+  );
+
+  $form['basic']['language']['#access'] = FALSE;
+
+  $form['css']['#description'] = t('Note: openWYSIWYG can only load a single stylesheet into the editor.');
+
+  $form['appearance']['StatusBarEnabled'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable statusbar'),
+    '#default_value' => $settings['StatusBarEnabled'],
+    '#return_value' => 1,
+    '#description' => t('When enabled, shows a statusbar.'),
+  );
+}
+
+/**
  * Return runtime editor settings for a given wysiwyg profile.
  *
  * @param $editor
@@ -94,8 +118,8 @@ function wysiwyg_openwysiwyg_settings($editor, $config, $theme) {
     'Width' => '100%',
   );
 
-  if (isset($config['path_loc']) && $config['path_loc'] == 'none') {
-    $settings['StatusBarEnabled'] = FALSE;
+  if (isset($config['StatusBarEnabeld'])) {
+    $settings['StatusBarEnabled'] = $config['StatusBarEnabled'];
   }
 
   if (isset($config['css_setting'])) {
@@ -126,11 +150,6 @@ function wysiwyg_openwysiwyg_settings($editor, $config, $theme) {
       }
     }
   }
-
-  // @todo 
-//  if (isset($config['block_formats'])) {
-//    $settings['DropDowns']['headings']['elements'] = explode(',', $config['block_formats']);
-//  }
 
   return $settings;
 }

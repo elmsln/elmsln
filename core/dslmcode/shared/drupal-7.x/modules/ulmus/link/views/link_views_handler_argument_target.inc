@@ -144,6 +144,6 @@ class link_views_handler_argument_target extends views_handler_argument {
     $this->ensure_my_table();
     // Because attributes are stored serialized, our only option is to also
     // serialize the data we're searching for and use LIKE to find similar data.
-    $this->query->add_where(0, $this->table_alias . '.' . $this->real_field . " LIKE '%%%s%'", serialize(array('target' => $this->argument)));
+    $this->query->add_where(0, $this->table_alias . ' . ' . $this->real_field . " LIKE '%%%s%'", serialize(array('target' => $this->argument)));
   }
 }

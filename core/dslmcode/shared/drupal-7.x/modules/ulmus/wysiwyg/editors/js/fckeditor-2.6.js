@@ -4,6 +4,9 @@
  * Attach this editor to a target element.
  */
 Drupal.wysiwyg.editor.attach.fckeditor = function(context, params, settings) {
+  if (!settings.Height) {
+    settings.Height = $('#' + params.field).height();
+  }
   var FCKinstance = new FCKeditor(params.field, settings.Width, settings.Height, settings.ToolbarSet);
   // Apply editor instance settings.
   FCKinstance.BasePath = settings.EditorPath;

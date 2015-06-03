@@ -46,8 +46,8 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
   protected function assertLinkOnNode($field_name, $link_value, $message = '', $group = 'Other') {
     $this->zebra++;
     $zebra_string = ($this->zebra % 2 == 0) ? 'even' : 'odd';
-    $cssFieldLocator = 'field-'. str_replace('_', '-', $field_name);
-    $this->assertPattern('@<div class="field field-type-link '. $cssFieldLocator .'".*<div class="field-item '. $zebra_string .'">\s*'. $link_value .'\s*</div>@is',
+    $cssFieldLocator = 'field-' . str_replace('_', '-', $field_name);
+    $this->assertPattern('@<div class="field field-type-link ' . $cssFieldLocator . '".*<div class="field-item ' . $zebra_string . '">\s*' . $link_value . '\s*</div>@is',
                          $message,
                          $group);
   }
@@ -66,7 +66,7 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     // Create the content type.
     $this->clickLink(t('Add content type'));
 
-    $edit = array (
+    $edit = array(
       'name' => $content_type_friendly,
       'type' => $content_type_machine,
     );
@@ -76,8 +76,8 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     // Now add a singleton field.
     $single_field_name_friendly = $this->randomName(20);
     $single_field_name_machine = strtolower($this->randomName(10));
-    $single_field_name = 'field_'. $single_field_name_machine;
-    $edit = array (
+    $single_field_name = 'field_' . $single_field_name_machine;
+    $edit = array(
       'fields[_add_new_field][label]' => $single_field_name_friendly,
       'fields[_add_new_field][field_name]' => $single_field_name_machine,
       'fields[_add_new_field][type]' => 'link_field',
@@ -112,19 +112,19 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     $this->drupalLogin($this->web_user);
 
     // Go to page.
-    $this->drupalGet('node/add/'. $content_type_machine);
+    $this->drupalGet('node/add/' . $content_type_machine);
 
     // Add a node.
     $edit = array(
       'title' => $title,
-      'field_'. $single_field_name_machine. '[und][0][title]' => 'Link',
-      'field_'. $single_field_name_machine. '[und][0][url]' => 'http://www.drupal.org/',
+      'field_' . $single_field_name_machine . '[und][0][title]' => 'Link',
+      'field_' . $single_field_name_machine . '[und][0][url]' => 'http://www.drupal.org/',
     );
 
     $this->drupalPost(NULL, $edit, t('Save'));
     $this->assertText(t('@content_type_friendly @title has been created', array('@content_type_friendly' => $content_type_friendly, '@title' => $title)));
 
-    $this->drupalGet('node/add/'. $content_type_machine);
+    $this->drupalGet('node/add/' . $content_type_machine);
 
     // Create a node:
     $edit = array(
@@ -143,7 +143,7 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
 
   protected function createSimpleLinkField($single_field_name_machine, $single_field_name_friendly, $content_type_machine) {
     $this->drupalGet('admin/structure/types/manage/' . $content_type_machine . '/fields');
-    $edit = array (
+    $edit = array(
       'fields[_add_new_field][label]' => $single_field_name_friendly,
       'fields[_add_new_field][field_name]' => $single_field_name_machine,
       'fields[_add_new_field][type]' => 'link_field',
@@ -180,7 +180,7 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
   }
 
   protected function createNodeForTesting($content_type_machine, $content_type_friendly, $single_field_name_machine, $title, $url, $node_title = '') {
-    $this->drupalGet('node/add/'. $content_type_machine);
+    $this->drupalGet('node/add/' . $content_type_machine);
 
     if (!$node_title) {
       $node_title = $this->randomName(20);
@@ -219,10 +219,10 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     $this->createSimpleLinkField($single_field_name_machine, $single_field_name_friendly, $content_type_machine);
 
     // Okay, now we want to make sure this display is changed:
-    $this->drupalGet('admin/structure/types/manage/'. $content_type_machine .'/display');
+    $this->drupalGet('admin/structure/types/manage/' . $content_type_machine . '/display');
     $edit = array(
-      'fields[field_'. $single_field_name_machine .'][label]' => 'above',
-      'fields[field_'. $single_field_name_machine .'][type]' => 'link_plain',
+      'fields[field_' . $single_field_name_machine . '][label]' => 'above',
+      'fields[field_' . $single_field_name_machine . '][type]' => 'link_plain',
     );
     $this->drupalPost(NULL, $edit, t('Save'));
 
@@ -270,10 +270,10 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     $this->createSimpleLinkField($single_field_name_machine, $single_field_name_friendly, $content_type_machine);
 
     // Okay, now we want to make sure this display is changed:
-    $this->drupalGet('admin/structure/types/manage/'. $content_type_machine .'/display');
+    $this->drupalGet('admin/structure/types/manage/' . $content_type_machine . '/display');
     $edit = array(
-      'fields[field_'. $single_field_name_machine .'][label]' => 'above',
-      'fields[field_'. $single_field_name_machine .'][type]' => 'link_url',
+      'fields[field_' . $single_field_name_machine . '][label]' => 'above',
+      'fields[field_' . $single_field_name_machine . '][type]' => 'link_url',
     );
     $this->drupalPost(NULL, $edit, t('Save'));
 
@@ -320,10 +320,10 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     $this->createSimpleLinkField($single_field_name_machine, $single_field_name_friendly, $content_type_machine);
 
     // Okay, now we want to make sure this display is changed:
-    $this->drupalGet('admin/structure/types/manage/'. $content_type_machine .'/display');
+    $this->drupalGet('admin/structure/types/manage/' . $content_type_machine . '/display');
     $edit = array(
-      'fields[field_'. $single_field_name_machine .'][label]' => 'above',
-      'fields[field_'. $single_field_name_machine .'][type]' => 'link_short',
+      'fields[field_' . $single_field_name_machine . '][label]' => 'above',
+      'fields[field_' . $single_field_name_machine . '][type]' => 'link_short',
     );
     $this->drupalPost(NULL, $edit, t('Save'));
 
@@ -371,10 +371,10 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     $this->createSimpleLinkField($single_field_name_machine, $single_field_name_friendly, $content_type_machine);
 
     // Okay, now we want to make sure this display is changed:
-    $this->drupalGet('admin/structure/types/manage/'. $content_type_machine .'/display');
+    $this->drupalGet('admin/structure/types/manage/' . $content_type_machine . '/display');
     $edit = array(
-      'fields[field_'. $single_field_name_machine .'][label]' => 'above',
-      'fields[field_'. $single_field_name_machine .'][type]' => 'link_label',
+      'fields[field_' . $single_field_name_machine . '][label]' => 'above',
+      'fields[field_' . $single_field_name_machine . '][type]' => 'link_label',
     );
     $this->drupalPost(NULL, $edit, t('Save'));
 
@@ -422,10 +422,10 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     $this->createSimpleLinkField($single_field_name_machine, $single_field_name_friendly, $content_type_machine);
 
     // Okay, now we want to make sure this display is changed:
-    $this->drupalGet('admin/structure/types/manage/'. $content_type_machine .'/display');
+    $this->drupalGet('admin/structure/types/manage/' . $content_type_machine . '/display');
     $edit = array(
-      'fields[field_'. $single_field_name_machine .'][label]' => 'above',
-      'fields[field_'. $single_field_name_machine .'][type]' => 'link_separate',
+      'fields[field_' . $single_field_name_machine . '][label]' => 'above',
+      'fields[field_' . $single_field_name_machine . '][type]' => 'link_separate',
     );
     $this->drupalPost(NULL, $edit, t('Save'));
 
@@ -474,10 +474,10 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     $this->createSimpleLinkField($single_field_name_machine, $single_field_name_friendly, $content_type_machine);
     
     // Okay, now we want to make sure this display is changed:
-    $this->drupalGet('admin/structure/types/manage/'. $content_type_machine .'/display');
+    $this->drupalGet('admin/structure/types/manage/' . $content_type_machine . '/display');
     $edit = array(
-      'fields[field_'. $single_field_name_machine .'][label]' => 'above',
-      'fields[field_'. $single_field_name_machine .'][type]' => 'link_title_plain',
+      'fields[field_' . $single_field_name_machine . '][label]' => 'above',
+      'fields[field_' . $single_field_name_machine . '][type]' => 'link_title_plain',
     );
     $this->drupalPost(NULL, $edit, t('Save'));
     

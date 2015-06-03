@@ -126,6 +126,10 @@ function ds_search_settings($form, $form_state) {
 
   $node_types = node_type_get_names();
   $ds_search_group_by_type_settings = variable_get('ds_search_group_by_type_settings');
+  $wrapper_options = array(
+    'fieldset' => t('Fieldset'),
+    'markup' => t('Div with H3 headline'),
+  );
   foreach ($node_types as $name => $label) {
 
     $form['ds_search_group_by_type_settings'][$name]['name'] = array(
@@ -150,10 +154,6 @@ function ds_search_settings($form, $form_state) {
       '#parents' => array('ds_search_group_by_type_settings', $name, 'label'),
     );
 
-    $wrapper_options = array(
-      'fieldset' => t('Fieldset'),
-      'markup' => t('Div with H3 headline'),
-    );
     $form['ds_search_group_by_type_settings'][$name]['wrapper'] = array(
       '#type' => 'select',
       '#options' => $wrapper_options,

@@ -37,7 +37,8 @@ function advagg_validator_admin_css_lint_form() {
   $form = advagg_validator_admin_form_generator('css', TRUE);
 
   $form['#attached']['js'][] = array(
-    'data' => '//rawgithub.com/stubbornella/csslint/master/release/csslint.js',
+    // https://github.com/CSSLint/csslint.
+    'data' => '//cdn.rawgit.com/stubbornella/csslint/master/release/csslint.js',
     'type' => 'external',
   );
   $form['#attached']['js'][] = array(
@@ -60,7 +61,8 @@ function advagg_validator_admin_js_hint_form() {
   $form = advagg_validator_admin_form_generator('js', TRUE);
 
   $form['#attached']['js'][] = array(
-    'data' => '//rawgithub.com/jshint/jshint/master/dist/jshint.js',
+    // https://github.com/jshint/jshint.
+    'data' => '//cdn.rawgit.com/jshint/jshint/master/dist/jshint.js',
     'type' => 'external',
   );
   $form['#attached']['js'][] = array(
@@ -105,7 +107,7 @@ function advagg_validator_admin_js_hint_form() {
  * Scan the file system and build a form tree from it.
  *
  * @param string $type
- *   css or js
+ *   String: css or js.
  * @param bool $run_client_side
  *   Set to TRUE to run the checking code client side.
  *
@@ -335,6 +337,7 @@ function advagg_validator_admin_test_advagg_css_directory_callback($form, &$form
 
   // Check list.
   $info = advagg_validator_test_css_files($files);
+  $wrapper = '';
   if (empty($info)) {
     return '<div id="' . $wrapper . '" class="results"></div>';
   }
@@ -361,7 +364,6 @@ function advagg_validator_admin_test_advagg_css_subdirectory_submit($form, &$for
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
   $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':') + 1));
-  $slash_count = substr_count('/' . $dir, '/');
 
   // Get list of files.
   $files = array();
@@ -395,7 +397,6 @@ function advagg_validator_admin_test_advagg_css_subdirectory_callback($form, &$f
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
   $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':') + 1));
-  $slash_count = substr_count('/' . $dir, '/');
 
   // Get list of files.
   $files = array();
@@ -408,6 +409,7 @@ function advagg_validator_admin_test_advagg_css_subdirectory_callback($form, &$f
 
   // Check list.
   $info = advagg_validator_test_css_files($files);
+  $wrapper = '';
   if (empty($info)) {
     return '<div id="' . $wrapper . '" class="results"></div>';
   }
@@ -477,7 +479,7 @@ function advagg_validator_admin_test_all_css_callback($form, &$form_state) {
  * @return array
  *   $info array minus data if that file is valid.
  */
-function advagg_validator_admin_hide_good_files($info) {
+function advagg_validator_admin_hide_good_files(array $info) {
   $output = array();
   foreach ($info as $filename => $validators) {
     foreach ($validators as $v_name => $v_data) {

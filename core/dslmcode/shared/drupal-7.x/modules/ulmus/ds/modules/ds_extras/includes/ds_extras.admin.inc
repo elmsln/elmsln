@@ -114,14 +114,12 @@ function ds_extras_settings($form) {
     '#default_value' => variable_get('ds_extras_field_permissions', FALSE),
   );
 
-  if (module_exists('block')) {
-    $form['additional_settings']['fs4']['ds_extras_region_to_block'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Region to block'),
-      '#description' => t('Create additional regions exposed as block. Note: this will not work on the default view mode.'),
-      '#default_value' => variable_get('ds_extras_region_to_block', FALSE),
-    );
-  }
+  $form['additional_settings']['fs4']['ds_extras_region_to_block'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Region to block'),
+    '#description' => t('Create additional regions exposed as block. Note: this will not work on the default view mode.'),
+    '#default_value' => variable_get('ds_extras_region_to_block', FALSE),
+  );
 
   if (module_exists('views')) {
     $form['additional_settings']['fs4']['ds_extras_vd'] = array(
@@ -144,7 +142,7 @@ function ds_extras_settings($form) {
   $form['additional_settings']['fs4']['ds_extras_switch_field'] = array(
     '#type' => 'checkbox',
     '#title' => t('View mode switcher'),
-    '#description' => t('Adds a field with links to switch view modes inline with Ajax. Only works for nodes at this time.'),
+    '#description' => t('Adds a field with links to switch view modes inline with Ajax. Only works for nodes at this time. It does not work in combination with the reset layout.'),
     '#default_value' => variable_get('ds_extras_switch_field', FALSE),
   );
 
@@ -327,9 +325,21 @@ function ds_extras_field_template_settings_form(array &$form, array &$form_state
     );
   }
 
+  // Add prefix
+  $form['ft']['prefix'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Prefix'),
+    '#size' => '100',
+    '#description' => t('You can enter any html in here.'),
+    '#default_value' => isset($field_settings['prefix']) ? $field_settings['prefix'] : '',
+    '#prefix' => '<div class="field-prefix">',
+    '#suffix' => '</div>',
+  );
+
   // Wrappers and label.
   $wrappers = array(
     'lb' => array('title' => t('Label')),
+    'lbw' => array('title' => t('Label wrapper')),
     'ow' => array('title' => t('Outer wrapper')),
     'fis' => array('title' => t('Field items')),
     'fi' => array('title' => t('Field item')),
@@ -352,6 +362,11 @@ function ds_extras_field_template_settings_form(array &$form, array &$form_state
       '#size' => '10',
       '#description' => t('E.g. div, span, h2 etc.'),
       '#default_value' => isset($field_settings[$wrapper_key . '-el']) ? $field_settings[$wrapper_key . '-el'] : '',
+      '#states' => array(
+        'visible' => array(
+          ':input[name$="[ft][' . $wrapper_key . ']"]' => array('checked' => TRUE),
+        ),
+      ),
     );
     $form['ft'][$wrapper_key . '-cl'] = array(
       '#type' => 'textfield',
@@ -359,6 +374,11 @@ function ds_extras_field_template_settings_form(array &$form, array &$form_state
       '#size' => '10',
       '#default_value' => isset($field_settings[$wrapper_key . '-cl']) ? $field_settings[$wrapper_key . '-cl'] : '',
       '#description' => t('E.g.') .' ' . implode(', ', $classes),
+      '#states' => array(
+        'visible' => array(
+          ':input[name$="[ft][' . $wrapper_key . ']"]' => array('checked' => TRUE),
+        ),
+      ),
     );
     $form['ft'][$wrapper_key . '-at'] = array(
       '#type' => 'textfield',
@@ -366,6 +386,11 @@ function ds_extras_field_template_settings_form(array &$form, array &$form_state
       '#size' => '20',
       '#default_value' => isset($field_settings[$wrapper_key . '-at']) ? $field_settings[$wrapper_key . '-at'] : '',
       '#description' => t('E.g. name="anchor"'),
+      '#states' => array(
+        'visible' => array(
+          ':input[name$="[ft][' . $wrapper_key . ']"]' => array('checked' => TRUE),
+        ),
+      ),
     );
 
     // Hide colon.
@@ -384,14 +409,41 @@ function ds_extras_field_template_settings_form(array &$form, array &$form_state
         '#type' => 'checkbox',
         '#title' => t('Add odd/even classes'),
         '#default_value' => isset($field_settings['fi-odd-even']) ? $field_settings['fi-odd-even'] : FALSE,
+        '#states' => array(
+          'visible' => array(
+            ':input[name$="[ft][' . $wrapper_key . ']"]' => array('checked' => TRUE),
+          ),
+        ),
+      );
+      $form['ft']['fi-first-last'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Add first/last classes'),
+        '#default_value' => isset($field_settings['fi-first-last']) ? $field_settings['fi-first-last'] : FALSE,
+        '#states' => array(
+          'visible' => array(
+            ':input[name$="[ft][' . $wrapper_key . ']"]' => array('checked' => TRUE),
+          ),
+        ),
       );
     }
-    $form['ft'][$wrapper_key . '-def-at'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Add default attributes'),
-      '#default_value' => isset($field_settings[$wrapper_key . '-def-at']) ? $field_settings[$wrapper_key . '-def-at'] : FALSE,
-      '#suffix' => ($wrapper_key == 'ow') ? '' : '</div><div class="clearfix"></div>',
-    );
+    if ($wrapper_key != 'lbw') {
+      $form['ft'][$wrapper_key . '-def-at'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Add default attributes'),
+        '#default_value' => isset($field_settings[$wrapper_key . '-def-at']) ? $field_settings[$wrapper_key . '-def-at'] : FALSE,
+        '#suffix' => ($wrapper_key == 'ow') ? '' : '</div>',
+        '#states' => array(
+          'visible' => array(
+            ':input[name$="[ft][' . $wrapper_key . ']"]' => array('checked' => TRUE),
+          ),
+        ),
+      );
+    }
+    else {
+      $form['ft'][$wrapper_key . '-def-at'] = array(
+        '#markup' => '</div><div class="clearfix"></div>',
+      );
+    }
 
     // Default classes for outer wrapper.
     if ($wrapper_key == 'ow') {
@@ -399,10 +451,26 @@ function ds_extras_field_template_settings_form(array &$form, array &$form_state
         '#type' => 'checkbox',
         '#title' => t('Add default classes'),
         '#default_value' => isset($field_settings[$wrapper_key . '-def-cl']) ? $field_settings[$wrapper_key . '-def-cl'] : FALSE,
-        '#suffix' => '</div><div class="clearfix"></div>',
+        '#suffix' => '</div>',
+        '#states' => array(
+          'visible' => array(
+            ':input[name$="[ft][' . $wrapper_key . ']"]' => array('checked' => TRUE),
+          ),
+        ),
       );
     }
   }
+
+  // Add suffix
+  $form['ft']['suffix'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Suffix'),
+    '#size' => '100',
+    '#description' => t('You can enter any html in here.'),
+    '#default_value' => isset($field_settings['suffix']) ? $field_settings['suffix'] : '',
+    '#prefix' => '<div class="field-prefix">',
+    '#suffix' => '</div>',
+  );
 
   // Another label needs some other stuff.
   unset($form['ft']['lb']['#description']);
@@ -410,6 +478,9 @@ function ds_extras_field_template_settings_form(array &$form, array &$form_state
   $form['ft']['lb']['#size'] = '10';
   $form['ft']['lb']['#attributes'] = array('class' => array('label-change'));
   $form['ft']['lb']['#default_value'] = isset($field_settings['lb']) ? $field_settings['lb'] : '';
+
+  // Let other modules make modifications to the settings form as needed.
+  drupal_alter('ds_field_theme_functions_settings_form_alter', $form, $field_settings);
 }
 
 /**
@@ -502,12 +573,14 @@ function ds_extras_block_submit($form, &$form_state) {
     $region_blocks = variable_get('ds_extras_region_blocks', array());
     $remove = $form_state['values']['additional_settings']['region_to_block']['remove_block_region'];
     foreach ($remove as $key => $value) {
-      if ($key === $value) {
+      if ($value != 0 && $key == $value) {
         $variable_set = TRUE;
-        db_delete('block')
-          ->condition('delta', $key)
-          ->condition('module', 'ds_extras')
-          ->execute();
+        if (module_exists('block')) {
+          db_delete('block')
+            ->condition('delta', $key)
+            ->condition('module', 'ds_extras')
+            ->execute();
+        }
         unset($region_blocks[$key]);
       }
     }

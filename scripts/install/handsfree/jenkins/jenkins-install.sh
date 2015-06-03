@@ -280,7 +280,7 @@ elmslnecho "║   EEEEEEE  LLLLLLL  MM    MM   SSSSS      LLLLLLL  NN   NN    �
 elmslnecho "║                                                               ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
 elmslnecho "║ If you have issues, submit them to                            ║"
-elmslnecho "║   http://github.com/btopro/elmsln/issues                      ║"
+elmslnecho "║   http://github.com/elmsln/elmsln/issues                      ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
 elmslnecho "║ NOTES                                                         ║"
 elmslnecho "║ There is a module that was authored during installation at    ║"

@@ -418,9 +418,13 @@ Drupal.ModuleFilter.selectTab = function(hash) {
     Drupal.ModuleFilter.modulesTop = $('#module-filter-modules').offset().top;
   }
   else {
+    // Calculate header offset; this is important in case the site is using
+    // admin_menu module which has fixed positioning and is on top of everything
+    // else.
+    var headerOffset = Drupal.settings.tableHeaderOffset ? eval(Drupal.settings.tableHeaderOffset + '()') : 0;
     // Scroll back to top of #module-filter-modules.
     $('html, body').animate({
-      scrollTop: Drupal.ModuleFilter.modulesTop
+      scrollTop: Drupal.ModuleFilter.modulesTop - headerOffset
     }, 500);
     // $('html, body').scrollTop(Drupal.ModuleFilter.modulesTop);
   }
