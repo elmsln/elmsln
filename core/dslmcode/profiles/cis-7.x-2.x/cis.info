@@ -160,9 +160,9 @@ dependencies[] = editableviews
 dependencies[] = views_field_calc
 dependencies[] = views_fluid_grid
 ; Features
-dependencies[] = cis_data
 dependencies[] = cis_displays
 dependencies[] = cis_types
 dependencies[] = cis_users
 dependencies[] = cis_service_roles
 dependencies[] = cis_ux
+dependencies[] = cis_restws
