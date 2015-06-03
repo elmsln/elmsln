@@ -74,16 +74,13 @@
          </div>
          <div id="user-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
             <h1><?php print t('Account'); ?></h1>
-              <hr class="pad-1"></hr>
+              <hr class="pad-1" />
                 <?php print $userlink; ?>
-              <hr></hr>
-              <div class="minimal-edit-buttons in-modal">
-                <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-account-edit-menu-1" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-                  <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-                </a>
-              </div>
+              <hr />
+              <?php if (!empty($username)) : ?>
               <h2><?php print t('Profile'); ?></h2>
               <span><?php print $username; ?></span>
+              <?php endif; ?>
             <a class="close-reveal-modal">&#215;</a>
          </div>
 
