@@ -14,12 +14,12 @@ Version | PHP | Includes | Code Status
 
 FAQ
 ==============
-See the [wiki](wiki) for more questions / answers and documentation. If you are developing for ELMSLN there's also [extensive documentation on the API site](http://api.elmsln.org).
+See the [wiki](https://github.com/elmsln/elmsln/wiki) for more questions / answers and documentation. If you are developing for ELMSLN there's also [extensive documentation on the API site](http://api.elmsln.org).
 
 ###Q. How can I get more involved?
 There are many ways you can get involved in helping build ELMSLN; not all of which are technical in nature. The easiest way is to click the issues button in this repository. Submit feedback, help, questions, pedagogy, ideas, fan-art anything that helps us further our mission! All help and outreach is welcome and responded to.
 
-If you'd like to try out ELMSLN for yourself, clone this repo and issue `vagrant up`. There's an included Vagrantfile which sets up a Virtual Machine on your computer to try out ELMSLN locally. For detailed directions on how to do this if you've never run vagrant before, see the [ELMSLN Vagrant instructions](wiki/Vagrant:-Step-by-Step-setup).
+If you'd like to try out ELMSLN for yourself, clone this repo and issue `vagrant up`. There's an included Vagrantfile which sets up a Virtual Machine on your computer to try out ELMSLN locally. For detailed directions on how to do this if you've never run vagrant before, see the [ELMSLN Vagrant instructions](https://github.com/elmsln/elmsln/wiki/Vagrant:-Step-by-Step-setup).
 
 If you are looking to join active project team development,[ELMSLN Developer](http://github.com/elmsln/elmsln-developer) is the place for you. This structures your desktop with a repo that helps put things in place to manage multiple elmsln deployments and keep things sane. It's what the project's founders use to develop the project and keep multiple deployments in check (along with robots, obviously).
 
