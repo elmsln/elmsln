@@ -10,7 +10,7 @@ Learn more about ELMSLN @ [elmsln.org](http://elmsln.org/)
 
 Version | PHP | Includes | Code Status 
 ------------- | ------  | --- | -------------------------- | -----------
-[master](https://travis-ci.org/btopro/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/btopro/elmsln.svg?branch=master)](https://travis-ci.org/btopro/elmsln)
+[master](https://travis-ci.org/elmsln/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln)
 
 FAQ
 ==============
