@@ -39,8 +39,6 @@ function _elmsln_alises_build_server(&$aliases) {
     $address = $config['address'];
     // your web root
     $root = $config['stacks'] . '/';
-    // grouping item for your stack
-    $group = $config['host'];
     // stacks you have
     $stacks = array(
       'online',
@@ -54,37 +52,46 @@ function _elmsln_alises_build_server(&$aliases) {
     );
     // loop through known stacks
     foreach ($stacks as $stack) {
-      // only include stack if it has things we can step through
-      // this helps avoid issues of unused stacks throwing errors
-      if (file_exists("$root$stack/sites/$stack/$group")) {
-        // build root alias for the stack
-        $pulledaliases[$stack] = array(
-          'root' => $root . $stack,
-          'uri' => "$stack.$address",
-        );
-        // step through sites directory
-        $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
-        while ($site->valid()) {
-          // Look for directories containing a 'settings.php' file
-          if ($site->isDir() && !$site->isDot() && !$site->isLink()) {
-            if (file_exists($site->getPathname() . '/settings.php')) {
-              // Add site alias
-              $basename = $site->getBasename();
-              $pulledaliases["$stack.$basename"] = array(
-                'parent' => "@$stack",
-                'uri' => "$stack.$address.$basename",
-              );
+      // step through sites directory
+      $stackdir = new DirectoryIterator("$root$stack/sites/$stack");
+      while ($stackdir->valid()) {
+        // Look for directories containing a 'settings.php' file
+        if ($stackdir->isDir() && !$stackdir->isDot() && !$stackdir->isLink()) {
+          $group = $stackdir->getBasename();
+          // only include stack if it has things we can step through
+          // this helps avoid issues of unused stacks throwing errors
+          if (file_exists("$root$stack/sites/$stack/$group")) {
+            // build root alias for the stack
+            $pulledaliases[$stack] = array(
+              'root' => $root . $stack,
+              'uri' => "$stack.$address",
+            );
+            // step through sites directory
+            $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
+            while ($site->valid()) {
+              // Look for directories containing a 'settings.php' file
+              if ($site->isDir() && !$site->isDot() && !$site->isLink()) {
+                if (file_exists($site->getPathname() . '/settings.php')) {
+                  // Add site alias
+                  $basename = $site->getBasename();
+                  $pulledaliases["$stack.$basename"] = array(
+                    'parent' => "@$stack",
+                    'uri' => "$stack.$address.$basename",
+                  );
+                }
+              }
+              $site->next();
             }
           }
-          $site->next();
+          // account for stacks that function more like CIS
+          if (file_exists("$root$stack/sites/$stack/$group/settings.php")) {
+            $pulledaliases["$stack.$group"] = array(
+              'parent' => "@$stack",
+              'uri' => "$stack.$address",
+            );
+          }
         }
-      }
-      // account for stacks that function more like CIS
-      if (file_exists("$root$stack/sites/$stack/$group/settings.php")) {
-        $pulledaliases["$stack.$group"] = array(
-          'parent' => "@$stack",
-          'uri' => "$stack.$address",
-        );
+        $stackdir->next();
       }
     }
   }
