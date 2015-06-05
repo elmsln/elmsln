@@ -17,7 +17,13 @@ FAQ
 See the [wiki](https://github.com/elmsln/elmsln/wiki) for more questions / answers and documentation. If you are developing for ELMSLN there's also [extensive documentation on the API site](http://api.elmsln.org).
 
 ###Q. How can I get more involved?
-The easiest way is to setup an [ELMSLN Developer](http://github.com/elmsln/elmsln-developer) envrionment and run [ELMSLN Vagrant](http://github.com/elmsln/elmsln-vagrant). Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, PHONE or anywhere else that you can find pieces that will help build upon this work. We always welcome more issue reports.
+There are many ways you can get involved in helping build ELMSLN; not all of which are technical in nature. The easiest way is to click the issues button in this repository. Submit feedback, help, questions, pedagogy, ideas, fan-art anything that helps us further our mission! All help and outreach is welcome and responded to.
+
+If you'd like to try out ELMSLN for yourself, clone this repo and issue `vagrant up`. There's an included Vagrantfile which sets up a Virtual Machine on your computer to try out ELMSLN locally. For detailed directions on how to do this if you've never run vagrant before, see the [ELMSLN Vagrant instructions](https://github.com/elmsln/elmsln/tree/master/scripts/vagrant/README.markdown).
+
+If you are looking to join active project team development,[ELMSLN Developer](http://github.com/elmsln/elmsln-developer) is the place for you. This structures your desktop with a repo that helps put things in place to manage multiple elmsln deployments and keep things sane. It's what the project's founders use to develop the project and keep multiple deployments in check (along with robots, obviously).
+
+Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, phone, drupalcamps, edtech events, our offices, or anywhere else that you can find pieces that will help build upon this work. We are here to make the future awesome together.
 
 ###Q. When will there be a stable release?
 As soon as the blockers below are resolved (basically just time). If it helps you sleep at night, we've run this in production and have been actively building off of this framework since May 2013. The package is far more stable then the "master" moniker might otherwise suggest. Point releases require a different mindset from a developer / management perspective so we'll get there when the time is right.
