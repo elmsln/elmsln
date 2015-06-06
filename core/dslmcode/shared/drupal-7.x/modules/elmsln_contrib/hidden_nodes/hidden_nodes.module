@@ -532,7 +532,7 @@ function hidden_nodes_unhide_action(&$node, $context) {
  * Implements hook_foundation_access_menu_item_icon_alter().
  */
 function hidden_nodes_foundation_access_menu_item_icon_alter(&$icon, $element) {
-  if (isset($element['#localized_options']['attributes']) && in_array('node_is_hidden', $element['#localized_options']['attributes']['class'])) {
+  if (isset($element['#localized_options']['attributes']['class']) && in_array('node_is_hidden', $element['#localized_options']['attributes']['class'])) {
     $icon = 'hidden';
   }
 }
