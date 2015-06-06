@@ -33,6 +33,7 @@ touch $HOME/.bashrc
 echo "alias g='git'" >> $HOME/.bashrc
 echo "alias d='drush'" >> $HOME/.bashrc
 echo "alias l='ls -laHF'" >> $HOME/.bashrc
+echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> $HOME/.bashrc
 
 # setup drush
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc

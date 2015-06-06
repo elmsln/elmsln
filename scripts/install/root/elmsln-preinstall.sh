@@ -306,6 +306,7 @@ echo "alias g='git'" >> .bashrc
 echo "alias d='drush'" >> .bashrc
 echo "alias l='ls -laHF'" >> .bashrc
 echo "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> .bashrc
+echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> .bashrc
 
 # setup drush
 curl -sS https://getcomposer.org/installer | php
