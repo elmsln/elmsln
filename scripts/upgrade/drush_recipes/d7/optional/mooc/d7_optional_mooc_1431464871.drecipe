@@ -18,6 +18,7 @@
                 "mooc_theme_foundation",
                 "speedreader",
                 "mooc_foundation_access",
+                "mooc_content_theming",
                 "book_cache",
                 "back_to_top"
             ]
@@ -29,6 +30,8 @@
                 "overlay",
                 "boxes",
                 "chamfer_defaults",
+                "mooc_theme_aurora",
+                "mooc_theme_corolla",
                 "delta",
                 "delta_blocks",
                 "field_ui",
