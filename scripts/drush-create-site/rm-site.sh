@@ -22,19 +22,29 @@ if [[ $EUID -ne 0 ]]; then
   elmslnwarn "Please run as root"
   exit 1
 fi
-# check for supplied course name
-if [ -z "$1" ]; then
-    elmslnwarn "Usage: $0 <course name> <stack>"
+
+# make sure we have a course name we are going to remove
+rmcourse=$1
+if [ -z "$rmcourse" ]; then
+  elmslnwarn "please select a course to remove"
+  read rmcourse
+  if [ -z "$rmcourse" ]; then
     exit 1
+  fi
 fi
-# check for supplied stack
-if [ -z "$2" ]; then
-    elmslnwarn "Usage: $0 <course name> <stack>"
+
+# check which stack we are going to do this in
+rmstack=$2
+if [ -z "$rmstack" ]; then
+  elmslnwarn "please select a stack / system / tool to remove from $rmcourse"
+  read rmstack
+  if [ -z "$rmstack" ]; then
     exit 1
+  fi
 fi
 
 #remove sites directory
-for sitedata in `find $elmsln/config/stacks/$2 -name $1 | grep -v services` ; do
+for sitedata in `find $elmsln/config/stacks/$rmstack -name $rmcourse | grep -v services` ; do
     elmslnwarn "found sub-site $sitedata remove(y/n)"
     read rmsitedata
     if [ $rmsitedata == "y" ] || [ $rmsitedata == "yes" ]; then
@@ -58,7 +68,7 @@ for sitedata in `find $elmsln/config/stacks/$2 -name $1 | grep -v services` ; do
                 mysql -u$dbsu -p$dbsupw -e "drop user $dbuser@localhost;"
             fi
         fi
-        servicestest=`find $elmsln/config/stacks/$2/sites/$2/services/ -name $1`
+        servicestest=`find $elmsln/config/stacks/$rmstack/sites/$rmstack/services/ -name $rmcourse`
         elmslnecho "removing services site"
         elmslnecho $servicestest
         if [[ $servicestest ]]; then
@@ -73,30 +83,30 @@ done
 
 
 # clean out the jobs folder
-jobtest=`find $elmsln/config/jobs/ -name $1.$2.processed`
+jobtest=`find $elmsln/config/jobs/ -name $rmcourse.$rmstack.processed`
 if [[ $jobtest ]]; then
     elmslnecho "removing jobs file"
-    rm $elmsln/config/jobs/$1.$2.processed
+    rm $elmsln/config/jobs/$rmcourse.$rmstack.processed
 else
     elmslnecho "job file not present"
 fi
 
 # ax the symlink
-if [ -L $elmsln/domains/$2/$1 ]; then
+if [ -L $elmsln/domains/$rmstack/$rmcourse ]; then
     elmslnecho "removing symlink"
-    rm $elmsln/domains/$2/$1
+    rm $elmsln/domains/$rmstack/$rmcourse
 else
     elmslnecho "symlink not present"
 fi
 
 #move into config dir for stack
 #grep for coursename
-cd $elmsln/config/stacks/$2/sites/
-sitesphp=`grep -nr $2 sites.php`
+cd $elmsln/config/stacks/$rmstack/sites/
+sitesphp=`grep -nr $rmstack sites.php`
 
 while [[ $sitesphp ]]; do
-    sitesphp=`grep -nr $2 sites.php`
-    grep -nr $2 sites.php
+    sitesphp=`grep -nr $rmstack sites.php`
+    grep -nr $rmstack sites.php
     elmslnecho "which line do you want to remove? (x to finish)"
     read rmnum
     validrmnum=`echo $sitesphp | grep $rmnum:`
@@ -106,7 +116,7 @@ while [[ $sitesphp ]]; do
         sed -i ""$rmnum"d" sites.php
     else
         if [[ $rmnum == "x" ]]; then
-            elmslnecho "$1 successfully removed from $2 stack"
+            elmslnecho "$rmcourse successfully removed from $rmstack stack"
             exit 1
         else
             elmslnwarn $rmnum " is not a valid input"
