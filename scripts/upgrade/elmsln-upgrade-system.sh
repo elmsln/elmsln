@@ -22,12 +22,18 @@ timestamp(){
   date +"%s"
 }
 
+# set the branch via passed in command
 if [ -z $1 ]; then
   elmslnwarn "please select a branch you want to update (like master)"
-  exit 1
+  read branch
+  if [ -z $branch ]; then
+    exit 1
+  fi
+  else
+    branch=$1
 fi
 
-# allow for lazy, dangerous people like btopro who enter yes via commandline
+# allow for lazy people like btopro who enter yes via commandline
 if [ -z $2 ]; then
   elmslnecho "Are you sure you want to upgrade the entire network? (Type yes)"
   read yesprompt
@@ -53,7 +59,7 @@ start="$(timestamp)"
 echo "$(date +%T) job started"
 # move to elmsln home then issue git pull to kick it off
 cd ../..
-git pull origin $1 || (elmslnwarn "git pull failed, you are out of sync with what we support. Exiting." && exit 1)
+git pull origin $branch || (elmslnwarn "git pull failed, you are out of sync with what we support. Exiting." && exit 1)
 
 # make sure we are running off of the correct drush plugins and what not
 # since they could change or be upgraded
