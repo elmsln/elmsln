@@ -41,8 +41,9 @@ while menuitems && read -rp "$prompt" num && [[ "$num" ]]; do
   }
   # if we got here it means we have valid input
   choice="${items[num]}"
-  location=''
-  if [ ${locations[num]} != '' ]; then
+  if [ "${locations[num]}" == '' ]; then
+    location=''
+  else
     location="/var/www/elmsln/scripts/${locations[num]}"
   fi
   cmd="${commands[num]}"
