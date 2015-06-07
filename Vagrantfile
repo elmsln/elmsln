@@ -5,7 +5,10 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  # centos 6.5
+  # centos 6.5 - 32 bit, uncomment below if you have a 32 bit OS
+  #config.vm.box = "chef/centos-6.5-i386"
+
+  # centos 6.5 - 64 bit
   config.vm.box = "chef/centos-6.5"
   # private network port maping, host files point to elmsln domains
   config.vm.network "private_network", ip: "10.0.18.55"
