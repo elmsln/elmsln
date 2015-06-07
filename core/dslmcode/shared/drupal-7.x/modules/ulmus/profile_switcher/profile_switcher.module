@@ -1,0 +1,147 @@
+<?php
+/**
+ * @file
+ * Profie Switcher Module
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function profile_switcher_menu() {
+  $items = array();
+
+  $items['admin/config/development/profile-switcher'] = array(
+    'title' => t('Profile Switcher'),
+    'description' => t('Switch from one profile to another.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('profile_switcher_admin_settings'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Builds the profile_switcher admininstration settings form.
+ */
+function profile_switcher_admin_settings($form, &$form_state) {
+  $form = array();
+
+  // The function used to scan for install profiles is only called
+  // https://api.drupal.org/api/drupal/includes%21install.core.inc/function/install_find_profiles/7
+
+  //$profiles = install_find_profiles();
+  $options = array();
+  $profiles = profile_switcher_find_profiles();
+
+  foreach ($profiles as $profile) {
+    $options[$profile->name] =  t($profile->name);
+  }
+
+  $current_profile = drupal_get_profile();
+
+  //https://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_get_profile/7
+  //https://api.drupal.org/api/drupal/includes%21install.inc/function/drupal_install_profile_distribution_name/7
+
+  if ($current_profile == 'standard' || $current_profile == 'minimal') {
+    $status = t('You are currently using the @profile profile.', array('@profile' => $current_profile));
+  } else {
+    $status = t('You are currently using the @profile profile.  Any modules included in this profile that are not included in the profile you switch to or are not included in sites/all/modules will be disabled... INCLUING THE PROFILE SWITCHER MODULE!  If Profile Switcher not enabled in the new profile, you will need to install it to switch back.', array('@profile' => $current_profile));
+  }
+
+  //https://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_get_profile/7
+  //https://api.drupal.org/api/drupal/includes%21install.inc/function/drupal_install_profile_distribution_name/7
+
+  $form['profile_switcher_status'] = array(
+    '#markup' => $status,
+  );
+
+  $form['profile_switcher_profile_old'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $current_profile,
+  );
+
+  $form['profile_switcher_profile'] = array(
+    '#type' => 'select',
+    '#title' => t('Profile'),
+    '#options' => $options,
+    '#default_value' => $current_profile,
+    '#description' => t('List of profiles currently available from /profiles'),
+  );
+
+  $form = system_settings_form($form);
+  $form['#submit'][] = 'profile_switcher_admin_settings_submit';
+  $form['actions']['submit']['#value'] = t('Switch Profile');
+  return ($form);
+
+}
+
+/**
+ * Builds the profile_switcher admininstration settings form.
+ */
+function profile_switcher_find_profiles() {
+  // scan the profiles directory for install profiles
+  return file_scan_directory(DRUPAL_ROOT . '/profiles', '/\.profile$/', array('key' => 'name'));
+}
+
+/**
+ * Admin settings callback
+ */
+function profile_switcher_admin_settings_submit($form, &$form_state) {
+
+  $new_profile = $form['profile_switcher_profile']['#value'];
+  $old_profile = $form['profile_switcher_profile_old']['#value'];
+
+  if ($new_profile == $old_profile) {
+    $old_profile = FALSE;
+  }
+  variable_set('install_profile', $new_profile);
+
+  $new_status = db_query('SELECT status FROM {system} WHERE name = :name', array(':name' => $new_profile))->fetchField();
+
+  if (empty($new_status)) {
+    // Unlike modules, profiles aren't added to the system table just because the
+    // files are added to /profiles.  They are added after they are active.  We
+    // need to add them before that so they are BOTH active and enabled. 
+
+    // Cache a fully-built schema.
+    drupal_get_schema(NULL, TRUE);
+    system_rebuild_module_data();
+
+    // Flush all caches to ensure that any full bootstraps during the installer
+    // do not leave stale cached data, and that any content types or other items
+    // registered by the install profile are registered correctly.
+    drupal_flush_all_caches();
+
+  }
+
+  if (!$new_status) {
+    $new_profile_activated = db_update('system') // Table name no longer needs {}
+    ->fields(array(
+      'status' => 1,
+     ))
+    ->condition('name', $new_profile, '=')
+    ->execute();
+  }
+
+  if ($old_profile) {
+    //@TODO: Add check to see if new profile was enabled
+    //disable the old profile if possible
+    $old_status = db_query('SELECT status FROM {system} WHERE name = :name', array(':name' => $old_profile))->fetchField();
+
+    if ($old_status) {
+      $old_profile_deactivated = db_update('system') // Table name no longer needs {}
+      ->fields(array(
+        'status' => 0,
+       ))
+      ->condition('name', $old_profile, '=')
+      ->execute();
+    }
+
+    drupal_set_message(t('@new_profile was enabled.  @old_profile was disabled.', array('@new_profile' => $new_profile, '@old_profile' => $old_profile)));
+  }
+  else {
+    drupal_set_message(t('@new_profile was re-enabled.', array('@new_profile' => $new_profile)));
+  }
+}

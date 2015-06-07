@@ -1,0 +1,85 @@
+{
+    "name": "Switch install profile",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "dependencies": [
+        "@site",
+        "registry_rebuild",
+        "profile_switcher"
+    ],
+    "env": {
+        "tokens": {
+            "[profile]": "install profile machine name to switch to"
+        },
+        "defaults": {
+            "[profile]": "minimal"
+        }
+    },
+    "core": "7",
+    "recipe": [
+        {
+            "command": "variable-set",
+            "arguments": [
+                "maintenance_mode",
+                "1"
+            ],
+            "options": {
+                "always-set": "1"
+            }
+        },
+        {
+            "madlib": "TRUE",
+            "command": "profile-switch",
+            "arguments": [
+                "[profile]"
+            ],
+            "tokens": {
+                "[profile]": "install profile machine name to switch to"
+            },
+            "defaults": {
+                "[profile]": "minimal"
+            }
+        },
+        {
+            "command": "registry-rebuild"
+        },
+        {
+            "command": "cache-clear",
+            "arguments": [
+                "all"
+            ]
+        },
+        {
+            "madlib": "TRUE",
+            "command": "en",
+            "arguments": [
+                "[profile]"
+            ],
+            "options": {
+                "y": "1"
+            },
+            "tokens": {
+                "[profile]": "install profile to enable"
+            },
+            "defaults": {
+                "[profile]": "minimal"
+            }
+        },
+        {
+            "command": "variable-delete",
+            "arguments": [
+                "maintenance_mode"
+            ],
+            "options": {
+                "exact": "1"
+            }
+        }
+    ],
+    "metadata": {
+        "type": "utility",
+        "version": "1.0",
+        "author": "btopro",
+        "description": "Switch from one drupal install profile to another.",
+        "lazy": "switch"
+    }
+}

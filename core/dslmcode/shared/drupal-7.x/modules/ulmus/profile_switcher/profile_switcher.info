@@ -1,0 +1,7 @@
+name = Profile Switcher
+description = UI to switch between install profiles and/or distributions
+
+core = 7.x
+
+configure = admin/config/development/profile-switcher
+
