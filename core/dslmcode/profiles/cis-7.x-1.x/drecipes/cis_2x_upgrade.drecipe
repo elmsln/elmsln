@@ -1,21 +1,22 @@
 {
-    "name": "CIS Foundation Access UX Upgrade",
+    "name": "CIS 2.x upgrade",
     "drush_recipes_api": "1.0",
     "weight": "0",
     "core": "7",
+    "dependencies": [
+        "@site",
+        "registry_rebuild",
+        "profile_switcher"
+    ],
     "recipe": {
         "0": {
-            "command": "en",
+            "command": "cook",
             "arguments": [
-                "admin_menu_dropdown",
-                "foundation_access_ux",
-                "cis_lmsless",
-                "cis_performance_overrides",
-                "fastclick",
-                "jquery_update",
-                "cis_theme_foundation",
-                "back_to_top"
-            ]
+                "switch_profile"
+            ],
+            "options": {
+                "profile": "cis"
+            }
         },
         "2": {
             "command": "dis",
@@ -247,6 +248,6 @@
         "type": "upgrade",
         "version": "1.0",
         "author": "elmsln",
-        "description": "This is an optional upgrade to bring CIS into alignment with the Foundation Access user experience."
+        "description": "This will upgrade a CIS 1.x instance to be a 2.x instance."
     }
 }
