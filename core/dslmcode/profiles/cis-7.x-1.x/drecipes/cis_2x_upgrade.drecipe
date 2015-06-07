@@ -10,6 +10,12 @@
     ],
     "recipe": {
         "0": {
+            "command": "en",
+            "arguments": [
+                "profile_switcher"
+            ]
+        },
+        "1": {
             "command": "cook",
             "arguments": [
                 "switch_profile"
@@ -238,9 +244,15 @@
             ]
         },
         "42": {
-            "command": "cc",
+            "command": "dis",
             "arguments": [
-                "all"
+                "profile_switcher"
+            ]
+        },
+        "43": {
+            "command": "pm-uninstall",
+            "arguments": [
+                "profile_switcher"
             ]
         }
     },
