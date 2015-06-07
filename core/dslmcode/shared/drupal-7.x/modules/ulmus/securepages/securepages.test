@@ -1,0 +1,384 @@
+<?php
+
+/**
+ * @file
+ * Provides SimpleTests for Secure Pages module.
+ */
+
+class SecurePagesTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Secure Pages',
+      'description' => 'Test Secure Pages redirects.',
+      'group' => 'Secure Pages',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('securepages', 'comment', 'locale', 'overlay');
+    variable_set('https', TRUE);
+    variable_set('securepages_enable', TRUE);
+  }
+
+  /**
+   * Runs all the test functions. These are run from a single outer function to
+   * avoid multiple re-installs by simpletest.
+   */
+  function testSecurePages() {
+    $this->_testSettingsForm();
+    $this->_testMatch();
+    $this->_testLocale();
+    $this->_testAnonymous();
+    $this->_testFormAlter();
+    $this->_testCachedResponse();
+    $this->_testPathAlias();
+    $this->_testOpenRedirect();
+    $this->_testXHR();
+    $this->_testRoles();
+    $this->_testPathNorms();
+  }
+
+  /**
+   * Test submitting the settings form.
+   */
+  function _testSettingsForm() {
+    // Undo the setUp() function.
+    variable_del('securepages_enable');
+
+    // Enable securepages.
+    $this->web_user = $this->drupalCreateUser(array('administer site configuration', 'access administration pages'));
+    $this->loginHTTPS($this->web_user);
+    $edit = array('securepages_enable' => 1);
+    $this->drupalPost('admin/config/system/securepages', $edit, t('Save configuration'), array('https' => TRUE));
+    $this->assertRaw(t('The configuration options have been saved.'));
+
+    // Clean up
+    $this->drupalLogout();
+  }
+
+  /**
+   * Tests the securepages_match() function.
+   */
+  function _testMatch() {
+    global $is_https;
+    variable_set('securepages_ignore', '*/autocomplete/*');
+    $this->assertTrue(securepages_match('user'), 'path user matches.');
+    $this->assertTrue(securepages_match('user/login'), 'path user/login matches.');
+    $this->assertTrue(securepages_match('admin/modules'), 'path admin/modules matches.');
+    $this->assertFalse(securepages_match('node'), 'path node does not match.');
+    $this->assertTrue(securepages_match('user/autocomplete/alice') == $is_https ? 1 : 0, 'autocomplete path is ignored.');
+
+    // Clean up
+    variable_del('securepages_ignore');
+  }
+
+  /**
+   * Tests correct operation with locale module.
+   */
+  function _testLocale() {
+    // Enable "Switch back to http pages when there are no matches".
+    variable_set('securepages_switch', TRUE);
+
+    // User to add and remove language.
+    $admin_user = $this->drupalCreateUser(array('administer languages', 'access administration pages'));
+    $this->drupalLogin($admin_user);
+
+    // Add predefined language.
+    $edit = array(
+      'langcode' => 'fr',
+    );
+    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+    $this->assertText('fr', t('Language added successfully.'));
+
+    // Enable URL language detection and selection.
+    $edit = array('language[enabled][locale-url]' => '1');
+    $this->drupalPost('admin/config/regional/language/configure', $edit, t('Save settings'));
+
+    drupal_static_reset('language_list');
+    drupal_static_reset('locale_url_outbound_alter');
+    $languages = language_list('language');
+    $lang = $languages['fr'];
+    $this->drupalGet('user', array('language' => $lang));
+    $this->assertResponse(200);
+    $this->assertUrl(url('user', array('https' => TRUE, 'absolute' => TRUE, 'language' => $lang)));
+    $this->assertTrue(strstr($this->url, 'fr/user'), t('URL contains language prefix.'));
+
+    $this->drupalGet('', array('language' => $lang, 'https' => TRUE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('', array('https' => FALSE, 'absolute' => TRUE, 'language' => $lang)));
+
+    // Clean up
+    variable_del('securepages_switch');
+    $this->drupalLogout();
+  }
+
+  /**
+   * Tests for anonymous browsing with securepages.
+   */
+  function _testAnonymous() {
+    // Visit the home page and /node with plain HTTP.
+    $this->drupalGet('', array('https' => FALSE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('', array('https' => FALSE, 'absolute' => TRUE)));
+    $this->drupalGet('node', array('https' => FALSE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('node', array('https' => FALSE, 'absolute' => TRUE)));
+
+    // Visit the login page and confirm that browser is redirected to HTTPS.
+    $this->drupalGet('user', array('https' => FALSE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('user', array('https' => TRUE, 'absolute' => TRUE)));
+
+    // Visit the home page and /node with HTTPS and confirm that no redirection happens.
+    $this->drupalGet('', array('https' => TRUE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('', array('https' => TRUE, 'absolute' => TRUE)));
+    $this->drupalGet('node', array('https' => TRUE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('node', array('https' => TRUE, 'absolute' => TRUE)));
+
+    // Enable "Switch back to http pages when there are no matches".
+    variable_set('securepages_switch', TRUE);
+
+    // Visit the home page and /node with HTTPS and confirm that switch-back happens.
+    $this->drupalGet('', array('https' => TRUE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('', array('https' => FALSE, 'absolute' => TRUE)));
+    $this->drupalGet('node', array('https' => TRUE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('', array('https' => FALSE, 'absolute' => TRUE)));
+
+    // Clean up
+    variable_del('securepages_pages');
+  }
+
+  /**
+   * Tests the ability to alter form actions.
+   *
+   * Uses the comment form, since it has an #action set.
+   */
+  function _testFormAlter() {
+    variable_set('securepages_switch', TRUE);
+
+    // Enable anonymous user comments.
+    user_role_change_permissions(DRUPAL_ANONYMOUS_RID, array(
+      'access comments' => TRUE,
+      'post comments' => TRUE,
+      'skip comment approval' => TRUE,
+    ));
+
+    $this->web_user = $this->drupalCreateUser(array('access comments', 'post comments', 'skip comment approval'));
+    $node = $this->drupalCreateNode(array('type' => 'article', 'promote' => 1));
+
+    foreach (array('anonymous', 'authenticated') as $mode) {
+      if ($mode == 'authenticated') {
+        $this->drupalLogin($this->web_user);
+      }
+
+      // Test plain HTTP posting to HTTPS.
+      variable_set('securepages_pages', "comment/reply/*\nuser*");
+      $this->drupalGet('node/' . $node->nid, array('https' => FALSE));
+      $this->assertFieldByXPath('//form[@class="comment-form" and starts-with(@action, "https:")]', NULL, "The $mode comment form action is https.");
+      $this->drupalPost(NULL, array('comment_body[und][0][value]' => 'test comment'), t('Save'));
+      $this->assertRaw(t('Your comment has been posted.'));
+
+      // Test HTTPS posting to plain HTTP.
+      variable_set('securepages_pages', "node/*\nuser*");
+      $this->drupalGet('node/' . $node->nid, array('https' => TRUE));
+      $this->assertUrl(url('node/' . $node->nid, array('https' => TRUE, 'absolute' => TRUE)));
+      $this->assertFieldByXPath('//form[@class="comment-form" and starts-with(@action, "http:")]', NULL, "The $mode comment form action is http.");
+      $this->drupalPost(NULL, array('comment_body[und][0][value]' => 'test'), t('Save'));
+      $this->assertRaw(t('Your comment has been posted.'));
+    }
+    $this->drupalLogout();
+
+    // Test the user login block.
+    $this->drupalGet('');
+    $edit = array(
+      'name' => $this->web_user->name,
+      'pass' => $this->web_user->pass_raw,
+    );
+    $this->drupalPost(NULL, $edit, t('Log in'));
+    $this->drupalGet('user/' . $this->web_user->uid . '/edit');
+    $this->assertResponse(200);
+
+    // Clean up
+    $this->drupalLogout();
+    variable_del('securepages_pages');
+    variable_del('securepages_switch');
+  }
+
+  function _testCachedResponse() {
+    // Enable the page cache and fetch the login page.
+    variable_set('cache', TRUE);
+    $url = url('user', array('absolute' => TRUE, 'https' => FALSE));
+    $this->drupalGet($url);
+
+    // Short-circuit redirects within the simpletest browser.
+    variable_set('simpletest_maximum_redirects', 0);
+    $this->drupalGet($url);
+    $this->assertResponse(302);
+    $this->assertEqual($this->drupalGetHeader('Location'), url('user', array('https' => TRUE, 'absolute' => TRUE)));
+    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
+
+    // Clean up
+    variable_del('cache');
+    variable_del('simpletest_maximum_redirects');
+  }
+
+  /**
+   * Test redirection on aliased paths.
+   */
+  function _testPathAlias() {
+    variable_set('securepages_pages', "node/*\nuser*");
+
+    // Create test user and login.
+    $web_user = $this->drupalCreateUser(array('create page content', 'edit own page content', 'administer url aliases', 'create url aliases'));
+    $this->drupalLogin($web_user);
+
+    // Create test node.
+    $node = $this->drupalCreateNode();
+
+    // Create alias.
+    $edit = array();
+    $edit['source'] = 'node/' . $node->nid;
+    $edit['alias'] = $this->randomName(8);
+    $this->drupalPost('admin/config/search/path/add', $edit, t('Save'));
+
+    // Short-circuit redirects within the simpletest browser.
+    variable_set('simpletest_maximum_redirects', 0);
+    $this->drupalGet($edit['alias'], array('absolute' => TRUE, 'https' => FALSE));
+    $this->assertResponse(302);
+    $this->assertEqual($this->drupalGetHeader('Location'), url($edit['alias'], array('https' => TRUE, 'absolute' => TRUE)));
+
+    // Clean up
+    variable_del('simpletest_maximum_redirects');
+    $this->drupalLogout();
+    variable_del('securepages_pages');
+  }
+
+  /**
+   * Verifies that securepages is not an open redirect.
+   */
+  function _testOpenRedirect() {
+    // Short-circuit redirects within the simpletest browser.
+    variable_set('simpletest_maximum_redirects', 0);
+    variable_set('securepages_switch', TRUE);
+
+    global $base_url, $base_path;
+    $secure_base_url = str_replace('http', 'https', $base_url);
+    $this->drupalGet($secure_base_url . $base_path . '?q=http://example.com/', array('external' => TRUE));
+    $this->assertResponse(302);
+    $this->assertTrue(strstr($this->drupalGetHeader('Location'), $base_url), t('Open redirect test passed.'));
+
+    $this->drupalGet($secure_base_url . $base_path . '?q=' . urlencode('http://example.com/'), array('external' => TRUE));
+    $this->assertResponse(302);
+    $this->assertTrue(strstr($this->drupalGetHeader('Location'), $base_url), t('Open redirect test passed.'));
+
+    // Clean up
+    variable_del('simpletest_maximum_redirects');
+    variable_del('securepages_switch');
+  }
+
+  /**
+   * Test detection of XHR and overlay requests.
+   */
+  function _testXHR() {
+    $admin_user = $this->drupalCreateUser(array('access overlay', 'access user profiles', 'administer users', 'access administration pages'));
+    $this->drupalLogin($admin_user);
+
+    // Without XHR header
+    $this->drupalGet('user/autocomplete/a', array('https' => FALSE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('user/autocomplete/a', array('https' => TRUE, 'absolute' => TRUE)));
+
+    // With XHR header
+    $this->drupalGet('user/autocomplete/a', array('https' => FALSE), array('X-Requested-With: XMLHttpRequest'));
+    $this->assertResponse(200);
+    $this->assertUrl(url('user/autocomplete/a', array('https' => FALSE, 'absolute' => TRUE)));
+
+    // Test the overlay
+    $this->drupalGet('admin', array('query' => array('render' => 'overlay'), 'https' => FALSE), array('X-Requested-With: XMLHttpRequest'));
+    $this->assertResponse(200);
+    $this->assertRaw('"closeOverlay":true');
+
+    // Clean up
+    $this->drupalLogout();
+  }
+
+  /**
+   * Test role-based switching.
+   */
+  function _testRoles() {
+    // Undo the setUp() function.
+    variable_del('securepages');
+
+    // Enable securepages.
+    $this->web_user = $this->drupalCreateUser(array('administer site configuration', 'access administration pages', 'access comments', 'post comments'));
+
+    // Extract the role that was just generated.
+    $role = $this->web_user->roles;
+    unset($role[DRUPAL_AUTHENTICATED_RID]);
+    $role = current($role);
+
+    $this->loginHTTPS($this->web_user);
+    $edit = array('securepages_enable' => 1, 'securepages_switch' => 1, "securepages_roles[$role]" => 1);
+    $this->drupalPost('admin/config/system/securepages', $edit, t('Save configuration'), array('https' => TRUE));
+    $this->assertRaw(t('The configuration options have been saved.'));
+
+    // Visit the home page and /node with HTTPS and confirm that redirection happens.
+    $this->drupalGet('', array('https' => FALSE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('', array('https' => TRUE, 'absolute' => TRUE)));
+    $this->drupalGet('node', array('https' => FALSE));
+    $this->assertResponse(200);
+    $this->assertUrl(url('', array('https' => TRUE, 'absolute' => TRUE)));
+
+    // Test that forms actions aren't switched back to http.
+    $node = $this->drupalCreateNode(array('type' => 'article', 'promote' => 1));
+    $this->drupalGet('node/' . $node->nid, array('https' => TRUE));
+    $this->assertFieldByXPath('//form[@class="comment-form" and starts-with(@action, "/")]', NULL, "The comment form action is https.");
+
+    // Clean up
+    variable_del('securepages_switch');
+    variable_del('securepages_roles');
+    $this->drupalLogout();
+  }
+
+  /**
+   * Test path normalization checks.
+   */
+  function _testPathNorms() {
+    variable_set('securepages_switch', TRUE);
+    variable_set('securepages_pages', 'user');
+
+    // Test mixed-case path.
+    $this->drupalGet('UsEr');
+    $this->assertUrl('UsEr', array('https' => TRUE, 'absolute' => TRUE));
+    $this->assertFieldByXPath('//form[@id="user-login" and starts-with(@action, "/")]', NULL, 'The user login form action is https.');
+
+    // Test that a trailing slash will not force a protected form's action to
+    // http. A http based 'user/' path will become 'user' when doing the
+    // redirect, so best to ensure that the test gets the right conditions the
+    // path should be https based.
+    $this->drupalGet('user/', array('https' => TRUE, 'absolute' => TRUE));
+    $this->assertUrl('user/', array('https' => TRUE, 'absolute' => TRUE));
+    $this->assertFieldByXPath('//form[@id="user-login" and starts-with(@action, "/")]', NULL, 'The user login form action is https.');
+
+    // Clean up.
+    variable_del('securepages_switch');
+    variable_del('securepages_pages');
+  }
+
+  /**
+   * Logs in a user using HTTPS.
+   */
+  function loginHTTPS($user) {
+    $edit = array(
+      'name' => $user->name,
+      'pass' => $user->pass_raw,
+    );
+    $this->drupalPost('user', $edit, t('Log in'), array('https' => TRUE));
+  }
+
+}

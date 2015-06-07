@@ -1,0 +1,22 @@
+
+1. Running secure pages on the Nginx web server. See http://drupal.org/node/390450#comment-1420518
+
+The text from this reference below.
+
+----8<----
+If you are on Nginx, Then add the little code in your Nginx conf file.
+
+fastcgi_param HTTPS on;
+
+Here is all the code in my host conf at the php section.
+  location ~ .*\.(php|php5)?$
+  {
+    #fastcgi_pass  unix:/tmp/php-cgi.sock;
+    fastcgi_pass  127.0.0.1:9000;
+    fastcgi_index index.php;
+    include fcgi.conf;
+    fastcgi_param HTTPS on;
+  }
+
+Reload your nginx server, then you may get the enable box active.
+----8<----
