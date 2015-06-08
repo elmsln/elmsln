@@ -118,7 +118,7 @@ function textbook_page_alter() {
 function textbook_html_head_alter(&$head_elements) {
   $args = arg();
   // account for print module and book print out
-  if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
+  if (isset($args[2]) && $args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
     // book module template ignores css styles added to print
     $locations = _textbook_apply_style('print');
     // parse returned locations array and manually add to html head
