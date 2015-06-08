@@ -177,4 +177,3 @@ features[defaultconfig][] = user_default_permissions:view teaser controls
 features[defaultconfig][] = user_default_permissions:view the administration theme
 features[defaultconfig][] = user_default_permissions:view user delete button
 features[features_api][] = api:2
-features_exclude[dependencies][defaultconfig] = defaultconfig
