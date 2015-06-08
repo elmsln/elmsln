@@ -15,7 +15,7 @@ function cis_install() {
   // do some initial clean up from the install
   _elmsln_installer_preflight();
   // to standard theme routine
-  _elmsln_installer_theme('cis_theme');
+  _elmsln_installer_theme('cis_foundation_access');
   // establish admin role
   _elmsln_installer_admin_role();
   // standard clean up
