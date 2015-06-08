@@ -159,7 +159,13 @@ function cis_helper_page_build(&$page) {
       }
     }
   }
-  // build shortcuts to create other services, excluding current ones
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function cis_helper_page_alter(&$page) {
+ // build shortcuts to create other services, excluding current ones
   if (arg(2) == 'service-instances' && is_numeric(arg(1))) {
     $key = array('field_services', 'target_id');
     $fields = array('field_course' => array('target_id', arg(1)));
@@ -181,10 +187,7 @@ function cis_helper_page_build(&$page) {
       $links .= '<li>' . l(t('Add `@service` service', array('@service' => $name)), 'node/add/service-instance', $options) . "</li>\n";
     }
     $links .= "\n</ul>\n</div>";
-    $page['content']['system_main']['cis-links'] = array(
-      '#markup' => $links,
-      '#weight' => 1,
-    );
+    $page['content']['system_main']['main']['#markup'] .= $links;
   }
 }
 
