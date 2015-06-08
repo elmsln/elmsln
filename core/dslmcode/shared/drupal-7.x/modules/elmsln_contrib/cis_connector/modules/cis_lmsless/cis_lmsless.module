@@ -158,8 +158,9 @@ function _cis_lmsless_theme_vars() {
     // being actively used in the section in question
     $current = t('Current');
     $current_url = $GLOBALS['base_url'] . '/';
+    $course_context = _cis_connector_course_context();
     if (_cis_connector_system_type() == 'authority') {
-      $current_url .= _cis_connector_course_context();
+      $current_url .= $course_context;
     }
     $list[$current][$machine_name] = array(
       'title' => (isset($reg[$distro]['default_title']) ? $reg[$distro]['default_title'] : ''),
@@ -167,7 +168,7 @@ function _cis_lmsless_theme_vars() {
       'machine_name' => $machine_name,
     );
     // services label specific to course context
-    $service_group = t('@course Services', array('@course' => _cis_connector_course_context()));
+    $service_group = t('@course Services', array('@course' => $course_context));
     // set active to the current one
     $vars['active'] = $list[$current][$machine_name];
     // request a list of all other services that this section uses
@@ -177,7 +178,7 @@ function _cis_lmsless_theme_vars() {
         if ($service['field_machine_name'] != $vars['active']['machine_name']) {
           $list[$service_group][$service['field_machine_name']] = array(
             'title' => $service['title'],
-            'url' => $service['field_location']['url'] . '/' . _cis_connector_course_context(),
+            'url' => $service['field_location']['url'] . '/' . $course_context,
             'machine_name' => $service['field_machine_name'],
           );
         }
@@ -197,13 +198,16 @@ function _cis_lmsless_theme_vars() {
         if (isset($value['instance']) && !$value['instance'] && $addr[0] != $vars['active']['machine_name']) {
           $list[$administrative][$addr[0]] = array(
             'title' => $reg[$key]['default_title'],
-            'url' => _cis_connector_format_address($reg[$key],  '/' . _cis_connector_course_context(), 'front'),
+            'url' => _cis_connector_format_address($reg[$key],  '/' . $course_context, 'front'),
             'machine_name' => $addr[0],
           );
         }
       }
+
       // service creation stuff inline
-      $vars['service_option_link'] = _cis_connector_format_address($reg['cis'],  '/' . _cis_connector_course_context(), 'front') . 'service-instances';
+      if (!empty($course_context)) {
+        $vars['service_option_link'] = _cis_connector_format_address($reg['cis'],  '/' . $course_context, 'front') . '/service-instances';
+      }
     }
     $vars['services'] = $list;
     // support for search bar if active
