@@ -5,8 +5,7 @@
     "core": "7",
     "dependencies": [
         "@site",
-        "registry_rebuild",
-        "profile_switcher"
+        "registry_rebuild"
     ],
     "recipe": {
         "0": {
@@ -21,7 +20,7 @@
                 "switch_profile"
             ],
             "options": {
-                "profile": "cis"
+                "env-profile": "cis"
             }
         },
         "2": {
@@ -36,7 +35,9 @@
                 "regions_admin_left",
                 "regions_right_slideout",
                 "display_cache",
-                "thumbnav"
+                "thumbnav",
+                "field_permissions",
+                "breakpoints"
             ]
         },
         "3": {
@@ -253,6 +254,12 @@
             "command": "pm-uninstall",
             "arguments": [
                 "profile_switcher"
+            ]
+        },
+        "44": {
+            "command": "php-eval",
+            "arguments": [
+                "'node_access_rebuild();'"
             ]
         }
     },
