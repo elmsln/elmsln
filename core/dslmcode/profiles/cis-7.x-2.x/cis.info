@@ -134,7 +134,6 @@ dependencies[] = replicate_ui
 dependencies[] = email
 dependencies[] = field_collection
 dependencies[] = field_hidden
-dependencies[] = field_permissions
 dependencies[] = phone
 dependencies[] = select_or_other
 ; Media
