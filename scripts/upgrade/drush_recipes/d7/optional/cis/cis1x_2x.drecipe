@@ -34,6 +34,8 @@
                 "og_context",
                 "regions_admin_left",
                 "regions_right_slideout",
+                "regions",
+                "regions_admin_example",
                 "display_cache",
                 "thumbnav",
                 "field_permissions",
