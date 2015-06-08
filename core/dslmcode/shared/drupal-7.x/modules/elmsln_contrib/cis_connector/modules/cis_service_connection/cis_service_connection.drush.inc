@@ -29,7 +29,7 @@ function cis_service_connection_drush_help($section) {
 /**
  * Drush command callback.
  */
-function drush_cis_send_cron_key() {
+function drush_cis_service_connection_cis_send_cron_key() {
   // @todo run everywhere in a drup after we get the data domains figured out
   $select = array(
     'type' => 'service_instance',
