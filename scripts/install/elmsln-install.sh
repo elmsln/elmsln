@@ -143,9 +143,9 @@ done
 # this is because everything prior to release versions was running CIS 1.x
 # this ensures we don't break compatibility w/ those instances since it was a major change
 # @todo get this working so we run off 2.x and not 1.x
-#cd $elmsln/core/dslmcode/stacks/online/profiles
-#rm cis
-#ln -s ../../../profiles/cis-7.x-2.x cis
+cd $elmsln/core/dslmcode/stacks/online/profiles
+rm cis
+ln -s ../../../profiles/cis-7.x-2.x cis
 
 COUNTER=0
 # install authority distributions like online, media, comply
