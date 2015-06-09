@@ -139,12 +139,9 @@ for build in "${buildlist[@]}"
   drush site-install -y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
 
-# modify the CIS distro symlink to point to 2.x instead of 1.x
-# this is because everything prior to release versions was running CIS 1.x
-# this ensures we don't break compatibility w/ those instances since it was a major change
-# @todo get this working so we run off 2.x and not 1.x
+# create a symlink to the 2x version of CIS; this isn't in git so that
+# legacy instances can run off of 1.x and future iterations could run off what they need
 cd $elmsln/core/dslmcode/stacks/online/profiles
-rm cis
 ln -s ../../../profiles/cis-7.x-2.x cis
 
 COUNTER=0
