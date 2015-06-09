@@ -402,7 +402,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Bulk Ops';
   $handler->display->display_options['menu']['description'] = 'Course Bulk Operations';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_bulk_operations'] = $view;
@@ -893,8 +893,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Field Collection admin';
   $handler->display->display_options['menu']['weight'] = '30';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_field_collection_admin'] = $view;
 
   $view = new view();
@@ -1313,7 +1314,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Offerings';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $handler->display->display_options['tab_options']['type'] = 'normal';
@@ -1441,7 +1442,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['tab_options']['type'] = 'normal';
   $handler->display->display_options['tab_options']['title'] = 'Offerings';
   $handler->display->display_options['tab_options']['weight'] = '0';
-  $handler->display->display_options['tab_options']['name'] = 'management';
+  $handler->display->display_options['tab_options']['name'] = 'menu-cis-toolkit';
 
   /* Display: Logistics */
   $handler = $view->new_display('page', 'Logistics', 'page_6');
@@ -1487,7 +1488,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Logistics';
   $handler->display->display_options['menu']['weight'] = '1';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -1566,7 +1567,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Verification';
   $handler->display->display_options['menu']['weight'] = '2';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -1613,7 +1614,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Welcome Letter';
   $handler->display->display_options['menu']['weight'] = '3';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -1661,7 +1662,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Syllabus';
   $handler->display->display_options['menu']['weight'] = '4';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -1715,7 +1716,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Welcome Page';
   $handler->display->display_options['menu']['weight'] = '5';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -1759,7 +1760,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Resources';
   $handler->display->display_options['menu']['weight'] = '6';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_manage_semester'] = $view;
@@ -1981,8 +1982,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Course Map';
   $handler->display->display_options['menu']['description'] = 'Course Map';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: Attachment */
   $handler = $view->new_display('attachment', 'Attachment', 'attachment_1');
@@ -2096,8 +2098,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Semester Map';
   $handler->display->display_options['menu']['description'] = 'Semester Map';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: O - S Map */
   $handler = $view->new_display('page', 'O - S Map', 'page_3');
@@ -2181,8 +2184,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Section Map';
   $handler->display->display_options['menu']['description'] = 'Section Map';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_offerings'] = $view;
 
   $view = new view();
@@ -2268,7 +2272,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'People';
   $handler->display->display_options['menu']['description'] = 'view all people in the system';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_people'] = $view;
@@ -2440,8 +2444,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Resources';
   $handler->display->display_options['menu']['description'] = 'List of all resources in the system';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_resources'] = $view;
 
   $view = new view();
@@ -2570,8 +2575,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Service Map';
   $handler->display->display_options['menu']['description'] = 'Service map';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: Courses */
   $handler = $view->new_display('page', 'Courses', 'page_1');
@@ -2625,8 +2631,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Course Map';
   $handler->display->display_options['menu']['description'] = 'Visual list of courses';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_service_map'] = $view;
 
   $view = new view();
@@ -2779,8 +2786,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Services';
   $handler->display->display_options['menu']['description'] = 'List of all services in the CIS';
   $handler->display->display_options['menu']['weight'] = '1';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: Service Instance list */
   $handler = $view->new_display('page', 'Service Instance list', 'page_2');
@@ -3019,8 +3027,9 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Service Instances';
   $handler->display->display_options['menu']['description'] = 'List of all services in the CIS';
   $handler->display->display_options['menu']['weight'] = '1';
-  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_services'] = $view;
 
   $view = new view();

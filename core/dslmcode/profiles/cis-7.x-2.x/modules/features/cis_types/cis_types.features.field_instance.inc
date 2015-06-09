@@ -2705,7 +2705,7 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'file_shadowbox',
+        'module' => 'file',
         'settings' => array(
           'compact' => 0,
           'gallery' => '',
@@ -2717,7 +2717,7 @@ function cis_types_field_default_field_instances() {
           'video_thumb' => 128,
           'video_width' => 640,
         ),
-        'type' => 'file_shadowbox',
+        'type' => 'file_default',
         'weight' => 13,
       ),
       'teaser' => array(
@@ -2801,7 +2801,7 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'image_shadowbox',
+        'module' => 'image',
         'settings' => array(
           'compact' => 0,
           'gallery' => 'page',
@@ -2809,7 +2809,7 @@ function cis_types_field_default_field_instances() {
           'image_style' => 'course_thumb',
           'title' => 'title',
         ),
-        'type' => 'image_shadowbox',
+        'type' => 'image',
         'weight' => 11,
       ),
       'teaser' => array(

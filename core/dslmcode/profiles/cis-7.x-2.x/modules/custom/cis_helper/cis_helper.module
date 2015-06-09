@@ -250,7 +250,7 @@ function cis_helper_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
-    'menu_name' => 'user-menu',
+    'menu_name' => 'cis-toolkit',
   );
   // quick setup form from a string
   $items['cis-quick-setup-access-id'] = array(
@@ -262,7 +262,7 @@ function cis_helper_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
-    'menu_name' => 'user-menu',
+    'menu_name' => 'cis-toolkit',
   );
   // add offering form
   $items['cis-add-offering'] = array(
@@ -274,7 +274,7 @@ function cis_helper_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
-    'menu_name' => 'user-menu',
+    'menu_name' => 'cis-toolkit',
   );
   // quick setup form for planning lots of sections at once
   $items['cis/offerings/planning'] = array(
@@ -287,6 +287,7 @@ function cis_helper_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
+    'menu_name' => 'cis-toolkit',
   );
   return $items;
 }
