@@ -95,13 +95,6 @@ function cis_sample_content_node_export_features_default() {
           ),
         ),
       ),
-      \'field_academic_home\' => array(
-        \'und\' => array(
-          array(
-            \'target_id\' => \'13\',
-          ),
-        ),
-      ),
       \'field_author_video\' => array(
         \'und\' => array(
           array(
@@ -313,16 +306,6 @@ function cis_sample_content_node_export_features_default() {
       \'node_export_dependency\' => array(
         array(
           \'type\' => \'node\',
-          \'id\' => \'13\',
-          \'delta\' => 0,
-          \'property\' => \'target_id\',
-          \'module\' => \'entityreference\',
-          \'field_name\' => \'field_academic_home\',
-          \'langcode\' => \'und\',
-          \'uuid\' => \'f94c24f8-9ac9-4e94-beec-5f2776287777\',
-        ),
-        array(
-          \'type\' => \'node\',
           \'id\' => \'14\',
           \'delta\' => 0,
           \'property\' => \'target_id\',
@@ -477,13 +460,6 @@ function cis_sample_content_node_export_features_default() {
           ),
         ),
       ),
-      \'field_academic_home\' => array(
-        \'und\' => array(
-          array(
-            \'target_id\' => \'13\',
-          ),
-        ),
-      ),
       \'field_facebook\' => array(
         \'und\' => array(
           array(
@@ -518,16 +494,6 @@ function cis_sample_content_node_export_features_default() {
       \'path\' => FALSE,
       \'node_export_drupal_version\' => \'7\',
       \'node_export_dependency\' => array(
-        array(
-          \'type\' => \'node\',
-          \'id\' => \'13\',
-          \'delta\' => 0,
-          \'property\' => \'target_id\',
-          \'module\' => \'entityreference\',
-          \'field_name\' => \'field_academic_home\',
-          \'langcode\' => \'und\',
-          \'uuid\' => \'f94c24f8-9ac9-4e94-beec-5f2776287777\',
-        ),
       ),
     ),
   (object) array(
@@ -831,13 +797,6 @@ function cis_sample_content_node_export_features_default() {
           ),
         ),
       ),
-      \'field_academic_home\' => array(
-        \'und\' => array(
-          array(
-            \'target_id\' => \'13\',
-          ),
-        ),
-      ),
       \'field_address\' => array(
         \'und\' => array(
           array(
@@ -932,16 +891,6 @@ function cis_sample_content_node_export_features_default() {
       ),
       \'node_export_drupal_version\' => \'7\',
       \'node_export_dependency\' => array(
-        array(
-          \'type\' => \'node\',
-          \'id\' => \'13\',
-          \'delta\' => 0,
-          \'property\' => \'target_id\',
-          \'module\' => \'entityreference\',
-          \'field_name\' => \'field_academic_home\',
-          \'langcode\' => \'und\',
-          \'uuid\' => \'f94c24f8-9ac9-4e94-beec-5f2776287777\',
-        ),
         array(
           \'type\' => \'file\',
           \'id\' => \'1\',
@@ -1061,69 +1010,6 @@ function cis_sample_content_node_export_features_default() {
         \'language\' => \'und\',
       ),
       \'node_export_drupal_version\' => \'7\',
-    ),
-  (object) array(
-      \'vid\' => \'13\',
-      \'uid\' => \'1\',
-      \'title\' => \'School of Singularity\',
-      \'log\' => \'\',
-      \'status\' => \'1\',
-      \'comment\' => \'0\',
-      \'promote\' => \'0\',
-      \'sticky\' => \'0\',
-      \'vuuid\' => \'f5bdb634-2da6-4ffd-9855-f02d785df763\',
-      \'nid\' => \'13\',
-      \'type\' => \'academic_unit\',
-      \'language\' => \'und\',
-      \'created\' => \'1433709960\',
-      \'changed\' => \'1433709960\',
-      \'tnid\' => \'0\',
-      \'translate\' => \'0\',
-      \'uuid\' => \'f94c24f8-9ac9-4e94-beec-5f2776287777\',
-      \'revision_timestamp\' => \'1433709960\',
-      \'revision_uid\' => \'0\',
-      \'field_abbreviation\' => array(
-        \'und\' => array(
-          array(
-            \'value\' => \'SoS\',
-            \'format\' => NULL,
-            \'safe_value\' => \'SoS\',
-          ),
-        ),
-      ),
-      \'field_color\' => array(
-        \'und\' => array(
-          array(
-            \'jquery_colorpicker\' => \'00d9bc\',
-          ),
-        ),
-      ),
-      \'field_coordinators\' => array(),
-      \'field_unit_head\' => array(
-        \'und\' => array(
-          array(
-            \'target_id\' => \'3\',
-          ),
-        ),
-      ),
-      \'name\' => \'admin\',
-      \'picture\' => \'0\',
-      \'data\' => \'b:0;\',
-      \'menu\' => NULL,
-      \'path\' => FALSE,
-      \'node_export_drupal_version\' => \'7\',
-      \'node_export_dependency\' => array(
-        array(
-          \'type\' => \'user\',
-          \'id\' => \'3\',
-          \'delta\' => 0,
-          \'property\' => \'target_id\',
-          \'module\' => \'entityreference\',
-          \'field_name\' => \'field_unit_head\',
-          \'langcode\' => \'und\',
-          \'uuid\' => FALSE,
-        ),
-      ),
     ),
 )',
 );
