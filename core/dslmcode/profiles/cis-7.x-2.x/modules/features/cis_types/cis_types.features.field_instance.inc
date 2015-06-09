@@ -10,7 +10,8 @@
 function cis_types_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'field_collection_item-field_offerings-field_sections'
+  // Exported field_instance:
+  // 'field_collection_item-field_offerings-field_sections'
   $field_instances['field_collection_item-field_offerings-field_sections'] = array(
     'bundle' => 'field_offerings',
     'default_value' => array(
@@ -208,7 +209,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_offerings-field_semester'
+  // Exported field_instance:
+  // 'field_collection_item-field_offerings-field_semester'
   $field_instances['field_collection_item-field_offerings-field_semester'] = array(
     'bundle' => 'field_offerings',
     'default_value' => NULL,
@@ -303,7 +305,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_access_dates'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_access_dates'
   $field_instances['field_collection_item-field_sections-field_access_dates'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -370,7 +373,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_access_string'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_access_string'
   $field_instances['field_collection_item-field_sections-field_access_string'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -418,7 +422,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_campus'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_campus'
   $field_instances['field_collection_item-field_sections-field_campus'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -465,7 +470,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_cis_ops'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_cis_ops'
   $field_instances['field_collection_item-field_sections-field_cis_ops'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -508,7 +514,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_contact_info'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_contact_info'
   $field_instances['field_collection_item-field_sections-field_contact_info'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -554,7 +561,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_course_archive'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_course_archive'
   $field_instances['field_collection_item-field_sections-field_course_archive'] = array(
     'bundle' => 'field_sections',
     'deleted' => 0,
@@ -602,7 +610,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_course_start'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_course_start'
   $field_instances['field_collection_item-field_sections-field_course_start'] = array(
     'bundle' => 'field_sections',
     'deleted' => 0,
@@ -661,7 +670,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_instructor_of_record'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_instructor_of_record'
   $field_instances['field_collection_item-field_sections-field_instructor_of_record'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -720,7 +730,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_resources'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_resources'
   $field_instances['field_collection_item-field_sections-field_resources'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -776,7 +787,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_schedule_number'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_schedule_number'
   $field_instances['field_collection_item-field_sections-field_schedule_number'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -822,7 +834,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_section_number'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_section_number'
   $field_instances['field_collection_item-field_sections-field_section_number'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -871,7 +884,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_services'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_services'
   $field_instances['field_collection_item-field_sections-field_services'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -924,7 +938,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_syllabus'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_syllabus'
   $field_instances['field_collection_item-field_sections-field_syllabus'] = array(
     'bundle' => 'field_sections',
     'deleted' => 0,
@@ -972,7 +987,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_teaching_assistants'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_teaching_assistants'
   $field_instances['field_collection_item-field_sections-field_teaching_assistants'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -1029,7 +1045,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_welcome_letter'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_welcome_letter'
   $field_instances['field_collection_item-field_sections-field_welcome_letter'] = array(
     'bundle' => 'field_sections',
     'deleted' => 0,
@@ -1079,7 +1096,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_welcome_page'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_welcome_page'
   $field_instances['field_collection_item-field_sections-field_welcome_page'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -3019,6 +3037,7 @@ function cis_types_field_default_field_instances() {
     'label' => 'University Bulletin',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -3032,6 +3051,7 @@ function cis_types_field_default_field_instances() {
       ),
       'enable_tokens' => 0,
       'title' => 'none',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => 'University Bulletin listing',
       'url' => 0,
@@ -3208,363 +3228,6 @@ function cis_types_field_default_field_instances() {
       ),
       'type' => 'file_generic',
       'weight' => 3,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-body'
-  $field_instances['node-news-body'] = array(
-    'bundle' => 'news',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(
-          'trim_length' => 600,
-        ),
-        'type' => 'text_summary_or_trimmed',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'body',
-    'label' => 'Body',
-    'required' => FALSE,
-    'settings' => array(
-      'display_summary' => TRUE,
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 20,
-        'summary_rows' => 5,
-      ),
-      'type' => 'text_textarea_with_summary',
-      'weight' => 2,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_academic_home'
-  $field_instances['node-news-field_academic_home'] = array(
-    'bundle' => 'news',
-    'default_value' => NULL,
-    'default_value_function' => '',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 5,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_academic_home',
-    'label' => 'Related Academic home',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'status' => 0,
-        ),
-      ),
-      'nodeaccess_nodereference' => array(
-        'all' => array(
-          'view' => 0,
-        ),
-        'all_published' => 0,
-        'author' => array(
-          'delete' => 0,
-          'update' => 0,
-          'view' => 0,
-        ),
-        'author_published' => 0,
-        'priority' => 0,
-        'referenced' => array(
-          'delete' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'published' => 0,
-          'update' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'view' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-        ),
-        'unused' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_news_image'
-  $field_instances['node-news-field_news_image'] = array(
-    'bundle' => 'news',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'image',
-        'settings' => array(
-          'image_link' => '',
-          'image_style' => '',
-        ),
-        'type' => 'image',
-        'weight' => 2,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_news_image',
-    'label' => 'News Image',
-    'required' => 0,
-    'settings' => array(
-      'alt_field' => 0,
-      'default_image' => 0,
-      'file_directory' => 'news',
-      'file_extensions' => 'png gif jpg jpeg',
-      'focus' => 0,
-      'focus_lock_ratio' => 0,
-      'focus_min_size' => '',
-      'max_filesize' => '',
-      'max_resolution' => '',
-      'min_resolution' => '',
-      'title_field' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'image',
-      'settings' => array(
-        'preview_image_style' => 'thumbnail',
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'image_image',
-      'weight' => 6,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_redirect_to'
-  $field_instances['node-news-field_redirect_to'] = array(
-    'bundle' => 'news',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'field_redirection',
-        'settings' => array(
-          '404_if_empty' => 0,
-          'code' => 301,
-          'page_restrictions' => 0,
-          'pages' => '',
-        ),
-        'type' => 'field_redirection',
-        'weight' => 3,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_redirect_to',
-    'label' => 'Redirect to',
-    'required' => 0,
-    'settings' => array(
-      'attributes' => array(
-        'class' => '',
-        'configurable_title' => 0,
-        'rel' => '',
-        'target' => 'default',
-        'title' => '',
-      ),
-      'display' => array(
-        'url_cutoff' => 80,
-      ),
-      'enable_tokens' => 1,
-      'rel_remove' => 'default',
-      'title' => 'optional',
-      'title_maxlength' => 128,
-      'title_value' => '',
-      'url' => 0,
-      'user_register_form' => FALSE,
-      'validate_url' => 1,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'link',
-      'settings' => array(),
-      'type' => 'link_field',
-      'weight' => 7,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_related_entity'
-  $field_instances['node-news-field_related_entity'] = array(
-    'bundle' => 'news',
-    'default_value' => NULL,
-    'default_value_function' => 'entityreference_prepopulate_field_default_value',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 1,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_related_entity',
-    'label' => 'Related',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'action' => 'none',
-          'action_on_edit' => 0,
-          'fallback' => 'none',
-          'og_context' => 0,
-          'skip_perm' => 0,
-          'status' => 1,
-        ),
-      ),
-      'nodeaccess_nodereference' => array(
-        'all' => array(
-          'view' => 0,
-        ),
-        'all_published' => 0,
-        'author' => array(
-          'delete' => 0,
-          'update' => 0,
-          'view' => 0,
-        ),
-        'author_published' => 0,
-        'priority' => 0,
-        'referenced' => array(
-          'delete' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'published' => 0,
-          'update' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'view' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-        ),
-        'unused' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_buttons',
-      'weight' => 5,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_subtext'
-  $field_instances['node-news-field_subtext'] = array(
-    'bundle' => 'news',
-    'default_value' => array(
-      0 => array(
-        'value' => 'New',
-      ),
-    ),
-    'deleted' => 0,
-    'description' => 'subtext displayed when news is highlighted on the front page',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_subtext',
-    'label' => 'Subtext',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 50,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 1,
     ),
   );
 
@@ -4191,6 +3854,7 @@ Instructional Web Technologist
     'label' => 'Website',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4204,6 +3868,7 @@ Instructional Web Technologist
       'enable_tokens' => 1,
       'rel_remove' => 'default',
       'title' => 'optional',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => ' ',
       'url' => 0,
@@ -4407,6 +4072,7 @@ Instructional Web Technologist
     'label' => 'Facebook',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4420,6 +4086,7 @@ Instructional Web Technologist
       'enable_tokens' => 1,
       'rel_remove' => 'default',
       'title' => 'optional',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -4461,6 +4128,7 @@ Instructional Web Technologist
     'label' => 'Program site',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4474,6 +4142,7 @@ Instructional Web Technologist
       'enable_tokens' => 1,
       'rel_remove' => 'default',
       'title' => 'optional',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -4515,6 +4184,7 @@ Instructional Web Technologist
     'label' => 'Twitter',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4528,6 +4198,7 @@ Instructional Web Technologist
       'enable_tokens' => 1,
       'rel_remove' => 'default',
       'title' => 'optional',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -4739,6 +4410,7 @@ Global will be available to all resources to reference',
     'label' => 'Data location',
     'required' => 1,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4752,6 +4424,7 @@ Global will be available to all resources to reference',
       'enable_tokens' => 0,
       'rel_remove' => 'default',
       'title' => 'none',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -4832,6 +4505,7 @@ Global will be available to all resources to reference',
     'label' => 'Location',
     'required' => 1,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4845,6 +4519,7 @@ Global will be available to all resources to reference',
       'enable_tokens' => 0,
       'rel_remove' => 'default',
       'title' => 'none',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -5194,7 +4869,6 @@ Global will be available to all resources to reference',
   t('Long description');
   t('Machine name');
   t('Method of access');
-  t('News Image');
   t('Offerings');
   t('Other documents');
   t('Phone number');
@@ -5204,9 +4878,6 @@ Global will be available to all resources to reference',
   t('Program site');
   t('Promotional screenshots for course');
   t('Readings');
-  t('Redirect to');
-  t('Related');
-  t('Related Academic home');
   t('Related courses');
   t('Representative Courses');
   t('Resource type');
@@ -5223,7 +4894,6 @@ Global will be available to all resources to reference',
   t('Services in use');
   t('Setup guide');
   t('Special Classifications');
-  t('Subtext');
   t('Syllabus');
   t('TAs that have been allocated to this section');
   t('Teaching assistants');
@@ -5256,7 +4926,6 @@ Global will be available to all resources to reference');
   t('Year');
   t('icon');
   t('machine name of this service. This is used as part of automation');
-  t('subtext displayed when news is highlighted on the front page');
 
   return $field_instances;
 }

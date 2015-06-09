@@ -21,14 +21,6 @@ function cis_types_ctools_plugin_api($module = NULL, $api = NULL) {
  */
 function cis_types_node_info() {
   $items = array(
-    'academic_unit' => array(
-      'name' => t('Academic Unit'),
-      'base' => 'node_content',
-      'description' => t('Academic home, unit, department, or school that courses can then be associated to.'),
-      'has_title' => '1',
-      'title_label' => t('Name'),
-      'help' => '',
-    ),
     'college_services' => array(
       'name' => t('College Services'),
       'base' => 'node_content',
@@ -49,14 +41,6 @@ function cis_types_node_info() {
       'name' => t('Instructional Model'),
       'base' => 'node_content',
       'description' => t('Store reusable instructional models for helping to develop instructional best practices for your college to follow.'),
-      'has_title' => '1',
-      'title_label' => t('Title'),
-      'help' => '',
-    ),
-    'news' => array(
-      'name' => t('News'),
-      'base' => 'node_content',
-      'description' => t('News item, either stand alone or related to something on the site you want to highlight on the home page'),
       'has_title' => '1',
       'title_label' => t('Title'),
       'help' => '',

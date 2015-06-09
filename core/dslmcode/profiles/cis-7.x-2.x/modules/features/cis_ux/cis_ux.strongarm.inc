@@ -13,20 +13,6 @@ function cis_ux_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'menu_main_links_source';
-  $strongarm->value = 'user-menu';
-  $export['menu_main_links_source'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'menu_secondary_links_source';
-  $strongarm->value = 'main-menu';
-  $export['menu_secondary_links_source'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'pathauto_case';
   $strongarm->value = '1';
   $export['pathauto_case'] = $strongarm;
@@ -422,41 +408,6 @@ function cis_ux_strongarm() {
   $strongarm->name = 'path_breadcrumbs_rich_snippets';
   $strongarm->value = '0';
   $export['path_breadcrumbs_rich_snippets'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'schema_status_report';
-  $strongarm->value = 0;
-  $export['schema_status_report'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'schema_suppress_type_warnings';
-  $strongarm->value = 1;
-  $export['schema_suppress_type_warnings'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'site_403';
-  $strongarm->value = 'toboggan/denied';
-  $export['site_403'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'textbook_active';
-  $strongarm->value = 'textbook_core';
-  $export['textbook_active'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'textbook_reset';
-  $strongarm->value = 0;
-  $export['textbook_reset'] = $strongarm;
 
   return $export;
 }
