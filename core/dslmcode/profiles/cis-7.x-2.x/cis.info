@@ -164,4 +164,3 @@ dependencies[] = cis_types
 dependencies[] = cis_users
 dependencies[] = cis_service_roles
 dependencies[] = cis_ux
-dependencies[] = cis_restws

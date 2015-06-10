@@ -17,8 +17,6 @@ function _elmsln_installer_preflight($makesection = FALSE) {
   // but we run it to prevent the "rebuild node access" message from being
   // shown on install.
   node_access_rebuild();
-  // Rebuild key tables/caches
-  drupal_flush_all_caches();
 }
 
 /**
@@ -137,6 +135,8 @@ function _elmsln_installer_post_install_cleanup() {
   menu_rebuild();
   // ignore any other install messages
   drupal_get_messages();
+  // Rebuild key tables/caches
+  drupal_flush_all_caches();
 }
 
 /**
