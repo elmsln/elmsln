@@ -22,6 +22,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -46,6 +54,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_abbreviation',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
     ),
     'indexes' => array(
       'format' => array(
@@ -72,6 +88,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_academic_home',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'node' => array(
+        'columns' => array(
+          'target_id' => 'nid',
+        ),
+        'table' => 'node',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -114,6 +138,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -148,6 +173,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -174,6 +207,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -199,6 +240,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'video_embed_field',
@@ -219,6 +261,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_banner',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
     ),
     'indexes' => array(
       'fid' => array(
@@ -247,6 +297,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -300,6 +351,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'field_hidden',
@@ -322,6 +374,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'jquery_colorpicker',
@@ -342,6 +395,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_contact_info',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
     ),
     'indexes' => array(
       'format' => array(
@@ -367,6 +428,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_coordinators',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'users' => array(
+        'columns' => array(
+          'target_id' => 'uid',
+        ),
+        'table' => 'users',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -406,6 +475,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_course',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'node' => array(
+        'columns' => array(
+          'target_id' => 'nid',
+        ),
+        'table' => 'node',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -449,6 +526,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -476,6 +561,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_course_author',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'node' => array(
+        'columns' => array(
+          'target_id' => 'nid',
+        ),
+        'table' => 'node',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -516,6 +609,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -541,6 +642,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -572,6 +674,14 @@ function cis_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_course_title',
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -597,6 +707,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_credits',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
     ),
     'indexes' => array(
       'format' => array(
@@ -624,6 +742,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -650,6 +776,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -684,6 +811,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -714,6 +842,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -739,6 +875,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_distribution',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
     ),
     'indexes' => array(
       'format' => array(
@@ -766,6 +910,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'email',
@@ -787,6 +932,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -821,6 +967,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -855,6 +1002,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -882,6 +1037,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -908,6 +1071,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_inst_delivery_guide',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
     ),
     'indexes' => array(
       'fid' => array(
@@ -937,6 +1108,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -965,6 +1144,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -989,6 +1176,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_inst_other_documents',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
     ),
     'indexes' => array(
       'fid' => array(
@@ -1018,6 +1213,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -1045,6 +1248,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_instructional_designer',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'users' => array(
+        'columns' => array(
+          'target_id' => 'uid',
+        ),
+        'table' => 'users',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -1084,6 +1295,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_instructor_of_record',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'users' => array(
+        'columns' => array(
+          'target_id' => 'uid',
+        ),
+        'table' => 'users',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -1125,6 +1344,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -1154,6 +1374,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_lead_instructor',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'users' => array(
+        'columns' => array(
+          'target_id' => 'uid',
+        ),
+        'table' => 'users',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -1194,6 +1422,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -1228,6 +1457,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -1252,6 +1489,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_machine_name',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
     ),
     'indexes' => array(
       'format' => array(
@@ -1279,6 +1524,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -1301,6 +1547,41 @@ function cis_types_field_default_field_bases() {
     'type' => 'list_text',
   );
 
+  // Exported field_base: 'field_news_image'
+  $field_bases['field_news_image'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_news_image',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
+    'indexes' => array(
+      'fid' => array(
+        0 => 'fid',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'image',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'default_image' => 0,
+      'uri_scheme' => 'public',
+    ),
+    'translatable' => 0,
+    'type' => 'image',
+  );
+
   // Exported field_base: 'field_offerings'
   $field_bases['field_offerings'] = array(
     'active' => 1,
@@ -1311,6 +1592,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'revision_id' => array(
         0 => 'revision_id',
@@ -1338,6 +1620,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'phone',
@@ -1359,6 +1642,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_professional_title',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
     ),
     'indexes' => array(
       'format' => array(
@@ -1385,6 +1676,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_program_classification',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'node' => array(
+        'columns' => array(
+          'target_id' => 'nid',
+        ),
+        'table' => 'node',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -1427,6 +1726,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -1461,6 +1761,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -1494,6 +1795,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_related_courses',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'node' => array(
+        'columns' => array(
+          'target_id' => 'nid',
+        ),
+        'table' => 'node',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -1534,6 +1843,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_related_entity',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'node' => array(
+        'columns' => array(
+          'target_id' => 'nid',
+        ),
+        'table' => 'node',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -1579,6 +1896,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'node' => array(
+        'columns' => array(
+          'target_id' => 'nid',
+        ),
+        'table' => 'node',
+      ),
+    ),
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
@@ -1615,6 +1940,14 @@ function cis_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sample_lesson',
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -1640,6 +1973,14 @@ function cis_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sample_syllabus',
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -1668,6 +2009,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -1691,6 +2040,14 @@ function cis_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_screenshot',
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -1718,6 +2075,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -1744,6 +2109,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'revision_id' => array(
         0 => 'revision_id',
@@ -1771,6 +2137,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -1802,6 +2169,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'field_hidden',
@@ -1823,6 +2191,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_services',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'node' => array(
+        'columns' => array(
+          'target_id' => 'nid',
+        ),
+        'table' => 'node',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -1866,6 +2242,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -1905,6 +2282,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -1930,6 +2315,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_syllabus',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
     ),
     'indexes' => array(
       'fid' => array(
@@ -1959,6 +2352,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -1987,6 +2388,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -2011,6 +2420,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_teaching_assistants',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'users' => array(
+        'columns' => array(
+          'target_id' => 'uid',
+        ),
+        'table' => 'users',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -2051,6 +2468,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -2076,6 +2501,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -2110,6 +2536,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -2136,6 +2570,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -2165,6 +2600,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_unit_head',
     'field_permissions' => array(
       'type' => 2,
+    ),
+    'foreign keys' => array(
+      'users' => array(
+        'columns' => array(
+          'target_id' => 'uid',
+        ),
+        'table' => 'users',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -2203,6 +2646,7 @@ function cis_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_university_bulletin',
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -2236,6 +2680,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_user_account',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'users' => array(
+        'columns' => array(
+          'target_id' => 'uid',
+        ),
+        'table' => 'users',
+      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -2276,6 +2728,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -2310,6 +2763,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 2,
     ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
+    ),
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -2338,6 +2799,14 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -2362,6 +2831,14 @@ function cis_types_field_default_field_bases() {
     'field_name' => 'field_xml_outline',
     'field_permissions' => array(
       'type' => 0,
+    ),
+    'foreign keys' => array(
+      'fid' => array(
+        'columns' => array(
+          'fid' => 'fid',
+        ),
+        'table' => 'file_managed',
+      ),
     ),
     'indexes' => array(
       'fid' => array(
@@ -2391,6 +2868,7 @@ function cis_types_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
+    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
