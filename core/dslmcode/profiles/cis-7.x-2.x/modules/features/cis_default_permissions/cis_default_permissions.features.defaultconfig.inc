@@ -40,15 +40,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'admin_menu',
   );
 
-  // Exported permission: 'access administration pages'.
-  $permissions['access administration pages'] = array(
-    'name' => 'access administration pages',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'system',
-  );
-
   // Exported permission: 'access all views'.
   $permissions['access all views'] = array(
     'name' => 'access all views',
@@ -650,17 +641,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'cis_helper',
   );
 
-  // Exported permission: 'create college_services content'.
-  $permissions['create college_services content'] = array(
-    'name' => 'create college_services content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'create course content'.
   $permissions['create course content'] = array(
     'name' => 'create course content',
@@ -675,28 +655,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
   // Exported permission: 'create instructional_model content'.
   $permissions['create instructional_model content'] = array(
     'name' => 'create instructional_model content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'create page content'.
-  $permissions['create page content'] = array(
-    'name' => 'create page content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'create person content'.
-  $permissions['create person content'] = array(
-    'name' => 'create person content',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
@@ -758,17 +716,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'path',
   );
 
-  // Exported permission: 'delete any college_services content'.
-  $permissions['delete any college_services content'] = array(
-    'name' => 'delete any college_services content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'delete any course content'.
   $permissions['delete any course content'] = array(
     'name' => 'delete any course content',
@@ -783,28 +730,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
   // Exported permission: 'delete any instructional_model content'.
   $permissions['delete any instructional_model content'] = array(
     'name' => 'delete any instructional_model content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'delete any page content'.
-  $permissions['delete any page content'] = array(
-    'name' => 'delete any page content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'delete any person content'.
-  $permissions['delete any person content'] = array(
-    'name' => 'delete any person content',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
@@ -857,17 +782,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'delete own college_services content'.
-  $permissions['delete own college_services content'] = array(
-    'name' => 'delete own college_services content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'delete own course content'.
   $permissions['delete own course content'] = array(
     'name' => 'delete own course content',
@@ -882,28 +796,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
   // Exported permission: 'delete own instructional_model content'.
   $permissions['delete own instructional_model content'] = array(
     'name' => 'delete own instructional_model content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'delete own page content'.
-  $permissions['delete own page content'] = array(
-    'name' => 'delete own page content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'delete own person content'.
-  $permissions['delete own person content'] = array(
-    'name' => 'delete own person content',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
@@ -976,17 +868,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'admin_menu',
   );
 
-  // Exported permission: 'edit any college_services content'.
-  $permissions['edit any college_services content'] = array(
-    'name' => 'edit any college_services content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'edit any course content'.
   $permissions['edit any course content'] = array(
     'name' => 'edit any course content',
@@ -1001,28 +882,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
   // Exported permission: 'edit any instructional_model content'.
   $permissions['edit any instructional_model content'] = array(
     'name' => 'edit any instructional_model content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'edit any page content'.
-  $permissions['edit any page content'] = array(
-    'name' => 'edit any page content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'edit any person content'.
-  $permissions['edit any person content'] = array(
-    'name' => 'edit any person content',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
@@ -1075,17 +934,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'edit own college_services content'.
-  $permissions['edit own college_services content'] = array(
-    'name' => 'edit own college_services content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'edit own course content'.
   $permissions['edit own course content'] = array(
     'name' => 'edit own course content',
@@ -1100,28 +948,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
   // Exported permission: 'edit own instructional_model content'.
   $permissions['edit own instructional_model content'] = array(
     'name' => 'edit own instructional_model content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'edit own page content'.
-  $permissions['edit own page content'] = array(
-    'name' => 'edit own page content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'edit own person content'.
-  $permissions['edit own person content'] = array(
-    'name' => 'edit own person content',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
