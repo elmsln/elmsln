@@ -23,7 +23,6 @@ features[views_view][] = cis_resources
 features[views_view][] = cis_service_map
 features[views_view][] = cis_services
 features[views_view][] = course_service_instances
-features[views_view][] = person_references
 features[views_view][] = user_type_lists
 views_view[] = cis_course_charts
 views_view[] = cis_program_charts
