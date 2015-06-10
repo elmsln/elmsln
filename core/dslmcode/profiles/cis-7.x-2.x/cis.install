@@ -23,7 +23,7 @@ function cis_install() {
   // especially for now, once you login, this is what you want to do
   variable_set('site_frontpage', 'cis-quick-setup');
   // need to set this absolutely last bc of all the default permissions in here
-  module_enable(array('cis_default_permissions', 'cis_restws'));
+  module_enable(array('cis_default_permissions'));
 }
 
 /**
