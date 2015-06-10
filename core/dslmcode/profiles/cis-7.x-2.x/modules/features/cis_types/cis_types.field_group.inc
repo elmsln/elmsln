@@ -487,38 +487,6 @@ function cis_types_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_social|node|person|form';
-  $field_group->group_name = 'group_social';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'person';
-  $field_group->mode = 'form';
-  $field_group->parent_name = '';
-  $field_group->data = array(
-    'label' => 'Social',
-    'weight' => '11',
-    'children' => array(
-      0 => 'field_twitter_account',
-      1 => 'field_email',
-      2 => 'field_website',
-      3 => 'field_phone_number',
-      4 => 'field_address',
-    ),
-    'format_type' => 'fieldset',
-    'format_settings' => array(
-      'label' => 'Social',
-      'instance_settings' => array(
-        'required_fields' => 0,
-        'classes' => ' group-social field-group-fieldset',
-        'description' => '',
-      ),
-      'formatter' => 'collapsed',
-    ),
-  );
-  $export['group_social|node|person|form'] = $field_group;
-
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
   $field_group->identifier = 'group_syllabus|field_collection_item|field_sections|form';
   $field_group->group_name = 'group_syllabus';
   $field_group->entity_type = 'field_collection_item';

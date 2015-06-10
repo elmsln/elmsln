@@ -10,7 +10,8 @@
 function cis_types_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'field_collection_item-field_offerings-field_sections'
+  // Exported field_instance:
+  // 'field_collection_item-field_offerings-field_sections'
   $field_instances['field_collection_item-field_offerings-field_sections'] = array(
     'bundle' => 'field_offerings',
     'default_value' => array(
@@ -208,7 +209,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_offerings-field_semester'
+  // Exported field_instance:
+  // 'field_collection_item-field_offerings-field_semester'
   $field_instances['field_collection_item-field_offerings-field_semester'] = array(
     'bundle' => 'field_offerings',
     'default_value' => NULL,
@@ -303,7 +305,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_access_dates'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_access_dates'
   $field_instances['field_collection_item-field_sections-field_access_dates'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -370,7 +373,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_access_string'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_access_string'
   $field_instances['field_collection_item-field_sections-field_access_string'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -418,7 +422,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_campus'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_campus'
   $field_instances['field_collection_item-field_sections-field_campus'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -465,7 +470,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_cis_ops'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_cis_ops'
   $field_instances['field_collection_item-field_sections-field_cis_ops'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -508,7 +514,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_contact_info'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_contact_info'
   $field_instances['field_collection_item-field_sections-field_contact_info'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -554,7 +561,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_course_archive'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_course_archive'
   $field_instances['field_collection_item-field_sections-field_course_archive'] = array(
     'bundle' => 'field_sections',
     'deleted' => 0,
@@ -602,7 +610,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_course_start'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_course_start'
   $field_instances['field_collection_item-field_sections-field_course_start'] = array(
     'bundle' => 'field_sections',
     'deleted' => 0,
@@ -661,7 +670,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_instructor_of_record'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_instructor_of_record'
   $field_instances['field_collection_item-field_sections-field_instructor_of_record'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -720,7 +730,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_resources'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_resources'
   $field_instances['field_collection_item-field_sections-field_resources'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -776,7 +787,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_schedule_number'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_schedule_number'
   $field_instances['field_collection_item-field_sections-field_schedule_number'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -822,7 +834,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_section_number'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_section_number'
   $field_instances['field_collection_item-field_sections-field_section_number'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -871,7 +884,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_services'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_services'
   $field_instances['field_collection_item-field_sections-field_services'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -924,7 +938,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_syllabus'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_syllabus'
   $field_instances['field_collection_item-field_sections-field_syllabus'] = array(
     'bundle' => 'field_sections',
     'deleted' => 0,
@@ -972,7 +987,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_teaching_assistants'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_teaching_assistants'
   $field_instances['field_collection_item-field_sections-field_teaching_assistants'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -1029,7 +1045,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_welcome_letter'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_welcome_letter'
   $field_instances['field_collection_item-field_sections-field_welcome_letter'] = array(
     'bundle' => 'field_sections',
     'deleted' => 0,
@@ -1079,7 +1096,8 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sections-field_welcome_page'
+  // Exported field_instance:
+  // 'field_collection_item-field_sections-field_welcome_page'
   $field_instances['field_collection_item-field_sections-field_welcome_page'] = array(
     'bundle' => 'field_sections',
     'default_value' => NULL,
@@ -1367,99 +1385,6 @@ function cis_types_field_default_field_instances() {
       ),
       'type' => 'options_select',
       'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'node-college_services-body'
-  $field_instances['node-college_services-body'] = array(
-    'bundle' => 'college_services',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(
-          'trim_length' => 600,
-        ),
-        'type' => 'text_summary_or_trimmed',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'body',
-    'label' => 'Body',
-    'required' => FALSE,
-    'settings' => array(
-      'display_summary' => TRUE,
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 20,
-        'summary_rows' => 5,
-      ),
-      'type' => 'text_textarea_with_summary',
-      'weight' => 3,
-    ),
-  );
-
-  // Exported field_instance: 'node-college_services-field_icon'
-  $field_instances['node-college_services-field_icon'] = array(
-    'bundle' => 'college_services',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 1,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_icon',
-    'label' => 'icon',
-    'required' => 0,
-    'settings' => array(
-      'alt_field' => 0,
-      'default_image' => 0,
-      'file_directory' => '',
-      'file_extensions' => 'png gif jpg jpeg svg',
-      'focus' => 0,
-      'focus_lock_ratio' => 0,
-      'focus_min_size' => '',
-      'max_filesize' => '',
-      'max_resolution' => '',
-      'min_resolution' => '',
-      'title_field' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'image',
-      'settings' => array(
-        'preview_image_style' => 'thumbnail',
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'image_image',
-      'weight' => 2,
     ),
   );
 
@@ -2687,7 +2612,7 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'file_shadowbox',
+        'module' => 'file',
         'settings' => array(
           'compact' => 0,
           'gallery' => '',
@@ -2699,7 +2624,7 @@ function cis_types_field_default_field_instances() {
           'video_thumb' => 128,
           'video_width' => 640,
         ),
-        'type' => 'file_shadowbox',
+        'type' => 'file_default',
         'weight' => 13,
       ),
       'teaser' => array(
@@ -2783,7 +2708,7 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'image_shadowbox',
+        'module' => 'image',
         'settings' => array(
           'compact' => 0,
           'gallery' => 'page',
@@ -2791,7 +2716,7 @@ function cis_types_field_default_field_instances() {
           'image_style' => 'course_thumb',
           'title' => 'title',
         ),
-        'type' => 'image_shadowbox',
+        'type' => 'image',
         'weight' => 11,
       ),
       'teaser' => array(
@@ -3019,6 +2944,7 @@ function cis_types_field_default_field_instances() {
     'label' => 'University Bulletin',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -3032,6 +2958,7 @@ function cis_types_field_default_field_instances() {
       ),
       'enable_tokens' => 0,
       'title' => 'none',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => 'University Bulletin listing',
       'url' => 0,
@@ -3208,1014 +3135,6 @@ function cis_types_field_default_field_instances() {
       ),
       'type' => 'file_generic',
       'weight' => 3,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-body'
-  $field_instances['node-news-body'] = array(
-    'bundle' => 'news',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(
-          'trim_length' => 600,
-        ),
-        'type' => 'text_summary_or_trimmed',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'body',
-    'label' => 'Body',
-    'required' => FALSE,
-    'settings' => array(
-      'display_summary' => TRUE,
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 20,
-        'summary_rows' => 5,
-      ),
-      'type' => 'text_textarea_with_summary',
-      'weight' => 2,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_academic_home'
-  $field_instances['node-news-field_academic_home'] = array(
-    'bundle' => 'news',
-    'default_value' => NULL,
-    'default_value_function' => '',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 5,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_academic_home',
-    'label' => 'Related Academic home',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'status' => 0,
-        ),
-      ),
-      'nodeaccess_nodereference' => array(
-        'all' => array(
-          'view' => 0,
-        ),
-        'all_published' => 0,
-        'author' => array(
-          'delete' => 0,
-          'update' => 0,
-          'view' => 0,
-        ),
-        'author_published' => 0,
-        'priority' => 0,
-        'referenced' => array(
-          'delete' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'published' => 0,
-          'update' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'view' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-        ),
-        'unused' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_news_image'
-  $field_instances['node-news-field_news_image'] = array(
-    'bundle' => 'news',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'image',
-        'settings' => array(
-          'image_link' => '',
-          'image_style' => '',
-        ),
-        'type' => 'image',
-        'weight' => 2,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_news_image',
-    'label' => 'News Image',
-    'required' => 0,
-    'settings' => array(
-      'alt_field' => 0,
-      'default_image' => 0,
-      'file_directory' => 'news',
-      'file_extensions' => 'png gif jpg jpeg',
-      'focus' => 0,
-      'focus_lock_ratio' => 0,
-      'focus_min_size' => '',
-      'max_filesize' => '',
-      'max_resolution' => '',
-      'min_resolution' => '',
-      'title_field' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'image',
-      'settings' => array(
-        'preview_image_style' => 'thumbnail',
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'image_image',
-      'weight' => 6,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_redirect_to'
-  $field_instances['node-news-field_redirect_to'] = array(
-    'bundle' => 'news',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'field_redirection',
-        'settings' => array(
-          '404_if_empty' => 0,
-          'code' => 301,
-          'page_restrictions' => 0,
-          'pages' => '',
-        ),
-        'type' => 'field_redirection',
-        'weight' => 3,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_redirect_to',
-    'label' => 'Redirect to',
-    'required' => 0,
-    'settings' => array(
-      'attributes' => array(
-        'class' => '',
-        'configurable_title' => 0,
-        'rel' => '',
-        'target' => 'default',
-        'title' => '',
-      ),
-      'display' => array(
-        'url_cutoff' => 80,
-      ),
-      'enable_tokens' => 1,
-      'rel_remove' => 'default',
-      'title' => 'optional',
-      'title_maxlength' => 128,
-      'title_value' => '',
-      'url' => 0,
-      'user_register_form' => FALSE,
-      'validate_url' => 1,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'link',
-      'settings' => array(),
-      'type' => 'link_field',
-      'weight' => 7,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_related_entity'
-  $field_instances['node-news-field_related_entity'] = array(
-    'bundle' => 'news',
-    'default_value' => NULL,
-    'default_value_function' => 'entityreference_prepopulate_field_default_value',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 1,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_related_entity',
-    'label' => 'Related',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'action' => 'none',
-          'action_on_edit' => 0,
-          'fallback' => 'none',
-          'og_context' => 0,
-          'skip_perm' => 0,
-          'status' => 1,
-        ),
-      ),
-      'nodeaccess_nodereference' => array(
-        'all' => array(
-          'view' => 0,
-        ),
-        'all_published' => 0,
-        'author' => array(
-          'delete' => 0,
-          'update' => 0,
-          'view' => 0,
-        ),
-        'author_published' => 0,
-        'priority' => 0,
-        'referenced' => array(
-          'delete' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'published' => 0,
-          'update' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'view' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-        ),
-        'unused' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_buttons',
-      'weight' => 5,
-    ),
-  );
-
-  // Exported field_instance: 'node-news-field_subtext'
-  $field_instances['node-news-field_subtext'] = array(
-    'bundle' => 'news',
-    'default_value' => array(
-      0 => array(
-        'value' => 'New',
-      ),
-    ),
-    'deleted' => 0,
-    'description' => 'subtext displayed when news is highlighted on the front page',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_subtext',
-    'label' => 'Subtext',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 50,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 1,
-    ),
-  );
-
-  // Exported field_instance: 'node-page-body'
-  $field_instances['node-page-body'] = array(
-    'bundle' => 'page',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(
-          'trim_length' => 600,
-        ),
-        'type' => 'text_summary_or_trimmed',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'body',
-    'label' => 'Body',
-    'required' => FALSE,
-    'settings' => array(
-      'display_summary' => TRUE,
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 20,
-        'summary_rows' => 5,
-      ),
-      'type' => 'text_textarea_with_summary',
-      'weight' => -4,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-body'
-  $field_instances['node-person-body'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 2,
-      ),
-      'teaser' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(
-          'trim_length' => 600,
-        ),
-        'type' => 'text_summary_or_trimmed',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'body',
-    'label' => 'Body',
-    'required' => FALSE,
-    'settings' => array(
-      'display_summary' => TRUE,
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 20,
-        'summary_rows' => 5,
-      ),
-      'type' => 'text_textarea_with_summary',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_academic_home'
-  $field_instances['node-person-field_academic_home'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'default_value_function' => '',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 5,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_academic_home',
-    'label' => 'Academic home',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'status' => 0,
-        ),
-      ),
-      'nodeaccess_nodereference' => array(
-        'all' => array(
-          'view' => 0,
-        ),
-        'all_published' => 0,
-        'author' => array(
-          'delete' => 0,
-          'update' => 0,
-          'view' => 0,
-        ),
-        'author_published' => 0,
-        'priority' => 0,
-        'referenced' => array(
-          'delete' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'published' => 0,
-          'update' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'view' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-        ),
-        'unused' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 5,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_address'
-  $field_instances['node-person-field_address'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 11,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_address',
-    'label' => 'Address',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 4,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 15,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_display_name'
-  $field_instances['node-person-field_display_name'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'Preferred salutation such as Dr. Warner or Karen Jones, MFA',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 6,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_display_name',
-    'label' => 'Display Name',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 1,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_email'
-  $field_instances['node-person-field_email'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'email',
-        'settings' => array(),
-        'type' => 'email_default',
-        'weight' => 8,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_email',
-    'label' => 'Email',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'email',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'email_textfield',
-      'weight' => 11,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_headshot'
-  $field_instances['node-person-field_headshot'] = array(
-    'bundle' => 'person',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'image',
-        'settings' => array(
-          'image_link' => '',
-          'image_style' => 'people_headshot',
-        ),
-        'type' => 'image',
-        'weight' => 1,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_headshot',
-    'label' => 'Headshot',
-    'required' => 0,
-    'settings' => array(
-      'alt_field' => 1,
-      'default_image' => 0,
-      'file_directory' => 'people_photos',
-      'file_extensions' => 'png gif jpg jpeg',
-      'focus' => 1,
-      'focus_lock_ratio' => 0,
-      'focus_min_size' => '',
-      'max_filesize' => '',
-      'max_resolution' => '',
-      'min_resolution' => '',
-      'title_field' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'image',
-      'settings' => array(
-        'preview_image_style' => 'thumbnail',
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'image_image',
-      'weight' => 3,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_internal_classification'
-  $field_instances['node-person-field_internal_classification'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'Used by CIS for filtering people into different lists',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 3,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_internal_classification',
-    'label' => 'Internal Classification',
-    'required' => 1,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_buttons',
-      'weight' => 8,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_phone_number'
-  $field_instances['node-person-field_phone_number'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'phone',
-        'settings' => array(),
-        'type' => 'phone',
-        'weight' => 10,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_phone_number',
-    'label' => 'Phone number',
-    'required' => 0,
-    'settings' => array(
-      'ca_phone_parentheses' => 1,
-      'ca_phone_separator' => '-',
-      'phone_country_code' => 0,
-      'phone_default_country_code' => 1,
-      'phone_int_max_length' => 15,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'phone',
-      'settings' => array(),
-      'type' => 'phone_textfield',
-      'weight' => 14,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_professional_title'
-  $field_instances['node-person-field_professional_title'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'The professional title for this person, whether that\'s as a member of the university staff or otherwise.',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_professional_title',
-    'label' => 'Professional Title',
-    'required' => 1,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'select_or_other',
-      'settings' => array(
-        'apply_chosen' => '',
-        'available_options' => 'Instructor
-Senior Instructional Designer
-Instructional Web Technologist
-',
-        'available_options_php' => '',
-        'markup_available_options_php' => '&lt;none&gt;',
-        'other' => 'New Title',
-        'other_size' => 60,
-        'other_title' => 'New Title',
-        'other_unknown_defaults' => 'available',
-        'sort_options' => 0,
-      ),
-      'type' => 'select_or_other',
-      'weight' => 2,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_twitter_account'
-  $field_instances['node-person-field_twitter_account'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_plain',
-        'weight' => 7,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_twitter_account',
-    'label' => 'Twitter Account',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 12,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_user_account'
-  $field_instances['node-person-field_user_account'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'default_value_function' => 'entityreference_prepopulate_field_default_value',
-    'deleted' => 0,
-    'description' => 'The account that this page is associated to.  Not required so there can be pages about people who don\'t have accounts in the system but preferred for general data reliability.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_user_account',
-    'label' => 'User Account',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'action' => 'none',
-          'action_on_edit' => 0,
-          'fallback' => 'none',
-          'og_context' => 0,
-          'skip_perm' => 0,
-          'status' => 1,
-        ),
-      ),
-      'nodeaccess_userreference' => array(
-        'all' => array(
-          'view' => 0,
-        ),
-        'all_published' => 0,
-        'author' => array(
-          'delete' => 0,
-          'update' => 0,
-          'view' => 0,
-        ),
-        'author_published' => 0,
-        'create' => array(
-          'academic_unit' => 0,
-          'college_services' => 0,
-          'course' => 0,
-          'instructional_model' => 0,
-          'isbn2node_book' => 0,
-          'page' => 0,
-          'person' => 0,
-          'program' => 0,
-          'resource' => 0,
-          'service' => 0,
-          'service_instance' => 0,
-        ),
-        'priority' => 0,
-        'referenced' => array(
-          'delete' => 0,
-          'deny_delete' => 0,
-          'deny_update' => 0,
-          'deny_view' => 0,
-          'update' => 0,
-          'view' => 0,
-        ),
-        'referenced_published' => 0,
-        'unused' => 0,
-        'views' => array(
-          'view' => '',
-          'view_args' => '',
-        ),
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 6,
-    ),
-  );
-
-  // Exported field_instance: 'node-person-field_website'
-  $field_instances['node-person-field_website'] = array(
-    'bundle' => 'person',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'link',
-        'settings' => array(),
-        'type' => 'link_default',
-        'weight' => 9,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_website',
-    'label' => 'Website',
-    'required' => 0,
-    'settings' => array(
-      'attributes' => array(
-        'class' => '',
-        'configurable_title' => 0,
-        'rel' => '',
-        'target' => '_blank',
-        'title' => '',
-      ),
-      'display' => array(
-        'url_cutoff' => 80,
-      ),
-      'enable_tokens' => 1,
-      'rel_remove' => 'default',
-      'title' => 'optional',
-      'title_maxlength' => 128,
-      'title_value' => ' ',
-      'url' => 0,
-      'user_register_form' => FALSE,
-      'validate_url' => 1,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'link',
-      'settings' => array(),
-      'type' => 'link_field',
-      'weight' => 13,
     ),
   );
 
@@ -4407,6 +3326,7 @@ Instructional Web Technologist
     'label' => 'Facebook',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4420,6 +3340,7 @@ Instructional Web Technologist
       'enable_tokens' => 1,
       'rel_remove' => 'default',
       'title' => 'optional',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -4461,6 +3382,7 @@ Instructional Web Technologist
     'label' => 'Program site',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4474,6 +3396,7 @@ Instructional Web Technologist
       'enable_tokens' => 1,
       'rel_remove' => 'default',
       'title' => 'optional',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -4515,6 +3438,7 @@ Instructional Web Technologist
     'label' => 'Twitter',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4528,6 +3452,7 @@ Instructional Web Technologist
       'enable_tokens' => 1,
       'rel_remove' => 'default',
       'title' => 'optional',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -4739,6 +3664,7 @@ Global will be available to all resources to reference',
     'label' => 'Data location',
     'required' => 1,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4752,6 +3678,7 @@ Global will be available to all resources to reference',
       'enable_tokens' => 0,
       'rel_remove' => 'default',
       'title' => 'none',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -4832,6 +3759,7 @@ Global will be available to all resources to reference',
     'label' => 'Location',
     'required' => 1,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -4845,6 +3773,7 @@ Global will be available to all resources to reference',
       'enable_tokens' => 0,
       'rel_remove' => 'default',
       'title' => 'none',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -5152,7 +4081,6 @@ Global will be available to all resources to reference',
   t('Access duration');
   t('Access string');
   t('Add offerings of this course to activate them for the semester and lead record of their occurance.');
-  t('Address');
   t('An XML structure that follows the conventions established by ELMS for structuring a content outline.  The easiest way to obtain this is to install the MOOC distribution, create some content in a book outline and then export it to it\'s XML packaging format.');
   t('Any users that you\'d like to be able to coordinate semester setup and get data about this Academic Unit.');
   t('Author video');
@@ -5174,39 +4102,28 @@ Global will be available to all resources to reference',
   t('Delivery Guide');
   t('Description');
   t('Design doc');
-  t('Display Name');
   t('Display in course list');
   t('Distribution');
   t('Documents');
-  t('Email');
   t('Facebook');
   t('First Offered');
   t('Generic, sample syllabus for communication to prospective students');
-  t('Headshot');
   t('If there is remote authentication (like an LMS) enter those binding credentials here.');
   t('Instructional Designer');
   t('Instructions');
   t('Instructor of record');
-  t('Internal Classification');
   t('Lead Instructor');
   t('Link to the course in the university bulletin');
   t('Location');
   t('Long description');
   t('Machine name');
   t('Method of access');
-  t('News Image');
   t('Offerings');
   t('Other documents');
-  t('Phone number');
-  t('Preferred salutation such as Dr. Warner or Karen Jones, MFA');
-  t('Professional Title');
   t('Program classification');
   t('Program site');
   t('Promotional screenshots for course');
   t('Readings');
-  t('Redirect to');
-  t('Related');
-  t('Related Academic home');
   t('Related courses');
   t('Representative Courses');
   t('Resource type');
@@ -5223,29 +4140,22 @@ Global will be available to all resources to reference',
   t('Services in use');
   t('Setup guide');
   t('Special Classifications');
-  t('Subtext');
   t('Syllabus');
   t('TAs that have been allocated to this section');
   t('Teaching assistants');
   t('The URL that data and backend calls can be made against.  This can be the same as the Location but is recommended that an additional domain be used so that these web service connections can operate on a different IP and be fire-walled independently for added security.');
-  t('The account that this page is associated to.  Not required so there can be pages about people who don\'t have accounts in the system but preferred for general data reliability.');
   t('The address for the course: example Title - Art 010, machine art010');
   t('The dates that this section will have access to the material listed in the Access section');
   t('The instructional design assigned to manage this course');
-  t('The professional title for this person, whether that\'s as a member of the university staff or otherwise.');
   t('The semester this offering is for');
   t('This helps give students a sense of how long a course has been running or if its brand new.');
   t('This is a longer description of what the course is about and info that will help someone decide if they should take it.');
   t('Topics covered text');
   t('Twitter');
-  t('Twitter Account');
   t('Unit Head');
   t('University Bulletin');
   t('Use this to introduce the instructor to the course.  This should be a personalized message, most often accompanied by video.');
-  t('Used by CIS for filtering people into different lists');
-  t('User Account');
   t('Web address associated with this service.  This is the domain where requests to build this type of system will be stored.');
-  t('Website');
   t('Welcome Letter');
   t('Welcome Page');
   t('What is this resource for?  Most of the time you\'ll want to choose global so it is the default.
@@ -5254,9 +4164,7 @@ Global will be available to all resources to reference');
   t('Who is listed as the instructor of record and in charge of the course.');
   t('XML Outline');
   t('Year');
-  t('icon');
   t('machine name of this service. This is used as part of automation');
-  t('subtext displayed when news is highlighted on the front page');
 
   return $field_instances;
 }
