@@ -26,7 +26,7 @@ function drush_efq_drush_command() {
     'callback' => 'drush_efq_drush_efq',
     'arguments' => array(
       'entity_type' => dt('Entity type'),
-      'entity_type' => dt('Entity bundle'),
+      'entity_bundle' => dt('Entity bundle'),
       'extras' => dt('JSON array of possible values (optional)'),
       'role' => dt('name or RID of a drupal role, only used with user entity since role is not in scope of EFQ. (optional)'),
     ),
