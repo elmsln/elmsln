@@ -528,18 +528,18 @@ function cis_helper_quick_setup_page() {
     $options['xml_manifest_import'] = t('Upload..');
   }
   $form['details'] = array(
-    '#description' => t('Only modify these if you need to.'),
+    '#description' => t('What systems would you like to make up your course network?'),
     '#collapsed' => '0',
     '#type' => 'fieldset',
     '#collapsible' => '1',
-    '#title' => t('Request details'),
+    '#title' => t('Network structure'),
   );
-  $form['logistics'] = array(
-    '#description' => t('These are required to setup any section effectively'),
+  $form['optional'] = array(
+    '#description' => t('Additional settings for setting up logistical details'),
     '#collapsed' => '0',
     '#type' => 'fieldset',
     '#collapsible' => '1',
-    '#title' => t('Section logistics'),
+    '#title' => t('Additional settings'),
   );
   $form['details']['instructional_outline'] = array(
     '#type' => 'select',
@@ -580,7 +580,7 @@ function cis_helper_quick_setup_page() {
     '#title' => t('Course services'),
   );
   // offering container
-  $form['details']['offering'] = array(
+  $form['optional']['offering'] = array(
     '#description' => t('The point in time that this course is being offered'),
     '#collapsed' => '0',
     '#type' => 'fieldset',
@@ -589,7 +589,7 @@ function cis_helper_quick_setup_page() {
   );
   // list of available semesters for this offering
   $field = field_info_field('field_semester');
-  $form['details']['offering']['semester'] = array(
+  $form['optional']['offering']['semester'] = array(
     '#required' => '1',
     '#multiple' => '0',
     '#key_type_toggled' => '1',
@@ -600,7 +600,7 @@ function cis_helper_quick_setup_page() {
   );
   // academic year of this offering
   $field = field_info_field('field_year');
-  $form['details']['offering']['year'] = array(
+  $form['optional']['offering']['year'] = array(
     '#required' => '1',
     '#multiple' => '0',
     '#key_type_toggled' => '1',
@@ -610,7 +610,7 @@ function cis_helper_quick_setup_page() {
     '#title' => t('Year'),
   );
   // section container
-  $form['details']['section'] = array(
+  $form['optional']['section'] = array(
     '#description' => t('Details related to creation of a section'),
     '#collapsed' => '0',
     '#type' => 'fieldset',
@@ -618,26 +618,26 @@ function cis_helper_quick_setup_page() {
     '#title' => t('Section'),
   );
   // section number of record
-  $form['details']['section']['number'] = array(
+  $form['optional']['section']['number'] = array(
     '#description' => t('Section number supplied by the registrar.'),
     '#type' => 'textfield',
     '#title' => t('Section number'),
   );
   // campus code of record
-  $form['details']['section']['campus'] = array(
+  $form['optional']['section']['campus'] = array(
     '#description' => t('Campus code used to identify where this offering takes place.'),
     '#type' => 'textfield',
     '#title' => t('Campus code'),
   );
   // access strings / primary key for binding access across services
-  $form['details']['section']['access_string'] = array(
+  $form['optional']['section']['access_string'] = array(
     '#required' => '0',
     '#description' => t('The access string to bind to, this is the primary key for this course section.'),
     '#type' => 'textfield',
     '#title' => t('Access string'),
   );
   // the syllabus to use for the section to be created
-  $form['logistics']['syllabus'] = array(
+  $form['optional']['section']['syllabus'] = array(
     '#required' => '0',
     '#description' => t('(PDF only) syllabus for the course'),
     '#type' => 'managed_file',
@@ -654,7 +654,7 @@ function cis_helper_quick_setup_page() {
     ),
   );
   // the syllabus to use for the section to be created
-  $form['logistics']['welcome_letter'] = array(
+  $form['optional']['section']['welcome_letter'] = array(
     '#required' => '0',
     '#description' => t('(PDF only) Welcome letter for the course'),
     '#type' => 'managed_file',
