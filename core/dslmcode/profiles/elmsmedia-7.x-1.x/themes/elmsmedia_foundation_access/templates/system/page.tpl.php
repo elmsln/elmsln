@@ -21,24 +21,21 @@
       
       <div class="inner-wrap">
         <?php if (isset($cis_lmsless['admin_status_bar']) && !empty($cis_lmsless['admin_status_bar'])) : ?>
-        
          <!-- Admin Status Bar -->
-         <div class="hide-for-large-up row full admin-status-bar divider-bottomv">
+         <div class="row full admin-status-bar divider-bottom">
             <div class="columns small-12">
-            
-              <!-- <a href="#" class="admin-alert middle-align-wrap">
-                <span class="">ADMINISTRATOR</span>
-              </a>
-              <a href="#" class="middle-align-wrap">
-                <span class="hide-for-large-up">201415WDS1_SOMECOURSE_001</span>
-              </a> -->
-
-             <?php foreach($cis_lmsless['admin_status_bar'] as $admin_status_msg_key => $admin_status_msg) : ?>
-              <span class="<?php print $admin_status_msg_key;?>-label"><?php print $admin_status_msg[0];?>: </span>
-              <span class="<?php print $admin_status_msg_key;?>"><?php print $admin_status_msg[1];?></span>
+              <?php foreach($cis_lmsless['admin_status_bar'] as $admin_status_msg_key => $admin_status_msg) : ?>
+              <span class="<?php print $admin_status_msg_key;?>">
+                <?php print (isset($admin_status_msg['content']) ? $admin_status_msg['content'] : ''); ?>
+                <?php if (isset($admin_status_msg['modal'])) : ?>
+                  <a href="#" data-reveal-id="<?php print $admin_status_msg['modal']; ?>" class="admin-alert">
+                <?php endif; ?>
+                <?php print (isset($admin_status_msg['title']) ? '<span>' . $admin_status_msg['title'] . '</span>' : ''); ?>
+                <?php if (isset($admin_status_msg['modal'])) : ?>
+                  </a>
+                <?php endif; ?>
+              </span>
               <?php endforeach ?>
-
-
             </div>
           </div>
         <?php endif; ?>
