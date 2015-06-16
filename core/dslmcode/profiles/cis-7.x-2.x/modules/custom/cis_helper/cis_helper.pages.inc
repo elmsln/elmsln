@@ -571,13 +571,12 @@ function cis_helper_quick_setup_page() {
   $service_list = _cis_helper_assemble_entity_list('node', 'service', 'nid', 'title');
   $form['details']['services'] = array(
     '#multiple' => TRUE,
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#key_type_toggled' => '1',
-    '#description' => t('The service to deploy for this course'),
+    '#description' => t("What services would you like to use in this course?"),
     '#type' => 'checkboxes',
     '#options' => $service_list,
     '#multiple_toggle' => '1',
-    '#title' => t('Service'),
     '#title' => t('Course services'),
   );
   // offering container
