@@ -464,8 +464,8 @@ function cis_helper_entity_update($entity, $type) {
     $settings = _cis_connector_build_registry();
     foreach ($settings as $bucket => $setting) {
       // sniff out authority systems
-      if ($bucket != 'cis' && $setting['instance'] == FALSE) {
-        // right now i'm pretty sure this doesn't
+      if ($bucket != 'cis' && isset($setting['instance']) && $setting['instance'] == FALSE) {
+        // set data about this course in authority systems
         _cis_connection_set_data($query, $data, 'nid', 'node', $bucket, '', TRUE, '', array('blocking' => FALSE));
       }
     }
