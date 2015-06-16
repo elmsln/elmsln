@@ -46,7 +46,7 @@ function cis_helper_add_offering_page($form, $form_state) {
     '#required' => '1',
     '#description' => t('The courses to establish the offering for'),
     '#type' => 'select',
-    '#options' => _cis_helper_assemble_entity_list('node', 'course', 'field_machine_name', 'title'),
+    '#options' => _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title'),
     '#title' => t('Course'),
     '#default_value' => $course,
   );
@@ -228,7 +228,7 @@ function cis_helper_offering_planning_page($form, $form_state) {
     '#key_type_toggled' => '1',
     '#description' => t('The courses to establish offerings for'),
     '#type' => 'checkboxes',
-    '#options' => _cis_helper_assemble_entity_list('node', 'course', 'nid', 'title', array('field_display_in_course_list' => 1)),
+    '#options' => _cis_connector_assemble_entity_list('node', 'course', 'nid', 'title', array('field_display_in_course_list' => 1)),
     '#multiple_toggle' => '1',
     '#theme' => 'cis_helper_checkbox_table',
     '#title' => t('Course'),
@@ -469,7 +469,7 @@ function cis_helper_quick_setup_page() {
   // allow for new courses to be created from here
   $options = array('new' => t('New'));
   // build list of node entities from structured EFQ
-  $options += _cis_helper_assemble_entity_list('node', 'course', 'field_machine_name', 'title');
+  $options += _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title');
   // select the course desired
   $form['course'] = array(
     '#required' => '1',
@@ -568,7 +568,7 @@ function cis_helper_quick_setup_page() {
     );
   }
   // list of services
-  $service_list = _cis_helper_assemble_entity_list('node', 'service', 'nid', 'title');
+  $service_list = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title');
   $form['details']['services'] = array(
     '#multiple' => TRUE,
     '#required' => TRUE,
@@ -724,7 +724,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
   }
   else {
     // load array of course machine names based on EFQ
-    $courses = _cis_helper_assemble_entity_list('node', 'course', 'field_machine_name', 'nid');
+    $courses = _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'nid');
     // this will be the entity id for a course
     $etid = $courses[$form_state['values']['course']];
     $course = entity_load_single('node', $etid);

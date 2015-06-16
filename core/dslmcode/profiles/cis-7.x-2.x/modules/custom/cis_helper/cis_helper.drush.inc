@@ -74,7 +74,7 @@ function cis_helper_drush_help($section) {
  */
 function drush_cis_helper_cis_sync_registry() {
   // load up the services and the registry to compare them
-  $services = _cis_helper_assemble_entity_list('node', 'service', 'field_distribution', 'nid');
+  $services = _cis_connector_assemble_entity_list('node', 'service', 'field_distribution', 'nid');
   $registry = _cis_connector_build_registry();
   foreach ($registry as $distribution => $reg) {
     // if it is set in CIS, load the node then update it
@@ -107,9 +107,9 @@ function drush_cis_helper_cis_sync_registry() {
  * Drush command callback for cis-release-kraken.
  */
 function drush_cis_helper_cis_release_kraken() {
-  $courses = _cis_helper_assemble_entity_list('node', 'course', 'field_machine_name', 'title');
+  $courses = _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title');
   // load all services
-  $services = _cis_helper_assemble_entity_list('node', 'service', 'field_machine_name', 'title');
+  $services = _cis_connector_assemble_entity_list('node', 'service', 'field_machine_name', 'title');
   $build_service = drush_get_option('build_service');
   // remove anything with (dev) in title
   foreach ($services as $name => $title) {
@@ -159,12 +159,12 @@ function drush_cis_helper_create_service_instances($machine_name, $string, $part
   // load all services
   $build_service = drush_get_option('build_service');
   if (!empty($build_service)) {
-    $list = _cis_helper_assemble_entity_list('node', 'service', 'field_machine_name', 'nid');
+    $list = _cis_connector_assemble_entity_list('node', 'service', 'field_machine_name', 'nid');
     if (in_array($build_service, array_keys($list))) {
       $nid = $list[$build_service];
     }
   }
-  $services = _cis_helper_assemble_entity_list('node', 'service', 'nid', 'title');
+  $services = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title');
   // remove anything with (dev) in title
   foreach ($services as $key => $service_name) {
     if (strpos($service_name, '(dev)')) {
