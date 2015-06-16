@@ -35,4 +35,7 @@ cd ${elmsln}
 drush @online cook cis1x_2x --dr-locations=${elmsln}/scripts/upgrade/drush_recipes/d7/optional/cis/ --y
 # revert core features to ensure they match what things are now
 drush @online fr cis_displays cis_default_permissions cis_types cis_users cis_ux --force --y
+# update db
+drush @online updb
+# remove upgrade lock file
 rm /tmp/elmsln-upgrade-lock
