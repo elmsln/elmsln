@@ -594,7 +594,7 @@ function cis_helper_quick_setup_page() {
     '#multiple' => '0',
     '#key_type_toggled' => '1',
     '#type' => 'select',
-    '#options' => $field['settings']['allowed_values'],
+    '#options' => array('' => '') + $field['settings']['allowed_values'],
     '#multiple_toggle' => '1',
     '#title' => t('Semester'),
   );
@@ -605,7 +605,7 @@ function cis_helper_quick_setup_page() {
     '#multiple' => '0',
     '#key_type_toggled' => '1',
     '#type' => 'select',
-    '#options' => $field['settings']['allowed_values'],
+    '#options' => array('' => '') + $field['settings']['allowed_values'],
     '#multiple_toggle' => '1',
     '#title' => t('Year'),
   );
