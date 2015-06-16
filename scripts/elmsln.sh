@@ -35,7 +35,11 @@ menuitems() {
   [[ "$msg" ]] && echo "" && echo "$msg"; :
 }
 version=$(cat "$elmsln/VERSION.txt")
+courses=$(drush @online efq node course --count)
+sections=$(drush @online efq field_collection_item field_sections --count)
 elmslnecho "ELMSLN VERSION: $version"
+elmslnecho "Courses in CIS: $courses"
+elmslnecho "Sections in CIS: $sections"
 
 # make sure we get a valid response before doing anything
 while menuitems && read -rp "$prompt" num && [[ "$num" ]]; do
