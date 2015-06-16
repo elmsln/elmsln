@@ -569,12 +569,6 @@ function cis_helper_quick_setup_page() {
   }
   // list of services
   $service_list = _cis_helper_assemble_entity_list('node', 'service', 'nid', 'title');
-  // remove anything with (dev) in title
-  foreach ($service_list as $key => $name) {
-    if (strpos($name, '(dev)')) {
-      unset($service_list[$key]);
-    }
-  }
   $form['details']['services'] = array(
     '#multiple' => TRUE,
     '#required' => FALSE,
@@ -584,6 +578,7 @@ function cis_helper_quick_setup_page() {
     '#options' => $service_list,
     '#multiple_toggle' => '1',
     '#title' => t('Service'),
+    '#title' => t('Course services'),
   );
   // offering container
   $form['details']['offering'] = array(
