@@ -2,6 +2,7 @@
 # elmsln.sh is intended to be an interactive prompt for administering elmsln
 # this provides shortcuts for running commands you could have otherwise
 # but like the developers of the project, are far too lazy to search for.
+source ../config/scripts/drush-create-site/config.cfg
 
 #provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold
@@ -29,6 +30,8 @@ menuitems() {
   done
   [[ "$msg" ]] && echo "" && echo "$msg"; :
 }
+version=$(cat "$elmsln/VERSION.txt")
+elmslnecho "ELMSLN VERSION: $version"
 
 # make sure we get a valid response before doing anything
 while menuitems && read -rp "$prompt" num && [[ "$num" ]]; do
