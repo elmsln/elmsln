@@ -41,7 +41,6 @@
  * @see template_preprocess_html()
  * @see template_process()
  */
-  $theme_path = base_path() . path_to_theme();
 ?>
 <!DOCTYPE html>
 <!-- Sorry no IE7 support! -->
@@ -61,6 +60,11 @@
   <![endif]-->
 </head>
 <body class="<?php print $classes; ?>" <?php print $attributes;?>>
+  <?php if (!empty($logo_img)) : ?>
+    <div class="region-logo">
+    <?php print $logo_img; ?>
+    </div>
+  <?php endif; ?>
   <div class="skip-link">
     <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
   </div>
