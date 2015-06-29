@@ -1,0 +1,27 @@
+.view-foundation-access-header {
+  width: 100%;
+}
+
+.region-header {
+  background-position: center;
+  background-size: 100rem;
+  z-index: 1;
+  width: 100%;
+  background-attachment: fixed;
+}
+.region-header img {
+  width: 100%;
+  background-attachment: fixed;
+}
+
+.region-logo {
+  background-position: center;
+  background-size: 100rem;
+  z-index: 1;
+  width: 100%;
+  background-attachment: fixed;
+}
+.region-logo img {
+  width: 100%;
+  background-attachment: fixed;
+}
