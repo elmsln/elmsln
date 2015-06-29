@@ -6,8 +6,25 @@
  *
  */
 function foundation_access_preprocess_html(&$variables) {
+  // theme path shorthand should be handled here
+  $variables['theme_path'] = base_path() . path_to_theme();
   foreach($variables['user']->roles as $role){
     $variables['classes_array'][] = 'role-' . drupal_html_class($role);
+  }
+  // add page level variables into scope for the html tpl file
+  $variables['site_name'] = check_plain(variable_get('site_name', 'ELMSLN'));
+  $variables['logo'] = theme_get_setting('logo');
+  $variables['logo_img'] = '';
+  // make sure we have a logo before trying to render a real one to screen
+  if (!empty($variables['logo'])) {
+    $variables['logo_img'] = l(theme('image', array(
+      'path' => $variables['logo'],
+      'alt' => strip_tags($variables['site_name']) . ' ' . t('logo'),
+      'title' => strip_tags($variables['site_name']) . ' ' . t('Home'),
+      'attributes' => array(
+        'class' => array('logo'),
+      ),
+    )), '<front>', array('html' => TRUE));
   }
 }
 
