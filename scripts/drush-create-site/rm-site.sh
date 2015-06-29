@@ -82,8 +82,6 @@ for sitedata in `find $elmsln/config/stacks/$rmstack -name $rmcourse | grep -v s
         fi
         elmslnecho "removing site"
         rm -rf $sitedata
-    else
-        elmslnecho "preserving site data in $sitedata"
     fi
 done
 
