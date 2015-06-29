@@ -1,6 +1,6 @@
 name = Foundation Access
 description = Custom sub-theme based on the the Zurb Foundation base theme.
-screenshot = images/screenshot.png
+screenshot = screenshot.jpg
 
 core = 7.x
 engine = phptemplate
@@ -103,6 +103,9 @@ regions[footer_secondcolumn]  = Footer two
 ; features[] = favicon
 ; features[] = main_menu
 ; features[] = secondary_menu
+
+; hide the logo by default
+settings[toggle_logo] = 0
 
 ; Panel Layouts
 plugins[panels][layouts] = layouts
