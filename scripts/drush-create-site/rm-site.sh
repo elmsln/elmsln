@@ -43,7 +43,13 @@ if [ -z "$rmstack" ]; then
   fi
 fi
 
-#remove sites directory
+# backup config before proceeding since we are removing a lot of stuff here
+sudo bash /var/www/elmsln/scripts/utilities/backup-config.sh
+
+# backup db before we kill it
+drush @$rmstack.$rmcourse sql-dump --result-file
+
+# remove sites directory
 for sitedata in `find $elmsln/config/stacks/$rmstack -name $rmcourse | grep -v services` ; do
     elmslnwarn "found sub-site $sitedata remove(y/n)"
     read rmsitedata
@@ -111,8 +117,6 @@ while [[ $sitesphp ]]; do
     read rmnum
     validrmnum=`echo $sitesphp | grep $rmnum:`
     if [[ $validrmnum ]]; then
-        cp sites.php sites.php.bak
-        elmslnecho "sites.php backed up to sites.php.bak"
         sed -i ""$rmnum"d" sites.php
     else
         if [[ $rmnum == "x" ]]; then
