@@ -7,17 +7,76 @@
 include_once 'mooc_content_theming.features.inc';
 
 /**
- * Implements hook_preprocess_page().
+ * Implements hook_block_info().
  */
-function mooc_content_theming_preprocess_page(&$variables) {
-  // override the logo in the event that that mooc_image isset
-  if (!empty($variables['node']->field_mooc_image)) {
-    $variables['logo'] = file_create_url($variables['node']->field_mooc_image['und'][0]['uri']);
+function mooc_content_theming_block_info() {
+  $blocks['mooc_content_theming_banner'] = array(
+    'info' => t('MOOC content banner'),
+    'cache' => DRUPAL_CACHE_PER_PAGE
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function mooc_content_theming_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'mooc_content_theming_banner':
+      $block['subject'] = '<none>';
+      $block['content'] = _mooc_content_theming_banner_block();
+    break;
   }
-  // support for the foundation_access zurb_color property
-  if (!empty($variables['node']->field_mooc_color)) {
-    $variables['zurb_color'] = $variables['node']->field_mooc_color['und'][0]['jquery_colorpicker'];
+  return $block;
+}
+
+/**
+ * Callback for the banner block.
+ */
+function _mooc_content_theming_banner_block() {
+  // try to get node from active menu item
+  $node = menu_get_object();
+  if (isset($node->book)) {
+    // easiest use-case, this has a banner image
+    if (isset($node->field_mooc_image) && !empty($node->field_mooc_image)) {
+      $image_uri = $node->field_mooc_image['und'][0]['uri'];
+      return theme('image', array(
+        'path' => $image_uri,
+        'alt' => strip_tags($node->title . ' ' . t('banner')),
+        'title' => strip_tags($node->title),
+        'attributes' => array(
+          'class' => array('logo'),
+        ),
+      ));
+    }
+    else {
+      // spider back up through parents til we find a match
+      $plid = $node->book['plid'];
+      while ($plid != 0) {
+        $pmenu = book_link_load($plid);
+        $parent = node_load($pmenu['nid']);
+        // check that it has the image field set
+        if (empty($parent->field_mooc_image)) {
+          // keep going
+          $plid = $parent->book['plid'];
+        }
+        else {
+          // use this one, we always use the closest parent we find
+          $image_uri = $parent->field_mooc_image['und'][0]['uri'];
+          return theme('image', array(
+            'path' => $image_uri,
+            'alt' => strip_tags($parent->title . ' ' . t('banner')),
+            'title' => strip_tags($parent->title),
+            'attributes' => array(
+              'class' => array('logo'),
+            ),
+          ));
+        }
+      }
+    }
   }
+  return NULL;
 }
 
 /**

@@ -26,9 +26,9 @@ function mooc_content_theming_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'views-foundation_access_header-block' => array(
-          'module' => 'views',
-          'delta' => 'foundation_access_header-block',
+        'mooc_content_theming-mooc_content_theming_banner' => array(
+          'module' => 'mooc_content_theming',
+          'delta' => 'mooc_content_theming_banner',
           'region' => 'header',
           'weight' => '-10',
         ),
