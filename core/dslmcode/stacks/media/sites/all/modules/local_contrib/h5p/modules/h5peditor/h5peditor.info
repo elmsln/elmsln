@@ -1,0 +1,19 @@
+; @file
+;  h5peditor.info ini file
+;  Contains general information about the h5peditor Drupal module.
+name = H5P Editor
+description = "Create and modify interactive HTML5 Packages on your Drupal site."
+core = 7.x
+
+dependencies[] = h5p
+files[] = h5peditor-drupal-storage.class.inc
+files[] = h5peditor/h5peditor-file.class.php
+files[] = h5peditor/h5peditor-storage.interface.php
+files[] = h5peditor/h5peditor.class.php
+
+; Information added by Drupal.org packaging script on 2015-06-08
+version = "7.x-1.8"
+core = "7.x"
+project = "h5p"
+datestamp = "1433766787"
+

@@ -1,0 +1,700 @@
+@import "compass/css3/border-radius";
+@import "compass/css3/box-shadow";
+@import "compass/css3/opacity";
+@import "compass/css3/text-shadow";
+@import "compass/css3/transition";
+@import "compass/css3/transform";
+
+$i: 'H5P';
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+  max-width: 960px;
+}
+a {
+  text-decoration: none;
+}
+
+.h5peditor {
+  font-size: 16px;
+
+  .h5p-more-libraries {
+    font-size: 0.875em;
+    margin-top: 0.4em;
+  }
+
+  .field {
+    margin: 16px 0;
+    font-size: 16px;
+    padding: 0;
+    &:first-child {
+      margin-top: 0;
+    }
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.boolean .h5peditor-label {
+      display: inline;
+    }
+    &.video, &.image, &.file, &.audio {
+      position: relative;
+    }
+
+    .library {
+      border: 1px solid #666;
+      padding: 8px;
+    }
+  }
+
+  .errors p,
+  .h5p-errors {
+    margin: 0 0 4px 0;
+    color: #f00;
+  }
+  textarea {
+    resize: vertical;
+  }
+  textarea, .h5peditor-text, .ckeditor {
+    width: 90%;
+    padding: 4px 8px;
+    font-size: 16px;
+    border: 1px solid #a0a0a0;
+    background: #f9f9f9;
+    outline: none;
+    min-height: 20px;
+    @include border-radius(3px);
+  }
+  select {
+    padding: 2px;
+  }
+  a:focus {
+    outline: none;
+  }
+  textarea:focus,
+  .h5peditor-text:focus {
+    outline: none;
+    background-color: #fff;
+    border-color: #53a0ff;
+  }
+  .h5p-ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+
+    .h5p-li {
+      padding: 0 8px;
+      margin: 8px 0;
+      list-style: none;
+      background: #fff;
+      border: 1px solid #ccc;
+
+      & > .content {
+        margin: 0 24px;
+      }
+      & > .remove, & > .order {
+        cursor: pointer;
+        width: 14px;
+        height: 14px;
+        margin: 10px 4px 0 0;
+        float: right;
+        font-size: 1.75em;
+        line-height: 1em;
+        text-indent: -0.35em;
+
+        &:hover {
+          opacity: 1;
+          text-decoration: none;
+        }
+      }
+
+      & > .remove:after {
+          font-family: $i;
+          content: "\e890";
+          color: #666;
+        }
+
+      & > .remove:hover:after {
+          color: #c33f62;
+        }
+
+      & > .order {
+        float: left;
+
+        &:after {
+          font-family: $i;
+          content: "\e88d";
+          color: #666;
+
+        }
+
+        &:hover:after {
+          color: #027AC6;
+        }
+      }
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+  .content > .field {
+    margin: 8px 0 20px 0;
+  }
+  .group {
+    margin: 16px 0;
+    border: 1px solid #676767;
+    background: #d5e9ff;
+    @include border-radius(0);
+
+    @include box-shadow(0 0 4px #a7a7a7);
+
+    & > .title {
+      cursor: pointer;
+      padding: 4px 8px;
+      overflow: hidden;
+      background: #f4f4f4;
+      overflow: hidden;
+      outline: none;
+
+      &:first-letter {
+        text-transform: uppercase;
+      }
+      &:before {
+        content: "";
+        display: inline-block;
+        vertical-align: middle;
+        width: 13px;
+        height: 13px;
+        margin: 0 6px 2px 2px;
+        background: inline-image("expand.png") no-repeat;
+        opacity: 0.8;
+      }
+      &:hover:before,
+      &:focus:before {
+        opacity: 1;
+      }
+      &:active:before {
+        opacity: 0.5;
+      }
+    }
+    & > .content {
+      display: none;
+    }
+    .h5p-li {
+      background: #fff;
+      &:hover {
+        background: #fff;
+      }
+      .group {
+        background: #fff;
+        .h5p-li {
+          background: #fff;
+          &:hover {
+            background: #fff;
+          }
+          .group {
+            background: #feedff;
+          }
+        }
+        .group {
+          background: #feedff;
+        }
+      }
+    }
+    .group {
+      background: #ebfffa;
+    }
+  }
+  .expanded {
+    & > .title {
+      border-bottom: 1px solid #676767;
+
+      &:before {
+        background-image: inline-image("collapse.png");
+      }
+    }
+    & > .content {
+      padding: 4px 8px;
+      display: block;
+      background: #fff;
+      margin: 0;
+    }
+  }
+  input[type="button"], button {
+    width: auto;
+    margin: 0;
+    padding: 4px 8px;
+    background: linear-gradient(to bottom,#fff 0,#f2f2f2 100%);
+    border: 1px solid #ccc;
+    border-radius: 0.25em;
+    font-size: 0.875em;
+    color: #333;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+      border-color: #999;
+    }
+  }
+  .dimensions input, .coordinates input, .number input {
+    width: 75px;
+  }
+  .number input[type="range"] {
+    width: 300px;
+    float: left;
+    margin: 7px 8px 0 0;
+  }
+  .h5p-errors {
+    clear: both;
+  }
+  .h5p-add-file {
+    float: left;
+    position: relative;
+    background: transparent;
+    border: 2px dashed #dddddd;
+    color: #dddddd;
+    margin: 0.5em;
+    width: 4em;
+    height: 3em;
+    cursor: pointer;
+    outline: none;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+  }
+  .h5p-add-file:focus,
+  .h5p-add-file:hover {
+    color: #999;
+    border-color: #999;
+  }
+  .h5p-add-file:after {
+    position: absolute;
+    content: "+";
+    font-size: 2em;
+    line-height: 1.425em;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+  .h5p-add-dialog {
+    position: absolute;
+    z-index: 1;
+    visibility: hidden;
+    opacity: 0;
+    background: #fff;
+    left: 1em;
+    right: 1em;
+    top: 1em;
+    border: 1px solid #cdcdcd;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    @include box-shadow(0 0 8px #666);
+    @include transition(visibility 0s 0.2s, opacity 0.2s);
+
+    &.h5p-open {
+      visibility: visible;
+      opacity: 1;
+      @include transition(visibility 0s 0s, opacity 0.2s);
+    }
+
+    .h5p-dialog-box {
+      text-align: center;
+      padding: 1em 0.5em;
+    }
+
+    .h5p-buttons {
+      padding: 0.5em;
+      border-top: 1px solid #cdcdcd;
+      background: #ddd;
+      text-align: right;
+    }
+    .h5p-cancel {
+      margin-left: 0.5em;
+      color: #b83c3c;
+      background: transparent;
+      border: 0;
+      outline: 0;
+      cursor: pointer;
+    }
+    .h5p-cancel:focus,
+    .h5p-cancel:hover {
+      color: #e20d0d;
+    }
+  }
+  .h5p-or {
+    border-bottom: 1px solid #cdcdcd;
+    padding: 0;
+    margin: 0 1em;
+    text-align: center;
+    height: 0.5em;
+    line-height: 1em;
+    & > span {
+      background: #fff;
+      padding: 0 0.5em;
+    }
+  }
+  .h5p-file-url {
+    text-align: center;
+  }
+  .h5p-thumbnail {
+    margin: 0.5em;
+    width: 4em;
+    height: 3em;
+    display: block;
+    float: left;
+    position: relative;
+    @include box-shadow(0 0 10px 0 #666666);
+    border: 1px solid #fff;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+
+    .h5p-remove {
+      position: absolute;
+      top: 0;
+      right: 0;
+      cursor: pointer;
+      outline: none;
+      width: 1em;
+      height: 1em;
+      line-height: 1em;
+      overflow: hidden;
+      text-indent: -0.4em;
+      padding: 0.065em;
+      @include opacity(0.6);
+    }
+    .h5p-remove:hover,
+    .h5p-remove:focus {
+      @include opacity(1);
+    }
+    .h5p-remove:after {
+      font-family: $i;
+      font-size: 1.4em;
+      color: #fff;
+      content: "\e890";
+      @include opacity(0.6);
+    }
+  }
+  .h5p-type {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    font-size: 0.75em;
+    line-height: 4em;
+    display: block;
+    text-align: center;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+  }
+  .file {
+    position: relative;
+    float: left;
+
+    .thumbnail {
+      display: inline-block;
+      margin: 10px 10px 10px 0;
+      @include box-shadow(0 0 10px 0 #666666);
+      border: 1px solid #fff;
+      cursor: pointer;
+    }
+    .add {
+      display: block;
+      cursor: pointer;
+      width: 44px;
+      height: 44px;
+      background: inline-image("add.png");
+    }
+    .remove {
+      display: block;
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      cursor: pointer;
+    }
+    .remove:before {
+      font-family: $i;
+      font-size: 1.4em;
+      color: #fff;
+      content: "\e890";
+      @include opacity(0.6);
+      @include text-shadow(rgba(black, 0.4) 0 0 4px, rgba(black, 0.4) 0 0 4px, rgba(black, 0.4) 0 0 4px);
+    }
+    .remove:hover {
+      text-decoration: none;
+    }
+    .remove:hover:before {
+      color: #fff;
+      @include opacity(1);
+      @include text-shadow(rgba(black, 0.4) 0 0 4px, rgba(black, 0.4) 0 0 4px, rgba(black, 0.4) 0 0 4px);
+    }
+    img {
+      vertical-align: bottom;
+    }
+  }
+  .video .file, .audio .file {
+    position: static;
+    overflow: visible;
+    .thumbnail, .add {
+      float: left;
+    }
+    .add {
+      margin-top: 8px;
+    }
+    .thumbnail {
+      overflow: visible;
+      position: relative;
+      cursor: auto;
+    }
+    .remove {
+      top: -3px;
+      right: -5px;
+    }
+    .type {
+      padding: 16px 8px 4px;
+      background: #000;
+      color: #fff;
+      font-size: 10px;
+    }
+    .h5peditor-uploading {
+      float: left;
+      margin: 0.5em;
+    }
+  }
+  .libwrap {
+    margin-top: 16px;
+  }
+  input[type="checkbox"] {
+    margin: 4px 4px 4px 0;
+    vertical-align: bottom;
+  }
+  .common {
+    margin-top: 1em;
+    background: #fff;
+    border: 1px solid #ccc;
+
+    & > .h5peditor-label {
+      font-size: 1em;
+      font-weight: normal;
+      padding: 0.5em 0.75em 0.4em;
+      background: #ddd;
+      cursor: pointer;
+
+      & > .icon {
+        display: inline-block;
+        width: 20px;
+        height: 13px;
+        background: inline-image("collapse.png") no-repeat left center;
+        opacity: 0.8;
+        vertical-align: top;
+        margin-top: 4px;
+      }
+      &:hover > .icon {
+        opacity: 1;
+      }
+    }
+    & > .fields {
+      margin: 0.3125em 0.5em 0.5em;
+      padding-bottom: 0.25em;
+      min-height: 2em;
+
+      & > .desc {
+        margin: 0;
+        font-size: 0.875em;
+        color: #666;
+      }
+    }
+
+    &.collapsed {
+      & > .h5peditor-label > .icon {
+        background-image: inline-image("expand.png");
+      }
+      & > .fields {
+        display: none;
+      }
+    }
+
+    &.hidden {
+      display: none;
+    }
+  }
+  .moving {
+    position: absolute;
+    z-index: 1;
+    @include opacity(0.8);
+    -webkit-transform: translateZ(0);
+  }
+
+  .h5peditor-uploading, .h5peditor-loading {
+    padding-top: 10px;
+    padding-bottom: 6px;
+    font-size: 14px;
+  }
+  .h5peditor-loading {
+    padding: 0.875em 0 1em 3.25em;
+    font-style: italic;
+  }
+  .h5p-copyright-button {
+    background: linear-gradient(to bottom,#fff 0,#f2f2f2 100%);
+    border: 1px solid #ccc;
+    border-radius: 0.25em;
+    font-size: 0.875em;
+    color: #333;
+    cursor: pointer;
+    float: left;
+    display: block;
+    clear: both;
+    line-height: 2em;
+    padding-right: 1em;
+
+    &:before {
+      font-family: $i;
+      content: "\e88f";
+      color: #666;
+      padding-right: 0.25em;
+      vertical-align: middle;
+      font-size: 1.5em;
+      vertical-align: middle;
+      padding-left: 0.25em;
+    }
+    &:hover {
+      text-decoration: none;
+      border-color: #999;
+    }
+  }
+
+  .h5p-editor-dialog {
+    position: absolute;
+    z-index: 1;
+    width: 90%;
+    background: #fff;
+    padding: 10px 10px 0;
+    margin: 5.5em 0 1em;
+    visibility: hidden;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    @include box-shadow(0 0 8px #666);
+    @include transition(visibility 0s 0.2s, height 0s 0.2s, opacity 0.2s, margin-top 0.2s);
+
+    &.h5p-open {
+      margin-top: 3.5em;
+      visibility: visible;
+      opacity: 1;
+      height: auto;
+      @include transition(visibility 0s 0s, height 0s 0s, opacity 0.2s, margin-top 0.2s);
+    }
+
+    & > .field {
+      margin: 0 0 10px;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .h5p-close {
+      color: #494949;
+
+      &:before {
+        font-size: 2em;
+        right: -0.125em;
+        top: 0;
+        position: absolute;
+        font-family: "H5P";
+        content: "\e894";
+        line-height: 1em;
+        @include transition(scale 0.2s);
+      }
+
+      &:hover:before {
+        @include scale(1.1, 1.1);
+      }
+    }
+  }
+}
+
+.h5peditor-field-description,
+.h5p-help-text {
+  font-size: 10px;
+  color: #555555;
+}
+
+.h5peditor-form {
+  position: relative;
+  margin: 0.5em 0 0;
+  background: #fff;
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+.h5peditor-label {
+  display: block;
+  font-weight: bold;
+  font-size: 16px;
+  overflow: hidden;
+  padding-top: 4px;
+}
+
+#h5peditor-uploader {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  top: -1px;
+  border: 0;
+  overflow: hidden;
+}
+
+.h5p-tutorial-url {
+  font-size: 0.875em;
+}
+
+.h5p-tutorial-url:before {
+  font-family: $i;
+  content: "\e889";
+  font-size: 1.5em;
+  position: relative;
+  top: .2em;
+  left: .2em;
+}
+
+.h5peditor-widget-select {
+  overflow: hidden;
+  margin: 0 0 -1px;
+  padding: 0;
+  list-style: none;
+}
+.h5peditor-widget-option {
+  float: right;
+  border: 1px solid #ccc;
+  border-bottom: 0;
+  margin-left: 0.5em;
+  padding: 0.25em 0.5em;
+  color: #555;
+  font-size: 0.875em;
+  background: #f4f4f4;
+  line-height: 1.285714286em;
+  cursor: pointer;
+  outline: none;
+}
+.h5peditor-widget-option:hover {
+  color: #000;
+}
+.h5peditor-widget-option:active {
+  color: #8e636a; /* Pink chocolate */
+}
+.h5peditor-widget-active {
+  background: #fff;
+  line-height: 1.357142857em;
+}
+
+.h5peditor-widgets > .h5peditor-widget-wrapper {
+  border: 1px solid #ccc;
+  background: #fff;
+  margin: 0 0 0.25em;
+  padding: 0.5em;
+}
+.h5peditor-widgets > .h5peditor-label {
+  float: left;
+}
+.h5p-editor-iframe {
+  margin-bottom: 1em;
+}
