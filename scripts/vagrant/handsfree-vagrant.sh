@@ -5,7 +5,7 @@ git clone https://github.com/elmsln/elmsln.git /var/www/elmsln
 bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh elmsln ln elmsln.local http admin@elmsln.local yes
 cd $HOME && source .bashrc
 
-git clone git://github.com/elmsln/elmsln-config-vagrant.git /var/www/elmsln-config-vagrant
+git clone https://github.com/elmsln/elmsln-config-vagrant.git /var/www/elmsln-config-vagrant
 
 # vagrant specific stuff downloaded from vagrant config directory
 cp -R /var/www/elmsln-config-vagrant/scripts/hooks/* /var/www/elmsln/config/scripts/hooks
