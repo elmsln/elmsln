@@ -115,6 +115,11 @@ function _cis_lmsless_theme_vars() {
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       $vars['admin_status_bar'] = array();
+      $vars['admin_status_bar']['course-settings'] = array(
+        'modal' => 'block-menu-menu-course-tools-menu-nav-modal',
+        'title' => t('settings'),
+        'content' => str_replace('/', '', base_path()),
+      );
       // account for systems without sections (like authorities)
       if ($section) {
         $vars['admin_status_bar']['course-section'] = array(
