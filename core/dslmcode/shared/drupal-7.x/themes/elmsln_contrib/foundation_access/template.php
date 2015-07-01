@@ -7,7 +7,7 @@
  */
 function foundation_access_preprocess_html(&$variables) {
   // theme path shorthand should be handled here
-  $variables['theme_path'] = base_path() . path_to_theme();
+  $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
   foreach($variables['user']->roles as $role){
     $variables['classes_array'][] = 'role-' . drupal_html_class($role);
   }
