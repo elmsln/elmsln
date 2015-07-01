@@ -960,11 +960,12 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
  *   the exact cache ID specified by $cid. Defaults to FALSE.
  */
 function _cis_connector_cache_clear($cid = NULL, $wildcard = FALSE) {
-  if (empty($cid)) {
-    cache_clear_all('*', 'cache_cis_connector', TRUE);
+  if (!empty($cid)) {
+    cache_clear_all($cid, 'cache_cis_connector', $wildcard);
   }
   else {
-    cache_clear_all($cid, 'cache_cis_connector', $wildcard);
+    // Force all cached entries to be deleted.
+    cache_clear_all('*', 'cache_cis_connector', TRUE);
   }
 }
 
