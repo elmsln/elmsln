@@ -972,8 +972,7 @@ function _cis_connector_cache_clear($cid = NULL, $wildcard = FALSE) {
  * Implements hook_flush_caches().
  */
 function cis_connector_flush_caches() {
-  _cis_connector_cache_clear();
-  return array();
+  return array('cache_cis_connector');
 }
 
 /**
