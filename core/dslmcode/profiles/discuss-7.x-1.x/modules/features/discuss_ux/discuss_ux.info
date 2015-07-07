@@ -1,0 +1,9 @@
+name = Discuss UX
+description = Defaults for making sense of the Discuss distribution
+core = 7.x
+package = Discuss
+dependencies[] = cis_service_connection_ux
+dependencies[] = features
+dependencies[] = menu
+features[features_api][] = api:2
+features[menu_links][] = menu-cis-add_create-new-thread:thread/add
