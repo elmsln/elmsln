@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Editorial Blog post feature.
+ */
+
+include_once 'editorial_blog_post.features.inc';
