@@ -55,24 +55,26 @@ function cle_assignment_advanced_node_validate($node, $form, &$form_state) {
     // load the assignment related to this submission
     $assignment = node_load($node->field_assignment['und'][0]['target_id']);
     // pull out just the requirements from the assignment
-    $requirements = $assignment->field_cle_assign_depend['und'];
-    // grab a list of everything this user has submitted
-    $submitted = _cle_assignent_advanced_assignments_submitted();
-    $fail = '';
-    // compare requirements to things submitted
-    foreach ($requirements as $requirement) {
-      // if its in the array then capture this
-      if (!in_array($requirement['target_id'], $submitted)) {
-        // load required node we are missing and provide a link
-        $reqnode = node_load($requirement['target_id']);
-        $fail .= '<p>' . l($reqnode->title, 'node/' . $reqnode->nid) . '</p>';
+    if (isset($assignment->field_cle_assign_depend['und'])) {
+      $requirements = $assignment->field_cle_assign_depend['und'];
+      // grab a list of everything this user has submitted
+      $submitted = _cle_assignent_advanced_assignments_submitted();
+      $fail = '';
+      // compare requirements to things submitted
+      foreach ($requirements as $requirement) {
+        // if its in the array then capture this
+        if (!in_array($requirement['target_id'], $submitted)) {
+          // load required node we are missing and provide a link
+          $reqnode = node_load($requirement['target_id']);
+          $fail .= '<p>' . l($reqnode->title, 'node/' . $reqnode->nid) . '</p>';
+        }
       }
-    }
-    // if we don't have an equal number of requirements vs items found
-    // then that means that we haven't met all the requirements
-    if (!empty($fail)) {
-      $fail = t('You haven\'t completed the following prerequisit assignments:') . '<br/>' . $fail;
-      form_set_error($field, $fail);
+      // if we don't have an equal number of requirements vs items found
+      // then that means that we haven't met all the requirements
+      if (!empty($fail)) {
+        $fail = t('You haven\'t completed the following prerequisit assignments:') . '<br/>' . $fail;
+        form_set_error($field, $fail);
+      }
     }
   }
 }
