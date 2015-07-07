@@ -20,10 +20,33 @@ function book_title_override_form_alter(&$form, &$form_state, $form_id) {
       '#description' => t('Way to present this in menus'),
       '#default_value' => isset($form['#node']->book['link_title']) ? $form['#node']->book['link_title'] : '',
       '#weight' => -10,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="book_title_override_override"]' => array('checked' => TRUE),
+        ),
+      ),
     );
-    // add form js/css to alter display of override title
-    drupal_add_js(drupal_get_path('module', 'book_title_override') . '/js/book_title_override.js');
-    drupal_add_css(drupal_get_path('module', 'book_title_override') . '/css/book_title_override.css');
+    // provide menu token support optionally
+    if (module_exists('menu_token')) {
+      $types = menu_token_get_plugin_types();
+      // Create new fieldset.
+      $form['menu_token_replacement_patterns'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Replacement patterns'),
+        '#collapsible' => FALSE,
+        '#weight' => -9,
+        '#states' => array(
+          'visible' => array(
+            ':input[name="book_title_override_override"]' => array('checked' => TRUE),
+          ),
+        ),
+      );
+      $form['menu_token_replacement_patterns']['patterns'] = array(
+        '#theme' => 'token_tree',
+        '#token_types' => array_keys($types),
+        '#dialog' => TRUE,
+      );
+    }
   }
 }
 
@@ -41,27 +64,34 @@ function book_title_override_node_load($nodes, $types) {
 }
 
 /**
- * Implements hook_node_update().
+ * Implements hook_node_insert().
  */
-function book_title_override_node_update($node) {
-  // verify this is set and different from the base
-  if (isset($node->book_title_override_override) && isset($node->book['link_title']) && $node->book_title_override_override && $node->book_title_override_title != $node->title) {
+function book_title_override_node_insert($node) {
+  $change = FALSE;
+  // verify we have a changed title
+  if (isset($node->book_title_override_override) && isset($node->book['link_title']) && $node->book_title_override_override) {
     $node->book['link_title'] = $node->book_title_override_title;
-    // commit the menu link alteration
+    $change = TRUE;
+  }
+  // test for tokens when title isn't overridden
+  if (isset($node->book) && module_exists('menu_token') && $node->title !=token_replace($node->title, array('node' => $node))) {
+    // support token replacements if they exist
+    $node->book['options']['menu_token_link_path'] = 'node/' . $node->nid;
+    $node->book['options']['menu_token_options'] = array('clear' => 0);
+    $node->book['options']['alter'] = TRUE;
+    $change = TRUE;
+  }
+  // commit the menu link alteration if we have a change to make
+  if ($change) {
     menu_link_save($node->book);
   }
 }
 
 /**
- * Implements hook_node_insert().
+ * Implements hook_node_update().
  */
-function book_title_override_node_insert($node) {
-  // verify this is set and different from the base
-  if (isset($node->book_title_override_override) && isset($node->book['link_title']) && $node->book_title_override_override && $node->book_title_override_title != $node->title) {
-    $node->book['link_title'] = $node->book_title_override_title;
-    // commit the menu link alteration
-    menu_link_save($node->book);
-  }
+function book_title_override_node_update($node) {
+  book_title_override_node_insert($node);
 }
 
 /**
@@ -114,6 +144,22 @@ function book_title_override_outline_designer_form_overlay() {
     '#weight' => 1,
     '#default_value' => '',
   );
+  // provide menu token support optionally
+  if (module_exists('menu_token')) {
+    $types = menu_token_get_plugin_types();
+    // Create new fieldset.
+    $form['menu_token_replacement_patterns'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Replacement patterns'),
+      '#collapsible' => FALSE,
+      '#weight' => 2,
+    );
+    $form['menu_token_replacement_patterns']['patterns'] = array(
+      '#theme' => 'token_tree',
+      '#token_types' => array_keys($types),
+      '#dialog' => TRUE,
+    );
+  }
   $output = '<div id="od_book_title_override" class="od_uiscreen">' . drupal_render($form) . '</div>';
   return $output;
 }
