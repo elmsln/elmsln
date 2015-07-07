@@ -73,6 +73,12 @@ function foundation_access_menu_tree__menu_course_tools_menu($variables) {
 function _foundation_access_single_menu_link($element) {
   $options = $element['#localized_options'];
   $options['html'] = TRUE;
+  // ensure class array is at least set
+  if (empty($element['#attributes']['class'])) {
+    $element['#attributes']['class'] = array();
+  }
+  $classes = implode(' ', $element['#attributes']['class']);
+  $options['attributes']['class'] = $element['#attributes']['class'];
   // default is a page icon
   $icon = 'page';
   // allow for modification of the item
