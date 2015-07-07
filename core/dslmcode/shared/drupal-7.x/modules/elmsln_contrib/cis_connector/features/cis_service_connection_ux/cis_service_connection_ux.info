@@ -12,6 +12,7 @@ dependencies[] = special_menu_items
 features[context][] = cis_service_connection_ux-blocks
 features[ctools][] = context:context:3
 features[features_api][] = api:2
+features[menu_custom][] = menu-cis-add
 features[menu_custom][] = menu-course-tools-menu
 features[menu_links][] = menu-course-tools-menu_analytics:admin/reports/course-analytics
 features[menu_links][] = menu-course-tools-menu_course-tools:<nolink>

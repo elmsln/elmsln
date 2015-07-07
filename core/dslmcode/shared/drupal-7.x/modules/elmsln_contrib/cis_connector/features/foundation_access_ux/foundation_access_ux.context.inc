@@ -13,6 +13,39 @@ function foundation_access_ux_context_default_contexts() {
   $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
+  $context->name = 'foundation_access_ux-add';
+  $context->description = 'Menu that controls the adding of content to the system in question';
+  $context->tag = 'Foundation Access';
+  $context->conditions = array(
+    'sitewide' => array(
+      'values' => array(
+        1 => 1,
+      ),
+    ),
+  );
+  $context->reactions = array(
+    'block' => array(
+      'blocks' => array(
+        'menu-menu-cis-add' => array(
+          'module' => 'menu',
+          'delta' => 'menu-cis-add',
+          'region' => 'add_content_menu',
+          'weight' => '-10',
+        ),
+      ),
+    ),
+  );
+  $context->condition_mode = 1;
+
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Foundation Access');
+  t('Menu that controls the adding of content to the system in question');
+  $export['foundation_access_ux-add'] = $context;
+
+  $context = new stdClass();
+  $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
+  $context->api_version = 3;
   $context->name = 'foundation_access_ux-admin';
   $context->description = 'Elevated permissions block positioning for sites running foundation access';
   $context->tag = 'Foundation Access';
