@@ -20,7 +20,7 @@ function cle_helper_form_node_form_alter(&$form, &$form_state, $form_id) {
   // if only part of one group select it automatically
   if (arg(0) == 'node' && arg(2) != 'edit' && ($form_id == 'cle_assignment_node_form' || $form_id == 'cle_submission_node_form')) {
     // if only 1 group, set to that value
-    if (count($form['og_group_ref']['und'][0]['default']['#options']) == 2) {
+    if (isset($form['og_group_ref']) && count($form['og_group_ref']['und'][0]['default']['#options']) == 2) {
       // flip around to get key associations
       $tmp = array_keys($form['og_group_ref']['und'][0]['default']['#options']);
       // array 0 is always '_none' so take the only other option
