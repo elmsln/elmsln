@@ -320,8 +320,7 @@ function elmsmedia_feature_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'fitvids_selectors';
-  $strongarm->value = 'body
-';
+  $strongarm->value = '.nowhere';
   $export['fitvids_selectors'] = $strongarm;
 
   $strongarm = new stdClass();
