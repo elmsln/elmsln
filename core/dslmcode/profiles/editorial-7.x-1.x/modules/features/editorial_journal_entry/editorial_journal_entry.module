@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Editorial Journal Entry feature.
+ */
+
+include_once 'editorial_journal_entry.features.inc';

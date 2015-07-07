@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Editorial Story Seeds feature.
+ */
+
+include_once 'editorial_story_seeds.features.inc';
