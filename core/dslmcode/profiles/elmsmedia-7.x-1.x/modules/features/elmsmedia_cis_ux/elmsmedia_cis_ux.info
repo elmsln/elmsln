@@ -11,5 +11,4 @@ features[menu_links][] = menu-cis-add_audio:node/add/audio
 features[menu_links][] = menu-cis-add_document:node/add/document
 features[menu_links][] = menu-cis-add_external-video:node/add/external-video
 features[menu_links][] = menu-cis-add_image:node/add/elmsmedia-image
-features[menu_links][] = menu-cis-add_interactive-content:node/add/h5p-content
 features[menu_links][] = menu-cis-add_video:node/add/video
