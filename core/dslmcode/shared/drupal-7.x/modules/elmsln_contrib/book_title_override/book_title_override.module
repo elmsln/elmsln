@@ -74,7 +74,7 @@ function book_title_override_node_insert($node) {
     $change = TRUE;
   }
   // test for tokens when title isn't overridden
-  if (isset($node->book) && module_exists('menu_token') && $node->title !=token_replace($node->title, array('node' => $node))) {
+  if (isset($node->book) && module_exists('menu_token') && $node->title != token_replace($node->title, array('node' => $node))) {
     // support token replacements if they exist
     $node->book['options']['menu_token_link_path'] = 'node/' . $node->nid;
     $node->book['options']['menu_token_options'] = array('clear' => 0);
