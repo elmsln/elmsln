@@ -145,7 +145,7 @@ function hidden_nodes_node_view($node, $view_mode = 'full') {
       for ($i = 1; $i < 10; $i++) {
         // If parent has an mlid then it exists in the book router table
         // potentially.
-        if ($node->book['p' . $i] != 0) {
+        if (isset($node->book['p' . $i]) && $node->book['p' . $i] != 0) {
           $parents[] = $node->book['p' . $i];
         }
       }
