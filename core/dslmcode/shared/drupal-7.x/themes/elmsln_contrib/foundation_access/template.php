@@ -259,3 +259,29 @@ function foundation_access_html_head_alter(&$head_elements) {
     );
   }
 }
+
+/**
+ * Implements theme_breadrumb().
+ *
+ * Print breadcrumbs as a list, with separators.
+ */
+function foundation_access_breadcrumb($variables) {
+  $breadcrumb = $variables['breadcrumb'];
+
+  if (!empty($breadcrumb)) {
+    // Provide a navigational heading to give context for breadcrumb links to
+    // screen-reader users. Make the heading invisible with .element-invisible.
+    $breadcrumbs = '<h2 class="element-invisible">' . t('You are here') . '</h2>';
+
+    $breadcrumbs .= '<ul class="breadcrumbs">';
+    foreach ($breadcrumb as $key => $value) {
+      $breadcrumbs .= '<li>' . strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span>') . '</li>';
+    }
+
+    $title = strip_tags(drupal_get_title());
+    $breadcrumbs .= '<li class="current"><a href="#">' . $title . '</a></li>';
+    $breadcrumbs .= '</ul>';
+
+    return $breadcrumbs;
+  }
+}
