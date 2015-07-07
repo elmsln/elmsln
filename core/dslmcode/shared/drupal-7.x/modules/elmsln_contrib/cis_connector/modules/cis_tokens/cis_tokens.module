@@ -15,6 +15,29 @@ function cis_tokens_page_build(&$page) {
 }
 
 /**
+ * Implements hook_preprocess_html().
+ */
+function cis_tokens_preprocess_html(&$variables) {
+  $node = menu_get_object();
+  // if we have a node, try and replace title tokens based on it
+  if ($node) {
+    $variables['head_title'] = token_replace($node->title, array('node' => $node));
+    $variables['head_title_array']['title'] = $variables['head_title'];
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function cis_tokens_preprocess_page(&$variables) {
+  $node = menu_get_object();
+  // if we have a node, try and replace title tokens based on it
+  if ($node) {
+    $variables['title'] = token_replace($node->title, array('node' => $node));
+  }
+}
+
+/**
  * Provide replacement values for placeholder tokens.
  *
  * @see http://api.drupal.org/api/drupal/modules--system--system.api.php/function/hook_tokens/7
