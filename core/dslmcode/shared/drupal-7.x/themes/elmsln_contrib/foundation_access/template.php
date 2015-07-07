@@ -61,6 +61,13 @@ function foundation_access_menu_tree__main_menu($variables) {
 }
 
 /**
+ * Implements menu_tree__menu_cis_add.
+ */
+function foundation_access_menu_tree__menu_cis_add($variables) {
+  return '<ul id="add-menu-drop" data-dropdown-content class="f-dropdown" role="menu" aria-hidden="false" tabindex="-1" class="menu">' . $variables['tree'] . '</ul>';
+}
+
+/**
  * Implements menu_tree__menu_course_tools_menu.
  */
 function foundation_access_menu_tree__menu_course_tools_menu($variables) {

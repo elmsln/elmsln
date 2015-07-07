@@ -37,13 +37,18 @@
             <span class="meter" style="width: 0%"></span>
           </div>
           <nav class="tab-bar etb-tool">
-          <section class="left">
-            <?php if (!empty($page['left_menu'])): ?>
-              <a class="left-off-canvas-toggle menu-icon" ><span><?php print $cis_lmsless['active']['title'] ?></span></a>
-            <?php else : ?>
-              <span><?php print $cis_lmsless['active']['title'] ?></span>
-            <?php endif; ?>
-          </section>
+            <section class="left">
+              <!-- If the off-canvas menu is in use, activate off canvas toggle -->
+              <?php if (!empty($page['left_menu'])): ?>
+                <a class="left-off-canvas-toggle menu-icon" ><span><?php print $cis_lmsless['active']['title'] ?></span></a>
+              <?php else : ?>
+                <span><?php print $cis_lmsless['active']['title'] ?></span>
+              <?php endif; ?>
+              <!-- Add Button -->
+             <?php if (!empty($page['add_content_menu'])): ?>
+                <?php print render($page['add_content_menu']); ?>
+             <?php endif; ?>
+            </section>
 
           <section class="middle tab-bar-section">
           <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
