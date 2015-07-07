@@ -23,9 +23,10 @@ projects[video_embed_field][subdir] = "contrib"
 ; Other
 projects[imagefield_focus][version] = "1.x-dev"
 projects[imagefield_focus][subdir] = "contrib"
-dependencies[] = mediaelement
 projects[mediaelement][version] = "1.x-dev"
 projects[mediaelement][subdir] = "contrib"
+projects[h5p][version] = "1.8"
+projects[h5p][subdir] = "contrib"
 ; Views
 projects[views_fluid_grid][version] = "3.x-dev"
 projects[views_fluid_grid][subdir] = "contrib"

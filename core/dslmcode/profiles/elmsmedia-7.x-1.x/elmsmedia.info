@@ -125,6 +125,7 @@ dependencies[] = entity_iframe_mode
 ; Fields
 dependencies[] = video_embed_field
 ; Other
+dependencies[] = h5p
 dependencies[] = elmsmedia_helper
 dependencies[] = imagefield_focus
 dependencies[] = mediaelement
@@ -132,6 +133,8 @@ dependencies[] = mediaelement
 dependencies[] = views_fluid_grid
 ; Features
 dependencies[] = elmsmedia_feature
+dependencies[] = elmsmedia_h5p
+
 
 ; Information added for Drupal.org usage stats while in dev
 version = "7.x-1.x-dev"
