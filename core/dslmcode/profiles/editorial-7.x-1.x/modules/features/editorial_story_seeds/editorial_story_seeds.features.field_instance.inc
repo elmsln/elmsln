@@ -10,9 +10,9 @@
 function editorial_story_seeds_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-story_seeds-field_seed'
-  $field_instances['node-story_seeds-field_seed'] = array(
-    'bundle' => 'story_seeds',
+  // Exported field_instance: 'node-editorial_story_seeds-field_seed'
+  $field_instances['node-editorial_story_seeds-field_seed'] = array(
+    'bundle' => 'editorial_story_seeds',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',

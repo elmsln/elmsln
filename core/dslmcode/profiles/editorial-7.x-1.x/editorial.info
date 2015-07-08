@@ -121,3 +121,6 @@ dependencies[] = cis_section
 ; ----------
 ; Editorial Dependencies
 ; ----------
+dependencies[] = editorial_blog_post
+dependencies[] = editorial_journal_entry
+dependencies[] = editorial_story_seeds

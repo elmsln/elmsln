@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Code for the Editorial Blog post feature.
+ * Code for the Editorial Blog Post feature.
  */
 
 include_once 'editorial_blog_post.features.inc';

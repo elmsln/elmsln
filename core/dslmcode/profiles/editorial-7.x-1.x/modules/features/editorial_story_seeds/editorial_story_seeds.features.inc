@@ -18,7 +18,7 @@ function editorial_story_seeds_ctools_plugin_api($module = NULL, $api = NULL) {
  */
 function editorial_story_seeds_node_info() {
   $items = array(
-    'story_seeds' => array(
+    'editorial_story_seeds' => array(
       'name' => t('Story Seeds'),
       'base' => 'node_content',
       'description' => t('Story Seeds'),
