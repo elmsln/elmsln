@@ -571,7 +571,7 @@ function cis_helper_quick_setup_page() {
   $service_list = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title');
   $form['details']['services'] = array(
     '#multiple' => TRUE,
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#key_type_toggled' => '1',
     '#description' => t("What services would you like to use in this course network?"),
     '#type' => 'checkboxes',
