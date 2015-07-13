@@ -12,8 +12,16 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   if (module_exists('mespeak')) {
     $variables['mespeak'] = TRUE;
   }
+  // support for add child page shortcut
+  $node = menu_get_object();
   if (user_access('access printer-friendly version')) {
-    $variables['tabs_extras'][0][] = l(t('Print'), 'book/export/html/' . arg(1));
+    $variables['tabs_extras'][200][] = '<hr>';
+    $variables['tabs_extras'][200][] = l(t('Print'), 'book/export/html/' . arg(1));
+  }
+  $child_type = variable_get('book_child_type', 'book');
+  if ($node && (user_access('add content to books') || user_access('administer book outlines')) && node_access('create', $child_type) && $node->status == 1 && $node->book['depth'] < MENU_MAX_DEPTH) {
+    $variables['tabs_extras'][200][] = '<hr>';
+    $variables['tabs_extras'][200][] = l(t('Add child page'), 'node/add/' . str_replace('_', '-', $child_type), array('query' => array('parent' => $node->book['mlid'])));
   }
   if (user_access('access contextual links')) {
     $variables['tabs_extras'][0][] = '<li class="cis_accessibility_check"></li>';

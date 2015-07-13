@@ -38,6 +38,7 @@ function foundation_access_preprocess_page(&$variables) {
     $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
   }
   if (_cis_connector_role_grouping('staff') || _cis_connector_role_grouping('teacher')) {
+    $variables['tabs_extras'][100][] = '<hr>';
     $variables['tabs_extras'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
   }
   // wrap non-node content in an article tag
