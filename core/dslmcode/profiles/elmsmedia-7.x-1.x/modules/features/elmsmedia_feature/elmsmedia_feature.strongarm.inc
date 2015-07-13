@@ -49,7 +49,10 @@ function elmsmedia_feature_strongarm() {
     'document' => 'document',
     'external_video' => 'external_video',
     'elmsmedia_image' => 'elmsmedia_image',
+    'h5p_content' => 'h5p_content',
     'video' => 'video',
+    'cis_course' => 0,
+    'section' => 0,
   );
   $export['entity_iframe_bundle_node'] = $strongarm;
 
@@ -91,7 +94,7 @@ function elmsmedia_feature_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'entity_iframe_height';
-  $strongarm->value = '300';
+  $strongarm->value = '400';
   $export['entity_iframe_height'] = $strongarm;
 
   $strongarm = new stdClass();
