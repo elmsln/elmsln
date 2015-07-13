@@ -27,7 +27,7 @@ function mooc_helper_book_nav_node_view($node, $view_mode, $langcode) {
  * Implements hook_block_info().
  */
 function mooc_helper_book_nav_block_info() {
-  // 
+  // provide block for rendering siblings in a line of the current page
   $blocks['book_sibling_nav'] = array(
     'info' => t('Book same level navigation'),
     'cache' => DRUPAL_CACHE_PER_PAGE,
