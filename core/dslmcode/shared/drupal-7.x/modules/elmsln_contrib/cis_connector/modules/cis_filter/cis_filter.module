@@ -96,9 +96,11 @@ function theme_cis_filter_render($vars) {
             $instance = '/' . $test[2] . '/';
           }
         }
-        $link = _cis_connector_format_address($settings, $instance, 'front');
+        // select the render method
         switch ($code['render']) {
+          // display this item as a link to what we were trying to construct
           case 'link':
+            $link = _cis_connector_format_address($settings, $instance, 'front');
             // link based request requires RESTful webservice
             $url = $code['entity_type'] . '/' . $code['item'] . '.json';
             // uses property to allow for rapid load of a complex resource
@@ -107,8 +109,28 @@ function theme_cis_filter_render($vars) {
             $link .= $code['entity_type'] . '/' . $code['item'];
             $result = _cis_filter_link_render($url, $code, $link, $instance);
           break;
+          // generate an iframe to display the referenced material
           case 'iframe':
+            $link = _cis_connector_format_address($settings, $instance, 'front');
             $result = _cis_filter_iframe_render($link, $code);
+          break;
+          // request a value from an object via webservice and render in place
+          // this currently supports simple field values and markup rendered
+          // fields.
+          case 'value':
+            // request the object via webservice
+            $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance);
+            // see if this text value is a complex one to filter
+            if (isset($response[$code['field']]) && is_array($response[$code['field']])) {
+              $result = check_markup($response[$code['field']]['value'], $response[$code['field']]['format']);
+            }
+            else {
+              $result = filter_xss($response[$code['field']]);
+            }
+          break;
+          // we got a token but didn't understand how to render, bail
+          default:
+            $result = '';
           break;
         }
         return $result;
