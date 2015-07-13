@@ -30,3 +30,9 @@ Once you've created this module, keep it in a safe place and only deploy it on t
 distributions that you want to be able to connect.  A secondary level of security that is
 recommended is to create an alternate address for your CIS and IP lock your distributed
 services to this address.  This way you have a single account that can only be logged in remotely from a handful of boxes at a firewall level.
+
+Developer Note:
+CIS Connector is a library required by all systems in ELMSLN. There is a mix of name spaces between CIS_* and ELMSLN_*. ELMSLN under the interface labeling of ELMSLN Core (typically) is the newer convention that is utilized. CIS based name spaces often reference ELMSLN but may have historically been used for "calling home" which was CIS as the system was originally concieved.
+
+This is because cis_connector.module used to be a library for talking just to CIS and quickly evolved to be a more abstract call library for quickly and securely talking to anything following the ELMSLN pattern of design.
+
