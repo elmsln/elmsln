@@ -136,3 +136,65 @@ function mooc_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_st
     '#options' => _mooc_helper_all_book_outlines('nid'),
   );
 }
+
+/**
+ * Implements hook_tokens($type, $tokens, array $data = array(), array $options = array().
+ */
+function mooc_helper_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = array();
+  // tokens from section
+  if ($type == 'elmsln_section') {
+    $outline_node = _cis_service_connection_active_outline();
+    $section = _cis_connector_section_context();
+    foreach ($tokens as $name => $original) {
+      // elements we know about ahead of time
+      switch ($name) {
+        case 'active_outline_nid':
+          $replacements[$original] = $outline_node->nid;
+          $replacements[$original] = '<span data-cis-token="' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $replacements[$original] . '</span>';
+        break;
+      }
+    }
+  }
+  if ($type == 'elmsln_section_data') {
+    $outline_node = _cis_service_connection_active_outline();
+    $section = _cis_connector_section_context();
+    foreach ($tokens as $name => $original) {
+      // elements we know about ahead of time
+      switch ($name) {
+        case 'active_outline_nid':
+          $replacements[$original] = $outline_node->nid;
+        break;
+      }
+    }
+  }
+
+  return $replacements;
+}
+
+/**
+ * Provide information about our custom tokens.
+ *
+ * @see http://api.drupal.org/api/drupal/modules--system--system.api.php/function/hook_token_info/7
+ * @see http://www.benmarshall.me/drupal-custom-tokens
+ * @return array
+ *   An associative array of available tokens and token types.
+ */
+function mooc_helper_token_info() {
+  // provide feedback about the active outline nid token
+  $outline_node = _cis_service_connection_active_outline();
+  $tokens = array(
+    'elmsln_section' => array(
+      'active_outline_nid' => array(
+        'name' => t("Active content outline"),
+        'description' => t('Section based token whose value is currently @val, just the value.', array('@val' => $outline_node->nid)),
+      ),
+    ),
+  );
+  // mirror this info for the data section that applies without scope wrappers
+  $tokens['elmsln_section_data'] = $tokens['elmsln_section'];
+
+  return array(
+    'tokens' => $tokens,
+  );
+}
