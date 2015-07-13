@@ -154,3 +154,5 @@ dependencies[] = views_load_more
 dependencies[] = harmony_atjs
 dependencies[] = harmony_core
 dependencies[] = discuss_ux
+dependencies[] = elmsln_student_filter
+

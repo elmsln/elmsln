@@ -169,10 +169,4 @@ dependencies[] = cle_submission
 dependencies[] = cle_gradebook
 dependencies[] = cle_gradebook_ux
 dependencies[] = cle_perms
-
-; Information intentionally kept here to have a version w/ ELMSLN
-; Information added by Drupal.org packaging script on 2014-06-27
-version = "7.x-1.0-alpha5"
-core = "7.x"
-project = "cle"
-datestamp = "1403897652"
+dependencies[] = elmsln_student_filter
