@@ -213,3 +213,35 @@ function book_cache_admin_menu_cache_info() {
   );
   return $caches;
 }
+
+/**
+ * Helper function to get the cached book associations
+ * @return [type] [description]
+ */
+function _book_cache_get_associations($book_link) {
+  $data = FALSE;
+  // generate a unique call signature for bid and mlid
+  $cid = $book_link['bid'] . ':' . $book_link['mlid'];
+  // statically cache future calls
+  $data = &drupal_static(__FUNCTION__);
+  // @ignore druplart_conditional_assignment
+  if (!$data && $cache = cache_get($cid, 'cache_book')) {
+    $data = $cache->data;
+  }
+  // we got data from a previous source so use that instead
+  if (!$data) {
+    // ew, manual look up
+    $prev = book_prev($book_link);
+    $next = book_next($book_link);
+    $tree = book_children($book_link);
+    $parent = book_link_load($book_link['plid']);
+    $data = array(
+      'prev' => $prev,
+      'next' => $next,
+      'tree' => $tree,
+      'parent' => $parent,
+    );
+    cache_set($cid, $data, 'cache_book');
+  }
+  return $data;
+}
