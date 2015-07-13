@@ -28,24 +28,27 @@ function mooc_cis_ux_menu_default_menu_links() {
     'weight' => -49,
     'customized' => 1,
   );
-  // Exported menu link: menu-course-tools-menu_instructional-outline:admin/content/book
-  $menu_links['menu-course-tools-menu_instructional-outline:admin/content/book'] = array(
+  // Exported menu link: menu-course-tools-menu_import-content-outline:import/feeds_node_helper_book_import
+  $menu_links['menu-course-tools-menu_import-content-outline:import/feeds_node_helper_book_import'] = array(
     'menu_name' => 'menu-course-tools-menu',
-    'link_path' => 'admin/content/book',
-    'router_path' => 'admin/content/book',
-    'link_title' => 'Instructional Outline',
+    'link_path' => 'import/feeds_node_helper_book_import',
+    'router_path' => 'import/%',
+    'link_title' => 'Import content outline',
     'options' => array(
-      'attributes' => array(
-        'title' => 'Outline designer for establishing the instructional pacing of this course.',
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
       ),
-      'identifier' => 'menu-course-tools-menu_instructional-outline:admin/content/book',
+      'identifier' => 'menu-course-tools-menu_import-content-outline:import/feeds_node_helper_book_import',
     ),
     'module' => 'menu',
     'hidden' => 0,
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -50,
+    'weight' => 50,
     'customized' => 1,
     'parent_identifier' => 'menu-course-tools-menu_content-tool:<nolink>',
   );
@@ -73,7 +76,7 @@ function mooc_cis_ux_menu_default_menu_links() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Content tool');
-  t('Instructional Outline');
+  t('Import content outline');
   t('Search / Replace');
 
 
