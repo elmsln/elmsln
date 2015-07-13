@@ -22,3 +22,116 @@ function mooc_helper_book_nav_node_view($node, $view_mode, $langcode) {
     }
   }
 }
+
+/**
+ * Implements hook_block_info().
+ */
+function mooc_helper_book_nav_block_info() {
+  // 
+  $blocks['book_sibling_nav'] = array(
+    'info' => t('Book same level navigation'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function mooc_helper_book_nav_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'book_sibling_nav':
+      $block['subject'] = '';
+      $globalnode = menu_get_object();
+      if ($globalnode && !empty($globalnode->book)) {
+        $nids = array();
+        $results = db_select('menu_links', 'ml')
+          ->fields('ml', array('link_path'))
+          ->condition('menu_name', 'book-toc-' . $globalnode->book['bid'] , '=')
+          ->condition('plid', $globalnode->book['plid'], '=')
+          ->orderBy('weight', 'ASC')
+          ->execute()
+          ->fetchAll();
+        foreach ($results as $item) {
+          $nids[] = str_replace('node/', '', $item->link_path);
+        }
+        // ensure we have results to style
+        if (!empty($nids)) {
+          // load all nodes
+          $nodes = entity_load('node', $nids);
+          $data = _book_cache_get_associations($globalnode->book);
+          $items = array();
+          $active = 'past-page';
+          // check for previous link in the flow
+          if ($data['prev']) {
+            $items[] = array(
+              'nid' => str_replace('node/', '', $data['prev']['link_path']),
+              'mlid' => $data['prev']['mlid'],
+              'title' => $data['prev']['title'],
+              'icon' => 'arrow-left',
+              'active' => 'prev-page',
+            );
+          }
+          foreach ($nodes as $node) {
+            // default is a page icon
+            $icon = 'page';
+            // allow for modification of the book item icon to match mooc / FA
+            $ml = $node->book;
+            $ml['#href'] = $node->book['link_path'];
+            drupal_alter('foundation_access_menu_item_icon', $icon, $ml);
+            // we are passing in the page they are currently on so disable active
+            if ($node->nid == $globalnode->nid) {
+              $active = 'current-page';
+            }
+            // structure results as a single item for easy theming
+            if ($node->book['has_children']) {
+              $icon = 'content-outline';
+            }
+            $items[] = array(
+              'nid' => $node->nid,
+              'mlid' => $node->book['mlid'],
+              'title' => $node->title,
+              'icon' => $icon,
+              'active' => $active,
+            );
+
+            // we are passing in the page they are currently on so disable active
+            if ($node->nid == $globalnode->nid) {
+              $active = 'future-page';
+            }
+          }
+          // previde next arrow if it exists
+          if ($data['next']) {
+            $items[] = array(
+              'nid' => str_replace('node/', '', $data['next']['link_path']),
+              'mlid' => $data['next']['mlid'],
+              'title' => $data['next']['title'],
+              'icon' => 'arrow-right',
+              'active' => 'next-page',
+            );
+          }
+          $block['content'] = theme('book_sibling_nav', array('items' => $items));
+        }
+      }
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function mooc_helper_book_nav_theme() {
+  return array(
+    'book_sibling_nav' => array(
+      'variables' => array(
+        'items' => array(),
+      ),
+      'render element' => 'element',
+      'template' => 'templates/book-sibling-nav',
+    ),
+  );
+}

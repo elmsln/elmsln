@@ -2,3 +2,5 @@ name = MOOC Helper Book Navigation tweaks
 description = Book navigation for tweaks.
 core = 7.x
 package = MOOC
+dependencies[] = book_cache
+dependencies[] = book
