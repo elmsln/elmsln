@@ -1,1 +1,24 @@
 /* CSS Document */
+.book-sibling-nav-container {
+  text-align: center;
+  margin: 0 auto;
+}
+.book-sibling-nav-item {
+  float:left;
+}
+.book-sibling-nav-item .outline-nav-icon {
+  opacity: .5;
+  filter: alpha(opacity=50);
+}
+.book-sibling-nav-past-page .outline-nav-icon {
+  /*background-color: #CCCCCC !important;*/
+}
+.book-sibling-nav-current-page .outline-nav-icon {
+  background-color: #FFCCCC !important;
+  opacity: 1;
+  filter: alpha(opacity=1);
+}
+.book-sibling-nav-future-page .outline-nav-icon {
+  opacity: 0.3;
+  filter: alpha(opacity=30);
+}
