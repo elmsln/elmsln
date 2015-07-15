@@ -1,6 +1,31 @@
 <?php
 
 /**
+ * Implements theme_breadrumb().
+ *
+ * Print breadcrumbs as a list, with separators.
+ */
+function mooc_foundation_access_breadcrumb($variables) {
+  $breadcrumb = $variables['breadcrumb'];
+  if (!empty($breadcrumb)) {
+    // Provide a navigational heading to give context for breadcrumb links to
+    // screen-reader users. Make the heading invisible with .element-invisible.
+    $breadcrumbs = '<div class="content-element-region small-12 medium-12 large-centered large-10 columns book-parent-nav-container">
+    <h2 class="element-invisible">' . t('You are here') . '</h2>';
+
+    $breadcrumbs .= '<ul class="breadcrumbs">';
+
+    foreach ($breadcrumb as $key => $value) {
+      $breadcrumbs .= '<li><h3 class="book-parent-nav-item"><div class="icon-content-outline-black outline-nav-icon"></div>' . $value . '</h3></li>';
+    }
+
+    $breadcrumbs .= '</ul></div>';
+
+    return $breadcrumbs;
+  }
+}
+
+/**
  * Implements template_preprocess_page.
  */
 function mooc_foundation_access_preprocess_page(&$variables) {
