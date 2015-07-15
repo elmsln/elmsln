@@ -101,17 +101,21 @@
         <?php print render($page['left_menu']); ?>
 
         <section class="main-section etb-book">
+          <?php if (!empty($messages)): ?>
+            <div class="region-messeges row">
+              <?php print $messages; ?>
+            </div>
+          <?php endif; ?>
 
+          <?php if ($breadcrumb) : ?>
+            <div class="breadcrumb-wrapper">
+            <?php print $breadcrumb; ?>
+            </div>
+          <?php endif; ?>
 
           <?php if (!empty($page['header'])): ?>
             <div class="region-header row">
               <?php print render($page['header']); ?>
-            </div>
-          <?php endif; ?>
-
-          <?php if (!empty($messages)): ?>
-            <div class="region-messeges row">
-              <?php print $messages; ?>
             </div>
           <?php endif; ?>
 
@@ -131,16 +135,9 @@
                     </div>
                   <?php endif; ?>
                   <a id="main-content"></a>
-                  <?php if ($breadcrumb) : ?>
-                    <div class="breadcrumb-wrapper">
-                    <?php print $breadcrumb; ?>
-                    </div>
-                  <?php endif; ?>
                   <?php if ($title): ?>
                     <?php print render($title_prefix); ?>
-                      <h1 id="page-title" class="title"><?php print $title; ?>
-                        <br><small><!--This is my course subtitle.--></small>
-                      </h1>
+                      <h1 id="page-title" class="title"><?php print $title; ?></h1>
                     <?php print render($title_suffix); ?>
                   <?php endif; ?>
                   <?php print render($page['content']); ?>
