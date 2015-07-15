@@ -1,25 +1,26 @@
 <?php
 /*
- * Implements hook_form_alter().
+ * Implements hook_form_BASE_FORM_ID_alter().
  */
-function book_title_override_form_alter(&$form, &$form_state, $form_id) {
-  // only add this to the node form of content in a book
-  if (strpos($form['#id'], 'node-form') && (in_array($form['#node']->type,   variable_get('book_allowed_types', array('book'))) || (isset($form['#node']->book) && $form['#node']->book['bid'] != 0))) {
+function book_title_override_form_node_form_alter(&$form, &$form_state, $form_id) {
+  if (in_array($form['#node']->type, variable_get('book_allowed_types', array('book'))) || (isset($form['#node']->book) && $form['#node']->book['bid'] != 0)) {
     // provide a checkbox for selecting whether or not to override things
-    $form['book_title_override_override'] = array(
+    $form['book']['book_title_override_override'] = array(
       '#type' => 'checkbox',
       '#title' => t('Override book title'),
       '#description' => t('Check this box to override the way this is presented in book outlines'),
-      '#default_value' => (isset($form['#node']->book['link_title']) && $form['#node']->title != $form['#node']->book['link_title'] && $form['#node']->title != ''),
+      '#default_value' => (!empty($form['#node']->book['link_title']) && $form['#node']->title != $form['#node']->book['link_title']),
       '#weight' => -10,
+      '#tree' => FALSE,
     );
     // provide a title field for the overridden title
-    $form['book_title_override_title'] = array(
+    $form['book']['book_title_override_title'] = array(
       '#type' => 'textfield',
       '#title' => t('Override title'),
       '#description' => t('Way to present this in menus'),
       '#default_value' => isset($form['#node']->book['link_title']) ? $form['#node']->book['link_title'] : '',
       '#weight' => -10,
+      '#tree' => FALSE,
       '#states' => array(
         'visible' => array(
           ':input[name="book_title_override_override"]' => array('checked' => TRUE),
@@ -30,7 +31,7 @@ function book_title_override_form_alter(&$form, &$form_state, $form_id) {
     if (module_exists('menu_token')) {
       $types = menu_token_get_plugin_types();
       // Create new fieldset.
-      $form['menu_token_replacement_patterns'] = array(
+      $form['book']['menu_token_replacement_patterns'] = array(
         '#type' => 'fieldset',
         '#title' => t('Replacement patterns'),
         '#collapsible' => FALSE,
@@ -41,7 +42,7 @@ function book_title_override_form_alter(&$form, &$form_state, $form_id) {
           ),
         ),
       );
-      $form['menu_token_replacement_patterns']['patterns'] = array(
+      $form['book']['menu_token_replacement_patterns']['patterns'] = array(
         '#theme' => 'token_tree',
         '#token_types' => array_keys($types),
         '#dialog' => TRUE,
@@ -69,7 +70,7 @@ function book_title_override_node_load($nodes, $types) {
 function book_title_override_node_insert($node) {
   $change = FALSE;
   // verify we have a changed title
-  if (isset($node->book_title_override_override) && isset($node->book['link_title']) && $node->book_title_override_override) {
+  if (!empty($node->book_title_override_override) && isset($node->book['link_title'])) {
     $node->book['link_title'] = $node->book_title_override_title;
     $change = TRUE;
   }
