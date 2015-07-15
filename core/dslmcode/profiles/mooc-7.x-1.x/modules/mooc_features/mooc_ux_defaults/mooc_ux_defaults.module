@@ -4,21 +4,6 @@
  * Code for the MOOC UX Defaults feature.
  */
 
-include_once 'mooc_ux_defaults.features.inc';
-
-/**
- * Implements hook_menu_breadcrumb_alter().
- */
-function mooc_ux_defaults_menu_breadcrumb_alter(&$active_trail, $item) {
-  // only do this in the node structure
-  if (arg(0) == 'node') {
-    // pop off home
-    array_shift($active_trail);
-    // optionally pop off another level of the outline
-    array_shift($active_trail);
-  }
-}
-
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
@@ -27,4 +12,4 @@ function mooc_ux_defaults_form_node_form_alter(&$form, &$form_state) {
     // Hide book fieldset.
     $form['book']['#access'] = FALSE;
   }
-}
+}include_once 'mooc_ux_defaults.features.inc';

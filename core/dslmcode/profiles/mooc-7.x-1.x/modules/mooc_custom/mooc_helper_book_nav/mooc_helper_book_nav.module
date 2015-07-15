@@ -135,3 +135,16 @@ function mooc_helper_book_nav_theme() {
     ),
   );
 }
+
+/**
+ * Implements hook_menu_breadcrumb_alter().
+ */
+function mooc_helper_book_nav_menu_breadcrumb_alter(&$active_trail, $item) {
+  // only do this in the node structure
+  if (arg(0) == 'node') {
+    // pop off home
+    array_shift($active_trail);
+    // optionally pop off another level of the outline
+    array_shift($active_trail);
+  }
+}
