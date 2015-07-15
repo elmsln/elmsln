@@ -58,9 +58,9 @@ function _textbook_magellan() {
   $content = '';
   $items = array();
   // only do this for nodes for now
-  if (!empty($node)) {
+  if ($node && !empty($node->body['und'])) {
     // pull in the body after filtering so we don't have to
-    $body = $node->body['und'][0]['safe_value'];
+    $body = check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
     // target the magellan template style
     $magellan = '/<h2 data-magellan-destination="(.*?)">(.*?)<\/h2>/s';
     // pregmatch the anchor and title for the heading
@@ -75,7 +75,9 @@ function _textbook_magellan() {
         );
       }
     }
-    $content = theme('textbook_magellan', array('items' => $items));
+    if (!empty($items)) {
+      $content = theme('textbook_magellan', array('items' => $items));
+    }
   }
   return $content;
 }
