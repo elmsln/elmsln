@@ -4,12 +4,4 @@
  * Code for the MOOC UX Defaults feature.
  */
 
-/**
- * Implements hook_form_BASE_FORM_ID_alter().
- */
-function mooc_ux_defaults_form_node_form_alter(&$form, &$form_state) {
-  if ( isset($form['book'])) {
-    // Hide book fieldset.
-    $form['book']['#access'] = FALSE;
-  }
-}include_once 'mooc_ux_defaults.features.inc';
+include_once 'mooc_ux_defaults.features.inc';
