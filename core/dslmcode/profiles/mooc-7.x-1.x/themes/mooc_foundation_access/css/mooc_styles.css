@@ -32,7 +32,7 @@
 }
 
 .breadcrumbs>*:before {
-    content: "|";
+    content: "";
 }
 
 .breadcrumbs {
