@@ -1,9 +1,11 @@
 /* CSS Document */
-.book-sibling-nav-container {
+.book-sibling-nav-container,
+.book-parent-nav-container {
   text-align: center;
   margin: 0 auto;
 }
-.book-sibling-nav-item {
+.book-sibling-nav-item,
+.book-parent-nav-item {
   float:left;
 }
 .book-sibling-nav-item .outline-nav-icon {
@@ -21,4 +23,28 @@
 .book-sibling-nav-future-page .outline-nav-icon {
   opacity: 0.3;
   filter: alpha(opacity=30);
+}
+
+.breadcrumb-wrapper {
+    margin-bottom: 0 !important;
+    text-align: left;
+}
+
+.breadcrumbs>*:before {
+    content: "|";
+}
+
+.breadcrumbs {
+    display: inline-block;
+    border: none;
+    display: block;
+    list-style: none;
+    margin-left: 0;
+    border: none;
+    margin:inherit;
+}
+
+.toolbar-menu-icon.book-parent-tree-wrapper {
+  display: block;
+  margin-left: -1rem;
 }
