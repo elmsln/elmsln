@@ -991,7 +991,12 @@ function cis_types_field_default_field_instances() {
   // 'field_collection_item-field_sections-field_syllabus_text_based'
   $field_instances['field_collection_item-field_sections-field_syllabus_text_based'] = array(
     'bundle' => 'field_sections',
-    'default_value' => NULL,
+    'default_value' => array(
+      0 => array(
+        'value' => '<h3>Grading</h3><p></p><h3>Calendar</h3><p></p><h3>Goals / Objectives</h3><p></p><h3>Materials / Tech requirements</h3><p></p><h3>Communication</h3><p></p><h3>Policy</h3><p></p>',
+        'format' => 'textbook_editor',
+      ),
+    ),
     'deleted' => 0,
     'description' => 'The text based syllabus allow for supporting a content area managed syllabus. This is for instructors who would rather enter and manage their syllabus in the system rather then via file.',
     'display' => array(
