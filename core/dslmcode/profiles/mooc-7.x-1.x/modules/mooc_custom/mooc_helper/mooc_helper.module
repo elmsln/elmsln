@@ -163,7 +163,9 @@ function mooc_helper_tokens($type, $tokens, array $data = array(), array $option
       // elements we know about ahead of time
       switch ($name) {
         case 'active_outline_nid':
-          $replacements[$original] = $outline_node->nid;
+          if (isset($outline_node->nid)) {
+            $replacements[$original] = $outline_node->nid;
+          }
         break;
       }
     }
