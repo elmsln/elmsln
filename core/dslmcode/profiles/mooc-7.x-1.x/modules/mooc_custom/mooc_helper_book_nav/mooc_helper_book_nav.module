@@ -41,13 +41,16 @@ function mooc_helper_book_nav_block_info() {
  */
 function mooc_helper_book_nav_block_view($delta = '') {
   $block = array();
-
+  // @todo utilize static and book_cache cache bin methods to optimize
+  // this is a ton of processing currently
   switch ($delta) {
     case 'book_sibling_nav':
       $block['subject'] = '';
+      // load the node in scope globally at the moment and ensure we have one
       $globalnode = menu_get_object();
-      if ($globalnode && !empty($globalnode->book)) {
+      if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
         $nids = array();
+        // load all nodes that share the same parent as the current node
         $results = db_select('menu_links', 'ml')
           ->fields('ml', array('link_path'))
           ->condition('menu_name', 'book-toc-' . $globalnode->book['bid'] , '=')
@@ -55,6 +58,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
           ->orderBy('weight', 'ASC')
           ->execute()
           ->fetchAll();
+        // convert menu associations into node ids
         foreach ($results as $item) {
           $nids[] = str_replace('node/', '', $item->link_path);
         }
@@ -62,19 +66,23 @@ function mooc_helper_book_nav_block_view($delta = '') {
         if (!empty($nids)) {
           // load all nodes
           $nodes = entity_load('node', $nids);
+          // load the associations to other items from cache if we have it
           $data = _book_cache_get_associations($globalnode->book);
           $items = array();
           $active = 'past-page';
           // check for previous link in the flow
-          if ($data['prev']) {
+          if ($data['prev'] && $globalnode->book['plid'] != $data['prev']['mlid']) {
             $items[] = array(
               'nid' => str_replace('node/', '', $data['prev']['link_path']),
               'mlid' => $data['prev']['mlid'],
               'title' => $data['prev']['title'],
               'icon' => 'arrow-left',
               'active' => 'prev-page',
+              'print-title' => FALSE,
+              'tree' => array(),
             );
           }
+          // loop through each node and build the menu item out
           foreach ($nodes as $node) {
             // default is a page icon
             $icon = 'page';
@@ -86,16 +94,31 @@ function mooc_helper_book_nav_block_view($delta = '') {
             if ($node->nid == $globalnode->nid) {
               $active = 'current-page';
             }
+            $print_title = FALSE;
+            $children = array();
             // structure results as a single item for easy theming
             if ($node->book['has_children']) {
               $icon = 'content-outline';
+              // @todo set this to TRUE once we style appropriately
+              $print_title = FALSE;
+              $children = book_children($node->book);
+            }
+            // don't provide link to the open item if its a content outline
+            // could confuse the usability
+            if ($globalnode->nid == $node->nid) {
+              $nid = NULL;
+            }
+            else {
+              $nid = $node->nid;
             }
             $items[] = array(
-              'nid' => $node->nid,
+              'nid' => $nid,
               'mlid' => $node->book['mlid'],
               'title' => $node->title,
               'icon' => $icon,
               'active' => $active,
+              'print-title' => $print_title,
+              'tree' => $children,
             );
 
             // we are passing in the page they are currently on so disable active
@@ -104,13 +127,16 @@ function mooc_helper_book_nav_block_view($delta = '') {
             }
           }
           // previde next arrow if it exists
-          if ($data['next']) {
+          if ($data['next'] && $globalnode->book['plid'] == $data['next']['plid']) {
+            // @todo need to ensure this is on the same level
             $items[] = array(
               'nid' => str_replace('node/', '', $data['next']['link_path']),
               'mlid' => $data['next']['mlid'],
               'title' => $data['next']['title'],
               'icon' => 'arrow-right',
               'active' => 'next-page',
+              'print-title' => FALSE,
+              'tree' => array(),
             );
           }
           $block['content'] = theme('book_sibling_nav', array('items' => $items));
