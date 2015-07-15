@@ -44,7 +44,7 @@ function mooc_foundation_access_preprocess_page(&$variables) {
     $variables['tabs_extras'][200][] = l(t('Print'), 'book/export/html/' . arg(1));
   }
   $child_type = variable_get('book_child_type', 'book');
-  if ($node && (user_access('add content to books') || user_access('administer book outlines')) && node_access('create', $child_type) && $node->status == 1 && $node->book['depth'] < MENU_MAX_DEPTH) {
+  if ($node && isset($node->book) && (user_access('add content to books') || user_access('administer book outlines')) && node_access('create', $child_type) && $node->status == 1 && $node->book['depth'] < MENU_MAX_DEPTH) {
     $variables['tabs_extras'][200][] = '<hr>';
     $variables['tabs_extras'][200][] = l(t('Add child page'), 'node/add/' . str_replace('_', '-', $child_type), array('query' => array('parent' => $node->book['mlid'])));
   }
