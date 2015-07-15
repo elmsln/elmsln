@@ -211,6 +211,17 @@ function cis_tokens_node_prepare($node) {
 }
 
 /**
+ * Implements hook_node_presave().
+ */
+function cis_tokens_node_presave($node) {
+  // make sure we have a section that DOES NOT have tokens currently stuffed in it
+  // if there are none then replicate them locally from the global
+  if ($node->type == 'section' && (!isset($node->field_cis_tokens[LANGUAGE_NONE]) || empty($node->field_cis_tokens[LANGUAGE_NONE]))) {
+    $node->field_cis_tokens['und'][0]['value'] = variable_get('cis_tokens_global', _cis_tokens_sane_defaults());
+  }
+}
+
+/**
  * Return the correct tokens as a merger of global and other alters
  * @return  array an array of sanitized key => value pairs
  */
