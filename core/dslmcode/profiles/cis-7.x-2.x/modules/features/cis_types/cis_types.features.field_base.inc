@@ -1926,6 +1926,28 @@ function cis_types_field_default_field_bases() {
     'type' => 'file',
   );
 
+  // Exported field_base: 'field_syllabus_text_based'
+  $field_bases['field_syllabus_text_based'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_syllabus_text_based',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'text_long',
+  );
+
   // Exported field_base: 'field_ta_documents'
   $field_bases['field_ta_documents'] = array(
     'active' => 1,

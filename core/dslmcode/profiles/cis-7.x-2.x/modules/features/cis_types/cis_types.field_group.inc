@@ -53,8 +53,8 @@ function cis_types_field_group_info() {
     'label' => 'Administrative',
     'weight' => '2',
     'children' => array(
-      0 => 'field_course_archive',
-      1 => 'field_cis_ops',
+      0 => 'field_cis_ops',
+      1 => 'field_course_archive',
       2 => 'group_setup',
       3 => 'group_teachers',
     ),
@@ -144,6 +144,7 @@ function cis_types_field_group_info() {
     'children' => array(
       0 => 'field_syllabus',
       1 => 'field_welcome_letter',
+      2 => 'field_syllabus_text_based',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -467,9 +468,9 @@ function cis_types_field_group_info() {
     'label' => 'Setup',
     'weight' => '2',
     'children' => array(
-      0 => 'field_section_number',
-      1 => 'field_campus',
-      2 => 'field_schedule_number',
+      0 => 'field_campus',
+      1 => 'field_schedule_number',
+      2 => 'field_section_number',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -499,8 +500,8 @@ function cis_types_field_group_info() {
     'children' => array(
       0 => 'field_resources',
       1 => 'field_services',
-      2 => 'group_text_areas',
-      3 => 'group_course_files',
+      2 => 'group_course_files',
+      3 => 'group_text_areas',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

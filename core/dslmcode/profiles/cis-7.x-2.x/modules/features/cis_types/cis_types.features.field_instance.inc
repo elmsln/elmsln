@@ -666,7 +666,7 @@ function cis_types_field_default_field_instances() {
         'year_range' => '2012:2018',
       ),
       'type' => 'date_select',
-      'weight' => 13,
+      'weight' => 14,
     ),
   );
 
@@ -988,6 +988,71 @@ function cis_types_field_default_field_instances() {
   );
 
   // Exported field_instance:
+  // 'field_collection_item-field_sections-field_syllabus_text_based'
+  $field_instances['field_collection_item-field_sections-field_syllabus_text_based'] = array(
+    'bundle' => 'field_sections',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'The text based syllabus allow for supporting a content area managed syllabus. This is for instructors who would rather enter and manage their syllabus in the system rather then via file.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 17,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'token' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_syllabus_text_based',
+    'label' => 'Syllabus (text based)',
+    'required' => 0,
+    'settings' => array(
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 0,
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 16,
+    ),
+  );
+
+  // Exported field_instance:
   // 'field_collection_item-field_sections-field_teaching_assistants'
   $field_instances['field_collection_item-field_sections-field_teaching_assistants'] = array(
     'bundle' => 'field_sections',
@@ -1092,7 +1157,7 @@ function cis_types_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 16,
+      'weight' => 17,
     ),
   );
 
@@ -4141,6 +4206,7 @@ Global will be available to all resources to reference',
   t('Setup guide');
   t('Special Classifications');
   t('Syllabus');
+  t('Syllabus (text based)');
   t('TAs that have been allocated to this section');
   t('Teaching assistants');
   t('The URL that data and backend calls can be made against.  This can be the same as the Location but is recommended that an additional domain be used so that these web service connections can operate on a different IP and be fire-walled independently for added security.');
@@ -4148,6 +4214,7 @@ Global will be available to all resources to reference',
   t('The dates that this section will have access to the material listed in the Access section');
   t('The instructional design assigned to manage this course');
   t('The semester this offering is for');
+  t('The text based syllabus allow for supporting a content area managed syllabus. This is for instructors who would rather enter and manage their syllabus in the system rather then via file.');
   t('This helps give students a sense of how long a course has been running or if its brand new.');
   t('This is a longer description of what the course is about and info that will help someone decide if they should take it.');
   t('Topics covered text');
