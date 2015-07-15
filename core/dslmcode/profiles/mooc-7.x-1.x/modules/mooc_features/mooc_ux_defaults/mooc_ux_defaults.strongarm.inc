@@ -287,5 +287,6 @@ function mooc_ux_defaults_strongarm() {
     ),
   );
   $export['outline_designer_context_menu_exclusion_matrix'] = $strongarm;
+
   return $export;
 }

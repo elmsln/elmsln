@@ -14,23 +14,32 @@ function mooc_ux_defaults_context_default_contexts() {
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'mooc_content';
-  $context->description = 'This helps display the book outline correctly at all times';
+  $context->description = 'Content block placement';
   $context->tag = 'Content';
   $context->conditions = array(
-    'sitewide' => array(
+    'node' => array(
       'values' => array(
-        1 => 1,
+        'page' => 'page',
+      ),
+      'options' => array(
+        'node_form' => '0',
       ),
     ),
   );
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'system-main-menu' => array(
-          'module' => 'system',
-          'delta' => 'main-menu',
-          'region' => 'menu',
+        'textbook-textbook-magellan' => array(
+          'module' => 'textbook',
+          'delta' => 'textbook-magellan',
+          'region' => 'content',
           'weight' => '-10',
+        ),
+        'system-main' => array(
+          'module' => 'system',
+          'delta' => 'main',
+          'region' => 'content',
+          'weight' => '-9',
         ),
       ),
     ),
@@ -40,7 +49,7 @@ function mooc_ux_defaults_context_default_contexts() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Content');
-  t('This helps display the book outline correctly at all times');
+  t('Content block placement');
   $export['mooc_content'] = $context;
 
   return $export;
