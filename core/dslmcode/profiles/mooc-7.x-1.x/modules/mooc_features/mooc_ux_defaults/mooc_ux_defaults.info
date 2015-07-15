@@ -11,6 +11,7 @@ dependencies[] = ctools
 dependencies[] = features
 dependencies[] = menu
 dependencies[] = mooc_content_theming
+dependencies[] = mooc_helper_book_nav
 dependencies[] = outline_designer
 dependencies[] = outline_designer_book
 dependencies[] = strongarm
