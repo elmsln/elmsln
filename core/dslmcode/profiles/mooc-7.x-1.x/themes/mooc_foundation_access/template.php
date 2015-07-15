@@ -16,10 +16,10 @@ function mooc_foundation_access_breadcrumb($variables) {
     $breadcrumbs .= '<ul class="breadcrumbs">';
 
     foreach ($breadcrumb as $key => $value) {
-      $breadcrumbs .= '<li><h3 class="book-parent-nav-item"><div class="icon-content-outline-black outline-nav-icon"></div>' . $value . '</h3></li>';
+      $breadcrumbs .= '<li><h3 class="book-parent-nav-item"><div class="icon-content-outline-black outline-nav-icon"></div>' . strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span>') . '</h3></li>';
     }
 
-    $breadcrumbs .= '</ul></div>';
+    $breadcrumbs .= '</ul><hr class="book-parent-container"/></div>';
 
     return $breadcrumbs;
   }

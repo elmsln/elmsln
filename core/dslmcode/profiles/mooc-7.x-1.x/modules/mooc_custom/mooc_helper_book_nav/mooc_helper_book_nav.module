@@ -100,21 +100,14 @@ function mooc_helper_book_nav_block_view($delta = '') {
             if ($node->book['has_children']) {
               $icon = 'content-outline';
               // @todo set this to TRUE once we style appropriately
-              $print_title = FALSE;
+              $print_title = TRUE;
               $children = book_children($node->book);
             }
-            // don't provide link to the open item if its a content outline
-            // could confuse the usability
-            if ($globalnode->nid == $node->nid) {
-              $nid = NULL;
-            }
-            else {
-              $nid = $node->nid;
-            }
+
             $items[] = array(
-              'nid' => $nid,
+              'nid' => $node->nid,
               'mlid' => $node->book['mlid'],
-              'title' => $node->title,
+              'title' => token_replace($node->book['link_title'], array('node' => $node)),
               'icon' => $icon,
               'active' => $active,
               'print-title' => $print_title,

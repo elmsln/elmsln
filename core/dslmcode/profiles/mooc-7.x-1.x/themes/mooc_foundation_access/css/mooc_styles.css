@@ -7,6 +7,7 @@
 .book-sibling-nav-item,
 .book-parent-nav-item {
   float:left;
+  margin-right:1rem;
 }
 .book-sibling-nav-item .outline-nav-icon {
   opacity: .5;
@@ -42,10 +43,13 @@
     margin-left: 0;
     border: none;
     margin:inherit;
+    background-color: inherit;
 }
 
 .toolbar-menu-icon.book-parent-tree-wrapper {
   display: block;
-  margin-left: -1rem;
-  margin-top:3rem;
+}
+
+.etb-book hr.book-parent-container {
+  margin:0rem 0rem 1rem;
 }

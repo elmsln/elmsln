@@ -21,7 +21,26 @@
     if (isset($item['print-title']) && $item['print-title']) {
       $icon .= $item['title'];
     }
-    if (is_numeric($item['nid'])) {
+    // check if we have a tree to print
+    if (!empty($item['tree'])) {
+      $link ='<li class="toolbar-menu-icon book-parent-tree-wrapper"><a href="#" class="book-parent-tree" data-dropdown="book-sibling-children-' . $item['mlid'] . '" aria-controls="middle-section-buttons" aria-expanded="false">
+        ' . $icon . '</a>
+        </li>
+        <div id="book-sibling-children-' . $item['mlid'] . '" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">' . "\n" .
+        '<li>' . l($item['title'],
+        'node/' . $item['nid'],
+        array('html' => TRUE,
+          'attributes' => array(
+            'class' => array(
+              'book-sibling-nav-link'
+            ),
+            'title' => $item['title']
+          )
+        )
+      ) . '</li><hr>' . $item['tree'] . "\n" .
+        '</div>' . "\n";
+    }
+    elseif (is_numeric($item['nid'])) {
       $link = l($icon,
         'node/' . $item['nid'],
         array('html' => TRUE,
@@ -37,16 +56,8 @@
     else {
       $link = $icon;
     }
-    if (!empty($item['tree'])) {
-        $link .='<li class="toolbar-menu-icon book-parent-tree-wrapper"><a href="#" class="off-canvas-toolbar-item book-parent-tree" data-dropdown="book-sibling-children-' . $item['mlid'] . '" aria-controls="middle-section-buttons" aria-expanded="false">
-          <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-        </a></li>
-        <div id="book-sibling-children-' . $item['mlid'] . '" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">' . "\n" .
-        $item['tree'] . "\n" .
-        '</div>' . "\n";
-    }
   ?>
-    <div class="book-sibling-nav-item book-sibling-nav-<?php print $item['active'];?>"><?php print $link; ?></div>
+    <div class="bar-item-icon book-sibling-nav-item book-sibling-nav-<?php print $item['active'];?>"><?php print $link; ?></div>
 <?php
   }
 ?>
