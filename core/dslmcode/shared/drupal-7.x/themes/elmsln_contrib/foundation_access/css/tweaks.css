@@ -25,3 +25,9 @@
   width: 100%;
   background-attachment: fixed;
 }
+
+h1#page-title {
+  font-size: 4.5em;
+  line-height: 0.9em;
+  padding: 0rem 0 2rem;
+}
