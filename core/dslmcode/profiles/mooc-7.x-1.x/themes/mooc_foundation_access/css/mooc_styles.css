@@ -9,6 +9,9 @@
   float:left;
   margin-right:1rem;
 }
+.etb-book h3.book-parent-nav-item {
+  font-size: 1rem;
+}
 .book-sibling-nav-item .outline-nav-icon {
   opacity: .5;
   filter: alpha(opacity=50);
@@ -43,7 +46,7 @@
     margin-left: 0;
     border: none;
     margin:inherit;
-    background-color: inherit;
+    background-color: #FFFFEE;
 }
 
 .toolbar-menu-icon.book-parent-tree-wrapper {
@@ -51,5 +54,9 @@
 }
 
 .etb-book hr.book-parent-container {
-  margin:0rem 0rem 1rem;
+  margin:1rem 0rem 1rem;
+}
+
+.etb-book .content-element-region {
+  padding-top:.5rem;
 }

@@ -8,6 +8,8 @@
 function mooc_foundation_access_breadcrumb($variables) {
   $breadcrumb = $variables['breadcrumb'];
   if (!empty($breadcrumb)) {
+    // @todo this method of breadcrumb handling might need to get shifted down into the line w/ the UI
+
     // Provide a navigational heading to give context for breadcrumb links to
     // screen-reader users. Make the heading invisible with .element-invisible.
     $breadcrumbs = '<div class="content-element-region small-12 medium-12 large-centered large-10 columns book-parent-nav-container">
@@ -16,7 +18,28 @@ function mooc_foundation_access_breadcrumb($variables) {
     $breadcrumbs .= '<ul class="breadcrumbs">';
 
     foreach ($breadcrumb as $key => $value) {
-      $breadcrumbs .= '<li><h3 class="book-parent-nav-item"><div class="icon-content-outline-black outline-nav-icon"></div>' . strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span>') . '</h3></li>';
+      // @todo this is terrible and suggests we need to move all this to its own element
+      $split = explode('=', $value);
+      $split = explode('"', $split[1]);
+      $split = explode('/', $split[1]);
+      $node = node_load(array_pop($split));
+      $tree = book_children($node->book);
+      $icon = '<li><h3 class="book-parent-nav-item"><div class="book-menu-item-' . $node->book['mlid'] . ' icon-content-outline-black outline-nav-icon"></div>';
+      // do contextual drop down of items for all but last part of trail
+      if (count($breadcrumb) == ($key+1)) {
+        $icon .= strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span>') . '</h3></li>';
+        $breadcrumbs .= $icon;
+      }
+      else {
+        $icon .= strip_tags(htmlspecialchars_decode($value), '<br><br/><span></span>') . '</h3></li>';
+        $breadcrumbs .='<li class="toolbar-menu-icon book-parent-tree-wrapper">
+          <a href="#" class="book-parent-tree" data-dropdown="book-sibling-children-' . $node->book['mlid'] . '" aria-controls="middle-section-buttons" aria-expanded="false">
+          '. $icon . '</a>
+          </li>
+          <div id="book-sibling-children-' . $node->book['mlid'] . '" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">' . "\n" .
+          '<li>' . strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span></li><hr>')  . '</li><hr>' . $tree . "\n" .
+          '</div>' . "\n";
+      }
     }
 
     $breadcrumbs .= '</ul><hr class="book-parent-container"/></div>';
