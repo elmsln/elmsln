@@ -23,8 +23,15 @@ function mooc_foundation_access_breadcrumb($variables) {
       $split = explode('"', $split[1]);
       $split = explode('/', $split[1]);
       $node = node_load(array_pop($split));
-      $tree = book_children($node->book);
-      $icon = '<li><h3 class="book-parent-nav-item"><div class="book-menu-item-' . $node->book['mlid'] . ' icon-content-outline-black outline-nav-icon"></div>';
+      if (isset($node->book)) {
+        $tree = book_children($node->book);
+        $icon = '<li><h3 class="book-parent-nav-item"><div class="book-menu-item-' . $node->book['mlid'] . ' icon-content-outline-black outline-nav-icon"></div>';
+      }
+      else {
+        $tree = '';
+        $icon = '<li><h3 class="book-parent-nav-item">';
+      
+      }
       // do contextual drop down of items for all but last part of trail
       if (count($breadcrumb) == ($key+1)) {
         $icon .= strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span>') . '</h3></li>';
