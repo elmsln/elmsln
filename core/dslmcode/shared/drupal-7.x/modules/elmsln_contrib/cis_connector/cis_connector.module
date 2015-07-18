@@ -667,23 +667,16 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       else {
         // query access string based on section context
         $query = $base_query;
+        $query['deep-load-refs'] = 'node';
         $cis_section_items = _cis_connection_query($query, 'field_collection_item');
         if (isset($cis_section_items['list'][0])) {
           // check for services defined
+          $section_object = $cis_section_items['list'][0];
           if (isset($section_object['field_services']) && is_array($section_object['field_services'])) {
-            // walk each service requesting details
-            foreach ($section_object['field_services'] as $key => $service_field) {
-              if (!isset($output[$key])) {
-                $query = array(
-                  'status' => 1,
-                  'nid' => $service_field['id'],
-                );
-                // query the service object
-                $service_object = _cis_connection_query($query, $service_field['resource']);
-                // hold onto the objects returned here
-                $output[$key] = $service_object['list'][0];
-              }
-            }
+            $output = $section_object['field_services'];
+          }
+          else {
+            $output = array();
           }
         }
       }

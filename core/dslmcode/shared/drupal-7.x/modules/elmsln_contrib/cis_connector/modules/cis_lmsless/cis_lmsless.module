@@ -180,11 +180,11 @@ function _cis_lmsless_theme_vars() {
     if ($services = _cis_connector_transaction('other_services')) {
       foreach ($services as $service) {
         // ensure we don't get two of these to display
-        if ($service['field_machine_name'] != $vars['active']['machine_name']) {
-          $list[$service_group][$service['field_machine_name']] = array(
+        if ($service['field_machine_name']['und'][0]['value'] != $vars['active']['machine_name']) {
+          $list[$service_group][$service['field_machine_name']['und'][0]['value']] = array(
             'title' => $service['title'],
-            'url' => $service['field_location']['url'] . '/' . $course_context,
-            'machine_name' => $service['field_machine_name'],
+            'url' => $service['field_location']['und'][0]['url'] . '/' . $course_context,
+            'machine_name' => $service['field_machine_name']['und'][0]['value'],
           );
         }
       }
