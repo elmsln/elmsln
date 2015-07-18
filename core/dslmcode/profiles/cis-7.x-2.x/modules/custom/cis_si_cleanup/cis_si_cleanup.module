@@ -23,8 +23,6 @@ function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $
   // preprocess defaults for perofrmance optimization OOTB
   $options['vset'][] = 'preprocess_css 1';
   $options['vset'][] = 'preprocess_js 1';
-  // boxes module default so it doesn't use glitchy modal
-  $options['vset'][] = 'boxes_edit_location 2';
   // disable site update nofity by default so we don't get spammed
   // this allows having update status on without constantly emailing
   $options['vdel'][] = 'update_notify_emails';
