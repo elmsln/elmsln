@@ -23,14 +23,15 @@ function mooc_foundation_access_breadcrumb($variables) {
       $split = explode('"', $split[1]);
       $split = explode('/', $split[1]);
       $node = node_load(array_pop($split));
-      if (isset($node->book)) {
+      if ($node && isset($node->book)) {
         $tree = book_children($node->book);
         $icon = '<li><h3 class="book-parent-nav-item"><div class="book-menu-item-' . $node->book['mlid'] . ' icon-content-outline-black outline-nav-icon"></div>';
+        $mlid = $node->book['mlid'];
       }
       else {
         $tree = '';
         $icon = '<li><h3 class="book-parent-nav-item">';
-      
+        $mlid = '';
       }
       // do contextual drop down of items for all but last part of trail
       if (count($breadcrumb) == ($key+1)) {
@@ -40,10 +41,10 @@ function mooc_foundation_access_breadcrumb($variables) {
       else {
         $icon .= strip_tags(htmlspecialchars_decode($value), '<br><br/><span></span>') . '</h3></li>';
         $breadcrumbs .='<li class="toolbar-menu-icon book-parent-tree-wrapper">
-          <a href="#" class="book-parent-tree" data-dropdown="book-sibling-children-' . $node->book['mlid'] . '" aria-controls="middle-section-buttons" aria-expanded="false">
+          <a href="#" class="book-parent-tree" data-dropdown="book-sibling-children-' . $mlid . '" aria-controls="middle-section-buttons" aria-expanded="false">
           '. $icon . '</a>
           </li>
-          <div id="book-sibling-children-' . $node->book['mlid'] . '" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">' . "\n" .
+          <div id="book-sibling-children-' . $mlid . '" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">' . "\n" .
           '<li>' . strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span></li><hr>')  . '</li><hr>' . $tree . "\n" .
           '</div>' . "\n";
       }
