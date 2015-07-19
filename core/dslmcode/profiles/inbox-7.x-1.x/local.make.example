@@ -1,4 +1,4 @@
-; ulmus make file for local development
+; inbox make file for local development
 core = "7.x"
 api = "2"
 
@@ -22,11 +22,11 @@ libraries[ckeditor][directory_name] = "ckeditor"
 libraries[ckeditor][destination] = "libraries"
 
 
-; ulmus
-libraries[ulmus][type] = "profile"
-libraries[ulmus][destination] = "../../profiles"
-libraries[ulmus][download][type] = "git"
-libraries[ulmus][download][branch] = "7.x-1.x"
-libraries[ulmus][directory_name] = "ulmus"
-libraries[ulmus][download][url] = "https://github.com/drupalprojects/ulmus.git"
+; inbox
+libraries[inbox][type] = "profile"
+libraries[inbox][destination] = "../../profiles"
+libraries[inbox][download][type] = "git"
+libraries[inbox][download][branch] = "7.x-1.x"
+libraries[inbox][directory_name] = "inbox"
+libraries[inbox][download][url] = "https://github.com/drupalprojects/inbox.git"
 

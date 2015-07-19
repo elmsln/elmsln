@@ -1,4 +1,4 @@
-; ulmus make file for d.o. usage
+; inbox make file for d.o. usage
 core = "7.x"
 api = "2"
 
