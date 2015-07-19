@@ -1,5 +1,7 @@
 <?php
 /**
  * @file
- * Drupal needs this blank file.
+ * Code for the ELMSMedia CIS UX feature.
  */
+
+include_once 'elmsmedia_cis_ux.features.inc';

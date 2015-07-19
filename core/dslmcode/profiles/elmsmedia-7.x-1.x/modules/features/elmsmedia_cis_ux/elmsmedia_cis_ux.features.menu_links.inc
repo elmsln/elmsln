@@ -179,7 +179,6 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
   t('Document');
   t('External Video');
   t('Image');
-  t('Interactive content');
   t('Video');
 
 
