@@ -71,13 +71,12 @@ function elmsln_developer_drush_command() {
       'profile' => dt('Profile to use currently in the profiles directory.'),
     ),
     'options' => array(
-      'stack-instance' => dt('No value needed, if this is a tool instance then pass it in, otherwise the default is that the tool is a standalone.'),
+      'service-instance' => dt('No value needed, if this is a service then pass it in, otherwise the default is that the tool is an authority.'),
     ),
     'aliases' => array('eas'),
     'examples' => array(
-      'drush eas coolstuff' => 'Add a new symlinked drupal core into core/dslmcode/stacks/coolstuff, add a new domain record and correctly point symlinks for deployment specific files like .htaccess and sites/coolstuff.',
-      'drush eas intranet openatrium-7.x-1.x' => 'Add a new symlinked drupal core into core/dslmcode/stacks/intranet, add a new domain record and correctly point symlinks for deployment specific files like .htaccess and sites/intranet. Then symlink to openatrium in the profiles directory',
-      'drush eas discuss --stack-instance=TRUE' => 'Add symlinked core called discuss and then when making the domain this is an instance based tool instead of pointing right to the assembled core.',
+      'drush eas inbox inbox-7.x-1.x' => 'Add a new symlinked drupal core into core/dslmcode/stacks/intranet, add a new domain record and correctly point symlinks for deployment specific files like .htaccess and sites/intranet. Then symlink to inbox in the profiles directory',
+      'drush eas discuss discuss-7.x-1.x --service-instance=TRUE' => 'Add symlinked core called discuss and then when making the domain this is an instance based tool instead of pointing right to the assembled core.',
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
   );
@@ -238,7 +237,7 @@ function drush_elmsln_developer_elmsln_add_stack($name = NULL, $profile = NULL) 
   // in question if this is an instance based tool then we use
   // a directory that will contain things symlinking off. Otherwise
   // we just
-  if (!drush_get_option('stack-instance')) {
+  if (!drush_get_option('service-instance')) {
     symlink("../core/dslmcode/stacks/$name", "$elmsln_dev/system/domains/$name");
   }
   else {
