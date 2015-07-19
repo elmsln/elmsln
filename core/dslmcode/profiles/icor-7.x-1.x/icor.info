@@ -149,10 +149,9 @@ dependencies[] = views_timelinejs
 ; Features
 dependencies[] = views_timelinejs_feature
 dependencies[] = views_timelinejs_extras
-dependencies[] = icor_cis_ux
 dependencies[] = icor_interactive_player
 dependencies[] = icor_file_entities
-dependencies[] = icor_admin_ux
+dependencies[] = icor_ux
 dependencies[] = icor_defaults
 
 ; Information added for Drupal.org usage stats while in dev

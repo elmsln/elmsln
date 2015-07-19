@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ICOR ux feature.
+ */
+
+include_once 'icor_ux.features.inc';

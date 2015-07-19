@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the ICOR CIS UX feature.
- */
-
-include_once 'icor_cis_ux.features.inc';
