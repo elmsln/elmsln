@@ -1,0 +1,12 @@
+name = ECD UX
+description = User experience components for ECD
+core = 7.x
+package = ECD
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = menu
+features[context][] = comply_ux
+features[ctools][] = context:context:3
+features[features_api][] = api:2
+features[menu_custom][] = menu-comply-navigation
