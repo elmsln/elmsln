@@ -1,6 +1,6 @@
 ; Packaging information for ulmus
-name = "Ulmus"
-description = "Distro that helps ensure basline module set in all ELMSLN systems. This is not required but more or less is for most tools in the network to automatically be setup and make sense."
+name = "ulmus"
+description = "A new idea for powering flexible educational ecosystems."
 core = "7.x"
 ; ----------
 ; START ELMSLN Core Dependencies
