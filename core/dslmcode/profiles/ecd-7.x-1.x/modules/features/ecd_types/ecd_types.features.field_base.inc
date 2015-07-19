@@ -152,7 +152,7 @@ function ecd_types_field_default_field_bases() {
           'type' => 'property',
         ),
         'target_bundles' => array(
-          'course' => 'course',
+          'cis_course' => 'cis_course',
         ),
       ),
       'target_type' => 'node',

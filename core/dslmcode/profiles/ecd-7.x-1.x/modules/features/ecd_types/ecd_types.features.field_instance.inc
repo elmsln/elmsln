@@ -10,9 +10,9 @@
 function ecd_types_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-course-field_accessibility_audit'
-  $field_instances['node-course-field_accessibility_audit'] = array(
-    'bundle' => 'course',
+  // Exported field_instance: 'node-cis_course-field_accessibility_audit'
+  $field_instances['node-cis_course-field_accessibility_audit'] = array(
+    'bundle' => 'cis_course',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'Status of the accessibility audit as marked by people. The system can send a completed audit into needs review if it detects potentially inaccessible content has been created (for example).',
@@ -47,9 +47,9 @@ function ecd_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-course-field_copyright_audit'
-  $field_instances['node-course-field_copyright_audit'] = array(
-    'bundle' => 'course',
+  // Exported field_instance: 'node-cis_course-field_copyright_audit'
+  $field_instances['node-cis_course-field_copyright_audit'] = array(
+    'bundle' => 'cis_course',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'Status of the copyright audit as marked by people. The system can send a completed audit into needs review if it detects new content has been created (for example).',
@@ -84,9 +84,9 @@ function ecd_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-course-field_course_address'
-  $field_instances['node-course-field_course_address'] = array(
-    'bundle' => 'course',
+  // Exported field_instance: 'node-cis_course-field_course_address'
+  $field_instances['node-cis_course-field_course_address'] = array(
+    'bundle' => 'cis_course',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
@@ -141,9 +141,9 @@ function ecd_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-course-field_last_quality_date'
-  $field_instances['node-course-field_last_quality_date'] = array(
-    'bundle' => 'course',
+  // Exported field_instance: 'node-cis_course-field_last_quality_date'
+  $field_instances['node-cis_course-field_last_quality_date'] = array(
+    'bundle' => 'cis_course',
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -194,9 +194,9 @@ function ecd_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-course-field_notes'
-  $field_instances['node-course-field_notes'] = array(
-    'bundle' => 'course',
+  // Exported field_instance: 'node-cis_course-field_notes'
+  $field_instances['node-cis_course-field_notes'] = array(
+    'bundle' => 'cis_course',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'Any additional notes about this course that might not be currently covered by the compliance audit directly (like auditing a 3rd party service this uses heavily).',
@@ -234,9 +234,9 @@ function ecd_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-course-field_quality_audit'
-  $field_instances['node-course-field_quality_audit'] = array(
-    'bundle' => 'course',
+  // Exported field_instance: 'node-cis_course-field_quality_audit'
+  $field_instances['node-cis_course-field_quality_audit'] = array(
+    'bundle' => 'cis_course',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
@@ -271,9 +271,9 @@ function ecd_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-course-field_resource_uuid_bind'
-  $field_instances['node-course-field_resource_uuid_bind'] = array(
-    'bundle' => 'course',
+  // Exported field_instance: 'node-cis_course-field_resource_uuid_bind'
+  $field_instances['node-cis_course-field_resource_uuid_bind'] = array(
+    'bundle' => 'cis_course',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',

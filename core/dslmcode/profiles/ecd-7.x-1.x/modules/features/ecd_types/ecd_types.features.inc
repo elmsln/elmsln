@@ -21,14 +21,6 @@ function ecd_types_ctools_plugin_api($module = NULL, $api = NULL) {
  */
 function ecd_types_node_info() {
   $items = array(
-    'course' => array(
-      'name' => t('Course'),
-      'base' => 'node_content',
-      'description' => t('The course to be audited'),
-      'has_title' => '1',
-      'title_label' => t('Title'),
-      'help' => '',
-    ),
     'ecd_asset' => array(
       'name' => t('Asset'),
       'base' => 'node_content',
