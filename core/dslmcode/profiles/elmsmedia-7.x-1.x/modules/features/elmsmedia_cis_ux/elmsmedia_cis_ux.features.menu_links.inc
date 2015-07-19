@@ -102,6 +102,29 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
+  // Exported menu link: menu-cis-add_interactive-content:node/add/h5p-content
+  $menu_links['menu-cis-add_interactive-content:node/add/h5p-content'] = array(
+    'menu_name' => 'menu-cis-add',
+    'link_path' => 'node/add/h5p-content',
+    'router_path' => 'node/add/h5p-content',
+    'link_title' => 'Interactive content',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'identifier' => 'menu-cis-add_interactive-content:node/add/h5p-content',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => 0,
+    'customized' => 1,
+  );
   // Exported menu link: menu-cis-add_video:node/add/video
   $menu_links['menu-cis-add_video:node/add/video'] = array(
     'menu_name' => 'menu-cis-add',
@@ -125,12 +148,61 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
+  // Exported menu link: menu-elmsmedia-navigation_asset-overview:media-overview
+  $menu_links['menu-elmsmedia-navigation_asset-overview:media-overview'] = array(
+    'menu_name' => 'menu-elmsmedia-navigation',
+    'link_path' => 'media-overview',
+    'router_path' => 'media-overview',
+    'link_title' => 'Asset overview',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'identifier' => 'menu-elmsmedia-navigation_asset-overview:media-overview',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => 0,
+    'customized' => 1,
+  );
+  // Exported menu link: menu-elmsmedia-navigation_course-list:courses
+  $menu_links['menu-elmsmedia-navigation_course-list:courses'] = array(
+    'menu_name' => 'menu-elmsmedia-navigation',
+    'link_path' => 'courses',
+    'router_path' => 'courses',
+    'link_title' => 'Course list',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'identifier' => 'menu-elmsmedia-navigation_course-list:courses',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => 0,
+    'customized' => 1,
+  );
   // Translatables
   // Included for use with string extractors like potx.
+  t('Asset overview');
   t('Audio');
+  t('Course list');
   t('Document');
   t('External Video');
   t('Image');
+  t('Interactive content');
   t('Video');
 
 
