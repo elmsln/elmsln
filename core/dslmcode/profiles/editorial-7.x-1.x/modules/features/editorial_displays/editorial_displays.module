@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Editorial displays feature.
+ */
+
+include_once 'editorial_displays.features.inc';
