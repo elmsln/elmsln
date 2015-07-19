@@ -24,8 +24,11 @@ function defaultconfig_features_export_options() {
           }
         }
       }
-      foreach (array_keys($components) as $default_name) {
-        $options[$component_name . ':' . $default_name] = $component['label'] . ': ' . $default_name;
+      // ensure we have components in this exportable type
+      if (is_array($components)) {
+        foreach (array_keys($components) as $default_name) {
+          $options[$component_name . ':' . $default_name] = $component['label'] . ': ' . $default_name;
+        }
       }
     }
   }

@@ -1,0 +1,29 @@
+diff --git a/defaultconfig.features.inc b/defaultconfig.features.inc
+index 7302961..e8601cc 100644
+--- a/defaultconfig.features.inc
++++ b/defaultconfig.features.inc
+@@ -9,8 +9,8 @@
+  */
+ function defaultconfig_features_export_options() {
+   $options = array();
+-  $components = defaultconfig_get_components();
+-  foreach ($components as $component_name => $component) {
++  $getcomponents = defaultconfig_get_components();
++  foreach ($getcomponents as $component_name => $component) {
+     if (isset($component['features component'])) {
+       module_load_include('inc', 'features', 'features.export');
+       $components = features_invoke($component['features component'], 'features_export_options');
+@@ -24,8 +24,11 @@ function defaultconfig_features_export_options() {
+           }
+         }
+       }
+-      foreach (array_keys($components) as $default_name) {
+-        $options[$component_name . ':' . $default_name] = $component['label'] . ': ' . $default_name;
++      // ensure we have components in this exportable type
++      if (is_array($components)) {
++        foreach (array_keys($components) as $default_name) {
++          $options[$component_name . ':' . $default_name] = $component['label'] . ': ' . $default_name;
++        }
+       }
+     }
+   }
