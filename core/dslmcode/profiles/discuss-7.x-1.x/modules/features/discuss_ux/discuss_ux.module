@@ -1,5 +1,7 @@
 <?php
 /**
  * @file
- * Drupal needs this blank file.
+ * Code for the Discuss UX feature.
  */
+
+include_once 'discuss_ux.features.inc';
