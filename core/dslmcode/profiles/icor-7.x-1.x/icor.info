@@ -111,12 +111,9 @@ dependencies[] = cis_lmsless
 dependencies[] = foundation_access_ux
 
 ; ----------
-; Service Dependencies
+; Authority Dependencies
 ; ----------
-dependencies[] = og
-dependencies[] = og_ui
-dependencies[] = cis_section
-
+dependencies[] = cis_course_authority
 
 ; ----------
 ; ICOR Dependencies
