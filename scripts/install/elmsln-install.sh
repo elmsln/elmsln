@@ -42,17 +42,17 @@ fi
 
 core='7.x'
 # all distributions / stacks we have
-distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'editorial' 'ecd' 'discuss')
-stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss')
+distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'editorial' 'ecd' 'discuss' 'inbox')
+stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss' 'inbox')
 # things to build place holder sites for
-buildlist=('courses' 'studio' 'interact' 'blog' 'discuss')
+buildlist=('courses' 'studio' 'blog' 'discuss')
 # things to default to central authority status
-authoritydistros=('elmsmedia' 'ecd' 'cis')
-authoritylist=('media' 'comply' 'online')
+authoritydistros=('elmsmedia' 'ecd' 'icor' 'inbox' 'cis')
+authoritylist=('media' 'comply' 'interact' 'inbox' 'online')
 # array of instance definitions for the distro type
-instances=('FALSE' 'TRUE' 'TRUE' 'TRUE' 'FALSE' 'TRUE' 'FALSE' 'TRUE')
-ignorelist=('TRUE' 'FALSE' 'FALSE' 'FALSE' 'TRUE' 'FALSE' 'TRUE' 'FALSE')
-defaulttitle=('CIS' 'Content outline' 'Studio' 'Interactive assets' 'Media assets' 'Course Blog' 'Course Compliance' 'Discussions')
+instances=('FALSE' 'TRUE' 'TRUE' 'FALSE' 'FALSE' 'TRUE' 'FALSE' 'TRUE' 'FALSE')
+ignorelist=('TRUE' 'FALSE' 'FALSE' 'TRUE' 'TRUE' 'FALSE' 'TRUE' 'FALSE' 'TRUE')
+defaulttitle=('CIS' 'Content outline' 'Studio' 'Interactive assets' 'Media assets' 'Course Blog' 'Course Compliance' 'Discussions' 'Inbox')
 moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
 cissettings=${university}_${host}_settings
 # support for hook architecture in bash call outs

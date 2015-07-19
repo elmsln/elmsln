@@ -41,9 +41,14 @@ NameVirtualHost *:80
     ServerAlias DATA.discuss.SERVICEYOURUNIT.edu
 </VirtualHost>
 <VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/inbox
+    ServerName inbox.YOURUNIT.edu
+    ServerAlias DATA.inbox.SERVICEYOURUNIT.edu
+</VirtualHost>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/analytics
     ServerName analytics.YOURUNIT.edu
-</VirtualHost> 
+</VirtualHost>
 
 <Directory /var/www/elmsln/domains/online>
     AllowOverride all
@@ -81,6 +86,11 @@ NameVirtualHost *:80
     allow from all
 </Directory>
 <Directory /var/www/elmsln/domains/discuss>
+    AllowOverride all
+    Order allow,deny
+    allow from all
+</Directory>
+<Directory /var/www/elmsln/domains/inbox>
     AllowOverride all
     Order allow,deny
     allow from all

@@ -42,12 +42,13 @@ function _elmsln_alises_build_server(&$aliases) {
     // stacks you have
     $stacks = array(
       'online',
+      'media',
+      'inbox',
+      'interact',
+      'comply',
       'courses',
       'studio',
-      'media',
-      'interact',
       'blog',
-      'comply',
       'discuss',
     );
     // loop through known stacks

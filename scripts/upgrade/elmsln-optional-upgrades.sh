@@ -40,7 +40,7 @@ fi
 # and in the future allow for clustered elmsln instances where parts of
 # the network are upgraded and managed locally per system install without
 # the possibility of having other stacks written into this one.
-stacklist=('online' 'media' 'courses' 'studio' 'interact' 'blog' 'discuss' 'comply')
+stacklist=('online' 'media' 'courses' 'studio' 'interact' 'blog' 'discuss' 'comply' 'inbox')
 for stack in "${stacklist[@]}"
 do
   elmslnecho "Applying optional upgrades against $stack"

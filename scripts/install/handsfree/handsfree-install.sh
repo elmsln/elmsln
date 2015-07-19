@@ -89,7 +89,7 @@ bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
 bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 # give them a roadmap for mapping to this until proving a real domain
-stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss')
+stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss' 'inbox')
 domain=$5
 datadomain=$6
 prefix=$7
