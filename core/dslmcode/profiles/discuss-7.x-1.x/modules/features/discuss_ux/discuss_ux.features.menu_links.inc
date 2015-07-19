@@ -33,9 +33,51 @@ function discuss_ux_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
+  // Exported menu link: menu-discuss-navigation_forum:forum
+  $menu_links['menu-discuss-navigation_forum:forum'] = array(
+    'menu_name' => 'menu-discuss-navigation',
+    'link_path' => 'forum',
+    'router_path' => 'forum',
+    'link_title' => 'Forum',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'identifier' => 'menu-discuss-navigation_forum:forum',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => 0,
+    'customized' => 1,
+  );
+  // Exported menu link: menu-discuss-navigation_my-discussions:my-discussions
+  $menu_links['menu-discuss-navigation_my-discussions:my-discussions'] = array(
+    'menu_name' => 'menu-discuss-navigation',
+    'link_path' => 'my-discussions',
+    'router_path' => 'my-discussions',
+    'link_title' => 'My discussions',
+    'options' => array(
+      'identifier' => 'menu-discuss-navigation_my-discussions:my-discussions',
+    ),
+    'module' => 'system',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => 0,
+    'customized' => 0,
+  );
   // Translatables
   // Included for use with string extractors like potx.
   t('Create new thread');
+  t('Forum');
+  t('My discussions');
 
 
   return $menu_links;
