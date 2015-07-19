@@ -9,8 +9,8 @@
  */
 function defaultconfig_features_export_options() {
   $options = array();
-  $components = defaultconfig_get_components();
-  foreach ($components as $component_name => $component) {
+  $getcomponents = defaultconfig_get_components();
+  foreach ($getcomponents as $component_name => $component) {
     if (isset($component['features component'])) {
       module_load_include('inc', 'features', 'features.export');
       $components = features_invoke($component['features component'], 'features_export_options');
