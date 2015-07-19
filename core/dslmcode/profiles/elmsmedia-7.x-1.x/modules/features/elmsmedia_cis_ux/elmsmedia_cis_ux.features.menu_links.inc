@@ -102,29 +102,6 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_interactive-content:node/add/h5p-content
-  $menu_links['menu-cis-add_interactive-content:node/add/h5p-content'] = array(
-    'menu_name' => 'menu-cis-add',
-    'link_path' => 'node/add/h5p-content',
-    'router_path' => 'node/add/h5p-content',
-    'link_title' => 'Interactive content',
-    'options' => array(
-      'attributes' => array(),
-      'item_attributes' => array(
-        'id' => '',
-        'class' => '',
-        'style' => '',
-      ),
-      'identifier' => 'menu-cis-add_interactive-content:node/add/h5p-content',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => 0,
-    'customized' => 1,
-  );
   // Exported menu link: menu-cis-add_video:node/add/video
   $menu_links['menu-cis-add_video:node/add/video'] = array(
     'menu_name' => 'menu-cis-add',
