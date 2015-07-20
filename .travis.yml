@@ -30,7 +30,6 @@ before_install:
 
   - sudo apt-get update > /dev/null
   - sudo apt-get install -y --force-yes uuid uuid-runtime
-  - composer self-update
   # mail requirements
   - sudo apt-get update -qq
   - sudo apt-get install -y -qq postfix
@@ -38,6 +37,7 @@ install:
   # install php packages required for running a web server from drush on php 5.3
   - sudo apt-get install -y --force-yes php5-cgi php5-mysql
   # install drush globally
+  - composer self-update
   - composer global require drush/drush:6.*
   # add composer's global bin directory to the path
   # see: https://github.com/drush-ops/drush#install---composer
