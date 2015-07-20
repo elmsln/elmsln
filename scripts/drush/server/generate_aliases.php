@@ -39,18 +39,15 @@ function _elmsln_alises_build_server(&$aliases) {
     $address = $config['address'];
     // your web root
     $root = $config['stacks'] . '/';
-    // stacks you have
-    $stacks = array(
-      'online',
-      'media',
-      'inbox',
-      'interact',
-      'comply',
-      'courses',
-      'studio',
-      'blog',
-      'discuss',
-    );
+    // calculate the stacks we have
+    $stacks = array();
+    $stackfinder = new DirectoryIterator("$root");
+    while ($stackfinder->valid()) {
+      // Look for directories that are stacks
+      if ($stackfinder->isDir() && !$stackfinder->isDot() && !$stackfinder->isLink()) {
+        $stacks[] = $stackfinder->getBasename();
+      }
+    }
     // loop through known stacks
     foreach ($stacks as $stack) {
       // step through sites directory

@@ -45,19 +45,64 @@ if [ -z $webdir ]; then
   exit 1
 fi
 
+# FIGURE OUT WHATS GOING TO BE BUILT
+# this is an ultra generic process of analyzing what the system says we can
+# build and then actually doing it. When we wrap in the request form and
+# automated PR process it will become apparent just how insane this is.
+
+# create a symlink to the 2x version of CIS; this isn't in git so that
+# legacy instances can run off of 1.x and future iterations could run off what they need
+cd $elmsln/core/dslmcode/stacks/online/profiles
+ln -s ../../../profiles/cis-7.x-2.x cis
+
 core='7.x'
+distros=()
+buildlist=()
+authoritydistros=()
+instances=()
+authoritylist=()
+ignorelist=()
+defaulttitle=()
 # all distributions / stacks we have
-distros=('cis' 'mooc' 'cle' 'icor' 'elmsmedia' 'editorial' 'ecd' 'discuss' 'inbox')
-stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss' 'inbox')
-# things to build place holder sites for
-buildlist=('courses' 'studio' 'blog' 'discuss')
-# things to default to central authority status
-authoritydistros=('elmsmedia' 'ecd' 'icor' 'inbox' 'cis')
-authoritylist=('media' 'comply' 'interact' 'inbox' 'online')
-# array of instance definitions for the distro type
-instances=('FALSE' 'TRUE' 'TRUE' 'FALSE' 'FALSE' 'TRUE' 'FALSE' 'TRUE' 'FALSE')
-ignorelist=('TRUE' 'FALSE' 'FALSE' 'TRUE' 'TRUE' 'FALSE' 'TRUE' 'FALSE' 'TRUE')
-defaulttitle=('CIS' 'Content outline' 'Studio' 'Interactive assets' 'Media assets' 'Course Blog' 'Course Compliance' 'Discussions' 'Inbox')
+cd $elmsln/core/dslmcode/stacks
+stacklist=( $(find . -maxdepth 1 -type d | sed 's/\///' | sed 's/\.//') )
+# figure out the distros that go with each stack based on name
+for stack in "${stacklist[@]}"
+do
+  cd $elmsln/core/dslmcode/stacks
+  cd "${stack}/profiles"
+  # pull the name of the profile in this stack by ignoring core ones
+  profile=$(find . -maxdepth 1 -type l \( ! -iname "testing" ! -iname "minimal" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
+  # add distros to our list
+  distros+=($profile)
+  cd $profile
+  # dig into the file in question for the type values we need
+  IFS=$'\n'
+  for next in `cat ${profile}.info`
+  do
+    IFS=' = ' read -a tmp <<< "$next"
+    # find the type
+    if [[ ${tmp[0]} == 'elmslntype' ]]; then
+      distrotype=${tmp[1]}
+      if [[ $distrotype == '"authority"' ]]; then
+        authoritydistros+=($profile)
+        authoritylist+=($stack)
+        instances+=('FALSE')
+        ignorelist+=('TRUE')
+      else
+        buildlist+=($stack)
+        instances+=('TRUE')
+        ignorelist+=('FALSE')
+      fi
+    fi
+    # find the default title
+    if [[ ${tmp[0]} == 'elmslndefaulttitle' ]]; then
+      IFS='"' read -a tmptitle <<< "$next"
+      defaulttitle+=(${tmptitle[1]})
+    fi
+  done
+done
+
 moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
 cissettings=${university}_${host}_settings
 # support for hook architecture in bash call outs

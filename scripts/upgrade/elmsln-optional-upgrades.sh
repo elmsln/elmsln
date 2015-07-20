@@ -32,15 +32,9 @@ if [ -z $elmsln ]; then
   exit 1
 fi
 
-# stacks we currently are supporting for these type of upgrades
-# @todo look into pushing this info off onto the cfg file as well
-# this way we can read from this source after they've already set the
-# whole network in motion as to what they want to support. It will also
-# give us flexibility to add a command to pull new tools into this network
-# and in the future allow for clustered elmsln instances where parts of
-# the network are upgraded and managed locally per system install without
-# the possibility of having other stacks written into this one.
-stacklist=('online' 'media' 'courses' 'studio' 'interact' 'blog' 'discuss' 'comply' 'inbox')
+# load the stacks in question
+cd /var/www/elmsln/core/dslmcode/stacks
+stacklist=( $(find . -maxdepth 1 -type d | sed 's/\///' | sed 's/\.//') )
 for stack in "${stacklist[@]}"
 do
   elmslnecho "Applying optional upgrades against $stack"

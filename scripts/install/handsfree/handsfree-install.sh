@@ -89,7 +89,8 @@ bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
 bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 # give them a roadmap for mapping to this until proving a real domain
-stacklist=('online' 'courses' 'studio' 'interact' 'media' 'blog' 'comply' 'discuss' 'inbox')
+cd /var/www/elmsln/core/dslmcode/stacks
+stacklist=( $(find . -maxdepth 1 -type d | sed 's/\///' | sed 's/\.//') )
 domain=$5
 datadomain=$6
 prefix=$7
