@@ -42,11 +42,13 @@ function _elmsln_alises_build_server(&$aliases) {
     // calculate the stacks we have
     $stacks = array();
     $stackfinder = new DirectoryIterator("$root");
+
     while ($stackfinder->valid()) {
       // Look for directories that are stacks
       if ($stackfinder->isDir() && !$stackfinder->isDot() && !$stackfinder->isLink()) {
         $stacks[] = $stackfinder->getBasename();
       }
+      $stackfinder->next();
     }
     // loop through known stacks
     foreach ($stacks as $stack) {
