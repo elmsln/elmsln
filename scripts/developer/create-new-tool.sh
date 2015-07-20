@@ -95,6 +95,7 @@ if [ ! -d "$elmsln/core/dslmcode/profiles/${distro}-${version}" ]; then
   # service don't change anything abnormal
   if [ $tooltype == 'service' ];
     then
+    sed -i '' "s/elmslntype = \"authority\"/elmslntype = \"service\"/g" ${distro}.info
     sed -i '' "s/\;dependencies\[\] = og/dependencies\[\] = og/g" ${distro}.info
     sed -i '' "s/\;dependencies\[\] = og_ui/dependencies\[\] = og_ui/g" ${distro}.info
     sed -i '' "s/\;dependencies\[\] = cis_section/dependencies\[\] = cis_section/g" ${distro}.info
