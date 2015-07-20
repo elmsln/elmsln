@@ -32,3 +32,4 @@ features[variable][] = node_options_page
 features[variable][] = node_preview_page
 features[variable][] = node_submitted_page
 features[variable][] = outline_designer_context_menu_exclusion_matrix
+features[variable][] = tipsy
