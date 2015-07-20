@@ -3,6 +3,8 @@ name = "CIS 2.x"
 description = "Online Course Information System"
 exclusive = "1"
 core = "7.x"
+elmslndefaulttitle = "CIS"
+elmslntype = "authority"
 
 ; ----------
 ; ELMSLN Core Dependencies

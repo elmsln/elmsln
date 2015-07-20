@@ -3,6 +3,8 @@ name = "CLE"
 description = "Collaborative Learning Environment"
 exclusive = "1"
 core = "7.x"
+elmslndefaulttitle = "Studio"
+elmslntype = "service"
 
 ; ----------
 ; ELMSLN Core Dependencies

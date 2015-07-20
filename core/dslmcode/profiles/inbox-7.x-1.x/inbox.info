@@ -2,6 +2,9 @@
 name = "Inbox"
 description = "Inbox for communication management and heads up display across portfolios."
 core = "7.x"
+elmslndefaulttitle = "Inbox"
+elmslntype = "authority"
+
 ; ----------
 ; START ELMSLN Core Dependencies
 ; ----------

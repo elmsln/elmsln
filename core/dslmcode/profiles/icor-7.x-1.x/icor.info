@@ -3,6 +3,8 @@ name = "ICOR"
 description = "Interactive course object repository"
 exclusive = "1"
 core = "7.x"
+elmslndefaulttitle = "Interactive Assets"
+elmslntype = "authority"
 
 ; ----------
 ; ELMSLN Core Dependencies

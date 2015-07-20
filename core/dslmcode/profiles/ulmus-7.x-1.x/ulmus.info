@@ -2,6 +2,9 @@
 name = "ulmus"
 description = "A new idea for powering flexible educational ecosystems."
 core = "7.x"
+elmslndefaulttitle = "ulmus"
+elmslntype = "authority"
+
 ; ----------
 ; START ELMSLN Core Dependencies
 ; ----------

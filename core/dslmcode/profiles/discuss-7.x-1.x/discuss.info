@@ -2,7 +2,8 @@
 name = "Discuss"
 description = "Discussion forum distribution built on harmony_core."
 core = "7.x"
-
+elmslndefaulttitle = "Discussions"
+elmslntype = "service"
 ; ----------
 ; ELMSLN Core Dependencies
 ; ----------

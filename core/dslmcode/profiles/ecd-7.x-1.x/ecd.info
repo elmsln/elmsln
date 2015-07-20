@@ -3,6 +3,8 @@ name = "ELMS Compliance Distro"
 description = "ELMS Compliance Distribution"
 exclusive = "1"
 core = "7.x"
+elmslndefaulttitle = "Compliance"
+elmslntype = "authority"
 
 ; ----------
 ; ELMSLN Core Dependencies
