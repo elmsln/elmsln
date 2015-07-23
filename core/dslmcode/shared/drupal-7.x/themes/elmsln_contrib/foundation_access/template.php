@@ -6,6 +6,13 @@
  *
  */
 function foundation_access_preprocess_html(&$variables) {
+  $color = theme_get_setting('foundation_access_primary_color');
+  // see if we have something that could be valid hex
+  if (strlen($color) == 6 || strlen($color) == 3) {
+    $color = '#' . $color;
+    $css = ".foundation_access-primary_color{color:$color;} .etb-book h1,.etb-book h2,.etb-book h3,.etb-book h4,.etb-book h5 {color: $color !important;}";
+    drupal_add_css($css, array('type' => 'inline'));
+  }
   // theme path shorthand should be handled here
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
   foreach($variables['user']->roles as $role){
