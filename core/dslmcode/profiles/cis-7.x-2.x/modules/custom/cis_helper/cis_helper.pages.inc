@@ -463,9 +463,8 @@ function cis_helper_offering_planning_page_submit($form, $form_state) {
  * on an as needed basis.  This is primarily used for handling LTI launches
  * as they can be rather complex in translation to actual information in CIS.
  */
-function cis_helper_quick_setup_page() {
+function cis_helper_quick_setup_page($form = array(), &$form_state) {
   global $user;
-  $form = array();
   // allow for new courses to be created from here
   $options = array('new' => t('New'));
   // build list of node entities from structured EFQ
