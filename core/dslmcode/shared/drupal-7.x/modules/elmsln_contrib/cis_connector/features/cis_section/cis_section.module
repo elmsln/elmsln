@@ -542,7 +542,8 @@ function _cis_section_load_section_by_id($id) {
   // flip the results if it found them
   if (isset($result['node'])) {
     // we know there's only 1 value in this array
-    return array_pop(array_keys($result['node']));
+    $key = array_keys($result['node']);
+    return array_pop(($key));
   }
   // no matches
   return FALSE;
