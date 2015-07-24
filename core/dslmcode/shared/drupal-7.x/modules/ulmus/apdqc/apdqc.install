@@ -1,0 +1,891 @@
+<?php
+
+/**
+ * @file
+ * Handles APDQC installation and status checks.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function apdqc_enable() {
+  // Disabled due to metadata locking issues.
+  drupal_set_message(t('Be sure to go to the <a href="@url">status report page</a> and fix any issues under APDQC</a>', array('@url' => url('admin/reports/status'))));
+}
+
+/**
+ * Implements hook_disable().
+ *
+ * Un-alter the cache bins removing the 'created' column.
+ *
+ * Set the collation of cache tables back to utf8_bin.
+ *
+ * Changes the semaphore table to InnoDB if it's currently MEMORY.
+ */
+function apdqc_disable() {
+  $mainteance_mode = variable_get('maintenance_mode', 0);
+  $mm_changed = FALSE;
+  if ( !$mainteance_mode
+    && variable_get('apdqc_table_indexes', APDQC_TABLE_INDEXES)
+    && variable_get('apdqc_table_collations', APDQC_TABLE_COLLATIONS)
+    && variable_get('apdqc_semaphore_memory', APDQC_SEMAPHORE_MEMORY)
+  ) {
+    // Put site into maintenance mode and wait 2 seconds for requests to stop.
+    variable_set('maintenance_mode', 1);
+    sleep(2);
+    $mm_changed = TRUE;
+  }
+  module_load_include('admin.inc', 'apdqc');
+
+  if (variable_get('apdqc_table_indexes', APDQC_TABLE_INDEXES)) {
+    // Drop the expire_created index; use expire.
+    $before = array('expire', 'created');
+    $after = array('expire');
+    apdqc_convert_cache_index($before, $after);
+  }
+
+  if (variable_get('apdqc_table_collations', APDQC_TABLE_COLLATIONS)) {
+    // Change collation to utf8_general_ci.
+    apdqc_admin_change_table_collation(TRUE, 'utf8_general_ci');
+  }
+
+  if (variable_get('apdqc_semaphore_memory', APDQC_SEMAPHORE_MEMORY)) {
+    // Revert semaphore table to InnoDB if needed.
+    $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
+    if (strcasecmp($results['Engine'], 'InnoDB') != 0) {
+      apdqc_admin_convert_table_to_innodb(FALSE);
+    }
+  }
+
+  if ($mm_changed) {
+    variable_set('maintenance_mode', $mainteance_mode);
+  }
+
+  // Check settings.php.
+  $apdqcache_found = FALSE;
+  foreach (variable_get('cache_backends', array()) as $include) {
+    if (stripos($include, '/apdqc/apdqc.cache.inc') !== FALSE) {
+      $apdqcache_found = TRUE;
+      break;
+    }
+  }
+  $lock_inc = variable_get('lock_inc', 'includes/lock.inc');
+  if (stripos($lock_inc, '/apdqc/apdqc.lock.inc') !== FALSE) {
+    $apdqcache_found = TRUE;
+  }
+  $session = variable_get('session_inc', 'includes/session.inc');
+  if (stripos($lock_inc, '/apdqc/apdqc.session.inc') !== FALSE) {
+    $apdqcache_found = TRUE;
+  }
+
+  if ($apdqcache_found) {
+    drupal_set_message('Be sure to edit your settings.php file and remove the apdqc code in there.', 'error');
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function apdqc_uninstall() {
+  // Delete variables.
+  variable_del('cache_garbage_collection_frequency');
+  variable_del('apdqc_prefetch');
+  variable_del('apdqc_verbose_devel_output');
+  variable_del('apdqc_cron_timestamp');
+  variable_del('apdqc_cron_frequency');
+  variable_del('apdqc_semaphore_memory');
+  variable_del('apdqc_table_collations');
+  variable_del('apdqc_table_indexes');
+
+  // Check settings.php.
+  $apdqcache_found = FALSE;
+  foreach (variable_get('cache_backends', array()) as $include) {
+    if (stripos($include, '/apdqc/apdqc.cache.inc') !== FALSE) {
+      $apdqcache_found = TRUE;
+      break;
+    }
+  }
+  $lock_inc = variable_get('lock_inc', 'includes/lock.inc');
+  if (stripos($lock_inc, '/apdqc/apdqc.lock.inc') !== FALSE) {
+    $apdqcache_found = TRUE;
+  }
+  $session = variable_get('session_inc', 'includes/session.inc');
+  if (stripos($lock_inc, '/apdqc/apdqc.session.inc') !== FALSE) {
+    $apdqcache_found = TRUE;
+  }
+
+  if ($apdqcache_found) {
+    drupal_set_message('Be sure to edit your settings.php file and remove the apdqc code in there.', 'error');
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function apdqc_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time.
+  $t = get_t();
+
+  if ($phase === 'runtime') {
+
+    // This module requires MySQL 5.5 or higher.
+    $results = db_query("SELECT VERSION()")->fetchAssoc();
+    $version = reset($results);
+    if (version_compare($version, '5.5.0', '<=')) {
+      $requirements['apdqc_mysql_version'] = array(
+        'title' => $t('APDQC'),
+        'value' => $phase === 'install' ? FALSE : $t('This module requires MySQL 5.5 or higher.'),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+
+    // Check if mysqlnd is installed.
+    if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+      $mysqlnd = array();
+      exec('php -m | grep mysqlnd', $mysqlnd);
+      if (!in_array('mysqlnd', $mysqlnd)) {
+        $release_info = array();
+        // Get server version.
+        exec('ls /etc/*release', $release_info);
+        $release_info_string = implode(',', $release_info);
+        $directions = '';
+        if (strpos($release_info_string, 'lsb-release') !== FALSE) {
+          // PHP 5.4 on ubuntu has php5enmod available.
+          if (PHP_VERSION_ID < 50400) {
+            $directions = $t('Run <code>sudo apt-get install php5-mysqlnd && sudo php5enmod mysqlnd<code>');
+          }
+          else {
+            $directions = $t('Run <code>sudo apt-get install php5-mysqlnd</code>. You might need to add the extension to your php.ini file as well <code>extension=mysqlnd.so</code>; should be located here: @ini', array('@ini' => php_ini_loaded_file()));
+          }
+        }
+        elseif (strpos($release_info_string, 'redhat-release') !== FALSE) {
+          $directions = $t('Run <code>sudo yum remove php-mysql && sudo yum install php-mysqlnd</code>. You might need to add the extension to your php.ini file as well <code>extension=mysqlnd.so</code>; should be located here: @ini', array('@ini' => php_ini_loaded_file()));
+        }
+        if (!empty($directions)) {
+          $requirements['apdqc_mysqlnd'] = array(
+            'title' => $t('APDQC'),
+            'value' => $phase === 'install' ? FALSE : $t('The mysqlnd extension is not installed on this server.'),
+            'severity' => REQUIREMENT_ERROR,
+            'description' => $directions,
+          );
+        }
+      }
+    }
+
+    // Check if mysqli async is available.
+    if (empty($requirements)) {
+      $function_list = array(
+        'mysqli_init',
+        'mysqli_reap_async_query',
+      );
+      // Check each function to make sure it exists.
+      foreach ($function_list as $function_name) {
+        if (!function_exists($function_name)) {
+          $requirements['apdqc_function_' . $function_name] = array(
+            'title' => $t('APDQC'),
+            'value' => $phase === 'install' ? FALSE : $function_name,
+            'severity' => REQUIREMENT_ERROR,
+            'description' => $t('<a href="!url">%name()</a> is disabled on this server. Please contact your hosting provider and see if they can re-enable this function for you.', array(
+              '!url' => 'http://php.net/' . str_replace('_', '-', $function_name),
+              '%name' => $function_name,
+            )),
+          );
+        }
+      }
+
+      // Check if mysqli async is available.
+      if (!defined('MYSQLI_ASYNC')) {
+        $requirements['apdqc_mysqli_async'] = array(
+          'title' => $t('APDQC'),
+          'value' => $phase === 'install' ? FALSE : 'MYSQLI_ASYNC',
+          'severity' => REQUIREMENT_ERROR,
+          'description' => $t('MYSQLI_ASYNC is not available on this server. Please contact your hosting provider and see if they can make it available for you.'),
+        );
+      }
+    }
+
+    // Warn if drupal_hash_salt is empty.
+    // Error if empty and using a private file system.
+    if (empty($GLOBALS['drupal_hash_salt'])) {
+      $severity = REQUIREMENT_WARNING;
+      if (file_default_scheme() === 'private') {
+        $severity = REQUIREMENT_ERROR;
+      }
+      $requirements['apdqc_drupal_hash_salt'] = array(
+        'title'       => $t('APDQC - drupal_hash_salt not set'),
+        'severity'    => $severity,
+        'value'       => $t('The drupal_hash_salt global needs to be set in settings.php'),
+        'description' => $t('Inside settings.php add this: <p><code>@code</code></p>', array(
+          '@code' => '$drupal_hash_salt = \'' . drupal_get_hash_salt() . '\';',
+        )),
+      );
+    }
+
+    // Make sure realpath_cache_size is big enough. 131072 = 128KB.
+    $current_size = 131072;
+    if (function_exists('realpath_cache_size')) {
+      $current_size = realpath_cache_size();
+    }
+    $limit = apdqc_install_human2byte(ini_get('realpath_cache_size'));
+    if ($current_size * 1.1 > $limit && stripos($limit, '4M') === FALSE) {
+      // Bigger value from 128k or current usage.
+      $new_size = max(131072, $current_size * 1.1);
+      // Round up to power of 2.
+      $new_size = pow(2, ceil(log($new_size) / log(2)));
+      // Max value is 4m. Also convert to human readable form.
+      $new_size = apdqc_install_byte2human(min(4194304, $new_size));
+      $requirements['apdqc_realpath_cache_size'] = array(
+        'title'       => $t('APDQC - PHP realpath_cache_size'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('realpath_cache_size should be @size at a minimum. Current value: @value', array(
+          '@size' => $new_size,
+          '@value' => ini_get('realpath_cache_size'),
+        )),
+        'description' => $t('Increase the realpath_cache_size value inside @ini. Will require a restart of PHP. Might need to increase this value again.', array(
+          '@ini' => php_ini_loaded_file(),
+        )),
+      );
+    }
+
+    // Make sure realpath_cache_ttl is long enough. 3600 = 1 hour.
+    $current_ttl = ini_get('realpath_cache_ttl');
+    if ($current_ttl < 3600) {
+      $requirements['apdqc_realpath_cache_ttl'] = array(
+        'title'       => $t('APDQC - PHP realpath_cache_ttl'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('realpath_cache_ttl should be 3600 at a minimum. Current value: @value', array(
+          '@value' => $current_ttl,
+        )),
+        'description' => $t('Increase the realpath_cache_ttl value inside @ini. Will require a restart of PHP.', array(
+          '@ini' => php_ini_loaded_file(),
+        )),
+      );
+    }
+
+    // Make sure the DB connection is optimal.
+    $use_socket = NULL;
+    $host_is_ip = FALSE;
+    $description = '';
+    if (ip2long($GLOBALS['databases']['default']['default']['host']) === FALSE) {
+
+      if (is_null($GLOBALS['databases']['default']['default']['host']) || $GLOBALS['databases']['default']['default']['host'] === 'localhost') {
+        $mysql_ip = '127.0.0.1';
+      }
+      else {
+        $mysql_ip = gethostbyname($GLOBALS['databases']['default']['default']['host']);
+      }
+    }
+    else {
+      $host_is_ip = TRUE;
+      $mysql_ip = $GLOBALS['databases']['default']['default']['host'];
+    }
+    if (empty($GLOBALS['databases']['default']['default']['unix_socket'])) {
+      if ( $mysql_ip === '127.0.0.1'
+        || $mysql_ip === $_SERVER['SERVER_ADDR']
+        || gethostbyname(NULL)
+        ) {
+        $use_socket = TRUE;
+      }
+      else {
+        $use_socket = FALSE;
+      }
+    }
+
+    if ($use_socket === TRUE) {
+      // Unix socket.
+      $result = db_query("SHOW VARIABLES LIKE 'socket'")->fetchAssoc();
+      $description .= ' ' . $t('Inside settings.php add this below the $databases array: <p><code>@code</code></p>', array(
+        '@code' => '$databases[\'default\'][\'default\'][\'unix_socket\'] = \'' . $result['Value'] . '\';',
+      ));
+      if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        // Add in additional windows information; none so far.
+      }
+      if ($host_is_ip) {
+        $description .= ' ' . $t('Also make sure the host value is set to \'localhost\' or NULL in the $databases array. See the <a href="@link">note under socket</a> for more info.', array(
+          '@link' => 'http://php.net/manual/mysqli.real-connect.php#refsect1-mysqli.real-connect-parameters',
+        ));
+      }
+    }
+    if ($use_socket === FALSE && !$host_is_ip) {
+      $description .= ' ' . $t('Inside settings.php change the host value <code>@host</code> inside the $databases array to an IP address: <code>@ip</code>', array(
+        '@host' => var_export($GLOBALS['databases']['default']['default']['host'], TRUE),
+        '@ip' => "'" . $mysql_ip . "'",
+      ));
+    }
+    if (!empty($description)) {
+      $requirements['apdqc_db_host'] = array(
+        'title'       => $t('APDQC - Database Connection'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The connection to the database could be faster.'),
+        'description' => trim($description),
+      );
+    }
+
+    // Check database transaction isolation level.
+    $results = db_query("SELECT variable_value IsolationLevel
+      FROM information_schema.session_variables
+      WHERE variable_name = 'tx_isolation'
+    ")->fetchAssoc();
+    $iso_level = reset($results);
+    if (strcasecmp($iso_level, 'READ-COMMITTED') !== 0) {
+      $requirements['apdqc_tx_iso'] = array(
+        'title'       => $t('APDQC - MySQL Transaction Isolation Level'),
+        'severity'    => REQUIREMENT_ERROR,
+        'value'       => $t('For best database performance, set the transaction isolation level to READ-COMMITTED. Current value: @value', array(
+          '@value' => $iso_level,
+        )),
+        'description' => $t('Inside settings.php add this below the $databases array <p><code>@line</code></p>.', array(
+          '@line' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'isolation\'] = "SET SESSION tx_isolation=\'READ-COMMITTED\'";',
+        )),
+      );
+    }
+
+    // Recommendation of engine type for the semaphore table.
+    $results = db_query("SELECT VERSION()")->fetchAssoc();
+    $version = reset($results);
+    $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
+    if (version_compare($version, '5.6.0', '<=')) {
+      if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
+        $requirements['apdqc_memory_table'] = array(
+          'title'       => $t('APDQC - MySQL semaphore table'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.', array(
+            '@value' => $iso_level,
+          )),
+          'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table from <code>@old-engine</code> to <code>@new-engine</code>.', array(
+            '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+            '@old-engine' => $results['Engine'],
+            '@new-engine' => 'MEMORY',
+          )),
+        );
+      }
+    }
+    elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
+      $requirements['apdqc_memory_table'] = array(
+        'title'       => $t('APDQC - MySQL semaphore table'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('For newer versions of MySQL (5.6 and higher) the InnoDB engine for the semaphore table is recommended.', array(
+          '@value' => $iso_level,
+        )),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table from <code>@old-engine</code> to <code>@new-engine</code>.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+          '@old-engine' => $results['Engine'],
+          '@new-engine' => 'InnoDB',
+        )),
+      );
+    }
+
+    // Check max_allowed_packet.
+    $results = db_query("SHOW VARIABLES LIKE 'max_allowed_packet'")->fetchAssoc();
+    if ($results['Value'] < 33554432) {
+      $requirements['apdqc_max_packet'] = array(
+        'title'       => $t('APDQC - MySQL max_allowed_packet'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('You need to increase the max allowed packet size. Current value: @value', array(
+          '@value' => apdqc_install_byte2human($results['Value']),
+        )),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least 32M.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'max_allowed_packet = 32M',
+        )),
+      );
+    }
+
+    // Check innodb_buffer_pool_size.
+    $results = db_query("
+      SELECT
+        total_innodb_bytes,
+        @@global.innodb_buffer_pool_size AS innodb_buffer_pool_size
+      FROM (
+        SELECT
+          SUM( data_length + index_length ) AS total_innodb_bytes
+        FROM information_schema.tables
+        WHERE ENGINE = 'InnoDB'
+        AND TABLE_SCHEMA = :db_name
+      ) AS temp
+    ", array(':db_name' => $GLOBALS['databases']['default']['default']['database']))->fetchAssoc();
+    // Recommend 127.999mb as a min.
+    $min_size = max($results['total_innodb_bytes'] * 1.2, 134217727);
+    if ($min_size > $results['innodb_buffer_pool_size']) {
+      $total_memory = 0;
+      $description = '';
+      // Check total system ram if MySQL is on the same box.
+      if ($use_socket === TRUE || !empty($GLOBALS['databases']['default']['default']['unix_socket'])) {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+          exec('wmic memorychip get capacity', $total_memory);
+          unset($total_memory['0']);
+          $total_memory = array_sum($total_memory);
+        }
+        else {
+          $data = explode("\n", file_get_contents("/proc/meminfo"));
+          $total_memory = apdqc_install_human2byte(substr($data[0], 9));
+        }
+        // Use up to 55% of total memory on a shared system.
+        $total_memory = $total_memory * 0.55;
+        $description = ' ' . $t('The max size it should be is @max-size', array(
+          '@max-size' => apdqc_install_byte2human($total_memory, 1),
+        ));
+      }
+
+      if (empty($total_memory) || $total_memory > $min_size) {
+        $requirements['apdqc_buffer_pool_size'] = array(
+          'title'       => $t('APDQC - MySQL innodb_buffer_pool_size'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('Increase the innodb_buffer_pool_size. Current value: @value; current database size: @size', array(
+            '@value' => apdqc_install_byte2human($results['innodb_buffer_pool_size']),
+            '@size' => apdqc_install_byte2human($results['total_innodb_bytes']),
+          )),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @min-size.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'innodb_buffer_pool_size = ' . apdqc_install_byte2human($min_size, 1),
+            '@min-size' => apdqc_install_byte2human($min_size, 1),
+          )) . $description,
+        );
+      }
+      else {
+        $requirements['apdqc_buffer_pool_size'] = array(
+          'title'       => $t('APDQC - MySQL innodb_buffer_pool_size'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('Server needs more ram in order to increase the innodb_buffer_pool_size. Current buffer pool size: @value; current available memory for MySQL: @ram;  current database size: @size.', array(
+            '@value' => apdqc_install_byte2human($results['innodb_buffer_pool_size']),
+            '@ram' => apdqc_install_byte2human($total_memory, 1),
+            '@size' => apdqc_install_byte2human($results['total_innodb_bytes']),
+          )),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @min-size. This server also needs more ram.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'innodb_buffer_pool_size = ' . apdqc_install_byte2human($min_size, 1),
+            '@min-size' => apdqc_install_byte2human($min_size, 1),
+          )),
+        );
+      }
+    }
+    // Check innodb_buffer_pool_size.
+    // Recommend 127.999mb as a min.
+    // Will issue a REQUIREMENT_ERROR if the database doesn't fit currently.
+    $min_size = max($results['total_innodb_bytes'], 134217727);
+    if ($min_size > $results['innodb_buffer_pool_size']) {
+      $total_memory = 0;
+      $description = '';
+      // Check total system ram if MySQL is on the same box.
+      if ($use_socket === TRUE || !empty($GLOBALS['databases']['default']['default']['unix_socket'])) {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+          exec('wmic memorychip get capacity', $total_memory);
+          unset($total_memory['0']);
+          $total_memory = array_sum($total_memory);
+        }
+        else {
+          $data = explode("\n", file_get_contents("/proc/meminfo"));
+          $total_memory = apdqc_install_human2byte(substr($data[0], 9));
+        }
+        // Use up to 55% of total memory on a shared system.
+        $total_memory = $total_memory * 0.55;
+        $description = ' ' . $t('The max size it should be is @max-size', array(
+          '@max-size' => apdqc_install_byte2human($total_memory, 1),
+        ));
+      }
+
+      if (empty($total_memory) || $total_memory > ($min_size * 1.2)) {
+        $requirements['apdqc_buffer_pool_size'] = array(
+          'title'       => $t('APDQC - MySQL innodb_buffer_pool_size'),
+          'severity'    => REQUIREMENT_ERROR,
+          'value'       => $t('Increase the innodb_buffer_pool_size. Current value: @value; current database size: @size', array(
+            '@value' => apdqc_install_byte2human($results['innodb_buffer_pool_size']),
+            '@size' => apdqc_install_byte2human($results['total_innodb_bytes']),
+          )),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @min-size.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'innodb_buffer_pool_size = ' . apdqc_install_byte2human($min_size * 1.2, 1),
+            '@min-size' => apdqc_install_byte2human($min_size * 1.2, 1),
+          )) . $description,
+        );
+      }
+      else {
+        $requirements['apdqc_buffer_pool_size'] = array(
+          'title'       => $t('APDQC - MySQL innodb_buffer_pool_size'),
+          'severity'    => REQUIREMENT_ERROR,
+          'value'       => $t('Server needs more ram in order to increase the innodb_buffer_pool_size. Current buffer pool size: @value; current available memory for MySQL: @ram; current database size: @size.', array(
+            '@value' => apdqc_install_byte2human($results['innodb_buffer_pool_size']),
+            '@ram' => apdqc_install_byte2human($total_memory, 1),
+            '@size' => apdqc_install_byte2human($results['total_innodb_bytes']),
+          )),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @min-size. This server also needs more ram.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'innodb_buffer_pool_size = ' . apdqc_install_byte2human($min_size * 1.2, 1),
+            '@min-size' => apdqc_install_byte2human($min_size * 1.2, 1),
+          )),
+        );
+      }
+    }
+
+    // Check innodb_flush_log_at_trx_commit value.
+    $results = db_query("SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'")->fetchAssoc();
+    if ($results['Value'] != 2) {
+      $requirements['apdqc_flush_log_at_trx_commit'] = array(
+        'title'       => $t('APDQC - MySQL innodb_flush_log_at_trx_commit'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('innodb_flush_log_at_trx_commit should be 2. Current value: @value.', array(
+          '@value' => $results['Value'],
+        )),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code>', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_flush_log_at_trx_commit = 2',
+        )),
+      );
+    }
+
+    // Make sure mysql query cache is disabled.
+    $results = db_query("SELECT
+      @@global.query_cache_type AS query_cache_type,
+      @@global.query_cache_size AS query_cache_size
+    ")->fetchAssoc();
+    if ($results['query_cache_type'] != 0 || $results['query_cache_type'] !== 'OFF') {
+      $requirements['apdqc_flush_log_at_trx_commit'] = array(
+        'title'       => $t('APDQC - MySQL query_cache_type'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('query_cache_type should be OFF. Current value: @value.', array(
+          '@value' => $results['query_cache_type'],
+        )),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code>. More info: http://dom.as/tech/query-cache-tuner/', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'query_cache_type = 0',
+        )),
+      );
+    }
+
+    // Make sure innodb_lock_wait_timeout is smaller than 40 seconds.
+    $result = db_query("SHOW VARIABLES LIKE 'innodb_lock_wait_timeout'")->fetchAssoc();
+    if ($result['Value'] > 40) {
+      if (version_compare($version, '5.5.0', '>=')) {
+        $description = $t('Inside settings.php add this below the $databases array: <p><code>@code</code></p>', array(
+          '@code' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'innodb_lock_wait_timeout\'] = "SET SESSION innodb_lock_wait_timeout = 40";',
+        ));
+      }
+      else {
+        $description = $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code>', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_lock_wait_timeout = 40',
+        ));
+      }
+      $requirements['apdqc_innodb_lock_wait_timeout'] = array(
+        'title'       => $t('APDQC - MySQL innodb_lock_wait_timeout'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('innodb_lock_wait_timeout should be a smaller value. Current value: @value.', array(
+          '@value' => $result['Value'],
+        )),
+        'description' => $description,
+      );
+    }
+
+    // Make sure wait_timeout is less than 10 minutes.
+    $result = db_query("SHOW VARIABLES LIKE 'wait_timeout'")->fetchAssoc();
+    if ($result['Value'] > 600) {
+      $requirements['apdqc_wait_timeout'] = array(
+        'title'       => $t('APDQC - MySQL innodb_lock_wait_timeout'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('wait_timeout should be a smaller value. Current value: @value.', array(
+          '@value' => $result['Value'],
+        )),
+        'description' => $t('Inside settings.php add this below the $databases array: <p><code>@code</code></p>', array(
+          '@code' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'wait_timeout\'] = "SET SESSION wait_timeout = 600";',
+        )),
+      );
+    }
+
+    // Make sure the APDQCache is being used.
+    $apdqcache_found = FALSE;
+    foreach (variable_get('cache_backends', array()) as $include) {
+      if (stripos($include, '/apdqc/apdqc.cache.inc') !== FALSE) {
+        $apdqcache_found = TRUE;
+        break;
+      }
+    }
+    if (!$apdqcache_found) {
+      $file_path = drupal_get_path('module', 'apdqc');
+      if (variable_get('cache_default_class', 'DrupalDatabaseCache') === 'DrupalDatabaseCache') {
+        $description = $t('Inside settings.php add this to the bottom of the file <p><code>@line-1<br />@line-2</code></p>', array(
+          '@line-1' => '$conf[\'cache_backends\'][] = \'' . $file_path . '/apdqc.cache.inc\';',
+          '@line-2' => '$conf[\'cache_default_class\'] = \'APDQCache\';',
+        ));
+      }
+      else {
+        $description = $t('Inside settings.php add this to the bottom of the file <p><code>@line-1<br />@line-2</code></p>', array(
+          '@line-1' => '$conf[\'cache_backends\'][] = \'' . $file_path . '/apdqc.cache.inc\';',
+          '@line-2' => '$conf[\'cache_class_cache_form\'] = \'APDQCache\';',
+        ));
+      }
+      $requirements['apdqc_cache_backend'] = array(
+        'title'       => $t('APDQC - Cache Backend'),
+        'severity'    => REQUIREMENT_ERROR,
+        'value'       => $t('APDQCache was not found in the cache_backend.'),
+        'description' => $description,
+      );
+    }
+    else {
+      if (variable_get('cache_default_class', 'DrupalDatabaseCache') === 'DrupalDatabaseCache') {
+        $requirements['apdqc_cache_backend'] = array(
+          'title'       => $t('APDQC - Default Class'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('APDQCache is not the default class for the cache backend.'),
+          'description' => $t('Inside settings.php add this to the bottom of the file <p><code>@line-1</code></p>', array(
+            '@line-1' => '$conf[\'cache_default_class\'] = \'APDQCache\';',
+          )),
+        );
+      }
+      else {
+        // Recommend APDQCache over DrupalDatabaseCache for cache_class_$bin's.
+        module_load_include('admin.inc', 'apdqc');
+        module_load_include('cache.inc', 'apdqc');
+        $cache_tables = apdqc_get_cache_tables(FALSE);
+        $cache_class = array();
+        $apdqc_class = array();
+        foreach ($cache_tables as $table) {
+          if (!db_table_exists($table)) {
+            continue;
+          }
+          if (apdqc_get_bin_class_name($table) === 'DrupalDatabaseCache') {
+            $cache_class[] = $table;
+          }
+          if (apdqc_get_bin_class_name($table) === 'APDQCache') {
+            $apdqc_class[] = $table;
+          }
+        }
+        if (!empty($cache_class)) {
+          $requirements['apdqc_cache_classes'] = array(
+            'title'       => $t('APDQC - Cache Class'),
+            'severity'    => REQUIREMENT_WARNING,
+            'value'       => $t('Please switch from DrupalDatabaseCache to APDQCache.'),
+            'description' => $t('Inside settings.php you need to change the cache_class_CACHE-TABLE-NAME from DrupalDatabaseCache to APDQCache. List of tables that need to be changed: @list', array(
+              '@list' => implode(', ', $cache_class),
+            )),
+          );
+        }
+        elseif (empty($apdqc_class)) {
+          $requirements['apdqc_cache_used'] = array(
+            'title'       => $t('APDQC - Cache Useage'),
+            'severity'    => REQUIREMENT_WARNING,
+            'value'       => $t('APDQC is not assigned to any cache tables.'),
+            'description' => $t('Inside settings.php you need to assign APDQC to handle a cache table. The most common table to do if using another cache backend is the cache_form table. <p><code>@line-1</code></p>', array(
+              '@line-1' => '$conf[\'cache_class_cache_form\'] = \'APDQCache\';',
+            )),
+          );
+        }
+      }
+    }
+
+    // Make sure the APDQC lock is being used.
+    $lock_inc = variable_get('lock_inc', 'includes/lock.inc');
+    if (stripos($lock_inc, '/apdqc/apdqc.lock.inc') === FALSE) {
+      $file_path = drupal_get_path('module', 'apdqc');
+      if ($lock_inc === 'includes/lock.inc') {
+        $description = $t('Inside settings.php add this to the bottom of the file <p><code>@line-1</code></p>', array(
+          '@line-1' => '$conf[\'lock_inc\'] = \'' . $file_path . '/apdqc.lock.inc\';',
+        ));
+      }
+      else {
+        $description = $t('Inside settings.php add this to the bottom of the file <p><code>@line-1<br />@line-2</code></p>', array(
+          '@line-1' => '$conf[\'lock_inc\'] = \'' . $file_path . '/apdqc.lock.inc\';',
+          '@line-2' => '$conf[\'base_lock_inc\'] = \'' . $lock_inc . '\';',
+        ));
+      }
+      $requirements['apdqc_lock_backend'] = array(
+        'title'       => $t('APDQC - Lock Backend'),
+        'severity'    => REQUIREMENT_ERROR,
+        'value'       => $t('lock_inc is not set to apdqc.'),
+        'description' => $description,
+      );
+    }
+
+    // Check hook_boot and hook_exit; recommend page_cache_invoke_hooks = FALSE
+    // if these hooks are not critical.
+    $hooks = apdqc_install_check_boot_exit_hooks();
+    if (empty($hooks[0]) && empty($hooks[1]) && variable_get('page_cache_invoke_hooks', TRUE)) {
+      $requirements['apdqc_page_cache_invoke_hooks'] = array(
+        'title'       => $t('APDQC - page_cache_invoke_hooks setting'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('page_cache_invoke_hooks should set to FALSE inside your settings.php file.'),
+        'description' => $t('This site does not use any hook_boot() or hook_exit() calls that are required to be called on a cached page hit. You can speedup this sites anonymous page cache by add this line inside your setting.php file: <p><code>@line</code></p>', array('@line' => '$conf[\'page_cache_invoke_hooks\'] = FALSE;')),
+      );
+    }
+    if (!variable_get('page_cache_invoke_hooks', TRUE) && (!empty($hooks[0]) || !empty($hooks[1]))) {
+      $hooks = array_merge($hooks[0], $hooks[1]);
+      $requirements['apdqc_page_cache_invoke_hooks'] = array(
+        'title'       => $t('APDQC - page_cache_invoke_hooks setting'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('page_cache_invoke_hooks might need to be set to TRUE inside your settings.php file.'),
+        'description' => $t('This site does use a module(s) that invokes hook_boot() and/or hook_exit() calls. These calls might be required to be called on a cached page hit. Hooks to look into: @hooks', array('@hooks' => implode(', ', $hooks))),
+      );
+    }
+
+    // Check cache table collation. Recommend utf8_bin.
+    // Make apdqc_admin_change_table_collation() available.
+    module_load_include('admin.inc', 'apdqc');
+    $tables = apdqc_admin_change_table_collation();
+    if (!empty($tables)) {
+      $requirements['apdqc_cache_table_collation'] = array(
+        'title'       => $t('APDQC - Cache table collations'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('Using the utf8_bin collation is faster and more accurate when matching cache ids since no unicode normalization is done to cache queries.'),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to change the cache tables to utf8_bin. This is a <a href="@d8">Drupal 8 backport</a>.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+          '@d8' => 'https://www.drupal.org/node/2352207',
+        )),
+      );
+    }
+
+    // Check cache table indexes. Make sure the expire_created index is there.
+    // Make apdqc_get_cache_table_indexes() available.
+    module_load_include('admin.inc', 'apdqc');
+    $cache_table_indexes = apdqc_get_cache_table_indexes();
+    $missing_expire_created_index = FALSE;
+    foreach ($cache_table_indexes as $indexes) {
+      if (!isset($indexes['expire_created'])) {
+        $missing_expire_created_index = TRUE;
+        break;
+      }
+    }
+    if (!empty($missing_expire_created_index)) {
+      $requirements['apdqc_cache_table_indexes'] = array(
+        'title'       => $t('APDQC - Cache table indexes'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('In order to do smarter garbage collection of the cache bins, the purges are based on individual records timestamps; instead of just using the expire column, the created column is used as well. This allows for proper enforcement of the minimum cache lifetime.'),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to change the cache tables indexes.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+        )),
+      );
+    }
+
+    // Set mysql_db_type if needed.
+    $results = db_query("SELECT SUBSTR(@@global.version_comment, 1, LOCATE(' ', @@global.version_comment) - 1) AS DBtype")->fetchAssoc();
+    $mysql_db_type = reset($results);
+    $mysql_db_type_set = 'MySQL';
+    if (isset($GLOBALS['databases']['default']['default']['mysql_db_type'])) {
+      $mysql_db_type_set = $GLOBALS['databases']['default']['default']['mysql_db_type'];
+    }
+    if (strcasecmp($mysql_db_type, $mysql_db_type_set) != 0) {
+      $value = $t('APDQC will try to use some of the unique features available to non mainline MySQL server software.');
+      if (stripos($mysql_db_type, 'MySQL') === 0) {
+        $value = '';
+      }
+      $requirements['apdqc_mysql_db_type'] = array(
+        'title'       => $t('APDQC - Please set the MySQL type'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $value,
+        'description' => $t('Inside settings.php add this below the $databases array <p><code>@line</code></p>', array(
+          '@line' => '$databases[\'default\'][\'default\'][\'mysql_db_type\'] = \'' . $mysql_db_type . '\';',
+        )),
+      );
+    }
+
+    // Make sure the APDQC session is being used.
+    $session = variable_get('session_inc', 'includes/session.inc');
+    if ($session === 'includes/session.inc') {
+      $file_path = drupal_get_path('module', 'apdqc');
+      $requirements['apdqc_session_backend'] = array(
+        'title'       => $t('APDQC - Session Backend'),
+        'severity'    => REQUIREMENT_ERROR,
+        'value'       => $t('session_inc is not set to apdqc.'),
+        'description' => $t('Inside settings.php add this to the bottom of the file <p><code>@line-1</code></p>', array(
+          '@line-1' => '$conf[\'session_inc\'] = \'' . $file_path . '/apdqc.session.inc\';',
+        )),
+      );
+    }
+  }
+
+  if (empty($requirements)) {
+    module_load_include('admin.inc', 'apdqc');
+    module_load_include('cache.inc', 'apdqc');
+    $cache_tables = apdqc_get_cache_tables(FALSE);
+    $cache_class = array();
+    foreach ($cache_tables as $table) {
+      if (!db_table_exists($table)) {
+        continue;
+      }
+      if (apdqc_get_bin_class_name($table) === 'APDQCache') {
+        $cache_class[] = $table;
+      }
+    }
+
+    $requirements['apdqc'] = array(
+      'title'     => $t('APDQC'),
+      'severity'  => REQUIREMENT_OK,
+      'value'     => $phase === 'install' ? TRUE : $t('The asynchronous prefetch database query cache should be working correctly. The following cache tables are using APDQC: @list. Only these tables will get prefetching and async writes.', array('@list' => implode(', ', $cache_class))),
+    );
+  }
+
+  return $requirements;
+}
+
+/**
+ * Gets a list of modules that use hook_boot & hook_exit on a cached page hit.
+ *
+ * @return array
+ *   index 0 is for hook_boot, index 1 is for hook_exit.
+ */
+function apdqc_install_check_boot_exit_hooks() {
+  // Get the hooks used.
+  $hook_boot = module_implements('boot');
+  $hook_exit = module_implements('exit');
+
+  // Allow modules to edit this list.
+  drupal_alter('apdqc_install_check_boot_exit_hooks', $hook_boot, $hook_exit);
+
+  // Add the full function name to the list.
+  $boot_list = array();
+  foreach ($hook_boot as $boot) {
+    $boot_list[] = $boot . '_boot';
+  }
+  $exit_list = array();
+  foreach ($hook_exit as $exit) {
+    $exit_list[] = $exit . '_exit';
+  }
+
+  return array($boot_list, $exit_list);
+}
+
+/**
+ * Converts a human readable file size value to a number of bytes.
+ *
+ * Supports the following modifiers: K, M, G and T. Invalid input is returned
+ * unchanged.
+ *
+ * @param string $value
+ *   String to convert into bytes.
+ *
+ * @return string
+ *   The number of bytes.
+ */
+function apdqc_install_human2byte($value) {
+  return preg_replace_callback('/^\s*(\d+)\s*(?:([kmgt]?)b?)?\s*$/i', function ($m) {
+    switch (strtolower($m[2])) {
+      case 't': $m[1] *= 1024;
+      case 'g': $m[1] *= 1024;
+      case 'm': $m[1] *= 1024;
+      case 'k': $m[1] *= 1024;
+    }
+    return $m[1];
+  }, $value);
+}
+
+/**
+ * Converts a number of bytes into human readable format.
+ *
+ * @param string $bytes
+ *   Number to convert into a more human readable format.
+ * @param int $precision
+ *   Number of decimals to output.
+ *
+ * @return string
+ *   Human readable format of the bytes.
+ */
+function apdqc_install_byte2human($bytes, $precision = 0) {
+  $units = array('', 'K', 'M', 'G', 'T');
+
+  $bytes = max($bytes, 0);
+  $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+  $pow = min($pow, count($units) - 1);
+  $bytes /= (1 << (10 * $pow));
+
+  $output = ceil(round($bytes, $precision + 2) * 10) / 10;
+  return $output . '' . $units[$pow];
+}
