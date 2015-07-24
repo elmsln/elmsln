@@ -252,7 +252,7 @@ class JSqueeze
                     {
                         if ("/'" == $instr)
                         {
-                            while (false !== strpos('gmi', $f[$i+1])) $s[] = $f[$i++];
+                            while (isset ($f[$i+1]) && false !== strpos('gmi', $f[$i+1])) $s[] = $f[$i++];
                             $s[] = $f[$i];
                         }
 
@@ -280,6 +280,16 @@ class JSqueeze
                         isset($q[$f[$i]]) && ++$q[$f[$i]];
                         $s[] = '\\' . $f[$i];
                     }
+                }
+                else if ('[' == $f[$i] && "/'" == $instr)
+                {
+                    $instr = '/[';
+                    $s[] = '[';
+                }
+                else if (']' == $f[$i] && '/[' == $instr)
+                {
+                    $instr = "/'";
+                    $s[] = ']';
                 }
                 else if ("'" == $f[$i] || '"' == $f[$i])
                 {
@@ -344,7 +354,7 @@ class JSqueeze
             case "'":
             case '"':
                 $instr = $f[$i];
-                $key = "//''\"\"" . $K++ . ('!' == $instr ? '!' : "'");
+                $key = "//''\"\"" . $K++ . ('!' == $instr ? ']' : "'");
                 $a = $j;
                 $code .= $key;
                 while (isset($key[++$j-$a-1])) $code[$j] = $key[$j-$a-1]; --$j;

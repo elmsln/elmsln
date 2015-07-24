@@ -1,0 +1,165 @@
+<?php
+
+/**
+ * @file
+ * Advanced CSS/JS aggregation external compression module.
+ */
+
+// Core hook implementations.
+/**
+ * Implements hook_menu().
+ */
+function advagg_ext_compress_menu() {
+  $file_path = drupal_get_path('module', 'advagg_ext_compress');
+  $config_path = advagg_admin_config_root_path();
+
+  $items[$config_path . '/advagg/ext-compress'] = array(
+    'title' => 'External Compression',
+    'description' => 'Adjust External Compression settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advagg_ext_compress_admin_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'advagg_ext_compress.admin.inc',
+    'weight' => 10,
+  );
+
+  return $items;
+}
+
+// Contrib hook implemtations.
+/**
+ * Implements hook_advagg_js_compress_configuration_alter().
+ */
+function advagg_ext_compress_advagg_js_compress_configuration_alter(&$options_desc, &$compressors, &$functions) {
+  list($options, $description) = $options_desc;
+
+  $key = 10;
+  while (isset($options[$key])) {
+    $key++;
+  }
+  $options[$key] = t('AdvAgg Command Line Compressor');
+  $compressors[$key] = 'advagg_cmdline';
+  $functions[$key] = 'advagg_ext_compress_js_compress';
+
+  $options_desc = array($options, $description);
+}
+
+/**
+ * Implements hook_advagg_css_compress_configuration_alter().
+ */
+function advagg_ext_compress_advagg_css_compress_configuration_alter(&$options_desc, &$compressors, &$functions) {
+  list($options, $description) = $options_desc;
+
+  $key = 10;
+  while (isset($options[$key])) {
+    $key++;
+  }
+  $options[$key] = t('AdvAgg Command Line Compressor');
+  $functions[$key] = 'advagg_ext_compress_css_compress';
+
+  $options_desc = array($options, $description);
+}
+
+// Helper functions.
+/**
+ * Compress Javascript using via command line.
+ *
+ * @param string $input_file
+ *   The file containing the uncompressed css/js data.
+ * @param string $ext
+ *   The string css or js.
+ *
+ * @return string
+ *   The file containting the compressed css/js data.
+ */
+function advagg_ext_compress_execute_cmd($input_file, $ext = '') {
+  // Get file extension.
+  if (empty($ext)) {
+    $ext = strtolower(pathinfo($input_file, PATHINFO_EXTENSION));
+    if ($ext !== 'css' && $ext !== 'js') {
+      // Get the $ext from the database,
+      $row = db_select('advagg_files', 'af')
+        ->fields('af')
+        ->condition('filename', $input_file)
+        ->execute()->fetchAssoc();
+      if (!empty($row['filetype'])) {
+        $ext = $row['filetype'];
+      }
+      if ($ext === 'less') {
+        $ext = 'css';
+      }
+    }
+  }
+
+  // Generate temp file.
+  $temp_file = drupal_tempnam('temporary://', 'file_advagg_');
+  $new_temp_file = $temp_file . '.' . basename($input_file);
+  @rename($temp_file, $new_temp_file);
+  $output = advagg_get_relative_path($new_temp_file);
+
+  // Create command to run.
+  $run = variable_get("advagg_ext_compress_{$ext}_cmd", '');
+  $run = str_replace(array(
+    '{%CWD%}',
+    '{%IN%}',
+    '{%IN_URL_ENC%}',
+    '{%OUT%}',
+  ), array(
+    DRUPAL_ROOT,
+    $input_file,
+    urlencode(file_create_url($input_file)),
+    escapeshellarg(realpath($output)),
+  ), $run);
+
+  // Run command and return the output file.
+  shell_exec($run);
+  return $output;
+}
+
+/**
+ * Compress Javascript using via command line.
+ *
+ * @param string $contents
+ *   The JavaScript to compress.
+ */
+function advagg_ext_compress_js_compress(&$contents) {
+  list(, $js_path) = advagg_get_root_files_dir();
+  $temp_file = drupal_tempnam($js_path[0], 'file_advagg_');
+  $new_temp_file = $temp_file . '.js';
+  rename($temp_file, $new_temp_file);
+  $temp_file_full = advagg_get_relative_path($new_temp_file);
+
+  file_put_contents($new_temp_file, $contents);
+  $output = advagg_ext_compress_execute_cmd($temp_file_full, 'js');
+  $contents = file_get_contents($output);
+
+  // Cleanup.
+  unset($new_temp_file);
+  unset($temp_file_full);
+  unset($output);
+}
+
+/**
+ * Compress CSS using via command line.
+ *
+ * @param string $contents
+ *   The CSS to compress.
+ */
+function advagg_ext_compress_css_compress(&$contents) {
+  list($css_path) = advagg_get_root_files_dir();
+  $temp_file = drupal_tempnam($css_path[0], 'file_advagg_');
+  $new_temp_file = $temp_file . '.css';
+  rename($temp_file, $new_temp_file);
+  $temp_file_full = advagg_get_relative_path($new_temp_file);
+
+  file_put_contents($new_temp_file, $contents);
+  $output = advagg_ext_compress_execute_cmd($temp_file_full, 'css');
+  $contents = file_get_contents($output);
+
+  // Cleanup.
+  unset($new_temp_file);
+  unset($temp_file_full);
+  unset($output);
+}

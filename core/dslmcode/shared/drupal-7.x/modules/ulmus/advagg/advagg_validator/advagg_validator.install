@@ -38,7 +38,7 @@ function advagg_validator_schema() {
         'not null' => TRUE,
       ),
       'filename_hash' => array(
-        'description' => 'Hash of path and filename. Used to join tables & for lookup.',
+        'description' => 'Hash of path and filename. Used to join tables and for lookup.',
         'type' => 'char',
         'length' => 43,
         'not null' => TRUE,

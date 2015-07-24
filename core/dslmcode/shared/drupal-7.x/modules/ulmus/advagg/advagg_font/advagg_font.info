@@ -1,0 +1,13 @@
+name = AdvAgg Async Font Loader
+description = Allows one to load fonts in an async manner
+core = 7.x
+dependencies[] = advagg
+package = Advanced CSS/JS Aggregation
+configure = admin/config/development/performance/advagg/font
+
+; Information added by Drupal.org packaging script on 2015-07-18
+version = "7.x-2.14"
+core = "7.x"
+project = "advagg"
+datestamp = "1437181444"
+

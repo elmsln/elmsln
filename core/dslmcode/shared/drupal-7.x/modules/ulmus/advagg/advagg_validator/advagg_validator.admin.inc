@@ -46,6 +46,17 @@ function advagg_validator_admin_css_lint_form() {
     'type' => 'file',
   );
 
+  // Comma separated code.
+  // https://github.com/CSSLint/csslint/wiki/Command-line-interface#--ignore
+  $ignore_list = variable_get('advagg_validator_csslint_ignore', ADVAGG_VALIDATOR_CSSLINT_IGNORE);
+  if (is_array($ignore_list)) {
+    $ignore_list = implode(',', $ignore_list);
+  }
+  $form['#attached']['js'][] = array(
+    'data' => array('csslint' => array('ignore' => $ignore_list)),
+    'type' => 'setting',
+  );
+
   return $form;
 }
 
@@ -95,6 +106,15 @@ function advagg_validator_admin_js_hint_form() {
       'CKEDITOR' => FALSE,
     ),
   );
+
+  // Comma separated code.
+  // https://jslinterrors.com/
+  $ignore_list = variable_get('advagg_validator_jshint_ignore', ADVAGG_VALIDATOR_JSHINT_IGNORE);
+  if (is_array($ignore_list)) {
+    $ignore_list = implode(',', $ignore_list);
+  }
+  $settings['ignore'] = $ignore_list;
+
   $form['#attached']['js'][] = array(
     'data' => array('jshint' => $settings),
     'type' => 'setting',

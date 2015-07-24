@@ -191,10 +191,17 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
       // Grouping by the filename gives us the count and makes it so we don't
       // return a lot of rows;
       $db_type = Database::getConnection()->databaseType();
+      $schema = Database::getConnection()->schema();
+      $mssql_group_concat = method_exists($schema, 'functionExists') && $schema->functionExists('GROUP_CONCAT');
+      $mssql_lpad = method_exists($schema, 'functionExists') && $schema->functionExists('LPAD');
+      $mssql_md5 = method_exists($schema, 'functionExists') && $schema->functionExists('MD5');
 
       // Create join query for the advagg_aggregates table.
       $subquery_aggregates = db_select('advagg_aggregates', 'aa');
-      if ($db_type === 'sqlsrv') {
+
+      // Counter column.
+      $fields = array('counter');
+      if ($db_type === 'sqlsrv' && !$mssql_lpad) {
         // MS SQL does not support LPAD.
         $subquery_aggregates->addExpression("RIGHT(REPLICATE('0',8) + CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)),8)", 'counter');
       }
@@ -206,17 +213,33 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
         $subquery_aggregates->addExpression("LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0')", 'counter');
       }
 
-      $fields = array('counter');
-      if ($db_type === 'mysql' || $db_type === 'sqlite') {
-        $fields = array('counter', 'hashlist');
-        if ($db_type === 'mysql') {
-          db_query('SET SESSION group_concat_max_len = 65535');
-          $subquery_aggregates->addExpression('HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC)))', 'hashlist');
+      // Hashlist column.
+      if ($db_type === 'mysql') {
+        $fields[] = 'hashlist';
+        db_query('SET SESSION group_concat_max_len = 65535');
+        $subquery_aggregates->addExpression('HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC)))', 'hashlist');
+      }
+      elseif ($db_type === 'pgsql') {
+        $database_connection = Database::getConnection();
+        if (version_compare($database_connection->version(), '9') >= 0) {
+          $fields[] = 'hashlist';
+          $subquery_aggregates->addExpression("MD5(STRING_AGG(DISTINCT(aa.aggregate_filenames_hash), ',' ORDER BY aa.aggregate_filenames_hash ASC))", 'hashlist');
+        }
+      }
+      elseif ($db_type === 'sqlite') {
+        $fields[] = 'hashlist';
+        $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
+        $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
+      }
+      elseif ($db_type === 'sqlsrv' && !$mssql_group_concat) {
+        $fields[] = 'hashlist';
+        if ($mssql_md5) {
+          $subquery_aggregates->addExpression('MD5(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash))', 'hashlist');
         }
         else {
           $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
-          $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
         }
+        $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
       }
 
       // Create join for the advagg_aggregates_versions table.

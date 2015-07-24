@@ -193,7 +193,7 @@ function advagg_get_all_files(array $options = array()) {
 }
 
 /**
- * Scan CSS/JS advagg dir & remove that file if atime is grater than 30 days.
+ * Scan CSS/JS advagg dir and remove that file if atime is grater than 30 days.
  *
  * @return array
  *   Array of files that got removed.
@@ -423,7 +423,7 @@ function advagg_remove_missing_files_from_db() {
 }
 
 /**
- * Scan CSS/JS advagg dir & remove file if there is no associated db record.
+ * Scan CSS/JS advagg dir and remove file if there is no associated db record.
  *
  * @return array
  *   Array of files that got removed.
@@ -531,7 +531,7 @@ function advagg_remove_old_unused_aggregates() {
   $query = db_select('advagg_aggregates_versions', 'aav')
     ->fields('aav', array('aggregate_filenames_hash'))
     ->groupBy('aav.aggregate_filenames_hash');
-  // Create join & add in query comment.
+  // Create join and add in query comment.
   $query->leftjoin('advagg_aggregates', 'aa', 'aa.aggregate_filenames_hash=aav.aggregate_filenames_hash');
   $query->isNull('aa.aggregate_filenames_hash');
   $query->comment('Query called from ' . __FUNCTION__ . '()');
@@ -555,7 +555,7 @@ function advagg_remove_old_unused_aggregates() {
   $query = db_select('advagg_aggregates', 'aa')
     ->fields('aa', array('aggregate_filenames_hash'))
     ->groupBy('aa.aggregate_filenames_hash');
-  // Create join & add in query comment.
+  // Create join and add in query comment.
   $query->leftjoin('advagg_aggregates_versions', 'aav', 'aa.aggregate_filenames_hash=aav.aggregate_filenames_hash');
   $query->isNull('aav.aggregate_filenames_hash');
   $query->comment('Query called from ' . __FUNCTION__ . '()');

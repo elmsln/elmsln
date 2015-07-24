@@ -246,6 +246,9 @@ current defaults are shown.
     // Skip far future check on status page.
     $conf['advagg_skip_far_future_check'] = FALSE;
 
+    // Skip preprocess and enabled checks.
+    $conf['advagg_skip_enabled_preprocess_check'] = FALSE;
+
 JSMIN PHP EXTENSION
 -------------------
 

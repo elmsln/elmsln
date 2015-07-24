@@ -52,7 +52,7 @@ function advagg_js_cdn_requirements($phase) {
       'title' => $t('Adv JS CDN'),
       'severity' => REQUIREMENT_OK,
       'value' => $t('OK'),
-      'description' => $t('jQuery & jQuery UI JS should be coming from a CDN.') . ' ' . $description,
+      'description' => $t('jQuery and jQuery UI JS should be coming from a CDN.') . ' ' . $description,
     );
   }
 

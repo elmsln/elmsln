@@ -52,7 +52,7 @@ function advagg_css_compress_requirements($phase) {
 }
 
 /**
- * Upgrade AdvAgg CSS Compress previous versions (6.x-1.x & 7.x-1.x) to 7.x-2.x.
+ * Upgrade AdvAgg CSS Compress versions (6.x-1.x and 7.x-1.x) to 7.x-2.x.
  *
  * Implements hook_update_N().
  */
@@ -97,4 +97,16 @@ function advagg_css_compress_update_7201(&$sandbox) {
   if ($old !== ADVAGG_CSS_COMPRESS_INLINE_IF_NOT_CACHEABLE) {
     variable_set('advagg_css_compress_inline_if_not_cacheable', $old);
   }
+}
+
+/**
+ * Remove unused variables from the variable table.
+ *
+ * Implements hook_update_N().
+ */
+function advagg_css_compress_update_7202(&$sandbox) {
+  // Remove all old advagg css compress variables.
+  db_delete('variable')
+    ->condition('name', 'advagg_css_compressor_file_settings_%', 'LIKE')
+    ->execute();
 }

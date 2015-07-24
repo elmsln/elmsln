@@ -39,7 +39,7 @@ function hook_advagg_build_aggregate_plans_alter(array &$files, &$modified, $typ
     $group = NULL;
     $every_page = NULL;
     foreach ($data['files'] as $fileinfo) {
-      // Grouped by group & every_page variables.
+      // Grouped by group and every_page variables.
       if (is_null($group)) {
         $group = $fileinfo['group'];
       }
@@ -119,7 +119,7 @@ function hook_advagg_current_hooks_hash_array_alter(array &$aggregate_settings) 
  * @param array $aggregate_settings
  *   Array of settings.
  * @param array $other_parameters
- *   Array of containing $files & $type.
+ *   Array of containing $files and $type.
  *
  * @see advagg_save_aggregate()
  * @see advagg_advagg_save_aggregate_alter()
@@ -430,7 +430,7 @@ function hook_advagg_js_groups_alter(array &$js_groups, $preprocess_js) {
 }
 
 /**
- * Allow other modules to modify $children & $elements before they are rendered.
+ * Allow other modules to modify $children and $elements before rendering.
  *
  * @param array $children
  *   An array of children elements.
@@ -475,7 +475,7 @@ function hook_advagg_modify_css_pre_render_alter(array &$children, array &$eleme
 }
 
 /**
- * Allow other modules to modify $children & $elements before they are rendered.
+ * Allow other modules to modify $children and $elements before rendering.
  *
  * @param array $children
  *   An array of children elements.

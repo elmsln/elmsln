@@ -11,7 +11,7 @@
 /**
  * Insert/Update data in advagg tables.
  *
- * Tables: advagg_files, advagg_aggregates, & advagg_aggregates_versions.
+ * Tables: advagg_files, advagg_aggregates, advagg_aggregates_versions.
  *
  * @param array $files
  *   List of files in the aggregate as well as the aggregate name.
@@ -251,7 +251,7 @@ function advagg_generate_filenames(array $groups, $type) {
   foreach ($groups as $data) {
     foreach ($data as $files_with_meta_data) {
 
-      // Get the aggregate filename & info about each file.
+      // Get the aggregate filename and info about each file.
       $aggregate_info = advagg_get_aggregate_info_from_files($type, $files_with_meta_data);
       $values['files'] = $aggregate_info[1];
       $values['aggregate_filenames_hash'] = $aggregate_info[2];
@@ -437,7 +437,7 @@ function advagg_get_info_on_files(array $files, $bypass_cache = FALSE, $run_alte
       if (isset($cached_data[$cache_id])) {
         cache_clear_all($cache_id, 'cache_advagg_info', FALSE);
       }
-      // Return filename_hash & data. Empty values for the other keys.
+      // Return filename_hash and data. Empty values for the other keys.
       $return[$file] = array(
         'filesize' => 0,
         'mtime' => 0,
@@ -623,7 +623,9 @@ function advagg_generate_groups(array $files_to_aggregate) {
   // Get CSS limit value.
   $limit_value = variable_get('advagg_ie_css_selector_limiter_value', ADVAGG_IE_CSS_SELECTOR_LIMITER_VALUE);
 
-  if (variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)) {
+  if ( variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)
+    || variable_get('advagg_browser_dns_prefetch', ADVAGG_BROWSER_DNS_PREFETCH)
+  ) {
     foreach ($files_to_aggregate as $data) {
       foreach ($data as $values) {
         foreach ($values['items'] as $file_info) {
@@ -751,6 +753,21 @@ function advagg_generate_groups(array $files_to_aggregate) {
           }
         }
 
+        // Merge in dns_prefetch.
+        if ( variable_get('advagg_browser_dns_prefetch', ADVAGG_BROWSER_DNS_PREFETCH)
+          && isset($files_info[$file_info['data']]['dns_prefetch'])
+        ) {
+          if (!isset($file_info['dns_prefetch'])) {
+            $file_info['dns_prefetch'] = array();
+          }
+          if (!empty($file_info['dns_prefetch']) && is_string($file_info['dns_prefetch'])) {
+            $temp = $file_info['dns_prefetch'];
+            unset($file_info['dns_prefetch']);
+            $file_info['dns_prefetch'] = array($temp);
+          }
+          $file_info['dns_prefetch'] = array_filter(array_unique(array_merge($file_info['dns_prefetch'], $files_info[$file_info['data']]['dns_prefetch'])));
+        }
+
         // If one of the above options changed, it needs to be in a different
         // aggregate.
         if (!empty($parts)) {
@@ -781,7 +798,7 @@ function advagg_generate_groups(array $files_to_aggregate) {
  *   File info array from advagg_get_info_on_file().
  *
  * @return array
- *   array array with advagg_get_info_on_file data & split data.
+ *   Array with advagg_get_info_on_file data and split data.
  */
 function advagg_split_css_file(array $file_info) {
   // Make advagg_parse_media_blocks() available.
@@ -979,7 +996,7 @@ function advagg_split_css_file(array $file_info) {
  *   File info array from advagg_get_info_on_file().
  *
  * @return array
- *   array with advagg_get_info_on_file data & split data.
+ *   Array with advagg_get_info_on_file data and split data.
  */
 function advagg_create_subfile($css, $overall_split, array $file_info) {
   static $parts_uri;
@@ -1102,22 +1119,24 @@ function advagg_build_aggregate_plans(array $files_to_aggregate, $type) {
       }
     }
 
-    // Get onload.
     $onload = array();
+    $onerror = array();
+    $attributes = array();
     foreach ($values['files'] as $items) {
+      // Get onload.
       if (!empty($items['onload'])) {
         $onload[] = $items['onload'];
       }
-    }
-    $onload = implode(';', array_unique(array_filter($onload)));
-
-    // Get onerror.
-    $onerror = array();
-    foreach ($values['files'] as $items) {
+      // Get onerror.
       if (!empty($items['onerror'])) {
         $onload[] = $items['onerror'];
       }
+      // Get attributes.
+      if (!empty($items['attributes'])) {
+        $attributes += $items['attributes'];
+      }
     }
+    $onload = implode(';', array_unique(array_filter($onload)));
     $onerror = implode(';', array_unique(array_filter($onerror)));
 
     $first = reset($values['files']);
@@ -1139,6 +1158,7 @@ function advagg_build_aggregate_plans(array $files_to_aggregate, $type) {
       'items' => $values,
       'filepath' => $path . '/' . $agg_filename,
       'filename' => $agg_filename,
+      'attributes' => $attributes,
     );
   }
 

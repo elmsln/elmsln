@@ -23,11 +23,8 @@ function advagg_css_compress_admin_settings_form($form, $form_state) {
     );
   }
 
-  $description = '';
-  $options = array(
-    0 => t('Disabled'),
-    2 => t('YUI'),
-  );
+  list($options, $description) = advagg_css_compress_configuration();
+
   $form['advagg_css_compressor'] = array(
     '#type' => 'radios',
     '#title' => t('File Compression: Select a Compressor'),
@@ -35,11 +32,14 @@ function advagg_css_compress_admin_settings_form($form, $form_state) {
     '#options' => $options,
     '#description' => filter_xss($description),
   );
+  $inline_options = $options;
+  unset($inline_options[-1]);
+  $inline_options[0] = t('Disabled');
   $form['advagg_css_compress_inline'] = array(
     '#type' => 'radios',
     '#title' => t('Inline Compression: Select a Compressor'),
     '#default_value' => variable_get('advagg_css_compress_inline', ADVAGG_CSS_COMPRESS_INLINE),
-    '#options' => $options,
+    '#options' => $inline_options,
     '#description' => filter_xss($description),
   );
   $form['advagg_css_compress_inline_if_not_cacheable'] = array(
@@ -54,7 +54,7 @@ function advagg_css_compress_admin_settings_form($form, $form_state) {
     ),
   );
 
-  $options[-1] = t('Default');
+  $options[ADVAGG_CSS_COMPRESSOR_FILE_SETTINGS] = t('Default');
   ksort($options);
 
   $form['per_file_settings'] = array(
@@ -63,7 +63,7 @@ function advagg_css_compress_admin_settings_form($form, $form_state) {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
-  // Get filename & filename_hash.
+  // Get filename and filename_hash.
   $results = db_select('advagg_files', 'af')
     ->fields('af', array('filename'))
     ->condition('filetype', 'css')
@@ -127,6 +127,9 @@ function advagg_css_compress_admin_settings_form_submit($form, &$form_state) {
       continue;
     }
     $new_settings[substr($key, 36)] = $value;
+
+    // Do not save this field into its own variable.
+    unset($form_state['values'][$key]);
   }
   if (!empty($new_settings) || !empty($file_settings)) {
     if (empty($new_settings)) {

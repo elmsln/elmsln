@@ -23,35 +23,7 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
     );
   }
 
-  $description = '';
-  $options = array(
-    0 => t('Disabled'),
-    1 => t('JSMin+ ~1300ms'),
-    // 2 => t('Packer ~500ms'),
-    // 3 is JSMin c extension.
-    // 4 is JShrink.
-    // 5 is JSqueeze.
-  );
-  if (function_exists('jsmin')) {
-    $options[3] = t('JSMin ~2ms');
-    $description .= t('JSMin is the very fast C complied version. Recommend using it.');
-  }
-  else {
-    if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50310) {
-      $link = 'http://www.ypass.net/software/php_jsmin/';
-    }
-    else {
-      $link = 'https://github.com/sqmk/pecl-jsmin/';
-    }
-    $description .= t('You can use the much faster C version of JSMin (~2ms) by installing the <a href="@php_jsmin">JSMin PHP Extension</a> on this server.', array('@php_jsmin' => $link));
-  }
-  // Add in JShrink & JSqueeze if using php 5.3 or higher.
-  if (defined('PHP_VERSION_ID') & PHP_VERSION_ID >= 50300) {
-    $options += array(
-      4 => t('JShrink ~1000ms'),
-      5 => t('JSqueeze ~600ms'),
-    );
-  }
+  list($options, $description) = advagg_js_compress_configuration();
 
   $form['advagg_js_compressor'] = array(
     '#type' => 'radios',
@@ -109,7 +81,7 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
-  // Get filename & filename_hash.
+  // Get filename and filename_hash.
   $results = db_select('advagg_files', 'af')
     ->fields('af', array('filename'))
     ->condition('filetype', 'js')
@@ -173,6 +145,9 @@ function advagg_js_compress_admin_settings_form_submit($form, &$form_state) {
       continue;
     }
     $new_settings[substr($key, 35)] = $value;
+
+    // Do not save this field into its own variable.
+    unset($form_state['values'][$key]);
   }
   if (!empty($new_settings) || !empty($file_settings)) {
     if (empty($new_settings)) {

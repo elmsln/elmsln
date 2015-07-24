@@ -175,7 +175,7 @@ function advagg_validator_test_css_file_w3c($filename, &$validator_options = arr
   // Send request.
   $result = drupal_http_request($url);
   if (!empty($result->data) && $result->code == 200) {
-    // Parse XML & return info.
+    // Parse XML and return info.
     $return = advagg_validator_parse_soap_response_w3c($result->data);
     $return['filename'] = $filename;
     if (isset($validator_options['text'])) {

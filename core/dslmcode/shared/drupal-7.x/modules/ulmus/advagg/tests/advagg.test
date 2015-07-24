@@ -1047,8 +1047,8 @@ class AdvAggThemeTestCase extends AJAXTestCase {
    */
   public static function getInfo() {
     return array(
-      'name' => 'Theme API & AJAX',
-      'description' => 'Test low-level theme functions and AJAX framework functions & commands.',
+      'name' => 'Theme API and AJAX',
+      'description' => 'Test low-level theme functions and AJAX framework functions and commands.',
       'group' => 'AdvAgg',
     );
   }
@@ -1075,7 +1075,7 @@ class AdvAggThemeTestCase extends AJAXTestCase {
   }
 
   /**
-   * Check theme and ajax functions & commands.
+   * Check theme and ajax functions and commands.
    */
   public function testCssOverride() {
     // Ensures a theme's .info file is able to override a module CSS file from
@@ -1098,7 +1098,7 @@ class AdvAggThemeTestCase extends AJAXTestCase {
     variable_set('preprocess_css', 0);
 
     //
-    // Test ajax & js settings.
+    // Test ajax and js settings.
     advagg_test_reset_statics();
     $commands = $this->drupalGetAJAX('ajax-test/render');
     // Verify that there is a command to load settings added with

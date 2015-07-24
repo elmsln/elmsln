@@ -31,14 +31,14 @@
                 dataType: 'text',
                 async: false
               });
-              if (JSHINT(x.responseText, Drupal.settings.jshint, Drupal.settings.jshint.predef)) {
-                $(results).append('<h4>' + filename + ' Passed!</h4>');
-              }
-              else {
-                $(results).append('<p><h4>' + filename + ' Failed!</h4>');
-                $(results).append('<ul>');
+              if (!JSHINT(x.responseText, Drupal.settings.jshint, Drupal.settings.jshint.predef)) {
+                $(results).append('<p><h4>' + filename + '</h4><ul>');
                 for (var i = 0; i < JSHINT.errors.length; i++) {
-                  $(results).append('<li><b>' + JSHINT.errors[i].line + ':</b> ' + JSHINT.errors[i].reason + '</li>');
+                  var ignore = (Drupal.settings.jshint && Drupal.settings.jshint.ignore) ? Drupal.settings.jshint.ignore.split(',') : [];
+                  if (ignore.indexOf(JSHINT.errors[i].code) === -1) {
+                    var w = JSHINT.errors[i].reason + ' (line ' + JSHINT.errors[i].line + ', col ' + JSHINT.errors[i].character + ', rule ' + JSHINT.errors[i].code + ')';
+                    $(results).append('<li class="' + JSHINT.errors[i].id.replace(/[()]/g, '') + '">' + w.replace(/ /g, '&nbsp;') + '</li>');
+                  }
                 }
                 $(results).append('</ul></p>');
               }
@@ -78,14 +78,14 @@
                 dataType: 'text',
                 async: false
               });
-              if (JSHINT(x.responseText, Drupal.settings.jshint, Drupal.settings.jshint.predef)) {
-                $(results).append('<h4>' + filename + ' Passed!</h4>');
-              }
-              else {
-                $(results).append('<p><h4>' + filename + ' Failed!</h4>');
-                $(results).append('<ul>');
+              if (!JSHINT(x.responseText, Drupal.settings.jshint, Drupal.settings.jshint.predef)) {
+                $(results).append('<p><h4>' + filename + '</h4><ul>');
                 for (var i = 0; i < JSHINT.errors.length; i++) {
-                  $(results).append('<li><b>' + JSHINT.errors[i].line + ':</b> ' + JSHINT.errors[i].reason + '</li>');
+                  var ignore = (Drupal.settings.jshint && Drupal.settings.jshint.ignore) ? Drupal.settings.jshint.ignore.split(',') : [];
+                  if (ignore.indexOf(JSHINT.errors[i].code) === -1) {
+                    var w = JSHINT.errors[i].reason + ' (line ' + JSHINT.errors[i].line + ', col ' + JSHINT.errors[i].character + ', rule ' + JSHINT.errors[i].code + ')';
+                    $(results).append('<li class="' + JSHINT.errors[i].id.replace(/[()]/g, '') + '">' + w.replace(/ /g, '&nbsp;') + '</li>');
+                  }
                 }
                 $(results).append('</ul></p>');
               }
@@ -128,11 +128,13 @@
 
               var y = CSSLint.verify(x.responseText);
               var z = y.messages;
-              $(results).append('<p><h4>' + filename + '</h4>');
-              $(results).append('<ul>');
+              $(results).append('<p><h4>' + filename + '</h4><ul>');
               for (var i = 0, len = z.length; i < len; i++) {
-                var w = z[i].message + ' (line ' + z[i].line + ', col ' + z[i].col + ')';
-                $(results).append('<li class="' + z[i].type + '">' + w.replace(/ /g, '&nbsp;') + '</li>');
+                var ignore = (Drupal.settings.csslint && Drupal.settings.csslint.ignore) ? Drupal.settings.csslint.ignore.split(',') : [];
+                if (ignore.indexOf(z[i].rule.id) === -1) {
+                  var w = z[i].message + ' (line ' + z[i].line + ', col ' + z[i].col + ', rule ' + z[i].rule.id + ')';
+                  $(results).append('<li class="' + z[i].type + '">' + w.replace(/ /g, '&nbsp;') + '</li>');
+                }
               }
               $(results).append('</ul></p>');
             }
@@ -174,11 +176,13 @@
 
               var y = CSSLint.verify(x.responseText);
               var z = y.messages;
-              $(results).append('<p><h4>' + filename + '</h4>');
-              $(results).append('<ul>');
+              $(results).append('<p><h4>' + filename + '</h4><ul>');
               for (var i = 0, len = z.length; i < len; i++) {
-                var w = z[i].message + ' (line ' + z[i].line + ', col ' + z[i].col + ')';
-                $(results).append('<li class="' + z[i].type + '">' + w.replace(/ /g, '&nbsp;') + '</li>');
+                var ignore = (Drupal.settings.csslint && Drupal.settings.csslint.ignore) ? Drupal.settings.csslint.ignore.split(',') : [];
+                if (ignore.indexOf(z[i].rule.id) === -1) {
+                  var w = z[i].message + ' (line ' + z[i].line + ', col ' + z[i].col + ', rule ' + z[i].rule.id + ')';
+                  $(results).append('<li class="' + z[i].type + '">' + w.replace(/ /g, '&nbsp;') + '</li>');
+                }
               }
               $(results).append('</ul></p>');
             }

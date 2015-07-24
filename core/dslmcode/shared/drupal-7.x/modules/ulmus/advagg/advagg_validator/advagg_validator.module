@@ -5,12 +5,27 @@
  * Advanced aggregation validation module.
  */
 
+// Define default variables.
+/**
+ * Default css lint ignore settings.
+ */
+define('ADVAGG_VALIDATOR_CSSLINT_IGNORE', '');
+
+/**
+ * Default js hint ignore settings.
+ */
+define('ADVAGG_VALIDATOR_JSHINT_IGNORE', '');
+
 /**
  * Implements hook_menu().
  */
 function advagg_validator_menu() {
+  // Make sure the advagg_admin_config_root_path() function is available.
+  drupal_load('module', 'advagg');
+
   $file_path = drupal_get_path('module', 'advagg_validator');
   $config_path = advagg_admin_config_root_path();
+  $items = array();
 
   $items[$config_path . '/advagg/validate_css_w3'] = array(
     'title' => 'Validate CSS via W3',
@@ -47,4 +62,36 @@ function advagg_validator_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function advagg_validator_menu_alter(&$items) {
+  // Make sure the advagg_admin_config_root_path() function is available.
+  drupal_load('module', 'advagg');
+  $config_path = advagg_admin_config_root_path();
+
+  if (!isset($items[$config_path . '/advagg'])) {
+    // If the advagg module is not enabled, redirect the /advagg path to
+    // /advagg/validate_css_w3.
+    $items[$config_path . '/advagg'] = array(
+      'title' => 'Advanced CSS/JS Aggregation',
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 1,
+      'description' => $items[$config_path . '/advagg/validate_css_w3']['description'],
+      'page callback' => 'drupal_goto',
+      'page arguments' => array($config_path . '/advagg/validate_css_w3'),
+      'access arguments' => array('administer site configuration'),
+    );
+  }
+  if (!isset($items[$config_path . '/default'])) {
+    // Make sure the performance page has a default path.
+    $items[$config_path . '/default'] = array(
+      'title' => 'Performance',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'file path' => drupal_get_path('module', 'system'),
+      'weight' => -10,
+    );
+  }
 }

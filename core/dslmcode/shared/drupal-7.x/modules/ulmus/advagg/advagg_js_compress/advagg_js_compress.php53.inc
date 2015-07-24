@@ -36,7 +36,7 @@ function advagg_js_compress_jshrink(&$contents, $log_errors = TRUE) {
     }
   }
   catch (Exception $e) {
-    // Log the exception thrown by JShrink & roll back to uncompressed content.
+    // Log the JShrink exception and rollback to uncompressed content.
     if ($log_errors) {
       watchdog('advagg_js_compress', $e->getMessage() . '<pre>' . $contents_before . '</pre>', NULL, WATCHDOG_WARNING);
     }
@@ -82,7 +82,7 @@ function advagg_js_compress_jsqueeze(&$contents, $log_errors = TRUE) {
     }
   }
   catch (Exception $e) {
-    // Log the exception thrown by JSqueeze & roll back to uncompressed content.
+    // Log the JSqueeze exception and rollback to uncompressed content.
     if ($log_errors) {
       watchdog('advagg_js_compress', $e->getMessage() . '<pre>' . $contents_before . '</pre>', NULL, WATCHDOG_WARNING);
     }

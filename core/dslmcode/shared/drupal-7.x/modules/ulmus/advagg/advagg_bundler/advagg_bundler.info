@@ -6,9 +6,9 @@ dependencies[] = advagg
 
 configure = admin/config/development/performance/advagg/bundler
 
-; Information added by Drupal.org packaging script on 2015-05-20
-version = "7.x-2.10"
+; Information added by Drupal.org packaging script on 2015-07-18
+version = "7.x-2.14"
 core = "7.x"
 project = "advagg"
-datestamp = "1432163583"
+datestamp = "1437181444"
 
