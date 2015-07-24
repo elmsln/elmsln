@@ -85,6 +85,35 @@ function mooc_foundation_access_preprocess_page(&$variables) {
 }
 
 /**
+ * Implements menu_link__cis_service_connection_active_outline().
+ */
+function mooc_foundation_access_menu_link__cis_service_connection_active_outline($variables) {
+  switch(theme_get_setting('mooc_foundation_access_outline_labeling')) {
+    case 'auto_both':
+      $word = theme_get_setting('mooc_foundation_access_outline_label');
+      $number = TRUE;
+    break;
+    case 'auto_num':
+      $word = FALSE;
+      $number = TRUE;
+    break;
+    case 'auto_text':
+      $word = theme_get_setting('mooc_foundation_access_outline_label');
+      $number = FALSE;
+    break;
+    case 'none':
+      $word = FALSE;
+      $number = FALSE;
+    break;
+    default :
+      $word = t('Lesson');
+      $number = TRUE;
+    break;
+  }
+  return _foundation_access_menu_outline($variables, $word, $number);
+}
+
+/**
  * Implements menu_link__cis_service_connection_all_active_outline().
  */
 function mooc_foundation_access_menu_link__cis_service_connection_all_active_outline($variables) {
