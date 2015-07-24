@@ -94,12 +94,15 @@ function cis_section_cron() {
             // and allows the entire network to work as an OG dark-net :)
             if (isset($section['field_access_string']['und']) && count($section['field_access_string']['und']) > 0) {
               foreach ($section['field_access_string']['und'] as $string) {
-                $section_strings[$string['safe_value']] = $string['safe_value'];
-                // store the start/end times of this so we know activation status
-                $section_times[$string['safe_value']] = array(strtotime($section['field_access_dates']['und'][0]['value']));
-                // end date not required
-                if (isset($section['field_access_dates']['und'][0]['value2'])) {
-                  $section_times[$string['safe_value']][] = strtotime($section['field_access_dates']['und'][0]['value2']);
+                // ensure safe_value isn't null
+                if (!empty($string['safe_value'])) {
+                  $section_strings[$string['safe_value']] = $string['safe_value'];
+                  // store the start/end times of this so we know activation status
+                  $section_times[$string['safe_value']] = array(strtotime($section['field_access_dates']['und'][0]['value']));
+                  // end date not required
+                  if (isset($section['field_access_dates']['und'][0]['value2'])) {
+                    $section_times[$string['safe_value']][] = strtotime($section['field_access_dates']['und'][0]['value2']);
+                  }
                 }
               }
             }
