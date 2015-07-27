@@ -84,7 +84,7 @@ function theme_cis_filter_render($vars) {
       'entity_bundle' => NULL,
     ), $vars['settings']);
     // spec requires tool and item be set
-    if (isset($code['tool']) && isset($code['item'])) {
+    if (isset($code['tool'])) {
       // @ignore druplart_conditional_assignment
       if ($settings = _cis_connector_build_registry($code['tool'])) {
         $instance = '/';
@@ -126,6 +126,98 @@ function theme_cis_filter_render($vars) {
             }
             else {
               $result = filter_xss($response[$code['field']]);
+            }
+          break;
+          // allow for the embedding of submission modals within content of different systems
+          // this allows you to craft a token that will turn itself into a link to do
+          // assignment, blog, discussion and other tool submission from places other then
+          // where they exist. For example, embedding a discussion board post link in
+          // the course outline / MOOC distro
+          case 'submit':
+            // allow for tokens that turn themselves into the correct submission contextually
+            // this is one of the more ridiculous capabilities of this system
+            $target_found = FALSE;
+            $section = _cis_connector_section_context();
+            // check for master_ since we need to hit the title of the mastet then
+            // since they are variable based on the design of the system
+            $query = array(
+              'deep-load-refs' => $code['entity_type'],
+              'type' => 'section',
+            );
+            if (strpos($section, 'master_') === 0) {
+              $query['title'] = 'Master Section';
+            }
+            else {
+              $query['field_section_id'] = $section;
+            }
+            //[ciscode|rev=1|tool=cle|entity_bundle=cle_assignment|submit=cle_submission|field_cis_tag=Assignment 4|render=submit|submit_reference=field_assignment|entity_key=nid]
+            // look for the section in question
+            $response = _cis_connection_query($query, 'node', 'json', 'GET', $code['tool'], $instance);
+            if (isset($response['list'][0])) {
+              $rem_section = array_pop($response['list']);
+              // check that we have something of the type asked for on the remote section node
+              if (!empty($rem_section['field_' . $code['entity_bundle'] . 's'])) {
+                foreach ($rem_section['field_' . $code['entity_bundle'] . 's'] as $key => $item) {
+                  // check that we match the criteria we were looking for at all
+                  if (isset($item['field_cis_tag'][LANGUAGE_NONE][0]['value']) && $item['field_cis_tag'][LANGUAGE_NONE][0]['value'] == $code['field_cis_tag']) {
+                    // this means we have an item to target
+                    $target_found = TRUE;
+                    // request something they could have submitted as this thing after we
+                    // snag the uid first since it could differ between systems; name won't tho
+                    $query = array(
+                      'name' => $GLOBALS['user']->name,
+                      'full' => 0,
+                    );
+                    $response = _cis_connection_query($query, 'user', 'json', 'GET', $code['tool'], $instance);
+                    // see if there's a user with that name in the other system
+                    if (isset($response['list'][0])) {
+                      // snag the uid from the response which is resource id
+                      $rem_uid = $response['list'][0]['id'];
+                      // ask for any submission of this entity bundle type for their user name
+                      $query = array(
+                        'author' => $rem_uid,
+                        'type' => $code['submit'],
+                        $code['submit_reference'] => $item[$code['entity_key']],
+                        'full' => 0,
+                      );
+                      // this call is not cached, ever.
+                      $response = _cis_connection_query($query, $code['entity_type'], 'json', 'GET', $code['tool'], $instance, FALSE);
+                      $link = _cis_connector_format_address($settings, $instance, 'front');
+                      // see if we got anything, if we did this means they submitted it
+                      // so we should provide a link to the resource they submitted
+                      // if we don't then that means we need to present a for the submission modal
+                      if (isset($response['list'][0])) {
+                        $link = _cis_connector_real_address($response['list'][0]['uri'], $code['tool']);
+                        _cis_filter_attach_modal();
+                        // present a modal for them to submit this thing
+                        //$result = ctools_modal_text_button(t('View your submission for @name', array('@name' => $item['title'])), $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll');
+                        $result = '<div class="cis-filter-activity-item icon-studio-black icon-' . $code['tool'] . '-black">' . l(t('View your submission for !name', array('!name' => html_entity_decode($item['title']))), $link) . '</div>';
+                      }
+                      else {
+                        $link .= $code['entity_type'] . '/add/cle-submission?' . $code['submit_reference'] . '=' . $item[$code['entity_key']];
+                        $result = '<div class="cis-filter-activity-item icon-studio-black icon-' . $code['tool'] . '-black">' . l(t('Submit !name', array('!name' => html_entity_decode($item['title']))), $link) . '</div>';
+                        _cis_filter_attach_modal();
+
+                        // present a modal for them to submit this thing
+                        //$result = ctools_modal_text_button(t('Submit @name', array('@name' => $item['title'])), $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll');
+                      }
+                    }
+                  }
+                }
+              }
+              else {
+                $result = '';
+                drupal_set_message(t('Submission target doesn\'t exist in remote'), 'error', FALSE);
+              }
+            }
+            else {
+              $result = '';
+              drupal_set_message(t('This section doesn\'t exist in remote'), 'error', FALSE);
+            }
+            // ensure we were able to find the shortcode item target
+            if (!$target_found) {
+              $result = '';
+              drupal_set_message(t('Submission target doesn\'t exist in remote'), 'error', FALSE);
             }
           break;
           // we got a token but didn't understand how to render, bail
@@ -210,4 +302,36 @@ function _cis_filter_iframe_render($link, $code) {
   else {
     return '<iframe src="' . $link . 'cis-find-tag/' . $code['entity_type'] . '/' . $code['item'] . '" width="' . $width . '" height="' . $height . '"></iframe>';
   }
+}
+
+/**
+ * Callback to attach modal
+ */
+function _cis_filter_attach_modal() {
+  // Include the CTools tools that we need.
+  ctools_include('ajax');
+  ctools_include('modal');
+  // Add CTools' javascript to the page.
+  ctools_modal_add_js();
+  // Create our own javascript that will be used to theme a modal.
+  $cis_modal = array(
+    'cis-filter-modal' => array(
+      'modalSize' => array(
+        'type' => 'scale',
+      ),
+      'modalOptions' => array(
+        'opacity' => .4,
+        'background-color' => '#DDDDFF',
+      ),
+      'animation' => 'fadeIn',
+      'modalTheme' => 'cis_filter_modal',
+      'throbber' => theme('image', array('path' => ctools_image_path('throbber.gif', 'cis_filter'), 'alt' => t('Loading...'), 'title' => t('Loading'))),
+      'closeImage' => theme('image', array('path' => ctools_image_path('icon-close-window.png', 'cis_filter'), 'alt' => t('Close window'), 'title' => t('Close window'), 'class' => array('disable-scroll'))),
+    ),
+    'cisFilterToken' => drupal_get_token(),
+  );
+  // Add the settings array defined above to Drupal 7's JS settings:
+  drupal_add_js($cis_modal, 'setting');
+  ctools_add_js('cis_filter', 'cis_filter');
+  ctools_add_css('cis_filter', 'cis_filter');
 }

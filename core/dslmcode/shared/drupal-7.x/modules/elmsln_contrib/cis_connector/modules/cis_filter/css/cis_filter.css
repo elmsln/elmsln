@@ -1,0 +1,10 @@
+.cis-filter-activity-item {
+  float: none;
+  max-width: 100%;
+  margin: 1rem auto;
+  padding-left: 8rem;
+  height: 5em;
+  font-size: 1.5rem;
+  line-height: 5em;
+  background-color: #ffcc66;
+}
