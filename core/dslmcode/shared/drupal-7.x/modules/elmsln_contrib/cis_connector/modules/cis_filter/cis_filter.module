@@ -6,6 +6,21 @@
 define('CIS_FILTER_INVALID', '-invalid call-');
 
 /**
+ * Implements hook_menu().
+ */
+function cis_filter_menu() {
+  $items['cis/service/render/%ctools_js/%/%/%/%'] = array(
+      'title' => 'Service interaction display',
+      'page arguments' => array(3, 4, 5, 6, 7),
+      'page callback' => '_cis_filter_modal_page',
+      'access arguments' => array('access content'),
+      'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_filter_info().
  */
 function cis_filter_filter_info() {
@@ -334,4 +349,33 @@ function _cis_filter_attach_modal() {
   drupal_add_js($cis_modal, 'setting');
   ctools_add_js('cis_filter', 'cis_filter');
   ctools_add_css('cis_filter', 'cis_filter');
+}
+
+/**
+ * A modal static page callback.
+ * @param $js
+ *   boolean CTools determination whether the user's browser is javascript enabled.
+ * @param $nid
+ *   string The node ID of passed as an argument from the hook_menu() path
+ * @return
+ *   string The contents of the node, that will fill the modal window.
+ */
+function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL, $a3 = NULL) {
+  // @todo verify that path will work and then open it up in an iframe
+  // nothing fancy about this for now; close when it's been submitted / url changes
+  // render interface in such a way that it hides all the crap we don't care about
+  if ($tool == NULL) {
+    return t('No tool was sent to query');
+  }
+  if ($a1 == NULL) {
+    return t('No address was sent to render');
+  }
+  if ($js) {
+    // Required includes for ctools to work:
+    ctools_include('modal');
+    ctools_include('ajax');
+  }
+  // @todo turn tool into an address, then append a1-3 for node/add/whatever or node/123 style addresses
+  $contents = render(node_view($node, 'gradebook_viewer'));
+  return ctools_modal_render($node->title, $contents) ;
 }
