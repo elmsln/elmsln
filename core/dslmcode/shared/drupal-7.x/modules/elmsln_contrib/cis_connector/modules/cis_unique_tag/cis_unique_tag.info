@@ -1,8 +1,5 @@
 name = CIS unique tag
-description = Provides path and field base for looking up items based on tag
+description = Provides path for looking up items based on a tag
 core = 7.x
 package = CIS Connector
-dependencies[] = features
 dependencies[] = text
-features[features_api][] = api:1
-features[field_base][] = field_cis_tag
