@@ -239,35 +239,6 @@ function cle_gradebook_ux_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_logistics|node|cle_assignment|gradebook_viewer';
-  $field_group->group_name = 'group_logistics';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'cle_assignment';
-  $field_group->mode = 'gradebook_viewer';
-  $field_group->parent_name = '';
-  $field_group->data = array(
-    'label' => 'Logistics',
-    'weight' => '1',
-    'children' => array(
-      0 => 'field_visibility',
-      1 => 'field_cle_assign_depend',
-      2 => 'field_cle_require_submission',
-    ),
-    'format_type' => 'fieldset',
-    'format_settings' => array(
-      'label' => 'Logistics',
-      'instance_settings' => array(
-        'classes' => 'group-logistics field-group-fieldset',
-        'description' => '',
-      ),
-      'formatter' => 'collapsed',
-    ),
-  );
-  $export['group_logistics|node|cle_assignment|gradebook_viewer'] = $field_group;
-
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
   $field_group->identifier = 'group_media|node|cle_submission|gradebook_viewer';
   $field_group->group_name = 'group_media';
   $field_group->entity_type = 'node';

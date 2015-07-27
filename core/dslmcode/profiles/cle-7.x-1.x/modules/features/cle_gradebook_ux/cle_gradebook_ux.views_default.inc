@@ -65,7 +65,7 @@ function cle_gradebook_ux_views_default_views() {
   $handler->display->display_options['style_options']['relationship_creation_bundle'] = array(
     'reverse_field_cle_associated_submission_assessment_entity' => 'submission_evaluation',
   );
-  /* Relationship: Entity Reference: Referencing entity */
+  /* Relationship: Broken/missing handler */
   $handler->display->display_options['relationships']['reverse_field_cle_associated_submission_assessment_entity']['id'] = 'reverse_field_cle_associated_submission_assessment_entity';
   $handler->display->display_options['relationships']['reverse_field_cle_associated_submission_assessment_entity']['table'] = 'node';
   $handler->display->display_options['relationships']['reverse_field_cle_associated_submission_assessment_entity']['field'] = 'reverse_field_cle_associated_submission_assessment_entity';
@@ -81,7 +81,7 @@ function cle_gradebook_ux_views_default_views() {
   $handler->display->display_options['relationships']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
   $handler->display->display_options['relationships']['field_assignment_target_id']['label'] = 'Assignment';
   $handler->display->display_options['relationships']['field_assignment_target_id']['required'] = TRUE;
-  /* Field: Assessment Entity: Point value (editable) */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_cle_point_value_editable']['id'] = 'field_cle_point_value_editable';
   $handler->display->display_options['fields']['field_cle_point_value_editable']['table'] = 'field_data_field_cle_point_value';
   $handler->display->display_options['fields']['field_cle_point_value_editable']['field'] = 'field_cle_point_value_editable';
@@ -91,14 +91,6 @@ function cle_gradebook_ux_views_default_views() {
   $handler->display->display_options['fields']['field_cle_point_value_editable']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_cle_point_value_editable']['element_wrapper_type'] = '0';
   $handler->display->display_options['fields']['field_cle_point_value_editable']['element_default_classes'] = FALSE;
-  $handler->display->display_options['fields']['field_cle_point_value_editable']['settings'] = array(
-    'thousand_separator' => ' ',
-    'prefix_suffix' => 1,
-  );
-  $handler->display->display_options['fields']['field_cle_point_value_editable']['field_api_classes'] = TRUE;
-  $handler->display->display_options['fields']['field_cle_point_value_editable']['widget_type'] = '0';
-  $handler->display->display_options['fields']['field_cle_point_value_editable']['suppress_label'] = 1;
-  $handler->display->display_options['fields']['field_cle_point_value_editable']['suppress_description'] = 1;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -111,7 +103,7 @@ function cle_gradebook_ux_views_default_views() {
   $handler->display->display_options['fields']['name']['table'] = 'users';
   $handler->display->display_options['fields']['name']['field'] = 'name';
   $handler->display->display_options['fields']['name']['relationship'] = 'uid';
-  /* Field: Assessment Entity: Status (editable) */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_cle_status_editable']['id'] = 'field_cle_status_editable';
   $handler->display->display_options['fields']['field_cle_status_editable']['table'] = 'field_data_field_cle_status';
   $handler->display->display_options['fields']['field_cle_status_editable']['field'] = 'field_cle_status_editable';
@@ -121,21 +113,11 @@ function cle_gradebook_ux_views_default_views() {
   $handler->display->display_options['fields']['field_cle_status_editable']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_cle_status_editable']['element_wrapper_type'] = '0';
   $handler->display->display_options['fields']['field_cle_status_editable']['element_default_classes'] = FALSE;
-  $handler->display->display_options['fields']['field_cle_status_editable']['field_api_classes'] = TRUE;
-  $handler->display->display_options['fields']['field_cle_status_editable']['widget_type'] = '0';
-  $handler->display->display_options['fields']['field_cle_status_editable']['suppress_label'] = 1;
-  $handler->display->display_options['fields']['field_cle_status_editable']['suppress_description'] = 1;
-  /* Field: Assessment Entity: Associated Submission (editable) */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_cle_associated_submission_editable']['id'] = 'field_cle_associated_submission_editable';
   $handler->display->display_options['fields']['field_cle_associated_submission_editable']['table'] = 'field_data_field_cle_associated_submission';
   $handler->display->display_options['fields']['field_cle_associated_submission_editable']['field'] = 'field_cle_associated_submission_editable';
   $handler->display->display_options['fields']['field_cle_associated_submission_editable']['relationship'] = 'reverse_field_cle_associated_submission_assessment_entity';
-  $handler->display->display_options['fields']['field_cle_associated_submission_editable']['settings'] = array(
-    'link' => 0,
-  );
-  $handler->display->display_options['fields']['field_cle_associated_submission_editable']['widget_type'] = '0';
-  $handler->display->display_options['fields']['field_cle_associated_submission_editable']['suppress_label'] = 1;
-  $handler->display->display_options['fields']['field_cle_associated_submission_editable']['suppress_description'] = 1;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
@@ -177,7 +159,7 @@ function cle_gradebook_ux_views_default_views() {
     6 => 0,
     10 => 0,
   );
-  /* Filter criterion: Assessment Entity: Status (field_cle_status) */
+  /* Filter criterion: Broken/missing handler */
   $handler->display->display_options['filters']['field_cle_status_value']['id'] = 'field_cle_status_value';
   $handler->display->display_options['filters']['field_cle_status_value']['table'] = 'field_data_field_cle_status';
   $handler->display->display_options['filters']['field_cle_status_value']['field'] = 'field_cle_status_value';
