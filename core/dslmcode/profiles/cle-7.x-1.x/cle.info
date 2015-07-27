@@ -167,6 +167,7 @@ dependencies[] = votingapi
 ; Features
 dependencies[] = cle_cis_ux
 dependencies[] = cle_assignment
+dependencies[] = cle_section_assigmement
 dependencies[] = cle_submission
 dependencies[] = cle_gradebook
 dependencies[] = cle_gradebook_ux
