@@ -180,6 +180,12 @@ function cis_tokens_token_info() {
         'description' => t("Section ID of the section currently in context"),
       ),
     ),
+    'elmsln_section_data' => array(
+      'section_context' => array(
+        'name' => t("Section Context"),
+        'description' => t("Section ID of the section currently in context"),
+      ),
+    ),
   );
   // dynamically generate the global tokens based on those defined globally
   // as well as per the section. Section always takes priority in this value
