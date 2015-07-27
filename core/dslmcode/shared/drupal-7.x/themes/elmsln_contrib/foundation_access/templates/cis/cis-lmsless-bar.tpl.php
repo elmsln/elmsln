@@ -27,7 +27,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['help']) : ?>
           <li>
-            <a href="#" class="etb-nav_item_service_btn etb-icon help-icon middle-align-wrap" data-reveal-id="help-nav-modal">
+            <a href="<?php print $help_link;?>" class="etb-nav_item_service_btn etb-icon help-icon middle-align-wrap">
               <div class="icon-help-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Help'); ?></span>
             </a>
@@ -35,7 +35,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['syllabus']) : ?>
           <li class="divider-left">
-            <a href="#" class="etb-nav_item_service_btn etb-icon info-icon middle-align-wrap" data-reveal-id="info-nav-modal">
+            <a href="<?php print $syllabus_link;?>" class="etb-nav_item_service_btn etb-icon info-icon middle-align-wrap">
               <div class="icon-info-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Syllabus'); ?></span>
             </a>
@@ -80,65 +80,6 @@
               <h2><?php print t('Profile'); ?></h2>
               <span><?php print $username; ?></span>
               <?php endif; ?>
-            <a class="close-reveal-modal">&#215;</a>
-         </div>
-
-         <div id="info-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
-            <h1><?php print t('Syllabus'); ?></h1>
-              <hr></hr>
-              <div class="minimal-edit-buttons in-modal">
-                <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-syllabus-edit-menu-2" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-                  <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-                </a>
-              </div>
-              <!-- Menu Item Dropdowns -->
-              <div id="eco-syllabus-edit-menu-2" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-                <ul class="button-group">
-                  <li><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal">View another section</a></li>
-                  <li><?php print l(t('Download Syllabus'),'syllabus/download'); ?></li>
-                </ul>
-              </div>
-              <!-- End Menu Item Dropdowns -->
-              <h2><?php print t('Section'); ?> (<span class="section-id"><?php print $section; ?></span>)</h2>
-              <?php if (!empty($main_menu)) : print drupal_render($main_menu); endif; ?>
-            <a class="close-reveal-modal">&#215;</a>
-         </div>
-
-         <div id="help-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
-            <h1><?php print t('Help'); ?></h1>
-              <hr></hr>
-              <div class="minimal-edit-buttons in-modal">
-                <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-help-edit-menu-1" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-                  <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-                </a>
-              </div>
-              <!-- Menu Item Dropdowns -->
-              <div id="eco-help-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-                <ul class="button-group">
-                  <li><a href="#"><?php print t('Edit contact'); ?></a></li>
-                </ul>
-              </div>
-              <!-- End Menu Item Dropdowns -->
-              <h2 class"etb-nav-section-label"><?php print t('Contact'); ?></h2>
-              <?php print $contact_block; ?>
-              <?php if (isset($tech_support['body'])) : ?>
-                <h2 class"etb-nav-section-label"><?php print $tech_support['title']; ?></h2>
-                <?php print $tech_support['body']; ?>
-              <?php endif; ?>
-              <!--<a href="#" class="etb-modal-icon teacher-icon row">
-                <div class="icon-teacher-black etb-modal-icons"></div>
-                <span><?php print t('E-Mail your instructor'); ?></span>
-              </a>-->
-              <hr></hr>
-              <h2 class"etb-nav-section-label"><?php print t('Technical Issues'); ?></h2>
-              <a href="<?php print $help_link; ?>" class="etb-nav_item_service_btn etb-modal-icon support-icon row">
-                <div class="icon-support-black etb-modal-icons"></div>
-                <span><?php print t('Help page');?></span>
-              </a>
-              <a href="<?php print $tour; ?>" class="etb-nav_item_service_btn etb-modal-icon tour-icon row">
-                <div class="icon-tour-black etb-modal-icons"></div>
-                <span><?php print t('Take a tour'); ?></span>
-              </a>
             <a class="close-reveal-modal">&#215;</a>
          </div>
         </section>
