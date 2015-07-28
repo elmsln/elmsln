@@ -5,3 +5,15 @@
  */
 
 include_once 'editorial_journal_entry.features.inc';
+
+
+/**
+ * Implements hook_node_view().
+ */
+function editorial_journal_entry_node_view($node, $view_mode, $langcode) {
+  // prevent accessing editorial-journal-entry node that don't belong to the user
+  if ($node->type == 'editorial_journal_entry' && $node->uid != $GLOBALS['user']->uid && !_cis_connector_role_groupings(array('staff','teacher'), $GLOBALS['user'])) {
+    drupal_set_message(t('You can\'t access this journal entry, it doesn\'t belong to you.'), 'warning');
+    drupal_goto('<front>');
+  }
+}
