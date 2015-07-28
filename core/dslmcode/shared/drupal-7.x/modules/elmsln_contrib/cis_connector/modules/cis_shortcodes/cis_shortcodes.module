@@ -18,67 +18,112 @@ function cis_shortcodes_permission() {
 }
 
 /**
- * Implements hook_entity_view().
+ * Implements hook_block_info().
  */
-function cis_shortcodes_entity_view($entity, $type, $view_mode, $langcode) {
-  $links = array();
-  // only add embed methods on full view with access
-  if ($view_mode == 'full' && user_access('view cis shortcode')) {
-    // pick a nice default title for common entity types
-    $title = '';
-    switch ($type) {
-      case 'node':
-        $title = $entity->title;
-      break;
-      case 'user':
-      case 'taxonomy_term':
-        $title = $entity->name;
-      break;
-    }
-    // load info so we know what the key id is
-    $type_info = entity_get_info($type);
-    // build properties array for rendering
-    $properties = array(
-      'rev' => CIS_SHORTCODES_API_REV,
-      'tool' => variable_get('install_profile', ''),
-      'item' => $entity->{$type_info['entity keys']['id']},
+function cis_shortcodes_block_info() {
+  $blocks['cis_shortcodes_block'] = array(
+    'info' => t('CIS Shortcodes'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function cis_shortcodes_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'cis_shortcodes_block':
+      $block['subject'] = '<none>';
+      // most common case for these, a node but we can embed other things
+      if ($entity = menu_get_object('node')) {
+        $field = _cis_shortcode_render_codes($entity, 'node');
+      }
+      // ugh; special support for harmony_thread
+      elseif ($entity = menu_get_object('harmony_thread')) {
+        $field = _cis_shortcode_render_codes($entity, 'harmony_thread');
+      }
+      // ugh; special support for harmony_post
+      elseif ($entity = menu_get_object('harmony_post')) {
+        $field = _cis_shortcode_render_codes($entity, 'harmony_post');
+      }
+      // see if we have some share fields to render
+      if (isset($field)) {
+        $block['content'] = drupal_render($field['cis_shortcodes']);
+      }
+      else {
+        $block['content'] = '';
+      }
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Callback to render possible embed codes from a given item
+ * @param  [type] $entity [description]
+ * @param  [type] $type   [description]
+ * @return [type]         [description]
+ */
+function _cis_shortcode_render_codes($entity, $type) {
+  // pick a nice default title for common entity types
+  $title = '';
+  switch ($type) {
+    case 'node':
+      $title = $entity->title;
+    break;
+    case 'user':
+    case 'taxonomy_term':
+      $title = $entity->name;
+    break;
+  }
+  // load info so we know what the key id is
+  $type_info = entity_get_info($type);
+  // build properties array for rendering
+  $properties = array(
+    'rev' => CIS_SHORTCODES_API_REV,
+    'tool' => variable_get('install_profile', ''),
+    'item' => $entity->{$type_info['entity keys']['id']},
+  );
+  // only append type for non-node entities
+  if ($type != 'node') {
+    $properties['entity_type'] = $type;
+  }
+  // establish the fieldset container for shortcodes
+  $field['cis_shortcodes'] = array(
+    '#type' => 'fieldset',
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+    '#title' => t('Short Codes to embed'),
+    '#weight' => -10,
+  );
+  if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
+    $field['cis_shortcodes']['cis_shortcodes_embed'] = array(
+      '#title' => t('Shortcode direct iframe'),
+      '#attributes' => array('class' => array('cis_shortcodes_embed')),
+      '#value' => _cis_shortcodes_build_code($properties),
+      '#type' => 'textfield',
+      '#pre_render' => array('_cis_shortcodes_add_js'),
+      '#weight' => 1,
     );
-    // only append type for non-node entities
-    if ($type != 'node') {
-      $properties['entity_type'] = $type;
-    }
-    // establish the fieldset container for shortcodes
-    $field['cis_shortcodes'] = array(
-      '#type' => 'fieldset',
-      '#collapsed' => FALSE,
-      '#collapsible' => TRUE,
-      '#title' => t('Short Codes to embed'),
-      '#weight' => -10,
-    );
-    if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
-      $field['cis_shortcodes']['cis_shortcodes_embed'] = array(
-        '#title' => t('Shortcode direct iframe'),
-        '#attributes' => array('class' => array('cis_shortcodes_embed')),
-        '#value' => _cis_shortcodes_build_code($properties),
-        '#type' => 'textfield',
-        '#pre_render' => array('_cis_shortcodes_add_js'),
-        '#weight' => 1,
-      );
-    }
-    $properties['render'] = 'link';
-    if (isset($type_info['bundle keys']['bundle']) && !empty($entity->{$type_info['bundle keys']['bundle']})) {
-      $field_list = field_info_instances($type, $entity->{$type_info['bundle keys']['bundle']});
-    }
-    else if (isset($type_info['entity keys']['bundle']) && !empty($entity->{$type_info['entity keys']['bundle']})){
-      $field_list = field_info_instances($type, $entity->{$type_info['entity keys']['bundle']});
-    }
-    else {
-      // skip this, we don't have info about this type
-      $field_list = array();
-    }
-    foreach ($field_list as $fname => $fproperties) {
-      // check for things with uri's, if first item is, all are
-      if (isset($entity->{$fname}) && isset($entity->{$fname}['und'][0]['uri'])) {
+  }
+  $properties['render'] = 'link';
+  if (isset($type_info['bundle keys']['bundle']) && !empty($entity->{$type_info['bundle keys']['bundle']})) {
+    $field_list = field_info_instances($type, $entity->{$type_info['bundle keys']['bundle']});
+  }
+  else if (isset($type_info['entity keys']['bundle']) && !empty($entity->{$type_info['entity keys']['bundle']})){
+    $field_list = field_info_instances($type, $entity->{$type_info['entity keys']['bundle']});
+  }
+  else {
+    // skip this, we don't have info about this type
+    $field_list = array();
+  }
+  foreach ($field_list as $fname => $fproperties) {
+    // check for things with uri's, if first item is, all are
+    if (isset($entity->{$fname})) {
+      if (isset($entity->{$fname}['und'][0]['uri'])) {
         foreach ($entity->{$fname}['und'] as $item_key => $item) {
           $properties['field'] = $fname;
           if ($type == 'node') {
@@ -125,47 +170,56 @@ function cis_shortcodes_entity_view($entity, $type, $view_mode, $langcode) {
           }
         }
       }
+      // allow for embed generated direct to any field in this object
+      elseif (isset($entity->{$fname}['und'][0]['value'])) {
+        foreach ($entity->{$fname}['und'] as $item_key => $item) {
+          $properties['field'] = $fname;
+          $properties['render'] = 'value';
+          $properties['delta'] = $item_key;
+          $field['cis_shortcodes']['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
+            '#title' => t('@field field: value embed', array('@field' => $fproperties['label'])),
+            '#attributes' => array('class' => array('cis_shortcodes_embed')),
+            '#value' => _cis_shortcodes_build_code($properties),
+            '#type' => 'textfield',
+            '#weight' => 3,
+          );
+        }
+      }
     }
-    // check for unique tag capabilities
-    if (isset($entity->field_cis_tag) && isset($entity->field_cis_tag['und'])) {
-      // reset property array
-      $properties = array(
-        'rev' => CIS_SHORTCODES_API_REV,
-        'tool' => variable_get('install_profile', ''),
-        'item' => $entity->{$type_info['entity keys']['id']},
-      );
-      // only append type for non-node entities
-      if ($type != 'node') {
-        $properties['entity_type'] = $type;
-      }
-      $properties['item'] = $entity->field_cis_tag['und'][0]['value'];
-      $properties['item_type'] = 'tag';
-      if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
-        $field['cis_shortcodes']['cis_shortcodes_tag_iframe'] = array(
-          '#title' => t('Shortcode tagged iframe'),
-          '#attributes' => array('class' => array('cis_shortcodes_embed')),
-          '#value' => _cis_shortcodes_build_code($properties),
-          '#type' => 'textfield',
-          '#weight' => 2,
-        );
-      }
-      $properties['render'] = 'link';
-      $field['cis_shortcodes']['cis_shortcodes_tag_link'] = array(
-        '#title' => t('Shortcode tagged link'),
+  }
+  // special case for the unique tag capability
+  if (isset($entity->field_cis_tag) && isset($entity->field_cis_tag['und'])) {
+    // reset property array
+    $properties = array(
+      'rev' => CIS_SHORTCODES_API_REV,
+      'tool' => variable_get('install_profile', ''),
+      'item' => $entity->{$type_info['entity keys']['id']},
+    );
+    // only append type for non-node entities
+    if ($type != 'node') {
+      $properties['entity_type'] = $type;
+    }
+    $properties['item'] = $entity->field_cis_tag['und'][0]['value'];
+    $properties['item_type'] = 'tag';
+    if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
+      $field['cis_shortcodes']['cis_shortcodes_tag_iframe'] = array(
+        '#title' => t('Shortcode tagged iframe'),
         '#attributes' => array('class' => array('cis_shortcodes_embed')),
         '#value' => _cis_shortcodes_build_code($properties),
         '#type' => 'textfield',
-        '#weight' => 4,
+        '#weight' => 2,
       );
     }
-    // only render if we actually have data to display
-    if (count($field['cis_shortcodes']) > 5) {
-      $entity->content['cis_shortcodes'] = array(
-        '#markup' => drupal_render($field),
-        '#weight' => 100,
-      );
-    }
+    $properties['render'] = 'link';
+    $field['cis_shortcodes']['cis_shortcodes_tag_link'] = array(
+      '#title' => t('Shortcode tagged link'),
+      '#attributes' => array('class' => array('cis_shortcodes_embed')),
+      '#value' => _cis_shortcodes_build_code($properties),
+      '#type' => 'textfield',
+      '#weight' => 4,
+    );
   }
+  return $field;
 }
 
 /**

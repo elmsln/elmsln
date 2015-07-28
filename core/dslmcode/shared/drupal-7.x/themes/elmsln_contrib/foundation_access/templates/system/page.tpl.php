@@ -55,13 +55,28 @@
               <li class="toolbar-menu-icon"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-dropdown="middle-section-buttons" aria-controls="middle-section-buttons" aria-expanded="false">
                 <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
               </a></li>
-              <li class="toolbar-menu-icon divider-left"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-reveal-id="page-tools-menu" aria-controls="accessibility-drop" aria-expanded="false">
-                <div class="icon-access-black off-canvas-toolbar-item-icon"></div>
-              </a></li>
+              <?php if (isset($cis_shortcodes)) : ?>
+                <li class="toolbar-menu-icon divider-left"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-reveal-id="page-tools-menu" aria-controls="cis-shortcodes-drop" aria-expanded="false">
+                  <div class="icon-collab-black off-canvas-toolbar-item-icon"></div>
+                </a></li>
+              <?php endif; ?>
+              <?php if (isset($speedreader) || isset($mespeak)) : ?>
+                <li class="toolbar-menu-icon divider-left"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-reveal-id="page-tools-menu" aria-controls="accessibility-drop" aria-expanded="false">
+                  <div class="icon-access-black off-canvas-toolbar-item-icon"></div>
+                </a></li>
+              <?php endif; ?>
           <?php endif; ?>
           </section>
           <?php print render($page['cis_appbar_second']); ?>
-          <!-- Modal -->
+          <!-- Share Modal -->
+          <?php if (isset($cis_shortcodes)) : ?>
+          <div id="page-tools-menu" class="reveal-modal" data-reveal aria-labelledby="Share" aria-hidden="true" role="dialog">
+            <h2 id="Share"><?php print t('Share') ?></h2>
+            <?php print $cis_shortcodes; ?>
+          </div>
+          <?php endif; ?>
+          <!-- /accessibility dropdown -->
+          <!-- Accessibility Modal -->
           <?php if (isset($speedreader) || isset($mespeak)) : ?>
           <div id="page-tools-menu" class="reveal-modal" data-reveal aria-labelledby="Accessibility" aria-hidden="true" role="dialog">
             <h2 id="Accessibility"><?php print t('Accessibility') ?></h2>
@@ -73,7 +88,7 @@
             <?php endif; ?>
           </div>
           <?php endif; ?>
-            <!-- /accessibility dropdown -->
+          <!-- /accessibility dropdown -->
         </nav>
 
         <!-- Middle Section Dropdown Page Tabs -->

@@ -44,7 +44,14 @@ function foundation_access_preprocess_page(&$variables) {
   if (module_exists('cis_lmsless')) {
     $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
   }
-  if (_cis_connector_role_grouping('staff') || _cis_connector_role_grouping('teacher')) {
+  if (module_exists('cis_shortcodes')) {
+    $block = cis_shortcodes_block_view('cis_shortcodes_block');
+    if (!empty($block['content'])) {
+      $variables['cis_shortcodes'] = $block['content'];
+    }
+  }
+  // show staff / instructors the course tools menu
+  if (_cis_connector_role_groupings(array('staff','teacher'))) {
     $variables['tabs_extras'][100][] = '<hr>';
     $variables['tabs_extras'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
   }
