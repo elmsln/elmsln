@@ -15,4 +15,6 @@ function editorial_install() {
   _elmsln_installer_admin_role();
   // standard clean up
   _elmsln_installer_post_install_cleanup();
+  // set front page to the my posts view
+  variable_set('site_frontpage', 'my-blog-posts');
 }
