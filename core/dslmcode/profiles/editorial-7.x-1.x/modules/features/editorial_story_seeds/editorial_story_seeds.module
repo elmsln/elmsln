@@ -5,3 +5,51 @@
  */
 
 include_once 'editorial_story_seeds.features.inc';
+
+/**
+ * Implements hook_node_prepare().
+ */
+function editorial_story_seeds_node_prepare($node) {
+  if (arg(1) == 'add' && $node->type == 'editorial_story_seeds') {
+    $query = new EntityFieldQuery;
+    $query->entityCondition('entity_type', 'node')
+          ->entityCondition('bundle', 'editorial_story_seeds')
+          ->propertyCondition('uid', $GLOBALS['user']->uid , '=');
+    $result = $query->execute();
+    // if we have any results then force them over to this node
+    // this ensures they only have 1 connonical source of story seeds
+    if (isset($result['node'])) {
+      $tmp = array_pop($result['node']);
+      drupal_goto('node/' . $tmp->nid . '/edit');
+    }
+  }
+}
+
+/**
+ * Implements hook_user_insert().
+ */
+function editorial_story_seeds_user_insert(&$edit, $account, $category) {
+  $query = new EntityFieldQuery;
+  $query->entityCondition('entity_type', 'node')
+        ->entityCondition('bundle', 'editorial_story_seeds')
+        ->propertyCondition('uid', $account->uid , '=');
+  $result = $query->execute();
+  // verify that user doesn't have story seeds associated with them
+  // this shouldn't be possible but best to check
+  if (!isset($result['node'])) {
+    // on user insert we need to generate an associated story seeds type
+    $node = new stdClass();
+    $node->type = 'editorial_story_seeds';
+    node_object_prepare($node);
+    $node->language = LANGUAGE_NONE;
+    $node->uid = $account->uid;
+    $node->status = 1;
+    $node->promote = 0;
+    $node->revision = 1;
+    $node->title = t('@name story seeds', array('@name' => $account->name));
+    // build out via submit then save
+    if($node = node_submit($node)) {
+      node_save($node);
+    }
+  }
+}
