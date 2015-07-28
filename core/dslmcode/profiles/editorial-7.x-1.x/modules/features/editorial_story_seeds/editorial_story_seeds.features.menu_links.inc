@@ -15,7 +15,7 @@ function editorial_story_seeds_menu_default_menu_links() {
     'menu_name' => 'menu-cis-add',
     'link_path' => 'node/add/editorial-story-seeds',
     'router_path' => 'node/add/editorial-story-seeds',
-    'link_title' => 'Story seeds',
+    'link_title' => 'Story Seeds',
     'options' => array(
       'attributes' => array(),
       'item_attributes' => array(
@@ -30,12 +30,12 @@ function editorial_story_seeds_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => 0,
+    'weight' => -49,
     'customized' => 1,
   );
   // Translatables
   // Included for use with string extractors like potx.
-  t('Story seeds');
+  t('Story Seeds');
 
 
   return $menu_links;

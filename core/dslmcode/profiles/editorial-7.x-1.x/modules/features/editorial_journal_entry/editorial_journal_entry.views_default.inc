@@ -1,21 +1,21 @@
 <?php
 /**
  * @file
- * editorial_displays.views_default.inc
+ * editorial_journal_entry.views_default.inc
  */
 
 /**
  * Implements hook_views_default_views().
  */
-function editorial_displays_views_default_views() {
+function editorial_journal_entry_views_default_views() {
   $export = array();
 
   $view = new view();
-  $view->name = 'editorial_my_posts';
+  $view->name = 'editorial_journal_entries';
   $view->description = '';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'editorial my posts';
+  $view->human_name = 'Editorial journal entries';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -65,41 +65,19 @@ function editorial_displays_views_default_views() {
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
-    'editorial_blog_post' => 'editorial_blog_post',
+    'editorial_journal_entry' => 'editorial_journal_entry',
   );
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
-  $handler->display->display_options['path'] = 'editorial/blog-posts/my';
+  $handler->display->display_options['path'] = 'editorial/my-journal';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'My Blog posts';
-  $handler->display->display_options['menu']['weight'] = '-10';
+  $handler->display->display_options['menu']['title'] = 'My Journal';
+  $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['name'] = 'menu-editorial-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: Page */
-  $handler = $view->new_display('page', 'Page', 'page_1');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Class Blog posts';
-  $handler->display->display_options['defaults']['arguments'] = FALSE;
-  /* Contextual filter: Content: Section (og_group_ref) */
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['table'] = 'og_membership';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['default_argument_type'] = 'og_user_groups';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['summary_options']['items_per_page'] = '25';
-  $handler->display->display_options['path'] = 'editorial/blog-posts/class';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Classmates blogs';
-  $handler->display->display_options['menu']['weight'] = '-9';
-  $handler->display->display_options['menu']['name'] = 'menu-editorial-navigation';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-  $export['editorial_my_posts'] = $view;
+  $export['editorial_journal_entries'] = $view;
 
   return $export;
 }
