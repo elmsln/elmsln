@@ -128,4 +128,5 @@ dependencies[] = editorial_journal_entry
 dependencies[] = editorial_story_seeds
 dependencies[] = editorial_displays
 dependencies[] = editorial_ux
+dependencies[] = editorial_perms
 
