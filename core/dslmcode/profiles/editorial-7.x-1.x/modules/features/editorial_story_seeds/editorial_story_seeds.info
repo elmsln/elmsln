@@ -24,7 +24,6 @@ features[defaultconfig][] = user_default_permissions:edit own editorial_story_se
 features[features_api][] = api:2
 features[field_base][] = field_seed
 features[field_instance][] = node-editorial_story_seeds-field_seed
-features[menu_links][] = menu-cis-add_story-seeds:node/add/editorial-story-seeds
 features[node][] = editorial_story_seeds
 features_exclude[variable][comment_anonymous_editorial_story_seeds] = comment_anonymous_editorial_story_seeds
 features_exclude[variable][comment_default_mode_editorial_story_seeds] = comment_default_mode_editorial_story_seeds
