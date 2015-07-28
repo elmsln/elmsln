@@ -1,0 +1,13 @@
+diff --git a/httprl.install b/httprl.install
+index d7e2963..e2d4f04 100644
+--- a/httprl.install
++++ b/httprl.install
+@@ -177,7 +177,7 @@ function httprl_install_http_test($mode, $blocking = FALSE) {
+       // Setup options array.
+       'options' => array(
+         'blocking' => $blocking,
+-        'timeout' => 7,
++        'timeout' => 1,
+         'max_redirects' => 0,
+         'headers' => $headers,
+       ),
