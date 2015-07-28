@@ -1,8 +1,8 @@
 .cis-filter-activity-item {
   float: none;
   max-width: 100%;
-  margin: 1rem auto;
-  padding-left: 8rem;
+  margin: 2rem auto;
+  padding: 0rem 1rem 0rem 8rem;
   height: 5em;
   font-size: 1.5rem;
   line-height: 5em;

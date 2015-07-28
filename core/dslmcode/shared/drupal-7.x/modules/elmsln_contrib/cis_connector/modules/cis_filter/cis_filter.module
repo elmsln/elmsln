@@ -9,12 +9,11 @@ define('CIS_FILTER_INVALID', '-invalid call-');
  * Implements hook_menu().
  */
 function cis_filter_menu() {
-  $items['cis/service/render/%ctools_js/%/%/%/%'] = array(
-      'title' => 'Service interaction display',
-      'page arguments' => array(3, 4, 5, 6, 7),
-      'page callback' => '_cis_filter_modal_page',
-      'access arguments' => array('access content'),
-      'type' => MENU_NORMAL_ITEM,
+  $items['cis/service/render/%ctools_js/%/%'] = array(
+    'title' => 'Service interaction display',
+    'page arguments' => array(3, 4, 5),
+    'page callback' => '_cis_filter_modal_page',
+    'access arguments' => array('access content'),
   );
 
   return $items;
@@ -168,7 +167,7 @@ function theme_cis_filter_render($vars) {
             //[ciscode|rev=1|tool=cle|entity_bundle=cle_assignment|submit=cle_submission|field_cis_tag=Assignment 4|render=submit|submit_reference=field_assignment|entity_key=nid]
             // look for the section in question
             $response = _cis_connection_query($query, 'node', 'json', 'GET', $code['tool'], $instance);
-            if (isset($response['list'][0])) {
+            if (isset($response['list'])) {
               $rem_section = array_pop($response['list']);
               // check that we have something of the type asked for on the remote section node
               if (!empty($rem_section['field_' . $code['entity_bundle'] . 's'])) {
@@ -190,31 +189,39 @@ function theme_cis_filter_render($vars) {
                       $rem_uid = $response['list'][0]['id'];
                       // ask for any submission of this entity bundle type for their user name
                       $query = array(
-                        'author' => $rem_uid,
+                        $code['author_field'] => $rem_uid,
                         'type' => $code['submit'],
                         $code['submit_reference'] => $item[$code['entity_key']],
                         'full' => 0,
                       );
+                      // ugh
+                      if ($code['submit_type'] == 'harmony_post') {
+                        unset($query['type']);
+                      }
+                      // allow for query endpoint to differ from submit path
+                      if (!isset($code['submit_endpoint'])) {
+                        $code['submit_endpoint'] = $code['submit_type'];
+                      }
                       // this call is not cached, ever.
-                      $response = _cis_connection_query($query, $code['entity_type'], 'json', 'GET', $code['tool'], $instance, FALSE);
-                      $link = _cis_connector_format_address($settings, $instance, 'front');
+                      $response = _cis_connection_query($query, $code['submit_type'], 'json', 'GET', $code['tool'], $instance, FALSE);
                       // see if we got anything, if we did this means they submitted it
                       // so we should provide a link to the resource they submitted
                       // if we don't then that means we need to present a for the submission modal
+                      _cis_filter_attach_modal();
                       if (isset($response['list'][0])) {
-                        $link = _cis_connector_real_address($response['list'][0]['uri'], $code['tool']);
-                        _cis_filter_attach_modal();
-                        // present a modal for them to submit this thing
-                        //$result = ctools_modal_text_button(t('View your submission for @name', array('@name' => $item['title'])), $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll');
-                        $result = '<div class="cis-filter-activity-item icon-studio-black icon-' . $code['tool'] . '-black">' . l(t('View your submission for !name', array('!name' => html_entity_decode($item['title']))), $link) . '</div>';
+                        // double ugh
+                        if ($code['submit_type'] == 'harmony_post') {
+                          $link = 'cis/service/render/1/' . $code['tool'] . '/thread/' . $item[$code['entity_key']] . '#' . $code['submit_endpoint'] . '-' . $response['list'][0]['id'];
+                        }
+                        else {
+                          $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/' . $response['list'][0]['id'];
+                        }
+                        $result = '<div class="cis-filter-activity-item icon-' . $code['tool'] . '-black">' . ctools_modal_text_button(t('View your submission for @name', array('@name' => $item['title'])), $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll') . '</div>';
                       }
                       else {
-                        $link .= $code['entity_type'] . '/add/cle-submission?' . $code['submit_reference'] . '=' . $item[$code['entity_key']];
-                        $result = '<div class="cis-filter-activity-item icon-studio-black icon-' . $code['tool'] . '-black">' . l(t('Submit !name', array('!name' => html_entity_decode($item['title']))), $link) . '</div>';
-                        _cis_filter_attach_modal();
-
+                        $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/add/' . str_replace('_', '-', $code['submit']) . '?' . $code['submit_reference'] . '=' . $item[$code['entity_key']];
                         // present a modal for them to submit this thing
-                        //$result = ctools_modal_text_button(t('Submit @name', array('@name' => $item['title'])), $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll');
+                        $result = '<div class="cis-filter-activity-item icon-' . $code['tool'] . '-black">' . ctools_modal_text_button(t('Submit @name', array('@name' => $item['title'])), $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll') . '</div>';
                       }
                     }
                   }
@@ -370,12 +377,20 @@ function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL
   if ($a1 == NULL) {
     return t('No address was sent to render');
   }
-  if ($js) {
-    // Required includes for ctools to work:
-    ctools_include('modal');
-    ctools_include('ajax');
+  ctools_include('modal');
+  ctools_include('ajax');
+  if ($settings = _cis_connector_build_registry($tool)) {
+    $instance = '/';
+    if (isset($settings['instance']) && $settings['instance']) {
+      $instance = base_path();
+      //test for non-subdomain installation
+      $test = explode('/', $instance);
+      if (count($test) == 4) {
+        $instance = '/' . $test[2] . '/';
+      }
+    }
+    $link = _cis_connector_format_address($settings, $instance, 'front') . $a1 . '/' . $a2 . '/' . $a3 . '?entity_iframe=1';
+    $contents = '<iframe src="' . $link . '" width="100%" height="500px"></iframe>';
   }
-  // @todo turn tool into an address, then append a1-3 for node/add/whatever or node/123 style addresses
-  $contents = render(node_view($node, 'gradebook_viewer'));
-  return ctools_modal_render($node->title, $contents) ;
+  return ctools_modal_render('Submission', $contents) ;
 }
