@@ -6,13 +6,33 @@
  *
  */
 function foundation_access_preprocess_html(&$variables) {
-  $color = theme_get_setting('foundation_access_primary_color');
-  // see if we have something that could be valid hex
-  if (strlen($color) == 6 || strlen($color) == 3) {
-    $color = '#' . $color;
-    $css = ".foundation_access-primary_color{color:$color;} .etb-book h1,.etb-book h2,.etb-book h3,.etb-book h4,.etb-book h5 {color: $color !important;}";
-    drupal_add_css($css, array('type' => 'inline'));
+  // loop through our system specific colors
+  $colors = array('primary', 'secondary', 'required', 'optional');
+  $css = '';
+  foreach ($colors as $current) {
+    $color = theme_get_setting('foundation_access_' . $current . '_color');
+    // see if we have something that could be valid hex
+    if (strlen($color) == 6 || strlen($color) == 3) {
+      $color = '#' . $color;
+      $css .= '.foundation_access-' . $current . '_color{color:$color;}';
+      // specialized additions for each wheel value
+      switch ($current) {
+        case 'primary':
+          $css .= ".etb-book h1,.etb-book h2 {color: $color !important;}";
+        break;
+        case 'secondary':
+          $css .= ".etb-book h3,.etb-book h4,.etb-book h5 {color: $color !important;}";
+        break;
+        case 'required':
+          $css .= "div.textbook_box_required li:hover:before{border-color: $color !important;} div.textbook_box_required li:before {background: $color !important;} div.textbook_box_required { border: 2px solid $color !important;} .textbook_box_required h3 {color: $color !important;}";
+        break;
+        case 'optional':
+          $css .= "div.textbook_box_optional li:hover:before{border-color: $color !important;} div.textbook_box_optional li:before {background: $color !important;} div.textbook_box_optional { border: 2px solid $color !important;} .textbook_box_optional h3 {color: $color !important;}";
+        break;
+      }
+    }
   }
+  drupal_add_css($css, array('type' => 'inline'));
   // theme path shorthand should be handled here
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
   foreach($variables['user']->roles as $role){
