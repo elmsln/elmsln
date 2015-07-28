@@ -47,18 +47,22 @@ function _cis_lmsless_assemble() {
  * Implementation of hook_form_FORM_ID_alter().
  */
 function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_id) {
-  $form['masquerade_user_field']['#chosen'] = TRUE;
-  $form['masquerade_user_field']['#type'] = 'select';
-  $field_conditions = array();
-  // don't assume there is a section context when masquerade is enabled
-  if (module_exists('cis_section') && $gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
-    $field_conditions = array('og_user_node' => array('target_id', array($gid), 'IN'));
+  $section = _cis_connector_section_context();
+  // don't do these for the master section or it makes no sense
+  if (strpos($section, 'master_') !== 0) {
+    $form['masquerade_user_field']['#chosen'] = TRUE;
+    $form['masquerade_user_field']['#type'] = 'select';
+    $field_conditions = array();
+    // don't assume there is a section context when masquerade is enabled
+    if (module_exists('cis_section') && $gid = _cis_section_load_section_by_id($section)) {
+      $field_conditions = array('og_user_node' => array('target_id', array($gid), 'IN'));
+    }
+    // pull together the users
+    $users = _cis_connector_assemble_entity_list('user', 'user', 'name', 'name', $field_conditions);
+    $form['masquerade_user_field']['#options'] = $users;
+    unset($form['masquerade_user_field']['#size']);
+    unset($form['masquerade_user_field']['#autocomplete_path']);
   }
-  // pull together the users
-  $users = _cis_connector_assemble_entity_list('user', 'user', 'name', 'name', $field_conditions);
-  $form['masquerade_user_field']['#options'] = $users;
-  unset($form['masquerade_user_field']['#size']);
-  unset($form['masquerade_user_field']['#autocomplete_path']);
 }
 
 /**
@@ -130,10 +134,9 @@ function _cis_lmsless_theme_vars() {
       }
       // render differently if the user is already masquerading
       if (isset($_SESSION['masquerading'])) {
-        $tmp = user_load($_SESSION['masquerading']);
         $vars['admin_status_bar']['current-user-id'] = array(
           'title' => l(t('revert'), 'masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch')))),
-          'content' => filter_xss($tmp->name),
+          'content' => filter_xss($GLOBALS['user']->name),
         );
       }
       else {
