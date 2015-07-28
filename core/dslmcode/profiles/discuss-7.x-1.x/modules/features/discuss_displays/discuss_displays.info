@@ -1,0 +1,14 @@
+name = Discuss Displays
+description = Views and modifications to harmony core views
+core = 7.x
+package = Discuss
+dependencies[] = harmony_core
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[features_override_items][] = views_view.harmony_thread_listing
+features[features_overrides][] = views_view.harmony_thread_listing.display|page_1|display_options|menu|name
+features[features_overrides][] = views_view.harmony_thread_listing.display|page_1|display_options|menu|title
+features[features_overrides][] = views_view.harmony_thread_listing.display|page_1|display_options|title
+features[views_view][] = discuss_my_posts
+features_exclude[dependencies][ctools] = ctools

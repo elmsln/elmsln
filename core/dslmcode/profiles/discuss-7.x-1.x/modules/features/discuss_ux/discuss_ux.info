@@ -11,4 +11,3 @@ features[ctools][] = context:context:3
 features[features_api][] = api:2
 features[menu_custom][] = menu-discuss-navigation
 features[menu_links][] = menu-cis-add_create-new-thread:thread/add
-features[menu_links][] = menu-discuss-navigation_forum:forum
