@@ -155,5 +155,7 @@ dependencies[] = views_load_more
 dependencies[] = harmony_atjs
 dependencies[] = harmony_core
 dependencies[] = discuss_ux
+dependencies[] = discuss_harmony_fields
+dependencies[] = discuss_section_threads
 dependencies[] = elmsln_student_filter
 

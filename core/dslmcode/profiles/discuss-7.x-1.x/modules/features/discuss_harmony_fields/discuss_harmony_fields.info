@@ -1,0 +1,9 @@
+name = Discuss Harmony Fields
+description = Additional fields and configuration added into harmony entity types
+core = 7.x
+package = Discuss
+dependencies[] = features
+dependencies[] = text
+features[features_api][] = api:2
+features[field_base][] = field_cis_tag
+features[field_instance][] = harmony_thread-harmony_thread-field_cis_tag

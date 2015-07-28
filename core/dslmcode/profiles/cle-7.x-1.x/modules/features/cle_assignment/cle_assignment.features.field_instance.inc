@@ -131,6 +131,72 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-cle_assignment-field_cis_tag'
+  $field_instances['node-cle_assignment-field_cis_tag'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'A unique tag for this assignment so it can be referenced elsewhere',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 15,
+      ),
+      'gradebook_viewer' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_cis_tag',
+    'label' => 'Tag',
+    'required' => 1,
+    'settings' => array(
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'student_format' => 'student_format',
+          'student_work' => 'student_work',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'student_format' => array(
+              'weight' => 0,
+            ),
+            'student_work' => array(
+              'weight' => 0,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 9,
+    ),
+  );
+
   // Exported field_instance: 'node-cle_assignment-field_color'
   $field_instances['node-cle_assignment-field_color'] = array(
     'bundle' => 'cle_assignment',
@@ -585,6 +651,7 @@ i',
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('A unique tag for this assignment so it can be referenced elsewhere');
   t('Body');
   t('Color');
   t('Comment');
@@ -593,6 +660,7 @@ i',
   t('Number');
   t('Public Assignments will be visible to everyone in the class.  This is useful when the assignment requires open critique and response.  Private Assignments will only be visible by you, the student submitting the work, and any support staff / TAs.');
   t('Sub-number');
+  t('Tag');
   t('This helps to identify assignments when viewing multiple');
   t('This is used as the Assignment number which helps students with sorting of items as to what order to accomplish them in');
   t('Visibility');

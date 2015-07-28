@@ -1,0 +1,11 @@
+name = Discuss Section Threads
+description = Associate discussion threads to a section
+core = 7.x
+package = Discuss
+dependencies[] = cis_section
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = options
+features[features_api][] = api:2
+features[field_base][] = field_threads
+features[field_instance][] = node-section-field_threads
