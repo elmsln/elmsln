@@ -33,6 +33,7 @@ function foundation_access_preprocess_html(&$variables) {
     }
   }
   drupal_add_css($css, array('type' => 'inline'));
+  drupal_add_css('//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external'));
   // theme path shorthand should be handled here
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
   foreach($variables['user']->roles as $role){

@@ -194,7 +194,6 @@ function textbook_textbook_style() {
       'name' => t('Textbook core: Default style'),
       'node' => array(
         'css' => array(
-          '//fonts.googleapis.com/css?family=Open+Sans:400,300',
           $tpath .'node_tables.css',
           $tpath .'node_lists.css',
           $tpath .'node.css',
