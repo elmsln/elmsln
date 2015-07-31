@@ -9,6 +9,29 @@
  */
 function textbook_templates_wysiwyg_template_default_templates() {
   $templates = array();
+  $templates['buttons'] = array(
+    'title' => 'Buttons',
+    'description' => 'Some example buttons that are links, styled to look like buttons to improve accessibility.',
+    'weight' => 0,
+    'fid' => 4,
+    'body' => '<p><a class="button" href="#">Default Button</a> <a class="button success" href="#">Success Button</a> <a class="button secondary" href="#">Secondary Button</a> <a class="button alert" href="#">Alert Button</a> <a class="button info" href="#">Info Button</a> <a class="button disabled" href="#">Disabled Button</a></p>',
+    'format' => 'textbook_editor',
+    'name' => 'buttons',
+    'content_types' => array(),
+  );
+  $templates['callout_panel'] = array(
+    'title' => 'Callout Panel',
+    'description' => 'Call attention to an item',
+    'weight' => 0,
+    'fid' => 0,
+    'body' => '<div class="panel callout radius">
+  <h4>This is a callout panel.</h4>
+  <p>It\'s a little ostentatious, but useful for important content.</p>
+</div>',
+    'format' => 'textbook_editor',
+    'name' => 'callout_panel',
+    'content_types' => array(),
+  );
   $templates['clean_table'] = array(
     'title' => 'Clean Table',
     'description' => 'A Clean example tabl',
@@ -17,6 +40,16 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'body' => '<table><thead><tr><th width="200">Table Header</th><th>Table Header</th><th width="150">Table Header</th><th width="150">Table Header</th></tr></thead><tbody><tr><td>Content Goes Here</td><td>This is longer content Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr></tbody></table>',
     'format' => 'textbook_editor',
     'name' => 'clean_table',
+    'content_types' => array(),
+  );
+  $templates['flex_video'] = array(
+    'title' => 'Flex Video',
+    'description' => 'Flexible video template for embedding youtube / other sources',
+    'weight' => 5,
+    'fid' => 0,
+    'body' => '<div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="0" height="225" mozallowfullscreen="" src="//www.youtube.com/embed/2Uf52ncgCfs" webkitallowfullscreen="" width="400"></iframe></div>',
+    'format' => 'textbook_editor',
+    'name' => 'flex_video',
     'content_types' => array(),
   );
   $templates['lorem_ipsum'] = array(
@@ -43,6 +76,16 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'name' => 'magellan_navigation',
     'content_types' => array(),
   );
+  $templates['pricing_table'] = array(
+    'title' => 'Pricing Table',
+    'description' => 'A basic pricing table, easy to repurpose to other things',
+    'weight' => 10,
+    'fid' => 3,
+    'body' => '<ul class="pricing-table"><li class="title">Standard</li><li class="price">$99.99</li><li class="description">An awesome description</li><li class="bullet-item">1 Database</li><li class="bullet-item">5GB Storage</li><li class="bullet-item">20 Users</li><li class="cta-button"><a class="button" href="#">Buy Now</a></li></ul>',
+    'format' => 'textbook_editor',
+    'name' => 'pricing_table',
+    'content_types' => array(),
+  );
   $templates['quote'] = array(
     'title' => 'Quote',
     'description' => 'Block quote, offset left with a border',
@@ -52,6 +95,16 @@ function textbook_templates_wysiwyg_template_default_templates() {
 ',
     'format' => 'plain_text',
     'name' => 'quote',
+    'content_types' => array(),
+  );
+  $templates['regular_panel'] = array(
+    'title' => 'Regular Panel',
+    'description' => 'Regular panel of content',
+    'weight' => 0,
+    'fid' => 0,
+    'body' => '<div class="panel"><h5>This is a regular panel.</h5><p>It has an easy to override visual style, and is appropriately subdued.</p></div>',
+    'format' => 'textbook_editor',
+    'name' => 'regular_panel',
     'content_types' => array(),
   );
   $templates['table_of_terms'] = array(

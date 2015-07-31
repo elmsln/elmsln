@@ -9,9 +9,11 @@
  */
 function textbook_templates_wysiwyg_templates_load_alter(&$templates) {
   $textbook = array(
+    'buttons',
     'clean_table',
     'lorem_ipsum',
     'magellan_navigation',
+    'pricing_table',
     'quote',
     'table_of_terms',
     'table_style_1',
