@@ -1,7 +1,7 @@
 name = ELMSLN Advagg
 description = Default Advagg setting to make your site fly with high scores
 core = 7.x
-package = ELMSLN
+package = ELMSLN Core
 dependencies[] = advagg_bundler
 dependencies[] = advagg_mod
 dependencies[] = httprl
