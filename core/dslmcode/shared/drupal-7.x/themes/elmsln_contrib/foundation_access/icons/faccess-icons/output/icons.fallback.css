@@ -28,6 +28,8 @@
 
 .icon-cis-black { background-image: url('png/cis-black.png'); background-repeat: no-repeat; }
 
+.icon-cle-black { background-image: url('png/cle-black.png'); background-repeat: no-repeat; }
+
 .icon-close-black { background-image: url('png/close-black.png'); background-repeat: no-repeat; }
 
 .icon-close-white { background-image: url('png/close-white.png'); background-repeat: no-repeat; }
@@ -36,27 +38,37 @@
 
 .icon-comment-black { background-image: url('png/comment-black.png'); background-repeat: no-repeat; }
 
-.icon-comply-black { background-image: url('png/comply-black.png'); background-repeat: no-repeat; }
-
-.icon-comply-white { background-image: url('png/comply-white.png'); background-repeat: no-repeat; }
-
 .icon-content-black { background-image: url('png/content-black.png'); background-repeat: no-repeat; }
 
 .icon-content-outline-black { background-image: url('png/content-outline-black.png'); background-repeat: no-repeat; }
 
 .icon-courses-black { background-image: url('png/courses-black.png'); background-repeat: no-repeat; }
 
+.icon-dino-black { background-image: url('png/dino-black.png'); background-repeat: no-repeat; }
+
 .icon-discuss-black { background-image: url('png/discuss-black.png'); background-repeat: no-repeat; }
+
+.icon-dotgrid-black { background-image: url('png/dotgrid-black.png'); background-repeat: no-repeat; }
 
 .icon-download-black { background-image: url('png/download-black.png'); background-repeat: no-repeat; }
 
 .icon-easle-black { background-image: url('png/easle-black.png'); background-repeat: no-repeat; }
+
+.icon-ecd-black { background-image: url('png/ecd-black.png'); background-repeat: no-repeat; }
+
+.icon-ecd-white { background-image: url('png/ecd-white.png'); background-repeat: no-repeat; }
+
+.icon-editorial-black { background-image: url('png/editorial-black.png'); background-repeat: no-repeat; }
+
+.icon-elmsmedia-black { background-image: url('png/elmsmedia-black.png'); background-repeat: no-repeat; }
 
 .icon-grades-black { background-image: url('png/grades-black.png'); background-repeat: no-repeat; }
 
 .icon-help-black { background-image: url('png/help-black.png'); background-repeat: no-repeat; }
 
 .icon-hidden-black { background-image: url('png/hidden-black.png'); background-repeat: no-repeat; }
+
+.icon-icor-black { background-image: url('png/icor-black.png'); background-repeat: no-repeat; }
 
 .icon-inbox-black { background-image: url('png/inbox-black.png'); background-repeat: no-repeat; }
 
@@ -65,8 +77,6 @@
 .icon-interact-black { background-image: url('png/interact-black.png'); background-repeat: no-repeat; }
 
 .icon-labs-black { background-image: url('png/labs-black.png'); background-repeat: no-repeat; }
-
-.icon-media-black { background-image: url('png/media-black.png'); background-repeat: no-repeat; }
 
 .icon-mooc-black { background-image: url('png/mooc-black.png'); background-repeat: no-repeat; }
 
@@ -87,7 +97,6 @@
 .icon-speechballoons-black { background-image: url('png/speechballoons-black.png'); background-repeat: no-repeat; }
 
 .icon-studio-black { background-image: url('png/studio-black.png'); background-repeat: no-repeat; }
-.icon-cle-black { background-image: url('png/studio-black.png'); background-repeat: no-repeat; }
 
 .icon-support-black { background-image: url('png/support-black.png'); background-repeat: no-repeat; }
 
@@ -102,4 +111,6 @@
 .icon-view-off-black { background-image: url('png/view-off-black.png'); background-repeat: no-repeat; }
 
 .icon-visible-black { background-image: url('png/visible-black.png'); background-repeat: no-repeat; }
+
+.icon-write-black { background-image: url('png/write-black.png'); background-repeat: no-repeat; }
 
