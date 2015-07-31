@@ -26,7 +26,7 @@ function cis_section_views_api($module = NULL, $api = NULL) {
 function cis_section_node_info() {
   $items = array(
     'section' => array(
-      'name' => t('Section'),
+      'name' => t('Course Section'),
       'base' => 'node_content',
       'description' => t('A section of this course'),
       'has_title' => '1',
