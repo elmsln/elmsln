@@ -240,10 +240,7 @@ function _outline_designer_book_settings($form_state) {
         '#type' => 'checkbox',
         '#title' => $op['title'],
         '#default_value' => $default_value,
-        '#return_value' => array(
-          'operation' => $key,
-          'rid' => $rid,
-        ),
+        '#return_value' => $rid . '|' . $key,
       );
     }
   }
@@ -321,12 +318,13 @@ function _outline_designer_book_settings_submit($form, &$form_state) {
   }
   // extrapolate which items have unchecked by comparing the list of
   // ticked checkboxes with the list of all the context menu checkboxes
-  foreach ($menu_items as   $item) {
+  foreach ($menu_items as $item) {
     if (drupal_substr($item, 0, 1) != "#") {
       $item_checkboxes = $form["context_menu"]["checkboxes"][$item];
       foreach ($item_checkboxes as $cb_name => $cb_properties) {
         if (isset($cb_properties['#type']) && $cb_properties['#type'] == 'checkbox' && !in_array($cb_name, $checkboxes)) {
-          $items_unchecked[$cb_properties['#return_value']['rid']][$cb_properties['#return_value']['operation']]['unchecked'] = TRUE;
+          $tmp = explode('|', $cb_properties['#return_value']);
+          $items_unchecked[$tmp[0]][$tmp[1]]['unchecked'] = TRUE;
         }
       }
     }
@@ -351,20 +349,22 @@ function _outline_designer_book_settings_submit($form, &$form_state) {
       }
       else {
         // this is the case when there is no image uploaded to associate the textfield icon to the icon page to use,  this will allow for references to icons already used
-        $icon = check_plain($form_state['values']["outline_designer_" . $value->type . "_icon_link"]);
-        $base_path = base_path();
-        // pull off the site name if it was included
-        if ($base_path != '/' && $base_path != '') {
-          if (strpos(' ' . $icon, $base_path ) != 0) {
-            $pos = strpos($icon, $base_path) + drupal_strlen($base_path);
-            $icon = drupal_substr($icon, $pos);
+        if (isset($form_state['values']["outline_designer_" . $value->type . "_icon_link"])) {
+          $icon = check_plain($form_state['values']["outline_designer_" . $value->type . "_icon_link"]);
+          $base_path = base_path();
+          // pull off the site name if it was included
+          if ($base_path != '/' && $base_path != '') {
+            if (strpos(' ' . $icon, $base_path ) != 0) {
+              $pos = strpos($icon, $base_path) + drupal_strlen($base_path);
+              $icon = drupal_substr($icon, $pos);
+            }
           }
+          // clean up the string incase those other two didn't do the trick
+          $icon = drupal_substr($icon, strpos($icon, drupal_get_path('module', 'outline_designer')));
+          $icon = drupal_substr($icon, strpos($icon, $dir));
+          // potentially this isn't a valid icon path on our server...need to still check this
+          variable_set("outline_designer_" . $value->type . "_icon",   $icon);
         }
-        // clean up the string incase those other two didn't do the trick
-        $icon = drupal_substr($icon, strpos($icon, drupal_get_path('module', 'outline_designer')));
-        $icon = drupal_substr($icon, strpos($icon, $dir));
-        // potentially this isn't a valid icon path on our server...need to still check this
-        variable_set("outline_designer_" . $value->type . "_icon",   $icon);
       }
     }
   }
@@ -398,7 +398,14 @@ function outline_designer_book_outline_designer_form_overlay() {
   }
   $typeoutput .= '</tr></table>';
   // delete form
-  $delete_form = array(
+  $delete_form['od_delete_multiple'] = array(
+    '#title' => t('Delete hierarchy'),
+    '#id' => 'od_delete_multiple',
+    '#type' => 'checkbox',
+    '#description' => t('Warning: This action cannot be undone.'),
+    '#weight' => 0,
+  );
+  $delete_form['warning'] = array(
     '#markup' => t('Are you sure you want to delete this content?'),
   );
   // add form
@@ -602,7 +609,7 @@ function outline_designer_book_process_add_content($title, $type, $parent_nid) {
   $node->book['plid'] = $parent->book['mlid'];
   $node->book['bid'] = $parent->book['bid'];
   // minor support for OG
-  if (!empty($parent->og_group_ref['und'][0]['target_id'])){
+  if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
     $node->og_group_ref = $parent->og_group_ref;
   }
   $node->book['menu_name'] = $parent->book['menu_name'];
@@ -646,21 +653,72 @@ function outline_designer_book_process_rename($nid, $newtitle, $var3) {
     return 0;
   }
 }
+
 /**
  * Callback for delete ajax call from outline designer.
  */
-function outline_designer_book_process_delete($nid, $var3) {
+function outline_designer_book_process_delete($nid, $multiple, $var3) {
   // load node
   $node = node_load($nid);
-  // verify access for delete condition
-  if (node_access('delete', $node)) {
-    node_delete($nid);
-    drupal_set_message(t('%title deleted (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)));
-    return 1;
+  // check for multiple or single delete
+  if ($multiple == 0) {
+    // verify access for delete condition
+    if (node_access('delete', $node)) {
+      $plid = $node->book['plid'];
+      $mlid = $node->book['mlid'];
+      node_delete($nid);
+      drupal_set_message(t('%title deleted (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)));
+      return 1;
+    }
+    else {
+      drupal_set_message(t('Access denied, you are not allowed to delete this content.'));
+      return 0;
+    }
   }
   else {
-    drupal_set_message(t('Access denied, you are not allowed to delete this content.'));
-    return 0;
+    // verify access for delete condition or bail early
+    if (!node_access('delete', $node)) {
+      drupal_set_message(t('Access denied, you are not allowed to delete this content.'));
+      return 0;
+    }
+    // hold onto parent so we can re-save it to rebuild the menu portion
+    $plid = $node->book['plid'];
+    // pull only the nodes that have this node as a parent
+    $mlid = $node->book['mlid'];
+    // make sure this isn't used to delete non book nodes
+    $del_count = 0;
+    $count = 0;
+    // select everything that has this mlid as a parent
+    // the verification previous to this ensures massive chaos isn't invoked
+    $or = db_or()->condition('p1', $mlid)->condition('p2', $mlid)->condition('p3', $mlid)->condition('p4', $mlid)->condition('p5', $mlid)->condition('p6', $mlid)->condition('p7', $mlid)->condition('p8', $mlid)->condition('p9', $mlid);
+    $result = db_select('menu_links', 'ml')
+      ->fields('ml', array('link_path'))
+      ->condition($or)
+      ->execute();
+    // loop through deletes
+    foreach ($result as $value) {
+      $count++;
+      $deepnode = node_load(str_replace('node/', '', $value->link_path));
+      // ensure access even though this is largly an admin only routine
+      if (node_access('delete', $deepnode)) {
+        $del_count++;
+        node_delete($deepnode->nid);
+      }
+    }
+    // we didn't delete anything, return nothing
+    if ($del_count == 0) {
+      drupal_set_message(t('%title was deleted but had no children to delete (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)));
+      return 1;
+    }
+    // verify that all content that was deleted matched selected amount
+    elseif ($count != $del_count) {
+      drupal_set_message(t('%title was commited but you didn\'t have the permissions to delete all content so some remain. (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)));
+      return 1;
+    }
+    else {
+      drupal_set_message(t('%title and %count pieces of child content were deleted (nid:%nid)', array('%title' => $node->title, '%count' => ($del_count-1), '%nid' => $nid)));
+      return 1;
+    }
   }
 }
 /**
@@ -842,10 +900,33 @@ function _outline_designer_book_admin_edit_submit($form, &$form_state) {
   if($update_order){
     $weight = count($order) * -1;
     foreach($order as $node_key => $ordinal){
-      //watchdog('content', $node_key.': '.$weight);
       $form['table'][$node_key]['#item']['plid'] = $form_state['values']['table'][$node_key]['plid'];
       $form['table'][$node_key]['#item']['weight'] = $weight;
-      menu_link_save($form['table'][$node_key]['#item']);
+      // ensure the menu link wasn't just deleted
+      if (menu_link_load($form['table'][$node_key]['#item']['mlid'])) {
+        menu_link_save($form['table'][$node_key]['#item']);
+      }
+      else {
+        $plid = $form['table'][$node_key]['#item']['plid'];
+        // see if this still has children; edge-case off of
+        // deleting an item when the base system expects there to
+        // be all the same items there
+        $result = db_select('menu_links', 'ml')
+        ->fields('ml', array('link_path'))
+        ->condition('plid', $plid)
+        ->execute();
+        // if we got no results, this now has no children anymore
+        // we need to forcibly save / rebuild it
+        if ($result->rowCount() == 0) {
+          // so we may have had something deleted which was the last item
+          $parent = menu_link_load($plid);
+          // last second check
+          if (!empty($parent['link_path'])) {
+            $parent['has_children'] = 0;
+            menu_link_save($parent);
+          }
+        }
+      }
       $weight += 2;
     }
   }

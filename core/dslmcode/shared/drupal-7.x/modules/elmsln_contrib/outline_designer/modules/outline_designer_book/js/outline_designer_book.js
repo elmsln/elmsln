@@ -266,14 +266,17 @@ Drupal.outline_designer.render_popup = function(render_title) {
     $("#reload_table").trigger('change');
   };
   Drupal.outline_designer_ops.delete_submit = function() {
-    Drupal.outline_designer.ajax_call(Drupal.settings.outline_designer.type, 'delete', Drupal.settings.outline_designer.activeNid, null, null);
+    var multiple = $('#od_delete_multiple:checked').length;
+    Drupal.outline_designer.ajax_call(Drupal.settings.outline_designer.type, 'delete', Drupal.settings.outline_designer.activeNid, multiple, null);
   };
   // reset handlers
   Drupal.outline_designer_ops.edit_reset = function() {};
   Drupal.outline_designer_ops.view_reset = function() {};
   Drupal.outline_designer_ops.rename_reset = function() {};
   Drupal.outline_designer_ops.change_type_reset = function() {};
-  Drupal.outline_designer_ops.delete_reset = function() {};
+  Drupal.outline_designer_ops.delete_reset = function() {
+    $("#od_delete_multiple").attr("checked", false);
+  };
   Drupal.outline_designer_ops.add_content_reset = function() {
     $("#od_add_content_title").val('');
   };
