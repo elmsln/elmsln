@@ -2,20 +2,16 @@ name = Textbook Templates
 description = Well defined, reusable HTML/CSS3 templated areas. This is integated via the WYSIWYG Template module
 core = 7.x
 package = Textbook
-php = 5.2.4
+version = 7.x-4.1+4-dev
+project = textbook
 dependencies[] = features
 dependencies[] = wysiwyg_template
+datestamp = 1408544031
 features[features_api][] = api:2
+features[wysiwyg_template][] = clean_table
 features[wysiwyg_template][] = lorem_ipsum
 features[wysiwyg_template][] = magellan_navigation
 features[wysiwyg_template][] = quote
 features[wysiwyg_template][] = table_of_terms
 features[wysiwyg_template][] = table_style_2
 features[wysiwyg_template][] = topic_reading
-
-; Information added by Drupal.org packaging script on 2014-08-20
-version = "7.x-4.1+4-dev"
-core = "7.x"
-project = "textbook"
-datestamp = "1408544031"
-

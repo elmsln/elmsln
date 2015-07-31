@@ -9,10 +9,14 @@
  */
 function textbook_templates_wysiwyg_templates_load_alter(&$templates) {
   $textbook = array(
+    'clean_table',
     'lorem_ipsum',
+    'magellan_navigation',
+    'quote',
     'table_of_terms',
+    'table_style_1',
     'table_style_2',
-    'topic_reading'
+    'topic_reading',
   );
   foreach ($templates as $key => $template) {
     // see if the template matches one in the textbook definition

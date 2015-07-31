@@ -9,35 +9,55 @@
  */
 function textbook_templates_wysiwyg_template_default_templates() {
   $templates = array();
+  $templates['clean_table'] = array(
+    'title' => 'Clean Table',
+    'description' => 'A Clean example tabl',
+    'weight' => 7,
+    'fid' => 2,
+    'body' => '<table><thead><tr><th width="200">Table Header</th><th>Table Header</th><th width="150">Table Header</th><th width="150">Table Header</th></tr></thead><tbody><tr><td>Content Goes Here</td><td>This is longer content Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr></tbody></table>',
+    'format' => 'textbook_editor',
+    'name' => 'clean_table',
+    'content_types' => array(),
+  );
   $templates['lorem_ipsum'] = array(
     'title' => 'Lorem ipsum',
     'description' => 'Sample random latin to simulate paragraphs',
+    'weight' => 6,
     'fid' => 0,
     'body' => '<p></p>
 <p>Lorem ipsum dolor sit amet, elit fusce erat, arcu pretium et ultricies velit, parturient faucibus sit dignissim varius, dui nibh ut tellus mauris dolor. Cursus vulputate erat dolore arcu sit egestas, suspendilacus vel in fringilla elit. Fusce tempus ante congue faucibus odio sed, gravida eu libero, elit gravida pede a id varius tempus. Aut massa vel sagittis sed vel donec, et eros. Amet nunc vivamus, gravida suspendisse integer vivamus ligula. Ultrices sociosqu ornare duis, eget tempor quisque.</p>
 <p>Vestibulum ut est, wisi velit, nulla sollicitudin morbi. Fermentum non wisi. Magna nec id sit consectetuer vel, montes mauris, scelerisque erat purus etiam nisl erat. Sit ut pulvinar quisque quisque. A ante, odio pharetra urna suspendisse nascetur metus. Dignissim dui nullam adipiscing amet, tincidunt tincidunt turpis. Duis a ipsum aliquam purus orci, in nec vel libero fusce, imperdiet quisque sem, in ac aenean ut, ac dolor scelerisque nibh nam.</p>
 <p>Sapien vestibulum turpis, commodo arcu tortor massa faucibus molestie. Litora suspendisse etiam a tortor in. Ultricies fringilla. Hac vulputate donec auctor. Viverra at ultrices et mattis volutpat, aenean interdum nec. Condimentum a et amet quia, mi feugiat in suscipit, aliquet parhendrerit fames hymenaeos vel, quam bibendum et massa donec nunc.</p>
 ',
+    'format' => 'plain_text',
     'name' => 'lorem_ipsum',
+    'content_types' => array(),
   );
   $templates['magellan_navigation'] = array(
     'title' => 'Magellan navigation item',
     'description' => 'If you have magellan navigation active this is the way to define a heading in the page.',
+    'weight' => 10,
     'fid' => 0,
     'body' => '<a name="machinename"></a><h2 data-magellan-destination="machinename">Title</h2>',
+    'format' => 'plain_text',
     'name' => 'magellan_navigation',
+    'content_types' => array(),
   );
   $templates['quote'] = array(
     'title' => 'Quote',
     'description' => 'Block quote, offset left with a border',
+    'weight' => 5,
     'fid' => 0,
     'body' => '<p class="txtbk-pullquote">Above all was the sense of hearing acute. I heard all things in the heaven and in the earth. I heard many things in hell. How, then, am I mad?</p>
 ',
+    'format' => 'plain_text',
     'name' => 'quote',
+    'content_types' => array(),
   );
   $templates['table_of_terms'] = array(
     'title' => 'Table of terms',
     'description' => 'A cleanly formatted table of terms',
+    'weight' => 8,
     'fid' => 0,
     'body' => '<table border="1" cellpadding="0" cellspacing="0" class="textbook_table_1" summary="You can print this study sheet and use it to take notes.">
   <caption>Lesson x.x Terms Study Sheet</caption>
@@ -76,11 +96,14 @@ function textbook_templates_wysiwyg_template_default_templates() {
 </table>
 <p></p>
 ',
+    'format' => 'plain_text',
     'name' => 'table_of_terms',
+    'content_types' => array(),
   );
   $templates['table_style_2'] = array(
     'title' => 'Table style 2',
     'description' => 'A well made table for presenting figures of data with a left column heading',
+    'weight' => 9,
     'fid' => 0,
     'body' => '<table border="1" cellpadding="0" cellspacing="0" class="textbook_table_2" summary="Figure 1-A">
   <caption>Figure 1-A</caption>
@@ -113,11 +136,14 @@ function textbook_templates_wysiwyg_template_default_templates() {
 </table>
 <p></p>
 ',
+    'format' => 'plain_text',
     'name' => 'table_style_2',
+    'content_types' => array(),
   );
   $templates['topic_reading'] = array(
     'title' => 'Topic Reading',
     'description' => 'Use this for communicating Reading to students',
+    'weight' => 4,
     'fid' => 0,
     'body' => '<h2>Step X: Complete the Topic Readings</h2>
 <p>This topic uses one or more required readings and one or more optional readings. By completing these readings before studying the lecture, you will make the most effective use of both. As you read, remember to take good notes using your study sheets.</p>
@@ -135,7 +161,9 @@ function textbook_templates_wysiwyg_template_default_templates() {
   </ol>
 </div>
 ',
+    'format' => 'plain_text',
     'name' => 'topic_reading',
+    'content_types' => array(),
   );
   return $templates;
 }
