@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * mooc_ux_defaults.field_group.inc
+ * mooc_page.field_group.inc
  */
 
 /**
  * Implements hook_field_group_info().
  */
-function mooc_ux_defaults_field_group_info() {
+function mooc_page_field_group_info() {
   $export = array();
 
   $field_group = new stdClass();
