@@ -367,39 +367,36 @@ function cis_service_connection_block_section_outline($type = 'default') {
   // ensure this doesn't load when it doesn't have to
   $block = &drupal_static(__FUNCTION__ . $type);
   if (!isset($block)) {
-    // never load when on an edit form in case it gets called
-    if (arg(2) != 'edit') {
-      $node = _cis_service_connection_active_outline();
-      // exit early cause we found nothing
-      if (!$node) {
-        return FALSE;
+    $node = _cis_service_connection_active_outline();
+    // exit early cause we found nothing
+    if (!$node) {
+      return FALSE;
+    }
+    // load the active outline
+    $active = menu_get_object();
+    // test for not being on a node as well as global setting overriding
+    // outline to use
+    if (!isset($active->book) || ($active->book['menu_name'] != $node->book['menu_name'])) {
+      $active = $node;
+    }
+    // only show the block if the user has view access for the top-level node.
+    if (entity_access('view', 'node', $active) && isset($active->book)) {
+      // load the tree of the book
+      if ($type == 'all') {
+        $tree = menu_tree_all_data($active->book['menu_name']);
       }
-      // load the active outline
-      $active = menu_get_object();
-      // test for not being on a node as well as global setting overriding
-      // outline to use
-      if (!isset($active->book) || ($active->book['menu_name'] != $node->book['menu_name'])) {
-        $active = $node;
+      elseif ($type == 'high') {
+        $tree = menu_tree_all_data($active->book['menu_name'], $active->book, 2);
       }
-      // only show the block if the user has view access for the top-level node.
-      if (entity_access('view', 'node', $active) && isset($active->book)) {
-        // load the tree of the book
-        if ($type == 'all') {
-          $tree = menu_tree_all_data($active->book['menu_name']);
-        }
-        elseif ($type == 'high') {
-          $tree = menu_tree_all_data($active->book['menu_name'], $active->book, 2);
-        }
-        else {
-          $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
-        }
-        $data = array_shift($tree);
-        $output = _cis_service_connection_section_outline_tree_output($data['below'], $type);
-        // There should only be one element at the top level.
-        $block['subject'] = '<none>';
-        $block['content'] = $output;
-        return $block;
+      else {
+        $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
       }
+      $data = array_shift($tree);
+      $output = _cis_service_connection_section_outline_tree_output($data['below'], $type);
+      // There should only be one element at the top level.
+      $block['subject'] = '<none>';
+      $block['content'] = $output;
+      return $block;
     }
   }
   else {
