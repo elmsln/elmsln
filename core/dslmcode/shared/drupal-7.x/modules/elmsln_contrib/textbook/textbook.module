@@ -188,18 +188,18 @@ function _textbook_apply_style($type = 'node', $reset = TRUE) {
  */
 function textbook_textbook_style() {
   // default path for textbookcore
-  $tpath = drupal_get_path('module', 'textbook') .'/textbook_styles/textbook_core/';
+  $tpath = drupal_get_path('module', 'textbook') .'/textbook_styles/';
   $styles = array(
     'textbook_core' => array(
       'name' => t('Textbook core: Default style'),
       'node' => array(
         'css' => array(
-          $tpath .'node_tables.css',
-          $tpath .'node_lists.css',
-          $tpath .'node.css',
+          $tpath . 'textbook_core/node_tables.css',
+          $tpath . 'textbook_core/node_lists.css',
+          $tpath . 'textbook_core/node.css',
         ),
         'reset' => array(
-          $tpath .'reset.css',
+          $tpath . 'textbook_core/reset.css',
         ),
         'js' => array(
           'misc/form.js',
@@ -208,7 +208,29 @@ function textbook_textbook_style() {
       ),
       'print' => array(
         'css' => array(
-          $tpath .'print.css',
+          $tpath . 'textbook_core/print.css',
+        ),
+      ),
+    ),
+    'textbook_zurb' => array(
+      'name' => t('Zurb Foundation'),
+      'node' => array(
+        'css' => array(
+          $tpath . 'textbook_zurb/node_tables.css',
+          $tpath . 'textbook_zurb/node_lists.css',
+          $tpath . 'textbook_zurb/node.css',
+        ),
+        'reset' => array(
+          $tpath . 'textbook_zurb/reset.css',
+        ),
+        'js' => array(
+          'misc/form.js',
+          'misc/collapse.js',
+        )
+      ),
+      'print' => array(
+        'css' => array(
+          $tpath . 'textbook_zurb/print.css',
         ),
       ),
     ),
@@ -407,72 +429,100 @@ function _textbook_load_styles() {
 function _textbook_styles() {
   $styles = array(
     array(
-      'name' => 'DIV Center',
+      'name' => t('DIV Right'),
       'element' => 'div',
       'attributes' => array(
-        'class' => 'textbook_center'
+        'class' => 'textbook_right right'
       ),
     ),
     array(
-      'name' => 'DIV Right',
+      'name' => t('DIV Left'),
       'element' => 'div',
       'attributes' => array(
-        'class' => 'textbook_right'
+        'class' => 'textbook_left left'
       ),
     ),
     array(
-      'name' => 'Emphasis (italic)',
+      'name' => t('Text left'),
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'textbook_left text-left'
+      ),
+    ),
+    array(
+      'name' => t('Text center'),
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'textbook_center text-center'
+      ),
+    ),
+    array(
+      'name' => t('Text right'),
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'textbook_right text-right'
+      ),
+    ),
+    array(
+      'name' => t('Text justified'),
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'text-justified'
+      ),
+    ),
+    array(
+      'name' => t('Emphasis (italic)'),
       'element' => 'em',
     ),
     array(
-      'name' => 'Strong (bold)',
+      'name' => t('Strong (bold)'),
       'element' => 'strong',
     ),
     array(
-      'name' => 'Superscript',
+      'name' => t('Superscript'),
       'element' => 'sup',
     ),
     array(
-      'name' => 'Subscript',
+      'name' => t('Subscript'),
       'element' => 'sub',
     ),
     array(
-      'name' => 'Color 1',
+      'name' => t('Color 1'),
       'element' => 'span',
       'attributes' => array(
         'class' => 'textbook_color1',
       )
     ),
     array(
-      'name' => 'Color 2',
+      'name' => t('Color 2'),
       'element' => 'span',
       'attributes' => array(
         'class' => 'textbook_color2',
       )
     ),
     array(
-      'name' => 'Color 3',
+      'name' => t('Color 3'),
       'element' => 'span',
       'attributes' => array(
         'class' => 'textbook_color3',
       )
     ),
     array(
-      'name' => 'Color 4',
+      'name' => t('Color 4'),
       'element' => 'span',
       'attributes' => array(
         'class' => 'textbook_color4',
       )
     ),
     array(
-      'name' => 'Color 5',
+      'name' => t('Color 5'),
       'element' => 'span',
       'attributes' => array(
         'class' => 'textbook_color5',
       )
     ),
     array(
-      'name' => 'Color 6',
+      'name' => t('Color 6'),
       'element' => 'span',
       'attributes' => array(
         'class' => 'textbook_color6',

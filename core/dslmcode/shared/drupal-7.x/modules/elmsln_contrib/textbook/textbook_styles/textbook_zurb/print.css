@@ -1,0 +1,130 @@
+/*
+  Print styles for cleaner printing
+*/
+
+/* Table types */
+table.textbook_table_1{vertical-align:middle;width:98%;margin-bottom:1.4em;border-collapse:separate;border-spacing:0;}
+table.textbook_table_1 tbody th{text-align:left;font-weight:bold;width:25%;}
+
+div.print-content table.textbook_table_1 th{
+  color:#000;
+}
+
+div.print-content table.textbook_table_1 tbody tr{
+  height:80px;
+}
+
+/* Specific styles of required items */
+div.textbook_box {
+  display: block;
+  margin: 1em 0px 2em 0px;
+  padding: .5em;
+}
+div.textbook_box h3 {
+  font-size: 1.5em;
+  font-weight: bold;
+  display: block;
+  padding:0px 2px;
+  float: left;
+  margin-top: -20px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  margin-right:0px;
+  background-color: #ffffff;
+}
+div.textbook_box_required {
+  border:#e98 2px solid;
+}
+div.textbook_box_required h3{
+  color:#e98;
+}
+div.textbook_box_required li:before{
+  background: #e98;
+}
+div.textbook_box_optional {
+  border:#8ce 2px solid;
+}
+div.textbook_box_optional h3{
+  color: #8ce;
+}
+div.textbook_box_optional li:before{
+  background: #8ce;
+}
+
+div.textbook_box ol, div.textbook_box ul{
+  counter-reset: li; /* Initiate a counter */
+  list-style: none; /* Remove default numbering */
+  *list-style: decimal; /* Keep using default numbering for IE6/7 */
+  font: 15px 'trebuchet MS', 'lucida sans';
+  padding: 0px 0px 0px 14px;
+  margin: 1.2em;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+}
+
+div.textbook_box li{
+  position: relative;
+  display: block;
+  padding: .4em .4em .4em 2em;
+  *padding: .4em;
+  margin: .5em 0;
+  background: #ddd;
+  color: #444;
+  text-decoration: none;
+  border-radius: .3em;
+  transition: all .3s ease-out;  
+}
+
+div.textbook_box li:hover{
+  background: #eee;
+}
+
+div.textbook_box li:hover:before{
+    transform: rotate(360deg);  
+}
+
+div.textbook_box li:before{
+  content: counter(li);
+  counter-increment: li;
+  position: absolute;  
+  left: -1.3em;
+  top: 50%;
+  margin-top: -1.3em;
+  height: 2em;
+  width: 2em;
+  line-height: 2em;
+  border: .3em solid #fff;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 2em;
+  transition: all .3s ease-out;
+}
+
+div.textbook_right{text-align: right;}
+div.textbook_center{text-align: center;}
+/*Site Accepted Font Colors*/
+span.textbook_color1{color:#900;}
+span.textbook_color2{color:#009;}
+span.textbook_color3{color:#090;}
+span.textbook_color4{color:#990;}
+span.textbook_color5{color:#099;}
+span.textbook_color6{color:#909;}
+
+/* Collapse templates */
+.textbook_collapse {
+}
+
+.textbook_collapse-text {
+  font-weight:bold;
+  color:#333;
+  background-color:transparent;
+}
+div.node .textbook_collapse-text a,div.node .textbook_collapse-text a:link,div.node .textbook_collapse-text a:visited{
+  text-decoration:none;
+  background-color:transparent;
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.textbook_collapse-body {
+    color:#222;
+}

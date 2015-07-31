@@ -1,0 +1,49 @@
+/*
+  Textbook Style Guide - base styles
+*/
+
+/* Minor text positioning */
+div.textbook_right{text-align: right;}
+div.textbook_center{text-align: center;}
+
+/*Site Accepted text Colors*/
+span.textbook_color1{color:#900;}
+span.textbook_color2{color:#009;}
+span.textbook_color3{color:#090;}
+span.textbook_color4{color:#990;}
+span.textbook_color5{color:#099;}
+span.textbook_color6{color:#909;}
+
+/* Collapse fieldset/legend templates */
+.textbook_collapse {
+  padding: .25em;
+  border: .125em solid #cccccc;
+}
+
+html.js fieldset.textbook_collapse.collapsed .fieldset-legend {
+  background-position: 2px 20%;
+}
+html.js fieldset.textbook_collapse.collapsible .fieldset-legend {
+  background-position: 5px 20%;
+}
+
+.textbook_collapse-text {
+  font-weight:bold;
+  color:#333;
+  background-color:transparent;
+}
+.textbook_collapse span.fieldset-legend .fieldset-title,
+.textbook_collapse span.fieldset-legend .fieldset-title:link,
+.textbook_collapse span.fieldset-legend .fieldset-title:visited {
+  text-decoration:none;
+  background-color:transparent;
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.textbook_collapse-body,
+.textbook_collapse div {
+  font-size:1em;
+  font-weight:normal;
+  color:#222;
+}
