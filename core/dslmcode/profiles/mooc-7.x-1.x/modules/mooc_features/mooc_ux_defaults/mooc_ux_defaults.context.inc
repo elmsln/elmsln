@@ -22,7 +22,7 @@ function mooc_ux_defaults_context_default_contexts() {
         'page' => 'page',
       ),
       'options' => array(
-        'node_form' => '0',
+        'node_form' => '1',
       ),
     ),
   );

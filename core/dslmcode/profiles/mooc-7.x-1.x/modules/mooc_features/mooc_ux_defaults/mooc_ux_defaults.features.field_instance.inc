@@ -63,7 +63,7 @@ function mooc_ux_defaults_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => -3,
+      'weight' => 16,
     ),
   );
 

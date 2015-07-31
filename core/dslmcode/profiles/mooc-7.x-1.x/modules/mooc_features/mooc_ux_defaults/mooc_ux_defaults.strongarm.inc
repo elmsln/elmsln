@@ -15,7 +15,8 @@ function mooc_ux_defaults_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'book_allowed_types';
   $strongarm->value = array(
-    0 => 'page',
+    0 => 'mooc_container',
+    1 => 'page',
   );
   $export['book_allowed_types'] = $strongarm;
 
@@ -61,7 +62,7 @@ function mooc_ux_defaults_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'node_preview_page';
-  $strongarm->value = '1';
+  $strongarm->value = '0';
   $export['node_preview_page'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -108,7 +109,7 @@ function mooc_ux_defaults_strongarm() {
         'unchecked' => TRUE,
       ),
     ),
-    5 => array(
+    6065076 => array(
       'nid' => array(
         'unchecked' => TRUE,
       ),
@@ -140,7 +141,7 @@ function mooc_ux_defaults_strongarm() {
         'unchecked' => TRUE,
       ),
     ),
-    3 => array(
+    135574917 => array(
       'nid' => array(
         'unchecked' => TRUE,
       ),
@@ -172,7 +173,7 @@ function mooc_ux_defaults_strongarm() {
         'unchecked' => TRUE,
       ),
     ),
-    7 => array(
+    66784200 => array(
       'nid' => array(
         'unchecked' => TRUE,
       ),
@@ -204,7 +205,7 @@ function mooc_ux_defaults_strongarm() {
         'unchecked' => TRUE,
       ),
     ),
-    8 => array(
+    76550217 => array(
       'nid' => array(
         'unchecked' => TRUE,
       ),
@@ -236,7 +237,7 @@ function mooc_ux_defaults_strongarm() {
         'unchecked' => TRUE,
       ),
     ),
-    10 => array(
+    90720314 => array(
       'nid' => array(
         'unchecked' => TRUE,
       ),
@@ -268,7 +269,24 @@ function mooc_ux_defaults_strongarm() {
         'unchecked' => TRUE,
       ),
     ),
-    4 => array(
+    67296478 => array(
+      'delete' => array(
+        'unchecked' => TRUE,
+      ),
+      'change_type' => array(
+        'unchecked' => TRUE,
+      ),
+      'hidden_nodes' => array(
+        'unchecked' => TRUE,
+      ),
+      'book_title_override' => array(
+        'unchecked' => TRUE,
+      ),
+      'book_copy' => array(
+        'unchecked' => TRUE,
+      ),
+    ),
+    75987638 => array(
       'delete' => array(
         'unchecked' => TRUE,
       ),
@@ -324,19 +342,19 @@ function mooc_ux_defaults_strongarm() {
         ),
       ),
       1 => array(
-        'selector' => '.book-sibling-nav-link',
+        'selector' => '.cis_token_dynamic_value',
         'options' => array(
           'fade' => 1,
-          'gravity' => 's',
+          'gravity' => 'autoNS',
           'trigger' => 'hover',
           'delayIn' => '0',
           'delayOut' => '0',
-          'opacity' => '0.8',
-          'offset' => '0',
-          'html' => 0,
+          'opacity' => '1',
+          'offset' => '5',
+          'html' => 1,
           'tooltip_content' => array(
             'source' => 'attribute',
-            'selector' => 'title',
+            'selector' => 'data-cis-token',
           ),
         ),
       ),

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC Container type feature.
+ */
+
+include_once 'mooc_container_type.features.inc';

@@ -166,6 +166,7 @@ dependencies[] = mooc_helper
 dependencies[] = mooc_textbook
 dependencies[] = mooc_ux_defaults
 dependencies[] = mooc_page
+dependencies[] = mooc_container_type
 dependencies[] = mooc_perms
 dependencies[] = mooc_theme_foundation
 
