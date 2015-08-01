@@ -18,10 +18,9 @@ function mooc_container_type_field_default_field_instances() {
     'description' => 'How this container should operate. Folders are purely for organizational purposes while index pages will render everything below them as a single page.',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'list',
+        'label' => 'hidden',
         'settings' => array(),
-        'type' => 'list_default',
+        'type' => 'hidden',
         'weight' => 0,
       ),
       'teaser' => array(
