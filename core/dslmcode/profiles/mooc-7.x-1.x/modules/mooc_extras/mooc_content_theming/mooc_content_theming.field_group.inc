@@ -21,20 +21,20 @@ function mooc_content_theming_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Visual identifiers',
-    'weight' => '3',
+    'weight' => '2',
     'children' => array(
-      0 => 'field_mooc_image',
-      1 => 'field_mooc_color',
-      2 => 'field_instructional_significance',
+      0 => 'field_instructional_significance',
+      1 => 'field_mooc_image',
     ),
-    'format_type' => 'fieldset',
+    'format_type' => 'tab',
     'format_settings' => array(
-      'formatter' => 'collapsible',
+      'label' => 'Visual identifiers',
       'instance_settings' => array(
-        'description' => '',
+        'required_fields' => 0,
         'classes' => 'group-visual-identifiers field-group-fieldset',
-        'required_fields' => 1,
+        'description' => '',
       ),
+      'formatter' => 'open',
     ),
   );
   $export['group_visual_identifiers|node|page|form'] = $field_group;
