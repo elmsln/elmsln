@@ -24,7 +24,8 @@ function mooc_helper_menu_contextual_links_alter(&$links, $router_item, $root_pa
   // Add a link to all contextual links for nodes.
   if ($root_path == 'node/%') {
     unset($links['cis_lmsless-delete']);
-    $entity_id = array_pop(explode('/', $router_item['href']));
+    $tmp = explode('/', $router_item['href']);
+    $entity_id = array_pop($tmp);
     // link to print the outline
     $links['cis_lmsless_print_outline'] = array(
       'title' => t('Print'),
