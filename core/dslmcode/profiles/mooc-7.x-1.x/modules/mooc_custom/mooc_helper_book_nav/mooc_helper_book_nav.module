@@ -80,20 +80,10 @@ function mooc_helper_book_nav_block_view($delta = '') {
           $data = _book_cache_get_associations($globalnode->book);
           $items = array();
           $active = 'past-page';
-          // check for previous link in the flow
-          if ($data['prev'] && !$globalnode->book['has_children'] && $globalnode->book['plid'] != $data['prev']['mlid']) {
-            $items[] = array(
-              'nid' => str_replace('node/', '', $data['prev']['link_path']),
-              'mlid' => $data['prev']['mlid'],
-              'title' => $data['prev']['title'],
-              'icon' => 'arrow-left',
-              'active' => 'prev-page',
-              'print-title' => FALSE,
-              'tree' => array(),
-            );
-          }
+          $count = 0;
           // loop through each node and build the menu item out
           foreach ($nodes as $node) {
+            $count++;
             // default is a page icon
             $icon = 'page';
             // allow for modification of the book item icon to match mooc / FA
@@ -115,6 +105,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
             }
 
             $items[] = array(
+              'count' => $count,
               'nid' => $node->nid,
               'mlid' => $node->book['mlid'],
               'title' => token_replace($node->book['link_title'], array('node' => $node)),
@@ -128,19 +119,6 @@ function mooc_helper_book_nav_block_view($delta = '') {
             if ($node->nid == $globalnode->nid) {
               $active = 'future-page';
             }
-          }
-          // previde next arrow if it exists
-          if ($data['next'] && ($globalnode->book['has_children'] || $globalnode->book['plid'] == $data['next']['plid'])) {
-            // @todo need to ensure this is on the same level
-            $items[] = array(
-              'nid' => str_replace('node/', '', $data['next']['link_path']),
-              'mlid' => $data['next']['mlid'],
-              'title' => $data['next']['title'],
-              'icon' => 'arrow-right',
-              'active' => 'next-page',
-              'print-title' => FALSE,
-              'tree' => array(),
-            );
           }
           $block['content'] = theme('book_sibling_nav', array('items' => $items));
         }
@@ -173,7 +151,6 @@ function mooc_helper_book_nav_menu_breadcrumb_alter(&$active_trail, $item) {
   if (arg(0) == 'node') {
     // pop off home
     array_shift($active_trail);
-    // optionally pop off another level of the outline
     array_shift($active_trail);
     // add the current page item if it has children so we can get to them
     if (isset($item['page_arguments'][2]->book) && $item['page_arguments'][2]->book['has_children']) {
