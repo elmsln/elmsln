@@ -1,0 +1,30 @@
+{
+	"name": "ELMSLN global upgrade 1438716264",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "en",
+			"arguments": [
+				"entity_iframe_consumer",
+				"entity_iframe_provider",
+				"entity_iframe_mode"
+			]
+		},
+		{
+			"command": "vset",
+			"arguments": [
+				"entity_iframe_theme",
+				"foundation_access_iframe"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1.0",
+		"author": "elmsln",
+		"description": "Enable entity iframe consumer / provider everywhere",
+    "version": "1438716264"
+  }
+}
