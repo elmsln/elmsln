@@ -11,51 +11,63 @@ include_once 'mooc_container_type.features.inc';
  */
 function mooc_container_type_node_view($node, $view_mode, $langcode) {
   // target the container
-  if ($node->type == 'mooc_container' && $node->field_mooc_container_type['und'][0]['value'] == 'index') {
-    $mlid = $node->book['mlid'];
-    $result = db_select('menu_links', 'ml')
-      ->fields('ml', array('link_path'))
-      ->condition('plid', $mlid)
-      ->orderBy('weight', 'DESC')
-      ->execute();
-    $view = '';
-    // loop through deletes
-    foreach ($result as $value) {
-      $deepnode = node_load(str_replace('node/', '', $value->link_path));
-      if ($deepnode->type == 'page') {
-        $elements = node_view($deepnode, 'full');
-        unset($elements['book_navigation']);
-        $elements['prefix'] = array(
-          '#markup' => '<a name="magellan-' . $elements['#node']->uuid . '"></a>
-        <h2 data-magellan-destination="magellan-' . $elements['#node']->uuid . '">' . $elements['#node']->title . '</h2>',
-          '#weight' => -10,
+  if ($node->type == 'mooc_container' && !empty($node->book)) {
+    switch ($node->field_mooc_container_type['und'][0]['value']) {
+      case 'folder':
+        $data = _book_cache_get_associations($node->book);
+        $tree = $data['tree'];
+        $node->content['page'] = array(
+          '#markup' => $tree,
+          '#weight' => 10,
         );
-        $elements['#node']->title = '';
-        $view .= drupal_render($elements);
-      }
-    }
-    // render all the nodes as one
-    if (!empty($view)) {
-      $magellan = '/<h2 data-magellan-destination="(.*?)">(.*?)<\/h2>/s';
-      // pregmatch the anchor and title for the heading
-      preg_match_all($magellan, $view, $results);
-      // ensure we have headings that we found
-      if (count($results) == 3) {
-        // loop through items found
-        foreach ($results[0] as $key => $result) {
-          $items[] = array(
-            'title' => $results[2][$key],
-            'anchor' => $results[1][$key]
+      break;
+      case 'index':
+        $mlid = $node->book['mlid'];
+        $result = db_select('menu_links', 'ml')
+          ->fields('ml', array('link_path'))
+          ->condition('plid', $mlid)
+          ->orderBy('weight', 'DESC')
+          ->execute();
+        $view = '';
+        // loop through deletes
+        foreach ($result as $value) {
+          $deepnode = node_load(str_replace('node/', '', $value->link_path));
+          if ($deepnode->type == 'page') {
+            $elements = node_view($deepnode, 'full');
+            unset($elements['book_navigation']);
+            $elements['prefix'] = array(
+              '#markup' => '<a name="magellan-' . $elements['#node']->uuid . '"></a>
+            <h2 data-magellan-destination="magellan-' . $elements['#node']->uuid . '">' . $elements['#node']->title . '</h2>',
+              '#weight' => -10,
+            );
+            $elements['#node']->title = '';
+            $view .= drupal_render($elements);
+          }
+        }
+        // render all the nodes as one
+        if (!empty($view)) {
+          $magellan = '/<h2 data-magellan-destination="(.*?)">(.*?)<\/h2>/s';
+          // pregmatch the anchor and title for the heading
+          preg_match_all($magellan, $view, $results);
+          // ensure we have headings that we found
+          if (count($results) == 3) {
+            // loop through items found
+            foreach ($results[0] as $key => $result) {
+              $items[] = array(
+                'title' => $results[2][$key],
+                'anchor' => $results[1][$key]
+              );
+            }
+          }
+          if (!empty($items)) {
+            $magellan = theme('textbook_magellan', array('items' => $items));
+          }
+          $node->content['page'] = array(
+            '#markup' => $magellan . $view,
+            '#weight' => 10,
           );
         }
-      }
-      if (!empty($items)) {
-        $magellan = theme('textbook_magellan', array('items' => $items));
-      }
-      $node->content['page'] = array(
-        '#markup' => $magellan . $view,
-        '#weight' => 10,
-      );
+      break;
     }
   }
 }
