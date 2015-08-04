@@ -389,8 +389,19 @@ function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL
         $instance = '/' . $test[2] . '/';
       }
     }
-    $link = _cis_connector_format_address($settings, $instance, 'front') . $a1 . '/' . $a2 . '/' . $a3 . '?entity_iframe=1';
-    $contents = '<iframe src="' . $link . '" width="100%" height="90%"></iframe>';
+    // create a UUID for this frame id so it knows where to send the data back to
+    $id = uniqid();
+    $front = _cis_connector_format_address($settings, $instance, 'front');
+    $link = $front . $a1 . '/' . $a2 . '/' . $a3;
+    // grab current address of this tool so we can do entity iframe communications
+    $profile = variable_get('install_profile', 'standard');
+    // make sure we have consumers
+    if (!empty($profile)) {
+      $link .= '?entity_iframe=' . $profile . '/' . $id;
+    }
+    $contents = '<iframe id="' . $id . '" class="entity_iframe" src="' . $link . '" width="100%"></iframe>';
+    $contents .= '<a href="#" class="button success">' . t('Submit') . '</a>';
+    $contents .= '<a href="#" class="button alert">' . t('Cancel') . '</a>';
   }
   return ctools_modal_render('Submission', $contents) ;
 }
