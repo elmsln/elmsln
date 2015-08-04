@@ -783,7 +783,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // make sure it got data
       if (!empty($cis_section_item)) {
         // make sure a file was uploaded for this request
-        if (isset($cis_section_item['list'][0]['field_' . $request])) {
+        if (isset($cis_section_item['list'][0]['field_' . $request]['file'])) {
           $file = _cis_connection_object($cis_section_item['list'][0]['field_' . $request]['file']['id'], 'file');
         }
         // if a url is set we have a file
