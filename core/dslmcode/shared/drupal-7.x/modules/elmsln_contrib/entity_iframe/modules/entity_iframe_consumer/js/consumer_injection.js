@@ -1,18 +1,26 @@
 // JavaScript Document
-(function($) {
-  $(document).ready(function(){
-    // look for iframes on consumers we know about
+(function ($) {
+  // look for iframes on consumers we know about
+  Drupal.behaviors.iframeProviderApply = {
+  attach: function (context, settings) {
     $('iframe.entity_iframe').each(function(){
       var providers = Drupal.settings.entity_iframe.providers;
-      var test = $(this).attr('src');
+      var test = window.location.href;
       for (var i in providers){
         if (providers.hasOwnProperty(i)) {
           if (test.indexOf(providers[i]) != -1) {
-            $(this).attr('src', $(this).attr('src') + '?entity_iframe=' + i + '/' + $(this).attr('id'));
+            var url = $(this).attr('src'), idx = url.indexOf("#")
+            var hash = idx != -1 ? url.substring(idx) : "";
+            url = idx != -1 ? url.substring(0, idx) : url;
+            $(this).attr('src', url + '?entity_iframe=' + i + '/' + $(this).attr('id') + hash);
+            return false;
           }
         }
       }
     });
+    }
+  };
+  $(document).ready(function(){
     // height resize handler
     $('#entity_iframe_response').click(function(){
       var data = $(this).val().split('#');

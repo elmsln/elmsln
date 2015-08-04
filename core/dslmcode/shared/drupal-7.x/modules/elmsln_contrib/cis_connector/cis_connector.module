@@ -1570,7 +1570,7 @@ function cis_connector_entity_iframe_provider_consumers_alter(&$consumers) {
   if ($settings = _cis_connector_build_registry()) {
     foreach ($settings as $key => $setting) {
       // associations for entity iframe are of the form key => address
-      $consumers[$key] = $setting['address'];
+      $consumers[$key] = _cis_connector_format_address($setting, '', 'front');
     }
   }
 }
@@ -1589,7 +1589,7 @@ function cis_connector_entity_iframe_consumer_providers_alter(&$providers) {
   if ($settings = _cis_connector_build_registry()) {
     foreach ($settings as $key => $setting) {
       // associations for entity iframe are of the form key => address
-      $providers[$key] = $setting['address'];
+      $providers[$key] = _cis_connector_format_address($setting, '', 'front');
     }
   }
 }

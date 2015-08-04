@@ -12,10 +12,13 @@
     return html;
   }
   // ability to disable background scrolling on modal open
-  Drupal.behaviors.gradebookBodyScrollDisable = {
+  Drupal.behaviors.cisfilterModalReveal = {
   attach: function (context, settings) {
     $('.close-reveal-modal').on("click", function () {
-      $("body").removeClass("scroll-disabled")
+      $("body").removeClass("scroll-disabled");
+    });
+    $('#cis-modal-cancel').on("click", function () {
+      $('.close-reveal-modal').click();
     });
   }
   };
