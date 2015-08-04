@@ -17,10 +17,7 @@
 <div class="small-12 medium-12 large-centered large-10 columns book-sibling-nav-container">
 <?php
   foreach ($items as $item) {
-    $icon = '<div class="book-menu-item-' . $item['mlid'] . ' icon-' . $item['icon'] . '-black outline-nav-icon"></div>';
-    if (isset($item['print-title']) && $item['print-title']) {
-      $icon .= $item['title'];
-    }
+    $icon = $item['count'] . '. ' . $item['title'] . ' <div class="book-menu-item-' . $item['mlid'] . ' icon-' . $item['icon'] . '-black outline-nav-icon"></div>';
     // check if we have a tree to print
     if (!empty($item['tree'])) {
       $link ='<li class="toolbar-menu-icon book-parent-tree-wrapper"><a href="#" class="book-parent-tree" data-dropdown="book-sibling-children-' . $item['mlid'] . '" aria-controls="middle-section-buttons" aria-expanded="false">
