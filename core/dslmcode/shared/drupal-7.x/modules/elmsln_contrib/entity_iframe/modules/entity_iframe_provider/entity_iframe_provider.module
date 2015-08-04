@@ -8,7 +8,7 @@ function entity_iframe_provider_page_build(&$page) {
   if (_entity_iframe_mode_enabled()) {
     $consumers = _entity_iframe_provider_get_consumers();
     // make sure we have consumers
-    if (!empty($consumers)) {
+    if (!empty($consumers) && isset($_GET['entity_iframe'])) {
         // include the list of injectables
       drupal_add_js(drupal_get_path('module', 'entity_iframe_provider') . '/js/provider_injection.js');
       $data = explode('/', $_GET['entity_iframe']);
