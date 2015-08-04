@@ -63,9 +63,9 @@ function cis_shortcodes_block_view($delta = '') {
 
 /**
  * Callback to render possible embed codes from a given item
- * @param  [type] $entity [description]
- * @param  [type] $type   [description]
- * @return [type]         [description]
+ * @param   object  $entity entity to generate codes off of
+ * @param   string  $type   entity type
+ * @return  array        field array for rendering
  */
 function _cis_shortcode_render_codes($entity, $type) {
   // pick a nice default title for common entity types
