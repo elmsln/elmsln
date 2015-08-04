@@ -1555,3 +1555,41 @@ function cis_connector_role_export_role_id_change($role, $newrid) {
     variable_set('lti_tool_provider_global_role_array', $lti_roles);
   }
 }
+
+/**
+ * Implements hook_entity_iframe_consumer_providers_alter().
+ *
+ * CIS Connector utilizes this to boot the keychain of valid tools
+ * as valid consumers and providers in entity_iframe. This enables
+ * secure, cross-domain iframe communication in all aspects of elmsln.
+ *
+ * @param  [array] &$consumers available entity iframe consumers for this provider
+ */
+function cis_connector_entity_iframe_provider_consumers_alter(&$consumers) {
+  // apply keychain settings to allow communication between all tools
+  if ($settings = _cis_connector_build_registry()) {
+    foreach ($settings as $key => $setting) {
+      // associations for entity iframe are of the form key => address
+      $consumers[$key] = $setting['address'];
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_iframe_consumer_providers_alter().
+ *
+ * CIS Connector utilizes this to boot the keychain of valid tools
+ * as valid consumers and providers in entity_iframe. This enables
+ * secure, cross-domain iframe communication in all aspects of elmsln.
+ *
+ * @param  [array] &$consumers available entity iframe consumers for this provider
+ */
+function cis_connector_entity_iframe_consumer_providers_alter(&$providers) {
+  // apply keychain settings to allow communication between all tools
+  if ($settings = _cis_connector_build_registry()) {
+    foreach ($settings as $key => $setting) {
+      // associations for entity iframe are of the form key => address
+      $providers[$key] = $setting['address'];
+    }
+  }
+}

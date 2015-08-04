@@ -4,18 +4,28 @@
  * Implements hook_page_build().
  */
 function entity_iframe_consumer_page_build(&$page) {
-  $providers = variable_get('entity_iframe_consumer_providers', array());
+  $providers = _entity_iframe_consumer_get_providers();
   // make sure we have providers
   if (!empty($providers)) {
     // include the allowed list of providers
     drupal_add_js(array('entity_iframe' => array('providers' => $providers)), 'setting');
     // include the list of injectables
     drupal_add_js(drupal_get_path('module', 'entity_iframe_consumer') . '/js/consumer_injection.js');
-    
+
     $page['content']['entity_iframe_response'] = array(
       '#markup' => '<input id="entity_iframe_response" type="hidden" value=""/>',
     );
   }
+}
+
+/**
+ * Callback to modify and return providers
+ * @return array an array of providers, allowing other modules to modify as needed.
+ */
+function _entity_iframe_consumer_get_providers() {
+  $providers = variable_get('entity_iframe_consumer_providers', array());
+  drupal_alter('entity_iframe_consumer_providers', $providers);
+  return $providers;
 }
 
 /**

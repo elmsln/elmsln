@@ -6,19 +6,31 @@
 function entity_iframe_provider_page_build(&$page) {
   // ensure we are in iframe mode
   if (_entity_iframe_mode_enabled()) {
-    $consumers = variable_get('entity_iframe_provider_consumers', array());
+    $consumers = _entity_iframe_provider_get_consumers();
     // make sure we have consumers
     if (!empty($consumers)) {
         // include the list of injectables
       drupal_add_js(drupal_get_path('module', 'entity_iframe_provider') . '/js/provider_injection.js');
       $data = explode('/', $_GET['entity_iframe']);
-      $page['content']['entity_iframe_provider'] = array(
-        '#markup' => '<iframe id="entity_iframe_consumer_backdoor" src="' . $consumers[$data[0]] . '/entity-iframe-consumer.html?iframeid=' . $data[1] . '" width="1" height="1"/>',
-      );
-      // css to hide it correctly
-      drupal_add_css(drupal_get_path('module', 'entity_iframe_provider') . '/css/provider.css');
+      if (count($data) == 2 && isset($consumers[$data[0]])) {
+        $page['content']['entity_iframe_provider'] = array(
+          '#markup' => '<iframe id="entity_iframe_consumer_backdoor" src="' . $consumers[$data[0]] . '/entity-iframe-consumer.html?iframeid=' . $data[1] . '" width="1" height="1"/>',
+        );
+        // css to hide it correctly
+        drupal_add_css(drupal_get_path('module', 'entity_iframe_provider') . '/css/provider.css');
+      }
     }
   }
+}
+
+/**
+ * Callback to modify and return consumers
+ * @return array an array of consumers, allowing other modules to modify as needed.
+ */
+function _entity_iframe_provider_get_consumers() {
+  $consumers = variable_get('entity_iframe_provider_consumers', array());
+  drupal_alter('entity_iframe_provider_consumers', $consumers);
+  return $consumers;
 }
 
 /**
