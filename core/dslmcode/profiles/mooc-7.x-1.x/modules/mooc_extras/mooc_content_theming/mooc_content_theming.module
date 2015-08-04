@@ -91,5 +91,8 @@ function mooc_content_theming_foundation_access_menu_item_icon_alter(&$icon, $el
     if (isset($node->field_instructional_significance['und'][0]['value'])) {
       $icon = $node->field_instructional_significance['und'][0]['value'];
     }
+    elseif (isset($node->field_mooc_container_type['und'][0]['value'])) {
+      $icon = 'content';
+    }
   }
 }
