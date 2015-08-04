@@ -18,6 +18,20 @@
 				"entity_iframe_theme",
 				"foundation_access_iframe"
 			]
+		},
+		{
+			"command": "vset",
+			"arguments": [
+				"entity_iframe_link",
+				"0"
+			]
+		},
+		{
+			"command": "vset",
+			"arguments": [
+				"entity_iframe_embed",
+				"0"
+			]
 		}
 	],
 	"metadata": {
