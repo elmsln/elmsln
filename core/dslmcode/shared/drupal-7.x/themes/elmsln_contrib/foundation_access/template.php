@@ -62,13 +62,22 @@ function foundation_access_preprocess_html(&$variables) {
 function foundation_access_preprocess_page(&$variables) {
   // make sure we have lmsless enabled so we don't WSOD
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
+  // support for lmsless since we don't require it
   if (module_exists('cis_lmsless')) {
     $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
   }
+  // support for cis_shortcodes
   if (module_exists('cis_shortcodes')) {
     $block = cis_shortcodes_block_view('cis_shortcodes_block');
     if (!empty($block['content'])) {
       $variables['cis_shortcodes'] = $block['content'];
+    }
+  }
+  // support for entity_iframe
+  if (module_exists('entity_iframe')) {
+    $block = entity_iframe_block_view('entity_iframe_block');
+    if (!empty($block['content'])) {
+      $variables['cis_shortcodes'] .= $block['content'];
     }
   }
   // show staff / instructors the course tools menu
