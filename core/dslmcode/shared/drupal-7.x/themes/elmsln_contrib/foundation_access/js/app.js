@@ -36,7 +36,9 @@
 
   Drupal.behaviors.foundation_access = {
     attach: function(context, settings) {
-      $(".accessibility-content-toggle a").appendTo( ".cis_accessibility_check" );
+      if ($(".cis_accessibility_check a").length == 0) {
+        $(".accessibility-content-toggle a").appendTo( ".cis_accessibility_check" );
+      }
       $(".accessibility-content-toggle").hide();
     }
   };
