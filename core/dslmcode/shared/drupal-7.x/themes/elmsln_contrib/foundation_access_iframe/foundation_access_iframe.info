@@ -17,6 +17,7 @@ base theme = foundation_access
 ;   NOT include a file with that name with your theme.
 ;
 ; stylesheets[MEDIA][] = FILE
+stylesheets[all][] = css/iframe_tweaks.css
 ;
 ; The "FILE" is the name of the stylesheet to add/override/remove.
 ; The "MEDIA" in the first set of brackets is a media type or a media query.
