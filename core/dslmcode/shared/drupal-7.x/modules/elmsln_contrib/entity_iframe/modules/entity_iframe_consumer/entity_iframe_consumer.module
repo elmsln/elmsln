@@ -11,9 +11,9 @@ function entity_iframe_consumer_page_build(&$page) {
     drupal_add_js(array('entity_iframe' => array('providers' => $providers)), 'setting');
     // include the list of injectables
     drupal_add_js(drupal_get_path('module', 'entity_iframe_consumer') . '/js/consumer_injection.js');
-
     $page['content']['entity_iframe_response'] = array(
       '#markup' => '<input id="entity_iframe_response" type="hidden" value=""/>',
+      '#weight' => 1000,
     );
   }
 }
