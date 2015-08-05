@@ -224,13 +224,13 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    9 => '9',
-    3 => '3',
-    4 => '4',
-    5 => '5',
-    6 => '6',
-    7 => '7',
-    8 => '8',
+    6065076 => 6065076,
+    75987638 => 75987638,
+    135574917 => 135574917,
+    166149871 => 166149871,
+    66784200 => 66784200,
+    67296478 => 67296478,
+    30037204 => 30037204,
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';

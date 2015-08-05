@@ -191,34 +191,28 @@ function cle_assignment_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'unique_field_comp_cle_assignment';
-  $strongarm->value = 'all';
+  $strongarm->value = 'each';
   $export['unique_field_comp_cle_assignment'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'unique_field_fields_cle_assignment';
-  $strongarm->value = array(
-    0 => 'og_group_ref',
-    1 => 'field_number',
-    2 => 'field_sub_number',
-  );
+  $strongarm->value = array();
   $export['unique_field_fields_cle_assignment'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'unique_field_scope_cle_assignment';
-  $strongarm->value = 'all';
+  $strongarm->value = 'type';
   $export['unique_field_scope_cle_assignment'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'unique_field_show_matches_cle_assignment';
-  $strongarm->value = array(
-    0 => 'show_matches',
-  );
+  $strongarm->value = array();
   $export['unique_field_show_matches_cle_assignment'] = $strongarm;
 
   return $export;
