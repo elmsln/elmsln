@@ -52,32 +52,10 @@ function mooc_cis_ux_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-course-tools-menu_content-tool:<nolink>',
   );
-  // Exported menu link: menu-course-tools-menu_search--replace:admin/content/scanner
-  $menu_links['menu-course-tools-menu_search--replace:admin/content/scanner'] = array(
-    'menu_name' => 'menu-course-tools-menu',
-    'link_path' => 'admin/content/scanner',
-    'router_path' => 'admin/content/scanner',
-    'link_title' => 'Search / Replace',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Search and replace text within content',
-      ),
-      'identifier' => 'menu-course-tools-menu_search--replace:admin/content/scanner',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => 0,
-    'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_content-tool:<nolink>',
-  );
   // Translatables
   // Included for use with string extractors like potx.
   t('Content tool');
   t('Import content outline');
-  t('Search / Replace');
 
 
   return $menu_links;
