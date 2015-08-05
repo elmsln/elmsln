@@ -62,7 +62,45 @@ function cis_service_connection_ux_form($form, $form_state) {
     '#title' => t('Front page'),
     '#required' => '1',
   );
+  // load up the system theme admin form to modify it here
+  module_load_include('inc', 'system', 'system.admin');
+  $tmp = drupal_get_form('system_theme_settings', variable_get('theme_default', ''));
+  // see if we have foundation access settings we can dump in here too
+  if (isset($tmp['zurb_foundation']['foundation_access'])) {
+    $tmp['zurb_foundation']['foundation_access']['#collapsible'] = TRUE;
+    $form['foundation_access'] = $tmp['zurb_foundation']['foundation_access'];
+    foreach ($form['foundation_access'] as &$value) {
+      if (isset($value['#value'])) {
+        unset($value['#value']);
+      }
+    }
+    // submit handler
+    $form['#submit'][] = 'cis_service_connection_ux_form_submit';
+  }
   return system_settings_form($form);
+}
+
+/**
+ * Callback for the settings form.
+ */
+function cis_service_connection_ux_form_submit($form, &$form_state) {
+  // load the current variables
+  form_state_values_clean($form_state);
+  // see if we have foundation access settings in here
+  if (isset($form_state['groups']['foundation_access'])) {
+    // load the current settings array we'd get on the theme settings page
+    $vars = variable_get('theme_' . variable_get('theme_default', '') . '_settings', array());
+    foreach ($form_state['values'] as $key => $val) {
+      // if the name of the variable includes FA, overwrite the current one
+      if (strpos($key, 'foundation_access') !== FALSE) {
+        $vars[$key] = $val;
+        // unset so we don't get these stored in the database as stand alones
+        unset($form_state['values'][$key]);
+      }
+    }
+    // set the variables for the theme
+    variable_set('theme_' . variable_get('theme_default', '') . '_settings', $vars);
+  }
 }
 
 /**
