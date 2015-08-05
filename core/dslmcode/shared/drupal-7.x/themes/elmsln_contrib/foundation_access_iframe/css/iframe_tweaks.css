@@ -1,3 +1,10 @@
 .vertical-tabs {
   display: none;
 }
+
+h1#page-title {
+  font-size: 3em;
+  margin: 0;
+  text-align: left;
+  padding: 0;
+}
