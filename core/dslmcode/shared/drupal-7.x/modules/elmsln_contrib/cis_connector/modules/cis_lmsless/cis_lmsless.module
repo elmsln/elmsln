@@ -233,15 +233,29 @@ function _cis_lmsless_theme_vars() {
     if (module_exists('search') && user_access('search content')) {
       $vars['search'] = drupal_get_form('search_block_form');
     }
+    $vars['bar_elements'] = array(
+      'network' => TRUE,
+      'user' => TRUE,
+      'help' => TRUE,
+      'syllabus' => TRUE
+    );
     // if authority, remove the syllabus
     if (_cis_connector_system_type() == 'authority') {
-      $vars['bar_elements'] = array(
-        'network' => TRUE,
-        'user' => TRUE,
-        'help' => TRUE,
-        'syllabus' => FALSE
-      );
+      $vars['bar_elements']['syllabus'] = FALSE;
     }
+    // support people wiping help link via settings
+    $help_link = variable_get('cis_help_page', 'course-help');
+    $vars['help_link'] = $help_link;
+    if (empty($help_link)) {
+      $vars['bar_elements']['help'] = FALSE;
+    }
+    // support people wiping syllabus link via settings
+    $syllabus_link = variable_get('cis_syllabus_page', 'syllabus');
+    $vars['syllabus_link'] = $syllabus_link;
+    if (empty($syllabus_link)) {
+      $vars['bar_elements']['syllabus'] = FALSE;
+    }
+
     // allow other projects to alter these values
     drupal_alter('cis_lmsless_theme_vars', $vars);
   }
