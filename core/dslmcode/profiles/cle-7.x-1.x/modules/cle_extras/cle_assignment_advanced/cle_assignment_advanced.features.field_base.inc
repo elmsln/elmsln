@@ -17,14 +17,6 @@ function cle_assignment_advanced_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_cle_assign_depend',
-    'foreign keys' => array(
-      'node' => array(
-        'columns' => array(
-          'target_id' => 'nid',
-        ),
-        'table' => 'node',
-      ),
-    ),
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
@@ -61,7 +53,6 @@ function cle_assignment_advanced_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_cle_require_submission',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',

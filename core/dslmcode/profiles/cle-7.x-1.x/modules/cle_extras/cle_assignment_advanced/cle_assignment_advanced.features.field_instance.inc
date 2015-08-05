@@ -20,12 +20,9 @@ function cle_assignment_advanced_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'inline',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 8,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 16,
       ),
       'full' => array(
         'label' => 'inline',
@@ -70,7 +67,9 @@ function cle_assignment_advanced_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 7,
     ),
@@ -89,10 +88,9 @@ function cle_assignment_advanced_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'inline',
-        'module' => 'list',
         'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 7,
+        'type' => 'hidden',
+        'weight' => 15,
       ),
       'full' => array(
         'label' => 'inline',
@@ -125,7 +123,9 @@ function cle_assignment_advanced_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(),
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
       'type' => 'options_select',
       'weight' => 4,
     ),
