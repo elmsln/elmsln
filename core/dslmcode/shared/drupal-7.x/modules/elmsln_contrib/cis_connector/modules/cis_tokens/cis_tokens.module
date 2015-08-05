@@ -285,7 +285,15 @@ function _cis_tokens_get_token_scope($scope = FALSE) {
  */
 function cis_tokens_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
   /* Your code here */
-  $form['site_information']['cis_tokens_global'] = array(
+  $form['tokens'] = array(
+    '#tree' => '0',
+    '#type' => 'fieldset',
+    '#collapsed' => '1',
+    '#collapsible' => '1',
+    '#title' => t('Course tokens'),
+    '#weight' => '1',
+  );
+  $form['tokens']['cis_tokens_global'] = array(
     '#title' => t('Tokens'),
     '#type' => 'textarea',
     '#description' => t('This is a list of token replacement|value pairs that can be used throughout the course. This is useful when wanting to centralize where you update noodle-y information throughout course content which might otherwise be standalone. For example, writing start_date|June 15, 2015 would allow you to write [elmsln_section:start_date] in your content and have it automatically replaced with June 15, 2015.'),
