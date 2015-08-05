@@ -73,6 +73,7 @@
           <div id="page-share-menu" class="reveal-modal" data-reveal aria-labelledby="Share" aria-hidden="true" role="dialog">
             <h2 id="Share"><?php print t('Share') ?></h2>
             <?php print $cis_shortcodes; ?>
+            <a class="close-reveal-modal">&#215;</a>
           </div>
           <?php endif; ?>
           <!-- /accessibility dropdown -->
@@ -86,6 +87,7 @@
             <?php if (isset($mespeak)) : ?>
             <a href="#" class="off-canvas-toolbar-item access-icon" data-reveal-id="block-mespeak-mespeak-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><?php print t('Speak page'); ?></a>
             <?php endif; ?>
+            <a class="close-reveal-modal">&#215;</a>
           </div>
           <?php endif; ?>
           <!-- /accessibility dropdown -->
