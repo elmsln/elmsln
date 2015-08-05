@@ -9,10 +9,11 @@
       for (var i in providers){
         if (providers.hasOwnProperty(i)) {
           if (test.indexOf(providers[i]) != -1) {
-            var url = $(this).attr('src'), idx = url.indexOf("#")
+            var url = $(this).attr('src'), idx = url.indexOf("#");
+            var part = url.indexOf("?") != -1 ? "&" : "?";
             var hash = idx != -1 ? url.substring(idx) : "";
             url = idx != -1 ? url.substring(0, idx) : url;
-            $(this).attr('src', url + '?entity_iframe=' + i + '/' + $(this).attr('id') + hash);
+            $(this).attr('src', url + part + 'entity_iframe=' + i + '/' + $(this).attr('id') + hash);
             return false;
           }
         }
