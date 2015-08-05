@@ -5,15 +5,18 @@
   height: 5em;
   font-size: 1.25rem;
   line-height: 1.75em;
-  background-color: #ffcc66;
 }
 
-.finished {
+.elmsln-action-finished {
   background-color: #aaffaa;
 }
 
-.unfinished {
+.elmsln-action-unfinished {
   background-color: #ffaaaa;
+}
+
+.elmsln-action-required {
+  background-color: #ffcc66;
 }
 
 .cis_filter_modal_frame {
