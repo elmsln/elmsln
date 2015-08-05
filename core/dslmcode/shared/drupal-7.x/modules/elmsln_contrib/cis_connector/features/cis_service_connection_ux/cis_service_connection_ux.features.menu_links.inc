@@ -89,25 +89,6 @@ function cis_service_connection_ux_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-course-tools-menu_service-tools:<nolink>',
   );
-  // Exported menu link: menu-course-tools-menu_sections:cis/section-list
-  $menu_links['menu-course-tools-menu_sections:cis/section-list'] = array(
-    'menu_name' => 'menu-course-tools-menu',
-    'link_path' => 'cis/section-list',
-    'router_path' => 'cis/section-list',
-    'link_title' => 'Sections',
-    'options' => array(
-      'attributes' => array(),
-      'identifier' => 'menu-course-tools-menu_sections:cis/section-list',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -49,
-    'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_service-tools:<nolink>',
-  );
   // Exported menu link: menu-course-tools-menu_service-tools:<nolink>
   $menu_links['menu-course-tools-menu_service-tools:<nolink>'] = array(
     'menu_name' => 'menu-course-tools-menu',
@@ -147,27 +128,6 @@ function cis_service_connection_ux_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-course-tools-menu_course-tools:<nolink>',
   );
-  // Exported menu link: menu-course-tools-menu_theme:admin/appearance
-  $menu_links['menu-course-tools-menu_theme:admin/appearance'] = array(
-    'menu_name' => 'menu-course-tools-menu',
-    'link_path' => 'admin/appearance',
-    'router_path' => 'admin/appearance',
-    'link_title' => 'Theme',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Change the course theme',
-      ),
-      'identifier' => 'menu-course-tools-menu_theme:admin/appearance',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 1,
-    'weight' => -49,
-    'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_course-tools:<nolink>',
-  );
   // Exported menu link: menu-course-tools-menu_users:cis/user-list
   $menu_links['menu-course-tools-menu_users:cis/user-list'] = array(
     'menu_name' => 'menu-course-tools-menu',
@@ -191,7 +151,6 @@ function cis_service_connection_ux_menu_default_menu_links() {
   t('Analytics');
   t('Course tools');
   t('Performance');
-  t('Sections');
   t('Sections List');
   t('Service Tools');
   t('Settings');
