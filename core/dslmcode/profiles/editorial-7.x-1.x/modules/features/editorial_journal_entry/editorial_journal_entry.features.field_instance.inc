@@ -25,12 +25,6 @@ function editorial_journal_entry_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 1,
       ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
     ),
     'entity_type' => 'node',
     'fences_wrapper' => 'div',

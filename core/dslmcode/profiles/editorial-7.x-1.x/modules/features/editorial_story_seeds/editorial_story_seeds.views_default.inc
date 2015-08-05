@@ -22,7 +22,7 @@ function editorial_story_seeds_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'My Blog posts';
+  $handler->display->display_options['title'] = 'My Story seeds';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -31,14 +31,27 @@ function editorial_story_seeds_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '10';
   $handler->display->display_options['style_plugin'] = 'default';
-  $handler->display->display_options['row_plugin'] = 'node';
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  /* Header: Global: Text area */
+  $handler->display->display_options['header']['area']['id'] = 'area';
+  $handler->display->display_options['header']['area']['table'] = 'views';
+  $handler->display->display_options['header']['area']['field'] = 'area';
+  $handler->display->display_options['header']['area']['empty'] = TRUE;
+  $handler->display->display_options['header']['area']['content'] = '<a href="../node/add/editorial-story-seeds">Edit Story Seeds</a>';
+  $handler->display->display_options['header']['area']['format'] = 'textbook_editor';
+  /* Field: Content: Seed */
+  $handler->display->display_options['fields']['field_seed']['id'] = 'field_seed';
+  $handler->display->display_options['fields']['field_seed']['table'] = 'field_data_field_seed';
+  $handler->display->display_options['fields']['field_seed']['field'] = 'field_seed';
+  $handler->display->display_options['fields']['field_seed']['label'] = '';
+  $handler->display->display_options['fields']['field_seed']['element_type'] = '0';
+  $handler->display->display_options['fields']['field_seed']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_seed']['element_wrapper_type'] = '0';
+  $handler->display->display_options['fields']['field_seed']['element_default_classes'] = FALSE;
+  $handler->display->display_options['fields']['field_seed']['group_rows'] = FALSE;
+  $handler->display->display_options['fields']['field_seed']['delta_offset'] = '0';
+  $handler->display->display_options['fields']['field_seed']['multi_type'] = 'ol';
+  $handler->display->display_options['fields']['field_seed']['field_api_classes'] = TRUE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
