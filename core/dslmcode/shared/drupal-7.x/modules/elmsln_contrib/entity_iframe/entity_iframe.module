@@ -199,6 +199,7 @@ function _entity_iframe_render_codes(&$entity, $type, $render = 'entity') {
           '#title' => t('Direct iframe link'),
           '#value' => $base_url . '/' . $href,
           '#type' => 'textfield',
+          '#attributes' => array('class' => array('entity_iframe_embed')),
         );
       }
     }
