@@ -119,13 +119,15 @@ function _cis_lmsless_theme_vars() {
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       $vars['admin_status_bar'] = array();
-      $vars['admin_status_bar']['course-settings'] = array(
-        'modal' => 'block-menu-menu-course-tools-menu-nav-modal',
-        'title' => t('settings'),
-        'content' => str_replace('/', '', base_path()),
-      );
+      if (_cis_connector_role_groupings(array('staff','teacher'))) {
+        $vars['admin_status_bar']['course-settings'] = array(
+          'modal' => 'block-menu-menu-course-tools-menu-nav-modal',
+          'title' => t('settings'),
+          'content' => str_replace('/', '', base_path()),
+        );
+      }
       // account for systems without sections (like authorities)
-      if ($section) {
+      if ($section && user_access('switch section context')) {
         $vars['admin_status_bar']['course-section'] = array(
           'modal' => 'block-cis-service-connection-section-context-changer-nav-modal',
           'title' => t('change'),
@@ -164,33 +166,32 @@ function _cis_lmsless_theme_vars() {
     $machine_name = $tmp[0];
     // account for the current service being worked on but not actually
     // being actively used in the section in question
-    $current = t('Current');
     $current_url = $GLOBALS['base_url'] . '/';
     $course_context = _cis_connector_course_context();
     if (_cis_connector_system_type() == 'authority') {
       $current_url .= $course_context;
     }
-    $list[$current][$machine_name] = array(
+    $vars['active'] = array(
       'title' => (isset($reg[$distro]['default_title']) ? $reg[$distro]['default_title'] : ''),
       'url' => $current_url,
       'machine_name' => $machine_name,
     );
     // services label specific to course context
-    $service_group = t('@course Services', array('@course' => $course_context));
-    // set active to the current one
-    $vars['active'] = $list[$current][$machine_name];
+    $service_group = t('Network');
     // request a list of all other services that this section uses
     if ($services = _cis_connector_transaction('other_services')) {
       foreach ($services as $service) {
         // ensure we don't get two of these to display
-        if ($service['field_machine_name'] != $vars['active']['machine_name']) {
-          $list[$service_group][$service['field_machine_name']] = array(
-            'title' => $service['title'],
-            'url' => $service['field_location']['url'] . '/' . $course_context,
-            'machine_name' => $service['field_machine_name'],
-          );
-        }
+        $list[$service_group][$service['field_machine_name']] = array(
+          'title' => $service['title'],
+          'url' => $service['field_location']['url'] . '/' . $course_context,
+          'machine_name' => $service['field_machine_name'],
+        );
       }
+    }
+    // ensure that there's at least the current if no services selected
+    if (!isset($list)) {
+      $list[$service_group][$machine_name] = $vars['active'];
     }
     // allow theme to override this if set
     $theme_override = theme_get_setting('foundation_access_system_label');
@@ -216,6 +217,16 @@ function _cis_lmsless_theme_vars() {
       if (!empty($course_context)) {
         $vars['service_option_link'] = _cis_connector_format_address($reg['cis'],  '/' . $course_context, 'front') . '/service-instances';
       }
+    }
+    // special exception for inbox as it's not an administrative system but is authority
+    if (isset($reg['inbox'])) {
+      unset($list[$administrative]['inbox']);
+      $addr = explode('.', $reg['inbox']['address']);
+      $list[$service_group][$addr[0]] = array(
+        'title' => $reg['inbox']['default_title'],
+        'url' => _cis_connector_format_address($reg['inbox'],  '/' . $course_context, 'front'),
+        'machine_name' => $addr[0],
+      );
     }
     $vars['services'] = $list;
     // support for search bar if active
