@@ -100,7 +100,7 @@ function cle_submission_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '1',
+          'weight' => '2',
         ),
       ),
       'display' => array(),

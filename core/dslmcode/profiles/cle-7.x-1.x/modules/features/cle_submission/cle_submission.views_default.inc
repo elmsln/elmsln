@@ -74,13 +74,6 @@ function cle_submission_views_default_views() {
   );
   $handler->display->display_options['style_options']['sticky'] = TRUE;
   $handler->display->display_options['style_options']['summary'] = 'All of my assignments';
-  /* Relationship: Flags: cle_exemplary */
-  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
-  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
-  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
-  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
-  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'cle_exemplary';
-  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -130,49 +123,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'cle_submission' => 'cle_submission',
-  );
-  /* Filter criterion: Content: Section (og_group_ref) */
-  $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator_id'] = 'og_group_ref_target_id_op';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['label'] = 'Section';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator'] = 'og_group_ref_target_id_op';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['identifier'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    6 => 0,
-    4 => 0,
-    8 => 0,
-    9 => 0,
-    5 => 0,
-    7 => 0,
-    3 => 0,
-  );
-  /* Filter criterion: Flags: Flagged */
-  $handler->display->display_options['filters']['flagged_2']['id'] = 'flagged_2';
-  $handler->display->display_options['filters']['flagged_2']['table'] = 'flag_content';
-  $handler->display->display_options['filters']['flagged_2']['field'] = 'flagged';
-  $handler->display->display_options['filters']['flagged_2']['relationship'] = 'flag_content_rel';
-  $handler->display->display_options['filters']['flagged_2']['value'] = 'All';
-  $handler->display->display_options['filters']['flagged_2']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['flagged_2']['expose']['operator_id'] = '';
-  $handler->display->display_options['filters']['flagged_2']['expose']['label'] = 'Exemplary';
-  $handler->display->display_options['filters']['flagged_2']['expose']['operator'] = 'flagged_2_op';
-  $handler->display->display_options['filters']['flagged_2']['expose']['identifier'] = 'flagged_2';
-  $handler->display->display_options['filters']['flagged_2']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    5 => 0,
-    3 => 0,
-    7 => 0,
-    8 => 0,
-    4 => 0,
-    9 => 0,
-    6 => 0,
-    10 => 0,
   );
   /* Filter criterion: Content: Assignment (field_assignment) */
   $handler->display->display_options['filters']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
@@ -349,7 +299,7 @@ function cle_submission_views_default_views() {
   /* Display: My Images */
   $handler = $view->new_display('page', 'My Images', 'page_2');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'My Images';
+  $handler->display->display_options['title'] = 'My Gallery';
   $handler->display->display_options['display_description'] = 'Visual gallery of all images';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['pager'] = FALSE;
@@ -378,9 +328,15 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_images']['label'] = '';
   $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_images']['type'] = 'colorbox';
   $handler->display->display_options['fields']['field_images']['settings'] = array(
-    'image_style' => 'large',
-    'image_link' => 'content',
+    'colorbox_node_style' => '',
+    'colorbox_node_style_first' => '',
+    'colorbox_image_style' => '',
+    'colorbox_gallery' => 'page',
+    'colorbox_gallery_custom' => '',
+    'colorbox_caption' => 'auto',
+    'colorbox_caption_custom' => '',
   );
   $handler->display->display_options['fields']['field_images']['group_rows'] = FALSE;
   $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
@@ -939,9 +895,10 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    4 => '4',
-    6 => '6',
-    8 => '8',
+    75987638 => 75987638,
+    166149871 => 166149871,
+    67296478 => 67296478,
+    30037204 => 30037204,
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
