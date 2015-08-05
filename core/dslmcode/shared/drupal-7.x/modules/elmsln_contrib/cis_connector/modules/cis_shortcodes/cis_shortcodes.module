@@ -34,29 +34,31 @@ function cis_shortcodes_block_info() {
  */
 function cis_shortcodes_block_view($delta = '') {
   $block = array();
-  switch ($delta) {
-    case 'cis_shortcodes_block':
-      $block['subject'] = '<none>';
-      // most common case for these, a node but we can embed other things
-      if ($entity = menu_get_object('node')) {
-        $field = _cis_shortcode_render_codes($entity, 'node');
-      }
-      // ugh; special support for harmony_thread
-      elseif ($entity = menu_get_object('harmony_thread')) {
-        $field = _cis_shortcode_render_codes($entity, 'harmony_thread');
-      }
-      // ugh; special support for harmony_post
-      elseif ($entity = menu_get_object('harmony_post')) {
-        $field = _cis_shortcode_render_codes($entity, 'harmony_post');
-      }
-      // see if we have some share fields to render
-      if (isset($field)) {
-        $block['content'] = drupal_render($field['cis_shortcodes']);
-      }
-      else {
-        $block['content'] = '';
-      }
-    break;
+  if (user_access('view cis shortcode')) {
+    switch ($delta) {
+      case 'cis_shortcodes_block':
+        $block['subject'] = '<none>';
+        // most common case for these, a node but we can embed other things
+        if ($entity = menu_get_object('node')) {
+          $field = _cis_shortcode_render_codes($entity, 'node');
+        }
+        // ugh; special support for harmony_thread
+        elseif ($entity = menu_get_object('harmony_thread')) {
+          $field = _cis_shortcode_render_codes($entity, 'harmony_thread');
+        }
+        // ugh; special support for harmony_post
+        elseif ($entity = menu_get_object('harmony_post')) {
+          $field = _cis_shortcode_render_codes($entity, 'harmony_post');
+        }
+        // see if we have some share fields to render
+        if (isset($field)) {
+          $block['content'] = drupal_render($field['cis_shortcodes']);
+        }
+        else {
+          $block['content'] = '';
+        }
+      break;
+    }
   }
   return $block;
 }
