@@ -2,6 +2,17 @@
 * Provide the HTML to create the modal dialog.
 */
 (function ($) {
+  Drupal.behaviors.cisShortcodeHighlight = {
+    attach: function(context) {
+      $('input.cis_shortcodes_embed').focus(function() { $(this).select() });
+      $('input.cis_shortcodes_embed').mouseup(function(e){
+        e.preventDefault();
+      });
+    }
+  };
+  $('.cis_shortcodes_embed').click(function(e) {
+    this.select();
+  });
   Drupal.theme.prototype.cis_filter_modal = function () {
     var html = '<div id="ctools-modal" class="popups-box close-reveal-modal">';
     html += '  <div class="ctools-modal-content ctools-modal-cis-filter-modal-content">';
