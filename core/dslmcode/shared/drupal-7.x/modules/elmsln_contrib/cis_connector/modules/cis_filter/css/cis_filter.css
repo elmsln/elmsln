@@ -15,3 +15,7 @@
 .unfinished {
   background-color: #ffaaaa;
 }
+
+.cis_filter_modal_frame {
+  border:none;
+}
