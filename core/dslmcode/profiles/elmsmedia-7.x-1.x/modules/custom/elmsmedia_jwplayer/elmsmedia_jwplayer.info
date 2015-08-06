@@ -1,0 +1,5 @@
+name = "ELMSMedia JWplayer support"
+description = "Video embed field support for jwplayer / bits on the run."
+core = 7.x
+dependencies[] = video_embed_field
+files[] = elmsmedia_helper.module
