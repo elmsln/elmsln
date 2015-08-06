@@ -1,62 +1,6 @@
 <?php
 
 /**
- * Implements theme_breadrumb().
- *
- * Print breadcrumbs as a list, with separators.
- */
-function mooc_foundation_access_breadcrumb($variables) {
-  $breadcrumb = $variables['breadcrumb'];
-  if (!empty($breadcrumb)) {
-    // @todo this method of breadcrumb handling might need to get shifted down into the line w/ the UI
-
-    // Provide a navigational heading to give context for breadcrumb links to
-    // screen-reader users. Make the heading invisible with .element-invisible.
-    $breadcrumbs = '<div class="content-element-region small-12 medium-12 large-centered large-10 columns book-parent-nav-container">
-    <h2 class="element-invisible">' . t('You are here') . '</h2>';
-
-    $breadcrumbs .= '<ul class="breadcrumbs">';
-
-    foreach ($breadcrumb as $key => $value) {
-      // @todo this is terrible and suggests we need to move all this to its own element
-      $split = explode('=', $value);
-      $split = explode('"', $split[1]);
-      $split = explode('/', $split[1]);
-      $node = node_load(array_pop($split));
-      if ($node && isset($node->book)) {
-        $tree = book_children($node->book);
-        $icon = '<li><h3 class="book-parent-nav-item"><div class="book-menu-item-' . $node->book['mlid'] . ' icon-content-outline-black outline-nav-icon"></div>';
-        $mlid = $node->book['mlid'];
-      }
-      else {
-        $tree = '';
-        $icon = '<li><h3 class="book-parent-nav-item">';
-        $mlid = '';
-      }
-      // do contextual drop down of items for all but last part of trail
-      if (count($breadcrumb) == ($key+1)) {
-        $icon .= strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span>') . '</h3></li>';
-        $breadcrumbs .= $icon;
-      }
-      else {
-        $icon .= strip_tags(htmlspecialchars_decode($value), '<br><br/><span></span>') . '</h3></li>';
-        $breadcrumbs .='<li class="toolbar-menu-icon book-parent-tree-wrapper">
-          <a href="#" class="book-parent-tree" data-dropdown="book-sibling-children-' . $mlid . '" aria-controls="middle-section-buttons" aria-expanded="false">
-          '. $icon . '</a>
-          </li>
-          <div id="book-sibling-children-' . $mlid . '" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">' . "\n" .
-          '<li>' . strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span></li><hr>')  . '</li><hr>' . $tree . "\n" .
-          '</div>' . "\n";
-      }
-    }
-
-    $breadcrumbs .= '</ul><hr class="book-parent-container"/></div>';
-
-    return $breadcrumbs;
-  }
-}
-
-/**
  * Implements template_preprocess_page.
  */
 function mooc_foundation_access_preprocess_page(&$variables) {
@@ -140,4 +84,13 @@ function mooc_foundation_access_menu_link__cis_service_connection_all_active_out
     break;
   }
   return _foundation_access_menu_outline($variables, $word, $number);
+}
+
+/**
+ * Implements theme_breadrumb().
+ *
+ * Print breadcrumbs as a list, with separators.
+ */
+function mooc_foundation_access_breadcrumb($variables) {
+  // hide breadcrumbs
 }
