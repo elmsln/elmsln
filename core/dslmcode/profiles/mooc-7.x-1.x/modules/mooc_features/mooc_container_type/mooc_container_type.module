@@ -26,7 +26,8 @@ function mooc_container_type_node_view($node, $view_mode, $langcode) {
         $result = db_select('menu_links', 'ml')
           ->fields('ml', array('link_path'))
           ->condition('plid', $mlid)
-          ->orderBy('weight', 'DESC')
+          ->orderBy('weight', 'ASC')
+          ->orderBy('link_title', 'ASC')
           ->execute();
         $view = '';
         // loop through deletes
