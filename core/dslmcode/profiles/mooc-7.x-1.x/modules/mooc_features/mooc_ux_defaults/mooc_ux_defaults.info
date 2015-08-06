@@ -11,6 +11,7 @@ dependencies[] = defaultconfig
 dependencies[] = features
 dependencies[] = field_group
 dependencies[] = menu
+dependencies[] = mooc_container_type
 dependencies[] = mooc_content_theming
 dependencies[] = mooc_helper_book_nav
 dependencies[] = outline_designer

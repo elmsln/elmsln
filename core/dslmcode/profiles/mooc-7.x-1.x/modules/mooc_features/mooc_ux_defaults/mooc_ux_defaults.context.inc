@@ -19,6 +19,7 @@ function mooc_ux_defaults_context_default_contexts() {
   $context->conditions = array(
     'node' => array(
       'values' => array(
+        'mooc_container' => 'mooc_container',
         'page' => 'page',
       ),
       'options' => array(
