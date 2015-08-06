@@ -22,7 +22,7 @@ function textbook_editor_filter_default_formats() {
         'weight' => -50,
         'status' => 1,
         'settings' => array(
-          'allowed_html' => '<div> <h2> <object> <embed> <param> <h3> <h4> <h5> <h6> <em> <iframe> <video> <strong> <img> <blockquote> <cite> <sup> <sub> <p> <ul> <ol> <li> <dl> <dt> <dd> <a> <table> <tr> <td> <th> <tbody> <thead> <tfoot> <colgroup> <caption> <hr>',
+          'allowed_html' => '<div> <h2> <fn> <object> <embed> <param> <h3> <h4> <h5> <h6> <em> <iframe> <video> <strong> <img> <blockquote> <cite> <sup> <sub> <p> <ul> <ol> <li> <dl> <dt> <dd> <a> <table> <tr> <td> <th> <tbody> <thead> <tfoot> <colgroup> <caption> <hr>',
           'filter_html_help' => 1,
           'filter_html_nofollow' => 0,
         ),
