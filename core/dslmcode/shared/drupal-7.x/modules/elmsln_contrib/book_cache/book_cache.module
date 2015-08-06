@@ -223,7 +223,7 @@ function _book_cache_get_associations($book_link) {
   // generate a unique call signature for bid and mlid
   $cid = $book_link['bid'] . ':' . $book_link['mlid'];
   // statically cache future calls
-  $data = &drupal_static(__FUNCTION__);
+  $data = &drupal_static(__FUNCTION__ . $cid);
   // @ignore druplart_conditional_assignment
   if (!$data && $cache = cache_get($cid, 'cache_book')) {
     $data = $cache->data;
