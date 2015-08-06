@@ -152,10 +152,12 @@ function theme_cis_filter_render($vars) {
             // this is usful if the target is figuring itself out
             if (isset($code['link'])) {
               $target_found = TRUE;
+              _cis_filter_attach_modal();
               $link = $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['link'];
               $result = '<div class="small-4 medium-6 elmsln-action-required cis-filter-activity-item icon-' . $code['tool'] . '-black">' . ctools_modal_text_button(t('@name', array('@name' => $code['text'])), $link, t('@name', array('@name' => html_entity_decode($code['text']))), 'ctools-modal-cis-filter-modal disable-scroll') . '</div>';
             }
             else {
+              $result = '';
               // allow for tokens that turn themselves into the correct submission contextually
               // this is one of the more ridiculous capabilities of this system
               $target_found = FALSE;
