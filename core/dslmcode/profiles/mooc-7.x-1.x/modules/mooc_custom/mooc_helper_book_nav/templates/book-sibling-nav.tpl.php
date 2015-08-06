@@ -20,7 +20,7 @@
 </li>
 <div id="book-sibling-children-<?php print $parent['mlid'] ?>" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
   <ul>
-  <?php
+<?php
   foreach ($items as $item) {
     // look for active trail item
     if ($parent['link_path'] == $item['link_path']) {
@@ -44,6 +44,6 @@
       ) . '</li>' . "\n";
     print $link;
   }
-  ?>
+?>
   </ul>
 </div>

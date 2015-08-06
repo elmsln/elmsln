@@ -29,7 +29,7 @@ function mooc_helper_book_nav_node_view($node, $view_mode, $langcode) {
 function mooc_helper_book_nav_block_info() {
   // provide block for rendering siblings in a line of the current page
   $blocks['book_sibling_nav'] = array(
-    'info' => t('Book below level navigation'),
+    'info' => t('Book breadcrumb navigation'),
     'cache' => DRUPAL_CACHE_PER_PAGE,
   );
 
@@ -56,26 +56,40 @@ function mooc_helper_book_nav_block_view($delta = '') {
         // loop through and generate a per level listing of all items
         $children = array();
         $parents = array();
-        // load all nodes that share the same parent as the current node
-        $results = db_select('menu_links', 'ml')
-          ->fields('ml', array('link_path'))
-          ->condition('menu_name', 'book-toc-' . $globalnode->book['bid'] , '=')
-          ->condition('plid', $globalnode->book['mlid'], '=')
-          ->orderBy('weight', 'ASC')
-          ->execute()
-          ->fetchAll();
         // get the parent of the current page
         $tmp = $globalnode->book;
+        // if this has children, load 1 so we have that data for below
+        if ($tmp['has_children']) {
+          // load all items that share the same parent as the current item
+          $results = db_select('menu_links', 'ml')
+            ->fields('ml')
+            ->condition('plid', $tmp['mlid'], '=')
+            ->orderBy('weight', 'ASC')
+            ->execute()
+            ->fetchAll();
+          // associate the items that are siblings of the same parent
+          foreach ($results as $item) {
+            $children[-1][] = (array)$item;
+          }
+          $tmp2 = $tmp;
+          $bid = explode('-', $tmp2['menu_name']);
+          $tmp2['bid'] = $bid[2];
+          $tmp2['mlid'] = -1;
+          $tmp2['link_path'] = '';
+          $tmp2['link_title'] = t('...');
+          $parents[-1] = $tmp2;
+        }
+
         // keep tapping parents up the tree til we hit the end
         while ($tmp['plid'] != 0) {
-          // load all nodes that share the same parent as the current node
+          // load all items that share the same parent as the current item
           $results = db_select('menu_links', 'ml')
             ->fields('ml')
             ->condition('plid', $tmp['plid'], '=')
             ->orderBy('weight', 'ASC')
             ->execute()
             ->fetchAll();
-          // associate the nodes that are siblings of the same parent
+          // associate the items that are siblings of the same parent
           foreach ($results as $item) {
             $children[$tmp['plid']][] = (array)$item;
           }
