@@ -87,7 +87,7 @@ function cis_service_connection_ux_form($form, $form_state) {
     $form['theme']['#title'] = t('Theme / Style settings');
     $form['theme']['#collapsed'] = '1';
     // add in the favicon / logo areas
-    // @todo these need to be cleaned up in order to work
+    // @todo logo / favicon work
     $form['theme']['favicon']  = $tmp['zurb_foundation']['general']['favicon'];
     $form['theme']['favicon']['#weight'] = 11;
     $form['theme']['logo'] = $tmp['zurb_foundation']['general']['logo'];
@@ -97,7 +97,8 @@ function cis_service_connection_ux_form($form, $form_state) {
         unset($value['#value']);
       }
     }
-    // submit handler
+    // submit handlers
+    $form['#validate'][] = 'system_theme_settings_validate';
     $form['#submit'][] = 'cis_service_connection_ux_form_submit';
   }
   return system_settings_form($form);
@@ -107,10 +108,11 @@ function cis_service_connection_ux_form($form, $form_state) {
  * Callback for the settings form.
  */
 function cis_service_connection_ux_form_submit($form, &$form_state) {
+  module_load_include('inc', 'system', 'system.admin');
   // load the current variables
   form_state_values_clean($form_state);
   // see if we have foundation access settings in here
-  if (isset($form_state['groups']['theme'])) {
+  if (isset($form_state['groups']['foundation_access'])) {
     // load the current settings array we'd get on the theme settings page
     $vars = variable_get('theme_' . variable_get('theme_default', '') . '_settings', array());
     foreach ($form_state['values'] as $key => $val) {
@@ -120,6 +122,35 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
         // unset so we don't get these stored in the database as stand alones
         unset($form_state['values'][$key]);
       }
+    }
+    // If the user uploaded a new logo or favicon, save it to a permanent location
+    // and use it in place of the default theme-provided file.
+    if ($file = $vars['logo_upload']) {
+      unset($vars['logo_upload']);
+      $filename = file_unmanaged_copy($file->uri);
+      $vars['default_logo'] = 0;
+      $vars['logo_path'] = $filename;
+      $vars['toggle_logo'] = 1;
+    }
+    if ($file = $vars['favicon_upload']) {
+      unset($vars['favicon_upload']);
+      $filename = file_unmanaged_copy($file->uri);
+      $vars['default_favicon'] = 0;
+      $vars['favicon_path'] = $filename;
+      $vars['toggle_favicon'] = 1;
+    }
+
+    // If the user entered a path relative to the system files directory for
+    // a logo or favicon, store a public:// URI so the theme system can handle it.
+    if (!empty($vars['logo_path'])) {
+      $vars['logo_path'] = _system_theme_settings_validate_path($vars['logo_path']);
+    }
+    if (!empty($vars['favicon_path'])) {
+      $vars['favicon_path'] = _system_theme_settings_validate_path($vars['favicon_path']);
+    }
+
+    if (empty($vars['default_favicon']) && !empty($vars['favicon_path'])) {
+      $vars['favicon_mimetype'] = file_get_mimetype($vars['favicon_path']);
     }
     // set the variables for the theme
     variable_set('theme_' . variable_get('theme_default', '') . '_settings', $vars);
