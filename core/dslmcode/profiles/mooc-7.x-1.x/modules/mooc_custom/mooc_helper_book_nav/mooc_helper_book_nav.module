@@ -49,6 +49,9 @@ function mooc_helper_book_nav_block_view($delta = '') {
       // load the node in scope globally at the moment and ensure we have one
       $globalnode = menu_get_object();
       if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
+        // @todo get all parents above me
+        // load everythign at each of the parent levels into one nav area
+        // there is effectively no low level nav then
         $nids = array();
         // load all nodes that share the same parent as the current node
         $results = db_select('menu_links', 'ml')
