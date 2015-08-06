@@ -1,12 +1,15 @@
 /* CSS Document */
-.book-sibling-nav-container,
-.book-parent-nav-container {
-  text-align: center;
-  margin: 0 auto;
+.book-menu-item-active {
+  background-color: #eeeeee;
 }
+
+.book-sibling-nav-container .page-previous,
+.book-sibling-nav-container .page-next {
+  margin-left:1em;
+}
+
 .book-sibling-nav-item,
 .book-parent-nav-item {
-  float:left;
   margin-right:1rem;
 }
 .etb-book h3.book-parent-nav-item {
@@ -27,30 +30,6 @@
 .book-sibling-nav-future-page .outline-nav-icon {
   opacity: 0.3;
   filter: alpha(opacity=30);
-}
-
-.breadcrumb-wrapper {
-    margin-bottom: 0 !important;
-    text-align: left;
-}
-
-.breadcrumbs>*:before {
-    content: "";
-}
-
-.breadcrumbs {
-    display: inline-block;
-    border: none;
-    display: block;
-    list-style: none;
-    margin-left: 0;
-    border: none;
-    margin:inherit;
-    background-color: #FFFFEE;
-}
-
-.toolbar-menu-icon.book-parent-tree-wrapper {
-  display: block;
 }
 
 .etb-book hr.book-parent-container {

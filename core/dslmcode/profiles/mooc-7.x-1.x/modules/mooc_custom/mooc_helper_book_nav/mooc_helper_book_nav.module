@@ -45,14 +45,17 @@ function mooc_helper_book_nav_block_view($delta = '') {
   // this is a ton of processing currently
   switch ($delta) {
     case 'book_sibling_nav':
+      // establish null blocks in the event below never triggers
       $block['subject'] = '';
+      $block['content'] = '';
       // load the node in scope globally at the moment and ensure we have one
       $globalnode = menu_get_object();
       if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
-        // @todo get all parents above me
-        // load everythign at each of the parent levels into one nav area
-        // there is effectively no low level nav then
-        $nids = array();
+        $breadcrumbs = array();
+        $count = 0;
+        // loop through and generate a per level listing of all items
+        $children = array();
+        $parents = array();
         // load all nodes that share the same parent as the current node
         $results = db_select('menu_links', 'ml')
           ->fields('ml', array('link_path'))
@@ -61,69 +64,80 @@ function mooc_helper_book_nav_block_view($delta = '') {
           ->orderBy('weight', 'ASC')
           ->execute()
           ->fetchAll();
-        // if we have no children, then shoot for siblings instead
-        if (empty($results)) {
+        // get the parent of the current page
+        $tmp = $globalnode->book;
+        // keep tapping parents up the tree til we hit the end
+        while ($tmp['plid'] != 0) {
+          // load all nodes that share the same parent as the current node
           $results = db_select('menu_links', 'ml')
-          ->fields('ml', array('link_path'))
-          ->condition('menu_name', 'book-toc-' . $globalnode->book['bid'] , '=')
-          ->condition('plid', $globalnode->book['plid'], '=')
-          ->orderBy('weight', 'ASC')
-          ->execute()
-          ->fetchAll();
-        }
-        // convert menu associations into node ids
-        foreach ($results as $item) {
-          $nids[] = str_replace('node/', '', $item->link_path);
+            ->fields('ml')
+            ->condition('plid', $tmp['plid'], '=')
+            ->orderBy('weight', 'ASC')
+            ->execute()
+            ->fetchAll();
+          // associate the nodes that are siblings of the same parent
+          foreach ($results as $item) {
+            $children[$tmp['plid']][] = (array)$item;
+          }
+          // load the parent of the current item
+          $cache = _book_cache_get_associations($tmp);
+          // set next / prev relative to the globalnode
+          if (!isset($next_url)) {
+            $next_url = url($cache['next']['link_path']);
+            $prev_url = url($cache['prev']['link_path']);
+          }
+          $parents[$tmp['plid']] = $tmp;
+          $tmp = $cache['parent'];
         }
         // ensure we have results to style
-        if (!empty($nids)) {
-          // load all nodes
-          $nodes = entity_load('node', $nids);
-          // load the associations to other items from cache if we have it
-          $data = _book_cache_get_associations($globalnode->book);
-          $items = array();
-          $active = 'past-page';
-          $count = 0;
-          // loop through each node and build the menu item out
-          foreach ($nodes as $node) {
-            $count++;
-            // default is a page icon
-            $icon = 'page';
-            // allow for modification of the book item icon to match mooc / FA
-            $ml = $node->book;
-            $ml['#href'] = $node->book['link_path'];
-            drupal_alter('foundation_access_menu_item_icon', $icon, $ml);
-            // we are passing in the page they are currently on so disable active
-            if ($node->nid == $globalnode->nid) {
-              $active = 'current-page';
+        if (!empty($children)) {
+          $firstlevel = TRUE;
+          // loop through the menu items associated to each menu parent
+          foreach($children as $mlid => $menu_items) {
+            $items = array();
+            // load the associations to other items from cache if we have it
+            $data = _book_cache_get_associations($parents[$mlid]);
+            // loop through each menu item and build the menu item out
+            foreach ($menu_items as $menu_item) {
+              // default is a page icon
+              $icon = NULL;
+              // allow for modification of the book item icon to match mooc / FA
+              $ml = $menu_item;
+              // support for token replacement
+              if (module_exists('token')) {
+                $ml['link_path'] = token_replace($ml['link_path']);
+              }
+              // only perform icon look up for lowest level
+              if ($firstlevel) {
+                $count++;
+                // #href proprety expected for use in the FA menu item icon
+                $ml['#href'] = $menu_item['link_path'];
+                drupal_alter('foundation_access_menu_item_icon', $icon, $ml);
+                $ml['count'] = $count;
+                $ml['icon'] = $icon;
+              }
+              // see if current item is the parent item, set to same compiled result if it is
+              if (isset($parents[$menu_item['plid']]) && $parents[$menu_item['plid']]['mlid'] == $menu_item['mlid']) {
+                $parents[$menu_item['plid']] = $ml;
+              }
+              // send compiled menu link off to theme engine for rendering
+              $items[] = $ml;
             }
-            $print_title = FALSE;
-            $children = array();
-            // structure results as a single item for easy theming
-            if ($node->book['has_children']) {
-              $icon = 'content-outline';
-              // @todo set this to TRUE once we style appropriately
-              $print_title = TRUE;
-              $children = book_children($node->book);
-            }
-
-            $items[] = array(
-              'count' => $count,
-              'nid' => $node->nid,
-              'mlid' => $node->book['mlid'],
-              'title' => token_replace($node->book['link_title'], array('node' => $node)),
-              'icon' => $icon,
-              'active' => $active,
-              'print-title' => $print_title,
-              'tree' => $children,
-            );
-
-            // we are passing in the page they are currently on so disable active
-            if ($node->nid == $globalnode->nid) {
-              $active = 'future-page';
-            }
+            $firstlevel = FALSE;
+            $breadcrumbs[] = theme('book_sibling_nav', array('parent' => $parents[$mlid] ,'items' => $items));
           }
-          $block['content'] = theme('book_sibling_nav', array('items' => $items));
+          // reverse the items cause they load the opposite order of rendering
+          // since it goes backwards up the tree
+          $breadcrumbs = array_reverse($breadcrumbs);
+          $vars = array(
+            'breadcrumbs' => $breadcrumbs,
+            'next_url' => $next_url,
+            'next_title' => t('>'),
+            'prev_url' => $prev_url,
+            'prev_title' => t('<')
+          );
+          // output contents by passing through the wrapper theme function
+          $block['content'] = theme('book_sibling_nav_wrapper', $vars);
         }
       }
     break;
@@ -138,26 +152,23 @@ function mooc_helper_book_nav_theme() {
   return array(
     'book_sibling_nav' => array(
       'variables' => array(
+        'parent' => array(),
         'items' => array(),
       ),
       'render element' => 'element',
       'template' => 'templates/book-sibling-nav',
     ),
+    'book_sibling_nav_wrapper' => array(
+      'variables' => array(
+        'breadcrumbs' => array(),
+        'next_url' => NULL,
+        'next_title' => t('Next'),
+        'prev_url' => NULL,
+        'prev_title' => t('Previous'),
+      ),
+      'render element' => 'element',
+      'template' => 'templates/book-sibling-nav-wrapper',
+    ),
   );
 }
 
-/**
- * Implements hook_menu_breadcrumb_alter().
- */
-function mooc_helper_book_nav_menu_breadcrumb_alter(&$active_trail, $item) {
-  // only do this in the node structure
-  if (arg(0) == 'node') {
-    // pop off home
-    array_shift($active_trail);
-    array_shift($active_trail);
-    // add the current page item if it has children so we can get to them
-    if (isset($item['page_arguments'][2]->book) && $item['page_arguments'][2]->book['has_children']) {
-      $active_trail[] = $item['page_arguments'][2]->book;
-    }
-  }
-}
