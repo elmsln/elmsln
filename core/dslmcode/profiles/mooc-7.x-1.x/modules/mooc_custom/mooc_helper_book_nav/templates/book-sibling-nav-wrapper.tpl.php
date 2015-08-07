@@ -12,17 +12,21 @@
    * - $prev_url: URL to the previous node.
    * - $prev_title: Title of the previous node.
    */
-  $output = implode('>', $breadcrumbs);
+  $output = implode('<span class="book-sibling-spacer">></span>', $breadcrumbs);
 ?>
 <div class="small-12 medium-12 large-10 columns book-sibling-nav-container">
   <?php print $output ?>
   <?php if ($prev_url): ?>
-    <a href="<?php print $prev_url; ?>" class="page-previous" title="<?php print t('Go to previous page'); ?>"><?php print $prev_title; ?></a>
+    <li class="toolbar-menu-icon book-sibling-parent-pagination">
+      <a href="<?php print $prev_url; ?>" class="page-previous" title="<?php print t('Go to previous page'); ?>"><?php print $prev_title; ?></a>
+    </li>
   <?php else : ?>
     <span class="page-previous"><?php print t('<'); ?></span>
   <?php endif; ?>
   <?php if ($next_url): ?>
-    <a href="<?php print $next_url; ?>" class="page-next" title="<?php print t('Go to next page'); ?>"><?php print $next_title; ?></a>
+    <li class="toolbar-menu-icon book-sibling-parent-pagination">
+      <a href="<?php print $next_url; ?>" class="page-next" title="<?php print t('Go to next page'); ?>"><?php print $next_title; ?></a>
+    </li>
   <?php else : ?>
     <span class="page-next"><?php print t('>'); ?></span>
   <?php endif; ?>

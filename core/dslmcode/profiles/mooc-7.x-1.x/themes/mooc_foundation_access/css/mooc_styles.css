@@ -3,9 +3,90 @@
   background-color: #eeeeee;
 }
 
+.book-sibling-nav-container {
+  line-height: 3rem;
+  margin-bottom:1rem;
+}
+.book-navigation {
+  display:none;
+}
+
+.book-sibling-children a{
+  line-height: 2rem;
+}
+
+@media all and (max-width: 720px) {
+  .book-navigation {
+    display: block !important;
+  }
+  .book-sibling-parent,
+  .book-sibling-parent a {
+    clear:both;
+    width:100%;
+    font-size: .75em;
+    line-height: .75em;
+  }
+  .book-sibling-parent-pagination {
+    display: none;
+  }
+  .book-sibling-spacer {
+    display: none;
+  }
+}
+
 .book-sibling-nav-container .page-previous,
 .book-sibling-nav-container .page-next {
-  margin-left:1em;
+  font-size: 1.5rem;
+  line-height: 3rem;
+  color: #222222;
+  padding: 0 2rem;
+  margin: -2px 0 2px;
+}
+
+.book-sibling-spacer {
+  margin:.25rem 1rem;
+  font-size: 1.25rem;
+  line-height: 3rem;
+}
+
+.book-sibling-parent {
+  border:1px solid #eeeeee;
+  line-height: 3rem;
+  font-size: 1.25rem;
+  color:#222222;
+  text-align: center;
+}
+
+.book-sibling-parent a{
+  color:#222222;
+  min-width: 5rem;
+  padding: 0 1rem;
+}
+.book-sibling-parent div{
+  line-height: 2rem;
+  padding: 1.5rem;
+  margin-right: .5rem;
+}
+
+.book-sibling-parent div.icon-chevron-down-black {
+  margin: 0 0rem -.5rem;
+  padding: 1rem;
+}
+
+.book-sibling-parent:hover {
+  border:1px solid #dddddd;
+  background-color: #eeeeee;
+}
+
+.book-sibling-parent-pagination {
+  border:1px solid #eeeeee;
+  line-height: 3rem;
+  color:#222222;
+  text-align: center;
+}
+.book-sibling-parent-pagination:hover {
+  border:1px solid #dddddd;
+  background-color: #eeeeee;
 }
 
 .book-sibling-nav-item,
