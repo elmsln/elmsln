@@ -8,17 +8,25 @@
    * $items - an array of menu items, optionally with count and icon defined
    */
   $pre = '';
+  // support for ... with screen readers
+  if ($parent['mlid'] == -1) {
+    $ptitle = t('Pages nested below the current one.');
+  }
+  else {
+    $ptitle = t('Pages on the same level as @name', array('@name' => $parent['link_title']));
+  }
   // support for icon / count on lowest level parent
   if (isset($parent['icon'])) {
     $pre = $parent['count'] . '. ' . ' <div class="book-menu-item-' . $parent['mlid'] . ' icon-' . $parent['icon'] . '-black outline-nav-icon"></div>';
   }
 ?>
-<li class="toolbar-menu-icon book-parent-tree-wrapper">
-  <a href="#" class="book-parent-tree" data-dropdown="book-sibling-children-<?php print $parent['mlid'] ?>" aria-controls="middle-section-buttons" aria-expanded="false">
+<li class="toolbar-menu-icon book-sibling-parent">
+  <a href="#" title="<?php print $ptitle ?>" class="book-parent-tree" data-dropdown="book-sibling-children-<?php print $parent['mlid'] ?>" aria-controls="middle-section-buttons" aria-expanded="false">
     <?php print $pre . $parent['link_title'] ?>
+    <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
   </a>
 </li>
-<div id="book-sibling-children-<?php print $parent['mlid'] ?>" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
+<div id="book-sibling-children-<?php print $parent['mlid'] ?>" data-dropdown-content class="f-dropdown content book-sibling-children" aria-hidden="true" tabindex="-1">
   <ul>
 <?php
   foreach ($items as $item) {
