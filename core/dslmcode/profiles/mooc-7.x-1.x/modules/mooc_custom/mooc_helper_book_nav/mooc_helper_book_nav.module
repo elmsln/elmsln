@@ -123,6 +123,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
               }
               // only perform icon look up for lowest level
               if ($firstlevel) {
+                $icon = 'page';
                 $count++;
                 // #href proprety expected for use in the FA menu item icon
                 $ml['#href'] = $menu_item['link_path'];
