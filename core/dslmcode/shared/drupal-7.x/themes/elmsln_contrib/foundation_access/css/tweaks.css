@@ -32,8 +32,14 @@ h1#page-title {
   padding: 0rem 0 2rem;
 }
 
-.toolbar-menu-icon {
+/* inline flex support in browsers that don't support it currently */
+.toolbar-menu-icon,
+.content-outline-navigation h2,
+.content-outline-navigation h3,
+ul.off-canvas-list .left-submenu li.back {
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex;
 }
+
+
