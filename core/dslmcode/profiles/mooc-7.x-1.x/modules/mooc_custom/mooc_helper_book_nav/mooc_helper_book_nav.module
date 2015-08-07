@@ -106,11 +106,10 @@ function mooc_helper_book_nav_block_view($delta = '') {
         // ensure we have results to style
         if (!empty($children)) {
           $firstlevel = TRUE;
+          $icons = TRUE;
           // loop through the menu items associated to each menu parent
           foreach($children as $mlid => $menu_items) {
             $items = array();
-            // load the associations to other items from cache if we have it
-            $data = _book_cache_get_associations($parents[$mlid]);
             // loop through each menu item and build the menu item out
             foreach ($menu_items as $menu_item) {
               // default is a page icon
@@ -122,14 +121,8 @@ function mooc_helper_book_nav_block_view($delta = '') {
                 $ml['link_path'] = token_replace($ml['link_path']);
               }
               // only perform icon look up for lowest level
-              if ($firstlevel) {
-                $icon = 'page';
-                $count++;
-                // #href proprety expected for use in the FA menu item icon
-                $ml['#href'] = $menu_item['link_path'];
-                drupal_alter('foundation_access_menu_item_icon', $icon, $ml);
-                $ml['count'] = $count;
-                $ml['icon'] = $icon;
+              if ($firstlevel && $ml['has_children']) {
+                $icons = FALSE;
               }
               // see if current item is the parent item, set to same compiled result if it is
               if (isset($parents[$menu_item['plid']]) && $parents[$menu_item['plid']]['mlid'] == $menu_item['mlid']) {
@@ -137,6 +130,21 @@ function mooc_helper_book_nav_block_view($delta = '') {
               }
               // send compiled menu link off to theme engine for rendering
               $items[] = $ml;
+            }
+            // need to dump icons because something had children at this level
+            if ($firstlevel && $icons) {
+              foreach ($items as &$item) {
+                $icon = 'page';
+                // #href proprety expected for use in the FA menu item icon
+                $item['#href'] = $item['link_path'];
+                drupal_alter('foundation_access_menu_item_icon', $icon, $item);
+                $count++;
+                $item['count'] = $count;
+                $item['icon'] = $icon;
+                if (isset($parents[$item['plid']]) && $parents[$item['plid']]['mlid'] == $item['mlid']) {
+                  $parents[$item['plid']] = $item;
+                }
+              }
             }
             $firstlevel = FALSE;
             $breadcrumbs[] = theme('book_sibling_nav', array('parent' => $parents[$mlid] ,'items' => $items));

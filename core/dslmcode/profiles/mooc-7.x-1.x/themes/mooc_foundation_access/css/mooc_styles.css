@@ -34,6 +34,18 @@
   }
 }
 
+.book-sibling-nav-container .f-dropdown.content {
+  max-width: 300px;
+}
+.book-sibling-nav-container .f-dropdown.content ul{
+  margin:0;
+}
+.book-sibling-nav-container .f-dropdown.content ul li a {
+  margin: 0;
+  font-size: .75rem;
+  line-height: 1rem;
+}
+
 .book-sibling-nav-container .page-previous,
 .book-sibling-nav-container .page-next {
   font-size: 1.5rem;
