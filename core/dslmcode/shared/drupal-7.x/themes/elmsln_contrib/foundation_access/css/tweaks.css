@@ -31,3 +31,9 @@ h1#page-title {
   line-height: 0.9em;
   padding: 0rem 0 2rem;
 }
+
+.toolbar-menu-icon {
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+}
