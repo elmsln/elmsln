@@ -10,6 +10,9 @@
   line-height: 3rem;
   margin-bottom:1rem;
 }
+.book-sibling-parent-pagination-wrapper {
+  float: right;
+}
 .book-navigation-footer {
   margin: 3rem 0;
 }
