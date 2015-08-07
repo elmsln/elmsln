@@ -7,31 +7,18 @@
   line-height: 3rem;
   margin-bottom:1rem;
 }
-.book-navigation {
-  display:none;
+.book-navigation-footer {
+  margin: 3rem 0;
+}
+.book-navigation-footer .book-sibling-parent-pagination-previous {
+  float:left;
+}
+.book-navigation-footer .book-sibling-parent-pagination-next {
+  float:right;
 }
 
 .book-sibling-children a{
   line-height: 2rem;
-}
-
-@media all and (max-width: 720px) {
-  .book-navigation {
-    display: block !important;
-  }
-  .book-sibling-parent,
-  .book-sibling-parent a {
-    clear:both;
-    width:100%;
-    font-size: .75em;
-    line-height: .75em;
-  }
-  .book-sibling-parent-pagination {
-    display: none;
-  }
-  .book-sibling-spacer {
-    display: none;
-  }
 }
 
 .book-sibling-nav-container .f-dropdown.content {
@@ -135,4 +122,21 @@
 
 .etb-book .content-element-region {
   padding-top:.5rem;
+}
+
+@media all and (max-width: 720px) {
+  .book-sibling-parent,
+  .book-sibling-parent a {
+    clear: both;
+    width: 100%;
+    font-size: 1rem;
+    line-height: 2rem;
+    padding: .5rem 0;
+  }
+  .book-navigation-header .book-sibling-parent-pagination {
+    display: none;
+  }
+  .book-sibling-spacer {
+    display: none;
+  }
 }
