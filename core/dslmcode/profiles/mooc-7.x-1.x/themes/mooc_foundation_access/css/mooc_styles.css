@@ -2,6 +2,9 @@
 .book-menu-item-active {
   background-color: #eeeeee;
 }
+.book-sibling-parent a.book-parent-tree.active{
+  text-decoration: underline;
+}
 
 .book-sibling-nav-container {
   line-height: 3rem;
@@ -48,7 +51,9 @@
 
 .book-sibling-spacer {
   margin:.25rem 1rem;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
+  line-height: 3rem;
+  color: #222222;
   line-height: 3rem;
 }
 

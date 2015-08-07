@@ -77,6 +77,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
           $tmp2['mlid'] = -1;
           $tmp2['link_path'] = '';
           $tmp2['link_title'] = t('...');
+          $tmp2['_class'] = 'book-parent-tree';
           $parents[-1] = $tmp2;
         }
 
@@ -127,6 +128,11 @@ function mooc_helper_book_nav_block_view($delta = '') {
               // see if current item is the parent item, set to same compiled result if it is
               if (isset($parents[$menu_item['plid']]) && $parents[$menu_item['plid']]['mlid'] == $menu_item['mlid']) {
                 $parents[$menu_item['plid']] = $ml;
+                $parents[$menu_item['plid']]['_class'] = 'book-parent-tree';
+                // see if the active global is this parent item
+                if ($menu_item['mlid'] == $globalnode->book['mlid']) {
+                  $parents[$menu_item['plid']]['_class'] .= ' active';
+                }
               }
               // send compiled menu link off to theme engine for rendering
               $items[] = $ml;
@@ -139,10 +145,15 @@ function mooc_helper_book_nav_block_view($delta = '') {
                 $item['#href'] = $item['link_path'];
                 drupal_alter('foundation_access_menu_item_icon', $icon, $item);
                 $count++;
-                $item['count'] = $count;
-                $item['icon'] = $icon;
+                $item['_count'] = $count;
+                $item['_icon'] = $icon;
                 if (isset($parents[$item['plid']]) && $parents[$item['plid']]['mlid'] == $item['mlid']) {
                   $parents[$item['plid']] = $item;
+                  $parents[$item['plid']]['_class'] = 'book-parent-tree';
+                  // see if the active global is this parent item
+                  if ($item['mlid'] == $globalnode->book['mlid']) {
+                    $parents[$item['plid']]['_class'] .= ' active';
+                  }
                 }
               }
             }
