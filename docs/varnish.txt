@@ -57,14 +57,6 @@ set req.backend = default;
       return (pass);
   }
 
-  # Do not allow outside access to cron.php or install.php
-  if (req.url ~ "^/(cron|install)\.php$" && !client.ip ~ internal) {
-    # Have Varnish throw the error directly.
-    error 404 "Page not found.";
-    # Use a custom error page that you've defined in Drupal at the path "404".
-    # set req.url = "/404";
-  }
-
   # Always cache the following file types for all users.
   if (req.url ~ "(?i)\.(png|gif|jpeg|jpg|ico|swf|css|js|html|htm)(\?[a-z0-9]+)?$") {
     unset req.http.Cookie;
@@ -125,7 +117,6 @@ set req.backend = default;
         unset req.http.cookie;
     }
 }
-
 
 sub vcl_hit {
 	if (req.request == "PURGE") {
