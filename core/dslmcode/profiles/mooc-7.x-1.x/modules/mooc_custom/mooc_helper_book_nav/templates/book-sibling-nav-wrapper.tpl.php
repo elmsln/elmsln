@@ -11,10 +11,11 @@
    * - $next_title: Title of the next node.
    * - $prev_url: URL to the previous node.
    * - $prev_title: Title of the previous node.
+   * - $count - number of children in the container so we can name the wrapper
    */
   $output = implode('<span class="book-sibling-spacer">/</span>', $breadcrumbs);
 ?>
-<div class="book-navigation-header small-12 medium-12 large-12 book-sibling-nav-container">
+<div class="book-navigation-header small-12 medium-12 large-12 book-sibling-nav-container book-navigation-header-<?php print $count ?>">
   <?php print $output ?>
   <div class="book-sibling-parent-pagination-wrapper">
   <?php if ($prev_url): ?>

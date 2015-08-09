@@ -53,6 +53,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
       if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
         $breadcrumbs = array();
         $count = 0;
+        $nav_count = 0;
         // loop through and generate a per level listing of all items
         $children = array();
         $parents = array();
@@ -157,8 +158,9 @@ function mooc_helper_book_nav_block_view($delta = '') {
                 }
               }
             }
+            $nav_count++;
             $firstlevel = FALSE;
-            $breadcrumbs[] = theme('book_sibling_nav', array('parent' => $parents[$mlid] ,'items' => $items));
+            $breadcrumbs[] = theme('book_sibling_nav', array('parent' => $parents[$mlid] ,'items' => $items, 'count' => $nav_count));
           }
           // reverse the items cause they load the opposite order of rendering
           // since it goes backwards up the tree
@@ -168,7 +170,8 @@ function mooc_helper_book_nav_block_view($delta = '') {
             'next_url' => $next_url,
             'next_title' => t('>'),
             'prev_url' => $prev_url,
-            'prev_title' => t('<')
+            'prev_title' => t('<'),
+            'count' => $nav_count,
           );
           // output contents by passing through the wrapper theme function
           $block['content'] = theme('book_sibling_nav_wrapper', $vars);
@@ -188,6 +191,7 @@ function mooc_helper_book_nav_theme() {
       'variables' => array(
         'parent' => array(),
         'items' => array(),
+        'count' => 1,
       ),
       'render element' => 'element',
       'template' => 'templates/book-sibling-nav',
@@ -199,6 +203,7 @@ function mooc_helper_book_nav_theme() {
         'next_title' => t('Next'),
         'prev_url' => NULL,
         'prev_title' => t('Previous'),
+        'count' => 1,
       ),
       'render element' => 'element',
       'template' => 'templates/book-sibling-nav-wrapper',

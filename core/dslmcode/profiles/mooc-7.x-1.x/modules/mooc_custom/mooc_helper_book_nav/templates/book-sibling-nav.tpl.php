@@ -20,7 +20,7 @@
     $pre = $parent['_count'] . '. ' . ' <div class="book-menu-item-' . $parent['mlid'] . ' icon-' . $parent['_icon'] . '-black outline-nav-icon"></div>';
   }
 ?>
-<li class="toolbar-menu-icon book-sibling-parent">
+<li class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
   <a href="#" title="<?php print $ptitle ?>" class="<?php print $parent['_class'] ?>" data-dropdown="book-sibling-children-<?php print $parent['mlid'] ?>" aria-controls="middle-section-buttons" aria-expanded="false">
     <?php print $pre . $parent['link_title'] ?>
     <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
