@@ -49,7 +49,7 @@ sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varn
 sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
 cat /dev/null > /etc/varnish/default.vcl
 cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
-sed -i 's/80/8080/g' /etc/httpd/conf.d/elmsln.conf
+
 service varnish start
 
 # make an admin group
