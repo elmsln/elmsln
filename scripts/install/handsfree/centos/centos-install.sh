@@ -35,6 +35,24 @@ setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
 /etc/init.d/mysqld restart
 
+#install varnish
+rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
+yum install varnish -y
+
+sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varnish
+sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
+cat /dev/null > /etc/varnish/default.vcl
+cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
+
+service varnish start
+
+# make an admin group
+groupadd admin
+# run the handsfree installer that's the same for all deployments
+# kick off hands free deployment
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
+
+
 # get things in place so that we can run mysql / php 5.5
 rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
 rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
@@ -58,22 +76,6 @@ echo "opcache.max_wasted_percentage=10" >> /etc/php.ini
 echo "opcache.validate_timestamps=0" >> /etc/php.ini
 echo "opcache.fast_shutdown=1" >> /etc/php.ini
 
-#install varnish
-rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
-yum install varnish -y
-
-sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varnish
-sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
-cat /dev/null > /etc/varnish/default.vcl
-cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
-
-service varnish start
-
-# make an admin group
-groupadd admin
-# run the handsfree installer that's the same for all deployments
-# kick off hands free deployment
-bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
 cd $HOME
 source .bashrc
 end="$(timestamp)"
