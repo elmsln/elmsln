@@ -1,41 +1,41 @@
 #ELMSLN domains.conf recommendations
-NameVirtualHost *:8080
-<VirtualHost *:8080>
+NameVirtualHost *:80
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/online
     ServerName online.YOURUNIT.edu
     ServerAlias DATA.online.SERVICEYOURUNIT.edu
 </VirtualHost>
-<VirtualHost *:8080>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/courses
     ServerName courses.YOURUNIT.edu
     ServerAlias DATA.courses.SERVICEYOURUNIT.edu
 </VirtualHost>
-<VirtualHost *:8080>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/media
     ServerName media.YOURUNIT.edu
     ServerAlias DATA.media.SERVICEYOURUNIT.edu
 </VirtualHost>
-<VirtualHost *:8080>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/interact
     ServerName interact.YOURUNIT.edu
     ServerAlias DATA.interact.SERVICEYOURUNIT.edu
 </VirtualHost>
-<VirtualHost *:8080>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/blog
     ServerName blog.YOURUNIT.edu
     ServerAlias DATA.blog.SERVICEYOURUNIT.edu
 </VirtualHost>
-<VirtualHost *:8080>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/studio
     ServerName studio.YOURUNIT.edu
     ServerAlias DATA.studio.SERVICEYOURUNIT.edu
 </VirtualHost>
-<VirtualHost *:8080>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/comply
     ServerName comply.YOURUNIT.edu
     ServerAlias DATA.comply.SERVICEYOURUNIT.edu
 </VirtualHost>
-<VirtualHost *:8080>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/discuss
     ServerName discuss.YOURUNIT.edu
     ServerAlias DATA.discuss.SERVICEYOURUNIT.edu
@@ -45,7 +45,7 @@ NameVirtualHost *:8080
     ServerName inbox.YOURUNIT.edu
     ServerAlias DATA.inbox.SERVICEYOURUNIT.edu
 </VirtualHost>
-<VirtualHost *:8080>
+<VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/analytics
     ServerName analytics.YOURUNIT.edu
 </VirtualHost>
