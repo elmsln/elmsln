@@ -418,9 +418,11 @@ function _cis_service_connection_section_outline_tree_output($tree, $type = 'def
 
   // Pull out just the menu links we are going to render so that we
   // get an accurate count for the first/last classes.
-  foreach ($tree as $data) {
-    if ($data['link']['access'] && !$data['link']['hidden']) {
-      $items[] = $data;
+  if (is_array($tree)) {
+    foreach ($tree as $data) {
+      if ($data['link']['access'] && !$data['link']['hidden']) {
+        $items[] = $data;
+      }
     }
   }
   $router_item = menu_get_item();
