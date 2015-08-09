@@ -24,24 +24,10 @@ rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
 # make sure we're up to date w/ the remi repos
 yes | yum update
 # using yum to install the main packages
-yes | yum -y install patch git nano gcc make mysql mysql-server httpd php php-gd php-xml php-pdo php-mbstring php-mysql php-pear php-devel php-pecl-ssh2 php-pecl-apc php-mcrypt*
-
+yes | yum -y --enablerepo=remi,remi-php55 install patch git nano gcc php-cli make mysql mysql-server httpd php php-common php-gd php-xml php-pdo php-mbstring php-mysql php-pear php-devel php-pecl-ssh2 php-pecl-apc php-mcrypt php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached
 yes | yum groupinstall 'Development Tools'
-# using pecl to install uploadprogress
-pecl channel-update pecl.php.net
-
-# set httpd_can_sendmail so drupal mails go out
-setsebool -P httpd_can_sendmail on
-# start mysql to ensure that it is running
+# restart mysql / apache
 /etc/init.d/mysqld restart
-
-# get things in place so that we can run mysql / php 5.5
-rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
-rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-yes | yum -y --enablerepo=remi install mysql mysql-server
-/etc/init.d/mysqld restart
-yes | yum -y --enablerepo=remi,remi-php55 install httpd php php-common
-yes | yum -y --enablerepo=remi,remi-php55 install php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
 /etc/init.d/httpd restart
 
 # optimize apc
@@ -57,6 +43,11 @@ echo "opcache.max_accelerated_files=10000" >> /etc/php.ini
 echo "opcache.max_wasted_percentage=10" >> /etc/php.ini
 echo "opcache.validate_timestamps=0" >> /etc/php.ini
 echo "opcache.fast_shutdown=1" >> /etc/php.ini
+# using pecl to install uploadprogress
+pecl channel-update pecl.php.net
+
+# set httpd_can_sendmail so drupal mails go out
+setsebool -P httpd_can_sendmail on
 
 #install varnish
 rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
