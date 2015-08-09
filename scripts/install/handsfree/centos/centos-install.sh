@@ -40,6 +40,18 @@ echo extension=uploadprogress.so > /etc/php.d/uploadprogress.ini
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
 /etc/init.d/mysqld restart
+
+#install varnish
+rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
+yum install varnish -y
+
+sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varnish
+sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
+cat /dev/null > /etc/varnish/default.vcl
+cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
+
+service varnish start
+
 # make an admin group
 groupadd admin
 # run the handsfree installer that's the same for all deployments

@@ -293,6 +293,11 @@ if [[ -n "$domains" ]]; then
   fi
 fi
 
+# if this is rhel prepared the domains for varnish.
+if [ $os == '1' ]; then
+  sed -i 's/80/8080/g' /etc/httpd/conf.d/elmsln.conf
+fi
+
 if [[ -n "$zzz_performance" ]]; then
   cp /var/www/elmsln/docs/zzz_performance.conf $zzz_performance
   # account for ubuntu being a little different here when it comes to apache
