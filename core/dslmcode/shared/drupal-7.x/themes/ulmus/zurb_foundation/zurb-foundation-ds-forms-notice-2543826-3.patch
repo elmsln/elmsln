@@ -1,0 +1,40 @@
+diff --git a/template.php b/template.php
+index 1351fb2..704c62d 100644
+--- a/template.php
++++ b/template.php
+@@ -994,6 +994,10 @@ function _zurb_foundation_add_reveals() {
+  * Implements hook_theme_registry_alter().
+  */
+ function zurb_foundation_theme_registry_alter(&$theme_registry) {
++  // support for ds_forms
++  if (module_exists('ds_forms') && isset($theme_registry['ds_forms_custom_form'])) {
++    $theme_registry['ds_forms_custom_form']['preprocess functions'][] = 'zurb_foundation_entity_variables_ds_form';
++  }
+   // Add our own preprocess function to entities so we can add default classes
+   // to our custom Display Suite layouts.
+   $entity_info = entity_get_info();
+@@ -1199,6 +1203,24 @@ function zurb_foundation_entity_variables(&$vars) {
+   }
+ }
+ 
++
++/**
++ * Add default classes to Display Suite regions if none are set.
++ *
++ * This approach was taken from Display Suite.
++ *
++ * @see zurb_foundation_theme_registry_alter()
++ * @see zurb_foundation_entity_variables()
++ */
++function zurb_foundation_entity_variables_ds_form(&$vars) {
++  $vars['rendered_by_ds'] = TRUE;
++  $vars['elements']['#entity_type'] = $vars['form']['#entity_type'];
++  $vars['elements']['#bundle'] = $vars['form']['#bundle'];
++  $vars['elements']['#view_mode'] = 'form';
++  // reuse of the entity_variables function after setting things
++  zurb_foundation_entity_variables($vars);
++}
++
+ /**
+  * Implements hook_process_html_tag().
+  *
