@@ -57,4 +57,7 @@ ul.off-canvas-list .left-submenu li.back {
   display: inline-flex;
 }
 
-
+/* Removed the outline focus on the dropdown element */
+.f-dropdown.content:focus {
+  outline-style: none;
+}
