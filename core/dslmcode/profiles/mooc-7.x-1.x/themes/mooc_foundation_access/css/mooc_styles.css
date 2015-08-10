@@ -1,150 +1,233 @@
-/* CSS Document */
-.book-menu-item-active {
-  background-color: #eeeeee;
+.book-navigation-header {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
 }
-.book-sibling-parent a.book-parent-tree.active{
-  text-decoration: underline;
+
+.book-sibling-parent-pagination-wrapper {
+  margin-left: auto;
 }
 
 .book-sibling-nav-container {
-  line-height: 3rem;
-  margin-bottom:1rem;
+  margin-bottom: 1rem;
 }
+
 .book-sibling-parent-pagination-wrapper {
   float: right;
 }
+
 .book-navigation-footer {
   margin: 3rem 0;
 }
+
 .book-navigation-footer .book-sibling-parent-pagination-previous {
-  float:left;
-}
-.book-navigation-footer .book-sibling-parent-pagination-next {
-  float:right;
+  float: left;
 }
 
-.book-sibling-children a{
+.book-navigation-footer .book-sibling-parent-pagination-next {
+  float: right;
+}
+
+.book-sibling-children a {
   line-height: 2rem;
 }
 
 .book-sibling-nav-container .f-dropdown.content {
   max-width: 300px;
 }
-.book-sibling-nav-container .f-dropdown.content ul{
-  margin:0;
+
+.book-sibling-nav-container .f-dropdown.content ul {
+  margin: 0;
 }
+
 .book-sibling-nav-container .f-dropdown.content ul li a {
   margin: 0;
   font-size: .75rem;
   line-height: 1.5rem;
 }
-.book-sibling-nav-container  .f-dropdown.content .outline-nav-icon {
-  height: 1.5rem;
-  width: 1.5rem;
+
+.book-sibling-parent-pagination a {
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  line-height: 150%;
+  font-size: 1rem;
+  color: #222222;
+  text-align: center;
+  color: #222222;
+  padding: .4rem 1rem;
 }
 
-.book-sibling-nav-container .page-previous,
-.book-sibling-nav-container .page-next {
-  font-size: 1.5rem;
-  line-height: 3rem;
-  color: #222222;
-  padding: 0 2rem;
-  margin: -2px 0 2px;
+.book-sibling-parent-pagination a:hover {
+  border: 1px solid #dddddd;
+  background-color: #eeeeee;
 }
 
 .book-sibling-spacer {
-  margin:.25rem 1rem;
-  font-size: 1.5rem;
-  line-height: 3rem;
-  color: #222222;
-  line-height: 3rem;
-}
-
-.book-sibling-parent {
-  border:1px solid #eeeeee;
-  line-height: 3rem;
-  font-size: 1.25rem;
-  color:#222222;
-  text-align: center;
-}
-
-.book-sibling-parent a{
-  color:#222222;
-  min-width: 5rem;
-  padding: 0 1rem;
-}
-.book-sibling-parent div{
-  line-height: 2rem;
-  padding: 1.5rem;
+  color: #222;
+  vertical-align: top;
+  margin-top: 0.5rem;
+  margin-left: .5rem;
   margin-right: .5rem;
+  display: inline-block;
 }
 
-.book-sibling-parent div.icon-chevron-down-black {
-  margin: 0 0rem -.5rem;
-  padding: 1rem;
-}
-
-.book-sibling-parent:hover {
-  border:1px solid #dddddd;
-  background-color: #eeeeee;
-}
-
-.book-sibling-parent-pagination {
-  border:1px solid #eeeeee;
-  line-height: 3rem;
-  color:#222222;
+.book-sibling-parent a {
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  line-height: 150%;
+  font-size: .8rem;
+  color: #222222;
   text-align: center;
+  color: #222222;
+  padding: 0 .5rem;
+  line-height: inherit;
+  height: 2.2rem;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
-.book-sibling-parent-pagination:hover {
-  border:1px solid #dddddd;
+
+.book-sibling-parent a:hover {
+  border: 1px solid #dddddd;
   background-color: #eeeeee;
+}
+
+.book-sibling-parent-text {
+  max-width: 7rem;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: none;
+  text-decoration: none;
+}
+
+@media all and (min-width: 960px) {
+  .book-sibling-parent-1 a.active .book-sibling-parent-text {
+    max-width: none;
+  }
+}
+.book-sibling-parent-arrow {
+  margin: 0 0rem -.2rem;
+  padding: .8rem;
+  width: 0;
+  height: 0;
+}
+
+.book-sibling-parent-icon {
+  height: 25px;
+  width: 25px;
+  height: 1.6rem;
+  width: 1.6rem;
+  margin-right: .3rem;
 }
 
 .book-sibling-nav-item,
 .book-parent-nav-item {
-  margin-right:1rem;
+  margin-right: 1rem;
 }
+
 .etb-book h3.book-parent-nav-item {
   font-size: 1rem;
 }
+
 .book-sibling-nav-item .outline-nav-icon {
   opacity: .5;
   filter: alpha(opacity=50);
 }
+
 .book-sibling-nav-past-page .outline-nav-icon {
   /*background-color: #CCCCCC !important;*/
 }
+
 .book-sibling-nav-current-page .outline-nav-icon {
   background-color: #FFCCCC !important;
   opacity: 1;
   filter: alpha(opacity=1);
 }
+
 .book-sibling-nav-future-page .outline-nav-icon {
   opacity: 0.3;
   filter: alpha(opacity=30);
 }
 
 .etb-book hr.book-parent-container {
-  margin:1rem 0rem 1rem;
+  margin: 1rem 0rem 1rem;
 }
 
 .etb-book .content-element-region {
-  padding-top:.5rem;
+  padding-top: .5rem;
 }
 
 @media all and (max-width: 720px) {
+  .book-navigation-header {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+
   .book-sibling-parent,
   .book-sibling-parent a {
     clear: both;
     width: 100%;
-    font-size: 1rem;
-    line-height: 2rem;
+    max-width: none;
+    text-align: left;
+  }
+
+  .book-sibling-parent a {
     padding: .5rem 0;
   }
+
   .book-navigation-header .book-sibling-parent-pagination {
     display: none;
   }
+
   .book-sibling-spacer {
     display: none;
+  }
+
+  .book-sibling-parent-icon {
+    float: none;
+    display: inline-block;
+    -webkit-box-ordinal-group: 3;
+    -webkit-order: 2;
+        -ms-flex-order: 2;
+            order: 2;
+  }
+
+  .book-sibling-parent-arrow {
+    -webkit-box-ordinal-group: 2;
+    -webkit-order: 1;
+        -ms-flex-order: 1;
+            order: 1;
+    margin-right: .5rem;
+  }
+
+  .book-sibling-parent-text {
+    max-width: none;
+    -webkit-box-ordinal-group: 3;
+    -webkit-order: 2;
+        -ms-flex-order: 2;
+            order: 2;
+  }
+}
+@media all and (min-width: 720px) {
+  .book-sibling-parent-1 a.active {
+    border-color: transparent;
+    padding-left: 0;
+    color: #008CBA;
+  }
+
+  .book-sibling-parent-1 a.active:hover {
+    border-color: transparent;
+    background: transparent;
   }
 }
