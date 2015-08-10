@@ -1,0 +1,44 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the outline_designer module.
+ */
+
+/**
+ * Implements hook_update_N().
+ *
+ * This cleans out book links that might be pointed to deleted nodes.
+ * For more information on this issue and the resolution this update hook takes.
+ * @see https://www.drupal.org/node/2548975
+ */
+function outline_designer_book_update_7001(&$sandbox) {
+  // look through menu links table for nodes that have been removed
+  // but still have references to them and ensure they are removed
+  // load all menu items that are in books
+  $result = db_select('menu_links', 'ml')
+    ->fields('ml', array('link_path'))
+    ->condition('module', 'book', '=')
+    ->execute()
+    ->fetchAll();
+  // loop through and load all of the assoicated nodes
+  foreach ($result as $item) {
+    $nid = str_replace('node/', '', $item->link_path);
+    // ensure this points to a node id, almost impossible not to
+    if (is_numeric($nid)) {
+      $node = node_load($nid);
+      // if we weren't able to load a node from this id, it means we need to ax the references to it
+      // this happened when an item was bounced around a book outline in outline designer and then
+      // deleted via outline designer, leaving traces of where it had been previously.
+      if (!$node) {
+        // delete the link path for book outlines that is no longer valid
+        db_delete('menu_links')
+        ->condition('link_path', $item->link_path, '=')
+        ->condition('module', 'book', '=')
+        ->execute();
+        drupal_set_message(t('Cleaned out dated book item reference to the previously deleted @path', array('@path' => $item->link_path)));
+      }
+    }
+  }
+  // clear caches so everything rebuilds
+  menu_cache_clear_all();
+}
