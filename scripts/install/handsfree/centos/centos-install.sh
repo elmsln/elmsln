@@ -45,6 +45,7 @@ cat /dev/null > /etc/varnish/default.vcl
 cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
 
 service varnish start
+chkconfig varnish on
 
 # make an admin group
 groupadd admin
