@@ -194,11 +194,15 @@ function mooc_helper_tokens($type, $tokens, array $data = array(), array $option
 function mooc_helper_token_info() {
   // provide feedback about the active outline nid token
   $outline_node = _cis_service_connection_active_outline();
+  $outline = 'empty';
+  if (isset($outline_node->nid)) {
+    $outline = $outline->nid;
+  }
   $tokens = array(
     'elmsln_section' => array(
       'active_outline_nid' => array(
         'name' => t("Active content outline"),
-        'description' => t('Section based token whose value is currently @val, just the value.', array('@val' => $outline_node->nid)),
+        'description' => t('Section based token whose value is currently @val, just the value.', array('@val' => $outline)),
       ),
     ),
   );

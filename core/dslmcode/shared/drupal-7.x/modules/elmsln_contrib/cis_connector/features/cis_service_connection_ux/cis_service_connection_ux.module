@@ -92,8 +92,9 @@ function cis_service_connection_ux_form($form, $form_state) {
     $form['theme']['favicon']['#weight'] = 11;
     $form['theme']['logo'] = $tmp['zurb_foundation']['general']['logo'];
     $form['theme']['logo']['#weight'] = 10;
+    // unset some of the standard theme settings
     foreach ($form['theme'] as &$value) {
-      if (isset($value['#value'])) {
+      if (is_array($value) && isset($value['#value'])) {
         unset($value['#value']);
       }
     }

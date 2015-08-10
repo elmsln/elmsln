@@ -42,12 +42,19 @@ cd /var/www/elmsln
 
 # blow away old repo
 rm -rf config
+# make git not track filemode changes
+git config core.fileMode false
+# ensure it doesn't track filemode changes in the future
+git config --global core.filemode false
+
 git clone https://github.com/elmsln/elmsln-config-example.git config
 cd /var/www/elmsln/config
 rm -rf .git
 
 # make a new repo
 git init
+# prevent filemode chnages on the new config directory
+git config core.fileMode false
 git add -A
 git commit -m "initial ELMSLN config"
 
@@ -284,6 +291,11 @@ if [[ -n "$domains" ]]; then
   if [ $os == '2' ]; then
     ln -s $domains /etc/apache2/sites-enabled/elmsln.conf
   fi
+fi
+
+# if this is rhel prepared the domains for varnish.
+if [ $os == '1' ]; then
+  sed -i 's/80/8080/g' /etc/httpd/conf.d/elmsln.conf
 fi
 
 if [[ -n "$zzz_performance" ]]; then
