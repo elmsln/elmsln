@@ -255,6 +255,9 @@
             "command": "fr-all"
         },
         "43": {
+            "command": "dra"
+        },
+        "44": {
             "command": "cc",
             "arguments": [
                 "all"
