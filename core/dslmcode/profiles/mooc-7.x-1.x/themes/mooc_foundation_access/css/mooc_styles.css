@@ -1,10 +1,12 @@
+.book-menu-item-active {
+  background-color: #eeeeee;
+}
 .book-navigation-header {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
 }
-
 .book-sibling-parent-pagination-wrapper {
   margin-left: auto;
 }
