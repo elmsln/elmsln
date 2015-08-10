@@ -232,4 +232,34 @@
     border-color: transparent;
     background: transparent;
   }
+  .book-sibling-parent-1 .book-sibling-parent-text {
+    max-width:10rem;
+  }
+  .book-sibling-parent-2 .book-sibling-parent-text {
+    max-width:8rem;
+  }
+  .book-sibling-parent-3 .book-sibling-parent-text {
+    max-width:6rem;
+  }
+  .book-sibling-parent-4 .book-sibling-parent-text {
+    max-width:4rem;
+  }
+  .book-sibling-parent-5 .book-sibling-parent-text {
+    max-width:2rem;
+  }
+  .book-sibling-parent-5 .book-sibling-parent-text {
+    max-width:1.5rem;
+  }
+  .book-sibling-parent-6 .book-sibling-parent-text {
+    max-width:1.5rem;
+  }
+  .book-sibling-parent-7 .book-sibling-parent-text {
+    max-width:1rem;
+  }
+  .book-sibling-parent-8 .book-sibling-parent-text {
+    max-width:1rem;
+  }
+  .book-sibling-parent-9 .book-sibling-parent-text {
+    max-width:1rem;
+  }
 }
