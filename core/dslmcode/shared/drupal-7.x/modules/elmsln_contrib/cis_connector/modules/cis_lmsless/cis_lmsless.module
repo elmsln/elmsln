@@ -245,16 +245,16 @@ function _cis_lmsless_theme_vars() {
     }
     // support people wiping help link via settings
     $help_link = variable_get('cis_help_page', 'course-help');
-    $vars['help_link'] = $help_link;
     if (empty($help_link)) {
       $vars['bar_elements']['help'] = FALSE;
     }
+    $vars['help_link'] = url($help_link);
     // support people wiping syllabus link via settings
     $syllabus_link = variable_get('cis_syllabus_page', 'syllabus');
-    $vars['syllabus_link'] = $syllabus_link;
     if (empty($syllabus_link)) {
       $vars['bar_elements']['syllabus'] = FALSE;
     }
+    $vars['syllabus_link'] = url($syllabus_link);
 
     // allow other projects to alter these values
     drupal_alter('cis_lmsless_theme_vars', $vars);
