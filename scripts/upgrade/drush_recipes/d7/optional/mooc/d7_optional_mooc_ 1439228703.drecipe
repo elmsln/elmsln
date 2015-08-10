@@ -1,5 +1,5 @@
 {
-    "name": "Foundation Access UX Upgrade",
+    "name": "MOOC Foundation Access UX Upgrade",
     "drush_recipes_api": "1.0",
     "weight": "0",
     "core": "7",
@@ -19,6 +19,7 @@
                 "speedreader",
                 "mooc_foundation_access",
                 "mooc_content_theming",
+                "mooc_helper_book_nav",
                 "book_cache",
                 "back_to_top"
             ]
@@ -42,7 +43,8 @@
                 "regions_admin_left",
                 "regions_right_slideout",
                 "display_cache",
-                "thumbnav"
+                "thumbnav",
+                "mooc_thumbnav"
             ]
         },
         "3": {
@@ -250,6 +252,9 @@
             ]
         },
         "42": {
+            "command": "fr-all"
+        },
+        "43": {
             "command": "cc",
             "arguments": [
                 "all"
@@ -258,7 +263,7 @@
     },
     "metadata": {
         "type": "upgrade",
-        "version": "1.0",
+        "version": "1.1",
         "author": "elmsln",
         "description": "This is an optional upgrade to bring legacy courses into alignment with the Foundation Access user experience."
     }
