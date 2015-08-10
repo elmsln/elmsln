@@ -1,0 +1,49 @@
+diff --git a/bakery.module b/bakery.module
+index 8a2d495..ac62e5f 100644
+--- a/bakery.module
++++ b/bakery.module
+@@ -23,7 +23,7 @@ function bakery_menu() {
+     );
+     $items['bakery/login'] = array(
+       'title' => 'Login',
+-      'access callback' => 'user_is_anonymous',
++      'access callback' => TRUE,
+       'page callback' => 'bakery_login',
+       'type' => MENU_CALLBACK,
+     );
+@@ -749,13 +749,22 @@ function bakery_login() {
+     // First see if the user_login form validation has any errors for them.
+     $name = trim($cookie['data']['name']);
+     $pass = trim($cookie['data']['pass']);
+-    // Execute the login form which checks username, password, status and flood.
+-    $form_state = array();
+-    $form_state['values'] = $cookie['data'];
+-    drupal_form_submit('user_login', $form_state);
+-    $errors = form_get_errors();
+ 
+-    if (empty($errors)) {
++    // We could be logging in on master from a slave but master has a session.
++    // If master has no session we are anonymous and use drupal_form_submit.
++    // If master has a session we only check the new credentials from slave.
++    if (user_is_anonymous()) {
++      // Execute login form which checks username, password, status and flood.
++      $form_state = array();
++      $form_state['values'] = $cookie['data'];
++      drupal_form_submit('user_login', $form_state);
++      $errors = form_get_errors();
++      $success = empty($errors) ? TRUE : FALSE;
++    } else {
++      $success = user_authenticate($name, $pass);
++    }
++
++    if ($success) {
+       // Check if account credentials are correct.
+       $account = user_load_by_name($name);
+       if (isset($account->uid)) {
+@@ -1794,4 +1803,4 @@ function bakery_pull_form_submit($form, &$form_state) {
+   else {
+     $form_state['redirect'] = 'user/' . $result;
+   }
+-}
+\ No newline at end of file
++}
