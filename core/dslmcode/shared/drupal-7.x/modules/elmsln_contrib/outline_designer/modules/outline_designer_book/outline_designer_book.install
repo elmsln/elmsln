@@ -17,7 +17,7 @@ function outline_designer_book_update_7001(&$sandbox) {
   // load all menu items that are in books
   $result = db_select('menu_links', 'ml')
     ->fields('ml', array('link_path'))
-    ->condition('module', 'book', '=')
+    ->condition('menu_name', 'book-toc-%', 'LIKE')
     ->execute()
     ->fetchAll();
   // loop through and load all of the assoicated nodes
