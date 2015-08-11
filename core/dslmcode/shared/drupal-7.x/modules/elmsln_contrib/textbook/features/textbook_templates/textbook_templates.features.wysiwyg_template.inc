@@ -32,6 +32,27 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'name' => 'callout_panel',
     'content_types' => array(),
   );
+  $templates['case_study'] = array(
+    'title' => 'Case Study',
+    'description' => 'Call out area for case studies, icon and slight mark up.',
+    'weight' => 0,
+    'fid' => 0,
+    'body' => '<div class="row">
+  <div class="small-10 small-push-1 columns">
+    <div class="icon-online-black etb-modal-icons" style="width: 8rem;height: 6rem;">
+    </div>
+    <h4>Case Study
+    </h4>
+    <p>Things Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type <a href="#" target="_blank">specimen</a> book.
+    </p>
+    <p>
+    </p>
+  </div>
+</div>',
+    'format' => 'textbook_editor',
+    'name' => 'case_study',
+    'content_types' => array(),
+  );
   $templates['clean_table'] = array(
     'title' => 'Clean Table',
     'description' => 'A Clean example tabl',
@@ -47,9 +68,19 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'description' => 'Flexible video template for embedding youtube / other sources',
     'weight' => 5,
     'fid' => 0,
-    'body' => '<div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="0" height="225" mozallowfullscreen="" src="//www.youtube.com/embed/2Uf52ncgCfs" webkitallowfullscreen="" width="400"></iframe></div>',
+    'body' => '<div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="0" height="225" mozallowfullscreen="" src="//www.youtube.com/embed/4oZaA5BOjNI" webkitallowfullscreen="" width="400"></iframe></div>',
     'format' => 'textbook_editor',
     'name' => 'flex_video',
+    'content_types' => array(),
+  );
+  $templates['grid_of_video'] = array(
+    'title' => 'Grid of Video',
+    'description' => 'a grid of three videos in a row that scale correctly',
+    'weight' => -5,
+    'fid' => 0,
+    'body' => '<ul class="small-block-grid-3"><li><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" title="advisory title here" webkitallowfullscreen="" width="200"></iframe></div></li><li><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" title="advisory title here" webkitallowfullscreen="" width="200"></iframe></div></li><li><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" title="advisory title here" webkitallowfullscreen="" width="200"></iframe></div></li></ul>',
+    'format' => 'textbook_editor',
+    'name' => 'grid_of_video',
     'content_types' => array(),
   );
   $templates['lorem_ipsum'] = array(
@@ -216,6 +247,33 @@ function textbook_templates_wysiwyg_template_default_templates() {
 ',
     'format' => 'plain_text',
     'name' => 'topic_reading',
+    'content_types' => array(),
+  );
+  $templates['two_column_list_image'] = array(
+    'title' => 'Two column list image',
+    'description' => 'A two column layout of a bulleted list with an image to the right',
+    'weight' => 0,
+    'fid' => 0,
+    'body' => '<div class="panel callout radius row">
+  <div class="small-6 columns">
+    <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li><li>Item 4</li>
+    </ul>
+  </div>
+  <div class="small-6 columns"><img height="100px" src="https://marlaongtao.files.wordpress.com/2013/11/plato-cave.jpg" width="100%">
+  </div>
+</div>',
+    'format' => 'textbook_editor',
+    'name' => 'two_column_list_image',
+    'content_types' => array(),
+  );
+  $templates['two_column_list_video'] = array(
+    'title' => 'Two column list video',
+    'description' => 'A two column template with a bulleted list and video to the right of it',
+    'weight' => 0,
+    'fid' => 0,
+    'body' => '<div class="panel callout radius row"><div class="small-6 columns"><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li><li>Item 4</li></ul></div><div class="small-6 columns"><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" webkitallowfullscreen="" width="200"></iframe></div></div></div>',
+    'format' => 'textbook_editor',
+    'name' => 'two_column_list_video',
     'content_types' => array(),
   );
   return $templates;
