@@ -12,9 +12,19 @@ module.exports = function(grunt) {
         },
         files: {
           'css/app.css': 'scss/app.scss'
-        }        
+        }
       }
-    },   
+    },
+    autoprefixer: {
+  		options: {
+  			browsers: ['last 2 versions', 'ie 8', 'ie 9']
+  		},
+  		dist:{
+  			files:{
+  			  'css/app.css':'css/app.css'
+  			}
+  		}
+    },
     // uglify: {
     //   myScripts: {
     //     files: [{
@@ -55,7 +65,7 @@ module.exports = function(grunt) {
       grunt: { files: ['Gruntfile.js'] },
       sass: {
         files: 'scss/**/*.scss',
-        tasks: ['sass']
+        tasks: ['sass', 'autoprefixer']
       }
     }
   });
@@ -65,8 +75,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-svgmin');
   grunt.loadNpmTasks('grunt-grunticon');
+  grunt.loadNpmTasks('grunt-autoprefixer');
 
   // grunt.registerTask('uglify', ['uglify:myScripts']);
-  grunt.registerTask('build', ['sass','svgmin','grunticon:myIcons']);
+  grunt.registerTask('build', ['sass','autoprefixer','svgmin','grunticon:myIcons']);
   grunt.registerTask('default', ['build','watch']);
 }
