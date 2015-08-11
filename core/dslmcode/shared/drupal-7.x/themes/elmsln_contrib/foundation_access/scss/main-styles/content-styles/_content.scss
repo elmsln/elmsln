@@ -6,7 +6,7 @@
 
 .etb-book {
 	//background:$book-bg-color;
-	
+
 	mark {
 		background-color:$mark-color;
 		color:darken($mark-color,70%);
@@ -23,8 +23,8 @@
 	@media #{$large-up} {
 		//padding:2rem 1rem 0;
 	}
-	
-	
+
+
 	.row {
 		@extend transform();
 	}
@@ -56,28 +56,27 @@
 	}
 
 	h1 {
-		 font-size: 5.5em;
+		 font-size: 2rem;
 		 text-align: center;
 		 letter-spacing: -1px;
 		 color:$contrast-color;
+		 padding: 4rem 0 4rem;
 
 		 @media #{$small-up} {
-		 	margin: 0em 0em 0.2em 0em;
-		 	font-size: 2.778em;
-		 	line-height: 0.82em;
-		 	padding:2rem 0 2rem;
-		 }
-		 
-		 @media #{$medium-up} { 
-			font-size: 3.889em;
-		 	line-height: 0.986em;
-		 	padding:3rem 0 3rem;
+		 	font-size: 4vmax;
+		 	padding: 4vmax 0 4vmax;
 		 }
 
-		 @media #{$large-up} { 
-			font-size: 5.5em;
-		 	line-height: 0.9em;
-		 	padding:4rem 0 4rem;
+		 // If the browser does not respect vmax unists then we will fall back to
+		 // rems.
+		 @media #{$large-up} {
+		 	font-size: 4rem;
+		 	font-size: 4vmax;
+		 }
+
+		 // Set a max width of the text
+		 @media #{$xlarge-up} {
+		 	font-size: 3rem;
 		 }
 	}
 
@@ -93,14 +92,14 @@
 		 	// font-size: 2.778em;
 		 	// line-height: 0.82em;
 		 }
-		 
+
 		 @media #{$medium-up} {
-		 	padding: 0 8% 0 8%; 
+		 	padding: 0 8% 0 8%;
 			// font-size: 3.889em;
 		 	// line-height: 0.986em;
 		 }
 
-		 @media #{$large-up} { 
+		 @media #{$large-up} {
 			padding: 0 0;
 			// font-size: 5.5em;
 			// line-height: 0.9em;
@@ -146,8 +145,8 @@
 		// 	 // border-right: 0;
 		// 	 // border-style: solid;
 		// 	 text-align: center;
-			 
-			
+
+
 		// 	 @media #{$small-up} {
 		// 	 	margin: 1em 1em 1.8em;
 		// 	 	// padding: 0.7em 0 0.7em 0;
@@ -155,14 +154,14 @@
 		// 	 	line-height: 1.4em;
 		// 		padding: 1em 1rem 1em 1rem;
 		// 	 }
-			 
-		// 	 @media #{$medium-up} { 
+
+		// 	 @media #{$medium-up} {
 		// 		font-size: 1em;
 		// 		padding: 1em 3rem 1em 3rem;
 		// 		// padding: 1em 0 1em 0;
 		// 	 }
 
-		// 	 @media #{$large-up} { 
+		// 	 @media #{$large-up} {
 		// 	 	margin: 1.0em 1.1em 1.0em;
 		// 	 	padding: 1em 6rem 1em 6rem;
 		// 		font-size: 1.278em;
@@ -179,15 +178,15 @@
 		// 	 font-size: 1.3em;
 		// 	 margin: 2em 4.364em 2em 2.182em;
 		// 	 padding: 0.455em 0em 0.455em 0.455em;
-			
+
 		// 	 @media #{$small-only} {
 	 //    	 	font-size: 0.889em;
 		// 		line-height: 1.438em;
 		// 		margin: 0px 1.44em 1.688em 1.44em;
 		// 		padding: 0.313em 0px 0.313em 0.625em;
 		// 	 }
-			 
-		// 	 @media #{$medium-up} { 
+
+		// 	 @media #{$medium-up} {
 		// 		font-size: 1em;
 		// 		line-height: 1.4em;
 	 //   			// margin: 0em 1em 1.421em 1em;
@@ -196,7 +195,7 @@
 	 //   			font-family: "Vollkorn", "Georgia", serif;
 		// 	 }
 
-		// 	 @media #{$large-up} { 
+		// 	 @media #{$large-up} {
 		// 		margin: 0px 3.072em 2em 1.229em;
 		// 		line-height: 1.424em;
 		// 		font-size: 1.278em;
@@ -216,7 +215,7 @@
 		// 	 font-weight: 400;
 		// 	 font-style: normal;
 		// }
-	
+
 
 	div {
 		&.txtbk-basic {
@@ -226,15 +225,15 @@
 			 text-align: left;
 			 width: auto;
 			 padding: 0px 0px 5em 0px;
-			
+
 			p:last-child {
 				margin-bottom:0;
 			}
-			
+
 
 			 @media #{$small-only} {
 				@include p-column(1);
-				
+
 				p {
 					text-align: justify;
 				}
@@ -257,7 +256,7 @@
 				padding: 0 4% 5em 4%;
 			 }
 			 // @media all and (max-width: 629px) and (min-width: 580px) {
-				
+
 
 				// padding: 0 8% 5em 8%;
 			 // }
@@ -275,7 +274,7 @@
 	div.left-head {
 		width: auto;
 		margin: 0 0 5em 0;
-		
+
 		@media #{$small-only} {
 			padding: 0 4% 0 4%;
 		 }
@@ -283,26 +282,26 @@
 		@media #{$medium-only} {
 			padding: 0px 8% 0 8%;
 		 }
-		
+
 		@media #{$large-up} {
 			padding: 0 0 0 0;
 		 }
 
 		p.left-head-text {
 			 margin: 0 0 1.5em 45%;
-			 
+
 			@media #{$small-only} {
 				margin: 0px 0 1.5em 0;
 				p {
 					text-align: justify;
 				}
 			 }
-			
+
 			@media #{$medium-only} {
 				margin: 0 0 1.5em 0;
 				padding: 0px 0 1.421px 0;
 			 }
-			
+
 			@media #{$large-up} {
 				margin: 0px 0px 1.5em 51.4%;
 				padding: 0px 0em 1.421px 0px;
@@ -350,11 +349,11 @@
 	div.pull-quote-p {
 		width: auto;
 	 	margin: 0;
-	 	
+
 	 	@media #{$medium-only} {
 			padding: 0px 8% 0 8%;
 		}
-		
+
 		blockquote.pull-quote-left {
 			margin: 0 1em 1em 1em;
 			width: 40%;
@@ -364,7 +363,7 @@
 			border-left: 3px solid #ccc;
 			padding: 0 0 0 0.7em;
 			color: #666666;
-			
+
 			@media #{$small-only} {
 				width:inherit;
 				margin:0em 0 1.5em 0;
@@ -390,20 +389,20 @@
 					width:inherit;
 					margin:0em 0 1.5em 0;
 					padding: 0 4% 0 4%;
-				}		
+				}
 			}
 		}
 
 		p {
 			margin: 0 0 1.5em 45%;
 			padding: 0 0 1.421px 0;
-			
+
 			@media #{$small-only} {
 				margin:0 4%;
 				padding: 0 0 1.421em 0;
 				text-align: justify;
 			}
-			
+
 			@media #{$medium-only} {
 				margin: 0 0 1.5em 0;
 			}
@@ -423,7 +422,7 @@
 			content: "";
 			display: table;
 		}
-		
+
 		&:after {
 			 content: "";
 			 display: table;
@@ -454,7 +453,7 @@
 		 text-align: left;
 		 margin: 0;
 		 padding: 0 0 2em 0;
-		 
+
 		p.image-list-text {
 			 @media #{$small-only} {
 				text-align: justify;
@@ -485,7 +484,7 @@
 			 font-size: 1.3em;
 			 line-height: 1.2em;
 			 margin: 0 0 0.9em 20%;
-			 
+
 			 @media #{$small-only} {
 				margin: 0 1em 0.9em 20%;
 			 }
@@ -533,12 +532,12 @@
 		 width: 30%;
 		 float: left;
 		 margin: 1.666%;
-		 
+
 		 @media #{$small-only} {
 			width: 100%;
 			margin: 0px 0px 0.5em 0px;
 		}
-		 
+
 	}
 
 	// Testimonials
