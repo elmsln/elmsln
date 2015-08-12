@@ -31,7 +31,7 @@ function mooc_cis_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'cis_service_connection-all_active_outline' => array(
+        'cis_service_connection-active_outline' => array(
           'module' => 'cis_service_connection',
           'delta' => 'all_active_outline',
           'region' => 'sidebar_first',
