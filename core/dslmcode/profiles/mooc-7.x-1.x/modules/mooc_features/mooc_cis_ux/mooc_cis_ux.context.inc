@@ -33,7 +33,7 @@ function mooc_cis_ux_context_default_contexts() {
       'blocks' => array(
         'cis_service_connection-active_outline' => array(
           'module' => 'cis_service_connection',
-          'delta' => 'all_active_outline',
+          'delta' => 'active_outline',
           'region' => 'sidebar_first',
           'weight' => '-9',
         ),
