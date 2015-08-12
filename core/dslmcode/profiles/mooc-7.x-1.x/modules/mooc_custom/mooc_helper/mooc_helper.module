@@ -196,7 +196,7 @@ function mooc_helper_token_info() {
   $outline_node = _cis_service_connection_active_outline();
   $outline = 'empty';
   if (isset($outline_node->nid)) {
-    $outline = $outline->nid;
+    $outline = $outline_node->nid;
   }
   $tokens = array(
     'elmsln_section' => array(
