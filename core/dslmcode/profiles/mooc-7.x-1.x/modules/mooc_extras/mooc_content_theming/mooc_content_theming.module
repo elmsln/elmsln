@@ -86,13 +86,17 @@ function mooc_content_theming_foundation_access_menu_item_icon_alter(&$icon, $el
   // check for this being a node
   if (strpos($element['#href'], 'node/') === 0) {
     $nid = str_replace('node/', '', $element['#href']);
-    $node = node_load($nid);
-    // see if we have a instructionally significant icon
-    if (isset($node->field_instructional_significance['und'][0]['value'])) {
-      $icon = $node->field_instructional_significance['und'][0]['value'];
-    }
-    elseif (isset($node->field_mooc_container_type['und'][0]['value'])) {
-      $icon = 'content';
+    if (is_numeric($nid)) {
+      $node = node_load($nid);
+      if ($node) {
+        // see if we have a instructionally significant icon
+        if (isset($node->field_instructional_significance['und'][0]['value'])) {
+          $icon = $node->field_instructional_significance['und'][0]['value'];
+        }
+        elseif (isset($node->field_mooc_container_type['und'][0]['value'])) {
+          $icon = 'content';
+        }
+      }
     }
   }
 }

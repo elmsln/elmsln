@@ -1,6 +1,26 @@
 <?php
 
 /**
+ * Implements hook_menu_link_alter().
+ *
+ * Allow Foundation Access to affect the menu links table
+ * so that we can allow other projects to store an icon
+ * representation of what we're working on or status information
+ * about it.
+ *
+ */
+function foundation_access_menu_link_alter(&$item) {
+  // this allows other projects to influence the icon seletion for menu items
+  $icon = 'page';
+  // #href proprety expected for use in the FA menu item icon
+  $item['#href'] = $item['link_path'];
+  // support for the primary theme used with MOOC platform
+  drupal_alter('foundation_access_menu_item_icon', $icon, $item);
+  // store the calculated icon here
+  $item['options']['fa_icon'] = $icon;
+}
+
+/**
  * Adds CSS classes based on user roles
  * Implements template_preprocess_html().
  *
@@ -92,17 +112,31 @@ function foundation_access_preprocess_page(&$variables) {
 }
 
 /**
- * Implements menu_link__main_menu.
+ * Implements template_menu_link.
  */
-function foundation_access_menu_link__main_menu(&$variables) {
-  return _foundation_access_menu_outline($variables);
-}
+function foundation_access_menu_link(&$variables) {
+  $element = $variables['element'];
+  $sub_menu = '';
+  $title = $element['#title'];
+  if ($element['#below']) {
+    $sub_menu = drupal_render($element['#below']);
+  }
+  // special handling for node based menu items
+  if ($element['#original_link']['router_path'] == 'node/%') {
+    $element['#localized_options']['html'] = TRUE;
 
-/**
- * Implements menu_tree__main_menu.
- */
-function foundation_access_menu_tree__main_menu($variables) {
-  return '<ul class="off-canvas-list has-submenu content-outline-navigation">' . $variables['tree'] . '</ul>';
+    if ($element['#below']) {
+      $element['#localized_options']['attributes']['class'][] = 'has-children';
+    }
+    // see if we have a localized override
+    if (isset($element['#localized_options']['fa_icon'])) {
+      $icon = $element['#localized_options']['fa_icon'];
+    }
+    // prefix node based titles with an icon
+    $title = '<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $title;
+  }
+  $output = l($title, $element['#href'], $element['#localized_options']);
+  return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
 }
 
 /**
@@ -131,10 +165,10 @@ function _foundation_access_single_menu_link($element) {
   }
   $classes = implode(' ', $element['#attributes']['class']);
   $options['attributes']['class'] = $element['#attributes']['class'];
-  // default is a page icon
   $icon = 'page';
-  // allow for modification of the item
-  drupal_alter('foundation_access_menu_item_icon', $icon, $element);
+  if (isset($options['fa_icon'])) {
+    $icon = $options['fa_icon'];
+  }
   return '<li>' . l('<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $element['#title'], $element['#href'], $options) . '</li>';
 }
 

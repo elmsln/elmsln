@@ -142,9 +142,13 @@ function mooc_helper_book_nav_block_view($delta = '') {
             if ($firstlevel && $icons) {
               foreach ($items as &$item) {
                 $icon = 'page';
-                // #href proprety expected for use in the FA menu item icon
-                $item['#href'] = $item['link_path'];
-                drupal_alter('foundation_access_menu_item_icon', $icon, $item);
+                // support for foundation access icon
+                if (isset($item['options'])) {
+                  $tmp = unserialize($item['options']);
+                  if (isset($tmp['fa_icon'])) {
+                    $icon = $tmp['fa_icon'];
+                  }
+                }
                 $count++;
                 $item['_count'] = $count;
                 $item['_icon'] = $icon;
