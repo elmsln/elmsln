@@ -133,7 +133,9 @@ function foundation_access_menu_link(&$variables) {
       $icon = $element['#localized_options']['fa_icon'];
     }
     // prefix node based titles with an icon
-    $title = '<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $title;
+    if (isset($icon)) {
+      $title = '<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $title;
+    }
   }
   $output = l($title, $element['#href'], $element['#localized_options']);
   return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
