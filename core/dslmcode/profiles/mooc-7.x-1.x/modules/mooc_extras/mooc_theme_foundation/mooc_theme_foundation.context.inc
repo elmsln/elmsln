@@ -32,9 +32,9 @@ function mooc_theme_foundation_context_default_contexts() {
           'region' => 'cis_appbar_modal',
           'weight' => '-9',
         ),
-        'cis_service_connection-active_outline' => array(
+        'cis_service_connection-all_active_outline' => array(
           'module' => 'cis_service_connection',
-          'delta' => 'active_outline',
+          'delta' => 'all_active_outline',
           'region' => 'left_menu',
           'weight' => '-9',
         ),
