@@ -1,0 +1,12 @@
+name = CSS Delivery Optimizer
+description = Optimize CSS delivery to enhance front-end performance
+dependencies[] = advagg
+package = Performance and scalability
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2015-03-12
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "css_delivery"
+datestamp = "1426163281"
+

@@ -1,0 +1,380 @@
+<?php
+
+/**
+ * @file
+ * CSS Delivery Optimization module
+ */
+
+define("CSS_DELIVERY_EMBED_PREFIX", "\n<!--//--><![CDATA[//><!--\n");
+define("CSS_DELIVERY_EMBED_SUFFIX", "\n//--><!]]>\n");
+define("CSS_DELIVERY_ENABLED", FALSE);
+define("CSS_DELIVERY_SOURCE", 1);
+define("CSS_DELIVERY_CSS", NULL);
+define("CSS_DELIVERY_NOSCRIPT", TRUE);
+define("CSS_DELIVERY_TEST_MODE", FALSE);
+
+define("CSS_DELIVERY_BUILD_MODE", FALSE);
+define("CSS_DELIVERY_BUILD_INLINE", FALSE);
+
+/**
+ * Implements hook_menu().
+ */
+function css_delivery_menu() {
+  return array(
+    'admin/config/development/performance/css-delivery' => array(
+      'title' => 'CSS Delivery',
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 5,
+      'description' => 'Configure your CSS Optimization settings.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('css_delivery_admin_settings'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'css_delivery.admin.inc',
+    ),
+    'css_delivery/postback' => array(
+      'page callback' => 'css_delivery_postback',
+      'access arguments' => array('administer site configuration'),
+      'file' => 'css_delivery.pages.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * Load inline CSS files.
+ */
+function css_delivery_page_alter(&$page) {
+  // Run only if enabled and aggregation is turned on.
+  if (css_delivery_enabled()) {
+    _css_delivery_load_inline_css();
+  }
+
+  // Add builder bits if build mode is enabled.
+  if (css_delivery_build_enabled()) {
+    _css_delivery_builder($page);
+  }
+}
+
+/**
+ * Invoke the Critical CSS builder tools.
+ */
+function _css_delivery_builder(&$page) {
+  $exclude_selectors = trim(variable_get('css_delivery_build_exclude_selectors', ''));
+  $exclude_selectors = ($exclude_selectors) ? preg_split('/\R/', $exclude_selectors) : array();
+  $exclude_selectors[] = '#css-delivery-builder-wrapper';
+  $exclude_selectors[] = 'body.css-delivery-builder-processed';
+  $settings = array(
+    'criticalCss' => array(
+      'keepInlineStyles' => (bool) variable_get('css_delivery_build_inline', CSS_DELIVERY_BUILD_INLINE),
+      'excludeSelectors' => $exclude_selectors,
+    ),
+  );
+  drupal_add_js($settings, 'setting');
+
+  $module_path = drupal_get_path('module', 'css_delivery');
+  $options = array(
+    'type' => 'inline',
+    'scope' => 'footer',
+    'group' => 9999,
+    'weight' => 9999,
+  );
+  // The parser component should be added as an inline script to ensure no cross
+  // origin issues prevent the script from accessing style rules in the DOM.
+  // An external file would be fine but if both CDN and JavaScript aggregation
+  // is enabled, the origin of the script cannot be ensured.
+  $parser = _css_delivery_js_contents($module_path . '/js/parser.js');
+  drupal_add_js($parser, $options);
+  // It is not required to load the builder script inline but it is needed to
+  // maintain script execution order with the parser.
+  $options['weight']++;
+  $builder = _css_delivery_js_contents($module_path . '/js/critical_css_builder.js');
+  drupal_add_js($builder, $options);
+
+  $options['media'] = 'screen';
+  $contents = _css_delivery_load_inline_css_contents($module_path . '/css/css_delivery.builder.css');
+  drupal_add_css($contents, $options);
+
+  if (!variable_get('preprocess_css', FALSE)) {
+    $builder_content = '<button class="do-build">' . t('Build Critical CSS on this page') . '</button><div class="build-result"></div>';
+  }
+  else {
+    $builder_content = '<div class="build-result">' .
+      t('It seems that aggregation is turned on. For the build mode to work, please turn it off in the <a href="!url">Performance settings page</a>.',
+      array('!url' => url('admin/config/development/performance'))) .
+      '</div>';
+  }
+  $page['page_bottom']['critical_css_builder'] = array(
+    '#markup' => '<div id="css-delivery-builder-wrapper" class="clearfix"><p class="builder-label">' . t('Critical CSS Builder') . '</p>' . $builder_content . '</div>',
+  );
+}
+
+/**
+ * Inline specified CSS files in the theme.
+ *
+ * These files should be specified in the theme info file as:
+ * settings[css_inline][{media}][] = path/to/styles.css
+ */
+function _css_delivery_load_inline_css() {
+  $source = variable_get('css_delivery_source', CSS_DELIVERY_SOURCE);
+
+  if ($source == '2') {
+    _css_delivery_load_inline_css_theme();
+    return;
+  }
+
+  $critical_css = variable_get('css_delivery_css', '');
+  if ($critical_css) {
+    $options = array(
+      'group' => CSS_SYSTEM,
+      'type' => 'inline',
+      'media' => variable_get('css_delivery_default_media', 'screen'),
+    );
+    drupal_add_css($critical_css, $options);
+  }
+}
+
+/**
+ * Inline specified CSS files in the theme.
+ *
+ * These files should be specified in the theme info file as:
+ * settings[css_inline][{media}][] = path/to/styles.css
+ */
+function _css_delivery_load_inline_css_theme() {
+  global $theme_path;
+
+  $css_inline_files = theme_get_setting('css_inline');
+  if (empty($css_inline_files)) {
+    return;
+  }
+
+  $css_to_inline = array();
+  foreach ($css_inline_files as $media => $css) {
+    if (is_array($css)) {
+      foreach ($css as $path) {
+        $css_to_inline[] = array(
+          'path' => $theme_path . '/' . $path,
+          'media' => $media,
+        );
+      }
+    }
+  }
+
+  if (empty($css_to_inline)) {
+    return;
+  }
+
+  $options = array(
+    'group' => CSS_SYSTEM,
+    'type' => 'inline',
+  );
+  foreach ($css_to_inline as $css) {
+    if (file_exists($css['path'])) {
+      $options['media'] = $css['media'];
+      $contents = _css_delivery_load_inline_css_contents($css['path']);
+      drupal_add_css($contents, $options);
+    }
+  }
+}
+
+/**
+ * Implements hook_advagg_modify_css_pre_render_alter().
+ *
+ * Replace the script tags of CSS bundles with an asynchronous loader.
+ *
+ * @see https://developers.google.com/speed/docs/insights/OptimizeCSSDelivery
+ */
+function css_delivery_advagg_modify_css_pre_render_alter(&$children, &$elements) {
+  // Run only if enabled and aggregation is turned on.
+  if (!css_delivery_enabled()) {
+    return;
+  }
+
+  $css = array();
+  $css_inline_element = FALSE;
+
+  // Wrap old CSS in noscript tags, collect data for the JS loader.
+  foreach ($children as $key => &$values) {
+    if (isset($values['#attributes']['href'])) {
+      if (!variable_get('css_delivery_test_mode', CSS_DELIVERY_TEST_MODE)) {
+        $css[] = array($values['#attributes']['href'], $values['#attributes']['media']);
+      }
+      if (variable_get('css_delivery_noscript', CSS_DELIVERY_NOSCRIPT) && !variable_get('css_delivery_test_mode', CSS_DELIVERY_TEST_MODE)) {
+        $values['#prefix'] = '<noscript>' . "\n";
+        $values['#suffix'] = '</noscript>';
+      }
+      else {
+        $values = NULL;
+      }
+    }
+    else {
+      $values['#attributes']['data-sort'] = 'sticky';
+      $css_inline_element = $values;
+      $values = NULL;
+    }
+  }
+
+  // Get external CSS added to info file.
+  $extra = theme_get_setting('css_external');
+  if (is_array($extra)) {
+    foreach ($extra as $media => $styles) {
+      if (is_array($styles)) {
+        foreach ($styles as $style) {
+          if (!variable_get('css_delivery_test_mode', CSS_DELIVERY_TEST_MODE)) {
+            $css[] = array($style, $media);
+          }
+        }
+      }
+    }
+  }
+
+  $js_element = _css_delivery_js_loader($css);
+
+  if ($js_element) {
+    array_unshift($elements, $js_element);
+  }
+
+  if ($css_inline_element) {
+    array_unshift($elements, $css_inline_element);
+  }
+}
+
+/**
+ * Produce the CSS loader JavaScript code.
+ */
+function _css_delivery_js_loader($css = array()) {
+  if (empty($css)) {
+    return FALSE;
+  }
+
+  // Add JS loader inline.
+  $js_element = array(
+    '#type' => 'html_tag',
+    '#tag' => 'script',
+    '#value_prefix' => CSS_DELIVERY_EMBED_PREFIX,
+    '#value_suffix' => CSS_DELIVERY_EMBED_SUFFIX,
+  );
+  $js_code = "(function(w, d) {
+  'use strict';
+
+  var raf = w.requestAnimationFrame || w.mozRequestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || false;
+  var f = " . drupal_json_encode($css) . ";
+
+  function _loadCss(s) {
+    for (var i = 0; i < s.length; ++i) {
+      var l = d.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = s[i][0];
+      l.media = s[i][1];
+
+      var h = d.getElementsByTagName('head')[0];
+      h.parentNode.insertBefore(l, h);
+    }
+  }
+
+  if (raf) {
+    raf(function() {
+      _loadCss(f);
+    });
+  }
+  else {
+    setTimeout(function() {
+      _loadCss(f);
+    }, 0);
+  }
+}(this, this.document));";
+
+  // Minify it if possible.
+  if (function_exists('jsmin') && variable_get('advagg_js_inline_compressor', 0) == 3) {
+    $js_code = jsmin($js_code);
+  }
+
+  $js_element['#value'] = $js_code;
+
+  return $js_element;
+}
+
+/**
+ * Load a specified stylesheet for inline insertion.
+ *
+ * It uses advagg if available, and Drupal otherwise.
+ *
+ * @param string $src
+ *   Internal path to stylesheet file
+ *
+ * @return string
+ *   The contents of the stylesheet, processed according to aggregation setting.
+ *
+ * @see drupal_load_stylesheet
+ */
+function _css_delivery_load_inline_css_contents($src) {
+  if (!module_exists('advagg')) {
+    return drupal_load_stylesheet($src, variable_get('preprocess_css', FALSE));
+  }
+
+  if (!function_exists('advagg_load_css_stylesheet')) {
+    module_load_include('inc', 'advagg', 'advagg');
+  }
+
+  return advagg_load_css_stylesheet($src, TRUE);
+}
+
+/**
+ * Load a specified file and return its contents.
+ *
+ * It uses advagg if available, and Drupal otherwise.
+ *
+ * @param string $src
+ *   Path to file
+ *
+ * @return string
+ *   The contents of the file.
+ */
+function _css_delivery_js_contents($src) {
+  if (!file_exists($src)) {
+    return NULL;
+  }
+
+  return trim(file_get_contents($src));
+}
+
+/**
+ * Quickly determine if css delivery optimization is enabled.
+ */
+function css_delivery_enabled() {
+  return (variable_get('preprocess_css', FALSE) && variable_get('css_delivery_enabled', CSS_DELIVERY_ENABLED) && module_exists('advagg') && advagg_enabled() && _css_delivery_visibility_pages()) ? TRUE : FALSE;
+}
+
+/**
+ * Quickly determine if css delivery optimization build mode is enabled.
+ */
+function css_delivery_build_enabled() {
+  return (!variable_get('preprocess_css', FALSE) && variable_get('css_delivery_build_mode', CSS_DELIVERY_BUILD_MODE) && _css_delivery_visibility_pages() && user_access('run critical css builds')) ? TRUE : FALSE;
+}
+
+/**
+ * Determine if CSS Delivery optimization should be present on the current page.
+ */
+function _css_delivery_visibility_pages() {
+  $visibility = variable_get('css_delivery_visibility', 0);
+  $pages = variable_get('css_delivery_pages', '');
+
+  // Match path if necessary.
+  if (!empty($pages)) {
+    $path = drupal_get_path_alias($_GET['q']);
+    // Compare with the internal and path alias (if any).
+    $page_match = drupal_match_path($path, $pages);
+    if ($path != $_GET['q']) {
+      $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+    }
+    // When $visibility has a value of 0, the block is displayed on
+    // all pages except those listed in $pages. When set to 1, it
+    // is displayed only on those pages listed in $pages.
+    $page_match = !($visibility xor $page_match);
+  }
+  else {
+    $page_match = TRUE;
+  }
+
+  return $page_match;
+}

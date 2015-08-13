@@ -1,0 +1,41 @@
+body.css-delivery-builder-processed {
+  padding-bottom: 50px;
+}
+#css-delivery-builder-wrapper {
+  position: fixed;
+  z-index: 999999;
+  bottom: 0;
+  width: 100%;
+  background-color: black;
+  color: white;
+}
+#css-delivery-builder-wrapper > button.do-build,
+#css-delivery-builder-wrapper > .builder-label,
+#css-delivery-builder-wrapper > .build-result {
+  font-size: 14px;
+  margin-top: 5px;
+  line-height: 30px;
+}
+#css-delivery-builder-wrapper > button.do-build {
+  float: left;
+  margin-left: 5px;
+  height: 30px;
+  width: 230px;
+  text-align: center;
+}
+#css-delivery-builder-wrapper > .builder-label {
+  float: right;
+  margin-right: 10px;
+  text-align: right;
+  font-weight: bold;
+}
+#css-delivery-builder-wrapper > .build-result {
+  padding-left: 20px;
+  float: left;
+}
+#css-delivery-builder-wrapper > .build-result > a,
+#css-delivery-builder-wrapper > .build-result > a:link,
+#css-delivery-builder-wrapper > .build-result > a:visited {
+  color: lightblue;
+  background-color: transparent;
+}
