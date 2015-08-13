@@ -1,0 +1,25 @@
+diff --git a/defaultconfig.module b/defaultconfig.module
+index 649fed0..9b591bf 100644
+--- a/defaultconfig.module
++++ b/defaultconfig.module
+@@ -413,14 +413,17 @@ function defaultconfig_defaultconfig_components() {
+       'group' => 'features.field',
+       'weight' => 1,
+     ),
+-    'taxonomy_default_vocabularies' => array(
++  );
++  // Support for taxonomy module being enabled.
++  if (module_exists('taxonomy')) {
++    $components['taxonomy_default_vocabularies'] = array(
+       'rebuild callback' => 'defaultconfig_component_rebuild_vocabularies',
+       'label' => t('Vocabularies'),
+       'features component' => 'taxonomy',
+       'group' => 'features.taxonomy',
+       'weight' => 1,
+-    ),
+-  );
++    );
++  }
+   if (module_exists('ctools')) {
+     features_include(TRUE);
+     $features_info = _ctools_features_get_info(NULL, TRUE);
