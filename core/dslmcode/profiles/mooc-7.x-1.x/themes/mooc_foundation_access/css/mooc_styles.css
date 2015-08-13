@@ -202,7 +202,6 @@ a.mooc-helper-toc {
 }
 
 .book-sibling-nav-past-page .outline-nav-icon {
-  /*background-color: #CCCCCC !important;*/
 }
 
 .book-sibling-nav-current-page .outline-nav-icon {
@@ -237,7 +236,7 @@ a.mooc-helper-toc {
     -webkit-flex-direction: column;
         -ms-flex-direction: column;
             flex-direction: column;
-    display:none;
+    display: none;
   }
 
   .book-sibling-parent,
