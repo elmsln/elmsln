@@ -46,7 +46,8 @@
   // sticky stuff
   Drupal.behaviors.stickyStuff = {
     attach: function (context, settings) {
-      $('.page-scroll.progress', context).sticky({topSpacing:0});
+      $('.book-navigation-header', context).sticky({topSpacing:4}).css('background-color','#FFFFFF');
+      $('.page-scroll.progress', context).sticky({topSpacing:0}).css('background-color','#EEEEEE');
     }
   };
   // ability to disable background scrolling on modal open
