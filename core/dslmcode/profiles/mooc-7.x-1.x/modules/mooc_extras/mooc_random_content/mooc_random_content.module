@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC Random Content feature.
+ */
+
+include_once 'mooc_random_content.features.inc';
