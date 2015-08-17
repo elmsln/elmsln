@@ -57,8 +57,11 @@ touch /tmp/elmsln-upgrade-lock
 # record when we start
 start="$(timestamp)"
 echo "$(date +%T) job started"
-# move to elmsln home then issue git pull to kick it off
+# move to elmsln home
 cd ../..
+# take a global backup of all dbs and store in user's profile
+drush @elmsln sql-dump --result-file --y
+# pull code in
 git pull origin $branch || (elmslnwarn "git pull failed, you are out of sync with what we support. Exiting." && exit 1)
 
 # make sure we are running off of the correct drush plugins and what not
