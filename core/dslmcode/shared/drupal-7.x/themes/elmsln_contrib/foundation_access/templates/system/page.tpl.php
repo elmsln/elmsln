@@ -55,7 +55,7 @@
               <li class="toolbar-menu-icon"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-dropdown="middle-section-buttons" aria-controls="middle-section-buttons" aria-expanded="false">
                 <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
               </a></li>
-              <?php if (isset($cis_shortcodes)) : ?>
+              <?php if (!empty($cis_shortcodes)) : ?>
                 <li class="toolbar-menu-icon divider-left"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-reveal-id="page-share-menu" aria-controls="cis-shortcodes-drop" aria-expanded="false">
                   <div class="icon-collab-black off-canvas-toolbar-item-icon"></div>
                 </a></li>

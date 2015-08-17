@@ -93,6 +93,9 @@ function foundation_access_preprocess_page(&$variables) {
       $variables['cis_shortcodes'] = $block['content'];
     }
   }
+  else {
+    $variables['cis_shortcodes'] = '';
+  }
   // support for entity_iframe
   if (module_exists('entity_iframe')) {
     $block = entity_iframe_block_view('entity_iframe_block');
