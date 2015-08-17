@@ -8,3 +8,8 @@ h1#page-title {
   text-align: left;
   padding: 0;
 }
+
+#edit-actions{
+  bottom: 0;
+  position: fixed;
+}
