@@ -1,1 +1,17 @@
 /* CSS Document */
+ul.post-links.inline {
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display:inline-flex;
+  list-style: none;
+}
+
+ul.post-links.inline li {
+  padding: 1rem;
+  background-color: #eeeeee;
+  text-align: center;
+}
+
+ul.post-links.inline li:hover {
+  background-color: #cccccc;
+}
