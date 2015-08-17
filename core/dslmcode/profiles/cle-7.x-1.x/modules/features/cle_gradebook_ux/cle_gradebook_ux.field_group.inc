@@ -95,36 +95,6 @@ function cle_gradebook_ux_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_details|node|cle_assignment|gradebook_viewer';
-  $field_group->group_name = 'group_details';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'cle_assignment';
-  $field_group->mode = 'gradebook_viewer';
-  $field_group->parent_name = '';
-  $field_group->data = array(
-    'label' => 'Details',
-    'weight' => '0',
-    'children' => array(
-      0 => 'field_color',
-      1 => 'field_due_date',
-      2 => 'field_media_requirements',
-      3 => 'field_number',
-      4 => 'field_sub_number',
-    ),
-    'format_type' => 'fieldset',
-    'format_settings' => array(
-      'formatter' => 'collapsible',
-      'instance_settings' => array(
-        'description' => '',
-        'classes' => 'group-details field-group-fieldset',
-      ),
-    ),
-  );
-  $export['group_details|node|cle_assignment|gradebook_viewer'] = $field_group;
-
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
   $field_group->identifier = 'group_details|node|cle_submission|gradebook_viewer';
   $field_group->group_name = 'group_details';
   $field_group->entity_type = 'node';
