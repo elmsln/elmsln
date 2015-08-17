@@ -21,6 +21,7 @@
 
 .book-navigation-footer {
   margin: 3rem 0;
+  clear:both;
 }
 
 .book-navigation-footer .book-sibling-parent-pagination-previous {
