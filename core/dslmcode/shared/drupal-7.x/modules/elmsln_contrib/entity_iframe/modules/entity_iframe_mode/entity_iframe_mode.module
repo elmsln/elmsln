@@ -29,7 +29,10 @@ function entity_iframe_mode_url_outbound_alter(&$path, &$options, $original) {
  * Test that we are in iframe mode.
  */
 function _entity_iframe_mode_enabled() {
-  if (arg(0) == 'entity_iframe' || isset($_GET['entity_iframe'])) {
+  if (arg(0) == 'entity_iframe') {
+    return TRUE;
+  }
+  elseif (isset($_GET['entity_iframe'])) {
     return $_GET['entity_iframe'];
   }
   return FALSE;
