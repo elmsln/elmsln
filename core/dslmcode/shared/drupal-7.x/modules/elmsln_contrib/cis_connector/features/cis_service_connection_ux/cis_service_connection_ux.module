@@ -87,7 +87,6 @@ function cis_service_connection_ux_form($form, $form_state) {
     $form['theme']['#title'] = t('Theme / Style settings');
     $form['theme']['#collapsed'] = '1';
     // add in the favicon / logo areas
-    // @todo logo / favicon work
     $form['theme']['favicon']  = $tmp['zurb_foundation']['general']['favicon'];
     $form['theme']['favicon']['#weight'] = 11;
     $form['theme']['logo'] = $tmp['zurb_foundation']['general']['logo'];
@@ -126,14 +125,16 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
     }
     // If the user uploaded a new logo or favicon, save it to a permanent location
     // and use it in place of the default theme-provided file.
-    if ($file = $vars['logo_upload']) {
+    // @todo get logo / favicon working
+    /*
+    if (isset($vars['logo_upload']) && $file = $vars['logo_upload']) {
       unset($vars['logo_upload']);
       $filename = file_unmanaged_copy($file->uri);
       $vars['default_logo'] = 0;
       $vars['logo_path'] = $filename;
       $vars['toggle_logo'] = 1;
     }
-    if ($file = $vars['favicon_upload']) {
+    if (isset($vars['favicon_upload']) && $file = $vars['favicon_upload']) {
       unset($vars['favicon_upload']);
       $filename = file_unmanaged_copy($file->uri);
       $vars['default_favicon'] = 0;
@@ -152,7 +153,7 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
 
     if (empty($vars['default_favicon']) && !empty($vars['favicon_path'])) {
       $vars['favicon_mimetype'] = file_get_mimetype($vars['favicon_path']);
-    }
+    }*/
     // set the variables for the theme
     variable_set('theme_' . variable_get('theme_default', '') . '_settings', $vars);
   }
