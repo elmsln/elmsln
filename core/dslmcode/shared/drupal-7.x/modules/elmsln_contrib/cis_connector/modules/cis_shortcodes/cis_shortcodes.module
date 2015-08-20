@@ -50,6 +50,11 @@ function cis_shortcodes_block_view($delta = '') {
         elseif ($entity = menu_get_object('harmony_post')) {
           $field = _cis_shortcode_render_codes($entity, 'harmony_post');
         }
+        elseif (arg(1) == 'add') {
+          // paths that can be used for creating items directly
+          // can be directly linked to
+          $field = _cis_shortcode_render_codes(current_path(), '_link');
+        }
         // see if we have some share fields to render
         if (isset($field)) {
           $block['content'] = drupal_render($field['cis_shortcodes']);
@@ -70,29 +75,53 @@ function cis_shortcodes_block_view($delta = '') {
  * @return  array        field array for rendering
  */
 function _cis_shortcode_render_codes($entity, $type) {
-  // pick a nice default title for common entity types
+  // pick some defaults
   $title = '';
   switch ($type) {
     case 'node':
       $title = $entity->title;
+      $author_field = 'author';
     break;
     case 'user':
     case 'taxonomy_term':
       $title = $entity->name;
     break;
+    case 'harmony_thread':
+      $author_field = 'uid';
+    break;
+    // special cause for direct link to a submission form
+    case '_link':
+      // buid the direct link
+      $properties = array(
+        'rev' => CIS_SHORTCODES_API_REV,
+        'tool' => variable_get('install_profile', ''),
+        'render' => 'submit',
+        'link' => $entity,
+        'text' => t('Submit @name', array('@name' => arg(0))),
+      );
+      $field['cis_shortcodes']['cis_shortcodes_direct_link'] = array(
+        '#title' => t('Submit widget'),
+        '#attributes' => array('class' => array('cis_shortcodes_embed')),
+        '#value' => _cis_shortcodes_build_code($properties),
+        '#type' => 'textfield',
+        '#weight' => 0,
+      );
+      return $field;
+    break;
   }
-  // load info so we know what the key id is
-  $type_info = entity_get_info($type);
+  // load info so we know how all entities operate
+  $all_types = entity_get_info();
+  // load up the primary type we care about
+  $type_info = $all_types[$type];
+  $bundle = $entity->{$type_info['bundle keys']['bundle']};
   // build properties array for rendering
   $properties = array(
     'rev' => CIS_SHORTCODES_API_REV,
     'tool' => variable_get('install_profile', ''),
     'item' => $entity->{$type_info['entity keys']['id']},
+    'entity_type' => $type,
   );
-  // only append type for non-node entities
-  if ($type != 'node') {
-    $properties['entity_type'] = $type;
-  }
+
   // establish the fieldset container for shortcodes
   $field['cis_shortcodes'] = array(
     '#type' => 'fieldset',
@@ -101,6 +130,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     '#title' => t('Short Codes to embed'),
     '#weight' => -10,
   );
+  // support for entity iframe direct link
   if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
     $field['cis_shortcodes']['cis_shortcodes_embed'] = array(
       '#title' => t('Shortcode direct iframe'),
@@ -111,9 +141,10 @@ function _cis_shortcode_render_codes($entity, $type) {
       '#weight' => 1,
     );
   }
+  // switch to link render styles
   $properties['render'] = 'link';
-  if (isset($type_info['bundle keys']['bundle']) && !empty($entity->{$type_info['bundle keys']['bundle']})) {
-    $field_list = field_info_instances($type, $entity->{$type_info['bundle keys']['bundle']});
+  if (isset($type_info['bundle keys']['bundle']) && !empty($bundle)) {
+    $field_list = field_info_instances($type, $bundle);
   }
   else if (isset($type_info['entity keys']['bundle']) && !empty($entity->{$type_info['entity keys']['bundle']})){
     $field_list = field_info_instances($type, $entity->{$type_info['entity keys']['bundle']});
@@ -122,6 +153,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     // skip this, we don't have info about this type
     $field_list = array();
   }
+  // loop through the field_list and see what we can direct link to
   foreach ($field_list as $fname => $fproperties) {
     // check for things with uri's, if first item is, all are
     if (isset($entity->{$fname})) {
@@ -221,6 +253,71 @@ function _cis_shortcode_render_codes($entity, $type) {
       '#weight' => 4,
     );
   }
+  // advanced student submission capability code, this is the most intense
+  // as it will do multiple webserivce look ups to see if the user
+  // has submitted the work already
+  // load all fields for the current entity type
+  $entity_fields = field_info_instances();
+  // loop through all the field identified as being for this entity type
+  foreach ($entity_fields as $entity_fields_type => $fields) {
+  foreach ($fields as $et_bundle => $etype) {
+    // loop through the names of the fields and their settings
+    foreach ($etype as $name => $bun) {
+      // fully load the field info off of the name
+      $tmp = field_info_field($name);
+      // ignore section as it's specific to elmsln's architecture
+      // but see if we have any entityreferences on any fields
+      // that actually reference the current item AND that the
+      if ($et_bundle != 'section' && $tmp['type'] == 'entityreference' && (isset($tmp['settings']['handler_settings']['target_bundles'][$bundle]) || $tmp['settings']['target_type'] == $bundle)) {
+        // this is intense
+        // create a stub, this looks stupid cause it kind of is
+        $stub = entity_create_stub_entity($entity_fields_type, array(0, 1, 2));
+        $uri = call_user_func($all_types[$entity_fields_type]['uri callback'], $stub);
+        // ensure we have a path uri, if not, we default to the type
+        // often times they will be the same, but it's possible to not be
+        if (isset($uri['path'])) {
+          $path = explode('/', $uri['path']);
+          $end_point = $path[0];
+        }
+        else {
+          $end_point = $entity_fields_type;
+        }
+        $properties = array(
+          'rev' => CIS_SHORTCODES_API_REV,
+          'tool' => variable_get('install_profile', ''),
+          'render' => 'submit',
+          // the thing to check for if we've submitted in reference to
+          'item' => $entity->{$type_info['entity keys']['id']},
+          'entity_type' => $type,
+          'entity_bundle' => $bundle,
+          'entity_key' => $type_info['entity keys']['id'],
+          // the thing we want them to actually submit
+          'submit_type' => $entity_fields_type,
+          'submit_bundle' => $et_bundle,
+          'submit_reference' => $tmp['field_name'],
+          'submit_endpoint' => $end_point,
+        );
+        // author field not required but basically is
+        if (isset($author_field)) {
+          $properties['author_field'] = $author_field;
+        }
+        // see if we have a tagged item, this allows for generic lookups
+        if (isset($entity->field_cis_tag['und'][0]['value'])) {
+          unset($properties['item']);
+          $properties['field_cis_tag'] = $entity->field_cis_tag['und'][0]['value'];
+        }
+        // we did it!
+        $field['cis_shortcodes']['cis_shortcodes_submit_widget'] = array(
+          '#title' => t('Submit widget'),
+          '#attributes' => array('class' => array('cis_shortcodes_embed')),
+          '#value' => _cis_shortcodes_build_code($properties),
+          '#type' => 'textfield',
+          '#weight' => 0,
+        );
+      }
+    }
+  }
+}
   return $field;
 }
 
