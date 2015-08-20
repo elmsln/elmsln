@@ -40,7 +40,7 @@
             <section class="left">
               <!-- If the off-canvas menu is in use, activate off canvas toggle -->
               <?php if (!empty($page['left_menu'])): ?>
-                <a class="left-off-canvas-toggle menu-icon" ><span><?php print $cis_lmsless['active']['title'] ?></span></a>
+                <a class="left-off-canvas-toggle open menu-icon" href="#"><span><?php print $cis_lmsless['active']['title'] ?></span></a>
               <?php else : ?>
                 <span><?php print $cis_lmsless['active']['title'] ?></span>
               <?php endif; ?>

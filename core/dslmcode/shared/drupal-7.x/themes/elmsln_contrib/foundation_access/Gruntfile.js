@@ -7,9 +7,6 @@ module.exports = function(grunt) {
         includePaths: ['bower_components/foundation/scss']
       },
       dist: {
-        options: {
-          outputStyle: 'compressed'
-        },
         files: {
           'css/app.css': 'scss/app.scss'
         }
