@@ -199,7 +199,7 @@ function theme_cis_filter_render($vars) {
                         // ask for any submission of this entity bundle type for their user name
                         $query = array(
                           $code['author_field'] => $rem_uid,
-                          'type' => $code['submit'],
+                          'type' => $code['submit_bundle'],
                           $code['submit_reference'] => $item[$code['entity_key']],
                           'full' => 0,
                         );
@@ -228,7 +228,7 @@ function theme_cis_filter_render($vars) {
                           $result = '<div class="small-4 medium-6 elmsln-action-finished cis-filter-activity-item icon-' . $code['tool'] . '-black">' . ctools_modal_text_button(t('View your submission for @name', array('@name' => $item['title'])), $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll') . '</div>';
                         }
                         else {
-                          $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/add/' . str_replace('_', '-', $code['submit']) . '?' . $code['submit_reference'] . '=' . $item[$code['entity_key']];
+                          $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/add/' . str_replace('_', '-', $code['submit_bundle']) . '?' . $code['submit_reference'] . '=' . $item[$code['entity_key']];
                           // present a modal for them to submit this thing
                           $result = '<div class="small-4 medium-6 elmsln-action-unfinished cis-filter-activity-item icon-' . $code['tool'] . '-black">' . ctools_modal_text_button(t('Submit @name', array('@name' => $item['title'])), $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll') . '</div>';
                         }
