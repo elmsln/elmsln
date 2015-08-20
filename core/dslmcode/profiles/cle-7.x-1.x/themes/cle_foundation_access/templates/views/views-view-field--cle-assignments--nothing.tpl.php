@@ -34,7 +34,7 @@ if (isset($row->node_field_data_field_cle_assignments_nid)) {
 		$output .= l($title,'node/' . $nid) . ' ';
 	}
 	if (empty($output)) {
-		$output = t('Unsubmitted');
+		$output = l(t('Submit assignment'),'node/add/cle-submission', array('query' => array('field_assignment' => $row->node_field_data_field_cle_assignments_nid)));
 	}
 }
 ?>
