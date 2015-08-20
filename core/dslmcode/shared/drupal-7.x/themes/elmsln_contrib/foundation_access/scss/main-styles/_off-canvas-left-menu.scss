@@ -30,8 +30,13 @@ $mobile-off-canvas-width: 100%; // or any other unit
 // Off-canvas menu styling
 .left-off-canvas-menu {
   background-color:$white;
+  visibility: hidden;
   .top-bar {
     background-color:transparent;
+  }
+
+  .off-canvas-wrap.move-right & {
+    visibility: visible;
   }
 }
 .content-outline-navigation {

@@ -26,8 +26,8 @@
  */
 // sort so the items are weighted
 ?>
-<aside class="left-off-canvas-menu" data-offcanvas>
-  <a role="button" class="left-off-canvas-toggle close"><div class="icon-close-black outline-nav-icon" data-grunticon-embed></div></a>
+<aside class="left-off-canvas-menu" data-offcanvas tabindex="-1">
+  <a role="button" class="left-off-canvas-toggle close" href="#"><div class="icon-close-black outline-nav-icon" data-grunticon-embed></div></a>
   <div id="left-off-canvas-wrapper" class="content-outline-navigation in-place-scroll">
   <?php if ($content): ?>
     <?php print $content; ?>
