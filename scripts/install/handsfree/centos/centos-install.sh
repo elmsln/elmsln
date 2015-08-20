@@ -77,6 +77,8 @@ echo "opcache.max_wasted_percentage=10" >> /etc/php.ini
 echo "opcache.validate_timestamps=0" >> /etc/php.ini
 echo "opcache.fast_shutdown=1" >> /etc/php.ini
 
+/etc/init.d/httpd restart
+
 cd $HOME
 source .bashrc
 end="$(timestamp)"
