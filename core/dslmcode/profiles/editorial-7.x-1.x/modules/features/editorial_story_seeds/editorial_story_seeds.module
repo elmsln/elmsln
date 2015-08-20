@@ -23,6 +23,12 @@ function editorial_story_seeds_node_prepare($node) {
       drupal_goto('node/' . $tmp->nid . '/edit');
     }
   }
+  else {
+    // only hide node title via css additions if we are allowed
+    if (!empty($node->title)) {
+      drupal_add_css(drupal_get_path('module', 'editorial_story_seeds') . '/css/editorial_story_seeds.css');
+    }
+  }
 }
 
 /**
