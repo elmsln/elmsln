@@ -10,8 +10,8 @@
 function discuss_section_threads_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-section-field_threads'
-  $field_instances['node-section-field_threads'] = array(
+  // Exported field_instance: 'node-section-field_harmony_threads'
+  $field_instances['node-section-field_harmony_threads'] = array(
     'bundle' => 'section',
     'default_value' => NULL,
     'default_value_function' => '',
@@ -30,7 +30,7 @@ function discuss_section_threads_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'fences_wrapper' => 'div',
-    'field_name' => 'field_threads',
+    'field_name' => 'field_harmony_threads',
     'label' => 'Threads',
     'required' => 1,
     'settings' => array(

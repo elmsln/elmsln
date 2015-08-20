@@ -7,5 +7,5 @@ dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = options
 features[features_api][] = api:2
-features[field_base][] = field_threads
-features[field_instance][] = node-section-field_threads
+features[field_base][] = field_harmony_threads
+features[field_instance][] = node-section-field_harmony_threads

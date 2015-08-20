@@ -10,13 +10,13 @@
 function discuss_section_threads_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_threads'
-  $field_bases['field_threads'] = array(
+  // Exported field_base: 'field_harmony_threads'
+  $field_bases['field_harmony_threads'] = array(
     'active' => 1,
     'cardinality' => -1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_threads',
+    'field_name' => 'field_harmony_threads',
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
