@@ -25,7 +25,7 @@ function cle_assignment_init() {
  */
 function cle_assignment_page_build(&$page) {
   $node = menu_get_object();
-  if ($node && $node->type == 'cle_assignment') {
+  if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
     $field_conditions = array('field_assignment' => array('target_id', array($node->nid), 'IN'));
     $submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
     $output = '';
