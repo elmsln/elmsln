@@ -35,5 +35,5 @@ upload_max_filesize = 50M
 post_max_size = 50M
 
 ; Recommendation from @mcarper
-realpath_cache_size = 512K
+realpath_cache_size = 1M
 realpath_cache_ttl = 3600
