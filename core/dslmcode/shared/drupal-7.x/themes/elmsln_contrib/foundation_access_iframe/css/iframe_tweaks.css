@@ -12,4 +12,13 @@ h1#page-title {
 #edit-actions{
   bottom: 0;
   position: fixed;
+  width: 100%;
+  background-color: #EEEEEE;
+  left: 0;
+  margin: 0;
+  padding: .25rem;
+}
+
+#edit-actions button{
+  margin: 0;
 }
