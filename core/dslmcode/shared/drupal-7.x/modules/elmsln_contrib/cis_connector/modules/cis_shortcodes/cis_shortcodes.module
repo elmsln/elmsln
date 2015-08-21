@@ -113,7 +113,12 @@ function _cis_shortcode_render_codes($entity, $type) {
   $all_types = entity_get_info();
   // load up the primary type we care about
   $type_info = $all_types[$type];
-  $bundle = $entity->{$type_info['bundle keys']['bundle']};
+  if (isset($entity->{$type_info['bundle keys']['bundle']})) {
+    $bundle = $entity->{$type_info['bundle keys']['bundle']};
+  }
+  else {
+    return FALSE;
+  }
   // build properties array for rendering
   $properties = array(
     'rev' => CIS_SHORTCODES_API_REV,
