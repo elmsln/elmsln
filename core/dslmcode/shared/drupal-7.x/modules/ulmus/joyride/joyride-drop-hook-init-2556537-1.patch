@@ -1,0 +1,29 @@
+diff --git a/joyride.module b/joyride.module
+index f8dddf6..dc0d764 100644
+--- a/joyride.module
++++ b/joyride.module
+@@ -121,17 +121,6 @@ function joyride_ctools_plugin_api($module, $api) {
+ }
+ 
+ /**
+- * Implements hook_init().
+- * Perform setup tasks for non-cached page requests.
+- *
+- * @see http://api.drupalize.me/api/drupal/function/hook_init/7
+- */
+-function joyride_init() {
+-  $plugin = context_get_plugin('reaction', 'joyride_add');
+-  if($plugin) $plugin->execute();
+-}
+-
+-/**
+  * Implements hook_theme().
+  * Register a module (or theme's) theme implementations.
+  *
+@@ -431,4 +420,4 @@ function joyride_context_page_reaction(){
+   if ($plugin = context_get_plugin('reaction', 'joyride_add')) {
+     $plugin->execute();
+   }
+-}
+\ No newline at end of file
++}

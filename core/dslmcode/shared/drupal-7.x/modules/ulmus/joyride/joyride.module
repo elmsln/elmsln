@@ -121,17 +121,6 @@ function joyride_ctools_plugin_api($module, $api) {
 }
 
 /**
- * Implements hook_init().
- * Perform setup tasks for non-cached page requests.
- *
- * @see http://api.drupalize.me/api/drupal/function/hook_init/7
- */
-function joyride_init() {
-  $plugin = context_get_plugin('reaction', 'joyride_add');
-  if($plugin) $plugin->execute();
-}
-
-/**
  * Implements hook_theme().
  * Register a module (or theme's) theme implementations.
  *
