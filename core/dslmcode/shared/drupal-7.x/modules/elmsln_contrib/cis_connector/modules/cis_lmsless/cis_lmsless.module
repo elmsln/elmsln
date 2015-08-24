@@ -229,10 +229,6 @@ function _cis_lmsless_theme_vars() {
       );
     }
     $vars['services'] = $list;
-    // support for search bar if active
-    if (module_exists('search') && user_access('search content')) {
-      $vars['search'] = drupal_get_form('search_block_form');
-    }
     $vars['bar_elements'] = array(
       'network' => TRUE,
       'user' => TRUE,
@@ -278,7 +274,6 @@ function cis_lmsless_theme() {
         'main_menu' => menu_tree(variable_get('menu_main_links_source', 'main-menu')),
         'help_link' => url('course-help'),
         'syllabus_link' => url('syllabus'),
-        'search' => '',
         'username' => t('Account'),
         'userlink' => '',
         'resources' => array(),
