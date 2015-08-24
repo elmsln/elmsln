@@ -96,10 +96,8 @@ function advagg_bundler_admin_settings_form() {
  */
 function advagg_bundler_admin_settings_form_submit($form, &$form_state) {
   // Clear caches.
-  $cache_bins = advagg_flush_caches();
-  foreach ($cache_bins as $bin) {
-    cache_clear_all('*', $bin, TRUE);
-  }
+  advagg_cache_clear_admin_submit();
+
   // Unset advagg_bundler_info.
   if (isset($form_state['values']['advagg_bundler_info'])) {
     unset($form_state['values']['advagg_bundler_info']);

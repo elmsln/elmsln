@@ -450,7 +450,7 @@ function advagg_delete_orphaned_aggregates() {
 function advagg_delete_files_if_orphaned(array $files) {
   // Get the uri for the advagg_css/parts directory.
   list($css_path) = advagg_get_root_files_dir();
-  $parts_uri = $css_path[0] . '/parts';
+  $parts_uri = $css_path[0] . '/parts/';
 
   // Array used to record what files were deleted.
   $kill_list = $keyed_file_list = array();
@@ -469,7 +469,7 @@ function advagg_delete_files_if_orphaned(array $files) {
       $start = strpos($file->uri, $parts_uri);
       if ($start !== FALSE) {
         // Get the original filename.
-        $original_file = substr($file->uri, $start + strlen($parts_uri) + 1);
+        $original_file = substr($file->uri, $start + strlen($parts_uri));
         $original_file = preg_replace('/(.\\d+\\.css)$/i', '.css', $original_file);
         if (file_exists($original_file)) {
           // Original file exists, do not delete.

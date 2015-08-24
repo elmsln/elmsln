@@ -19,7 +19,7 @@
  *   true if string contains non ASCII characters.
  *   false if string only contains ASCII characters.
  */
-Drupal.formatInterval = function(interval, granularity, langcode) {
+Drupal.formatInterval = function (interval, granularity, langcode) {
   "use strict";
   granularity = typeof granularity !== 'undefined' ? granularity : 2;
   langcode = typeof langcode !== 'undefined' ? langcode : null;
@@ -73,7 +73,7 @@ Drupal.formatInterval = function(interval, granularity, langcode) {
  *   true if string contains non ASCII characters.
  *   false if string only contains ASCII characters.
  */
-function advagg_is_unicode(str){
+function advagg_is_unicode(str) {
   "use strict";
   for (var i = 0, n = str.length; i < n; i++) {
     if (str.charCodeAt(i) > 255) {

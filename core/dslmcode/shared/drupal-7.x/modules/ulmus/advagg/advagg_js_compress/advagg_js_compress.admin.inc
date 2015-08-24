@@ -111,6 +111,11 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
     }
   }
 
+  // No js files are found.
+  if (empty($results)) {
+    $form['per_file_settings']['#description'] = t('No JS files have been aggregated. You need to enable aggregation. No js files where found in the advagg_files table.');
+  }
+
   // Clear the cache bins on submit.
   $form['#submit'][] = 'advagg_js_compress_admin_settings_form_submit';
 
@@ -124,10 +129,7 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
  * Also remove default settings inside of the per_file_settings fieldgroup.
  */
 function advagg_js_compress_admin_settings_form_submit($form, &$form_state) {
-  $cache_bins = advagg_flush_caches();
-  foreach ($cache_bins as $bin) {
-    cache_clear_all('*', $bin, TRUE);
-  }
+  advagg_cache_clear_admin_submit();
 
   // Get current defaults.
   $file_settings = variable_get('advagg_js_compressor_file_settings', array());

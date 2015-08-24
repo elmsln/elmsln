@@ -498,6 +498,7 @@ class JSqueeze
         $r1 = array( // keywords with a direct object
             'case','delete','do','else','function','in','instanceof','break',
             'new','return','throw','typeof','var','void','yield','let','if',
+            'const',
         );
 
         $r2 = array( // keywords with a subject

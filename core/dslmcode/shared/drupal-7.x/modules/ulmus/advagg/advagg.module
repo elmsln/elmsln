@@ -253,7 +253,7 @@ function advagg_url_inbound_alter(&$path, $original_path, $path_language) {
       $language_list = language_list();
       $prefixes = array();
       foreach ($language_list as $lang) {
-        if ($lang->enabled && strpos($request_path, $lang->prefix) !== FALSE) {
+        if ($lang->enabled && !empty($lang->prefix) && strpos($request_path, $lang->prefix) !== FALSE) {
           $prefixes[$lang->prefix] = $lang->prefix;
         }
       }
@@ -849,7 +849,7 @@ function advagg_ajax_render_alter(&$commands) {
     $commands = array_merge($extra_commands, $commands);
   }
   if (!empty($settings)) {
-    array_unshift($commands, ajax_command_settings(drupal_array_merge_deep_array($settings['data']), TRUE));
+    array_unshift($commands, ajax_command_settings(advagg_cleanup_settings_array(drupal_array_merge_deep_array($settings['data'])), TRUE));
   }
 }
 
@@ -1116,20 +1116,22 @@ function advagg_preprocess_html() {
  *   A render array that will render to a string of JavaScript tags.
  */
 function advagg_modify_js_pre_render(array $elements) {
-  // Put children elements into a reference array.
-  $children = array();
-  foreach ($elements as $key => &$value) {
-    if ($key !== '' && $key[0] === '#') {
-      continue;
-    }
-    $children[$key] = &$value;
-  }
-  unset($value);
+  // Get the children elements.
+  $children = array_intersect_key($elements, array_flip(element_children($elements)));
 
   // Allow other modules to modify $children and $elements before they are
   // rendered.
   // Call hook_advagg_modify_js_pre_render_alter()
   drupal_alter('advagg_modify_js_pre_render', $children, $elements);
+
+  // Remove old children elements.
+  foreach ($children as $key => $value) {
+    if (isset($elements[$key])) {
+      unset($elements[$key]);
+    }
+  }
+  // Add in new children elements.
+  $elements += $children;
   return $elements;
 }
 
@@ -1600,20 +1602,20 @@ function _advagg_process_html(&$variables) {
   }
 
   // Render page_top and page_bottom into top level variables.
-  if (isset($variables['page']['page_top'])) {
+  if (is_array($variables['page']) && isset($variables['page']['page_top'])) {
     $variables['page_top'] = drupal_render($variables['page']['page_top']);
   }
   elseif (!isset($variables['page_top'])) {
     $variables['page_top'] = '';
   }
-  if (isset($variables['page']['page_bottom'])) {
+  if (is_array($variables['page']) && isset($variables['page']['page_bottom'])) {
     $variables['page_bottom'] = drupal_render($variables['page']['page_bottom']);
   }
   elseif (!isset($variables['page_bottom'])) {
     $variables['page_bottom'] = '';
   }
   // Place the rendered HTML for the page body into a top level variable.
-  if (isset($variables['page']['#children'])) {
+  if (is_array($variables['page']) && isset($variables['page']['#children'])) {
     $variables['page'] = $variables['page']['#children'];
   }
 
@@ -1741,7 +1743,7 @@ function _advagg_process_html(&$variables) {
 
         // Replace cached Drupal.settings with current Drupal.settings for this
         // page.
-        $merged = drupal_array_merge_deep_array($js_scope_settings_array_copy[$scope_settings]['settings']['data']);
+        $merged = advagg_cleanup_settings_array(drupal_array_merge_deep_array($js_scope_settings_array_copy[$scope_settings]['settings']['data']));
         $json_data = advagg_json_encode($merged);
         if (!empty($json_data)) {
           // Record that this is being used.
@@ -1888,6 +1890,36 @@ function _advagg_process_html(&$variables) {
 }
 
 /**
+ * Shrink the ajaxPageState data.
+ *
+ * @param array $data
+ *   Settings for javascript.
+ */
+function advagg_cleanup_settings_array(array $data) {
+  // Remove inline js from the ajaxPageState data.
+  if (isset($data['ajaxPageState']['js'])) {
+    foreach ($data['ajaxPageState']['js'] as $key => $value) {
+      if (!advagg_remove_short_keys($key)) {
+        unset($data['ajaxPageState']['js'][$key]);
+      }
+    }
+  }
+  // Remove inline css from the ajaxPageState data.
+  if (isset($data['ajaxPageState']['css'])) {
+    foreach ((array) $data['ajaxPageState']['css'] as $key => $value) {
+      if (!advagg_remove_short_keys($key)) {
+        unset($data['ajaxPageState']['css']->{$key});
+      }
+    }
+  }
+  // Remove settings from the js ajaxPageState data.
+  if (isset($data['ajaxPageState']['js']['settings'])) {
+    unset($data['ajaxPageState']['js']['settings']);
+  }
+  return $data;
+}
+
+/**
  * Find dns_prefetch and call advagg_add_dns_prefetch().
  *
  * @param array $values
@@ -1945,6 +1977,20 @@ function advagg_add_dns_prefetch($url) {
   );
   // Add markup for dns-prefetch to html_head.
   drupal_add_html_head($element, 'advagg_dns_prefetch:' . $parse['host']);
+
+  // Build render array. Goes after charset tag.
+  if (!empty($parse['fragment']) && $parse['fragment'] === 'prefetch') {
+    $element = array(
+      '#type' => 'html_tag',
+      '#tag' => 'link',
+      '#attributes' => array(
+        'rel' => 'prefetch',
+        'href' => '//' . $parse['host'] . '/robots.txt',
+      ),
+      '#weight' => -999.9,
+    );
+    drupal_add_html_head($element, 'advagg_prefetch:' . $parse['host']);
+  }
   return TRUE;
 }
 
@@ -2092,6 +2138,25 @@ function advagg_get_full_js(array $javascript = array(), $skip_alter = FALSE) {
       advagg_mod_js_move_to_footer($javascript);
     }
   }
+
+  // If in development mode make sure the ajaxPageState css is there.
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
+    $have_css = FALSE;
+    foreach ($javascript['settings']['data'] as $setting) {
+      if (!empty($setting['ajaxPageState']['css'])) {
+        $have_css = TRUE;
+        break;
+      }
+    }
+    if (!$have_css) {
+      $css = drupal_add_css();
+      if (!empty($css)) {
+        // Cast the array to an object to be on the safe side even if not empty.
+        $javascript['settings']['data'][]['ajaxPageState']['css'] = (object) array_fill_keys(array_keys($css), 1);
+      }
+    }
+  }
+
   return $javascript;
 }
 
@@ -2187,9 +2252,7 @@ function advagg_get_js($scope = 'header', array $javascript = array(), $ajax = F
 
   // Provide the page with information about the individual JavaScript files
   // used, information not otherwise available when aggregation is enabled.
-  // Also filter out empty items due to numeric array keys.
-  $setting['ajaxPageState']['js'] = array_fill_keys(array_filter(array_keys($items), 'advagg_remove_short_keys'), 1);
-  unset($setting['ajaxPageState']['js']['settings']);
+  $setting['ajaxPageState']['js'] = array_fill_keys(array_keys($items), 1);
 
   // If we're outputting the header scope, then this should be the final time
   // that drupal_get_js() is running, so add the setting to this output as well
@@ -2200,7 +2263,16 @@ function advagg_get_js($scope = 'header', array $javascript = array(), $ajax = F
   // Also output the settings if we have pushed all javascript to the footer.
   if (isset($items['settings'])) {
     // Get settings from the static.
-    $javascript = &drupal_static('drupal_add_js', array());
+    $javascript_static = &drupal_static('drupal_add_js', array());
+
+    // Merge in last js ajaxPageState into the current data.
+    $reverse_settings = array_reverse($javascript_static['settings']['data']);
+    foreach ($reverse_settings as $key => $values) {
+      if (isset($values['ajaxPageState']['js'])) {
+        $javascript['settings']['data'][] = $values;
+        break;
+      }
+    }
     $items['settings']['data'] = $javascript['settings']['data'];
 
     // Add in this round of settings.
@@ -3318,7 +3390,7 @@ function advagg_pre_render_scripts(array $elements) {
         // Element properties that depend on item type.
         switch ($item['type']) {
           case 'setting':
-            $data = drupal_array_merge_deep_array($item['data']);
+            $data = advagg_cleanup_settings_array(drupal_array_merge_deep_array($item['data']));
             $json_data = advagg_json_encode($data);
             $element['#value_prefix'] = $embed_prefix;
             $element['#value'] = 'jQuery.extend(Drupal.settings, ' . $json_data . ");";
@@ -4372,4 +4444,16 @@ function advagg_glue_url(array $parsed, $strip_query_and_fragment = FALSE) {
     $uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
   }
   return $uri;
+}
+
+/**
+ * Clear certain caches on form submit.
+ */
+function advagg_cache_clear_admin_submit() {
+  $cache_bins = advagg_flush_caches();
+  foreach ($cache_bins as $bin) {
+    cache_clear_all('*', $bin, TRUE);
+  }
+  cache_clear_all('hook_info', 'cache_bootstrap');
+  cache_clear_all('advagg_hooks_implemented:', 'cache_bootstrap', TRUE);
 }

@@ -11,30 +11,56 @@
  */
 define('ADVAGG_FONT_FONTFACEOBSERVER', 0);
 
+/**
+ * Default value to use a cookie in order to prevent the FOUT.
+ */
+define('ADVAGG_FONT_COOKIE', 1);
+
+/**
+ * Default value to only replace the font if it's been downloaded.
+ */
+define('ADVAGG_FONT_NO_FOUT', 0);
+
 // Core hook implementations.
 /**
  * Implements hook_page_build().
  */
 function advagg_font_page_build(&$page) {
+  // The $page variable is not an array; or the content key does not exist.
+  if (!is_array($page) || !isset($page['content'])) {
+    return;
+  }
   $advagg_font_ffo = variable_get('advagg_font_fontfaceobserver', ADVAGG_FONT_FONTFACEOBSERVER);
+  // Fontface Observer is disabled.
   if (empty($advagg_font_ffo)) {
     return;
   }
 
-  // Add inline script for reading the cookies and adding the fonts already
-  // loaded to the html class.
-  $inline_script_min = 'var fonts=document.cookie.split("advagg");for(var key in fonts){var font=fonts[key].split("="),pos=font[0].indexOf("font_");-1!==pos&&(window.document.documentElement.className+=" "+font[0].substr(5).replace(/[^a-zA-Z0-9\-]/g,""))}';
-  $page['content']['#attached']['js']['advagg_font.inline.js'] = array(
-    'type' => 'inline',
-    'group' => JS_LIBRARY - 1,
-    'weight' => -50000,
-    'scope_lock' => TRUE,
-    'movable' => FALSE,
-    'no_defer' => TRUE,
-    'data' => $inline_script_min,
+  $page['content']['#attached']['js'][] = array(
+    'type' => 'setting',
+    'data' => array(
+      'advagg_font_cookie' => variable_get('advagg_font_cookie', ADVAGG_FONT_COOKIE),
+      'advagg_font_no_fout' => variable_get('advagg_font_no_fout', ADVAGG_FONT_NO_FOUT),
+    ),
   );
 
-  // Add advagg_font.js; sets cookie once a font has been downloaded.
+  // Add inline script for reading the cookies and adding the fonts already
+  // loaded to the html class.
+  if (variable_get('advagg_font_cookie', ADVAGG_FONT_COOKIE)) {
+    $inline_script_min = 'var fonts=document.cookie.split("advagg");for(var key in fonts){var font=fonts[key].split("="),pos=font[0].indexOf("font_");-1!==pos&&(window.document.documentElement.className+=" "+font[0].substr(5).replace(/[^a-zA-Z0-9\-]/g,""))}';
+    $page['content']['#attached']['js']['advagg_font.inline.js'] = array(
+      'type' => 'inline',
+      'group' => JS_LIBRARY - 1,
+      'weight' => -50000,
+      'scope_lock' => TRUE,
+      'movable' => FALSE,
+      'no_defer' => TRUE,
+      'data' => $inline_script_min,
+    );
+  }
+
+  // Add advagg_font.js; sets cookie and changes the class of the top level
+  // element once a font has been downloaded.
   $file_path = drupal_get_path('module', 'advagg_font') . '/advagg_font.js';
   $page['content']['#attached']['js'][$file_path] = array(
     'async' => TRUE,
@@ -158,51 +184,82 @@ function advagg_font_get_replacements_array($css_string) {
   // Get the CSS that contains a font-family rule.
   $length = strlen($css_string);
   $property = 'font-family';
-  $last_position = 0;
+  $property_position = 0;
   $replacements = array();
 
-  while (($last_position = strpos($css_string, $property, $last_position)) !== FALSE) {
-    // Get closing bracket.
-    $end = strpos($css_string, '}', $last_position);
-    if ($end === FALSE) {
-      $end = $length;
-    }
-
-    // Get position of the last closing bracket (start of this section).
-    $start = strrpos($css_string, '}', -($length - $last_position));
+  while (($property_position = strpos($css_string, $property, $property_position)) !== FALSE) {
+    // Get position of the last closing bracket plus 1 (start of this section).
+    $start = strrpos($css_string, '}', -($length - $property_position));
     if ($start === FALSE) {
+      // Property is in the first selector and a declaration block (full rule
+      // set).
       $start = 0;
     }
     else {
+      // Add one to start after the }.
       $start++;
     }
 
-    // Get closing ; in order to get the end of the declaration.
-    $declaration_end = strpos($css_string, ';', $last_position);
+    // Get closing bracket (end of this section).
+    $end = strpos($css_string, '}', $property_position);
+    if ($end === FALSE) {
+      // The end is the end of this file.
+      $end = $length;
+    }
+
+    // Get closing ; in order to get the end of the declaration of the property.
+    $declaration_end = strpos($css_string, ';', $property_position);
     if ($declaration_end > $end) {
       $declaration_end = $end;
     }
+    // Add one in order to capture the } when we ge the full rule set.
     $end++;
 
-    // Get values.
-    $start_of_values = strpos($css_string, ':', $last_position);
+    // Get values assigned to this property.
+    $start_of_values = strpos($css_string, ':', $property_position);
     $values_string = substr($css_string, $start_of_values + 1, $declaration_end - ($start_of_values + 1));
     // Parse values string into an array of values.
     $values_array = explode(',', $values_string);
 
     // Values array has more than 1 value and first element is a quoted string.
     if (count($values_array) > 1 && (strpos($values_array[0], '"') !== FALSE || strpos($values_array[0], "'") !== FALSE)) {
-      // Remove first value and render css rule.
+      // Save the first value to a variable and trim it.
       $removed_value_original = trim($values_array[0]);
-      $next_value_original = trim($values_array[1]);
-      $removed_value = strtolower(trim(str_replace(array('"', "'"), '', $removed_value_original)));
-      $removed_value = str_replace(' ', '-', $removed_value);
-      unset($values_array[0]);
-      $new_values_array = implode(',', $values_array);
+      // Get value as a classname. Remove quotes, trim, lowercase, and replace
+      // spaces with dashes.
+      $removed_value_classname = strtolower(trim(str_replace(array('"', "'"), '', $removed_value_original)));
+      $removed_value_classname = str_replace(' ', '-', $removed_value_classname);
+      // Remove value if it contains a quote.
+      foreach ($values_array as $key => $value) {
+        if (strpos($value, '"') !== FALSE || strpos($value, "'") !== FALSE) {
+          unset($values_array[$key]);
+        }
+        else {
+          break;
+        }
+      }
+      if (empty($values_array)) {
+        // No unquoted values left; do not modify the css.
+        continue;
+      }
+      // Rezero the keys.
+      $values_array = array_values($values_array);
+      // Save next value.
+      $next_value_original = trim($values_array[0]);
+      // Create the values string.
+      $new_values_string = implode(',', $values_array);
 
       // Get all selectors.
       $end_of_selectors = strpos($css_string, '{', $start);
       $selectors = substr($css_string, $start, $end_of_selectors - $start);
+      // Ensure selectors is not a media query
+      if (strpos($selectors,"@media") !== FALSE) {
+        // Move the start to the end of the media query.
+        $start = $end_of_selectors + 1;
+        // Get the selectors again.
+        $end_of_selectors = strpos($css_string, '{', $start);
+        $selectors = substr($css_string, $start, $end_of_selectors - $start);
+      }
 
       // From advagg_load_stylesheet_content().
       // Perform some safe CSS optimizations.
@@ -222,14 +279,14 @@ function advagg_font_get_replacements_array($css_string) {
       // Add css class to all the selectors.
       $selectors_array = explode(',', $selectors_stripped);
       foreach ($selectors_array as &$selector) {
-        $selector = ' .' . $removed_value . ' ' . $selector;
+        $selector = ' .' . $removed_value_classname . ' ' . $selector;
       }
       $new_selectors = implode(',', $selectors_array);
 
       // Get full rule set.
       $full_rule_set = substr($css_string, $start, $end - $start);
       // Replace values.
-      $new_values_full_rule_set = str_replace($values_string, $new_values_array, $full_rule_set);
+      $new_values_full_rule_set = str_replace($values_string, $new_values_string, $full_rule_set);
       // Add in old rule set with new selectors.
       $new_selectors_full_rule_set = $new_selectors . '{' . $property . ': ' . $values_string . ';}';
 
@@ -239,13 +296,13 @@ function advagg_font_get_replacements_array($css_string) {
         $new_values_full_rule_set,
         $new_selectors_full_rule_set,
         $removed_value_original,
-        $removed_value,
+        $removed_value_classname,
         $next_value_original,
       );
     }
 
     // Advance position.
-    $last_position = $end;
+    $property_position = $end;
   }
   return $replacements;
 }

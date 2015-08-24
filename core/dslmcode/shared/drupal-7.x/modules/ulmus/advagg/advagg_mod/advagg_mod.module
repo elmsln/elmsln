@@ -161,6 +161,11 @@ define('ADVAGG_MOD_JS_GET_EXTERNAL_DNS', FALSE);
  */
 define('ADVAGG_MOD_JS_DEFER_JQUERY', FALSE);
 
+/**
+ * Default value to use the prefetch tag for certain domains.
+ */
+define('ADVAGG_MOD_PREFETCH', FALSE);
+
 // Core hook implementations.
 /**
  * Implements hook_module_implements_alter().
@@ -289,73 +294,8 @@ function advagg_mod_js_alter(&$js) {
 
   // Add the defer or the async tag to JS.
   $jquery_defered = advagg_mod_js_async_defer($js);
-
-  if ($jquery_defered) {
-    foreach ($js as &$values) {
-      // Skip if not inline.
-      if ($values['type'] !== 'inline') {
-        continue;
-      }
-      // Skip if advagg has already wrapped this inline code.
-      if (strpos($values['data'], 'advagg_mod_') !== FALSE) {
-        continue;
-      }
-      if (!empty($values['no_defer'])) {
-        continue;
-      }
-
-      // Do not wrap inline js if it contains a named function definition.
-      $pattern = '/\\s*function\\s+((?:[a-z][a-z0-9_]*))\\s*\\(.*\\)\\s*\\{/smix';
-      $match = preg_match($pattern, $values['data']);
-      if (!$match) {
-        // Defer the inline script by wrapping the code in setTimeout callback.
-        $matches[2] = $matches[0] = $values['data'];
-        $values['data'] = advagg_mod_wrap_inline_js($matches);
-      }
-      elseif (strpos($values['data'], 'jQuery.') !== FALSE) {
-        // Inline js has a named function that uses jQuery;
-        // do not defer jQuery.js
-        $no_jquery_defer = TRUE;
-      }
-    }
-    unset($values);
-  }
-  elseif (variable_get('advagg_mod_js_defer_inline_alter', ADVAGG_MOD_JS_DEFER_INLINE_ALTER)) {
-    foreach ($js as &$values) {
-      // Skip if not inline.
-      if ($values['type'] !== 'inline') {
-        continue;
-      }
-      // Skip if advagg has already wrapped this inline code.
-      if (strpos($values['data'], 'advagg_mod_') !== FALSE) {
-        continue;
-      }
-      if (!empty($values['no_defer'])) {
-        continue;
-      }
-
-      // Do not wrap inline js if it contains a named function definition.
-      $pattern = '/\\s*function\\s+((?:[a-z][a-z0-9_]*))\\s*\\(.*\\)\\s*\\{/smix';
-      $match = preg_match($pattern, $values['data']);
-      if (!$match) {
-        // Defer the inline script by wrapping the code in setTimeout callback.
-        $values['data'] = advagg_mod_defer_inline_js($values['data']);
-      }
-    }
-    unset($values);
-  }
-  if (!empty($no_jquery_defer)) {
-    foreach ($js as $name => &$values) {
-      // Skip if not a file or external.
-      if ($values['type'] !== 'file' && $values['type'] !== 'external') {
-        continue;
-      }
-      // Special handling for jQuery.
-      if (strpos($name, 'jquery.js') !== FALSE || strpos($name, 'jquery.min.js') !== FALSE) {
-        $values['defer'] = FALSE;
-      }
-    }
-  }
+  // Inline JS defer.
+  advagg_mod_inline_defer($js, $jquery_defered);
 
   // Move all async JS to the header.
   if (variable_get('advagg_mod_js_async_in_header', ADVAGG_MOD_JS_ASYNC_IN_HEADER)) {
@@ -374,6 +314,29 @@ function advagg_mod_js_alter(&$js) {
       $values['group'] = 1000;
     }
     unset($values);
+  }
+
+  advagg_mod_prefetch_link($js);
+}
+
+/**
+ * Have the browser prefech this domain to open the connection.
+ *
+ * @param array $js
+ *   JS array.
+ */
+function advagg_mod_prefetch_link(array &$js) {
+  if (variable_get('advagg_mod_prefetch', ADVAGG_MOD_PREFETCH)) {
+    foreach ($js as &$values) {
+      if (isset($values['dns_prefetch'])) {
+        foreach ($values['dns_prefetch'] as &$url) {
+          // Prefetch stats.g.doubleclick.net domain.
+          if (strpos($url, '//stats.g.doubleclick.net') !== FALSE) {
+            $url .= '#prefetch';
+          }
+        }
+      }
+    }
   }
 }
 
@@ -601,8 +564,70 @@ function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
         $onload_code[$values['#attributes']['src']] = $values['#attributes']['onload'];
       }
     }
+    $jquery_rev = strrev('/jquery.js');
+    $jquery_min_rev = strrev('/jquery.min.js');
 
-    foreach ($children as &$values) {
+    $ie_fixes = array();
+    foreach ($elements['#groups'] as $group) {
+      if ( $group['type'] !== 'file'
+        || empty($group['defer'])
+        || empty($group['items']['files'])
+      ) {
+        continue;
+      }
+
+      $found = FALSE;
+      foreach ($group['items']['files'] as $name => &$values) {
+        // Special handling for jQuery.
+        if ( stripos(strrev($name), $jquery_rev) === 0
+          || stripos(strrev($name), $jquery_min_rev) === 0
+        ) {
+          $found = TRUE;
+        }
+      }
+      if ($found) {
+        $ie_fixes[] = basename($group['data']);
+      }
+    }
+
+    foreach ($children as $key => &$values) {
+      if ( !empty($values['#attributes']['src'])
+        && isset($values['#attributes']['defer'])
+        && empty($values['#browsers'])
+      ) {
+        $ie_key = array_search(basename($values['#attributes']['src']), $ie_fixes);
+        if ($ie_key !== FALSE) {
+          unset($ie_fixes[$ie_key]);
+          // Not IE supports defer.
+          $values['#browsers'] = array(
+            'IE' => FALSE,
+            '!IE' => TRUE,
+          );
+
+          // IE10+ supports defer.
+          $copy = $values;
+          $copy['#browsers'] = array(
+            'IE' => 'gt IE 9',
+            '!IE' => FALSE,
+          );
+          $copy['#attributes']['src'] .= '#ie10+';
+          array_splice($children, $key, 0, array($copy));
+
+          // IE9- does not support defer.
+          $copy = $values;
+          $copy['#browsers'] = array(
+            'IE' => 'lte IE 9',
+            '!IE' => FALSE,
+          );
+          unset($copy['defer']);
+          unset($copy['#attributes']['defer']);
+          $copy['#attributes']['src'] .= '#ie9-';
+          array_splice($children, $key, 0, array($copy));
+        }
+      }
+    }
+
+    foreach ($children as $key => &$values) {
       // Core's Drupal.settings. Put inside wrapper if there is an onload call
       // for init_drupal_core_settings. Have to do this here because the
       // settings needed to be rendered.
@@ -616,7 +641,7 @@ function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
           }
         }
         if ($found) {
-          $values['#value'] = "function init_drupal_core_settings() {" . $values['#value'] . "\nif(jQuery.isFunction(jQuery.holdReady)){jQuery.holdReady(false);}}";
+          $values['#value'] = "function init_drupal_core_settings() {" . $values['#value'] . "\nif(jQuery.isFunction(jQuery.holdReady)){jQuery.holdReady(false);}} if(window.jQuery && window.Drupal){init_drupal_core_settings();}";
         }
       }
     }
@@ -899,6 +924,9 @@ function advagg_mod_get_lists() {
     // Get inline defer js skip list string and convert it to an array.
     $inline_js_defer_skip_list = array_filter(array_map('trim', explode("\n", variable_get('advagg_mod_defer_inline_js_skip_list', ADVAGG_MOD_DEFER_INLINE_JS_SKIP_LIST))));
     $inline_js_defer_skip_list[] = 'loadCSS(';
+    if (module_exists('googleanalytics')) {
+      $inline_js_defer_skip_list[] = '_gaq.push(["_';
+    }
 
     // If there is a fast clicker, ajax links might not work if ajax.js is
     // loaded in the footer.
@@ -1086,7 +1114,9 @@ function advagg_mod_js_async_defer(array &$js) {
         if ($values['type'] !== 'inline') {
           continue;
         }
-        if (stripos($values['data'], 'window.jQuery.ui') !== FALSE) {
+        if ( stripos($values['data'], 'window.jQuery.ui') !== FALSE
+          && stripos($values['data'], 'document.write("<script') !== FALSE
+        ) {
           $path = drupal_get_path('module', 'jquery_update');
           $min = variable_get('jquery_update_compression_type', 'min') == 'none' ? '' : '.min';
           $js_path = ($min == '.min') ? '/replace/ui/ui/minified/jquery-ui.min.js' : '/replace/ui/ui/jquery-ui.js';
@@ -1097,7 +1127,9 @@ function advagg_mod_js_async_defer(array &$js) {
           unset($js[$name]);
           continue;
         }
-        if (stripos($values['data'], 'window.jQuery') !== FALSE) {
+        if ( stripos($values['data'], 'window.jQuery') !== FALSE
+          && stripos($values['data'], 'document.write("<script') !== FALSE
+        ) {
           $path = drupal_get_path('module', 'jquery_update');
           $version = variable_get('jquery_update_jquery_version', '1.10');
           $min = variable_get('jquery_update_compression_type', 'min') == 'none' ? '' : '.min';
@@ -1204,7 +1236,7 @@ function advagg_mod_js_async_defer(array &$js) {
         $values['onload'] = '';
       }
       $matches[0] = $matches[2] = 'init_drupal_core_settings();';
-      $values['onload'] .= advagg_mod_wrap_inline_js($matches, "window.init_drupal_core_settings && window.init_drupal_core_settings && window.jQuery && window.Drupal", 1);
+      $values['onload'] .= advagg_mod_wrap_inline_js($matches, "window.init_drupal_core_settings && window.jQuery && window.Drupal", 1);
     }
 
     // No async defer list.
@@ -1243,6 +1275,97 @@ function advagg_mod_js_async_defer(array &$js) {
   unset($values);
 
   return $jquery_defered;
+}
+
+/**
+ * Defer inline js by using setTimeout.
+ *
+ * @param array $js
+ *   JS array.
+ * @param bool $jquery_defered
+ *   TRUE if jquery is defered.
+ */
+function advagg_mod_inline_defer(array &$js, $jquery_defered) {
+  if ($jquery_defered) {
+    $bootstrap_rev = strrev('/bootstrap.js');
+    $bootstrap_min_rev = strrev('/bootstrap.min.js');
+    foreach ($js as &$values) {
+      // Defer bootstrap if jquery is defered.
+      if (is_string($values['data'])
+      && ( stripos(strrev($values['data']), $bootstrap_rev) === 0
+        || stripos(strrev($values['data']), $bootstrap_min_rev) === 0
+      )) {
+        $values['defer'] = TRUE;
+        continue;
+      }
+
+      // Only do inline.
+      if ($values['type'] === 'inline') {
+        // Skip if advagg has already wrapped this inline code.
+        if (strpos($values['data'], 'advagg_mod_') !== FALSE) {
+          continue;
+        }
+        if (!empty($values['no_defer'])) {
+          continue;
+        }
+
+        // Do not wrap inline js if it contains a named function definition.
+        $pattern = '/\\s*function\\s+((?:[a-z][a-z0-9_]*))\\s*\\(.*\\)\\s*\\{/smix';
+        $match = preg_match($pattern, $values['data']);
+        if (!$match) {
+          // Defer inline scripts by wrapping the code in setTimeout callback.
+          $matches[2] = $matches[0] = $values['data'];
+          $values['data'] = advagg_mod_wrap_inline_js($matches);
+        }
+        elseif (stripos($values['data'], 'jQuery.') !== FALSE || stripos($values['data'], '(jQuery)') !== FALSE) {
+          // Inline js has a named function that uses jQuery;
+          // do not defer jQuery.js
+          $no_jquery_defer = TRUE;
+        }
+      }
+    }
+    unset($values);
+  }
+  elseif (variable_get('advagg_mod_js_defer_inline_alter', ADVAGG_MOD_JS_DEFER_INLINE_ALTER)) {
+    foreach ($js as &$values) {
+      // Skip if not inline.
+      if ($values['type'] !== 'inline') {
+        continue;
+      }
+      // Skip if advagg has already wrapped this inline code.
+      if (strpos($values['data'], 'advagg_mod_') !== FALSE) {
+        continue;
+      }
+      if (!empty($values['no_defer'])) {
+        continue;
+      }
+
+      // Do not wrap inline js if it contains a named function definition.
+      $pattern = '/\\s*function\\s+((?:[a-z][a-z0-9_]*))\\s*\\(.*\\)\\s*\\{/smix';
+      $match = preg_match($pattern, $values['data']);
+      if (!$match) {
+        // Defer the inline script by wrapping the code in setTimeout callback.
+        $values['data'] = advagg_mod_defer_inline_js($values['data']);
+      }
+    }
+    unset($values);
+  }
+  if (!empty($no_jquery_defer)) {
+    $jquery_rev = strrev('/jquery.js');
+    $jquery_min_rev = strrev('/jquery.min.js');
+    foreach ($js as $name => &$values) {
+      // Skip if not a file or external.
+      if ($values['type'] !== 'file' && $values['type'] !== 'external') {
+        continue;
+      }
+      // Special handling for jQuery.
+      if ( stripos(strrev($name), $jquery_rev) === 0
+        || stripos(strrev($name), $jquery_min_rev) === 0
+      ) {
+        $values['defer'] = FALSE;
+      }
+    }
+  }
 }
 
 /**
@@ -1390,7 +1513,12 @@ function advagg_mod_xpath_script_external_dns($html) {
  *   Inline javascript code wrapped up in a loader.
  */
 function advagg_mod_defer_inline_js($input) {
-  if (variable_get('advagg_mod_js_defer_jquery', ADVAGG_MOD_JS_DEFER_JQUERY)) {
+  if ( variable_get('advagg_mod_js_defer_jquery', ADVAGG_MOD_JS_DEFER_JQUERY)
+    && ( stripos($input, 'jQuery') !== FALSE
+      || stripos($input, '$(') !== FALSE
+      || stripos($input, 'Drupal.') !== FALSE
+    )
+    ) {
     $matches[2] = $matches[0] = $input;
     return advagg_mod_wrap_inline_js($matches);
   }
@@ -1965,43 +2093,81 @@ function advagg_mod_ga_inline_to_file(array &$js) {
   // Get inline GA js and put it inside of an aggregrate.
   $ga_script = '';
   $debug = variable_get('googleanalytics_debug', 0);
-  $library_tracker_url = '//www.google-analytics.com/' . ($debug ? 'analytics_debug.js' : 'analytics.js');
-  $library_cache_url = 'http:' . $library_tracker_url;
+  $api = googleanalytics_api();
+  if ($api['api'] === 'analytics.js') {
+    $library_tracker_url = '//www.google-analytics.com/' . ($debug ? 'analytics_debug.js' : 'analytics.js');
+    $library_cache_url = 'http:' . $library_tracker_url;
+  }
+  else {
+    // Which version of the tracking library should be used?
+    if ($trackdoubleclick = variable_get('googleanalytics_trackdoubleclick', FALSE)) {
+      $library_tracker_url = 'stats.g.doubleclick.net/dc.js';
+      $library_cache_url = 'http://' . $library_tracker_url;
+    }
+    else {
+      $library_tracker_url = '.google-analytics.com/ga.js';
+      $library_cache_url = 'http://www' . $library_tracker_url;
+    }
+  }
   $ga_script = _googleanalytics_cache($library_cache_url);
   if (variable_get('googleanalytics_cache', 0) && $ga_script) {
-    // A dummy query-string is added to filenames, to gain control over
-    // browser-caching. The string changes on every update or full cache
-    // flush, forcing browsers to load a new copy of the files, as the
-    // URL changed.
-    $ga_script_len = strlen('"' . $ga_script . '?' . variable_get('css_js_query_string', '0') . '"');
-
     $mod_base_url = substr($GLOBALS['base_root'] . $GLOBALS['base_path'], strpos($GLOBALS['base_root'] . $GLOBALS['base_path'], '//') + 2);
     $mod_base_url_len = strlen($mod_base_url);
     $ga_script = substr($ga_script, stripos($ga_script, $mod_base_url) + $mod_base_url_len);
   }
+  else {
+    $ga_script = $library_cache_url;
+    if ($api['api'] === 'ga.js' && $GLOBALS['is_https']) {
+      if (!empty($trackdoubleclick)) {
+        $ga_script = str_replace('http://', 'https://', $ga_script);
+      }
+      else {
+        $ga_script = str_replace('http://www', 'https://ssl', $ga_script);
+      }
+    }
+  }
 
-  if (!empty($ga_script) && !empty($ga_script_len)) {
+  if (!empty($ga_script)) {
     foreach ($js as $key => $value) {
       // Skip if not inline.
       if ($value['type'] !== 'inline') {
         continue;
       }
-      // Skip if it doesn't start with the GoogleAnalytics inline loader string.
-      if (strpos($value['data'], '(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,"script",') !== 0) {
-        continue;
+      $add_ga = FALSE;
+      // GoogleAnalytics 2.x inline loader string.
+      if ($api['api'] === 'analytics.js') {
+        $start = strpos($value['data'], '(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();');
+        $end = strpos($value['data'], '})(window,document,"script",');
+        if ($start === 0) {
+          // Strip loader string.
+          $js[$key]['data'] = substr($value['data'], 0, $start + 133) . substr($value['data'], $end);
+          $js[$key]['data'] = advagg_mod_defer_inline_js($js[$key]['data']);
+          $add_ga = TRUE;
+        }
       }
-      // Strip loader string.
-      $matches[2] = $matches[0] = substr($value['data'], 261 + $ga_script_len + 7);
-      $js[$key]['data'] = advagg_mod_wrap_inline_js($matches, "window.ga");
+      // GoogleAnalytics 1.x inline loader string.
+      if ($api['api'] === 'ga.js') {
+        $start = strpos($value['data'], '(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src =');
+        $end = strpos($value['data'], '";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();');
+        if ($start !== FALSE && $end !== FALSE) {
+          // Strip loader string.
+          $js[$key]['data'] = substr($value['data'], 0, $start) . substr($value['data'], $end + 91);
+          $js[$key]['no_defer'] = TRUE;
+          $add_ga = TRUE;
+        }
+      }
 
-      // Add GA analytics.js file to the $js array.
-      $js[$ga_script] = array(
-        'data' => $ga_script,
-        'type' => 'file',
-        // 'async' => TRUE,
-      );
-      $js[$ga_script] += $value;
-      break;
+      if ($add_ga) {
+        // Add GA analytics.js file to the $js array.
+        $js[$ga_script] = array(
+          'data' => $ga_script,
+          'type' => 'file',
+          'async' => TRUE,
+          'defer' => TRUE,
+        );
+        $js[$ga_script] += $value;
+        break;
+      }
     }
   }
 }

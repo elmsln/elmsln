@@ -44,7 +44,7 @@ function advagg_font_advagg_get_info_on_files_alter(&$return, $cached_data, $byp
       }
       // Add in new values.
       foreach ($replacements as $replace) {
-        $info['advagg_font'][$replace[4]] = $replace[3];
+        $info['advagg_font'][$replace[4]] = str_replace(array('"', "'"), '', $replace[3]);
       }
     }
     unset($info);

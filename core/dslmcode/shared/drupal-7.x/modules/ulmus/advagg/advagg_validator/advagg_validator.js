@@ -21,7 +21,7 @@
         // Clear out the results.
         $(results).html('');
         // Loop over each filename.
-        $.each($(this).siblings('.filenames'), function() {
+        $.each($(this).siblings('.filenames'), function () {
           var filename = $(this).val();
           if (filename) {
             try {
@@ -68,7 +68,7 @@
         // Clear out the results.
         $(results).html('');
         // Loop over each filename.
-        $.each($(this).parent().find('.filenames'), function() {
+        $.each($(this).parent().find('.filenames'), function () {
           var filename = $(this).val();
           if (filename) {
             try {
@@ -115,7 +115,7 @@
         // Clear out the results.
         $(results).html('');
         // Loop over each filename.
-        $.each($(this).siblings('.filenames'), function() {
+        $.each($(this).siblings('.filenames'), function () {
           var filename = $(this).val();
           if (filename) {
             try {
@@ -163,7 +163,7 @@
         // Clear out the results.
         $(results).html('');
         // Loop over each filename.
-        $.each($(this).parent().find('.filenames'), function() {
+        $.each($(this).parent().find('.filenames'), function () {
           var filename = $(this).val();
           if (filename) {
             try {

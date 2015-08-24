@@ -97,11 +97,15 @@ function advagg_bundler_enabled() {
  *   Filename.
  * @param bool $force
  *   Bypass the cache and get a fresh version of the analysis.
+ * @param bool $safesql
+ *   Turn off SQL language that might cause errors.
+ * @param int $depth
+ *   Used to prevent endless loops.
  *
  * @return string
  *   String to be used for the grouping key.
  */
-function advagg_bundler_analysis($filename = '', $force = FALSE) {
+function advagg_bundler_analysis($filename = '', $force = FALSE, $safesql = FALSE, $depth = 0) {
   // Cache query in a static.
   static $analysis = array();
   if (empty($analysis)) {
@@ -152,160 +156,18 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
     }
 
     if ($force || empty($cache->data)) {
-      // "Magic Query"; only needs to run once. Results are cached.
-      //
-      // This is what the raw SQL looks like:
-      //
-      // SELECT
-      //  af.filename AS filename,
-      //  af.filesize AS filesize,
-      //  af.mtime AS mtime,
-      //  af.changes AS changes,
-      //  af.linecount AS linecount,
-      //  af.filename_hash AS filename_hash,
-      //  aa.counter AS counter,
-      //  aa.hashlist AS hashlist
-      // FROM advagg_files af
-      // INNER JOIN (
-      //  SELECT
-      //   aa.filename_hash AS filename_hash,
-      //   LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0') AS counter,
-      //   HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC))) AS hashlist
-      //  FROM advagg_aggregates aa
-      //  INNER JOIN advagg_aggregates_versions aav
-      //   ON aav.aggregate_filenames_hash = aa.aggregate_filenames_hash
-      //   AND aav.root = 1
-      //   AND aav.atime > (UNIX_TIMESTAMP() - 1209600)
-      //  GROUP BY aa.filename_hash
-      // ) aa ON af.filename_hash = aa.filename_hash
-      //
-      // Return a count of how many root bundles all files are used in. Count is
-      // padded with eight zeros so the count can be key sorted as a string
-      // without worrying about it getting put in the wrong order.
-      // Return the bundle_md5's value; we need something more unique than count
-      // when grouping together.
-      // Return the filename. Used for lookup.
-      // We join the advagg bundles and files together making sure to only use
-      // root bundles that have been used in the last 2 weeks. This prevents an
-      // old site structure from influencing new bundles.
-      // Grouping by the filename gives us the count and makes it so we don't
-      // return a lot of rows;
-      $db_type = Database::getConnection()->databaseType();
-      $schema = Database::getConnection()->schema();
-      $mssql_group_concat = method_exists($schema, 'functionExists') && $schema->functionExists('GROUP_CONCAT');
-      $mssql_lpad = method_exists($schema, 'functionExists') && $schema->functionExists('LPAD');
-      $mssql_md5 = method_exists($schema, 'functionExists') && $schema->functionExists('MD5');
-
-      // Create join query for the advagg_aggregates table.
-      $subquery_aggregates = db_select('advagg_aggregates', 'aa');
-
-      // Counter column.
-      $fields = array('counter');
-      if ($db_type === 'sqlsrv' && !$mssql_lpad) {
-        // MS SQL does not support LPAD.
-        $subquery_aggregates->addExpression("RIGHT(REPLICATE('0',8) + CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)),8)", 'counter');
+      try {
+        $analysis = advagg_bundler_analyisis_query($safesql);
+        // Save results to the cache.
+        cache_set($ideal_cid, $analysis, 'cache_advagg_aggregates', CACHE_TEMPORARY);
       }
-      elseif ($db_type === 'sqlite') {
-        // SQLite does not support LPAD.
-        $subquery_aggregates->addExpression("substr('00000000' || CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), -8, 8)", 'counter');
-      }
-      else {
-        $subquery_aggregates->addExpression("LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0')", 'counter');
-      }
-
-      // Hashlist column.
-      if ($db_type === 'mysql') {
-        $fields[] = 'hashlist';
-        db_query('SET SESSION group_concat_max_len = 65535');
-        $subquery_aggregates->addExpression('HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC)))', 'hashlist');
-      }
-      elseif ($db_type === 'pgsql') {
-        $database_connection = Database::getConnection();
-        if (version_compare($database_connection->version(), '9') >= 0) {
-          $fields[] = 'hashlist';
-          $subquery_aggregates->addExpression("MD5(STRING_AGG(DISTINCT(aa.aggregate_filenames_hash), ',' ORDER BY aa.aggregate_filenames_hash ASC))", 'hashlist');
+      catch (PDOException $e) {
+        if ($depth > 2) {
+          throw $e;
         }
+        $depth++;
+        return advagg_bundler_analysis($filename, TRUE, TRUE, $depth);
       }
-      elseif ($db_type === 'sqlite') {
-        $fields[] = 'hashlist';
-        $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
-        $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
-      }
-      elseif ($db_type === 'sqlsrv' && !$mssql_group_concat) {
-        $fields[] = 'hashlist';
-        if ($mssql_md5) {
-          $subquery_aggregates->addExpression('MD5(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash))', 'hashlist');
-        }
-        else {
-          $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
-        }
-        $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
-      }
-
-      // Create join for the advagg_aggregates_versions table.
-      // 1209600 = 2 weeks.
-      $time = REQUEST_TIME - max(172800, variable_get('advagg_bundler_outdated', ADVAGG_BUNDLER_OUTDATED), '>');
-      $subquery_aggregates->join('advagg_aggregates_versions', 'aav', "aav.aggregate_filenames_hash=aa.aggregate_filenames_hash AND aav.root=1 AND aav.atime > $time");
-
-      $subquery_aggregates = $subquery_aggregates->fields('aa', array('filename_hash'))
-        ->groupBy('aa.filename_hash');
-
-      // Create main query for the advagg_files table.
-      $query = db_select('advagg_files', 'af');
-      $query->join($subquery_aggregates, 'aa', 'af.filename_hash=aa.filename_hash');
-      $query = $query->fields('af', array(
-          'filename',
-          'filesize',
-          'mtime',
-          'changes',
-          'linecount',
-          'filename_hash',
-        ))
-        ->fields('aa', $fields);
-      $query->comment('Query called from ' . __FUNCTION__ . '()');
-      $results = $query->execute();
-
-      $analysis = array();
-      foreach ($results as $row) {
-        // Implement slower GROUP_CONCAT functionality for non mysql databases.
-        if (empty($row->hashlist)) {
-          $subquery_aggregates_versions = db_select('advagg_aggregates_versions', 'aav')
-            ->fields('aav')
-            ->condition('aav.root', 1)
-            ->condition('aav.atime', REQUEST_TIME - max(172800, variable_get('advagg_bundler_outdated', ADVAGG_BUNDLER_OUTDATED), '>'), '>');
-
-          $subquery_aggregates = db_select('advagg_aggregates', 'aa');
-          $subquery_aggregates->join($subquery_aggregates_versions, 'aav', 'aav.aggregate_filenames_hash=aa.aggregate_filenames_hash');
-          $subquery_aggregates = $subquery_aggregates->fields('aa', array('aggregate_filenames_hash'))
-            ->condition('aa.filename_hash', $row->filename_hash)
-            ->groupBy('aa.aggregate_filenames_hash')
-            ->orderBy('aa.aggregate_filenames_hash', 'ASC');
-          $subquery_aggregates->comment('Query called from ' . __FUNCTION__ . '()');
-          $aa_results = $subquery_aggregates->execute();
-          $aa_rows = array();
-          foreach ($aa_results as $aa_row) {
-            $aa_rows[] = $aa_row->aggregate_filenames_hash;
-          }
-          $row->hashlist = implode(',', $aa_rows);
-        }
-
-        $row->hashlist = drupal_hash_base64($row->hashlist);
-        $analysis[$row->filename] = array(
-          'group_hash' => $row->counter . ' ' . $row->hashlist,
-          'mtime' => $row->mtime,
-          'filesize' => $row->filesize,
-          'linecount' => $row->linecount,
-          'changes' => $row->changes,
-        );
-      }
-      arsort($analysis);
-
-      // Invoke hook_advagg_bundler_analysis_alter() to give installed modules a
-      // chance to alter the analysis array.
-      drupal_alter('advagg_bundler_analysis', $analysis);
-
-      // Save results to the cache.
-      cache_set($ideal_cid, $analysis, 'cache_advagg_aggregates', CACHE_TEMPORARY);
     }
     else {
       $analysis = $cache->data;
@@ -325,4 +187,183 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
   // We need to return a value that can be used as an array key if the query
   // didn't give us anything.
   return 0;
+}
+
+/**
+ * Run the analysis query and return the analysis array.
+ *
+ * @param bool $safesql
+ *   Turn off SQL language that might cause errors.
+ *
+ * @return array
+ *   The analysis array.
+ */
+function advagg_bundler_analyisis_query($safesql) {
+  // "Magic Query"; only needs to run once. Results are cached.
+  //
+  // This is what the raw SQL looks like:
+  //
+  // SELECT
+  //  af.filename AS filename,
+  //  af.filesize AS filesize,
+  //  af.mtime AS mtime,
+  //  af.changes AS changes,
+  //  af.linecount AS linecount,
+  //  af.filename_hash AS filename_hash,
+  //  aa.counter AS counter,
+  //  aa.hashlist AS hashlist
+  // FROM advagg_files af
+  // INNER JOIN (
+  //  SELECT
+  //   aa.filename_hash AS filename_hash,
+  //   LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0') AS counter,
+  //   HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC))) AS hashlist
+  //  FROM advagg_aggregates aa
+  //  INNER JOIN advagg_aggregates_versions aav
+  //   ON aav.aggregate_filenames_hash = aa.aggregate_filenames_hash
+  //   AND aav.root = 1
+  //   AND aav.atime > (UNIX_TIMESTAMP() - 1209600)
+  //  GROUP BY aa.filename_hash
+  // ) aa ON af.filename_hash = aa.filename_hash
+  //
+  // Return a count of how many root bundles all files are used in. Count is
+  // padded with eight zeros so the count can be key sorted as a string
+  // without worrying about it getting put in the wrong order.
+  // Return the bundle_md5's value; we need something more unique than count
+  // when grouping together.
+  // Return the filename. Used for lookup.
+  // We join the advagg bundles and files together making sure to only use
+  // root bundles that have been used in the last 2 weeks. This prevents an
+  // old site structure from influencing new bundles.
+  // Grouping by the filename gives us the count and makes it so we don't
+  // return a lot of rows;
+  $db_type = Database::getConnection()->databaseType();
+  $schema = Database::getConnection()->schema();
+  if ($safesql) {
+    $mssql_group_concat = FALSE;
+    $mssql_lpad = FALSE;
+    $mssql_md5 = FALSE;
+    $pg9 = FALSE;
+  }
+  else {
+    $mssql_group_concat = method_exists($schema, 'functionExists') && $schema->functionExists('GROUP_CONCAT');
+    $mssql_lpad = method_exists($schema, 'functionExists') && $schema->functionExists('LPAD');
+    $mssql_md5 = method_exists($schema, 'functionExists') && $schema->functionExists('MD5');
+    if ($db_type === 'pgsql') {
+      $database_connection = Database::getConnection();
+      $pg9 = FALSE;
+      if (version_compare($database_connection->version(), '9') >= 0) {
+        $pg9 = TRUE;
+      }
+    }
+  }
+
+  // Create join query for the advagg_aggregates table.
+  $subquery_aggregates = db_select('advagg_aggregates', 'aa');
+
+  // Counter column.
+  $fields = array('counter');
+  if ($db_type === 'sqlsrv' && !$mssql_lpad) {
+    // MS SQL does not support LPAD.
+    $subquery_aggregates->addExpression("RIGHT(REPLICATE('0',8) + CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)),8)", 'counter');
+  }
+  elseif ($db_type === 'sqlite') {
+    // SQLite does not support LPAD.
+    $subquery_aggregates->addExpression("substr('00000000' || CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), -8, 8)", 'counter');
+  }
+  else {
+    $subquery_aggregates->addExpression("LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0')", 'counter');
+  }
+
+  // Hashlist column.
+  if ($db_type === 'mysql') {
+    $fields[] = 'hashlist';
+    db_query('SET SESSION group_concat_max_len = 65535');
+    $subquery_aggregates->addExpression('HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC)))', 'hashlist');
+  }
+  elseif ($db_type === 'pgsql') {
+    if ($pg9) {
+      $fields[] = 'hashlist';
+      $subquery_aggregates->addExpression("MD5(STRING_AGG(DISTINCT(aa.aggregate_filenames_hash), ',' ORDER BY aa.aggregate_filenames_hash ASC))", 'hashlist');
+    }
+  }
+  elseif ($db_type === 'sqlite') {
+    $fields[] = 'hashlist';
+    $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
+    $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
+  }
+  elseif ($db_type === 'sqlsrv' && !$mssql_group_concat) {
+    $fields[] = 'hashlist';
+    if ($mssql_md5) {
+      $subquery_aggregates->addExpression('MD5(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash))', 'hashlist');
+    }
+    else {
+      $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
+    }
+    $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
+  }
+
+  // Create join for the advagg_aggregates_versions table.
+  // 1209600 = 2 weeks.
+  $time = REQUEST_TIME - max(172800, variable_get('advagg_bundler_outdated', ADVAGG_BUNDLER_OUTDATED), '>');
+  $subquery_aggregates->join('advagg_aggregates_versions', 'aav', "aav.aggregate_filenames_hash=aa.aggregate_filenames_hash AND aav.root=1 AND aav.atime > $time");
+
+  $subquery_aggregates = $subquery_aggregates->fields('aa', array('filename_hash'))
+    ->groupBy('aa.filename_hash');
+
+  // Create main query for the advagg_files table.
+  $query = db_select('advagg_files', 'af');
+  $query->join($subquery_aggregates, 'aa', 'af.filename_hash=aa.filename_hash');
+  $query = $query->fields('af', array(
+      'filename',
+      'filesize',
+      'mtime',
+      'changes',
+      'linecount',
+      'filename_hash',
+    ))
+    ->fields('aa', $fields);
+  $query->comment('Query called from ' . __FUNCTION__ . '()');
+  $results = $query->execute();
+
+  $analysis = array();
+  foreach ($results as $row) {
+    // Implement slower GROUP_CONCAT functionality for non mysql databases.
+    if (empty($row->hashlist)) {
+      $subquery_aggregates_versions = db_select('advagg_aggregates_versions', 'aav')
+        ->fields('aav')
+        ->condition('aav.root', 1)
+        ->condition('aav.atime', REQUEST_TIME - max(172800, variable_get('advagg_bundler_outdated', ADVAGG_BUNDLER_OUTDATED), '>'), '>');
+
+      $subquery_aggregates = db_select('advagg_aggregates', 'aa');
+      $subquery_aggregates->join($subquery_aggregates_versions, 'aav', 'aav.aggregate_filenames_hash=aa.aggregate_filenames_hash');
+      $subquery_aggregates = $subquery_aggregates->fields('aa', array('aggregate_filenames_hash'))
+        ->condition('aa.filename_hash', $row->filename_hash)
+        ->groupBy('aa.aggregate_filenames_hash')
+        ->orderBy('aa.aggregate_filenames_hash', 'ASC');
+      $subquery_aggregates->comment('Query called from ' . __FUNCTION__ . '()');
+      $aa_results = $subquery_aggregates->execute();
+      $aa_rows = array();
+      foreach ($aa_results as $aa_row) {
+        $aa_rows[] = $aa_row->aggregate_filenames_hash;
+      }
+      $row->hashlist = implode(',', $aa_rows);
+    }
+
+    $row->hashlist = drupal_hash_base64($row->hashlist);
+    $analysis[$row->filename] = array(
+      'group_hash' => $row->counter . ' ' . $row->hashlist,
+      'mtime' => $row->mtime,
+      'filesize' => $row->filesize,
+      'linecount' => $row->linecount,
+      'changes' => $row->changes,
+    );
+  }
+  arsort($analysis);
+
+  // Invoke hook_advagg_bundler_analysis_alter() to give installed modules a
+  // chance to alter the analysis array.
+  drupal_alter('advagg_bundler_analysis', $analysis);
+
+  return $analysis;
 }

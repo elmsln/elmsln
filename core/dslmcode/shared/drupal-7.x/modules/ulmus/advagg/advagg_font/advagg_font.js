@@ -21,14 +21,18 @@ function advagg_run_check(key, value) {
       key = key.replace(/[^a-zA-Z0-9\-]/g, '');
 
       // Set Class.
-      window.document.documentElement.className += ' ' + key;
+      if (Drupal.settings.advagg_font_no_fout != 1) {
+        window.document.documentElement.className += ' ' + key;
+      }
 
       // Set Cookie for a day.
-      expire_date = new Date(new Date().getTime() + 86400 * 1000);
-      document.cookie = 'advaggfont_' + key + '=' + value + ';'
-        + ' expires=' + expire_date.toGMTString() + ';'
-        + ' path=/;'
-        + ' domain=.' + document.location.hostname + ';';
+      if (Drupal.settings.advagg_font_cookie == 1) {
+        expire_date = new Date(new Date().getTime() + 86400 * 1000);
+        document.cookie = 'advaggfont_' + key + '=' + value + ';'
+          + ' expires=' + expire_date.toGMTString() + ';'
+          + ' path=/;'
+          + ' domain=.' + document.location.hostname + ';';
+      }
     }, function() {});
   }
   else {

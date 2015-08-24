@@ -596,7 +596,10 @@ function advagg_install_change_table_collation($table_name, array $fields, $coll
 
     // $schema_fields[$row->Field]['default'] can be NULL, so we explicitly
     // check for the key here.
-    if (array_key_exists('default', $schema_fields[$row->Field])) {
+    if ( isset($schema_fields[$row->Field])
+      && is_array($schema_fields[$row->Field])
+      && array_key_exists('default', $schema_fields[$row->Field])
+    ) {
       $default = $schema_fields[$row->Field]['default'];
       if (is_string($default)) {
         $default = "'" . $default . "'";
@@ -613,7 +616,7 @@ function advagg_install_change_table_collation($table_name, array $fields, $coll
 
     // Add column comment.
     if (!empty($schema_fields[$row->Field]['description'])) {
-      $query .= ' COMMENT ' . $db_schema->prepareComment($schema_fields[$row->Field]['description'], $db_schema::COMMENT_MAX_COLUMN);
+      $query .= ' COMMENT ' . $db_schema->prepareComment($schema_fields[$row->Field]['description'], 255);
     }
 
     db_query($query);
@@ -1148,7 +1151,7 @@ function advagg_install_check_via_http(array &$requirements) {
             'title' => $t('Adv CSS/JS Agg - HTTP Request'),
             'severity' => REQUIREMENT_ERROR,
             'value' => $t('HTTP requests to advagg for ' . $type . ' files are not getting through.'),
-            'description' => $t('AdvAgg will issue a request for a file that does not exist inside of the AdvAgg directory. If AdvAgg sends a 404, everything is ok; if something else sends a 404 then that means that AdvAgg will not be able to generate an aggregate if it is missing as something else is handling the 404 before AdvAgg has a chance to do it. If you are reading this, it means that something else is handling the 404 before AdvAgg can. Raw request info: <pre>@request</pre>', array('@request' => print_r($request, TRUE))),
+            'description' => $t('AdvAgg will issue a request for a file that does not exist inside of the AdvAgg directory. If AdvAgg sends a 404, everything is ok; if something else sends a 404 then that means that AdvAgg will not be able to generate an aggregate if it is missing as something else is handling the 404 before AdvAgg has a chance to do it. If you are reading this, it means that something else is handling the 404 before AdvAgg can. Raw request info: <pre>@request</pre>', array('@request' => var_export($request, TRUE))),
           );
         }
       }
@@ -1440,7 +1443,7 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
               'value' => $t("The cache-control's max-age header being sent by your web server is not at least 1 month in the future.", array('%type' => $type)),
               'description' => $t('The web servers configuration should be adjusted only for AdvAgg files. Was looking that the max-age second counter is over 2,628,000 (1 month), actually got <code>@received</code>. You can turn this warning off if you can not adjust this value (Pantheon) by adding this to your settings.php file: <code>@skipcode</code>', array(
                 '@received' => isset($request->headers['cache-control']) ? $request->headers['cache-control'] : 'NULL',
-                '@skipcode' => '$conf[\'advagg_skip_far_future_check\'] = FALSE;',
+                '@skipcode' => '$conf[\'advagg_skip_far_future_check\'] = TRUE;',
               )),
             );
           }
@@ -1458,6 +1461,7 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
       }
 
       // Test 304.
+      $etag_works = FALSE;
       if (isset($request->headers['etag'])) {
         // Send an Etag header and see if the web server returns a 304.
         $url = file_create_url($url_path . '/' . $filename);
@@ -1480,6 +1484,9 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
               '@code' => $request_304->code,
             )),
           );
+        }
+        else {
+          $etag_works = TRUE;
         }
       }
       if (isset($request->headers['last-modified'])) {
@@ -1511,6 +1518,11 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
           // user.
           unset($requirements['advagg_' . $type . '_304' . $key . '_etag']);
         }
+      }
+      if ($etag_works && isset($requirements['advagg_' . $type . '_304' . $key . '_last_modified'])) {
+        // Etag works, Last-Modified is broken. 304s are working. Don't warn
+        // user.
+        unset($requirements['advagg_' . $type . '_304' . $key . '_last_modified']);
       }
 
       // Both the Last-Modified and Etag header are missing.
@@ -1666,9 +1678,25 @@ function advagg_install_url_mod(&$url, array &$options, $mod_url = FALSE) {
     $parts['user'] = variable_get('shield_user', '');
     $parts['pass'] = variable_get('shield_pass', '');
   }
-  elseif (isset($_SERVER['AUTH_TYPE']) && $_SERVER['AUTH_TYPE'] == 'Basic') {
+  elseif ( isset($_SERVER['AUTH_TYPE'])
+        && $_SERVER['AUTH_TYPE'] == 'Basic'
+  ) {
     $parts['user'] = $_SERVER['PHP_AUTH_USER'];
     $parts['pass'] = $_SERVER['PHP_AUTH_PW'];
+  }
+  elseif ( isset($_SERVER['HTTP_AUTHORIZATION'])
+        && strpos($_SERVER['HTTP_AUTHORIZATION'], 'Basic ') === 0
+  ) {
+    $user_pass = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 5)));
+    $parts['user'] = $user_pass[0];
+    $parts['pass'] = $user_pass[1];
+  }
+  elseif ( isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])
+        && strpos($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 'Basic ') === 0
+  ) {
+    $user_pass = explode(':', base64_decode(substr($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 5)));
+    $parts['user'] = $user_pass[0];
+    $parts['pass'] = $user_pass[1];
   }
   elseif (!empty($advagg_auth_basic_user)) {
     $parts['user'] = $advagg_auth_basic_user;

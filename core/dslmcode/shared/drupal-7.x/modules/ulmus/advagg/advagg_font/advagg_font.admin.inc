@@ -35,13 +35,13 @@ function advagg_font_admin_settings_form() {
       );
     }
     else {
-      $description .= ' ' . t('To use fontfaceobserver locally fontfaceobserver needs to be placed inside the sites/all/libraries directory so sites/all/libraries/fontfaceobserver/fontfaceobserver.js can be found at that location.', array(
+      $description .= ' ' . t('To use fontfaceobserver locally fontfaceobserver needs to be placed inside the sites/all/libraries directory so sites/all/libraries/fontfaceobserver/fontfaceobserver.js and package.json can be found at that location.', array(
         '@url' => 'https://www.drupal.org/project/libraries',
       ));
     }
   }
   else {
-    $description .= ' ' . t('To use fontfaceobserver locally the <a href="@url">libraries api module</a> needs to be installed and then fontfaceobserver needs to be placed inside the sites/all/libraries directory so sites/all/libraries/fontfaceobserver/fontfaceobserver.js can be found at that location..', array(
+    $description .= ' ' . t('To use fontfaceobserver locally the <a href="@url">libraries api module</a> needs to be installed and then fontfaceobserver needs to be placed inside the sites/all/libraries directory so sites/all/libraries/fontfaceobserver/fontfaceobserver.js and package.json can be found at that location.', array(
       '@url' => 'https://www.drupal.org/project/libraries',
     ));
   }
@@ -53,6 +53,32 @@ function advagg_font_admin_settings_form() {
     '#default_value' => variable_get('advagg_font_fontfaceobserver', ADVAGG_FONT_FONTFACEOBSERVER),
     '#options' => $options,
     '#description' => $description,
+  );
+
+  $form['container'] = array(
+    '#type' => 'container',
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="advagg_font_fontfaceobserver"]' => array('value' => '0'),
+      ),
+    ),
+  );
+  $form['container']['advagg_font_cookie'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Set a cookie so the flash of unstyled text (FOUT) only happens once.'),
+    '#default_value' => variable_get('advagg_font_cookie', ADVAGG_FONT_COOKIE),
+    '#description' => t('Cookies are name like <code>@cookie</code>. If this is a problem you can disable cookies from being set; if doing so the FOUT will happen on every page load.', array('@cookie' => 'advaggfont_pt-sans=PT Sans')),
+  );
+  $form['container']['advagg_font_no_fout'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Prevent the Flash of Unstyled Text.'),
+    '#default_value' => variable_get('advagg_font_no_fout', ADVAGG_FONT_NO_FOUT),
+    '#description' => t('The font will not be changed unless the browser already has the font downloaded. Font gets downloaded on the first page view.', array('@cookie' => 'advaggfont_pt-sans=PT Sans')),
+    '#states' => array(
+      'disabled' => array(
+        '#edit-advagg-font-cookie' => array('checked' => FALSE),
+      ),
+    ),
   );
 
   // Get all css files and scan for quoted fonts.
@@ -77,9 +103,10 @@ function advagg_font_admin_settings_form() {
     $replacements = advagg_font_get_replacements_array($file_contents);
     if (!empty($replacements)) {
       $fonts = array();
-      foreach ($replacements as $replacement) {
-        $fonts[$replacement[3]] = $replacement[5];
+      foreach ($replacements as $key => $replacement) {
+        $fonts[$key . ' ' . $replacement[3]] = $replacement[5];
       }
+
       $form['fonts'][$row['filename_hash']] = array(
         '#markup' => '<div>' . t('%file - <code>@replacements</code><br />', array(
           '@replacements' => str_ireplace('array', '', print_r($fonts, TRUE)),
@@ -95,12 +122,20 @@ function advagg_font_admin_settings_form() {
     $form['advagg_font_fontfaceobserver']['#default_value'] = 0;
     $form['advagg_font_fontfaceobserver']['#disabled'] = TRUE;
 
-    $form['fonts'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('No CSS files with external fonts found.'),
-      '#description' => t('Currently this module is not doing anything. Recommend uninstalling it as advagg is not processing any css files that use an external font file.'),
-    );
-
+    if (empty($results)) {
+      $form['fonts'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('No CSS files have been aggregated.'),
+        '#description' => t('You need to enable aggregation. No css files where found in the advagg_files table.'),
+      );
+    }
+    else {
+      $form['fonts'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('No CSS files with external fonts found.'),
+        '#description' => t('Currently this module is not doing anything. Recommend uninstalling it as advagg is not processing any css files that use an external font file.'),
+      );
+    }
   }
 
   // Clear the cache bins on submit.
@@ -114,8 +149,15 @@ function advagg_font_admin_settings_form() {
  * Clear out the advagg cache bin when the save configuration button is pressed.
  */
 function advagg_font_admin_settings_form_submit($form, &$form_state) {
-  $cache_bins = advagg_flush_caches();
-  foreach ($cache_bins as $bin) {
-    cache_clear_all('*', $bin, TRUE);
+  // Clear caches.
+  advagg_cache_clear_admin_submit();
+
+  // Disable cookie if ffo is disabled.
+  if (empty($form_state['values']['advagg_font_fontfaceobserver'])) {
+    $form_state['values']['advagg_font_cookie'] = 0;
+  }
+  // Disable no fout if cookies are disabled.
+  if (empty($form_state['values']['advagg_font_cookie'])) {
+    $form_state['values']['advagg_font_no_fout'] = 0;
   }
 }

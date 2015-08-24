@@ -219,7 +219,7 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
 
     // Get the css path.
     list($css_path) = advagg_get_root_files_dir();
-    $parts_path = $css_path[1] . '/parts';
+    $parts_path = $css_path[1] . '/parts/';
 
     foreach ($return as &$info) {
       // Skip if not a css file.
@@ -228,7 +228,7 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
       }
 
       // Check if this is a split css file.
-      if (strpos($info['data'], $parts_path) === 0) {
+      if (strpos($info['data'], $parts_path) !== FALSE) {
         $info['split'] = TRUE;
       }
       // Break large file into multiple small files if needed.
@@ -246,7 +246,7 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
         continue;
       }
       // Get the file contents.
-      $file_contents = file_get_contents($info['data']);
+      $file_contents = (string) @file_get_contents($info['data']);
 
       // Get domain names in this css file.
       $matches = array();
