@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Gizra/og.svg?branch=7.x-2.x)](https://travis-ci.org/Gizra/og)
+
 DESCRIPTION
 --------------------------
 The Organic Groups module (also referred to as the 'og' module), provides users

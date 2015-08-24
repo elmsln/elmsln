@@ -422,6 +422,17 @@ class OgUiManagePeopleTestCase extends DrupalWebTestCase {
     $elements = $this->xpath('//select[@id="edit-field-name"]//option[@value="group_audience_entity_test2"]');
     $this->assertTrue(isset($elements[0]), '<em>group_audience_entity_test2</em> field available for selection');
   }
+
+  /**
+   * Tests that invalid group IDs in the menu path do not cause exceptions.
+   */
+  public function testOgUiPath() {
+    $this->drupalGet('entity_test/' . $this->entity->pid . 'invalid/group');
+    $this->assertResponse(403);
+    // Numeric values that are not integers are forbidden, too.
+    $this->drupalGet('entity_test/' . $this->entity->pid . '.333/group');
+    $this->assertResponse(403);
+  }
 }
 
 /**

@@ -223,11 +223,14 @@ class OgBehaviorHandler extends EntityReference_BehaviorHandler_Abstract {
         );
 
         // Change config with settings from og_membership table.
-        foreach (array('filter', 'argument', 'sort') as $op) {
+        foreach (array('filter', 'argument', 'sort', 'relationship') as $op) {
           $data['og_membership'][$field['field_name'] . '_target_id'][$op]['field'] = 'gid';
           $data['og_membership'][$field['field_name'] . '_target_id'][$op]['table'] = 'og_membership';
           unset($data['og_membership'][$field['field_name'] . '_target_id'][$op]['additional fields']);
         }
+
+        // Add gid as the relationship field.
+        $data['og_membership'][$field['field_name'] . '_target_id']['relationship']['field'] = 'gid';
       }
 
       // Get rid of the original table configs.
@@ -260,7 +263,9 @@ class OgBehaviorHandler extends EntityReference_BehaviorHandler_Abstract {
     }
     else {
       foreach ($items as $item) {
-        $values['default'][] = $item['target_id'];
+        if (!entityreference_field_is_empty($item, $field) && $item['target_id'] !== NULL) {
+          $values['default'][] = $item['target_id'];
+        }
       }
     }
 

@@ -79,7 +79,7 @@ class OgMigrateMembership extends OgEntityMigration {
     $group = entity_load_single($group_type, $gid);
 
     list(,, $group_bundle) = entity_extract_ids($group_type, $group);
-    if (!$field_name = og_get_best_group_audience_field($entity_type, $group_content, $group_type, $group_bundle)) {
+    if (!$field_name = og_get_best_group_audience_field($entity_type, $group_content, $group_type, $group_bundle, TRUE)) {
       // Create a new field. Pick an unused name, if the settings don't match.
       // To maintain some backwards compatibility, if the group type is a node,
       // we try to set its name to OG_AUDIENCE FIELD.

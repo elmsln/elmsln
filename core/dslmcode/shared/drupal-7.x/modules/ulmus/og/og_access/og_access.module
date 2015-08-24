@@ -36,6 +36,11 @@ define('OG_CONTENT_ACCESS_PUBLIC', 1);
  */
 define('OG_CONTENT_ACCESS_PRIVATE', 2);
 
+/**
+ * The default variable name that controls abtch processing on
+ * group privacy change.
+ */
+define('OG_ACCESS_PRIVACY_CHANGE_BATCH_PROCESSING', 'og_access_privacy_change_batch_processing');
 
 /**
  * Implements hook_node_grants().
@@ -255,4 +260,169 @@ function _og_access_verify_access_field_existence($node) {
       }
     }
   }
+}
+
+/**
+ * Implements hook_og_access_invoke_node_access_acquire_grants().
+ *
+ * Simple check whether OG_ACCESS_FIELD values was changed.
+ */
+function og_access_og_access_invoke_node_access_acquire_grants($context) {
+  $wrapper = entity_metadata_wrapper($context['entity_type'], $context['entity']);
+  if (!isset($wrapper->{OG_ACCESS_FIELD})) {
+    // Group doesn't have OG access field attached to it.
+    return;
+  }
+
+  $original_wrapper = entity_metadata_wrapper($context['entity_type'], $context['entity']->original);
+
+  $og_access = $wrapper->{OG_ACCESS_FIELD}->value();
+  $original_og_access = $original_wrapper->{OG_ACCESS_FIELD}->value();
+
+  return $og_access !== $original_og_access;
+}
+
+/**
+ * Check whether group access changed that require batch processing.
+ *
+ * Note that batch processing is possible only when the event is triggered from
+ * the UI.
+ *
+ * @param $entity
+ *  The group entity object.
+ * @param $entity_type
+ *   The group type.
+ *
+ * @return bool
+ *  TRUE if content permissions of group content should be rebuilt.
+ */
+function og_access_check_node_access_grants_is_needed($entity, $entity_type) {
+  // Check whether group privacy change batch processing is needed.
+  if (!variable_get(OG_ACCESS_PRIVACY_CHANGE_BATCH_PROCESSING, TRUE)) {
+    return FALSE;
+  }
+
+  // Check if entity is the group.
+  if (!og_is_group($entity_type, $entity)) {
+    return FALSE;
+  }
+
+  // Check for access change.
+  $context = array(
+    'entity' => $entity,
+    'entity_type' => $entity_type,
+  );
+  $result = module_invoke_all('og_access_invoke_node_access_acquire_grants', $context);
+
+  drupal_alter('og_access_invoke_node_access_acquire_grants', $result, $context);
+
+  return in_array(TRUE, $result);
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * In case the group entity was marked with group privacy change,
+ * create batch operation to update group content.
+ */
+function og_access_entity_update($entity, $entity_type) {
+  if (!og_access_check_node_access_grants_is_needed($entity, $entity_type)) {
+    return;
+  }
+
+  // Handle group privacy change.
+  og_access_handle_group_privacy_change($entity_type, $entity);
+}
+
+/**
+ * In case of group privacy change, create batch operation to update group content.
+ *
+ * When group privacy (OG_ACCESS_FIELD) is changed, its group content should be
+ * changed as well. Since a group might have big amount of content, it is being
+ * handled using Batch API.
+ *
+ *
+ * @param $entity_type
+ *   The group type.
+ * @param $entity
+ *   The group entity object.
+ */
+function og_access_handle_group_privacy_change($entity_type, $entity) {
+  list($id) = entity_extract_ids($entity_type, $entity);
+  $batch = array(
+    'title' => t('Handle group privacy change'),
+    'operations' => array(
+      array('og_access_invoke_node_access_acquire_grants', array($entity_type, $id)),
+    ),
+  );
+  batch_set($batch);
+}
+
+/**
+ * Batch API group content privacy change callback.
+ *
+ * @param $group_type
+ *   The group type to handle.
+ * @param $group_id
+ *   The group id to handle.
+ * @param $context
+ *   Batch API context.
+ */
+function og_access_invoke_node_access_acquire_grants($group_type, $group_id, &$context) {
+  if (empty($context['sandbox'])) {
+    // Count relevant nodes.
+    $query = new EntityFieldQuery();
+    $total = $query
+      ->entityCondition('entity_type', 'og_membership')
+      ->propertyCondition('group_type', $group_type, '=')
+      ->propertyCondition('entity_type', 'node', '=')
+      ->propertyCondition('gid', $group_id, '=')
+      ->count()->execute();
+
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['last_id'] = 0;
+    $context['sandbox']['total'] = $total;
+  }
+
+  $limit = 50;
+
+  // Retrieve the next batch.
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'og_membership')
+    ->propertyCondition('group_type', $group_type, '=')
+    ->propertyCondition('entity_type', 'node', '=')
+    ->range(0, $limit)
+    ->propertyCondition('etid', $context['sandbox']['last_id'], '>')
+    ->propertyCondition('gid', $group_id, '=')
+    ->execute();
+
+  // Mark "finished" if there are no more results.
+  if (!isset($result['og_membership'])) {
+    $context['finished'] = 1;
+    return;
+  }
+
+  foreach (entity_load('og_membership', array_keys($result['og_membership'])) as $og_membership) {
+    // Load the node group content and "refresh" its grants.
+    $node = node_load($og_membership->etid);
+
+    // Rebuild the permissions for the node.
+    node_access_acquire_grants($node);
+    $context['sandbox']['progress']++;
+    $context['sandbox']['last_id'] = $node->nid;
+  }
+  $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function og_access_form_og_ui_admin_settings_alter(&$form, &$form_state) {
+  $form[OG_ACCESS_PRIVACY_CHANGE_BATCH_PROCESSING] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Update group content privacy'),
+    '#description' => t('Upon group privacy change, create batch operation to update group content.'),
+    '#default_value' => variable_get(OG_ACCESS_PRIVACY_CHANGE_BATCH_PROCESSING, TRUE),
+  );
 }

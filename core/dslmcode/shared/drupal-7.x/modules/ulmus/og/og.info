@@ -38,6 +38,7 @@ files[] = includes/views/handlers/og_handler_filter_user_roles.inc
 
 ; Views relationships
 files[] = includes/views/handlers/og_handler_relationship.inc
+files[] = includes/views/handlers/og_handler_relationship_membership_roles.inc
 
 ; Migrate destinations
 files[] = includes/migrate/plugins/destinations/og_membership.inc
@@ -60,9 +61,9 @@ files[] = includes/migrate/7200/og_user_roles.migrate.inc
 
 
 
-; Information added by Drupal.org packaging script on 2014-05-07
-version = "7.x-2.7"
+; Information added by Drupal.org packaging script on 2015-07-23
+version = "7.x-2.7+43-dev"
 core = "7.x"
 project = "og"
-datestamp = "1399486728"
+datestamp = "1437659362"
 

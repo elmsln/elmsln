@@ -16,6 +16,8 @@ function og_access_uninstall() {
   foreach ($vars as $var) {
     variable_del($var);
   }
+
+  variable_del(OG_ACCESS_PRIVACY_CHANGE_BATCH_PROCESSING);
 }
 
 /**

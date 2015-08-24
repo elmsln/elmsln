@@ -869,7 +869,7 @@ function og_entity_update($entity, $entity_type) {
     return;
   }
 
-  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  list($id, , $bundle) = entity_extract_ids($entity_type, $entity);
   if (!empty($entity->uid) && !og_is_member($entity_type, $entity, 'user', $entity->uid)) {
     // Subscribe the group manager, in case the owner changed.
     og_group($entity_type, $id, array('entity' => $entity->uid));
@@ -935,7 +935,7 @@ function _og_update_entity_fields($entity_type, $entity) {
     else {
       $target_type = $field['settings']['target_type'];
       $gids = og_get_entity_groups($entity_type, $entity, array(), $field_name);
-      $gids = !empty($gids[$target_type]) ? $gids[$target_type] : array();
+      $gids = !empty($gids[$target_type]) ? array_values($gids[$target_type]) : array();
     }
     if ($gids) {
       $wrapper->{$field_name}->set($gids);
@@ -1459,8 +1459,16 @@ function og_query_og_membership_alter(QueryAlterableInterface $query) {
     $fields['bundle']['table'] = $base_table;
     $fields['bundle']['field'] = !empty($entity_info['entity keys']['bundle']) ? $entity_info['entity keys']['bundle'] : $id;
     $fields['entity_type']['table'] = 'ogm';
+    $fields['entity_type']['field'] = 'entity_type';
     $fields['entity_id']['table'] = 'ogm';
     $fields['entity_id']['field'] = 'etid';
+
+    // Populate the alias key, as it might be empty on COUNT queries.
+    foreach (array_keys($fields) as $key) {
+      if (empty($fields[$key]['alias'])) {
+        $fields[$key]['alias'] = $key;
+      }
+    }
 
     $ogm = array(
       'join type' => NULL,
@@ -2345,7 +2353,6 @@ function og_get_entity_groups($entity_type = 'user', $entity = NULL, $states = a
   return $cache[$identifier];
 }
 
-
 /**
  * Return TRUE if field is a group audience type.
  *
@@ -2376,7 +2383,7 @@ function og_is_group_audience_field($field_name) {
  */
 function og_get_group_audience_fields($entity_type = 'user', $bundle_name = 'user', $group_type = NULL, $group_bundle = NULL) {
   $return = &drupal_static(__FUNCTION__, array());
-  $identifier = $entity_type . ':' . $bundle_name . ':' . $group_type;
+  $identifier = $entity_type . ':' . $bundle_name . ':' . $group_type . ':' . $group_bundle;
   if (isset($return[$identifier])) {
     return $return[$identifier];
   }
@@ -3549,7 +3556,9 @@ function og_get_groups_by_user($account = NULL, $group_type = NULL) {
   }
 
   foreach ($og_memberships as $og_membership) {
-    $gids[$og_membership->group_type][$og_membership->gid] = $og_membership->gid;
+    if (!empty($og_membership)) {
+      $gids[$og_membership->group_type][$og_membership->gid] = $og_membership->gid;
+    }
   }
 
   if (empty($group_type)) {

@@ -60,6 +60,7 @@ class OgMembershipViewsController extends EntityDefaultViewsController {
       // Provide a possible relationship to roles through uid.
       'relationship' => array(
         'label' => t('OG Roles from OG membership'),
+        'handler' => 'og_handler_relationship_membership_roles',
         'base' => 'og_users_roles',
         'base field' => 'uid',
         'relationship field' => 'etid',

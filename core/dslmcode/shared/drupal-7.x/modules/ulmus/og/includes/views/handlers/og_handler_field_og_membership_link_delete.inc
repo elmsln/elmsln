@@ -14,6 +14,7 @@ class og_handler_field_og_membership_link_delete extends views_handler_field_ent
 
   function construct() {
     parent::construct();
+    $this->additional_fields['id'] = 'id';
   }
 
   function option_definition() {
@@ -59,7 +60,12 @@ class og_handler_field_og_membership_link_delete extends views_handler_field_ent
     $gid = $og_membership->gid;
     $group = entity_load_single($group_type, $gid);
 
-    if (!og_user_access($group_type, $gid, 'manage members') || $group->uid == $og_membership->etid) {
+    if (!og_user_access($group_type, $gid, 'manage members')) {
+      // User is a group manager, and may not be removed.
+      return;
+    }
+    if (isset($group->uid) && $group->uid == $og_membership->etid) {
+      // User created the group, and may not be removed.
       return;
     }
 

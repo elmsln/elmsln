@@ -23,7 +23,9 @@ class OgAccessTestCase extends DrupalWebTestCase {
     node_access_rebuild();
 
     $this->user1 = $this->drupalCreateUser();
-    $this->user2 = $this->drupalCreateUser();
+    $this->user2 = $this->drupalCreateUser(array(
+      'access content',
+    ));
 
     // Create group and group content node types.
     $this->group_type = $this->drupalCreateContentType()->type;
@@ -40,6 +42,54 @@ class OgAccessTestCase extends DrupalWebTestCase {
     $settings[OG_ACCESS_FIELD][LANGUAGE_NONE][0]['value'] = 1;
     $settings['uid'] = $this->user1->uid;
     $this->group_node = $this->drupalCreateNode($settings);
+  }
+
+  /**
+   * Test if group content privacy is changing when group privacy is changed.
+   */
+  function testAccessChangeBatchApi() {
+    $settings = array(
+      'type' => $this->group_content_type,
+      'uid' => $this->user1->uid,
+    );
+
+    // Create group content.
+    $node1 = $this->drupalCreateNode($settings);
+    $values = array(
+      'entity_type' => 'node',
+      'entity' => $node1,
+    );
+    og_group('node', $this->group_node, $values);
+
+    $node1 = node_load($node1->nid);
+
+    $this->assertFalse(node_access('view', $this->group_node, $this->user2), 'Other user should not see the group');
+
+    // Group is private. We are changing it to public.
+    $this->drupalLogin($this->user1);
+
+    $edit = array(
+      'group_access[und]' => 0,
+    );
+    $this->drupalPost('node/' . $this->group_node->nid . '/edit', $edit, 'Save');
+
+    drupal_static_reset();
+    $this->assertTrue(node_access('view', $node1, $this->user2), 'Other user should be able to see the node');
+    $this->assertTrue(node_access('view', $this->group_node, $this->user2), 'Other user should be able to see the group');
+
+    // Group is public. We are changing it to private.
+    $this->drupalLogin($this->user1);
+
+    $edit = array(
+      'group_access[und]' => 1,
+    );
+    $this->drupalPost('node/' . $this->group_node->nid . '/edit', $edit, 'Save');
+
+    $this->group_node = node_load($this->group_node->nid);
+
+    drupal_static_reset();
+    $this->assertFalse(node_access('view', $node1, $this->user2), 'Other user should not see the node');
+    $this->assertFalse(node_access('view', $this->group_node, $this->user2), 'Other user should not see the group');
   }
 
   /**

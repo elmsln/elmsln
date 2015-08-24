@@ -14,6 +14,7 @@ class og_handler_field_og_membership_link_edit extends views_handler_field_entit
 
   function construct() {
     parent::construct();
+    $this->additional_fields['id'] = 'id';
   }
 
   function option_definition() {

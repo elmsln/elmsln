@@ -13,6 +13,8 @@ class OgMigrateRoles extends OgEntityMigration {
 
   public $tableName = 'og_role';
 
+  protected $dependencies = array('OgMigrateMembership');
+
   public $keyName = 'rid';
 
   /**

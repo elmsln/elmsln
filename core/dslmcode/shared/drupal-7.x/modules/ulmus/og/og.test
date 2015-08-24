@@ -1024,7 +1024,7 @@ class OgMigrate7000TestCase extends UpgradePathTestCase {
 /**
  * Test the complex widget.
  */
-class OgComplexWidgetTestCase extends DrupalWebTestCase {
+class OgFieldWidgetTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -1091,6 +1091,24 @@ class OgComplexWidgetTestCase extends DrupalWebTestCase {
 
     $fields = $this->xpath('//*[@id="edit-og-group-ref-und-0-default"]');
     $this->assertEqual($fields[0]->option['value'], $group2->nid, '"Default" field mode is required.');
+  }
+
+  /**
+   * Test "field widget settings" of the OG reference widget.
+   */
+  function testFieldSettings() {
+    $user = $this->drupalCreateUser(array('administer content types', 'administer group', 'access content', ));
+    $this->drupalLogin($user);
+
+    $widgets = field_info_widget_types();
+    foreach($widgets as $widget => $settings){
+      if(in_array('entityreference', $settings['field types'])){
+        $widget_type_url = "admin/structure/types/manage/post/fields/".OG_AUDIENCE_FIELD."/widget-type";
+        $this->drupalPost($widget_type_url, array('widget_type' => $widget), 'Continue');
+        $edit_url = "admin/structure/types/manage/post/fields/".OG_AUDIENCE_FIELD;
+        $this->drupalPost($edit_url, array(), 'Save settings');
+      }
+    }
   }
 
   /**
@@ -2442,6 +2460,46 @@ class OgAudienceFieldAccessOverrideTestCase extends DrupalWebTestCase {
     // The field should now be present.
     $this->drupalGet('user/' . $user1->uid . '/edit');
     $this->assertRaw('id="edit-og-user-node"');
+  }
+
+}
+
+/**
+ * Verify OG group ref field support delta after saving.
+ */
+class OgAudienceFieldDeltaTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'OG audience field wrapper delta',
+      'description' => 'Testing OG audience field returns the expected values when using entity metadata wrapper delta.',
+      'group' => 'Organic groups',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('og');
+
+    $this->groupType = $this->drupalCreateContentType();
+    og_create_field(OG_GROUP_FIELD, 'node', $this->groupType->type);
+
+    $this->groupConentType = $this->drupalCreateContentType();
+    og_create_field(OG_AUDIENCE_FIELD, 'node', $this->groupConentType->type);
+  }
+
+  /**
+   * Test after creation we can access values using entity metadata wrapper with
+   * the get method.
+   */
+  function testEntityMetadataWrapperForOgAudienceField() {
+    $group = $this->drupalCreateNode(array('type' => $this->groupType->type));
+    $node = $this->drupalCreateNode(array('type' => $this->groupConentType->type));
+
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $wrapper->{OG_AUDIENCE_FIELD}->set(array($group));
+    $wrapper->save();
+
+    $this->assertEqual($wrapper->{OG_AUDIENCE_FIELD}->get(0)->getIdentifier(), $group->nid, 'The delta method returned the expected group ID.');
   }
 
 }

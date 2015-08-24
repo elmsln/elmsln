@@ -329,7 +329,7 @@ function og_ui_edit_membership($form, &$form_state, $group_type, $gid, $og_membe
   $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Update membership'));
 
   // You can't delete the group manager.
-  if ($group->uid != $account->uid) {
+  if (!isset($group->uid) || $group->uid != $account->uid) {
     $form['actions']['delete'] = array(
       '#type' => 'markup',
       '#markup' => l(t('Remove'), 'group/node/' . $gid . '/admin/people/delete-membership/' . $og_membership->id),
@@ -388,7 +388,7 @@ function og_ui_delete_membership($form, &$form_state, $group_type, $gid, $og_mem
   $account = user_load($og_membership->etid);
 
   // You can't delete the group manager.
-  if ($group->uid == $account->uid) {
+  if (isset($group->uid) && $group->uid == $account->uid) {
     drupal_set_message(t("You can't remove membership of the group manager"));
     drupal_goto('group/' . $group_type . '/' . $gid . '/admin/people');
   }
@@ -399,7 +399,7 @@ function og_ui_delete_membership($form, &$form_state, $group_type, $gid, $og_mem
   return confirm_form($form,
     t('Remove membership in group @group', array('@group' => $label)),
     'group/' . $group_type . '/' . $gid . '/admin/people',
-    t('Are you sure you would like to remove the membership for the user @user', array('@user' => $account->name)),
+    t('Are you sure you would like to remove the membership for the user @user?', array('@user' => $account->name)),
     t('Remove'),
     t('Cancel')
   );
@@ -738,17 +738,23 @@ function og_ui_admin_permissions($form, $form_state, $group_type = '', $gid = 0,
 
   // Render role/permission overview:
   $options = array();
+  // Get the list of modules and sort it by name.
   $module_info = system_get_info('module');
+
+  // Prepare the array of OG permissions so the modules are ordered by name.
+  $modules = array();
+  foreach (module_implements('og_permission') as $module) {
+    $modules[$module] = $module_info[$module]['name'];
+  }
+  asort($modules);
+  $permissions_by_module = array_fill_keys(array_keys($modules), array());
 
   // Get a list of all the modules implementing a hook_permission() and sort by
   // display name.
-  $permissions_by_module = array();
   foreach (og_get_permissions() as $perm => $value) {
     $module = $value['module'];
     $permissions_by_module[$module][$perm] = $value;
   }
-
-  asort($permissions_by_module);
 
   foreach ($permissions_by_module as $module => $permissions) {
     $form['permission'][] = array(

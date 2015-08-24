@@ -125,7 +125,7 @@ class OgSelectionHandler extends EntityReference_SelectionHandler_Generic {
           }
           elseif (!empty($node->nid) && (og_user_access($group_type, $gid, "update any $node_type content") || ($user->uid == $node->uid && og_user_access($group_type, $gid, "update own $node_type content")))) {
             $node_groups = isset($node_groups) ? $node_groups : og_get_entity_groups('node', $node->nid);
-            if (in_array($gid, $node_groups['node'])) {
+            if (in_array($gid, $node_groups[$group_type])) {
               $ids[] = $gid;
             }
           }
