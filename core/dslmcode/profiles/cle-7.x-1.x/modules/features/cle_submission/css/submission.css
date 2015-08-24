@@ -3,6 +3,7 @@
   border-top: 0;
   overflow:visible;
   text-align: center;
+  height: auto !important;
 }
 
 .ui-accordion .ui-accordion-content .field-images {
