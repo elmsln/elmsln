@@ -88,8 +88,6 @@ function mooc_foundation_access_menu_link__cis_service_connection_all_active_out
 
 /**
  * Implements theme_breadrumb().
- *
- * Print breadcrumbs as a list, with separators.
  */
 function mooc_foundation_access_breadcrumb($variables) {
   // hide breadcrumbs
