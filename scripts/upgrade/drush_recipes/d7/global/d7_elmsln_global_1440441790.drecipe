@@ -1,0 +1,30 @@
+{
+	"name": "ELMSLN global upgrade 1440441790",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "dis",
+			"arguments": [
+				"advagg_js_compress",
+				"advagg_css_compress",
+				"update"
+			]
+		},
+		{
+			"command": "vset",
+			"arguments": [
+				"node_admin_theme",
+				"0"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1.0",
+		"author": "elmsln",
+		"description": "Disable js/css compression everywhere",
+    "version": "1440441790"
+  }
+}
