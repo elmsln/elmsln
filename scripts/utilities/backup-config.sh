@@ -52,6 +52,6 @@ $TAR_PATH --exclude="*/log" -C $SITES_DIR -czf $BACKUP_DIR$d.tgz $SITES_DIR
 elmslnecho "------------------------------------"
 elmslnecho "Backup Completed: $(date)"
 
-# make sure there's only the last 5 backups so we don't bloat this too much
+# make sure there's only the last 2 backups so we don't bloat this too much
 cd $BACKUP_DIR
-(ls -t|head -n 5;ls)|sort|uniq -u|xargs rm
+(ls -t|head -n 2;ls)|sort|uniq -u|xargs rm
