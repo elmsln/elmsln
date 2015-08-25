@@ -1,0 +1,46 @@
+diff --git a/restws.module b/restws.module
+index e078411..736869e 100644
+--- a/restws.module
++++ b/restws.module
+@@ -190,6 +190,41 @@ class RestWSException extends Exception {
+ }
+ 
+ /**
++ * Implements hook_init().
++ *
++ * Sets the router item for the current path when it has a format.
++ */
++function restws_init() {
++  // Do not act on paths that do not contain a period.
++  if (strpos(request_path(), '.') === FALSE) {
++    return;
++  }
++  $menu_paths = array();
++  foreach (restws_get_resource_info() as $resource => $info) {
++    $menu_paths[] = isset($info['menu_path']) ? $info['menu_path'] : $resource;
++  }
++  $formats = array_keys(restws_get_format_info());
++
++  $pattern = '/^((?:';
++  $pattern .= implode($menu_paths,'|');
++  $pattern .= ')\/[1-9][0-9]*)\.(?:';
++
++  $pattern .= implode($formats,'|');
++  $pattern .= ')$/i';
++
++  // Replace pattern precisely once.
++  $count = 0;
++  $path = preg_replace($pattern, '\1', request_path(), 1, $count);
++
++  // When the pattern matches and there is no menu router for the request
++  // path, substitute this module's page callback.
++  if ($count && !menu_get_item()) {
++    $router_item = menu_get_item($path);
++    menu_set_item(NULL, $router_item);
++  }
++}
++
++/**
+  * Implements hook_menu_alter().
+  */
+ function restws_menu_alter(&$items) {

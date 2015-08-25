@@ -1068,6 +1068,11 @@ class PageNotFoundTestCase extends DrupalWebTestCase {
     );
     $node = $this->drupalCreateNode($edit);
 
+    // As node IDs must be integers, make sure requests for non-integer IDs
+    // return a page not found error.
+    $this->drupalGet('node/invalid');
+    $this->assertResponse(404);
+
     // Use a custom 404 page.
     $this->drupalPost('admin/config/system/site-information', array('site_404' => 'node/' . $node->nid), t('Save configuration'));
 
@@ -2823,6 +2828,35 @@ class SystemValidTokenTest extends DrupalUnitTestCase {
       return parent::errorHandler($severity, $message, $file, $line);
     }
     return TRUE;
+  }
+}
+
+/**
+ * Tests drupal_set_message() and related functions.
+ */
+class DrupalSetMessageTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Messages',
+      'description' => 'Tests that messages can be displayed using drupal_set_message().',
+      'group' => 'System',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('system_test');
+  }
+
+  /**
+   * Tests setting messages and removing one before it is displayed.
+   */
+  function testSetRemoveMessages() {
+    // The page at system-test/drupal-set-message sets two messages and then
+    // removes the first before it is displayed.
+    $this->drupalGet('system-test/drupal-set-message');
+    $this->assertNoText('First message (removed).');
+    $this->assertText('Second message (not removed).');
   }
 }
 

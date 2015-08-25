@@ -1729,7 +1729,7 @@ class DatabaseCondition implements QueryConditionInterface, Countable {
    * Implements Countable::count().
    *
    * Returns the size of this conditional. The size of the conditional is the
-   * size of its conditional array minus one, because one element is the the
+   * size of its conditional array minus one, because one element is the
    * conjunction.
    */
   public function count() {

@@ -359,7 +359,7 @@ function system_element_info() {
     '#size' => 60,
     '#maxlength' => 128,
     '#autocomplete_path' => FALSE,
-    '#process' => array('ajax_process_form'),
+    '#process' => array('form_process_autocomplete', 'ajax_process_form'),
     '#theme' => 'textfield',
     '#theme_wrappers' => array('form_element'),
   );
@@ -374,6 +374,9 @@ function system_element_info() {
     '#element_validate' => array('form_validate_machine_name'),
     '#theme' => 'textfield',
     '#theme_wrappers' => array('form_element'),
+    // Use the same value callback as for textfields; this ensures that we only
+    // get string values.
+    '#value_callback' => 'form_type_textfield_value',
   );
   $types['password'] = array(
     '#input' => TRUE,
@@ -382,6 +385,9 @@ function system_element_info() {
     '#process' => array('ajax_process_form'),
     '#theme' => 'password',
     '#theme_wrappers' => array('form_element'),
+    // Use the same value callback as for textfields; this ensures that we only
+    // get string values.
+    '#value_callback' => 'form_type_textfield_value',
   );
   $types['password_confirm'] = array(
     '#input' => TRUE,
@@ -2024,7 +2030,6 @@ function system_user_timezone(&$form, &$form_state) {
     '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
   );
   if (!isset($account->timezone) && $account->uid == $user->uid && empty($form_state['input']['timezone'])) {
-    $form['timezone']['#description'] = t('Your time zone setting will be automatically detected if possible. Confirm the selection and click save.');
     $form['timezone']['timezone']['#attributes'] = array('class' => array('timezone-detect'));
     drupal_add_js('misc/timezone.js');
   }
