@@ -60,7 +60,7 @@ rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 yes | yum -y --enablerepo=remi install mysql mysql-server
 /etc/init.d/mysqld restart
 yes | yum -y --enablerepo=remi,remi-php55 install httpd php php-common
-yes | yum -y --enablerepo=remi,remi-php55 install php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
+yes | yum -y --enablerepo=remi,remi-php55 install php-opcache php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
 /etc/init.d/httpd restart
 
 # optimize apc
@@ -71,11 +71,16 @@ echo "apc.rfc1867_name=APC_UPLOAD_PROGRESS" >> /etc/php.d/apcu.ini
 echo "apc.rfc1867_freq=0" >> /etc/php.d/apcu.ini
 echo "apc.rfc1867_ttl=3600" >> /etc/php.d/apcu.ini
 # optimize opcodecache for php 5.5
-echo "opcache.memory_consumption=128" >> /etc/php.ini
-echo "opcache.max_accelerated_files=10000" >> /etc/php.ini
-echo "opcache.max_wasted_percentage=10" >> /etc/php.ini
-echo "opcache.validate_timestamps=0" >> /etc/php.ini
-echo "opcache.fast_shutdown=1" >> /etc/php.ini
+echo "opcache.enable=1" >> /etc/php.d/opcache.ini
+echo "opcache.memory_consumption=256" >> /etc/php.d/opcache.ini
+echo "opcache.max_accelerated_files=10000" >> /etc/php.d/opcache.ini
+echo "opcache.max_wasted_percentage=10" >> /etc/php.d/opcache.ini
+echo "opcache.revalidate_freq=240" >> /etc/php.d/opcache.ini
+echo "opcache.validate_timestamps=0" >> /etc/php.d/opcache.ini
+echo "opcache.fast_shutdown=1" >> /etc/php.d/opcache.ini
+echo "opcache.interned_strings_buffer=8" >> /etc/php.d/opcache.ini
+echo "opcache.revalidate_freq=60" >> /etc/php.d/opcache.ini
+echo "opcache.enable_cli=1" >> /etc/php.d/opcache.ini
 
 /etc/init.d/httpd restart
 
