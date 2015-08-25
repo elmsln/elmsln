@@ -1,7 +1,7 @@
 language: php
 
 php:
-  - 5.3
+  - 5.5
 
 matrix:
   env:
@@ -71,8 +71,7 @@ before_script:
   # get the travis build parameters to pipe into the system as input
   - cd /home/travis
   - sudo git clone https://github.com/elmsln/elmsln-config-travis-ci.git
-  # establish this as an admin user
-  - bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
+  # tee up the preinstall values
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values
   - cat /home/travis/elmsln-config-travis-ci/elmsln-preinstall-values | sudo bash /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh
   # list whats in .drush, .bashrc and the generated config file to verify they worked
