@@ -56,4 +56,16 @@ function foundation_access_form_system_theme_settings_alter(&$form, &$form_state
     '#description' => t('Tasks and lists that are optional will pick up this color'),
     '#default_value' => theme_get_setting('foundation_access_optional_color'),
   );
+  $form['zurb_foundation']['foundation_access']['foundation_access_logo_options'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      'fullwidth' => 'Full Width',
+      'left' => 'Left',
+      'center' => 'Center',
+      'right' => 'Right',
+    ),
+    '#title' => t('Logo Style Options'),
+    '#description' => t('Choose a logo style that you prefer.'),
+    '#default_value' => theme_get_setting('foundation_access_logo_options'),
+  );
 }
