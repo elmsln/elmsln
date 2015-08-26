@@ -310,6 +310,7 @@ function _cis_shortcode_render_codes($entity, $type) {
         // see if we have a tagged item, this allows for generic lookups
         if (isset($entity->field_cis_tag['und'][0]['value'])) {
           unset($properties['item']);
+          $propertiesp['entity_unique_field'] = 'field_cis_tag';
           $properties['field_cis_tag'] = $entity->field_cis_tag['und'][0]['value'];
         }
         // we did it!
