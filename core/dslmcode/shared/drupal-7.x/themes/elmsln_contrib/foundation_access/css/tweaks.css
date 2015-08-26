@@ -14,18 +14,6 @@
   background-attachment: fixed;
 }
 
-.region-logo {
-  background-position: center;
-  background-size: 100rem;
-  z-index: 1;
-  width: 100%;
-  background-attachment: fixed;
-}
-.region-logo img {
-  width: 100%;
-  background-attachment: fixed;
-}
-
 h1#page-title {
   font-size: 2.75rem;
   line-height: 2.75rem;
