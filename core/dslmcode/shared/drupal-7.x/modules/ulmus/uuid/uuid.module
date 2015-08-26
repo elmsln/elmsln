@@ -232,3 +232,19 @@ function uuid_redirector() {
   drupal_goto($uri['path'], $uri['options'], 301);
 }
 
+/**
+ * Implements hook_replicate_entity_alter().
+ */
+function uuid_replicate_entity_alter(&$replica, $entity_type, $original) {
+  // Eliminate the UUID on the replica so a new UUID is generated.
+  $info = entity_get_info($entity_type);
+  if (isset($info['uuid']) && $info['uuid'] == TRUE && !empty($info['entity keys']['uuid'])) {
+    $uuid_key = $info['entity keys']['uuid'];
+    unset($replica->{$uuid_key});
+    if (!empty($info['entity keys']['revision uuid'])) {
+      $vuuid_key = $info['entity keys']['revision uuid'];
+      unset($replica->{$vuuid_key});
+    }
+  }
+}
+
