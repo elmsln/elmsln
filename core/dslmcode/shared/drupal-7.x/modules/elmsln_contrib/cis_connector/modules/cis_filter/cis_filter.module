@@ -215,11 +215,15 @@ function theme_cis_filter_render($vars) {
                           $rem_uid = $response['list'][0]['id'];
                           // ask for any submission of this entity bundle type for their user name
                           $query = array(
-                            $code['author_field'] => $rem_uid,
                             'type' => $code['submit_bundle'],
-                            $code['submit_reference'] => $item[$code['entity_key']],
                             'full' => 0,
                           );
+                          if (isset($code['author_field'])) {
+                            $query[$code['author_field']] = $rem_uid;
+                          }
+                          if (isset($code['submit_reference']) && isset($item[$code['entity_key']])) {
+                            $query[$code['submit_reference']] = $item[$code['entity_key']];
+                          }
                           // ugh
                           if ($code['submit_type'] == 'harmony_post') {
                             unset($query['type']);
