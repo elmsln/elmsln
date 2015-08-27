@@ -194,7 +194,7 @@ function theme_cis_filter_render($vars) {
                         $item['title'] = $item['name'];
                       }
                       // look for something unique to verify this is the item we wanted to find
-                      if (isset($item[$code[$code['entity_unique_field']]][LANGUAGE_NONE][0]['value']) && $item[$code[$code['entity_unique_field']]][LANGUAGE_NONE][0]['value'] == $code[$code['entity_unique_field']]) {
+                      if (isset($item[$code['entity_unique_field']][LANGUAGE_NONE][0]['value']) && $item[$code['entity_unique_field']][LANGUAGE_NONE][0]['value'] == $code[$code['entity_unique_field']]) {
                         $target_found = TRUE;
                       }
                       // case where unique key is a property instead of a value
