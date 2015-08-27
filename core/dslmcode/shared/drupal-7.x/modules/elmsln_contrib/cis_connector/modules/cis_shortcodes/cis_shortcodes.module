@@ -56,9 +56,13 @@ function cis_shortcodes_block_view($delta = '') {
           // can be directly linked to
           $field = _cis_shortcode_render_codes(current_path(), '_link');
         }
-        if (isset($term->tid)) {
-          $field = _cis_shortcode_render_codes($entity, 'taxonomy_term');
+        elseif (arg(0) == 'taxonomy' && arg(1) == 'term' && arg(2)) {
+          $term = taxonomy_term_load(arg(2));
+          if (isset($term->tid)) {
+            $field = _cis_shortcode_render_codes($entity, 'taxonomy_term');
+          }
         }
+
         // see if we have some share fields to render
         if (isset($field)) {
           $block['content'] = drupal_render($field['cis_shortcodes']);
