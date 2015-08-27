@@ -50,6 +50,8 @@ function mooc_helper_book_nav_block_view($delta = '') {
       $block['content'] = '<a href="#" class="mooc-helper-toc etb-modal-icon courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents">
                 <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div>
               </a>';
+      $next_title = t('>');
+      $prev_title = t('<');
       // load the node in scope globally at the moment and ensure we have one
       $globalnode = menu_get_object();
       if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
@@ -62,7 +64,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
         // get the parent of the current page
         $tmp = $globalnode->book;
         // if this has children, load 1 so we have that data for below
-        if ($tmp['has_children']) {
+        if ($tmp['has_children'] && $globalnode->type != 'mooc_container') {
           // load all items that share the same parent as the current item
           $results = db_select('menu_links', 'ml')
             ->fields('ml')
@@ -170,16 +172,25 @@ function mooc_helper_book_nav_block_view($delta = '') {
           }
           // reverse the items cause they load the opposite order of rendering
           // since it goes backwards up the tree
-            $breadcrumbs[] = '<a href="#" class="mooc-helper-toc etb-modal-icon courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents">
-                  <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div>
-                </a>';
+          $breadcrumbs[] = '<a href="#" class="mooc-helper-toc etb-modal-icon courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents">
+                <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div>
+              </a>';
           $breadcrumbs = array_reverse($breadcrumbs);
+          // support for mooc_containers
+          if ($globalnode->type == 'mooc_container' && isset($globalnode->field_mooc_container_type['und'][0]['value'])) {
+            if ($globalnode->field_mooc_container_type['und'][0]['value'] == 'index') {
+              $next_title = '';
+              $next_url = '';
+              $prev_title = '';
+              $prev_url = '';
+            }
+          }
           $vars = array(
             'breadcrumbs' => $breadcrumbs,
             'next_url' => $next_url,
-            'next_title' => t('>'),
+            'next_title' => $next_title,
             'prev_url' => $prev_url,
-            'prev_title' => t('<'),
+            'prev_title' => $prev_title,
             'count' => $nav_count,
           );
           // output contents by passing through the wrapper theme function
