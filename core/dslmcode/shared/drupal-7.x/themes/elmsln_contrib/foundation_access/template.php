@@ -34,7 +34,7 @@ function foundation_access_preprocess_html(&$variables) {
     // see if we have something that could be valid hex
     if (strlen($color) == 6 || strlen($color) == 3) {
       $color = '#' . $color;
-      $css .= '.foundation_access-' . $current . '_color{color:$color;}';
+      $css .= '.foundation_access-' . $current . "_color{color:$color;}";
       // specialized additions for each wheel value
       switch ($current) {
         case 'primary':
@@ -52,8 +52,8 @@ function foundation_access_preprocess_html(&$variables) {
       }
     }
   }
-  drupal_add_css($css, array('type' => 'inline'));
-  drupal_add_css('//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external'));
+  drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME));
+  drupal_add_css('//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME));
   // theme path shorthand should be handled here
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
   foreach($variables['user']->roles as $role){

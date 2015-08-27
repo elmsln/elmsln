@@ -432,28 +432,28 @@ function _textbook_styles() {
       'name' => t('Primary Color'),
       'element' => 'span',
       'attributes' => array(
-        'class' => 'foundation_access-primary',
+        'class' => 'foundation_access-primary_color',
       )
     ),
     array(
       'name' => t('Secondary Color'),
       'element' => 'span',
       'attributes' => array(
-        'class' => 'foundation_access-secondary',
+        'class' => 'foundation_access-secondary_color',
       )
     ),
     array(
       'name' => t('Required Color'),
       'element' => 'span',
       'attributes' => array(
-        'class' => 'foundation_access-required',
+        'class' => 'foundation_access-required_color',
       )
     ),
     array(
       'name' => t('Optional Color'),
       'element' => 'span',
       'attributes' => array(
-        'class' => 'foundation_access-optional',
+        'class' => 'foundation_access-optional_color',
       )
     ),
     array(
