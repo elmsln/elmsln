@@ -1,0 +1,63 @@
+<?php
+/**
+ * @file
+ * Code for the Editorial Timed Activity feature.
+ */
+define('EDITORIAL_TIMED_ACTIVITY_DEFAULT', '15');
+
+include_once 'editorial_timed_activity.features.inc';
+
+
+/**
+ * Implements hook_jquery_countdown_timer_date_alter().
+ */
+function editorial_timed_activity_jquery_countdown_timer_date_alter(&$date, $context) {
+  // modify the date by trying to read off of the assignment in question
+  // only do this if there's actually a value there
+  if ($context != NULL) {
+    $date = "+$context minutes";
+  }
+}
+
+/**
+ * Implements hook_node_prepare().
+ */
+function editorial_timed_activity_node_prepare($node) {
+  if (arg(1) == 'add' && $node->type == 'editorial_journal_entry') {
+    // we had an item that this references correct, which is a taxonomy term
+    // load the term and go from there
+    if (isset($_GET['edit']['field_editorial_exercise']['und']) && (int)($_GET['edit']['field_editorial_exercise']['und'])) {
+      // use the prepopulated value, assuming one exists
+      $tid = $_GET['edit']['field_editorial_exercise']['und'];
+      $term = entity_load_single('taxonomy_term', $tid);
+      // only add timer if one is defined
+      if (!empty($term->field_timed_exercise)) {
+        $node->editorial_timed_activity = $term->field_timed_exercise['und'][0]['value'];
+      }
+      else {
+        // default if this has no value here
+        // @todo need to make this configurable via admin UI
+        $node->editorial_timed_activity = EDITORIAL_TIMED_ACTIVITY_DEFAULT;
+      }
+    }
+    // fallback case, they are just trying to work on something directly
+    // with no prepopulation, we currnetly allow this fallback so do something
+    if (!isset($node->editorial_timed_activity)) {
+      $node->editorial_timed_activity = EDITORIAL_TIMED_ACTIVITY_DEFAULT;
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function editorial_timed_activity_form_editorial_journal_entry_node_form_alter(&$form, &$form_state) {
+  // check for a value in the timed activity meaning we should care
+  if (isset($form['#node']->editorial_timed_activity) && $form['#node']->editorial_timed_activity != 0) {
+    $form['editorial_timed_activity'] = array(
+      '#weight' => -10,
+      '#markup' => theme('jquery_countdown_timer_container', array()),
+      '#attached' => jquery_countdown_timer_attach($form['#node']->editorial_timed_activity),
+    );
+  }
+}

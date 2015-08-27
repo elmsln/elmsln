@@ -1,0 +1,143 @@
+<?php
+/**
+ * @file
+ * This module provides block with a simple jQuery coundown
+ *
+ * Author: Marcin Pajdzik
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function jquery_countdown_timer_theme() {
+  return array(
+    'jquery_countdown_timer_container' => array(
+      'variables' => array(),
+    )
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function jquery_countdown_timer_block_info() {
+  $blocks = array();
+  $blocks['jquery_countdown_timer'] = array(
+    'info'  => t('jQuery Countdown Timer'),
+    'cache' => DRUPAL_CACHE_GLOBAL
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function jquery_countdown_timer_block_configure($delta) {
+  $form = array();
+  switch ($delta) {
+    case 'jquery_countdown_timer':
+      module_load_include('inc', 'date_api', 'date_api_elements');
+      $form['jquery_countdown_timer_font_size'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Timer font size'),
+        '#default_value' => variable_get('jquery_countdown_timer_font_size', 28),
+        '#size' => 3,
+        '#maxlength' => 2,
+      );
+      $form['jquery_countdown_timer_date'] = array(
+        '#type' => 'date_select',
+        '#title' => t('Timer date'),
+        '#default_value' => variable_get('jquery_countdown_timer_date', date('Y-m-d G:i:s')),
+	'#date_format' => 'Y-m-d H:i',
+      );
+      break;
+  }
+  return $form;
+}
+
+
+/**
+ * Implements hook_block_save().
+ */
+function jquery_countdown_timer_block_save($delta = '', $edit = array()) {
+  switch ($delta) {
+    case 'jquery_countdown_timer':
+      variable_set('jquery_countdown_timer_date', $edit['jquery_countdown_timer_date']);
+      variable_set('jquery_countdown_timer_font_size', (int)$edit['jquery_countdown_timer_font_size']);
+      break;
+  }
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function jquery_countdown_timer_block_view($delta = '', $edit = array()) {
+  $block = '';
+  switch ($delta) {
+    case 'jquery_countdown_timer':
+      $block['subject'] = 'Countdown';
+      $block['content'] = array(
+        '#markup' => theme('jquery_countdown_timer_container', array()),
+        '#attached' => jquery_countdown_timer_attach(),
+      );
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Adds timer to the page.
+ * @param  mixed $context an optional value to provide context in calls
+ * @return array  an array of items to attach to the current request
+ */
+function jquery_countdown_timer_attach($context = NULL) {
+  $attach = array();
+  $path = drupal_get_path('module', 'jquery_countdown_timer');
+  // add external js files
+  $attach['js'] = array(
+    $path . '/js/jquery_countdown_timer.js' => array (
+      'type' => 'file',
+      'scope' => 'footer',
+    ),
+    $path . '/js/jquery_countdown_timer_init.js'=> array (
+      'type' => 'file',
+      'scope' => 'footer',
+    ),
+  );
+  // set the default date and allow other projects to modify contextually
+  $date = variable_get('jquery_countdown_timer_date', date('Y-m-d G:i:s'));
+  drupal_alter('jquery_countdown_timer_date', $date, $context);
+  // add js settings
+  $settings = array(
+    'jquery_countdown_timer_date' => strtotime($date),
+  );
+  $attach['js'][] = array(
+    'data' =>  array('jquery_countdown_timer' => $settings),
+    'type' => 'setting',
+  );
+  //add css
+  $attach['css'] = array(
+    $path . '/css/jquery_countdown_timer.css',
+  );
+  //add inline css
+  $font_size = variable_get('jquery_countdown_timer_font_size', 28);
+  $attach['css'][] = array(
+    'data' => '.countdownHolder {font-size: ' . $font_size . 'px}',
+    'type' => 'inline',
+  );
+  return $attach;
+}
+
+/**
+ * Returns HTML for the timer container.
+ *
+ * @param type $variables
+ * @return string
+ */
+
+function theme_jquery_countdown_timer_container($variables) {
+  $output = '';
+  $output .= "<div id='jquery-countdown-timer'></div>";
+  $output .= "<div id='jquery-countdown-timer-note'></div>";
+  return $output;
+}

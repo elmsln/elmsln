@@ -14,35 +14,35 @@ function editorial_journal_entry_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'addanother_button_editorial_journal_entry';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['addanother_button_editorial_journal_entry'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'addanother_message_editorial_journal_entry';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['addanother_message_editorial_journal_entry'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'addanother_tab_editorial_journal_entry';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['addanother_tab_editorial_journal_entry'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'addanother_tab_edit_editorial_journal_entry';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['addanother_tab_edit_editorial_journal_entry'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_editorial_journal_entry';
-  $strongarm->value = 'edit-diff';
+  $strongarm->value = 'edit-unique-field';
   $export['additional_settings__active_tab_editorial_journal_entry'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -73,7 +73,7 @@ function editorial_journal_entry_strongarm() {
   $strongarm->value = array(
     'view_modes' => array(
       'teaser' => array(
-        'custom_settings' => FALSE,
+        'custom_settings' => TRUE,
       ),
       'full' => array(
         'custom_settings' => FALSE,
@@ -97,7 +97,7 @@ function editorial_journal_entry_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '-5',
+          'weight' => '1',
         ),
       ),
       'display' => array(),

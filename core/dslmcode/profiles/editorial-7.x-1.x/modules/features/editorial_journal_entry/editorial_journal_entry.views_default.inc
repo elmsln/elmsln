@@ -50,25 +50,18 @@ function editorial_journal_entry_views_default_views() {
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* Field: Content: Entry */
-  $handler->display->display_options['fields']['field_editorial_journal_body']['id'] = 'field_editorial_journal_body';
-  $handler->display->display_options['fields']['field_editorial_journal_body']['table'] = 'field_data_field_editorial_journal_body';
-  $handler->display->display_options['fields']['field_editorial_journal_body']['field'] = 'field_editorial_journal_body';
-  $handler->display->display_options['fields']['field_editorial_journal_body']['label'] = '';
-  $handler->display->display_options['fields']['field_editorial_journal_body']['alter']['max_length'] = '600';
-  $handler->display->display_options['fields']['field_editorial_journal_body']['alter']['more_link'] = TRUE;
-  $handler->display->display_options['fields']['field_editorial_journal_body']['alter']['more_link_text'] = 'Read More';
-  $handler->display->display_options['fields']['field_editorial_journal_body']['alter']['more_link_path'] = 'node/[nid]';
-  $handler->display->display_options['fields']['field_editorial_journal_body']['alter']['trim'] = TRUE;
-  $handler->display->display_options['fields']['field_editorial_journal_body']['alter']['html'] = TRUE;
-  $handler->display->display_options['fields']['field_editorial_journal_body']['element_type'] = '0';
-  $handler->display->display_options['fields']['field_editorial_journal_body']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_editorial_journal_body']['element_wrapper_type'] = '0';
-  $handler->display->display_options['fields']['field_editorial_journal_body']['element_default_classes'] = FALSE;
-  $handler->display->display_options['fields']['field_editorial_journal_body']['settings'] = array(
+  /* Field: Content: Body */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['label'] = '';
+  $handler->display->display_options['fields']['body']['alter']['more_link'] = TRUE;
+  $handler->display->display_options['fields']['body']['alter']['trim'] = TRUE;
+  $handler->display->display_options['fields']['body']['alter']['html'] = TRUE;
+  $handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['body']['settings'] = array(
     'trim_length' => '600',
   );
-  $handler->display->display_options['fields']['field_editorial_journal_body']['field_api_classes'] = TRUE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
