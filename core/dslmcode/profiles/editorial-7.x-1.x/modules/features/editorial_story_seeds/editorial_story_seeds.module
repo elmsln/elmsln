@@ -21,7 +21,7 @@ function editorial_story_seeds_node_prepare($node) {
     if (isset($result['node'])) {
       $tmp = array_pop($result['node']);
       // ensure that staff / admins can still get here when needed
-      if (_cis_connector_role_groupings(array('staff','teacher')) && !isset($_GET['entity_iframe'])) {
+      if (_cis_connector_role_groupings(array('admin')) && !isset($_GET['entity_iframe'])) {
         drupal_set_message(t('This page is for submitting story seeds, students will automatically be redirected if they already have story seeds created. !link to access where you would be taken if you were a student.', array('!link' => l(t('Click here'), 'node/' . $tmp->nid . '/edit'))));
       }
       else {
