@@ -6939,6 +6939,9 @@ ul.off-canvas-list {
         padding: 0;
         margin: 0.4rem;
         height: auto; }
+      ul.off-canvas-list li a .outline-nav-icon {
+        width: 20%;
+        max-width: 30px; }
   ul.off-canvas-list li:hover, ul.off-canvas-list li.active-trail, ul.off-canvas-list li:focus, ul.off-canvas-list a:hover, ul.off-canvas-list a.active-trail, ul.off-canvas-list a:focus, ul.off-canvas-list li a:hover, ul.off-canvas-list li a.active-trail, ul.off-canvas-list li a:focus {
     margin-right: 0;
     background-color: #efefef; }
