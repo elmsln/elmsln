@@ -51,16 +51,16 @@ function cis_shortcodes_block_view($delta = '') {
         elseif ($entity = menu_get_object('harmony_post')) {
           $field = _cis_shortcode_render_codes($entity, 'harmony_post');
         }
-        elseif (arg(1) == 'add') {
-          // paths that can be used for creating items directly
-          // can be directly linked to
-          $field = _cis_shortcode_render_codes(current_path(), '_link');
-        }
         elseif (arg(0) == 'taxonomy' && arg(1) == 'term' && arg(2)) {
           $term = taxonomy_term_load(arg(2));
           if (isset($term->tid)) {
             $field = _cis_shortcode_render_codes($entity, 'taxonomy_term');
           }
+        }
+        elseif (arg(0) != 'admin') {
+          // paths that can be used for creating items directly
+          // can be directly linked to
+          $field = _cis_shortcode_render_codes(current_path(), '_link');
         }
 
         // see if we have some share fields to render
@@ -83,7 +83,23 @@ function cis_shortcodes_block_view($delta = '') {
  * @return  array        field array for rendering
  */
 function _cis_shortcode_render_codes($entity, $type) {
-  // pick some defaults
+  // establish the fieldset container for shortcodes
+  $field['cis_shortcodes'] = array(
+    '#type' => 'fieldset',
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+    '#title' => t('Short Codes to embed'),
+    '#weight' => -10,
+  );
+  $properties = array(
+    'rev' => CIS_SHORTCODES_API_REV,
+    'tool' => variable_get('install_profile', ''),
+    'render' => 'submit',
+    'link' => current_path(),
+    'text' => t('Submit @name', array('@name' => arg(0))),
+    'modal' => 0,
+  );
+  $link_text = t('Direct link');
   $title = '';
   switch ($type) {
     case 'node':
@@ -95,24 +111,21 @@ function _cis_shortcode_render_codes($entity, $type) {
     break;
     // special cause for direct link to a submission form
     case '_link':
-      // buid the direct link
-      $properties = array(
-        'rev' => CIS_SHORTCODES_API_REV,
-        'tool' => variable_get('install_profile', ''),
-        'render' => 'submit',
-        'link' => $entity,
-        'text' => t('Submit @name', array('@name' => arg(0))),
-      );
-      $field['cis_shortcodes']['cis_shortcodes_direct_link'] = array(
-        '#title' => t('Submit widget - direct link'),
-        '#attributes' => array('class' => array('cis_shortcodes_embed')),
-        '#value' => _cis_shortcodes_build_code($properties),
-        '#type' => 'textfield',
-        '#weight' => 0,
-      );
-      return $field;
+      // support modals and direct
+      if (arg(1) == 'add') {
+        $properties['modal'] = 1;
+        $link_text = t('Submit link');
+      }
     break;
   }
+  // buid the direct link
+  $field['cis_shortcodes']['cis_shortcodes_direct_link'] = array(
+    '#title' => $link_text,
+    '#attributes' => array('class' => array('cis_shortcodes_embed')),
+    '#value' => _cis_shortcodes_build_code($properties),
+    '#type' => 'textfield',
+    '#weight' => 0,
+  );
   // load info so we know how all entities operate
   $all_types = entity_get_info();
   // load up the primary type we care about
@@ -127,7 +140,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     $bundle = $entity->vocabulary_machine_name;
   }
   else {
-    return FALSE;
+    return $field;
   }
   // build properties array for rendering
   $properties = array(
@@ -137,14 +150,6 @@ function _cis_shortcode_render_codes($entity, $type) {
     'entity_type' => $type,
   );
 
-  // establish the fieldset container for shortcodes
-  $field['cis_shortcodes'] = array(
-    '#type' => 'fieldset',
-    '#collapsed' => FALSE,
-    '#collapsible' => TRUE,
-    '#title' => t('Short Codes to embed'),
-    '#weight' => -10,
-  );
   // support for entity iframe direct link
   if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
     $field['cis_shortcodes']['cis_shortcodes_embed'] = array(
