@@ -52,8 +52,8 @@ function cis_shortcodes_block_view($delta = '') {
           $field = _cis_shortcode_render_codes($entity, 'harmony_post');
         }
         elseif (arg(0) == 'taxonomy' && arg(1) == 'term' && arg(2)) {
-          $term = taxonomy_term_load(arg(2));
-          if (isset($term->tid)) {
+          $entity = taxonomy_term_load(arg(2));
+          if (isset($entity->tid)) {
             $field = _cis_shortcode_render_codes($entity, 'taxonomy_term');
           }
         }
