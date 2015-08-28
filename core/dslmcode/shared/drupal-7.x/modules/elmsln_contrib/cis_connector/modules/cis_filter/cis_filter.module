@@ -9,9 +9,9 @@ define('CIS_FILTER_INVALID', '-invalid call-');
  * Implements hook_menu().
  */
 function cis_filter_menu() {
-  $items['cis/service/render/%ctools_js/%/%'] = array(
+  $items['cis/service/render/%ctools_js/%/%/%'] = array(
     'title' => 'Service interaction display',
-    'page arguments' => array(3, 4, 5),
+    'page arguments' => array(3, 4, 5, 6),
     'page callback' => '_cis_filter_modal_page',
     'access arguments' => array('access content'),
   );
@@ -160,8 +160,17 @@ function theme_cis_filter_render($vars) {
               if (isset($code['link'])) {
                 $target_found = TRUE;
                 _cis_filter_attach_modal();
-                $link = $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['link'];
-                $result = '<div class="small-4 medium-6 elmsln-action-required cis-filter-activity-item icon-' . $code['tool'] . '-black">' . ctools_modal_text_button(t('@name', array('@name' => $code['text'])), $link, t('@name', array('@name' => html_entity_decode($code['text']))), 'ctools-modal-cis-filter-modal disable-scroll') . '</div>';
+                $result = '<div class="small-4 medium-6 elmsln-action-required cis-filter-activity-item icon-' . $code['tool'] . '-black">';
+                // support for modal and direct linkage
+                if ($code['modal']) {
+                  $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['link'];
+                  $result .= ctools_modal_text_button(t('@name', array('@name' => $code['text'])), $link, t('@name', array('@name' => html_entity_decode($code['text']))), 'ctools-modal-cis-filter-modal disable-scroll');
+                }
+                else {
+                  $link = _cis_connector_format_address($settings, $instance, 'front') . $code['link'];
+                  $result .= l(t('@name', array('@name' => $code['text'])), $link);
+                }
+                $result .= '</div>';
               }
               else {
                 $result = '';
@@ -266,7 +275,7 @@ function theme_cis_filter_render($vars) {
                             else {
                               $prepopulate = $code['submit_reference'] . '=' . $item[$code['entity_key']];
                             }
-                            $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/add/' . str_replace('_', '-', $code['submit_bundle']) . '?' . $prepopulate;
+                            $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/add/' . str_replace('_', '-', $code['submit_bundle']) . '/auto-refresh-on-close?' . $prepopulate;
                             // support for manually added text
                             if (isset($code['text'])) {
                               $text = $code['text'];
@@ -423,7 +432,7 @@ function _cis_filter_attach_modal() {
  * @return
  *   string The contents of the node, that will fill the modal window.
  */
-function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL, $a3 = NULL) {
+function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL, $a3 = NULL, $a4) {
   // @todo verify that path will work and then open it up in an iframe
   // nothing fancy about this for now; close when it's been submitted / url changes
   // render interface in such a way that it hides all the crap we don't care about
@@ -447,8 +456,33 @@ function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL
     }
     // create a UUID for this frame id so it knows where to send the data back to
     $id = uniqid();
-    $link = _cis_connector_format_address($settings, $instance, 'front') . $a1 . '/' . $a2 . '/' . $a3;
-    $contents = '<iframe id="' . $id . '" class="entity_iframe cis_filter_modal_frame" src="' . $link . '" width="100%" height="85%"></iframe>';
+    $classes = 'entity_iframe cis_filter_modal_frame';
+    $link = _cis_connector_format_address($settings, $instance, 'front') . $a1 . '/' . $a2;
+    if (isset($a3) && $a3 != 'auto-refresh-on-close') {
+      $tmp = explode('?', $a3);
+      if ($tmp[0] == 'auto-refresh-on-close') {
+        $classes .= ' auto-refresh-on-close';
+        if (isset($tmp[1])) {
+          $link .= '?' . $tmp[1];
+        }
+      }
+      else {
+        $link .= '/' . $a3;
+      }
+    }
+    if (isset($a4) && $a4 != 'auto-refresh-on-close') {
+      $tmp = explode('?', $a4);
+      if ($tmp[0] == 'auto-refresh-on-close') {
+        $classes .= ' auto-refresh-on-close';
+        if (isset($tmp[1])) {
+          $link .= '?' . $tmp[1];
+        }
+      }
+      else {
+        $link .= '/' . $a4;
+      }
+    }
+    $contents = '<iframe id="' . $id . '" class="' . $classes . '" src="' . $link . '" width="100%" height="85%"></iframe>';
   }
   return ctools_modal_render('Submission', $contents) ;
 }
