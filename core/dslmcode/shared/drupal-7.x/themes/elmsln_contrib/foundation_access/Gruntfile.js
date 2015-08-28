@@ -58,11 +58,30 @@ module.exports = function(grunt) {
         }
       }
     },
+    hologram: {
+      generate: {
+        options: {
+          config: 'hologram_config.yml'
+        }
+      }
+    },
+    browserSync: {
+      bsFiles: {
+          src : ['css/*.css', 'styleguide/*.html']
+      },
+      options: {
+          server: {
+            baseDir: './'
+          },
+          startPath: '/styleguide',
+          watchTask: true
+      }
+    },
     watch: {
       grunt: { files: ['Gruntfile.js'] },
       sass: {
-        files: 'scss/**/*.scss',
-        tasks: ['sass', 'autoprefixer']
+        files: ['scss/**/*.scss','scss/README.md'],
+        tasks: ['sass', 'autoprefixer', 'hologram']
       }
     }
   });
@@ -73,8 +92,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-svgmin');
   grunt.loadNpmTasks('grunt-grunticon');
   grunt.loadNpmTasks('grunt-autoprefixer');
+  grunt.loadNpmTasks('grunt-hologram');
+  grunt.loadNpmTasks('grunt-browser-sync');
 
   // grunt.registerTask('uglify', ['uglify:myScripts']);
-  grunt.registerTask('build', ['sass','autoprefixer','svgmin','grunticon:myIcons']);
+  grunt.registerTask('server', ['hologram', 'browserSync', 'watch']);
+  grunt.registerTask('build', ['sass','autoprefixer','svgmin','grunticon:myIcons', 'hologram']);
   grunt.registerTask('default', ['build','watch']);
 }
