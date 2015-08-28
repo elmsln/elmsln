@@ -27,6 +27,9 @@
   attach: function (context, settings) {
     $('.close-reveal-modal').on("click", function () {
       $("body").removeClass("scroll-disabled");
+      if ( typeof Drupal.settings.entity_iframe.autoClose !== "undefined") {
+        location.reload();
+      }
     });
     $('#cis-modal-cancel').on("click", function () {
       $('.close-reveal-modal').click();
@@ -46,7 +49,30 @@
     $(document).bind('keydown', function(event) {
       if (event.keyCode == 27) {
         $("body").removeClass("scroll-disabled")
+        if ( typeof Drupal.settings.entity_iframe.autoClose !== "undefined") {
+          location.reload();
+        }
         return false;
+      }
+    });
+    $('#entity_iframe_response').click(function(){
+      var data = $(this).val().split('#');
+      iframeid= data[0];
+      data = data[1].split('&');
+      for (var i in data){
+        var parts = data[i].split('=');
+        if (parts[0] == 'url') {
+          if ( typeof Drupal.settings.entity_iframe.childUrl === "undefined") {
+            Drupal.settings.entity_iframe.childUrl = parts[1];
+          }
+          else if (Drupal.settings.entity_iframe.childUrl != parts[1]) {
+            // we submitted something in the frame
+            if ($('#' + iframeid + '.auto-refresh-on-close').length == 1) {
+              // set a flag
+              Drupal.settings.entity_iframe.autoClose = true;
+            }
+          }
+        }
       }
     });
   });
