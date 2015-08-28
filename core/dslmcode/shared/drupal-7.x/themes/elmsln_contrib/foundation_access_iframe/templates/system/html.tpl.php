@@ -57,7 +57,7 @@
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
 </head>
-<body class="<?php print $classes; ?>" <?php print $attributes;?>>
+<body class="entity-iframe-theme <?php print $classes; ?>" <?php print $attributes;?>>
   <?php if (!empty($logo_img)) : ?>
     <div class="region-logo">
     <?php print $logo_img; ?>
