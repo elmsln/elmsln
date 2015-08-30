@@ -47,6 +47,11 @@ cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
 service varnish start
 chkconfig varnish on
 
+#remove the error sudo: sorry, you must have a tty to run sudo
+#see //github.com/mitchellh/vagrant-rackspace#centos--rhel--fedora
+sed -i 's/Defaults    requiretty/#Defaults    requiretty/g' /etc/sudoers
+
+
 # make an admin group
 groupadd admin
 # run the handsfree installer that's the same for all deployments
