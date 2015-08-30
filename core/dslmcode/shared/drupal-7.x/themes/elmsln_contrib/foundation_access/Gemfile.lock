@@ -1,0 +1,18 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    hologram (1.2.0)
+      redcarpet (>= 2.2, < 4.0)
+      rouge (>= 1.5)
+    redcarpet (3.3.2)
+    rouge (1.9.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  hologram (~> 1.2.0)
+  rouge (= 1.9.0)
+
+BUNDLED WITH
+   1.10.6

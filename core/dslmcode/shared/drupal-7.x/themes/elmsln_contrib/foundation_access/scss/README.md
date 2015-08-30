@@ -17,22 +17,22 @@ This is a living styleguide that exists to:
 ## Usage
 
 When creating a new component in Sass, you can define the component by adding a docblock to the bottom of your `.scss` file.
+	
+	/*doc
+	---
+	title: Component Name
+	name: componentname
+	category: Components - Component Name
+	---
 
-```
-/*doc
----
-title: Component Name
-name: componentname
-category: Components - Component Name
----
+	A breif explanation on how to use this componenet and in what context would be most appropriate to use.
 
-A breif explanation on how to use this componenet and in what context would be most appropriate to use.
+	```html_example
+	<div class="componentname">Lorem ipsum Pariatur in ullamco pariatur proident in culpa consequat mollit pariatur occaecat in ea consectetur ad.</p>
+	</div>
+	```
 
-```html_example
-<div class="componentname">Lorem ipsum Pariatur in ullamco pariatur proident in culpa consequat mollit pariatur occaecat in ea consectetur ad.</p>
-
-*/
-```
+	*/
 
 ## Installation
 
@@ -44,6 +44,7 @@ install Grunt, Hologram, and Bower globally
 
 ```
 $ npm install -g grunt-cli grunt-hologram bower
+$ gem install bundler
 ```
 
 Install the dependencies
@@ -51,12 +52,13 @@ Install the dependencies
 ```
 $ npm install
 $ bower install
+$ bundle install
 ```
 
 Run the Grunt Server
 
 ```
-$ grunt server
+$ grunt styleguide
 ```
 
-By running `grunt server` the browsersync plugin should open the styleguide automatically.  If it does not then visit this url [http://localhost:3000/styleguide/index.html](http://localhost:3000/styleguide/index.html)
+By running `grunt styleguide` the browsersync plugin should open the styleguide automatically.  If it does not then visit this url [http://localhost:3000/styleguide/index.html](http://localhost:3000/styleguide/index.html)
