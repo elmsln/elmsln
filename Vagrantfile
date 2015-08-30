@@ -49,6 +49,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # run script as root
   config.vm.provision "shell",
     path: "scripts/vagrant/handsfree-vagrant.sh"
+  # run inline script as root
+
+#remove the error sudo: sorry, you must have a tty to run sudo
+#see //github.com/mitchellh/vagrant-rackspace#centos--rhel--fedora
+  config.vm.provision "shell",
+    inline: "sed -i 's/Defaults    requiretty/#Defaults    requiretty/g' /etc/sudoers"
 
   # run as the vagrant user
   config.vm.provision "shell",
