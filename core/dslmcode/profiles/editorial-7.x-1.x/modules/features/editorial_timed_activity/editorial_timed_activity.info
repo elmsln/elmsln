@@ -1,7 +1,7 @@
 name = Editorial Timed Activity
 description = Add a timer to journal submissions to help students frame the time needed to complete the exercise.
 core = 7.x
-package = Editorial
+package = Editorial Extras
 dependencies[] = context
 dependencies[] = ctools
 dependencies[] = editorial_journal_entry

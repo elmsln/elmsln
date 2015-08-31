@@ -1,0 +1,12 @@
+name = Editorial Section journal
+description = Relates Journal entries to the Section type
+core = 7.x
+package = Editorial
+dependencies[] = cis_section
+dependencies[] = editorial_journal_entry
+dependencies[] = features
+dependencies[] = options
+dependencies[] = taxonomy
+features[features_api][] = api:2
+features[field_base][] = field_editorial_exercises
+features[field_instance][] = node-section-field_editorial_exercises
