@@ -1,0 +1,10 @@
+name = Discuss thread
+description = Captures changes to Thread types
+core = 7.x
+package = Discuss
+dependencies[] = discuss_harmony_fields
+dependencies[] = entity
+dependencies[] = features
+dependencies[] = harmony_core
+features[features_api][] = api:2
+features[harmony_thread_type][] = harmony_thread

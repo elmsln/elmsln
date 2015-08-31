@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Discuss thread feature.
+ */
+
+include_once 'discuss_thread.features.inc';

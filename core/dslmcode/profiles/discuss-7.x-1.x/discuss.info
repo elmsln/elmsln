@@ -157,6 +157,8 @@ dependencies[] = harmony_core
 dependencies[] = discuss_ux
 dependencies[] = discuss_displays
 dependencies[] = discuss_harmony_fields
+dependencies[] = discuss_thread
 dependencies[] = discuss_section_threads
+dependencies[] = discuss_perms
 dependencies[] = elmsln_student_filter
 
