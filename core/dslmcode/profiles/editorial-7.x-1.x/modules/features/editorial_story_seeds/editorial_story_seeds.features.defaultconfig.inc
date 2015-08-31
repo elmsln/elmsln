@@ -39,8 +39,6 @@ function editorial_story_seeds_defaultconfig_user_default_permissions() {
     'name' => 'delete any editorial_story_seeds content',
     'roles' => array(
       'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
     ),
     'module' => 'node',
   );
@@ -50,8 +48,6 @@ function editorial_story_seeds_defaultconfig_user_default_permissions() {
     'name' => 'delete own editorial_story_seeds content',
     'roles' => array(
       'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
     ),
     'module' => 'node',
   );
@@ -63,6 +59,7 @@ function editorial_story_seeds_defaultconfig_user_default_permissions() {
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
   );

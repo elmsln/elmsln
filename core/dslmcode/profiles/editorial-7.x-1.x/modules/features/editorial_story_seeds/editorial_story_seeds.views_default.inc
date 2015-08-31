@@ -39,7 +39,7 @@ function editorial_story_seeds_views_default_views() {
   $handler->display->display_options['header']['area']['empty'] = TRUE;
   $handler->display->display_options['header']['area']['content'] = '<a href="../node/add/editorial-story-seeds">Edit Story Seeds</a>';
   $handler->display->display_options['header']['area']['format'] = 'textbook_editor';
-  /* Field: Content: Seed */
+  /* Field: Content: Seed list */
   $handler->display->display_options['fields']['field_seed']['id'] = 'field_seed';
   $handler->display->display_options['fields']['field_seed']['table'] = 'field_data_field_seed';
   $handler->display->display_options['fields']['field_seed']['field'] = 'field_seed';

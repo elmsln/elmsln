@@ -10,7 +10,6 @@ dependencies[] = jquery_countdown_timer
 dependencies[] = list
 dependencies[] = options
 dependencies[] = strongarm
-features[context][] = editorial_timed_activity-timer
 features[ctools][] = context:context:3
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2

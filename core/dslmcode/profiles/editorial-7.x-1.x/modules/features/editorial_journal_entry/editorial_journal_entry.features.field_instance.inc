@@ -156,7 +156,7 @@ function editorial_journal_entry_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 10,
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -169,8 +169,21 @@ function editorial_journal_entry_field_default_field_instances() {
     'fences_wrapper' => 'div',
     'field_name' => 'og_group_ref',
     'label' => 'Groups audience',
-    'required' => 0,
+    'required' => 1,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'behaviors' => array(
         'og_widget' => array(
           'access_override' => 0,
@@ -185,9 +198,9 @@ function editorial_journal_entry_field_default_field_instances() {
         'prepopulate' => array(
           'action' => 'hide',
           'action_on_edit' => 1,
-          'fallback' => 'hide',
+          'fallback' => 'none',
           'providers' => array(
-            'og_context' => TRUE,
+            'og_context' => 1,
             'url' => 1,
           ),
           'skip_perm' => 0,

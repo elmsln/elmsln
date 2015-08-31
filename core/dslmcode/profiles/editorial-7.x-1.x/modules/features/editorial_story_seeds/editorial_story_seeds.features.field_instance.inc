@@ -21,7 +21,7 @@ function editorial_story_seeds_field_default_field_instances() {
         'label' => 'above',
         'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'text_plain',
         'weight' => 0,
       ),
       'teaser' => array(
@@ -34,7 +34,7 @@ function editorial_story_seeds_field_default_field_instances() {
     'entity_type' => 'node',
     'fences_wrapper' => 'div',
     'field_name' => 'field_seed',
-    'label' => 'Seed',
+    'label' => 'Seed list',
     'required' => 0,
     'settings' => array(
       'better_formats' => array(
@@ -75,7 +75,7 @@ function editorial_story_seeds_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Seed');
+  t('Seed list');
 
   return $field_instances;
 }
