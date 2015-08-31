@@ -43,7 +43,7 @@ fi
 touch /tmp/drush-lock
 
 #read the files in the $fileloc and set vars based on file name.
-for coursefile in `find $fileloc ! -name *.swp ! -name '*progress'  ! -name '*processing*' ! -name '*error' ! -name '*processed' ! -name '*example' ! -name '*.md' -type f`
+for coursefile in `find $fileloc -maxdepth 1 ! -name *.swp ! -name '*progress'  ! -name '*processing*' ! -name '*error' ! -name '*processed' ! -name '*example' ! -name '*.md' -type f`
 do
   college=`sed -n '2p' $coursefile`
   course=`sed -n '1p' $coursefile`
