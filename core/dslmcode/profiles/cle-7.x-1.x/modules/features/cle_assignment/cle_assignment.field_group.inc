@@ -82,6 +82,7 @@ function cle_assignment_field_group_info() {
       0 => 'field_color',
       1 => 'field_number',
       2 => 'field_sub_number',
+      3 => 'field_submission_type',
     ),
     'format_type' => 'htab',
     'format_settings' => array(

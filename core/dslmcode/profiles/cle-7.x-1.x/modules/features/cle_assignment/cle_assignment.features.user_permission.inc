@@ -26,6 +26,7 @@ function cle_assignment_user_default_permissions() {
     'name' => 'delete any cle_assignment content',
     'roles' => array(
       'administrator' => 'administrator',
+      'staff' => 'staff',
     ),
     'module' => 'node',
   );
@@ -35,6 +36,7 @@ function cle_assignment_user_default_permissions() {
     'name' => 'delete own cle_assignment content',
     'roles' => array(
       'administrator' => 'administrator',
+      'staff' => 'staff',
     ),
     'module' => 'node',
   );

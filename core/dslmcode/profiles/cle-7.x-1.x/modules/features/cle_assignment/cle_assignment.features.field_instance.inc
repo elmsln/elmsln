@@ -55,7 +55,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 5,
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -130,6 +130,105 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-cle_assignment-field_cis_tag'
+  $field_instances['node-cle_assignment-field_cis_tag'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'gradebook_viewer' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_cis_tag',
+    'label' => 'Tag',
+    'required' => 0,
+    'settings' => array(
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'student_work' => 'student_work',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'student_work' => array(
+              'weight' => 0,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 14,
+    ),
+  );
+
+  // Exported field_instance: 'node-cle_assignment-field_cle_order'
+  $field_instances['node-cle_assignment-field_cle_order'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'The order that this assignment is in relative to others. Use this if number / sub-number connotations aren\'t useful.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 7,
+      ),
+      'gradebook_viewer' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_cle_order',
+    'label' => 'Order',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 13,
+    ),
+  );
+
   // Exported field_instance: 'node-cle_assignment-field_color'
   $field_instances['node-cle_assignment-field_color'] = array(
     'bundle' => 'cle_assignment',
@@ -142,7 +241,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'jquery_colorpicker',
         'settings' => array(),
         'type' => 'jquery_colorpicker_color_display',
-        'weight' => 1,
+        'weight' => 0,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -178,7 +277,7 @@ function cle_assignment_field_default_field_instances() {
       'module' => 'jquery_colorpicker',
       'settings' => array(),
       'type' => 'jquery_colorpicker',
-      'weight' => 8,
+      'weight' => 12,
     ),
   );
 
@@ -200,7 +299,7 @@ function cle_assignment_field_default_field_instances() {
           'multiple_to' => '',
         ),
         'type' => 'date_default',
-        'weight' => 3,
+        'weight' => 1,
       ),
       'full' => array(
         'label' => 'inline',
@@ -288,7 +387,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 4,
+        'weight' => 2,
       ),
       'full' => array(
         'label' => 'inline',
@@ -337,10 +436,9 @@ function cle_assignment_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'inline',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 2,
+        'type' => 'hidden',
+        'weight' => 6,
       ),
       'full' => array(
         'label' => 'inline',
@@ -417,7 +515,9 @@ function cle_assignment_field_default_field_instances() {
 I
 I
 II
-P',
+P
+Preliminary
+Page',
         'available_options_php' => '',
         'markup_available_options_php' => '&lt;none&gt;',
         'other' => 'Other',
@@ -427,7 +527,7 @@ P',
         'sort_options' => 1,
       ),
       'type' => 'select_or_other',
-      'weight' => 6,
+      'weight' => 10,
     ),
   );
 
@@ -442,7 +542,7 @@ P',
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 13,
+        'weight' => 8,
       ),
       'full' => array(
         'label' => 'inline',
@@ -514,7 +614,9 @@ I
 II
 i
 ii
-i',
+i
+Comic Exercise
+Drawing Exercise',
         'available_options_php' => '',
         'markup_available_options_php' => '&lt;none&gt;',
         'other' => 'Other',
@@ -524,7 +626,46 @@ i',
         'sort_options' => 1,
       ),
       'type' => 'select_or_other',
-      'weight' => 7,
+      'weight' => 11,
+    ),
+  );
+
+  // Exported field_instance: 'node-cle_assignment-field_submission_type'
+  $field_instances['node-cle_assignment-field_submission_type'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 3,
+      ),
+      'gradebook_viewer' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_submission_type',
+    'label' => 'Submission type',
+    'required' => 1,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 9,
     ),
   );
 
@@ -543,7 +684,7 @@ i',
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 14,
+        'weight' => 9,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -590,8 +731,12 @@ i',
   t('Due Date');
   t('Media Requirements');
   t('Number');
+  t('Order');
   t('Public Assignments will be visible to everyone in the class.  This is useful when the assignment requires open critique and response.  Private Assignments will only be visible by you, the student submitting the work, and any support staff / TAs.');
   t('Sub-number');
+  t('Submission type');
+  t('Tag');
+  t('The order that this assignment is in relative to others. Use this if number / sub-number connotations aren\'t useful.');
   t('This helps to identify assignments when viewing multiple');
   t('This is used as the Assignment number which helps students with sorting of items as to what order to accomplish them in');
   t('Visibility');

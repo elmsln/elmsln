@@ -15,6 +15,8 @@ function cle_gradebook_ux_user_default_permissions() {
     'name' => 'access gradebook',
     'roles' => array(
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
     ),
     'module' => 'cle_gradebook',
   );

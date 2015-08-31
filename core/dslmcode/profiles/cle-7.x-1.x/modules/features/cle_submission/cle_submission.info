@@ -102,6 +102,7 @@ features[views_view][] = cle_my_submissions
 features[views_view][] = cle_submission
 features[views_view][] = cle_submissions
 features[views_view][] = cle_submissions_listing
+features[views_view][] = sketch_book
 features[wysiwyg][] = student_work
 features_exclude[field_base][comment_body] = comment_body
 features_exclude[field_base][body] = body
@@ -112,3 +113,4 @@ features_exclude[field_group][group_links|node|cle_submission|gradebook_viewer] 
 features_exclude[field_group][group_media|node|cle_submission|gradebook_viewer] = group_media|node|cle_submission|gradebook_viewer
 features_exclude[field_group][group_submission_details|node|cle_submission|gradebook_viewer] = group_submission_details|node|cle_submission|gradebook_viewer
 features_exclude[field_group][group_video|node|cle_submission|gradebook_viewer] = group_video|node|cle_submission|gradebook_viewer
+features_exclude[dependencies][cle_gradebook_ux] = cle_gradebook_ux

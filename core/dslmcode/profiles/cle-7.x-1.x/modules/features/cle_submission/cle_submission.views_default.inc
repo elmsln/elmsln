@@ -96,11 +96,26 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['og_group_ref']['settings'] = array(
     'link' => 1,
   );
+  /* Sort criterion: Content: Order (field_cle_order) */
+  $handler->display->display_options['sorts']['field_cle_order_value']['id'] = 'field_cle_order_value';
+  $handler->display->display_options['sorts']['field_cle_order_value']['table'] = 'field_data_field_cle_order';
+  $handler->display->display_options['sorts']['field_cle_order_value']['field'] = 'field_cle_order_value';
+  $handler->display->display_options['sorts']['field_cle_order_value']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['sorts']['field_cle_order_value']['exposed'] = TRUE;
+  $handler->display->display_options['sorts']['field_cle_order_value']['expose']['label'] = 'Order of Assignments';
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  $handler->display->display_options['sorts']['created']['exposed'] = TRUE;
+  $handler->display->display_options['sorts']['created']['expose']['label'] = 'Date Created';
+  /* Sort criterion: Content: Title */
+  $handler->display->display_options['sorts']['title']['id'] = 'title';
+  $handler->display->display_options['sorts']['title']['table'] = 'node';
+  $handler->display->display_options['sorts']['title']['field'] = 'title';
+  $handler->display->display_options['sorts']['title']['exposed'] = TRUE;
+  $handler->display->display_options['sorts']['title']['expose']['label'] = 'Title';
   /* Contextual filter: Content: Author uid */
   $handler->display->display_options['arguments']['uid']['id'] = 'uid';
   $handler->display->display_options['arguments']['uid']['table'] = 'node';
@@ -145,6 +160,27 @@ function cle_submission_views_default_views() {
     6 => 0,
     10 => 0,
   );
+  /* Filter criterion: Content: Submission type (field_submission_type) */
+  $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
+  $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator_id'] = 'field_submission_type_value_op';
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['label'] = 'Type';
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator'] = 'field_submission_type_value_op';
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['identifier'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
+  );
 
   /* Display: My Gallery (non-social) */
   $handler = $view->new_display('page', 'My Gallery (non-social)', 'page_4');
@@ -182,6 +218,12 @@ function cle_submission_views_default_views() {
     'tag' => 'emotion',
     'function' => '',
   );
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['label'] = 'Assignment';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['required'] = TRUE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Post date */
   $handler->display->display_options['fields']['created']['id'] = 'created';
@@ -820,23 +862,6 @@ function cle_submission_views_default_views() {
     'cle_submission' => 'cle_submission',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
-  /* Filter criterion: Content: Section (og_group_ref) */
-  $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['group'] = 1;
-  $handler->display->display_options['filters']['og_group_ref_target_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator_id'] = 'og_group_ref_target_id_op';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['label'] = 'Section';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator'] = 'og_group_ref_target_id_op';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['identifier'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-    4 => 0,
-    5 => 0,
-  );
   /* Filter criterion: Content: Assignment (field_assignment) */
   $handler->display->display_options['filters']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
   $handler->display->display_options['filters']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
@@ -849,13 +874,14 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    6 => 0,
-    4 => 0,
-    8 => 0,
-    9 => 0,
-    5 => 0,
-    7 => 0,
-    3 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
   );
   /* Filter criterion: Content: Visibility (field_visibility) */
   $handler->display->display_options['filters']['field_visibility_value']['id'] = 'field_visibility_value';
@@ -865,16 +891,69 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['field_visibility_value']['value'] = array(
     1 => '1',
   );
+  /* Filter criterion: Content: Submission type (field_submission_type) */
+  $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
+  $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['filters']['field_submission_type_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator_id'] = 'field_submission_type_value_op';
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['label'] = 'Type';
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator'] = 'field_submission_type_value_op';
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['identifier'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
+  );
+  /* Filter criterion: User: Name (raw) */
+  $handler->display->display_options['filters']['name']['id'] = 'name';
+  $handler->display->display_options['filters']['name']['table'] = 'users';
+  $handler->display->display_options['filters']['name']['field'] = 'name';
+  $handler->display->display_options['filters']['name']['relationship'] = 'uid';
+  $handler->display->display_options['filters']['name']['operator'] = 'starts';
+  $handler->display->display_options['filters']['name']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['name']['expose']['operator_id'] = 'name_op';
+  $handler->display->display_options['filters']['name']['expose']['label'] = 'Author';
+  $handler->display->display_options['filters']['name']['expose']['operator'] = 'name_op';
+  $handler->display->display_options['filters']['name']['expose']['identifier'] = 'name';
+  $handler->display->display_options['filters']['name']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
+  );
+  $handler->display->display_options['filters']['name']['expose']['autocomplete_filter'] = 1;
+  $handler->display->display_options['filters']['name']['expose']['autocomplete_items'] = '10';
+  $handler->display->display_options['filters']['name']['expose']['autocomplete_min_chars'] = '0';
+  $handler->display->display_options['filters']['name']['expose']['autocomplete_field'] = 'name';
+  $handler->display->display_options['filters']['name']['expose']['autocomplete_raw_suggestion'] = 1;
+  $handler->display->display_options['filters']['name']['expose']['autocomplete_raw_dropdown'] = 1;
+  $handler->display->display_options['filters']['name']['expose']['autocomplete_dependent'] = 0;
 
   /* Display: Open Studio */
   $handler = $view->new_display('page', 'Open Studio', 'page');
   $handler->display->display_options['display_description'] = 'Section specific submissions';
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['path'] = 'cle';
-  $handler->display->display_options['menu']['title'] = 'Home';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'Open Studio';
   $handler->display->display_options['menu']['description'] = 'Listing of all Open Submissions';
-  $handler->display->display_options['menu']['weight'] = '-100';
-  $handler->display->display_options['menu']['name'] = 'main-menu';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cle_submissions'] = $view;
@@ -1765,6 +1844,176 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cle_submissions_listing'] = $view;
+
+  $view = new view();
+  $view->name = 'sketch_book';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'node';
+  $view->human_name = 'Sketch book';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = 'My Sketch book';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
+  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
+  $handler->display->display_options['style_options']['masonry_center'] = FALSE;
+  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['label'] = 'Assignment';
+  $handler->display->display_options['relationships']['field_assignment_target_id']['required'] = TRUE;
+  /* Field: Content: Images */
+  $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
+  $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
+  $handler->display->display_options['fields']['field_images']['field'] = 'field_images';
+  $handler->display->display_options['fields']['field_images']['label'] = '';
+  $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_images']['type'] = 'colorbox';
+  $handler->display->display_options['fields']['field_images']['settings'] = array(
+    'colorbox_node_style' => 'cle_submission',
+    'colorbox_node_style_first' => '',
+    'colorbox_image_style' => '',
+    'colorbox_gallery' => 'page',
+    'colorbox_gallery_custom' => '',
+    'colorbox_caption' => 'auto',
+    'colorbox_caption_custom' => '',
+  );
+  $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
+  /* Sort criterion: Content: Post date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  /* Contextual filter: Content: Author uid */
+  $handler->display->display_options['arguments']['uid']['id'] = 'uid';
+  $handler->display->display_options['arguments']['uid']['table'] = 'node';
+  $handler->display->display_options['arguments']['uid']['field'] = 'uid';
+  $handler->display->display_options['arguments']['uid']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['uid']['default_argument_type'] = 'current_user';
+  $handler->display->display_options['arguments']['uid']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['uid']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['uid']['summary_options']['items_per_page'] = '25';
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cle_submission' => 'cle_submission',
+  );
+  /* Filter criterion: Content: Submission type (field_submission_type) */
+  $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
+  $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['filters']['field_submission_type_value']['value'] = array(
+    'exercise' => 'exercise',
+  );
+
+  /* Display: Sketch Book */
+  $handler = $view->new_display('page', 'Sketch Book', 'page');
+  $handler->display->display_options['path'] = 'cle/sketch-book';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'My Sketch Book';
+  $handler->display->display_options['menu']['weight'] = '8';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: Draft pages */
+  $handler = $view->new_display('page', 'Draft pages', 'page_1');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Draft Pages';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cle_submission' => 'cle_submission',
+  );
+  /* Filter criterion: Content: Submission type (field_submission_type) */
+  $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
+  $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['filters']['field_submission_type_value']['value'] = array(
+    'draft' => 'draft',
+  );
+  $handler->display->display_options['path'] = 'cle/draft-pages';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'My Draft Pages';
+  $handler->display->display_options['menu']['description'] = 'A visual showcase of all your submitted draft pages';
+  $handler->display->display_options['menu']['weight'] = '9';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: Final Pages */
+  $handler = $view->new_display('page', 'Final Pages', 'page_2');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'My Final pages';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cle_submission' => 'cle_submission',
+  );
+  /* Filter criterion: Content: Submission type (field_submission_type) */
+  $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
+  $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['filters']['field_submission_type_value']['value'] = array(
+    'final' => 'final',
+  );
+  $handler->display->display_options['path'] = 'cle/final-pages';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'My Final Pages';
+  $handler->display->display_options['menu']['weight'] = '10';
+  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $export['sketch_book'] = $view;
 
   return $export;
 }

@@ -241,10 +241,10 @@ function cle_assignment_views_default_views() {
     'nid' => 'nid',
     'field_color' => 'field_color',
     'field_number' => 'field_number',
-    'field_sub_number' => 'field_number',
+    'field_sub_number' => 'field_sub_number',
     'title' => 'title',
     'field_due_date' => 'field_due_date',
-    'nid_1' => 'nid_1',
+    'nothing' => 'nothing',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
@@ -263,10 +263,10 @@ function cle_assignment_views_default_views() {
       'empty_column' => 0,
     ),
     'field_number' => array(
-      'sortable' => 1,
+      'sortable' => 0,
       'default_sort_order' => 'asc',
       'align' => '',
-      'separator' => '-',
+      'separator' => '',
       'empty_column' => 0,
     ),
     'field_sub_number' => array(
@@ -277,31 +277,25 @@ function cle_assignment_views_default_views() {
       'empty_column' => 0,
     ),
     'title' => array(
-      'sortable' => 1,
+      'sortable' => 0,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_due_date' => array(
-      'sortable' => 1,
+      'sortable' => 0,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
-    'nid_1' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
+    'nothing' => array(
       'align' => '',
-      'separator' => ' ',
+      'separator' => '',
       'empty_column' => 0,
     ),
   );
-  $handler->display->display_options['style_options']['sticky'] = TRUE;
-  $handler->display->display_options['style_options']['caption'] = 'Assignment list';
-  $handler->display->display_options['style_options']['summary'] = 'Details about the assignments that you will be required to submit as part of this course section.';
-  $handler->display->display_options['style_options']['empty_table'] = TRUE;
   /* Relationship: Entity Reference: Referenced Entity */
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['id'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['table'] = 'field_data_field_cle_assignments';
@@ -328,11 +322,13 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['field_number']['table'] = 'field_data_field_number';
   $handler->display->display_options['fields']['field_number']['field'] = 'field_number';
   $handler->display->display_options['fields']['field_number']['relationship'] = 'field_cle_assignments_target_id';
+  $handler->display->display_options['fields']['field_number']['exclude'] = TRUE;
   /* Field: Content: Sub-number */
   $handler->display->display_options['fields']['field_sub_number']['id'] = 'field_sub_number';
   $handler->display->display_options['fields']['field_sub_number']['table'] = 'field_data_field_sub_number';
   $handler->display->display_options['fields']['field_sub_number']['field'] = 'field_sub_number';
   $handler->display->display_options['fields']['field_sub_number']['relationship'] = 'field_cle_assignments_target_id';
+  $handler->display->display_options['fields']['field_sub_number']['exclude'] = TRUE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -345,6 +341,7 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_cle_assignments_target_id';
+  $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_due_date']['settings'] = array(
     'format_type' => 'short',
@@ -358,16 +355,12 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = 'My submission';
-  /* Sort criterion: Content: Number (field_number) */
-  $handler->display->display_options['sorts']['field_number_value']['id'] = 'field_number_value';
-  $handler->display->display_options['sorts']['field_number_value']['table'] = 'field_data_field_number';
-  $handler->display->display_options['sorts']['field_number_value']['field'] = 'field_number_value';
-  $handler->display->display_options['sorts']['field_number_value']['relationship'] = 'field_cle_assignments_target_id';
-  /* Sort criterion: Content: Sub-number (field_sub_number) */
-  $handler->display->display_options['sorts']['field_sub_number_value']['id'] = 'field_sub_number_value';
-  $handler->display->display_options['sorts']['field_sub_number_value']['table'] = 'field_data_field_sub_number';
-  $handler->display->display_options['sorts']['field_sub_number_value']['field'] = 'field_sub_number_value';
-  $handler->display->display_options['sorts']['field_sub_number_value']['relationship'] = 'field_cle_assignments_target_id';
+  /* Sort criterion: SUM(Content: Order (field_cle_order)) */
+  $handler->display->display_options['sorts']['field_cle_order_value']['id'] = 'field_cle_order_value';
+  $handler->display->display_options['sorts']['field_cle_order_value']['table'] = 'field_data_field_cle_order';
+  $handler->display->display_options['sorts']['field_cle_order_value']['field'] = 'field_cle_order_value';
+  $handler->display->display_options['sorts']['field_cle_order_value']['relationship'] = 'field_cle_assignments_target_id';
+  $handler->display->display_options['sorts']['field_cle_order_value']['group_type'] = 'sum';
   /* Contextual filter: Content: Nid */
   $handler->display->display_options['arguments']['nid']['id'] = 'nid';
   $handler->display->display_options['arguments']['nid']['table'] = 'node';
@@ -404,7 +397,7 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Assignments list';
   $handler->display->display_options['menu']['description'] = 'Listing of assignments for this section';
-  $handler->display->display_options['menu']['weight'] = '2';
+  $handler->display->display_options['menu']['weight'] = '-10';
   $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;

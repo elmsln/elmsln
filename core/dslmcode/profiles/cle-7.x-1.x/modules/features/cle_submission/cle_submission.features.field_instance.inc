@@ -136,7 +136,7 @@ function cle_submission_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 3,
+      'weight' => 2,
     ),
   );
 
@@ -159,8 +159,11 @@ function cle_submission_field_default_field_instances() {
       ),
       'gradebook_viewer' => array(
         'label' => 'inline',
-        'settings' => array(),
-        'type' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
         'weight' => 25,
       ),
     ),
@@ -232,7 +235,7 @@ function cle_submission_field_default_field_instances() {
       'module' => 'radioactivity',
       'settings' => array(),
       'type' => 'radioactivity_basic_widget',
-      'weight' => 7,
+      'weight' => 11,
     ),
   );
 
@@ -293,7 +296,7 @@ function cle_submission_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 7,
+      'weight' => 5,
     ),
   );
 
@@ -309,12 +312,12 @@ function cle_submission_field_default_field_instances() {
         'settings' => array(
           'colorbox_caption' => 'auto',
           'colorbox_caption_custom' => '',
-          'colorbox_gallery' => 'page',
+          'colorbox_gallery' => 'field_page',
           'colorbox_gallery_custom' => '',
           'colorbox_image_style' => '',
           'colorbox_multivalue_index' => NULL,
           'colorbox_node_style' => 'cle_square',
-          'colorbox_node_style_first' => '',
+          'colorbox_node_style_first' => 'cle_square',
         ),
         'type' => 'colorbox',
         'weight' => 5,
@@ -385,7 +388,7 @@ function cle_submission_field_default_field_instances() {
         'progress_indicator' => 'bar',
       ),
       'type' => 'image_miw',
-      'weight' => 5,
+      'weight' => 3,
     ),
   );
 
@@ -442,7 +445,7 @@ function cle_submission_field_default_field_instances() {
       'module' => 'link',
       'settings' => array(),
       'type' => 'link_field',
-      'weight' => 8,
+      'weight' => 6,
     ),
   );
 
@@ -485,7 +488,7 @@ function cle_submission_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 1,
+      'weight' => 9,
     ),
   );
 
@@ -539,7 +542,7 @@ function cle_submission_field_default_field_instances() {
       'module' => 'video_embed_field',
       'settings' => array(),
       'type' => 'video_embed_field_video',
-      'weight' => 6,
+      'weight' => 4,
     ),
   );
 
@@ -559,8 +562,11 @@ function cle_submission_field_default_field_instances() {
       ),
       'gradebook_viewer' => array(
         'label' => 'inline',
-        'settings' => array(),
-        'type' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
         'weight' => 27,
       ),
       'teaser' => array(
@@ -613,7 +619,7 @@ function cle_submission_field_default_field_instances() {
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 6,
+      'weight' => 10,
     ),
   );
 
