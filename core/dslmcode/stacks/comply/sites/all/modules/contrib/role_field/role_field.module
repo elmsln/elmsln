@@ -1,0 +1,140 @@
+<?php
+
+/**
+ * @file
+ *  A module which provides a field for choosing roles. 
+ */
+
+############
+## FIELDS ##
+############
+
+/**
+ * Implement hook_field_info
+ */
+function role_field_field_info() {
+  return array(
+    'role' => array(
+      'label' => t('Role'),
+      'description' => t('Field which allows selecting from roles available on the site.'),
+      'default_widget' => 'options_select',
+      'default_formatter' => 'role_field_formatter',
+      'property_type' => 'integer',
+    ),
+  );
+}
+
+/**
+ * Implement hook_field_settings_form
+ */
+function role_field_field_settings_form($field, $instance) {
+  $settings = $field['settings'];
+  
+  $form['exclusive'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Exclude selected roles?'),
+    '#default_value' => (isset($settings['exclusive'])) ? $settings['exclusive'] : FALSE,
+  );
+  
+  $form['roles'] = array(
+    '#type' => 'select',
+    '#title' => t('Roles'),
+    '#options' => user_roles(),
+    '#default_value' => (!empty($settings['roles'])) ? $settings['roles'] : array(),
+    '#multiple' => TRUE,
+    '#required' => TRUE,
+  );
+  
+  return $form;
+}
+
+/**
+ * Implement hook_field_is_empty
+ */
+function role_field_field_is_empty($item, $field) {
+  if ($field['type'] == 'role') {
+    if (empty($item['value'])) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+#############
+## WIDGETS ##
+#############
+
+/**
+ * Implement hook_field_widget_info_alter
+ */
+function role_field_field_widget_info_alter(&$info) {
+  $widgets = array(
+    'options_select',
+    'options_buttons',
+    'options_onoff',
+  );
+
+  foreach ($widgets as $widget) {
+    $info[$widget]['field types'][] = 'role';
+  }
+}
+
+/**
+ * Implements hook_options_list().
+ */
+function role_field_options_list($field) {
+  $settings = $field['settings'];
+  $roles = user_roles();
+  $options = array();
+  
+  foreach ($roles as $rid => $role) {
+    $selected = in_array($rid, $settings['roles']);
+    if (!$settings['exclusive'] && $selected) {
+      // Including roles that were selected on the field settings
+      $options[$rid] = $role;
+    }
+    else if ($settings['exclusive'] && !$selected) {
+      // Including roles that were not selected on the field settings
+      $options[$rid] = $role;
+    }
+  }
+  
+  return $options;
+}
+
+################
+## FORMATTERS ##
+################
+
+/**
+ * Implement hook_field_formatter_info
+ */
+function role_field_field_formatter_info() {
+  $formatters = array();
+  
+  // Returns the label for the option
+  $formatters['role_field_formatter'] = array(
+    'label' => t('Role'),
+    'field types' => array('role'),
+  );
+  
+  return $formatters;
+}
+
+/**
+ * Implement hook_field_formatter_view
+ */
+function role_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  
+  foreach ($items as $delta => $item) {
+    $roles = user_roles();
+    $element[$delta]['#markup'] = $roles[$item['value']];
+  }
+  
+  return $element;
+}
+
+
+
+

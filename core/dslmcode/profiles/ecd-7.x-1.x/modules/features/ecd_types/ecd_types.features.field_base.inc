@@ -17,7 +17,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_accessibility_audit',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -32,6 +31,8 @@ function ecd_types_field_default_field_bases() {
         'needsreview' => 'Needs Review',
       ),
       'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'list_text',
@@ -44,7 +45,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_accessibility_verified',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -58,6 +58,8 @@ function ecd_types_field_default_field_bases() {
         1 => 1,
       ),
       'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'list_boolean',
@@ -70,7 +72,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_copyright_audit',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -85,6 +86,8 @@ function ecd_types_field_default_field_bases() {
         'needsreview' => 'Needs Review',
       ),
       'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'list_text',
@@ -97,7 +100,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_copyright_verified',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -111,6 +113,8 @@ function ecd_types_field_default_field_bases() {
         1 => 1,
       ),
       'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'list_boolean',
@@ -123,14 +127,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_course',
-    'foreign keys' => array(
-      'node' => array(
-        'columns' => array(
-          'target_id' => 'nid',
-        ),
-        'table' => 'node',
-      ),
-    ),
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
@@ -139,6 +135,8 @@ function ecd_types_field_default_field_bases() {
     'locked' => 0,
     'module' => 'entityreference',
     'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
       'handler' => 'base',
       'handler_settings' => array(
         'behaviors' => array(
@@ -168,7 +166,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_course_address',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -178,6 +175,8 @@ function ecd_types_field_default_field_bases() {
         'rel' => '',
         'target' => 'default',
       ),
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
       'display' => array(
         'url_cutoff' => 80,
       ),
@@ -198,13 +197,14 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_last_quality_date',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
     'settings' => array(
       'cache_count' => 4,
       'cache_enabled' => 0,
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
       'granularity' => array(
         'day' => 0,
         'hour' => 0,
@@ -221,6 +221,25 @@ function ecd_types_field_default_field_bases() {
     'type' => 'datetime',
   );
 
+  // Exported field_base: 'field_machine_name'
+  $field_bases['field_machine_name'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_machine_name',
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'field_hidden',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'max_length' => 255,
+    ),
+    'translatable' => 0,
+    'type' => 'field_hidden_text',
+  );
+
   // Exported field_base: 'field_notes'
   $field_bases['field_notes'] = array(
     'active' => 1,
@@ -228,14 +247,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_notes',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -243,7 +254,10 @@ function ecd_types_field_default_field_bases() {
     ),
     'locked' => 0,
     'module' => 'text',
-    'settings' => array(),
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
     'translatable' => 0,
     'type' => 'text_long',
   );
@@ -255,7 +269,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_quality_audit',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -270,6 +283,8 @@ function ecd_types_field_default_field_bases() {
         'needsreview' => 'Needs Review',
       ),
       'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'list_text',
@@ -282,7 +297,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_quality_verified',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -296,6 +310,8 @@ function ecd_types_field_default_field_bases() {
         1 => 1,
       ),
       'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'list_boolean',
@@ -308,11 +324,12 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_resource_uuid_bind',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'field_hidden',
     'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
       'max_length' => 255,
     ),
     'translatable' => 0,
@@ -326,7 +343,6 @@ function ecd_types_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_source',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'link',
@@ -336,6 +352,8 @@ function ecd_types_field_default_field_bases() {
         'rel' => '',
         'target' => 'default',
       ),
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
       'display' => array(
         'url_cutoff' => 80,
       ),

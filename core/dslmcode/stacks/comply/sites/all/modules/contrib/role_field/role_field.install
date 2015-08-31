@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * Implement hook_field_schema
+ */
+function role_field_field_schema($field) {
+  $schema = array();
+  
+  if ($field['type'] == 'role') {
+    $schema['columns']['value'] = array(
+      'type' => 'int',
+      'length' => '10',
+      'not null' => TRUE,
+    ); 
+  }
+  
+  return $schema;
+}
