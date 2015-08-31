@@ -20,8 +20,8 @@ function entity_iframe_mode_custom_theme() {
  */
 function entity_iframe_mode_url_outbound_alter(&$path, &$options, $original) {
   // test if we are in "iframe mode" by either path or query setting
-  if (strpos($path, 'sites/all') !== 0) {
-    $mode = _entity_iframe_mode_enabled();
+  $mode = _entity_iframe_mode_enabled();
+  if ($mode && strpos($path, 'sites/all') !== 0) {
     $options['query']['entity_iframe'] = $mode;
   }
 }
@@ -31,7 +31,8 @@ function entity_iframe_mode_url_outbound_alter(&$path, &$options, $original) {
  */
 function _entity_iframe_mode_enabled() {
   if (isset($_GET['entity_iframe'])) {
-    return $_GET['entity_iframe'];
+    $return = (!empty($_GET['entity_iframe']) ? $_GET['entity_iframe'] : TRUE);
+    return $return;
   }
   elseif (arg(0) == 'entity_iframe') {
     return TRUE;
