@@ -26,110 +26,16 @@ fi
 touch /tmp/drush-command-lock
 
 #read the files in the $commandloc and set vars based on file name.
-for coursefile in `find $commandloc ! -name *.swp ! -name '*processing*' ! -name '*error' ! -name '*processed' ! -name '*example' ! -name '*.md' -type f`
+for jobfile in `find $commandloc -maxdepth 1 ! -name *.swp ! -name '*processing*' ! -name '*error' ! -name '*processed' ! -name '*example' ! -name '*.md' -type f`
 do
-  service=${coursefile#*.}
-  if [ -z $stacks ]; then
-    drupalroot=$webdir/$service
-  else
-    drupalroot=$stacks/$service
-  fi
-  subdir=$service/$college
-  #length of the course file
-  coursefilelen=${#coursefile}
-  error=0
-  #pull all drush options into options list
-  options=`sed -n '1p' $coursefile`
-
-  ##Error catching here.
-  #testing for bad characters. if found any in the course file we exit
-  badchars=`sed 's/[a-z A-Z 0-9 _@.= \: \/ \-]//g' $coursefile`
-  if [ $badchars ]; then
-    echo "bad characters in the course file"
-    error=1
-  fi
-
-  if [ $coursefilelen -gt 300 ]; then
-    echo "$coursefile is too large."
-    error=1
-  fi
-
-  if [ ! -f $drupalroot/index.php ]; then
-    echo $date " Drupal doesn't exist in $drupalroot"
-    error=1
-  fi
-  #report errors if they were found
-  if [ $? -gt 0 ]; then
-    echo " $date errors!"
-    error=1
-  fi
-
-  #if errors are found, back out
-  if [ $error = 1 ]; then
-    /bin/mv $coursefile $coursefile.$date.error
-    rm /tmp/drush-command-lock
-    exit 1
-  fi
-
   #start processing
-  /bin/mv $coursefile $coursefile.processing
-  #ensure we have drush commands to issue
-  if [[ $options ]]; then
-    /bin/grep ^drush $coursefile.processing | while read drush; do
-    drushcommand=`echo $drush | awk '{print $2}'`
-    case $drushcommand in
-      en)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      vset)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      feeds-import)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      cron)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      cc)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      dis)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      urol)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      ucrt)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      rf)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      fr)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      pm-uninstall)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      vdel)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      ecl)
-      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      ;;
-      *)
-      badcommand=`echo "$drush" | cut -f 2- -d ' '`
-      drushcommand="NULL"
-      ;;
-    esac
-    if [[ $drushcommand = "NULL" ]]; then
-      echo "$badcommand is not a supported drush command."
-      rm /tmp/drush-command-lock
-      exit 1
-    fi
-    #issue the command against the uri in question
-    /usr/bin/drush -y --uri=http://$hostname.$course $drushcommand
-    done
+  /bin/mv $jobfile $jobfile.processing
+  #this will be made up of drush calls
+  #@todo do more then just this as far as error checking is concerned
+  bash $jobfile.processing
+  # move this to processed state after its finished
+  if [[ -f  $coursefile.processing ]]; then
+    mv $coursefile.processing $coursefile.processed
   fi
 done
 rm /tmp/drush-command-lock
