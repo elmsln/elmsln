@@ -15,9 +15,9 @@ function mooc_textbook_features_override_default_overrides() {
   $overrides["filter.textbook_editor.filters|cis_filter"] = array(
     'settings' => array(),
     'status' => 1,
-    'weight' => -50,
+    'weight' => -49,
   );
-  $overrides["filter.textbook_editor.filters|ckeditor_link_filter|weight"] = -46;
+  $overrides["filter.textbook_editor.filters|ckeditor_link_filter|weight"] = -44;
   $overrides["filter.textbook_editor.filters|filter_footnotes"] = array(
     'settings' => array(
       'footnotes_collapse' => 0,
@@ -28,14 +28,13 @@ function mooc_textbook_features_override_default_overrides() {
   $overrides["filter.textbook_editor.filters|filter_tokens"] = array(
     'settings' => array(),
     'status' => 1,
-    'weight' => -43,
+    'weight' => -42,
   );
-  $overrides["filter.textbook_editor.filters|typogrify|weight"] = -42;
+  $overrides["filter.textbook_editor.filters|typogrify"]["DELETED"] = TRUE;
 
   // Exported overrides for: wysiwyg
   $overrides["wysiwyg.textbook_editor.settings|buttons|drupal"] = array(
     'rendered_entity' => 1,
-    'shortcode_wysiwyg' => 1,
     'token_insert_wysiwyg' => 1,
   );
   $overrides["wysiwyg.textbook_editor.settings|buttons|footnotes"] = array(
