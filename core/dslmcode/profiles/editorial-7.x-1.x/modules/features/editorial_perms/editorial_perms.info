@@ -10,7 +10,6 @@ features[defaultconfig][] = user_default_permissions:access content
 features[defaultconfig][] = user_default_permissions:access iframe version
 features[defaultconfig][] = user_default_permissions:access resource accessibility_test
 features[defaultconfig][] = user_default_permissions:access resource file
-features[defaultconfig][] = user_default_permissions:access resource lti_tool_provider_consumer
 features[defaultconfig][] = user_default_permissions:access resource og_membership
 features[defaultconfig][] = user_default_permissions:access resource og_membership_type
 features[defaultconfig][] = user_default_permissions:access resource user

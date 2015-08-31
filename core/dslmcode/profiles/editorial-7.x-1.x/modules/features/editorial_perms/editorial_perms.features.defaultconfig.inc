@@ -93,15 +93,6 @@ function editorial_perms_defaultconfig_user_default_permissions() {
     'module' => 'restws',
   );
 
-  // Exported permission: 'access resource lti_tool_provider_consumer'.
-  $permissions['access resource lti_tool_provider_consumer'] = array(
-    'name' => 'access resource lti_tool_provider_consumer',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-    ),
-    'module' => 'restws',
-  );
-
   // Exported permission: 'access resource og_membership'.
   $permissions['access resource og_membership'] = array(
     'name' => 'access resource og_membership',
