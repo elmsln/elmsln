@@ -10,9 +10,9 @@
 function ecd_entityforms_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'entityform-ecd_access-field_account_request'
-  $field_instances['entityform-ecd_access-field_account_request'] = array(
-    'bundle' => 'ecd_access',
+  // Exported field_instance: 'entityform-course_access-field_account_request'
+  $field_instances['entityform-course_access-field_account_request'] = array(
+    'bundle' => 'course_access',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'The account name you are requesting access for.',
@@ -44,9 +44,9 @@ function ecd_entityforms_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'entityform-ecd_access-field_course_access'
-  $field_instances['entityform-ecd_access-field_course_access'] = array(
-    'bundle' => 'ecd_access',
+  // Exported field_instance: 'entityform-course_access-field_course_access'
+  $field_instances['entityform-course_access-field_course_access'] = array(
+    'bundle' => 'course_access',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'What course would you like to grant access to?',
@@ -77,9 +77,9 @@ function ecd_entityforms_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'entityform-ecd_access-field_documentation'
-  $field_instances['entityform-ecd_access-field_documentation'] = array(
-    'bundle' => 'ecd_access',
+  // Exported field_instance: 'entityform-course_access-field_documentation'
+  $field_instances['entityform-course_access-field_documentation'] = array(
+    'bundle' => 'course_access',
     'deleted' => 0,
     'description' => 'Any documentation about why this access request should be granted. This can be a screenshot, a word document, an email, anything that would justify this granting of access for record keeping purposes.',
     'display' => array(
@@ -113,9 +113,9 @@ function ecd_entityforms_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'entityform-ecd_access-field_role'
-  $field_instances['entityform-ecd_access-field_role'] = array(
-    'bundle' => 'ecd_access',
+  // Exported field_instance: 'entityform-course_access-field_role'
+  $field_instances['entityform-course_access-field_role'] = array(
+    'bundle' => 'course_access',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'Role you wish to grant this person',
@@ -144,9 +144,9 @@ function ecd_entityforms_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'entityform-ecd_access-field_system_access'
-  $field_instances['entityform-ecd_access-field_system_access'] = array(
-    'bundle' => 'ecd_access',
+  // Exported field_instance: 'entityform-course_access-field_system_access'
+  $field_instances['entityform-course_access-field_system_access'] = array(
+    'bundle' => 'course_access',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'Systems you want this user to have access to',

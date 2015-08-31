@@ -9,8 +9,8 @@
  */
 function ecd_entityforms_default_entityform_type() {
   $items = array();
-  $items['ecd_access'] = entity_import('entityform_type', '{
-    "type" : "ecd_access",
+  $items['course_access'] = entity_import('entityform_type', '{
+    "type" : "course_access",
     "label" : "Access Request",
     "data" : {
       "draftable" : 0,
