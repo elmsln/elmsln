@@ -8,5 +8,190 @@
  * Implements hook_init().
  */
 function ecd_helper_init() {
+}
 
+
+/**
+ * Implements hook_cron().
+ */
+function ecd_helper_cron() {
+  // sync the registry of systems
+  _ecd_helper_sync_system_registry();
+  // look up all the active system requests
+  $field_conditions['field_access_status'] = array('value', 'active', '=');
+  $course_access_ids = _cis_connector_assemble_entity_list('entityform', 'course_access_request', 'entityform_id', 'entityform_id', $field_conditions);
+  $course_access = entity_load('entityform', $course_access_ids);
+  $state = 'inactive';
+  foreach ($course_access as $access) {
+    // the current time is past this access duration, we need to deactivate the request
+    if (REQUEST_TIME > time($access->field_duration[LANGUAGE_NONE][0]['value2'])) {
+      // run routine to disable access since access window has ended
+      $processed = _ecd_helper_change_course_access($access, $state);
+      // job file at least put in place, we can deactivate this request
+      if ($processed) {
+        $access->field_access_status[LANGUAGE_NONE][0]['value'] = $state;
+        entity_save('entityform', $access);
+      }
+    }
+  }
+  // do the same thing but for system requests
+  $field_conditions['field_access_status'] = array('value', 'active', '=');
+  $system_access_ids = _cis_connector_assemble_entity_list('entityform', 'system_access_request', 'entityform_id', 'entityform_id', $field_conditions);
+  $system_access = entity_load('entityform', $system_access_ids);
+  foreach ($system_access as $access) {
+    // the current time is past this access duration, we need to deactivate the request
+    if (REQUEST_TIME > time($access->field_duration[LANGUAGE_NONE][0]['value2'])) {
+      // run routine to disable access since access window has ended
+      $processed = _ecd_helper_change_system_access($access, $state);
+      // job file at least put in place, we can deactivate this request
+      if ($processed) {
+        $access->field_access_status[LANGUAGE_NONE][0]['value'] = $state;
+        entity_save('entityform', $access);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function ecd_helper_entity_insert($entity, $type) {
+  ecd_helper_entity_update($entity, $type);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function ecd_helper_entity_update($entity, $type) {
+  if ($type == 'entityform') {
+    if ($entity->type == 'course_access_request') {
+      // process access change, no matter what it is.
+      // we just saved / updated this entity so we need to fire it off
+      // once the above has processed once, it no longer will unless
+      // manually hit by the user, meaning they intended to kick off a job
+      // to ensure consistency
+      _ecd_helper_change_course_access($entity, $entity->field_access_status[LANGUAGE_NONE][0]['value']);
+    }
+    // allow for system-wide access changes
+    if ($entity->type == 'system_access_request') {
+      _ecd_helper_change_system_access($entity, $entity->field_access_status[LANGUAGE_NONE][0]['value']);
+    }
+  }
+}
+
+/**
+ * Disable access based on an entity form access request
+ * @param  object $access Access request entity
+ * @param  string $state   activate or inactive
+ * @return mixed          a UUID or FALSE if write failed
+ */
+function _ecd_helper_change_course_access($access, $state = 'active') {
+  $commands = array();
+  // get the machine name of the course
+  $nid = $access->field_course_access['und'][0]['target_id'];
+  $course = node_load($nid);
+  // @todo target all systems of the course once we have that capability
+  $target = '@courses.' . $course->field_course_machine_name['und'][0]['value'];
+  // formulate the drush call
+  if ($state == 'active') {
+    $task = 'urol';
+    // ensure that user already exists in all targets before adding role to nothing
+    $commands[] = array(
+      'target' => array($target),
+      'args' => array('ucrt', $access->field_account_request['und'][0]['value']),
+      // @todo pull mail ending from the global cfg file
+      //'options' => array('--mail=' . ),
+    );
+  }
+  else {
+    $task = 'urrol';
+  }
+  $role = user_role_load($access->field_role['und'][0]['value']);
+  $commands[] = array(
+    'target' => array($target),
+    'args' => array($task, $role->name, '"' . $access->field_account_request['und'][0]['value'] . '"'),
+  );
+  // ensure our task runner was able to write to the file
+  // this doesn't ensure its processed but at least puts it in position
+  if ($uuid = _cis_connector_drush_task_runner($commands)) {
+    drupal_set_message(t('@name will have their access set to @state in @target soon!', array('@name' => $access->field_account_request['und'][0]['value'], '@state' => $state, '@target' => $course->field_course_machine_name['und'][0]['value'])));
+  }
+
+  return $uuid;
+}
+
+/**
+ * Disable access based on an entity form access request
+ * @param  object $access Access request entity
+ * @param  string $state   activate or inactive
+ * @return mixed          a UUID or FALSE if write failed
+ */
+function _ecd_helper_change_system_access($access, $state = 'active') {
+  $target = $targets = $commands = array();
+  // we support multiple systems in this request
+  foreach ($access->field_ecd_systems['und'] as $tmp) {
+    $system = node_load($tmp['target_id']);
+    $target[] = '@' . $system->field_machine_name['und'][0]['value'] . '-all';
+    $targets[] = $system->field_machine_name['und'][0]['value'];
+  }
+  if ($state == 'active') {
+    $task = 'urol';
+    // ensure that user already exists in all targets before adding role to nothing
+    $commands[] = array(
+      'target' => $target,
+      'args' => array('ucrt', $access->field_account_request['und'][0]['value']),
+      // @todo pull mail ending from the global cfg file
+      //'options' => array('--mail=' . ),
+    );
+  }
+  else {
+    $task = 'urrol';
+  }
+  // formulate the drush call
+  $role = user_role_load($access->field_role['und'][0]['value']);
+  $commands[] = array(
+    'target' => $target,
+    'args' => array($task, $role->name, '"' . $access->field_account_request['und'][0]['value'] . '"'),
+  );
+  // ensure our task runner was able to write to the file
+  // this doesn't ensure its processed but at least puts it in position
+  if ($uuid = _cis_connector_drush_task_runner($commands)) {
+    drupal_set_message(t('@name will have their access set to @state in all @targets systems soon!', array('@name' => $access->field_account_request['und'][0]['value'], '@state' => $state, '@targets' => implode(', ', $targets))));
+  }
+  return $uuid;
+}
+
+/**
+ * Sync the system registry with the system nodes in this site.
+ */
+function _ecd_helper_sync_system_registry() {
+  // load up the services and the registry to compare them
+  $services = _cis_connector_assemble_entity_list('node', 'system', 'field_machine_name', 'nid');
+  $registry = _cis_connector_build_registry();
+  foreach ($registry as $distribution => $reg) {
+    // ensure we have an address since it contains our machine name key
+    if (isset($reg['address']) && !empty($reg['address'])) {
+      $addr = explode('.', $reg['address']);
+      $machine_name = $addr[0];
+      // if we don't know about this address and it has a default title, build a node
+      if (!isset($services[$machine_name]) && isset($reg['default_title'])) {
+        $node = new stdClass();
+        $node->type = 'system';
+        node_object_prepare($node);
+        $node->language = LANGUAGE_NONE;
+        $node->uid = 1;
+        $node->status = 1;
+        $node->promote = 0;
+        $node->comment = 0;
+        $node->revision = 0;
+        $node->sticky = 0;
+        $node->type = 'system';
+        $node->title = $reg['default_title'];
+        $node->field_machine_name['und'][0]['value'] = $machine_name;
+        if($node = node_submit($node)) {
+          node_save($node);
+        }
+      }
+    }
+  }
 }

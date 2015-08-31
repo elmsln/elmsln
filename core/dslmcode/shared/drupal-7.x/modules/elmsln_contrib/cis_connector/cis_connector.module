@@ -11,6 +11,8 @@
 
 define ('CIS_CONNECTOR_ENTITY_BOTH', 0);
 define ('CIS_CONNECTOR_ENTITY_REMOTE_ONLY', 1);
+// @todo read off config directory
+define ('CIS_CONNECTOR_DRUSH_TASK_RUNNER_PATH', '/var/www/elmsln/config/jobs/drush-command-job/');
 
 /**
  * Implements hook_restws_meta_controls_alter().
@@ -1597,4 +1599,66 @@ function cis_connector_entity_iframe_consumer_providers_alter(&$providers) {
       $providers[$key] = _cis_connector_format_address($setting, '', 'front');
     }
   }
+}
+
+/**
+ * Create a drush task runner that a server job will pick up
+ * @param  array   $command  array that expresses a drush command
+ * @return mixed   returns a UUID or FALSE if it failed to write
+ */
+function _cis_connector_drush_task_runner($commands) {
+  $uuid = uniqid();
+  $content = '';
+  // loop through and write multiple calls to the file if they exist
+  foreach ($commands as $command) {
+    // we support multiple targets in single calls
+    if (!isset($command['target']) || !is_array($command['target'])) {
+      return FALSE;
+    }
+    $target = implode(',', $command['target']);
+    $clean_target = str_replace(',', '.', str_replace('@', '', $target));
+    // generate name as path - target - time - uuid
+    $task_runner = CIS_CONNECTOR_DRUSH_TASK_RUNNER_PATH . $clean_target . '-' . REQUEST_TIME . '-' . $uuid;
+    // args are required
+    if (!isset($command['args']) || !is_array($command['args'])) {
+      return FALSE;
+    }
+    // ensure arg0 isn't on the ban list for security sake
+    if (in_array($command['args'][0], _cis_connector_banned_drush_commands())) {
+      return FALSE;
+    }
+    $args = implode(' ', $command['args']);
+
+    $options = '--y';
+    // options is not required
+    if (isset($command['options']) && is_array($command['options'])) {
+      $options .= ' --' . implode(' --', $command['options']);
+    }
+    // convert command into a string
+    $content .= "drush $target $args $options" . "\n";
+  }
+  // don't write if we got nothing to put into the file
+  if (empty($content)) {
+    return FALSE;
+  }
+  $handle = fopen($task_runner, 'x+');
+  // ensure we were able to open the file for writing
+  if (!$handle) {
+    return FALSE;
+  }
+  fwrite($handle, $content);
+  fclose($handle);
+  // we were able to write the file, return the UUID that was generated during
+  // the write process
+  return $uuid;
+}
+
+/**
+ * These are commands that the drush-task-runner can't run for security reasons
+ * @return array array of drush commands that our task runner can't process
+ */
+function _cis_connector_banned_drush_commands() {
+  // these all have security or performance issues that could destroy the box
+  // and as a result should not be allowed to run via this task no matter what
+  return array('si', 'site-install', 'eval', 'ev', 'scr', 'php-script', 'runserver', 'rs', 'ssh', 'site-ssh', 'test-run');
 }
