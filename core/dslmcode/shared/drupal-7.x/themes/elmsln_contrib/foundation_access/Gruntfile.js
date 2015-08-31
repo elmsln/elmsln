@@ -22,17 +22,6 @@ module.exports = function(grunt) {
   			}
   		}
     },
-    // uglify: {
-    //   myScripts: {
-    //     files: [{
-    //         expand: true,
-    //         cwd: 'js/',
-    //         src: '**.js',
-    //         dest: 'js/',
-    //         ext: '.min.js'
-    //     }]
-    //   }
-    // },
     svgmin: {
       dist: {
         files: [{
@@ -86,7 +75,7 @@ module.exports = function(grunt) {
       },
       sass: {
         files: ['scss/**/*.scss','scss/README.md'],
-        tasks: ['sass', 'autoprefixer', 'hologram']
+        tasks: ['sass', 'autoprefixer']
       },
       js: {
         files: ['js/app.js', 'js/components/**/*.js'],
