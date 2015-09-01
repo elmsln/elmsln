@@ -3,11 +3,11 @@
 title: Imagelightbox
 name: imagelightbox
 category:
-  - Javascript ImageLightbox
+  - Widgets ImageLightbox
 ---
 
 This is a responsive lightbox for view images.  To use this plugin, you need to define an `a` tag 
-with a `src` attribute that points a larger version of the image as well as a `data-imagelightbox` 
+with an `href` attribute that points a larger version of the image as well as a `data-imagelightbox` 
 tag that initiates the lightbox.
 
 ```html_example
@@ -28,8 +28,16 @@ $lightbox--overlay-fade-in: .8s;
 /*
  * Styles
  */
+[data-imagelightbox] {
+  cursor: -webkit-zoom-in;
+  cursor: -moz-zoom-in;
+  * {
+    cursor: -webkit-zoom-in;
+    cursor: -moz-zoom-in;;
+  }
+}
+
 .imagelightbox {
-  cursor: pointer;
   position: fixed;
   z-index: 10000;
   -ms-touch-action: none;
