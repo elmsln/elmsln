@@ -5,6 +5,19 @@
 }
 
 .etb-book {
+	ul,ol,dl {
+		font-family: inherit;
+		font-size: inherit;
+		// Margin-left needs set high because margin is set on
+		// the <p> elements and not on the container. Set to em
+		// so that it scales inside elements like tables.
+		margin-left: 20px;
+		margin-left: 2em;
+		line-height: inherit;
+		// Set this to inside so the ul,ol,dl line up
+		// when next to eachother
+		list-style-position: inside;
+	}
 	//background:$book-bg-color;
 	
 	mark {
