@@ -1,3 +1,5 @@
+var imageLightbox = require('./components/imageLightbox.js');
+
 (function ($) {
   // Accessibility To Do:
   //
@@ -33,6 +35,19 @@
   // print page: p
   // edit page: e
   // Bring up list of shortcuts: k
+
+  if (typeof Drupal != 'undefined') {
+    Drupal.behaviors.primaryMenu = {
+      attach: function (context, settings) {
+        imageLightbox();
+      }
+    };
+  }
+  else {
+    $(document).ready(function() {
+      imageLightbox();
+    });
+  }
 
   Drupal.behaviors.foundation_access = {
     attach: function(context, settings) {
@@ -172,4 +187,5 @@
       }
     });
   });
+
 })(jQuery);

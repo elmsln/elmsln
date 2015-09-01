@@ -75,7 +75,7 @@ module.exports = function(grunt) {
       },
       sass: {
         files: ['scss/**/*.scss','scss/README.md'],
-        tasks: ['sass', 'autoprefixer']
+        tasks: ['sass', 'autoprefixer', 'hologram']
       },
       js: {
         files: ['js/app.js', 'js/components/**/*.js'],

@@ -1,4 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var imageLightbox = require('./components/imageLightbox.js');
+
 (function ($) {
   // Accessibility To Do:
   //
@@ -34,6 +36,19 @@
   // print page: p
   // edit page: e
   // Bring up list of shortcuts: k
+
+  if (typeof Drupal != 'undefined') {
+    Drupal.behaviors.primaryMenu = {
+      attach: function (context, settings) {
+        imageLightbox();
+      }
+    };
+  }
+  else {
+    $(document).ready(function() {
+      imageLightbox();
+    });
+  }
 
   Drupal.behaviors.foundation_access = {
     attach: function(context, settings) {
@@ -173,6 +188,34 @@
       }
     });
   });
+
 })(jQuery);
+
+},{"./components/imageLightbox.js":2}],2:[function(require,module,exports){
+module.exports = function() {
+  'use strict';
+
+	$("body")
+	    .append("<div class='imagelightbox__overlay'>")
+	    .append("<a href='javascript:;' class='imagelightbox__close'>Close</a>");
+
+  function startLightboxOverlay() {
+    $("body").addClass("lightbox--is-open");
+  }
+
+  function endLightboxOverlay() {
+    $("body").removeClass("lightbox--is-open");
+  }
+
+  $("*[data-imagelightbox]").imageLightbox({
+    selector: 'class="imagelightbox"',
+    allowedTypes: "all",
+    preloadNext: false,
+    onStart: startLightboxOverlay,
+    enableKeyboard: false,
+    quitOnImgClick: true,
+    onEnd: endLightboxOverlay
+  });
+};
 
 },{}]},{},[1]);

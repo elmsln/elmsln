@@ -24,6 +24,7 @@ js_include:
   - '../js/libs.min.js'
   - '../js/jquery.sticky.js'
   - '../js/foundation.min.js'
+  - '../js/libraries/imagelightbox/imagelightbox.js'
   - '../js/dist/app.js'
 
 # Mark which category should be the index page
