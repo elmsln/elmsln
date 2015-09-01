@@ -1,5 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var imageLightbox = require('./components/imageLightbox.js');
+var video = require('./components/video.js');
 
 (function ($) {
   // Accessibility To Do:
@@ -38,15 +39,17 @@ var imageLightbox = require('./components/imageLightbox.js');
   // Bring up list of shortcuts: k
 
   if (typeof Drupal != 'undefined') {
-    Drupal.behaviors.primaryMenu = {
+    Drupal.behaviors.init = {
       attach: function (context, settings) {
         imageLightbox();
+        video();
       }
     };
   }
   else {
     $(document).ready(function() {
       imageLightbox();
+      video();
     });
   }
 
@@ -191,7 +194,7 @@ var imageLightbox = require('./components/imageLightbox.js');
 
 })(jQuery);
 
-},{"./components/imageLightbox.js":2}],2:[function(require,module,exports){
+},{"./components/imageLightbox.js":2,"./components/video.js":3}],2:[function(require,module,exports){
 module.exports = function() {
   'use strict';
 
@@ -215,6 +218,17 @@ module.exports = function() {
     enableKeyboard: false,
     quitOnImgClick: true,
     onEnd: endLightboxOverlay
+  });
+};
+
+},{}],3:[function(require,module,exports){
+module.exports = function() {
+  'use strict';
+
+  $(".video__open").click(function() {
+    var videoContainer = $(this).parents('.video');
+
+    videoContainer.toggleClass('video--is-open');
   });
 };
 

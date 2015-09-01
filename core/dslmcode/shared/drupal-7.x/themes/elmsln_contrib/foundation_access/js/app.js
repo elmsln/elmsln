@@ -1,4 +1,5 @@
 var imageLightbox = require('./components/imageLightbox.js');
+var video = require('./components/video.js');
 
 (function ($) {
   // Accessibility To Do:
@@ -37,15 +38,17 @@ var imageLightbox = require('./components/imageLightbox.js');
   // Bring up list of shortcuts: k
 
   if (typeof Drupal != 'undefined') {
-    Drupal.behaviors.primaryMenu = {
+    Drupal.behaviors.init = {
       attach: function (context, settings) {
         imageLightbox();
+        video();
       }
     };
   }
   else {
     $(document).ready(function() {
       imageLightbox();
+      video();
     });
   }
 
