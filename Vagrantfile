@@ -9,7 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #config.vm.box = "chef/centos-6.5-i386"
 
   # centos 6.5 - 64 bit
-  config.vm.box = "chef/centos-6.5"
+  config.vm.box = "puphpet/centos65-x64"
   # private network port maping, host files point to elmsln domains
   config.vm.network "private_network", ip: "10.0.18.55"
   # forward the vm ports for database and apache to local ones
@@ -43,10 +43,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["modifyvm", :id, "--memory", mem]
     v.customize ["modifyvm", :id, "--cpus", cpus]
   end
-
+  
   # run script as root
   config.vm.provision "shell",
     path: "scripts/vagrant/handsfree-vagrant.sh"
+
+  # run inline script as root
+  #remove the error sudo: sorry, you must have a tty to run sudo
+  #see //github.com/mitchellh/vagrant-rackspace#centos--rhel--fedora
+    config.vm.provision "shell",
+      inline: "sed -i 's/Defaults    requiretty/#Defaults    requiretty/g' /etc/sudoers"
 
   # run as the vagrant user
   config.vm.provision "shell",
