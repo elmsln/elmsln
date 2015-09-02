@@ -1,0 +1,112 @@
+/*doc
+---
+title: Media Video
+name: 1mediavideo
+category:
+  - Components MediaVideo
+---
+
+Description.
+
+```html_example
+<figure class="mediavideo">
+  <iframe src="https://vine.co/v/eIXejbQ2utM/embed/simple" frameborder="0"></iframe><script src="https://platform.vine.co/static/scripts/embed.js"></script>
+</figure>
+```
+*/
+
+/*doc
+---
+title: Media Video with Poster
+name: 2mediavideoplayer
+category:
+  - Components MediaVideo
+---
+
+STILL IN DEVELOPMENT. Example with Poster and Play button.  This uses a psudo lazy load technique to allow the
+play button to start the video. To use it, add the video's source url to a data attribute called `data-mediavideo-src`.
+A javascript function will is it to populate the `src` attribute when the button is clicked.
+
+```html_example
+<figure class="mediavideo">
+	<iframe data-mediavideo-src="https://www.youtube.com/embed/LyEbvix4yl4?" frameborder="0" allowfullscreen></iframe>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+  </aside>
+  <a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
+</figure>
+
+<figure class="mediavideo">
+	<iframe data-mediavideo-src="https://player.vimeo.com/video/104641191?autoplay=1" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/104641191">Jeffrey Zeldman: 20 years of Web Design and Community</a> from <a href="https://vimeo.com/lyndavimeo">lynda.com</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+  </aside>
+  <a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
+</figure>
+```
+*/
+
+.mediavideo {
+	background: black;
+	position: relative;
+	display: block;
+	overflow: hidden;
+	// Set ratio at 16:9 using intrinsic ratio
+	width: 100%;
+	height: 0;
+	padding-top: 56.25%;
+	margin: 0;
+
+	// If two are next to eachother separate them
+	& + & {
+		margin-top: 1em;
+	}
+
+	iframe,
+	video,
+	&__video {
+		display: block;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	&__poster {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: auto;
+		opacity: 1;
+		visibility: visible;
+	}
+
+	&__open {
+		position: absolute;
+		top: 50%;
+		text-align: center;
+		left: 50%;
+		color: white;
+		opacity: 1;
+		visibility: visible;
+		transform: translate(-50%, -50%);
+		width: 5em;
+		height: 5em;
+		background-size: cover;
+	}
+}
+
+.mediavideo--is-open {
+	.mediavideo__poster,
+	.mediavideo__open {
+		transition:visibility 0s linear 0.5s,opacity 0.5s linear;
+		visibility: hidden;
+		opacity: 0;
+	}
+}

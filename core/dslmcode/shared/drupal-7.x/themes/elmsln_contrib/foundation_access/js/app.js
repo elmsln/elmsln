@@ -1,5 +1,5 @@
 var imageLightbox = require('./components/imageLightbox.js');
-var video = require('./components/video.js');
+var mediavideo = require('./components/mediavideo.js');
 
 (function ($) {
   // Accessibility To Do:
@@ -41,14 +41,14 @@ var video = require('./components/video.js');
     Drupal.behaviors.init = {
       attach: function (context, settings) {
         imageLightbox();
-        video();
+        mediavideo();
       }
     };
   }
   else {
     $(document).ready(function() {
       imageLightbox();
-      video();
+      mediavideo();
     });
   }
 

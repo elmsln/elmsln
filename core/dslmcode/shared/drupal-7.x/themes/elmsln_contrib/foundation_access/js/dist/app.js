@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var imageLightbox = require('./components/imageLightbox.js');
-var video = require('./components/video.js');
+var mediavideo = require('./components/mediavideo.js');
 
 (function ($) {
   // Accessibility To Do:
@@ -42,14 +42,14 @@ var video = require('./components/video.js');
     Drupal.behaviors.init = {
       attach: function (context, settings) {
         imageLightbox();
-        video();
+        mediavideo();
       }
     };
   }
   else {
     $(document).ready(function() {
       imageLightbox();
-      video();
+      mediavideo();
     });
   }
 
@@ -194,42 +194,65 @@ var video = require('./components/video.js');
 
 })(jQuery);
 
-},{"./components/imageLightbox.js":2,"./components/video.js":3}],2:[function(require,module,exports){
+},{"./components/imageLightbox.js":2,"./components/mediavideo.js":3}],2:[function(require,module,exports){
 module.exports = function() {
-  'use strict';
+  (function ($) {
+    'use strict';
 
-	$("body")
-	    .append("<div class='imagelightbox__overlay'>")
-	    .append("<a href='javascript:;' class='imagelightbox__close'>Close</a>");
+  	$("body")
+  	    .append("<div class='imagelightbox__overlay'>")
+  	    .append("<a href='javascript:;' class='imagelightbox__close'>Close</a>");
 
-  function startLightboxOverlay() {
-    $("body").addClass("lightbox--is-open");
-  }
+    function startLightboxOverlay() {
+      $("body").addClass("lightbox--is-open");
+    }
 
-  function endLightboxOverlay() {
-    $("body").removeClass("lightbox--is-open");
-  }
+    function endLightboxOverlay() {
+      $("body").removeClass("lightbox--is-open");
+    }
 
-  $("*[data-imagelightbox]").imageLightbox({
-    selector: 'class="imagelightbox"',
-    allowedTypes: "all",
-    preloadNext: false,
-    onStart: startLightboxOverlay,
-    enableKeyboard: false,
-    quitOnImgClick: true,
-    onEnd: endLightboxOverlay
-  });
+    $("*[data-imagelightbox]").imageLightbox({
+      selector: 'class="imagelightbox"',
+      allowedTypes: "all",
+      preloadNext: false,
+      onStart: startLightboxOverlay,
+      enableKeyboard: false,
+      quitOnImgClick: true,
+      onEnd: endLightboxOverlay
+    });
+  })(jQuery);
 };
 
 },{}],3:[function(require,module,exports){
 module.exports = function() {
-  'use strict';
+  (function ($) {
+	  'use strict';
 
-  $(".video__open").click(function() {
-    var videoContainer = $(this).parents('.video');
+	  $(".mediavideo__open").click(function() {
+	    var videoContainer = $(this).parents('.mediavideo');
+	    // Add the is-open tag to the base element.
+	    videoContainer.toggleClass('mediavideo--is-open');
+	    // Start the iframe videos.
+	    videoContainer.find('*[data-mediavideo-src]').each(function() {
+	    	var videoIframeSrc = $(this).data('mediavideo-src');
 
-    videoContainer.toggleClass('video--is-open');
-  });
+	    	// If it's a youtube or vimeo video then add an autoplay attr on the end
+	    	// of the url.
+	    	if (videoIframeSrc.indexOf('youtube') >= 0 || videoIframeSrc.indexOf('vimeo') >= 0) {
+	    		// Find out if we need to start the query parameter or add
+	    		// on to an existing one.
+		    	if (videoIframeSrc.indexOf('?') >= 0) {
+		    		videoIframeSrc += '&autoplay=1';
+		    	}
+		    	else {
+		    		videoIframeSrc += '?autoplay=1';
+		    	}
+	    	}
+	    	// Add it to the source attribute to load the video.
+	    	$(this).attr('src', videoIframeSrc);
+	    });
+	  });
+  })(jQuery);
 };
 
 },{}]},{},[1]);

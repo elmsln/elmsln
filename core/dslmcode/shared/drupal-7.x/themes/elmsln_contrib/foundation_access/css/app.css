@@ -1,4 +1,6 @@
-/* Rem fallback from Hugo http://hugogiraudel.com/2013/03/18/ultimate-rem-mixin/ */
+/*
+ * This is for Utility sass mixins and functions
+ */
 meta.foundation-version {
   font-family: "/5.5.2/"; }
 
@@ -8085,51 +8087,64 @@ tag that initiates the lightbox.
 
 /*doc
 ---
-title: Video
-name: 1video
+title: Media Video
+name: 1mediavideo
 category:
-  - Components Video
+  - Components MediaVideo
 ---
 
 Description.
 
 ```html_example
-<div class="video">
+<figure class="mediavideo">
   <iframe src="https://vine.co/v/eIXejbQ2utM/embed/simple" frameborder="0"></iframe><script src="https://platform.vine.co/static/scripts/embed.js"></script>
-</div>
+</figure>
 ```
 */
 /*doc
 ---
-title: Video with Poster
-name: 1videoposter
+title: Media Video with Poster
+name: 2mediavideoplayer
 category:
-  - Components Video
+  - Components MediaVideo
 ---
 
-Example with Poster and Play button. STILL IN DEVELOPMENT.
+STILL IN DEVELOPMENT. Example with Poster and Play button.  This uses a psudo lazy load technique to allow the
+play button to start the video. To use it, add the video's source url to a data attribute called `data-mediavideo-src`.
+A javascript function will is it to populate the `src` attribute when the button is clicked.
 
 ```html_example
-<div class="video">
-	<iframe src="https://vine.co/v/eIXejbQ2utM/embed/simple" frameborder="0"></iframe><script src="https://platform.vine.co/static/scripts/embed.js"></script>
-  <aside class="video__poster">
-		<img src="https://unsplash.it/1600/900/">
+<figure class="mediavideo">
+	<iframe data-mediavideo-src="https://www.youtube.com/embed/LyEbvix4yl4?" frameborder="0" allowfullscreen></iframe>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
   </aside>
-  <a class="video__open" href="#" title="Click to view video.">Play</a>
-</div>
+  <a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
+</figure>
+
+<figure class="mediavideo">
+	<iframe data-mediavideo-src="https://player.vimeo.com/video/104641191?autoplay=1" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/104641191">Jeffrey Zeldman: 20 years of Web Design and Community</a> from <a href="https://vimeo.com/lyndavimeo">lynda.com</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+  </aside>
+  <a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
+</figure>
 ```
 */
-.video {
+.mediavideo {
   background: black;
   position: relative;
   display: block;
   overflow: hidden;
   width: 100%;
   height: 0;
-  padding-top: 56.25%; }
-  .video iframe,
-  .video video,
-  .video__video {
+  padding-top: 56.25%;
+  margin: 0; }
+  .mediavideo + .mediavideo {
+    margin-top: 1em; }
+  .mediavideo iframe,
+  .mediavideo video,
+  .mediavideo__video {
     display: block;
     position: absolute;
     top: 0;
@@ -8138,7 +8153,7 @@ Example with Poster and Play button. STILL IN DEVELOPMENT.
     bottom: 0;
     width: 100%;
     height: 100%; }
-  .video__poster {
+  .mediavideo__poster {
     position: absolute;
     top: 0;
     left: 0;
@@ -8148,18 +8163,23 @@ Example with Poster and Play button. STILL IN DEVELOPMENT.
     height: auto;
     opacity: 1;
     visibility: visible; }
-  .video__open {
+  .mediavideo__open {
     position: absolute;
     top: 50%;
     text-align: center;
-    height: 100%;
-    width: 100%;
+    left: 50%;
     color: white;
     opacity: 1;
-    visibility: visible; }
+    visibility: visible;
+    -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+    width: 5em;
+    height: 5em;
+    background-size: cover; }
 
-.video--is-open .video__poster,
-.video--is-open .video__open {
+.mediavideo--is-open .mediavideo__poster,
+.mediavideo--is-open .mediavideo__open {
   transition: visibility 0s linear 0.5s, opacity 0.5s linear;
   visibility: hidden;
   opacity: 0; }
