@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<html ng-app="cortana">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title></title>
+
+    <!-- Styleguide CSS -->
+    <link rel="stylesheet" href="./theme-build/css/vendors.css">
+    <link rel="stylesheet" href="./theme-build/css/cortana.css">
+
+    <!-- Source CSS -->
+    
+      
+        <link rel="stylesheet" href="../css/app.css">
+      
+        <link rel="stylesheet" href="../css/tweaks.css">
+      
+        <link rel="stylesheet" href="../css/normalize.css">
+      
+        <link rel="stylesheet" href="../css/foundation.min.css">
+      
+    
+
+    <!--[if lt IE 9]>
+      <script src="theme-build/polyfill/html5shiv.js"></script>
+      <script src="theme-build/polyfill/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+  <body class="cortana-body"  ng-controller="MainController">
+
+    <div class="sb-slidebar sb-left cortana-sidenav sb-style-push">
+
+      
+      
+        
+        
+          
+        
+      
+        
+        
+      
+        
+        
+          
+        
+      
+        
+        
+      
+
+      <nav class="cortana-nav">
+        <ul>
+          
+            <li><a href="index.html">Home</a></li>
+          
+        </ul>
+        
+          <h3>Components</h3>
+          <ul>
+          
+            
+              
+              
+                <li><a href="components_-_image.html">Image</a></li>
+              
+            
+          
+            
+              
+              
+                <li><a href="components_mediavideo.html">MediaVideo</a></li>
+              
+            
+          
+            
+          
+            
+              
+              
+                <li><a href="components_-_quote.html">Quote</a></li>
+              
+            
+          
+          </ul>
+        
+          <h3>Widgets</h3>
+          <ul>
+          
+            
+          
+            
+          
+            
+              
+              
+                <li><a href="widgets_imagelightbox.html">ImageLightbox</a></li>
+              
+            
+          
+            
+          
+          </ul>
+        
+      </nav>
+    </div>
+
+    <header class="cortana-header sb-slide">
+      
+      <div id="open-left" class="cortana-menu-btn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="cortana-search-wrapper" ng-controller="TypeaheadCtrl">
+        <input id="cortana-search" type="text" class="form-control cortana-search" ng-model="customSelected" placeholder="Search" typeahead="data as data.title for data in searchData | filter:{title:$viewValue}" typeahead-template-url="customTemplate.html" class="form-control" typeahead-on-select="onSelect($item, $model, $label)">
+      </div>
+    </header>
+
+    <div id="sb-site">
+
+      <div class="cortana-container">
+
+        <nav id="cortana-inside-nav" class="cortana-inside-nav" bs-affix>
+          <ul bs-scrollspy-list data-offset="-30">
+            
+          </ul>
+        </nav>
+
+        <div class="cortana-content-wrapper clearfix">
+          <div class="cortana-content">
+
+
+
+<h1>ELMSLN UI Styleguide</h1>
+
+<p><img src="https://raw.githubusercontent.com/michael-collins/elmsln-logos/master/png-lowres-solid/lowres_square-color.png" alt="ELMSLN" title="ELMS Learning Network"></p>
+
+<h2>About</h2>
+
+<p>This is a living styleguide for the ELMSLN Drupal theme. Here is an <a href="http://yago.github.io/Cortana-example/index.html">example styleguide</a> for reference.</p>
+
+<p>This is a living styleguide that exists to:</p>
+
+<ul>
+<li>maintain best practices of responsive web design by building UI componenets modularly</li>
+<li>reduce the barier of entry for designers and themers to participate and contribute</li>
+<li>establish a defined language and naming convention for UI elements</li>
+<li>provide a baseline for user experience, accessiblity, and visual regression testing</li>
+<li>increase the velocity of adding functionality by allowing developers to easily reuse UI components</li>
+</ul>
+
+<h2>Usage</h2>
+
+<p>When creating a new component in Sass, you can define the component by adding a docblock to the bottom of your <code>.scss</code> file.</p>
+</div><div class="codeBlock"><div class="highlight"><pre>/*doc
+---
+title: Component Name
+name: componentname
+category: Components - Component Name
+---
+
+A breif explanation on how to use this componenet and in what context would be most appropriate to use.
+
+```html_example
+&lt;div class="componentname"&gt;Lorem ipsum Pariatur in ullamco pariatur proident in culpa consequat mollit pariatur occaecat in ea consectetur ad.&lt;/p&gt;
+&lt;/div&gt;
+```
+
+*/
+</pre></div></div><div class="cortana-content">
+<h2>Installation</h2>
+
+<p>To contribute to this styleguide you will need to install the front-end stack that supports generating the css and js from the theme as well
+as the styleguide itself.</p>
+
+<p>From inside of the <a href="https://github.com/elmsln/elmsln/tree/master/core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access">ELMSLN foundation_access theme</a>, 
+install Grunt, Hologram, and Bower globally</p>
+</div><div class="codeBlock"><div class="highlight"><pre>$ npm install -g grunt-cli grunt-hologram bower
+$ gem install bundler
+</pre></div></div><div class="cortana-content">
+<p>Install the dependencies</p>
+</div><div class="codeBlock"><div class="highlight"><pre>$ npm install
+$ bower install
+$ bundle install
+</pre></div></div><div class="cortana-content">
+<p>Run the Grunt Server</p>
+</div><div class="codeBlock"><div class="highlight"><pre>$ grunt styleguide
+</pre></div></div><div class="cortana-content">
+<p>By running <code>grunt styleguide</code> the browsersync plugin should open the styleguide automatically.  If it does not then visit this url <a href="http://localhost:3000/styleguide/index.html">http://localhost:3000/styleguide/index.html</a></p>
+
+        </div>
+      </div>
+    </div>
+
+    <footer class="cortana-footer">
+      Build with love using Trulia's <a href="https://github.com/trulia/hologram">Hologram</a> and <a href="https://github.com/Yago/Cortana">Cortana</a> !
+    </footer>  
+  </div>
+
+  <script src="theme-build/js/vendors.min.js"></script>
+  <script type="text/javascript">
+    var jQuery_no_conflict = $.noConflict(true);
+  </script>
+  <script src="theme-build/js/main.js"></script>
+  <script type="text/javascript">
+
+    angular.module("cortana").controller("TypeaheadCtrl", function($scope) {
+      $scope.selected = undefined;
+      $scope.searchData = 
+      [
+        
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Image",
+              "breadcrumb": "Components - Image > Image",
+              "path": "components_-_image.html#1image"
+              },
+            
+              
+              
+              {
+              "title": "Image Left",
+              "breadcrumb": "Components - Image > Image Left",
+              "path": "components_-_image.html#2image_left"
+              },
+            
+              
+              
+              {
+              "title": "Image Right",
+              "breadcrumb": "Components - Image > Image Right",
+              "path": "components_-_image.html#3image_right"
+              },
+            
+              
+              
+              {
+              "title": "Image Boxed",
+              "breadcrumb": "Components - Image > Image Boxed",
+              "path": "components_-_image.html#4image_boxed"
+              },
+            
+              
+              
+              {
+              "title": "Image Lightboxed",
+              "breadcrumb": "Components - Image > Image Lightboxed",
+              "path": "components_-_image.html#5image_lightboxed"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Media Video",
+              "breadcrumb": "Components MediaVideo > Media Video",
+              "path": "components_mediavideo.html#1mediavideo"
+              },
+            
+              
+              
+              {
+              "title": "Media Video with Poster",
+              "breadcrumb": "Components MediaVideo > Media Video with Poster",
+              "path": "components_mediavideo.html#2mediavideoplayer"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Imagelightbox",
+              "breadcrumb": "Widgets ImageLightbox > Imagelightbox",
+              "path": "widgets_imagelightbox.html#imagelightbox"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Quote",
+              "breadcrumb": "Components - Quote > Quote",
+              "path": "components_-_quote.html#quote"
+              },
+            
+              
+              
+              {
+              "title": "Quote Left",
+              "breadcrumb": "Components - Quote > Quote Left",
+              "path": "components_-_quote.html#quote-left"
+              },
+            
+              
+              
+              {
+              "title": "Quote Right",
+              "breadcrumb": "Components - Quote > Quote Right",
+              "path": "components_-_quote.html#quote-right"
+              },
+            
+              
+              
+              {
+              "title": "Quote Examples",
+              "breadcrumb": "Components - Quote > Quote Examples",
+              "path": "components_-_quote.html#x-quote-example"
+              },
+            
+          
+        
+          
+        
+      {}];
+      $scope.onSelect = function ($item, $model, $label) {
+        window.location.replace($item.path);
+      };
+    });
+
+  </script>
+  <script type="text/ng-template" id="customTemplate.html">
+    <a href="{{match.model.path}}">
+      <p class="cortana-search-title">{{match.model.title}}</p>
+      <p class="cortana-search-path">{{match.model.breadcrumb}}</p>
+    </a>
+  </script>
+  
+    
+      <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    
+      <script type="text/javascript" src="../js/libs.min.js"></script>
+    
+      <script type="text/javascript" src="../js/jquery.sticky.js"></script>
+    
+      <script type="text/javascript" src="../js/foundation.min.js"></script>
+    
+      <script type="text/javascript" src="../libraries/imagelightbox/imagelightbox.js"></script>
+    
+      <script type="text/javascript" src="../js/dist/app.js"></script>
+    
+  
+  <!-- Source Components -->
+  
+</body>
+</html>

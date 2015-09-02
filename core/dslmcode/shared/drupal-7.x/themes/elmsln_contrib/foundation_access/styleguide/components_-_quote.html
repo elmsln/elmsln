@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<html ng-app="cortana">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Components - Quote</title>
+
+    <!-- Styleguide CSS -->
+    <link rel="stylesheet" href="./theme-build/css/vendors.css">
+    <link rel="stylesheet" href="./theme-build/css/cortana.css">
+
+    <!-- Source CSS -->
+    
+      
+        <link rel="stylesheet" href="../css/app.css">
+      
+        <link rel="stylesheet" href="../css/tweaks.css">
+      
+        <link rel="stylesheet" href="../css/normalize.css">
+      
+        <link rel="stylesheet" href="../css/foundation.min.css">
+      
+    
+
+    <!--[if lt IE 9]>
+      <script src="theme-build/polyfill/html5shiv.js"></script>
+      <script src="theme-build/polyfill/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+  <body class="cortana-body"  ng-controller="MainController">
+
+    <div class="sb-slidebar sb-left cortana-sidenav sb-style-push">
+
+      
+      
+        
+        
+          
+        
+      
+        
+        
+      
+        
+        
+          
+        
+      
+        
+        
+      
+
+      <nav class="cortana-nav">
+        <ul>
+          
+            <li><a href="index.html">Home</a></li>
+          
+        </ul>
+        
+          <h3>Components</h3>
+          <ul>
+          
+            
+              
+              
+                <li><a href="components_-_image.html">Image</a></li>
+              
+            
+          
+            
+              
+              
+                <li><a href="components_mediavideo.html">MediaVideo</a></li>
+              
+            
+          
+            
+          
+            
+              
+              
+                <li><a class="active" href="components_-_quote.html">Quote</a></li>
+              
+            
+          
+          </ul>
+        
+          <h3>Widgets</h3>
+          <ul>
+          
+            
+          
+            
+          
+            
+              
+              
+                <li><a href="widgets_imagelightbox.html">ImageLightbox</a></li>
+              
+            
+          
+            
+          
+          </ul>
+        
+      </nav>
+    </div>
+
+    <header class="cortana-header sb-slide">
+      
+        <h1>Quote</h1>
+      
+      <div id="open-left" class="cortana-menu-btn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="cortana-search-wrapper" ng-controller="TypeaheadCtrl">
+        <input id="cortana-search" type="text" class="form-control cortana-search" ng-model="customSelected" placeholder="Search" typeahead="data as data.title for data in searchData | filter:{title:$viewValue}" typeahead-template-url="customTemplate.html" class="form-control" typeahead-on-select="onSelect($item, $model, $label)">
+      </div>
+    </header>
+
+    <div id="sb-site">
+
+      <div class="cortana-container">
+
+        <nav id="cortana-inside-nav" class="cortana-inside-nav" bs-affix>
+          <ul bs-scrollspy-list data-offset="-30">
+            
+              
+                <li><a href="#quote">Quote</a></li>
+              
+            
+              
+                <li><a href="#quote-left">Quote Left</a></li>
+              
+            
+              
+                <li><a href="#quote-right">Quote Right</a></li>
+              
+            
+              
+                <li><a href="#x-quote-example">Quote Examples</a></li>
+              
+            
+          </ul>
+        </nav>
+
+        <div class="cortana-content-wrapper clearfix">
+          <div class="cortana-content">
+
+
+
+<h1 id="quote">Quote</h1>
+
+<p>This is a pullquote that can be used in the body of any rich text area. The base element class is <code>quote</code>. It can be attached to a
+<code>&lt;p&gt;</code> tag or a <code>&lt;div&gt;</code>.</p>
+
+<p><code>blockquote</code> tags and <code>.txtbk-pullquote</code> elements will inherit these styles.</p>
+</div><div class="codeExample"><div class="exampleOutput"><p class="quote">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<div class="quote">
+    <p>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+    <p>For me, open source is a moral thing.</p>
+</div>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"quote"</span><span class="nt">&gt;</span>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.<span class="nt">&lt;/p&gt;</span>
+
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"quote"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;p&gt;</span>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.<span class="nt">&lt;/p&gt;</span>
+    <span class="nt">&lt;p&gt;</span>For me, open source is a moral thing.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="quote-left">Quote Left</h1>
+</div><div class="codeExample"><div class="exampleOutput"><p class="quote quote--left">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"quote quote--left"</span><span class="nt">&gt;</span>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.<span class="nt">&lt;/p&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="quote-right">Quote Right</h1>
+</div><div class="codeExample"><div class="exampleOutput"><p class="quote quote--right">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"quote quote--right"</span><span class="nt">&gt;</span>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.<span class="nt">&lt;/p&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="x-quote-example">Quote Examples</h1>
+</div><div class="codeExample"><div class="exampleOutput"><p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
+
+<p class="quote">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
+<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
+
+<p class="quote quote--left">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
+<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
+
+<p class="quote quote--right">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
+<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
+
+<p class="quote">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;p&gt;</span>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.<span class="nt">&lt;/p&gt;</span>
+
+<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"quote"</span><span class="nt">&gt;</span>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.<span class="nt">&lt;/p&gt;</span>
+
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.<span class="nt">&lt;/p&gt;</span>
+
+<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"quote quote--left"</span><span class="nt">&gt;</span>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.<span class="nt">&lt;/p&gt;</span>
+
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.<span class="nt">&lt;/p&gt;</span>
+
+<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"quote quote--right"</span><span class="nt">&gt;</span>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.<span class="nt">&lt;/p&gt;</span>
+
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.<span class="nt">&lt;/p&gt;</span>
+
+<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"quote"</span><span class="nt">&gt;</span>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.<span class="nt">&lt;/p&gt;</span>
+
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.<span class="nt">&lt;/p&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+        </div>
+      </div>
+    </div>
+
+    <footer class="cortana-footer">
+      Build with love using Trulia's <a href="https://github.com/trulia/hologram">Hologram</a> and <a href="https://github.com/Yago/Cortana">Cortana</a> !
+    </footer>  
+  </div>
+
+  <script src="theme-build/js/vendors.min.js"></script>
+  <script type="text/javascript">
+    var jQuery_no_conflict = $.noConflict(true);
+  </script>
+  <script src="theme-build/js/main.js"></script>
+  <script type="text/javascript">
+
+    angular.module("cortana").controller("TypeaheadCtrl", function($scope) {
+      $scope.selected = undefined;
+      $scope.searchData = 
+      [
+        
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Image",
+              "breadcrumb": "Components - Image > Image",
+              "path": "components_-_image.html#1image"
+              },
+            
+              
+              
+              {
+              "title": "Image Left",
+              "breadcrumb": "Components - Image > Image Left",
+              "path": "components_-_image.html#2image_left"
+              },
+            
+              
+              
+              {
+              "title": "Image Right",
+              "breadcrumb": "Components - Image > Image Right",
+              "path": "components_-_image.html#3image_right"
+              },
+            
+              
+              
+              {
+              "title": "Image Boxed",
+              "breadcrumb": "Components - Image > Image Boxed",
+              "path": "components_-_image.html#4image_boxed"
+              },
+            
+              
+              
+              {
+              "title": "Image Lightboxed",
+              "breadcrumb": "Components - Image > Image Lightboxed",
+              "path": "components_-_image.html#5image_lightboxed"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Media Video",
+              "breadcrumb": "Components MediaVideo > Media Video",
+              "path": "components_mediavideo.html#1mediavideo"
+              },
+            
+              
+              
+              {
+              "title": "Media Video with Poster",
+              "breadcrumb": "Components MediaVideo > Media Video with Poster",
+              "path": "components_mediavideo.html#2mediavideoplayer"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Imagelightbox",
+              "breadcrumb": "Widgets ImageLightbox > Imagelightbox",
+              "path": "widgets_imagelightbox.html#imagelightbox"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Quote",
+              "breadcrumb": "Components - Quote > Quote",
+              "path": "components_-_quote.html#quote"
+              },
+            
+              
+              
+              {
+              "title": "Quote Left",
+              "breadcrumb": "Components - Quote > Quote Left",
+              "path": "components_-_quote.html#quote-left"
+              },
+            
+              
+              
+              {
+              "title": "Quote Right",
+              "breadcrumb": "Components - Quote > Quote Right",
+              "path": "components_-_quote.html#quote-right"
+              },
+            
+              
+              
+              {
+              "title": "Quote Examples",
+              "breadcrumb": "Components - Quote > Quote Examples",
+              "path": "components_-_quote.html#x-quote-example"
+              },
+            
+          
+        
+          
+        
+      {}];
+      $scope.onSelect = function ($item, $model, $label) {
+        window.location.replace($item.path);
+      };
+    });
+
+  </script>
+  <script type="text/ng-template" id="customTemplate.html">
+    <a href="{{match.model.path}}">
+      <p class="cortana-search-title">{{match.model.title}}</p>
+      <p class="cortana-search-path">{{match.model.breadcrumb}}</p>
+    </a>
+  </script>
+  
+    
+      <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    
+      <script type="text/javascript" src="../js/libs.min.js"></script>
+    
+      <script type="text/javascript" src="../js/jquery.sticky.js"></script>
+    
+      <script type="text/javascript" src="../js/foundation.min.js"></script>
+    
+      <script type="text/javascript" src="../libraries/imagelightbox/imagelightbox.js"></script>
+    
+      <script type="text/javascript" src="../js/dist/app.js"></script>
+    
+  
+  <!-- Source Components -->
+  
+</body>
+</html>
