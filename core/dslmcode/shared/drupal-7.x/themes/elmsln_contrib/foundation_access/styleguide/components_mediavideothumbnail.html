@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title></title>
+    <title>Components MediaVideoThumbnail</title>
 
     <!-- Styleguide CSS -->
     <link rel="stylesheet" href="./theme-build/css/vendors.css">
@@ -52,6 +52,9 @@
       
         
         
+      
+        
+        
           
         
       
@@ -84,6 +87,13 @@
             
           
             
+              
+              
+                <li><a class="active" href="components_mediavideothumbnail.html">MediaVideoThumbnail</a></li>
+              
+            
+          
+            
           
             
               
@@ -96,6 +106,8 @@
         
           <h3>Widgets</h3>
           <ul>
+          
+            
           
             
           
@@ -117,6 +129,8 @@
 
     <header class="cortana-header sb-slide">
       
+        <h1>MediaVideoThumbnail</h1>
+      
       <div id="open-left" class="cortana-menu-btn">
         <span></span>
         <span></span>
@@ -134,6 +148,10 @@
         <nav id="cortana-inside-nav" class="cortana-inside-nav" bs-affix>
           <ul bs-scrollspy-list data-offset="-30">
             
+              
+                <li><a href="#3mediavideoplayer">Media Video Thumbnail</a></li>
+              
+            
           </ul>
         </nav>
 
@@ -142,63 +160,22 @@
 
 
 
-<h1>ELMSLN UI Styleguide</h1>
-
-<p><img src="https://raw.githubusercontent.com/michael-collins/elmsln-logos/master/png-lowres-solid/lowres_square-color.png" alt="ELMSLN" title="ELMS Learning Network"></p>
-
-<h2>About</h2>
-
-<p>This is a living styleguide for the ELMSLN Drupal theme. Here is an <a href="http://yago.github.io/Cortana-example/index.html">example styleguide</a> for reference.</p>
-
-<p>This is a living styleguide that exists to:</p>
-
-<ul>
-<li>maintain best practices of responsive web design by building UI componenets modularly</li>
-<li>reduce the barier of entry for designers and themers to participate and contribute</li>
-<li>establish a defined language and naming convention for UI elements</li>
-<li>provide a baseline for user experience, accessiblity, and visual regression testing</li>
-<li>increase the velocity of adding functionality by allowing developers to easily reuse UI components</li>
-</ul>
-
-<h2>Usage</h2>
-
-<p>When creating a new component in Sass, you can define the component by adding a docblock to the bottom of your <code>.scss</code> file.</p>
-</div><div class="codeBlock"><div class="highlight"><pre>/*doc
----
-title: Component Name
-name: componentname
-category: Components - Component Name
----
-
-A breif explanation on how to use this componenet and in what context would be most appropriate to use.
-
-```html_example
-&lt;div class="componentname"&gt;Lorem ipsum Pariatur in ullamco pariatur proident in culpa consequat mollit pariatur occaecat in ea consectetur ad.&lt;/p&gt;
-&lt;/div&gt;
-```
-
-*/
-</pre></div></div><div class="cortana-content">
-<h2>Installation</h2>
-
-<p>To contribute to this styleguide you will need to install the front-end stack that supports generating the css and js from the theme as well
-as the styleguide itself.</p>
-
-<p>From inside of the <a href="https://github.com/elmsln/elmsln/tree/master/core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access">ELMSLN foundation_access theme</a>, 
-install Grunt, Hologram, and Bower globally</p>
-</div><div class="codeBlock"><div class="highlight"><pre>$ npm install -g grunt-cli grunt-hologram bower
-$ gem install bundler
-</pre></div></div><div class="cortana-content">
-<p>Install the dependencies</p>
-</div><div class="codeBlock"><div class="highlight"><pre>$ npm install
-$ bower install
-$ bundle install
-</pre></div></div><div class="cortana-content">
-<p>Run the Grunt Server</p>
-</div><div class="codeBlock"><div class="highlight"><pre>$ grunt styleguide
-</pre></div></div><div class="cortana-content">
-<p>By running <code>grunt styleguide</code> the browsersync plugin should open the styleguide automatically.  If it does not then visit this url <a href="http://localhost:3000/styleguide/index.html">http://localhost:3000/styleguide/index.html</a></p>
-
+<h1 id="3mediavideoplayer">Media Video Thumbnail</h1>
+</div><div class="codeExample"><div class="exampleOutput"><figure class="mediavideo--thumbnail">
+    <iframe data-mediavideo-src="https://www.youtube.com/embed/LyEbvix4yl4?" frameborder="0" allowfullscreen></iframe>
+  <aside class="mediavideo__poster">
+        <img src="../img/unsplash.jpg">
+  </aside>
+  <a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
+</figure>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;figure</span> <span class="na">class=</span><span class="s">"mediavideo--thumbnail"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;iframe</span> <span class="na">data-mediavideo-src=</span><span class="s">"https://www.youtube.com/embed/LyEbvix4yl4?"</span> <span class="na">frameborder=</span><span class="s">"0"</span> <span class="na">allowfullscreen</span><span class="nt">&gt;&lt;/iframe&gt;</span>
+  <span class="nt">&lt;aside</span> <span class="na">class=</span><span class="s">"mediavideo__poster"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"../img/unsplash.jpg"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;/aside&gt;</span>
+  <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"mediavideo__open icon-elmsmedia-black"</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">title=</span><span class="s">"Click to view video."</span><span class="nt">&gt;&lt;/a&gt;</span>
+<span class="nt">&lt;/figure&gt;</span>
+</pre></div></div></div><div class="cortana-content">
         </div>
       </div>
     </div>
@@ -284,20 +261,16 @@ $ bundle install
               "path": "components_mediavideo.html#2mediavideoposter"
               },
             
-              
-              
-              {
-              "title": "Media Video Thumbnail",
-              "breadcrumb": "Components MediaVideo > Media Video Thumbnail",
-              "path": "components_mediavideo.html#3mediavideothumbnail"
-              },
+          
+        
+          
             
               
               
               {
-              "title": "Media Video Thumbnail Right",
-              "breadcrumb": "Components MediaVideo > Media Video Thumbnail Right",
-              "path": "components_mediavideo.html#4mediavideothumbnailright"
+              "title": "Media Video Thumbnail",
+              "breadcrumb": "Components MediaVideoThumbnail > Media Video Thumbnail",
+              "path": "components_mediavideothumbnail.html#3mediavideoplayer"
               },
             
           
