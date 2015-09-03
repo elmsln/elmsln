@@ -47,13 +47,6 @@ cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
 service varnish start
 chkconfig varnish on
 
-# make an admin group
-groupadd admin
-# run the handsfree installer that's the same for all deployments
-# kick off hands free deployment
-bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
-
-
 # get things in place so that we can run mysql / php 5.5
 rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
 rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
@@ -82,6 +75,12 @@ echo "opcache.interned_strings_buffer=8" >> /etc/php.d/opcache.ini
 echo "opcache.enable_cli=1" >> /etc/php.d/opcache.ini
 
 /etc/init.d/httpd restart
+
+# make an admin group
+groupadd admin
+# run the handsfree installer that's the same for all deployments
+# kick off hands free deployment
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
 
 cd $HOME
 source .bashrc
