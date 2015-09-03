@@ -126,12 +126,14 @@ function _cis_shortcode_render_codes($entity, $type) {
     '#type' => 'textfield',
     '#weight' => 0,
   );
+  // _link should bail early
+  if ($type == '_link') {
+    return $field;
+  }
   // load info so we know how all entities operate
   $all_types = entity_get_info();
   // load up the primary type we care about
-  if ($type != '_link') {
-    $type_info = $all_types[$type];
-  }
+  $type_info = $all_types[$type];
   // pull the bundle
   if (isset($entity->{$type_info['bundle keys']['bundle']})) {
     $bundle = $entity->{$type_info['bundle keys']['bundle']};
