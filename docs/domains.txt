@@ -101,3 +101,14 @@ NameVirtualHost *:80
     allow from all
 </Directory>
 
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/people
+    ServerName people.YOURUNIT.edu
+    ServerAlias DATA.people.SERVICEYOURUNIT.edu
+</VirtualHost>
+<Directory /var/www/elmsln/domains/people>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+    Include /var/www/elmsln/domains/people/.htaccess
+</Directory>
