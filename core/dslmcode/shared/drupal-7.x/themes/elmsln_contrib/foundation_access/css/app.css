@@ -8098,7 +8098,7 @@ Description.
 
 ```html_example
 <figure class="mediavideo">
-  <div class="mediavideo__video-wrapper"><iframe src="https://vine.co/v/eIXejbQ2utM/embed/simple" frameborder="0"></iframe><script src="https://platform.vine.co/static/scripts/embed.js"></script></div>
+  <div class="mediavideo__video-wrapper"><iframe src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0"></iframe><script src="https://platform.vine.co/static/scripts/embed.js"></script></div>
 </figure>
 ```
 */
@@ -8117,7 +8117,7 @@ and Vimeo.
 
 ```html_example
 <figure class="mediavideo mediavideo--poster">
-	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://www.youtube.com/embed/LyEbvix4yl4?" frameborder="0" allowfullscreen></iframe></div>
+	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://www.youtube.com/embed/CKZLuYOnPCk?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe></div>
   <aside class="mediavideo__poster">
 		<img src="../img/unsplash.jpg">
 		<a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
@@ -8125,7 +8125,7 @@ and Vimeo.
 </figure>
 
 <figure class="mediavideo mediavideo--poster">
-	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://player.vimeo.com/video/104641191?autoplay=1" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/104641191">Jeffrey Zeldman: 20 years of Web Design and Community</a> from <a href="https://vimeo.com/lyndavimeo">lynda.com</a> on <a href="https://vimeo.com">Vimeo</a>.</p></div>
+	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://player.vimeo.com/video/111237065?title=0&byline=0&portrait=0" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/104641191">Jeffrey Zeldman: 20 years of Web Design and Community</a> from <a href="https://vimeo.com/lyndavimeo">lynda.com</a> on <a href="https://vimeo.com">Vimeo</a>.</p></div>
   <aside class="mediavideo__poster">
 		<img src="../img/unsplash.jpg">
 		<a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
@@ -8146,7 +8146,7 @@ category:
 <figure class="mediavideo mediavideo--thumbnail">
 	<a href="#" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
 	<div class="mediavideo__video-wrapper">
-		<iframe data-mediavideo-src="https://www.youtube.com/embed/3ikye7Qc7Ak?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+		<iframe data-mediavideo-src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 	</div>
   <aside class="mediavideo__poster">
 		<img src="../img/unsplash.jpg">
@@ -8169,7 +8169,7 @@ category:
 <figure class="mediavideo mediavideo--thumbnail-right">
 	<a href="#" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
 	<div class="mediavideo__video-wrapper">
-		<iframe data-mediavideo-src="https://www.youtube.com/embed/FEs2jgZBaQA?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+		<iframe data-mediavideo-src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 	</div>
   <aside class="mediavideo__poster">
 		<img src="../img/unsplash.jpg">
