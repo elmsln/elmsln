@@ -11,7 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # centos 6.5 - 64 bit - legacy as chef removed it
   #config.vm.box = "chef/centos-6.5"
   #
-  config.vm.box = "bradallenfisher/centos-6.7"
+  config.vm.box = "elmsln/centos-6.7"
   # private network port maping, host files point to elmsln domains
   config.vm.network "private_network", ip: "10.0.18.55"
   # forward the vm ports for database and apache to local ones
