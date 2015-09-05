@@ -12,7 +12,7 @@ sudo bash /var/www/elmsln/scripts/utilities/harden-security.sh vagrant
 sudo /etc/init.d/httpd restart
 sudo /etc/init.d/mysqld restart
 
-#port swap to not use vagrant in local dev
+#port swap to not use varnish in local dev
 sudo sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
 sudo sed -i 's/8080/80/g' /etc/httpd/conf.d/elmsln.conf
 sudo service varnish stop
