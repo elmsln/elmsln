@@ -38,6 +38,20 @@ function elmsln_advagg_defaultconfig_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'advagg_bundler_max_css';
+  $strongarm->value = '2';
+  $export['advagg_bundler_max_css'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'advagg_bundler_max_js';
+  $strongarm->value = '2';
+  $export['advagg_bundler_max_js'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'advagg_cache_level';
   $strongarm->value = '5';
   $export['advagg_cache_level'] = $strongarm;
@@ -60,7 +74,7 @@ function elmsln_advagg_defaultconfig_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'advagg_convert_absolute_to_relative_path';
-  $strongarm->value = 0;
+  $strongarm->value = '1';
   $export['advagg_convert_absolute_to_relative_path'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -116,7 +130,7 @@ function elmsln_advagg_defaultconfig_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'advagg_include_base_url';
-  $strongarm->value = 0;
+  $strongarm->value = '1';
   $export['advagg_include_base_url'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -151,7 +165,7 @@ function elmsln_advagg_defaultconfig_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'advagg_mod_css_defer';
-  $strongarm->value = FALSE;
+  $strongarm->value = '0';
   $export['advagg_mod_css_defer'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -256,7 +270,7 @@ function elmsln_advagg_defaultconfig_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'advagg_mod_js_async_in_header';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['advagg_mod_js_async_in_header'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -370,6 +384,13 @@ function elmsln_advagg_defaultconfig_strongarm() {
   $strongarm->name = 'advagg_use_httprl';
   $strongarm->value = 1;
   $export['advagg_use_httprl'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'drupal_http_request_function';
+  $strongarm->value = 0;
+  $export['drupal_http_request_function'] = $strongarm;
 
   return $export;
 }
