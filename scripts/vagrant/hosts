@@ -11,6 +11,9 @@
 127.0.0.1      blog.elmsln.local
 127.0.0.1      comply.elmsln.local
 127.0.0.1      discuss.elmsln.local
+127.0.0.1      people.elmsln.local
+127.0.0.1      inbox.elmsln.local
+
 
 # backend webservices addresses
 127.0.0.1      data-courses.elmsln.local
@@ -21,3 +24,5 @@
 127.0.0.1      data-blog.elmsln.local
 127.0.0.1      data-comply.elmsln.local
 127.0.0.1      data-discuss.elmsln.local
+127.0.0.1      data-people.elmsln.local
+127.0.0.1      data-inbox.elmsln.local
