@@ -34,17 +34,19 @@ function advagg_font_advagg_get_info_on_files_alter(&$return, $cached_data, $byp
         continue;
       }
       // Get the file contents.
-      $file_contents = file_get_contents($info['data']);
-      // Get font names.
-      $replacements = advagg_font_get_replacements_array($file_contents);
+      $file_contents = @file_get_contents($info['data']);
+      if (!empty($file_contents)) {
+        // Get font names.
+        $replacements = advagg_font_get_replacements_array($file_contents);
 
-      // Remove old values.
-      if (isset($info['advagg_font'])) {
-        unset($info['advagg_font']);
-      }
-      // Add in new values.
-      foreach ($replacements as $replace) {
-        $info['advagg_font'][$replace[4]] = str_replace(array('"', "'"), '', $replace[3]);
+        // Remove old values.
+        if (isset($info['advagg_font'])) {
+          unset($info['advagg_font']);
+        }
+        // Add in new values.
+        foreach ($replacements as $replace) {
+          $info['advagg_font'][$replace[4]] = str_replace(array('"', "'"), '', $replace[3]);
+        }
       }
     }
     unset($info);

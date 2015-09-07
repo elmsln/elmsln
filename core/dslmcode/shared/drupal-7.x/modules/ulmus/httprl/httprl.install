@@ -64,7 +64,7 @@ function httprl_requirements($phase) {
       return $requirements;
     }
 
-    if ((defined('VERSION') && substr(VERSION, 0, 1) >= 7 && variable_get('maintenance_mode', 0)) || variable_get('site_offline', 0)) {
+    if ((defined('VERSION') && substr(VERSION, 0, 1) >= 7 && httprl_variable_get('maintenance_mode', 0)) || httprl_variable_get('site_offline', 0)) {
       if (empty($requirements)) {
         $requirements['httprl'] = array(
           'title'     => $t('HTTPRL'),
@@ -75,20 +75,22 @@ function httprl_requirements($phase) {
       return $requirements;
     }
 
-    global $_httprl;
     // Test the non-blocking url.
-    if (!httprl_install_http_test(2, FALSE)) {
+    list($success, $msg_non_blocking) = httprl_install_http_test(2, FALSE);
+    if (!$success) {
       // Test the blocking url.
-      if (!httprl_install_http_test(2, TRUE)) {
+      list($success, $msg_blocking) = httprl_install_http_test(2, TRUE);
+      if (!$success) {
         // Test that drupal_http_request() works.
-        if (!httprl_install_http_test(1)) {
+        list($success, $msg_core) = httprl_install_http_test(1);
+        if (!$success) {
           $requirements['httprl_callback'] = array(
             'title'       => $t('HTTPRL - Core'),
             'severity'    => REQUIREMENT_ERROR,
             'value'       => $t('drupal_http_request()'),
             'description' => $t('Your system or network configuration does not allow Drupal to access web pages. This could be due to your webserver configuration or PHP settings. Debug info: !debug <br />For more info go here: <a href="!link">"HTTP request status Fails" error</a>', array(
                 '!link' => 'http://drupal.org/node/588186',
-                '!debug' => httprl_pr($_httprl['install']['debug'], TRUE),
+                '!debug' => httprl_pr($GLOBALS['_httprl']['install']['debug'], TRUE),
               )
             ),
           );
@@ -99,7 +101,7 @@ function httprl_requirements($phase) {
           'severity'    => REQUIREMENT_ERROR,
           'value'       => $t('Problem with stream_select()'),
           'description' => $t('This server can not issue self http requests with stream_select(). Debug info: !debug <br />', array(
-              '!debug' => httprl_pr($_httprl['install']['debug'], TRUE),
+              '!debug' => httprl_pr($GLOBALS['_httprl']['install']['debug'], TRUE),
             )
           ),
         );
@@ -110,26 +112,35 @@ function httprl_requirements($phase) {
         'severity'    => REQUIREMENT_WARNING,
         'value'       => $t('This server does not handle hanging connections.'),
         'description' => $t('Using non blocking mode on this server may not work correctly. Debug info: !debug <br />', array(
-            '!debug' => httprl_pr($_httprl['install']['debug'], TRUE),
+            '!debug' => httprl_pr($GLOBALS['_httprl']['install']['debug'], TRUE),
           )
         ),
       );
     }
-
-    // If request worked when using the hostname and not the ip then switch to
-    // hostname.
-    $ip = variable_get('httprl_server_addr', FALSE);
-    if (!empty($ip)) {
-      if (defined('VERSION') && substr(VERSION, 0, 1) >= 7) {
-        $x = @unserialize(db_query("SELECT value FROM {variable} WHERE name = :name", array(':name' => 'httprl_server_addr'))->fetchField());
-      }
-      else {
-        $x = @unserialize(db_result(db_query("SELECT value FROM {variable} WHERE name = 'httprl_server_addr'")));
-      }
-      if ($ip != $x && $ip == -1) {
-        variable_set('httprl_server_addr', -1);
-      }
-    }
+  }
+  if (!empty($msg_non_blocking)) {
+    $requirements['httprl_settings_change_a'] = array(
+      'title'       => $t('HTTPRL - Settings'),
+      'severity'    => REQUIREMENT_WARNING,
+      'value'       => $t('The current configuration does not work.'),
+      'description' => $msg_non_blocking,
+    );
+  }
+  if (!empty($msg_blocking)) {
+    $requirements['httprl_settings_change_b'] = array(
+      'title'       => $t('HTTPRL - Settings'),
+      'severity'    => REQUIREMENT_WARNING,
+      'value'       => $t('The current configuration does not work.'),
+      'description' => $msg_blocking,
+    );
+  }
+  if (!empty($msg_core)) {
+    $requirements['httprl_settings_change_c'] = array(
+      'title'       => $t('HTTPRL - Settings'),
+      'severity'    => REQUIREMENT_WARNING,
+      'value'       => $t('The current configuration does not work.'),
+      'description' => $msg_core,
+    );
   }
 
   if (empty($requirements)) {
@@ -151,9 +162,14 @@ function httprl_requirements($phase) {
  *   2: use httprl_request()
  * @param bool $blocking
  *   (Optional) HTTPRL blocking mode.
+ *
+ * @return array
+ *   (bool, msg).
  */
-function httprl_install_http_test($mode, $blocking = FALSE) {
-  global $conf, $_httprl;
+function httprl_install_http_test($mode, $blocking = FALSE, $depth = 0) {
+  $t = get_t();
+  $depth++;
+  set_time_limit(0);
   // 512 bits = 64 bytes.
   if (function_exists('drupal_random_bytes')) {
     $id = 'httprl_' . hash('sha512', drupal_random_bytes(64));
@@ -164,20 +180,37 @@ function httprl_install_http_test($mode, $blocking = FALSE) {
   else {
     $id = 'httprl_' . hash('sha512', mt_rand() . microtime(TRUE) . serialize($_SERVER));
   }
+  $msg = '';
+
+  if (!empty($_SERVER['HTTP_HOST'])) {
+    $hostname = $_SERVER['HTTP_HOST'];
+    // If HTTP_HOST contains the port, use SERVER_NAME.
+    if (strpos($_SERVER['HTTP_HOST'], ':') !== FALSE) {
+      $hostname = $_SERVER['SERVER_NAME'];
+    }
+  }
+  elseif (!empty($_SERVER['SERVER_NAME'])) {
+    $hostname = $_SERVER['SERVER_NAME'];
+  }
+  else {
+    $hostname = '';
+  }
 
   // Set the headers to point to this hostname.
   $headers = array(
-    'Host' => $_SERVER['HTTP_HOST'],
+    'Host' => $hostname,
     'Connection' => 'closed',
   );
 
+  // Setup the arguments for releasing the lock.
+  $timing = array(httprl_variable_get('httprl_install_lock_time', 7), httprl_variable_get('httprl_install_connection_time', 5));
   $args = array(
     array(
       'function' => 'httprl_lock_release',
       // Setup options array.
       'options' => array(
         'blocking' => $blocking,
-        'timeout' => 1,
+        'timeout' => $timing[0],
         'max_redirects' => 0,
         'headers' => $headers,
       ),
@@ -195,11 +228,12 @@ function httprl_install_http_test($mode, $blocking = FALSE) {
       $args[0]['return'] = '';
       $args[0]['printed'] = '';
     }
-    $old_var = variable_get('httprl_background_callback', HTTPRL_BACKGROUND_CALLBACK);
+    // Enable background callbacks even if disabled.
+    $old_var = httprl_variable_get('httprl_background_callback', HTTPRL_BACKGROUND_CALLBACK);
     $GLOBALS['conf']['httprl_background_callback'] = HTTPRL_BACKGROUND_CALLBACK;
     $url = httprl_queue_background_callback($args);
     if (empty($url)) {
-      return FALSE;
+      return array(FALSE, $t('The background callbacks setting is disabled.'));
     }
     else {
       $url = array_keys($url);
@@ -207,6 +241,7 @@ function httprl_install_http_test($mode, $blocking = FALSE) {
       // Execute request.
       $output = httprl_send_request();
     }
+    // Restore the background callbacks setting.
     $GLOBALS['conf']['httprl_background_callback'] = $old_var;
   }
   else {
@@ -220,11 +255,15 @@ function httprl_install_http_test($mode, $blocking = FALSE) {
     $available = FALSE;
     $lock_counter = 0;
     while (!$available && $lock_counter < 20) {
-      if (function_exists('openssl_random_pseudo_bytes')) {
-        $name = 'httprl_' . hash('sha512', openssl_random_pseudo_bytes(512));
+      // 512 bits = 64 bytes.
+      if (function_exists('drupal_random_bytes')) {
+        $name = 'httprl_' . hash('sha512', drupal_random_bytes(64));
+      }
+      elseif (function_exists('openssl_random_pseudo_bytes')) {
+        $name = 'httprl_' . hash('sha512', openssl_random_pseudo_bytes(64));
       }
       else {
-        $name = 'httprl_' . hash('sha512', mt_rand() . microtime(TRUE));
+        $name = 'httprl_' . hash('sha512', mt_rand() . microtime(TRUE) . serialize($_SERVER));
       }
       $available = lock_may_be_available($name);
       $lock_counter++;
@@ -271,24 +310,110 @@ function httprl_install_http_test($mode, $blocking = FALSE) {
   $time['blocking'] = $blocking;
   $time['url'] = $url;
   $time['request'] = $output;
-  $_httprl['install']['debug'][] = $time;
+  $GLOBALS['_httprl']['install']['debug'][] = $time;
 
   // See if the request came back in under 5 seconds, or if it timed out.
-  if (($time['time'] / 1000) > 5) {
-    $ip = variable_get('httprl_server_addr', FALSE);
-    if (empty($ip)) {
-      $conf['httprl_server_addr'] = -1;
-      $return = httprl_install_http_test($mode, $blocking);
-      if (!$return) {
-        $conf['httprl_server_addr'] == FALSE;
+  if (($time['time'] / 1000) > $timing[1]) {
+    if ($depth <= 1) {
+      list($success, $msg) = httprl_install_try_different_settings_checker($mode, $blocking, $depth);
+      if ($success) {
+        return array($success, $msg);
       }
-      return $return;
-    }
-    else {
-      return FALSE;
     }
   }
   else {
-    return TRUE;
+    if (!empty($_SERVER['HTTP_HOST'])) {
+      $hostname = $_SERVER['HTTP_HOST'];
+      // If HTTP_HOST contains the port, use SERVER_NAME.
+      if (strpos($_SERVER['HTTP_HOST'], ':') !== FALSE) {
+        $hostname = $_SERVER['SERVER_NAME'];
+      }
+    }
+    elseif (!empty($_SERVER['SERVER_NAME'])) {
+      $hostname = $_SERVER['SERVER_NAME'];
+    }
+    else {
+      $hostname = '';
+    }
+
+    // Set httprl_server_hostname to the HTTP_HOST or SERVER_NAME.
+    if (   !empty($hostname)
+        && $hostname !== 'default'
+        && ip2long($hostname) === FALSE
+        && httprl_variable_get('httprl_server_hostname', FALSE) != $hostname
+        ) {
+      $msg = $t('The "IP Address to send all self server requests to" setting needs to be changed to @hostname on the <a href="@url">configuration page</a>,', array(
+        '@url' => url('admin/config/development/httprl'),
+        '@hostname' => $hostname,
+      ));
+    }
+
+    return array(TRUE, $msg);
   }
+}
+
+function httprl_install_fclose_delay_check($mode, $blocking, $depth) {
+  $t = get_t();
+  $msg = '';
+  if (httprl_variable_get('httprl_non_blocking_fclose_delay', HTTPRL_NON_BLOCKING_FCLOSE_DELAY) != 0 || $blocking != FALSE) {
+    return;
+  }
+
+  // Try again with a fclose_delay of 25ms.
+  $GLOBALS['conf']['httprl_non_blocking_fclose_delay'] = 25;
+  list($success, $msg) = httprl_install_http_test($mode, $blocking, $depth);
+  if ($success) {
+    // Try again with a fclose_delay of 5ms.
+    $GLOBALS['conf']['httprl_non_blocking_fclose_delay'] = 5;
+    list($success, $msg) = httprl_install_http_test($mode, $blocking, $depth);
+    if ($success) {
+      $msg = $t('The Millisecond Delay For Non-Blocking Requests setting needs to be changed to 5 on the <a href="@url">configuration page</a>,', array('@url' => url('admin/config/development/httprl')));
+    }
+    else {
+      $msg = $t('The Millisecond Delay For Non-Blocking Requests setting needs to be changed to 25 on the <a href="@url">configuration page</a>,', array('@url' => url('admin/config/development/httprl')));
+    }
+  }
+  $GLOBALS['conf']['httprl_non_blocking_fclose_delay'] = 0;
+  return array($success, $msg);
+}
+
+function httprl_install_try_different_settings_checker($mode, $blocking, $depth) {
+  $t = get_t();
+  list($success, $msg) = httprl_install_fclose_delay_check($mode, $blocking, $depth);
+  if ($success) {
+    return array($success, $msg);
+  }
+
+  $msg = '';
+  $ip = httprl_variable_get('httprl_server_addr', FALSE);
+  // Try with it empty.
+  $GLOBALS['conf']['httprl_server_addr'] = FALSE;
+  httprl_build_url_self('', FALSE, TRUE);
+  list($success, $msg) = httprl_install_http_test($mode, $blocking, $depth);
+  if ($success) {
+    $msg = $t('The "IP Address to send all self server requests to" setting needs to be empty on the <a href="@url">configuration page</a>,', array('@url' => url('admin/config/development/httprl')));
+  }
+  else {
+    list($success, $msg) = httprl_install_fclose_delay_check($mode, $blocking, $depth);
+    if ($success) {
+      $msg .= ' ' . $t('The "IP Address to send all self server requests to" setting needs to be empty on the <a href="@url">configuration page</a>,', array('@url' => url('admin/config/development/httprl')));
+    }
+
+    // Try again with -1.
+    $GLOBALS['conf']['httprl_server_addr'] = -1;
+    httprl_build_url_self('', FALSE, TRUE);
+    list($success, $msg) = httprl_install_http_test($mode, $blocking, $depth);
+    if ($success) {
+      $msg = $t('The "IP Address to send all self server requests to" setting needs to be changed to -1 on the <a href="@url">configuration page</a>,', array('@url' => url('admin/config/development/httprl')));
+    }
+    else {
+      list($success, $msg) = httprl_install_fclose_delay_check($mode, $blocking, $depth);
+      if ($success) {
+        $msg .= ' ' . $t('The "IP Address to send all self server requests to" setting needs to be changed to -1 on the <a href="@url">configuration page</a>,', array('@url' => url('admin/config/development/httprl')));
+      }
+    }
+  }
+  $GLOBALS['conf']['httprl_server_addr'] = $ip;
+  httprl_build_url_self('', FALSE, TRUE);
+  return array($success, $msg);
 }

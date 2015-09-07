@@ -72,7 +72,21 @@ function httprl_async_page() {
   // Extract Data.
   // Follow rfc4648 for base64url
   // @see http://tools.ietf.org/html/rfc4648#page-7
-  $args = unserialize(base64_decode(strtr($_POST['args'], array('-' => '+', '_' => '/'))));
+  $serialized_string = trim(base64_decode(strtr($_POST['args'], array('-' => '+', '_' => '/'))));
+  $args = @unserialize($serialized_string);
+  if ($serialized_string !== 'b:0;' && $args === FALSE) {
+    httprl_fast403('unserialize failed');
+  }
+
+  // If a session cookie was not passed in, do not start a session.
+  if (empty($_COOKIE[session_name()])) {
+    if (defined('VERSION') && substr(VERSION, 0, 1) >= 7) {
+      drupal_save_session(FALSE);
+    }
+    else {
+      session_save_session(FALSE);
+    }
+  }
 
   // Run the function.
   if (!empty($_POST['function'])) {

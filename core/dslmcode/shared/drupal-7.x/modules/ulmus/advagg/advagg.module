@@ -1098,6 +1098,16 @@ function advagg_preprocess_html() {
   drupal_add_html_head($meta_ie_render_engine, 'meta_ie_render_engine');
 }
 
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Give advice on how to temporarily disable css/js aggregation.
+ */
+function advagg_form_system_performance_settings_alter(&$form, &$form_state) {
+  module_load_include('admin.inc', 'advagg');
+  advagg_admin_system_performance_settings_form($form, $form_state);
+}
+
 // Core CSS/JS override functions.
 /**
  * Callback for pre_render so elements can be modified before they are rendered.
@@ -1748,8 +1758,14 @@ function _advagg_process_html(&$variables) {
         if (!empty($json_data)) {
           // Record that this is being used.
           $js_settings_used[$scope_settings] = TRUE;
+
+          // Find the end of the Drupal.settings.
+          $script_end = stripos($value, '</script>', $start);
+          $settings_substring = substr($value, $start, $script_end - $start);
+          $json_end = strripos($settings_substring, '});');
+
           // Replace Drupal.settings json.
-          $value = substr($value, 0, $start + 30) . $json_data . substr($value, strripos($value, '});', $start) + 1);
+          $value = substr($value, 0, $start + 30) . $json_data . substr($value, $json_end + $start + 1);
         }
       }
       $add_to_variables[$scope] = $value;
@@ -1898,23 +1914,36 @@ function _advagg_process_html(&$variables) {
 function advagg_cleanup_settings_array(array $data) {
   // Remove inline js from the ajaxPageState data.
   if (isset($data['ajaxPageState']['js'])) {
-    foreach ($data['ajaxPageState']['js'] as $key => $value) {
-      if (!advagg_remove_short_keys($key)) {
-        unset($data['ajaxPageState']['js'][$key]);
+    foreach ((array) $data['ajaxPageState']['js'] as $key => $value) {
+      if (advagg_remove_short_keys($key)) {
+        if (is_array($data['ajaxPageState']['js'])) {
+          unset($data['ajaxPageState']['js'][$key]);
+        }
+        else {
+          unset($data['ajaxPageState']['js']->{$key});
+        }
       }
     }
   }
   // Remove inline css from the ajaxPageState data.
   if (isset($data['ajaxPageState']['css'])) {
     foreach ((array) $data['ajaxPageState']['css'] as $key => $value) {
-      if (!advagg_remove_short_keys($key)) {
-        unset($data['ajaxPageState']['css']->{$key});
+      if (advagg_remove_short_keys($key, 6)) {
+        if (is_object($data['ajaxPageState']['css'])) {
+          unset($data['ajaxPageState']['css']->{$key});
+        }
+        else {
+          unset($data['ajaxPageState']['css'][$key]);
+        }
       }
     }
   }
   // Remove settings from the js ajaxPageState data.
   if (isset($data['ajaxPageState']['js']['settings'])) {
     unset($data['ajaxPageState']['js']['settings']);
+  }
+  if (isset($data['ajaxPageState']['js']->settings)) {
+    unset($data['ajaxPageState']['js']->settings);
   }
   return $data;
 }
@@ -2379,18 +2408,20 @@ function advagg_array_splice_assoc(array &$input, $offset, $length, $replacement
 /**
  * Callback for array_filter. Will return FALSE if strlen < 3.
  *
- * @param string $array_value
- *   A value from an array.
+ * @param string $value
+ *   A value from an array/object.
+ * @param int $min_len
+ *   The strlen check length.
  *
  * @return bool
  *   TRUE or FALSE.
  */
-function advagg_remove_short_keys($array_value) {
-  if (strlen($array_value) < 3) {
-    return FALSE;
+function advagg_remove_short_keys($value, $min_len = 3) {
+  if (strlen($value) < $min_len) {
+    return TRUE;
   }
   else {
-    return TRUE;
+    return FALSE;
   }
 }
 
@@ -4313,12 +4344,27 @@ function advagg_aggressive_cache_conflicts() {
     $hooks[$hook] = module_implements($hook);
 
     // Also check themes as drupal_alter() allows for themes to alter things.
-    $theme_keys = array_keys(list_themes());
+    $themes = list_themes();
+    $theme_keys = array_keys($themes);
     if (!empty($theme_keys)) {
       foreach ($theme_keys as $theme_key) {
         $function = $theme_key . '_' . $hook;
+        // Search loaded themes.
         if (function_exists($function)) {
           $hooks[$hook][] = $theme_key;
+          continue;
+        }
+        // Skip disabled themes.
+        if (empty($themes[$theme_key]->status)) {
+          continue;
+        }
+        // Search enabled but not loaded themes.
+        $file = dirname($themes[$theme_key]->filename) . '/template.php';
+        if (file_exists($file)) {
+          $contents = file_get_contents($file);
+          if (stripos($contents, $function)) {
+            $hooks[$hook][] = $theme_key;
+          }
         }
       }
     }
@@ -4339,6 +4385,9 @@ function advagg_aggressive_cache_conflicts() {
 
     // Popular contrib.
     //
+    // No control; same every time.
+    'at_commerce',
+
     // ais_adaptive_styles variable; Default: array().
     // ais_adaptive_styles_method; Default: 'both-max'.
     // 'ais',
@@ -4422,7 +4471,7 @@ function advagg_aggressive_cache_conflicts() {
  * @param array $parsed
  *   Array from parse_url().
  * @param bool $strip_query_and_fragment
- *   If set to TRUE the query and fragemnt will be removed from the output.
+ *   If set to TRUE the query and fragment will be removed from the output.
  *
  * @return string
  *   URI is returned.

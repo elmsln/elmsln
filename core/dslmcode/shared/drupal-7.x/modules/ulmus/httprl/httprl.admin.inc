@@ -15,6 +15,23 @@ function httprl_admin_settings_form() {
     '#default_value' => variable_get('httprl_server_addr', FALSE),
     '#description' => t('If left blank it will use the same server as the request. If set to -1 it will use the host name instead of an IP address. This controls the output of httprl_build_url_self()'),
   );
+  $form['httprl_server_schema'] = array(
+    '#type' => 'radios',
+    '#title' => t('Self Server Requests Schema: HTTP vs HTTPS'),
+    '#default_value' => variable_get('httprl_server_schema', HTTPRL_SERVER_SCHEMA),
+    '#options' => array(
+      0 => 'Auto Detect',
+      1 => 'Force HTTP',
+      2 => 'Force HTTPS',
+    ),
+    '#description' => t('Adjusting this might be useful if SSL is handled above this web server.'),
+  );
+  $form['httprl_non_blocking_fclose_delay'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Millisecond Delay For Non-Blocking Requests'),
+    '#default_value' => variable_get('httprl_non_blocking_fclose_delay', HTTPRL_NON_BLOCKING_FCLOSE_DELAY),
+    '#description' => t('Some servers have issues if there is no delay between calls to fwrite and fclose. Adjust this with care; setting to 0 will disable this. The status report will test if setting this value helps.'),
+  );
   $form['httprl_background_callback'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable background callbacks'),
@@ -100,6 +117,21 @@ function httprl_admin_settings_form_validate($form, &$form_state) {
       && ip2long($values['httprl_server_addr']) === FALSE
         ) {
     form_set_error('httprl_server_addr', t('Must be a valid IP address.'));
+  }
+
+  if (!empty($values['httprl_non_blocking_fclose_delay'])) {
+    if (!is_numeric($values['httprl_non_blocking_fclose_delay'])) {
+      form_set_error('httprl_non_blocking_fclose_delay', t('Must be a numeric value.'));
+    }
+    if ((int) $values['httprl_non_blocking_fclose_delay'] != $values['httprl_non_blocking_fclose_delay']) {
+      form_set_error('httprl_non_blocking_fclose_delay', t('Must be an interger.'));
+    }
+    elseif ($values['httprl_non_blocking_fclose_delay'] < 0) {
+      form_set_error('httprl_non_blocking_fclose_delay', t('Must be a positive value.'));
+    }
+    else {
+      $values['httprl_non_blocking_fclose_delay'] = (int) $values['httprl_non_blocking_fclose_delay'];
+    }
   }
 
   // Make sure the timeouts are positive numbers.

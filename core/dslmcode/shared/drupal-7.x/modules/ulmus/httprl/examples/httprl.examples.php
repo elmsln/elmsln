@@ -549,27 +549,13 @@ echo httprl_pr($results);
 
 
 
-Run a function in the background. Notice that there is no return or printed key
-in the callback options.
+Run a function in the background. Notice that there is no return.
 
 <?php
-// Bail out here if background callbacks are disabled.
-if (!httprl_is_background_callback_capable()) {
-  return FALSE;
-}
+// Call watchdog('httprl-test', 'background watchdog call done');
+// in the background/async.
+httprl_call_user_func_array_async('watchdog', array('httprl-test', 'background watchdog call done 2'));
 
-// Setup callback options array; call watchdog in the background.
-$callback_options = array(
-  array(
-    'function' => 'watchdog',
-  ),
-  'httprl-test', 'background watchdog call done', array(), WATCHDOG_DEBUG,
-);
-// Queue up the request.
-httprl_queue_background_callback($callback_options);
-
-// Execute request.
-httprl_send_request();
 ?>
 
 
