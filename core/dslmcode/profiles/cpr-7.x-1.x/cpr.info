@@ -127,3 +127,7 @@ dependencies[] = cis_course_authority
 ; END ELMSLN Core Dependencies
 ; ----------
 
+; ----------
+; CPR Dependencies
+; ----------
+dependencies[] = cpr_user

@@ -15,4 +15,6 @@ function cpr_install() {
   _elmsln_installer_admin_role();
   // standard clean up
   _elmsln_installer_post_install_cleanup();
+  // homepage is the user
+  variable_set('site_frontpage', 'user');
 }
