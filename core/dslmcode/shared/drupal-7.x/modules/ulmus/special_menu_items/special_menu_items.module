@@ -17,13 +17,13 @@
 */
 function special_menu_items_menu() {
   $items['<nolink>'] = array(
-    'page callback' => 'drupal_not_found',
+    'page callback' => 'special_menu_items_page_callback',
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
 
   $items['<separator>'] = array(
-    'page callback' => 'drupal_not_found',
+    'page callback' => 'special_menu_items_page_callback',
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
@@ -37,7 +37,20 @@ function special_menu_items_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
- return $items;
+  return $items;
+}
+
+/**
+ * Page callback for special menu links.
+ *
+ * Simply returns MENU_NOT_FOUND. We can't use drupal_not_found() as page
+ * callback since this would lead to calling drupal_deliver_page() twice.
+ *
+ * @return int
+ *   The MENU_NOT_FOUND status code.
+ */
+function special_menu_items_page_callback() {
+  return MENU_NOT_FOUND;
 }
 
 /**
@@ -128,24 +141,6 @@ function special_menu_items_form_menu_edit_item_alter(&$form, &$form_state) {
    $form['link_path']['#default_value'] = $default_value;
    $form['link_path']['#description'] .=  ' ' . t('Enter "%nolink" to generate non-linkable item, enter "%separator" to generate separator item.', array('%nolink' => '<nolink>', '%separator' => '<separator>'));
   }
-}
-
-/**
- * Implementation of hook_init().
- */
-function special_menu_items_init() {
-  // Make breadcrumb of nolink menu item nonlinkable.
-  $breadcrumb = drupal_get_breadcrumb();
-
-  foreach($breadcrumb as $key => $crumb){
-    if (strlen(strstr($crumb,'<nolink>')) > 0) {
-      $crumb = strip_tags($crumb);
-      $tag = variable_get('special_menu_items_nolink_tag', '<span>');
-      $breadcrumb[$key] = special_menu_items_render_menu_item($tag, $crumb);
-    }
-  }
-
-  drupal_set_breadcrumb($breadcrumb);
 }
 
 /**
