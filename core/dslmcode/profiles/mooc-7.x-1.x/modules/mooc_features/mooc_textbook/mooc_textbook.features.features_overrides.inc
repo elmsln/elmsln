@@ -30,8 +30,6 @@ function mooc_textbook_features_override_default_overrides() {
     'status' => 1,
     'weight' => -42,
   );
-  $overrides["filter.textbook_editor.filters|typogrify"]["DELETED"] = TRUE;
-
   // Exported overrides for: wysiwyg
   $overrides["wysiwyg.textbook_editor.settings|buttons|drupal"] = array(
     'rendered_entity' => 1,

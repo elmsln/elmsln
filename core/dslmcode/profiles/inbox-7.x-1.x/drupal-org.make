@@ -77,8 +77,6 @@ projects[token][subdir] = "contrib"
 projects[transliteration][version] = "3.2"
 projects[transliteration][subdir] = "contrib"
 ; Input filters
-projects[typogrify][version] = "1.0-rc10"
-projects[typogrify][subdir] = "contrib"
 projects[video_filter][version] = "3.1"
 projects[video_filter][subdir] = "contrib"
 ; Performance and scalability

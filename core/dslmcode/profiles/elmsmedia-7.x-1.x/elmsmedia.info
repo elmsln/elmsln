@@ -67,7 +67,6 @@ dependencies[] = masquerade
 dependencies[] = token
 dependencies[] = transliteration
 ; Input filters
-dependencies[] = typogrify
 dependencies[] = video_filter
 ; Performance and scalability
 dependencies[] = advagg
