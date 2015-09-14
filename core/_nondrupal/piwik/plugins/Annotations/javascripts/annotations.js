@@ -126,8 +126,6 @@
             annotationDate = new Date(parts[0], parts[1] - 1, parts[2]);
 
         var result = piwik.getBaseDatePickerOptions(annotationDate);
-        result.showButtonPanel = true;
-        result.currentText = _pk_translate('Intl_Today');
 
         // make sure days before site start & after today cannot be selected
         var piwikMinDate = result.minDate;
@@ -246,8 +244,7 @@
         manager.on('click', '.add-annotation', function (e) {
             e.preventDefault();
 
-            var $newRow = $('.new-annotation-row', manager);
-            $newRow.show();
+            $('.new-annotation-row', manager).show();
             $(this).hide();
 
             return false;

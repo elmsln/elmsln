@@ -10,10 +10,11 @@
         "MetricDataByYear": "Tabelele cu Parametri dupa An",
         "MetricTables": "Tabele Metrici",
         "OtherTables": "Alte tablete",
+        "PluginDescription": "Acest plugin arata raportul cu gradul de utilizare a bazei de date MySQL pentru fiecare tabela Piwik in parte",
         "ReportDataByYear": "Tabele din raport pentru anul",
         "ReportTables": "Tabele din raport",
         "RowCount": "Numărul de înregistrări",
-        "Table": "Tabela",
+        "Table": "Tabel",
         "TotalSize": "Marime totala",
         "TrackerTables": "Mese Tracker"
     }

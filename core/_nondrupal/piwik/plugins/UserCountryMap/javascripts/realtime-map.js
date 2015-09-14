@@ -51,7 +51,7 @@
             $('.RealTimeMap_map', $element).attr('id', this.uniqueId);
 
             // create the map
-            this.map = $K.map('#' + this.uniqueId);
+            this.map = Kartograph.map('#' + this.uniqueId);
 
             $element.focus();
         },
@@ -142,7 +142,7 @@
                         'visitLocalTime', 'city', 'country', 'referrerType', 'referrerName',
                         'referrerTypeName', 'browserIcon', 'operatingSystemIcon',
                         'countryFlag', 'idVisit', 'actionDetails', 'continentCode',
-                        'actions', 'searches', 'goalConversions', 'visitorId', 'userId'].join(','),
+                        'actions', 'searches', 'goalConversions', 'visitorId'].join(','),
                     minTimestamp: firstRun ? -1 : lastTimestamp
                 });
             }
@@ -214,8 +214,6 @@
                 return '<h3>' + (r.city ? r.city + ' / ' : '') + r.country + '</h3>' +
                     // icons
                     ico(r.countryFlag) + ico(r.browserIcon) + ico(r.operatingSystemIcon) + '<br/>' +
-                    // User ID
-                    (r.userId ? _pk_translate('General_UserId') + ':&nbsp;' + r.userId + '<br/>' : '') +
                     // last action
                     (ad && ad.length && ad[ad.length - 1].pageTitle ? '<em>' + ad[ad.length - 1].pageTitle + '</em><br/>' : '') +
                     // time of visit
@@ -359,7 +357,7 @@
                  */
                 function gotNewReport(report) {
                     // if the map has been destroyed, do nothing
-                    if (!self.map || !self.$element.length || !$.contains(document, self.$element[0])) {
+                    if (!self.map) {
                         return;
                     }
 
@@ -376,7 +374,7 @@
                     if (firstRun) {  // if we run this the first time, we initialiize the map symbols
                         visitSymbols = map.addSymbols({
                             data: [],
-                            type: $K.Bubble,
+                            type: Kartograph.Bubble,
                             /*title: function(d) {
                              return visitRadius(d) > 15 && d.actions > 1 ? d.actions : '';
                              },
@@ -478,8 +476,6 @@
                 if (firstRun && lastVisits.length) {
                     // zoom changed, use cached report data
                     gotNewReport(lastVisits.slice());
-                } else if (Visibility.hidden()) {
-                    nextReqTimer = setTimeout(refreshVisits, config.liveRefreshAfterMs);
                 } else {
                     // request API for new data
                     $('.realTimeMap_overlay img').show();

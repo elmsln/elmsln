@@ -9,18 +9,22 @@
 namespace Piwik\Plugins\Login;
 
 use Exception;
-use Piwik\Auth as AuthInterface;
 use Piwik\Common;
 use Piwik\Config;
-use Piwik\Container\StaticContainer;
 use Piwik\Cookie;
-use Piwik\Log;
+use Piwik\IP;
+use Piwik\Mail;
 use Piwik\Nonce;
 use Piwik\Piwik;
+use Piwik\Plugins\UsersManager\API;
+use Piwik\Plugins\UsersManager\UsersManager;
 use Piwik\QuickForm2;
 use Piwik\Session;
+use Piwik\SettingsPiwik;
 use Piwik\Url;
 use Piwik\View;
+
+require_once PIWIK_INCLUDE_PATH . '/core/Config.php';
 
 /**
  * Login controller
@@ -29,45 +33,21 @@ use Piwik\View;
 class Controller extends \Piwik\Plugin\Controller
 {
     /**
-     * @var PasswordResetter
-     */
-    private $passwordResetter;
-
-    /**
-     * @var Auth
-     */
-    private $auth;
-
-    /**
-     * @var SessionInitializer
-     */
-    private $sessionInitializer;
-
-    /**
-     * Constructor.
+     * Generate hash on user info and password
      *
-     * @param PasswordResetter $passwordResetter
-     * @param AuthInterface $auth
-     * @param SessionInitializer $authenticatedSessionFactory
-\     */
-    public function __construct($passwordResetter = null, $auth = null, $sessionInitializer = null)
+     * @param string $userInfo User name, email, etc
+     * @param string $password
+     * @return string
+     */
+    private function generateHash($userInfo, $password)
     {
-        parent::__construct();
-
-        if (empty($passwordResetter)) {
-            $passwordResetter = new PasswordResetter();
-        }
-        $this->passwordResetter = $passwordResetter;
-
-        if (empty($auth)) {
-            $auth = StaticContainer::get('Piwik\Auth');
-        }
-        $this->auth = $auth;
-
-        if (empty($sessionInitializer)) {
-            $sessionInitializer = new SessionInitializer();
-        }
-        $this->sessionInitializer = $sessionInitializer;
+        // mitigate rainbow table attack
+        $passwordLen = strlen($password) / 2;
+        $hash = Common::hash(
+            $userInfo . substr($password, 0, $passwordLen)
+            . SettingsPiwik::getSalt() . substr($password, $passwordLen)
+        );
+        return $hash;
     }
 
     /**
@@ -92,15 +72,15 @@ class Controller extends \Piwik\Plugin\Controller
     function login($messageNoAccess = null, $infoMessage = false)
     {
         $form = new FormLogin();
-        $form->removeAttribute('action'); // remove action attribute, otherwise hash part will be lost
         if ($form->validate()) {
             $nonce = $form->getSubmitValue('form_nonce');
             if (Nonce::verifyNonce('Login.login', $nonce)) {
                 $login = $form->getSubmitValue('form_login');
                 $password = $form->getSubmitValue('form_password');
                 $rememberMe = $form->getSubmitValue('form_rememberme') == '1';
+                $md5Password = md5($password);
                 try {
-                    $this->authenticateAndRedirect($login, $password, $rememberMe);
+                    $this->authenticateAndRedirect($login, $md5Password, $rememberMe);
                 } catch (Exception $e) {
                     $messageNoAccess = $e->getMessage();
                 }
@@ -143,6 +123,7 @@ class Controller extends \Piwik\Plugin\Controller
     function logme()
     {
         $password = Common::getRequestVar('password', null, 'string');
+        $this->checkPasswordHash($password);
 
         $login = Common::getRequestVar('login', null, 'string');
         if (Piwik::hasTheUserSuperUserAccess($login)) {
@@ -158,55 +139,25 @@ class Controller extends \Piwik\Plugin\Controller
         $urlToRedirect = Common::getRequestVar('url', $currentUrl, 'string');
         $urlToRedirect = Common::unsanitizeInputValue($urlToRedirect);
 
-        $this->authenticateAndRedirect($login, $password, false, $urlToRedirect, $passwordHashed = true);
-    }
-
-    /**
-     * Error message shown when an AJAX request has no access
-     *
-     * @param string $errorMessage
-     * @return string
-     */
-    public function ajaxNoAccess($errorMessage)
-    {
-        return sprintf(
-            '<div class="alert alert-danger">
-                <p><strong>%s:</strong> %s</p>
-                <p><a href="%s">%s</a></p>
-            </div>',
-            Piwik::translate('General_Error'),
-            htmlentities($errorMessage, Common::HTML_ENCODING_QUOTE_STYLE, 'UTF-8', $doubleEncode = false),
-            'index.php?module=Login',
-            Piwik::translate('Login_LogIn')
-        );
+        $this->authenticateAndRedirect($login, $password, false, $urlToRedirect);
     }
 
     /**
      * Authenticate user and password.  Redirect if successful.
      *
      * @param string $login user name
-     * @param string $password md5 password
+     * @param string $md5Password md5 hash of password
      * @param bool $rememberMe Remember me?
      * @param string $urlToRedirect URL to redirect to, if successfully authenticated
      * @return string failure message if unable to authenticate
      */
-    protected function authenticateAndRedirect($login, $password, $rememberMe, $urlToRedirect = false, $passwordHashed = false)
+    protected function authenticateAndRedirect($login, $md5Password, $rememberMe, $urlToRedirect = false)
     {
         Nonce::discardNonce('Login.login');
 
-        $this->auth->setLogin($login);
-        if ($passwordHashed === false) {
-            $this->auth->setPassword($password);
-        } else {
-            $this->auth->setPasswordHash($password);
-        }
+        \Piwik\Registry::get('auth')->initSession($login, $md5Password, $rememberMe);
 
-        $this->sessionInitializer->initSession($this->auth, $rememberMe);
-
-        // remove password reset entry if it exists
-        $this->passwordResetter->removePasswordResetInfo($login);
-
-        if (empty($urlToRedirect)) {
+        if(empty($urlToRedirect)) {
             $urlToRedirect = Url::getCurrentUrlWithoutQueryString();
         }
 
@@ -266,15 +217,79 @@ class Controller extends \Piwik\Plugin\Controller
         $loginMail = $form->getSubmitValue('form_login');
         $password  = $form->getSubmitValue('form_password');
 
+        // check the password
         try {
-            $this->passwordResetter->initiatePasswordResetProcess($loginMail, $password);
+            UsersManager::checkPassword($password);
         } catch (Exception $ex) {
-            Log::debug($ex);
-
             return array($ex->getMessage());
         }
 
+        // get the user's login
+        if ($loginMail === 'anonymous') {
+            return array(Piwik::translate('Login_InvalidUsernameEmail'));
+        }
+
+        $user = self::getUserInformation($loginMail);
+        if ($user === null) {
+            return array(Piwik::translate('Login_InvalidUsernameEmail'));
+        }
+
+        $login = $user['login'];
+
+        // if valid, store password information in options table, then...
+        Login::savePasswordResetInfo($login, $password);
+
+        // ... send email with confirmation link
+        try {
+            $this->sendEmailConfirmationLink($user);
+        } catch (Exception $ex) {
+            // remove password reset info
+            Login::removePasswordResetInfo($login);
+
+            return array($ex->getMessage() . Piwik::translate('Login_ContactAdmin'));
+        }
+
         return null;
+    }
+
+    /**
+     * Sends email confirmation link for a password reset request.
+     *
+     * @param array $user User info for the requested password reset.
+     */
+    private function sendEmailConfirmationLink($user)
+    {
+        $login = $user['login'];
+        $email = $user['email'];
+
+        // construct a password reset token from user information
+        $resetToken = self::generatePasswordResetToken($user);
+
+        $ip = IP::getIpFromHeader();
+        $url = Url::getCurrentUrlWithoutQueryString()
+            . "?module=Login&action=confirmResetPassword&login=" . urlencode($login)
+            . "&resetToken=" . urlencode($resetToken);
+
+        // send email with new password
+        $mail = new Mail();
+        $mail->addTo($email, $login);
+        $mail->setSubject(Piwik::translate('Login_MailTopicPasswordChange'));
+        $bodyText = str_replace(
+                '\n',
+                "\n",
+                sprintf(Piwik::translate('Login_MailPasswordChangeBody'), $login, $ip, $url)
+            ) . "\n";
+        $mail->setBodyText($bodyText);
+
+        $fromEmailName = Config::getInstance()->General['login_password_recovery_email_name'];
+        $fromEmailAddress = Config::getInstance()->General['login_password_recovery_email_address'];
+        $mail->setFrom($fromEmailAddress, $fromEmailName);
+
+        $replytoEmailName = Config::getInstance()->General['login_password_recovery_replyto_email_name'];
+        $replytoEmailAddress = Config::getInstance()->General['login_password_recovery_replyto_email_address'];
+        $mail->setReplyTo($replytoEmailAddress, $replytoEmailName);
+
+        @$mail->send();
     }
 
     /**
@@ -289,19 +304,46 @@ class Controller extends \Piwik\Plugin\Controller
         $resetToken = Common::getRequestVar('resetToken', '');
 
         try {
-            $this->passwordResetter->confirmNewPassword($login, $resetToken);
-        } catch (Exception $ex) {
-            Log::debug($ex);
+            // get password reset info & user info
+            $user = self::getUserInformation($login);
+            if ($user === null) {
+                throw new Exception(Piwik::translate('Login_InvalidUsernameEmail'));
+            }
 
+            // check that the reset token is valid
+            $resetPassword = Login::getPasswordToResetTo($login);
+            if ($resetPassword === false || !self::isValidToken($resetToken, $user)) {
+                throw new Exception(Piwik::translate('Login_InvalidOrExpiredToken'));
+            }
+
+            // reset password of user
+            $this->setNewUserPassword($user, $resetPassword);
+        } catch (Exception $ex) {
             $errorMessage = $ex->getMessage();
         }
 
-        if (is_null($errorMessage)) { // if success, show login w/ success message
-            return $this->resetPasswordSuccess();
+        if (is_null($errorMessage)) // if success, show login w/ success message
+        {
+            $this->redirectToIndex(Piwik::getLoginPluginName(), 'resetPasswordSuccess');
+            return;
         } else {
             // show login page w/ error. this will keep the token in the URL
             return $this->login($errorMessage);
         }
+    }
+
+    /**
+     * Sets the password for a user.
+     *
+     * @param array $user User info.
+     * @param string $passwordHash The hashed password to use.
+     * @throws Exception
+     */
+    private function setNewUserPassword($user, $passwordHash)
+    {
+        $this->checkPasswordHash($passwordHash);
+        API::getInstance()->updateUser(
+            $user['login'], $passwordHash, $email = false, $alias = false, $isPasswordHashed = true);
     }
 
     /**
@@ -315,12 +357,80 @@ class Controller extends \Piwik\Plugin\Controller
     }
 
     /**
+     * Get user information
+     *
+     * @param string $loginMail user login or email address
+     * @return array ("login" => '...', "email" => '...', "password" => '...') or null, if user not found
+     */
+    protected function getUserInformation($loginMail)
+    {
+        Piwik::setUserHasSuperUserAccess();
+
+        $user = null;
+        if (API::getInstance()->userExists($loginMail)) {
+            $user = API::getInstance()->getUser($loginMail);
+        } else if (API::getInstance()->userEmailExists($loginMail)) {
+            $user = API::getInstance()->getUserByEmail($loginMail);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Generate a password reset token.  Expires in (roughly) 24 hours.
+     *
+     * @param array $user user information
+     * @param int $timestamp Unix timestamp
+     * @return string generated token
+     */
+    protected function generatePasswordResetToken($user, $timestamp = null)
+    {
+        /*
+         * Piwik does not store the generated password reset token.
+         * This avoids a database schema change and SQL queries to store, retrieve, and purge (expired) tokens.
+         */
+        if (!$timestamp) {
+            $timestamp = time() + 24 * 60 * 60; /* +24 hrs */
+        }
+
+        $expiry = strftime('%Y%m%d%H', $timestamp);
+        $token = $this->generateHash(
+            $expiry . $user['login'] . $user['email'],
+            $user['password']
+        );
+        return $token;
+    }
+
+    /**
+     * Validate token.
+     *
+     * @param string $token
+     * @param array $user user information
+     * @return bool true if valid, false otherwise
+     */
+    protected function isValidToken($token, $user)
+    {
+        $now = time();
+
+        // token valid for 24 hrs (give or take, due to the coarse granularity in our strftime format string)
+        for ($i = 0; $i <= 24; $i++) {
+            $generatedToken = self::generatePasswordResetToken($user, $now + $i * 60 * 60);
+            if ($generatedToken === $token) {
+                return true;
+            }
+        }
+
+        // fails if token is invalid, expired, password already changed, other user information has changed, ...
+        return false;
+    }
+
+    /**
      * Clear session information
      *
      * @param none
      * @return void
      */
-    public static function clearSession()
+    static public function clearSession()
     {
         $authCookieName = Config::getInstance()->General['login_cookie_name'];
         $cookie = new Cookie($authCookieName);
@@ -344,6 +454,17 @@ class Controller extends \Piwik\Plugin\Controller
             Piwik::redirectToModule('CoreHome');
         } else {
             Url::redirectToUrl($logoutUrl);
+        }
+    }
+
+    /**
+     * @param $password
+     * @throws \Exception
+     */
+    protected function checkPasswordHash($password)
+    {
+        if (strlen($password) != 32) {
+            throw new Exception(Piwik::translate('Login_ExceptionPasswordMD5HashExpected'));
         }
     }
 }

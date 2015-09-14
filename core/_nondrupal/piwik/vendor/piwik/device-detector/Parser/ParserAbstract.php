@@ -3,13 +3,12 @@
  * Device Detector - The Universal Device Detection library for parsing User Agents
  *
  * @link http://piwik.org
- * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
+ * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  */
 namespace DeviceDetector\Parser;
 
-use DeviceDetector\Cache\StaticCache;
-use DeviceDetector\DeviceDetector;
-use DeviceDetector\Cache\Cache;
+use DeviceDetector\Cache\CacheInterface;
+use DeviceDetector\Cache\CacheStatic;
 use \Spyc;
 
 /**
@@ -87,7 +86,7 @@ abstract class ParserAbstract
     const VERSION_TRUNCATION_NONE  = null;
 
     /**
-     * @var Cache|\Doctrine\Common\Cache\Cache
+     * @var CacheInterface
      */
     protected $cache;
 
@@ -104,7 +103,7 @@ abstract class ParserAbstract
      */
     public static function setVersionTruncation($type)
     {
-        if (in_array($type, array(self::VERSION_TRUNCATION_BUILD,
+        if(in_array($type, array(self::VERSION_TRUNCATION_BUILD,
                                  self::VERSION_TRUNCATION_NONE,
                                  self::VERSION_TRUNCATION_MAJOR,
                                  self::VERSION_TRUNCATION_MINOR,
@@ -141,12 +140,12 @@ abstract class ParserAbstract
     protected function getRegexes()
     {
         if (empty($this->regexList)) {
-            $cacheKey = 'DeviceDetector-'.DeviceDetector::VERSION.'regexes-'.$this->getName();
+            $cacheKey = 'DeviceDetector-regexes-'.$this->getName();
             $cacheKey = preg_replace('/([^a-z0-9_-]+)/i', '', $cacheKey);
-            $this->regexList = $this->getCache()->fetch($cacheKey);
+            $this->regexList = $this->getCache()->get($cacheKey);
             if (empty($this->regexList)) {
                 $this->regexList = Spyc::YAMLLoad(dirname(__DIR__).DIRECTORY_SEPARATOR.$this->fixtureFile);
-                $this->getCache()->save($cacheKey, $this->regexList);
+                $this->getCache()->set($cacheKey, $this->regexList);
             }
         }
         return $this->regexList;
@@ -156,12 +155,12 @@ abstract class ParserAbstract
      * Matches the useragent against the given regex
      *
      * @param $regex
-     * @return array|bool
+     * @return bool
      */
     protected function matchUserAgent($regex)
     {
         // only match if useragent begins with given regex or there is no letter before it
-        $regex = '/(?:^|[^A-Z0-9\_\-])(?:' . str_replace('/', '\/', $regex) . ')/i';
+        $regex = '/(?:^|[^A-Z_-])(?:' . str_replace('/', '\/', $regex) . ')/i';
 
         if (preg_match($regex, $this->userAgent, $matches)) {
             return $matches;
@@ -228,23 +227,23 @@ abstract class ParserAbstract
 
         static $overAllMatch;
 
-        $cacheKey = $this->parserName.DeviceDetector::VERSION.'-all';
+        $cacheKey = $this->parserName.'-all';
         $cacheKey = preg_replace('/([^a-z0-9_-]+)/i', '', $cacheKey);
 
         if (empty($overAllMatch)) {
-            $overAllMatch = $this->getCache()->fetch($cacheKey);
+            $overAllMatch = $this->getCache()->get($cacheKey);
         }
 
         if (empty($overAllMatch)) {
             // reverse all regexes, so we have the generic one first, which already matches most patterns
-            $overAllMatch = array_reduce(array_reverse($regexes), function ($val1, $val2) {
+            $overAllMatch = array_reduce(array_reverse($regexes), function($val1, $val2) {
                 if (!empty($val1)) {
                     return $val1.'|'.$val2['regex'];
                 } else {
                     return $val2['regex'];
                 }
             });
-            $this->getCache()->save($cacheKey, $overAllMatch);
+            $this->getCache()->set($cacheKey, $overAllMatch);
         }
 
         return $this->matchUserAgent($overAllMatch);
@@ -253,24 +252,19 @@ abstract class ParserAbstract
     /**
      * Sets the Cache class
      *
-     * @param Cache|\Doctrine\Common\Cache\CacheProvider $cache
-     * @throws \Exception
+     * Note: The given class needs to have a 'get' and 'set' method to be used
+     *
+     * @param $cache
      */
-    public function setCache($cache)
+    public function setCache(CacheInterface $cache)
     {
-        if ($cache instanceof Cache ||
-            (class_exists('\Doctrine\Common\Cache\CacheProvider') && $cache instanceof \Doctrine\Common\Cache\CacheProvider)) {
-            $this->cache = $cache;
-            return;
-        }
-
-        throw new \Exception('Cache not supported');
+        $this->cache = $cache;
     }
 
     /**
      * Returns Cache object
      *
-     * @return Cache|\Doctrine\Common\Cache\CacheProvider
+     * @return CacheInterface
      */
     public function getCache()
     {
@@ -278,6 +272,6 @@ abstract class ParserAbstract
             return $this->cache;
         }
 
-        return new StaticCache();
+        return new CacheStatic();
     }
 }

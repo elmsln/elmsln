@@ -8,31 +8,19 @@
  */
 namespace Piwik;
 
-use Piwik\Application\Environment;
-use Piwik\Config\ConfigNotFoundException;
-use Piwik\Container\StaticContainer;
 use Piwik\Plugin\Manager as PluginManager;
-use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Console extends Application
 {
-    /**
-     * @var Environment
-     */
-    private $environment;
-
-    public function __construct(Environment $environment = null)
+    public function __construct()
     {
-        $this->setServerArgsIfPhpCgi();
-
         parent::__construct();
-
-        $this->environment = $environment;
 
         $option = new InputOption('piwik-domain',
             null,
@@ -41,60 +29,39 @@ class Console extends Application
         );
 
         $this->getDefinition()->addOption($option);
+    }
 
-        $option = new InputOption('xhprof',
-            null,
-            InputOption::VALUE_NONE,
-            'Enable profiling with XHProf'
-        );
-
-        $this->getDefinition()->addOption($option);
+    public function init()
+    {
+        $this->checkCompatibility();
     }
 
     public function doRun(InputInterface $input, OutputInterface $output)
     {
-        if ($input->hasParameterOption('--xhprof')) {
-            Profiler::setupProfilerXHProf(true, true);
-        }
-
         $this->initPiwikHost($input);
-        $this->initEnvironment($output);
-        $this->initLoggerOutput($output);
-
+        $this->initConfig($output);
         try {
             self::initPlugins();
-        } catch (ConfigNotFoundException $e) {
+        } catch(\Exception $e) {
             // Piwik not installed yet, no config file?
-            Log::warning($e->getMessage());
         }
+
+        Translate::reloadLanguage('en');
 
         $commands = $this->getAvailableCommands();
 
         foreach ($commands as $command) {
-            $this->addCommandIfExists($command);
-        }
 
-        $self = $this;
-        return Access::doAsSuperUser(function () use ($input, $output, $self) {
-            return call_user_func(array($self, 'Symfony\Component\Console\Application::doRun'), $input, $output);
-        });
-    }
-
-    private function addCommandIfExists($command)
-    {
-        if (!class_exists($command)) {
-            Log::warning(sprintf('Cannot add command %s, class does not exist', $command));
-        } elseif (!is_subclass_of($command, 'Piwik\Plugin\ConsoleCommand')) {
-            Log::warning(sprintf('Cannot add command %s, class does not extend Piwik\Plugin\ConsoleCommand', $command));
-        } else {
-            /** @var Command $commandInstance */
-            $commandInstance = new $command;
-
-            // do not add the command if it already exists; this way we can add the command ourselves in tests
-            if (!$this->has($commandInstance->getName())) {
-                $this->add($commandInstance);
+            if (!class_exists($command)) {
+                Log::warning(sprintf('Cannot add command %s, class does not exist', $command));
+            } elseif (!is_subclass_of($command, 'Piwik\Plugin\ConsoleCommand')) {
+                Log::warning(sprintf('Cannot add command %s, class does not extend Piwik\Plugin\ConsoleCommand', $command));
+            } else {
+                $this->add(new $command);
             }
         }
+
+        return parent::doRun($input, $output);
     }
 
     /**
@@ -105,9 +72,11 @@ class Console extends Application
     private function getAvailableCommands()
     {
         $commands = $this->getDefaultPiwikCommands();
-        $detected = PluginManager::getInstance()->findMultipleComponents('Commands', 'Piwik\\Plugin\\ConsoleCommand');
 
-        $commands = array_merge($commands, $detected);
+        $pluginNames = PluginManager::getInstance()->getLoadedPluginsName();
+        foreach ($pluginNames as $pluginName) {
+            $commands = array_merge($commands, $this->findCommandsInPlugin($pluginName));
+        }
 
         /**
          * Triggered to filter / restrict console commands. Plugins that want to restrict commands
@@ -132,76 +101,61 @@ class Console extends Application
         return $commands;
     }
 
-    private function setServerArgsIfPhpCgi()
+    private function findCommandsInPlugin($pluginName)
     {
-        if (Common::isPhpCgiType()) {
-            $_SERVER['argv'] = array();
-            foreach ($_GET as $name => $value) {
-                $argument = $name;
-                if (!empty($value)) {
-                    $argument .= '=' . $value;
-                }
+        $commands = array();
 
-                $_SERVER['argv'][] = $argument;
+        $files = Filesystem::globr(PIWIK_INCLUDE_PATH . '/plugins/' . $pluginName .'/Commands', '*.php');
+
+        foreach ($files as $file) {
+            $klassName = sprintf('Piwik\\Plugins\\%s\\Commands\\%s', $pluginName, basename($file, '.php'));
+
+            if (!class_exists($klassName) || !is_subclass_of($klassName, 'Piwik\\Plugin\\ConsoleCommand')) {
+                continue;
             }
 
-            if (!defined('STDIN')) {
-                define('STDIN', fopen('php://stdin', 'r'));
+            $klass = new \ReflectionClass($klassName);
+
+            if ($klass->isAbstract()) {
+                continue;
             }
+
+            $commands[] = $klassName;
         }
+
+        return $commands;
     }
 
-    public static function isSupported()
+    private function checkCompatibility()
     {
-        return Common::isPhpCliMode() && !Common::isPhpCgiType();
+        if (Common::isPhpCgiType()) {
+            echo 'Piwik Console is known to be not compatible with PHP-CGI. Please execute console using PHP-CLI. For instance "/usr/bin/php-cli console ..."';
+            echo "\n";
+            exit(1);
+        }
     }
 
     protected function initPiwikHost(InputInterface $input)
     {
         $piwikHostname = $input->getParameterOption('--piwik-domain');
-
-        if (empty($piwikHostname)) {
-            $piwikHostname = $input->getParameterOption('--url');
-        }
-
         $piwikHostname = UrlHelper::getHostFromUrl($piwikHostname);
         Url::setHost($piwikHostname);
     }
 
-    protected function initEnvironment(OutputInterface $output)
+    protected function initConfig(OutputInterface $output)
     {
+        $config = Config::getInstance();
         try {
-            if ($this->environment === null) {
-                $this->environment = new Environment('cli');
-                $this->environment->init();
-            }
-
-            $config = Config::getInstance();
+            $config->checkLocalConfigFound();
             return $config;
         } catch (\Exception $e) {
             $output->writeln($e->getMessage() . "\n");
         }
     }
 
-    /**
-     * Register the console output into the logger.
-     *
-     * Ideally, this should be done automatically with events:
-     * @see http://symfony.com/fr/doc/current/components/console/events.html
-     * @see Symfony\Bridge\Monolog\Handler\ConsoleHandler::onCommand()
-     * But it would require to install Symfony's Event Dispatcher.
-     */
-    private function initLoggerOutput(OutputInterface $output)
-    {
-        /** @var ConsoleHandler $consoleLogHandler */
-        $consoleLogHandler = StaticContainer::get('Symfony\Bridge\Monolog\Handler\ConsoleHandler');
-        $consoleLogHandler->setOutput($output);
-    }
-
     public static function initPlugins()
     {
         Plugin\Manager::getInstance()->loadActivatedPlugins();
-        Plugin\Manager::getInstance()->loadPluginTranslations();
     }
 
     private function getDefaultPiwikCommands()
@@ -209,12 +163,11 @@ class Console extends Application
         $commands = array(
             'Piwik\CliMulti\RequestCommand'
         );
-
+        
         if (class_exists('Piwik\Plugins\EnterpriseAdmin\EnterpriseAdmin')) {
             $extra = new \Piwik\Plugins\EnterpriseAdmin\EnterpriseAdmin();
             $extra->addConsoleCommands($commands);
         }
-
         return $commands;
     }
 }

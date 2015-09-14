@@ -8,11 +8,6 @@
     background: #D5D3C8;
 }
 
-.UserCountryMap .unlocatableCount {
-  font-size: 11px;
-  color: @color-silver-l60;
-}
-
 .UserCountryMap .loadingPiwik {
     position: absolute !important;
     top: 42% !important;
@@ -43,7 +38,7 @@
 .UserCountryMap-tooltip {
     display: block;
     position: absolute;
-    z-index: 40;
+    z-index: 9;
 }
 
 .UserCountryMap-overlay .content,
@@ -151,7 +146,7 @@
 }
 
 .visitor-map[data-name=unknown-region-fill-color] {
-    color: @theme-color-background-base;
+    color: #fff;
 }
 
 .visitor-map[data-name=unknown-region-stroke-color] {
@@ -171,15 +166,15 @@
 }
 
 .visitor-map[data-name=invisible-region-background] {
-    color: @theme-color-background-base;
+    color: #fff;
 }
 
 .visitor-map[data-name=city-label-color] {
-    color: @theme-color-background-base;
+    color: #fff;
 }
 
 .visitor-map[data-name=city-stroke-color] {
-    color: @theme-color-background-base;
+    color: #fff;
 }
 
 .visitor-map[data-name=city-highlight-stroke-color] {
@@ -195,7 +190,7 @@
 }
 
 .visitor-map[data-name=city-label-fill-color] {
-    color: @theme-color-background-base;
+    color: #fff;
 }
 
 .visitor-map[data-name=city-selected-color] {
@@ -224,17 +219,4 @@
 
 .visitor-map[data-name=special-metrics-color-scale-4] {
     color: #E87500;
-}
-
-.userCountryMapSelectCountry, .userCountryMapSelectMetrics {
-    float: right;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    max-width: 10em;
-    font-size: 10px;
-    .native-select();
-}
-
-.ui-tooltip.qtip {
-    min-width: 100px;
 }

@@ -8,35 +8,34 @@
  * @package Piwik
  */
 
-use Piwik\ErrorHandler;
+use Piwik\Error;
 use Piwik\ExceptionHandler;
 use Piwik\FrontController;
+use Piwik\Plugin\ControllerAdmin as PluginControllerAdmin;
+
+PluginControllerAdmin::disableEacceleratorIfEnabled();
 
 if (!defined('PIWIK_ENABLE_ERROR_HANDLER') || PIWIK_ENABLE_ERROR_HANDLER) {
-    ErrorHandler::registerErrorHandler();
+    require_once PIWIK_INCLUDE_PATH . '/core/Error.php';
+    Error::setErrorHandler();
+    require_once PIWIK_INCLUDE_PATH . '/core/ExceptionHandler.php';
     ExceptionHandler::setUp();
 }
 
 FrontController::setUpSafeMode();
 
-if (!defined('PIWIK_ENABLE_DISPATCH')) {
+if(!defined('PIWIK_ENABLE_DISPATCH')) {
     define('PIWIK_ENABLE_DISPATCH', true);
 }
 
 if (PIWIK_ENABLE_DISPATCH) {
-    $environment = new \Piwik\Application\Environment(null);
-    $environment->init();
-
     $controller = FrontController::getInstance();
+    $controller->init();
+    $response = $controller->dispatch();
 
-    try {
-        $controller->init();
-        $response = $controller->dispatch();
-
-        if (!is_null($response)) {
-            echo $response;
-        }
-    } catch (Exception $ex) {
-        ExceptionHandler::dieWithHtmlErrorPage($ex);
+    if(is_array($response)) {
+        var_export($response);
+    } elseif (!is_null($response)) {
+        echo $response;
     }
 }

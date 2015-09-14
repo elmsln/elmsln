@@ -9,11 +9,10 @@
 namespace Piwik\DataTable;
 
 use Exception;
-use Piwik\Common;
 use Piwik\DataTable;
+use Piwik\Loader;
 use Piwik\Metrics;
 use Piwik\Piwik;
-use Piwik\BaseFactory;
 
 /**
  * A DataTable Renderer can produce an output given a DataTable object.
@@ -23,7 +22,7 @@ use Piwik\BaseFactory;
  *  $render->setTable($dataTable);
  *  echo $render;
  */
-abstract class Renderer extends BaseFactory
+abstract class Renderer
 {
     protected $table;
 
@@ -101,7 +100,7 @@ abstract class Renderer extends BaseFactory
      */
     protected function renderHeader()
     {
-        Common::sendHeader('Content-Type: text/plain; charset=utf-8');
+        @header('Content-Type: text/plain; charset=utf-8');
     }
 
     /**
@@ -110,6 +109,22 @@ abstract class Renderer extends BaseFactory
      * @return mixed
      */
     abstract public function render();
+
+    /**
+     * Computes the exception output and returns the string/binary
+     *
+     * @return string
+     */
+    abstract public function renderException();
+
+    protected function getExceptionMessage()
+    {
+        $message = $this->exception->getMessage();
+        if (\Piwik_ShouldPrintBackTraceWithMessage()) {
+            $message .= "\n" . $this->exception->getTraceAsString();
+        }
+        return self::renderHtmlEntities($message);
+    }
 
     /**
      * @see render()
@@ -129,17 +144,32 @@ abstract class Renderer extends BaseFactory
     public function setTable($table)
     {
         if (!is_array($table)
-            && !($table instanceof DataTableInterface)
+            && !($table instanceof DataTable)
+            && !($table instanceof DataTable\Map)
         ) {
-            throw new Exception("DataTable renderers renderer accepts only DataTable, Simple and Map instances, and arrays.");
+            throw new Exception("DataTable renderers renderer accepts only DataTable and Map instances, and arrays.");
         }
         $this->table = $table;
     }
 
     /**
+     * Set the Exception to be rendered
+     *
+     * @param Exception $exception to be rendered
+     * @throws Exception
+     */
+    public function setException($exception)
+    {
+        if (!($exception instanceof Exception)) {
+            throw new Exception("The exception renderer accepts only an Exception object.");
+        }
+        $this->exception = $exception;
+    }
+
+    /**
      * @var array
      */
-    protected static $availableRenderers = array('xml',
+    static protected $availableRenderers = array('xml',
                                                  'json',
                                                  'csv',
                                                  'tsv',
@@ -152,25 +182,41 @@ abstract class Renderer extends BaseFactory
      *
      * @return array
      */
-    public static function getRenderers()
+    static public function getRenderers()
     {
         return self::$availableRenderers;
     }
 
-    protected static function getClassNameFromClassId($id)
+    /**
+     * Returns the DataTable associated to the output format $name
+     *
+     * @param string $name
+     * @throws Exception If the renderer is unknown
+     * @return \Piwik\DataTable\Renderer
+     */
+    static public function factory($name)
     {
-        $className = ucfirst(strtolower($id));
+        $className = ucfirst(strtolower($name));
         $className = 'Piwik\DataTable\Renderer\\' . $className;
-
-        return $className;
+        try {
+            Loader::loadClass($className);
+            return new $className;
+        } catch (Exception $e) {
+            $availableRenderers = implode(', ', self::getRenderers());
+            @header('Content-Type: text/plain; charset=utf-8');
+            throw new Exception(Piwik::translate('General_ExceptionInvalidRendererFormat', array($className, $availableRenderers)));
+        }
     }
 
-    protected static function getInvalidClassIdExceptionMessage($id)
+    /**
+     * Returns $rawData after all applicable characters have been converted to HTML entities.
+     *
+     * @param String $rawData data to be converted
+     * @return String
+     */
+    static protected function renderHtmlEntities($rawData)
     {
-        $availableRenderers = implode(', ', self::getRenderers());
-        $klassName = self::getClassNameFromClassId($id);
-
-        return Piwik::translate('General_ExceptionInvalidRendererFormat', array($klassName, $availableRenderers));
+        return self::formatValueXml($rawData);
     }
 
     /**
@@ -190,14 +236,12 @@ abstract class Renderer extends BaseFactory
                 $value = @mb_convert_encoding($value, 'UTF-8', 'UTF-8');
             }
             $value = htmlspecialchars($value, ENT_COMPAT, 'UTF-8');
-
             $htmlentities = array("&nbsp;", "&iexcl;", "&cent;", "&pound;", "&curren;", "&yen;", "&brvbar;", "&sect;", "&uml;", "&copy;", "&ordf;", "&laquo;", "&not;", "&shy;", "&reg;", "&macr;", "&deg;", "&plusmn;", "&sup2;", "&sup3;", "&acute;", "&micro;", "&para;", "&middot;", "&cedil;", "&sup1;", "&ordm;", "&raquo;", "&frac14;", "&frac12;", "&frac34;", "&iquest;", "&Agrave;", "&Aacute;", "&Acirc;", "&Atilde;", "&Auml;", "&Aring;", "&AElig;", "&Ccedil;", "&Egrave;", "&Eacute;", "&Ecirc;", "&Euml;", "&Igrave;", "&Iacute;", "&Icirc;", "&Iuml;", "&ETH;", "&Ntilde;", "&Ograve;", "&Oacute;", "&Ocirc;", "&Otilde;", "&Ouml;", "&times;", "&Oslash;", "&Ugrave;", "&Uacute;", "&Ucirc;", "&Uuml;", "&Yacute;", "&THORN;", "&szlig;", "&agrave;", "&aacute;", "&acirc;", "&atilde;", "&auml;", "&aring;", "&aelig;", "&ccedil;", "&egrave;", "&eacute;", "&ecirc;", "&euml;", "&igrave;", "&iacute;", "&icirc;", "&iuml;", "&eth;", "&ntilde;", "&ograve;", "&oacute;", "&ocirc;", "&otilde;", "&ouml;", "&divide;", "&oslash;", "&ugrave;", "&uacute;", "&ucirc;", "&uuml;", "&yacute;", "&thorn;", "&yuml;", "&euro;");
-            $xmlentities  = array("&#162;", "&#163;", "&#164;", "&#165;", "&#166;", "&#167;", "&#168;", "&#169;", "&#170;", "&#171;", "&#172;", "&#173;", "&#174;", "&#175;", "&#176;", "&#177;", "&#178;", "&#179;", "&#180;", "&#181;", "&#182;", "&#183;", "&#184;", "&#185;", "&#186;", "&#187;", "&#188;", "&#189;", "&#190;", "&#191;", "&#192;", "&#193;", "&#194;", "&#195;", "&#196;", "&#197;", "&#198;", "&#199;", "&#200;", "&#201;", "&#202;", "&#203;", "&#204;", "&#205;", "&#206;", "&#207;", "&#208;", "&#209;", "&#210;", "&#211;", "&#212;", "&#213;", "&#214;", "&#215;", "&#216;", "&#217;", "&#218;", "&#219;", "&#220;", "&#221;", "&#222;", "&#223;", "&#224;", "&#225;", "&#226;", "&#227;", "&#228;", "&#229;", "&#230;", "&#231;", "&#232;", "&#233;", "&#234;", "&#235;", "&#236;", "&#237;", "&#238;", "&#239;", "&#240;", "&#241;", "&#242;", "&#243;", "&#244;", "&#245;", "&#246;", "&#247;", "&#248;", "&#249;", "&#250;", "&#251;", "&#252;", "&#253;", "&#254;", "&#255;", "&#8364;");
-            $value        = str_replace($htmlentities, $xmlentities, $value);
+            $xmlentities = array("&#162;", "&#163;", "&#164;", "&#165;", "&#166;", "&#167;", "&#168;", "&#169;", "&#170;", "&#171;", "&#172;", "&#173;", "&#174;", "&#175;", "&#176;", "&#177;", "&#178;", "&#179;", "&#180;", "&#181;", "&#182;", "&#183;", "&#184;", "&#185;", "&#186;", "&#187;", "&#188;", "&#189;", "&#190;", "&#191;", "&#192;", "&#193;", "&#194;", "&#195;", "&#196;", "&#197;", "&#198;", "&#199;", "&#200;", "&#201;", "&#202;", "&#203;", "&#204;", "&#205;", "&#206;", "&#207;", "&#208;", "&#209;", "&#210;", "&#211;", "&#212;", "&#213;", "&#214;", "&#215;", "&#216;", "&#217;", "&#218;", "&#219;", "&#220;", "&#221;", "&#222;", "&#223;", "&#224;", "&#225;", "&#226;", "&#227;", "&#228;", "&#229;", "&#230;", "&#231;", "&#232;", "&#233;", "&#234;", "&#235;", "&#236;", "&#237;", "&#238;", "&#239;", "&#240;", "&#241;", "&#242;", "&#243;", "&#244;", "&#245;", "&#246;", "&#247;", "&#248;", "&#249;", "&#250;", "&#251;", "&#252;", "&#253;", "&#254;", "&#255;", "&#8364;");
+            $value = str_replace($htmlentities, $xmlentities, $value);
         } elseif ($value === false) {
             $value = 0;
         }
-
         return $value;
     }
 

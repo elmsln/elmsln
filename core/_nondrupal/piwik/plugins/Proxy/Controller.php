@@ -96,7 +96,7 @@ class Controller extends \Piwik\Plugin\Controller
         if (!UrlHelper::isLookLikeUrl($url)) {
             die('Please check the &url= parameter: it should to be a valid URL');
         }
-        Common::sendHeader('Content-Type: text/html; charset=utf-8');
+        @header('Content-Type: text/html; charset=utf-8');
         echo '<html><head><meta http-equiv="refresh" content="0;url=' . $url . '" /></head></html>';
 
         exit;
@@ -108,7 +108,7 @@ class Controller extends \Piwik\Plugin\Controller
      * @param string $url
      * @return bool True if valid; false otherwise
      */
-    public static function isPiwikUrl($url)
+    static public function isPiwikUrl($url)
     {
         // guard for IE6 meta refresh parsing weakness (OSVDB 19029)
         if (strpos($url, ';') !== false

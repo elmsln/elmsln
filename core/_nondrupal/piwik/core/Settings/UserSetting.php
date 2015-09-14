@@ -8,7 +8,6 @@
  */
 
 namespace Piwik\Settings;
-
 use Piwik\Common;
 use Piwik\Piwik;
 
@@ -24,14 +23,8 @@ class UserSetting extends Setting
     private $userLogin = null;
 
     /**
-     * Null while not initialized, bool otherwise.
-     * @var null|bool
-     */
-    private $hasReadAndWritePermission = null;
-
-    /**
      * Constructor.
-     *
+     * 
      * @param string $name The setting's persisted name.
      * @param string $title The setting's display name.
      * @param null|string $userLogin The user this setting applies to. Will default to the current user login.
@@ -41,37 +34,14 @@ class UserSetting extends Setting
         parent::__construct($name, $title);
 
         $this->setUserLogin($userLogin);
-    }
 
-    /**
-     * Returns `true` if this setting can be displayed for the current user, `false` if otherwise.
-     *
-     * @return bool
-     */
-    public function isReadableByCurrentUser()
-    {
-        return $this->isWritableByCurrentUser();
-    }
-
-    /**
-     * Returns `true` if this setting can be displayed for the current user, `false` if otherwise.
-     *
-     * @return bool
-     */
-    public function isWritableByCurrentUser()
-    {
-        if (isset($this->hasReadAndWritePermission)) {
-            return $this->hasReadAndWritePermission;
-        }
-
-        $this->hasReadAndWritePermission = Piwik::isUserHasSomeViewAccess();
-
-        return $this->hasReadAndWritePermission;
+        $this->writableByCurrentUser = Piwik::isUserHasSomeViewAccess();
+        $this->readableByCurrentUser = Piwik::isUserHasSomeViewAccess();
     }
 
     /**
      * Returns the display order. User settings are displayed after system settings.
-     *
+     * 
      * @return int
      */
     public function getOrder()
@@ -131,13 +101,16 @@ class UserSetting extends Setting
         $pluginsSettings = Manager::getAllPluginSettings();
 
         foreach ($pluginsSettings as $pluginSettings) {
+
             $settings = $pluginSettings->getSettings();
 
             foreach ($settings as $setting) {
+
                 if ($setting instanceof UserSetting) {
                     $setting->setUserLogin($userLogin);
-                    $setting->removeValue();
+                    $pluginSettings->removeSettingValue($setting);
                 }
+
             }
 
             $pluginSettings->save();

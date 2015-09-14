@@ -9,15 +9,14 @@ function showAddNewGoal() {
     hideForms();
     $(".entityAddContainer").show();
     showCancel();
-    hideCreateGoal();
     piwikHelper.lazyScrollTo(".entityContainer", 400);
     return false;
 }
 
 function showEditGoals() {
     hideForms();
-    showCreateGoal();
     $("#entityEditContainer").show();
+    showCancel();
     piwikHelper.lazyScrollTo(".entityContainer", 400);
     return false;
 }
@@ -32,35 +31,7 @@ function showCancel() {
     $('.entityCancelLink').click(function () {
         hideForms();
         $(".entityCancel").hide();
-        showEditGoals();
     });
-}
-
-function showCreateGoal() {
-    $("div[name=linkAddNewGoal]").show();
-}
-
-function hideCreateGoal() {
-    $("div[name=linkAddNewGoal]").hide();
-}
-
-function onMatchAttributeChange(matchAttribute)
-{
-    if ('event' === matchAttribute) {
-        $('.entityAddContainer .whereEvent').show();
-        $('.entityAddContainer .whereUrl').hide();
-    } else {
-        $('.entityAddContainer .whereEvent').hide();
-        $('.entityAddContainer .whereUrl').show();
-    }
-
-    $('#match_attribute_name').html(mappingMatchTypeName[matchAttribute]);
-    $('#examples_pattern').html(mappingMatchTypeExamples[matchAttribute]);
-}
-
-function updateMatchAttribute () {
-    var matchTypeId = $(this).val();
-    onMatchAttributeChange(matchTypeId);
 }
 
 // init the goal form with existing goal value, if any
@@ -70,20 +41,11 @@ function initGoalForm(goalMethodAPI, submitText, goalName, matchAttribute, patte
         $('select[name=trigger_type] option[value=manually]').prop('selected', true);
         $('input[name=match_attribute]').prop('disabled', true);
         $('#match_attribute_section').hide();
-        $('#match_attribute_section2').hide();
         $('#manual_trigger_section').show();
         matchAttribute = 'url';
     } else {
         $('select[name=trigger_type] option[value=visitors]').prop('selected', true);
     }
-
-    if (0 === matchAttribute.indexOf('event')) {
-        $('select[name=event_type] option[value=' + matchAttribute + ']').prop('selected', true);
-        matchAttribute = 'event';
-    }
-
-    onMatchAttributeChange(matchAttribute);
-
     $('input[name=match_attribute][value=' + matchAttribute + ']').prop('checked', true);
     $('input[name=allow_multiple][value=' + allowMultiple + ']').prop('checked', true);
     $('#match_attribute_name').html(mappingMatchTypeName[matchAttribute]);
@@ -97,35 +59,27 @@ function initGoalForm(goalMethodAPI, submitText, goalName, matchAttribute, patte
     if (goalId != undefined) {
         $('input[name=goalIdUpdate]').val(goalId);
     }
-
-    // force re-run of iCheck. They were already initialized with all radio fields not selected. see #5961
-    $('.entityAddContainer div.form-radio').removeClass('form-radio');
-    $(document).trigger('Goals.edit', {});
 }
 
-function bindGoalForm() {
 
-    $('select[name=trigger_type]').change(function () {
+function bindGoalForm() {
+    $('select[name=trigger_type]').click(function () {
         var triggerTypeId = $(this).val();
         if (triggerTypeId == "manually") {
             $('input[name=match_attribute]').prop('disabled', true);
             $('#match_attribute_section').hide();
-            $('#match_attribute_section2').hide();
             $('#manual_trigger_section').show();
         } else {
             $('input[name=match_attribute]').removeProp('disabled');
             $('#match_attribute_section').show();
-            $('#match_attribute_section2').show();
             $('#manual_trigger_section').hide();
-            // force re-run of iCheck
-            $('.entityAddContainer div.form-radio').removeClass('form-radio');
-            $(document).trigger('Goals.edit', {});
         }
     });
 
-    $(document).bind('Goals.edit', function () {
-        $('input[name=match_attribute]').off('change', updateMatchAttribute);
-        $('input[name=match_attribute]').change(updateMatchAttribute);
+    $('input[name=match_attribute]').click(function () {
+        var matchTypeId = $(this).val();
+        $('#match_attribute_name').html(mappingMatchTypeName[matchTypeId]);
+        $('#examples_pattern').html(mappingMatchTypeExamples[matchTypeId]);
     });
 
     $('#goal_submit').click(function () {
@@ -134,7 +88,7 @@ function bindGoalForm() {
         return false;
     });
 
-    $('div[name=linkAddNewGoal]').click(function () {
+    $('a[name=linkAddNewGoal]').click(function () {
         initAndShowAddGoalForm();
         piwikHelper.lazyScrollTo('#goal_name');
     });
@@ -169,11 +123,6 @@ function ajaxAddGoal() {
         parameters.caseSensitive = 0;
     } else {
         parameters.matchAttribute = $('input[name=match_attribute]:checked').val();
-
-        if (parameters.matchAttribute === 'event') {
-            parameters.matchAttribute = $('select[name=event_type]').val();
-        }
-
         parameters.patternType = $('[name=pattern_type]').val();
         parameters.pattern = encodeURIComponent($('input[name=pattern]').val());
         parameters.caseSensitive = $('#case_sensitive').prop('checked') == true ? 1 : 0;
@@ -189,23 +138,16 @@ function ajaxAddGoal() {
     var ajaxRequest = new ajaxHelper();
     ajaxRequest.addParams(parameters, 'get');
     ajaxRequest.setLoadingElement('#goalAjaxLoading');
-    ajaxRequest.setCallback(function () {
-        location.reload();
-    });
+    ajaxRequest.setCallback(function () { location.reload(); });
     ajaxRequest.send(true);
-}
-
-function editGoal(goalId)
-{
-    var goal = piwik.goals[goalId];
-    initGoalForm("Goals.updateGoal", _pk_translate('Goals_UpdateGoal'), goal.name, goal.match_attribute, goal.pattern, goal.pattern_type, (goal.case_sensitive != '0'), goal.revenue, goal.allow_multiple, goalId);
-    showAddNewGoal();
 }
 
 function bindListGoalEdit() {
     $('a[name=linkEditGoal]').click(function () {
         var goalId = $(this).attr('id');
-        editGoal(goalId);
+        var goal = piwik.goals[goalId];
+        initGoalForm("Goals.updateGoal", _pk_translate('Goals_UpdateGoal'), goal.name, goal.match_attribute, goal.pattern, goal.pattern_type, (goal.case_sensitive != '0'), goal.revenue, goal.allow_multiple, goalId);
+        showAddNewGoal();
         return false;
     });
 

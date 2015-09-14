@@ -9,7 +9,7 @@
 namespace Piwik\Plugins\PrivacyManager;
 
 use Piwik\Common;
-use Piwik\Network\IP;
+use Piwik\IP;
 
 /**
  * Anonymize visitor IP addresses to comply with the privacy laws/guidelines in countries, such as Germany.
@@ -19,36 +19,50 @@ class IPAnonymizer
     /**
      * Internal function to mask portions of the visitor IP address
      *
-     * @param IP $ip
+     * @param string $ip IP address in network address format
      * @param int $maskLength Number of octets to reset
-     * @return IP
+     * @return string
      */
-    public static function applyIPMask(IP $ip, $maskLength)
+    public static function applyIPMask($ip, $maskLength)
     {
-        $newIpObject = $ip->anonymize($maskLength);
+        // IPv4 or mapped IPv4 in IPv6
+        if (IP::isIPv4($ip)) {
+            $i = strlen($ip);
+            if ($maskLength > $i) {
+                $maskLength = $i;
+            }
 
-        return $newIpObject;
+            while ($maskLength-- > 0) {
+                $ip[--$i] = chr(0);
+            }
+        } else {
+            $masks = array(
+                'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+                'ffff:ffff:ffff:ffff::',
+                'ffff:ffff:ffff:0000::',
+                'ffff:ff00:0000:0000::'
+            );
+            $ip = $ip & pack('a16', inet_pton($masks[$maskLength]));
+        }
+        return $ip;
     }
 
     /**
      * Hook on Tracker.Visit.setVisitorIp to anomymize visitor IP addresses
-     * @param string $ip IP address in binary format (network format)
      */
     public function setVisitorIpAddress(&$ip)
     {
-        $ipObject = IP::fromBinaryIP($ip);
-
         if (!$this->isActive()) {
-            Common::printDebug("Visitor IP was _not_ anonymized: ". $ipObject->toString());
+            Common::printDebug("Visitor IP was _not_ anonymized: ". IP::N2P($ip));
             return;
         }
 
+        $originalIp = $ip;
+
         $privacyConfig = new Config();
 
-        $newIpObject = self::applyIPMask($ipObject, $privacyConfig->ipAddressMaskLength);
-        $ip = $newIpObject->toBinary();
-
-        Common::printDebug("Visitor IP (was: ". $ipObject->toString() .") has been anonymized: ". $newIpObject->toString());
+        $ip = self::applyIPMask($ip, $privacyConfig->ipAddressMaskLength);
+        Common::printDebug("Visitor IP (was: ". IP::N2P($originalIp) .") has been anonymized: ". IP::N2P($ip));
     }
 
     /**

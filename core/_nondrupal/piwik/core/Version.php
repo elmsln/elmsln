@@ -12,6 +12,7 @@ namespace Piwik;
 /**
  * Piwik version information.
  *
+ *
  * @api
  */
 final class Version
@@ -20,20 +21,5 @@ final class Version
      * The current Piwik version.
      * @var string
      */
-    const VERSION = '2.14.3';
-
-    public function isStableVersion($version)
-    {
-        return (bool) preg_match('/^(\d+)\.(\d+)\.(\d+)$/', $version);
-    }
-
-    public function isVersionNumber($version)
-    {
-        return $this->isStableVersion($version) || $this->isNonStableVersion($version);
-    }
-
-    private function isNonStableVersion($version)
-    {
-        return (bool) preg_match('/^(\d+)\.(\d+)\.(\d+)-.{1,4}(\d+)$/', $version);
-    }
+    const VERSION = '2.4.0';
 }

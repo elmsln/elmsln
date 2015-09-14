@@ -9,21 +9,23 @@
 
 namespace Piwik\Plugins\LanguagesManager\Commands;
 
+use Piwik\Plugin\ConsoleCommand;
 use Piwik\Plugins\LanguagesManager\API;
-use Piwik\Plugins\LanguagesManager\TranslationWriter\Filter\ByBaseTranslations;
-use Piwik\Plugins\LanguagesManager\TranslationWriter\Filter\ByParameterCount;
-use Piwik\Plugins\LanguagesManager\TranslationWriter\Filter\EmptyTranslations;
-use Piwik\Plugins\LanguagesManager\TranslationWriter\Filter\EncodedEntities;
-use Piwik\Plugins\LanguagesManager\TranslationWriter\Filter\UnnecassaryWhitespaces;
-use Piwik\Plugins\LanguagesManager\TranslationWriter\Validate\CoreTranslations;
-use Piwik\Plugins\LanguagesManager\TranslationWriter\Validate\NoScripts;
-use Piwik\Plugins\LanguagesManager\TranslationWriter\Writer;
-use Symfony\Component\Console\Helper\DialogHelper;
+use Piwik\Translate\Filter\ByBaseTranslations;
+use Piwik\Translate\Filter\ByParameterCount;
+use Piwik\Translate\Filter\EmptyTranslations;
+use Piwik\Translate\Filter\EncodedEntities;
+use Piwik\Translate\Filter\UnnecassaryWhitespaces;
+use Piwik\Translate\Validate\CoreTranslations;
+use Piwik\Translate\Validate\NoScripts;
+use Piwik\Translate\Writer;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SetTranslations extends TranslationBase
+/**
+ */
+class SetTranslations extends ConsoleCommand
 {
     protected function configure()
     {
@@ -36,7 +38,6 @@ class SetTranslations extends TranslationBase
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var DialogHelper $dialog */
         $dialog = $this->getHelperSet()->get('dialog');
 
         $languageCode = $input->getOption('code');

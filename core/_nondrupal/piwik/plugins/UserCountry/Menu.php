@@ -16,15 +16,16 @@ class Menu extends \Piwik\Plugin\Menu
 {
     public function configureAdminMenu(MenuAdmin $menu)
     {
-        if (UserCountry::isGeoLocationAdminEnabled() && Piwik::hasUserSuperUserAccess()) {
-            $menu->addSettingsItem('UserCountry_Geolocation',
-                                   $this->urlForAction('adminIndex'),
-                                   $order = 9);
+        if (UserCountry::isGeoLocationAdminEnabled()) {
+            $menu->add('General_Settings', 'UserCountry_Geolocation',
+                array('module' => 'UserCountry', 'action' => 'adminIndex'),
+                Piwik::hasUserSuperUserAccess(),
+                $order = 8);
         }
     }
 
     public function configureReportingMenu(MenuReporting $menu)
     {
-        $menu->addVisitorsItem('UserCountry_SubmenuLocations', $this->urlForAction('index'));
+        $menu->add('General_Visitors', 'UserCountry_SubmenuLocations', array('module' => 'UserCountry', 'action' => 'index'));
     }
 }

@@ -43,7 +43,7 @@ Segmentation = (function($) {
         self.availableMatches["metric"][">="] = self.translations['General_OperationAtLeast'];
         self.availableMatches["metric"]["<"] = self.translations['General_OperationLessThan'];
         self.availableMatches["metric"][">"] = self.translations['General_OperationGreaterThan'];
-
+        
         self.availableMatches["dimension"] = [];
         self.availableMatches["dimension"]["=="] = self.translations['General_OperationIs'];
         self.availableMatches["dimension"]["!="] = self.translations['General_OperationIsNot'];
@@ -67,6 +67,18 @@ Segmentation = (function($) {
                 segmentStr = encodeURIComponent(segmentStr);
             }
             this.currentSegmentStr = segmentStr;
+        };
+
+        segmentation.prototype.shortenSegmentName = function(name, length){
+
+            if(typeof length === "undefined") length = 18;
+            if(typeof name === "undefined") name = "";
+            var i;
+            
+            if(name.length > length) {
+                return name.slice(0, length).trim() + "...";
+            }
+            return name;
         };
 
         segmentation.prototype.markCurrentSegment = function(){
@@ -196,6 +208,7 @@ Segmentation = (function($) {
         var getListHtml = function() {
             var html = self.editorTemplate.find("> .listHtml").clone();
             var segment, injClass;
+
             var listHtml = '<li data-idsegment="" ' +
                             (self.currentSegmentStr == "" ? " class='segmentSelected' " : "")
                             + ' data-definition=""><span class="segname">' + self.translations['SegmentEditor_DefaultAllVisits']
@@ -206,16 +219,12 @@ Segmentation = (function($) {
                 {
                     segment = self.availableSegments[i];
                     injClass = "";
-                    var checkSelected = segment.definition;
-                    if(!$.browser.mozilla) {
-                        checkSelected = encodeURIComponent(checkSelected);
-                    }
-                    
-                    if( checkSelected == self.currentSegmentStr){
+                    if( segment.definition == self.currentSegmentStr){
                         injClass = 'class="segmentSelected"';
                     }
                     listHtml += '<li data-idsegment="'+segment.idsegment+'" data-definition="'+ (segment.definition).replace(/"/g, '&quot;') +'" '
-                                +injClass+' title="'+segment.name+'"><span class="segname">'+segment.name+'</span>';
+                                + injClass +' title="'+segment.name+'"><span class="segname">'
+                                + self.shortenSegmentName(segment.name)+'</span>';
                     if(self.segmentAccess == "write") {
                         listHtml += '<span class="editSegment" title="'+ self.translations['General_Edit'].toLocaleLowerCase() +'"></span>';
                     }
@@ -249,7 +258,7 @@ Segmentation = (function($) {
             for(var i = 0; i < self.availableSegments.length; i++)
             {
                 segment = self.availableSegments[i];
-                newOption = '<option data-idsegment="'+segment.idsegment+'" data-definition="'+(segment.definition).replace(/"/g, '&quot;')+'" title="'+segment.name+'">'+segment.name+'</option>';
+                newOption = '<option data-idsegment="'+segment.idsegment+'" data-definition="'+(segment.definition).replace(/"/g, '&quot;')+'" title="'+segment.name+'">'+self.shortenSegmentName(segment.name)+'</option>';
                 segmentsDropdown.append(newOption);
             }
             $(html).find(".segment-content > h3").after(getInitialStateRowsHtml()).show();
@@ -262,6 +271,7 @@ Segmentation = (function($) {
                     $(this).trigger("click");
             });
         };
+
 
         var findAndExplodeByMatch = function(metric){
             var matches = ["==" , "!=" , "<=", ">=", "=@" , "!@","<",">"];
@@ -325,7 +335,7 @@ Segmentation = (function($) {
             $(self.form).find(".segment-content > h3 > span").text(segment.name);
             $(self.form).find('.available_segments_select > option[data-idsegment="'+segment.idsegment+'"]').prop("selected",true);
 
-            $(self.form).find('.available_segments a.dropList').text(segment.name);
+            $(self.form).find('.available_segments a.dropList').text(self.shortenSegmentName(segment.name));
 
             if(segment.definition != ""){
                 revokeInitialStateRows();
@@ -491,12 +501,10 @@ Segmentation = (function($) {
 
             self.target.on('blur', "input.edit_segment_name", function (e) {
                 var newName = $(this).val();
-                var segmentNameNode = $(e.currentTarget).parents("h3").find("span");
-
-                if(newName.trim()) {
-                    segmentNameNode.text(newName);
-                } else {
-                    $(this).val(segmentNameNode.text());
+                if(newName.trim() != '') {
+                    $(e.currentTarget).parents("h3").find("span").text(newName).show();
+                    $(self.form).find("a.editSegmentName").show();
+                    $(this).remove();
                 }
             });
 
@@ -929,7 +937,7 @@ Segmentation = (function($) {
         };
 
         var closeForm = function () {
-            $(self.form).unbind().remove();
+            self.form.unbind().remove();
             self.target.closest('.segmentEditorPanel').removeClass('editing');
         };
 
@@ -1070,13 +1078,14 @@ Segmentation = (function($) {
     return segmentation;
 })(jQuery);
 
+
 $(document).ready(function() {
     var exports = require('piwik/UI');
     var UIControl = exports.UIControl;
 
     /**
      * Sets up and handles events for the segment selector & editor control.
-     *
+     * 
      * @param {Element} element The HTML element generated by the SegmentSelectorControl PHP class. Should
      *                          have the CSS class 'segmentEditorPanel'.
      * @constructor
@@ -1176,6 +1185,7 @@ $(document).ready(function() {
             });
             ajaxHandler.send(true);
         };
+
 
         var deleteSegment = function(params){
             var ajaxHandler = new ajaxHelper();

@@ -131,55 +131,55 @@
             stepMonths: 1,
             // jquery-ui-i18n 1.7.2 lacks some translations, so we use our own
             dayNamesMin: [
-                _pk_translate('Intl_DaySu'),
-                _pk_translate('Intl_DayMo'),
-                _pk_translate('Intl_DayTu'),
-                _pk_translate('Intl_DayWe'),
-                _pk_translate('Intl_DayTh'),
-                _pk_translate('Intl_DayFr'),
-                _pk_translate('Intl_DaySa')],
+                _pk_translate('General_DaySu'),
+                _pk_translate('General_DayMo'),
+                _pk_translate('General_DayTu'),
+                _pk_translate('General_DayWe'),
+                _pk_translate('General_DayTh'),
+                _pk_translate('General_DayFr'),
+                _pk_translate('General_DaySa')],
             dayNamesShort: [
-                _pk_translate('Intl_ShortDay_7'), // start with sunday
-                _pk_translate('Intl_ShortDay_1'),
-                _pk_translate('Intl_ShortDay_2'),
-                _pk_translate('Intl_ShortDay_3'),
-                _pk_translate('Intl_ShortDay_4'),
-                _pk_translate('Intl_ShortDay_5'),
-                _pk_translate('Intl_ShortDay_6')],
+                _pk_translate('General_ShortDay_7'), // start with sunday
+                _pk_translate('General_ShortDay_1'),
+                _pk_translate('General_ShortDay_2'),
+                _pk_translate('General_ShortDay_3'),
+                _pk_translate('General_ShortDay_4'),
+                _pk_translate('General_ShortDay_5'),
+                _pk_translate('General_ShortDay_6')],
             dayNames: [
-                _pk_translate('Intl_LongDay_7'), // start with sunday
-                _pk_translate('Intl_LongDay_1'),
-                _pk_translate('Intl_LongDay_2'),
-                _pk_translate('Intl_LongDay_3'),
-                _pk_translate('Intl_LongDay_4'),
-                _pk_translate('Intl_LongDay_5'),
-                _pk_translate('Intl_LongDay_6')],
+                _pk_translate('General_LongDay_7'), // start with sunday
+                _pk_translate('General_LongDay_1'),
+                _pk_translate('General_LongDay_2'),
+                _pk_translate('General_LongDay_3'),
+                _pk_translate('General_LongDay_4'),
+                _pk_translate('General_LongDay_5'),
+                _pk_translate('General_LongDay_6')],
             monthNamesShort: [
-                _pk_translate('Intl_ShortMonth_1'),
-                _pk_translate('Intl_ShortMonth_2'),
-                _pk_translate('Intl_ShortMonth_3'),
-                _pk_translate('Intl_ShortMonth_4'),
-                _pk_translate('Intl_ShortMonth_5'),
-                _pk_translate('Intl_ShortMonth_6'),
-                _pk_translate('Intl_ShortMonth_7'),
-                _pk_translate('Intl_ShortMonth_8'),
-                _pk_translate('Intl_ShortMonth_9'),
-                _pk_translate('Intl_ShortMonth_10'),
-                _pk_translate('Intl_ShortMonth_11'),
-                _pk_translate('Intl_ShortMonth_12')],
+                _pk_translate('General_ShortMonth_1'),
+                _pk_translate('General_ShortMonth_2'),
+                _pk_translate('General_ShortMonth_3'),
+                _pk_translate('General_ShortMonth_4'),
+                _pk_translate('General_ShortMonth_5'),
+                _pk_translate('General_ShortMonth_6'),
+                _pk_translate('General_ShortMonth_7'),
+                _pk_translate('General_ShortMonth_8'),
+                _pk_translate('General_ShortMonth_9'),
+                _pk_translate('General_ShortMonth_10'),
+                _pk_translate('General_ShortMonth_11'),
+                _pk_translate('General_ShortMonth_12')],
             monthNames: [
-                _pk_translate('Intl_LongMonth_1'),
-                _pk_translate('Intl_LongMonth_2'),
-                _pk_translate('Intl_LongMonth_3'),
-                _pk_translate('Intl_LongMonth_4'),
-                _pk_translate('Intl_LongMonth_5'),
-                _pk_translate('Intl_LongMonth_6'),
-                _pk_translate('Intl_LongMonth_7'),
-                _pk_translate('Intl_LongMonth_8'),
-                _pk_translate('Intl_LongMonth_9'),
-                _pk_translate('Intl_LongMonth_10'),
-                _pk_translate('Intl_LongMonth_11'),
-                _pk_translate('Intl_LongMonth_12')]
+                _pk_translate('General_LongMonth_1'),
+                _pk_translate('General_LongMonth_2'),
+                _pk_translate('General_LongMonth_3'),
+                _pk_translate('General_LongMonth_4'),
+                _pk_translate('General_LongMonth_5'),
+                _pk_translate('General_LongMonth_6'),
+                _pk_translate('General_LongMonth_7'),
+                _pk_translate('General_LongMonth_8'),
+                _pk_translate('General_LongMonth_9'),
+                _pk_translate('General_LongMonth_10'),
+                _pk_translate('General_LongMonth_11'),
+                _pk_translate('General_LongMonth_12')]
         };
     };
 
@@ -484,6 +484,7 @@
             $('#calendarTo').datepicker(options).datepicker("setDate", $.datepicker.parseDate('yy-mm-dd', piwik.endDateString));
             onDateRangeSelect(piwik.endDateString, { "id": "calendarTo" });
 
+
             // If not called, the first date appears light brown instead of dark brown
             $('.ui-state-hover').removeClass('ui-state-hover');
 
@@ -507,6 +508,7 @@
                     broadcast.propagateNewPage('period=range&date=' + dateFrom + ',' + dateTo);
                 })
                 .show();
+
 
             // Bind the input fields to update the calendar's date when date is manually changed
             $('#inputCalendarFrom, #inputCalendarTo')

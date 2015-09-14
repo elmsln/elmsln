@@ -20,7 +20,7 @@ use Piwik\Updates;
 class Updates_1_8_3_b1 extends Updates
 {
 
-    public static function getSql()
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('site') . '`
@@ -44,7 +44,7 @@ class Updates_1_8_3_b1 extends Updates
         );
     }
 
-    public static function update()
+    static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
         if (!\Piwik\Plugin\Manager::getInstance()->isPluginLoaded('ScheduledReports')) {
@@ -60,7 +60,8 @@ class Updates_1_8_3_b1 extends Updates
             // - delete Common::prefixTable('pdf')
 
             $reports = Db::fetchAll('SELECT * FROM `' . Common::prefixTable('pdf') . '`');
-            foreach ($reports as $report) {
+            foreach ($reports AS $report) {
+
                 $idreport = $report['idreport'];
                 $idsite = $report['idsite'];
                 $login = $report['login'];
@@ -97,8 +98,8 @@ class Updates_1_8_3_b1 extends Updates
                          is_null($period) ? ScheduledReports::DEFAULT_PERIOD : $period,
                          ScheduledReports::EMAIL_TYPE,
                          is_null($format) ? ScheduledReports::DEFAULT_REPORT_FORMAT : $format,
-                         json_encode(preg_split('/,/', $reports)),
-                         json_encode($parameters),
+                         Common::json_encode(preg_split('/,/', $reports)),
+                         Common::json_encode($parameters),
                          $ts_created,
                          $ts_last_sent,
                          $deleted
@@ -109,5 +110,6 @@ class Updates_1_8_3_b1 extends Updates
             Db::query('DROP TABLE `' . Common::prefixTable('pdf') . '`');
         } catch (\Exception $e) {
         }
+
     }
 }

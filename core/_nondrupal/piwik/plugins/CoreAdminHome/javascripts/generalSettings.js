@@ -71,7 +71,7 @@ $(document).ready(function () {
 
     showSmtpSettings(isSmtpEnabled());
     showCustomLogoSettings(isCustomLogoEnabled());
-    $('.generalSettingsSubmit').click(function () {
+    $('#generalSettingsSubmit').click(function () {
         var doSubmit = function () {
             sendGeneralSettingsAJAX();
         };
@@ -106,7 +106,7 @@ $(document).ready(function () {
     $('input').keypress(function (e) {
             var key = e.keyCode || e.which;
             if (key == 13) {
-                $('.generalSettingsSubmit').click();
+                $('#generalSettingsSubmit').click();
             }
         }
     );
@@ -119,13 +119,7 @@ $(document).ready(function () {
         uploadFrame.load(function (data) {
             setTimeout(function () {
                 refreshCustomLogo();
-
-                var frameContent = $(uploadFrame.contents()).find('body').html();
-                frameContent = $.trim(frameContent);
-
-                if ('1' === frameContent || '0' === frameContent) {
-                    uploadFrame.remove();
-                }
+                uploadFrame.remove();
             }, 1000);
         });
         $("body:first").append(uploadFrame);
@@ -149,8 +143,7 @@ $(document).ready(function () {
 
         // append new row to the table
         trustedHostSettings.find('ul').append(trustedHostSettings.find('li:last').clone());
-        trustedHostSettings.find('li:last input').val('').focus();
+        trustedHostSettings.find('li:last input').val('');
         return false;
     });
-
 });

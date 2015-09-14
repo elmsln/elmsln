@@ -136,6 +136,7 @@ class UIControl extends \Piwik\View
         }
 
         $this->templateVars['clientSideParameters'] = array();
+        $clientSideParameters = $this->getClientSideParameters();
         foreach ($this->getClientSideParameters() as $name) {
             $this->templateVars['clientSideParameters'][$name] = $innerTemplateVars[$name];
         }

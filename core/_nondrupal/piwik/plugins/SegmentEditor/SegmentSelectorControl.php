@@ -37,11 +37,9 @@ class SegmentSelectorControl extends UIControl
 
         $this->selectedSegment = Common::getRequestVar('segment', false, 'string');
 
-        $this->isAddingSegmentsForAllWebsitesEnabled = SegmentEditor::isAddingSegmentsForAllWebsitesEnabled();
-
         $segments = APIMetadata::getInstance()->getSegmentsMetadata($this->idSite);
 
-        $segmentsByCategory = array();
+        $segmentsByCategory = $customVariablesSegments = array();
         foreach ($segments as $segment) {
             if ($segment['category'] == Piwik::translate('General_Visit')
                 && ($segment['type'] == 'metric' && $segment['segment'] != 'visitIp')

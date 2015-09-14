@@ -9,32 +9,26 @@
 
 namespace Piwik\Plugin;
 
-use Piwik\API\DataTablePostProcessor;
-use Piwik\API\Proxy;
-use Piwik\API\ResponseBuilder;
 use Piwik\Common;
 use Piwik\DataTable;
 use Piwik\Date;
 use Piwik\Log;
-use Piwik\Metrics\Formatter\Html as HtmlFormatter;
+use Piwik\MetricsFormatter;
 use Piwik\NoAccessException;
 use Piwik\Option;
 use Piwik\Period;
 use Piwik\Piwik;
-use Piwik\Plugins\API\API as ApiApi;
 use Piwik\Plugins\PrivacyManager\PrivacyManager;
 use Piwik\View;
 use Piwik\ViewDataTable\Manager as ViewDataTableManager;
-use Piwik\Plugin\Manager as PluginManager;
-use Piwik\API\Request as ApiRequest;
 
 /**
  * The base class for report visualizations that output HTML and use JavaScript.
- *
+ * 
  * Report visualizations that extend from this class will be displayed like all others in
  * the Piwik UI. The following extra UI controls will be displayed around the visualization
  * itself:
- *
+ * 
  * - report documentation,
  * - a footer message (if {@link Piwik\ViewDataTable\Config::$show_footer_message} is set),
  * - a list of links to related reports (if {@link Piwik\ViewDataTable\Config::$related_reports} is set),
@@ -43,33 +37,33 @@ use Piwik\API\Request as ApiRequest;
  * - a limit control that allows users to change the amount of rows displayed (if
  *   {@link Piwik\ViewDataTable\Config::$show_limit_control} is true),
  * - and more depending on the visualization.
- *
+ * 
  * ### Rendering Process
- *
+ * 
  * The following process is used to render reports:
- *
+ * 
  * - The report is loaded through Piwik's Reporting API.
  * - The display and request properties that require report data in order to determine a default
  *   value are defaulted. These properties are:
- *
+ * 
  *   - {@link Piwik\ViewDataTable\Config::$columns_to_display}
  *   - {@link Piwik\ViewDataTable\RequestConfig::$filter_sort_column}
  *   - {@link Piwik\ViewDataTable\RequestConfig::$filter_sort_order}
- *
+ * 
  * - Priority filters are applied to the report (see {@link Piwik\ViewDataTable\Config::$filters}).
  * - The filters that are applied to every report in the Reporting API (called **generic filters**)
  *   are applied. (see {@link Piwik\API\Request})
  * - The report's queued filters are applied.
  * - A {@link Piwik\View} instance is created and rendered.
- *
+ * 
  * ### Rendering Hooks
- *
+ * 
  * The Visualization class defines several overridable methods that are called at specific
  * points during the rendering process. Derived classes can override these methods change
  * the data that is displayed or set custom properties.
- *
+ * 
  * The overridable methods (called **rendering hooks**) are as follows:
- *
+ * 
  * - **beforeLoadDataTable**: Called at the start of the rendering process before any data
  *                            is loaded.
  * - **beforeGenericFiltersAreAppliedToLoadedDataTable**: Called after data is loaded and after priority
@@ -82,20 +76,20 @@ use Piwik\API\Request as ApiRequest;
  * - **beforeRender**: Called immediately before a {@link Piwik\View} is created and rendered.
  * - **isThereDataToDisplay**: Called after a {@link Piwik\View} is created to determine if the report has
  *                             data or not. If not, a message is displayed to the user.
- *
+ * 
  * ### The DataTable JavaScript class
- *
+ * 
  * In the UI, visualization behavior is provided by logic in the **DataTable** JavaScript class.
  * When creating new visualizations, the **DataTable** JavaScript class (or one of its existing
  * descendants) should be extended.
- *
+ * 
  * To learn more read the [Visualizing Report Data](/guides/visualizing-report-data#creating-new-visualizations)
  * guide.
  *
  * ### Examples
- *
+ * 
  * **Changing the data that is loaded**
- *
+ * 
  *     class MyVisualization extends Visualization
  *     {
  *         // load the previous period's data as well as the requested data. this will change
@@ -107,20 +101,20 @@ use Piwik\API\Request as ApiRequest;
  *
  *             $this->requestConfig->request_parameters_to_modify['date'] = $previousDate . ',' . $date;
  *         }
- *
+ * 
  *         // since we load the previous period's data too, we need to override the logic to
  *         // check if there is data or not.
  *         public function isThereDataToDisplay()
  *         {
  *             $tables = $this->dataTable->getDataTables()
  *             $requestedDataTable = end($tables);
- *
+ * 
  *             return $requestedDataTable->getRowsCount() != 0;
  *         }
  *     }
- *
+ * 
  * **Force properties to be set to certain values**
- *
+ * 
  *     class MyVisualization extends Visualization
  *     {
  *         // ensure that some properties are set to certain values before rendering.
@@ -139,9 +133,9 @@ class Visualization extends ViewDataTable
 {
     /**
      * The Twig template file to use when rendering, eg, `"@MyPlugin/_myVisualization.twig"`.
-     *
+     * 
      * Must be defined by classes that extend Visualization.
-     *
+     * 
      * @api
      */
     const TEMPLATE_FILE = '';
@@ -149,12 +143,6 @@ class Visualization extends ViewDataTable
     private $templateVars = array();
     private $reportLastUpdatedMessage = null;
     private $metadata = null;
-    protected $metricsFormatter = null;
-
-    /**
-     * @var Report
-     */
-    protected $report;
 
     final public function __construct($controllerAction, $apiMethodToRequestDataTable, $params = array())
     {
@@ -164,11 +152,7 @@ class Visualization extends ViewDataTable
             throw new \Exception('You have not defined a constant named TEMPLATE_FILE in your visualization class.');
         }
 
-        $this->metricsFormatter = new HtmlFormatter();
-
         parent::__construct($controllerAction, $apiMethodToRequestDataTable, $params);
-
-        $this->report = Report::factory($this->requestConfig->getApiModuleToRequest(), $this->requestConfig->getApiMethodToRequest());
     }
 
     protected function buildView()
@@ -176,22 +160,24 @@ class Visualization extends ViewDataTable
         $this->overrideSomeConfigPropertiesIfNeeded();
 
         try {
+
             $this->beforeLoadDataTable();
-            $this->loadDataTableFromAPI();
+
+            $this->loadDataTableFromAPI(array('disable_generic_filters' => 1));
             $this->postDataTableLoadedFromAPI();
 
             $requestPropertiesAfterLoadDataTable = $this->requestConfig->getProperties();
 
             $this->applyFilters();
-            $this->addVisualizationInfoFromMetricMetadata();
             $this->afterAllFiltersAreApplied();
             $this->beforeRender();
 
             $this->logMessageIfRequestPropertiesHaveChanged($requestPropertiesAfterLoadDataTable);
+
         } catch (NoAccessException $e) {
             throw $e;
         } catch (\Exception $e) {
-            Log::error("Failed to get data from API: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+            Log::warning("Failed to get data from API: " . $e->getMessage() . "\n" . $e->getTraceAsString());
 
             $message = $e->getMessage();
             if (\Piwik_ShouldPrintBackTraceWithMessage()) {
@@ -211,7 +197,6 @@ class Visualization extends ViewDataTable
         $view->visualization         = $this;
         $view->visualizationTemplate = static::TEMPLATE_FILE;
         $view->visualizationCssClass = $this->getDefaultDataTableCssClass();
-        $view->reportMetdadata = $this->getReportMetadata();
 
         if (null === $this->dataTable) {
             $view->dataTable = null;
@@ -236,65 +221,15 @@ class Visualization extends ViewDataTable
         return $view;
     }
 
-    /**
-     * @internal
-     */
-    protected function loadDataTableFromAPI()
-    {
-        if (!is_null($this->dataTable)) {
-            // data table is already there
-            // this happens when setDataTable has been used
-            return $this->dataTable;
-        }
-
-        // we build the request (URL) to call the API
-        $request = $this->buildApiRequestArray();
-
-        $module = $this->requestConfig->getApiModuleToRequest();
-        $method = $this->requestConfig->getApiMethodToRequest();
-
-        PluginManager::getInstance()->checkIsPluginActivated($module);
-
-        $class     = ApiRequest::getClassNameAPI($module);
-        $dataTable = Proxy::getInstance()->call($class, $method, $request);
-
-        $response = new ResponseBuilder($format = 'original', $request);
-        $response->disableSendHeader();
-        $response->disableDataTablePostProcessor();
-
-        $this->dataTable = $response->getResponse($dataTable, $module, $method);
-    }
-
-    private function getReportMetadata()
-    {
-        $request = $this->request->getRequestArray() + $_GET + $_POST;
-
-        $idSite  = Common::getRequestVar('idSite', null, 'string', $request);
-        $module  = $this->requestConfig->getApiModuleToRequest();
-        $action  = $this->requestConfig->getApiMethodToRequest();
-        $metadata = ApiApi::getInstance()->getMetadata($idSite, $module, $action);
-
-        if (!empty($metadata)) {
-            return array_shift($metadata);
-        }
-
-        return false;
-    }
-
     private function overrideSomeConfigPropertiesIfNeeded()
     {
         if (empty($this->config->footer_icons)) {
             $this->config->footer_icons = ViewDataTableManager::configureFooterIcons($this);
         }
 
-        if (!$this->isPluginActivated('Goals')) {
+        if (!\Piwik\Plugin\Manager::getInstance()->isPluginActivated('Goals')) {
             $this->config->show_goals = false;
         }
-    }
-
-    private function isPluginActivated($pluginName)
-    {
-        return PluginManager::getInstance()->isPluginActivated($pluginName);
     }
 
     /**
@@ -318,9 +253,9 @@ class Visualization extends ViewDataTable
 
     /**
      * Returns `true` if there is data to display, `false` if otherwise.
-     *
+     * 
      * Derived classes should override this method if they change the amount of data that is loaded.
-     *
+     * 
      * @api
      */
     protected function isThereDataToDisplay()
@@ -351,7 +286,7 @@ class Visualization extends ViewDataTable
         }
 
         if (empty($this->requestConfig->filter_sort_column)) {
-            $this->requestConfig->setDefaultSort($this->config->columns_to_display, $hasNbUniqVisitors, $columns);
+            $this->requestConfig->setDefaultSort($this->config->columns_to_display, $hasNbUniqVisitors);
         }
 
         // deal w/ table metadata
@@ -362,75 +297,40 @@ class Visualization extends ViewDataTable
                 $this->config->report_last_updated_message = $this->makePrettyArchivedOnText();
             }
         }
-
-        $pivotBy = Common::getRequestVar('pivotBy', false) ?: $this->requestConfig->pivotBy;
-        if (empty($pivotBy)
-            && $this->dataTable instanceof DataTable
-        ) {
-            $this->config->disablePivotBySubtableIfTableHasNoSubtables($this->dataTable);
-        }
-    }
-
-    private function addVisualizationInfoFromMetricMetadata()
-    {
-        $dataTable = $this->dataTable instanceof DataTable\Map ? $this->dataTable->getFirstRow() : $this->dataTable;
-
-        $metrics = Report::getMetricsForTable($dataTable, $this->report);
-
-        // TODO: instead of iterating & calling translate everywhere, maybe we can get all translated names in one place.
-        //       may be difficult, though, since translated metrics are specific to the report.
-        foreach ($metrics as $metric) {
-            $name = $metric->getName();
-
-            if (empty($this->config->translations[$name])) {
-                $this->config->translations[$name] = $metric->getTranslatedName();
-            }
-
-            if (empty($this->config->metrics_documentation[$name])) {
-                $this->config->metrics_documentation[$name] = $metric->getDocumentation();
-            }
-        }
     }
 
     private function applyFilters()
     {
-        $postProcessor = $this->makeDataTablePostProcessor(); // must be created after requestConfig is final
-        $self = $this;
+        list($priorityFilters, $otherFilters) = $this->config->getFiltersToRun();
 
-        $postProcessor->setCallbackBeforeGenericFilters(function (DataTable\DataTableInterface $dataTable) use ($self, $postProcessor) {
+        // First, filters that delete rows
+        foreach ($priorityFilters as $filter) {
+            $this->dataTable->filter($filter[0], $filter[1]);
+        }
 
-            $self->setDataTable($dataTable);
+        $this->beforeGenericFiltersAreAppliedToLoadedDataTable();
 
-            // First, filters that delete rows
-            foreach ($self->config->getPriorityFilters() as $filter) {
-                $dataTable->filter($filter[0], $filter[1]);
-            }
+        if (!in_array($this->requestConfig->filter_sort_column, $this->config->columns_to_display)) {
+            $hasNbUniqVisitors = in_array('nb_uniq_visitors', $this->config->columns_to_display);
+            $this->requestConfig->setDefaultSort($this->config->columns_to_display, $hasNbUniqVisitors);
+        }
 
-            $self->beforeGenericFiltersAreAppliedToLoadedDataTable();
+        if (!$this->requestConfig->areGenericFiltersDisabled()) {
+            $this->applyGenericFilters();
+        }
 
-            if (!in_array($self->requestConfig->filter_sort_column, $self->config->columns_to_display)) {
-                $hasNbUniqVisitors = in_array('nb_uniq_visitors', $self->config->columns_to_display);
-                $columns = $dataTable->getColumns();
-                $self->requestConfig->setDefaultSort($self->config->columns_to_display, $hasNbUniqVisitors, $columns);
-            }
+        $this->afterGenericFiltersAreAppliedToLoadedDataTable();
 
-            $postProcessor->setRequest($self->buildApiRequestArray());
-        });
+        // queue other filters so they can be applied later if queued filters are disabled
+        foreach ($otherFilters as $filter) {
+            $this->dataTable->queueFilter($filter[0], $filter[1]);
+        }
 
-        $postProcessor->setCallbackAfterGenericFilters(function (DataTable\DataTableInterface $dataTable) use ($self) {
-
-            $self->setDataTable($dataTable);
-
-            $self->afterGenericFiltersAreAppliedToLoadedDataTable();
-
-            // queue other filters so they can be applied later if queued filters are disabled
-            foreach ($self->config->getPresentationFilters() as $filter) {
-                $dataTable->queueFilter($filter[0], $filter[1]);
-            }
-
-        });
-
-        $this->dataTable = $postProcessor->process($this->dataTable);
+        // Finally, apply datatable filters that were queued (should be 'presentation' filters that
+        // do not affect the number of rows)
+        if (!$this->requestConfig->areQueuedFiltersDisabled()) {
+            $this->dataTable->applyQueuedFilters();
+        }
     }
 
     private function removeEmptyColumnsFromDisplay()
@@ -465,8 +365,9 @@ class Visualization extends ViewDataTable
         $today    = mktime(0, 0, 0);
 
         if ($date->getTimestamp() > $today) {
+
             $elapsedSeconds = time() - $date->getTimestamp();
-            $timeAgo        = $this->metricsFormatter->getPrettyTimeFromSeconds($elapsedSeconds);
+            $timeAgo        = MetricsFormatter::getPrettyTimeFromSeconds($elapsedSeconds);
 
             return Piwik::translate('CoreHome_ReportGeneratedXAgo', $timeAgo);
         }
@@ -488,7 +389,7 @@ class Visualization extends ViewDataTable
      */
     private function hasReportBeenPurged()
     {
-        if (!$this->isPluginActivated('PrivacyManager')) {
+        if (!\Piwik\Plugin\Manager::getInstance()->isPluginActivated('PrivacyManager')) {
             return false;
         }
 
@@ -508,7 +409,7 @@ class Visualization extends ViewDataTable
         foreach ($this->config->clientSideProperties as $name) {
             if (property_exists($this->requestConfig, $name)) {
                 $result[$name] = $this->getIntIfValueIsBool($this->requestConfig->$name);
-            } elseif (property_exists($this->config, $name)) {
+            } else if (property_exists($this->config, $name)) {
                 $result[$name] = $this->getIntIfValueIsBool($this->config->$name);
             }
         }
@@ -562,7 +463,7 @@ class Visualization extends ViewDataTable
 
             if (property_exists($this->requestConfig, $name)) {
                 $valueToConvert = $this->requestConfig->$name;
-            } elseif (property_exists($this->config, $name)) {
+            } else if (property_exists($this->config, $name)) {
                 $valueToConvert = $this->config->$name;
             }
 
@@ -590,7 +491,6 @@ class Visualization extends ViewDataTable
             'filter_excludelowpop',
             'filter_excludelowpop_value',
         );
-
         foreach ($deleteFromJavascriptVariables as $name) {
             if (isset($javascriptVariablesToSet[$name])) {
                 unset($javascriptVariablesToSet[$name]);
@@ -607,7 +507,7 @@ class Visualization extends ViewDataTable
 
     /**
      * Hook that is called before loading report data from the API.
-     *
+     * 
      * Use this method to change the request parameters that is sent to the API when requesting
      * data.
      *
@@ -619,7 +519,7 @@ class Visualization extends ViewDataTable
 
     /**
      * Hook that is executed before generic filters are applied.
-     *
+     * 
      * Use this method if you need access to the entire dataset (since generic filters will
      * limit and truncate reports).
      *
@@ -659,16 +559,21 @@ class Visualization extends ViewDataTable
         // eg $this->config->showFooterColumns = true;
     }
 
-    private function makeDataTablePostProcessor()
+    /**
+     * Second, generic filters (Sort, Limit, Replace Column Names, etc.)
+     */
+    private function applyGenericFilters()
     {
-        $request = $this->buildApiRequestArray();
-        $module  = $this->requestConfig->getApiModuleToRequest();
-        $method  = $this->requestConfig->getApiMethodToRequest();
+        $requestArray = $this->request->getRequestArray();
+        $request      = \Piwik\API\Request::getRequestArrayFromString($requestArray);
 
-        $processor = new DataTablePostProcessor($module, $method, $request);
-        $processor->setFormatter($this->metricsFormatter);
+        if (false === $this->config->enable_sort) {
+            $request['filter_sort_column'] = '';
+            $request['filter_sort_order']  = '';
+        }
 
-        return $processor;
+        $genericFilter = new \Piwik\API\DataTableGenericFilter($request);
+        $genericFilter->filter($this->dataTable);
     }
 
     private function logMessageIfRequestPropertiesHaveChanged(array $requestPropertiesBefore)
@@ -715,31 +620,5 @@ class Visualization extends ViewDataTable
         }
 
         return $result;
-    }
-
-    /**
-     * @internal
-     *
-     * @return array
-     */
-    public function buildApiRequestArray()
-    {
-        $requestArray = $this->request->getRequestArray();
-        $request = APIRequest::getRequestArrayFromString($requestArray);
-
-        if (false === $this->config->enable_sort) {
-            $request['filter_sort_column'] = '';
-            $request['filter_sort_order'] = '';
-        }
-
-        if (!array_key_exists('format_metrics', $request) || $request['format_metrics'] === 'bc') {
-            $request['format_metrics'] = '1';
-        }
-
-        if (!$this->requestConfig->disable_queued_filters && array_key_exists('disable_queued_filters', $request)) {
-            unset($request['disable_queued_filters']);
-        }
-
-        return $request;
     }
 }

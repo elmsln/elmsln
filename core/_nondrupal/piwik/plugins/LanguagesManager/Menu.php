@@ -8,8 +8,6 @@
  */
 namespace Piwik\Plugins\LanguagesManager;
 
-use Piwik\Development;
-use Piwik\Menu\MenuAdmin;
 use Piwik\Menu\MenuTop;
 use Piwik\Piwik;
 use Piwik\SettingsPiwik;
@@ -21,14 +19,6 @@ class Menu extends \Piwik\Plugin\Menu
         if (Piwik::isUserIsAnonymous() || !SettingsPiwik::isPiwikInstalled()) {
             $langManager = new LanguagesManager();
             $menu->addHtml('LanguageSelector', $langManager->getLanguagesSelector(), true, $order = 30, false);
-        }
-    }
-
-    public function configureAdminMenu(MenuAdmin $menu)
-    {
-        if (Development::isEnabled() && Piwik::isUserHasSomeAdminAccess()) {
-            $menu->addDevelopmentItem('LanguagesManager_TranslationSearch',
-                                      $this->urlForAction('searchTranslation'));
         }
     }
 }

@@ -8,7 +8,6 @@
  */
 namespace Piwik\Plugins\Insights;
 
-use Piwik\API\Request;
 use Piwik\Common;
 use Piwik\Piwik;
 use Piwik\Plugins\Insights\Visualizations\Insight;
@@ -68,12 +67,11 @@ class Controller extends \Piwik\Plugin\Controller
             return;
         }
 
-        $idSite  = Common::getRequestVar('idSite', null, 'int');
-        $period  = Common::getRequestVar('period', null, 'string');
-        $date    = Common::getRequestVar('date', null, 'string');
-        $segment = Request::getRawSegmentFromRequest();
+        $idSite = Common::getRequestVar('idSite', null, 'int');
+        $period = Common::getRequestVar('period', null, 'string');
+        $date   = Common::getRequestVar('date', null, 'string');
 
-        return API::getInstance()->$apiReport($idSite, $period, $date, $segment);
+        return API::getInstance()->$apiReport($idSite, $period, $date);
     }
 
     private function canGenerateInsights()

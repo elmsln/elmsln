@@ -18,8 +18,6 @@ $(document).ready(function () {
     function toggleOtherDeleteSections() {
         var showSection = isEitherDeleteSectionEnabled();
         toggleBlock('deleteDataEstimateSect', showSection);
-        toggleBlock('scheduleSettingsHeadline', showSection);
-        toggleBlock('databaseSizeHeadline', showSection);
         toggleBlock('deleteSchedulingSettings', showSection);
     }
 
@@ -75,16 +73,16 @@ $(document).ready(function () {
     }
 
     // make sure certain sections only display if their corresponding features are enabled
-    $('input[name=anonymizeIPEnable]').change(function () {
+    $('input[name=anonymizeIPEnable]').click(function () {
         toggleBlock("anonymizeIPenabled", $(this).val());
     });
 
-    $('input[name=deleteEnable]').change(function () {
+    $('input[name=deleteEnable]').click(function () {
         toggleBlock("deleteLogSettings", $(this).val());
         toggleOtherDeleteSections();
     }).change(reloadDbStats);
 
-    $('input[name=deleteReportsEnable]').change(function () {
+    $('input[name=deleteReportsEnable]').click(function () {
         toggleBlock("deleteReportsSettings", $(this).val());
         toggleBlock("deleteOldReportsMoreInfo", $(this).val());
         toggleOtherDeleteSections();
@@ -95,10 +93,7 @@ $(document).ready(function () {
         toggleBlock("deleteLogSettings", $("input[name=deleteEnable]:checked").val());
         toggleBlock("anonymizeIPenabled", $("input[name=anonymizeIPEnable]:checked").val());
         toggleBlock("deleteReportsSettings", $("input[name=deleteReportsEnable]:checked").val());
-        // This one is in an AngularJS directive, so is generated later
-        setTimeout(function () {
-            toggleBlock("deleteOldReportsMoreInfo", $("input[name=deleteReportsEnable]:checked").val());
-        }, 500);
+        toggleBlock("deleteOldReportsMoreInfo", $("input[name=deleteReportsEnable]:checked").val());
         toggleOtherDeleteSections();
     });
 

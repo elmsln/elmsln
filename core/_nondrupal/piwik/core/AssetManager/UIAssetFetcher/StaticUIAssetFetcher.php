@@ -17,7 +17,7 @@ class StaticUIAssetFetcher extends UIAssetFetcher
      */
     private $priorityOrder;
 
-    public function __construct($fileLocations, $priorityOrder, $theme)
+    function __construct($fileLocations, $priorityOrder, $theme)
     {
         parent::__construct(array(), $theme);
 
@@ -27,6 +27,7 @@ class StaticUIAssetFetcher extends UIAssetFetcher
 
     protected function retrieveFileLocations()
     {
+
     }
 
     protected function getPriorityOrder()

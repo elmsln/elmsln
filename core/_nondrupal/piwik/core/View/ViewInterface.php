@@ -21,5 +21,5 @@ interface ViewInterface
      *
      * @return string Serialized data, eg, (image, array, html...).
      */
-    public function render();
+    function render();
 }

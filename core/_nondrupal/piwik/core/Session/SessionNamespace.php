@@ -9,7 +9,6 @@
 namespace Piwik\Session;
 
 use Piwik\Common;
-use Piwik\Session;
 use Zend_Session_Namespace;
 
 /**
@@ -28,8 +27,6 @@ class SessionNamespace extends Zend_Session_Namespace
             self::$_readable = true;
             return;
         }
-
-        Session::start();
 
         parent::__construct($namespace, $singleInstance);
     }

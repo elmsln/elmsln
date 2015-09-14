@@ -9,6 +9,7 @@
 namespace Piwik\Updates;
 
 use Piwik\Common;
+use Piwik\Db;
 use Piwik\Option;
 use Piwik\Updater;
 use Piwik\Updates;
@@ -60,5 +61,6 @@ class Updates_2_0_a13 extends Updates
             \Piwik\Plugin\Manager::getInstance()->activatePlugin('ScheduledReports');
         } catch (\Exception $e) {
         }
+
     }
 }

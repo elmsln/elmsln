@@ -15,7 +15,6 @@ use Piwik\Metrics;
 use Piwik\Period\Range;
 use Piwik\Piwik;
 use Piwik\SettingsPiwik;
-use Piwik\Translation\Translator;
 use Piwik\View;
 
 /**
@@ -23,24 +22,15 @@ use Piwik\View;
  */
 class Controller extends \Piwik\Plugin\Controller
 {
-    /**
-     * @var Translator
-     */
-    private $translator;
-
-    public function __construct(Translator $translator)
-    {
-        $this->translator = $translator;
-
-        parent::__construct();
-    }
-
     public function index()
     {
         $view = new View('@Referrers/index');
 
         $view->graphEvolutionReferrers = $this->getEvolutionGraph(Common::REFERRER_TYPE_DIRECT_ENTRY, array(), array('nb_visits'));
         $view->nameGraphEvolutionReferrers = 'Referrers.getEvolutionGraph';
+
+        // building the referrers summary report
+        $view->dataTableReferrerType = $this->getReferrerType(true);
 
         $nameValues = $this->getReferrersVisitorsByType();
 
@@ -93,52 +83,136 @@ class Controller extends \Piwik\Plugin\Controller
         $view->urlSparklineDistinctWebsites = $this->getUrlSparkline('getLastDistinctWebsitesGraph');
         $view->urlSparklineDistinctCampaigns = $this->getUrlSparkline('getLastDistinctCampaignsGraph');
 
+        $view->totalVisits = $totalVisits;
+        $view->referrersReportsByDimension = $this->getReferrersReportsByDimensionView($totalVisits);
+
         return $view->render();
     }
 
-    public function allReferrers()
+    /**
+     * Returns HTML for the Referrers Overview page that categorizes Referrer reports
+     * & allows the user to switch between them.
+     *
+     * @param int $visits The number of visits for this period & site. If <= 0, the
+     *                    reports are not shown, since they will have no data.getReferrersReportsByDimensionView
+     * @return string The report viewer HTML.
+     */
+    private function getReferrersReportsByDimensionView($visits)
     {
-        $view = new View('@Referrers/allReferrers');
+        $result = '';
 
-        // building the referrers summary report
-        $view->dataTableReferrerType = $this->renderReport('getReferrerType');
+        // only display the reports by dimension view if there are visits
+        if ($visits > 0) {
+            $referrersReportsByDimension = new View\ReportsByDimension('Referrers');
 
-        $nameValues = $this->getReferrersVisitorsByType();
+            $referrersReportsByDimension->addReport(
+                'Referrers_ViewAllReferrers', 'Referrers_WidgetGetAll', 'Referrers.getAll');
 
-        $totalVisits = array_sum($nameValues);
-        foreach ($nameValues as $name => $value) {
-            $view->$name = $value;
+            $byTypeCategory = Piwik::translate('Referrers_ViewReferrersBy', Piwik::translate('Live_GoalType'));
+            $referrersReportsByDimension->addReport(
+                $byTypeCategory, 'Referrers_WidgetKeywords', 'Referrers.getKeywords');
+            $referrersReportsByDimension->addReport($byTypeCategory, 'SitesManager_Sites', 'Referrers.getWebsites');
+            $referrersReportsByDimension->addReport($byTypeCategory, 'Referrers_Campaigns', 'Referrers.getCampaigns');
 
-            // calculate percent of total, if there were any visits
-            if ($value != 0
-                && $totalVisits != 0
-            ) {
-                $percentName = $name . 'Percent';
-                $view->$percentName = round(($value / $totalVisits) * 100, 0);
-            }
+            $bySourceCategory = Piwik::translate('Referrers_ViewReferrersBy', Piwik::translate('General_Source'));
+            $referrersReportsByDimension->addReport($bySourceCategory, 'Referrers_Socials', 'Referrers.getSocials');
+            $referrersReportsByDimension->addReport(
+                $bySourceCategory, 'Referrers_SearchEngines', 'Referrers.getSearchEngines');
+
+            $result = $referrersReportsByDimension->render();
         }
 
-        $view->totalVisits = $totalVisits;
-        $view->referrersReportsByDimension = $this->renderReport('getAll');
-
-        return $view->render();
+        return $result;
     }
 
     public function getSearchEnginesAndKeywords()
     {
         $view = new View('@Referrers/getSearchEnginesAndKeywords');
-        $view->searchEngines = $this->renderReport('getSearchEngines');
-        $view->keywords      = $this->renderReport('getKeywords');
+        $view->searchEngines = $this->getSearchEngines(true);
+        $view->keywords = $this->getKeywords(true);
         return $view->render();
+    }
+
+    public function getReferrerType()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    /**
+     * Returns or echo's a report that shows all search keyword, website and campaign
+     * referrer information in one report.
+     *
+     * @return string The report HTML or nothing if $fetch is set to false.
+     */
+    public function getAll()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getKeywords()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getSearchEnginesFromKeywordId()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getSearchEngines()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getKeywordsFromSearchEngineId()
+    {
+        return $this->renderReport(__FUNCTION__);
     }
 
     public function indexWebsites()
     {
         $view = new View('@Referrers/indexWebsites');
-        $view->websites = $this->renderReport('getWebsites');
-        $view->socials  = $this->renderReport('getSocials');
+        $view->websites = $this->getWebsites(true);
+        $view->socials = $this->getSocials(true);
 
         return $view->render();
+    }
+
+    public function getWebsites()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getSocials()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getUrlsForSocial()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function indexCampaigns()
+    {
+        return View::singleReport(
+            Piwik::translate('Referrers_Campaigns'),
+            $this->getCampaigns(true));
+    }
+
+    public function getCampaigns()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getKeywordsFromCampaignId()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getUrlsFromWebsiteId()
+    {
+        return $this->renderReport(__FUNCTION__);
     }
 
     protected function getReferrersVisitorsByType($date = false)
@@ -202,9 +276,8 @@ class Controller extends \Piwik\Plugin\Controller
         }
 
         // configure selectable columns
-        // todo: should use SettingsPiwik::isUniqueVisitorsEnabled
         if (Common::getRequestVar('period', false) == 'day') {
-            $selectable = array('nb_visits', 'nb_uniq_visitors', 'nb_users', 'nb_actions');
+            $selectable = array('nb_visits', 'nb_uniq_visitors', 'nb_actions');
         } else {
             $selectable = array('nb_visits', 'nb_actions');
         }
@@ -224,7 +297,7 @@ class Controller extends \Piwik\Plugin\Controller
                 $typeReferrer = Common::getRequestVar('typeReferrer', false);
             }
             $label = self::getTranslatedReferrerTypeLabel($typeReferrer);
-            $total = $this->translator->translate('General_Total');
+            $total = Piwik::translate('General_Total');
 
             if (!empty($view->config->rows_to_display)) {
                 $visibleRows = $view->config->rows_to_display;
@@ -237,10 +310,10 @@ class Controller extends \Piwik\Plugin\Controller
         $view->config->row_picker_match_rows_by = 'label';
         $view->config->rows_to_display = $visibleRows;
 
-        $view->config->documentation = $this->translator->translate('Referrers_EvolutionDocumentation') . '<br />'
-            . $this->translator->translate('General_BrokenDownReportDocumentation') . '<br />'
-            . $this->translator->translate('Referrers_EvolutionDocumentationMoreInfo', '&quot;'
-                . $this->translator->translate('Referrers_ReferrerTypes') . '&quot;');
+        $view->config->documentation = Piwik::translate('Referrers_EvolutionDocumentation') . '<br />'
+            . Piwik::translate('General_BrokenDownReportDocumentation') . '<br />'
+            . Piwik::translate('Referrers_EvolutionDocumentationMoreInfo', '&quot;'
+                . Piwik::translate('Referrers_DetailsByReferrerType') . '&quot;');
 
         return $this->renderView($view);
     }
@@ -248,7 +321,7 @@ class Controller extends \Piwik\Plugin\Controller
     public function getLastDistinctSearchEnginesGraph()
     {
         $view = $this->getLastUnitGraph($this->pluginName, __FUNCTION__, "Referrers.getNumberOfDistinctSearchEngines");
-        $view->config->translations['Referrers_distinctSearchEngines'] = ucfirst($this->translator->translate('Referrers_DistinctSearchEngines'));
+        $view->config->translations['Referrers_distinctSearchEngines'] = ucfirst(Piwik::translate('Referrers_DistinctSearchEngines'));
         $view->config->columns_to_display = array('Referrers_distinctSearchEngines');
         return $this->renderView($view);
     }
@@ -256,7 +329,7 @@ class Controller extends \Piwik\Plugin\Controller
     public function getLastDistinctKeywordsGraph()
     {
         $view = $this->getLastUnitGraph($this->pluginName, __FUNCTION__, "Referrers.getNumberOfDistinctKeywords");
-        $view->config->translations['Referrers_distinctKeywords'] = ucfirst($this->translator->translate('Referrers_DistinctKeywords'));
+        $view->config->translations['Referrers_distinctKeywords'] = ucfirst(Piwik::translate('Referrers_DistinctKeywords'));
         $view->config->columns_to_display = array('Referrers_distinctKeywords');
         return $this->renderView($view);
     }
@@ -264,7 +337,7 @@ class Controller extends \Piwik\Plugin\Controller
     public function getLastDistinctWebsitesGraph()
     {
         $view = $this->getLastUnitGraph($this->pluginName, __FUNCTION__, "Referrers.getNumberOfDistinctWebsites");
-        $view->config->translations['Referrers_distinctWebsites'] = ucfirst($this->translator->translate('Referrers_DistinctWebsites'));
+        $view->config->translations['Referrers_distinctWebsites'] = ucfirst(Piwik::translate('Referrers_DistinctWebsites'));
         $view->config->columns_to_display = array('Referrers_distinctWebsites');
         return $this->renderView($view);
     }
@@ -272,7 +345,7 @@ class Controller extends \Piwik\Plugin\Controller
     public function getLastDistinctCampaignsGraph()
     {
         $view = $this->getLastUnitGraph($this->pluginName, __FUNCTION__, "Referrers.getNumberOfDistinctCampaigns");
-        $view->config->translations['Referrers_distinctCampaigns'] = ucfirst($this->translator->translate('Referrers_DistinctCampaigns'));
+        $view->config->translations['Referrers_distinctCampaigns'] = ucfirst(Piwik::translate('Referrers_DistinctCampaigns'));
         $view->config->columns_to_display = array('Referrers_distinctCampaigns');
         return $this->renderView($view);
     }
@@ -326,7 +399,7 @@ function DisplayTopKeywords($url = "")
 	$url = empty($url) ? "http://". $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"] : $url;
 	$api = "' . $api . '&url=" . urlencode($url);
 	$keywords = @unserialize(file_get_contents($api));
-	if ($keywords === false || isset($keywords["result"])) {
+	if($keywords === false || isset($keywords["result"])) {
 		// DEBUG ONLY: uncomment for troubleshooting an empty output (the URL output reveals the token_auth)
 		// echo "Error while fetching the <a href=\'$api\'>Top Keywords from Piwik</a>";
 		return;
@@ -338,7 +411,7 @@ function DisplayTopKeywords($url = "")
 	foreach($keywords as $keyword) {
 		$output .= "<li>". $keyword . "</li>";
 	}
-	if (empty($keywords)) { $output .= "Nothing yet..."; }
+	if(empty($keywords)) { $output .= "Nothing yet..."; }
 	$output .= "</ul>";
 	echo $output;
 }
@@ -348,8 +421,8 @@ function DisplayTopKeywords($url = "")
         echo "<p>This widget is designed to work in your website directly.
 		This widget makes it easy to use Piwik to <i>automatically display the list of Top Keywords</i>, for each of your website Page URLs.</p>
 		<p>
-		<b>Example API URL</b> - For example if you would like to get the top 10 keywords, used last week, to land on the page <a rel='noreferrer' target='_blank' href='$topPageUrl'>$topPageUrl</a>,
-		in format JSON: you would dynamically fetch the data using <a rel='noreferrer' target='_blank' href='$jsonRequest&url=" . urlencode($topPageUrl) . "'>this API request URL</a>. Make sure you encode the 'url' parameter in the URL.</p>
+		<b>Example API URL</b> - For example if you would like to get the top 10 keywords, used last week, to land on the page <a target='_blank' href='$topPageUrl'>$topPageUrl</a>,
+		in format JSON: you would dynamically fetch the data using <a target='_blank' href='$jsonRequest&url=" . urlencode($topPageUrl) . "'>this API request URL</a>. Make sure you encode the 'url' parameter in the URL.</p>
 
 		<p><b>PHP Function ready to use!</b> - If you use PHP on your website, we have prepared a small code snippet that you can copy paste in your Website PHP files. You can then simply call the function <code>DisplayTopKeywords();</code> anywhere in your template, at the bottom of the content or in your blog sidebar.
 		If you run this code in your page $topPageUrl, it would output the following:";
@@ -416,7 +489,7 @@ function DisplayTopKeywords($url = "")
      */
     private function getReferrerUrlSparkline($referrerType)
     {
-        $totalRow = $this->translator->translate('General_Total');
+        $totalRow = Piwik::translate('General_Total');
         return $this->getUrlSparkline(
             'getEvolutionGraph',
             array('columns'      => array('nb_visits'),

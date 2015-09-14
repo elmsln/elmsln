@@ -15,10 +15,9 @@ class Menu extends \Piwik\Plugin\Menu
 {
     public function configureAdminMenu(MenuAdmin $menu)
     {
-        if (Piwik::isUserHasSomeAdminAccess()) {
-            $menu->addSettingsItem('PrivacyManager_MenuPrivacySettings',
-                                   $this->urlForAction('privacySettings'),
-                                   $order = 9);
-        }
+        $menu->add('General_Settings', 'PrivacyManager_MenuPrivacySettings',
+                   array('module' => 'PrivacyManager', 'action' => 'privacySettings'),
+                   Piwik::isUserHasSomeAdminAccess(),
+                   $order = 7);
     }
 }

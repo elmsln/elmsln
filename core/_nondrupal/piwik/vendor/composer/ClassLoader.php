@@ -54,15 +54,9 @@ class ClassLoader
     private $useIncludePath = false;
     private $classMap = array();
 
-    private $classMapAuthoritative = false;
-
     public function getPrefixes()
     {
-        if (!empty($this->prefixesPsr0)) {
-            return call_user_func_array('array_merge', $this->prefixesPsr0);
-        }
-
-        return array();
+        return call_user_func_array('array_merge', $this->prefixesPsr0);
     }
 
     public function getPrefixesPsr4()
@@ -149,8 +143,6 @@ class ClassLoader
      * @param string       $prefix  The prefix/namespace, with trailing '\\'
      * @param array|string $paths   The PSR-0 base directories
      * @param bool         $prepend Whether to prepend the directories
-     *
-     * @throws \InvalidArgumentException
      */
     public function addPsr4($prefix, $paths, $prepend = false)
     {
@@ -212,8 +204,6 @@ class ClassLoader
      *
      * @param string       $prefix The prefix/namespace, with trailing '\\'
      * @param array|string $paths  The PSR-4 base directories
-     *
-     * @throws \InvalidArgumentException
      */
     public function setPsr4($prefix, $paths)
     {
@@ -248,27 +238,6 @@ class ClassLoader
     public function getUseIncludePath()
     {
         return $this->useIncludePath;
-    }
-
-    /**
-     * Turns off searching the prefix and fallback directories for classes
-     * that have not been registered with the class map.
-     *
-     * @param bool $classMapAuthoritative
-     */
-    public function setClassMapAuthoritative($classMapAuthoritative)
-    {
-        $this->classMapAuthoritative = $classMapAuthoritative;
-    }
-
-    /**
-     * Should class lookup fail if not found in the current class map?
-     *
-     * @return bool
-     */
-    public function isClassMapAuthoritative()
-    {
-        return $this->classMapAuthoritative;
     }
 
     /**
@@ -321,9 +290,6 @@ class ClassLoader
         // class map lookup
         if (isset($this->classMap[$class])) {
             return $this->classMap[$class];
-        }
-        if ($this->classMapAuthoritative) {
-            return false;
         }
 
         $file = $this->findFileWithExtension($class, '.php');

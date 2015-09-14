@@ -32,7 +32,6 @@ class API extends \Piwik\Plugin\API
         $dataTable = $this->getDataTable(Archiver::COUNTRY_RECORD_NAME, $idSite, $period, $date, $segment);
 
         // apply filter on the whole datatable in order the inline search to work (searches are done on "beautiful" label)
-        $dataTable->filter('AddSegmentValue');
         $dataTable->filter('ColumnCallbackAddMetadata', array('label', 'code'));
         $dataTable->filter('ColumnCallbackAddMetadata', array('label', 'logo', __NAMESPACE__ . '\getFlagFromCode'));
         $dataTable->filter('ColumnCallbackReplace', array('label', __NAMESPACE__ . '\countryTranslate'));
@@ -68,9 +67,6 @@ class API extends \Piwik\Plugin\API
     public function getRegion($idSite, $period, $date, $segment = false)
     {
         $dataTable = $this->getDataTable(Archiver::REGION_RECORD_NAME, $idSite, $period, $date, $segment);
-
-        $segments = array('regionCode', 'countryCode');
-        $dataTable->filter('AddSegmentByLabel', array($segments, Archiver::LOCATION_SEPARATOR));
 
         $separator = Archiver::LOCATION_SEPARATOR;
         $unk = Visit::UNKNOWN_CODE;
@@ -113,9 +109,6 @@ class API extends \Piwik\Plugin\API
     public function getCity($idSite, $period, $date, $segment = false)
     {
         $dataTable = $this->getDataTable(Archiver::CITY_RECORD_NAME, $idSite, $period, $date, $segment);
-
-        $segments = array('city', 'regionCode', 'countryCode');
-        $dataTable->filter('AddSegmentByLabel', array($segments, Archiver::LOCATION_SEPARATOR));
 
         $separator = Archiver::LOCATION_SEPARATOR;
         $unk = Visit::UNKNOWN_CODE;
@@ -180,12 +173,12 @@ class API extends \Piwik\Plugin\API
     {
         Piwik::checkUserHasSomeViewAccess();
 
-        if (empty($provider)) {
+        if ($provider === false) {
             $provider = LocationProvider::getCurrentProviderId();
         }
 
         $oProvider = LocationProvider::getProviderById($provider);
-        if (empty($oProvider)) {
+        if ($oProvider === false) {
             throw new Exception("Cannot find the '$provider' provider. It is either an invalid provider "
                 . "ID or the ID of a provider that is not working.");
         }
@@ -203,6 +196,7 @@ class API extends \Piwik\Plugin\API
         Piwik::checkUserHasViewAccess($idSite);
         $archive = Archive::build($idSite, $period, $date, $segment);
         $dataTable = $archive->getDataTable($name);
+        $dataTable->filter('Sort', array(Metrics::INDEX_NB_VISITS));
         $dataTable->queueFilter('ReplaceColumnNames');
         return $dataTable;
     }

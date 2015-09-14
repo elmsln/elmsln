@@ -8,6 +8,7 @@
  */
 namespace Piwik\Plugins\ImageGraph\StaticGraph;
 
+
 /**
  *
  */

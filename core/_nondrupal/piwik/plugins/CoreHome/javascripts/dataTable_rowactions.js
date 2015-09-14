@@ -110,6 +110,7 @@ DataTable_RowActions_Registry.register({
 
 });
 
+
 /**
  * DataTable Row Actions
  *
@@ -123,6 +124,7 @@ DataTable_RowActions_Registry.register({
  *
  * The two template methods are performAction and doOpenPopover
  */
+
 
 //
 // BASE CLASS
@@ -185,7 +187,7 @@ DataTable_RowAction.prototype.trigger = function (tr, e, subTableLabel) {
             var findLevel = 'level' + (level - 1);
             var ptr = tr;
             while ((ptr = ptr.prev()).size() > 0) {
-                if (!ptr.hasClass(findLevel) || ptr.hasClass('nodata')) {
+                if (!ptr.hasClass(findLevel)) {
                     continue;
                 }
                 ptr.trigger(this.trEventName, {
@@ -213,9 +215,11 @@ DataTable_RowAction.prototype.getLabelFromTr = function (tr) {
     value = value.trim();
     value = encodeURIComponent(value);
 
-    // if tr is a terminal node, we use the @ operator to distinguish it from branch nodes w/ the same name
+    // if tr is a terminal node, we add a '+' to signfy this. Piwik will notice this and make sure to
+    // look for a terminal, even if there's a sibling branch node w/ the same label. this is a workaround
+    // for #4363. when a real fix is implemented, this should be kept for backwards compatibility.
     if (!tr.hasClass('subDataTable')) {
-        value = '@' + value;
+        value = value + '+';
     }
 
     return value;
@@ -247,6 +251,7 @@ DataTable_RowAction.prototype.performAction = function (label, tr, e) {
 DataTable_RowAction.prototype.doOpenPopover = function (parameter) {
 };
 
+
 //
 // ROW EVOLUTION
 //
@@ -274,22 +279,16 @@ DataTable_RowActions_RowEvolution.prototype.performAction = function (label, tr,
         return;
     }
 
-    this.addMultiEvolutionRow(label);
-
     // check whether we have rows marked for multi row evolution
-    var extraParams = {};
+    var isMultiRowEvolution = '0';
+    this.addMultiEvolutionRow(label);
     if (this.multiEvolutionRows.length > 1) {
-        extraParams.action = 'getMultiRowEvolutionPopover';
+        isMultiRowEvolution = '1';
         label = this.multiEvolutionRows.join(',');
     }
 
-    // check if abandonedCarts is in the dataTable params and if so, propagate to row evolution request
-    if (this.dataTable.param.abandonedCarts !== undefined) {
-        extraParams['abandonedCarts'] = this.dataTable.param.abandonedCarts;
-    }
-
     var apiMethod = this.dataTable.param.module + '.' + this.dataTable.param.action;
-    this.openPopover(apiMethod, extraParams, label);
+    this.openPopover(apiMethod, isMultiRowEvolution, label);
 };
 
 DataTable_RowActions_RowEvolution.prototype.addMultiEvolutionRow = function (label) {
@@ -298,37 +297,27 @@ DataTable_RowActions_RowEvolution.prototype.addMultiEvolutionRow = function (lab
     }
 };
 
-DataTable_RowActions_RowEvolution.prototype.openPopover = function (apiMethod, extraParams, label) {
-    var urlParam = apiMethod + ':' + encodeURIComponent(JSON.stringify(extraParams)) + ':' + label;
+DataTable_RowActions_RowEvolution.prototype.openPopover = function (apiMethod, multiRowEvolutionParam, label) {
+    var urlParam = apiMethod + ':' + multiRowEvolutionParam + ':' + label;
     DataTable_RowAction.prototype.openPopover.apply(this, [urlParam]);
 };
 
 DataTable_RowActions_RowEvolution.prototype.doOpenPopover = function (urlParam) {
     var urlParamParts = urlParam.split(':');
 
-    var apiMethod = urlParamParts.shift();
+    var apiMethod = urlParamParts[0];
+    urlParamParts.shift();
 
-    var extraParamsString = urlParamParts.shift(),
-        extraParams = {}; // 0/1 or "0"/"1"
-    try {
-        extraParams = JSON.parse(decodeURIComponent(extraParamsString));
-    } catch (e) {
-        // assume the parameter is an int/string describing whether to use multi row evolution
-        if (extraParamsString == '1') {
-            extraParams.action = 'getMultiRowEvolutionPopover';
-        } else if (extraParamsString != '0') {
-            extraParams.action = 'getMultiRowEvolutionPopover';
-            extraParams.column = extraParamsString;
-        }
-    }
+    var multiRowEvolutionParam = urlParamParts[0];
+    urlParamParts.shift();
 
     var label = urlParamParts.join(':');
 
-    this.showRowEvolution(apiMethod, label, extraParams);
+    this.showRowEvolution(apiMethod, label, multiRowEvolutionParam);
 };
 
 /** Open the row evolution popover */
-DataTable_RowActions_RowEvolution.prototype.showRowEvolution = function (apiMethod, label, extraParams) {
+DataTable_RowActions_RowEvolution.prototype.showRowEvolution = function (apiMethod, label, multiRowEvolutionParam) {
 
     var self = this;
 
@@ -342,6 +331,17 @@ DataTable_RowActions_RowEvolution.prototype.showRowEvolution = function (apiMeth
         label: label,
         disableLink: 1
     };
+
+    // derive api action and requested column from multiRowEvolutionParam
+    var action;
+    if (multiRowEvolutionParam == '0') {
+        action = 'getRowEvolutionPopover';
+    } else if (multiRowEvolutionParam == '1') {
+        action = 'getMultiRowEvolutionPopover';
+    } else {
+        action = 'getMultiRowEvolutionPopover';
+        requestParams.column = multiRowEvolutionParam;
+    }
 
     var callback = function (html) {
         Piwik_Popover.setContent(html);
@@ -376,17 +376,14 @@ DataTable_RowActions_RowEvolution.prototype.showRowEvolution = function (apiMeth
         box.find('select.multirowevoltion-metric').change(function () {
             var metric = $(this).val();
             Piwik_Popover.onClose(false); // unbind listener that resets multiEvolutionRows
-            var extraParams = {action: 'getMultiRowEvolutionPopover', column: metric};
-            self.openPopover(apiMethod, extraParams, label);
+            self.openPopover(apiMethod, metric, label);
             return true;
         });
     };
 
     requestParams.module = 'CoreHome';
-    requestParams.action = 'getRowEvolutionPopover';
+    requestParams.action = action;
     requestParams.colors = JSON.stringify(piwik.getSparklineColors());
-
-    $.extend(requestParams, extraParams);
 
     var ajaxRequest = new ajaxHelper();
     ajaxRequest.addParams(requestParams, 'get');

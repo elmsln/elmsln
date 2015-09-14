@@ -15,7 +15,7 @@ use Piwik\Updates;
  */
 class Updates_1_6_rc1 extends Updates
 {
-    public static function update()
+    static function update()
     {
         try {
             \Piwik\Plugin\Manager::getInstance()->activatePlugin('ImageGraph');
@@ -23,3 +23,4 @@ class Updates_1_6_rc1 extends Updates
         }
     }
 }
+

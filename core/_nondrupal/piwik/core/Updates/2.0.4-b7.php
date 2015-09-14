@@ -9,6 +9,7 @@
 
 namespace Piwik\Updates;
 
+use Piwik\Db;
 use Piwik\Option;
 use Piwik\Plugins\MobileMessaging\MobileMessaging;
 use Piwik\Plugins\UsersManager\API as UsersManagerApi;
@@ -19,12 +20,12 @@ use Piwik\Updates;
  */
 class Updates_2_0_4_b7 extends Updates
 {
-    public static function getSql()
+    static function getSql()
     {
         return array();
     }
 
-    public static function update()
+    static function update()
     {
         try {
             self::migrateExistingMobileMessagingOptions();

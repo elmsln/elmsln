@@ -143,9 +143,7 @@ class Cookie
 
             // Remove port information.
             $Port = strpos($Domain, ':');
-            if ($Port !== false) {
-                $Domain = substr($Domain, 0, $Port);
-            }
+            if ($Port !== false) $Domain = substr($Domain, 0, $Port);
         }
 
         $header = 'Set-Cookie: ' . rawurlencode($Name) . '=' . rawurlencode($Value)
@@ -202,14 +200,12 @@ class Cookie
     private function extractSignedContent($content)
     {
         $signature = substr($content, -40);
-
         if (substr($content, -43, 3) == self::VALUE_SEPARATOR . '_=' &&
             $signature == sha1(substr($content, 0, -40) . SettingsPiwik::getSalt())
         ) {
             // strip trailing: VALUE_SEPARATOR '_=' signature"
             return substr($content, 0, -43);
         }
-
         return false;
     }
 
@@ -222,7 +218,6 @@ class Cookie
     protected function loadContentFromCookie()
     {
         $cookieStr = $this->extractSignedContent($_COOKIE[$this->name]);
-
         if ($cookieStr === false) {
             return;
         }
@@ -260,7 +255,6 @@ class Cookie
     protected function generateContentString()
     {
         $cookieStr = '';
-
         foreach ($this->value as $name => $value) {
             if (!is_numeric($value)) {
                 $value = base64_encode(safe_serialize($value));
@@ -341,7 +335,6 @@ class Cookie
             $this->value[$name] = $value;
             return;
         }
-
         $this->value[$this->keyStore][$name] = $value;
     }
 
@@ -354,19 +347,14 @@ class Cookie
     public function get($name)
     {
         $name = self::escapeValue($name);
-        if (false === $this->keyStore) {
-            if (isset($this->value[$name])) {
-                return self::escapeValue($this->value[$name]);
-            }
-
-            return false;
+        if ($this->keyStore === false) {
+            return isset($this->value[$name])
+                ? self::escapeValue($this->value[$name])
+                : false;
         }
-
-        if (isset($this->value[$this->keyStore][$name])) {
-            return self::escapeValue($this->value[$this->keyStore][$name]);
-        }
-
-        return false;
+        return isset($this->value[$this->keyStore][$name])
+            ? self::escapeValue($this->value[$this->keyStore][$name])
+            : false;
     }
 
     /**
@@ -376,10 +364,8 @@ class Cookie
      */
     public function __toString()
     {
-        $str  = 'COOKIE ' . $this->name . ', rows count: ' . count($this->value) . ', cookie size = ' . strlen($this->generateContentString()) . " bytes, ";
-        $str .= 'path: ' . $this->path. ', expire: ' . $this->expire . "\n";
+        $str = 'COOKIE ' . $this->name . ', rows count: ' . count($this->value) . ', cookie size = ' . strlen($this->generateContentString()) . " bytes\n";
         $str .= var_export($this->value, $return = true);
-
         return $str;
     }
 

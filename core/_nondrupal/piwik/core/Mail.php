@@ -8,9 +8,7 @@
  */
 namespace Piwik;
 
-use Piwik\Container\StaticContainer;
 use Piwik\Plugins\CoreAdminHome\CustomLogo;
-use Piwik\Translation\Translator;
 use Zend_Mail;
 
 /**
@@ -36,18 +34,9 @@ class Mail extends Zend_Mail
     public function setDefaultFromPiwik()
     {
         $customLogo = new CustomLogo();
-
-        /** @var Translator $translator */
-        $translator = StaticContainer::get('Piwik\Translation\Translator');
-
-        $fromEmailName = Config::getInstance()->General['noreply_email_name'];
-
-        if (empty($fromEmailName) && $customLogo->isEnabled()) {
-            $fromEmailName = $translator->translate('CoreHome_WebAnalyticsReports');
-        } elseif (empty($fromEmailName)) {
-            $fromEmailName = $translator->translate('ScheduledReports_PiwikReports');
-        }
-
+        $fromEmailName = $customLogo->isEnabled()
+            ? Piwik::translate('CoreHome_WebAnalyticsReports')
+            : Piwik::translate('ScheduledReports_PiwikReports');
         $fromEmailAddress = Config::getInstance()->General['noreply_email_address'];
         $this->setFrom($fromEmailAddress, $fromEmailName);
     }
@@ -88,37 +77,27 @@ class Mail extends Zend_Mail
     private function initSmtpTransport()
     {
         $mailConfig = Config::getInstance()->mail;
-
         if (empty($mailConfig['host'])
             || $mailConfig['transport'] != 'smtp'
         ) {
             return;
         }
-
         $smtpConfig = array();
-        if (!empty($mailConfig['type'])) {
+        if (!empty($mailConfig['type']))
             $smtpConfig['auth'] = strtolower($mailConfig['type']);
-        }
-
-        if (!empty($mailConfig['username'])) {
+        if (!empty($mailConfig['username']))
             $smtpConfig['username'] = $mailConfig['username'];
-        }
-
-        if (!empty($mailConfig['password'])) {
+        if (!empty($mailConfig['password']))
             $smtpConfig['password'] = $mailConfig['password'];
-        }
-
-        if (!empty($mailConfig['encryption'])) {
+        if (!empty($mailConfig['encryption']))
             $smtpConfig['ssl'] = $mailConfig['encryption'];
-        }
 
-        $host = trim($mailConfig['host']);
-        $tr = new \Zend_Mail_Transport_Smtp($host, $smtpConfig);
+        $tr = new \Zend_Mail_Transport_Smtp($mailConfig['host'], $smtpConfig);
         Mail::setDefaultTransport($tr);
-        @ini_set("smtp_port", $mailConfig['port']);
+        ini_set("smtp_port", $mailConfig['port']);
     }
 
-    public function send($transport = null)
+    public function send($transport = NULL)
     {
         if (defined('PIWIK_TEST_MODE')) { // hack
             Piwik::postTestEvent("Test.Mail.send", array($this));
@@ -133,12 +112,12 @@ class Mail extends Zend_Mail
      */
     protected function parseDomainPlaceholderAsPiwikHostName($email)
     {
-        $hostname  = Config::getInstance()->mail['defaultHostnameIfEmpty'];
+        $hostname = Config::getInstance()->mail['defaultHostnameIfEmpty'];
         $piwikHost = Url::getCurrentHost($hostname);
 
         // If known Piwik URL, use it instead of "localhost"
         $piwikUrl = SettingsPiwik::getPiwikUrl();
-        $url      = parse_url($piwikUrl);
+        $url = parse_url($piwikUrl);
         if ($this->isHostDefinedAndNotLocal($url)) {
             $piwikHost = $url['host'];
         }
@@ -152,6 +131,6 @@ class Mail extends Zend_Mail
      */
     protected function isHostDefinedAndNotLocal($url)
     {
-        return isset($url['host']) && !in_array($url['host'], Url::getLocalHostnames(), true);
+        return isset($url['host']) && !in_array($url['host'], array('localhost', '127.0.0.1'), true);
     }
 }

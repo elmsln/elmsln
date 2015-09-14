@@ -11,7 +11,6 @@ namespace Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
 
 use Piwik\Common;
 use Piwik\Config as PiwikConfig;
-use Piwik\Metrics;
 use Piwik\ViewDataTable\RequestConfig as VisualizationRequestConfig;
 
 /**
@@ -34,12 +33,7 @@ class RequestConfig extends VisualizationRequestConfig
         $this->filter_limit = PiwikConfig::getInstance()->General['datatable_default_limit'];
 
         if (Common::getRequestVar('enable_filter_excludelowpop', false) == '1') {
-            if (Common::getRequestVar('flat', 0, 'int') === 1) {
-                $this->filter_excludelowpop = 'nb_visits';
-            } else {
-                $this->filter_excludelowpop = Metrics::INDEX_NB_VISITS;
-            }
-
+            $this->filter_excludelowpop       = 'nb_visits';
             $this->filter_excludelowpop_value = false;
         }
 

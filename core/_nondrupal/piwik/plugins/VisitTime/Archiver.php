@@ -30,15 +30,7 @@ class Archiver extends \Piwik\Plugin\Archiver
             self::LOCAL_TIME_RECORD_NAME,
             self::SERVER_TIME_RECORD_NAME,
         );
-        $columnsAggregationOperation = null;
-        $this->getProcessor()->aggregateDataTableRecords(
-            $dataTableRecords,
-            $maximumRowsInDataTableLevelZero = null,
-            $maximumRowsInSubDataTable = null,
-            $columnToSortByBeforeTruncation = null,
-            $columnsAggregationOperation,
-            $columnsToRenameAfterAggregation = null,
-            $countRowsRecursive = array());
+        $this->getProcessor()->aggregateDataTableRecords($dataTableRecords);
     }
 
     protected function aggregateByServerTime()

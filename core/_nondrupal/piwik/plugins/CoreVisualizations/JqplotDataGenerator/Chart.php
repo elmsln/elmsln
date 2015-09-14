@@ -8,13 +8,12 @@
  */
 namespace Piwik\Plugins\CoreVisualizations\JqplotDataGenerator;
 
-use Piwik\Common;
 use Piwik\ProxyHttp;
 
 /**
  *
  */
-class Chart
+class Chart 
 {
     // the data kept here conforms to the jqplot data layout
     // @see http://www.jqplot.com/docs/files/jqPlotOptions-txt.html
@@ -59,7 +58,7 @@ class Chart
             );
 
             array_walk($data, function (&$v) {
-                $v = (float) Common::forceDotAsSeparatorForDecimalPoint($v);
+                $v = (float)$v;
             });
             $this->data[] = & $data;
         }

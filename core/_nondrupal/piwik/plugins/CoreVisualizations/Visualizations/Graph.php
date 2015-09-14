@@ -10,7 +10,6 @@ namespace Piwik\Plugins\CoreVisualizations\Visualizations;
 
 use Piwik\DataTable;
 use Piwik\DataTable\Row;
-use Piwik\Plugins\CoreVisualizations\Metrics\Formatter\Numeric;
 use Piwik\Piwik;
 use Piwik\Plugin\Visualization;
 
@@ -59,9 +58,7 @@ abstract class Graph extends Visualization
             $this->requestConfig->request_parameters_to_modify['filter_truncate'] = $this->config->max_graph_elements - 1;
         }
 
-        $this->requestConfig->request_parameters_to_modify['format_metrics'] = 1;
-
-        $this->metricsFormatter = new Numeric();
+        $this->requestConfig->request_parameters_to_modify['disable_queued_filters'] = 1;
     }
 
     /**
@@ -138,7 +135,7 @@ abstract class Graph extends Visualization
         // set default selectable columns, if none specified
         $selectableColumns = $this->config->selectable_columns;
         if (false === $selectableColumns) {
-            $selectableColumns = array('nb_visits', 'nb_actions', 'nb_uniq_visitors', 'nb_users');
+            $selectableColumns = array('nb_visits', 'nb_actions', 'nb_uniq_visitors');
 
             if ($this->config->show_goals) {
                 $goalMetrics       = array('nb_conversions', 'revenue');

@@ -1,17 +1,16 @@
-{% extends 'user.twig' %}
+{% extends 'dashboard.twig' %}
 
 {% block content %}
 
-<div class="emailReports">
+{% include "@CoreHome/_siteSelectHeader.twig" %}
+
+<div class="top_controls">
+    {% include "@CoreHome/_periodSelect.twig" %}
+</div>
+
+<div class="centerLargeDiv">
     <h2 piwik-enriched-headline
-        help-url="http://piwik.org/docs/email-reports/">{{ 'ScheduledReports_PersonalEmailReports'|translate }}</h2>
-
-    {% include "@CoreHome/_siteSelectHeader.twig" %}
-
-    <div class="top_controls">
-        {% include "@CoreHome/_periodSelect.twig" %}
-    </div>
-
+        help-url="http://piwik.org/docs/email-reports/">{{ 'ScheduledReports_ManageEmailReports'|translate }}</h2>
     <span id="reportSentSuccess"></span>
     <span id="reportUpdatedSuccess"></span>
 
@@ -54,17 +53,10 @@
         position:relative;
     }
 
-    #linkAddReport {
-        margin-top: 0px;
+    .entityAddContainer > .entityCancel:first-child {
+        position: absolute;
+        right:0;
+        bottom:100%;
     }
-
-    #linkAddReport:hover {
-        text-decoration: underline;
-    }
-
-    .emailReports .top_controls {
-        padding-bottom: 18px;
-    }
-
 </style>
 {% endblock %}

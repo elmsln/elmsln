@@ -15,7 +15,7 @@ use Piwik\Updates;
  */
 class Updates_1_2_rc2 extends Updates
 {
-    public static function update()
+    static function update()
     {
         try {
             \Piwik\Plugin\Manager::getInstance()->activatePlugin('CustomVariables');
@@ -23,3 +23,4 @@ class Updates_1_2_rc2 extends Updates
         }
     }
 }
+

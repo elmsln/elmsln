@@ -11,23 +11,17 @@
  * Example:
  * <input type="text" piwik-focus-if="view.editName">
  */
-(function () {
-    angular.module('piwikApp.directive').directive('piwikFocusIf', piwikFocusIf);
-
-    piwikFocusIf.$inject = ['$timeout'];
-
-    function piwikFocusIf($timeout) {
-        return {
-            restrict: 'A',
-            link: function(scope, element, attrs) {
-                scope.$watch(attrs.piwikFocusIf, function(newValue, oldValue) {
-                    if (newValue) {
-                        $timeout(function () {
-                            element[0].focus();
-                        }, 5);
-                    }
-                });
-            }
-        };
-    }
-})();
+angular.module('piwikApp.directive').directive('piwikFocusIf', function($timeout) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            scope.$watch(attrs.piwikFocusIf, function(newValue, oldValue) {
+                if (newValue) {
+                    $timeout(function () {
+                        element[0].focus();
+                    }, 5);
+                }
+            });
+        }
+    };
+});

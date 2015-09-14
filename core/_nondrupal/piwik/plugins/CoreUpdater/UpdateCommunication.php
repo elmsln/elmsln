@@ -15,7 +15,6 @@ use Piwik\Piwik;
 use Piwik\Plugins\UsersManager\API as UsersManagerApi;
 use Piwik\SettingsPiwik;
 use Piwik\UpdateCheck;
-use Piwik\Version;
 
 /**
  * Class to check and notify users via email if there is a core update available.
@@ -67,18 +66,9 @@ class UpdateCommunication
         $message .= Piwik::translate('CoreUpdater_ThereIsNewVersionAvailableForUpdate');
         $message .= "\n\n";
         $message .= Piwik::translate('CoreUpdater_YouCanUpgradeAutomaticallyOrDownloadPackage', $latestVersion);
-        $message .= "\n";
+        $message .= "\n\n";
         $message .= $host . 'index.php?module=CoreUpdater&action=newVersionAvailable';
         $message .= "\n\n";
-
-        $version = new Version();
-        if ($version->isStableVersion($latestVersion)) {
-            $message .= Piwik::translate('CoreUpdater_ViewVersionChangelog');
-            $message .= "\n";
-            $message .= $this->getLinkToChangeLog($latestVersion);
-            $message .= "\n\n";
-        }
-
         $message .= Piwik::translate('CoreUpdater_FeedbackRequest');
         $message .= "\n";
         $message .= 'http://piwik.org/contact/';
@@ -86,13 +76,9 @@ class UpdateCommunication
         $this->sendEmailNotification($subject, $message);
     }
 
-    private function getLinkToChangeLog($version)
+    private function isVersionLike($latestVersion)
     {
-        $version = str_replace('.', '-', $version);
-
-        $link = sprintf('http://piwik.org/changelog/piwik-%s/', $version);
-
-        return $link;
+        return strlen($latestVersion) < 18;
     }
 
     /**
@@ -115,7 +101,7 @@ class UpdateCommunication
         }
     }
 
-    protected function isNewVersionAvailable()
+    private function isNewVersionAvailable()
     {
         UpdateCheck::check();
 
@@ -126,15 +112,14 @@ class UpdateCommunication
         }
 
         $latestVersion = self::getLatestVersion();
-        $version = new Version();
-        if (!$version->isVersionNumber($latestVersion)) {
+        if (!$this->isVersionLike($latestVersion)) {
             return false;
         }
 
         return $hasUpdate;
     }
 
-    protected function hasNotificationAlreadyReceived()
+    private function hasNotificationAlreadyReceived()
     {
         $latestVersion   = $this->getLatestVersion();
         $lastVersionSent = $this->getLatestVersionSent();
@@ -150,13 +135,7 @@ class UpdateCommunication
 
     private function getLatestVersion()
     {
-        $version = UpdateCheck::getLatestVersion();
-
-        if (!empty($version)) {
-            $version = trim($version);
-        }
-
-        return $version;
+        return UpdateCheck::getLatestVersion();
     }
 
     private function getLatestVersionSent()

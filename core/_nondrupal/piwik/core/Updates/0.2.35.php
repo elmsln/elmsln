@@ -17,7 +17,7 @@ use Piwik\Updates;
  */
 class Updates_0_2_35 extends Updates
 {
-    public static function getSql()
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('user_dashboard') . '`
@@ -25,7 +25,7 @@ class Updates_0_2_35 extends Updates
         );
     }
 
-    public static function update()
+    static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }

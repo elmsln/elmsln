@@ -47,7 +47,6 @@ class Pgsql extends Zend_Db_Adapter_Pdo_Pgsql implements AdapterInterface
     {
         $databaseVersion = $this->getServerVersion();
         $requiredVersion = Config::getInstance()->General['minimum_pgsql_version'];
-
         if (version_compare($databaseVersion, $requiredVersion) === -1) {
             throw new Exception(Piwik::translate('General_ExceptionDatabaseVersion', array('PostgreSQL', $databaseVersion, $requiredVersion)));
         }
@@ -67,7 +66,8 @@ class Pgsql extends Zend_Db_Adapter_Pdo_Pgsql implements AdapterInterface
      */
     public static function isEnabled()
     {
-        return extension_loaded('PDO') && extension_loaded('pdo_pgsql');
+        $extensions = @get_loaded_extensions();
+        return in_array('PDO', $extensions) && in_array('pdo_pgsql', $extensions);
     }
 
     /**
@@ -146,7 +146,6 @@ class Pgsql extends Zend_Db_Adapter_Pdo_Pgsql implements AdapterInterface
         if (preg_match('/([0-9]{2}[0-9P][0-9]{2})/', $e->getMessage(), $match)) {
             return $match[1] == $map[$errno];
         }
-
         return false;
     }
 

@@ -26,7 +26,7 @@
 
     /**
      * DataTable UI class for jqPlot graph datatable visualizations.
-     *
+     * 
      * @constructor
      */
     exports.JqplotGraphDataTable = function (element) {
@@ -146,7 +146,7 @@
                     if ($.isArray(value) && value[1]) {
                         value = value[1];
                     }
-
+                    
                     percentages[valueIdx] = sum > 0 ? Math.round(100 * value / sum) : 0;
                 }
             }
@@ -273,70 +273,6 @@
             loading.css({opacity: .7});
         },
 
-        /**
-         * This method sums up total width of all tick according to currently
-         * set font-family, font-size and font-weight. It is achieved by
-         * creating span elements with ticks and adding their width.
-         * Rendered ticks have to be visible to get their real width. But it
-         * is too fast for user to notice it. If total ticks width is bigger
-         * than container width then half of ticks is beeing cut out and their
-         * width is tested again. Until their total width is smaller than chart
-         * div. There is a failsafe so check will be performed no more than 20
-         * times, which is I think more than enough. Each tick have its own
-         * gutter, by default width of 5 px from each side so they are more
-         * readable.
-         *
-         * @param $targetDiv
-         * @private
-         */
-        _checkTicksWidth: function($targetDiv){
-            if(typeof this.jqplotParams.axes.xaxis.ticksOriginal === 'undefined' || this.jqplotParams.axes.xaxis.ticksOriginal === {}){
-                this.jqplotParams.axes.xaxis.ticksOriginal = this.jqplotParams.axes.xaxis.ticks.slice();
-            }
-
-            var ticks = this.jqplotParams.axes.xaxis.ticks = this.jqplotParams.axes.xaxis.ticksOriginal.slice();
-
-            var divWidth = $targetDiv.width();
-            var tickOptions = $.extend(true, {}, this.jqplotParams.axesDefaults.tickOptions, this.jqplotParams.axes.xaxis.tickOptions);
-            var gutter = tickOptions.gutter || 5;
-            var sumWidthOfTicks = Number.MAX_VALUE;
-            var $labelTestChamber = {};
-            var tick = "";
-            var $body = $("body");
-            var maxRunsFailsafe = 20;
-            var ticksCount = 0;
-            var key = 0;
-
-            while(sumWidthOfTicks > divWidth && maxRunsFailsafe > 0) {
-                sumWidthOfTicks = 0;
-                for (key = 0; key < ticks.length; key++) {
-                    tick = ticks[key];
-                    if (tick !== " " && tick !== "") {
-                        $labelTestChamber = $("<span/>", {
-                            style: 'font-size: ' + (tickOptions.fontSize || '11px') + '; font-family: ' + (tickOptions.fontFamily || 'Arial, Helvetica, sans-serif') + ';' + (tickOptions.fontWeight || 'normal') + ';' + 'clear: both; float: none;',
-                            text: tick
-                        }).appendTo($body);
-                        sumWidthOfTicks += ($labelTestChamber.width() + gutter*2);
-                        $labelTestChamber.remove();
-                    }
-                }
-
-                ticksCount = 0;
-                if (sumWidthOfTicks > divWidth) {
-                    for (key = 0; key < ticks.length; key++) {
-                        tick = ticks[key];
-                        if (tick !== " " && tick !== "") {
-                            if (ticksCount % 2 == 1) {
-                                ticks[key] = " ";
-                            }
-                            ticksCount++;
-                        }
-                    }
-                }
-                maxRunsFailsafe--;
-            }
-        },
-
         /** Generic render function */
         render: function () {
             if (this.data.length == 0) { // sanity check
@@ -358,14 +294,6 @@
             // otherwise clicking on sparklines won't work anymore after an empty
             // report has been displayed.
             var self = this;
-
-            // before drawing a jqplot chart, check if all labels ticks will fit
-            // into it
-            if( this.param.viewDataTable === "graphBar"
-                || this.param.viewDataTable === "graphVerticalBar"
-                || this.param.viewDataTable === "graphEvolution" ) {
-                self._checkTicksWidth(target);
-            }
 
             // create jqplot chart
             try {
@@ -437,10 +365,10 @@
             });
 
             var popover = $(document.createElement('div'));
-
+            
             popover.append('<div style="font-size: 13px; margin-bottom: 10px;">'
                 + lang.exportText + '</div>').append($(img));
-
+                
             popover.dialog({
                 title: lang.exportTitle,
                 modal: true,
@@ -568,7 +496,7 @@
             } else if (viewDataTable == 'graphVerticalBar') {
                 graphType = 'bar';
             }
-
+            
             var namespace = graphType + '-graph-colors';
 
             this.jqplotParams.seriesColors = colorManager.getColors(namespace, seriesColorNames, true);
@@ -690,6 +618,7 @@ JQPlotExternalSeriesToggle.prototype = {
 
 };
 
+
 // ROW EVOLUTION SERIES TOGGLE
 
 function RowEvolutionSeriesToggle(targetDivId, jqplotData, initiallyShowAll) {
@@ -745,6 +674,7 @@ RowEvolutionSeriesToggle.prototype.beforeReplot = function () {
         }
     }
 };
+
 
 // ------------------------------------------------------------
 //  PIWIK TICKS PLUGIN FOR JQPLOT
@@ -905,6 +835,7 @@ RowEvolutionSeriesToggle.prototype.beforeReplot = function () {
 
 })(jQuery);
 
+
 // ------------------------------------------------------------
 //  LEGEND PLUGIN FOR JQPLOT
 //  Render legend on canvas
@@ -1002,6 +933,7 @@ RowEvolutionSeriesToggle.prototype.beforeReplot = function () {
     $.jqplot.postDrawHooks.push($.jqplot.CanvasLegendRenderer.postDraw);
 
 })(jQuery);
+
 
 // ------------------------------------------------------------
 //  SERIES PICKER

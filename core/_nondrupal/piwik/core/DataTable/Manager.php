@@ -12,30 +12,29 @@ namespace Piwik\DataTable;
 use Exception;
 use Piwik\Common;
 use Piwik\DataTable;
+use Piwik\Singleton;
 
 /**
  * The DataTable_Manager registers all the instanciated DataTable and provides an
  * easy way to access them. This is used to store all the DataTable during the archiving process.
  * At the end of archiving, the ArchiveProcessor will read the stored datatable and record them in the DB.
+ *
+ * @method static \Piwik\DataTable\Manager getInstance()
  */
-class Manager extends \ArrayObject
+class Manager extends Singleton
 {
+    /**
+     * Array used to store the DataTable
+     *
+     * @var array
+     */
+    private $tables = array();
+
     /**
      * Id of the next inserted table id in the Manager
      * @var int
      */
-    protected $nextTableId = 0;
-
-    private static $instance;
-
-    public static function getInstance()
-    {
-        if (!isset(self::$instance)) {
-            self::$instance = new Manager();
-        }
-
-        return self::$instance;
-    }
+    protected $nextTableId = 1;
 
     /**
      * Add a DataTable to the registry
@@ -45,9 +44,9 @@ class Manager extends \ArrayObject
      */
     public function addTable($table)
     {
+        $this->tables[$this->nextTableId] = $table;
         $this->nextTableId++;
-        $this[$this->nextTableId] = $table;
-        return $this->nextTableId;
+        return $this->nextTableId - 1;
     }
 
     /**
@@ -61,11 +60,10 @@ class Manager extends \ArrayObject
      */
     public function getTable($idTable)
     {
-        if (!isset($this[$idTable])) {
-            throw new TableNotFoundException(sprintf("Error: table id %s not found in memory. (If this error is causing you problems in production, please report it in Piwik issue tracker.)", $idTable));
+        if (!isset($this->tables[$idTable])) {
+            throw new TableNotFoundException(sprintf("This report has been reprocessed since your last click. To see this error less often, please increase the timeout value in seconds in Settings > General Settings. (error: id %s not found).", $idTable));
         }
-
-        return $this[$idTable];
+        return $this->tables[$idTable];
     }
 
     /**
@@ -75,7 +73,7 @@ class Manager extends \ArrayObject
      */
     public function getMostRecentTableId()
     {
-        return $this->nextTableId;
+        return $this->nextTableId - 1;
     }
 
     /**
@@ -83,15 +81,14 @@ class Manager extends \ArrayObject
      */
     public function deleteAll($deleteWhenIdTableGreaterThan = 0)
     {
-        foreach ($this as $id => $table) {
+        foreach ($this->tables as $id => $table) {
             if ($id > $deleteWhenIdTableGreaterThan) {
                 $this->deleteTable($id);
             }
         }
-
         if ($deleteWhenIdTableGreaterThan == 0) {
-            $this->exchangeArray(array());
-            $this->nextTableId = 0;
+            $this->tables = array();
+            $this->nextTableId = 1;
         }
     }
 
@@ -103,8 +100,8 @@ class Manager extends \ArrayObject
      */
     public function deleteTable($id)
     {
-        if (isset($this[$id])) {
-            Common::destroy($this[$id]);
+        if (isset($this->tables[$id])) {
+            Common::destroy($this->tables[$id]);
             $this->setTableDeleted($id);
         }
     }
@@ -134,7 +131,7 @@ class Manager extends \ArrayObject
      */
     public function setTableDeleted($id)
     {
-        $this[$id] = null;
+        $this->tables[$id] = null;
     }
 
     /**
@@ -143,7 +140,7 @@ class Manager extends \ArrayObject
     public function dumpAllTables()
     {
         echo "<hr />Manager->dumpAllTables()<br />";
-        foreach ($this as $id => $table) {
+        foreach ($this->tables as $id => $table) {
             if (!($table instanceof DataTable)) {
                 echo "Error table $id is not instance of datatable<br />";
                 var_export($table);

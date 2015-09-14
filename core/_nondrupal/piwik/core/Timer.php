@@ -8,8 +8,6 @@
  */
 namespace Piwik;
 
-use Piwik\Metrics\Formatter;
-
 /**
  *
  */
@@ -17,15 +15,12 @@ class Timer
 {
     private $timerStart;
     private $memoryStart;
-    private $formatter;
 
     /**
      * @return \Piwik\Timer
      */
     public function __construct()
     {
-        $this->formatter = new Formatter();
-
         $this->init();
     }
 
@@ -61,7 +56,7 @@ class Timer
      */
     public function getMemoryLeak()
     {
-        return "Memory delta: " . $this->formatter->getPrettySizeFromBytes($this->getMemoryUsage() - $this->memoryStart);
+        return "Memory delta: " . MetricsFormatter::getPrettySizeFromBytes($this->getMemoryUsage() - $this->memoryStart);
     }
 
     /**

@@ -26,6 +26,7 @@ class RequestConfig extends VisualizationRequestConfig
     public function __construct()
     {
         $this->disable_generic_filters = true;
+        $this->disable_queued_filters  = true;
 
         $properties = array(
             'min_growth_percent',

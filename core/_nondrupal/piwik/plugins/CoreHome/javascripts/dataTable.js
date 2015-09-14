@@ -22,7 +22,7 @@ var exports = require('piwik/UI'),
  * method, and this class instance is stored using the jQuery $.data function
  * with the 'uiControlObject' key.
  *
- * To find a datatable element by report (ie, 'DevicesDetection.getBrowsers'),
+ * To find a datatable element by report (ie, 'UserSettings.getBrowser'),
  * use piwik.DataTable.getDataTableByReport.
  *
  * To get the dataTable JS instance (an instance of this class) for a
@@ -42,11 +42,8 @@ DataTable.initNewDataTables = function () {
     $('div.dataTable').each(function () {
         if (!$(this).attr('id')) {
             var tableType = $(this).attr('data-table-type') || 'DataTable',
-                klass = require('piwik/UI')[tableType] || require(tableType);
-
-            if (klass && $.isFunction(klass)) {
-                var table = new klass(this);
-            }
+                klass = require('piwik/UI')[tableType] || require(tableType),
+                table = new klass(this);
         }
     });
 };
@@ -67,7 +64,7 @@ DataTable.registerFooterIconHandler = function (id, handler) {
 /**
  * Returns the first datatable div displaying a specific report.
  *
- * @param {string} report  The report, eg, UserLanguage.getLanguage
+ * @param {string} report  The report, eg, UserSettings.getWideScreen
  * @return {Element} The datatable div displaying the report, or undefined if
  *                   it cannot be found.
  */
@@ -121,8 +118,7 @@ $.extend(DataTable.prototype, UIControl.prototype, {
 
         if (!self.isDashboard()) {
             self.notifyWidgetParametersChange(domElem, {
-                filter_sort_column: newColumnToSort,
-                filter_sort_order: self.param.filter_sort_order
+                filter_sort_column: newColumnToSort
             });
         }
 
@@ -139,10 +135,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
 
     isDashboard: function () {
         return !!$('#dashboardWidgetsArea').length;
-    },
-
-    getReportMetadata: function () {
-        return JSON.parse(this.$element.attr('data-report-metadata') || '{}');
     },
 
     //Reset DataTable filters (used before a reload or view change)
@@ -163,9 +155,7 @@ $.extend(DataTable.prototype, UIControl.prototype, {
             'columns',
             'flat',
             'include_aggregate_rows',
-            'totalRows',
-            'pivotBy',
-            'pivotByColumn'
+            'totalRows'
         ];
 
         for (var key = 0; key < filters.length; key++) {
@@ -217,15 +207,14 @@ $.extend(DataTable.prototype, UIControl.prototype, {
             $('#' + self.workingDivId + ' .loadingPiwik').last().css('display', 'block');
         }
 
-        $('#loadingError').hide();
-
         // when switching to display graphs, reset limit
-        if (self && self.param && self.param.viewDataTable && String(self.param.viewDataTable).indexOf('graph') === 0) {
+        if (self.param.viewDataTable && self.param.viewDataTable.indexOf('graph') === 0) {
             delete self.param.filter_offset;
             delete self.param.filter_limit;
         }
 
         var container = $('#' + self.workingDivId + ' .piwik-graph');
+
 
         var params = {};
         for (var key in self.param) {
@@ -244,14 +233,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
                 callbackSuccess(response);
             }
         );
-        ajaxRequest.setErrorCallback(function (deferred, status) {
-            if (status == 'abort' || !deferred || deferred.status < 400 || deferred.status >= 600) {
-                return;
-            }
-
-            $('#' + self.workingDivId + ' .loadingPiwik').last().css('display', 'none');
-            $('#loadingError').show();
-        });
         ajaxRequest.setFormat('html');
 
         ajaxRequest.send(false);
@@ -320,7 +301,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
         self.handleColumnHighlighting(domElem);
         self.handleExpandFooter(domElem);
         self.setFixWidthToMakeEllipsisWork(domElem);
-        self.handleSummaryRow(domElem);
     },
 
     setFixWidthToMakeEllipsisWork: function (domElem) {
@@ -581,21 +561,13 @@ $.extend(DataTable.prototype, UIControl.prototype, {
             var imageSortHeight = 16;
 
             var sortOrder = self.param.filter_sort_order || 'desc';
+            var ImageSortClass = sortOrder.charAt(0).toUpperCase() + sortOrder.substr(1);
 
             // we change the style of the column currently used as sort column
             // adding an image and the class columnSorted to the TD
-            var head = $('th', domElem).filter(function () {
-                return $(this).attr('id') == self.param.filter_sort_column;
-            }).addClass('columnSorted');
-
-            var sortIconHtml = '<span class="sortIcon ' + sortOrder + ' ' + imageSortClassType +'" width="' + imageSortWidth + '" height="' + imageSortHeight + '" />';
-
-            var div = head.find('.thDIV');
-            if (head.hasClass('first') || head.attr('id') == 'label') {
-                div.append(sortIconHtml);
-            } else {
-                div.prepend(sortIconHtml);
-            }
+            $("th#" + self.param.filter_sort_column + ' #thDIV', domElem).parent()
+                .addClass('columnSorted')
+                .prepend('<div class="sortIconContainer sortIconContainer' + ImageSortClass + ' ' + imageSortClassType + '"><span class="sortIcon" width="' + imageSortWidth + '" height="' + imageSortHeight + '" /></div>');
         }
     },
 
@@ -617,14 +589,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
         }
         currentPattern = piwikHelper.htmlDecode(currentPattern);
 
-        var patternsToReplace = [{from: '?', to: '\\?'}, {from: '+', to: '\\+'}, {from: '*', to: '\\*'}]
-
-        $.each(patternsToReplace, function (index, pattern) {
-            if (0 === currentPattern.indexOf(pattern.to)) {
-                currentPattern = pattern.from + currentPattern.substr(2);
-            }
-        });
-
         $('.dataTableSearchPattern', domElem)
             .css({display: 'block'})
             .each(function () {
@@ -644,12 +608,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
                     function () {
                         var keyword = $(this).siblings('.searchInput').val();
                         self.param.filter_offset = 0;
-
-                        $.each(patternsToReplace, function (index, pattern) {
-                            if (0 === keyword.indexOf(pattern.from)) {
-                                keyword = pattern.to + keyword.substr(1);
-                            }
-                        });
 
                         if (self.param.search_recursive) {
                             self.param.filter_column_recursive = 'label';
@@ -1042,6 +1000,7 @@ $.extend(DataTable.prototype, UIControl.prototype, {
             }
         });
 
+
         $('.exportToFormatItems a', domElem)
             // prevent click jacking attacks by dynamically adding the token auth when the link is clicked
             .click(function () {
@@ -1061,14 +1020,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
             .attr('href', function () {
                 var format = $(this).attr('format');
                 var method = $(this).attr('methodToCall');
-                var params = $(this).attr('requestParams');
-
-                if (params) {
-                    params = JSON.parse(params)
-                } else {
-                    params = {};
-                }
-
                 var segment = self.param.segment;
                 var label = self.param.label;
                 var idGoal = self.param.idGoal;
@@ -1093,7 +1044,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
                     && self.param.viewDataTable == "graphEvolution") {
                     period = 'day';
                 }
-
                 var str = 'index.php?module=API'
                     + '&method=' + method
                     + '&format=' + format
@@ -1103,15 +1053,10 @@ $.extend(DataTable.prototype, UIControl.prototype, {
                     + ( typeof self.param.filter_pattern != "undefined" ? '&filter_pattern=' + self.param.filter_pattern : '')
                     + ( typeof self.param.filter_pattern_recursive != "undefined" ? '&filter_pattern_recursive=' + self.param.filter_pattern_recursive : '');
 
-                if ($.isPlainObject(params)) {
-                    $.each(params, function (index, param) {
-                        str += '&' + index + '=' + encodeURIComponent(param);
-                    });
-                }
 
                 if (typeof self.param.flat != "undefined") {
                     str += '&flat=' + (self.param.flat == 0 ? '0' : '1');
-                    if (typeof self.param.include_aggregate_rows != "undefined" && self.param.include_aggregate_rows == '1') {
+                    if (typeof self.param.include_aggregate_rows != "undefined" && self.param.include_aggregate_rows) {
                         str += '&include_aggregate_rows=1';
                     }
                     if (!self.param.flat
@@ -1122,12 +1067,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
 
                 } else {
                     str += '&expanded=1';
-                }
-                if (self.param.pivotBy) {
-                    str += '&pivotBy=' + self.param.pivotBy + '&pivotByColumnLimit=20';
-                    if (self.props.pivot_by_column) {
-                        str += '&pivotByColumn=' + self.props.pivot_by_column;
-                    }
                 }
                 if (format == 'CSV' || format == 'TSV' || format == 'RSS') {
                     str += '&translateColumnNames=1&language=' + piwik.language;
@@ -1211,19 +1150,15 @@ $.extend(DataTable.prototype, UIControl.prototype, {
         };
         $('div.tableConfiguration', domElem).hover(open, close);
 
-        var generateClickCallback = function (paramName, callbackAfterToggle, setParamCallback) {
+        var generateClickCallback = function (paramName, callbackAfterToggle) {
             return function () {
                 close();
-                if (setParamCallback) {
-                    var data = setParamCallback();
-                } else {
-                    self.param[paramName] = (1 - self.param[paramName]) + '';
-                    var data = {};
-                }
+                self.param[paramName] = (1 - self.param[paramName]) + '';
                 self.param.filter_offset = 0;
                 delete self.param.totalRows;
                 if (callbackAfterToggle) callbackAfterToggle();
                 self.reloadAjaxDataTable(true, callbackSuccess);
+                var data = {};
                 data[paramName] = self.param[paramName];
                 self.notifyWidgetParametersChange(domElem, data);
             };
@@ -1291,37 +1226,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
                 }
             }));
 
-        // handle pivot by
-        $('.dataTablePivotBySubtable', domElem)
-            .each(function () {
-                if (self.param.pivotBy
-                    && self.param.pivotBy != '0'
-                ) {
-                    $(this).html(getText('CoreHome_UndoPivotBySubtable', true));
-                    iconHighlighted = true;
-                } else {
-                    var optionLabelText = getText('CoreHome_PivotBySubtable').replace('%s', self.props.pivot_dimension_name);
-                    $(this).html(optionLabelText);
-                }
-            })
-            .click(generateClickCallback('pivotBy', null, function () {
-                if (self.param.pivotBy
-                    && self.param.pivotBy != '0'
-                ) {
-                    self.param.pivotBy = '0'; // set to '0' so it will be sent in the request and override the saved param
-                    self.param.pivotByColumn = '0';
-                } else {
-                    self.param.pivotBy = self.props.pivot_by_dimension;
-                    if (self.props.pivot_by_column) {
-                        self.param.pivotByColumn = self.props.pivot_by_column;
-                    }
-                }
-
-                // remove sorting so it will default to first column in table
-                self.param.filter_sort_column = '';
-                return {filter_sort_column: ''};
-            }));
-
         // handle highlighted icon
         if (iconHighlighted) {
             icon.addClass('highlighted');
@@ -1343,10 +1247,7 @@ $.extend(DataTable.prototype, UIControl.prototype, {
                 var width = 0;
                 ul.find('li').each(function () {
                     width = Math.max(width, $(this).width());
-                });
-                if (width > 0) {
-                    ul.find('li').width(width);
-                }
+                }).width(width);
                 close();
             }, 400);
         }
@@ -1417,8 +1318,10 @@ $.extend(DataTable.prototype, UIControl.prototype, {
         // Add some styles on the cells even/odd
         // label (first column of a data row) or not
         $("th:first-child", domElem).addClass('label');
-        $("td:first-child", domElem).addClass('label');
-        $("tr td", domElem).addClass('column');
+        $("td:first-child:odd", domElem).addClass('label labeleven');
+        $("td:first-child:even", domElem).addClass('label labelodd');
+        $("tr:odd td", domElem).slice(1).addClass('column columnodd');
+        $("tr:even td", domElem).slice(1).addClass('column columneven');
     },
 
     handleExpandFooter: function (domElem) {
@@ -1485,24 +1388,19 @@ $.extend(DataTable.prototype, UIControl.prototype, {
         // higlight all columns on hover
         $('td', domElem).hover(
             function() {
-
-                if ($(this).hasClass('label')) {
-                    return;
-                }
-
                 var table    = $(this).closest('table');
                 var nthChild = $(this).parent('tr').children().index($(this)) + 1;
                 var rows     = $('> tbody > tr', table);
 
                 if (!maxWidth[nthChild]) {
                     maxWidth[nthChild] = 0;
-                    rows.find("td:nth-child(" + (nthChild) + ").column .value").each(function (index, element) {
-                        var width = $(element).width();
+                    rows.find("td:nth-child(" + (nthChild) + ") .column .value").each(function (index, element) {
+                        var width    = $(element).width();
                         if (width > maxWidth[nthChild]) {
                             maxWidth[nthChild] = width;
                         }
                     });
-                    rows.find("td:nth-child(" + (nthChild) + ").column .value").each(function (index, element) {
+                    rows.find("td:nth-child(" + (nthChild) + ") .column .value").each(function (index, element) {
                         $(element).css({width: maxWidth[nthChild], display: 'inline-block'});
                     });
                 }
@@ -1593,7 +1491,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
                 }
 
                 $(this).next().toggle();
-                $(this).toggleClass('expanded');
                 self.repositionRowActions($(this));
             }
         ).size();
@@ -1699,9 +1596,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
                     self.param[key] = decodeURIComponent(newParams[key]);
                 }
 
-                delete self.param.pivotBy;
-                delete self.param.pivotByColumn;
-
                 // do ajax request
                 self.reloadAjaxDataTable(true, function (newReport) {
                     var newDomElem = self.dataTableLoaded(newReport, self.workingDivId);
@@ -1735,22 +1629,6 @@ $.extend(DataTable.prototype, UIControl.prototype, {
             }
 
             self.reloadAjaxDataTable(true);
-        });
-    },
-
-    handleSummaryRow: function (domElem) {
-        var details = _pk_translate('General_LearnMore', [' (<a href="http://piwik.org/faq/how-to/faq_54/" rel="noreferrer"  target="_blank">', '</a>)']);
-
-        domElem.find('tr.summaryRow').each(function () {
-            var labelSpan = $(this).find('.label .value');
-            var defaultLabel = labelSpan.text();
-
-            $(this).hover(function() {
-                    labelSpan.html(defaultLabel + details);
-                },
-                function() {
-                    labelSpan.text(defaultLabel);
-                });
         });
     },
 
@@ -1921,26 +1799,11 @@ var switchToHtmlTable = function (dataTable, viewDataTable) {
     dataTable.notifyWidgetParametersChange(dataTable.$element, {viewDataTable: viewDataTable});
 };
 
-var switchToEcommerceView = function (dataTable, viewDataTable) {
-    if (viewDataTable == 'ecommerceOrder') {
-        dataTable.param.abandonedCarts = '0';
-    } else {
-        dataTable.param.abandonedCarts = '1';
-    }
-
-    var viewDataTable = dataTable.param.viewDataTable;
-    if (viewDataTable == 'ecommerceOrder' || viewDataTable == 'ecommerceAbandonedCart') {
-        viewDataTable = 'table';
-    }
-
-    switchToHtmlTable(dataTable, viewDataTable);
-};
-
 DataTable.registerFooterIconHandler('table', switchToHtmlTable);
 DataTable.registerFooterIconHandler('tableAllColumns', switchToHtmlTable);
 DataTable.registerFooterIconHandler('tableGoals', switchToHtmlTable);
-DataTable.registerFooterIconHandler('ecommerceOrder', switchToEcommerceView);
-DataTable.registerFooterIconHandler('ecommerceAbandonedCart', switchToEcommerceView);
+DataTable.registerFooterIconHandler('ecommerceOrder', switchToHtmlTable);
+DataTable.registerFooterIconHandler('ecommerceAbandonedCart', switchToHtmlTable);
 
 // generic function to handle switch to graph visualizations
 DataTable.switchToGraph = function (dataTable, viewDataTable) {

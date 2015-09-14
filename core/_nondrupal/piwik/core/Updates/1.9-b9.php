@@ -17,35 +17,32 @@ use Piwik\Updates;
  */
 class Updates_1_9_b9 extends Updates
 {
-    public static function isMajorUpdate()
+    static function isMajorUpdate()
     {
         return true;
     }
 
-    public static function getSql()
+    static function getSql()
     {
         $logVisit = Common::prefixTable('log_visit');
         $logConversion = Common::prefixTable('log_conversion');
 
-        $addColumns = "ADD `location_region` CHAR(2) NULL AFTER `location_country`,
+        $addColumns = "DROP `location_continent`,
+					   ADD `location_region` CHAR(2) NULL AFTER `location_country`,
 					   ADD `location_city` VARCHAR(255) NULL AFTER `location_region`,
 					   ADD `location_latitude` FLOAT(10, 6) NULL AFTER `location_city`,
 			           ADD `location_longitude` FLOAT(10, 6) NULL AFTER `location_latitude`";
-        $dropColumns = "DROP `location_continent`";
 
         return array(
-
-            "ALTER TABLE `$logVisit` $dropColumns"      => 1091,
-            "ALTER TABLE `$logConversion` $dropColumns" => 1091,
-
             // add geoip columns to log_visit
-            "ALTER TABLE `$logVisit` $addColumns"      => 1060,
+            "ALTER TABLE `$logVisit` $addColumns"      => 1091,
+
             // add geoip columns to log_conversion
-            "ALTER TABLE `$logConversion` $addColumns" => 1060,
+            "ALTER TABLE `$logConversion` $addColumns" => 1091,
         );
     }
 
-    public static function update()
+    static function update()
     {
         try {
             self::enableMaintenanceMode();
@@ -57,3 +54,4 @@ class Updates_1_9_b9 extends Updates
         }
     }
 }
+

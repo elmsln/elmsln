@@ -32,6 +32,7 @@ class JqplotDataGenerator
      */
     protected $properties;
 
+
     protected $graphType;
 
     /**
@@ -137,10 +138,7 @@ class JqplotDataGenerator
 
         // the bar charts contain the labels a first series
         // this series has to be removed from the units
-        reset($units);
-        if ($this->graphType == 'bar'
-            && key($units) == 'label'
-        ) {
+        if ($this->graphType == 'bar') {
             array_shift($units);
         }
 

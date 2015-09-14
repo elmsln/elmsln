@@ -17,16 +17,18 @@ use Piwik\Updates;
  */
 class Updates_1_2_5_rc7 extends Updates
 {
-    public static function getSql()
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('log_visit') . '`
-		    	ADD INDEX index_idsite_idvisitor (idsite, idvisitor)' => 1061,
+		    	ADD INDEX index_idsite_idvisitor (idsite, idvisitor)' => false,
         );
     }
 
-    public static function update()
+    static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }
 }
+
+

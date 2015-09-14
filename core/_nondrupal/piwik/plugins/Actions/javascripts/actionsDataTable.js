@@ -36,7 +36,7 @@
 
     /**
      * UI control that handles extra functionality for Actions datatables.
-     *
+     * 
      * @constructor
      */
     exports.ActionsDataTable = function (element) {
@@ -54,7 +54,7 @@
             var self = this;
 
             self.cleanParams();
-
+            
             if (!rows) {
                 rows = $('tr', domElem);
             }
@@ -90,37 +90,6 @@
             self.handleCellTooltips(domElem);
             self.handleExpandFooter(domElem);
             self.setFixWidthToMakeEllipsisWork(domElem);
-            self.handleSummaryRow(domElem);
-            self.openSubtableFromLevel0IfOnlyOneSubtableGiven(domElem);
-        },
-
-        openSubtableFromLevel0IfOnlyOneSubtableGiven: function (domElem) {
-            var $subtables = domElem.find('.subDataTable');
-            var hasOnlyOneSubtable = $subtables.length === 1;
-
-            if (hasOnlyOneSubtable) {
-                var hasOnlyOneRow = domElem.find('tbody tr.level0').length === 1;
-                
-                if (hasOnlyOneRow) {
-                    var $labels = $subtables.find('.label');
-                    if ($labels.length) {
-                        $labels.first().click();
-                    }
-                }
-            }
-        },
-
-        openSubtableFromSubtableIfOnlyOneSubtableGiven: function (domElem) {
-            var hasOnlyOneRow = domElem.length === 1
-            var hasOnlyOneSubtable = domElem.hasClass('subDataTable');
-
-            if (hasOnlyOneRow && hasOnlyOneSubtable) {
-                // when subtable is loaded
-                var $labels = domElem.find('.label');
-                if ($labels.length) {
-                    $labels.first().click();
-                }
-            }
         },
 
         //see dataTable::applyCosmetics
@@ -145,11 +114,11 @@
                 });
 
             var rootRow = rows.first().prev();
-
+            
             // we look at the style of the row before the new rows to determine the rows'
             // level
             var level = rootRow.length ? getLevelFromClass(rootRow.attr('class')) + 1 : 0;
-
+            
             rows.each(function () {
                 var currentStyle = $(this).attr('class') || '';
 
@@ -164,15 +133,21 @@
                     return self.parentAttributeParent + ' ' + self.parentId;
                 });
             });
-
+            
             self.addOddAndEvenClasses(domElem);
         },
-
+        
         addOddAndEvenClasses: function(domElem) {
-            // Add some styles on the cells
+            // Add some styles on the cells even/odd
             // label (first column of a data row) or not
-            $("tr:not(.hidden) td:first-child", domElem).addClass('label');
-            $("tr:not(.hidden) td", domElem).slice(1).addClass('column');
+            $("tr:not(.hidden):odd td:first-child", domElem)
+                .removeClass('labeleven').addClass('label labelodd');
+            $("tr:not(.hidden):even td:first-child", domElem)
+                .removeClass('labelodd').addClass('label labeleven');
+            $("tr:not(.hidden):odd td", domElem).slice(1)
+                .removeClass('columneven').addClass('column columnodd');
+            $("tr:not(.hidden):even td", domElem).slice(1)
+                .removeClass('columnodd').addClass('column columneven');
         },
 
         handleRowActions: function (domElem, rows) {
@@ -236,7 +211,8 @@
             // else we toggle all these rows
             else {
                 var plusDetected = $('td img.plusMinus', domElem).attr('src').indexOf('plus') >= 0;
-
+                var stripingNeeded = false;
+                
                 $(domElem).siblings().each(function () {
                     var parents = $(this).prop('parent').split(' ');
                     if (parents) {
@@ -244,7 +220,8 @@
                             || parents.indexOf('subDataTable_' + idSubTable) >= 0) {
                             if (plusDetected) {
                                 $(this).css('display', '').removeClass('hidden');
-
+                                stripingNeeded = !stripingNeeded;
+                                
                                 //unroll everything and display '-' sign
                                 //if the row is already opened
                                 var NextStyle = $(this).next().attr('class');
@@ -258,6 +235,7 @@
                             }
                             else {
                                 $(this).css('display', 'none').addClass('hidden');
+                                stripingNeeded = !stripingNeeded;
                             }
                             self.repositionRowActions($(domElem));
                         }
@@ -267,6 +245,9 @@
                 var table = $(domElem);
                 if (!table.hasClass('dataTable')) {
                     table = table.closest('.dataTable');
+                }
+                if (stripingNeeded) {
+                    self.addOddAndEvenClasses(table);
                 }
 
                 self.$element.trigger('piwik:actionsSubTableToggled');
@@ -341,8 +322,6 @@
                 function () {
                     self.onClickActionSubDataTable(this)
                 });
-
-            self.openSubtableFromSubtableIfOnlyOneSubtableGiven(response);
         }
     });
 

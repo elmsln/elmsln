@@ -1,6 +1,5 @@
 <html>
     <head>
-        <meta name="robots" content="noindex,nofollow">
         <style type="text/css">
             html, body {
                 background-color: white;
@@ -56,6 +55,7 @@
             </ul>
             <hr/>
 
+
         {% endif %}
 
         {% if isSuperUser %}
@@ -64,8 +64,7 @@
             <p>
                 If this error continues to happen, you may be able to fix this issue by disabling one or more of
                 the Third-Party plugins. You can enable them again in the
-                <a rel="noreferrer" target="_blank" href="index.php?module=CorePluginsAdmin&action=plugins">Plugins</a>
-                or <a target="_blank" href="index.php?module=CorePluginsAdmin&action=themes">Themes</a> page under
+                <a target="_blank" href="index.php?module=CorePluginsAdmin&action=plugins">Plugins</a> or <a target="_blank" href="index.php?module=CorePluginsAdmin&action=themes">Themes</a> page under
                 settings at any time.
 
                 {% if pluginCausesIssue %}
@@ -112,6 +111,7 @@
                     {% endfor %}
                 </table>
             {% endif %}
+
 
         {% elseif isAnonymousUser %}
 

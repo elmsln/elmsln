@@ -24,7 +24,6 @@ class Process
     private $pidFile = '';
     private $timeCreation = null;
     private $isSupported = null;
-    private $pid = null;
 
     public function __construct($pid)
     {
@@ -38,14 +37,8 @@ class Process
         $this->isSupported  = self::isSupported();
         $this->pidFile      = $pidDir . '/' . $pid . '.pid';
         $this->timeCreation = time();
-        $this->pid = $pid;
 
         $this->markAsNotStarted();
-    }
-
-    public function getPid()
-    {
-        return $this->pid;
     }
 
     private function markAsNotStarted()
@@ -104,11 +97,6 @@ class Process
             return false;
         }
 
-        if (!$this->pidFileSizeIsNormal()) {
-            $this->finishProcess();
-            return false;
-        }
-
         if ($this->isProcessStillRunning($content)) {
             return true;
         }
@@ -118,13 +106,6 @@ class Process
         }
 
         return false;
-    }
-
-    private function pidFileSizeIsNormal()
-    {
-        $size = Filesystem::getFileSize($this->pidFile);
-
-        return $size !== null && $size < 500;
     }
 
     public function finishProcess()
@@ -144,7 +125,7 @@ class Process
         }
 
         $lockedPID   = trim($content);
-        $runningPIDs = self::getRunningProcesses();
+        $runningPIDs = explode("\n", trim( `ps -e | awk '{print $1}'` ));
 
         return !empty($lockedPID) && in_array($lockedPID, $runningPIDs);
     }
@@ -173,30 +154,21 @@ class Process
             return false;
         }
 
-        if (!self::commandExists('ps') || !self::returnsSuccessCode('ps') || !self::commandExists('awk')) {
+        if(!self::isProcFSMounted()) {
             return false;
         }
 
-        if (count(self::getRunningProcesses()) > 0) {
+        if (static::commandExists('ps') && self::returnsSuccessCode('ps') && self::commandExists('awk')) {
             return true;
         }
 
-        if (!self::isProcFSMounted()) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     private static function isSystemNotSupported()
     {
-        $uname = @shell_exec('uname -a 2> /dev/null');
-
-        if (empty($uname)) {
-            $uname = php_uname();
-        }
-
-        if (strpos($uname, 'synology') !== false) {
+        $uname = shell_exec('uname -a');
+        if(strpos($uname, 'synology') !== false) {
             return true;
         }
         return false;
@@ -207,7 +179,7 @@ class Process
         $command = 'shell_exec';
         $disabled = explode(',', ini_get('disable_functions'));
         $disabled = array_map('trim', $disabled);
-        return in_array($command, $disabled)  || !function_exists($command);
+        return in_array($command, $disabled);
     }
 
     private static function returnsSuccessCode($command)
@@ -220,7 +192,7 @@ class Process
 
     private static function commandExists($command)
     {
-        $result = @shell_exec('which ' . escapeshellarg($command) . ' 2> /dev/null');
+        $result = shell_exec('which ' . escapeshellarg($command) . ' 2> /dev/null');
 
         return !empty($result);
     }
@@ -229,29 +201,8 @@ class Process
      * ps -e requires /proc
      * @return bool
      */
-    private static function isProcFSMounted()
+    private static function isProcFSMounted() 
     {
-        if (is_resource(@fopen('/proc', 'r'))) {
-            return true;
-        }
-        // Testing if /proc is a resource with @fopen fails on systems with open_basedir set.
-        // by using stat we not only test the existance of /proc but also confirm it's a 'proc' filesystem
-        $type = @shell_exec('stat -f -c "%T" /proc 2>/dev/null');
-        return strpos($type, 'proc') === 0;
+        return is_resource(@fopen('/proc', 'r'));
     }
-
-    /**
-     * @return int[] The ids of the currently running processes
-     */
-     public static function getRunningProcesses()
-     {
-         $ids = explode("\n", trim(`ps ex 2>/dev/null | awk '{print $1}' 2>/dev/null`));
-
-         $ids = array_map('intval', $ids);
-         $ids = array_filter($ids, function ($id) {
-            return $id > 0;
-        });
-
-         return $ids;
-     }
 }

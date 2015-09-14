@@ -9,14 +9,6 @@
     width: 614px;
 }
 
-.managegoals .addrow:hover {
-    text-decoration: underline;
-}
-
-.managegoals .addrow {
-    margin-top: 0px;
-}
-
 /* dimension selector */
 #titleGoalsByDimension {
     padding-top: 30px;

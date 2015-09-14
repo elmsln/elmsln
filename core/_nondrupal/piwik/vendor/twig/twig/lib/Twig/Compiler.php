@@ -66,7 +66,7 @@ class Twig_Compiler implements Twig_CompilerInterface
      * Compiles a node.
      *
      * @param Twig_NodeInterface $node        The node to compile
-     * @param int                $indentation The current indentation
+     * @param integer            $indentation The current indentation
      *
      * @return Twig_Compiler The current compiler instance
      */
@@ -74,7 +74,6 @@ class Twig_Compiler implements Twig_CompilerInterface
     {
         $this->lastLine = null;
         $this->source = '';
-        $this->debugInfo = array();
         $this->sourceOffset = 0;
         // source code starts at 1 (as we then increment it when we encounter new lines)
         $this->sourceLine = 1;
@@ -182,14 +181,14 @@ class Twig_Compiler implements Twig_CompilerInterface
         } elseif (is_array($value)) {
             $this->raw('array(');
             $first = true;
-            foreach ($value as $key => $v) {
+            foreach ($value as $key => $value) {
                 if (!$first) {
                     $this->raw(', ');
                 }
                 $first = false;
                 $this->repr($key);
                 $this->raw(' => ');
-                $this->repr($v);
+                $this->repr($value);
             }
             $this->raw(')');
         } else {
@@ -231,15 +230,13 @@ class Twig_Compiler implements Twig_CompilerInterface
 
     public function getDebugInfo()
     {
-        ksort($this->debugInfo);
-
         return $this->debugInfo;
     }
 
     /**
      * Indents the generated code.
      *
-     * @param int $step The number of indentation to add
+     * @param integer $step The number of indentation to add
      *
      * @return Twig_Compiler The current compiler instance
      */
@@ -253,7 +250,7 @@ class Twig_Compiler implements Twig_CompilerInterface
     /**
      * Outdents the generated code.
      *
-     * @param int $step The number of indentation to remove
+     * @param integer $step The number of indentation to remove
      *
      * @return Twig_Compiler The current compiler instance
      *
@@ -269,10 +266,5 @@ class Twig_Compiler implements Twig_CompilerInterface
         $this->indentation -= $step;
 
         return $this;
-    }
-
-    public function getVarName()
-    {
-        return sprintf('__internal_%s', hash('sha256', uniqid(mt_rand(), true), false));
     }
 }

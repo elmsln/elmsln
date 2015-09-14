@@ -3,7 +3,7 @@
  * Device Detector - The Universal Device Detection library for parsing User Agents
  *
  * @link http://piwik.org
- * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
+ * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  */
 namespace DeviceDetector\Parser;
 
@@ -48,25 +48,26 @@ class Bot extends ParserAbstract
      */
     public function parse()
     {
-        $result = null;
-
-        if ($this->preMatchOverall()) {
-            foreach ($this->getRegexes() as $regex) {
-                $matches = $this->matchUserAgent($regex['regex']);
-
-                if ($matches) {
-                    if ($this->discardDetails) {
-                        $result = true;
-                        break;
-                    }
-
-                    unset($regex['regex']);
-                    $result = $regex;
-                    break;
-                }
-            }
+        if (!$this->preMatchOverall()) {
+            return null;
         }
 
-        return $result;
+        foreach ($this->getRegexes() as $regex) {
+            $matches = $this->matchUserAgent($regex['regex']);
+            if ($matches)
+                break;
+        }
+
+        if (!$matches) {
+            return null;
+        }
+
+        if ($this->discardDetails) {
+            return true;
+        }
+
+        unset($regex['regex']);
+
+        return $regex;
     }
 }

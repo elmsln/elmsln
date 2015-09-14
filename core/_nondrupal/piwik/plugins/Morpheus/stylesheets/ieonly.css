@@ -33,9 +33,3 @@ input[type=checkbox], input[type=radio] {
 	margin: 0;
 	padding: 0;
 }
-
-/* Don't override select style */
-select {
-    background: transparent;
-    padding-right: 12px;
-}

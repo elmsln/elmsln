@@ -9,9 +9,15 @@
 namespace Piwik;
 
 use Exception;
-use Piwik\Container\StaticContainer;
+use Piwik\Db\Adapter;
+use Piwik\Db\Schema;
+use Piwik\Db;
+use Piwik\Plugin;
+use Piwik\Plugins\SitesManager\API as APISitesManager;
 use Piwik\Plugins\UsersManager\API as APIUsersManager;
-use Piwik\Translation\Translator;
+use Piwik\Session;
+use Piwik\Tracker;
+use Piwik\View;
 
 /**
  * @see core/Translate.php
@@ -20,7 +26,7 @@ require_once PIWIK_INCLUDE_PATH . '/core/Translate.php';
 
 /**
  * Main piwik helper class.
- *
+ * 
  * Contains helper methods for a variety of common tasks. Plugin developers are
  * encouraged to reuse these methods as much as possible.
  */
@@ -40,14 +46,14 @@ class Piwik
 
     /**
      * The idGoal query parameter value for the special 'abandoned carts' goal.
-     *
+     * 
      * @api
      */
     const LABEL_ID_GOAL_IS_ECOMMERCE_CART = 'ecommerceAbandonedCart';
 
     /**
      * The idGoal query parameter value for the special 'ecommerce' goal.
-     *
+     * 
      * @api
      */
     const LABEL_ID_GOAL_IS_ECOMMERCE_ORDER = 'ecommerceOrder';
@@ -57,7 +63,7 @@ class Piwik
      *
      * @param string $message
      */
-    public static function error($message = '')
+    static public function error($message = '')
     {
         trigger_error($message, E_USER_ERROR);
     }
@@ -68,13 +74,15 @@ class Piwik
      *
      * @param string $message
      */
-    public static function exitWithErrorMessage($message)
+    static public function exitWithErrorMessage($message)
     {
-        Common::sendHeader('Content-Type: text/html; charset=utf-8');
+        if (!Common::isPhpCliMode()) {
+            @header('Content-Type: text/html; charset=utf-8');
+        }
 
         $output = "<style>a{color:red;}</style>\n" .
-            "<div style='color:red;font-size:120%'>" .
-            "<p><img src='plugins/Morpheus/images/error_medium.png' style='vertical-align:middle; float:left;padding:20px' />" .
+            "<div style='color:red;font-family:Georgia;font-size:120%'>" .
+            "<p><img src='plugins/Morpheus/images/error_medium.png' style='vertical-align:middle; float:left;padding:20 20 20 20' />" .
             $message .
             "</p></div>";
         print($output);
@@ -89,7 +97,7 @@ class Piwik
      * @param number $i2
      * @return number The result of the division or zero
      */
-    public static function secureDiv($i1, $i2)
+    static public function secureDiv($i1, $i2)
     {
         if (is_numeric($i1) && is_numeric($i2) && floatval($i2) != 0) {
             return $i1 / $i2;
@@ -105,25 +113,110 @@ class Piwik
      * @param int $precision
      * @return number
      */
-    public static function getPercentageSafe($dividend, $divisor, $precision = 0)
-    {
-        return self::getQuotientSafe(100 * $dividend, $divisor, $precision);
-    }
-
-    /**
-     * Safely compute a ratio. Returns 0 if divisor is 0 (to avoid division by 0 error).
-     *
-     * @param number $dividend
-     * @param number $divisor
-     * @param int $precision
-     * @return number
-     */
-    public static function getQuotientSafe($dividend, $divisor, $precision = 0)
+    static public function getPercentageSafe($dividend, $divisor, $precision = 0)
     {
         if ($divisor == 0) {
             return 0;
         }
-        return round($dividend / $divisor, $precision);
+        return round(100 * $dividend / $divisor, $precision);
+    }
+
+    /**
+     * Returns the Javascript code to be inserted on every page to track
+     *
+     * @param int $idSite
+     * @param string $piwikUrl http://path/to/piwik/directory/
+     * @return string
+     */
+    static public function getJavascriptCode($idSite, $piwikUrl, $mergeSubdomains = false, $groupPageTitlesByDomain = false,
+                                             $mergeAliasUrls = false, $visitorCustomVariables = false, $pageCustomVariables = false,
+                                             $customCampaignNameQueryParam = false, $customCampaignKeywordParam = false,
+                                             $doNotTrack = false)
+    {
+        // changes made to this code should be mirrored in plugins/CoreAdminHome/javascripts/jsTrackingGenerator.js var generateJsCode
+        $jsCode = file_get_contents(PIWIK_INCLUDE_PATH . "/plugins/Morpheus/templates/javascriptCode.tpl");
+        $jsCode = htmlentities($jsCode);
+        if(substr($piwikUrl, 0, 4) !== 'http') {
+            $piwikUrl = 'http://' . $piwikUrl;
+        }
+        preg_match('~^(http|https)://(.*)$~D', $piwikUrl, $matches);
+        $piwikUrl = rtrim(@$matches[2], "/");
+
+        // Build optional parameters to be added to text
+        $options = '';
+        if ($groupPageTitlesByDomain) {
+            $options .= '  _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);' . PHP_EOL;
+        }
+        if ($mergeSubdomains || $mergeAliasUrls) {
+            $options .= self::getJavascriptTagOptions($idSite, $mergeSubdomains, $mergeAliasUrls);
+        }
+        $maxCustomVars = Plugins\CustomVariables\CustomVariables::getMaxCustomVariables();
+        if ($visitorCustomVariables) {
+            $options .=  '  // you can set up to ' . $maxCustomVars . ' custom variables for each visitor' . PHP_EOL;
+            $index = 1;
+            foreach ($visitorCustomVariables as $visitorCustomVariable) {
+                $options .=  '  _paq.push(["setCustomVariable", '.$index++.', "'.$visitorCustomVariable[0].'", "'.$visitorCustomVariable[1].'", "visit"]);' . PHP_EOL;
+            }
+        }
+        if ($pageCustomVariables) {
+            $options .=  '  // you can set up to ' . $maxCustomVars . ' custom variables for each action (page view, download, click, site search)' . PHP_EOL;
+            $index = 1;
+            foreach ($pageCustomVariables as $pageCustomVariable) {
+                $options .=  '  _paq.push(["setCustomVariable", '.$index++.', "'.$pageCustomVariable[0].'", "'.$pageCustomVariable[1].'", "page"]);' . PHP_EOL;
+            }
+        }
+        if ($customCampaignNameQueryParam) {
+            $options .=  '  _paq.push(["setCampaignNameKey", "'.$customCampaignNameQueryParam.'"]);' . PHP_EOL;
+        }
+        if ($customCampaignKeywordParam) {
+            $options .=  '  _paq.push(["setCampaignKeywordKey", "'.$customCampaignKeywordParam.'"]);' . PHP_EOL;
+        }
+        if ($doNotTrack) {
+            $options .= '  _paq.push(["setDoNotTrack", true]);' . PHP_EOL;
+        }
+
+        $codeImpl = array(
+            'idSite' => $idSite,
+            'piwikUrl' => Common::sanitizeInputValue($piwikUrl),
+            'options' => $options
+        );
+        $parameters = compact('mergeSubdomains', 'groupPageTitlesByDomain', 'mergeAliasUrls', 'visitorCustomVariables',
+                              'pageCustomVariables', 'customCampaignNameQueryParam', 'customCampaignKeywordParam',
+                              'doNotTrack');
+
+        /**
+         * Triggered when generating JavaScript tracking code server side. Plugins can use
+         * this event to customise the JavaScript tracking code that is displayed to the
+         * user.
+         *
+         * @param array &$codeImpl An array containing snippets of code that the event handler
+         *                         can modify. Will contain the following elements:
+         *
+         *                         - **idSite**: The ID of the site being tracked.
+         *                         - **piwikUrl**: The tracker URL to use.
+         *                         - **options**: A string of JavaScript code that customises
+         *                                        the JavaScript tracker.
+         *
+         *                         The **httpsPiwikUrl** element can be set if the HTTPS
+         *                         domain is different from the normal domain.
+         * @param array $parameters The parameters supplied to the `Piwik::getJavascriptCode()`.
+         */
+        self::postEvent('Piwik.getJavascriptCode', array(&$codeImpl, $parameters));
+
+        if (!empty($codeImpl['httpsPiwikUrl'])) {
+            $setTrackerUrl = 'var u=(("https:" == document.location.protocol) ? "https://{$httpsPiwikUrl}/" : '
+                           . '"http://{$piwikUrl}/");';
+
+            $codeImpl['httpsPiwikUrl'] = rtrim($codeImpl['httpsPiwikUrl'], "/");
+        } else {
+            $setTrackerUrl = 'var u=(("https:" == document.location.protocol) ? "https" : "http") + "://{$piwikUrl}/";';
+        }
+        $codeImpl = array('setTrackerUrl' => htmlentities($setTrackerUrl)) + $codeImpl;
+
+        foreach ($codeImpl as $keyToReplace => $replaceWith) {
+            $jsCode = str_replace('{$' . $keyToReplace . '}', $replaceWith, $jsCode);
+        }
+        return $jsCode;
     }
 
     /**
@@ -131,7 +224,7 @@ class Piwik
      *
      * @return string
      */
-    public static function getRandomTitle()
+    static public function getRandomTitle()
     {
         static $titles = array(
             'Web analytics',
@@ -140,6 +233,9 @@ class Piwik
             'Analytics',
             'Real Time Analytics',
             'Analytics in Real time',
+            'Free/Libre Web Analytics',
+            'Free Website Analytics',
+            'Free Web Analytics',
             'Analytics Platform',
             'Data Platform',
         );
@@ -158,7 +254,7 @@ class Piwik
      * @return string
      * @api
      */
-    public static function getCurrentUserEmail()
+    static public function getCurrentUserEmail()
     {
         $user = APIUsersManager::getInstance()->getUser(Piwik::getCurrentUserLogin());
         return $user['email'];
@@ -169,7 +265,7 @@ class Piwik
      *
      * @return array
      */
-    public static function getAllSuperUserAccessEmailAddresses()
+    static public function getAllSuperUserAccessEmailAddresses()
     {
         $emails = array();
 
@@ -192,14 +288,9 @@ class Piwik
      * @return string
      * @api
      */
-    public static function getCurrentUserLogin()
+    static public function getCurrentUserLogin()
     {
-        $login = Access::getInstance()->getLogin();
-
-        if (empty($login)) {
-            return 'anonymous';
-        }
-        return $login;
+        return Access::getInstance()->getLogin();
     }
 
     /**
@@ -208,7 +299,7 @@ class Piwik
      * @return string
      * @api
      */
-    public static function getCurrentUserTokenAuth()
+    static public function getCurrentUserTokenAuth()
     {
         return Access::getInstance()->getTokenAuth();
     }
@@ -221,7 +312,7 @@ class Piwik
      * @return bool
      * @api
      */
-    public static function hasUserSuperUserAccessOrIsTheUser($theUser)
+    static public function hasUserSuperUserAccessOrIsTheUser($theUser)
     {
         try {
             self::checkUserHasSuperUserAccessOrIsTheUser($theUser);
@@ -238,7 +329,7 @@ class Piwik
      * @throws NoAccessException If the user is neither the Super User nor the user `$theUser`.
      * @api
      */
-    public static function checkUserHasSuperUserAccessOrIsTheUser($theUser)
+    static public function checkUserHasSuperUserAccessOrIsTheUser($theUser)
     {
         try {
             if (Piwik::getCurrentUserLogin() !== $theUser) {
@@ -257,7 +348,7 @@ class Piwik
      * @return bool
      * @api
      */
-    public static function hasTheUserSuperUserAccess($theUser)
+    static public function hasTheUserSuperUserAccess($theUser)
     {
         if (empty($theUser)) {
             return false;
@@ -282,18 +373,18 @@ class Piwik
         return false;
     }
 
+
     /**
      * Returns true if the current user has Super User access.
      *
      * @return bool
      * @api
      */
-    public static function hasUserSuperUserAccess()
+    static public function hasUserSuperUserAccess()
     {
         try {
-            $hasAccess = Access::getInstance()->hasSuperUserAccess();
-
-            return $hasAccess;
+            self::checkUserHasSuperUserAccess();
+            return true;
         } catch (Exception $e) {
             return false;
         }
@@ -305,10 +396,9 @@ class Piwik
      * @return bool
      * @api
      */
-    public static function isUserIsAnonymous()
+    static public function isUserIsAnonymous()
     {
-        $currentUserLogin = Piwik::getCurrentUserLogin();
-        return $currentUserLogin == 'anonymous';
+        return Piwik::getCurrentUserLogin() == 'anonymous';
     }
 
     /**
@@ -317,7 +407,7 @@ class Piwik
      * @throws NoAccessException if the current user is the anonymous user.
      * @api
      */
-    public static function checkUserIsNotAnonymous()
+    static public function checkUserIsNotAnonymous()
     {
         if (Access::getInstance()->hasSuperUserAccess()) {
             return;
@@ -331,12 +421,9 @@ class Piwik
      * Helper method user to set the current as superuser.
      * This should be used with great care as this gives the user all permissions.
      *
-     * This method is deprecated, use {@link Access::doAsSuperUser()} instead.
-     *
      * @param bool $bool true to set current user as Super User
-     * @deprecated
      */
-    public static function setUserHasSuperUserAccess($bool = true)
+    static public function setUserHasSuperUserAccess($bool = true)
     {
         Access::getInstance()->setSuperUserAccess($bool);
     }
@@ -347,7 +434,7 @@ class Piwik
      * @throws Exception if the current user is not the superuser.
      * @api
      */
-    public static function checkUserHasSuperUserAccess()
+    static public function checkUserHasSuperUserAccess()
     {
         Access::getInstance()->checkUserHasSuperUserAccess();
     }
@@ -359,7 +446,7 @@ class Piwik
      * @return bool
      * @api
      */
-    public static function isUserHasAdminAccess($idSites)
+    static public function isUserHasAdminAccess($idSites)
     {
         try {
             self::checkUserHasAdminAccess($idSites);
@@ -376,7 +463,7 @@ class Piwik
      * @throws Exception If user doesn't have admin access.
      * @api
      */
-    public static function checkUserHasAdminAccess($idSites)
+    static public function checkUserHasAdminAccess($idSites)
     {
         Access::getInstance()->checkUserHasAdminAccess($idSites);
     }
@@ -387,7 +474,7 @@ class Piwik
      * @return bool
      * @api
      */
-    public static function isUserHasSomeAdminAccess()
+    static public function isUserHasSomeAdminAccess()
     {
         try {
             self::checkUserHasSomeAdminAccess();
@@ -403,7 +490,7 @@ class Piwik
      * @throws Exception if user doesn't have admin access to any site.
      * @api
      */
-    public static function checkUserHasSomeAdminAccess()
+    static public function checkUserHasSomeAdminAccess()
     {
         Access::getInstance()->checkUserHasSomeAdminAccess();
     }
@@ -415,7 +502,7 @@ class Piwik
      * @return bool
      * @api
      */
-    public static function isUserHasViewAccess($idSites)
+    static public function isUserHasViewAccess($idSites)
     {
         try {
             self::checkUserHasViewAccess($idSites);
@@ -432,7 +519,7 @@ class Piwik
      * @throws Exception if the current user does not have view access to every site in the list.
      * @api
      */
-    public static function checkUserHasViewAccess($idSites)
+    static public function checkUserHasViewAccess($idSites)
     {
         Access::getInstance()->checkUserHasViewAccess($idSites);
     }
@@ -443,7 +530,7 @@ class Piwik
      * @return bool
      * @api
      */
-    public static function isUserHasSomeViewAccess()
+    static public function isUserHasSomeViewAccess()
     {
         try {
             self::checkUserHasSomeViewAccess();
@@ -459,7 +546,7 @@ class Piwik
      * @throws Exception if user doesn't have view access to any site.
      * @api
      */
-    public static function checkUserHasSomeViewAccess()
+    static public function checkUserHasSomeViewAccess()
     {
         Access::getInstance()->checkUserHasSomeViewAccess();
     }
@@ -474,11 +561,10 @@ class Piwik
      * in case another Login plugin is being used.
      *
      * @return string
-     * @api
      */
-    public static function getLoginPluginName()
+    static public function getLoginPluginName()
     {
-        return StaticContainer::get('Piwik\Auth')->getName();
+        return Registry::get('auth')->getName();
     }
 
     /**
@@ -486,17 +572,17 @@ class Piwik
      *
      * @return Plugin
      */
-    public static function getCurrentPlugin()
+    static public function getCurrentPlugin()
     {
         return \Piwik\Plugin\Manager::getInstance()->getLoadedPlugin(Piwik::getModule());
     }
 
     /**
-     * Returns the current module read from the URL (eg. 'API', 'DevicesDetection', etc.)
+     * Returns the current module read from the URL (eg. 'API', 'UserSettings', etc.)
      *
      * @return string
      */
-    public static function getModule()
+    static public function getModule()
     {
         return Common::getRequestVar('module', '', 'string');
     }
@@ -506,7 +592,7 @@ class Piwik
      *
      * @return string
      */
-    public static function getAction()
+    static public function getAction()
     {
         return Common::getRequestVar('action', '', 'string');
     }
@@ -520,7 +606,7 @@ class Piwik
      * @param array|string $columns
      * @return array
      */
-    public static function getArrayFromApiParameter($columns)
+    static public function getArrayFromApiParameter($columns)
     {
         if (empty($columns)) {
             return array();
@@ -541,7 +627,7 @@ class Piwik
      * @param array $parameters The query parameter values to modify before redirecting.
      * @api
      */
-    public static function redirectToModule($newModule, $newAction = '', $parameters = array())
+    static public function redirectToModule($newModule, $newAction = '', $parameters = array())
     {
         $newUrl = 'index.php' . Url::getCurrentQueryStringWithParametersModified(
                 array('module' => $newModule, 'action' => $newAction)
@@ -561,30 +647,28 @@ class Piwik
      * @return bool
      * @api
      */
-    public static function isValidEmailString($emailAddress)
+    static public function isValidEmailString($emailAddress)
     {
-        /** @var \Zend_Validate_EmailAddress $zendEmailValidator */
-        $zendEmailValidator = StaticContainer::get('Zend_Validate_EmailAddress');
-        return $zendEmailValidator->isValid($emailAddress);
+        return (preg_match('/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9_.-]+\.[a-zA-Z]{2,7}$/D', $emailAddress) > 0);
     }
 
     /**
      * Returns `true` if the login is valid.
-     *
+     * 
      * _Warning: does not check if the login already exists! You must use UsersManager_API->userExists as well._
      *
      * @param string $userLogin
      * @throws Exception
      * @return bool
      */
-    public static function checkValidLoginString($userLogin)
+    static public function checkValidLoginString($userLogin)
     {
         if (!SettingsPiwik::isUserCredentialsSanityCheckEnabled()
             && !empty($userLogin)
         ) {
             return;
         }
-        $loginMinimumLength = 2;
+        $loginMinimumLength = 3;
         $loginMaximumLength = 100;
         $l = strlen($userLogin);
         if (!($l >= $loginMinimumLength
@@ -602,7 +686,7 @@ class Piwik
      * @param array $types List of class names that $o is expected to be one of.
      * @throws Exception if $o is not an instance of the types contained in $types.
      */
-    public static function checkObjectTypeIs($o, $types)
+    static public function checkObjectTypeIs($o, $types)
     {
         foreach ($types as $type) {
             if ($o instanceof $type) {
@@ -624,14 +708,13 @@ class Piwik
      * @param array $array
      * @return bool
      */
-    public static function isAssociativeArray($array)
+    static public function isAssociativeArray($array)
     {
         reset($array);
         if (!is_numeric(key($array))
             || key($array) != 0
-        ) {
-            // first key must be 0
-
+        ) // first key must be 0
+        {
             return true;
         }
 
@@ -644,7 +727,7 @@ class Piwik
 
             if ($next === null) {
                 break;
-            } elseif ($current + 1 != $next) {
+            } else if ($current + 1 != $next) {
                 return true;
             }
         }
@@ -652,18 +735,6 @@ class Piwik
         return false;
     }
 
-    public static function isMultiDimensionalArray($array)
-    {
-        $first = reset($array);
-        foreach ($array as $first) {
-            if (is_array($first)) {
-                // Yes, this is a multi dim array
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     /**
      * Returns the class name of an object without its namespace.
@@ -677,6 +748,7 @@ class Piwik
         $parts = explode('\\', $className);
         return end($parts);
     }
+
 
     /**
      * Post an event to Piwik's event dispatcher which will execute the event's observers.
@@ -696,7 +768,7 @@ class Piwik
 
     /**
      * Register an observer to an event.
-     *
+     * 
      * **_Note: Observers should normally be defined in plugin objects. It is unlikely that you will
      * need to use this function._**
      *
@@ -727,43 +799,48 @@ class Piwik
      * @param string $translationId Translation ID, eg, `'General_Date'`.
      * @param array|string|int $args `sprintf` arguments to be applied to the internationalized
      *                               string.
-     * @param string|null $language Optionally force the language.
      * @return string The translated string or `$translationId`.
      * @api
      */
-    public static function translate($translationId, $args = array(), $language = null)
+    public static function translate($translationId, $args = array())
     {
-        /** @var Translator $translator */
-        $translator = StaticContainer::get('Piwik\Translation\Translator');
-
-        return $translator->translate($translationId, $args, $language);
-    }
-
-    /**
-     * Executes a callback with superuser privileges, making sure those privileges are rescinded
-     * before this method exits. Privileges will be rescinded even if an exception is thrown.
-     *
-     * @param callback $function The callback to execute. Should accept no arguments.
-     * @return mixed The result of `$function`.
-     * @throws Exception rethrows any exceptions thrown by `$function`.
-     * @api
-     */
-    public static function doAsSuperUser($function)
-    {
-        $isSuperUser = self::hasUserSuperUserAccess();
-
-        self::setUserHasSuperUserAccess();
-
-        try {
-            $result = $function();
-        } catch (Exception $ex) {
-            self::setUserHasSuperUserAccess($isSuperUser);
-
-            throw $ex;
+        if (!is_array($args)) {
+            $args = array($args);
         }
 
-        self::setUserHasSuperUserAccess($isSuperUser);
+        if (strpos($translationId, "_") !== false) {
+            list($plugin, $key) = explode("_", $translationId, 2);
+            if (isset($GLOBALS['Piwik_translations'][$plugin]) && isset($GLOBALS['Piwik_translations'][$plugin][$key])) {
+                $translationId = $GLOBALS['Piwik_translations'][$plugin][$key];
+            }
+        }
+        if (count($args) == 0) {
+            return $translationId;
+        }
+        return vsprintf($translationId, $args);
+    }
 
-        return $result;
+    protected static function getJavascriptTagOptions($idSite, $mergeSubdomains, $mergeAliasUrls)
+    {
+        try {
+            $websiteUrls = APISitesManager::getInstance()->getSiteUrlsFromId($idSite);
+        } catch (\Exception $e) {
+            return '';
+        }
+        // We need to parse_url to isolate hosts
+        $websiteHosts = array();
+        foreach ($websiteUrls as $site_url) {
+            $referrerParsed = parse_url($site_url);
+            $websiteHosts[] = $referrerParsed['host'];
+        }
+        $options = '';
+        if ($mergeSubdomains && !empty($websiteHosts)) {
+            $options .= '  _paq.push(["setCookieDomain", "*.' . $websiteHosts[0] . '"]);' . PHP_EOL;
+        }
+        if ($mergeAliasUrls && !empty($websiteHosts)) {
+            $urls = '["*.' . implode('","*.', $websiteHosts) . '"]';
+            $options .= '  _paq.push(["setDomains", ' . $urls . ']);' . PHP_EOL;
+        }
+        return $options;
     }
 }

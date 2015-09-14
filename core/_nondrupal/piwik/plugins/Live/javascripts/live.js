@@ -82,7 +82,7 @@
 
                 if (that.isStarted) {
                     window.clearTimeout(that.updateInterval);
-                    if (that.element.length && $.contains(document, that.element[0])) {
+                    if ($(that.element).closest('body').length) {
                         that.updateInterval = window.setTimeout(function() { that._update() }, that.currentInterval);
                     }
                 }
@@ -189,14 +189,6 @@
         },
 
         /**
-         * Return true in case widget is started.
-         * @returns {boolean}
-         */
-        started: function() {
-            return this.isStarted;
-        },
-
-        /**
          * Set the interval for refresh
          *
          * @param {int} interval  new interval for refresh
@@ -208,20 +200,11 @@
     });
 })(jQuery);
 
+
 $(function() {
     var refreshWidget = function (element, refreshAfterXSecs) {
         // if the widget has been removed from the DOM, abort
-        if (!element.length || !$.contains(document, element[0])) {
-            return;
-        }
-
-        function scheduleAnotherRequest()
-        {
-            setTimeout(function () { refreshWidget(element, refreshAfterXSecs); }, refreshAfterXSecs * 1000);
-        }
-
-        if (Visibility.hidden()) {
-            scheduleAnotherRequest();
+        if ($(element).parent().length == 0) {
             return;
         }
 
@@ -266,7 +249,8 @@ $(function() {
               ? translations['one_minute'] : translations['minutes'].replace('%s', lastMinutes);
             $(metrics[2]).text(lastMinutesText);
 
-            scheduleAnotherRequest();
+            // schedule another request
+            setTimeout(function () { refreshWidget(element, refreshAfterXSecs); }, refreshAfterXSecs * 1000);
         });
         ajaxRequest.send(true);
     };
@@ -287,48 +271,18 @@ $(function() {
     };
 });
 
+
+var pauseImage = "plugins/Live/images/pause.gif";
+var pauseDisabledImage = "plugins/Live/images/pause_disabled.gif";
+var playImage = "plugins/Live/images/play.gif";
+var playDisabledImage = "plugins/Live/images/play_disabled.gif";
 function onClickPause() {
-    $('#pauseImage').hide();
-    $('#playImage').show();
+    $('#pauseImage').attr('src', pauseImage);
+    $('#playImage').attr('src', playDisabledImage);
     return $('#visitsLive').liveWidget('stop');
 }
 function onClickPlay() {
-    $('#playImage').hide();
-    $('#pauseImage').show();
+    $('#playImage').attr('src', playImage);
+    $('#pauseImage').attr('src', pauseDisabledImage);
     return $('#visitsLive').liveWidget('start');
 }
-
-(function () {
-    if (!Visibility.isSupported()) {
-        return;
-    }
-
-    var isStoppedByBlur = false;
-
-    function isStarted()
-    {
-        return $('#visitsLive').liveWidget('started');
-    }
-
-    function onTabBlur() {
-        if (isStarted()) {
-            isStoppedByBlur = true;
-            onClickPause();
-        }
-    }
-
-    function onTabFocus() {
-        if (isStoppedByBlur && !isStarted()) {
-            isStoppedByBlur = false;
-            onClickPlay();
-        }
-    }
-
-    Visibility.change(function (event, state) {
-        if (Visibility.hidden()) {
-            onTabBlur();
-        } else {
-            onTabFocus();
-        }
-    });
-})();

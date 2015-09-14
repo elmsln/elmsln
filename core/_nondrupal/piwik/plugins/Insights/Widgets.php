@@ -8,13 +8,17 @@
  */
 namespace Piwik\Plugins\Insights;
 
+use Piwik\WidgetsList;
+
 class Widgets extends \Piwik\Plugin\Widgets
 {
-    protected $category = 'Insights_WidgetCategory';
-
-    public function init()
+    public function configure(WidgetsList $widgetsList)
     {
-        $this->addWidget('Insights_OverviewWidgetTitle', 'getInsightsOverview');
-        $this->addWidget('Insights_MoversAndShakersWidgetTitle', 'getOverallMoversAndShakers');
+        $category   = 'Insights_WidgetCategory';
+        $controller = 'Insights';
+
+        $widgetsList->add($category, 'Insights_OverviewWidgetTitle', $controller, 'getInsightsOverview');
+        $widgetsList->add($category, 'Insights_MoversAndShakersWidgetTitle', $controller, 'getOverallMoversAndShakers');
     }
+
 }

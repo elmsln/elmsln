@@ -14,6 +14,7 @@ use Piwik\DataTable;
 use Piwik\Db;
 use Piwik\DbHelper;
 use Piwik\Option;
+use Piwik\Piwik;
 
 /**
  * Utility class that provides general information about databases, including the size of
@@ -38,9 +39,13 @@ class MySQLMetadataProvider
     /**
      * Constructor.
      */
-    public function __construct(MySQLMetadataDataAccess $dataAccess)
+    public function __construct()
     {
-        $this->dataAccess = $dataAccess;
+        Piwik::postTestEvent("MySQLMetadataProvider.createDao", array(&$this->dataAccess));
+
+        if ($this->dataAccess === null) {
+            $this->dataAccess = new MySQLMetadataDataAccess();
+        }
     }
 
     /**

@@ -12,7 +12,6 @@ require_once PIWIK_INCLUDE_PATH . "/core/ScheduledTask.php"; // for the tracker 
 
 use Exception;
 use Piwik\Common;
-use Piwik\Container\StaticContainer;
 use Piwik\Date;
 use Piwik\Http;
 use Piwik\Log;
@@ -21,18 +20,18 @@ use Piwik\Piwik;
 use Piwik\Plugins\UserCountry\LocationProvider\GeoIp\Php;
 use Piwik\Plugins\UserCountry\LocationProvider\GeoIp;
 use Piwik\Plugins\UserCountry\LocationProvider;
-use Piwik\Scheduler\Scheduler;
-use Piwik\Scheduler\Task;
-use Piwik\Scheduler\Timetable;
-use Piwik\Scheduler\Schedule\Monthly;
-use Piwik\Scheduler\Schedule\Weekly;
+use Piwik\ScheduledTask;
+use Piwik\ScheduledTaskTimetable;
+use Piwik\ScheduledTime\Monthly;
+use Piwik\ScheduledTime\Weekly;
+use Piwik\TaskScheduler;
 use Piwik\Unzip;
 
 /**
  * Used to automatically update installed GeoIP databases, and manages the updater's
  * scheduled task.
  */
-class GeoIPAutoUpdater extends Task
+class GeoIPAutoUpdater extends ScheduledTask
 {
     const SCHEDULE_PERIOD_MONTHLY = 'month';
     const SCHEDULE_PERIOD_WEEKLY = 'week';
@@ -79,7 +78,7 @@ class GeoIPAutoUpdater extends Task
                 break;
         }
 
-        parent::__construct($this, 'update', null, $schedulePeriod, Task::LOWEST_PRIORITY);
+        parent::__construct($this, 'update', null, $schedulePeriod, ScheduledTask::LOWEST_PRIORITY);
     }
 
     /**
@@ -129,8 +128,6 @@ class GeoIPAutoUpdater extends Task
      */
     protected function downloadFile($dbType, $url)
     {
-        $url = trim($url);
-
         $ext = GeoIPAutoUpdater::getGeoIPUrlExtension($url);
 
         // NOTE: using the first item in $dbNames[$dbType] makes sure GeoLiteCity will be renamed to GeoIPCity
@@ -335,7 +332,7 @@ class GeoIPAutoUpdater extends Task
         // set period option
         if (!empty($options['period'])) {
             $period = $options['period'];
-
+            
             if ($period != self::SCHEDULE_PERIOD_MONTHLY
                 && $period != self::SCHEDULE_PERIOD_WEEKLY
             ) {
@@ -347,10 +344,7 @@ class GeoIPAutoUpdater extends Task
 
             Option::set(self::SCHEDULE_PERIOD_OPTION_NAME, $period);
 
-            /** @var Scheduler $scheduler */
-            $scheduler = StaticContainer::getContainer()->get('Piwik\Scheduler\Scheduler');
-
-            $scheduler->rescheduleTask(new GeoIPAutoUpdater());
+            TaskScheduler::rescheduleTask(new GeoIPAutoUpdater());
         }
     }
 
@@ -522,10 +516,8 @@ class GeoIPAutoUpdater extends Task
      * Databases are renamed to ${original}.broken .
      *
      * Note: method is protected for testability.
-     *
-     * @param $logErrors - only used to hide error logs during tests
      */
-    protected function performRedundantDbChecks($logErrors = true)
+    protected function performRedundantDbChecks()
     {
         $databaseTypes = array_keys(GeoIp::$dbNames);
 
@@ -544,11 +536,8 @@ class GeoIPAutoUpdater extends Task
             self::getTestLocationCatchPhpErrors($provider);
             if (self::$unzipPhpError !== null) {
                 list($errno, $errstr, $errfile, $errline) = self::$unzipPhpError;
-
-                if($logErrors) {
-                    Log::error("GeoIPAutoUpdater: Encountered PHP error when performing redundant tests on GeoIP "
-                        . "%s database: %s: %s on line %s of %s.", $type, $errno, $errstr, $errline, $errfile);
-                }
+                Log::warning("GeoIPAutoUpdater: Encountered PHP error when performing redundant tests on GeoIP "
+                    . "%s database: %s: %s on line %s of %s.", $type, $errno, $errstr, $errline, $errfile);
 
                 // get the current filename for the DB and an available new one to rename it to
                 list($oldPath, $newPath) = $this->getOldAndNewPathsForBrokenDb($customNames[$type]);
@@ -633,19 +622,19 @@ class GeoIPAutoUpdater extends Task
 
     /**
      * Returns the next scheduled time for the auto updater.
-     *
+     * 
      * @return Date|false
      */
     public static function getNextRunTime()
     {
         $task = new GeoIPAutoUpdater();
 
-        $timetable = new Timetable();
+        $timetable = new ScheduledTaskTimetable();
         return $timetable->getScheduledTaskTime($task->getName());
     }
 
     /**
-     * See {@link Piwik\Scheduler\Schedule\Schedule::getRescheduledTime()}.
+     * See {@link Piwik\ScheduledTime::getRescheduledTime()}.
      */
     public function getRescheduledTime()
     {

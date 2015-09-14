@@ -39,7 +39,7 @@ class Archiver extends \Piwik\Plugin\Archiver
     {
         parent::__construct($processor);
 
-        if ($processor->getParams()->getSite()->isEcommerceEnabled()) {
+        if($processor->getParams()->getSite()->isEcommerceEnabled()) {
             $this->maximumRowsInDataTableLevelZero = self::MAX_ROWS_WHEN_ECOMMERCE;
             $this->maximumRowsInSubDataTable = self::MAX_ROWS_WHEN_ECOMMERCE;
         } else {
@@ -50,16 +50,9 @@ class Archiver extends \Piwik\Plugin\Archiver
 
     public function aggregateMultipleReports()
     {
-        $columnsAggregationOperation = null;
-
         $this->getProcessor()->aggregateDataTableRecords(
-            self::CUSTOM_VARIABLE_RECORD_NAME,
-            $this->maximumRowsInDataTableLevelZero,
-            $this->maximumRowsInSubDataTable,
-            $columnToSort = Metrics::INDEX_NB_VISITS,
-            $columnsAggregationOperation,
-            $columnsToRenameAfterAggregation = null,
-            $countRowsRecursive = array());
+            self::CUSTOM_VARIABLE_RECORD_NAME, $this->maximumRowsInDataTableLevelZero, $this->maximumRowsInSubDataTable,
+            $columnToSort = Metrics::INDEX_NB_VISITS);
     }
 
     public function aggregateDayReport()
@@ -161,7 +154,7 @@ class Archiver extends \Piwik\Plugin\Archiver
             if (substr($value, -2) != '"]') {
                 $value .= '"]';
             }
-            $decoded = json_decode($value);
+            $decoded = @Common::json_decode($value);
             if (is_array($decoded)) {
                 $count = 0;
                 foreach ($decoded as $category) {
@@ -220,7 +213,6 @@ class Archiver extends \Piwik\Plugin\Archiver
             ) {
                 unset($row[Metrics::INDEX_NB_UNIQ_VISITORS]);
                 unset($row[Metrics::INDEX_NB_VISITS]);
-                unset($row[Metrics::INDEX_NB_USERS]);
             }
         }
     }

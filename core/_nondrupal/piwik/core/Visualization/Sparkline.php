@@ -32,7 +32,6 @@ class Sparkline implements ViewInterface
     public static $enableSparklineImages = true;
 
     private static $colorNames = array('backgroundColor', 'lineColor', 'minPointColor', 'lastPointColor', 'maxPointColor');
-    private $values = array();
 
     /**
      * Width of the sparkline
@@ -61,6 +60,7 @@ class Sparkline implements ViewInterface
      */
     public function setHeight($height)
     {
+
         if (!is_numeric($height) || $height <= 0) {
             return;
         }
@@ -74,6 +74,7 @@ class Sparkline implements ViewInterface
      */
     public function setWidth($width)
     {
+
         if (!is_numeric($width) || $width <= 0) {
             return;
         }
@@ -109,9 +110,7 @@ class Sparkline implements ViewInterface
 
         $min = $max = $last = null;
         $i = 0;
-        $seconds  = Piwik::translate('Intl_NSecondsShort');
-        $toRemove = array('%', str_replace('%s', '', $seconds));
-
+        $toRemove = array('%', str_replace('%s', '', Piwik::translate('General_Seconds')));
         foreach ($this->values as $value) {
             // 50% and 50s should be plotted as 50
             $value = str_replace($toRemove, '', $value);
@@ -159,7 +158,6 @@ class Sparkline implements ViewInterface
     private function setSparklineColors($sparkline)
     {
         $colors = Common::getRequestVar('colors', false, 'json');
-
         if (empty($colors)) { // quick fix so row evolution sparklines will have color in widgetize's iframes
             $colors = array(
                 'backgroundColor' => '#ffffff',

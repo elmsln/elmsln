@@ -12,10 +12,10 @@ use Exception;
 use Piwik\Common;
 use Piwik\Piwik;
 use Piwik\Url;
-use ReflectionClass;
 
 class DocumentationGenerator
 {
+    protected $modulesToHide = array('CoreAdminHome', 'DBStats');
     protected $countPluginsLoaded = 0;
 
     /**
@@ -47,152 +47,63 @@ class DocumentationGenerator
         if (!empty($prefixUrls)) {
             $prefixUrls = 'http://demo.piwik.org/';
         }
-
         $str = $toc = '';
+        $token_auth = "&token_auth=" . Piwik::getCurrentUserTokenAuth();
+        $parametersToSet = array(
+            'idSite' => Common::getRequestVar('idSite', 1, 'int'),
+            'period' => Common::getRequestVar('period', 'day', 'string'),
+            'date'   => Common::getRequestVar('date', 'today', 'string')
+        );
 
         foreach (Proxy::getInstance()->getMetadata() as $class => $info) {
             $moduleName = Proxy::getInstance()->getModuleNameFromClassName($class);
-            $rClass = new ReflectionClass($class);
-
-            if (!Piwik::hasUserSuperUserAccess() && $this->checkIfClassCommentContainsHideAnnotation($rClass)) {
+            if (in_array($moduleName, $this->modulesToHide)) {
                 continue;
             }
+            $toc .= "<a href='#$moduleName'>$moduleName</a><br/>";
+            $str .= "\n<a  name='$moduleName' id='$moduleName'></a><h2>Module " . $moduleName . "</h2>";
+            $str .= "<div class='apiDescription'> " . $info['__documentation'] . " </div>";
+            foreach ($info as $methodName => $infoMethod) {
+                if ($methodName == '__documentation') {
+                    continue;
+                }
+                $params = $this->getParametersString($class, $methodName);
+                $str .= "\n <div class='apiMethod'>- <b>$moduleName.$methodName </b>" . $params . "";
+                $str .= '<small>';
 
-            $toDisplay = $this->prepareModulesAndMethods($info, $moduleName);
-            foreach ($toDisplay as $moduleName => $methods) {
-                $toc .= $this->prepareModuleToDisplay($moduleName);
-                $str .= $this->prepareMethodToDisplay($moduleName, $info, $methods, $class, $outputExampleUrls, $prefixUrls);
+                if ($outputExampleUrls) {
+                    // we prefix all URLs with $prefixUrls
+                    // used when we include this output in the Piwik official documentation for example
+                    $str .= "<span class=\"example\">";
+                    $exampleUrl = $this->getExampleUrl($class, $methodName, $parametersToSet);
+                    if ($exampleUrl !== false) {
+                        $lastNUrls = '';
+                        if (preg_match('/(&period)|(&date)/', $exampleUrl)) {
+                            $exampleUrlRss1 = $prefixUrls . $this->getExampleUrl($class, $methodName, array('date' => 'last10', 'period' => 'day') + $parametersToSet);
+                            $exampleUrlRss2 = $prefixUrls . $this->getExampleUrl($class, $methodName, array('date' => 'last5', 'period' => 'week',) + $parametersToSet);
+                            $lastNUrls = ",	RSS of the last <a target=_blank href='$exampleUrlRss1&format=rss$token_auth&translateColumnNames=1'>10 days</a>";
+                        }
+                        $exampleUrl = $prefixUrls . $exampleUrl;
+                        $str .= " [ Example in
+									<a target=_blank href='$exampleUrl&format=xml$token_auth'>XML</a>,
+									<a target=_blank href='$exampleUrl&format=JSON$token_auth'>Json</a>,
+									<a target=_blank href='$exampleUrl&format=Tsv$token_auth&translateColumnNames=1'>Tsv (Excel)</a>
+									$lastNUrls
+									]";
+                    } else {
+                        $str .= " [ No example available ]";
+                    }
+                    $str .= "</span>";
+                }
+                $str .= '</small>';
+                $str .= "</div>\n";
             }
+            $str .= '<div style="margin:15px;"><a href="#topApiRef">↑ Back to top</a></div>';
         }
 
         $str = "<h2 id='topApiRef' name='topApiRef'>Quick access to APIs</h2>
 				$toc
 				$str";
-
-        return $str;
-    }
-
-    public function prepareModuleToDisplay($moduleName)
-    {
-        return "<a href='#$moduleName'>$moduleName</a><br/>";
-    }
-
-    public function prepareMethodToDisplay($moduleName, $info, $methods, $class, $outputExampleUrls, $prefixUrls)
-    {
-        $str = '';
-        $str .= "\n<a name='$moduleName' id='$moduleName'></a><h2>Module " . $moduleName . "</h2>";
-        $info['__documentation'] = $this->checkDocumentation($info['__documentation']);
-        $str .= "<div class='apiDescription'> " . $info['__documentation'] . " </div>";
-        foreach ($methods as $methodName) {
-            if (Proxy::getInstance()->isDeprecatedMethod($class, $methodName)) {
-                continue;
-            }
-
-            $params = $this->getParametersString($class, $methodName);
-
-            $str .= "\n <div class='apiMethod'>- <b>$moduleName.$methodName </b>" . $params . "";
-            $str .= '<small>';
-            if ($outputExampleUrls) {
-                $str .= $this->addExamples($class, $methodName, $prefixUrls);
-            }
-            $str .= '</small>';
-            $str .= "</div>\n";
-        }
-
-        return $str;
-    }
-
-    public function prepareModulesAndMethods($info, $moduleName)
-    {
-        $toDisplay = array();
-
-        foreach ($info as $methodName => $infoMethod) {
-            if ($methodName == '__documentation') {
-                continue;
-            }
-            $toDisplay[$moduleName][] = $methodName;
-        }
-
-        return $toDisplay;
-    }
-
-    public function addExamples($class, $methodName, $prefixUrls)
-    {
-        $token_auth = "&token_auth=" . Piwik::getCurrentUserTokenAuth();
-        $parametersToSet = array(
-            'idSite' => Common::getRequestVar('idSite', 1, 'int'),
-            'period' => Common::getRequestVar('period', 'day', 'string'),
-            'date' => Common::getRequestVar('date', 'today', 'string')
-        );
-        $str = '';
-// used when we include this output in the Piwik official documentation for example
-        $str .= "<span class=\"example\">";
-        $exampleUrl = $this->getExampleUrl($class, $methodName, $parametersToSet);
-        if ($exampleUrl !== false) {
-            $lastNUrls = '';
-            if (preg_match('/(&period)|(&date)/', $exampleUrl)) {
-                $exampleUrlRss = $prefixUrls . $this->getExampleUrl($class, $methodName, array('date' => 'last10', 'period' => 'day') + $parametersToSet);
-                $lastNUrls = ", RSS of the last <a target='_blank' href='$exampleUrlRss&format=rss$token_auth&translateColumnNames=1'>10 days</a>";
-            }
-            $exampleUrl = $prefixUrls . $exampleUrl;
-            $str .= " [ Example in
-                                                                    <a target='_blank' href='$exampleUrl&format=xml$token_auth'>XML</a>,
-                                                                    <a target='_blank' href='$exampleUrl&format=JSON$token_auth'>Json</a>,
-                                                                    <a target='_blank' href='$exampleUrl&format=Tsv$token_auth&translateColumnNames=1'>Tsv (Excel)</a>
-                                                                    $lastNUrls
-                                                                    ]";
-        } else {
-            $str .= " [ No example available ]";
-        }
-        $str .= "</span>";
-        return $str;
-    }
-
-    /**
-     * Check if Class contains @hide
-     *
-     * @param ReflectionClass $rClass instance of ReflectionMethod
-     * @return bool
-     */
-    public function checkIfClassCommentContainsHideAnnotation(ReflectionClass $rClass)
-    {
-        return false !== strstr($rClass->getDocComment(), '@hide');
-    }
-
-    /**
-     * Check if documentation contains @hide annotation and deletes it
-     *
-     * @param $moduleToCheck
-     * @return mixed
-     */
-    public function checkDocumentation($moduleToCheck)
-    {
-        if (strpos($moduleToCheck, '@hide') == true) {
-            $moduleToCheck = str_replace(strtok(strstr($moduleToCheck, '@hide'), "\n"), "", $moduleToCheck);
-        }
-        return $moduleToCheck;
-    }
-
-    private function getInterfaceString($moduleName, $class, $info, $parametersToSet, $outputExampleUrls, $prefixUrls)
-    {
-        $str = '';
-
-        $str .= "\n<a  name='$moduleName' id='$moduleName'></a><h2>Module " . $moduleName . "</h2>";
-        $str .= "<div class='apiDescription'> " . $info['__documentation'] . " </div>";
-        foreach ($info as $methodName => $infoMethod) {
-            if ($methodName == '__documentation') {
-                continue;
-            }
-
-            if (Proxy::getInstance()->isDeprecatedMethod($class, $methodName)) {
-                continue;
-            }
-
-            $str .= $this->getMethodString($moduleName, $class, $parametersToSet, $outputExampleUrls, $prefixUrls, $methodName, $str);
-        }
-
-        $str .= '<div style="margin:15px;"><a href="#topApiRef">↑ Back to top</a></div>';
-
         return $str;
     }
 
@@ -259,8 +170,8 @@ class DocumentationGenerator
         $aParameters = Proxy::getInstance()->getParametersList($class, $methodName);
         // Kindly force some known generic parameters to appear in the final list
         // the parameter 'format' can be set to all API methods (used in tests)
-        // the parameter 'hideIdSubDatable' is used for system tests only
-        // the parameter 'serialize' sets php outputs human readable, used in system tests and debug
+        // the parameter 'hideIdSubDatable' is used for integration tests only
+        // the parameter 'serialize' sets php outputs human readable, used in integration tests and debug
         // the parameter 'language' sets the language for the response (eg. country names)
         // the parameter 'flat' reduces a hierarchical table to a single level by concatenating labels
         // the parameter 'include_aggregate_rows' can be set to include inner nodes in flat reports
@@ -273,23 +184,13 @@ class DocumentationGenerator
         $aParameters['label'] = false;
         $aParameters['flat'] = false;
         $aParameters['include_aggregate_rows'] = false;
-        $aParameters['filter_offset'] = false; //@review without adding this, I can not set filter_offset in $otherRequestParameters system tests
-        $aParameters['filter_limit'] = false; //@review without adding this, I can not set filter_limit in $otherRequestParameters system tests
-        $aParameters['filter_sort_column'] = false; //@review without adding this, I can not set filter_sort_column in $otherRequestParameters system tests
-        $aParameters['filter_sort_order'] = false; //@review without adding this, I can not set filter_sort_order in $otherRequestParameters system tests
-        $aParameters['filter_excludelowpop'] = false; //@review without adding this, I can not set filter_sort_order in $otherRequestParameters system tests
-        $aParameters['filter_excludelowpop_value'] = false; //@review without adding this, I can not set filter_sort_order in $otherRequestParameters system tests
-        $aParameters['filter_column_recursive'] = false; //@review without adding this, I can not set filter_sort_order in $otherRequestParameters system tests
-        $aParameters['filter_pattern_recursive'] = false; //@review without adding this, I can not set filter_sort_order in $otherRequestParameters system tests
+        $aParameters['filter_limit'] = false; //@review without adding this, I can not set filter_limit in $otherRequestParameters integration tests
+        $aParameters['filter_sort_column'] = false; //@review without adding this, I can not set filter_sort_column in $otherRequestParameters integration tests
+        $aParameters['filter_sort_order'] = false; //@review without adding this, I can not set filter_sort_order in $otherRequestParameters integration tests
         $aParameters['filter_truncate'] = false;
         $aParameters['hideColumns'] = false;
         $aParameters['showColumns'] = false;
         $aParameters['filter_pattern_recursive'] = false;
-        $aParameters['pivotBy'] = false;
-        $aParameters['pivotByColumn'] = false;
-        $aParameters['pivotByColumnLimit'] = false;
-        $aParameters['disable_queued_filters'] = false;
-        $aParameters['disable_generic_filters'] = false;
 
         $moduleName = Proxy::getInstance()->getModuleNameFromClassName($class);
         $aParameters = array_merge(array('module' => 'API', 'method' => $moduleName . '.' . $methodName), $aParameters);
@@ -335,44 +236,5 @@ class DocumentationGenerator
         }
         $sParameters = implode(", ", $asParameters);
         return "($sParameters)";
-    }
-
-    private function getMethodString($moduleName, $class, $parametersToSet, $outputExampleUrls, $prefixUrls, $methodName)
-    {
-        $str = '';
-        $token_auth = "&token_auth=" . Piwik::getCurrentUserTokenAuth();
-
-        $params = $this->getParametersString($class, $methodName);
-        $str .= "\n <div class='apiMethod'>- <b>$moduleName.$methodName </b>" . $params . "";
-        $str .= '<small>';
-
-        if ($outputExampleUrls) {
-            // we prefix all URLs with $prefixUrls
-            // used when we include this output in the Piwik official documentation for example
-            $str .= "<span class=\"example\">";
-            $exampleUrl = $this->getExampleUrl($class, $methodName, $parametersToSet);
-            if ($exampleUrl !== false) {
-                $lastNUrls = '';
-                if (preg_match('/(&period)|(&date)/', $exampleUrl)) {
-                    $exampleUrlRss = $prefixUrls . $this->getExampleUrl($class, $methodName, array('date' => 'last10', 'period' => 'day') + $parametersToSet);
-                    $lastNUrls = ",	RSS of the last <a target='_blank' href='$exampleUrlRss&format=rss$token_auth&translateColumnNames=1'>10 days</a>";
-                }
-                $exampleUrl = $prefixUrls . $exampleUrl;
-                $str .= " [ Example in
-									<a target='_blank' href='$exampleUrl&format=xml$token_auth'>XML</a>,
-									<a target='_blank' href='$exampleUrl&format=JSON$token_auth'>Json</a>,
-									<a target='_blank' href='$exampleUrl&format=Tsv$token_auth&translateColumnNames=1'>Tsv (Excel)</a>
-									$lastNUrls
-									]";
-            } else {
-                $str .= " [ No example available ]";
-            }
-            $str .= "</span>";
-        }
-
-        $str .= '</small>';
-        $str .= "</div>\n";
-
-        return $str;
     }
 }

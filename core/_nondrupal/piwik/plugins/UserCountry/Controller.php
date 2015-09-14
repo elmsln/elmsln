@@ -33,10 +33,10 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         $view->urlSparklineCountries = $this->getUrlSparkline('getLastDistinctCountriesGraph');
         $view->numberDistinctCountries = $this->getNumberOfDistinctCountries(true);
 
-        $view->dataTableCountry = $this->renderReport('getCountry');
-        $view->dataTableContinent = $this->renderReport('getContinent');
-        $view->dataTableRegion = $this->renderReport('getRegion');
-        $view->dataTableCity = $this->renderReport('getCity');
+        $view->dataTableCountry = $this->getCountry(true);
+        $view->dataTableContinent = $this->getContinent(true);
+        $view->dataTableRegion = $this->getRegion(true);
+        $view->dataTableCity = $this->getCity(true);
 
         return $view->render();
     }
@@ -131,9 +131,9 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
                     $result['next_screen'] = $this->getGeoIpUpdaterManageScreen();
                 }
 
-                return json_encode($result);
+                return Common::json_encode($result);
             } catch (Exception $ex) {
-                return json_encode(array('error' => $ex->getMessage()));
+                return Common::json_encode(array('error' => $ex->getMessage()));
             }
         }
     }
@@ -203,15 +203,15 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
                 // the browser so it can download it next
                 $info = $this->getNextMissingDbUrlInfo();
                 if ($info !== false) {
-                    return json_encode($info);
+                    return Common::json_encode($info);
                 } else {
                     $view = new View("@UserCountry/_updaterNextRunTime");
                     $view->nextRunTime = GeoIPAutoUpdater::getNextRunTime();
                     $nextRunTimeHtml = $view->render();
-                    return json_encode(array('nextRunTime' => $nextRunTimeHtml));
+                    return Common::json_encode(array('nextRunTime' => $nextRunTimeHtml));
                 }
             } catch (Exception $ex) {
-                return json_encode(array('error' => $ex->getMessage()));
+                return Common::json_encode(array('error' => $ex->getMessage()));
             }
         }
     }
@@ -266,13 +266,13 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
                     $info = $this->getNextMissingDbUrlInfo();
                     if ($info !== false) {
-                        return json_encode($info);
+                        return Common::json_encode($info);
                     }
                 }
 
-                return json_encode($result);
+                return Common::json_encode($result);
             } catch (Exception $ex) {
-                return json_encode(array('error' => $ex->getMessage()));
+                return Common::json_encode(array('error' => $ex->getMessage()));
             }
         }
     }
@@ -314,8 +314,8 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
     public function getLocationUsingProvider()
     {
         $providerId = Common::getRequestVar('id');
-        $provider = LocationProvider::getProviderById($providerId);
-        if (empty($provider)) {
+        $provider = $provider = LocationProvider::getProviderById($providerId);
+        if ($provider === false) {
             throw new Exception("Invalid provider ID: '$providerId'.");
         }
 
@@ -326,6 +326,36 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $location, $newline = '<br/>', $includeExtra = true);
 
         return $location;
+    }
+
+    public function getCountry()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    public function getContinent()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    /**
+     * Echo's or returns an HTML view of the visits by region report.
+     *
+     * @return string
+     */
+    public function getRegion()
+    {
+        return $this->renderReport(__FUNCTION__);
+    }
+
+    /**
+     * Echo's or returns an HTML view of the visits by city report.
+     *
+     * @return string
+     */
+    public function getCity()
+    {
+        return $this->renderReport(__FUNCTION__);
     }
 
     public function getNumberOfDistinctCountries()
@@ -365,7 +395,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
     private function dieIfGeolocationAdminIsDisabled()
     {
-        if (!UserCountry::isGeoLocationAdminEnabled()) {
+        if(!UserCountry::isGeoLocationAdminEnabled()) {
             throw new \Exception('Geo location setting page has been disabled.');
         }
     }

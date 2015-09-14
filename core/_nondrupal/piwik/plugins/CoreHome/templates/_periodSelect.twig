@@ -3,6 +3,8 @@
     <div class="calendar-icon"></div>
     <div id="periodMore">
         <div class="period-date">
+            <h6>{{ 'General_Date'|translate }}</h6>
+
             <div id="datepicker"></div>
         </div>
         <div class="period-range" style="display:none;">
@@ -26,7 +28,7 @@
                 <br/>
             {% endfor %}
 			</span>
-            <input tabindex="3" type="submit" value="{{ 'General_ApplyDateRange'|translate }}" id="calendarRangeApply" class="btn"/>
+            <input tabindex="3" type="submit" value="{{ 'General_ApplyDateRange'|translate }}" id="calendarRangeApply"/>
             {% import 'ajaxMacros.twig' as ajax %}
             {{ ajax.loadingDiv('ajaxLoadingCalendar') }}
         </div>

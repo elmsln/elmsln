@@ -26,7 +26,8 @@ class Live extends \Piwik\Plugin
         return array(
             'AssetManager.getJavaScriptFiles'        => 'getJsFiles',
             'AssetManager.getStylesheetFiles'        => 'getStylesheetFiles',
-            'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys'
+            'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys',
+            'ViewDataTable.getDefaultType'           => 'getDefaultTypeViewDataTable'
         );
     }
 
@@ -38,11 +39,9 @@ class Live extends \Piwik\Plugin
 
     public function getJsFiles(&$jsFiles)
     {
-        $jsFiles[] = "libs/bower_components/visibilityjs/lib/visibility.core.js";
         $jsFiles[] = "plugins/Live/javascripts/live.js";
         $jsFiles[] = "plugins/Live/javascripts/visitorProfile.js";
         $jsFiles[] = "plugins/Live/javascripts/visitorLog.js";
-        $jsFiles[] = "plugins/Live/javascripts/rowaction.js";
     }
 
     public function getClientSideTranslationKeys(&$translationKeys)
@@ -52,9 +51,10 @@ class Live extends \Piwik\Plugin
         $translationKeys[] = "Live_ShowMap";
         $translationKeys[] = "Live_HideMap";
         $translationKeys[] = "Live_PageRefreshed";
-        $translationKeys[] = "Live_RowActionTooltipTitle";
-        $translationKeys[] = "Live_RowActionTooltipDefault";
-        $translationKeys[] = "Live_RowActionTooltipWithDimension";
-        $translationKeys[] = "Live_SegmentedVisitorLogTitle";
+    }
+
+    public function getDefaultTypeViewDataTable(&$defaultViewTypes)
+    {
+        $defaultViewTypes['Live.getLastVisitsDetails'] = VisitorLog::ID;
     }
 }

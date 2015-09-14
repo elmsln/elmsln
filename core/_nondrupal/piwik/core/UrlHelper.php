@@ -8,12 +8,9 @@
  */
 namespace Piwik;
 
-use Piwik\Container\StaticContainer;
-use Piwik\Intl\Data\Provider\RegionDataProvider;
-
 /**
  * Contains less commonly needed URL helper methods.
- *
+ * 
  */
 class UrlHelper
 {
@@ -45,7 +42,7 @@ class UrlHelper
                             $validQuery .= $name . '[]=' . $param . $separator;
                         }
                     }
-                } elseif ($value === false) {
+                } else if ($value === false) {
                     $validQuery .= $name . $separator;
                 } else {
                     $validQuery .= $name . '=' . $value . $separator;
@@ -75,9 +72,7 @@ class UrlHelper
     {
         static $countries;
         if (!isset($countries)) {
-            /** @var RegionDataProvider $regionDataProvider */
-            $regionDataProvider = StaticContainer::get('Piwik\Intl\Data\Provider\RegionDataProvider');
-            $countries = implode('|', array_keys($regionDataProvider->getCountryList(true)));
+            $countries = implode('|', array_keys(Common::getCountriesList(true)));
         }
 
         return preg_replace(
@@ -101,22 +96,21 @@ class UrlHelper
      * We don't need a precise test here because the value comes from the website
      * tracked source code and the URLs may look very strange.
      *
-     * @api
      * @param string $url
      * @return bool
      */
     public static function isLookLikeUrl($url)
     {
-        return preg_match('~^((ftp|news|http|https)?:)?//(.*)$~D', $url, $matches) !== 0
-        && strlen($matches[3]) > 0;
+        return preg_match('~^(ftp|news|http|https)?://(.*)$~D', $url, $matches) !== 0
+        && strlen($matches[2]) > 0;
     }
 
     /**
      * Returns a URL created from the result of the [parse_url](http://php.net/manual/en/function.parse-url.php)
      * function.
-     *
+     * 
      * Copied from the PHP comments at [http://php.net/parse_url](http://php.net/parse_url).
-     *
+     * 
      * @param array $parsed Result of [parse_url](http://php.net/manual/en/function.parse-url.php).
      * @return false|string The URL or `false` if `$parsed` isn't an array.
      * @api
@@ -155,17 +149,6 @@ class UrlHelper
         if (strlen($urlQuery) == 0) {
             return array();
         }
-
-        // TODO: this method should not use a cache. callers should instead have their own cache, configured through DI.
-        //       one undesirable side effect of using a cache here, is that this method can now init the StaticContainer, which makes setting
-        //       test environment for RequestCommand more complicated.
-        $cache    = Cache::getTransientCache();
-        $cacheKey = 'arrayFromQuery' . $urlQuery;
-
-        if ($cache->contains($cacheKey)) {
-            return $cache->fetch($cacheKey);
-        }
-
         if ($urlQuery[0] == '?') {
             $urlQuery = substr($urlQuery, 1);
         }
@@ -207,13 +190,10 @@ class UrlHelper
                     $nameToValue[$name] = array();
                 }
                 array_push($nameToValue[$name], $value);
-            } elseif (!empty($name)) {
+            } else if (!empty($name)) {
                 $nameToValue[$name] = $value;
             }
         }
-
-        $cache->save($cacheKey, $nameToValue);
-
         return $nameToValue;
     }
 
@@ -228,7 +208,6 @@ class UrlHelper
     public static function getParameterFromQueryString($urlQuery, $parameter)
     {
         $nameToValue = self::getArrayFromQueryString($urlQuery);
-
         if (isset($nameToValue[$parameter])) {
             return $nameToValue[$parameter];
         }
@@ -247,16 +226,14 @@ class UrlHelper
         $parsedUrl = parse_url($url);
         $result = '';
         if (isset($parsedUrl['path'])) {
-            if (substr($parsedUrl['path'], 0, 1) == '/') {
-                $parsedUrl['path'] = substr($parsedUrl['path'], 1);
-            }
-            $result .= $parsedUrl['path'];
+            $result .= substr($parsedUrl['path'], 1);
         }
         if (isset($parsedUrl['query'])) {
             $result .= '?' . $parsedUrl['query'];
         }
         return $result;
     }
+
 
     /**
      * Extracts a keyword from a raw not encoded URL.
@@ -365,7 +342,7 @@ class UrlHelper
                 $query = str_replace('&', '&amp;', strstr($query, '?'));
             }
             $searchEngineName = 'Google Images';
-        } elseif ($searchEngineName === 'Google'
+        } else if ($searchEngineName === 'Google'
             && (strpos($query, '&as_') !== false || strpos($query, 'as_') === 0)
         ) {
             $keys = array();
@@ -417,25 +394,21 @@ class UrlHelper
                     $key = self::getParameterFromQueryString($query, $variableName);
                     $key = trim(urldecode($key));
 
-                    // Special cases: empty or no keywords
+                    // Special case: Google & empty q parameter
                     if (empty($key)
+                        && $variableName == 'q'
+
                         && (
                             // Google search with no keyword
                             ($searchEngineName == 'Google'
-                                && (empty($query) && (empty($referrerPath) || $referrerPath == '/') && empty($referrerParsed['fragment']))
+                                && ( // First, they started putting an empty q= parameter
+                                    strpos($query, '&q=') !== false
+                                    || strpos($query, '?q=') !== false
+                                    // then they started sending the full host only (no path/query string)
+                                    || (empty($query) && (empty($referrerPath) || $referrerPath == '/') && empty($referrerParsed['fragment']))
+                                )
                             )
-
-                            // Yahoo search with no keyword
-                            || ($searchEngineName == 'Yahoo!'
-                                && ($referrerParsed['host'] == 'r.search.yahoo.com')
-                            )
-
-                            // empty keyword parameter
-                            || strpos($query, sprintf('&%s=', $variableName)) !== false
-                            || strpos($query, sprintf('?%s=', $variableName)) !== false
-
                             // search engines with no keyword
-                            || $searchEngineName == 'Ixquick'
                             || $searchEngineName == 'Google Images'
                             || $searchEngineName == 'DuckDuckGo')
                     ) {

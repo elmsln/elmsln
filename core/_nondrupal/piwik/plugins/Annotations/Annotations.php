@@ -23,13 +23,7 @@ class Annotations extends \Piwik\Plugin
         return array(
             'AssetManager.getStylesheetFiles' => 'getStylesheetFiles',
             'AssetManager.getJavaScriptFiles' => 'getJsFiles',
-            'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys',
         );
-    }
-
-    public function getClientSideTranslationKeys(&$translationKeys)
-    {
-        $translationKeys[] = 'Intl_Today';
     }
 
     /**

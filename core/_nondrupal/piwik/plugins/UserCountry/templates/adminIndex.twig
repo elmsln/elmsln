@@ -15,7 +15,7 @@
         <h3 style="margin-top:0;">{{ 'UserCountry_HowToSetupGeoIP'|translate }}</h3>
         <p>{{ 'UserCountry_HowToSetupGeoIPIntro'|translate }}</p>
         <ul style="list-style:disc;margin-left:2em;">
-            <li>{{ 'UserCountry_HowToSetupGeoIP_Step1'|translate('<a href="http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz">','</a>','<a rel="noreferrer"  target="_blank" href="http://www.maxmind.com/?rId=piwik">','</a>')|raw }}</li>
+            <li>{{ 'UserCountry_HowToSetupGeoIP_Step1'|translate('<a href="http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz">','</a>','<a target="_blank" href="http://www.maxmind.com/?rId=piwik">','</a>')|raw }}</li>
             <li>{{ 'UserCountry_HowToSetupGeoIP_Step2'|translate("'GeoLiteCity.dat'",'<strong>','</strong>')|raw }}</li>
             <li>{{ 'UserCountry_HowToSetupGeoIP_Step3'|translate('<strong>','</strong>','<span style="color:green"><strong>','</strong></span>')|raw }}</li>
             <li>{{ 'UserCountry_HowToSetupGeoIP_Step4'|translate }}</li>
@@ -60,32 +60,36 @@
             </td>
             <td width="164">
                 {% if provider.status == 1 %}
-                    <div class="alert alert-info">
+                    {% set currentLocation %}
                         {% if thisIP != '127.0.0.1' %}
                             {{ 'UserCountry_CurrentLocationIntro'|translate }}:
-                            <div>
+                            <div style="text-align:left;">
                                 <br/>
                                 <span class="loadingPiwik" style="display:none;position:absolute;">
                                     <img src="./plugins/Morpheus/images/loading-blue.gif"/> {{ 'General_Loading'|translate }}</span>
-                                <span class="location"><strong>{{ provider.location|raw }}</strong></span>
+                                <span class="location"><strong><em>{{ provider.location|raw }}</em></strong></span>
                             </div>
-                            <div class="text-right">
+                            <div style="text-align:right;">
                                 <a href="#" class="refresh-loc" data-impl-id="{{ id }}"><em>{{ 'General_Refresh'|translate }}</em></a>
                             </div>
                         {% else %}
                             {{ 'UserCountry_CannotLocalizeLocalIP'|translate(thisIP) }}
                         {% endif %}
-                    </div>
+                    {% endset %}
+                    {{ piwik.inlineHelp(currentLocation) }}
                 {% endif %}
                 {% if provider.statusMessage is defined and provider.statusMessage %}
-                    <div class="alert alert-info">
-                        {% if provider.status == 2 %}<strong>{{ 'General_Error'|translate }}:</strong> {% endif %}{{ provider.statusMessage|raw }}
-                    </div>
+                    {% set brokenReason %}
+                        {% if provider.status == 2 %}<strong><em>{{ 'General_Error'|translate }}:</em></strong> {% endif %}{{ provider.statusMessage|raw }}
+                    {% endset %}
+                    {{ piwik.inlineHelp(brokenReason) }}
                 {% endif %}
                 {% if provider.extra_message is defined and provider.extra_message %}
-                    <div class="alert alert-info">
+                    {% set extraMessage %}
                         {{ provider.extra_message|raw }}
-                    </div>
+                    {% endset %}
+                    <br/>
+                    {{ piwik.inlineHelp(extraMessage) }}
                 {% endif %}
             </td>
             {% endfor %}

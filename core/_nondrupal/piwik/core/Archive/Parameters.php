@@ -35,16 +35,22 @@ class Parameters
      */
     private $segment;
 
+    /**
+     * @var bool
+     */
+    private $skipAggregationOfSubTables;
+
     public function getSegment()
     {
         return $this->segment;
     }
 
-    public function __construct($idSites, $periods, Segment $segment)
+    public function __construct($idSites, $periods, Segment $segment, $skipAggregationOfSubTables)
     {
         $this->idSites = $idSites;
         $this->periods = $periods;
         $this->segment = $segment;
+        $this->skipAggregationOfSubTables = $skipAggregationOfSubTables;
     }
 
     public function getPeriods()
@@ -56,4 +62,11 @@ class Parameters
     {
         return $this->idSites;
     }
+
+    public function isSkipAggregationOfSubTables()
+    {
+        return $this->skipAggregationOfSubTables;
+    }
+
 }
+

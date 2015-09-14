@@ -14,8 +14,10 @@ use Piwik\Common;
 use Piwik\Filesystem;
 use Piwik\FrontController;
 use Piwik\Piwik;
+use Piwik\ScheduledTask;
+use Piwik\ScheduledTime;
 use Piwik\UpdateCheck;
-use Piwik\Updater as PiwikCoreUpdater;
+use Piwik\Updater;
 use Piwik\UpdaterErrorException;
 use Piwik\Version;
 
@@ -35,20 +37,75 @@ class CoreUpdater extends \Piwik\Plugin
         );
     }
 
-    /**
-     * @deprecated
-     */
-    public static function updateComponents(PiwikCoreUpdater $updater, $componentsWithUpdateFile)
+    public static function updateComponents(Updater $updater, $componentsWithUpdateFile)
     {
-        return $updater->updateComponents($componentsWithUpdateFile);
+        $warnings = array();
+        $errors   = array();
+        $deactivatedPlugins = array();
+        $coreError = false;
+        
+        if (!empty($componentsWithUpdateFile)) {
+            $currentAccess      = Access::getInstance();
+            $hasSuperUserAccess = $currentAccess->hasSuperUserAccess();
+    
+            if (!$hasSuperUserAccess) {
+                $currentAccess->setSuperUserAccess(true);
+            }
+            
+            // if error in any core update, show message + help message + EXIT
+            // if errors in any plugins updates, show them on screen, disable plugins that errored + CONTINUE
+            // if warning in any core update or in any plugins update, show message + CONTINUE
+            // if no error or warning, success message + CONTINUE
+            foreach ($componentsWithUpdateFile as $name => $filenames) {
+                try {
+                    $warnings = array_merge($warnings, $updater->update($name));
+                } catch (UpdaterErrorException $e) {
+                    $errors[] = $e->getMessage();
+                    if ($name == 'core') {
+                        $coreError = true;
+                        break;
+                    } else {
+                        \Piwik\Plugin\Manager::getInstance()->deactivatePlugin($name);
+                        $deactivatedPlugins[] = $name;
+                    }
+                }
+            }
+            
+            if (!$hasSuperUserAccess) {
+                $currentAccess->setSuperUserAccess(false);
+            }
+        }
+
+        Filesystem::deleteAllCacheOnUpdate();
+
+        $result = array(
+            'warnings'  => $warnings,
+            'errors'    => $errors,
+            'coreError' => $coreError,
+            'deactivatedPlugins' => $deactivatedPlugins
+        );
+
+        return $result;
     }
 
-    /**
-     * @deprecated
-     */
-    public static function getComponentUpdates(PiwikCoreUpdater $updater)
+    public static function getComponentUpdates(Updater $updater)
     {
-        return $updater->getComponentUpdates();
+        $updater->addComponentToCheck('core', Version::VERSION);
+        $manager = \Piwik\Plugin\Manager::getInstance();
+        $plugins = $manager->getLoadedPlugins();
+        foreach ($plugins as $pluginName => $plugin) {
+            if($manager->isPluginInstalled($pluginName)) {
+                $updater->addComponentToCheck($pluginName, $plugin->getVersion());
+            }
+        }
+
+        $componentsWithUpdateFile = $updater->getComponentsWithUpdateFile();
+        if (count($componentsWithUpdateFile) == 0
+            && !$updater->hasNewVersion('core')) {
+            return null;
+        }
+
+        return $componentsWithUpdateFile;
     }
 
     public function dispatch()
@@ -56,12 +113,13 @@ class CoreUpdater extends \Piwik\Plugin
         $module = Common::getRequestVar('module', '', 'string');
         $action = Common::getRequestVar('action', '', 'string');
 
-        $updater = new PiwikCoreUpdater();
-        $updates = $updater->getComponentsWithNewVersion(array('core' => Version::VERSION));
+        $updater = new Updater();
+        $updater->addComponentToCheck('core', Version::VERSION);
+        $updates = $updater->getComponentsWithNewVersion();
         if (!empty($updates)) {
             Filesystem::deleteAllCacheOnUpdate();
         }
-        if ($updater->getComponentUpdates() !== null
+        if (self::getComponentUpdates($updater) !== null
             && $module != 'CoreUpdater'
             // Proxy module is used to redirect users to piwik.org, should still work when Piwik must be updated
             && $module != 'Proxy'

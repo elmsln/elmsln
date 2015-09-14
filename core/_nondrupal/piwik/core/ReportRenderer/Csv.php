@@ -1,11 +1,4 @@
 <?php
-/**
- * Piwik - free/libre analytics platform
- *
- * @link http://piwik.org
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
- *
- */
 namespace Piwik\ReportRenderer;
 
 use Piwik\DataTable\DataTableInterface;
@@ -13,9 +6,6 @@ use Piwik\DataTable\Renderer\Csv as CsvDataTableRenderer;
 use Piwik\Piwik;
 use Piwik\ReportRenderer;
 
-/**
- * CSV report renderer
- */
 class Csv extends ReportRenderer
 {
     /**
@@ -115,7 +105,7 @@ class Csv extends ReportRenderer
         );
 
         $reportData = $csvRenderer->render($processedReport);
-        if (empty($reportData)) {
+        if(empty($reportData)) {
             $reportData = Piwik::translate('CoreHome_ThereIsNoDataForThisReport');
         }
 

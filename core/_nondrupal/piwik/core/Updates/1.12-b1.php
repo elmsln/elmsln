@@ -17,12 +17,12 @@ use Piwik\Updates;
  */
 class Updates_1_12_b1 extends Updates
 {
-    public static function isMajorUpdate()
+    static function isMajorUpdate()
     {
         return true;
     }
 
-    public static function getSql()
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('log_link_visit_action') . '`
@@ -30,8 +30,9 @@ class Updates_1_12_b1 extends Updates
         );
     }
 
-    public static function update()
+    static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }
+
 }

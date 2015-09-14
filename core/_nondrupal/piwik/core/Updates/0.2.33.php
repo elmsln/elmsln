@@ -18,7 +18,7 @@ use Piwik\Updates;
  */
 class Updates_0_2_33 extends Updates
 {
-    public static function getSql()
+    static function getSql()
     {
         $sqlarray = array(
             // 0.2.33 [1020]
@@ -38,7 +38,7 @@ class Updates_0_2_33 extends Updates
         return $sqlarray;
     }
 
-    public static function update()
+    static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }

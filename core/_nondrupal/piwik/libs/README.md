@@ -17,6 +17,12 @@ third-party libraries:
    - The bug #4206 (GD with JIS-mapped Japanese Font Support) was fixed in this
      commit: https://github.com/piwik/piwik/commit/516c13d9b13ca3b908575eb809f7ad9d9397f0e1
      Changed files: class/pImage.class.php class/pDraw.class.php
+ * PclZip/
+   - in r1960, ignore touch() - utime failed warning
+ * PEAR/, PEAR.php
+   - in r2419, add static keyword to isError and raiseError as it throws notices
+     in HTML_Quickform2
+   - in r2422, is_a() is deprecated for php 5.0 to 5.2.x
  * sparkline/
    - in r1296, remove require_once
    - empty sparklines with floats, off-by-one errors, and locale conflict
@@ -27,5 +33,3 @@ third-party libraries:
    - strip require_once (to support autoloading)
    - in r3694, fix ZF-10888 and ZF-10835
    - ZF-10871 - undefined variables when socket support disabled
-   - fix #6980 ("Array to string conversion") in `Zend/Session/Exception.php`
-   - fix Zend/Validate using deprecated iconv_set_encoding()

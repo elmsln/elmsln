@@ -9,6 +9,7 @@
 namespace Piwik\Plugin;
 
 use Exception;
+use Piwik\Common;
 use Piwik\Piwik;
 use Piwik\Version;
 
@@ -49,17 +50,9 @@ class MetadataLoader
      */
     public function load()
     {
-        $defaults = $this->getDefaultPluginInformation();
-        $plugin   = $this->loadPluginInfoJson();
-
-        // use translated plugin description if available
-        if ($defaults['description'] != Piwik::translate($defaults['description'])) {
-            unset($plugin['description']);
-        }
-
         return array_merge(
-            $defaults,
-            $plugin
+            $this->getDefaultPluginInformation(),
+            $this->loadPluginInfoJson()
         );
     }
 
@@ -74,7 +67,7 @@ class MetadataLoader
     {
         $descriptionKey = $this->pluginName . '_PluginDescription';
         return array(
-            'description'      => $descriptionKey,
+            'description'      => Piwik::translate($descriptionKey),
             'homepage'         => 'http://piwik.org/',
             'authors'          => array(array('name' => 'Piwik', 'homepage'  => 'http://piwik.org/')),
             'license'          => 'GPL v3+',
@@ -102,13 +95,12 @@ class MetadataLoader
             return array();
         }
 
-        $info = json_decode($json, $assoc = true);
+        $info = Common::json_decode($json, $assoc = true);
         if (!is_array($info)
             || empty($info)
         ) {
             throw new Exception("Invalid JSON file: $path");
         }
-
         return $info;
     }
 }

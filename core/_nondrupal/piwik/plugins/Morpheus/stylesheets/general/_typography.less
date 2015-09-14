@@ -7,10 +7,6 @@ a {
     text-decoration: none;
 }
 
-h1 {
-    font-size: 30px;
-    margin-bottom: 20px;
-}
 h2 {
     color: @theme-color-text;
 }
@@ -32,7 +28,7 @@ h2 {
     padding-top: 5px;
     padding-bottom: 4px;
     color: #000;
-
+  
     a {
        color: @theme-color-brand !important;
     }
@@ -77,11 +73,12 @@ ul.widgetpreview-widgetlist, ul.widgetpreview-categorylist {
     color: #4d4d4d;
 }
 
+
 .dataTableRowActions {
     background: none !important;
 }
 
-a#overlayTitle {
+a#Overlay_Title {
     color: #4d4d4d !important;
     .font-default(12px, 14px) !important;
     margin-left: 15px !important;
@@ -114,13 +111,14 @@ body > a.ddmetric {
     font-family: @theme-fontFamily-base !important;
 }
 
-// Bootstrap classes (can be removed in the future)
-.text-left {
-    text-align: left;
+.segment-element .segment-content .segment-or,
+.segment-element .segment-content .segment-add-or,
+.segment-element .segment-content .segment-row {
+    background-color: @color-gray-light !important;
 }
-.text-center {
-    text-align: center;
-}
-.text-right {
-    text-align: right;
+
+.segmentEditorPanel *,
+.segment-element .segment-content .segment-input select, 
+.segment-element .segment-content .segment-input input {
+    font-family: @theme-fontFamily-base !important;
 }

@@ -92,9 +92,8 @@ class Mysql extends Zend_Db_Adapter_Pdo_Mysql implements AdapterInterface
      */
     public function checkServerVersion()
     {
-        $serverVersion   = $this->getServerVersion();
+        $serverVersion = $this->getServerVersion();
         $requiredVersion = Config::getInstance()->General['minimum_mysql_version'];
-
         if (version_compare($serverVersion, $requiredVersion) === -1) {
             throw new Exception(Piwik::translate('General_ExceptionDatabaseVersion', array('MySQL', $serverVersion, $requiredVersion)));
         }
@@ -109,7 +108,6 @@ class Mysql extends Zend_Db_Adapter_Pdo_Mysql implements AdapterInterface
     {
         $serverVersion = $this->getServerVersion();
         $clientVersion = $this->getClientVersion();
-
         // incompatible change to DECIMAL implementation in 5.0.3
         if (version_compare($serverVersion, '5.0.3') >= 0
             && version_compare($clientVersion, '5.0.3') < 0
@@ -125,7 +123,8 @@ class Mysql extends Zend_Db_Adapter_Pdo_Mysql implements AdapterInterface
      */
     public static function isEnabled()
     {
-        return extension_loaded('PDO') && extension_loaded('pdo_mysql') && in_array('mysql', PDO::getAvailableDrivers());
+        $extensions = @get_loaded_extensions();
+        return in_array('PDO', $extensions) && in_array('pdo_mysql', $extensions) && in_array('mysql', PDO::getAvailableDrivers());
     }
 
     /**
@@ -160,7 +159,6 @@ class Mysql extends Zend_Db_Adapter_Pdo_Mysql implements AdapterInterface
         if (preg_match('/(?:\[|\s)([0-9]{4})(?:\]|\s)/', $e->getMessage(), $match)) {
             return $match[1] == $errno;
         }
-
         return false;
     }
 
@@ -172,11 +170,9 @@ class Mysql extends Zend_Db_Adapter_Pdo_Mysql implements AdapterInterface
     public function isConnectionUTF8()
     {
         $charsetInfo = $this->fetchAll('SHOW VARIABLES LIKE ?', array('character_set_connection'));
-
         if (empty($charsetInfo)) {
             return false;
         }
-
         $charset = $charsetInfo[0]['Value'];
         return $charset === 'utf8';
     }

@@ -8,6 +8,7 @@
  */
 namespace Piwik\DataTable\Renderer;
 
+
 /**
  * TSV export
  *
@@ -20,7 +21,7 @@ class Tsv extends Csv
     /**
      * Constructor
      */
-    public function __construct()
+    function __construct()
     {
         parent::__construct();
         $this->setSeparator("\t");
@@ -31,7 +32,7 @@ class Tsv extends Csv
      *
      * @return string
      */
-    public function render()
+    function render()
     {
         return parent::render();
     }

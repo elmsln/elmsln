@@ -1,10 +1,10 @@
 {
     "name": "piwik/device-detector",
     "type": "library",
-    "description": "The Universal Device Detection library, that parses User Agents and detects devices (desktop, tablet, mobile, tv, cars, console, etc.), clients (browsers, media players, mobile apps, feed readers, libraries, etc), operating systems, devices, brands and models.",
+    "description": "The Universal Device Detection library, that parses User Agents and detects devices (desktop, tablet, mobile, tv, cars, console, etc.), and detects browsers, operating systems, devices, brands and models.",
     "keywords": ["useragent","parser","devicedetection"],
     "homepage": "http://piwik.org",
-    "license": "LGPL-3.0+",
+    "license": "GPL-3.0+",
     "authors": [
         {
             "name": "The Piwik Team",
@@ -14,7 +14,7 @@
     ],
     "support": {
         "forum": "http://forum.piwik.org/",
-        "issues": "https://github.com/piwik/device-detector/issues",
+        "issues": "http://dev.piwik.org/trac/roadmap",
         "wiki": "http://dev.piwik.org/",
         "source": "https://github.com/piwik/piwik"
     },
@@ -22,14 +22,10 @@
         "psr-4": { "DeviceDetector\\": "" }
     },
     "require": {
-        "php": ">=5.3.2",
+        "php": ">=5.3.1",
         "mustangostang/spyc": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.1.*",
-        "fabpot/php-cs-fixer": "~1.7"
-    },
-    "suggest": {
-        "doctrine/cache": "Can directly be used for caching purpose"
+        "phpunit/phpunit": "4.0.*"
     }
 }

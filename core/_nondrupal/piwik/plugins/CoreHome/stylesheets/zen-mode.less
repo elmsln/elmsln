@@ -1,13 +1,22 @@
-#content:not(.admin), .widget, .ui-widget {
+#content:not(.admin), .widget {
 
   .UserCountryMap .dataTableFooterIcons {
     display: block;
+  }
+
+  .widget {
+    border-color: @color-silver-l85;
+
+    .widgetTop {
+      border-color: @color-silver-l85;
+    }
   }
 
   /* DATATABLES */
 
   table.dataTable {
     th.sortable {
+      background: @theme-color-background-base !important;
       border-left: 0px;
       border-bottom: 0px;
     }
@@ -31,7 +40,8 @@
   }
 
   .dataTableActions table.dataTable  {
-    td.column
+    td.columnodd,
+    td.columneven,
     th.sortable:not(.first) {
       width: 50px;
     }
@@ -45,8 +55,33 @@
     padding: 7px 0;
   }
 
+
   .dataTableFooterIcons {
     border-top: 0px;
+  }
+
+  .foldDataTableFooterDrawer,
+  .dataTableFeatures .expandDataTableFooterDrawer {
+    opacity: 0;
+    -webkit-transition: all 300ms ease;
+    -moz-transition: all 300ms ease;
+    -ms-transition: all 300ms ease;
+    -o-transition: all 300ms ease;
+    transition: all 300ms ease;
+  }
+
+  .dataTableFeatures:hover .foldDataTableFooterDrawer,
+  .dataTableFeatures:hover .expandDataTableFooterDrawer {
+    opacity: 1 !important;
+  }
+
+  h2:nth-of-type(n+2) {
+    margin-top: 40px;
+  }
+
+  h2 {
+    padding-left: 10px;
+    font-size: 24px;
   }
 
   .goalEntry:first-of-type {
@@ -61,32 +96,21 @@
     display: none;
   }
 
-  div[data-report="Goals.getItemsSku"] > .dataTableWrapper,
-  div[data-report="Goals.getItemsName"] > .dataTableWrapper,
-  div[data-report="Goals.getItemsCategory"] > .dataTableWrapper,
-  div[data-report="Referrers.getReferrerType"] > .dataTableWrapper,
-  div[data-report="Referrers.getAll"] > .dataTableWrapper {
+  div[data-report="Referrers.getReferrerType"] > .dataTableWrapper {
     width: 800px;
   }
 
   .reportsByDimensionView .entityList {
     margin-left: 13px;
   }
-
-}
-
-#content:not(.admin), .widget {
-
-  h2:nth-of-type(n+2) {
-    margin-top: 40px;
-  }
-
-  h2 {
-    padding-left: 10px;
-    font-size: 24px;
+  
+  .widgetContent .jqplot-graph {
+    margin-top: 6px;
   }
 }
 
-.dataTableFeatures .expandDataTableFooterDrawer {
-  margin-bottom: -9px;
+#content:not(.admin){
+  &> div:not(#dashboard) .dataTableFeatures .expandDataTableFooterDrawer {
+    margin-bottom: -20px;
+  }
 }

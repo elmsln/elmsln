@@ -8,22 +8,22 @@
 
 {% block content %}
     <div class="overlay-sidebar-container">
-        <a id="overlayTitle" href="http://piwik.org/docs/page-overlay/" rel="noreferrer"  target="_blank">
+        <a id="Overlay_Title" href="http://piwik.org/docs/page-overlay/" target="_blank">
             {{ 'Overlay_Overlay'|translate }}
             <img src="plugins/Morpheus/images/help.png" alt="Documentation"/>
         </a>
 
-        <div id="overlayDateRangeSelection">
-            <select id="overlayDateRangeSelect" name="overlayDateRangeSelect">
-                <option value="day;today">{{ 'Intl_Today'|translate }}</option>
-                <option value="day;yesterday">{{ 'Intl_Yesterday'|translate }}</option>
+        <div id="Overlay_DateRangeSelection">
+            <select id="Overlay_DateRangeSelect" name="Overlay_DateRangeSelect">
+                <option value="day;today">{{ 'General_Today'|translate }}</option>
+                <option value="day;yesterday">{{ 'General_Yesterday'|translate }}</option>
                 <option value="week;today">{{ 'General_CurrentWeek'|translate }}</option>
                 <option value="month;today">{{ 'General_CurrentMonth'|translate }}</option>
                 <option value="year;today">{{ 'General_CurrentYear'|translate }}</option>
             </select>
         </div>
 
-        <div id="overlayErrorNotLoading">
+        <div id="Overlay_Error_NotLoading">
             <p>
                 <span>{{ 'Overlay_ErrorNotLoading'|translate }}</span>
             </p>
@@ -37,36 +37,38 @@
             </p>
 
             <p>
-                <a href="http://piwik.org/docs/page-overlay/#toc-page-overlay-troubleshooting" rel="noreferrer"  target="_blank">
+                <a href="http://piwik.org/docs/page-overlay/#toc-page-overlay-troubleshooting" target="_blank">
                     {{ 'Overlay_ErrorNotLoadingLink'|translate }}
                 </a>
             </p>
         </div>
 
-        <div id="overlayLocation">&nbsp;</div>
+        <div id="Overlay_Location">&nbsp;</div>
 
-        <div id="overlayLoading">{{ 'General_Loading'|translate }}</div>
+        <div id="Overlay_Loading">{{ 'General_Loading'|translate }}</div>
 
-        <div id="overlaySidebar"></div>
+        <div id="Overlay_Sidebar"></div>
 
-        <a id="overlayRowEvolution">{{ 'General_RowEvolutionRowActionTooltipTitle'|translate }}</a>
-        <a id="overlayTransitions">{{ 'General_TransitionsRowActionTooltipTitle'|translate }}</a>
-        <a id="overlaySegmentedVisitorLog">{{ 'Live_RowActionTooltipTitle'|translate }}</a>
+        <a id="Overlay_RowEvolution">{{ 'General_RowEvolutionRowActionTooltipTitle'|translate }}</a>
+        <a id="Overlay_Transitions">{{ 'General_TransitionsRowActionTooltipTitle'|translate }}</a>
     </div>
 
-    <div id="overlayMain">
-        <iframe id="overlayIframe" src="" frameborder="0"></iframe>
+    <!-- TODO: rethink the way the sidebar works -->
+    <!-- <a id="Overlay_FullScreen" href="#">
+        {'Overlay_OpenFullScreen'|translate|escape:'html'}
+    </a> -->
+
+
+    <div id="Overlay_Main">
+        <iframe id="Overlay_Iframe" src="" frameborder="0"></iframe>
     </div>
 
     <script type="text/javascript">
-        broadcast._isInit = true;
-        $(function () {
-            var iframeSrc = 'index.php?module=Overlay&action=startOverlaySession&idSite={{ idSite }}&period={{ period }}&date={{ rawDate }}';
-            Piwik_Overlay.init(iframeSrc, '{{ idSite }}', '{{ period }}', '{{ rawDate }}');
+        var iframeSrc = 'index.php?module=Overlay&action=startOverlaySession&idSite={{ idSite }}&period={{ period }}&date={{ date }}';
+        Piwik_Overlay.init(iframeSrc, '{{ idSite }}', '{{ period }}', '{{ date }}');
 
-            window.Piwik_Overlay_Translations = {
-                domain: "{{ 'Overlay_Domain'|translate }}"
-            };
-        });
+        Piwik_Overlay_Translations = {
+            domain: "{{ 'Overlay_Domain'|translate }}"
+        };
     </script>
 {% endblock %}

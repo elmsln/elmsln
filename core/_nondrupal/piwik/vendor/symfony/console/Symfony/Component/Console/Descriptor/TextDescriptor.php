@@ -21,8 +21,6 @@ use Symfony\Component\Console\Input\InputOption;
  * Text descriptor.
  *
  * @author Jean-François Simon <contact@jfsimon.fr>
- *
- * @internal
  */
 class TextDescriptor extends Descriptor
 {
@@ -159,37 +157,13 @@ class TextDescriptor extends Descriptor
                 $this->writeText("\n");
             }
         } else {
-            if ('' != $help = $application->getHelp()) {
-                $this->writeText("$help\n\n", $options);
-            }
-
-            $this->writeText("<comment>Usage:</comment>\n", $options);
-            $this->writeText(" command [options] [arguments]\n\n", $options);
-            $this->writeText('<comment>Options:</comment>', $options);
-
-            $inputOptions = $application->getDefinition()->getOptions();
-
-            $width = 0;
-            foreach ($inputOptions as $option) {
-                $nameLength = strlen($option->getName()) + 2;
-                if ($option->getShortcut()) {
-                    $nameLength += strlen($option->getShortcut()) + 3;
-                }
-                $width = max($width, $nameLength);
-            }
-            ++$width;
-
-            foreach ($inputOptions as $option) {
-                $this->writeText("\n", $options);
-                $this->describeInputOption($option, array_merge($options, array('name_width' => $width)));
-            }
-
-            $this->writeText("\n\n", $options);
-
             $width = $this->getColumnWidth($description->getCommands());
 
+            $this->writeText($application->getHelp(), $options);
+            $this->writeText("\n\n");
+
             if ($describedNamespace) {
-                $this->writeText(sprintf('<comment>Available commands for the "%s" namespace:</comment>', $describedNamespace), $options);
+                $this->writeText(sprintf("<comment>Available commands for the \"%s\" namespace:</comment>", $describedNamespace), $options);
             } else {
                 $this->writeText('<comment>Available commands:</comment>', $options);
             }
@@ -203,7 +177,7 @@ class TextDescriptor extends Descriptor
 
                 foreach ($namespace['commands'] as $name) {
                     $this->writeText("\n");
-                    $this->writeText(sprintf(" <info>%-${width}s</info> %s", $name, $description->getCommand($name)->getDescription()), $options);
+                    $this->writeText(sprintf("  <info>%-${width}s</info> %s", $name, $description->getCommand($name)->getDescription()), $options);
                 }
             }
 
@@ -231,7 +205,7 @@ class TextDescriptor extends Descriptor
      */
     private function formatDefaultValue($default)
     {
-        if (PHP_VERSION_ID < 50400) {
+        if (version_compare(PHP_VERSION, '5.4', '<')) {
             return str_replace('\/', '/', json_encode($default));
         }
 

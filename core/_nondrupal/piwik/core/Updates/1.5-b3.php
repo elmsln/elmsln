@@ -17,7 +17,7 @@ use Piwik\Updates;
  */
 class Updates_1_5_b3 extends Updates
 {
-    public static function getSql()
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('log_visit') . '`
@@ -56,7 +56,7 @@ class Updates_1_5_b3 extends Updates
         );
     }
 
-    public static function update()
+    static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }

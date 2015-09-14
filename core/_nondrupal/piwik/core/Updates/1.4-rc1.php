@@ -17,17 +17,17 @@ use Piwik\Updates;
  */
 class Updates_1_4_rc1 extends Updates
 {
-    public static function getSql()
+    static function getSql()
     {
         return array(
             'UPDATE `' . Common::prefixTable('pdf') . '`
-		    	SET format = "pdf"'              => '42S22',
+		    	SET format = "pdf"'                                                                         => '42S22',
             'ALTER TABLE `' . Common::prefixTable('pdf') . '`
 		    	ADD COLUMN `format` VARCHAR(10)' => '42S22',
         );
     }
 
-    public static function update()
+    static function update()
     {
         try {
             Updater::updateDatabase(__FILE__, self::getSql());

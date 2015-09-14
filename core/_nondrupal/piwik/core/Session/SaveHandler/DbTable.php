@@ -25,7 +25,7 @@ class DbTable implements Zend_Session_SaveHandler_Interface
     /**
      * @param array $config
      */
-    public function __construct($config)
+    function __construct($config)
     {
         $this->config = $config;
         $this->maxLifetime = ini_get('session.gc_maxlifetime');
@@ -119,7 +119,8 @@ class DbTable implements Zend_Session_SaveHandler_Interface
      */
     public function destroy($id)
     {
-        $sql = 'DELETE FROM ' . $this->config['name'] . ' WHERE ' . $this->config['primary'] . ' = ?';
+        $sql = 'DELETE FROM ' . $this->config['name']
+            . ' WHERE ' . $this->config['primary'] . ' = ?';
 
         Db::get()->query($sql, array($id));
 

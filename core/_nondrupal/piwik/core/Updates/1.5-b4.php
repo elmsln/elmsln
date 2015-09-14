@@ -17,15 +17,15 @@ use Piwik\Updates;
  */
 class Updates_1_5_b4 extends Updates
 {
-    public static function getSql()
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('site') . '`
-				 ADD ecommerce TINYINT DEFAULT 0' => 1060,
+				 ADD ecommerce TINYINT DEFAULT 0' => false,
         );
     }
 
-    public static function update()
+    static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }

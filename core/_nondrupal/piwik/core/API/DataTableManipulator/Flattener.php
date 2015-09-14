@@ -38,16 +38,17 @@ class Flattener extends DataTableManipulator
      * Separator for building recursive labels (or paths)
      * @var string
      */
-    public $recursiveLabelSeparator = '';
+    public $recursiveLabelSeparator = ' - ';
 
     /**
      * @param  DataTable $dataTable
-     * @param string $recursiveLabelSeparator
      * @return DataTable|DataTable\Map
      */
-    public function flatten($dataTable, $recursiveLabelSeparator)
+    public function flatten($dataTable)
     {
-        $this->recursiveLabelSeparator = $recursiveLabelSeparator;
+        if ($this->apiModule == 'Actions' || $this->apiMethod == 'getWebsites') {
+            $this->recursiveLabelSeparator = '/';
+        }
 
         return $this->manipulate($dataTable);
     }
@@ -71,10 +72,9 @@ class Flattener extends DataTableManipulator
         }
 
         $newDataTable = $dataTable->getEmptyClone($keepFilters);
-        foreach ($dataTable->getRows() as $rowId => $row) {
-            $this->flattenRow($row, $rowId, $newDataTable);
+        foreach ($dataTable->getRows() as $row) {
+            $this->flattenRow($row, $newDataTable);
         }
-
         return $newDataTable;
     }
 
@@ -84,21 +84,15 @@ class Flattener extends DataTableManipulator
      * @param string $labelPrefix
      * @param bool $parentLogo
      */
-    private function flattenRow(Row $row, $rowId, DataTable $dataTable,
+    private function flattenRow(Row $row, DataTable $dataTable,
                                 $labelPrefix = '', $parentLogo = false)
     {
         $label = $row->getColumn('label');
         if ($label !== false) {
             $label = trim($label);
-
-            if ($this->recursiveLabelSeparator == '/') {
-                if (substr($label, 0, 1) == '/') {
-                    $label = substr($label, 1);
-                } elseif ($rowId === DataTable::ID_SUMMARY_ROW && $labelPrefix && $label != DataTable::LABEL_SUMMARY_ROW) {
-                    $label = ' - ' . $label;
-                }
+            if (substr($label, 0, 1) == '/' && $this->recursiveLabelSeparator == '/') {
+                $label = substr($label, 1);
             }
-
             $label = $labelPrefix . $label;
             $row->setColumn('label', $label);
         }
@@ -109,16 +103,7 @@ class Flattener extends DataTableManipulator
             $row->setMetadata('logo', $logo);
         }
 
-        /** @var DataTable $subTable */
-        $subTable = $row->getSubtable();
-
-        if ($subTable) {
-            $subTable->applyQueuedFilters();
-            $row->deleteMetadata('idsubdatatable_in_db');
-        } else {
-            $subTable = $this->loadSubtable($dataTable, $row);
-        }
-
+        $subTable = $this->loadSubtable($dataTable, $row);
         $row->removeSubtable();
 
         if ($subTable === null) {
@@ -132,8 +117,8 @@ class Flattener extends DataTableManipulator
                 $dataTable->addRow($row);
             }
             $prefix = $label . $this->recursiveLabelSeparator;
-            foreach ($subTable->getRows() as $rowId => $row) {
-                $this->flattenRow($row, $rowId, $dataTable, $prefix, $logo);
+            foreach ($subTable->getRows() as $row) {
+                $this->flattenRow($row, $dataTable, $prefix, $logo);
             }
         }
     }
@@ -142,7 +127,6 @@ class Flattener extends DataTableManipulator
      * Remove the flat parameter from the subtable request
      *
      * @param array $request
-     * @return array
      */
     protected function manipulateSubtableRequest($request)
     {

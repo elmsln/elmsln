@@ -11,7 +11,7 @@ namespace Piwik;
 
 /**
  * The singleton base class restricts the instantiation of derived classes to one object only.
- *
+ * 
  * All plugin APIs are singletons and thus extend this class.
  *
  * @api
@@ -20,13 +20,9 @@ class Singleton
 {
     protected static $instances;
 
-    protected function __construct()
-    {
-    }
+    protected function __construct() { }
 
-    final private function __clone()
-    {
-    }
+    final private function __clone() { }
 
     /**
      * Returns the singleton instance for the derived class. If the singleton instance
@@ -34,8 +30,7 @@ class Singleton
      *
      * @return Singleton
      */
-    public static function getInstance()
-    {
+    public static function getInstance() {
         $class = get_called_class();
 
         if (!isset(self::$instances[$class])) {

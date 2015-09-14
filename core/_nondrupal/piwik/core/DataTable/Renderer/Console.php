@@ -8,6 +8,7 @@
  */
 namespace Piwik\DataTable\Renderer;
 
+use Piwik\DataTable\Manager;
 use Piwik\DataTable;
 use Piwik\DataTable\Renderer;
 
@@ -30,7 +31,20 @@ class Console extends Renderer
      */
     public function render()
     {
+        $this->renderHeader();
         return $this->renderTable($this->table);
+    }
+
+    /**
+     * Computes the exception output and returns the string/binary
+     *
+     * @return string
+     */
+    public function renderException()
+    {
+        $this->renderHeader();
+        $exceptionMessage = $this->getExceptionMessage();
+        return 'Error: ' . $exceptionMessage;
     }
 
     /**
@@ -71,9 +85,8 @@ class Console extends Renderer
      */
     protected function renderTable($table, $prefix = "")
     {
-        if (is_array($table)) {
-            // convert array to DataTable
-
+        if (is_array($table)) // convert array to DataTable
+        {
             $table = DataTable::makeFromSimpleArray($table);
         }
 
@@ -97,11 +110,8 @@ class Console extends Renderer
                     $dataTableMapBreak = true;
                     break;
                 }
-                if (is_string($value)) {
-                    $value = "'$value'";
-                } elseif (is_array($value)) {
-                    $value = var_export($value, true);
-                }
+                if (is_string($value)) $value = "'$value'";
+                elseif (is_array($value)) $value = var_export($value, true);
 
                 $columns[] = "'$column' => $value";
             }
@@ -112,11 +122,8 @@ class Console extends Renderer
 
             $metadata = array();
             foreach ($row->getMetadata() as $name => $value) {
-                if (is_string($value)) {
-                    $value = "'$value'";
-                } elseif (is_array($value)) {
-                    $value = var_export($value, true);
-                }
+                if (is_string($value)) $value = "'$value'";
+                elseif (is_array($value)) $value = var_export($value, true);
                 $metadata[] = "'$name' => $value";
             }
             $metadata = implode(", ", $metadata);
@@ -126,10 +133,14 @@ class Console extends Renderer
                 . $row->getIdSubDataTable() . "]<br />\n";
 
             if (!is_null($row->getIdSubDataTable())) {
-                $subTable = $row->getSubtable();
-                if ($subTable) {
+                if ($row->isSubtableLoaded()) {
                     $depth++;
-                    $output .= $this->renderTable($subTable, $prefix . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+                    $output .= $this->renderTable(
+                        Manager::getInstance()->getTable(
+                            $row->getIdSubDataTable()
+                        ),
+                        $prefix . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                    );
                     $depth--;
                 } else {
                     $output .= "-- Sub DataTable not loaded<br />\n";
@@ -144,7 +155,7 @@ class Console extends Renderer
             foreach ($metadata as $id => $metadataIn) {
                 $output .= "<br />";
                 $output .= $prefix . " <b>$id</b><br />";
-                if (is_array($metadataIn)) {
+                if(is_array($metadataIn)) {
                     foreach ($metadataIn as $name => $value) {
                         $output .= $prefix . $prefix . "$name => $value";
                     }

@@ -13,7 +13,7 @@
 
     /**
      * This class is deprecated. Use server-side events instead.
-     *
+     * 
      * @deprecated
      */
     var TrackingCodeGenerator = function () {
@@ -150,7 +150,7 @@
 
         // function that generates JS code
         var generateJsCodeAjax = null,
-            generateJsCode = function (trackingCodeChangedManually) {
+            generateJsCode = function () {
                 // get params used to generate JS code
                 var params = {
                     piwikUrl: piwikHost + piwikPath,
@@ -162,7 +162,6 @@
                     customCampaignNameQueryParam: null,
                     customCampaignKeywordParam: null,
                     doNotTrack: $('#javascript-tracking-do-not-track').is(':checked') ? 1 : 0,
-                    disableCookies: $('#javascript-tracking-disable-cookies').is(':checked') ? 1 : 0
                 };
 
                 if ($('#custom-campaign-query-params-check').is(':checked')) {
@@ -185,30 +184,24 @@
                 generateJsCodeAjax.setCallback(function (response) {
                     generateJsCodeAjax = null;
 
-                    var jsCodeTextarea = $('#javascript-text').find('textarea');
-                    jsCodeTextarea.val(response.value);
-
-                    if(trackingCodeChangedManually) {
-                        jsCodeTextarea.effect("highlight", {}, 1500);
-                    }
-
+                    $('#javascript-text').find('textarea').val(response.value);
                 });
                 generateJsCodeAjax.send();
             };
 
         // function that generates image tracker link
         var generateImageTrackingAjax = null,
-            generateImageTrackerLink = function (trackingCodeChangedManually) {
+            generateImageTrackerLink = function () {
                 // get data used to generate the link
                 var generateDataParams = {
                     piwikUrl: piwikHost + piwikPath,
-                    actionName: $('#image-tracker-action-name').val()
+                    actionName: $('#image-tracker-action-name').val(),
                 };
 
                 if ($('#image-tracking-goal-check').is(':checked')) {
                     generateDataParams.idGoal = $('#image-tracker-goal').val();
                     if (generateDataParams.idGoal) {
-                        generateDataParams.revenue = $('#image-goal-picker-extra').find('.revenue').val();
+                        generateDataParams.revenue = $('#image-tracker-advanced-options').find('.revenue').val();
                     }
                 }
 
@@ -227,12 +220,7 @@
                 generateImageTrackingAjax.setCallback(function (response) {
                     generateImageTrackingAjax = null;
 
-                    var jsCodeTextarea = $('#image-tracking-text').find('textarea');
-                    jsCodeTextarea.val(response.value);
-
-                    if(trackingCodeChangedManually) {
-                        jsCodeTextarea.effect("highlight", {}, 1500);
-                    }
+                    $('#image-tracking-text').find('textarea').val(response.value);
                 });
                 generateImageTrackingAjax.send();
             };
@@ -241,7 +229,7 @@
         $('#image-tracker-website').bind('change', function (e, site) {
             getSiteData(site.id, '#image-tracking-code-options', function () {
                 resetGoalSelectItems(site.id, 'image-tracker-goal');
-                generateImageTrackerLink(true);
+                generateImageTrackerLink();
             });
         });
 
@@ -261,7 +249,7 @@
                 $('.current-site-alias').text(siteUrls[site.id][1] || defaultAliasUrl);
 
                 resetGoalSelectItems(site.id, 'js-tracker-goal');
-                generateJsCode(true);
+                generateJsCode();
             });
         });
 
@@ -271,7 +259,9 @@
             e.preventDefault();
 
             var newRow = '<tr>\
+			<td>&nbsp;</td>\
 			<td><input type="textbox" class="custom-variable-name"/></td>\
+			<td>&nbsp;</td>\
 			<td><input type="textbox" class="custom-variable-value"/></td>\
 		</tr>',
                 row = $(this).closest('tr');
@@ -289,13 +279,13 @@
 
         // when any input in the JS tracking options section changes, regenerate JS code
         $('#optional-js-tracking-options').on('change', 'input', function () {
-            generateJsCode(true);
+            generateJsCode();
         });
 
         // when any input/select in the image tracking options section changes, regenerate
         // image tracker link
         $('#image-tracking-section').on('change', 'input,select', function () {
-            generateImageTrackerLink(true);
+            generateImageTrackerLink();
         });
 
         // on click generated code textareas, select the text so it can be easily copied

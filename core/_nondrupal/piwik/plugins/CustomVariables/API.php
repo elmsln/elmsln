@@ -12,10 +12,11 @@ use Piwik\Archive;
 use Piwik\DataTable;
 use Piwik\Date;
 use Piwik\Metrics;
-use Piwik\Plugins\Actions\Actions\ActionSiteSearch;
+use Piwik\Piwik;
+use Piwik\Tracker\ActionSiteSearch;
 
 /**
- * The Custom Variables API lets you access reports for your <a href='http://piwik.org/docs/custom-variables/' rel='noreferrer' target='_blank'>Custom Variables</a> names and values.
+ * The Custom Variables API lets you access reports for your <a href='http://piwik.org/docs/custom-variables/' target='_blank'>Custom Variables</a> names and values.
  *
  * @method static \Piwik\Plugins\CustomVariables\API getInstance()
  */
@@ -31,16 +32,12 @@ class API extends \Piwik\Plugin\API
      *
      * @return DataTable|DataTable\Map
      */
-    protected function getDataTable($idSite, $period, $date, $segment, $expanded, $flat, $idSubtable)
+    protected function getDataTable($idSite, $period, $date, $segment, $expanded, $idSubtable)
     {
-        $dataTable = Archive::createDataTableFromArchive(Archiver::CUSTOM_VARIABLE_RECORD_NAME, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable);
+        $dataTable = Archive::getDataTableFromArchive(Archiver::CUSTOM_VARIABLE_RECORD_NAME, $idSite, $period, $date, $segment, $expanded, $idSubtable);
+        $dataTable->filter('Sort', array(Metrics::INDEX_NB_ACTIONS, 'desc', $naturalSort = false, $expanded));
+        $dataTable->queueFilter('ReplaceColumnNames');
         $dataTable->queueFilter('ColumnDelete', 'nb_uniq_visitors');
-
-        if ($flat) {
-            $dataTable->filterSubtables('Sort', array(Metrics::INDEX_NB_ACTIONS, 'desc', $naturalSort = false, $expanded));
-            $dataTable->queueFilterSubtables('ColumnDelete', 'nb_uniq_visitors');
-        }
-
         return $dataTable;
     }
 
@@ -51,13 +48,12 @@ class API extends \Piwik\Plugin\API
      * @param string|bool $segment
      * @param bool $expanded
      * @param bool $_leavePiwikCoreVariables
-     * @param bool $flat
      *
      * @return DataTable|DataTable\Map
      */
-    public function getCustomVariables($idSite, $period, $date, $segment = false, $expanded = false, $_leavePiwikCoreVariables = false, $flat = false)
+    public function getCustomVariables($idSite, $period, $date, $segment = false, $expanded = false, $_leavePiwikCoreVariables = false)
     {
-        $dataTable = $this->getDataTable($idSite, $period, $date, $segment, $expanded, $flat, $idSubtable = null);
+        $dataTable = $this->getDataTable($idSite, $period, $date, $segment, $expanded, $idSubtable = null);
 
         if ($dataTable instanceof DataTable
             && !$_leavePiwikCoreVariables
@@ -70,11 +66,6 @@ class API extends \Piwik\Plugin\API
                 }
             }
         }
-
-        if ($flat) {
-            $dataTable->filterSubtables('Piwik\Plugins\CustomVariables\DataTable\Filter\CustomVariablesValuesFromNameId');
-        }
-
         return $dataTable;
     }
 
@@ -99,7 +90,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getCustomVariablesValuesFromNameId($idSite, $period, $date, $idSubtable, $segment = false, $_leavePriceViewedColumn = false)
     {
-        $dataTable = $this->getDataTable($idSite, $period, $date, $segment, $expanded = false, $flat = false, $idSubtable);
+        $dataTable = $this->getDataTable($idSite, $period, $date, $segment, $expanded = false, $idSubtable);
 
         if (!$_leavePriceViewedColumn) {
             $dataTable->deleteColumn('price_viewed');
@@ -107,8 +98,11 @@ class API extends \Piwik\Plugin\API
             // Hack Ecommerce product price tracking to display correctly
             $dataTable->renameColumn('price_viewed', 'price');
         }
-        $dataTable->filter('Piwik\Plugins\CustomVariables\DataTable\Filter\CustomVariablesValuesFromNameId');
-
+        $dataTable->queueFilter('ColumnCallbackReplace', array('label', function ($label) {
+            return $label == \Piwik\Plugins\CustomVariables\Archiver::LABEL_CUSTOM_VALUE_NOT_DEFINED
+                ? Piwik::translate('General_NotDefined', Piwik::translate('CustomVariables_ColumnCustomVariableValue'))
+                : $label;
+        }));
         return $dataTable;
     }
 }

@@ -4,21 +4,24 @@
  *
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+ *
  */
-
 namespace Piwik;
-
-use Piwik\Container\StaticContainer;
 
 /**
  * Registry class.
  *
- * @method static Registry getInstance()
- * @api
- * @deprecated This class will be removed, use the container instead.
+ * @method static \Piwik\Registry getInstance()
  */
 class Registry extends Singleton
 {
+    private $data;
+
+    protected function __construct()
+    {
+        $this->data = array();
+    }
+
     public static function isRegistered($key)
     {
         return self::getInstance()->hasKey($key);
@@ -36,28 +39,19 @@ class Registry extends Singleton
 
     public function setKey($key, $value)
     {
-        if ($key === 'auth') {
-            $key = 'Piwik\Auth';
-        }
-
-        StaticContainer::getContainer()->set($key, $value);
+        $this->data[$key] = $value;
     }
 
     public function getKey($key)
     {
-        if ($key === 'auth') {
-            $key = 'Piwik\Auth';
+        if (!$this->hasKey($key)) {
+            throw new \Exception(sprintf("Key '%s' doesn't exist in Registry", $key));
         }
-
-        return StaticContainer::get($key);
+        return $this->data[$key];
     }
 
     public function hasKey($key)
     {
-        if ($key === 'auth') {
-            $key = 'Piwik\Auth';
-        }
-
-        return StaticContainer::getContainer()->has($key);
+        return array_key_exists($key, $this->data);
     }
 }

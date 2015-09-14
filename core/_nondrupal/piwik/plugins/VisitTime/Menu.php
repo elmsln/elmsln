@@ -14,6 +14,7 @@ class Menu extends \Piwik\Plugin\Menu
 {
     public function configureReportingMenu(MenuReporting $menu)
     {
-        $menu->addVisitorsItem('VisitTime_SubmenuTimes', $this->urlForAction('index'), $order = 65);
+        $menu->add('General_Visitors', 'VisitTime_SubmenuTimes',
+                   array('module' => 'VisitTime', 'action' => 'index'), true, $order = 65);
     }
 }

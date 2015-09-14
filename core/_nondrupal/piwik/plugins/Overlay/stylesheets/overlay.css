@@ -19,32 +19,35 @@ body #logo {
     margin-top: 5px;
 }
 
-a#overlayTitle {
+a#Overlay_Title {
     font-size: 15px;
     font-weight: normal;
     color: #7e7363;
     text-decoration: none;
+    margin: -3px 0 0 0;
+    padding: 0 0 0 5px;
     vertical-align: text-bottom;
 }
 
-#overlayTitle img {
+#Overlay_Title img {
     vertical-align: text-bottom;
     margin-left: 4px;
 }
 
-#overlayDateRangeSelection {
-    padding: 0 0 0 25px;
-    background: url(../../Morpheus/images/icon-calendar.gif) 2px center no-repeat;
-    margin: 20px 10px;
+#Overlay_DateRangeSelection {
+    padding: 30px 0 20px 23px;
+    background: url(../../Morpheus/images/icon-calendar.gif) 2px 33px no-repeat;
+    margin-left: 5px;
 }
 
-#overlayLocation {
+#Overlay_Location {
     width: 200px;
-    margin: 0 0 30px 10px;
+    padding: 0 0 30px 0;
+    margin-left: 5px;
     font-size: 12px;
 }
 
-#overlayLoading {
+#Overlay_Loading {
     background: url(../../Morpheus/images/loading-blue.gif) no-repeat center 10px;
     width: 190px;
     padding-top: 30px;
@@ -53,98 +56,96 @@ a#overlayTitle {
     display: none;
 }
 
-#overlaySidebar {
+#Overlay_Sidebar {
     width: 200px;
-    margin-left: 10px;
+    margin-left: 5px;
 }
 
-#overlaySidebar h2 {
+#Overlay_Sidebar h2 {
     font-size: 15px;
-    margin: 0 0 8px 0;
+    margin: 0;
+    padding: 0 0 8px 23px;
     color: #255792;
 }
 
-a#overlaySegmentedVisitorLog,
-a#overlayFullScreen,
-a#overlayRowEvolution,
-a#overlayTransitions {
+a#Overlay_FullScreen,
+a#Overlay_RowEvolution,
+a#Overlay_Transitions {
     display: block;
     color: #255792;
     font-size: 13px;
     line-height: 15px;
-    margin: 0 0 0 10px;
-    padding: 8px 10px 3px 25px;
+    margin: 0 0 0 5px;
+    padding: 8px 0 3px 25px;
     text-decoration: none;
 }
 
-a#overlayRowEvolution {
+a#Overlay_RowEvolution {
     margin-top: 20px;
     background: url(../../Morpheus/images/row_evolution_hover.png) no-repeat 0 7px;
 }
 
-a#overlayTransitions {
+a#Overlay_Transitions {
     background: url(../../Transitions/images/transitions_icon_hover.png) no-repeat 0 6px;
 }
 
-a#overlaySegmentedVisitorLog {
-    background: url(../../Live/images/visitorlog-hover.png) no-repeat 0 8px;
-}
-
-a#overlayFullScreen {
+a#Overlay_FullScreen {
     margin-top: 20px;
     background: url(../../Morpheus/images/fullscreen.png) no-repeat 3px 8px;
 }
 
-a#overlaySegmentedVisitorLog:hover,
-a#overlayFullScreen:hover,
-a#overlayRowEvolution:hover,
-a#overlayTransitions:hover {
+a#Overlay_FullScreen:hover,
+a#Overlay_RowEvolution:hover,
+a#Overlay_Transitions:hover {
     color: #E87500;
 }
 
-#overlayMain {
+#Overlay_Main {
     margin-left: 220px;
     position: absolute;
     top: 0;
 }
 
-#overlayIframe {
+#Overlay_Iframe {
     border-left: 2px solid #ddd;
 }
 
-.overlayMetric {
+.Overlay_Metric {
     font-size: 12px;
-    line-height: 14px;
-    padding: 5px 0;
+    padding-bottom: 4px;
 }
 
-.overlayMetricValue {
+.Overlay_MetricValue {
     font-size: 14px;
     font-weight: bold;
 }
 
-.overlayNoData {
+.Overlay_NoData {
     font-size: 12px;
     color: #7E7363;
 }
 
-body .ui-tooltip.overlayTooltip {
+h2.Overlay_MainMetrics {
+    background: url(../images/info.png) 0 1px no-repeat;
+}
+
+body .ui-tooltip.Overlay_Tooltip {
     font-size: 11px;
     padding: 3px 5px 3px 6px;
 }
 
-#overlayNoFrame {
+#Overlay_NoFrame {
     padding: 20px 0 40px 2px;
 }
 
-#overlayErrorNotLoading {
+#Overlay_Error_NotLoading {
     width: 190px;
     display: none;
     margin: 20px 0 0 5px;
     font-size: 14px;
 }
 
-#overlayErrorNotLoading span {
+#Overlay_Error_NotLoading span {
     color: #E87500;
     font-weight: bold;
 }

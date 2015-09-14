@@ -8,10 +8,8 @@
  */
 namespace Piwik\Plugins\PrivacyManager;
 
-use HTML_QuickForm2_DataSource_Array;
 use Piwik\Common;
 use Piwik\Config as PiwikConfig;
-use Piwik\Container\StaticContainer;
 use Piwik\DataTable\DataTableInterface;
 use Piwik\Date;
 use Piwik\Db;
@@ -19,12 +17,13 @@ use Piwik\Metrics;
 use Piwik\Option;
 use Piwik\Period;
 use Piwik\Period\Range;
-use Piwik\Piwik;
-use Piwik\Plugin;
 use Piwik\Plugins\Goals\Archiver;
-use Piwik\Plugins\Installation\FormDefaultSettings;
 use Piwik\Site;
 use Piwik\Tracker\GoalManager;
+
+
+require_once PIWIK_INCLUDE_PATH . '/plugins/PrivacyManager/LogDataPurger.php';
+require_once PIWIK_INCLUDE_PATH . '/plugins/PrivacyManager/ReportsPurger.php';
 
 /**
  * Specifically include this for Tracker API (which does not use autoloader)
@@ -34,7 +33,7 @@ require_once PIWIK_INCLUDE_PATH . '/plugins/PrivacyManager/IPAnonymizer.php';
 
 /**
  */
-class PrivacyManager extends Plugin
+class PrivacyManager extends \Piwik\Plugin
 {
     const OPTION_LAST_DELETE_PIWIK_LOGS = "lastDelete_piwik_logs";
     const OPTION_LAST_DELETE_PIWIK_REPORTS = 'lastDelete_piwik_reports';
@@ -135,12 +134,10 @@ class PrivacyManager extends Plugin
     public function getListHooksRegistered()
     {
         return array(
-            'AssetManager.getJavaScriptFiles'         => 'getJsFiles',
-            'Tracker.setTrackerCacheGeneral'          => 'setTrackerCacheGeneral',
-            'Tracker.isExcludedVisit'                 => array($this->dntChecker, 'checkHeaderInTracker'),
-            'Tracker.setVisitorIp'                    => array($this->ipAnonymizer, 'setVisitorIpAddress'),
-            'Installation.defaultSettingsForm.init'   => 'installationFormInit',
-            'Installation.defaultSettingsForm.submit' => 'installationFormSubmit',
+            'AssetManager.getJavaScriptFiles' => 'getJsFiles',
+            'Tracker.setTrackerCacheGeneral'  => 'setTrackerCacheGeneral',
+            'Tracker.isExcludedVisit'         => array($this->dntChecker, 'checkHeaderInTracker'),
+            'Tracker.setVisitorIp'            => array($this->ipAnonymizer, 'setVisitorIpAddress'),
         );
     }
 
@@ -153,52 +150,6 @@ class PrivacyManager extends Plugin
     public function getJsFiles(&$jsFiles)
     {
         $jsFiles[] = "plugins/PrivacyManager/javascripts/privacySettings.js";
-    }
-
-    /**
-     * Customize the Installation "default settings" form.
-     *
-     * @param FormDefaultSettings $form
-     */
-    public function installationFormInit(FormDefaultSettings $form)
-    {
-        $form->addElement('checkbox', 'do_not_track', null,
-            array(
-                'content' => '<div class="form-help">' . Piwik::translate('PrivacyManager_DoNotTrack_EnabledMoreInfo') . '</div> &nbsp;&nbsp;' . Piwik::translate('PrivacyManager_DoNotTrack_Enable')
-            ));
-        $form->addElement('checkbox', 'anonymise_ip', null,
-            array(
-                'content' => '<div class="form-help">' . Piwik::translate('PrivacyManager_AnonymizeIpExtendedHelp', array('213.34.51.91', '213.34.0.0')) . '</div> &nbsp;&nbsp;' . Piwik::translate('PrivacyManager_AnonymizeIpInlineHelp')
-            ));
-
-        // default values
-        $form->addDataSource(new HTML_QuickForm2_DataSource_Array(array(
-            'do_not_track' => $this->dntChecker->isActive(),
-            'anonymise_ip' => IPAnonymizer::isActive(),
-        )));
-    }
-
-    /**
-     * Process the submit on the Installation "default settings" form.
-     *
-     * @param FormDefaultSettings $form
-     */
-    public function installationFormSubmit(FormDefaultSettings $form)
-    {
-        $doNotTrack = (bool) $form->getSubmitValue('do_not_track');
-        $dntChecker = new DoNotTrackHeaderChecker();
-        if ($doNotTrack) {
-            $dntChecker->activate();
-        } else {
-            $dntChecker->deactivate();
-        }
-
-        $anonymiseIp = (bool) $form->getSubmitValue('anonymise_ip');
-        if ($anonymiseIp) {
-            IPAnonymizer::activate();
-        } else {
-            IPAnonymizer::deactivate();
-        }
     }
 
     /**
@@ -322,9 +273,7 @@ class PrivacyManager extends Plugin
         Option::set(self::OPTION_LAST_DELETE_PIWIK_LOGS, $lastDeleteDate);
 
         // execute the purge
-        /** @var LogDataPurger $logDataPurger */
-        $logDataPurger = StaticContainer::get('Piwik\Plugins\PrivacyManager\LogDataPurger');
-        $logDataPurger->purgeData($settings['delete_logs_older_than']);
+        LogDataPurger::make($settings)->purgeData();
 
         return true;
     }
@@ -349,9 +298,8 @@ class PrivacyManager extends Plugin
         $result = array();
 
         if ($settings['delete_logs_enable']) {
-            /** @var LogDataPurger $logDataPurger */
-            $logDataPurger = StaticContainer::get('Piwik\Plugins\PrivacyManager\LogDataPurger');
-            $result = array_merge($result, $logDataPurger->getPurgeEstimate($settings['delete_logs_older_than']));
+            $logDataPurger = LogDataPurger::make($settings);
+            $result = array_merge($result, $logDataPurger->getPurgeEstimate());
         }
 
         if ($settings['delete_reports_enable']) {
@@ -404,7 +352,7 @@ class PrivacyManager extends Plugin
      */
     private static function getMetricsToKeep()
     {
-        return array('nb_uniq_visitors', 'nb_visits', 'nb_users', 'nb_actions', 'max_actions',
+        return array('nb_uniq_visitors', 'nb_visits', 'nb_actions', 'max_actions',
                      'sum_visit_length', 'bounce_count', 'nb_visits_converted', 'nb_conversions',
                      'revenue', 'quantity', 'price', 'orders');
     }

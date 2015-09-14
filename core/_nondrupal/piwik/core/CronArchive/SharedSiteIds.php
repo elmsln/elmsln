@@ -18,22 +18,12 @@ use Piwik\Option;
  */
 class SharedSiteIds
 {
-    const OPTION_DEFAULT = 'SharedSiteIdsToArchive';
-    const OPTION_ALL_WEBSITES = 'SharedSiteIdsToArchive_AllWebsites';
-
-    /**
-     * @var string
-     */
-    private $optionName;
-
     private $siteIds = array();
     private $currentSiteId;
     private $done = false;
 
-    public function __construct($websiteIds, $optionName = self::OPTION_DEFAULT)
+    public function __construct($websiteIds)
     {
-        $this->optionName = $optionName;
-
         if (empty($websiteIds)) {
             $websiteIds = array();
         }
@@ -96,16 +86,16 @@ class SharedSiteIds
     public function setSiteIdsToArchive($siteIds)
     {
         if (!empty($siteIds)) {
-            Option::set($this->optionName, implode(',', $siteIds));
+            Option::set('SharedSiteIdsToArchive', implode(',', $siteIds));
         } else {
-            Option::delete($this->optionName);
+            Option::delete('SharedSiteIdsToArchive');
         }
     }
 
     public function getAllSiteIdsToArchive()
     {
-        Option::clearCachedOption($this->optionName);
-        $siteIdsToArchive = Option::get($this->optionName);
+        Option::clearCachedOption('SharedSiteIdsToArchive');
+        $siteIdsToArchive = Option::get('SharedSiteIdsToArchive');
 
         if (empty($siteIdsToArchive)) {
             return array();
@@ -181,4 +171,6 @@ class SharedSiteIds
     {
         return Process::isSupported();
     }
+
 }
+

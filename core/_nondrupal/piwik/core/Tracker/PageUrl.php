@@ -11,7 +11,6 @@ namespace Piwik\Tracker;
 
 use Piwik\Common;
 use Piwik\Config;
-use Piwik\Piwik;
 use Piwik\UrlHelper;
 
 class PageUrl
@@ -38,7 +37,7 @@ class PageUrl
      * @static
      * @param $originalUrl
      * @param $idSite
-     * @return bool|string Returned URL is HTML entities decoded
+     * @return bool|string
      */
     public static function excludeQueryParametersFromUrl($originalUrl, $idSite)
     {
@@ -52,21 +51,18 @@ class PageUrl
             if (empty($parsedUrl['fragment'])) {
                 return UrlHelper::getParseUrlReverse($parsedUrl);
             }
-
             // Exclude from the hash tag as well
             $queryParameters = UrlHelper::getArrayFromQueryString($parsedUrl['fragment']);
             $parsedUrl['fragment'] = UrlHelper::getQueryStringWithExcludedParameters($queryParameters, $parametersToExclude);
             $url = UrlHelper::getParseUrlReverse($parsedUrl);
-
             return $url;
         }
-
         $queryParameters = UrlHelper::getArrayFromQueryString($parsedUrl['query']);
         $parsedUrl['query'] = UrlHelper::getQueryStringWithExcludedParameters($queryParameters, $parametersToExclude);
         $url = UrlHelper::getParseUrlReverse($parsedUrl);
-
         return $url;
     }
+
 
     /**
      * Returns the array of parameters names that must be excluded from the Query String in all tracked URLs
@@ -84,27 +80,22 @@ class PageUrl
         );
 
         $website = Cache::getCacheWebsiteAttributes($idSite);
-        $excludedParameters = self::getExcludedParametersFromWebsite($website);
+        $excludedParameters = isset($website['excluded_parameters'])
+            ? $website['excluded_parameters']
+            : array();
+
+        if (!empty($excludedParameters)) {
+            Common::printDebug('Excluding parameters "' . implode(',', $excludedParameters) . '" from URL');
+        }
 
         $parametersToExclude = array_merge($excludedParameters,
-                                           self::$queryParametersToExclude,
-                                           $campaignTrackingParameters);
-
-        /**
-         * Triggered before setting the action url in Piwik\Tracker\Action so plugins can register
-         * parameters to be excluded from the tracking URL (e.g. campaign parameters).
-         *
-         * @param array &$parametersToExclude An array of parameters to exclude from the tracking url.
-         */
-        Piwik::postEvent('Tracker.PageUrl.getQueryParametersToExclude', array(&$parametersToExclude));
-
-        if (!empty($parametersToExclude)) {
-            Common::printDebug('Excluding parameters "' . implode(',', $parametersToExclude) . '" from URL');
-        }
+            self::$queryParametersToExclude,
+            $campaignTrackingParameters);
 
         $parametersToExclude = array_map('strtolower', $parametersToExclude);
         return $parametersToExclude;
     }
+
 
     /**
      * Returns true if URL fragments should be removed for a specific site,
@@ -118,7 +109,7 @@ class PageUrl
     public static function shouldRemoveURLFragmentFor($idSite)
     {
         $websiteAttributes = Cache::getCacheWebsiteAttributes($idSite);
-        return empty($websiteAttributes['keep_url_fragment']);
+        return !$websiteAttributes['keep_url_fragment'];
     }
 
     /**
@@ -163,9 +154,8 @@ class PageUrl
         if (empty($parsedUrl)) {
             return $parsedUrl;
         }
-
         if (!empty($parsedUrl['host'])) {
-            $parsedUrl['host'] = Common::mb_strtolower($parsedUrl['host'], 'UTF-8');
+            $parsedUrl['host'] = mb_strtolower($parsedUrl['host'], 'UTF-8');
         }
 
         if (!empty($parsedUrl['fragment'])) {
@@ -186,24 +176,19 @@ class PageUrl
     public static function convertMatrixUrl($originalUrl)
     {
         $posFirstSemiColon = strpos($originalUrl, ";");
-
-        if (false === $posFirstSemiColon) {
+        if ($posFirstSemiColon === false) {
             return $originalUrl;
         }
-
         $posQuestionMark = strpos($originalUrl, "?");
-        $replace = (false === $posQuestionMark);
-
+        $replace = ($posQuestionMark === false);
         if ($posQuestionMark > $posFirstSemiColon) {
             $originalUrl = substr_replace($originalUrl, ";", $posQuestionMark, 1);
             $replace = true;
         }
-
         if ($replace) {
             $originalUrl = substr_replace($originalUrl, "?", strpos($originalUrl, ";"), 1);
             $originalUrl = str_replace(";", "&", $originalUrl);
         }
-
         return $originalUrl;
     }
 
@@ -227,12 +212,10 @@ class PageUrl
     {
         if (is_string($value)) {
             $decoded = urldecode($value);
-            if (function_exists('mb_check_encoding')
-                && @mb_check_encoding($decoded, $encoding)) {
+            if (@mb_check_encoding($decoded, $encoding)) {
                 $value = urlencode(mb_convert_encoding($decoded, 'UTF-8', $encoding));
             }
         }
-
         return $value;
     }
 
@@ -245,7 +228,6 @@ class PageUrl
                 $value = PageUrl::reencodeParameterValue($value, $encoding);
             }
         }
-
         return $queryParameters;
     }
 
@@ -265,20 +247,14 @@ class PageUrl
      */
     public static function reencodeParameters(&$queryParameters, $encoding = false)
     {
-        if (function_exists('mb_check_encoding')) {
-            // if query params are encoded w/ non-utf8 characters (due to browser bug or whatever),
-            // encode to UTF-8.
-            if (strtolower($encoding) != 'utf-8'
-                && $encoding != false
-            ) {
-                Common::printDebug("Encoding page URL query parameters to $encoding.");
-
-                $queryParameters = PageUrl::reencodeParametersArray($queryParameters, $encoding);
-            }
-        } else {
-            Common::printDebug("Page charset supplied in tracking request, but mbstring extension is not available.");
+        // if query params are encoded w/ non-utf8 characters (due to browser bug or whatever),
+        // encode to UTF-8.
+        if ($encoding !== false
+            && strtolower($encoding) != 'utf-8'
+            && function_exists('mb_check_encoding')
+        ) {
+            $queryParameters = PageUrl::reencodeParametersArray($queryParameters, $encoding);
         }
-
         return $queryParameters;
     }
 
@@ -287,7 +263,6 @@ class PageUrl
         $url = Common::unsanitizeInputValue($url);
         $url = PageUrl::cleanupString($url);
         $url = PageUrl::convertMatrixUrl($url);
-
         return $url;
     }
 
@@ -301,7 +276,6 @@ class PageUrl
     public static function reconstructNormalizedUrl($url, $prefixId)
     {
         $map = array_flip(self::$urlPrefixMap);
-
         if ($prefixId !== null && isset($map[$prefixId])) {
             $fullUrl = $map[$prefixId] . $url;
         } else {
@@ -311,8 +285,7 @@ class PageUrl
         // Clean up host & hash tags, for URLs
         $parsedUrl = @parse_url($fullUrl);
         $parsedUrl = PageUrl::cleanupHostAndHashTag($parsedUrl);
-        $url       = UrlHelper::getParseUrlReverse($parsedUrl);
-
+        $url = UrlHelper::getParseUrlReverse($parsedUrl);
         if (!empty($url)) {
             return $url;
         }
@@ -337,7 +310,6 @@ class PageUrl
                 );
             }
         }
-
         return array('url' => $url, 'prefixId' => null);
     }
 
@@ -347,30 +319,10 @@ class PageUrl
 
         if (!UrlHelper::isLookLikeUrl($url)) {
             Common::printDebug("WARNING: URL looks invalid and is discarded");
-
-            return false;
+            $url = false;
+            return $url;
         }
-
         return $url;
     }
-
-    private static function getExcludedParametersFromWebsite($website)
-    {
-        if (isset($website['excluded_parameters'])) {
-            return $website['excluded_parameters'];
-        }
-
-        return array();
-    }
-
-    public static function urldecodeValidUtf8($value)
-    {
-        $value = urldecode($value);
-        if (function_exists('mb_check_encoding')
-            && !@mb_check_encoding($value, 'utf-8')
-        ) {
-            return urlencode($value);
-        }
-        return $value;
-    }
 }
+

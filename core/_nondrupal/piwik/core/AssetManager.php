@@ -19,8 +19,9 @@ use Piwik\AssetManager\UIAssetFetcher\StylesheetUIAssetFetcher;
 use Piwik\AssetManager\UIAssetFetcher;
 use Piwik\AssetManager\UIAssetMerger\JScriptUIAssetMerger;
 use Piwik\AssetManager\UIAssetMerger\StylesheetUIAssetMerger;
-use Piwik\Container\StaticContainer;
+use Piwik\Config as PiwikConfig;
 use Piwik\Plugin\Manager;
+use Piwik\Translate;
 
 /**
  * AssetManager is the class used to manage the inclusion of UI assets:
@@ -36,7 +37,7 @@ use Piwik\Plugin\Manager;
  * the global option 'disable_merged_assets'. See the documentation in the global
  * config for more information.
  *
- * @method static AssetManager getInstance()
+ * @method static \Piwik\AssetManager getInstance()
  */
 class AssetManager extends Singleton
 {
@@ -65,13 +66,13 @@ class AssetManager extends Singleton
      */
     private $theme;
 
-    public function __construct()
+    function __construct()
     {
         $this->cacheBuster = UIAssetCacheBuster::getInstance();
         $this->minimalStylesheetFetcher =  new StaticUIAssetFetcher(array('plugins/Morpheus/stylesheets/base.less', 'plugins/Morpheus/stylesheets/general/_forms.less'), array(), $this->theme);
 
         $theme = Manager::getInstance()->getThemeEnabled();
-        if (!empty($theme)) {
+        if(!empty($theme)) {
             $this->theme = new Theme();
         }
     }
@@ -120,11 +121,14 @@ class AssetManager extends Singleton
         $result = "<script type=\"text/javascript\">\n" . Translate::getJavascriptTranslations() . "\n</script>";
 
         if ($this->isMergedAssetsDisabled()) {
+
             $this->getMergedCoreJSAsset()->delete();
             $this->getMergedNonCoreJSAsset()->delete();
 
             $result .= $this->getIndividualJsIncludes();
+
         } else {
+
             $result .= sprintf(self::JS_IMPORT_DIRECTIVE, self::GET_CORE_JS_MODULE_ACTION);
             $result .= sprintf(self::JS_IMPORT_DIRECTIVE, self::GET_NON_CORE_JS_MODULE_ACTION);
         }
@@ -197,13 +201,13 @@ class AssetManager extends Singleton
     {
         $loadedPlugins = array();
 
-        foreach (Manager::getInstance()->getPluginsLoadedAndActivated() as $plugin) {
+        foreach(Manager::getInstance()->getPluginsLoadedAndActivated() as $plugin) {
+
             $pluginName = $plugin->getPluginName();
             $pluginIsCore = Manager::getInstance()->isPluginBundledWithCore($pluginName);
 
-            if (($pluginIsCore && $core) || (!$pluginIsCore && !$core)) {
+            if(($pluginIsCore && $core) || (!$pluginIsCore && !$core))
                 $loadedPlugins[] = $pluginName;
-            }
         }
 
         return $loadedPlugins;
@@ -216,15 +220,23 @@ class AssetManager extends Singleton
     {
         $assetsToRemove = array($this->getMergedStylesheetAsset());
 
-        if ($pluginName) {
-            if ($this->pluginContainsJScriptAssets($pluginName)) {
-                if (Manager::getInstance()->isPluginBundledWithCore($pluginName)) {
+        if($pluginName) {
+
+            if($this->pluginContainsJScriptAssets($pluginName)) {
+
+                PiwikConfig::getInstance()->init();
+                if(Manager::getInstance()->isPluginBundledWithCore($pluginName)) {
+
                     $assetsToRemove[] = $this->getMergedCoreJSAsset();
+
                 } else {
+
                     $assetsToRemove[] = $this->getMergedNonCoreJSAsset();
                 }
             }
+
         } else {
+
             $assetsToRemove[] = $this->getMergedCoreJSAsset();
             $assetsToRemove[] = $this->getMergedNonCoreJSAsset();
         }
@@ -240,7 +252,8 @@ class AssetManager extends Singleton
      */
     public function getAssetDirectory()
     {
-        $mergedFileDirectory = StaticContainer::get('path.tmp') . '/assets';
+        $mergedFileDirectory = PIWIK_USER_PATH . "/tmp/assets";
+        $mergedFileDirectory = SettingsPiwik::rewriteTmpPathWithInstanceId($mergedFileDirectory);
 
         if (!is_dir($mergedFileDirectory)) {
             Filesystem::mkdir($mergedFileDirectory);
@@ -260,7 +273,7 @@ class AssetManager extends Singleton
      */
     public function isMergedAssetsDisabled()
     {
-        return Config::getInstance()->Development['disable_merged_assets'];
+        return Config::getInstance()->Debug['disable_merged_assets'];
     }
 
     /**
@@ -298,6 +311,7 @@ class AssetManager extends Singleton
         $jsIncludeString = '';
 
         foreach ($assetFetcher->getCatalog()->getAssets() as $jsFile) {
+
             $jsFile->validateFile();
             $jsIncludeString = $jsIncludeString . sprintf(self::JS_IMPORT_DIRECTIVE, $jsFile->getRelativeLocation());
         }
@@ -325,7 +339,7 @@ class AssetManager extends Singleton
 
         try {
             $assets = $fetcher->getCatalog()->getAssets();
-        } catch (\Exception $e) {
+        } catch(\Exception $e) {
             // This can happen when a plugin is not valid (eg. Piwik 1.x format)
             // When posting the event to the plugin, it returns an exception "Plugin has not been loaded"
             return false;
@@ -333,14 +347,14 @@ class AssetManager extends Singleton
 
         $plugin = Manager::getInstance()->getLoadedPlugin($pluginName);
 
-        if ($plugin->isTheme()) {
+        if($plugin->isTheme()) {
+
             $theme = Manager::getInstance()->getTheme($pluginName);
 
             $javaScriptFiles = $theme->getJavaScriptFiles();
 
-            if (!empty($javaScriptFiles)) {
+            if(!empty($javaScriptFiles))
                 $assets = array_merge($assets, $javaScriptFiles);
-            }
         }
 
         return !empty($assets);
@@ -351,7 +365,7 @@ class AssetManager extends Singleton
      */
     public function removeAssets($uiAssets)
     {
-        foreach ($uiAssets as $uiAsset) {
+        foreach($uiAssets as $uiAsset) {
             $uiAsset->delete();
         }
     }

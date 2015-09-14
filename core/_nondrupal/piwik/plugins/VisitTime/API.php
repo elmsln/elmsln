@@ -14,7 +14,6 @@ use Piwik\DataTable;
 use Piwik\Date;
 use Piwik\Metrics;
 use Piwik\Period;
-use Piwik\Period\Range;
 use Piwik\Piwik;
 use Piwik\Site;
 
@@ -32,8 +31,7 @@ class API extends \Piwik\Plugin\API
         Piwik::checkUserHasViewAccess($idSite);
         $archive = Archive::build($idSite, $period, $date, $segment);
         $dataTable = $archive->getDataTable($name);
-
-        $dataTable->filter('Sort', array('label', 'asc', true, false));
+        $dataTable->filter('Sort', array('label', 'asc', true));
         $dataTable->queueFilter('ColumnCallbackReplace', array('label', __NAMESPACE__ . '\getTimeLabel'));
         $dataTable->queueFilter('ReplaceColumnNames');
         return $dataTable;
@@ -41,23 +39,15 @@ class API extends \Piwik\Plugin\API
 
     public function getVisitInformationPerLocalTime($idSite, $period, $date, $segment = false)
     {
-        $table = $this->getDataTable(Archiver::LOCAL_TIME_RECORD_NAME, $idSite, $period, $date, $segment);
-        $table->filter('AddSegmentValue');
-
-        return $table;
+        return $this->getDataTable(Archiver::LOCAL_TIME_RECORD_NAME, $idSite, $period, $date, $segment);
     }
 
     public function getVisitInformationPerServerTime($idSite, $period, $date, $segment = false, $hideFutureHoursWhenToday = false)
     {
         $table = $this->getDataTable(Archiver::SERVER_TIME_RECORD_NAME, $idSite, $period, $date, $segment);
-
-        $timezone = Site::getTimezoneFor($idSite);
-        $table->filter('Piwik\Plugins\VisitTime\DataTable\Filter\AddSegmentByLabelInUTC', array($timezone, $period, $date));
-
         if ($hideFutureHoursWhenToday) {
             $table = $this->removeHoursInFuture($table, $idSite, $period, $date);
         }
-
         return $table;
     }
 

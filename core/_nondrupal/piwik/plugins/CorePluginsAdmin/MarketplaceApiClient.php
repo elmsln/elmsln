@@ -8,7 +8,7 @@
  */
 namespace Piwik\Plugins\CorePluginsAdmin;
 
-use Piwik\Cache;
+use Piwik\CacheFile;
 use Piwik\Http;
 use Piwik\Version;
 
@@ -18,14 +18,24 @@ use Piwik\Version;
 class MarketplaceApiClient
 {
     const CACHE_TIMEOUT_IN_SECONDS = 1200;
-    const HTTP_REQUEST_TIMEOUT = 10;
+    const HTTP_REQUEST_TIMEOUT = 3;
 
     private $domain = 'http://plugins.piwik.org';
 
+    /**
+     * @var CacheFile
+     */
+    private $cache = null;
+
+    public function __construct()
+    {
+        $this->cache = new CacheFile('marketplace', self::CACHE_TIMEOUT_IN_SECONDS);
+    }
+
     public static function clearAllCacheEntries()
     {
-        $cache = Cache::getLazyCache();
-        $cache->flushAll();
+        $cache = new CacheFile('marketplace');
+        $cache->deleteAll();
     }
 
     public function getPluginInfo($name)
@@ -127,10 +137,7 @@ class MarketplaceApiClient
     {
         ksort($params);
         $query = http_build_query($params);
-
-        $cacheId = $this->getCacheKey($action, $query);
-        $cache  = $this->buildCache();
-        $result = $cache->fetch($cacheId);
+        $result = $this->getCachedResult($action, $query);
 
         if (false === $result) {
             $endpoint = $this->domain . '/api/1.0/';
@@ -148,20 +155,29 @@ class MarketplaceApiClient
                 throw new MarketplaceApiException($result['error']);
             }
 
-            $cache->save($cacheId, $result, self::CACHE_TIMEOUT_IN_SECONDS);
+            $this->cacheResult($action, $query, $result);
         }
 
         return $result;
     }
 
-    private function buildCache()
+    private function getCachedResult($action, $query)
     {
-        return Cache::getLazyCache();
+        $cacheKey = $this->getCacheKey($action, $query);
+
+        return $this->cache->get($cacheKey);
+    }
+
+    private function cacheResult($action, $query, $result)
+    {
+        $cacheKey = $this->getCacheKey($action, $query);
+
+        $this->cache->set($cacheKey, $result);
     }
 
     private function getCacheKey($action, $query)
     {
-        return sprintf('marketplace.api.1.0.%s.%s', str_replace('/', '.', $action), md5($query));
+        return sprintf('api.1.0.%s.%s', str_replace('/', '.', $action), md5($query));
     }
 
     /**

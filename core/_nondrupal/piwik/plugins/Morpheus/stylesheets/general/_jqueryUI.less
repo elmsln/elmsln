@@ -152,7 +152,7 @@ div.ui-state-highlight {
 .ui-state-default {
   border: 1px solid #f2f6f9 !important;
   border-right: 0 !important;
-  background: @theme-color-background-base !important;
+  background: #fff !important;
   color: #000 !important;
   text-align: center !important;
 }
@@ -168,13 +168,14 @@ div.ui-state-highlight {
   opacity: 1 !important;
 }
 
-.ui-datepicker td .ui-state-hover, .ui-datepicker td .ui-state-hover:hover, .ui-datepicker .ui-datepicker td.ui-datepicker-current-period a.ui-state-hover, .ui-datepicker td.ui-datepicker-week-end .ui-state-hover {
+.ui-datepicker td .ui-state-hover, .ui-datepicker .ui-datepicker td.ui-datepicker-current-period a.ui-state-hover, .ui-datepicker td.ui-datepicker-week-end .ui-state-hover {
   background: #e5e3e0 !important;
   color: #000 !important;
 }
 
-.ui-datepicker td .ui-state-active.ui-state-hover {
-  color: #fff !important;
+.ui-datepicker td.ui-datepicker-current-period .ui-state-default.ui-state-hover, .ui-datepicker td.ui-datepicker-current-period .ui-state-hover:hover {
+  background: #978c7c !important;
+  border-color: #978c7c !important;
 }
 
 td.ui-datepicker-other-month.ui-state-hover {
@@ -185,12 +186,10 @@ td.ui-datepicker-other-month.ui-state-hover {
   cursor: pointer !important;
 }
 
-.ui-datepicker select.ui-datepicker-month {
-  width: 46%;
+td.ui-datepicker-other-month.ui-state-hover.ui-datepicker-current-period {
+  background: #978c7c !important;
 }
-.ui-datepicker select.ui-datepicker-year {
-  width: 54%;
-}
+
 .ui-datepicker-month:disabled {
   border-color: #ccc !important;
   background: #f5f3f0 !important;
@@ -229,7 +228,6 @@ td.ui-datepicker-other-month.ui-state-hover {
 .ui-tooltip h3 {
   font-size: 12px;
   margin: 0 0 2px 0;
-  line-height: 14px;
 }
 
 body .ui-tooltip.small {

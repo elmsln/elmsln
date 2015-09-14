@@ -15,12 +15,12 @@ use Piwik\Updates;
  */
 class Updates_1_9_3_b10 extends Updates
 {
-    public static function isMajorUpdate()
+    static function isMajorUpdate()
     {
         return false;
     }
 
-    public static function update()
+    static function update()
     {
         try {
             \Piwik\Plugin\Manager::getInstance()->activatePlugin('Annotations');

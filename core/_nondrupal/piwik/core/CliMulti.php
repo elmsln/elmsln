@@ -7,17 +7,14 @@
  */
 namespace Piwik;
 
-use Piwik\Archiver\Request;
 use Piwik\CliMulti\CliPhp;
 use Piwik\CliMulti\Output;
 use Piwik\CliMulti\Process;
-use Piwik\Container\StaticContainer;
 
 /**
  * Class CliMulti.
  */
-class CliMulti
-{
+class CliMulti {
 
     /**
      * If set to true or false it will overwrite whether async is supported or not.
@@ -27,7 +24,7 @@ class CliMulti
     public $supportsAsync = null;
 
     /**
-     * @var Process[]
+     * @var \Piwik\CliMulti\Process[]
      */
     private $processes = array();
 
@@ -38,23 +35,11 @@ class CliMulti
     private $concurrentProcessesLimit = null;
 
     /**
-     * @var Output[]
+     * @var \Piwik\CliMulti\Output[]
      */
     private $outputs = array();
 
     private $acceptInvalidSSLCertificate = false;
-
-    /**
-     * @var bool
-     */
-    private $runAsSuperUser = false;
-
-    /**
-     * Only used when doing synchronous curl requests.
-     *
-     * @var string
-     */
-    private $urlToPiwik = null;
 
     public function __construct()
     {
@@ -66,26 +51,20 @@ class CliMulti
      * If multi cli is not supported (eg windows) it will initiate an HTTP request instead (not async).
      *
      * @param string[]  $piwikUrls   An array of urls, for instance:
-     *
-     *                               `array('http://www.example.com/piwik?module=API...')`
-     *
-     *                               **Make sure query parameter values are properly encoded in the URLs.**
-     *
+     *                               array('http://www.example.com/piwik?module=API...')
      * @return array The response of each URL in the same order as the URLs. The array can contain null values in case
      *               there was a problem with a request, for instance if the process died unexpected.
      */
     public function request(array $piwikUrls)
     {
         $chunks = array($piwikUrls);
-        if ($this->concurrentProcessesLimit) {
-            $chunks = array_chunk($piwikUrls, $this->concurrentProcessesLimit);
+        if($this->concurrentProcessesLimit) {
+            $chunks = array_chunk( $piwikUrls, $this->concurrentProcessesLimit);
         }
-
         $results = array();
-        foreach ($chunks as $urlsChunk) {
+        foreach($chunks as $urlsChunk) {
             $results = array_merge($results, $this->requestUrls($urlsChunk));
         }
-
         return $results;
     }
 
@@ -107,43 +86,28 @@ class CliMulti
         $this->concurrentProcessesLimit = $limit;
     }
 
-    public function runAsSuperUser($runAsSuperUser = true)
-    {
-        $this->runAsSuperUser = $runAsSuperUser;
-    }
-
     private function start($piwikUrls)
     {
         foreach ($piwikUrls as $index => $url) {
-            if ($url instanceof Request) {
-                $url->start();
+            $cmdId  = $this->generateCommandId($url) . $index;
+            $output = new Output($cmdId);
+
+            if ($this->supportsAsync) {
+                $this->executeAsyncCli($url, $output, $cmdId);
+            } else {
+                $this->executeNotAsyncHttp($url, $output);
             }
 
-            $cmdId = $this->generateCommandId($url) . $index;
-            $this->executeUrlCommand($cmdId, $url);
+            $this->outputs[] = $output;
         }
-    }
-
-    private function executeUrlCommand($cmdId, $url)
-    {
-        $output = new Output($cmdId);
-
-        if ($this->supportsAsync) {
-            $this->executeAsyncCli($url, $output, $cmdId);
-        } else {
-            $this->executeNotAsyncHttp($url, $output);
-        }
-
-        $this->outputs[] = $output;
     }
 
     private function buildCommand($hostname, $query, $outputFile)
     {
         $bin = $this->findPhpBinary();
-        $superuserCommand = $this->runAsSuperUser ? "--superuser" : "";
 
-        return sprintf('%s %s/console climulti:request -q --piwik-domain=%s %s %s > %s 2>&1 &',
-                       $bin, PIWIK_INCLUDE_PATH, escapeshellarg($hostname), $superuserCommand, escapeshellarg($query), $outputFile);
+        return sprintf('%s -q %s/console climulti:request --piwik-domain=%s %s > %s 2>&1 &',
+                       $bin, PIWIK_INCLUDE_PATH, escapeshellarg($hostname), escapeshellarg($query), $outputFile);
     }
 
     private function getResponse()
@@ -167,20 +131,13 @@ class CliMulti
                 // ==> declare the process as finished
                 $process->finishProcess();
                 continue;
+
             } elseif (!$hasStarted) {
                 return false;
             }
 
             if ($process->isRunning()) {
                 return false;
-            }
-
-            $pid = $process->getPid();
-            foreach ($this->outputs as $output) {
-                if ($output->getOutputId() === $pid && $output->isAbnormal()) {
-                    $process->finishProcess();
-                    return true;
-                }
             }
 
             if ($process->hasFinished()) {
@@ -203,7 +160,7 @@ class CliMulti
      */
     public function supportsAsync()
     {
-        return Process::isSupported() && !Common::isPhpCgiType() && $this->findPhpBinary();
+        return Process::isSupported() && $this->findPhpBinary();
     }
 
     private function findPhpBinary()
@@ -235,34 +192,34 @@ class CliMulti
         $timeOneWeekAgo = strtotime('-1 week');
 
         $files = _glob(self::getTmpPath() . '/*');
-        if (empty($files)) {
+        if(empty($files)) {
             return;
         }
 
         foreach ($files as $file) {
-            if (file_exists($file)) {
-                $timeLastModified = filemtime($file);
+            $timeLastModified = filemtime($file);
 
-                if ($timeLastModified !== false && $timeOneWeekAgo > $timeLastModified) {
-                    unlink($file);
-                }
+            if ($timeOneWeekAgo > $timeLastModified) {
+                unlink($file);
             }
         }
     }
 
     public static function getTmpPath()
     {
-        return StaticContainer::get('path.tmp') . '/climulti';
+        $dir = PIWIK_INCLUDE_PATH . '/tmp/climulti';
+        return SettingsPiwik::rewriteTmpPathWithInstanceId($dir);
     }
+
 
     private function executeAsyncCli($url, Output $output, $cmdId)
     {
         $this->processes[] = new Process($cmdId);
 
-        $url = $this->appendTestmodeParamToUrlIfNeeded($url);
-        $query = UrlHelper::getQueryFromUrl($url, array('pid' => $cmdId));
-        $hostname = Url::getHost($checkIfTrusted = false);
-        $command = $this->buildCommand($hostname, $query, $output->getPathToFile());
+        $url      = $this->appendTestmodeParamToUrlIfNeeded($url);
+        $query    = UrlHelper::getQueryFromUrl($url, array('pid' => $cmdId));
+        $hostname = UrlHelper::getHostFromUrl($url);
+        $command  = $this->buildCommand($hostname, $query, $output->getPathToFile());
 
         Log::debug($command);
         shell_exec($command);
@@ -270,29 +227,6 @@ class CliMulti
 
     private function executeNotAsyncHttp($url, Output $output)
     {
-        $piwikUrl = $this->urlToPiwik ?: SettingsPiwik::getPiwikUrl();
-        if (empty($piwikUrl)) {
-            $piwikUrl = 'http://' . Url::getHost() . '/';
-        }
-
-        $url = $piwikUrl . $url;
-        if (Config::getInstance()->General['force_ssl'] == 1) {
-            $url = str_replace("http://", "https://", $url);
-        }
-
-        if ($this->runAsSuperUser) {
-            $tokenAuths = self::getSuperUserTokenAuths();
-            $tokenAuth = reset($tokenAuths);
-
-            if (strpos($url, '?') === false) {
-                $url .= '?';
-            } else {
-                $url .= '&';
-            }
-
-            $url .= 'token_auth=' . $tokenAuth;
-        }
-
         try {
             Log::debug("Execute HTTP API request: "  . $url);
             $response = Http::sendHttpRequestBy('curl', $url, $timeout = 0, $userAgent = null, $destinationPath = null, $file = null, $followDepth = 0, $acceptLanguage = false, $this->acceptInvalidSSLCertificate);
@@ -300,21 +234,19 @@ class CliMulti
         } catch (\Exception $e) {
             $message = "Got invalid response from API request: $url. ";
 
-            if (isset($response) && empty($response)) {
+            if (empty($response)) {
                 $message .= "The response was empty. This usually means a server error. This solution to this error is generally to increase the value of 'memory_limit' in your php.ini file. Please check your Web server Error Log file for more details.";
             } else {
                 $message .= "Response was '" . $e->getMessage() . "'";
             }
 
             $output->write($message);
-
-            Log::debug($e);
         }
     }
 
     private function appendTestmodeParamToUrlIfNeeded($url)
     {
-        $isTestMode = defined('PIWIK_TEST_MODE');
+        $isTestMode = $url && false !== strpos($url, 'tests/PHPUnit/proxy');
 
         if ($isTestMode && false === strpos($url, '?')) {
             $url .= "?testmode=1";
@@ -345,22 +277,4 @@ class CliMulti
         return $results;
     }
 
-    private static function getSuperUserTokenAuths()
-    {
-        $tokens = array();
-
-        /**
-         * Used to be in CronArchive, moved to CliMulti.
-         *
-         * @ignore
-         */
-        Piwik::postEvent('CronArchive.getTokenAuth', array(&$tokens));
-
-        return $tokens;
-    }
-
-    public function setUrlToPiwik($urlToPiwik)
-    {
-        $this->urlToPiwik = $urlToPiwik;
-    }
 }

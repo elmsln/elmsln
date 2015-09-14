@@ -6,7 +6,7 @@
  */
 
 /**
- * See https://github.com/piwik/piwik/issues/4795 "linking to #hash tag does not work after merging AngularJS"
+ * See http://dev.piwik.org/trac/ticket/4795 "linking to #hash tag does not work after merging AngularJS"
  */
 (function () {
 
@@ -32,12 +32,7 @@
             return;
         }
 
-        try {
-            var $node = $('#' + hash);
-        } catch (err) {
-            // on jquery syntax error, ignore so nothing is logged to the console
-            return;
-        }
+        var $node = $('#' + hash);
 
         if ($node && $node.length) {
             scrollToAnchorNode($node);
@@ -85,9 +80,7 @@
     {
         angular.module('piwikApp').run(['$rootScope', function ($rootScope) {
 
-            $rootScope.$on('$locationChangeStart', onLocationChangeStart);
-
-            function onLocationChangeStart (event, newUrl, oldUrl, $location) {
+            $rootScope.$on('$locationChangeStart', function (event, newUrl, oldUrl, $location) {
 
                 if (!newUrl) {
                     return;
@@ -105,7 +98,7 @@
                 var hash = newUrl.substr(hashPos + 2);
 
                 scrollToAnchorIfPossible(hash, event);
-            }
+            });
         }]);
     }
 

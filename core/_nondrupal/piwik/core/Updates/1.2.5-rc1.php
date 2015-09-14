@@ -17,20 +17,21 @@ use Piwik\Updates;
  */
 class Updates_1_2_5_rc1 extends Updates
 {
-    public static function getSql()
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('goal') . '`
-		    	ADD `allow_multiple` tinyint(4) NOT NULL AFTER case_sensitive' => 1060,
+		    	ADD `allow_multiple` tinyint(4) NOT NULL AFTER case_sensitive'                                                   => false,
             'ALTER TABLE `' . Common::prefixTable('log_conversion') . '`
 				ADD buster int unsigned NOT NULL AFTER revenue,
 				DROP PRIMARY KEY,
-		    	ADD PRIMARY KEY (idvisit, idgoal, buster)' => 1060,
+		    	ADD PRIMARY KEY (idvisit, idgoal, buster)' => false,
         );
     }
 
-    public static function update()
+    static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }
 }
+

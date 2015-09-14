@@ -21,7 +21,7 @@ use Piwik\Updates;
  */
 class Updates_2_1_1_b11 extends Updates
 {
-    public static function update()
+    static function update()
     {
         $returningMetrics = array(
             'nb_visits_returning',
@@ -41,14 +41,17 @@ class Updates_2_1_1_b11 extends Updates
         // returning visit segment
         foreach ($archiveNumericTables as $table) {
             // get archives w/ *._returning
-            $sql = "SELECT idarchive, idsite, period, date1, date2 FROM $table
-                    WHERE name IN ('" . implode("','", $returningMetrics) . "')
-                    GROUP BY idarchive";
+            $sql = "SELECT idarchive, idsite, period, date1, date2
+                      FROM $table
+                     WHERE name IN ('" . implode("','", $returningMetrics) . "')
+                  GROUP BY idarchive";
             $idArchivesWithReturning = Db::fetchAll($sql);
 
             // get archives for visitssummary returning visitor segment
-            $sql = "SELECT idarchive, idsite, period, date1, date2 FROM $table
-                    WHERE name = ?  GROUP BY idarchive";
+            $sql = "SELECT idarchive, idsite, period, date1, date2
+                      FROM $table
+                     WHERE name = ?
+                  GROUP BY idarchive";
             $visitSummaryReturningSegmentDone = Rules::getDoneFlagArchiveContainsOnePlugin(
                 new Segment(VisitFrequencyApi::RETURNING_VISITOR_SEGMENT, $idSites = array()), 'VisitsSummary');
             $idArchivesWithVisitReturningSegment = Db::fetchAll($sql, array($visitSummaryReturningSegmentDone));

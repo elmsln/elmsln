@@ -9,8 +9,8 @@
 namespace Piwik;
 
 use Exception;
+use Piwik\Db\Adapter;
 use Piwik\Db\Schema;
-use Piwik\DataAccess\ArchiveTableCreator;
 
 /**
  * Contains database related helper functions.
@@ -26,18 +26,6 @@ class DbHelper
     public static function getTablesInstalled($forceReload = true)
     {
         return Schema::getInstance()->getTablesInstalled($forceReload);
-    }
-
-    /**
-     * Get list of installed columns in a table
-     *
-     * @param  string $tableName The name of a table.
-     *
-     * @return array  Installed columns indexed by the column name.
-     */
-    public static function getTableColumns($tableName)
-    {
-        return Schema::getInstance()->getTableColumns($tableName);
     }
 
     /**
@@ -165,7 +153,7 @@ class DbHelper
     /**
      * Get the SQL to create a specific Piwik table
      *
-     * @param string $tableName Unprefixed table name.
+     * @param string $tableName
      * @return string  SQL
      */
     public static function getTableCreateSql($tableName)
@@ -173,17 +161,4 @@ class DbHelper
         return Schema::getInstance()->getTableCreateSql($tableName);
     }
 
-    /**
-     * Deletes archive tables. For use in tests.
-     */
-    public static function deleteArchiveTables()
-    {
-        foreach (ArchiveTableCreator::getTablesArchivesInstalled() as $table) {
-            Log::debug("Dropping table $table");
-
-            Db::query("DROP TABLE IF EXISTS `$table`");
-        }
-
-        ArchiveTableCreator::refreshTableList($forceReload = true);
-    }
 }

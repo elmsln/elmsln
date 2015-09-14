@@ -8,6 +8,7 @@
  */
 namespace Piwik\Updates;
 
+use Piwik\Db;
 use Piwik\Filesystem;
 use Piwik\Updates;
 
@@ -32,9 +33,10 @@ class Updates_2_0_a17 extends Updates
             if (file_exists($dir)) {
                 $errors[] = "Please delete this directory manually (eg. using your FTP software): $dir \n";
             }
+
         }
-        if (!empty($errors)) {
+        if(!empty($errors)) {
             throw new \Exception("Warnings during the update: <br>" . implode("<br>", $errors));
         }
-    }
+   }
 }

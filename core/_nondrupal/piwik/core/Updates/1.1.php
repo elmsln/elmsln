@@ -17,7 +17,7 @@ use Piwik\Updates;
  */
 class Updates_1_1 extends Updates
 {
-    public static function update()
+    static function update()
     {
         $config = Config::getInstance();
 

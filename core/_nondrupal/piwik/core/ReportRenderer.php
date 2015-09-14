@@ -10,53 +10,61 @@ namespace Piwik;
 
 use Exception;
 use Piwik\API\Request;
-use Piwik\Container\StaticContainer;
 use Piwik\DataTable\Row;
 use Piwik\DataTable\Simple;
+use Piwik\DataTable;
 use Piwik\Plugins\ImageGraph\API;
 
 /**
  * A Report Renderer produces user friendly renderings of any given Piwik report.
  * All new Renderers must be copied in ReportRenderer and added to the $availableReportRenderers.
  */
-abstract class ReportRenderer extends BaseFactory
+abstract class ReportRenderer
 {
-    const DEFAULT_REPORT_FONT_FAMILY = 'dejavusans';
-    const REPORT_TEXT_COLOR = "13,13,13";
-    const REPORT_TITLE_TEXT_COLOR = "13,13,13";
-    const TABLE_HEADER_BG_COLOR = "255,255,255";
-    const TABLE_HEADER_TEXT_COLOR = "13,13,13";
-    const TABLE_HEADER_TEXT_TRANSFORM = "uppercase";
-    const TABLE_HEADER_TEXT_WEIGHT = "normal";
-    const TABLE_CELL_BORDER_COLOR = "217,217,217";
-    const TABLE_BG_COLOR = "242,242,242";
+    const DEFAULT_REPORT_FONT = 'dejavusans';
+    const REPORT_TEXT_COLOR = "68,68,68";
+    const REPORT_TITLE_TEXT_COLOR = "126,115,99";
+    const TABLE_HEADER_BG_COLOR = "228,226,215";
+    const TABLE_HEADER_TEXT_COLOR = "37,87,146";
+    const TABLE_CELL_BORDER_COLOR = "231,231,231";
+    const TABLE_BG_COLOR = "249,250,250";
 
     const HTML_FORMAT = 'html';
     const PDF_FORMAT = 'pdf';
     const CSV_FORMAT = 'csv';
 
-    private static $availableReportRenderers = array(
+    static private $availableReportRenderers = array(
         self::PDF_FORMAT,
         self::HTML_FORMAT,
         self::CSV_FORMAT,
     );
 
-    protected static function getClassNameFromClassId($rendererType)
+    /**
+     * Return the ReportRenderer associated to the renderer type $rendererType
+     *
+     * @throws exception If the renderer is unknown
+     * @param string $rendererType
+     * @return \Piwik\ReportRenderer
+     */
+    static public function factory($rendererType)
     {
-        return 'Piwik\ReportRenderer\\' . self::normalizeRendererType($rendererType);
-    }
+        $name = ucfirst(strtolower($rendererType));
+        $className = 'Piwik\ReportRenderer\\' . $name;
 
-    protected static function getInvalidClassIdExceptionMessage($rendererType)
-    {
-        return Piwik::translate(
-            'General_ExceptionInvalidReportRendererFormat',
-            array(self::normalizeRendererType($rendererType), implode(', ', self::$availableReportRenderers))
-        );
-    }
+        try {
+            Loader::loadClass($className);
+            return new $className;
+        } catch (Exception $e) {
 
-    protected static function normalizeRendererType($rendererType)
-    {
-        return ucfirst(strtolower($rendererType));
+            @header('Content-Type: text/html; charset=utf-8');
+
+            throw new Exception(
+                Piwik::translate(
+                    'General_ExceptionInvalidReportRendererFormat',
+                    array($name, implode(', ', self::$availableReportRenderers))
+                )
+            );
+        }
     }
 
     /**
@@ -131,11 +139,8 @@ abstract class ReportRenderer extends BaseFactory
      * @param  string $extension
      * @return string  filename with extension
      */
-    protected static function makeFilenameWithExtension($filename, $extension)
+    protected static function appendExtension($filename, $extension)
     {
-        // the filename can be used in HTTP headers, remove new lines to prevent HTTP header injection
-        $filename = str_replace(array("\n", "\t"), " ", $filename);
-
         return $filename . "." . $extension;
     }
 
@@ -148,7 +153,8 @@ abstract class ReportRenderer extends BaseFactory
      */
     protected static function getOutputPath($filename)
     {
-        $outputFilename = StaticContainer::get('path.tmp') . '/assets/' . $filename;
+        $outputFilename = PIWIK_USER_PATH . '/tmp/assets/' . $filename;
+        $outputFilename = SettingsPiwik::rewriteTmpPathWithInstanceId($outputFilename);
 
         @chmod($outputFilename, 0600);
         @unlink($outputFilename);
@@ -157,20 +163,24 @@ abstract class ReportRenderer extends BaseFactory
 
     protected static function writeFile($filename, $extension, $content)
     {
-        $filename = self::makeFilenameWithExtension($filename, $extension);
+        $filename = self::appendExtension($filename, $extension);
         $outputFilename = self::getOutputPath($filename);
 
-        $bytesWritten = file_put_contents($outputFilename, $content);
-        if ($bytesWritten === false) {
-            throw new Exception("ReportRenderer: Could not write to file '" . $outputFilename . "'.");
+        $emailReport = @fopen($outputFilename, "w");
+
+        if (!$emailReport) {
+            throw new Exception ("The file : " . $outputFilename . " can not be opened in write mode.");
         }
+
+        fwrite($emailReport, $content);
+        fclose($emailReport);
 
         return $outputFilename;
     }
 
     protected static function sendToBrowser($filename, $extension, $contentType, $content)
     {
-        $filename = ReportRenderer::makeFilenameWithExtension($filename, $extension);
+        $filename = ReportRenderer::appendExtension($filename, $extension);
 
         ProxyHttp::overrideCacheControlHeaders();
         header('Content-Description: File Transfer');

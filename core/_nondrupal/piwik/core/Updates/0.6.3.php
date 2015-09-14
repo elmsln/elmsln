@@ -18,17 +18,17 @@ use Piwik\Updates;
  */
 class Updates_0_6_3 extends Updates
 {
-    public static function getSql()
+    static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('log_visit') . '`
-				CHANGE `location_ip` `location_ip` INT UNSIGNED NOT NULL'                   => 1054,
+				CHANGE `location_ip` `location_ip` INT UNSIGNED NOT NULL'                                                           => false,
             'ALTER TABLE `' . Common::prefixTable('logger_api_call') . '`
-				CHANGE `caller_ip` `caller_ip` INT UNSIGNED'                                => array(1054, 1146),
+				CHANGE `caller_ip` `caller_ip` INT UNSIGNED' => false,
         );
     }
 
-    public static function update()
+    static function update()
     {
         $config = Config::getInstance();
         $dbInfos = $config->database;

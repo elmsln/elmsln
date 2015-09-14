@@ -41,13 +41,13 @@ class VisitorLog extends Visualization
             $this->requestConfig->filter_limit = 20;
         }
 
+        $this->requestConfig->filter_sort_column = 'idVisit';
         $this->requestConfig->disable_generic_filters = true;
-        $this->requestConfig->filter_sort_column      = false;
-    }
 
-    public function afterGenericFiltersAreAppliedToLoadedDataTable()
-    {
-        $this->requestConfig->filter_sort_column = false;
+        $offset = Common::getRequestVar('filter_offset', 0);
+        $limit  = Common::getRequestVar('filter_limit', $this->requestConfig->filter_limit);
+
+        $this->config->filters[] = array('Limit', array($offset, $limit));
     }
 
     /**
@@ -67,6 +67,8 @@ class VisitorLog extends Visualization
 
         $this->config->documentation = Piwik::translate('Live_VisitorLogDocumentation', array('<br />', '<br />'));
 
+        $filterEcommerce = Common::getRequestVar('filterEcommerce', 0, 'int');
+
         if (!is_array($this->config->custom_parameters)) {
             $this->config->custom_parameters = array();
         }
@@ -74,7 +76,7 @@ class VisitorLog extends Visualization
         // set a very high row count so that the next link in the footer of the data table is always shown
         $this->config->custom_parameters['totalRows'] = 10000000;
         $this->config->custom_parameters['smallWidth'] = (1 == Common::getRequestVar('small', 0, 'int'));
-        $this->config->custom_parameters['hideProfileLink'] = (1 == Common::getRequestVar('hideProfileLink', 0, 'int'));
+        $this->config->custom_parameters['filterEcommerce'] = $filterEcommerce;
         $this->config->custom_parameters['pageUrlNotDefined'] = Piwik::translate('General_NotDefined', Piwik::translate('Actions_ColumnPageURL'));
 
         $this->config->footer_icons = array(
@@ -89,5 +91,28 @@ class VisitorLog extends Visualization
                 )
             )
         );
+
+        // determine if each row has ecommerce activity or not
+        if ($filterEcommerce) {
+            $this->dataTable->filter(
+                'ColumnCallbackAddMetadata',
+                array(
+                    'actionDetails',
+                    'hasEcommerce',
+                    function ($actionDetails) use ($filterEcommerce) {
+                        foreach ($actionDetails as $action) {
+                            $isEcommerceOrder = $action['type'] == 'ecommerceOrder'
+                                       && $filterEcommerce == \Piwik\Plugins\Goals\Controller::ECOMMERCE_LOG_SHOW_ORDERS;
+                            $isAbandonedCart = $action['type'] == 'ecommerceAbandonedCart'
+                                       && $filterEcommerce == \Piwik\Plugins\Goals\Controller::ECOMMERCE_LOG_SHOW_ABANDONED_CARTS;
+                            if($isAbandonedCart || $isEcommerceOrder) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                )
+            );
+        }
     }
 }

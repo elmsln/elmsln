@@ -21,7 +21,7 @@ class StylesheetUIAssetMerger extends UIAssetMerger
      */
     private $lessCompiler;
 
-    public function __construct($mergedAsset, $assetFetcher, $cacheBuster)
+    function __construct($mergedAsset, $assetFetcher, $cacheBuster)
     {
         parent::__construct($mergedAsset, $assetFetcher, $cacheBuster);
 
@@ -81,7 +81,7 @@ class StylesheetUIAssetMerger extends UIAssetMerger
 
     protected function processFileContent($uiAsset)
     {
-        $pathsRewriter = $this->getCssPathsRewriter($uiAsset);
+        $pathsRewriter = $this->getCssPathsRewriter($uiAsset); 
         $content = $uiAsset->getContent();
         $content = $this->rewriteCssImagePaths($content, $pathsRewriter);
         $content = $this->rewriteCssImportPaths($content, $pathsRewriter);
@@ -92,12 +92,12 @@ class StylesheetUIAssetMerger extends UIAssetMerger
      * Rewrite CSS url() directives
      *
      * @param string $content
-     * @param callable $pathsRewriter
+     * @param function $pathsRewriter
      * @return string
      */
     private function rewriteCssImagePaths($content, $pathsRewriter)
     {
-        $content = preg_replace_callback("/(url\(['\"]?)([^'\")]*)/", $pathsRewriter, $content);
+        $content = preg_replace_callback( "/(url\(['\"]?)([^'\")]*)/", $pathsRewriter, $content );
         return $content;
     }
 
@@ -105,12 +105,12 @@ class StylesheetUIAssetMerger extends UIAssetMerger
      * Rewrite CSS import directives
      *
      * @param string $content
-     * @param callable $pathsRewriter
+     * @param function $pathsRewriter
      * @return string
      */
     private function rewriteCssImportPaths($content, $pathsRewriter)
     {
-        $content = preg_replace_callback("/(@import \")([^\")]*)/", $pathsRewriter, $content);
+        $content = preg_replace_callback( "/(@import \")([^\")]*)/", $pathsRewriter, $content );
         return $content;
     }
 
@@ -119,31 +119,34 @@ class StylesheetUIAssetMerger extends UIAssetMerger
      * - rewrites paths defined relatively to their css/less definition file
      * - rewrite windows directory separator \\ to /
      *
-     * @param UIAsset $uiAsset
-     * @return \Closure
+     * @param rootDirectoryLength $rootDirectoryLength
+     * @param baseDirectory $baseDirectory
+     * @return function
      */
     private function getCssPathsRewriter($uiAsset)
     {
+        static $rootDirectoryLength = null;
+        if (is_null($rootDirectoryLength)) {
+            $rootDirectoryLength = self::countDirectoriesInPathToRoot($uiAsset);
+        }
         $baseDirectory = dirname($uiAsset->getRelativeLocation());
 
-        return function ($matches) use ($baseDirectory) {
+        return function ($matches) use ($rootDirectoryLength, $baseDirectory) {
+            $publicPath = $matches[1] . $matches[2];
             $absolutePath = PIWIK_USER_PATH . "/$baseDirectory/" . $matches[2];
-
+            
             // Allow to import extension less file
             if (strpos($matches[2], '.') === false) {
                 $absolutePath .= '.less';
             }
-
+                
             // Prevent from rewriting full path
             $absolutePath = realpath($absolutePath);
             if ($absolutePath) {
-                $relativePath = $baseDirectory . "/" . $matches[2];
+                $relativePath = substr($absolutePath, $rootDirectoryLength);
                 $relativePath = str_replace('\\', '/', $relativePath);
-                $publicPath   = $matches[1] . $relativePath;
-            } else {
-                $publicPath   = $matches[1] . $matches[2];
+                $publicPath = $matches[1] . $relativePath;
             }
-
             return $publicPath;
         };
     }

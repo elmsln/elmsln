@@ -27,7 +27,6 @@ class GenerateController extends GeneratePluginBase
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $pluginName = $this->getPluginName($input, $output);
-        $this->checkAndUpdateRequiredPiwikVersion($pluginName, $output);
 
         $exampleFolder  = PIWIK_INCLUDE_PATH . '/plugins/ExamplePlugin';
         $replace        = array('ExamplePlugin' => $pluginName);
@@ -46,7 +45,7 @@ class GenerateController extends GeneratePluginBase
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return array
-     * @throws \RuntimeException
+     * @throws \RunTimeException
      */
     protected function getPluginName(InputInterface $input, OutputInterface $output)
     {

@@ -15,7 +15,7 @@ use Piwik\Updates;
  */
 class Updates_1_9_3_b3 extends Updates
 {
-    public static function update()
+    static function update()
     {
         // Insight was a temporary code name for Overlay
         $pluginToDelete = 'Insight';

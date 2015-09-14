@@ -1,13 +1,12 @@
 {% import 'ajaxMacros.twig' as ajax %}
-<div class="pageWrap container-fluid">
-<a name="main"></a>
+<div class="pageWrap">
     {% include "@CoreHome/_notifications.twig" %}
     <div class="top_controls">
         {% include "@CoreHome/_periodSelect.twig" %}
         {{ postEvent("Template.nextToCalendar") }}
         {% render dashboardSettingsControl %}
         {% include "@CoreHome/_headerMessage.twig" %}
-        {{ ajax.requestErrorDiv(emailSuperUser|default('')) }}
+        {{ ajax.requestErrorDiv }}
     </div>
 
     {{ ajax.loadingDiv() }}
@@ -17,3 +16,5 @@
     </div>
     <div class="clear"></div>
 </div>
+
+<br/><br/>

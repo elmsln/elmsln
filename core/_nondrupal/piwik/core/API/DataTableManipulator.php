@@ -10,6 +10,7 @@ namespace Piwik\API;
 
 use Exception;
 use Piwik\Archive\DataTableFactory;
+use Piwik\Common;
 use Piwik\DataTable\Row;
 use Piwik\DataTable;
 use Piwik\Period\Range;
@@ -62,7 +63,7 @@ abstract class DataTableManipulator
     {
         if ($dataTable instanceof DataTable\Map) {
             return $this->manipulateDataTableMap($dataTable);
-        } elseif ($dataTable instanceof DataTable) {
+        } else if ($dataTable instanceof DataTable) {
             return $this->manipulateDataTable($dataTable);
         } else {
             return $dataTable;
@@ -89,7 +90,7 @@ abstract class DataTableManipulator
      * Manipulates a single DataTable instance. Derived classes must define
      * this function.
      */
-    abstract protected function manipulateDataTable($dataTable);
+    protected abstract function manipulateDataTable($dataTable);
 
     /**
      * Load the subtable for a row.
@@ -123,7 +124,7 @@ abstract class DataTableManipulator
             }
         }
 
-        $method = $this->getApiMethodForSubtable($request);
+        $method = $this->getApiMethodForSubtable();
         return $this->callApiAndReturnDataTable($this->apiModule, $method, $request);
     }
 
@@ -135,26 +136,19 @@ abstract class DataTableManipulator
      * @param $request
      * @return
      */
-    abstract protected function manipulateSubtableRequest($request);
+    protected abstract function manipulateSubtableRequest($request);
 
     /**
      * Extract the API method for loading subtables from the meta data
      *
-     * @throws Exception
      * @return string
      */
-    private function getApiMethodForSubtable($request)
+    private function getApiMethodForSubtable()
     {
         if (!$this->apiMethodForSubtable) {
-            if (!empty($request['idSite'])) {
-                $idSite = $request['idSite'];
-            } else {
-                $idSite = 'all';
-            }
+            $meta = API::getInstance()->getMetadata('all', $this->apiModule, $this->apiMethod);
 
-            $meta = API::getInstance()->getMetadata($idSite, $this->apiModule, $this->apiMethod);
-
-            if (empty($meta)) {
+            if(empty($meta)) {
                 throw new Exception(sprintf(
                     "The DataTable cannot be manipulated: Metadata for report %s.%s could not be found. You can define the metadata in a hook, see example at: http://developer.piwik.org/api-reference/events#apigetreportmetadata",
                     $this->apiModule, $this->apiMethod
@@ -177,8 +171,6 @@ abstract class DataTableManipulator
         $request = $this->manipulateSubtableRequest($request);
         $request['serialize'] = 0;
         $request['expanded'] = 0;
-        $request['format'] = 'original';
-        $request['format_metrics'] = 0;
 
         // don't want to run recursive filters on the subtables as they are loaded,
         // otherwise the result will be empty in places (or everywhere). instead we
@@ -187,8 +179,14 @@ abstract class DataTableManipulator
 
         $dataTable = Proxy::getInstance()->call($class, $method, $request);
         $response = new ResponseBuilder($format = 'original', $request);
-        $response->disableSendHeader();
-        $dataTable = $response->getResponse($dataTable, $apiModule, $method);
+        $dataTable = $response->getResponse($dataTable);
+
+        if (Common::getRequestVar('disable_queued_filters', 0, 'int', $request) == 0) {
+            if (method_exists($dataTable, 'applyQueuedFilters')) {
+                $dataTable->applyQueuedFilters();
+            }
+        }
+
         return $dataTable;
     }
 }

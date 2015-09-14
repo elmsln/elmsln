@@ -10,16 +10,16 @@ namespace Piwik\Plugins\PrivacyManager;
 
 use Piwik\Common;
 use Piwik\Config as PiwikConfig;
-use Piwik\Container\StaticContainer;
 use Piwik\Date;
 use Piwik\Db;
-use Piwik\Metrics\Formatter;
+use Piwik\MetricsFormatter;
 use Piwik\Nonce;
 use Piwik\Notification;
 use Piwik\Option;
 use Piwik\Piwik;
+use Piwik\Plugins\DBStats\MySQLMetadataProvider;
 use Piwik\Plugins\LanguagesManager\LanguagesManager;
-use Piwik\Scheduler\Scheduler;
+use Piwik\TaskScheduler;
 use Piwik\View;
 
 /**
@@ -133,8 +133,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         if (Piwik::hasUserSuperUserAccess()) {
             $view->deleteData = $this->getDeleteDataInfo();
             $view->anonymizeIP = $this->getAnonymizeIPInfo();
-            $dntChecker = new DoNotTrackHeaderChecker();
-            $view->dntSupport = $dntChecker->isActive();
+            $view->dntSupport = DoNotTrackHeaderChecker::isActive();
             $view->canDeleteLogActions = Db::isLockPrivilegeGranted();
             $view->dbUser = PiwikConfig::getInstance()->database['username'];
             $view->deactivateNonce = Nonce::getNonce(self::DEACTIVATE_DNT_NONCE);
@@ -151,8 +150,6 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
      */
     public function executeDataPurge()
     {
-        $this->checkDataPurgeAdminSettingsIsEnabled();
-
         Piwik::checkUserHasSuperUserAccess();
         $this->checkTokenInUrl();
 
@@ -166,9 +163,8 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
         $settings = PrivacyManager::getPurgeDataSettings();
         if ($settings['delete_logs_enable']) {
-            /** @var LogDataPurger $logDataPurger */
-            $logDataPurger = StaticContainer::get('Piwik\Plugins\PrivacyManager\LogDataPurger');
-            $logDataPurger->purgeData($settings['delete_logs_older_than']);
+            $logDataPurger = LogDataPurger::make($settings);
+            $logDataPurger->purgeData();
         }
         if ($settings['delete_reports_enable']) {
             $reportsPurger = ReportsPurger::make($settings, PrivacyManager::getAllMetricsToKeep());
@@ -190,7 +186,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         $doDatabaseSizeEstimate = PiwikConfig::getInstance()->Deletelogs['enable_auto_database_size_estimate'];
 
         // determine the DB size & purged DB size
-        $metadataProvider = StaticContainer::get('Piwik\Plugins\DBStats\MySQLMetadataProvider');
+        $metadataProvider = new MySQLMetadataProvider();
         $tableStatuses = $metadataProvider->getAllTablesStatus();
 
         $totalBytes = 0;
@@ -198,9 +194,8 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $totalBytes += $status['Data_length'] + $status['Index_length'];
         }
 
-        $formatter = new Formatter();
         $result = array(
-            'currentSize' => $formatter->getPrettySizeFromBytes($totalBytes)
+            'currentSize' => MetricsFormatter::getPrettySizeFromBytes($totalBytes)
         );
 
         // if the db size estimate feature is enabled, get the estimate
@@ -227,8 +222,8 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
                 }
             }
 
-            $result['sizeAfterPurge'] = $formatter->getPrettySizeFromBytes($totalAfterPurge);
-            $result['spaceSaved'] = $formatter->getPrettySizeFromBytes($totalBytes - $totalAfterPurge);
+            $result['sizeAfterPurge'] = MetricsFormatter::getPrettySizeFromBytes($totalAfterPurge);
+            $result['spaceSaved'] = MetricsFormatter::getPrettySizeFromBytes($totalBytes - $totalAfterPurge);
         }
 
         return $result;
@@ -251,14 +246,12 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
     {
         Piwik::checkUserHasSuperUserAccess();
         $deleteDataInfos = array();
+        $taskScheduler = new TaskScheduler();
         $deleteDataInfos["config"] = PrivacyManager::getPurgeDataSettings();
         $deleteDataInfos["deleteTables"] =
             "<br/>" . implode(", ", LogDataPurger::getDeleteTableLogTables());
 
-        /** @var Scheduler $scheduler */
-        $scheduler = StaticContainer::getContainer()->get('Piwik\Scheduler\Scheduler');
-
-        $scheduleTimetable = $scheduler->getScheduledTimeForMethod("PrivacyManager", "deleteLogTables");
+        $scheduleTimetable = $taskScheduler->getScheduledTimeForMethod("PrivacyManager", "deleteLogTables");
 
         $optionTable = Option::get(self::OPTION_LAST_DELETE_PIWIK_LOGS);
 
@@ -292,9 +285,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             }
         }
 
-        $formatter = new Formatter();
-
-        $deleteDataInfos["nextRunPretty"] = $formatter->getPrettyTimeFromSeconds($deleteDataInfos["nextScheduleTime"] - time());
+        $deleteDataInfos["nextRunPretty"] = MetricsFormatter::getPrettyTimeFromSeconds($deleteDataInfos["nextScheduleTime"] - time());
 
         return $deleteDataInfos;
     }
@@ -304,8 +295,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         Piwik::checkUserHasSuperUserAccess();
         Nonce::checkNonce(self::DEACTIVATE_DNT_NONCE);
 
-        $dntChecker = new DoNotTrackHeaderChecker();
-        $dntChecker->deactivate();
+        DoNotTrackHeaderChecker::deactivate();
 
         $this->redirectToIndex('PrivacyManager', 'privacySettings');
     }
@@ -315,8 +305,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         Piwik::checkUserHasSuperUserAccess();
         Nonce::checkNonce(self::ACTIVATE_DNT_NONCE);
 
-        $dntChecker = new DoNotTrackHeaderChecker();
-        $dntChecker->activate();
+        DoNotTrackHeaderChecker::activate();
 
         $this->redirectToIndex('PrivacyManager', 'privacySettings');
     }

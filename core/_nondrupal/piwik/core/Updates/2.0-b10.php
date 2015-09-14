@@ -15,7 +15,7 @@ use Piwik\Updates;
  */
 class Updates_2_0_b10 extends Updates
 {
-    public static function update()
+    static function update()
     {
         parent::deletePluginFromConfigFile('Referers');
         parent::deletePluginFromConfigFile('PDFReports');
