@@ -3,7 +3,7 @@ name = "ulmus"
 description = "A new idea for powering flexible educational ecosystems."
 core = "7.x"
 elmslndefaulttitle = "ulmus"
-elmslntype = "authority"
+elmslntype = "service"
 
 ; ----------
 ; START ELMSLN Core Dependencies
@@ -113,9 +113,9 @@ dependencies[] = foundation_access_ux
 ; ----------
 ; Service Dependencies
 ; ----------
-;dependencies[] = og
-;dependencies[] = og_ui
-;dependencies[] = cis_section
+dependencies[] = og
+dependencies[] = og_ui
+dependencies[] = cis_section
 
 ; ----------
 ; Authority Dependencies
