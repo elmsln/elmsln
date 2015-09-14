@@ -1,7 +1,4 @@
 <div class="entityAddContainer" style="display:none;">
-    <div class='entityCancel'>
-        {{ 'ScheduledReports_CancelAndReturnToReports'|translate("<a class='entityCancelLink'>","</a>")|raw }}
-    </div>
     <div class='clear'></div>
     <form id='addEditReport'>
         <table class="dataTable entityTable">
@@ -41,7 +38,7 @@
                     <div class="entityInlineHelp">
                         {% set SegmentEditor_DefaultAllVisits %}{{ 'SegmentEditor_DefaultAllVisits'|translate }}{% endset %}
                         {% set SegmentEditor_AddNewSegment %}{{ 'SegmentEditor_AddNewSegment'|translate }}{% endset %}
-                        {{ 'ScheduledReports_Segment_Help'|translate('<a href="./" target="_blank">','</a>',SegmentEditor_DefaultAllVisits,SegmentEditor_AddNewSegment)|raw }}
+                        {{ 'ScheduledReports_Segment_Help'|translate('<a href="./" rel="noreferrer"  target="_blank">','</a>',SegmentEditor_DefaultAllVisits,SegmentEditor_AddNewSegment)|raw }}
                     </div>
                 </td>
             </tr>
@@ -62,9 +59,7 @@
                         <br/>
                         {{ 'ScheduledReports_MonthlyScheduleHelp'|translate }}
                         <br/>
-                        {{ 'ScheduledReports_ReportHour'|translate }}
-                        <input type="text" style="height: 0.9em;padding-left: 5px;width: 35px;" id="report_hour" class="inp" size="2">
-                        {{ 'ScheduledReports_OClock'|translate }}
+                        {{ 'ScheduledReports_ReportHour'|translate('<input type="text" id="report_hour" class="inp" size="2">')|raw }}
                     </div>
                 </td>
             </tr>
@@ -100,7 +95,7 @@
 
             {{ postEvent("Template.reportParametersScheduledReports") }}
 
-            <tr id="row_report_display_options">
+            <tr class='email' id="row_report_display_options">
                 <td class="first">
                     {# ScheduledReports_AggregateReportsFormat should be named ScheduledReports_DisplayFormat #}
                     {{ 'ScheduledReports_AggregateReportsFormat'|translate }}

@@ -1,0 +1,11 @@
+{
+    "Feedback": {
+        "DoYouHaveBugReportOrFeatureRequest": "არ გაქვთ შეცდომის რეპორტი ან მახასიათებლების მოთხოვნა?",
+        "IWantTo": "მე მინდა:",
+        "LearnWaysToParticipate": "გაეცანით ინფორმაციას %s მონაწილეობის%s მიღების ყველა გზის შესახებ",
+        "ManuallySendEmailTo": "გთხოვთ, ხელით გამოაგზავნეთ წერილი მისამართზე",
+        "SendFeedback": "გამოხმაურების გაგზავნა",
+        "ThankYou": "გმადლობთ, რომ გვეხმარებით Piwik გახდეს უკეთესი!",
+        "VisitTheForums": "იხილეთ %s ფორუმები%s"
+    }
+}

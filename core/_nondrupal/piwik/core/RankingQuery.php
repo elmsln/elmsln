@@ -88,7 +88,7 @@ class RankingQuery
 
     /**
      * Constructor.
-     * 
+     *
      * @param int|false $limit The result row limit. See {@link setLimit()}.
      */
     public function __construct($limit = false)
@@ -178,7 +178,7 @@ class RankingQuery
      * for each possible value you provide (where the rows of each set have a column value
      * that equals a possible value). Each of these new sets of rows will be individually
      * limited resulting in several limited result sets.
-     * 
+     *
      * For example, you can run a query aggregating some data on the log_action table and
      * partition by log_action.type with the possible values of {@link Piwik\Tracker\Action::TYPE_PAGE_URL},
      * {@link Piwik\Tracker\Action::TYPE_OUTLINK}, {@link Piwik\Tracker\Action::TYPE_DOWNLOAD}.
@@ -214,8 +214,8 @@ class RankingQuery
      */
     public function execute($innerQuery, $bind = array())
     {
-        $query = $this->generateQuery($innerQuery);
-        $data = Db::fetchAll($query, $bind);
+        $query = $this->generateRankingQuery($innerQuery);
+        $data  = Db::fetchAll($query, $bind);
 
         if ($this->columnToMarkExcludedRows !== false) {
             // split the result into the regular result and the rows with special treatment
@@ -268,7 +268,7 @@ class RankingQuery
      *                            itself.
      * @return string             The entire ranking query SQL.
      */
-    public function generateQuery($innerQuery)
+    public function generateRankingQuery($innerQuery)
     {
         // +1 to include "Others"
         $limit = $this->limit + 1;

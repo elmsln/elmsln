@@ -1,0 +1,8 @@
+{
+    "MultiSites": {
+        "Evolution": "Udvikling",
+        "LoadingWebsites": "Loading websites",
+        "TopLinkTooltip": "Sammenlign analyse statistik for alle hjemmesider.",
+        "Pagination": "%s - %s af %s"
+    }
+}

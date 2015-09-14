@@ -10,18 +10,24 @@ namespace Piwik\Tracker;
 
 use Piwik\Common;
 use Piwik\Config;
+use Piwik\Plugin\Dimension\VisitDimension;
 use Piwik\Plugins\CustomVariables\CustomVariables;
 use Piwik\Piwik;
 use Piwik\Tracker;
 
 class Visitor
 {
-    function __construct(Request $request, Tracker\Settings $settings, $visitorInfo = array(), $customVariables = null)
+    private $visitorKnown = false;
+    private $request;
+    private $visitorInfo;
+    private $configId;
+
+    public function __construct(Request $request, $configId, $visitorInfo = array(), $customVariables = null)
     {
         $this->request = $request;
+        $this->configId = $configId;
         $this->visitorInfo = $visitorInfo;
         $this->customVariables = $customVariables;
-        $this->userInfo = $settings->getInfo();
     }
 
     /**
@@ -31,142 +37,56 @@ class Visitor
      * - Known visitor
      * - New visitor
      */
-    function recognize()
+    public function recognize()
     {
-        $this->visitorKnown = false;
+        $this->setIsVisitorKnown(false);
 
-        $configId = $this->userInfo['config_id'];
-
+        $configId  = $this->configId;
+        $idSite    = $this->request->getIdSite();
         $idVisitor = $this->request->getVisitorId();
+
         $isVisitorIdToLookup = !empty($idVisitor);
 
         if ($isVisitorIdToLookup) {
             $this->visitorInfo['idvisitor'] = $idVisitor;
-            Common::printDebug("Matching visitors with: visitorId=" . bin2hex($this->visitorInfo['idvisitor']) . " OR configId=" . bin2hex($configId));
+            Common::printDebug("Matching visitors with: visitorId=" . bin2hex($idVisitor) . " OR configId=" . bin2hex($configId));
         } else {
             Common::printDebug("Visitor doesn't have the piwik cookie...");
         }
 
-        $selectCustomVariables = '';
-        // No custom var were found in the request, so let's copy the previous one in a potential conversion later
+        $numCustomVarsToRead = 0;
         if (!$this->customVariables) {
-            $maxCustomVariables = CustomVariables::getMaxCustomVariables();
-
-            for ($index = 1; $index <= $maxCustomVariables; $index++) {
-                $selectCustomVariables .= ', custom_var_k' . $index . ', custom_var_v' . $index;
-            }
+            // No custom var were found in the request, so let's copy the previous one in a potential conversion later
+            $numCustomVarsToRead = CustomVariables::getMaxCustomVariables();
         }
 
-        $persistedVisitAttributes = self::getVisitFieldsPersist();
-
-        $selectFields = implode(", ", $persistedVisitAttributes);
-
-        $select = "SELECT
-                        visit_last_action_time,
-                        visit_first_action_time,
-                        $selectFields
-                        $selectCustomVariables
-        ";
-        $from = "FROM " . Common::prefixTable('log_visit');
-
+        $persistedVisitAttributes = $this->getVisitFieldsPersist();
+        $shouldMatchOneFieldOnly  = $this->shouldLookupOneVisitorFieldOnly($isVisitorIdToLookup);
         list($timeLookBack, $timeLookAhead) = $this->getWindowLookupThisVisit();
 
-        $shouldMatchOneFieldOnly = $this->shouldLookupOneVisitorFieldOnly($isVisitorIdToLookup);
-
-        // Two use cases:
-        // 1) there is no visitor ID so we try to match only on config_id (heuristics)
-        // 		Possible causes of no visitor ID: no browser cookie support, direct Tracking API request without visitor ID passed,
-        //        importing server access logs with import_logs.py, etc.
-        // 		In this case we use config_id heuristics to try find the visitor in tahhhe past. There is a risk to assign
-        // 		this page view to the wrong visitor, but this is better than creating artificial visits.
-        // 2) there is a visitor ID and we trust it (config setting trust_visitors_cookies, OR it was set using &cid= in tracking API),
-        //      and in these cases, we force to look up this visitor id
-        $whereCommon = "visit_last_action_time >= ? AND visit_last_action_time <= ? AND idsite = ?";
-        $bindSql = array(
-            $timeLookBack,
-            $timeLookAhead,
-            $this->request->getIdSite()
-        );
-
-        if ($shouldMatchOneFieldOnly) {
-            if ($isVisitorIdToLookup) {
-                $whereCommon .= ' AND idvisitor = ?';
-                $bindSql[] = $this->visitorInfo['idvisitor'];
-            } else {
-                $whereCommon .= ' AND config_id = ?';
-                $bindSql[] = $configId;
-            }
-
-            $sql = "$select
-            $from
-            WHERE " . $whereCommon . "
-            ORDER BY visit_last_action_time DESC
-            LIMIT 1";
-        } // We have a config_id AND a visitor_id. We match on either of these.
-        // 		Why do we also match on config_id?
-        //		we do not trust the visitor ID only. Indeed, some browsers, or browser addons,
-        // 		cause the visitor id from the 1st party cookie to be different on each page view!
-        // 		It is not acceptable to create a new visit every time such browser does a page view,
-        // 		so we also backup by searching for matching config_id.
-        // We use a UNION here so that each sql query uses its own INDEX
-        else {
-            // will use INDEX index_idsite_config_datetime (idsite, config_id, visit_last_action_time)
-            $where = ' AND config_id = ?';
-            $bindSql[] = $configId;
-            $sqlConfigId = "$select ,
-                0 as priority
-                $from
-                WHERE $whereCommon $where
-                ORDER BY visit_last_action_time DESC
-                LIMIT 1
-            ";
-            // will use INDEX index_idsite_idvisitor (idsite, idvisitor)
-            $bindSql[] = $timeLookBack;
-            $bindSql[] = $timeLookAhead;
-            $bindSql[] = $this->request->getIdSite();
-            $where = ' AND idvisitor = ?';
-            $bindSql[] = $this->visitorInfo['idvisitor'];
-            $sqlVisitorId = "$select ,
-                1 as priority
-                $from
-                WHERE $whereCommon $where
-                ORDER BY visit_last_action_time DESC
-                LIMIT 1
-            ";
-
-            // We join both queries and favor the one matching the visitor_id if it did match
-            $sql = " ( $sqlConfigId )
-                UNION
-                ( $sqlVisitorId )
-                ORDER BY priority DESC
-                LIMIT 1";
-        }
-
-        $visitRow = Tracker::getDatabase()->fetch($sql, $bindSql);
+        $model    = $this->getModel();
+        $visitRow = $model->findVisitor($idSite, $configId, $idVisitor, $persistedVisitAttributes, $numCustomVarsToRead, $shouldMatchOneFieldOnly, $isVisitorIdToLookup, $timeLookBack, $timeLookAhead);
 
         $isNewVisitForced = $this->request->getParam('new_visit');
         $isNewVisitForced = !empty($isNewVisitForced);
-        $newVisitEnforcedAPI = $isNewVisitForced
-            && ($this->request->isAuthenticated()
-                || !Config::getInstance()->Tracker['new_visit_api_requires_admin']);
-        $enforceNewVisit = $newVisitEnforcedAPI || Config::getInstance()->Debug['tracker_always_new_visitor'];
+        $enforceNewVisit  = $isNewVisitForced || Config::getInstance()->Debug['tracker_always_new_visitor'];
 
         if (!$enforceNewVisit
             && $visitRow
             && count($visitRow) > 0
         ) {
-            // These values will be used throughout the request
-            $this->visitorInfo['visit_last_action_time'] = strtotime($visitRow['visit_last_action_time']);
-            $this->visitorInfo['visit_first_action_time'] = strtotime($visitRow['visit_first_action_time']);
 
-            foreach($persistedVisitAttributes as $field) {
+            // These values will be used throughout the request
+            foreach ($persistedVisitAttributes as $field) {
                 $this->visitorInfo[$field] = $visitRow[$field];
             }
 
+            $this->visitorInfo['visit_last_action_time']  = strtotime($visitRow['visit_last_action_time']);
+            $this->visitorInfo['visit_first_action_time'] = strtotime($visitRow['visit_first_action_time']);
+
             // Custom Variables copied from Visit in potential later conversion
-            if (!empty($selectCustomVariables)) {
-                $maxCustomVariables = CustomVariables::getMaxCustomVariables();
-                for ($i = 1; $i <= $maxCustomVariables; $i++) {
+            if (!empty($numCustomVarsToRead)) {
+                for ($i = 1; $i <= $numCustomVarsToRead; $i++) {
                     if (isset($visitRow['custom_var_k' . $i])
                         && strlen($visitRow['custom_var_k' . $i])
                     ) {
@@ -180,14 +100,13 @@ class Visitor
                 }
             }
 
-            $this->visitorKnown = true;
+            $this->setIsVisitorKnown(true);
             Common::printDebug("The visitor is known (idvisitor = " . bin2hex($this->visitorInfo['idvisitor']) . ",
                     config_id = " . bin2hex($configId) . ",
                     idvisit = {$this->visitorInfo['idvisit']},
                     last action = " . date("r", $this->visitorInfo['visit_last_action_time']) . ",
                     first action = " . date("r", $this->visitorInfo['visit_first_action_time']) . ",
                     visit_goal_buyer' = " . $this->visitorInfo['visit_goal_buyer'] . ")");
-            //Common::printDebug($this->visitorInfo);
         } else {
             Common::printDebug("The visitor was not matched with an existing visitor...");
         }
@@ -204,16 +123,16 @@ class Visitor
      */
     protected function getWindowLookupThisVisit()
     {
-        $visitStandardLength = Config::getInstance()->Tracker['visit_standard_length'];
+        $visitStandardLength    = Config::getInstance()->Tracker['visit_standard_length'];
         $lookBackNSecondsCustom = Config::getInstance()->Tracker['window_look_back_for_visitor'];
 
         $lookAheadNSeconds = $visitStandardLength;
-        $lookBackNSeconds = $visitStandardLength;
+        $lookBackNSeconds  = $visitStandardLength;
         if ($lookBackNSecondsCustom > $lookBackNSeconds) {
             $lookBackNSeconds = $lookBackNSecondsCustom;
         }
 
-        $timeLookBack = date('Y-m-d H:i:s', $this->request->getCurrentTimestamp() - $lookBackNSeconds);
+        $timeLookBack  = date('Y-m-d H:i:s', $this->request->getCurrentTimestamp() - $lookBackNSeconds);
         $timeLookAhead = date('Y-m-d H:i:s', $this->request->getCurrentTimestamp() + $lookAheadNSeconds);
 
         return array($timeLookBack, $timeLookAhead);
@@ -221,76 +140,131 @@ class Visitor
 
     protected function shouldLookupOneVisitorFieldOnly($isVisitorIdToLookup)
     {
+        $isForcedUserIdMustMatch = (false !== $this->request->getForcedUserId());
+
+        if ($isForcedUserIdMustMatch) {
+            // if &iud was set, we must try and match both idvisitor and config_id
+            return false;
+        }
+
         // This setting would be enabled for Intranet websites, to ensure that visitors using all the same computer config, same IP
         // are not counted as 1 visitor. In this case, we want to enforce and trust the visitor ID from the cookie.
         $trustCookiesOnly = Config::getInstance()->Tracker['trust_visitors_cookies'];
+        if ($isVisitorIdToLookup && $trustCookiesOnly) {
+            return true;
+        }
 
         // If a &cid= was set, we force to select this visitor (or create a new one)
         $isForcedVisitorIdMustMatch = ($this->request->getForcedVisitorId() != null);
 
-        $shouldMatchOneFieldOnly = (($isVisitorIdToLookup && $trustCookiesOnly)
-            || $isForcedVisitorIdMustMatch
-            || !$isVisitorIdToLookup);
-        return $shouldMatchOneFieldOnly;
+        if ($isForcedVisitorIdMustMatch) {
+            return true;
+        }
+
+        if (!$isVisitorIdToLookup) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * @return array
      */
-    public static function getVisitFieldsPersist()
+    private function getVisitFieldsPersist()
     {
-        $fields = array(
-            'idvisitor',
-            'idvisit',
-            'visit_exit_idaction_url',
-            'visit_exit_idaction_name',
-            'visitor_returning',
-            'visitor_days_since_first',
-            'visitor_days_since_order',
-            'visitor_count_visits',
-            'visit_goal_buyer',
+        static $fields;
 
-            'location_country',
-            'location_region',
-            'location_city',
-            'location_latitude',
-            'location_longitude',
+        if (is_null($fields)) {
+            $fields = array(
+                'idvisitor',
+                'idvisit',
+                'user_id',
 
-            'referer_name',
-            'referer_keyword',
-            'referer_type',
-        );
+                'visit_exit_idaction_url',
+                'visit_exit_idaction_name',
+                'visitor_returning',
+                'visitor_days_since_first',
+                'visitor_days_since_order',
+                'visitor_count_visits',
+                'visit_goal_buyer',
 
-        /**
-         * Triggered when checking if the current action being tracked belongs to an existing visit.
-         *
-         * This event collects a list of [visit entity]() properties that should be loaded when reading
-         * the existing visit. Properties that appear in this list will be available in other tracking
-         * events such as {@hook Tracker.newConversionInformation} and {@hook Tracker.newVisitorInformation}.
-         *
-         * Plugins can use this event to load additional visit entity properties for later use during tracking.
-         * When you add fields to this $fields array, they will be later available in Tracker.newConversionInformation
-         *
-         * **Example**
-         *
-         *     Piwik::addAction('Tracker.getVisitFieldsToPersist', function (&$fields) {
-         *         $fields[] = 'custom_visit_property';
-         *     });
-         *
-         * @param array &$fields The list of visit properties to load.
-         */
-        Piwik::postEvent('Tracker.getVisitFieldsToPersist', array(&$fields));
+                'location_country',
+                'location_region',
+                'location_city',
+                'location_latitude',
+                'location_longitude',
+
+                'referer_name',
+                'referer_keyword',
+                'referer_type',
+            );
+
+            $dimensions = VisitDimension::getAllDimensions();
+
+            foreach ($dimensions as $dimension) {
+                if ($dimension->hasImplementedEvent('onExistingVisit')) {
+                    $fields[] = $dimension->getColumnName();
+                }
+
+                foreach ($dimension->getRequiredVisitFields() as $field) {
+                    $fields[] = $field;
+                }
+            }
+
+            /**
+             * This event collects a list of [visit entity](/guides/persistence-and-the-mysql-backend#visits) properties that should be loaded when reading
+             * the existing visit. Properties that appear in this list will be available in other tracking
+             * events such as 'onExistingVisit'.
+             *
+             * Plugins can use this event to load additional visit entity properties for later use during tracking.
+             */
+            Piwik::postEvent('Tracker.getVisitFieldsToPersist', array(&$fields));
+
+            array_unshift($fields, 'visit_first_action_time');
+            array_unshift($fields, 'visit_last_action_time');
+            $fields = array_unique($fields);
+        }
 
         return $fields;
     }
 
-    function getVisitorInfo()
+    public function getVisitorInfo()
     {
         return $this->visitorInfo;
     }
 
-    function isVisitorKnown()
+    public function clearVisitorInfo()
+    {
+        $this->visitorInfo = array();
+    }
+
+    public function setVisitorColumn($column, $value)
+    {
+        $this->visitorInfo[$column] = $value;
+    }
+
+    public function getVisitorColumn($column)
+    {
+        if (array_key_exists($column, $this->visitorInfo)) {
+            return $this->visitorInfo[$column];
+        }
+
+        return false;
+    }
+
+    public function isVisitorKnown()
     {
         return $this->visitorKnown === true;
+    }
+
+    public function setIsVisitorKnown($isVisitorKnown)
+    {
+        return $this->visitorKnown = $isVisitorKnown;
+    }
+
+    private function getModel()
+    {
+        return new Model();
     }
 }

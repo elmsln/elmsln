@@ -18,12 +18,12 @@ use Piwik\Updates;
 class Updates_1_8_4_b1 extends Updates
 {
 
-    static function isMajorUpdate()
+    public static function isMajorUpdate()
     {
         return true;
     }
 
-    static function getSql()
+    public static function getSql()
     {
         $action = Common::prefixTable('log_action');
         $duplicates = Common::prefixTable('log_action_duplicates');
@@ -78,7 +78,7 @@ class Updates_1_8_4_b1 extends Updates
             // grouping by name only would be case-insensitive, so we GROUP BY name,hash
             // ON (action.type = 1 AND canonical.hash = action.hash) will use index (type, hash)
             "   INSERT INTO `$duplicates` (
-				  SELECT 
+				  SELECT
 					action.idaction AS `before`,
 					canonical.idaction AS `after`
 				  FROM
@@ -176,7 +176,7 @@ class Updates_1_8_4_b1 extends Updates
         );
     }
 
-    static function update()
+    public static function update()
     {
         try {
             self::enableMaintenanceMode();

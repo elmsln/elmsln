@@ -1,0 +1,19 @@
+{
+    "CorePluginsAdmin": {
+        "Activate": "Diaktifkan",
+        "Activated": "Teraktivasi",
+        "Active": "Aktif",
+        "AuthorHomepage": "Alamat Penulis",
+        "Deactivate": "Dimatikan",
+        "Inactive": "Tak Aktif",
+        "LicenseHomepage": "Alamat Lisensi",
+        "PluginsExtendPiwik": "Pengaya menambah dan memperluas kegunaan dari Piwik.",
+        "OncePluginIsInstalledYouMayActivateHere": "Sekali pengaya terinstal, Anda dapat mengaktifkan dan mematikan di sini.",
+        "PluginHomepage": "Alamat Pengaya",
+        "PluginKeywords": "Kata Kunci",
+        "PluginsManagement": "Pengatur Pengaya",
+        "Status": "Status",
+        "Version": "Versi",
+        "Websites": "Situs"
+    }
+}

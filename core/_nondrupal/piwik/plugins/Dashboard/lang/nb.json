@@ -1,0 +1,20 @@
+{
+    "Dashboard": {
+        "AddPreviewedWidget": "Legg til forhåndsvist element til min oversikt.",
+        "ChangeDashboardLayout": "Tilpass oversiktspanel",
+        "CopyDashboardToUser": "Kopier oversiktspanel til bruker",
+        "CreateNewDashboard": "Ny oversikt",
+        "Dashboard": "Oversikt",
+        "DashboardOf": "Oversikt for %s",
+        "DeleteWidgetConfirm": "Er du sikker på at du vil fjerne dette elementet fra din oversikt?",
+        "LoadingWidget": "Laster element, vennligst vent ...",
+        "ManageDashboard": "Administrer oversikt",
+        "Maximise": "Maksimer",
+        "Minimise": "Minimer",
+        "RenameDashboard": "Gi nytt navn på oversiktspanelet",
+        "ResetDashboard": "Nullstill oversikt",
+        "SelectWidget": "Velg hvilket element som du vil legge til oversiktspanelet.",
+        "WidgetNotFound": "Finner ikke element",
+        "WidgetPreview": "Forhåndsvisning av element"
+    }
+}

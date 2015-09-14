@@ -1,7 +1,7 @@
 <?php
 exit; // REMOVE this line to run the script
 
-// this token is used to authenticate your API request. 
+// this token is used to authenticate your API request.
 // You can get the token on the API page inside your Piwik interface
 $token_auth = 'anonymous';
 
@@ -20,11 +20,11 @@ if (!$content) {
     print("Error, content fetched = " . $fetched);
 }
 
-print("<h1>Keywords for the last month</h1>");
+print("<h1>Keywords for the last month</h1>\n");
 foreach ($content as $row) {
     $keyword = htmlspecialchars(html_entity_decode(urldecode($row['label']), ENT_QUOTES), ENT_QUOTES);
     $hits = $row['nb_visits'];
 
-    print("<b>$keyword</b> ($hits hits)<br>");
+    print("<b>$keyword</b> ($hits hits)<br>\n");
 }
 

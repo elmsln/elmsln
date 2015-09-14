@@ -29,7 +29,7 @@ class Cloud extends Visualization
     const FOOTER_ICON       = 'plugins/Morpheus/images/tagcloud.png';
     const FOOTER_ICON_TITLE = 'General_TagCloud';
 
-    /** Used by integration tests to make sure output is consistent. */
+    /** Used by system tests to make sure output is consistent. */
     public static $debugDisableShuffle = false;
     public $truncatingLimit = 50;
 
@@ -143,7 +143,7 @@ class Cloud extends Visualization
             $tmpArray = $this->wordsArray;
 
             $this->wordsArray = array();
-            foreach ($keys as $key => $value) {
+            foreach ($keys as $value) {
                 $this->wordsArray[$value] = $tmpArray[$value];
             }
 

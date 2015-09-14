@@ -64,6 +64,10 @@ class Twig_Extension_Escaper extends Twig_Extension
             $defaultStrategy = 'html';
         }
 
+        if ('filename' === $defaultStrategy) {
+            $defaultStrategy = array('Twig_FileExtensionEscapingStrategy', 'guess');
+        }
+
         $this->defaultStrategy = $defaultStrategy;
     }
 
@@ -100,6 +104,8 @@ class Twig_Extension_Escaper extends Twig_Extension
  * Marks a variable as being safe.
  *
  * @param string $string A PHP variable
+ *
+ * @return string
  */
 function twig_raw_filter($string)
 {

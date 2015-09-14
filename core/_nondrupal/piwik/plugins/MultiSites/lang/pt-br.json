@@ -1,0 +1,8 @@
+{
+    "MultiSites": {
+        "Evolution": "Evolução",
+        "LoadingWebsites": "Carregando sites",
+        "TopLinkTooltip": "Comparar estatísticas de todos os websites.",
+        "Pagination": "%s - %s de %s"
+    }
+}

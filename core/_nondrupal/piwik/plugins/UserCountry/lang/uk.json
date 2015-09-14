@@ -1,0 +1,12 @@
+{
+    "UserCountry": {
+        "Continent": "Континент",
+        "Country": "Країна",
+        "country_a1": "Анонімний проксі",
+        "country_a2": "Супутниковий провайдер",
+        "country_o1": "Інша країна",
+        "DistinctCountries": "%s унікальних країн",
+        "Location": "Місцезнаходження",
+        "SubmenuLocations": "Місцезнаходження"
+    }
+}

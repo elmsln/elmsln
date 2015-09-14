@@ -1,0 +1,22 @@
+{
+    "Installation": {
+        "Congratulations": "ברכות",
+        "DatabaseSetup": "התקנת מסד נתונים",
+        "DatabaseSetupAdapter": "מתאם",
+        "DatabaseSetupDatabaseName": "שם מסד הנתונים",
+        "DatabaseSetupLogin": "משתמש",
+        "DatabaseSetupServer": "שרת",
+        "DatabaseSetupTablePrefix": "מקדם טבלאות",
+        "Extension": "הרחבה",
+        "Installation": "התקנה",
+        "InstallationStatus": "מצב התקנה",
+        "Optional": "אופציונלי",
+        "PasswordDoNotMatch": "סיסמה לא תואמת",
+        "PercentDone": "%s %% עברו",
+        "Requirements": "דרישות Piwik",
+        "SetupWebsite": "הגדרת אתר",
+        "SystemCheck": "בדיקת מערכת",
+        "SystemCheckPhp": "גרסת PHP",
+        "Welcome": "ברוכים הבאים!"
+    }
+}

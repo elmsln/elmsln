@@ -18,12 +18,12 @@
     _paq.push(['setCustomVariable', 2, "Demo language", piwik.languageName]);
     _paq.push(['setDocumentTitle', document.domain + "/" + document.title]);
     _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
+    _paq.push(['enableLinkTracking', true]);
     _paq.push(['enableJSErrorTracking']);
 
     (function() {
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
-    g.defer=true; g.async=true; g.src='js/piwik.js'; s.parentNode.insertBefore(g,s);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src='js/piwik.js'; s.parentNode.insertBefore(g,s);
     })();
     </script>
     <!-- End Piwik Code -->

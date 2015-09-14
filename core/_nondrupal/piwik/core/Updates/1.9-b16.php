@@ -17,18 +17,17 @@ use Piwik\Updates;
  */
 class Updates_1_9_b16 extends Updates
 {
-    static function isMajorUpdate()
+    public static function isMajorUpdate()
     {
         return true;
     }
 
-    static function getSql()
+    public static function getSql()
     {
         return array(
             'ALTER TABLE  `' . Common::prefixTable('log_link_visit_action') . '`
 			CHANGE `idaction_url` `idaction_url` INT( 10 ) UNSIGNED NULL DEFAULT NULL'
             => false,
-
 
             'ALTER TABLE  `' . Common::prefixTable('log_visit') . '`
 			ADD visit_total_searches SMALLINT(5) UNSIGNED NOT NULL AFTER `visit_total_actions`'
@@ -46,9 +45,8 @@ class Updates_1_9_b16 extends Updates
         );
     }
 
-    static function update()
+    public static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }
 }
-

@@ -37,15 +37,14 @@ class Manager
         }
 
         if (empty(static::$settings)) {
+            $settings = PluginManager::getInstance()->findComponents('Settings', 'Piwik\\Plugin\\Settings');
+            $byPluginName = array();
 
-            $settings = array();
-
-            $pluginNames = PluginManager::getInstance()->getLoadedPluginsName();
-            foreach ($pluginNames as $pluginName) {
-                $settings[$pluginName] = self::getPluginSettingsClass($pluginName);
+            foreach ($settings as $setting) {
+                $byPluginName[$setting->getPluginName()] = $setting;
             }
 
-            static::$settings = array_filter($settings);
+            static::$settings = $byPluginName;
         }
 
         return static::$settings;
@@ -63,7 +62,14 @@ class Manager
      */
     public static function cleanupPluginSettings($pluginName)
     {
-        $settings = self::getPluginSettingsClass($pluginName);
+        $pluginManager = PluginManager::getInstance();
+
+        if (!$pluginManager->isPluginLoaded($pluginName)) {
+            return;
+        }
+
+        $plugin   = $pluginManager->loadPlugin($pluginName);
+        $settings = $plugin->findComponent('Settings', 'Piwik\\Plugin\\Settings');
 
         if (!empty($settings)) {
             $settings->removeAllPluginSettings();
@@ -95,39 +101,57 @@ class Manager
         return $settingsForUser;
     }
 
-    public static function hasPluginSettingsForCurrentUser($pluginName)
+    public static function hasSystemPluginSettingsForCurrentUser($pluginName)
     {
-        $pluginNames = array_keys(static::getPluginSettingsForCurrentUser());
+        $pluginNames = static::getPluginNamesHavingSystemSettings();
 
         return in_array($pluginName, $pluginNames);
     }
 
     /**
-     * Detects whether there are settings for activated plugins available that the current user can change.
+     * Detects whether there are user settings for activated plugins available that the current user can change.
      *
      * @return bool
      */
-    public static function hasPluginsSettingsForCurrentUser()
+    public static function hasUserPluginsSettingsForCurrentUser()
     {
         $settings = static::getPluginSettingsForCurrentUser();
 
+        foreach ($settings as $setting) {
+            foreach ($setting->getSettingsForCurrentUser() as $set) {
+                if ($set instanceof UserSetting) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static function getPluginNamesHavingSystemSettings()
+    {
+        $settings = static::getPluginSettingsForCurrentUser();
+        $plugins  = array();
+
+        foreach ($settings as $pluginName => $setting) {
+            foreach ($setting->getSettingsForCurrentUser() as $set) {
+                if ($set instanceof SystemSetting) {
+                    $plugins[] = $pluginName;
+                }
+            }
+        }
+
+        return array_unique($plugins);
+    }
+    /**
+     * Detects whether there are system settings for activated plugins available that the current user can change.
+     *
+     * @return bool
+     */
+    public static function hasSystemPluginsSettingsForCurrentUser()
+    {
+        $settings = static::getPluginNamesHavingSystemSettings();
+
         return !empty($settings);
     }
-
-    /**
-     * Tries to find a settings class for the specified plugin name. Returns null in case the plugin does not specify
-     * any settings, an instance of the settings class otherwise.
-     *
-     * @param string $pluginName
-     * @return \Piwik\Plugin\Settings|null
-     */
-    private static function getPluginSettingsClass($pluginName)
-    {
-        $klassName = 'Piwik\\Plugins\\' . $pluginName . '\\Settings';
-
-        if (class_exists($klassName) && is_subclass_of($klassName, 'Piwik\\Plugin\\Settings')) {
-            return new $klassName($pluginName);
-        }
-    }
-
 }

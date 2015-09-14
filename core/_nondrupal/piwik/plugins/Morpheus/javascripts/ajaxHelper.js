@@ -15,7 +15,7 @@ globalAjaxQueue.active = 0;
 
 /**
  * Removes all finished requests from the queue.
- * 
+ *
  * @return {void}
  */
 globalAjaxQueue.clean = function () {
@@ -165,10 +165,10 @@ function ajaxHelper() {
             }
         }
     };
-    
+
     /**
      * Sets the base URL to use in the AJAX request.
-     * 
+     *
      * @param {string} url
      */
     this.setUrl = function (url) {
@@ -359,7 +359,13 @@ function ajaxHelper() {
             async:    this.async !== false,
             url:      url,
             dataType: this.format || 'json',
-            error:    this.errorCallback,
+            error:    function () {
+                --globalAjaxQueue.active;
+
+                if (that.errorCallback) {
+                    that.errorCallback.apply(this, arguments);
+                }
+            },
             success:  function (response) {
                 if (that.loadingElement) {
                     $(that.loadingElement).hide();

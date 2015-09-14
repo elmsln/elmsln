@@ -105,28 +105,34 @@ class Marketplace
     public function getPluginsHavingUpdate($themesOnly)
     {
         $pluginManager = \Piwik\Plugin\Manager::getInstance();
-        $pluginManager->returnLoadedPluginsInfo();
+        $pluginManager->loadAllPluginsAndGetTheirInfo();
         $loadedPlugins = $pluginManager->getLoadedPlugins();
 
         try {
             $pluginsHavingUpdate = $this->client->getInfoOfPluginsHavingUpdate($loadedPlugins, $themesOnly);
-
         } catch (\Exception $e) {
             $pluginsHavingUpdate = array();
         }
 
         foreach ($pluginsHavingUpdate as &$updatePlugin) {
             foreach ($loadedPlugins as $loadedPlugin) {
-
                 if (!empty($updatePlugin['name'])
                     && $loadedPlugin->getPluginName() == $updatePlugin['name']
                 ) {
-
                     $updatePlugin['currentVersion'] = $loadedPlugin->getVersion();
                     $updatePlugin['isActivated'] = $pluginManager->isPluginActivated($updatePlugin['name']);
                     $updatePlugin = $this->addMissingRequirements($updatePlugin);
                     break;
                 }
+            }
+        }
+
+        // remove plugins that have updates but for some reason are not loaded
+        foreach ($pluginsHavingUpdate as $key => $updatePlugin) {
+            if (empty($updatePlugin['currentVersion'])
+                || empty($updatePlugin['isActivated'])
+            ) {
+                unset($pluginsHavingUpdate[$key]);
             }
         }
 
@@ -137,8 +143,8 @@ class Marketplace
     {
         $dateFormat = Piwik::translate('CoreHome_ShortDateFormatWithYear');
 
-        $plugin['canBeUpdated'] = $this->hasPluginUpdate($plugin);
         $plugin['isInstalled']  = \Piwik\Plugin\Manager::getInstance()->isPluginLoaded($plugin['name']);
+        $plugin['canBeUpdated'] = $plugin['isInstalled'] && $this->hasPluginUpdate($plugin);
         $plugin['lastUpdated']  = Date::factory($plugin['lastUpdated'])->getLocalized($dateFormat);
 
         if ($plugin['canBeUpdated']) {
@@ -159,7 +165,7 @@ class Marketplace
         if (!empty($plugin['versions'])) {
 
             $dateFormat = Piwik::translate('CoreHome_DateFormat');
-            
+
             foreach ($plugin['versions'] as $index => $version) {
                 $plugin['versions'][$index]['release'] = Date::factory($version['release'])->getLocalized($dateFormat);
             }

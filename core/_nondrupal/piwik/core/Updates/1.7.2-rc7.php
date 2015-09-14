@@ -18,19 +18,19 @@ use Piwik\Updates;
  */
 class Updates_1_7_2_rc7 extends Updates
 {
-    static function getSql()
+    public static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('user_dashboard') . '`
-		        ADD `name` VARCHAR( 100 ) NULL DEFAULT NULL AFTER  `iddashboard`' => false,
+		        ADD `name` VARCHAR( 100 ) NULL DEFAULT NULL AFTER  `iddashboard`' => 1060,
         );
     }
 
-    static function update()
+    public static function update()
     {
         try {
             $dashboards = Db::fetchAll('SELECT * FROM `' . Common::prefixTable('user_dashboard') . '`');
-            foreach ($dashboards AS $dashboard) {
+            foreach ($dashboards as $dashboard) {
                 $idDashboard = $dashboard['iddashboard'];
                 $login = $dashboard['login'];
                 $layout = $dashboard['layout'];

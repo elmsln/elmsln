@@ -61,16 +61,16 @@ class FormSuperUser extends QuickForm2
         $this->addElement('checkbox', 'subscribe_newsletter_piwikpro', null,
             array(
                 'content' => '&nbsp;&nbsp;' . Piwik::translate('Installation_PiwikProNewsletter',
-                        array("<a href='http://piwik.pro' style='color:#444;' target='_blank'>", "</a>")
+                        array("<a href='http://piwik.pro?pk_medium=App_Newsletter_link&pk_source=Piwik_App&pk_campaign=App_Installation' style='color:#444;' rel='noreferrer' target='_blank'>", "</a>")
                     ),
             ));
 
-        $this->addElement('submit', 'submit', array('value' => Piwik::translate('General_Next') . ' »', 'class' => 'submit'));
+        $this->addElement('submit', 'submit', array('value' => Piwik::translate('General_Next') . ' »', 'class' => 'btn btn-lg'));
 
         // default values
         $this->addDataSource(new HTML_QuickForm2_DataSource_Array(array(
             'subscribe_newsletter_piwikorg' => 1,
-            'subscribe_newsletter_piwikpro' => 0,
+            'subscribe_newsletter_piwikpro' => 1,
         )));
     }
 }

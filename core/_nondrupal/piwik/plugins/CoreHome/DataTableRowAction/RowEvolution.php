@@ -9,12 +9,13 @@
 namespace Piwik\Plugins\CoreHome\DataTableRowAction;
 
 use Exception;
+use Piwik\API\DataTablePostProcessor;
 use Piwik\API\Request;
-use Piwik\API\ResponseBuilder;
 use Piwik\Common;
 use Piwik\DataTable;
 use Piwik\Date;
 use Piwik\Metrics;
+use Piwik\Period\Factory as PeriodFactory;
 use Piwik\Piwik;
 use Piwik\Plugins\CoreVisualizations\Visualizations\JqplotGraph\Evolution as EvolutionViz;
 use Piwik\Url;
@@ -80,13 +81,13 @@ class RowEvolution
      * @param null|string $graphType
      * @throws Exception
      */
-    public function __construct($idSite, $date, $graphType = null)
+    public function __construct($idSite, $date, $graphType = 'graphEvolution')
     {
         $this->apiMethod = Common::getRequestVar('apiMethod', '', 'string');
         if (empty($this->apiMethod)) throw new Exception("Parameter apiMethod not set.");
 
-        $this->label = ResponseBuilder::getLabelFromRequest($_GET);
-        if(!is_array($this->label)) {
+        $this->label = DataTablePostProcessor::getLabelFromRequest($_GET);
+        if (!is_array($this->label)) {
             throw new Exception("Expected label to be an array, got instead: " . $this->label);
         }
         $this->label = $this->label[0];
@@ -94,7 +95,7 @@ class RowEvolution
         if ($this->label === '') throw new Exception("Parameter label not set.");
 
         $this->period = Common::getRequestVar('period', '', 'string');
-        if (empty($this->period)) throw new Exception("Parameter period not set.");
+        PeriodFactory::checkPeriodIsEnabled($this->period);
 
         $this->idSite = $idSite;
         $this->graphType = $graphType;
@@ -143,6 +144,7 @@ class RowEvolution
     {
         list($apiModule, $apiAction) = explode('.', $this->apiMethod);
 
+        // getQueryStringFromParameters expects sanitised query parameter values
         $parameters = array(
             'method'    => 'API.getRowEvolution',
             'label'     => $this->label,
@@ -197,7 +199,9 @@ class RowEvolution
             $view->config->columns_to_display = array_keys($metrics ? : $this->graphMetrics);
         }
 
+        $view->requestConfig->request_parameters_to_modify['label'] = '';
         $view->config->show_goals = false;
+        $view->config->show_search = false;
         $view->config->show_all_views_icons = false;
         $view->config->show_active_view_icon = false;
         $view->config->show_related_reports  = false;
@@ -266,6 +270,15 @@ class RowEvolution
             if (!empty($metricData['logo'])) {
                 $newMetric['logo'] = $metricData['logo'];
             }
+
+            // TODO: this check should be determined by metric metadata, not hardcoded here
+            if ($metric == 'nb_users'
+                && $first == 0
+                && $last == 0
+            ) {
+                $newMetric['hide'] = true;
+            }
+
             $metrics[] = $newMetric;
             $i++;
         }
@@ -337,7 +350,7 @@ class RowEvolution
         $labelPretty = $dataTableMap->getColumn('label_html');
         $labelPretty = array_filter($labelPretty, 'strlen');
         $labelPretty = current($labelPretty);
-        if(!empty($labelPretty)) {
+        if (!empty($labelPretty)) {
             return $labelPretty;
         }
         return $rowLabel;

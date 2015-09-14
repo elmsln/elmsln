@@ -3,7 +3,7 @@
  * Device Detector - The Universal Device Detection library for parsing User Agents
  *
  * @link http://piwik.org
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+ * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
  */
 namespace DeviceDetector\Parser;
 
@@ -41,6 +41,7 @@ class OperatingSystem extends ParserAbstract
         'BMP' => 'Brew',
         'CES' => 'CentOS',
         'COS' => 'Chrome OS',
+        'CYN' => 'CyanogenMod',
         'DEB' => 'Debian',
         'DFB' => 'DragonFly',
         'FED' => 'Fedora',
@@ -56,10 +57,14 @@ class OperatingSystem extends ParserAbstract
         'KBT' => 'Kubuntu',
         'LIN' => 'GNU/Linux',
         'LBT' => 'Lubuntu',
+        'VLN' => 'VectorLinux',
         'MAC' => 'Mac',
         'MDR' => 'Mandriva',
         'SMG' => 'MeeGo',
+        'MCD' => 'MocorDroid',
         'MIN' => 'Mint',
+        'MLD' => 'MildWild',
+        'MOR' => 'MorphOS',
         'NBS' => 'NetBSD',
         'WII' => 'Nintendo',
         'NDS' => 'Nintendo Mobile',
@@ -68,10 +73,9 @@ class OperatingSystem extends ParserAbstract
         'OBS' => 'OpenBSD',
         'PSP' => 'PlayStation Portable',
         'PS3' => 'PlayStation',
-        'PRS' => 'Presto',
-        'PPY' => 'Puppy',
         'RHT' => 'Red Hat',
         'ROS' => 'RISC OS',
+        'RZD' => 'RazoDroiD',
         'SAB' => 'Sabayon',
         'SSE' => 'SUSE',
         'SAF' => 'Sailfish OS',
@@ -87,21 +91,10 @@ class OperatingSystem extends ParserAbstract
         'UBT' => 'Ubuntu',
         'WTV' => 'WebTV',
         'WIN' => 'Windows',
-        'W2K' => 'Windows 2000',
-        'W31' => 'Windows 3.1',
-        'WI7' => 'Windows 7',
-        'WI8' => 'Windows 8',
-        'W95' => 'Windows 95',
-        'W98' => 'Windows 98',
         'WCE' => 'Windows CE',
-        'WME' => 'Windows ME',
         'WMO' => 'Windows Mobile',
-        'WNT' => 'Windows NT',
         'WPH' => 'Windows Phone',
         'WRT' => 'Windows RT',
-        'WS3' => 'Windows Server 2003',
-        'WVI' => 'Windows Vista',
-        'WXP' => 'Windows XP',
         'XBX' => 'Xbox',
         'XBT' => 'Xubuntu',
         'YNS' => 'YunOs',
@@ -116,8 +109,8 @@ class OperatingSystem extends ParserAbstract
      * @var array
      */
     protected static $osFamilies = array(
-        'Android'               => array('AND'),
-        'AmigaOS'               => array('AMG'),
+        'Android'               => array('AND', 'CYN', 'RZD', 'MLD', 'MCD'),
+        'AmigaOS'               => array('AMG', 'MOR'),
         'Apple TV'              => array('ATV'),
         'BlackBerry'            => array('BLB', 'QNX'),
         'Brew'                  => array('BMP'),
@@ -129,15 +122,15 @@ class OperatingSystem extends ParserAbstract
         'IBM'                   => array('OS2'),
         'iOS'                   => array('IOS'),
         'RISC OS'               => array('ROS'),
-        'GNU/Linux'             => array('LIN', 'ARL', 'DEB', 'KNO', 'MIN', 'UBT', 'KBT', 'XBT', 'LBT', 'FED', 'RHT', 'MDR', 'GNT', 'SAB', 'SLW', 'SSE', 'PPY', 'CES', 'BTR', 'YNS', 'PRS', 'SAF'),
+        'GNU/Linux'             => array('LIN', 'ARL', 'DEB', 'KNO', 'MIN', 'UBT', 'KBT', 'XBT', 'LBT', 'FED', 'RHT', 'VLN', 'MDR', 'GNT', 'SAB', 'SLW', 'SSE', 'CES', 'BTR', 'YNS', 'SAF'),
         'Mac'                   => array('MAC'),
         'Mobile Gaming Console' => array('PSP', 'NDS', 'XBX'),
         'Other Mobile'          => array('WOS', 'POS', 'SBA', 'TIZ', 'SMG'),
         'Symbian'               => array('SYM', 'SYS', 'SY3', 'S60', 'S40'),
         'Unix'                  => array('SOS', 'AIX', 'HPX', 'BSD', 'NBS', 'OBS', 'DFB', 'SYL', 'IRI', 'T64', 'INF'),
         'WebTV'                 => array('WTV'),
-        'Windows'               => array('WI7', 'WI8', 'WVI', 'WS3', 'WXP', 'W2K', 'WNT', 'WME', 'W98', 'W95', 'WRT', 'W31', 'WIN'),
-        'Windows Mobile'        => array('WPH', 'WMO', 'WCE')
+        'Windows'               => array('WIN'),
+        'Windows Mobile'        => array('WPH', 'WMO', 'WCE', 'WRT')
     );
 
     /**
@@ -166,17 +159,19 @@ class OperatingSystem extends ParserAbstract
 
         foreach ($this->getRegexes() as $osRegex) {
             $matches = $this->matchUserAgent($osRegex['regex']);
-            if ($matches)
+            if ($matches) {
                 break;
+            }
         }
 
-        if (!$matches)
+        if (!$matches) {
             return $return;
+        }
 
         $name  = $this->buildByMatch($osRegex['name'], $matches);
         $short = 'UNK';
 
-        foreach (self::$operatingSystems AS $osShort => $osName) {
+        foreach (self::$operatingSystems as $osShort => $osName) {
             if (strtolower($name) == strtolower($osName)) {
                 $name  = $osName;
                 $short = $osShort;
@@ -186,7 +181,8 @@ class OperatingSystem extends ParserAbstract
         $return = array(
             'name'       => $name,
             'short_name' => $short,
-            'version'    => $this->buildVersion($osRegex['version'], $matches)
+            'version'    => $this->buildVersion($osRegex['version'], $matches),
+            'platform'   => $this->parsePlatform()
         );
 
         if (in_array($return['name'], self::$operatingSystems)) {
@@ -195,6 +191,20 @@ class OperatingSystem extends ParserAbstract
 
         return $return;
     }
+
+    protected function parsePlatform()
+    {
+        if ($this->matchUserAgent('arm')) {
+            return 'ARM';
+        } elseif ($this->matchUserAgent('WOW64|x64|win64|amd64|x86_64')) {
+            return 'x64';
+        } elseif ($this->matchUserAgent('i[0-9]86|i86pc')) {
+            return 'x86';
+        }
+
+        return '';
+    }
+
 
     /**
      * Returns the operating system family for the given operating system
@@ -224,11 +234,7 @@ class OperatingSystem extends ParserAbstract
     {
         if (array_key_exists($os, self::$operatingSystems)) {
             $osFullName = self::$operatingSystems[$os];
-            if (in_array($os, self::$osFamilies['Windows'])) {
-                return $osFullName;
-            } else {
-                return trim($osFullName . " " . $ver);
-            }
+            return trim($osFullName . " " . $ver);
         }
         return false;
     }

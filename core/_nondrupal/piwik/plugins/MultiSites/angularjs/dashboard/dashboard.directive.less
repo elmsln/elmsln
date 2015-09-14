@@ -1,0 +1,257 @@
+
+.smallTitle {
+  font-size: 15px;
+}
+
+#multisites {
+  border: 0;
+  padding: 0 15px;
+  font-size: 14px;
+
+  h2 {
+    border-bottom: 0px;
+  }
+
+  .notification-error {
+    margin-top: 15px;
+  }
+
+  .add_new_site,
+  .clean {
+    border: 0 !important;
+    text-align: right; padding-top: 15px;padding-right:10px;
+  }
+
+  .add_new_site {
+    img {
+      margin: 0px;
+    }
+  }
+
+  .site_search {
+    padding: 0px;
+    text-align: center;
+    border: 0 !important;
+  }
+
+  .multisites-evolution,
+  .multisites-column {
+    text-align: right;
+  }
+
+  .multisites-evolution {
+    width:170px;
+  }
+
+  td, tr, .sparkline {
+    text-align: center;
+    vertical-align: middle;
+    padding: 2px 6px 2px 12px;
+    margin: 0;
+  }
+
+  th {
+    padding: 12px 6px 12px 12px;
+  }
+
+  td.empty-row {
+    border-bottom: none !important;
+  }
+
+  .indicator {
+    background: url(plugins/Morpheus/images/loading-blue.gif) no-repeat center;
+    height: 20px;
+    width: 60px;
+    margin: auto;
+    border: 0 !important;
+  }
+
+  .paging {
+    padding: 5px;
+    font-size: 10px;
+    border-bottom: 0px !important;
+
+    .previous {
+      padding-right: 20px;
+    }
+    .next {
+      padding-left: 20px;
+    }
+  }
+
+  .top_controls {
+    height: 10px;
+  }
+
+  th:first-child {
+    text-align:left;
+  }
+
+  th {
+    cursor: pointer;
+    border-left: 0px;
+    text-align: right;
+    border-bottom: 0px;
+
+    &#evolution {
+      text-align: center;
+    }
+
+    &.columnSorted {
+      font-weight: normal !important;
+    }
+  }
+
+  .site_search input {
+    margin-right: 0px;
+    margin-left: 25px;
+    padding-right: 25px;
+  }
+
+  .search_ico {
+    position: relative;
+    left: -25px;
+    margin-right: 0px;
+    margin-top: -1px;
+    cursor: pointer;
+  }
+  .reset {
+    position: relative;
+    left: -25px;
+    cursor: pointer;
+    margin-right: 0px;
+  }
+
+  tr.group {
+    font-weight: bold;
+    height: 30px;
+  }
+  tr.groupedWebsite .label {
+    padding-left: 50px;
+  }
+  td.multisites-label {
+    text-align: left;
+    width: 250px;
+  }
+  td.multisites-label a:hover {
+    text-decoration: underline;
+  }
+
+  td.multisites-column,
+  th.multisites-column {
+    width: 70px;
+    white-space: nowrap;
+  }
+
+  td.multisites-column-evolution,
+  th.multisites-column-evolution {
+    width: 70px;
+  }
+
+  th#evolution {
+    width:350px;
+  }
+
+  th#visits {
+    width: 100px;
+  }
+
+  th#pageviews {
+    width: 110px;
+  }
+
+  th#revenue {
+    width: 110px;
+  }
+
+  .evolution {
+    cursor:pointer;
+  }
+
+  .allWebsitesLoading {
+    padding:20px
+  }
+
+  .allWebsitesLoadingIndicator {
+    background: url(plugins/Morpheus/images/loading-blue.gif) no-repeat right 3px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+  }
+
+  .heading {
+    display: inline;
+    margin-top: 4px;
+  }
+
+  #evolution_selector {
+    margin: -6px 0 0 5px;
+  }
+
+  .label .arrow {
+    margin-left: 2px;
+  }
+
+  .multisites_asc,
+  .multisites_desc {
+    float: none;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0px;
+    margin-left: 6px;
+    margin-top: -1px;
+  }
+
+  #evolution {
+    .multisites_asc,
+    .multisites_desc {
+      margin-right: 6px;
+      margin-left: 0px;
+    }
+    .evolution {
+      vertical-align: top;
+    }
+  }
+
+  .multisites_asc {
+    margin-top: -7px;
+    vertical-align: top;
+  }
+
+  .multisites_desc:after {
+    content: " \25BC";
+    font-size: 1px;
+    color: @theme-color-brand;
+    border-left: 4px solid rgba(0, 0, 0, 0);
+    border-right: 4px solid rgba(0, 0, 0, 0);
+    border-top: 5px solid @theme-color-brand;
+  }
+  .multisites_asc:after {
+    content: " \25BC";
+    font-size: 1px;
+    color: @theme-color-brand;
+    border-left: 4px solid rgba(0, 0, 0, 0);
+    border-right: 4px solid rgba(0, 0, 0, 0);
+    border-bottom: 5px solid @theme-color-brand;
+  }
+
+  div.sparkline {
+    float:none;
+  }
+
+  tfoot td {
+    border-bottom: 0px;
+  }
+}
+
+#mt thead {
+  line-height: 2.5em;
+}
+
+#mt thead *:first-child {
+  border-top-left-radius: 7px
+}
+
+#mt thead *:last-child {
+  border-top-right-radius: 7px;
+}

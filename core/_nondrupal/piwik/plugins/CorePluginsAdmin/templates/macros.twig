@@ -13,7 +13,7 @@
             </thead>
             <tbody id="plugins">
             {% for name,plugin in pluginsHavingUpdate %}
-                <tr {% if plugin.isActivated %}class="active-plugin"{% else %}class="inactive-plugin"{% endif %}>
+                <tr {% if plugin.isActivated|default(false) %}class="active-plugin"{% else %}class="inactive-plugin"{% endif %}>
                     <td class="name">
                         <a href="javascript:void(0);" data-pluginName="{{ plugin.name|e('html_attr') }}">
                             {{ plugin.name }}
@@ -96,13 +96,13 @@
 {% macro missingRequirementsPleaseUpdateNotice(plugin) %}
     {% if plugin.missingRequirements and 0 < plugin.missingRequirements|length %}
         {% for req in plugin.missingRequirements -%}
-            <p class="missingRequirementsNotice">
+            <div class="alert alert-danger">
                 {% set requirement = req.requirement|capitalize %}
                 {% if 'Php' == requirement %}
                     {% set requirement = 'PHP' %}
                 {% endif %}
                 {{ 'CorePluginsAdmin_MissingRequirementsNotice'|translate(requirement, req.actualVersion, req.requiredVersion) }}
-            </p>
+            </div>
         {%- endfor %}
     {% endif %}
 {% endmacro %}
@@ -125,7 +125,6 @@
         {{ 'CorePluginsAdmin_EmailToEnquireUpdatedVersion'|translate('<a href="mailto:' ~ metadata.support.email|e('html_attr') ~'">' ~ metadata.support.email ~ '</a>', pluginName)|raw }}
     {% endif %}
 {% endmacro %}
-
 
 {% macro tablePlugins(pluginsInfo, pluginNamesHavingSettings, activateNonce, deactivateNonce, uninstallNonce, isTheme, marketplacePluginNames, displayAdminLinks) %}
 
@@ -167,7 +166,7 @@
 
                         {% if name in pluginNamesHavingSettings %}
                             <br /><br />
-                            <a href="{{ linkTo({'module':'CoreAdminHome', 'action': 'pluginSettings'}) }}#{{ name|e('html_attr') }}" class="settingsLink">{{ 'General_Settings'|translate }}</a>
+                            <a href="{{ linkTo({'module':'CoreAdminHome', 'action': 'adminPluginSettings'}) }}#{{ name|e('html_attr') }}" class="settingsLink">{{ 'General_Settings'|translate }}</a>
                         {% endif %}
                     </td>
                     <td class="desc">
@@ -191,7 +190,7 @@
                         </div>
                         {% if plugin.info.license is defined %}
                         <div class="plugin-license">
-                            {% if plugin.info.license_homepage is defined %}<a title="{{ 'CorePluginsAdmin_LicenseHomepage'|translate }}" target="_blank" href="{{ plugin.info.license_homepage }}">{% endif %}{{ plugin.info.license }}{% if plugin.info.license_homepage is defined %}</a>{% endif %}
+                            {% if plugin.info.license_homepage is defined %}<a title="{{ 'CorePluginsAdmin_LicenseHomepage'|translate }}" rel="noreferrer" target="_blank" href="{{ plugin.info.license_homepage }}">{% endif %}{{ plugin.info.license }}{% if plugin.info.license_homepage is defined %}</a>{% endif %}
                         </div>
                         {% endif %}
                         {% if plugin.info.authors is defined %}
@@ -201,7 +200,7 @@
                             {% spaceless %}
                             {% for author in plugin.info.authors if author.name %}
                                 {% if author.homepage is defined %}
-                                    <a title="{{ 'CorePluginsAdmin_AuthorHomepage'|translate }}" href="{{ author.homepage }}" target="_blank">{{ author.name }}</a>
+                                    <a title="{{ 'CorePluginsAdmin_AuthorHomepage'|translate }}" href="{{ author.homepage }}" rel="noreferrer" target="_blank">{{ author.name }}</a>
                                 {% else %}
                                     {{ author.name }}
                                 {% endif %}

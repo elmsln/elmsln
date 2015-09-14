@@ -1,0 +1,10 @@
+{
+    "CustomVariables": {
+        "ColumnCustomVariableName": "Kustomoidun muuttujan nimi",
+        "ColumnCustomVariableValue": "Kustomoidun muuttujan arvo",
+        "CustomVariables": "Kustomoidut muuttujat",
+        "CustomVariablesReportDocumentation": "Tämä raportti sisältää tietoa kustomoiduista muuttujastasi. Voit tarkastella eri arvojen määrää klikkaamalla muuttujan nimeä. %s Saat lisätietoa kustomoiduista muuttujista %sCustom Variables%s-sivulta piwik.orgista (englanninkielinen)",
+        "ScopePage": "alueena sivu",
+        "ScopeVisit": "alueena käynti"
+    }
+}

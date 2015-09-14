@@ -14,11 +14,11 @@ use Piwik\DataTable\BaseFilter;
 /**
  * Executes a callback for each row of a {@link DataTable} and adds the result as a new
  * row metadata value.
- * 
+ *
  * **Basic usage example**
- * 
+ *
  *     $dataTable->filter('ColumnCallbackAddMetadata', array('label', 'logo', 'Piwik\Plugins\MyPlugin\getLogoFromLabel'));
- * 
+ *
  * @api
  */
 class ColumnCallbackAddMetadata extends BaseFilter
@@ -31,7 +31,7 @@ class ColumnCallbackAddMetadata extends BaseFilter
 
     /**
      * Constructor.
-     * 
+     *
      * @param DataTable $table The DataTable instance that will be filtered.
      * @param string|array $columnsToRead The columns to read from each row and pass on to the callback.
      * @param string $metadataToAdd The name of the metadata field that will be added to each row.
@@ -48,12 +48,12 @@ class ColumnCallbackAddMetadata extends BaseFilter
         if (!is_array($columnsToRead)) {
             $columnsToRead = array($columnsToRead);
         }
-        $this->columnsToRead = $columnsToRead;
 
-        $this->functionToApply = $functionToApply;
+        $this->columnsToRead      = $columnsToRead;
+        $this->functionToApply    = $functionToApply;
         $this->functionParameters = $functionParameters;
-        $this->metadataToAdd = $metadataToAdd;
-        $this->applyToSummaryRow = $applyToSummaryRow;
+        $this->metadataToAdd      = $metadataToAdd;
+        $this->applyToSummaryRow  = $applyToSummaryRow;
     }
 
     /**
@@ -63,11 +63,13 @@ class ColumnCallbackAddMetadata extends BaseFilter
      */
     public function filter($table)
     {
-        foreach ($table->getRows() as $key => $row) {
-            if (!$this->applyToSummaryRow && $key == DataTable::ID_SUMMARY_ROW) {
-                continue;
-            }
+        if ($this->applyToSummaryRow) {
+            $rows = $table->getRows();
+        } else {
+            $rows = $table->getRowsWithoutSummaryRow();
+        }
 
+        foreach ($rows as $key => $row) {
             $parameters = array();
             foreach ($this->columnsToRead as $columnsToRead) {
                 $parameters[] = $row->getColumn($columnsToRead);

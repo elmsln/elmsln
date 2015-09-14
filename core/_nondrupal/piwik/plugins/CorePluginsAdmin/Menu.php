@@ -10,6 +10,7 @@ namespace Piwik\Plugins\CorePluginsAdmin;
 
 use Piwik\Db;
 use Piwik\Menu\MenuAdmin;
+use Piwik\Menu\MenuUser;
 use Piwik\Piwik;
 
 /**
@@ -24,7 +25,6 @@ class Menu extends \Piwik\Plugin\Menu
         $isMarketplaceEnabled = CorePluginsAdmin::isMarketplaceEnabled();
 
         $pluginsUpdateMessage = '';
-        $themesUpdateMessage  = '';
 
         if ($hasSuperUserAcess && $isMarketplaceEnabled) {
             $marketplace = new Marketplace();
@@ -32,30 +32,42 @@ class Menu extends \Piwik\Plugin\Menu
             $themesHavingUpdate  = $marketplace->getPluginsHavingUpdate($themesOnly = true);
 
             if (!empty($pluginsHavingUpdate)) {
-                $pluginsUpdateMessage = sprintf(' (%d)', count($pluginsHavingUpdate));
-            }
-            if (!empty($themesHavingUpdate)) {
-                $themesUpdateMessage = sprintf(' (%d)', count($themesHavingUpdate));
+                $pluginsUpdateMessage = sprintf(' (%d)', count($pluginsHavingUpdate) + count($themesHavingUpdate));
             }
         }
 
-        $menu->add('CorePluginsAdmin_MenuPlatform', null, "", !$isAnonymous, $order = 7);
-        $menu->add('CorePluginsAdmin_MenuPlatform', Piwik::translate('General_Plugins') . $pluginsUpdateMessage,
-                   array('module' => 'CorePluginsAdmin', 'action' => 'plugins', 'activated' => ''),
-                   $hasSuperUserAcess,
-                   $order = 1);
-        $menu->add('CorePluginsAdmin_MenuPlatform', Piwik::translate('CorePluginsAdmin_Themes') . $themesUpdateMessage,
-                   array('module' => 'CorePluginsAdmin', 'action' => 'themes', 'activated' => ''),
-                   $hasSuperUserAcess,
-                   $order = 3);
+        if (!$isAnonymous) {
+            $menu->addPlatformItem(null, "", $order = 7);
+        }
 
-        if ($isMarketplaceEnabled) {
-            $menu->add('CorePluginsAdmin_MenuPlatform', 'CorePluginsAdmin_Marketplace',
-                       array('module' => 'CorePluginsAdmin', 'action' => 'extend', 'activated' => ''),
-                       !$isAnonymous,
-                       $order = 5);
+        if ($hasSuperUserAcess) {
+            $menu->addManageItem(Piwik::translate('General_Plugins') . $pluginsUpdateMessage,
+                                   $this->urlForAction('plugins', array('activated' => '')),
+                                   $order = 4);
+        }
 
+
+        if (Piwik::hasUserSuperUserAccess() && CorePluginsAdmin::isMarketplaceEnabled()) {
+            $menu->addManageItem('CorePluginsAdmin_Marketplace',
+                $this->urlForAction('browsePlugins', array('activated' => '')),
+                $order = 12);
         }
     }
 
+    private function isAllowedToSeeMarketPlace()
+    {
+        $isAnonymous          = Piwik::isUserIsAnonymous();
+        $isMarketplaceEnabled = CorePluginsAdmin::isMarketplaceEnabled();
+
+        return $isMarketplaceEnabled && !$isAnonymous;
+    }
+
+    public function configureUserMenu(MenuUser $menu)
+    {
+        if ($this->isAllowedToSeeMarketPlace()) {
+            $menu->addPlatformItem('CorePluginsAdmin_Marketplace',
+                                   $this->urlForAction('userBrowsePlugins', array('activated' => '')),
+                                   $order = 5);
+        }
+    }
 }

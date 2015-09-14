@@ -8,15 +8,9 @@
  */
 namespace Piwik\Plugins\Dashboard;
 
-use Exception;
 use Piwik\Common;
 use Piwik\Db;
-use Piwik\DbHelper;
-use Piwik\Menu\MenuAbstract;
-use Piwik\Menu\MenuMain;
-use Piwik\Menu\MenuTop;
 use Piwik\Piwik;
-use Piwik\Site;
 use Piwik\WidgetsList;
 
 /**
@@ -47,16 +41,18 @@ class Dashboard extends \Piwik\Plugin
      */
     public function getLayoutForUser($login, $idDashboard)
     {
-        $paramsBind = array($login, $idDashboard);
-        $query = sprintf('SELECT layout FROM %s WHERE login = ? AND iddashboard = ?',
-            Common::prefixTable('user_dashboard'));
-        $return = Db::fetchAll($query, $paramsBind);
+        $return = $this->getModel()->getLayoutForUser($login, $idDashboard);
 
         if (count($return) == 0) {
             return false;
         }
 
         return $return[0]['layout'];
+    }
+
+    private function getModel()
+    {
+        return new Model();
     }
 
     public function getDefaultLayout()
@@ -80,14 +76,13 @@ class Dashboard extends \Piwik\Plugin
                 ],
                 [
                     ' . $topWidget . '
-                    {"uniqueId":"widgetReferrersgetKeywords","parameters":{"module":"Referrers","action":"getKeywords"}},
-                    {"uniqueId":"widgetReferrersgetWebsites","parameters":{"module":"Referrers","action":"getWebsites"}}
+                    {"uniqueId":"widgetReferrersgetWebsites","parameters":{"module":"Referrers","action":"getWebsites"}},
+                    {"uniqueId":"widgetVisitTimegetVisitInformationPerServerTime","parameters":{"module":"VisitTime","action":"getVisitInformationPerServerTime"}}
                 ],
                 [
                     {"uniqueId":"widgetUserCountryMapvisitorMap","parameters":{"module":"UserCountryMap","action":"visitorMap"}},
-                    {"uniqueId":"widgetUserSettingsgetBrowser","parameters":{"module":"UserSettings","action":"getBrowser"}},
+                    {"uniqueId":"widgetDevicesDetectiongetBrowsers","parameters":{"module":"DevicesDetection","action":"getBrowsers"}},
                     {"uniqueId":"widgetReferrersgetSearchEngines","parameters":{"module":"Referrers","action":"getSearchEngines"}},
-                    {"uniqueId":"widgetVisitTimegetVisitInformationPerServerTime","parameters":{"module":"VisitTime","action":"getVisitInformationPerServerTime"}},
                     {"uniqueId":"widgetExampleRssWidgetrssPiwik","parameters":{"module":"ExampleRssWidget","action":"rssPiwik"}}
                 ]
             ]';
@@ -112,12 +107,10 @@ class Dashboard extends \Piwik\Plugin
 
     public function getAllDashboards($login)
     {
-        $dashboards = Db::fetchAll('SELECT iddashboard, name, layout
-                                      FROM ' . Common::prefixTable('user_dashboard') .
-            ' WHERE login = ? ORDER BY iddashboard', array($login));
+        $dashboards = $this->getModel()->getAllDashboardsForUser($login);
 
         $nameless = 1;
-        foreach ($dashboards AS &$dashboard) {
+        foreach ($dashboards as &$dashboard) {
 
             if (empty($dashboard['name'])) {
                 $dashboard['name'] = Piwik::translate('Dashboard_DashboardOf', $login);
@@ -199,12 +192,12 @@ class Dashboard extends \Piwik\Plugin
         $layout = str_replace("\\\"", "\"", $layout);
         $layout = str_replace("\n", "", $layout);
 
-        return Common::json_decode($layout, $assoc = false);
+        return json_decode($layout, $assoc = false);
     }
 
     public function encodeLayout($layout)
     {
-        return Common::json_encode($layout);
+        return json_encode($layout);
     }
 
     public function getJsFiles(&$jsFiles)
@@ -220,27 +213,22 @@ class Dashboard extends \Piwik\Plugin
     {
         $stylesheets[] = "plugins/CoreHome/stylesheets/dataTable.less";
         $stylesheets[] = "plugins/Dashboard/stylesheets/dashboard.less";
+        $stylesheets[] = "plugins/Dashboard/stylesheets/widget.less";
     }
 
     public function deleteDashboardLayout($userLogin)
     {
-        Db::query('DELETE FROM ' . Common::prefixTable('user_dashboard') . ' WHERE login = ?', array($userLogin));
+        $this->getModel()->deleteAllLayoutsForUser($userLogin);
     }
 
     public function install()
     {
-        $dashboard = "login VARCHAR( 100 ) NOT NULL ,
-					  iddashboard INT NOT NULL ,
-					  name VARCHAR( 100 ) NULL DEFAULT NULL ,
-					  layout TEXT NOT NULL,
-					  PRIMARY KEY ( login , iddashboard )";
-
-        DbHelper::createTable('user_dashboard', $dashboard);
+        Model::install();
     }
 
     public function uninstall()
     {
-        Db::dropTables(Common::prefixTable('user_dashboard'));
+        Model::uninstall();
     }
 
     public function getClientSideTranslationKeys(&$translationKeys)

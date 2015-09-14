@@ -1,0 +1,17 @@
+{
+    "CorePluginsAdmin": {
+        "Activate": "Gaitu",
+        "Activated": "Gaituta",
+        "Active": "Gaituta",
+        "Deactivate": "Ezgaitu",
+        "Inactive": "Ezgaituta",
+        "PluginsExtendPiwik": "Piwik-en funtzionaltasunak hedatu eta zabaltzen dituzte pluginek.",
+        "OncePluginIsInstalledYouMayActivateHere": "Plugin bat instalatu ondoren, hemendik gaitu edo ezgaitu dezakezu.",
+        "PluginHomepage": "Pluginaren hasiera-orria",
+        "PluginKeywords": "Gako-hitzak",
+        "PluginsManagement": "Pluginen kudeaketa",
+        "Status": "Egoera",
+        "Version": "Bertsioa",
+        "Websites": "Webguneak"
+    }
+}

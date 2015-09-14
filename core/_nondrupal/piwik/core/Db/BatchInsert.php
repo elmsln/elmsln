@@ -9,13 +9,12 @@
 namespace Piwik\Db;
 
 use Exception;
-use Piwik\AssetManager;
 use Piwik\Common;
 use Piwik\Config;
+use Piwik\Container\StaticContainer;
 use Piwik\Db;
 use Piwik\DbHelper;
 use Piwik\Log;
-use Piwik\SettingsPiwik;
 use Piwik\SettingsServer;
 
 class BatchInsert
@@ -33,13 +32,12 @@ class BatchInsert
     public static function tableInsertBatchIterate($tableName, $fields, $values, $ignoreWhenDuplicate = true)
     {
         $fieldList = '(' . join(',', $fields) . ')';
-        $ignore = $ignoreWhenDuplicate ? 'IGNORE' : '';
+        $ignore    = $ignoreWhenDuplicate ? 'IGNORE' : '';
 
         foreach ($values as $row) {
-            $query = "INSERT $ignore
-					INTO " . $tableName . "
-					$fieldList
-					VALUES (" . Common::getSqlStringFieldsArray($row) . ")";
+            $query = "INSERT $ignore INTO " . $tableName . "
+					  $fieldList
+					  VALUES (" . Common::getSqlStringFieldsArray($row) . ")";
             Db::query($query, $row);
         }
     }
@@ -58,8 +56,7 @@ class BatchInsert
      */
     public static function tableInsertBatch($tableName, $fields, $values, $throwException = false)
     {
-        $filePath = PIWIK_USER_PATH . '/tmp/assets/' . $tableName . '-' . Common::generateUniqId() . '.csv';
-        $filePath = SettingsPiwik::rewriteTmpPathWithInstanceId($filePath);
+        $filePath = StaticContainer::get('path.tmp') . '/assets/' . $tableName . '-' . Common::generateUniqId() . '.csv';
 
         $loadDataInfileEnabled = Config::getInstance()->General['enable_load_data_infile'];
 
@@ -94,8 +91,6 @@ class BatchInsert
                     return true;
                 }
             } catch (Exception $e) {
-                Log::info("LOAD DATA INFILE failed or not supported, falling back to normal INSERTs... Error was: %s", $e->getMessage());
-
                 if ($throwException) {
                     throw $e;
                 }
@@ -123,7 +118,7 @@ class BatchInsert
     {
         // Chroot environment: prefix the path with the absolute chroot path
         $chrootPath = Config::getInstance()->General['absolute_chroot_path'];
-        if(!empty($chrootPath)) {
+        if (!empty($chrootPath)) {
             $filePath = $chrootPath . $filePath;
         }
 
@@ -160,19 +155,20 @@ class BatchInsert
 		";
 
         /*
-		 * First attempt: assume web server and MySQL server are on the same machine;
-		 * this requires that the db user have the FILE privilege; however, since this is
-		 * a global privilege, it may not be granted due to security concerns
-		 */
+         * First attempt: assume web server and MySQL server are on the same machine;
+         * this requires that the db user have the FILE privilege; however, since this is
+         * a global privilege, it may not be granted due to security concerns
+         */
         $keywords = array('');
 
         /*
-		 * Second attempt: using the LOCAL keyword means the client reads the file and sends it to the server;
-		 * the LOCAL keyword may trigger a known PHP PDO\MYSQL bug when MySQL not built with --enable-local-infile
-		 * @see http://bugs.php.net/bug.php?id=54158
-		 */
+         * Second attempt: using the LOCAL keyword means the client reads the file and sends it to the server;
+         * the LOCAL keyword may trigger a known PHP PDO\MYSQL bug when MySQL not built with --enable-local-infile
+         * @see http://bugs.php.net/bug.php?id=54158
+         */
         $openBaseDir = ini_get('open_basedir');
-        $safeMode = ini_get('safe_mode');
+        $safeMode    = ini_get('safe_mode');
+
         if (empty($openBaseDir) && empty($safeMode)) {
             // php 5.x - LOAD DATA LOCAL INFILE is disabled if open_basedir restrictions or safe_mode enabled
             $keywords[] = 'LOCAL ';
@@ -190,21 +186,20 @@ class BatchInsert
 
                 return true;
             } catch (Exception $e) {
-//				echo $sql . ' ---- ' .  $e->getMessage();
                 $code = $e->getCode();
                 $message = $e->getMessage() . ($code ? "[$code]" : '');
-                if (!Db::get()->isErrNo($e, '1148')) {
-                    Log::info("LOAD DATA INFILE failed... Error was: %s", $message);
-                }
                 $exceptions[] = "\n  Try #" . (count($exceptions) + 1) . ': ' . $queryStart . ": " . $message;
             }
         }
+
         if (count($exceptions)) {
-            throw new Exception(implode(",", $exceptions));
+            $message = "LOAD DATA INFILE failed... Error was: " . implode(",", $exceptions);
+            Log::info($message);
+            throw new Exception($message);
         }
+
         return false;
     }
-
 
     /**
      * Create CSV (or other delimited) files
@@ -214,13 +209,13 @@ class BatchInsert
      * @param array $rows Array of array corresponding to rows of values
      * @throws Exception  if unable to create or write to file
      */
-    static protected function createCSVFile($filePath, $fileSpec, $rows)
+    protected static function createCSVFile($filePath, $fileSpec, $rows)
     {
         // Set up CSV delimiters, quotes, etc
         $delim = $fileSpec['delim'];
         $quote = $fileSpec['quote'];
-        $eol = $fileSpec['eol'];
-        $null = $fileSpec['null'];
+        $eol   = $fileSpec['eol'];
+        $null  = $fileSpec['null'];
         $escapespecial_cb = $fileSpec['escapespecial_cb'];
 
         $fp = @fopen($filePath, 'wb');
@@ -247,6 +242,7 @@ class BatchInsert
                 throw new Exception('Error writing to the tmp file ' . $filePath);
             }
         }
+
         fclose($fp);
 
         @chmod($filePath, 0777);

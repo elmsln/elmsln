@@ -9,12 +9,16 @@
 namespace Piwik\Plugins\UserCountryMap;
 
 use Piwik\Menu\MenuReporting;
+use Piwik\Plugin\Manager as PluginManager;
 
 class Menu extends \Piwik\Plugin\Menu
 {
     public function configureReportingMenu(MenuReporting $menu)
     {
-        $menu->add('General_Visitors', 'UserCountryMap_RealTimeMap',
-                   array('module' => 'UserCountryMap', 'action' => 'realtimeWorldMap'), true, $order = 70);
+        if (PluginManager::getInstance()->isPluginActivated('UserCountry')) {
+            $menu->addVisitorsItem('UserCountryMap_RealTimeMap',
+                                   $this->urlForAction('realtimeWorldMap'),
+                                   $order = 70);
+        }
     }
 }

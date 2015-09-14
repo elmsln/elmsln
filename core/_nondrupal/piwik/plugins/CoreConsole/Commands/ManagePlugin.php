@@ -9,7 +9,10 @@
 namespace Piwik\Plugins\CoreConsole\Commands;
 
 use Piwik\Plugin\ConsoleCommand;
-use Piwik\Plugin\Manager;
+use Piwik\Plugins\CorePluginsAdmin\Commands\ActivatePlugin;
+use Piwik\Plugins\CorePluginsAdmin\Commands\DeactivatePlugin;
+use Piwik\Plugins\CorePluginsAdmin\Commands\ListPlugins;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,6 +20,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * core:plugin console command.
+ *
+ * @deprecated This command has been replaced with `plugin:*` commands.
  */
 class ManagePlugin extends ConsoleCommand
 {
@@ -26,12 +31,13 @@ class ManagePlugin extends ConsoleCommand
     {
         $this->setName('core:plugin');
         $this->setDescription("Perform various actions regarding one or more plugins.");
-        $this->addArgument("operation", InputArgument::REQUIRED, "Operation to apply (can be 'activate' or 'deactivate').");
-        $this->addArgument("plugins", InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Plugin name(s) to activate.');
+        $this->addArgument("operation", InputArgument::REQUIRED, "Operation to apply (can be 'activate' or 'deactivate' or 'list').");
+        $this->addArgument("plugins", InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Plugin name(s) to activate.');
         $this->addOption('domain', null, InputOption::VALUE_REQUIRED, "The domain to activate the plugin for.");
 
         $this->operations['activate'] = 'activatePlugin';
         $this->operations['deactivate'] = 'deactivatePlugin';
+        $this->operations['list'] = 'listPlugins';
     }
 
     /**
@@ -47,6 +53,23 @@ class ManagePlugin extends ConsoleCommand
         }
 
         $fn = $this->operations[$operation];
+
+
+        if($fn == 'listPlugins') {
+            call_user_func(array($this, $fn), $input, $output);
+        } else {
+            $this->applyOperationToEachPlugin($input, $output, $plugins, $fn);
+        }
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @param $plugins
+     * @param $fn
+     */
+    protected function applyOperationToEachPlugin(InputInterface $input, OutputInterface $output, $plugins, $fn)
+    {
         foreach ($plugins as $plugin) {
             call_user_func(array($this, $fn), $input, $output, $plugin);
         }
@@ -54,15 +77,32 @@ class ManagePlugin extends ConsoleCommand
 
     private function activatePlugin(InputInterface $input, OutputInterface $output, $plugin)
     {
-        Manager::getInstance()->activatePlugin($plugin, $input, $output);
+        $output->writeln('<comment>Warning: the command core:plugin is deprecated, use plugin:activate instead.</comment>');
 
-        $output->writeln("Activated plugin <info>$plugin</info>");
+        $command = new ActivatePlugin();
+        $input = new ArrayInput(array(
+            'plugin' => $plugin,
+        ));
+        return $command->run($input, $output);
     }
 
     private function deactivatePlugin(InputInterface $input, OutputInterface $output, $plugin)
     {
-        Manager::getInstance()->deactivatePlugin($plugin, $input, $output);
+        $output->writeln('<comment>Warning: the command core:plugin is deprecated, use plugin:deactivate instead.</comment>');
 
-        $output->writeln("Deactivated plugin <info>$plugin</info>");
+        $command = new DeactivatePlugin();
+        $input = new ArrayInput(array(
+            'plugin' => $plugin,
+        ));
+        return $command->run($input, $output);
+    }
+
+    private function listPlugins(InputInterface $input, OutputInterface $output)
+    {
+        $output->writeln('<comment>Warning: the command core:plugin is deprecated, use plugin:list instead.</comment>');
+
+        $command = new ListPlugins();
+        $input = new ArrayInput(array());
+        return $command->run($input, $output);
     }
 }

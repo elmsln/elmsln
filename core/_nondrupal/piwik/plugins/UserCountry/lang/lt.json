@@ -1,0 +1,17 @@
+{
+    "UserCountry": {
+        "City": "Miestas",
+        "Continent": "Kontinentas",
+        "Country": "Šalis",
+        "country_a1": "Anonimas (proxy)",
+        "country_a2": "Palydovinis tiekėjas",
+        "country_cat": "Kataloniškai kalbančios bendruomenės",
+        "country_o1": "Kita šalis",
+        "DistinctCountries": "%s atskirti šalis",
+        "DownloadingDb": "Atsiunčiama %s",
+        "Latitude": "Platuma",
+        "Location": "Vietovė",
+        "Longitude": "Ilguma",
+        "SubmenuLocations": "Vietovės"
+    }
+}

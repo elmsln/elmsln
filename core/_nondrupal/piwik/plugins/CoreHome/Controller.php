@@ -13,28 +13,76 @@ use Piwik\API\Request;
 use Piwik\Common;
 use Piwik\Date;
 use Piwik\FrontController;
-use Piwik\Menu\MenuMain;
+use Piwik\Menu\MenuReporting;
 use Piwik\Notification\Manager as NotificationManager;
 use Piwik\Piwik;
+use Piwik\Plugin\Report;
 use Piwik\Plugins\CoreHome\DataTableRowAction\MultiRowEvolution;
 use Piwik\Plugins\CoreHome\DataTableRowAction\RowEvolution;
 use Piwik\Plugins\CorePluginsAdmin\MarketplaceApiClient;
 use Piwik\Plugins\Dashboard\DashboardManagerControl;
 use Piwik\Plugins\UsersManager\API;
 use Piwik\Site;
+use Piwik\Translation\Translator;
 use Piwik\UpdateCheck;
 use Piwik\Url;
 use Piwik\View;
 use Piwik\ViewDataTable\Manager as ViewDataTableManager;
+use Piwik\Plugin\Widgets as PluginWidgets;
 
-/**
- *
- */
 class Controller extends \Piwik\Plugin\Controller
 {
-    function getDefaultAction()
+    /**
+     * @var Translator
+     */
+    private $translator;
+
+    public function __construct(Translator $translator)
+    {
+        $this->translator = $translator;
+
+        parent::__construct();
+    }
+    
+    public function getDefaultAction()
     {
         return 'redirectToCoreHomeIndex';
+    }
+
+    public function renderReportMenu(Report $report)
+    {
+        Piwik::checkUserHasSomeViewAccess();
+        $this->checkSitePermission();
+
+        $report->checkIsEnabled();
+
+        $menuTitle = $report->getMenuTitle();
+
+        if (empty($menuTitle)) {
+            throw new Exception('This report is not supposed to be displayed in the menu, please define a $menuTitle in your report.');
+        }
+
+        $menuTitle = $this->translator->translate($menuTitle);
+        $content   = $this->renderReportWidget($report);
+
+        return View::singleReport($menuTitle, $content);
+    }
+
+    public function renderReportWidget(Report $report)
+    {
+        Piwik::checkUserHasSomeViewAccess();
+        $this->checkSitePermission();
+
+        $report->checkIsEnabled();
+
+        return $report->render();
+    }
+
+    public function renderWidget(PluginWidgets $widget, $method)
+    {
+        Piwik::checkUserHasSomeViewAccess();
+
+        return $widget->$method();
     }
 
     function redirectToCoreHomeIndex()
@@ -49,9 +97,11 @@ class Controller extends \Piwik\Plugin\Controller
         ) {
             $module = 'MultiSites';
         }
+
         if ($defaultReport == Piwik::getLoginPluginName()) {
             $module = Piwik::getLoginPluginName();
         }
+
         $idSite = Common::getRequestVar('idSite', false, 'int');
         parent::redirectToIndex($module, $action, $idSite);
     }
@@ -59,10 +109,15 @@ class Controller extends \Piwik\Plugin\Controller
     public function showInContext()
     {
         $controllerName = Common::getRequestVar('moduleToLoad');
-        $actionName = Common::getRequestVar('actionToLoad', 'index');
+        $actionName     = Common::getRequestVar('actionToLoad', 'index');
+
+        if($controllerName == 'API') {
+            throw new Exception("Showing API requests in context is not supported for security reasons. Please change query parameter 'moduleToLoad'.");
+        }
         if ($actionName == 'showInContext') {
             throw new Exception("Preventing infinite recursion...");
         }
+
         $view = $this->getDefaultIndexView();
         $view->content = FrontController::getInstance()->fetchDispatch($controllerName, $actionName);
         return $view->render();
@@ -78,7 +133,7 @@ class Controller extends \Piwik\Plugin\Controller
     {
         $view = new View('@CoreHome/getDefaultIndexView');
         $this->setGeneralVariablesView($view);
-        $view->menu = MenuMain::getInstance()->getMenu();
+        $view->menu = MenuReporting::getInstance()->getMenu();
         $view->dashboardSettingsControl = new DashboardManagerControl();
         $view->content = '';
         return $view;
@@ -92,12 +147,16 @@ class Controller extends \Piwik\Plugin\Controller
         ) {
             return;
         }
+
         $websiteId = Common::getRequestVar('idSite', false, 'int');
+
         if ($websiteId) {
+
             $website = new Site($websiteId);
-            $datetimeCreationDate = $website->getCreationDate()->getDatetime();
+            $datetimeCreationDate      = $website->getCreationDate()->getDatetime();
             $creationDateLocalTimezone = Date::factory($datetimeCreationDate, $website->getTimezone())->toString('Y-m-d');
-            $todayLocalTimezone = Date::factory('now', $website->getTimezone())->toString('Y-m-d');
+            $todayLocalTimezone        = Date::factory('now', $website->getTimezone())->toString('Y-m-d');
+
             if ($creationDateLocalTimezone == $todayLocalTimezone) {
                 Piwik::redirectToModule('CoreHome', 'index',
                     array('date'   => 'today',
@@ -179,32 +238,6 @@ class Controller extends \Piwik\Plugin\Controller
 
         $view = new View('@CoreHome/checkForUpdates');
         $this->setGeneralVariablesView($view);
-        return $view->render();
-    }
-
-    /**
-     * Renders and echo's the in-app donate form w/ slider.
-     */
-    public function getDonateForm()
-    {
-        $view = new View('@CoreHome/getDonateForm');
-        if (Common::getRequestVar('widget', false)
-            && Piwik::hasUserSuperUserAccess()
-        ) {
-            $view->footerMessage = Piwik::translate('CoreHome_OnlyForSuperUserAccess');
-        }
-        return $view->render();
-    }
-
-    /**
-     * Renders and echo's HTML that displays the Piwik promo video.
-     */
-    public function getPromoVideo()
-    {
-        $view = new View('@CoreHome/getPromoVideo');
-        $view->shareText = Piwik::translate('CoreHome_SharePiwikShort');
-        $view->shareTextLong = Piwik::translate('CoreHome_SharePiwikLong');
-        $view->promoVideoUrl = 'https://www.youtube.com/watch?v=OslfF_EH81g';
         return $view->render();
     }
 

@@ -1,0 +1,6 @@
+{
+    "Widgetize": {
+        "OpenInNewWindow": "打开一个新窗口",
+        "TopLinkTooltip": "小工具形式导出 Piwik 报表，将面板以 iframe 形式嵌入您的应用程序中。"
+    }
+}
