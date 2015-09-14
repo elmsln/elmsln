@@ -1,0 +1,10 @@
+# optimize opcodecache for php 5.5
+opcache.enable=1
+opcache.memory_consumption=256
+opcache.max_accelerated_files=100000
+opcache.max_wasted_percentage=10
+opcache.revalidate_freq=2
+opcache.validate_timestamps=1
+opcache.fast_shutdown=1
+opcache.interned_strings_buffer=8
+opcache.enable_cli=1
