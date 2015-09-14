@@ -1,0 +1,5 @@
+{
+    "ImageGraph": {
+        "ColumnOrdinateMissing": "Kolumnia '%s' ei löydetty tässä raportissa. Kokeile mitä tahansa %s"
+    }
+}

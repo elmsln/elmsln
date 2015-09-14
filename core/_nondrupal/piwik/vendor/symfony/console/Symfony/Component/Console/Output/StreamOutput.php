@@ -90,11 +90,11 @@ class StreamOutput extends Output
      *  -  Windows without Ansicon and ConEmu
      *  -  non tty consoles
      *
-     * @return bool    true if the stream supports colorization, false otherwise
+     * @return bool true if the stream supports colorization, false otherwise
      */
     protected function hasColorSupport()
     {
-        if (DIRECTORY_SEPARATOR == '\\') {
+        if (DIRECTORY_SEPARATOR === '\\') {
             return false !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI');
         }
 

@@ -8,19 +8,20 @@
  */
 namespace Piwik\Plugins\Live;
 
-use Piwik\WidgetsList;
+use Piwik\Piwik;
 
 class Widgets extends \Piwik\Plugin\Widgets
 {
-    public function configure(WidgetsList $widgetsList)
-    {
-        $category   = 'Live!';
-        $controller = 'Live';
+    protected $category = 'Live!';
 
-        $widgetsList->add($category, 'Live_VisitorsInRealTime', $controller, 'widget');
-        $widgetsList->add($category, 'Live_VisitorLog', $controller, 'getVisitorLog', array('small' => 1));
-        $widgetsList->add($category, 'Live_RealTimeVisitorCount', $controller, 'getSimpleLastVisitCount');
-        $widgetsList->add($category, 'Live_VisitorProfile', $controller, 'getVisitorProfilePopup');
+    public function init()
+    {
+        $this->addWidget('Live_VisitorsInRealTime', 'widget');
+
+        // the visitor profile uses a segment that is not accessible to the anonymous user, so don't bother showing this widget
+        if (!Piwik::isUserIsAnonymous()) {
+            $this->addWidget('Live_VisitorProfile', 'getVisitorProfilePopup');
+        }
     }
 
 }

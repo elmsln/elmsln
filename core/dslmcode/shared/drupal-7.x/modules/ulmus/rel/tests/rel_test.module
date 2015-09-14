@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Renderable test module
+ */
+
+/**
+ * Implements hook_install().
+ */
+function rel_test_install() {
+  variable_set('rel_build_registration_ignore', '');
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function rel_test_ctools_plugin_api($module, $api) {
+  if ($module == 'rel' && $api == 'rel') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_rel_build_info().
+ */
+function rel_test_rel_build_info() {
+  $builds = array();
+  $build_id = 'rel_register_admin_form';
+  $rel_build = new stdClass;
+  $rel_build->build_id = $build_id;
+  $rel_build->api_version = 1;
+  $rel_build->label = 'Register form';
+  $rel_build->entity_type = 'rel_build';
+  $rel_build->bundle = $build_id;
+  $rel_build->view_mode = 'form';
+  $rel_build->context = 'form';
+  $rel_build->path = 'admin/structure/rel/manage/' . $build_id;
+  $rel_build->elements = array(
+    'actions' => array(
+      'owner' => 'rel',
+      'label' => t('Actions'),
+      'weight' => 1,
+    ),
+    'rel_build_forms_registration' => array(
+      'owner' => 'rel',
+      'label' => t('Enable form registration'),
+      'weight' => 2,
+    ),
+  );
+  $rel_build->duplicate = array();
+  $builds[$build_id] = $rel_build;
+  return $builds;
+}

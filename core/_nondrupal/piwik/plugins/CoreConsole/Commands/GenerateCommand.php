@@ -9,7 +9,6 @@
 
 namespace Piwik\Plugins\CoreConsole\Commands;
 
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,12 +27,16 @@ class GenerateCommand extends GeneratePluginBase
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $pluginName  = $this->getPluginName($input, $output);
+        $pluginName = $this->getPluginName($input, $output);
+        $this->checkAndUpdateRequiredPiwikVersion($pluginName, $output);
+
         $commandName = $this->getCommandName($input, $output);
 
         $exampleFolder = PIWIK_INCLUDE_PATH . '/plugins/ExampleCommand';
         $replace       = array(
+            'ExampleCommandDescription' => $commandName,
             'ExampleCommand' => $pluginName,
+            'examplecommand:helloworld' => strtolower($pluginName) . ':' . $this->buildCommandName($commandName),
             'examplecommand' => strtolower($pluginName),
             'HelloWorld'     => $commandName,
             'helloworld'     => strtolower($commandName)
@@ -49,10 +52,19 @@ class GenerateCommand extends GeneratePluginBase
     }
 
     /**
+     * Convert MyComponentName => my-component-name
+     * @param  string $commandNameCamelCase
+     * @return string
+     */
+    protected function buildCommandName($commandNameCamelCase)
+    {
+        return strtolower(preg_replace('/([a-zA-Z])(?=[A-Z])/', '$1-', $commandNameCamelCase));
+    }
+    /**
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return string
-     * @throws \RunTimeException
+     * @throws \RuntimeException
      */
     private function getCommandName(InputInterface $input, OutputInterface $output)
     {
@@ -63,12 +75,16 @@ class GenerateCommand extends GeneratePluginBase
                 throw new \InvalidArgumentException('You have to enter a command name');
             }
 
+            if (!ctype_alnum($testname)) {
+                throw new \InvalidArgumentException('Only alphanumeric characters are allowed as a command name. Use CamelCase if the name of your command contains multiple words.');
+            }
+
             return $testname;
         };
 
         if (empty($testname)) {
             $dialog   = $this->getHelperSet()->get('dialog');
-            $testname = $dialog->askAndValidate($output, 'Enter the name of the command: ', $validate);
+            $testname = $dialog->askAndValidate($output, 'Enter the name of the command (CamelCase): ', $validate);
         } else {
             $validate($testname);
         }

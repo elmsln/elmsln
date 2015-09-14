@@ -93,6 +93,7 @@ class Insight extends Visualization
         $this->config->show_pagination_control = false;
         $this->config->show_offset_information = false;
         $this->config->show_search = false;
+        $this->config->show_export_as_rss_feed = false;
 
         if (!self::canDisplayViewDataTable($this)) {
             $this->assignTemplateVar('cannotDisplayReport', true);
@@ -114,7 +115,7 @@ class Insight extends Visualization
             return false;
         }
 
-        if ($view->requestConfig->apiMethodToRequestDataTable 
+        if ($view->requestConfig->apiMethodToRequestDataTable
             && 0 === strpos($view->requestConfig->apiMethodToRequestDataTable, 'DBStats')) {
             return false;
         }

@@ -51,7 +51,6 @@ class HtmlTable extends Visualization
         }
 
         if ($this->dataTable->getRowsCount()) {
-
             $request = new ApiRequest(array(
                 'method' => 'API.get',
                 'module' => 'API',
@@ -64,14 +63,13 @@ class HtmlTable extends Visualization
                 'filter_offset' => 0,
                 'period'        => $period,
                 'showColumns'   => implode(',', $this->config->columns_to_display),
-                'columns'       => implode(',', $this->config->columns_to_display)
+                'columns'       => implode(',', $this->config->columns_to_display),
+                'pivotBy'       => ''
             ));
 
             $dataTable = $request->process();
             $this->assignTemplateVar('siteSummary', $dataTable);
         }
-
-
     }
 
 }

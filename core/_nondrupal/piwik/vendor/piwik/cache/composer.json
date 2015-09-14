@@ -1,0 +1,31 @@
+{
+    "name": "piwik/cache",
+    "type": "library",
+    "license": "LGPL-3.0",
+    "description": "PHP caching library based on Doctrine cache",
+    "keywords": ["cache","array","file","redis"],
+    "authors": [
+        {
+            "name": "The Piwik Team",
+            "email": "hello@piwik.org",
+            "homepage": "http://piwik.org/the-piwik-team/"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Piwik\\Cache\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Piwik\\Cache\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=5.3.2",
+        "doctrine/cache": "~1.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0"
+    }
+}

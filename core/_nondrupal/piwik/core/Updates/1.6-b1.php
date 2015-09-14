@@ -17,14 +17,14 @@ use Piwik\Updates;
  */
 class Updates_1_6_b1 extends Updates
 {
-    static function getSql()
+    public static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('log_conversion_item') . '`
 				 ADD idaction_category2 INTEGER(10) UNSIGNED NOT NULL AFTER idaction_category,
 				 ADD idaction_category3 INTEGER(10) UNSIGNED NOT NULL,
 				 ADD idaction_category4 INTEGER(10) UNSIGNED NOT NULL,
-				 ADD idaction_category5 INTEGER(10) UNSIGNED NOT NULL'                                                                                      => false,
+				 ADD idaction_category5 INTEGER(10) UNSIGNED NOT NULL'         => 1060,
             'ALTER TABLE `' . Common::prefixTable('log_visit') . '`
 				 CHANGE custom_var_k1 custom_var_k1 VARCHAR(200) DEFAULT NULL,
 				 CHANGE custom_var_v1 custom_var_v1 VARCHAR(200) DEFAULT NULL,
@@ -61,7 +61,7 @@ class Updates_1_6_b1 extends Updates
         );
     }
 
-    static function update()
+    public static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }

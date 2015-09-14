@@ -2,8 +2,9 @@
     vertical-align: middle;;
 }
 
-.admin a {
-    color: black;
+.admin h2 + .top_bar_sites_selector {
+    margin-top: -62px;
+    margin-right: 0 !important;
 }
 
 #content.admin {
@@ -11,21 +12,27 @@
     padding: 0 0 40px;
     display: table;
     font-size: 13px;
+
+    // Fix the <pre> blocks because of the display: table
+    pre {
+        max-width: 995px;
+    }
 }
 
 .admin #header_message {
     margin-top: 10px;
+    margin-right: 10px;
 }
 
 table.admin {
     font-size: 0.9em;
-    background-color: #fff;
+    background-color: @theme-color-background-base;
     border-collapse: collapse;
 }
 
 table.admin thead th {
-    border-right: 1px solid #fff;
-    color: #fff;
+    border-right: 1px solid @theme-color-background-base;
+    color: @theme-color-background-base;
     text-align: center;
     padding: 5px;
     text-transform: uppercase;
@@ -57,19 +64,9 @@ table.admin tbody td, table.admin tbody th {
     padding: 10px;
 }
 
-table.admin  tbody td:hover, table.admin  tbody th:hover {
+table.admin tbody td:hover, table.admin tbody th:hover {
     color: #009193;
     text-decoration: none;
-}
-
-.warning {
-    border: 1px dotted gray;
-    padding: 15px;
-    font-size: .8em;
-}
-
-.warning ul {
-    margin-left: 50px;
 }
 
 .access_error {
@@ -77,18 +74,37 @@ table.admin  tbody td:hover, table.admin  tbody th:hover {
     padding: 15px;
 }
 
+.admin p + h2 {
+    margin-top: 35px;
+    // .admin p defines a margin-bottom of 10px, we make sure we still have a margin-top of 45px this way
+}
+
 .admin h2 {
-    border-bottom: 1px solid #DADADA;
-    margin: 15px -15px 20px 0;
+    border-bottom: 0px;
+    margin: 45px -15px 11px 0;
     padding: 0 0 5px 0;
     font-size: 24px;
-    width:100%;
+    width: 100%;
+
+    &:first-of-type:not(.secondary) {
+        margin-top: 17px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #DADADA;
+    }
+}
+
+.admin h2 + h3 {
+    margin-top: 0px;
+}
+
+.admin h3 {
+    margin-top: 30px;
 }
 
 .admin p, .admin section {
     margin-top: 10px;
     line-height: 140%;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
 }
 
 .adminTable {
@@ -137,15 +153,8 @@ table.admin  tbody td:hover, table.admin  tbody th:hover {
     margin-left: 50px;
 }
 
-/* other styles */
-.form-description {
-    color: @theme-color-text-lighter;
-    font-style: italic;
-    margin-left: 10px;
-}
-
-#logoSettings, #smtpSettings {
-    margin-left: 50px;
+.adminTable .columnHelp .ui-inline-help {
+    margin-left: 0px;
 }
 
 /* to override .admin a */
@@ -154,23 +163,15 @@ table.admin  tbody td:hover, table.admin  tbody th:hover {
 }
 
 /* trusted host styles */
-#trustedHostSettings .adminTable {
-    width: 300px;
-}
-
-#trustedHostSettings .adminTable td {
-    vertical-align: middle;
-    padding-bottom: 0;
-}
-
-#trustedHostSettings .adminTable tr td:last-child {
-    padding: 0 0 0 0;
-}
-
 #trustedHostSettings input {
     width: 238px;
 }
 
-#trustedHostSettings .add-trusted-host-container {
+#trustedHostSettings li {
+    padding-bottom: 6px;
+}
+
+#trustedHostSettings .add-trusted-host-container,
+#corsSettings .add-cors-host-container {
     padding: 12px 24px;
 }

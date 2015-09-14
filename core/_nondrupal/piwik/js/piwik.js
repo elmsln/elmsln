@@ -8,6 +8,8 @@
  * @license http://piwik.org/free-software/bsd/ BSD-3 Clause (also in js/LICENSE.txt)
  * @license magnet:?xt=urn:btih:c80d50af7d3db9be66a4d0a86db0286e4fd33292&dn=bsd-3-clause.txt BSD-3-Clause
  */
+// NOTE: if you change this above Piwik comment block, you must also change `$byteStart` in js/tracker.php
+
 // Refer to README.md for build instructions when minifying this file for distribution.
 
 /*
@@ -29,8 +31,10 @@
  * @version 2012-10-08
  * @link http://www.JSON.org/js.html
  ************************************************************/
-/*jslint evil: true, regexp: false, bitwise: true*/
+/*jslint evil: true, regexp: false, bitwise: true, white: true */
 /*global JSON2:true */
+/*global window:true */
+/*property JSON:true */
 /*members "", "\b", "\t", "\n", "\f", "\r", "\"", "\\", apply,
     call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
     getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
@@ -43,7 +47,7 @@
 // methods in a closure to avoid creating global variables.
 
 if (typeof JSON2 !== 'object') {
-    JSON2 = {};
+    JSON2 = window.JSON || {};
 }
 
 (function () {
@@ -392,7 +396,7 @@ if (typeof JSON2 !== 'object') {
 /*global ActiveXObject */
 /*members encodeURIComponent, decodeURIComponent, getElementsByTagName,
     shift, unshift, piwikAsyncInit,
-    createElement, appendChild, characterSet, charset,
+    createElement, appendChild, characterSet, charset, all,
     addEventListener, attachEvent, removeEventListener, detachEvent, disableCookies,
     cookie, domain, readyState, documentElement, doScroll, title, text,
     location, top, onerror, document, referrer, parent, links, href, protocol, name, GearsFactory,
@@ -404,17 +408,17 @@ if (typeof JSON2 !== 'object') {
     getTime, getTimeAlias, setTime, toGMTString, getHours, getMinutes, getSeconds,
     toLowerCase, toUpperCase, charAt, indexOf, lastIndexOf, split, slice,
     onload, src,
-    round, random,
+    min, round, random,
     exec,
     res, width, height, devicePixelRatio,
     pdf, qt, realp, wma, dir, fla, java, gears, ag,
-    hook, getHook, getVisitorId, getVisitorInfo, setSiteId, setTrackerUrl, appendToTrackingUrl, getRequest, addPlugin,
+    hook, getHook, getVisitorId, getVisitorInfo, setUserId, getUserId, setSiteId, getSiteId, setTrackerUrl, getTrackerUrl, appendToTrackingUrl, getRequest, addPlugin,
     getAttributionInfo, getAttributionCampaignName, getAttributionCampaignKeyword,
     getAttributionReferrerTimestamp, getAttributionReferrerUrl,
     setCustomData, getCustomData,
     setCustomRequestProcessing,
-    setCustomVariable, getCustomVariable, deleteCustomVariable,
-    setDownloadExtensions, addDownloadExtensions,
+    setCustomVariable, getCustomVariable, deleteCustomVariable, storeCustomVariablesInCookie,
+    setDownloadExtensions, addDownloadExtensions, removeDownloadExtensions,
     setDomains, setIgnoreClasses, setRequestMethod, setRequestContentType,
     setReferrerUrl, setCustomUrl, setAPIUrl, setDocumentTitle,
     setDownloadClasses, setLinkClasses,
@@ -424,12 +428,40 @@ if (typeof JSON2 !== 'object') {
     setVisitorCookieTimeout, setSessionCookieTimeout, setReferralCookieTimeout,
     setConversionAttributionFirstReferrer,
     disablePerformanceTracking, setGenerationTimeMs,
-    doNotTrack, setDoNotTrack, msDoNotTrack,
+    doNotTrack, setDoNotTrack, msDoNotTrack, getValuesFromVisitorIdCookie,
     addListener, enableLinkTracking, enableJSErrorTracking, setLinkTrackingTimer,
-    setHeartBeatTimer, killFrame, redirectFile, setCountPreRendered,
+    enableHeartBeatTimer, disableHeartBeatTimer, killFrame, redirectFile, setCountPreRendered,
     trackGoal, trackLink, trackPageView, trackSiteSearch, trackEvent,
     setEcommerceView, addEcommerceItem, trackEcommerceOrder, trackEcommerceCartUpdate,
-    deleteCookies
+    deleteCookie, deleteCookies, offsetTop, offsetLeft, offsetHeight, offsetWidth, nodeType, defaultView,
+    innerHTML, scrollLeft, scrollTop, currentStyle, getComputedStyle, querySelectorAll, splice,
+    getAttribute, hasAttribute, attributes, nodeName, findContentNodes, findContentNodes, findContentNodesWithinNode,
+    findPieceNode, findTargetNodeNoDefault, findTargetNode, findContentPiece, children, hasNodeCssClass,
+    getAttributeValueFromNode, hasNodeAttributeWithValue, hasNodeAttribute, findNodesByTagName, findMultiple,
+    makeNodesUnique, concat, find, htmlCollectionToArray, offsetParent, value, nodeValue, findNodesHavingAttribute,
+    findFirstNodeHavingAttribute, findFirstNodeHavingAttributeWithValue, getElementsByClassName,
+    findNodesHavingCssClass, findFirstNodeHavingClass, isLinkElement, findParentContentNode, removeDomainIfIsInLink,
+    findContentName, findMediaUrlInNode, toAbsoluteUrl, findContentTarget, getLocation, origin, host, isSameDomain,
+    search, trim, getBoundingClientRect, bottom, right, left, innerWidth, innerHeight, clientWidth, clientHeight,
+    isOrWasNodeInViewport, isNodeVisible, buildInteractionRequestParams, buildImpressionRequestParams,
+    shouldIgnoreInteraction, setHrefAttribute, setAttribute, buildContentBlock, collectContent, setLocation,
+    CONTENT_ATTR, CONTENT_CLASS, CONTENT_NAME_ATTR, CONTENT_PIECE_ATTR, CONTENT_PIECE_CLASS,
+    CONTENT_TARGET_ATTR, CONTENT_TARGET_CLASS, CONTENT_IGNOREINTERACTION_ATTR, CONTENT_IGNOREINTERACTION_CLASS,
+    trackCallbackOnLoad, trackCallbackOnReady, buildContentImpressionsRequests, wasContentImpressionAlreadyTracked,
+    getQuery, getContent, getContentImpressionsRequestsFromNodes, buildContentInteractionTrackingRedirectUrl,
+    buildContentInteractionRequestNode, buildContentInteractionRequest, buildContentImpressionRequest,
+    appendContentInteractionToRequestIfPossible, setupInteractionsTracking, trackContentImpressionClickInteraction,
+    internalIsNodeVisible, clearTrackedContentImpressions, getTrackerUrl, trackAllContentImpressions,
+    getTrackedContentImpressions, getCurrentlyVisibleContentImpressionsRequestsIfNotTrackedYet,
+    contentInteractionTrackingSetupDone, contains, match, pathname, piece, trackContentInteractionNode,
+    trackContentInteractionNode, trackContentImpressionsWithinNode, trackContentImpression,
+    enableTrackOnlyVisibleContent, trackContentInteraction, clearEnableTrackOnlyVisibleContent,
+    trackVisibleContentImpressions, isTrackOnlyVisibleContentEnabled, port, isUrlToCurrentDomain,
+    isNodeAuthorizedToTriggerInteraction, replaceHrefIfInternalLink, getConfigDownloadExtensions, disableLinkTracking,
+    substr, setAnyAttribute, wasContentTargetAttrReplaced, max, abs, childNodes, compareDocumentPosition, body,
+    getConfigVisitorCookieTimeout, getRemainingVisitorCookieTimeout,
+    newVisitor, uuid, createTs, visitCount, currentVisitTs, lastVisitTs, lastEcommerceOrderTs
+
  */
 /*global _paq:true */
 /*members push */
@@ -767,7 +799,7 @@ if (typeof Piwik !== 'object') {
          * UTF-8 encoding
          */
         function utf8_encode(argString) {
-            return urldecode(encodeWrapper(argString));
+            return unescape(encodeWrapper(argString));
         }
 
         /************************************************************
@@ -975,6 +1007,1038 @@ if (typeof Piwik !== 'object') {
             return title;
         }
 
+        function getChildrenFromNode(node)
+        {
+            if (!node) {
+                return [];
+            }
+
+            if (!isDefined(node.children) && isDefined(node.childNodes)) {
+                return node.children;
+            }
+
+            if (isDefined(node.children)) {
+                return node.children;
+            }
+
+            return [];
+        }
+
+        function containsNodeElement(node, containedNode)
+        {
+            if (!node || !containedNode) {
+                return false;
+            }
+
+            if (node.contains) {
+                return node.contains(containedNode);
+            }
+
+            if (node === containedNode) {
+                return true;
+            }
+
+            if (node.compareDocumentPosition) {
+                return !!(node.compareDocumentPosition(containedNode) & 16);
+            }
+
+            return false;
+        }
+
+        // Polyfill for IndexOf for IE6-IE8
+        function indexOfArray(theArray, searchElement)
+        {
+            if (theArray && theArray.indexOf) {
+                return theArray.indexOf(searchElement);
+            }
+
+            // 1. Let O be the result of calling ToObject passing
+            //    the this value as the argument.
+            if (!isDefined(theArray) || theArray === null) {
+                return -1;
+            }
+
+            if (!theArray.length) {
+                return -1;
+            }
+
+            var len = theArray.length;
+
+            if (len === 0) {
+                return -1;
+            }
+
+            var k = 0;
+
+            // 9. Repeat, while k < len
+            while (k < len) {
+                // a. Let Pk be ToString(k).
+                //   This is implicit for LHS operands of the in operator
+                // b. Let kPresent be the result of calling the
+                //    HasProperty internal method of O with argument Pk.
+                //   This step can be combined with c
+                // c. If kPresent is true, then
+                //    i.  Let elementK be the result of calling the Get
+                //        internal method of O with the argument ToString(k).
+                //   ii.  Let same be the result of applying the
+                //        Strict Equality Comparison Algorithm to
+                //        searchElement and elementK.
+                //  iii.  If same is true, return k.
+                if (theArray[k] === searchElement) {
+                    return k;
+                }
+                k++;
+            }
+            return -1;
+        }
+
+        /************************************************************
+         * Element Visiblility
+         ************************************************************/
+
+        /**
+         * Author: Jason Farrell
+         * Author URI: http://useallfive.com/
+         *
+         * Description: Checks if a DOM element is truly visible.
+         * Package URL: https://github.com/UseAllFive/true-visibility
+         * License: MIT (https://github.com/UseAllFive/true-visibility/blob/master/LICENSE.txt)
+         */
+        function isVisible(node) {
+
+            if (!node) {
+                return false;
+            }
+
+            //-- Cross browser method to get style properties:
+            function _getStyle(el, property) {
+                if (windowAlias.getComputedStyle) {
+                    return documentAlias.defaultView.getComputedStyle(el,null)[property];
+                }
+                if (el.currentStyle) {
+                    return el.currentStyle[property];
+                }
+            }
+
+            function _elementInDocument(element) {
+                element = element.parentNode;
+
+                while (element) {
+                    if (element === documentAlias) {
+                        return true;
+                    }
+                    element = element.parentNode;
+                }
+                return false;
+            }
+
+            /**
+             * Checks if a DOM element is visible. Takes into
+             * consideration its parents and overflow.
+             *
+             * @param (el)      the DOM element to check if is visible
+             *
+             * These params are optional that are sent in recursively,
+             * you typically won't use these:
+             *
+             * @param (t)       Top corner position number
+             * @param (r)       Right corner position number
+             * @param (b)       Bottom corner position number
+             * @param (l)       Left corner position number
+             * @param (w)       Element width number
+             * @param (h)       Element height number
+             */
+            function _isVisible(el, t, r, b, l, w, h) {
+                var p = el.parentNode,
+                    VISIBLE_PADDING = 1; // has to be visible at least one px of the element
+
+                if (!_elementInDocument(el)) {
+                    return false;
+                }
+
+                //-- Return true for document node
+                if (9 === p.nodeType) {
+                    return true;
+                }
+
+                //-- Return false if our element is invisible
+                if (
+                    '0' === _getStyle(el, 'opacity') ||
+                    'none' === _getStyle(el, 'display') ||
+                    'hidden' === _getStyle(el, 'visibility')
+                ) {
+                    return false;
+                }
+
+                if (!isDefined(t) ||
+                        !isDefined(r) ||
+                        !isDefined(b) ||
+                        !isDefined(l) ||
+                        !isDefined(w) ||
+                        !isDefined(h)) {
+                    t = el.offsetTop;
+                    l = el.offsetLeft;
+                    b = t + el.offsetHeight;
+                    r = l + el.offsetWidth;
+                    w = el.offsetWidth;
+                    h = el.offsetHeight;
+                }
+
+                if (node === el && (0 === h || 0 === w) && 'hidden' === _getStyle(el, 'overflow')) {
+                    return false;
+                }
+
+                //-- If we have a parent, let's continue:
+                if (p) {
+                    //-- Check if the parent can hide its children.
+                    if (('hidden' === _getStyle(p, 'overflow') || 'scroll' === _getStyle(p, 'overflow'))) {
+                        //-- Only check if the offset is different for the parent
+                        if (
+                            //-- If the target element is to the right of the parent elm
+                        l + VISIBLE_PADDING > p.offsetWidth + p.scrollLeft ||
+                            //-- If the target element is to the left of the parent elm
+                        l + w - VISIBLE_PADDING < p.scrollLeft ||
+                            //-- If the target element is under the parent elm
+                        t + VISIBLE_PADDING > p.offsetHeight + p.scrollTop ||
+                            //-- If the target element is above the parent elm
+                        t + h - VISIBLE_PADDING < p.scrollTop
+                        ) {
+                            //-- Our target element is out of bounds:
+                            return false;
+                        }
+                    }
+                    //-- Add the offset parent's left/top coords to our element's offset:
+                    if (el.offsetParent === p) {
+                        l += p.offsetLeft;
+                        t += p.offsetTop;
+                    }
+                    //-- Let's recursively check upwards:
+                    return _isVisible(p, t, r, b, l, w, h);
+                }
+                return true;
+            }
+
+            return _isVisible(node);
+        }
+
+        /************************************************************
+         * Query
+         ************************************************************/
+
+        var query = {
+            htmlCollectionToArray: function (foundNodes)
+            {
+                var nodes = [], index;
+
+                if (!foundNodes || !foundNodes.length) {
+                    return nodes;
+                }
+
+                for (index = 0; index < foundNodes.length; index++) {
+                    nodes.push(foundNodes[index]);
+                }
+
+                return nodes;
+            },
+            find: function (selector)
+            {
+                // we use querySelectorAll only on document, not on nodes because of its unexpected behavior. See for
+                // instance http://stackoverflow.com/questions/11503534/jquery-vs-document-queryselectorall and
+                // http://jsfiddle.net/QdMc5/ and http://ejohn.org/blog/thoughts-on-queryselectorall
+                if (!document.querySelectorAll || !selector) {
+                    return []; // we do not support all browsers
+                }
+
+                var foundNodes = document.querySelectorAll(selector);
+
+                return this.htmlCollectionToArray(foundNodes);
+            },
+            findMultiple: function (selectors)
+            {
+                if (!selectors || !selectors.length) {
+                    return [];
+                }
+
+                var index, foundNodes;
+                var nodes = [];
+                for (index = 0; index < selectors.length; index++) {
+                    foundNodes = this.find(selectors[index]);
+                    nodes = nodes.concat(foundNodes);
+                }
+
+                nodes = this.makeNodesUnique(nodes);
+
+                return nodes;
+            },
+            findNodesByTagName: function (node, tagName)
+            {
+                if (!node || !tagName || !node.getElementsByTagName) {
+                    return [];
+                }
+
+                var foundNodes = node.getElementsByTagName(tagName);
+
+                return this.htmlCollectionToArray(foundNodes);
+            },
+            makeNodesUnique: function (nodes)
+            {
+                var copy = [].concat(nodes);
+                nodes.sort(function(n1, n2){
+                    if (n1 === n2) {
+                        return 0;
+                    }
+
+                    var index1 = indexOfArray(copy, n1);
+                    var index2 = indexOfArray(copy, n2);
+
+                    if (index1 === index2) {
+                        return 0;
+                    }
+
+                    return index1 > index2 ? -1 : 1;
+                });
+
+                if (nodes.length <= 1) {
+                    return nodes;
+                }
+
+                var index = 0;
+                var numDuplicates = 0;
+                var duplicates = [];
+                var node;
+
+                node = nodes[index++];
+
+                while (node) {
+                    if (node === nodes[index]) {
+                        numDuplicates = duplicates.push(index);
+                    }
+
+                    node = nodes[index++] || null;
+                }
+
+                while (numDuplicates--) {
+                    nodes.splice(duplicates[numDuplicates], 1);
+                }
+
+                return nodes;
+            },
+            getAttributeValueFromNode: function (node, attributeName)
+            {
+                if (!this.hasNodeAttribute(node, attributeName)) {
+                    return;
+                }
+
+                if (node && node.getAttribute) {
+                    return node.getAttribute(attributeName);
+                }
+
+                if (!node || !node.attributes) {
+                    return;
+                }
+
+                var typeOfAttr = (typeof node.attributes[attributeName]);
+                if ('undefined' === typeOfAttr) {
+                    return;
+                }
+
+                if (node.attributes[attributeName].value) {
+                    return node.attributes[attributeName].value; // nodeValue is deprecated ie Chrome
+                }
+
+                if (node.attributes[attributeName].nodeValue) {
+                    return node.attributes[attributeName].nodeValue;
+                }
+
+                var index;
+                var attrs = node.attributes;
+
+                if (!attrs) {
+                    return;
+                }
+
+                for (index = 0; index < attrs.length; index++) {
+                    if (attrs[index].nodeName === attributeName) {
+                        return attrs[index].nodeValue;
+                    }
+                }
+
+                return null;
+            },
+            hasNodeAttributeWithValue: function (node, attributeName)
+            {
+                var value = this.getAttributeValueFromNode(node, attributeName);
+
+                return !!value;
+            },
+            hasNodeAttribute: function (node, attributeName)
+            {
+                if (node && node.hasAttribute) {
+                    return node.hasAttribute(attributeName);
+                }
+
+                if (node && node.attributes) {
+                    var typeOfAttr = (typeof node.attributes[attributeName]);
+                    return 'undefined' !== typeOfAttr;
+                }
+
+                return false;
+            },
+            hasNodeCssClass: function (node, klassName)
+            {
+                if (node && klassName && node.className) {
+                    var classes = typeof node.className === "string" ? node.className.split(' ') : [];
+                    if (-1 !== indexOfArray(classes, klassName)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+            findNodesHavingAttribute: function (nodeToSearch, attributeName, nodes)
+            {
+                if (!nodes) {
+                    nodes = [];
+                }
+
+                if (!nodeToSearch || !attributeName) {
+                    return nodes;
+                }
+
+                var children = getChildrenFromNode(nodeToSearch);
+
+                if (!children || !children.length) {
+                    return nodes;
+                }
+
+                var index, child;
+                for (index = 0; index < children.length; index++) {
+                    child = children[index];
+                    if (this.hasNodeAttribute(child, attributeName)) {
+                        nodes.push(child);
+                    }
+
+                    nodes = this.findNodesHavingAttribute(child, attributeName, nodes);
+                }
+
+                return nodes;
+            },
+            findFirstNodeHavingAttribute: function (node, attributeName)
+            {
+                if (!node || !attributeName) {
+                    return;
+                }
+
+                if (this.hasNodeAttribute(node, attributeName)) {
+                    return node;
+                }
+
+                var nodes = this.findNodesHavingAttribute(node, attributeName);
+
+                if (nodes && nodes.length) {
+                    return nodes[0];
+                }
+            },
+            findFirstNodeHavingAttributeWithValue: function (node, attributeName)
+            {
+                if (!node || !attributeName) {
+                    return;
+                }
+
+                if (this.hasNodeAttributeWithValue(node, attributeName)) {
+                    return node;
+                }
+
+                var nodes = this.findNodesHavingAttribute(node, attributeName);
+
+                if (!nodes || !nodes.length) {
+                    return;
+                }
+
+                var index;
+                for (index = 0; index < nodes.length; index++) {
+                    if (this.getAttributeValueFromNode(nodes[index], attributeName)) {
+                        return nodes[index];
+                    }
+                }
+            },
+            findNodesHavingCssClass: function (nodeToSearch, className, nodes)
+            {
+                if (!nodes) {
+                    nodes = [];
+                }
+
+                if (!nodeToSearch || !className) {
+                    return nodes;
+                }
+
+                if (nodeToSearch.getElementsByClassName) {
+                    var foundNodes = nodeToSearch.getElementsByClassName(className);
+                    return this.htmlCollectionToArray(foundNodes);
+                }
+                
+                var children = getChildrenFromNode(nodeToSearch);
+
+                if (!children || !children.length) {
+                    return [];
+                }
+
+                var index, child;
+                for (index = 0; index < children.length; index++) {
+                    child = children[index];
+                    if (this.hasNodeCssClass(child, className)) {
+                        nodes.push(child);
+                    }
+
+                    nodes = this.findNodesHavingCssClass(child, className, nodes);
+                }
+
+                return nodes;
+            },
+            findFirstNodeHavingClass: function (node, className)
+            {
+                if (!node || !className) {
+                    return;
+                }
+
+                if (this.hasNodeCssClass(node, className)) {
+                    return node;
+                }
+
+                var nodes = this.findNodesHavingCssClass(node, className);
+
+                if (nodes && nodes.length) {
+                    return nodes[0];
+                }
+            },
+            isLinkElement: function (node)
+            {
+                if (!node) {
+                    return false;
+                }
+
+                var elementName      = String(node.nodeName).toLowerCase();
+                var linkElementNames = ['a', 'area'];
+                var pos = indexOfArray(linkElementNames, elementName);
+
+                return pos !== -1;
+            },
+            setAnyAttribute: function (node, attrName, attrValue)
+            {
+                if (!node || !attrName) {
+                    return;
+                }
+
+                if (node.setAttribute) {
+                    node.setAttribute(attrName, attrValue);
+                } else {
+                    node[attrName] = attrValue;
+                }
+            }
+        };
+
+        /************************************************************
+         * Content Tracking
+         ************************************************************/
+
+        var content = {
+            CONTENT_ATTR: 'data-track-content',
+            CONTENT_CLASS: 'piwikTrackContent',
+            CONTENT_NAME_ATTR: 'data-content-name',
+            CONTENT_PIECE_ATTR: 'data-content-piece',
+            CONTENT_PIECE_CLASS: 'piwikContentPiece',
+            CONTENT_TARGET_ATTR: 'data-content-target',
+            CONTENT_TARGET_CLASS: 'piwikContentTarget',
+            CONTENT_IGNOREINTERACTION_ATTR: 'data-content-ignoreinteraction',
+            CONTENT_IGNOREINTERACTION_CLASS: 'piwikContentIgnoreInteraction',
+            location: undefined,
+
+            findContentNodes: function ()
+            {
+
+                var cssSelector  = '.' + this.CONTENT_CLASS;
+                var attrSelector = '[' + this.CONTENT_ATTR + ']';
+                var contentNodes = query.findMultiple([cssSelector, attrSelector]);
+
+                return contentNodes;
+            },
+            findContentNodesWithinNode: function (node)
+            {
+                if (!node) {
+                    return [];
+                }
+
+                // NOTE: we do not use query.findMultiple here as querySelectorAll would most likely not deliver the result we want
+
+                var nodes1 = query.findNodesHavingCssClass(node, this.CONTENT_CLASS);
+                var nodes2 = query.findNodesHavingAttribute(node, this.CONTENT_ATTR);
+
+                if (nodes2 && nodes2.length) {
+                    var index;
+                    for (index = 0; index < nodes2.length; index++) {
+                        nodes1.push(nodes2[index]);
+                    }
+                }
+
+                if (query.hasNodeAttribute(node, this.CONTENT_ATTR)) {
+                    nodes1.push(node);
+                } else if (query.hasNodeCssClass(node, this.CONTENT_CLASS)) {
+                    nodes1.push(node);
+                }
+
+                nodes1 = query.makeNodesUnique(nodes1);
+
+                return nodes1;
+            },
+            findParentContentNode: function (anyNode)
+            {
+                if (!anyNode) {
+                    return;
+                }
+
+                var node    = anyNode;
+                var counter = 0;
+
+                while (node && node !== documentAlias && node.parentNode) {
+                    if (query.hasNodeAttribute(node, this.CONTENT_ATTR)) {
+                        return node;
+                    }
+                    if (query.hasNodeCssClass(node, this.CONTENT_CLASS)) {
+                        return node;
+                    }
+
+                    node = node.parentNode;
+
+                    if (counter > 1000) {
+                        break; // prevent loop, should not happen anyway but better we do this
+                    }
+                    counter++;
+                }
+            },
+            findPieceNode: function (node)
+            {
+                var contentPiece;
+
+                contentPiece = query.findFirstNodeHavingAttribute(node, this.CONTENT_PIECE_ATTR);
+
+                if (!contentPiece) {
+                    contentPiece = query.findFirstNodeHavingClass(node, this.CONTENT_PIECE_CLASS);
+                }
+
+                if (contentPiece) {
+                    return contentPiece;
+                }
+
+                return node;
+            },
+            findTargetNodeNoDefault: function (node)
+            {
+                if (!node) {
+                    return;
+                }
+
+                var target = query.findFirstNodeHavingAttributeWithValue(node, this.CONTENT_TARGET_ATTR);
+                if (target) {
+                    return target;
+                }
+
+                target = query.findFirstNodeHavingAttribute(node, this.CONTENT_TARGET_ATTR);
+                if (target) {
+                    return target;
+                }
+
+                target = query.findFirstNodeHavingClass(node, this.CONTENT_TARGET_CLASS);
+                if (target) {
+                    return target;
+                }
+            },
+            findTargetNode: function (node)
+            {
+                var target = this.findTargetNodeNoDefault(node);
+                if (target) {
+                    return target;
+                }
+
+                return node;
+            },
+            findContentName: function (node)
+            {
+                if (!node) {
+                    return;
+                }
+
+                var nameNode = query.findFirstNodeHavingAttributeWithValue(node, this.CONTENT_NAME_ATTR);
+
+                if (nameNode) {
+                    return query.getAttributeValueFromNode(nameNode, this.CONTENT_NAME_ATTR);
+                }
+
+                var contentPiece = this.findContentPiece(node);
+                if (contentPiece) {
+                    return this.removeDomainIfIsInLink(contentPiece);
+                }
+
+                if (query.hasNodeAttributeWithValue(node, 'title')) {
+                    return query.getAttributeValueFromNode(node, 'title');
+                }
+
+                var clickUrlNode = this.findPieceNode(node);
+
+                if (query.hasNodeAttributeWithValue(clickUrlNode, 'title')) {
+                    return query.getAttributeValueFromNode(clickUrlNode, 'title');
+                }
+
+                var targetNode = this.findTargetNode(node);
+
+                if (query.hasNodeAttributeWithValue(targetNode, 'title')) {
+                    return query.getAttributeValueFromNode(targetNode, 'title');
+                }
+            },
+            findContentPiece: function (node)
+            {
+                if (!node) {
+                    return;
+                }
+
+                var nameNode = query.findFirstNodeHavingAttributeWithValue(node, this.CONTENT_PIECE_ATTR);
+
+                if (nameNode) {
+                    return query.getAttributeValueFromNode(nameNode, this.CONTENT_PIECE_ATTR);
+                }
+
+                var contentNode = this.findPieceNode(node);
+
+                var media = this.findMediaUrlInNode(contentNode);
+                if (media) {
+                    return this.toAbsoluteUrl(media);
+                }
+            },
+            findContentTarget: function (node)
+            {
+                if (!node) {
+                    return;
+                }
+
+                var targetNode = this.findTargetNode(node);
+
+                if (query.hasNodeAttributeWithValue(targetNode, this.CONTENT_TARGET_ATTR)) {
+                    return query.getAttributeValueFromNode(targetNode, this.CONTENT_TARGET_ATTR);
+                }
+
+                var href;
+                if (query.hasNodeAttributeWithValue(targetNode, 'href')) {
+                    href = query.getAttributeValueFromNode(targetNode, 'href');
+                    return this.toAbsoluteUrl(href);
+                }
+
+                var contentNode = this.findPieceNode(node);
+
+                if (query.hasNodeAttributeWithValue(contentNode, 'href')) {
+                    href = query.getAttributeValueFromNode(contentNode, 'href');
+                    return this.toAbsoluteUrl(href);
+                }
+            },
+            isSameDomain: function (url)
+            {
+                if (!url || !url.indexOf) {
+                    return false;
+                }
+
+                if (0 === url.indexOf(this.getLocation().origin)) {
+                    return true;
+                }
+
+                var posHost = url.indexOf(this.getLocation().host);
+                if (8 >= posHost && 0 <= posHost) {
+                    return true;
+                }
+
+                return false;
+            },
+            removeDomainIfIsInLink: function (text)
+            {
+                // we will only remove if domain === location.origin meaning is not an outlink
+                var regexContainsProtocol = '^https?:\/\/[^\/]+';
+                var regexReplaceDomain = '^.*\/\/[^\/]+';
+
+                if (text &&
+                    text.search &&
+                    -1 !== text.search(new RegExp(regexContainsProtocol))
+                    && this.isSameDomain(text)) {
+
+                    text = text.replace(new RegExp(regexReplaceDomain), '');
+                    if (!text) {
+                        text = '/';
+                    }
+                }
+
+                return text;
+            },
+            findMediaUrlInNode: function (node)
+            {
+                if (!node) {
+                    return;
+                }
+
+                var mediaElements = ['img', 'embed', 'video', 'audio'];
+                var elementName   = node.nodeName.toLowerCase();
+
+                if (-1 !== indexOfArray(mediaElements, elementName) &&
+                    query.findFirstNodeHavingAttributeWithValue(node, 'src')) {
+
+                    var sourceNode = query.findFirstNodeHavingAttributeWithValue(node, 'src');
+
+                    return query.getAttributeValueFromNode(sourceNode, 'src');
+                }
+
+                if (elementName === 'object' &&
+                    query.hasNodeAttributeWithValue(node, 'data')) {
+
+                    return query.getAttributeValueFromNode(node, 'data');
+                }
+
+                if (elementName === 'object') {
+                    var params = query.findNodesByTagName(node, 'param');
+                    if (params && params.length) {
+                        var index;
+                        for (index = 0; index < params.length; index++) {
+                            if ('movie' === query.getAttributeValueFromNode(params[index], 'name') &&
+                                query.hasNodeAttributeWithValue(params[index], 'value')) {
+
+                                return query.getAttributeValueFromNode(params[index], 'value');
+                            }
+                        }
+                    }
+
+                    var embed = query.findNodesByTagName(node, 'embed');
+                    if (embed && embed.length) {
+                        return this.findMediaUrlInNode(embed[0]);
+                    }
+                }
+            },
+            trim: function (text)
+            {
+                if (text && String(text) === text) {
+                    return text.replace(/^\s+|\s+$/g, '');
+                }
+
+                return text;
+            },
+            isOrWasNodeInViewport: function (node)
+            {
+                if (!node || !node.getBoundingClientRect || node.nodeType !== 1) {
+                    return true;
+                }
+
+                var rect = node.getBoundingClientRect();
+                var html = documentAlias.documentElement || {};
+
+                var wasVisible = rect.top < 0;
+                if (wasVisible && node.offsetTop) {
+                    wasVisible = (node.offsetTop + rect.height) > 0;
+                }
+
+                var docWidth = html.clientWidth; // The clientWidth attribute returns the viewport width excluding the size of a rendered scroll bar
+
+                if (windowAlias.innerWidth && docWidth > windowAlias.innerWidth) {
+                    docWidth = windowAlias.innerWidth; // The innerWidth attribute must return the viewport width including the size of a rendered scroll bar
+                }
+
+                var docHeight = html.clientHeight; // The clientWidth attribute returns the viewport width excluding the size of a rendered scroll bar
+
+                if (windowAlias.innerHeight && docHeight > windowAlias.innerHeight) {
+                    docHeight = windowAlias.innerHeight; // The innerWidth attribute must return the viewport width including the size of a rendered scroll bar
+                }
+
+                return (
+                    (rect.bottom > 0 || wasVisible) &&
+                    rect.right  > 0 &&
+                    rect.left   < docWidth &&
+                    ((rect.top  < docHeight) || wasVisible) // rect.top < 0 we assume user has seen all the ones that are above the current viewport
+                );
+            },
+            isNodeVisible: function (node)
+            {
+                var isItVisible  = isVisible(node);
+                var isInViewport = this.isOrWasNodeInViewport(node);
+                return isItVisible && isInViewport;
+            },
+            buildInteractionRequestParams: function (interaction, name, piece, target)
+            {
+                var params = '';
+
+                if (interaction) {
+                    params += 'c_i='+ encodeWrapper(interaction);
+                }
+                if (name) {
+                    if (params) {
+                        params += '&';
+                    }
+                    params += 'c_n='+ encodeWrapper(name);
+                }
+                if (piece) {
+                    if (params) {
+                        params += '&';
+                    }
+                    params += 'c_p='+ encodeWrapper(piece);
+                }
+                if (target) {
+                    if (params) {
+                        params += '&';
+                    }
+                    params += 'c_t='+ encodeWrapper(target);
+                }
+
+                return params;
+            },
+            buildImpressionRequestParams: function (name, piece, target)
+            {
+                var params = 'c_n=' + encodeWrapper(name) +
+                             '&c_p=' + encodeWrapper(piece);
+
+                if (target) {
+                    params += '&c_t=' + encodeWrapper(target);
+                }
+
+                return params;
+            },
+            buildContentBlock: function (node)
+            {
+                if (!node) {
+                    return;
+                }
+
+                var name   = this.findContentName(node);
+                var piece  = this.findContentPiece(node);
+                var target = this.findContentTarget(node);
+
+                name   = this.trim(name);
+                piece  = this.trim(piece);
+                target = this.trim(target);
+
+                return {
+                    name: name || 'Unknown',
+                    piece: piece || 'Unknown',
+                    target: target || ''
+                };
+            },
+            collectContent: function (contentNodes)
+            {
+                if (!contentNodes || !contentNodes.length) {
+                    return [];
+                }
+
+                var contents = [];
+
+                var index, contentBlock;
+                for (index = 0; index < contentNodes.length; index++) {
+                    contentBlock = this.buildContentBlock(contentNodes[index]);
+                    if (isDefined(contentBlock)) {
+                        contents.push(contentBlock);
+                    }
+                }
+
+                return contents;
+            },
+            setLocation: function (location)
+            {
+                this.location = location;
+            },
+            getLocation: function ()
+            {
+                var locationAlias = this.location || windowAlias.location;
+
+                if (!locationAlias.origin) {
+                    locationAlias.origin = locationAlias.protocol + "//" + locationAlias.hostname + (locationAlias.port ? ':' + locationAlias.port: '');
+                }
+
+                return locationAlias;
+            },
+            toAbsoluteUrl: function (url)
+            {
+                if ((!url || String(url) !== url) && url !== '') {
+                    // we only handle strings
+                    return url;
+                }
+
+                if ('' === url) {
+                    return this.getLocation().href;
+                }
+
+                // Eg //example.com/test.jpg
+                if (url.search(/^\/\//) !== -1) {
+                    return this.getLocation().protocol + url;
+                }
+
+                // Eg http://example.com/test.jpg
+                if (url.search(/:\/\//) !== -1) {
+                    return url;
+                }
+
+                // Eg #test.jpg
+                if (0 === url.indexOf('#')) {
+                    return this.getLocation().origin + this.getLocation().pathname + url;
+                }
+
+                // Eg ?x=5
+                if (0 === url.indexOf('?')) {
+                    return this.getLocation().origin + this.getLocation().pathname + url;
+                }
+
+                // Eg mailto:x@y.z tel:012345, ... market:... sms:..., javasript:... ecmascript: ... and many more
+                if (0 === url.search('^[a-zA-Z]{2,11}:')) {
+                    return url;
+                }
+
+                // Eg /test.jpg
+                if (url.search(/^\//) !== -1) {
+                    return this.getLocation().origin + url;
+                }
+
+                // Eg test.jpg
+                var regexMatchDir = '(.*\/)';
+                var base = this.getLocation().origin + this.getLocation().pathname.match(new RegExp(regexMatchDir))[0];
+                return base + url;
+            },
+            isUrlToCurrentDomain: function (url) {
+
+                var absoluteUrl = this.toAbsoluteUrl(url);
+
+                if (!absoluteUrl) {
+                    return false;
+                }
+
+                var origin = this.getLocation().origin;
+                if (origin === absoluteUrl) {
+                    return true;
+                }
+
+                if (0 === String(absoluteUrl).indexOf(origin)) {
+                    if (':' === String(absoluteUrl).substr(origin.length, 1)) {
+                        return false; // url has port whereas origin has not => different URL
+                    }
+
+                    return true;
+                }
+
+                return false;
+            },
+            setHrefAttribute: function (node, url)
+            {
+                if (!node || !url) {
+                    return;
+                }
+
+                query.setAnyAttribute(node, 'href', url);
+            },
+            shouldIgnoreInteraction: function (targetNode)
+            {
+                var hasAttr  = query.hasNodeAttribute(targetNode, this.CONTENT_IGNOREINTERACTION_ATTR);
+                var hasClass = query.hasNodeCssClass(targetNode, this.CONTENT_IGNOREINTERACTION_CLASS);
+                return hasAttr || hasClass;
+            }
+        };
+
         /************************************************************
          * Page Overlay
          ************************************************************/
@@ -1073,8 +2137,8 @@ if (typeof Piwik !== 'object') {
                 // Current URL and Referrer URL
                 locationArray = urlFixup(documentAlias.domain, windowAlias.location.href, getReferrer()),
                 domainAlias = domainFixup(locationArray[0]),
-                locationHrefAlias = locationArray[1],
-                configReferrerUrl = locationArray[2],
+                locationHrefAlias = decodeWrapper(locationArray[1]),
+                configReferrerUrl = decodeWrapper(locationArray[2]),
 
                 enableJSErrorTracking = false,
 
@@ -1100,6 +2164,12 @@ if (typeof Piwik !== 'object') {
                 // Site ID
                 configTrackerSiteId = siteId || '',
 
+                // User ID
+                configUserId = '',
+
+                // Visitor UUID
+                visitorUUID = '',
+
                 // Document URL
                 configCustomUrl,
 
@@ -1107,7 +2177,7 @@ if (typeof Piwik !== 'object') {
                 configTitle = documentAlias.title,
 
                 // Extensions to be treated as download links
-                configDownloadExtensions = '7z|aac|apk|ar[cj]|as[fx]|avi|azw3|bin|csv|deb|dmg|docx?|epub|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mobi|mp(2|3|4|e?g)|mov(ie)?|ms[ip]|od[bfgpst]|og[gv]|pdf|phps|png|pptx?|qtm?|ra[mr]?|rpm|sea|sit|tar|t?bz2?|tgz|torrent|txt|wav|wm[av]|wpd||xlsx?|xml|z|zip',
+                configDownloadExtensions = ['7z','aac','apk','arc','arj','asf','asx','avi','azw3','bin','csv','deb','dmg','doc','docx','epub','exe','flv','gif','gz','gzip','hqx','ibooks','jar','jpg','jpeg','js','mobi','mp2','mp3','mp4','mpg','mpeg','mov','movie','msi','msp','odb','odf','odg','ods','odt','ogg','ogv','pdf','phps','png','ppt','pptx','qt','qtm','ra','ram','rar','rpm','sea','sit','tar','tbz','tbz2','bz','bz2','tgz','torrent','txt','wav','wma','wmv','wpd','xls','xlsx','xml','z','zip'],
 
                 // Hosts or alias(es) to not treat as outlinks
                 configHostsAlias = [domainAlias],
@@ -1128,7 +2198,10 @@ if (typeof Piwik !== 'object') {
                 configMinimumVisitTime,
 
                 // Recurring heart beat after initial ping (in milliseconds)
-                configHeartBeatTimer,
+                configHeartBeatDelay,
+
+                // alias to circumvent circular function dependency (JSLint requires this)
+                heartBeatPingIfActivityAlias,
 
                 // Disallow hash tags in URL
                 configDiscardHashTag,
@@ -1166,7 +2239,7 @@ if (typeof Piwik !== 'object') {
                 configConversionAttributionFirstReferrer,
 
                 // Life of the visitor cookie (in milliseconds)
-                configVisitorCookieTimeout = 63072000000, // 2 years
+                configVisitorCookieTimeout = 33955200000, // 13 months (365 days + 28days)
 
                 // Life of the session cookie (in milliseconds)
                 configSessionCookieTimeout = 1800000, // 30 minutes
@@ -1179,6 +2252,9 @@ if (typeof Piwik !== 'object') {
 
                 // Generation time set from the server
                 configPerformanceGenerationTime = 0,
+
+                // Whether Custom Variables scope "visit" should be stored in a cookie during the time of the visit
+                configStoreCustomVariablesInCookie = false,
 
                 // Custom Variables read from cookie, scope "visit"
                 customVariables = false,
@@ -1200,14 +2276,27 @@ if (typeof Piwik !== 'object') {
                 // Browser features via client-side data collection
                 browserFeatures = {},
 
+                // Keeps track of previously tracked content impressions
+                trackedContentImpressions = [],
+                isTrackOnlyVisibleContentEnabled = false,
+
+                // Guard to prevent empty visits see #6415. If there is a new visitor and the first 2 (or 3 or 4)
+                // tracking requests are at nearly same time (eg trackPageView and trackContentImpression) 2 or more
+                // visits will be created
+                timeNextTrackingRequestCanBeExecutedImmediately = false,
+
                 // Guard against installing the link tracker more than once per Tracker instance
                 linkTrackingInstalled = false,
+                linkTrackingEnabled = false,
 
                 // Guard against installing the activity tracker more than once per Tracker instance
-                activityTrackingInstalled = false,
+                heartBeatSetUp = false,
 
-                // Last activity timestamp
-                lastActivityTime,
+                // Timestamp of last tracker request sent to Piwik
+                lastTrackerRequestTime = null,
+
+                // Handle to the current heart beat timeout
+                heartBeatTimeout,
 
                 // Internal state of the pseudo click handler
                 lastButton,
@@ -1217,11 +2306,7 @@ if (typeof Piwik !== 'object') {
                 hash = sha1,
 
                 // Domain hash value
-                domainHash,
-
-                // Visitor UUID
-                visitorUUID;
-
+                domainHash;
 
             /*
              * Set cookie value
@@ -1345,11 +2430,12 @@ if (typeof Piwik !== 'object') {
              * Send image request to Piwik server using GET.
              * The infamous web bug (or beacon) is a transparent, single pixel (1x1) image
              */
-            function getImage(request) {
+            function getImage(request, callback) {
                 var image = new Image(1, 1);
 
                 image.onload = function () {
                     iterator = 0; // To avoid JSLint warning of empty block
+                    if (typeof callback === 'function') { callback(); }
                 };
                 image.src = configTrackerUrl + (configTrackerUrl.indexOf('?') < 0 ? '?' : '&') + request;
             }
@@ -1357,7 +2443,11 @@ if (typeof Piwik !== 'object') {
             /*
              * POST request to Piwik server using XMLHttpRequest.
              */
-            function sendXmlHttpRequest(request) {
+            function sendXmlHttpRequest(request, callback, fallbackToGet) {
+                if (!isDefined(fallbackToGet) || null === fallbackToGet) {
+                    fallbackToGet = true;
+                }
+
                 try {
                     // we use the progid Microsoft.XMLHTTP because
                     // IE5.5 included MSXML 2.5; the progid MSXML2.XMLHTTP
@@ -1372,8 +2462,10 @@ if (typeof Piwik !== 'object') {
 
                     // fallback on error
                     xhr.onreadystatechange = function () {
-                        if (this.readyState === 4 && this.status !== 200) {
-                            getImage(request);
+                        if (this.readyState === 4 && !(this.status >= 200 && this.status < 300) && fallbackToGet) {
+                            getImage(request, callback);
+                        } else {
+                            if (typeof callback === 'function') { callback(); }
                         }
                     };
 
@@ -1381,26 +2473,168 @@ if (typeof Piwik !== 'object') {
 
                     xhr.send(request);
                 } catch (e) {
-                    // fallback
-                    getImage(request);
+                    if (fallbackToGet) {
+                        // fallback
+                        getImage(request, callback);
+                    }
                 }
+            }
+
+            function setExpireDateTime(delay) {
+
+                var now  = new Date();
+                var time = now.getTime() + delay;
+
+                if (!expireDateTime || time > expireDateTime) {
+                    expireDateTime = time;
+                }
+            }
+
+            /*
+             * Sets up the heart beat timeout.
+             */
+            function heartBeatUp(delay) {
+                if (heartBeatTimeout
+                    || !configHeartBeatDelay
+                ) {
+                    return;
+                }
+
+                heartBeatTimeout = setTimeout(function heartBeat() {
+                    heartBeatTimeout = null;
+                    if (heartBeatPingIfActivityAlias()) {
+                        return;
+                    }
+
+                    var now = new Date(),
+                        heartBeatDelay = configHeartBeatDelay - (now.getTime() - lastTrackerRequestTime);
+                    // sanity check
+                    heartBeatDelay = Math.min(configHeartBeatDelay, heartBeatDelay);
+                    heartBeatUp(heartBeatDelay);
+                }, delay || configHeartBeatDelay);
+            }
+
+            /*
+             * Removes the heart beat timeout.
+             */
+            function heartBeatDown() {
+                if (!heartBeatTimeout) {
+                    return;
+                }
+
+                clearTimeout(heartBeatTimeout);
+                heartBeatTimeout = null;
+            }
+
+            function heartBeatOnFocus() {
+                // since it's possible for a user to come back to a tab after several hours or more, we try to send
+                // a ping if the page is active. (after the ping is sent, the heart beat timeout will be set)
+                if (heartBeatPingIfActivityAlias()) {
+                    return;
+                }
+
+                heartBeatUp();
+            }
+
+            function heartBeatOnBlur() {
+                heartBeatDown();
+            }
+
+            /*
+             * Setup event handlers and timeout for initial heart beat.
+             */
+            function setUpHeartBeat() {
+                if (heartBeatSetUp
+                    || !configHeartBeatDelay
+                ) {
+                    return;
+                }
+
+                heartBeatSetUp = true;
+
+                addEventListener(windowAlias, 'focus', heartBeatOnFocus);
+                addEventListener(windowAlias, 'blur', heartBeatOnBlur);
+
+                heartBeatUp();
+            }
+
+            function makeSureThereIsAGapAfterFirstTrackingRequestToPreventMultipleVisitorCreation(callback)
+            {
+                var now     = new Date();
+                var timeNow = now.getTime();
+
+                lastTrackerRequestTime = timeNow;
+
+                if (timeNextTrackingRequestCanBeExecutedImmediately && timeNow < timeNextTrackingRequestCanBeExecutedImmediately) {
+                    // we are in the time frame shortly after the first request. we have to delay this request a bit to make sure
+                    // a visitor has been created meanwhile.
+
+                    var timeToWait = timeNextTrackingRequestCanBeExecutedImmediately - timeNow;
+
+                    setTimeout(callback, timeToWait);
+                    setExpireDateTime(timeToWait + 50); // set timeout is not necessarily executed at timeToWait so delay a bit more
+                    timeNextTrackingRequestCanBeExecutedImmediately += 50; // delay next tracking request by further 50ms to next execute them at same time
+
+                    return;
+                }
+
+                if (timeNextTrackingRequestCanBeExecutedImmediately === false) {
+                    // it is the first request, we want to execute this one directly and delay all the next one(s) within a delay.
+                    // All requests after this delay can be executed as usual again
+                    var delayInMs = 800;
+                    timeNextTrackingRequestCanBeExecutedImmediately = timeNow + delayInMs;
+                }
+
+                callback();
             }
 
             /*
              * Send request
              */
-            function sendRequest(request, delay) {
-                var now = new Date();
+            function sendRequest(request, delay, callback) {
+                if (!configDoNotTrack && request) {
+                    makeSureThereIsAGapAfterFirstTrackingRequestToPreventMultipleVisitorCreation(function () {
+                        if (configRequestMethod === 'POST') {
+                            sendXmlHttpRequest(request, callback);
+                        } else {
+                            getImage(request, callback);
+                        }
 
-                if (!configDoNotTrack) {
-                    if (configRequestMethod === 'POST') {
-                        sendXmlHttpRequest(request);
-                    } else {
-                        getImage(request);
-                    }
-
-                    expireDateTime = now.getTime() + delay;
+                        setExpireDateTime(delay);
+                    });
                 }
+
+                if (!heartBeatSetUp) {
+                    setUpHeartBeat(); // setup window events too, but only once
+                } else {
+                    heartBeatUp();
+                }
+            }
+
+            function canSendBulkRequest(requests)
+            {
+                if (configDoNotTrack) {
+                    return false;
+                }
+
+                return (requests && requests.length);
+            }
+
+            /*
+             * Send requests using bulk
+             */
+            function sendBulkRequest(requests, delay)
+            {
+                if (!canSendBulkRequest(requests)) {
+                    return;
+                }
+
+                var bulk = '{"requests":["?' + requests.join('","?') + '"]}';
+
+                makeSureThereIsAGapAfterFirstTrackingRequestToPreventMultipleVisitorCreation(function () {
+                    sendXmlHttpRequest(bulk, null, false);
+                    setExpireDateTime(delay);
+                });
             }
 
             /*
@@ -1465,21 +2699,18 @@ if (typeof Piwik !== 'object') {
             }
 
             /*
-             * Process all "activity" events.
-             * For performance, this function must have low overhead.
+             * Generate a pseudo-unique ID to fingerprint this user
+             * 16 hexits = 64 bits
+             * note: this isn't a RFC4122-compliant UUID
              */
-            function activityHandler() {
-                var now = new Date();
-
-                lastActivityTime = now.getTime();
-            }
-
-            /*
-             * Sets the Visitor ID cookie: either the first time loadVisitorIdCookie is called
-             * or when there is a new visit or a new page view
-             */
-            function setVisitorIdCookie(uuid, createTs, visitCount, nowTs, lastVisitTs, lastEcommerceOrderTs) {
-                setCookie(getCookieName('id'), uuid + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + lastEcommerceOrderTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
+            function generateRandomUuid() {
+                return hash(
+                    (navigatorAlias.userAgent || '') +
+                    (navigatorAlias.platform || '') +
+                    JSON2.stringify(browserFeatures) +
+                    (new Date()).getTime() +
+                    Math.random()
+                ).slice(0, 16);
             }
 
             /*
@@ -1488,52 +2719,126 @@ if (typeof Piwik !== 'object') {
             function loadVisitorIdCookie() {
                 var now = new Date(),
                     nowTs = Math.round(now.getTime() / 1000),
-                    id = getCookie(getCookieName('id')),
-                    tmpContainer;
+                    visitorIdCookieName = getCookieName('id'),
+                    id = getCookie(visitorIdCookieName),
+                    cookieValue,
+                    uuid;
 
+                // Visitor ID cookie found
                 if (id) {
-                    tmpContainer = id.split('.');
+                    cookieValue = id.split('.');
 
                     // returning visitor flag
-                    tmpContainer.unshift('0');
-                } else {
-                    // uuid - generate a pseudo-unique ID to fingerprint this user;
-                    // note: this isn't a RFC4122-compliant UUID
-                    if (!visitorUUID) {
-                        visitorUUID = hash(
-                            (navigatorAlias.userAgent || '') +
-                                (navigatorAlias.platform || '') +
-                                JSON2.stringify(browserFeatures) +
-                                now.getTime() +
-                                Math.random()
-                        ).slice(0, 16); // 16 hexits = 64 bits
+                    cookieValue.unshift('0');
+
+                    if(visitorUUID.length) {
+                        cookieValue[1] = visitorUUID;
                     }
-
-                    tmpContainer = [
-                        // new visitor
-                        '1',
-
-                        // uuid
-                        visitorUUID,
-
-                        // creation timestamp - seconds since Unix epoch
-                        nowTs,
-
-                        // visitCount - 0 = no previous visit
-                        0,
-
-                        // current visit timestamp
-                        nowTs,
-
-                        // last visit timestamp - blank = no previous visit
-                        '',
-
-                        // last ecommerce order timestamp
-                        ''
-                    ];
+                    return cookieValue;
                 }
 
-                return tmpContainer;
+                if(visitorUUID.length) {
+                    uuid = visitorUUID;
+                } else if ('0' === hasCookies()){
+                    uuid = '';
+                } else {
+                    uuid = generateRandomUuid();
+                }
+
+                // No visitor ID cookie, let's create a new one
+                cookieValue = [
+                    // new visitor
+                    '1',
+
+                    // uuid
+                    uuid,
+
+                    // creation timestamp - seconds since Unix epoch
+                    nowTs,
+
+                    // visitCount - 0 = no previous visit
+                    0,
+
+                    // current visit timestamp
+                    nowTs,
+
+                    // last visit timestamp - blank = no previous visit
+                    '',
+
+                    // last ecommerce order timestamp
+                    ''
+                ];
+
+                return cookieValue;
+            }
+
+
+            /**
+             * Loads the Visitor ID cookie and returns a named array of values
+             */
+            function getValuesFromVisitorIdCookie() {
+                var cookieVisitorIdValue = loadVisitorIdCookie(),
+                    newVisitor = cookieVisitorIdValue[0],
+                    uuid = cookieVisitorIdValue[1],
+                    createTs = cookieVisitorIdValue[2],
+                    visitCount = cookieVisitorIdValue[3],
+                    currentVisitTs = cookieVisitorIdValue[4],
+                    lastVisitTs = cookieVisitorIdValue[5];
+
+                // case migrating from pre-1.5 cookies
+                if (!isDefined(cookieVisitorIdValue[6])) {
+                    cookieVisitorIdValue[6] = "";
+                }
+
+                var lastEcommerceOrderTs = cookieVisitorIdValue[6];
+
+                return {
+                    newVisitor: newVisitor,
+                    uuid: uuid,
+                    createTs: createTs,
+                    visitCount: visitCount,
+                    currentVisitTs: currentVisitTs,
+                    lastVisitTs: lastVisitTs,
+                    lastEcommerceOrderTs: lastEcommerceOrderTs
+                };
+            }
+
+
+            function getRemainingVisitorCookieTimeout() {
+                var now = new Date(),
+                    nowTs = now.getTime(),
+                    cookieCreatedTs = getValuesFromVisitorIdCookie().createTs;
+
+                var createTs = parseInt(cookieCreatedTs, 10);
+                var originalTimeout = (createTs * 1000) + configVisitorCookieTimeout - nowTs;
+                return originalTimeout;
+            }
+
+            /*
+             * Sets the Visitor ID cookie
+             */
+            function setVisitorIdCookie(visitorIdCookieValues) {
+
+                if(!configTrackerSiteId) {
+                    // when called before Site ID was set
+                    return;
+                }
+
+                var now = new Date(),
+                    nowTs = Math.round(now.getTime() / 1000);
+
+                if(!isDefined(visitorIdCookieValues)) {
+                    visitorIdCookieValues = getValuesFromVisitorIdCookie();
+                }
+
+                var cookieValue = visitorIdCookieValues.uuid + '.' +
+                    visitorIdCookieValues.createTs + '.' +
+                    visitorIdCookieValues.visitCount + '.' +
+                    nowTs + '.' +
+                    visitorIdCookieValues.lastVisitTs + '.' +
+                    visitorIdCookieValues.lastEcommerceOrderTs;
+
+                setCookie(getCookieName('id'), cookieValue, getRemainingVisitorCookieTimeout(), configCookiePath, configCookieDomain);
             }
 
             /*
@@ -1547,7 +2852,7 @@ if (typeof Piwik !== 'object') {
              */
             function loadReferrerAttributionCookie() {
                 // NOTE: if the format of the cookie changes,
-                // we must also update JS tests, PHP tracker, Integration tests,
+                // we must also update JS tests, PHP tracker, System tests,
                 // and notify other tracking clients (eg. Java) of the changes
                 var cookie = getCookie(getCookieName('ref'));
 
@@ -1570,17 +2875,46 @@ if (typeof Piwik !== 'object') {
                 ];
             }
 
+            function deleteCookie(cookieName, path, domain) {
+                setCookie(cookieName, '', -86400, path, domain);
+            }
+
+            function isPossibleToSetCookieOnDomain(domainToTest)
+            {
+                var valueToSet = 'testvalue';
+                setCookie('test', valueToSet, 10000, null, domainToTest);
+
+                if (getCookie('test') === valueToSet) {
+                    deleteCookie('test', null, domainToTest);
+
+                    return true;
+                }
+
+                return false;
+            }
+
             function deleteCookies() {
                 var savedConfigCookiesDisabled = configCookiesDisabled;
 
                 // Temporarily allow cookies just to delete the existing ones
                 configCookiesDisabled = false;
-                setCookie(getCookieName('id'), '', -86400, configCookiePath, configCookieDomain);
-                setCookie(getCookieName('ses'), '', -86400, configCookiePath, configCookieDomain);
-                setCookie(getCookieName('cvar'), '', -86400, configCookiePath, configCookieDomain);
-                setCookie(getCookieName('ref'), '', -86400, configCookiePath, configCookieDomain);
+
+                var cookiesToDelete = ['id', 'ses', 'cvar', 'ref'];
+                var index, cookieName;
+
+                for (index = 0; index < cookiesToDelete.length; index++) {
+                    cookieName = getCookieName(cookiesToDelete[index]);
+                    if (0 !== getCookie(cookieName)) {
+                        deleteCookie(cookieName, configCookiePath, configCookieDomain);
+                    }
+                }
 
                 configCookiesDisabled = savedConfigCookiesDisabled;
+            }
+
+            function setSiteId(siteId) {
+                configTrackerSiteId = siteId;
+                setVisitorIdCookie();
             }
 
             function sortObjectByKeys(value) {
@@ -1611,6 +2945,13 @@ if (typeof Piwik !== 'object') {
             }
 
             /**
+             * Creates the session cookie
+             */
+            function setSessionCookie() {
+                setCookie(getCookieName('ses'), '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+            }
+
+            /**
              * Returns the URL to call piwik.php,
              * with the standard parameters (plugins, resolution, url, referrer, etc.).
              * Sends the pageview and browser settings with every request in case of race conditions.
@@ -1619,24 +2960,16 @@ if (typeof Piwik !== 'object') {
                 var i,
                     now = new Date(),
                     nowTs = Math.round(now.getTime() / 1000),
-                    newVisitor,
-                    uuid,
-                    visitCount,
-                    createTs,
-                    currentVisitTs,
-                    lastVisitTs,
-                    lastEcommerceOrderTs,
                     referralTs,
                     referralUrl,
                     referralUrlMaxLength = 1024,
                     currentReferrerHostName,
                     originalReferrerHostName,
                     customVariablesCopy = customVariables,
-                    sesname = getCookieName('ses'),
-                    refname = getCookieName('ref'),
-                    cvarname = getCookieName('cvar'),
-                    id = loadVisitorIdCookie(),
-                    ses = getCookie(sesname),
+                    cookieSessionName = getCookieName('ses'),
+                    cookieReferrerName = getCookieName('ref'),
+                    cookieCustomVariablesName = getCookieName('cvar'),
+                    cookieSessionValue = getCookie(cookieSessionName),
                     attributionCookie = loadReferrerAttributionCookie(),
                     currentUrl = configCustomUrl || locationHrefAlias,
                     campaignNameDetected,
@@ -1650,19 +2983,7 @@ if (typeof Piwik !== 'object') {
                     return '';
                 }
 
-                newVisitor = id[0];
-                uuid = id[1];
-                createTs = id[2];
-                visitCount = id[3];
-                currentVisitTs = id[4];
-                lastVisitTs = id[5];
-                // case migrating from pre-1.5 cookies
-                if (!isDefined(id[6])) {
-                    id[6] = "";
-                }
-
-                lastEcommerceOrderTs = id[6];
-
+                var cookieVisitorIdValues = getValuesFromVisitorIdCookie();
                 if (!isDefined(currentEcommerceOrderTs)) {
                     currentEcommerceOrderTs = "";
                 }
@@ -1681,17 +3002,17 @@ if (typeof Piwik !== 'object') {
                 referralTs = attributionCookie[2];
                 referralUrl = attributionCookie[3];
 
-                if (!ses) {
+                if (!cookieSessionValue) {
                     // cookie 'ses' was not found: we consider this the start of a 'session'
 
                     // here we make sure that if 'ses' cookie is deleted few times within the visit
                     // and so this code path is triggered many times for one visit,
                     // we only increase visitCount once per Visit window (default 30min)
                     var visitDuration = configSessionCookieTimeout / 1000;
-                    if (!lastVisitTs
-                            || (nowTs - lastVisitTs) > visitDuration) {
-                        visitCount++;
-                        lastVisitTs = currentVisitTs;
+                    if (!cookieVisitorIdValues.lastVisitTs
+                        || (nowTs - cookieVisitorIdValues.lastVisitTs) > visitDuration) {
+                        cookieVisitorIdValues.visitCount++;
+                        cookieVisitorIdValues.lastVisitTs = cookieVisitorIdValues.currentVisitTs;
                     }
 
 
@@ -1700,7 +3021,7 @@ if (typeof Piwik !== 'object') {
                     // Or if it was set but we must attribute to the most recent one
                     // Note: we are working on the currentUrl before purify() since we can parse the campaign parameters in the hash tag
                     if (!configConversionAttributionFirstReferrer
-                            || !campaignNameDetected.length) {
+                        || !campaignNameDetected.length) {
                         for (i in configCampaignNameParameters) {
                             if (Object.prototype.hasOwnProperty.call(configCampaignNameParameters, i)) {
                                 campaignNameDetected = getParameter(currentUrl, configCampaignNameParameters[i]);
@@ -1728,16 +3049,16 @@ if (typeof Piwik !== 'object') {
                     originalReferrerHostName = referralUrl.length ? getHostName(referralUrl) : '';
 
                     if (currentReferrerHostName.length && // there is a referrer
-                            !isSiteHostName(currentReferrerHostName) && // domain is not the current domain
-                            (!configConversionAttributionFirstReferrer || // attribute to last known referrer
-                            !originalReferrerHostName.length || // previously empty
-                            isSiteHostName(originalReferrerHostName))) { // previously set but in current domain
+                        !isSiteHostName(currentReferrerHostName) && // domain is not the current domain
+                        (!configConversionAttributionFirstReferrer || // attribute to last known referrer
+                        !originalReferrerHostName.length || // previously empty
+                        isSiteHostName(originalReferrerHostName))) { // previously set but in current domain
                         referralUrl = configReferrerUrl;
                     }
 
                     // Set the referral cookie if we have either a Referrer URL, or detected a Campaign (or both)
                     if (referralUrl.length
-                            || campaignNameDetected.length) {
+                        || campaignNameDetected.length) {
                         referralTs = nowTs;
                         attributionCookie = [
                             campaignNameDetected,
@@ -1746,26 +3067,28 @@ if (typeof Piwik !== 'object') {
                             purify(referralUrl.slice(0, referralUrlMaxLength))
                         ];
 
-                        setCookie(refname, JSON2.stringify(attributionCookie), configReferralCookieTimeout, configCookiePath, configCookieDomain);
+                        setCookie(cookieReferrerName, JSON2.stringify(attributionCookie), configReferralCookieTimeout, configCookiePath, configCookieDomain);
                     }
                 }
+
                 // build out the rest of the request
                 request += '&idsite=' + configTrackerSiteId +
-                    '&rec=1' +
-                    '&r=' + String(Math.random()).slice(2, 8) + // keep the string to a minimum
-                    '&h=' + now.getHours() + '&m=' + now.getMinutes() + '&s=' + now.getSeconds() +
-                    '&url=' + encodeWrapper(purify(currentUrl)) +
-                    (configReferrerUrl.length ? '&urlref=' + encodeWrapper(purify(configReferrerUrl)) : '') +
-                    '&_id=' + uuid + '&_idts=' + createTs + '&_idvc=' + visitCount +
-                    '&_idn=' + newVisitor + // currently unused
-                    (campaignNameDetected.length ? '&_rcn=' + encodeWrapper(campaignNameDetected) : '') +
-                    (campaignKeywordDetected.length ? '&_rck=' + encodeWrapper(campaignKeywordDetected) : '') +
-                    '&_refts=' + referralTs +
-                    '&_viewts=' + lastVisitTs +
-                    (String(lastEcommerceOrderTs).length ? '&_ects=' + lastEcommerceOrderTs : '') +
-                    (String(referralUrl).length ? '&_ref=' + encodeWrapper(purify(referralUrl.slice(0, referralUrlMaxLength))) : '') +
-                    (charSet ? '&cs=' + encodeWrapper(charSet) : '');
-
+                '&rec=1' +
+                '&r=' + String(Math.random()).slice(2, 8) + // keep the string to a minimum
+                '&h=' + now.getHours() + '&m=' + now.getMinutes() + '&s=' + now.getSeconds() +
+                '&url=' + encodeWrapper(purify(currentUrl)) +
+                (configReferrerUrl.length ? '&urlref=' + encodeWrapper(purify(configReferrerUrl)) : '') +
+                ((configUserId && configUserId.length) ? '&uid=' + encodeWrapper(configUserId) : '') +
+                '&_id=' + cookieVisitorIdValues.uuid + '&_idts=' + cookieVisitorIdValues.createTs + '&_idvc=' + cookieVisitorIdValues.visitCount +
+                '&_idn=' + cookieVisitorIdValues.newVisitor + // currently unused
+                (campaignNameDetected.length ? '&_rcn=' + encodeWrapper(campaignNameDetected) : '') +
+                (campaignKeywordDetected.length ? '&_rck=' + encodeWrapper(campaignKeywordDetected) : '') +
+                '&_refts=' + referralTs +
+                '&_viewts=' + cookieVisitorIdValues.lastVisitTs +
+                (String(cookieVisitorIdValues.lastEcommerceOrderTs).length ? '&_ects=' + cookieVisitorIdValues.lastEcommerceOrderTs : '') +
+                (String(referralUrl).length ? '&_ref=' + encodeWrapper(purify(referralUrl.slice(0, referralUrlMaxLength))) : '') +
+                (charSet ? '&cs=' + encodeWrapper(charSet) : '') +
+                '&send_image=0';
 
                 // browser features
                 for (i in browserFeatures) {
@@ -1790,7 +3113,7 @@ if (typeof Piwik !== 'object') {
                     return '';
                 }
 
-                var sortedCustomVarPage  = sortObjectByKeys(customVariablesPage);
+                var sortedCustomVarPage = sortObjectByKeys(customVariablesPage);
                 var sortedCustomVarEvent = sortObjectByKeys(customVariablesEvent);
 
                 request += appendCustomVariablesToRequest(sortedCustomVarPage, 'cvar');
@@ -1809,7 +3132,9 @@ if (typeof Piwik !== 'object') {
                         }
                     }
 
-                    setCookie(cvarname, JSON2.stringify(customVariables), configSessionCookieTimeout, configCookiePath, configCookieDomain);
+                    if (configStoreCustomVariablesInCookie) {
+                        setCookie(cookieCustomVariablesName, JSON2.stringify(customVariables), configSessionCookieTimeout, configCookiePath, configCookieDomain);
+                    }
                 }
 
                 // performance tracking
@@ -1817,14 +3142,15 @@ if (typeof Piwik !== 'object') {
                     if (configPerformanceGenerationTime) {
                         request += '&gt_ms=' + configPerformanceGenerationTime;
                     } else if (performanceAlias && performanceAlias.timing
-                            && performanceAlias.timing.requestStart && performanceAlias.timing.responseEnd) {
+                        && performanceAlias.timing.requestStart && performanceAlias.timing.responseEnd) {
                         request += '&gt_ms=' + (performanceAlias.timing.responseEnd - performanceAlias.timing.requestStart);
                     }
                 }
 
                 // update cookies
-                setVisitorIdCookie(uuid, createTs, visitCount, nowTs, lastVisitTs, isDefined(currentEcommerceOrderTs) && String(currentEcommerceOrderTs).length ? currentEcommerceOrderTs : lastEcommerceOrderTs);
-                setCookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+                cookieVisitorIdValues.lastEcommerceOrderTs = isDefined(currentEcommerceOrderTs) && String(currentEcommerceOrderTs).length ? currentEcommerceOrderTs : cookieVisitorIdValues.lastEcommerceOrderTs;
+                setVisitorIdCookie(cookieVisitorIdValues);
+                setSessionCookie();
 
                 // tracker plugin hook
                 request += executePluginMethod(pluginMethod);
@@ -1839,6 +3165,22 @@ if (typeof Piwik !== 'object') {
 
                 return request;
             }
+
+            /*
+             * If there was user activity since the last check, and it's been configHeartBeatDelay seconds
+             * since the last tracker, send a ping request (the heartbeat timeout will be reset by sendRequest).
+             */
+            heartBeatPingIfActivityAlias = function heartBeatPingIfActivity() {
+                var now = new Date();
+                if (lastTrackerRequestTime + configHeartBeatDelay <= now.getTime()) {
+                    var requestPing = getRequest('ping=1', null, 'ping');
+                    sendRequest(requestPing, configTrackerPause);
+
+                    return true;
+                }
+
+                return false;
+            };
 
             function logEcommerce(orderId, grandTotal, subTotal, tax, shipping, discount) {
                 var request = 'idgoal=0',
@@ -1926,64 +3268,511 @@ if (typeof Piwik !== 'object') {
                     request = getRequest('action_name=' + encodeWrapper(titleFixup(customTitle || configTitle)), customData, 'log');
 
                 sendRequest(request, configTrackerPause);
+            }
 
-                // send ping
-                if (configMinimumVisitTime && configHeartBeatTimer && !activityTrackingInstalled) {
-                    activityTrackingInstalled = true;
+            /*
+             * Construct regular expression of classes
+             */
+            function getClassesRegExp(configClasses, defaultClass) {
+                var i,
+                    classesRegExp = '(^| )(piwik[_-]' + defaultClass;
 
-                    // add event handlers; cross-browser compatibility here varies significantly
-                    // @see http://quirksmode.org/dom/events
-                    addEventListener(documentAlias, 'click', activityHandler);
-                    addEventListener(documentAlias, 'mouseup', activityHandler);
-                    addEventListener(documentAlias, 'mousedown', activityHandler);
-                    addEventListener(documentAlias, 'mousemove', activityHandler);
-                    addEventListener(documentAlias, 'mousewheel', activityHandler);
-                    addEventListener(windowAlias, 'DOMMouseScroll', activityHandler);
-                    addEventListener(windowAlias, 'scroll', activityHandler);
-                    addEventListener(documentAlias, 'keypress', activityHandler);
-                    addEventListener(documentAlias, 'keydown', activityHandler);
-                    addEventListener(documentAlias, 'keyup', activityHandler);
-                    addEventListener(windowAlias, 'resize', activityHandler);
-                    addEventListener(windowAlias, 'focus', activityHandler);
-                    addEventListener(windowAlias, 'blur', activityHandler);
-
-                    // periodic check for activity
-                    lastActivityTime = now.getTime();
-                    setTimeout(function heartBeat() {
-                        var requestPing;
-                        now = new Date();
-
-                        // there was activity during the heart beat period;
-                        // on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
-                        if ((lastActivityTime + configHeartBeatTimer) > now.getTime()) {
-                            // send ping if minimum visit time has elapsed
-                            if (configMinimumVisitTime < now.getTime()) {
-                                requestPing = getRequest('ping=1', customData, 'ping');
-
-                                sendRequest(requestPing, configTrackerPause);
-                            }
-
-                            // resume heart beat
-                            setTimeout(heartBeat, configHeartBeatTimer);
-                        }
-                        // else heart beat cancelled due to inactivity
-                    }, configHeartBeatTimer);
+                if (configClasses) {
+                    for (i = 0; i < configClasses.length; i++) {
+                        classesRegExp += '|' + configClasses[i];
+                    }
                 }
+
+                classesRegExp += ')( |$)';
+
+                return new RegExp(classesRegExp);
+            }
+
+            function startsUrlWithTrackerUrl(url) {
+                return (configTrackerUrl && url && 0 === String(url).indexOf(configTrackerUrl));
+            }
+
+            /*
+             * Link or Download?
+             */
+            function getLinkType(className, href, isInLink, hasDownloadAttribute) {
+                if (startsUrlWithTrackerUrl(href)) {
+                    return 0;
+                }
+
+                // does class indicate whether it is an (explicit/forced) outlink or a download?
+                var downloadPattern = getClassesRegExp(configDownloadClasses, 'download'),
+                    linkPattern = getClassesRegExp(configLinkClasses, 'link'),
+
+                // does file extension indicate that it is a download?
+                    downloadExtensionsPattern = new RegExp('\\.(' + configDownloadExtensions.join('|') + ')([?&#]|$)', 'i');
+
+                if (linkPattern.test(className)) {
+                    return 'link';
+                }
+
+                if (hasDownloadAttribute || downloadPattern.test(className) || downloadExtensionsPattern.test(href)) {
+                    return 'download';
+                }
+
+                if (isInLink) {
+                    return 0;
+                }
+
+                return 'link';
+            }
+
+            function getSourceElement(sourceElement)
+            {
+                var parentElement;
+
+                parentElement = sourceElement.parentNode;
+                while (parentElement !== null &&
+                    /* buggy IE5.5 */
+                isDefined(parentElement)) {
+
+                    if (query.isLinkElement(sourceElement)) {
+                        break;
+                    }
+                    sourceElement = parentElement;
+                    parentElement = sourceElement.parentNode;
+                }
+
+                return sourceElement;
+            }
+
+            function getLinkIfShouldBeProcessed(sourceElement)
+            {
+                sourceElement = getSourceElement(sourceElement);
+
+                if (!query.hasNodeAttribute(sourceElement, 'href')) {
+                    return;
+                }
+
+                if (!isDefined(sourceElement.href)) {
+                    return;
+                }
+
+                var href = query.getAttributeValueFromNode(sourceElement, 'href');
+
+                if (startsUrlWithTrackerUrl(href)) {
+                    return;
+                }
+
+                // browsers, such as Safari, don't downcase hostname and href
+                var originalSourceHostName = sourceElement.hostname || getHostName(sourceElement.href);
+                var sourceHostName = originalSourceHostName.toLowerCase();
+                var sourceHref = sourceElement.href.replace(originalSourceHostName, sourceHostName);
+
+                // browsers, such as Safari, don't downcase hostname and href
+                var scriptProtocol = new RegExp('^(javascript|vbscript|jscript|mocha|livescript|ecmascript|mailto):', 'i');
+
+                if (!scriptProtocol.test(sourceHref)) {
+                    // track outlinks and all downloads
+                    var linkType = getLinkType(sourceElement.className, sourceHref, isSiteHostName(sourceHostName), query.hasNodeAttribute(sourceElement, 'download'));
+
+                    if (linkType) {
+                        return {
+                            type: linkType,
+                            href: sourceHref
+                        };
+                    }
+                }
+            }
+
+            function buildContentInteractionRequest(interaction, name, piece, target)
+            {
+                var params = content.buildInteractionRequestParams(interaction, name, piece, target);
+
+                if (!params) {
+                    return;
+                }
+
+                return getRequest(params, null, 'contentInteraction');
+            }
+
+            function buildContentInteractionTrackingRedirectUrl(url, contentInteraction, contentName, contentPiece, contentTarget)
+            {
+                if (!isDefined(url)) {
+                    return;
+                }
+
+                if (startsUrlWithTrackerUrl(url)) {
+                    return url;
+                }
+
+                var redirectUrl = content.toAbsoluteUrl(url);
+                var request  = 'redirecturl=' + encodeWrapper(redirectUrl) + '&';
+                request     += buildContentInteractionRequest(contentInteraction, contentName, contentPiece, (contentTarget || url));
+
+                var separator = '&';
+                if (configTrackerUrl.indexOf('?') < 0) {
+                    separator = '?';
+                }
+
+                return configTrackerUrl + separator + request;
+            }
+
+            function isNodeAuthorizedToTriggerInteraction(contentNode, interactedNode)
+            {
+                if (!contentNode || !interactedNode) {
+                    return false;
+                }
+
+                var targetNode = content.findTargetNode(contentNode);
+
+                if (content.shouldIgnoreInteraction(targetNode)) {
+                    // interaction should be ignored
+                    return false;
+                }
+
+                targetNode = content.findTargetNodeNoDefault(contentNode);
+                if (targetNode && !containsNodeElement(targetNode, interactedNode)) {
+                    /**
+                     * There is a target node defined but the clicked element is not within the target node. example:
+                     * <div data-track-content><a href="Y" data-content-target>Y</a><img src=""/><a href="Z">Z</a></div>
+                     *
+                     * The user clicked in this case on link Z and not on target Y
+                     */
+                    return false;
+                }
+
+                return true;
+            }
+
+            function getContentInteractionToRequestIfPossible (anyNode, interaction, fallbackTarget)
+            {
+                if (!anyNode) {
+                    return;
+                }
+
+                var contentNode = content.findParentContentNode(anyNode);
+
+                if (!contentNode) {
+                    // we are not within a content block
+                    return;
+                }
+
+                if (!isNodeAuthorizedToTriggerInteraction(contentNode, anyNode)) {
+                    return;
+                }
+
+                var contentBlock = content.buildContentBlock(contentNode);
+
+                if (!contentBlock) {
+                    return;
+                }
+
+                if (!contentBlock.target && fallbackTarget) {
+                    contentBlock.target = fallbackTarget;
+                }
+
+                return content.buildInteractionRequestParams(interaction, contentBlock.name, contentBlock.piece, contentBlock.target);
+            }
+
+            function wasContentImpressionAlreadyTracked(contentBlock)
+            {
+                if (!trackedContentImpressions || !trackedContentImpressions.length) {
+                    return false;
+                }
+
+                var index, trackedContent;
+
+                for (index = 0; index < trackedContentImpressions.length; index++) {
+                    trackedContent = trackedContentImpressions[index];
+
+                    if (trackedContent &&
+                        trackedContent.name === contentBlock.name &&
+                        trackedContent.piece === contentBlock.piece &&
+                        trackedContent.target === contentBlock.target) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            function replaceHrefIfInternalLink(contentBlock)
+            {
+                if (!contentBlock) {
+                    return false;
+                }
+
+                var targetNode = content.findTargetNode(contentBlock);
+
+                if (!targetNode || content.shouldIgnoreInteraction(targetNode)) {
+                    return false;
+                }
+
+                var link = getLinkIfShouldBeProcessed(targetNode);
+                if (linkTrackingEnabled && link && link.type) {
+
+                    return false; // will be handled via outlink or download.
+                }
+
+                if (query.isLinkElement(targetNode) &&
+                    query.hasNodeAttributeWithValue(targetNode, 'href')) {
+                    var url = String(query.getAttributeValueFromNode(targetNode, 'href'));
+
+                    if (0 === url.indexOf('#')) {
+                        return false;
+                    }
+
+                    if (startsUrlWithTrackerUrl(url)) {
+                        return true;
+                    }
+
+                    if (!content.isUrlToCurrentDomain(url)) {
+                        return false;
+                    }
+
+                    var block = content.buildContentBlock(contentBlock);
+
+                    if (!block) {
+                        return;
+                    }
+
+                    var contentName   = block.name;
+                    var contentPiece  = block.piece;
+                    var contentTarget = block.target;
+
+                    if (!query.hasNodeAttributeWithValue(targetNode, content.CONTENT_TARGET_ATTR) || targetNode.wasContentTargetAttrReplaced) {
+                        // make sure we still track the correct content target when an interaction is happening
+                        targetNode.wasContentTargetAttrReplaced = true;
+                        contentTarget = content.toAbsoluteUrl(url);
+                        query.setAnyAttribute(targetNode, content.CONTENT_TARGET_ATTR, contentTarget);
+                    }
+
+                    var targetUrl = buildContentInteractionTrackingRedirectUrl(url, 'click', contentName, contentPiece, contentTarget);
+
+                    // location.href does not respect target=_blank so we prefer to use this
+                    content.setHrefAttribute(targetNode, targetUrl);
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            function replaceHrefsIfInternalLink(contentNodes)
+            {
+                if (!contentNodes || !contentNodes.length) {
+                    return;
+                }
+
+                var index;
+                for (index = 0; index < contentNodes.length; index++) {
+                    replaceHrefIfInternalLink(contentNodes[index]);
+                }
+            }
+
+            function trackContentImpressionClickInteraction (targetNode)
+            {
+                return function (event) {
+
+                    if (!targetNode) {
+                        return;
+                    }
+
+                    var contentBlock = content.findParentContentNode(targetNode);
+
+                    var interactedElement;
+                    if (event) {
+                        interactedElement = event.target || event.srcElement;
+                    }
+                    if (!interactedElement) {
+                        interactedElement = targetNode;
+                    }
+
+                    if (!isNodeAuthorizedToTriggerInteraction(contentBlock, interactedElement)) {
+                        return;
+                    }
+
+                    setExpireDateTime(configTrackerPause);
+
+                    if (query.isLinkElement(targetNode) &&
+                        query.hasNodeAttributeWithValue(targetNode, 'href') &&
+                        query.hasNodeAttributeWithValue(targetNode, content.CONTENT_TARGET_ATTR)) {
+                        // there is a href attribute, the link was replaced with piwik.php but later the href was changed again by the application.
+                        var href = query.getAttributeValueFromNode(targetNode, 'href');
+                        if (!startsUrlWithTrackerUrl(href) && targetNode.wasContentTargetAttrReplaced) {
+                            query.setAnyAttribute(targetNode, content.CONTENT_TARGET_ATTR, '');
+                        }
+                    }
+
+                    var link = getLinkIfShouldBeProcessed(targetNode);
+
+                    if (linkTrackingInstalled && link && link.type) {
+                        // click ignore, will be tracked via processClick, we do not want to track it twice
+
+                        return link.type;
+                    }
+
+                    if (replaceHrefIfInternalLink(contentBlock)) {
+                        return 'href';
+                    }
+
+                    var block = content.buildContentBlock(contentBlock);
+
+                    if (!block) {
+                        return;
+                    }
+
+                    var contentName   = block.name;
+                    var contentPiece  = block.piece;
+                    var contentTarget = block.target;
+
+                    // click on any non link element, or on a link element that has not an href attribute or on an anchor
+                    var request = buildContentInteractionRequest('click', contentName, contentPiece, contentTarget);
+                    sendRequest(request, configTrackerPause);
+
+                    return request;
+                };
+            }
+
+            function setupInteractionsTracking(contentNodes)
+            {
+                if (!contentNodes || !contentNodes.length) {
+                    return;
+                }
+
+                var index, targetNode;
+                for (index = 0; index < contentNodes.length; index++) {
+                    targetNode = content.findTargetNode(contentNodes[index]);
+
+                    if (targetNode && !targetNode.contentInteractionTrackingSetupDone) {
+                        targetNode.contentInteractionTrackingSetupDone = true;
+
+                        addEventListener(targetNode, 'click', trackContentImpressionClickInteraction(targetNode));
+                    }
+                }
+            }
+
+            /*
+             * Log all content pieces
+             */
+            function buildContentImpressionsRequests(contents, contentNodes)
+            {
+                if (!contents || !contents.length) {
+                    return [];
+                }
+
+                var index, request;
+
+                for (index = 0; index < contents.length; index++) {
+
+                    if (wasContentImpressionAlreadyTracked(contents[index])) {
+                        contents.splice(index, 1);
+                        index--;
+                    } else {
+                        trackedContentImpressions.push(contents[index]);
+                    }
+                }
+
+                if (!contents || !contents.length) {
+                    return [];
+                }
+
+                replaceHrefsIfInternalLink(contentNodes);
+                setupInteractionsTracking(contentNodes);
+
+                var requests = [];
+
+                for (index = 0; index < contents.length; index++) {
+
+                    request = getRequest(
+                        content.buildImpressionRequestParams(contents[index].name, contents[index].piece, contents[index].target),
+                        undefined,
+                        'contentImpressions'
+                    );
+
+                    requests.push(request);
+                }
+
+                return requests;
+            }
+
+            /*
+             * Log all content pieces
+             */
+            function getContentImpressionsRequestsFromNodes(contentNodes)
+            {
+                var contents = content.collectContent(contentNodes);
+
+                return buildContentImpressionsRequests(contents, contentNodes);
+            }
+
+            /*
+             * Log currently visible content pieces
+             */
+            function getCurrentlyVisibleContentImpressionsRequestsIfNotTrackedYet(contentNodes)
+            {
+                if (!contentNodes || !contentNodes.length) {
+                    return [];
+                }
+
+                var index;
+
+                for (index = 0; index < contentNodes.length; index++) {
+                    if (!content.isNodeVisible(contentNodes[index])) {
+                        contentNodes.splice(index, 1);
+                        index--;
+                    }
+                }
+
+                if (!contentNodes || !contentNodes.length) {
+                    return [];
+                }
+
+                return getContentImpressionsRequestsFromNodes(contentNodes);
+            }
+
+            function buildContentImpressionRequest(contentName, contentPiece, contentTarget)
+            {
+                var params = content.buildImpressionRequestParams(contentName, contentPiece, contentTarget);
+
+                return getRequest(params, null, 'contentImpression');
+            }
+
+            function buildContentInteractionRequestNode(node, contentInteraction)
+            {
+                if (!node) {
+                    return;
+                }
+
+                var contentNode  = content.findParentContentNode(node);
+                var contentBlock = content.buildContentBlock(contentNode);
+
+                if (!contentBlock) {
+                    return;
+                }
+
+                if (!contentInteraction) {
+                    contentInteraction = 'Unknown';
+                }
+
+                return buildContentInteractionRequest(contentInteraction, contentBlock.name, contentBlock.piece, contentBlock.target);
+            }
+
+            function buildEventRequest(category, action, name, value)
+            {
+                return 'e_c=' + encodeWrapper(category)
+                     + '&e_a=' + encodeWrapper(action)
+                     + (isDefined(name) ? '&e_n=' + encodeWrapper(name) : '')
+                     + (isDefined(value) ? '&e_v=' + encodeWrapper(value) : '');
             }
 
             /*
              * Log the event
              */
-            function logEvent(category, action, name, value, customData) {
+            function logEvent(category, action, name, value, customData)
+            {
                 // Category and Action are required parameters
                 if (String(category).length === 0 || String(action).length === 0) {
                     return false;
                 }
                 var request = getRequest(
-                        'e_c=' + encodeWrapper(category)
-                            + '&e_a=' + encodeWrapper(action)
-                            + (isDefined(name) ? '&e_n=' + encodeWrapper(name) : '')
-                            + (isDefined(value) ? '&e_v=' + encodeWrapper(value) : ''),
+                        buildEventRequest(category, action, name, value),
                         customData,
                         'event'
                     );
@@ -2014,10 +3803,19 @@ if (typeof Piwik !== 'object') {
             /*
              * Log the link or click with the server
              */
-            function logLink(url, linkType, customData) {
-                var request = getRequest(linkType + '=' + encodeWrapper(purify(url)), customData, 'link');
+            function logLink(url, linkType, customData, callback, sourceElement) {
 
-                sendRequest(request, configTrackerPause);
+                var linkParams = linkType + '=' + encodeWrapper(purify(url));
+
+                var interaction = getContentInteractionToRequestIfPossible(sourceElement, 'click', url);
+
+                if (interaction) {
+                    linkParams += '&' + interaction;
+                }
+
+                var request = getRequest(linkParams, customData, 'link');
+
+                sendRequest(request, (callback ? 0 : configTrackerPause), callback);
             }
 
             /*
@@ -2073,121 +3871,176 @@ if (typeof Piwik !== 'object') {
                 callback();
             }
 
-            /*
-             * Construct regular expression of classes
-             */
-            function getClassesRegExp(configClasses, defaultClass) {
-                var i,
-                    classesRegExp = '(^| )(piwik[_-]' + defaultClass;
-
-                if (configClasses) {
-                    for (i = 0; i < configClasses.length; i++) {
-                        classesRegExp += '|' + configClasses[i];
-                    }
+            function trackCallbackOnLoad(callback)
+            {
+                if (documentAlias.readyState === 'complete') {
+                    callback();
+                } else if (windowAlias.addEventListener) {
+                    windowAlias.addEventListener('load', callback);
+                } else if (windowAlias.attachEvent) {
+                    windowAlias.attachEvent('onLoad', callback);
                 }
-
-                classesRegExp += ')( |$)';
-
-                return new RegExp(classesRegExp);
             }
 
-            /*
-             * Link or Download?
-             */
-            function getLinkType(className, href, isInLink) {
-                // does class indicate whether it is an (explicit/forced) outlink or a download?
-                var downloadPattern = getClassesRegExp(configDownloadClasses, 'download'),
-                    linkPattern = getClassesRegExp(configLinkClasses, 'link'),
+            function trackCallbackOnReady(callback)
+            {
+                var loaded = false;
 
-                    // does file extension indicate that it is a download?
-                    downloadExtensionsPattern = new RegExp('\\.(' + configDownloadExtensions + ')([?&#]|$)', 'i');
+                if (documentAlias.attachEvent) {
+                    loaded = documentAlias.readyState === "complete";
+                } else {
+                    loaded = documentAlias.readyState !== "loading";
+                }
 
-                // optimization of the if..elseif..else construct below
-                return linkPattern.test(className) ? 'link' : (downloadPattern.test(className) || downloadExtensionsPattern.test(href) ? 'download' : (isInLink ? 0 : 'link'));
+                if (loaded) {
+                    callback();
+                } else if (documentAlias.addEventListener) {
+                    documentAlias.addEventListener('DOMContentLoaded', callback);
+                } else if (documentAlias.attachEvent) {
+                    documentAlias.attachEvent('onreadystatechange', callback);
+                }
             }
 
             /*
              * Process clicks
              */
             function processClick(sourceElement) {
-                var parentElement,
-                    tag,
-                    linkType;
+                var link = getLinkIfShouldBeProcessed(sourceElement);
 
-                parentElement = sourceElement.parentNode;
-                while (parentElement !== null &&
-                        /* buggy IE5.5 */
-                        isDefined(parentElement)) {
-                    tag = sourceElement.tagName.toUpperCase();
-                    if (tag === 'A' || tag === 'AREA') {
-                        break;
-                    }
-                    sourceElement = parentElement;
-                    parentElement = sourceElement.parentNode;
+                if (link && link.type) {
+                    link.href = decodeWrapper(link.href);
+                    logLink(link.href, link.type, undefined, null, sourceElement);
                 }
+            }
 
-                if (isDefined(sourceElement.href)) {
-                    // browsers, such as Safari, don't downcase hostname and href
-                    var originalSourceHostName = sourceElement.hostname || getHostName(sourceElement.href),
-                        sourceHostName = originalSourceHostName.toLowerCase(),
-                        sourceHref = sourceElement.href.replace(originalSourceHostName, sourceHostName),
-                        scriptProtocol = new RegExp('^(javascript|vbscript|jscript|mocha|livescript|ecmascript|mailto):', 'i');
+            function isIE8orOlder()
+            {
+                return documentAlias.all && !documentAlias.addEventListener;
+            }
 
-                    // ignore script pseudo-protocol links
-                    if (!scriptProtocol.test(sourceHref)) {
-                        // track outlinks and all downloads
-                        linkType = getLinkType(sourceElement.className, sourceHref, isSiteHostName(sourceHostName));
+            function getKeyCodeFromEvent(event)
+            {
+                // event.which is deprecated https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/which
+                var which = event.which;
 
-                        if (linkType) {
-                            // urldecode %xx
-                            sourceHref = urldecode(sourceHref);
-                            logLink(sourceHref, linkType);
+                /**
+                 1 : Left mouse button
+                 2 : Wheel button or middle button
+                 3 : Right mouse button
+                 */
+
+                var typeOfEventButton = (typeof event.button);
+
+                if (!which && typeOfEventButton !== 'undefined' ) {
+                    /**
+                     -1: No button pressed
+                     0 : Main button pressed, usually the left button
+                     1 : Auxiliary button pressed, usually the wheel button or themiddle button (if present)
+                     2 : Secondary button pressed, usually the right button
+                     3 : Fourth button, typically the Browser Back button
+                     4 : Fifth button, typically the Browser Forward button
+
+                     IE8 and earlier has different values:
+                     1 : Left mouse button
+                     2 : Right mouse button
+                     4 : Wheel button or middle button
+
+                     For a left-hand configured mouse, the return values are reversed. We do not take care of that.
+                     */
+
+                    if (isIE8orOlder()) {
+                        if (event.button & 1) {
+                            which = 1;
+                        } else if (event.button & 2) {
+                            which = 3;
+                        } else if (event.button & 4) {
+                            which = 2;
+                        }
+                    } else {
+                        if (event.button === 0 || event.button === '0') {
+                            which = 1;
+                        } else if (event.button & 1) {
+                            which = 2;
+                        } else if (event.button & 2) {
+                            which = 3;
                         }
                     }
                 }
+
+                return which;
+            }
+
+            function getNameOfClickedButton(event)
+            {
+                switch (getKeyCodeFromEvent(event)) {
+                    case 1:
+                        return 'left';
+                    case 2:
+                        return 'middle';
+                    case 3:
+                        return 'right';
+                }
+            }
+
+            function getTargetElementFromEvent(event)
+            {
+                return event.target || event.srcElement;
             }
 
             /*
              * Handle click event
              */
-            function clickHandler(evt) {
-                var button,
-                    target;
+            function clickHandler(enable) {
 
-                evt = evt || windowAlias.event;
-                button = evt.which || evt.button;
-                target = evt.target || evt.srcElement;
+                return function (event) {
 
-                // Using evt.type (added in IE4), we avoid defining separate handlers for mouseup and mousedown.
-                if (evt.type === 'click') {
-                    if (target) {
-                        processClick(target);
-                    }
-                } else if (evt.type === 'mousedown') {
-                    if ((button === 1 || button === 2) && target) {
-                        lastButton = button;
-                        lastTarget = target;
-                    } else {
+                    event = event || windowAlias.event;
+
+                    var button = getNameOfClickedButton(event);
+                    var target = getTargetElementFromEvent(event);
+
+                    if (event.type === 'click') {
+
+                        var ignoreClick = false;
+                        if (enable && button === 'middle') {
+                            // if enabled, we track middle clicks via mouseup
+                            // some browsers (eg chrome) trigger click and mousedown/up events when middle is clicked,
+                            // whereas some do not. This way we make "sure" to track them only once, either in click
+                            // (default) or in mouseup (if enable == true)
+                            ignoreClick = true;
+                        }
+
+                        if (target && !ignoreClick) {
+                            processClick(target);
+                        }
+                    } else if (event.type === 'mousedown') {
+                        if (button === 'middle' && target) {
+                            lastButton = button;
+                            lastTarget = target;
+                        } else {
+                            lastButton = lastTarget = null;
+                        }
+                    } else if (event.type === 'mouseup') {
+                        if (button === lastButton && target === lastTarget) {
+                            processClick(target);
+                        }
                         lastButton = lastTarget = null;
-                    }
-                } else if (evt.type === 'mouseup') {
-                    if (button === lastButton && target === lastTarget) {
+                    } else if (event.type === 'contextmenu') {
                         processClick(target);
                     }
-                    lastButton = lastTarget = null;
-                }
+                };
             }
 
             /*
              * Add click listener to a DOM element
              */
             function addClickListener(element, enable) {
+                addEventListener(element, 'click', clickHandler(enable), false);
+
                 if (enable) {
-                    // for simplicity and performance, we ignore drag events
-                    addEventListener(element, 'mouseup', clickHandler, false);
-                    addEventListener(element, 'mousedown', clickHandler, false);
-                } else {
-                    addEventListener(element, 'click', clickHandler, false);
+                    addEventListener(element, 'mouseup', clickHandler(enable), false);
+                    addEventListener(element, 'mousedown', clickHandler(enable), false);
+                    addEventListener(element, 'contextmenu', clickHandler(enable), false);
                 }
             }
 
@@ -2214,6 +4067,74 @@ if (typeof Piwik !== 'object') {
                 }
             }
 
+
+            function enableTrackOnlyVisibleContent (checkOnSroll, timeIntervalInMs, tracker) {
+
+                if (isTrackOnlyVisibleContentEnabled) {
+                    // already enabled, do not register intervals again
+                    return true;
+                }
+
+                isTrackOnlyVisibleContentEnabled = true;
+
+                var didScroll = false;
+                var events, index;
+
+                function setDidScroll() { didScroll = true; }
+
+                trackCallbackOnLoad(function () {
+
+                    function checkContent(intervalInMs) {
+                        setTimeout(function () {
+                            if (!isTrackOnlyVisibleContentEnabled) {
+                                return; // the tests stopped tracking only visible content
+                            }
+                            didScroll = false;
+                            tracker.trackVisibleContentImpressions();
+                            checkContent(intervalInMs);
+                        }, intervalInMs);
+                    }
+
+                    function checkContentIfDidScroll(intervalInMs) {
+
+                        setTimeout(function () {
+                            if (!isTrackOnlyVisibleContentEnabled) {
+                                return; // the tests stopped tracking only visible content
+                            }
+
+                            if (didScroll) {
+                                didScroll = false;
+                                tracker.trackVisibleContentImpressions();
+                            }
+
+                            checkContentIfDidScroll(intervalInMs);
+                        }, intervalInMs);
+                    }
+
+                    if (checkOnSroll) {
+
+                        // scroll event is executed after each pixel, so we make sure not to
+                        // execute event too often. otherwise FPS goes down a lot!
+                        events = ['scroll', 'resize'];
+                        for (index = 0; index < events.length; index++) {
+                            if (documentAlias.addEventListener) {
+                                documentAlias.addEventListener(events[index], setDidScroll);
+                            } else {
+                                windowAlias.attachEvent('on' + events[index], setDidScroll);
+                            }
+                        }
+
+                        checkContentIfDidScroll(100);
+                    }
+
+                    if (timeIntervalInMs && timeIntervalInMs > 0) {
+                        timeIntervalInMs = parseInt(timeIntervalInMs, 10);
+                        checkContent(timeIntervalInMs);
+                    }
+
+                });
+            }
+
             /*
              * Browser features (plugins, resolution, cookies)
              */
@@ -2238,8 +4159,9 @@ if (typeof Piwik !== 'object') {
                         gears: 'application/x-googlegears',
                         ag: 'application/x-silverlight'
                     },
-                    devicePixelRatio = (new RegExp('Mac OS X.*Safari/')).test(navigatorAlias.userAgent) ? windowAlias.devicePixelRatio || 1 : 1;
+                    devicePixelRatio = windowAlias.devicePixelRatio || 1;
 
+                // detect browser features except IE < 11 (IE 11 user agent is no longer MSIE)
                 if (!((new RegExp('MSIE')).test(navigatorAlias.userAgent))) {
                     // general plugin detection
                     if (navigatorAlias.mimeTypes && navigatorAlias.mimeTypes.length) {
@@ -2269,8 +4191,6 @@ if (typeof Piwik !== 'object') {
                 }
 
                 // screen resolution
-                // - only Apple reports screen.* in device-independent-pixels (dips)
-                // - devicePixelRatio is always 2 on MacOSX+Retina regardless of resolution set in Display Preferences
                 browserFeatures.res = screenAlias.width * devicePixelRatio + 'x' + screenAlias.height * devicePixelRatio;
             }
 
@@ -2307,6 +4227,7 @@ if (typeof Piwik !== 'object') {
              */
             detectBrowserFeatures();
             updateDomainHash();
+            setVisitorIdCookie();
 
 /*<DEBUG>*/
             /*
@@ -2328,15 +4249,61 @@ if (typeof Piwik !== 'object') {
                 getHook: function (hookName) {
                     return registeredHooks[hookName];
                 },
+                getQuery: function () {
+                    return query;
+                },
+                getContent: function () {
+                    return content;
+                },
+
+                buildContentImpressionRequest: buildContentImpressionRequest,
+                buildContentInteractionRequest: buildContentInteractionRequest,
+                buildContentInteractionRequestNode: buildContentInteractionRequestNode,
+                buildContentInteractionTrackingRedirectUrl: buildContentInteractionTrackingRedirectUrl,
+                getContentImpressionsRequestsFromNodes: getContentImpressionsRequestsFromNodes,
+                getCurrentlyVisibleContentImpressionsRequestsIfNotTrackedYet: getCurrentlyVisibleContentImpressionsRequestsIfNotTrackedYet,
+                trackCallbackOnLoad: trackCallbackOnLoad,
+                trackCallbackOnReady: trackCallbackOnReady,
+                buildContentImpressionsRequests: buildContentImpressionsRequests,
+                wasContentImpressionAlreadyTracked: wasContentImpressionAlreadyTracked,
+                appendContentInteractionToRequestIfPossible: getContentInteractionToRequestIfPossible,
+                setupInteractionsTracking: setupInteractionsTracking,
+                trackContentImpressionClickInteraction: trackContentImpressionClickInteraction,
+                internalIsNodeVisible: isVisible,
+                isNodeAuthorizedToTriggerInteraction: isNodeAuthorizedToTriggerInteraction,
+                replaceHrefIfInternalLink: replaceHrefIfInternalLink,
+                getConfigDownloadExtensions: function () {
+                    return configDownloadExtensions;
+                },
+                enableTrackOnlyVisibleContent: function (checkOnScroll, timeIntervalInMs) {
+                    return enableTrackOnlyVisibleContent(checkOnScroll, timeIntervalInMs, this);
+                },
+                clearTrackedContentImpressions: function () {
+                    trackedContentImpressions = [];
+                },
+                getTrackedContentImpressions: function () {
+                    return trackedContentImpressions;
+                },
+                clearEnableTrackOnlyVisibleContent: function () {
+                    isTrackOnlyVisibleContentEnabled = false;
+                },
+                disableLinkTracking: function () {
+                    linkTrackingInstalled = false;
+                    linkTrackingEnabled   = false;
+                },
+                getConfigVisitorCookieTimeout: function () {
+                    return configVisitorCookieTimeout;
+                },
+                getRemainingVisitorCookieTimeout: getRemainingVisitorCookieTimeout,
 /*</DEBUG>*/
 
                 /**
                  * Get visitor ID (from first party cookie)
                  *
-                 * @return string Visitor ID in hexits (or null, if not yet known)
+                 * @return string Visitor ID in hexits (or empty string, if not yet known)
                  */
                 getVisitorId: function () {
-                    return (loadVisitorIdCookie())[1];
+                    return getValuesFromVisitorIdCookie().uuid;
                 },
 
                 /**
@@ -2345,6 +4312,8 @@ if (typeof Piwik !== 'object') {
                  * @return array
                  */
                 getVisitorInfo: function () {
+                    // Note: in a new method, we could return also return getValuesFromVisitorIdCookie()
+                    //       which returns named parameters rather than returning integer indexed array
                     return loadVisitorIdCookie();
                 },
 
@@ -2409,13 +4378,54 @@ if (typeof Piwik !== 'object') {
                     configTrackerUrl = trackerUrl;
                 },
 
+
+                /**
+                 * Returns the Piwik server URL
+                 * @returns string
+                 */
+                getTrackerUrl: function () {
+                    return configTrackerUrl;
+                },
+
+
+                /**
+                 * Returns the site ID
+                 *
+                 * @returns int
+                 */
+                getSiteId: function() {
+                    return configTrackerSiteId;
+                },
+
                 /**
                  * Specify the site ID
                  *
                  * @param int|string siteId
                  */
                 setSiteId: function (siteId) {
-                    configTrackerSiteId = siteId;
+                    setSiteId(siteId);
+                },
+
+                /**
+                 * Sets a User ID to this user (such as an email address or a username)
+                 *
+                 * @param string User ID
+                 */
+                setUserId: function (userId) {
+                    if(!isDefined(userId) || !userId.length) {
+                        return;
+                    }
+                    configUserId = userId;
+                    visitorUUID = hash(configUserId).substr(0, 16);
+                },
+
+                /**
+                 * Gets the User ID if set.
+                 *
+                 * @returns string User ID
+                 */
+                getUserId: function() {
+                    return configUserId;
                 },
 
                 /**
@@ -2433,7 +4443,7 @@ if (typeof Piwik !== 'object') {
                         configCustomData = key_or_obj;
                     } else {
                         if (!configCustomData) {
-                            configCustomData = [];
+                            configCustomData = {};
                         }
                         configCustomData[key_or_obj] = opt_value;
                     }
@@ -2504,7 +4514,7 @@ if (typeof Piwik !== 'object') {
                 /**
                  * Set custom variable within this visit
                  *
-                 * @param int index
+                 * @param int index Custom variable slot ID from 1-5
                  * @param string name
                  * @param string value
                  * @param string scope Scope of Custom Variable:
@@ -2543,7 +4553,7 @@ if (typeof Piwik !== 'object') {
                 /**
                  * Get custom variable
                  *
-                 * @param int index
+                 * @param int index Custom variable slot ID from 1-5
                  * @param string scope Scope of Custom Variable: "visit" or "page" or "event"
                  */
                 getCustomVariable: function (index, scope) {
@@ -2573,13 +4583,23 @@ if (typeof Piwik !== 'object') {
                 /**
                  * Delete custom variable
                  *
-                 * @param int index
+                 * @param int index Custom variable slot ID from 1-5
                  */
                 deleteCustomVariable: function (index, scope) {
                     // Only delete if it was there already
                     if (this.getCustomVariable(index, scope)) {
                         this.setCustomVariable(index, '', '', scope);
                     }
+                },
+
+                /**
+                 * When called then the Custom Variables of scope "visit" will be stored (persisted) in a first party cookie
+                 * for the duration of the visit. This is useful if you want to call getCustomVariable later in the visit.
+                 *
+                 * By default, Custom Variables of scope "visit" are not stored on the visitor's computer.
+                 */
+                storeCustomVariablesInCookie: function () {
+                    configStoreCustomVariablesInCookie = true;
                 },
 
                 /**
@@ -2594,19 +4614,46 @@ if (typeof Piwik !== 'object') {
                 /**
                  * Set list of file extensions to be recognized as downloads
                  *
-                 * @param string extensions
+                 * @param string|array extensions
                  */
                 setDownloadExtensions: function (extensions) {
+                    if(isString(extensions)) {
+                        extensions = extensions.split('|');
+                    }
                     configDownloadExtensions = extensions;
                 },
 
                 /**
                  * Specify additional file extensions to be recognized as downloads
                  *
-                 * @param string extensions
+                 * @param string|array extensions  for example 'custom' or ['custom1','custom2','custom3']
                  */
                 addDownloadExtensions: function (extensions) {
-                    configDownloadExtensions += '|' + extensions;
+                    var i;
+                    if(isString(extensions)) {
+                        extensions = extensions.split('|');
+                    }
+                    for (i=0; i < extensions.length; i++) {
+                        configDownloadExtensions.push(extensions[i]);
+                    }
+                },
+
+                /**
+                 * Removes specified file extensions from the list of recognized downloads
+                 *
+                 * @param string|array extensions  for example 'custom' or ['custom1','custom2','custom3']
+                 */
+                removeDownloadExtensions: function (extensions) {
+                    var i, newExtensions = [];
+                    if(isString(extensions)) {
+                        extensions = extensions.split('|');
+                    }
+                    for (i=0; i < configDownloadExtensions.length; i++) {
+                        if (indexOfArray(extensions, configDownloadExtensions[i]) === -1) {
+                            newExtensions.push(configDownloadExtensions[i]);
+                        }
+                    }
+                    configDownloadExtensions = newExtensions;
                 },
 
                 /**
@@ -2751,8 +4798,12 @@ if (typeof Piwik !== 'object') {
                  * @param string domain
                  */
                 setCookieDomain: function (domain) {
-                    configCookieDomain = domainFixup(domain);
-                    updateDomainHash();
+                    var domainFixed = domainFixup(domain);
+
+                    if (isPossibleToSetCookieOnDomain(domainFixed)) {
+                        configCookieDomain = domainFixed;
+                        updateDomainHash();
+                    }
                 },
 
                 /**
@@ -2767,7 +4818,7 @@ if (typeof Piwik !== 'object') {
 
                 /**
                  * Set visitor cookie timeout (in seconds)
-                 * Defaults to 2 years (timeout=63072000000)
+                 * Defaults to 13 months (timeout=33955200)
                  *
                  * @param int timeout
                  */
@@ -2813,6 +4864,10 @@ if (typeof Piwik !== 'object') {
                 disableCookies: function () {
                     configCookiesDisabled = true;
                     browserFeatures.cookie = '0';
+
+                    if (configTrackerSiteId) {
+                        deleteCookies();
+                    }
                 },
 
                 /**
@@ -2843,7 +4898,7 @@ if (typeof Piwik !== 'object') {
                  * When clicked, Piwik will log the click automatically.
                  *
                  * @param DOMElement element
-                 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
+                 * @param bool enable If true, use pseudo click-handler (middle click + context menu)
                  */
                 addListener: function (element, enable) {
                     addClickListener(element, enable);
@@ -2864,9 +4919,17 @@ if (typeof Piwik !== 'object') {
                  *
                  * @see https://bugs.webkit.org/show_bug.cgi?id=54783
                  *
-                 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
+                 * @param bool enable If "true", use pseudo click-handler (treat middle click and open contextmenu as
+                 *                    left click). A right click (or any click that opens the context menu) on a link
+                 *                    will be tracked as clicked even if "Open in new tab" is not selected. If
+                 *                    "false" (default), nothing will be tracked on open context menu or middle click.
+                 *                    The context menu is usually opened to open a link / download in a new tab
+                 *                    therefore you can get more accurate results by treat it as a click but it can lead
+                 *                    to wrong click numbers.
                  */
                 enableLinkTracking: function (enable) {
+                    linkTrackingEnabled = true;
+
                     if (hasLoaded) {
                         // the load event has already fired, add the click listeners now
                         addClickListeners(enable);
@@ -2933,7 +4996,7 @@ if (typeof Piwik !== 'object') {
                 /**
                  * Set the server generation time.
                  * If set, the browser's performance.timing API in not used anymore to determine the time.
-                 * 
+                 *
                  * @param int generationTime
                  */
                 setGenerationTimeMs: function (generationTime) {
@@ -2943,15 +5006,30 @@ if (typeof Piwik !== 'object') {
                 /**
                  * Set heartbeat (in seconds)
                  *
-                 * @param int minimumVisitLength
-                 * @param int heartBeatDelay
+                 * @param int heartBeatDelayInSeconds Defaults to 15. Cannot be lower than 1.
                  */
-                setHeartBeatTimer: function (minimumVisitLength, heartBeatDelay) {
-                    var now = new Date();
+                enableHeartBeatTimer: function (heartBeatDelayInSeconds) {
+                    heartBeatDelayInSeconds = Math.max(heartBeatDelayInSeconds, 1);
+                    configHeartBeatDelay = (heartBeatDelayInSeconds || 15) * 1000;
 
-                    configMinimumVisitTime = now.getTime() + minimumVisitLength * 1000;
-                    configHeartBeatTimer = heartBeatDelay * 1000;
+                    // if a tracking request has already been sent, start the heart beat timeout
+                    if (lastTrackerRequestTime !== null) {
+                        setUpHeartBeat();
+                    }
                 },
+
+/*<DEBUG>*/
+                /**
+                 * Clear heartbeat.
+                 */
+                disableHeartBeatTimer: function () {
+                    heartBeatDown();
+                    configHeartBeatDelay = null;
+
+                    window.removeEventListener('focus', heartBeatOnFocus);
+                    window.removeEventListener('blur', heartBeatOnBlur);
+                },
+/*</DEBUG>*/
 
                 /**
                  * Frame buster
@@ -3001,10 +5079,11 @@ if (typeof Piwik !== 'object') {
                  * @param string sourceUrl
                  * @param string linkType
                  * @param mixed customData
+                 * @param function callback
                  */
-                trackLink: function (sourceUrl, linkType, customData) {
+                trackLink: function (sourceUrl, linkType, customData, callback) {
                     trackCallback(function () {
-                        logLink(sourceUrl, linkType, customData);
+                        logLink(sourceUrl, linkType, customData, callback);
                     });
                 },
 
@@ -3015,6 +5094,8 @@ if (typeof Piwik !== 'object') {
                  * @param mixed customData
                  */
                 trackPageView: function (customTitle, customData) {
+                    trackedContentImpressions = [];
+
                     if (isOverlaySession(configTrackerSiteId)) {
                         trackCallback(function () {
                             injectOverlayScripts(configTrackerUrl, configApiUrl, configTrackerSiteId);
@@ -3024,6 +5105,201 @@ if (typeof Piwik !== 'object') {
                             logPageView(customTitle, customData);
                         });
                     }
+                },
+
+                /**
+                 * Scans the entire DOM for all content blocks and tracks all impressions once the DOM ready event has
+                 * been triggered.
+                 *
+                 * If you only want to track visible content impressions have a look at `trackVisibleContentImpressions()`.
+                 * We do not track an impression of the same content block twice if you call this method multiple times
+                 * unless `trackPageView()` is called meanwhile. This is useful for single page applications.
+                 */
+                trackAllContentImpressions: function () {
+                    if (isOverlaySession(configTrackerSiteId)) {
+                        return;
+                    }
+
+                    trackCallback(function () {
+                        trackCallbackOnReady(function () {
+                            // we have to wait till DOM ready
+                            var contentNodes = content.findContentNodes();
+                            var requests     = getContentImpressionsRequestsFromNodes(contentNodes);
+
+                            sendBulkRequest(requests, configTrackerPause);
+                        });
+                    });
+                },
+
+                /**
+                 * Scans the entire DOM for all content blocks as soon as the page is loaded. It tracks an impression
+                 * only if a content block is actually visible. Meaning it is not hidden and the content is or was at
+                 * some point in the viewport.
+                 *
+                 * If you want to track all content blocks have a look at `trackAllContentImpressions()`.
+                 * We do not track an impression of the same content block twice if you call this method multiple times
+                 * unless `trackPageView()` is called meanwhile. This is useful for single page applications.
+                 *
+                 * Once you have called this method you can no longer change `checkOnScroll` or `timeIntervalInMs`.
+                 *
+                 * If you do want to only track visible content blocks but not want us to perform any automatic checks
+                 * as they can slow down your frames per second you can call `trackVisibleContentImpressions()` or
+                 * `trackContentImpressionsWithinNode()` manually at  any time to rescan the entire DOM for newly
+                 * visible content blocks.
+                 * o Call `trackVisibleContentImpressions(false, 0)` to initially track only visible content impressions
+                 * o Call `trackVisibleContentImpressions()` at any time again to rescan the entire DOM for newly visible content blocks or
+                 * o Call `trackContentImpressionsWithinNode(node)` at any time to rescan only a part of the DOM for newly visible content blocks
+                 *
+                 * @param boolean [checkOnScroll=true] Optional, you can disable rescanning the entire DOM automatically
+                 *                                     after each scroll event by passing the value `false`. If enabled,
+                 *                                     we check whether a previously hidden content blocks became visible
+                 *                                     after a scroll and if so track the impression.
+                 *                                     Note: If a content block is placed within a scrollable element
+                 *                                     (`overflow: scroll`), we can currently not detect when this block
+                 *                                     becomes visible.
+                 * @param integer [timeIntervalInMs=750] Optional, you can define an interval to rescan the entire DOM
+                 *                                     for new impressions every X milliseconds by passing
+                 *                                     for instance `timeIntervalInMs=500` (rescan DOM every 500ms).
+                 *                                     Rescanning the entire DOM and detecting the visible state of content
+                 *                                     blocks can take a while depending on the browser and amount of content.
+                 *                                     In case your frames per second goes down you might want to increase
+                 *                                     this value or disable it by passing the value `0`.
+                 */
+                trackVisibleContentImpressions: function (checkOnSroll, timeIntervalInMs) {
+                    if (isOverlaySession(configTrackerSiteId)) {
+                        return;
+                    }
+
+                    if (!isDefined(checkOnSroll)) {
+                        checkOnSroll = true;
+                    }
+
+                    if (!isDefined(timeIntervalInMs)) {
+                        timeIntervalInMs = 750;
+                    }
+
+                    enableTrackOnlyVisibleContent(checkOnSroll, timeIntervalInMs, this);
+
+                    trackCallback(function () {
+                        trackCallbackOnLoad(function () {
+                            // we have to wait till CSS parsed and applied
+                            var contentNodes = content.findContentNodes();
+                            var requests     = getCurrentlyVisibleContentImpressionsRequestsIfNotTrackedYet(contentNodes);
+
+                            sendBulkRequest(requests, configTrackerPause);
+                        });
+                    });
+                },
+
+                /**
+                 * Tracks a content impression using the specified values. You should not call this method too often
+                 * as each call causes an XHR tracking request and can slow down your site or your server.
+                 *
+                 * @param string contentName  For instance "Ad Sale".
+                 * @param string [contentPiece='Unknown'] For instance a path to an image or the text of a text ad.
+                 * @param string [contentTarget] For instance the URL of a landing page.
+                 */
+                trackContentImpression: function (contentName, contentPiece, contentTarget) {
+                    if (isOverlaySession(configTrackerSiteId)) {
+                        return;
+                    }
+
+                    if (!contentName) {
+                        return;
+                    }
+
+                    contentPiece = contentPiece || 'Unknown';
+
+                    trackCallback(function () {
+                        var request = buildContentImpressionRequest(contentName, contentPiece, contentTarget);
+                        sendRequest(request, configTrackerPause);
+                    });
+                },
+
+                /**
+                 * Scans the given DOM node and its children for content blocks and tracks an impression for them if
+                 * no impression was already tracked for it. If you have called `trackVisibleContentImpressions()`
+                 * upfront only visible content blocks will be tracked. You can use this method if you, for instance,
+                 * dynamically add an element using JavaScript to your DOM after we have tracked the initial impressions.
+                 *
+                 * @param Element domNode
+                 */
+                trackContentImpressionsWithinNode: function (domNode) {
+                    if (isOverlaySession(configTrackerSiteId) || !domNode) {
+                        return;
+                    }
+
+                    trackCallback(function () {
+                        if (isTrackOnlyVisibleContentEnabled) {
+                            trackCallbackOnLoad(function () {
+                                // we have to wait till CSS parsed and applied
+                                var contentNodes = content.findContentNodesWithinNode(domNode);
+
+                                var requests = getCurrentlyVisibleContentImpressionsRequestsIfNotTrackedYet(contentNodes);
+                                sendBulkRequest(requests, configTrackerPause);
+                            });
+                        } else {
+                            trackCallbackOnReady(function () {
+                                // we have to wait till DOM ready
+                                var contentNodes = content.findContentNodesWithinNode(domNode);
+
+                                var requests = getContentImpressionsRequestsFromNodes(contentNodes);
+                                sendBulkRequest(requests, configTrackerPause);
+                            });
+                        }
+                    });
+                },
+
+                /**
+                 * Tracks a content interaction using the specified values. You should use this method only in conjunction
+                 * with `trackContentImpression()`. The specified `contentName` and `contentPiece` has to be exactly the
+                 * same as the ones that were used in `trackContentImpression()`. Otherwise the interaction will not count.
+                 *
+                 * @param string contentInteraction The type of interaction that happened. For instance 'click' or 'submit'.
+                 * @param string contentName  The name of the content. For instance "Ad Sale".
+                 * @param string [contentPiece='Unknown'] The actual content. For instance a path to an image or the text of a text ad.
+                 * @param string [contentTarget] For instance the URL of a landing page.
+                 */
+                trackContentInteraction: function (contentInteraction, contentName, contentPiece, contentTarget) {
+                    if (isOverlaySession(configTrackerSiteId)) {
+                        return;
+                    }
+
+                    if (!contentInteraction || !contentName) {
+                        return;
+                    }
+
+                    contentPiece = contentPiece || 'Unknown';
+
+                    trackCallback(function () {
+                        var request = buildContentInteractionRequest(contentInteraction, contentName, contentPiece, contentTarget);
+                        sendRequest(request, configTrackerPause);
+                    });
+                },
+
+                /**
+                 * Tracks an interaction with the given DOM node / content block.
+                 *
+                 * By default we track interactions on click but sometimes you might want to track interactions yourself.
+                 * For instance you might want to track an interaction manually on a double click or a form submit.
+                 * Make sure to disable the automatic interaction tracking in this case by specifying either the CSS
+                 * class `piwikContentIgnoreInteraction` or the attribute `data-content-ignoreinteraction`.
+                 *
+                 * @param Element domNode  This element itself or any of its parent elements has to be a content block
+                 *                         element. Meaning one of those has to have a `piwikTrackContent` CSS class or
+                 *                         a `data-track-content` attribute.
+                 * @param string [contentInteraction='Unknown] The name of the interaction that happened. For instance
+                 *                                             'click', 'formSubmit', 'DblClick', ...
+                 */
+                trackContentInteractionNode: function (domNode, contentInteraction) {
+                    if (isOverlaySession(configTrackerSiteId) || !domNode) {
+                        return;
+                    }
+
+                    trackCallback(function () {
+                        var request = buildContentInteractionRequestNode(domNode, contentInteraction);
+                        sendRequest(request, configTrackerPause);
+                    });
                 },
 
                 /**
@@ -3052,7 +5328,6 @@ if (typeof Piwik !== 'object') {
                         logSiteSearch(keyword, category, resultsCount);
                     });
                 },
-
 
                 /**
                  * Used to record that the current page view is an item (product) page view, or a Ecommerce Category page view.
@@ -3162,6 +5437,46 @@ if (typeof Piwik !== 'object') {
             };
         }
 
+        /**
+         * Applies the given methods in the given order if they are present in paq.
+         *
+         * @param {Array} paq
+         * @param {Array} methodsToApply an array containing method names in the order that they should be applied
+         *                 eg ['setSiteId', 'setTrackerUrl']
+         * @returns {Array} the modified paq array with the methods that were already applied set to undefined
+         */
+        function applyMethodsInOrder(paq, methodsToApply)
+        {
+            var appliedMethods = {};
+            var index, iterator;
+
+            for (index = 0; index < methodsToApply.length; index++) {
+                var methodNameToApply = methodsToApply[index];
+                appliedMethods[methodNameToApply] = 1;
+
+                for (iterator = 0; iterator < paq.length; iterator++) {
+                    if (paq[iterator] && paq[iterator][0]) {
+                        var methodName = paq[iterator][0];
+
+                        if (methodNameToApply === methodName) {
+                            apply(paq[iterator]);
+                            delete paq[iterator];
+
+                            if (appliedMethods[methodName] > 1) {
+                                if (console !== undefined && console && console.error) {
+                                    console.error('The method ' + methodName + ' is registered more than once in "paq" variable. Only the last call has an effect. Please have a look at the multiple Piwik trackers documentation: http://developer.piwik.org/guides/tracking-javascript-guide#multiple-piwik-trackers');
+                                }
+                            }
+
+                            appliedMethods[methodName]++;
+                        }
+                    }
+                }
+            }
+
+            return paq;
+        }
+
         /************************************************************
          * Constructor
          ************************************************************/
@@ -3174,26 +5489,8 @@ if (typeof Piwik !== 'object') {
 
         asyncTracker = new Tracker();
 
-        var applyFirst = {setTrackerUrl: 1, setAPIUrl: 1, setSiteId: 1};
-        var methodName;
-
-        // find the call to setTrackerUrl or setSiteid (if any) and call them first
-        for (iterator = 0; iterator < _paq.length; iterator++) {
-            methodName = _paq[iterator][0];
-
-            if (applyFirst[methodName]) {
-                apply(_paq[iterator]);
-                delete _paq[iterator];
-
-                if (applyFirst[methodName] > 1) {
-                    if (console !== undefined && console && console.error) {
-                        console.error('The method ' + methodName + ' is registered more than once in "_paq" variable. Only the last call has an effect. Please have a look at the multiple Piwik trackers documentation: http://developer.piwik.org/api-reference/tracking-javascript#multiple-piwik-trackers');
-                    }
-                }
-
-                applyFirst[methodName]++;
-            }
-        }
+        var applyFirst  = ['disableCookies', 'setTrackerUrl', 'setAPIUrl', 'setCookiePath', 'setCookieDomain', 'setUserId', 'setSiteId', 'enableLinkTracking'];
+        _paq = applyMethodsInOrder(_paq, applyFirst);
 
         // apply the queue of actions
         for (iterator = 0; iterator < _paq.length; iterator++) {
@@ -3228,6 +5525,12 @@ if (typeof Piwik !== 'object') {
              * @return Tracker
              */
             getTracker: function (piwikUrl, siteId) {
+                if(!isDefined(siteId)) {
+                    siteId = this.getAsyncTracker().getSiteId();
+                }
+                if(!isDefined(piwikUrl)) {
+                    piwikUrl = this.getAsyncTracker().getTrackerUrl();
+                }
                 return new Tracker(piwikUrl, siteId);
             },
 
@@ -3356,4 +5659,3 @@ if (typeof piwik_log !== 'function') {
 }
 
 /*! @license-end */
-

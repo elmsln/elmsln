@@ -1,0 +1,17 @@
+{
+    "VisitFrequency": {
+        "ColumnActionsByReturningVisits": "Sugrįžtančių veiksmai",
+        "ColumnAverageVisitDurationForReturningVisitors": "Vidutinė sugrįžtančių lankytojų apsilankymo trukmė (sek.)",
+        "ColumnAvgActionsPerReturningVisit": "Vidutiniškai atlikta sugrįžtančio lankytojo veiksmų",
+        "ColumnBounceRateForReturningVisits": "Šoklumo reitingas tarp sugrįžtančių",
+        "ColumnReturningVisits": "Sugrįžtančių apsilankymai",
+        "ReturnActions": "%s sugrįžtančių veiksmai",
+        "ReturnAverageVisitDuration": "%s sugrįžtančio lankytojo apsilankymo trukmės vidurkis",
+        "ReturnAvgActions": "%s veiksmų iš sugrįžtančio lankytojo",
+        "ReturnBounceRate": "%s šoklumo reitingas tarp sugrįžtančių (paliko svetainę po pirmojo puslapio)",
+        "ReturnVisits": "%s sugrįžtančių apsilankymai",
+        "SubmenuFrequency": "Pasikartojimai",
+        "WidgetGraphReturning": "Sugrįžtančių grafikas",
+        "WidgetOverview": "Pasikartojimų peržiūra"
+    }
+}

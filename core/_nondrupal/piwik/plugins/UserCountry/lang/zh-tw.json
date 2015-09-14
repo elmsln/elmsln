@@ -1,0 +1,10 @@
+{
+    "UserCountry": {
+        "Continent": "世界大陸洲",
+        "Country": "國家",
+        "DistinctCountries": "%s 個不同的國家",
+        "Location": "位置",
+        "SubmenuLocations": "所在地",
+        "WidgetLocation": "訪客所在地點"
+    }
+}

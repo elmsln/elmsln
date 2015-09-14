@@ -1,0 +1,14 @@
+{
+    "Actions": {
+        "ColumnClickedURL": "URL по якому клацнули",
+        "ColumnClicks": "Клацання",
+        "ColumnDownloadURL": "URL завантаження",
+        "ColumnPageName": "Назва сторінки",
+        "ColumnPageURL": "URL сторінки",
+        "ColumnUniqueClicks": "Унікальні клацання",
+        "ColumnUniqueDownloads": "Унікальні завантаження",
+        "SubmenuPagesEntry": "Сторінки входу",
+        "SubmenuPagesExit": "Сторінки виходу",
+        "SubmenuPageTitles": "Заголовки сторінок"
+    }
+}

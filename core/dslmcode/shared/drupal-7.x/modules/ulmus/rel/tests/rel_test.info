@@ -1,0 +1,11 @@
+name = "Rendereable elements Test"
+description = "Test module for renderable elements"
+core = "7.x"
+dependencies[] = rel
+hidden = TRUE
+; Information added by drupal.org packaging script on 2013-01-22
+version = "7.x-1.0-alpha2"
+core = "7.x"
+project = "rel"
+datestamp = "1358839857"
+

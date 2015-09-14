@@ -54,9 +54,9 @@ var broadcast = {
         }
         broadcast._isInit = true;
 
-        // Initialize history plugin.
-        // The callback is called at once by present location.hash
-        $.history.init(broadcast.pageload, {unescape: true});
+        angular.element(document).injector().invoke(function (historyService) {
+            historyService.init();
+        });
 
         if(noLoadingMessage != true) {
             piwikHelper.showAjaxLoading();
@@ -151,7 +151,7 @@ var broadcast = {
                 var handlerName = popoverParamParts[0];
                 popoverParamParts.shift();
                 var param = popoverParamParts.join(':');
-                if (typeof broadcast.popoverHandlers[handlerName] != 'undefined') {
+                if (typeof broadcast.popoverHandlers[handlerName] != 'undefined' && !broadcast.isLoginPage()) {
                     broadcast.popoverHandlers[handlerName](param);
                 }
             }
@@ -162,6 +162,14 @@ var broadcast = {
 
             $('.pageWrap #content:not(.admin)').empty();
         }
+    },
+
+    /**
+     * Returns if the current page is the login page
+     * @return {boolean}
+     */
+    isLoginPage: function() {
+        return !!$('body#loginPage').length;
     },
 
     /**
@@ -197,7 +205,7 @@ var broadcast = {
         // if the module is not 'Goals', we specifically unset the 'idGoal' parameter
         // this is to ensure that the URLs are clean (and that clicks on graphs work as expected - they are broken with the extra parameter)
         var action = broadcast.getParamValue('action', currentHashStr);
-        if (action != 'goalReport' && action != 'ecommerceReport') {
+        if (action != 'goalReport' && action != 'ecommerceReport' && action != 'products' && action != 'sales') {
             currentHashStr = broadcast.updateParamValue('idGoal=', currentHashStr);
         }
         // unset idDashboard if use doesn't display a dashboard
@@ -214,7 +222,9 @@ var broadcast = {
         else {
             // Let history know about this new Hash and load it.
             broadcast.forceReload = true;
-            $.history.load(currentHashStr);
+            angular.element(document).injector().invoke(function (historyService) {
+                historyService.load(currentHashStr);
+            });
         }
     },
 
@@ -324,17 +334,17 @@ var broadcast = {
     /**
      * Loads a popover by adding a 'popover' query parameter to the current URL and
      * indirectly executing the popover handler.
-     * 
+     *
      * This function should be called to open popovers that can be opened by URL alone.
      * That is, if you want users to be able to copy-paste the URL displayed when a popover
      * is open into a new browser window/tab and have the same popover open, you should
      * call this function.
-     * 
+     *
      * In order for this function to open a popover, there must be a popover handler
      * associated with handlerName. To associate one, call broadcast.addPopoverHandler.
-     * 
+     *
      * @param {String} handlerName The name of the popover handler.
-     * @param {String} value The String value that should be passed to the popover 
+     * @param {String} value The String value that should be passed to the popover
      *                       handler.
      */
     propagateNewPopoverParameter: function (handlerName, value) {
@@ -370,14 +380,16 @@ var broadcast = {
         }
 
         broadcast.forceReload = false;
-        $.history.load(newHash);
+        angular.element(document).injector().invoke(function (historyService) {
+            historyService.load(newHash);
+        });
     },
 
     /**
      * Adds a handler for the 'popover' query parameter.
-     * 
+     *
      * @see broadcast#propagateNewPopoverParameter
-     * 
+     *
      * @param {String} handlerName The handler name, eg, 'visitorProfile'. Should identify
      *                             the popover that the callback will open up.
      * @param {Function} callback This function should open the popover. It should take
@@ -402,6 +414,13 @@ var broadcast = {
                 broadcast.getParamValue('action', urlAjax),
                 broadcast.getParamValue('idGoal', urlAjax) || broadcast.getParamValue('idDashboard', urlAjax)
             );
+        }
+
+        if(broadcast.getParamValue('module', urlAjax) == 'API') {
+            broadcast.lastUrlRequested = null;
+            $('#content').html("Loading content from the API and displaying it within Piwik is not allowed.");
+            piwikHelper.hideAjaxLoading();
+            return false;
         }
 
         piwikHelper.hideAjaxError('loadingError');
@@ -454,14 +473,14 @@ var broadcast = {
     customAjaxHandleError: function (deferred, status) {
         broadcast.lastUrlRequested = null;
 
+        piwikHelper.hideAjaxLoading();
+
         // do not display error message if request was aborted
         if(status == 'abort') {
             return;
         }
+
         $('#loadingError').show();
-        setTimeout( function(){
-            $('#loadingError').fadeOut('slow');
-        }, 2000);
     },
 
     /**
@@ -551,7 +570,6 @@ var broadcast = {
         return this.extractKeyValuePairsFromQueryString(searchString);
     },
 
-
     /**
      * help to get param value for any given url string with provided param name
      * if no url is provided, it will get param from current address.
@@ -583,7 +601,6 @@ var broadcast = {
 
         return broadcast.getParamValue(param, hashStr);
     },
-
 
     /**
      * return value for the requested param, will return the first match.

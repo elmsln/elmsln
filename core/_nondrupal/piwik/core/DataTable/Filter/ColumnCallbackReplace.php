@@ -15,9 +15,9 @@ use Piwik\DataTable\Row;
 /**
  * Replaces one or more column values in each row of a DataTable with the results
  * of a callback.
- * 
+ *
  * **Basic usage example**
- * 
+ *
  *     $truncateString = function ($value, $truncateLength) {
  *         if (strlen($value) > $truncateLength) {
  *             return substr(0, $truncateLength);
@@ -25,10 +25,11 @@ use Piwik\DataTable\Row;
  *             return $value;
  *         }
  *     };
- *     
+ *
  *     // label, url and truncate_length are columns in $dataTable
  *     $dataTable->filter('ColumnCallbackReplace', array('label', 'url'), $truncateString, null, array('truncate_length'));
- * 
+ *
+ * @api
  */
 class ColumnCallbackReplace extends BaseFilter
 {
@@ -39,7 +40,7 @@ class ColumnCallbackReplace extends BaseFilter
 
     /**
      * Constructor.
-     * 
+     *
      * @param DataTable $table The DataTable to filter.
      * @param array|string $columnsToFilter The columns whose values should be passed to the callback
      *                                      and then replaced with the callback's result.
@@ -54,14 +55,14 @@ class ColumnCallbackReplace extends BaseFilter
                                 $extraColumnParameters = array())
     {
         parent::__construct($table);
-        $this->functionToApply = $functionToApply;
+        $this->functionToApply    = $functionToApply;
         $this->functionParameters = $functionParameters;
 
         if (!is_array($columnsToFilter)) {
             $columnsToFilter = array($columnsToFilter);
         }
 
-        $this->columnsToFilter = $columnsToFilter;
+        $this->columnsToFilter       = $columnsToFilter;
         $this->extraColumnParameters = $extraColumnParameters;
     }
 
@@ -72,13 +73,14 @@ class ColumnCallbackReplace extends BaseFilter
      */
     public function filter($table)
     {
-        foreach ($table->getRows() as $key => $row) {
+        foreach ($table->getRows() as $row) {
             $extraColumnParameters = array();
             foreach ($this->extraColumnParameters as $columnName) {
                 $extraColumnParameters[] = $row->getColumn($columnName);
             }
 
             foreach ($this->columnsToFilter as $column) {
+
                 // when a value is not defined, we set it to zero by default (rather than displaying '-')
                 $value = $this->getElementToReplace($row, $column);
                 if ($value === false) {
@@ -86,13 +88,20 @@ class ColumnCallbackReplace extends BaseFilter
                 }
 
                 $parameters = array_merge(array($value), $extraColumnParameters);
+
                 if (!is_null($this->functionParameters)) {
                     $parameters = array_merge($parameters, $this->functionParameters);
                 }
+
                 $newValue = call_user_func_array($this->functionToApply, $parameters);
                 $this->setElementToReplace($row, $column, $newValue);
                 $this->filterSubTable($row);
             }
+        }
+
+        if (in_array('label', $this->columnsToFilter)) {
+            // we need to force rebuilding the index
+            $table->setLabelsHaveChanged();
         }
     }
 

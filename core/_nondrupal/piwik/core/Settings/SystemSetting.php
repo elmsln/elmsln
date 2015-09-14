@@ -14,7 +14,7 @@ use Piwik\Piwik;
 /**
  * Describes a system wide setting. Only the Super User can change this type of setting and
  * the value of this setting will affect all users.
- * 
+ *
  * See {@link \Piwik\Plugin\Settings}.
  *
  *
@@ -27,12 +27,18 @@ class SystemSetting extends Setting
      * readable by everyone.
      *
      * @var bool
+     * @since 2.4.0
      */
     public $readableByCurrentUser = false;
 
     /**
+     * @var bool
+     */
+    private $writableByCurrentUser = false;
+
+    /**
      * Constructor.
-     * 
+     *
      * @param string $name The persisted name of the setting.
      * @param string $title The display name of the setting.
      */
@@ -45,8 +51,29 @@ class SystemSetting extends Setting
     }
 
     /**
+     * Returns `true` if this setting is writable for the current user, `false` if otherwise. In case it returns
+     * writable for the current user it will be visible in the Plugin settings UI.
+     *
+     * @return bool
+     */
+    public function isWritableByCurrentUser()
+    {
+        return $this->writableByCurrentUser;
+    }
+
+    /**
+     * Returns `true` if this setting can be displayed for the current user, `false` if otherwise.
+     *
+     * @return bool
+     */
+    public function isReadableByCurrentUser()
+    {
+        return $this->readableByCurrentUser;
+    }
+
+    /**
      * Returns the display order. System settings are displayed before user settings.
-     * 
+     *
      * @return int
      */
     public function getOrder()

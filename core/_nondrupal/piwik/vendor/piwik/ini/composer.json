@@ -1,0 +1,22 @@
+{
+    "name": "piwik/ini",
+    "type": "library",
+    "license": "LGPL-3.0",
+    "autoload": {
+        "psr-4": {
+            "Piwik\\Ini\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Piwik\\Tests\\Ini\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "athletic/athletic": "0.1.*"
+    }
+}

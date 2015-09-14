@@ -77,7 +77,7 @@
             }
 
             var mapContainer = $$('.UserCountryMap_map').get(0),
-                map = self.map = Kartograph.map(mapContainer),
+                map = self.map = $K.map(mapContainer),
                 main = $$('.UserCountryMap_container'),
                 worldTotalVisits = 0,
                 width = main.width(),
@@ -96,7 +96,9 @@
                     apiModule: module,
                     apiAction: action,
                     filter_limit: -1,
-                    limit: -1
+                    limit: -1,
+                    format_metrics: 0,
+                    showRawMetrics: 1
                 });
                 if (countryFilter) {
                     $.extend(params, {
@@ -152,12 +154,18 @@
             //
             function formatValueForTooltips(data, metric, id) {
 
-                var val = data[metric] % 1 === 0 || Number(data[metric]) != data[metric] ? data[metric] : data[metric].toFixed(1),
-                    v = _[metric].replace('%s', '<strong>' + val + '</strong>');
+                var val = data[metric] % 1 === 0 || Number(data[metric]) != data[metric] ? data[metric] : data[metric].toFixed(1);
+                if (metric == 'bounce_rate') {
+                    val += '%';
+                } else if (metric == 'avg_time_on_site') {
+                    val = new Date(0, 0, 0, val / 3600, val % 3600 / 60, val % 60)
+                        .toTimeString()
+                        .replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+                }
+
+                var v = _[metric].replace('%s', '<strong>' + val + '</strong>');
 
                 if (val == 1 && metric == 'nb_visits') v = _.one_visit;
-
-                function avgTime(d) { return d['sum_visit_length'] / d['nb_visits']; }
 
                 if (metric.substr(0, 3) == 'nb_' && metric != 'nb_actions_per_visit') {
                     var total;
@@ -187,7 +195,14 @@
                 function addLegendItem(val, first) {
                     var d = $('<div>'), r = $('<div>'), l = $('<div>'),
                         metric = $$('.userCountryMapSelectMetrics').val(),
-                        v = formatNumber(Math.round(val)) + (metric == 'avg_time_on_site' ? first ? ' sec' : 's' : '');
+                        v = formatNumber(Math.round(val));
+
+                    if (metric == 'avg_time_on_site') {
+                        v += first ? ' sec' : 's';
+                    } else if (metric == 'bounce_rate') {
+                        v += '%';
+                    }
+
                     d.css({ width: 17, height: 17, float: 'left', background: colscale(val) });
                     l.css({ 'margin-left': 20, 'line-height': '20px', 'text-align': 'right' }).html(v);
                     r.css({ clear: 'both', height: 19 });
@@ -195,7 +210,7 @@
                     $('.UserCountryMap-legend .content').append(r);
                 }
 
-                var stats, values = [], id = self.lastSelected, c;
+                var stats, values = [], id = self.lastSelected, c, showLegend;
 
                 $.each(rows, function (i, r) {
                     if (!$.isFunction(filter) || filter(r)) {
@@ -205,12 +220,15 @@
                 });
 
                 stats = minmax(values);
+                showLegend = values.length > 0;
 
                 if (stats.min == stats.max) {
                     colscale = function () { return chroma.hex(oneCountryColor); };
                     if (choropleth) {
                         $('.UserCountryMap-legend .content').html('').show();
-                        addLegendItem(stats.min, true);
+                        if (showLegend) {
+                            addLegendItem(stats.min, true);
+                        }
                     }
                     return colscale;
                 }
@@ -231,7 +249,7 @@
                 }
 
                 // a good place to update the legend, isn't it?
-                if (choropleth) {
+                if (choropleth && showLegend) {
                     $('.UserCountryMap-legend .content').html('').show();
                     var itemExists = {};
                     $.each(chroma.limits(values, 'k', 3), function (i, v) {
@@ -246,7 +264,6 @@
 
                 return colscale;
             }
-
 
             function formatPercentage(val) {
                 if (val < 0.001) return '< 0.1%';
@@ -333,7 +350,6 @@
                     });
                 $('.UserCountryMap-tooltip').hide();
             }
-
 
             /*
              * updateState, called whenever the view changes
@@ -561,7 +577,6 @@
                 });
             }
 
-
             /*
              * updateMap is called by renderCountryMap() and renderWorldMap()
              */
@@ -595,10 +610,6 @@
             function quantify(d, metric) {
                 if (!metric) metric = $$('.userCountryMapSelectMetrics').val();
                 switch (metric) {
-                    case 'avg_time_on_site':
-                        return d.sum_visit_length / d.nb_visits;
-                    case 'bounce_rate':
-                        return d.bounce_count / d.nb_visits;
                     default:
                         return d[metric];
                 }
@@ -637,7 +648,7 @@
                 $.each(groups, function (g_id, group) {
                     var apv = group.nb_actions / group.nb_visits,
                         ats = group.sum_visit_length / group.nb_visits,
-                        br = (group.bounce_count * 100 / group.bounce_count);
+                        br = group.bounce_count / group.nb_visits;
                     group['nb_actions_per_visit'] = apv;
                     group['avg_time_on_site'] = new Date(0, 0, 0, ats / 3600, ats % 3600 / 60, ats % 60).toLocaleTimeString();
                     group['bounce_rate'] = (br % 1 !== 0 ? br.toFixed(1) : br) + "%";
@@ -646,7 +657,7 @@
                 return groupBy ? groups : groups.X;
             }
 
-            function displayUnlocatableCount(unlocated, total) {
+            function displayUnlocatableCount(unlocated, total, regionOrCity) {
                 $('.unlocated-stats').html(
                     $('.unlocated-stats').data('tpl')
                         .replace('%s', unlocated)
@@ -654,6 +665,21 @@
                         .replace('%c', UserCountryMap.countriesByIso[self.lastSelected].name)
                 );
                 $('.UserCountryMap-info-btn').show();
+
+                var zoomTitle = '';
+                if (regionOrCity == 'region') {
+                    zoomTitle = ' ' + _pk_translate('UserCountryMap_WithUnknownRegion', [unlocated]);
+                } else if (regionOrCity == 'city') {
+                    zoomTitle = ' ' + _pk_translate('UserCountryMap_WithUnknownCity', [unlocated]);
+                }
+
+                if (unlocated && zoomTitle) {
+                    if ($('.map-stats .unlocatableCount').length) {
+                        $('.map-stats .unlocatableCount').html(zoomTitle);
+                    } else {
+                        $('.map-stats').append('<small class="unlocatableCount">' + zoomTitle + '</small>');
+                    }
+                }
             }
 
             /*
@@ -677,6 +703,7 @@
                     // load data from Piwik API
                     ajax(_reportParams('UserCountry', 'getRegion', UserCountryMap.countriesByIso[iso].iso2))
                         .done(function (data) {
+                            convertBounceRatesToPercents(data);
 
                             loadingComplete();
 
@@ -727,7 +754,7 @@
                             $.each(regionDict, function (key, region) {
                                 if (regionExistsInMap(key)) unlocated -= region.nb_visits;
                             });
-                            displayUnlocatableCount(unlocated, totalCountryVisits);
+                            displayUnlocatableCount(unlocated, totalCountryVisits, 'region');
 
                             // create color scale
                             colscale = getColorScale(regionDict, 'curMetric', null, true);
@@ -799,13 +826,15 @@
                  */
                 function updateCitySymbols() {
                     // color regions in white as background for symbols
-                    if (map.getLayer('regions')) map.getLayer('regions').style('fill', invisibleRegionBackgroundColor);
+                    var layerName = self.mode != "region" ? "regions2" : "regions";
+                    if (map.getLayer(layerName)) map.getLayer(layerName).style('fill', invisibleRegionBackgroundColor);
 
                     indicateLoading();
 
                     // get visits per city from API
                     ajax(_reportParams('UserCountry', 'getCity', UserCountryMap.countriesByIso[iso].iso2))
                         .done(function (data) {
+                            convertBounceRatesToPercents(data);
 
                             loadingComplete();
 
@@ -823,7 +852,7 @@
                                 }));
                             });
 
-                            displayUnlocatableCount(unlocated, totalCountryVisits);
+                            displayUnlocatableCount(unlocated, totalCountryVisits, 'city');
 
                             // sort by current metric
                             cities.sort(function (a, b) { return b.curMetric - a.curMetric; });
@@ -854,7 +883,7 @@
                             var is_rate = metric.substr(0, 3) != 'nb_' || metric == 'nb_actions_per_visit';
 
                             var citySymbols = map.addSymbols({
-                                type: Kartograph.LabeledBubble,
+                                type: $K.LabeledBubble,
                                 data: cities,
                                 clustering: 'noverlap',
                                 clusteringOpts: {
@@ -941,7 +970,6 @@
                             });
                         });
                 }
-
 
                 _updateMap(iso + '.svg', function () {
 
@@ -1099,6 +1127,8 @@
             // now load the metrics for all countries
             ajax(_reportParams('UserCountry', 'getCountry'))
                 .done(function (report) {
+                    convertBounceRatesToPercents(report);
+
                     var metrics = $$('.userCountryMapSelectMetrics option');
                     var countryData = [], countrySelect = $$('.userCountryMapSelectCountry'),
                         countriesByIso = {};
@@ -1148,7 +1178,9 @@
 
                         // populate country select
                         $.each(countryData, function (i, country) {
-                            countrySelect.append('<option value="' + country.iso + '">' + country.name + '</option>');
+                            if (!!country.iso) {
+                                countrySelect.append('<option value="' + country.iso + '">' + country.name + '</option>');
+                            }
                         });
 
                         initUserInterface();
@@ -1198,8 +1230,15 @@
             $$('.widgetUserCountryMapvisitorMap .widgetName span').remove();
             $$('.widgetUserCountryMapvisitorMap .widgetName').append('<span class="map-title"></span>');
 
+            // converts bounce rate quotients to numeric percents, eg, .12 => 12
+            function convertBounceRatesToPercents(report) {
+                $.each(report.reportData, function (i, row) {
+                    if (row['bounce_rate']) {
+                        row['bounce_rate'] = parseFloat(row['bounce_rate']) * 100;
+                    }
+                });
+            }
         },
-
 
         /*
          * resizes the map
@@ -1230,7 +1269,6 @@
     });
 
 }());
-
 
 /*
  * Some static data used both by VisitorMap and RealtimeMap

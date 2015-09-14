@@ -8,11 +8,11 @@
  */
 namespace Piwik\Plugins\CorePluginsAdmin;
 
+use Piwik\Container\StaticContainer;
 use Piwik\Filechecks;
 use Piwik\Filesystem;
 use Piwik\Piwik;
 use Piwik\Plugin\Dependency as PluginDependency;
-use Piwik\SettingsPiwik;
 use Piwik\Unzip;
 
 /**
@@ -20,7 +20,7 @@ use Piwik\Unzip;
  */
 class PluginInstaller
 {
-    const PATH_TO_DOWNLOAD = '/tmp/latest/plugins/';
+    const PATH_TO_DOWNLOAD = '/latest/plugins/';
     const PATH_TO_EXTRACT = '/plugins/';
 
     private $pluginName;
@@ -32,11 +32,10 @@ class PluginInstaller
 
     public function installOrUpdatePluginFromMarketplace()
     {
-        $tmpPluginZip = PIWIK_USER_PATH . self::PATH_TO_DOWNLOAD . $this->pluginName . '.zip';
-        $tmpPluginFolder = PIWIK_USER_PATH . self::PATH_TO_DOWNLOAD . $this->pluginName;
+        $tmpPluginPath = StaticContainer::get('path.tmp') . '/latest/plugins/';
 
-        $tmpPluginZip = SettingsPiwik::rewriteTmpPathWithInstanceId($tmpPluginZip);
-        $tmpPluginFolder = SettingsPiwik::rewriteTmpPathWithInstanceId($tmpPluginFolder);
+        $tmpPluginZip = $tmpPluginPath . $this->pluginName . '.zip';
+        $tmpPluginFolder = $tmpPluginPath . $this->pluginName;
 
         try {
             $this->makeSureFoldersAreWritable();
@@ -47,6 +46,8 @@ class PluginInstaller
             $metadata = $this->getPluginMetadataIfValid($tmpPluginFolder);
             $this->makeSureThereAreNoMissingRequirements($metadata);
             $this->copyPluginToDestination($tmpPluginFolder);
+
+            Filesystem::deleteAllCacheOnUpdate($this->pluginName);
 
         } catch (\Exception $e) {
 
@@ -62,8 +63,7 @@ class PluginInstaller
 
     public function installOrUpdatePluginFromFile($pathToZip)
     {
-        $tmpPluginFolder = PIWIK_USER_PATH . self::PATH_TO_DOWNLOAD . $this->pluginName;
-        $tmpPluginFolder = SettingsPiwik::rewriteTmpPathWithInstanceId($tmpPluginFolder);
+        $tmpPluginFolder = StaticContainer::get('path.tmp') . self::PATH_TO_DOWNLOAD . $this->pluginName;
 
         try {
             $this->makeSureFoldersAreWritable();
@@ -77,6 +77,8 @@ class PluginInstaller
 
             $this->fixPluginFolderIfNeeded($tmpPluginFolder);
             $this->copyPluginToDestination($tmpPluginFolder);
+
+            Filesystem::deleteAllCacheOnUpdate($this->pluginName);
 
         } catch (\Exception $e) {
 
@@ -94,7 +96,10 @@ class PluginInstaller
 
     private function makeSureFoldersAreWritable()
     {
-        Filechecks::dieIfDirectoriesNotWritable(array(self::PATH_TO_DOWNLOAD, self::PATH_TO_EXTRACT));
+        Filechecks::dieIfDirectoriesNotWritable(array(
+            StaticContainer::get('path.tmp') . self::PATH_TO_DOWNLOAD,
+            self::PATH_TO_EXTRACT
+        ));
     }
 
     private function downloadPluginFromMarketplace($pluginZipTargetFile)
@@ -151,7 +156,7 @@ class PluginInstaller
     private function makeSureThereAreNoMissingRequirements($metadata)
     {
         $requires = array();
-        if(!empty($metadata->require)) {
+        if (!empty($metadata->require)) {
             $requires = (array) $metadata->require;
         }
 
@@ -161,8 +166,14 @@ class PluginInstaller
         if (!empty($missingDependencies)) {
             $message = '';
             foreach ($missingDependencies as $dep) {
-                $params   = array(ucfirst($dep['requirement']), $dep['actualVersion'], $dep['requiredVersion']);
-                $message .= Piwik::translate('CorePluginsAdmin_MissingRequirementsNotice', $params);
+                if (empty($dep['actualVersion'])) {
+                    $params   = array(ucfirst($dep['requirement']), $dep['requiredVersion'], $metadata->name);
+                    $message .= Piwik::translate('CorePluginsAdmin_MissingRequirementsPleaseInstallNotice', $params);
+                } else {
+                    $params   = array(ucfirst($dep['requirement']), $dep['actualVersion'], $dep['requiredVersion']);
+                    $message .= Piwik::translate('CorePluginsAdmin_MissingRequirementsNotice', $params);
+                }
+
             }
 
             throw new PluginInstallerException($message);

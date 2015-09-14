@@ -29,22 +29,9 @@ class Rss extends Renderer
      *
      * @return string
      */
-    function render()
+    public function render()
     {
-        $this->renderHeader();
         return $this->renderTable($this->table);
-    }
-
-    /**
-     * Computes the exception output and returns the string/binary
-     *
-     * @return string
-     */
-    function renderException()
-    {
-        header('Content-type: text/plain');
-        $exceptionMessage = $this->getExceptionMessage();
-        return 'Error: ' . $exceptionMessage;
     }
 
     /**
@@ -98,14 +85,6 @@ class Rss extends Renderer
         $footer = $this->getRssFooter();
 
         return $header . $out . $footer;
-    }
-
-    /**
-     * Sends the xml file http header
-     */
-    protected function renderHeader()
-    {
-        @header('Content-Type: text/xml; charset=utf-8');
     }
 
     /**
@@ -184,7 +163,6 @@ class Rss extends Renderer
             }
         }
         $html .= "\n</tr>";
-        $colspan = count($allColumns);
 
         foreach ($tableStructure as $row) {
             $html .= "\n\n<tr>";

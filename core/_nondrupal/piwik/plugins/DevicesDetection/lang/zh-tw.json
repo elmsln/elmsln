@@ -1,0 +1,13 @@
+{
+    "DevicesDetection": {
+        "BrowserEngine": "瀏覽器",
+        "BrowserFamily": "瀏覽器家族",
+        "Browsers": "使用瀏覽器",
+        "BrowserVersion": "瀏覽器版本",
+        "ColumnBrowser": "瀏覽器",
+        "ColumnOperatingSystem": "作業系統",
+        "OperatingSystemFamily": "作業系統家族",
+        "OperatingSystems": "作業系統",
+        "WidgetBrowsers": "使用瀏覽器"
+    }
+}

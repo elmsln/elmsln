@@ -3,21 +3,52 @@
  * Device Detector - The Universal Device Detection library for parsing User Agents
  *
  * @link http://piwik.org
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+ * @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
  */
 
 namespace DeviceDetector;
 
-use DeviceDetector\Cache\CacheInterface;
-use DeviceDetector\Cache\CacheStatic;
+use DeviceDetector\Cache\StaticCache;
+use DeviceDetector\Cache\Cache;
 use DeviceDetector\Parser\Bot;
 use DeviceDetector\Parser\OperatingSystem;
 use DeviceDetector\Parser\Client\ClientParserAbstract;
 use DeviceDetector\Parser\Device\DeviceParserAbstract;
+use DeviceDetector\Parser\VendorFragment;
 use \Spyc;
 
+/**
+ * Class DeviceDetector
+ *
+ * Magic Device Type Methods
+ * @method boolean isSmartphone()
+ * @method boolean isFeaturePhone()
+ * @method boolean isTablet()
+ * @method boolean isPhablet()
+ * @method boolean isConsole()
+ * @method boolean isPortableMediaPlayer()
+ * @method boolean isCarBrowser()
+ * @method boolean isTV()
+ * @method boolean isSmartDisplay()
+ * @method boolean isCamera()
+ *
+ * Magic Client Type Methods
+ * @method boolean isBrowser()
+ * @method boolean isFeedReader()
+ * @method boolean isMobileApp()
+ * @method boolean isPIM()
+ * @method boolean isLibrary()
+ * @method boolean isMediaPlayer()
+ *
+ * @package DeviceDetector
+ */
 class DeviceDetector
 {
+    /**
+     * Current version number of DeviceDetector
+     */
+    const VERSION = '3.3.0';
+
     /**
      * Holds all registered client types
      * @var array
@@ -29,7 +60,7 @@ class DeviceDetector
      *
      * @var array
      */
-    protected static $desktopOsArray = array('AmigaOS', 'IBM', 'GNU/Linux', 'Mac', 'Unix', 'Windows', 'BeOS');
+    protected static $desktopOsArray = array('AmigaOS', 'IBM', 'GNU/Linux', 'Mac', 'Unix', 'Windows', 'BeOS', 'Chrome OS');
 
     /**
      * Constant used as value for unknown browser / os
@@ -87,7 +118,7 @@ class DeviceDetector
 
     /**
      * Holds the cache class used for caching the parsed yml-Files
-     * @var CacheInterface
+     * @var \DeviceDetector\Cache\Cache|\Doctrine\Common\Cache\CacheProvider
      */
     protected $cache = null;
 
@@ -96,21 +127,66 @@ class DeviceDetector
      *
      * @param string $userAgent  UA to parse
      */
-    public function __construct($userAgent)
+    public function __construct($userAgent='')
     {
-        $this->userAgent = $userAgent;
+        if ($userAgent != '') {
+            $this->setUserAgent($userAgent);
+        }
 
         $this->addClientParser('FeedReader');
         $this->addClientParser('MobileApp');
         $this->addClientParser('MediaPlayer');
         $this->addClientParser('PIM');
         $this->addClientParser('Browser');
+        $this->addClientParser('Library');
 
         $this->addDeviceParser('HbbTv');
         $this->addDeviceParser('Console');
         $this->addDeviceParser('CarBrowser');
         $this->addDeviceParser('Camera');
+        $this->addDeviceParser('PortableMediaPlayer');
         $this->addDeviceParser('Mobile');
+    }
+
+    public function __call($methodName, $arguments)
+    {
+        foreach (DeviceParserAbstract::getAvailableDeviceTypes() as $deviceName => $deviceType) {
+            if (strtolower($methodName) == 'is'.strtolower(str_replace(' ', '', $deviceName))) {
+                return $this->getDevice() == $deviceType;
+            }
+        }
+
+        foreach (self::$clientTypes as $client) {
+            if (strtolower($methodName) == 'is'.strtolower(str_replace(' ', '', $client))) {
+                return $this->getClient('type') == $client;
+            }
+        }
+
+        throw new \BadMethodCallException("Method $methodName not found");
+    }
+
+    /**
+     * Sets the useragent to be parsed
+     *
+     * @param string $userAgent
+     */
+    public function setUserAgent($userAgent)
+    {
+        if ($this->userAgent != $userAgent) {
+            $this->reset();
+        }
+        $this->userAgent = $userAgent;
+    }
+
+    protected function reset()
+    {
+        $this->bot    = null;
+        $this->client = null;
+        $this->device = null;
+        $this->os     = null;
+        $this->brand  = '';
+        $this->model  = '';
+        $this->parsed = false;
     }
 
     /**
@@ -209,9 +285,47 @@ class DeviceDetector
         return $this->matchUserAgent($regex);
     }
 
+    /**
+     * Returns if the parsed UA contains the 'Android; Tablet;' fragment
+     *
+     * @return bool
+     */
+    protected function hasAndroidTableFragment()
+    {
+        $regex = 'Android; Tablet;';
+        return $this->matchUserAgent($regex);
+    }
+
+    /**
+     * Returns if the parsed UA contains the 'Android; Mobile;' fragment
+     *
+     * @return bool
+     */
+    protected function hasAndroidMobileFragment()
+    {
+        $regex = 'Android; Mobile;';
+        return $this->matchUserAgent($regex);
+    }
+
     public function isMobile()
     {
-        return !$this->isDesktop();
+        if (!empty($this->device) && in_array($this->device, array(
+                DeviceParserAbstract::DEVICE_TYPE_FEATURE_PHONE,
+                DeviceParserAbstract::DEVICE_TYPE_SMARTPHONE,
+                DeviceParserAbstract::DEVICE_TYPE_TABLET,
+                DeviceParserAbstract::DEVICE_TYPE_PHABLET,
+                DeviceParserAbstract::DEVICE_TYPE_CAMERA,
+                DeviceParserAbstract::DEVICE_TYPE_PORTABLE_MEDIA_PAYER,
+            ))) {
+            return true;
+        }
+
+        $osShort = $this->getOs('short_name');
+        if (empty($osShort) || self::UNKNOWN == $osShort) {
+            return false;
+        }
+
+        return !$this->isBot() && !$this->isDesktop();
     }
 
     /**
@@ -225,7 +339,7 @@ class DeviceDetector
     public function isDesktop()
     {
         $osShort = $this->getOs('short_name');
-        if (empty($osShort)) {
+        if (empty($osShort) || self::UNKNOWN == $osShort) {
             return false;
         }
 
@@ -360,19 +474,28 @@ class DeviceDetector
         return $this->bot;
     }
 
+    protected $parsed = false;
+
     /**
      * Triggers the parsing of the current user agent
      */
     public function parse()
     {
+        if ($this->parsed) {
+            return;
+        }
+
+        $this->parsed = true;
+
         // skip parsing for empty useragents or those not containing any letter
         if (empty($this->userAgent) || preg_match('[a-z]', $this->userAgent)) {
             return;
         }
 
         $this->parseBot();
-        if ($this->isBot())
+        if ($this->isBot()) {
             return;
+        }
 
         $this->parseOs();
 
@@ -401,11 +524,11 @@ class DeviceDetector
     }
 
 
-    protected function parseClient() {
-
+    protected function parseClient()
+    {
         $parsers = $this->getClientParsers();
 
-        foreach ($parsers AS $parser) {
+        foreach ($parsers as $parser) {
             $parser->setCache($this->getCache());
             $parser->setUserAgent($this->getUserAgent());
             $client = $parser->parse();
@@ -416,11 +539,11 @@ class DeviceDetector
         }
     }
 
-    protected function parseDevice() {
-
+    protected function parseDevice()
+    {
         $parsers = $this->getDeviceParsers();
 
-        foreach ($parsers AS $parser) {
+        foreach ($parsers as $parser) {
             $parser->setCache($this->getCache());
             $parser->setUserAgent($this->getUserAgent());
             if ($parser->parse()) {
@@ -432,6 +555,32 @@ class DeviceDetector
         }
 
         /**
+         * If no brand has been assigned try to match by known vendor fragments
+         */
+        if (empty($this->brand)) {
+            $vendorParser = new VendorFragment($this->getUserAgent());
+            $this->brand = $vendorParser->parse();
+        }
+
+        /**
+         * Some user agents simply contain the fragment 'Android; Tablet;', so we assume those devices as tablets
+         */
+        if (is_null($this->device) && $this->hasAndroidTableFragment()) {
+            $this->device = DeviceParserAbstract::DEVICE_TYPE_TABLET;
+        }
+
+        /**
+         * Some user agents simply contain the fragment 'Android; Mobile;', so we assume those devices as smartphones
+         */
+        if (is_null($this->device) && $this->hasAndroidMobileFragment()) {
+            $this->device = DeviceParserAbstract::DEVICE_TYPE_SMARTPHONE;
+        }
+
+        $osShortName = $this->getOs('short_name');
+        $osFamily = OperatingSystem::getOsFamily($osShortName);
+        $osVersion = $this->getOs('version');
+
+        /**
          * Android up to 3.0 was designed for smartphones only. But as 3.0, which was tablet only, was published
          * too late, there were a bunch of tablets running with 2.x
          * With 4.0 the two trees were merged and it is for smartphones and tablets
@@ -439,12 +588,19 @@ class DeviceDetector
          * So were are expecting that all devices running Android < 2 are smartphones
          * Devices running Android 3.X are tablets. Device type of Android 2.X and 4.X+ are unknown
          */
-        if (is_null($this->device) && $this->getOs('short_name') == 'AND' && $this->getOs('version') != '') {
-            if (version_compare($this->getOs('version'), '2.0') == -1) {
+        if (is_null($this->device) && $osShortName == 'AND' && $osVersion != '') {
+            if (version_compare($osVersion, '2.0') == -1) {
                 $this->device = DeviceParserAbstract::DEVICE_TYPE_SMARTPHONE;
-            } else if (version_compare($this->getOs('version'), '3.0') >= 0 AND version_compare($this->getOs('version'), '4.0') == -1) {
+            } elseif (version_compare($osVersion, '3.0') >= 0 and version_compare($osVersion, '4.0') == -1) {
                 $this->device = DeviceParserAbstract::DEVICE_TYPE_TABLET;
             }
+        }
+
+        /**
+         * All detected feature phones running android are more likely a smartphone
+         */
+        if ($this->device == DeviceParserAbstract::DEVICE_TYPE_FEATURE_PHONE && $osFamily == 'Android') {
+            $this->device = DeviceParserAbstract::DEVICE_TYPE_SMARTPHONE;
         }
 
         /**
@@ -456,7 +612,8 @@ class DeviceDetector
          * As most touch enabled devices are tablets and only a smaller part are desktops/notebooks we assume that
          * all Windows 8 touch devices are tablets.
          */
-        if (is_null($this->device) && in_array($this->getOs('short_name'), array('WI8', 'WRT')) && $this->isTouchEnabled()) {
+
+        if (is_null($this->device) && ($osShortName == 'WRT' || ($osShortName == 'WIN' && version_compare($osVersion, '8.0'))) && $this->isTouchEnabled()) {
             $this->device = DeviceParserAbstract::DEVICE_TYPE_TABLET;
         }
 
@@ -485,7 +642,21 @@ class DeviceDetector
         return false;
     }
 
-    static public function getInfoFromUserAgent($ua)
+    /**
+     * Parses a useragent and returns the detected data
+     *
+     * ATTENTION: Use that method only for testing or very small applications
+     * To get fast results from DeviceDetector you need to make your own implementation,
+     * that should use one of the caching mechanisms. See README.md for more information.
+     *
+     * @internal
+     * @deprecated
+     *
+     * @param string $ua UserAgent to parse
+     *
+     * @return array
+     */
+    public static function getInfoFromUserAgent($ua)
     {
         $deviceDetector = new DeviceDetector($ua);
         $deviceDetector->parse();
@@ -502,17 +673,8 @@ class DeviceDetector
 
         $processed = array(
             'user_agent'     => $deviceDetector->getUserAgent(),
-            'os'             => array(
-                'name'       => $deviceDetector->getOs('name'),
-                'short_name' => $deviceDetector->getOs('short_name'),
-                'version'    => $deviceDetector->getOs('version'),
-            ),
-            'client'        => array(
-                'type'       => $deviceDetector->getClient('type'),
-                'name'       => $deviceDetector->getClient('name'),
-                'short_name' => $deviceDetector->getClient('short_name'),
-                'version'    => $deviceDetector->getClient('version'),
-            ),
+            'os'             => $deviceDetector->getOs(),
+            'client'         => $deviceDetector->getClient(),
             'device'         => array(
                 'type'       => $deviceDetector->getDeviceName(),
                 'brand'      => $deviceDetector->getBrand(),
@@ -527,19 +689,24 @@ class DeviceDetector
     /**
      * Sets the Cache class
      *
-     * Note: The given class needs to have a 'get' and 'set' method to be used
-     *
-     * @param $cache
+     * @param Cache|\Doctrine\Common\Cache\CacheProvider $cache
+     * @throws \Exception
      */
-    public function setCache(CacheInterface $cache)
+    public function setCache($cache)
     {
-        $this->cache = $cache;
+        if ($cache instanceof Cache ||
+            (class_exists('\Doctrine\Common\Cache\CacheProvider') && $cache instanceof \Doctrine\Common\Cache\CacheProvider)) {
+            $this->cache = $cache;
+            return;
+        }
+
+        throw new \Exception('Cache not supported');
     }
 
     /**
      * Returns Cache object
      *
-     * @return CacheInterface
+     * @return \Doctrine\Common\Cache\CacheProvider
      */
     public function getCache()
     {
@@ -547,6 +714,6 @@ class DeviceDetector
             return $this->cache;
         }
 
-        return new CacheStatic();
+        return new StaticCache();
     }
 }

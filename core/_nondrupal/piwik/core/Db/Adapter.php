@@ -8,8 +8,6 @@
  */
 namespace Piwik\Db;
 
-
-use Piwik\Loader;
 use Zend_Db_Table;
 
 /**
@@ -40,9 +38,8 @@ class Adapter
         }
 
         $className = self::getAdapterClassName($adapterName);
-        Loader::loadClass($className);
 
-        $adapter = new $className($dbInfos);
+        $adapter   = new $className($dbInfos);
 
         if ($connect) {
             $adapter->getConnection();
@@ -60,10 +57,15 @@ class Adapter
      *
      * @param string $adapterName
      * @return string
+     * @throws \Exception
      */
     private static function getAdapterClassName($adapterName)
     {
-        return 'Piwik\Db\Adapter\\' . str_replace(' ', '\\', ucwords(str_replace(array('_', '\\'), ' ', strtolower($adapterName))));
+        $className = 'Piwik\Db\Adapter\\' . str_replace(' ', '\\', ucwords(str_replace(array('_', '\\'), ' ', strtolower($adapterName))));
+        if (!class_exists($className)) {
+            throw new \Exception("Adapter $adapterName is not valid.");
+        }
+        return $className;
     }
 
     /**

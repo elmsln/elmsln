@@ -1,0 +1,194 @@
+<?php
+
+/**
+ * @file
+ * Renderable elements tests.
+ */
+
+class relTest extends DrupalWebTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Renderable elements'),
+      'description' => t('Tests for renderable elements registered through code and UI.'),
+      'group' => t('Renderable elements'),
+    );
+  }
+
+  /**
+   * Implementation of setUp().
+   */
+  function setUp() {
+    parent::setUp('ctools', 'rel', 'rel_test', 'contact', 'path');
+
+    $this->admin_user = $this->drupalCreateUser(array('rel_build_registration', 'access administration pages', 'access site-wide contact form', 'administer content types', 'administer nodes', 'bypass node access', 'administer url aliases', 'create url aliases'));
+    $this->drupalLogin($this->admin_user);
+  }
+
+  /**
+   * Tests on forms.
+   */
+  function testRelForms() {
+
+    // Check registration of node types.
+    $this->drupalGet('node/add/article');
+    $edit = array(
+      'elements[additional_settings]' => TRUE,
+      'elements[actions]' => TRUE,
+    );
+    $this->drupalPost('rel-register/nojs/article_node_form', $edit, t('Save'), array('query' => array('destination' => 'node/add/article')));
+    $this->drupalGet('admin/structure/types/manage/article/fields');
+    $this->assertRaw('fields[additional_settings][weight]', t('Additional settings element registered'));
+    $this->assertRaw('fields[actions][weight]', t('Actions element registered'));
+
+    // Check manage form of settings form of renderable elements, registered in rel_test.module.
+    $this->drupalGet('admin/structure/rel');
+    $this->assertText('Register form', t('Register id found.'));
+    $this->drupalGet('admin/structure/rel/manage/rel_register_admin_form');
+    $this->assertRaw('fields[rel_build_forms_registration][weight]', t('Checkbox element registered'));
+    $this->assertRaw('fields[actions][weight]', t('Actions element registered'));
+
+    // Create a node and test that url aliases are still saved.
+    $settings = array(
+      'type' => 'article',
+    );
+    $this->drupalCreateNode($settings);
+    $edit = array(
+      'path[alias]' => 'rel-url-alias',
+    );
+    $this->drupalPost('node/1/edit', $edit, t('Save'));
+    $this->drupalGet('node/1/edit');
+    $this->assertRaw('rel-url-alias', t('Rel URL alias saved'));
+
+    // Use the on site registration of forms functionality.
+    $this->drupalGet('contact');
+    $this->assertRaw(t('Manage form display'));
+    $edit = array(
+      'elements[name]' => TRUE,
+      'elements[mail]' => TRUE,
+      'elements[subject]' => TRUE,
+      'elements[cid]' => TRUE,
+      'elements[message]' => TRUE,
+      'elements[copy]' => TRUE,
+      'elements[actions]' => TRUE,
+      'elements[submit]' => TRUE,
+    );
+    $this->drupalPost('rel-register/nojs/contact_site_form', $edit, t('Save'), array('query' => array('destination' => 'contact')));
+    $this->assertText(t('contact_site_form has been registered as a renderable element.'));
+    $this->assertRaw(t('Reset form display'));
+
+    // Check manage form of contact.
+    $this->drupalGet('admin/structure/rel/manage/contact_site_form');
+    $this->assertRaw('fields[name][weight]', t('Name element registered'));
+    $this->assertRaw('fields[message][weight]', t('Message element registered'));
+    $this->assertRaw('fields[actions][weight]', t('Actions element registered'));
+
+    // Unregister.
+    $this->drupalPost('rel-unregister/nojs/contact_site_form', array(), t('Confirm'), array('query' => array('destination' => 'admin/structure/rel')));
+    $this->assertText(t('contact_site_form has been unregistered as a renderable element.'));
+    $this->drupalGet('admin/structure/rel/manage/contact_site_form');
+    $this->assertResponse('404');
+    $this->drupalGet('admin/structure/rel');
+    $this->assertNoText('contact_site_form');
+  }
+}
+
+class relTestFunctions extends DrupalUnitTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Recursive functionality'),
+      'description' => t('Tests for renderable elements recursive function.'),
+      'group' => t('Renderable elements'),
+    );
+  }
+
+  /**
+   * Test recursive functionality for registration and rendering.
+   */
+  function testRelRecursive() {
+    $form_build = $this->relBigFormBuild();
+    module_load_include('module', 'rel');
+
+    $stash = array();
+    $registered_fields = array('registered' => TRUE);
+    _rel_recursive_elements(TRUE, $form_build, '', $stash, $registered_fields);
+
+    // Assert value, hidden and token types are ignored.
+    $this->assertFalse(array_key_exists('nid', $stash));
+    $this->assertFalse(array_key_exists('nid', $stash));
+    $this->assertFalse(array_key_exists('token', $stash));
+
+    // Test the owners.
+    $this->assertTrue($stash['registered']['owner'] == 'drupal');
+    $this->assertTrue($stash['image']['owner'] == 'rel');
+    $this->assertTrue($stash['name']['owner'] == 'rel');
+
+    // Assert root elements are found.
+    $this->assertTrue(array_key_exists('name', $stash));
+    $this->assertTrue(array_key_exists('container', $stash));
+
+    // Assert nested elements are found and parents are ok for
+    // nested elements and root elements.
+    $this->assertTrue(array_key_exists('image', $stash));
+    $this->assertTrue($stash['image']['parent'] == 'container');
+    $this->assertTrue(empty($stash['name']['parent']));
+    $this->assertTrue(empty($stash['container']['parent']));
+
+    // Assert container, fieldset and vertical tabs have group info, and others not.
+    $this->assertTrue(empty($stash['name']['group_info']));
+    $this->assertTrue(empty($stash['image']['group_info']));
+    $this->assertTrue(!empty($stash['container']['group_info']));
+  }
+
+  /**
+   * Return a form build.
+   */
+  function relBigFormBuild() {
+    $build = array();
+
+    // @todo more items.
+
+    $build['nid'] = array(
+      '#type' => 'value',
+      '#value' => 1,
+    );
+
+    $build['form_build_id'] = array(
+      '#type' => 'hidden',
+      '#value' => 'form_build_id',
+    );
+
+    $build['token'] = array(
+      '#type' => 'token',
+      '#value' => 'token_value',
+    );
+
+    $build['name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Name'),
+    );
+
+    $build['registered'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Registered'),
+    );
+
+    $build['container'] = array(
+      '#type' => 'container',
+    );
+
+    $build['container']['image'] = array(
+      '#type' => 'file',
+      '#title' => t('Image')
+    );
+
+    return $build;
+  }
+}

@@ -1,0 +1,16 @@
+{
+    "Feedback": {
+        "DoYouHaveBugReportOrFeatureRequest": "Onko sinulle virheraportti tai pyyntö uudesta ominaisuudesta?",
+        "IWantTo": "Haluan:",
+        "LearnWaysToParticipate": "Katso erilaisia tapoja %s osallistua%s",
+        "ManuallySendEmailTo": "Ole hyvä ja lähetä viesti osoitteeseen",
+        "RateFeatureLeaveMessageDislike": "Harmillista kuulla että et pidä siitä! Voisitko kertoa meille, miten voimme korjata tämän?",
+        "RateFeatureLeaveMessageLike": "Olemme iloisia että pidit siitä! Kerro meille mistä pidit eniten tai jos sinulla on ehdotuksia uusiksi ominaisuuksiksi.",
+        "RateFeatureThankYouTitle": "Kiitos '%s':n arvostelemisesta!",
+        "RateFeatureTitle": "Pidätkö ominaisuudesta '%s'? Jätä arvostelu ja kommentti",
+        "SendFeedback": "Lähetä palaute",
+        "ThankYou": "Kiitos että autat parantamaan Piwikiä!",
+        "TopLinkTooltip": "Kerro meille mitä ajattelet, tai osta tukipalveluita (englanniksi).",
+        "VisitTheForums": "Käy %s foorumeilla %s"
+    }
+}

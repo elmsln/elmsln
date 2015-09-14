@@ -1,0 +1,13 @@
+{
+    "UserCountry": {
+        "Continent": "Kontinent",
+        "Country": "Vend",
+        "country_a1": "Ndërmjetës Anonim",
+        "country_a2": "Mundësues Satelitor",
+        "country_cat": "Bashkësi që flasin Katalançe",
+        "country_o1": "Vend Tjetër",
+        "DistinctCountries": "%s vende ndaras",
+        "Location": "Vend",
+        "SubmenuLocations": "Vende"
+    }
+}

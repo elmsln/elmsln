@@ -10,26 +10,27 @@
 namespace Piwik;
 
 use Exception;
+use Piwik\Container\StaticContainer;
 
 /**
  * Utility class that wraps date/time related PHP functions. Using this class can
  * be easier than using `date`, `time`, `date_default_timezone_set`, etc.
- * 
+ *
  * ### Performance concerns
- * 
+ *
  * The helper methods in this class are instance methods and thus `Date` instances
  * need to be constructed before they can be used. The memory allocation can result
  * in noticeable performance degradation if you construct thousands of Date instances,
  * say, in a loop.
- * 
+ *
  * ### Examples
- * 
+ *
  * **Basic usage**
- * 
+ *
  *     $date = Date::factory('2007-07-24 14:04:24', 'EST');
  *     $date->addHour(5);
  *     echo $date->getLocalized("%longDay% the %day% of %longMonth% at %time%");
- * 
+ *
  * @api
  */
 class Date
@@ -39,6 +40,26 @@ class Date
 
     /** The default date time string format. */
     const DATE_TIME_FORMAT = 'Y-m-d H:i:s';
+
+    /**
+     * Max days for months (non-leap-year). See {@link addPeriod()} implementation.
+     *
+     * @var int[]
+     */
+    private static $maxDaysInMonth = array(
+        '1' => 31,
+        '2' => 28,
+        '3' => 31,
+        '4' => 30,
+        '5' => 31,
+        '6' => 30,
+        '7' => 31,
+        '8' => 31,
+        '9' => 30,
+        '10' => 31,
+        '11' => 30,
+        '12' => 31
+    );
 
     /**
      * The stored timestamp is always UTC based.
@@ -84,7 +105,6 @@ class Date
      */
     public static function factory($dateString, $timezone = null)
     {
-        $invalidDateException = new Exception(Piwik::translate('General_ExceptionInvalidDateFormat', array("YYYY-MM-DD, or 'today' or 'yesterday'", "strtotime", "http://php.net/strtotime")) . ": $dateString");
         if ($dateString instanceof self) {
             $dateString = $dateString->toString();
         }
@@ -105,7 +125,7 @@ class Date
                 ($dateString = strtotime($dateString)) === false
             )
         ) {
-            throw $invalidDateException;
+            throw self::getInvalidDateFormatException($dateString);
         } else {
             $date = new Date($dateString);
         }
@@ -113,7 +133,7 @@ class Date
         // can't be doing web analytics before the 1st website
         // Tue, 06 Aug 1991 00:00:00 GMT
         if ($timestamp < 681436800) {
-            throw $invalidDateException;
+            throw self::getInvalidDateFormatException($dateString);
         }
         if (empty($timezone)) {
             return $date;
@@ -131,6 +151,19 @@ class Date
     public function getDatetime()
     {
         return $this->toString(self::DATE_TIME_FORMAT);
+    }
+
+    /**
+     * Returns the current hour in UTC timezone.
+     * @return string
+     * @throws Exception
+     */
+    public function getHourUTC()
+    {
+        $dateTime = $this->getDatetime();
+        $hourInTz = Date::factory($dateTime, 'UTC')->toString('G');
+
+        return $hourInTz;
     }
 
     /**
@@ -164,7 +197,7 @@ class Date
     /**
      * Returns a new date object with the same timestamp as `$this` but with a new
      * timezone.
-     * 
+     *
      * See {@link getTimestamp()} to see how the timezone is used.
      *
      * @param string $timezone eg, `'UTC'`, `'Europe/London'`, etc.
@@ -223,6 +256,17 @@ class Date
     }
 
     /**
+     * Returns the date in the "Y-m-d H:i:s" PHP format
+     *
+     * @param int $timestamp
+     * @return string
+     */
+    public static function getDatetimeFromTimestamp($timestamp)
+    {
+        return date("Y-m-d H:i:s", $timestamp);
+    }
+
+    /**
      * Returns the Unix timestamp of the date in UTC.
      *
      * @return int
@@ -253,15 +297,16 @@ class Date
         // Unit tests pass (@see Date.test.php) but I'm pretty sure this is not the right way to do it
         date_default_timezone_set($this->timezone);
         $dtzone = timezone_open('UTC');
-        $time = date('r', $this->timestamp);
-        $dtime = date_create($time);
+        $time   = date('r', $this->timestamp);
+        $dtime  = date_create($time);
+
         date_timezone_set($dtime, $dtzone);
-        $dateWithTimezone = date_format($dtime, 'r');
+        $dateWithTimezone    = date_format($dtime, 'r');
         $dateWithoutTimezone = substr($dateWithTimezone, 0, -6);
-        $timestamp = strtotime($dateWithoutTimezone);
+        $timestamp           = strtotime($dateWithoutTimezone);
         date_default_timezone_set('UTC');
 
-        return (int)$timestamp;
+        return (int) $timestamp;
     }
 
     /**
@@ -375,7 +420,6 @@ class Date
             return 0;
         }
         if ($currentYear < $toCompareYear) {
-
             return -1;
         }
         return 1;
@@ -383,7 +427,7 @@ class Date
 
     /**
      * Returns `true` if current date is today.
-     * 
+     *
      * @return bool
      */
     public function isToday()
@@ -560,9 +604,9 @@ class Date
     /**
      * Returns a localized date string using the given template.
      * The template should contain tags that will be replaced with localized date strings.
-     * 
+     *
      * Allowed tags include:
-     * 
+     *
      * - **%day%**: replaced with the day of the month without leading zeros, eg, **1** or **20**.
      * - **%shortMonth%**: the short month in the current language, eg, **Jan**, **Feb**.
      * - **%longMonth%**: the whole month name in the current language, eg, **January**, **February**.
@@ -577,15 +621,16 @@ class Date
      */
     public function getLocalized($template)
     {
+        $translator = StaticContainer::get('Piwik\Translation\Translator');
         $day = $this->toString('j');
         $dayOfWeek = $this->toString('N');
         $monthOfYear = $this->toString('n');
         $patternToValue = array(
             "%day%"        => $day,
-            "%shortMonth%" => Piwik::translate('General_ShortMonth_' . $monthOfYear),
-            "%longMonth%"  => Piwik::translate('General_LongMonth_' . $monthOfYear),
-            "%shortDay%"   => Piwik::translate('General_ShortDay_' . $dayOfWeek),
-            "%longDay%"    => Piwik::translate('General_LongDay_' . $dayOfWeek),
+            "%shortMonth%" => $translator->translate('Intl_ShortMonth_' . $monthOfYear),
+            "%longMonth%"  => $translator->translate('Intl_LongMonth_' . $monthOfYear),
+            "%shortDay%"   => $translator->translate('Intl_ShortDay_' . $dayOfWeek),
+            "%longDay%"    => $translator->translate('Intl_LongDay_' . $dayOfWeek),
             "%longYear%"   => $this->toString('Y'),
             "%shortYear%"  => $this->toString('y'),
             "%time%"       => $this->toString('H:i:s')
@@ -673,12 +718,39 @@ class Date
      */
     public function addPeriod($n, $period)
     {
-        if ($n < 0) {
-            $ts = strtotime("$n $period", $this->timestamp);
+        if (strtolower($period) == 'month') { // TODO: comments
+            $dateInfo = getdate($this->timestamp);
+
+            $ts = mktime(
+                $dateInfo['hours'],
+                $dateInfo['minutes'],
+                $dateInfo['seconds'],
+                $dateInfo['mon'] + (int)$n,
+                1,
+                $dateInfo['year']
+            );
+
+            $daysToAdd = min($dateInfo['mday'], self::getMaxDaysInMonth($ts)) - 1;
+            $ts += self::NUM_SECONDS_IN_DAY * $daysToAdd;
         } else {
-            $ts = strtotime("+$n $period", $this->timestamp);
+            $time = $n < 0 ? "$n $period" : "+$n $period";
+
+            $ts = strtotime($time, $this->timestamp);
         }
+
         return new Date($ts, $this->timezone);
+    }
+
+    private static function getMaxDaysInMonth($timestamp)
+    {
+        $month = (int)date('m', $timestamp);
+        if (date('L', $timestamp) == 1
+            && $month == 2
+        ) {
+            return 29;
+        } else {
+            return self::$maxDaysInMonth[$month];
+        }
     }
 
     /**
@@ -702,5 +774,11 @@ class Date
     public static function secondsToDays($secs)
     {
         return $secs / self::NUM_SECONDS_IN_DAY;
+    }
+
+    private static function getInvalidDateFormatException($dateString)
+    {
+        $message = Piwik::translate('General_ExceptionInvalidDateFormat', array("YYYY-MM-DD, or 'today' or 'yesterday'", "strtotime", "http://php.net/strtotime"));
+        return new Exception($message . ": $dateString");
     }
 }

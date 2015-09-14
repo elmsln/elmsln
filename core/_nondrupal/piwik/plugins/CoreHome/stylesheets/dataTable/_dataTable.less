@@ -9,16 +9,15 @@
   td .ratio {
     color: #999999;
     font-size: 12px;
-    display:none;
+    display: inline-block;
+    visibility: hidden;
     text-align: right;
-    min-width: 45px;
-    margin-left: 4px;
+    margin-right: 4px;
     font-weight: normal;
   }
 
   td.highlight > .ratio {
-    display: inline-block;
-    line-height: 15px;
+    visibility: visible;
   }
 }
 
@@ -63,7 +62,6 @@ table.dataTable th {
   background: @dataTable-header-background;
   font-size: 12px;
   font-weight: normal;
-  border-left: 1px solid #d4d0c4;
   vertical-align: top;
 }
 
@@ -73,14 +71,11 @@ table.dataTable th.sortable {
 
 table.dataTable th.columnSorted {
   font-weight: bold;
-  padding-right: 20px;
-  background: @dataTable-headerActive-background;
 }
 
 table.dataTable td {
-  padding: 5px 5px 5px 12px;
-  background: #fff;
-  border-left: 1px solid #e7e7e7;
+  padding: 5px 1px 5px 12px;
+  background: @theme-color-background-base;
 }
 
 table.dataTable td,
@@ -90,39 +85,15 @@ table.dataTable td a {
   color: @theme-color-text-light;
 }
 
-table.dataTable tr:hover > td,
-table.dataTable tr:hover > td .dataTableRowActions {
-  background-color: #FFFFF7;
-}
-
-table.dataTable tr.subDataTable:hover > td,
-table.dataTable tr.subDataTable:hover > td .dataTableRowActions {
-  background-color: #ffffcb;
-}
-
-table.dataTable tr:hover > td.cellSubDataTable
-table.dataTable tr:hover > td.cellSubDataTable .dataTableRowActions {
-  background-color: #fff;
-}
-
 td.clean {
-  background-color: #fff;
+  background-color: @theme-color-background-base;
 }
 
 table.dataTable td.column {
   white-space: nowrap;
 }
 
-table.dataTable td.columneven {
-  background: #efeeec;
-}
-
-table.dataTable td.columnodd {
-  background: #f6f5f3;
-}
-
 .dataTable tr.highlight td {
-  background-color: #ECF9DD;
   font-weight: bold;
 }
 
@@ -170,12 +141,17 @@ table.dataTable img {
   width: 450px;
 }
 
+div.dataTable, div.dataTable > .dataTableWrapper {
+  margin-bottom: 9px; // same height as expand/contract button (so datatable height will encompass the
+                      // expand/contract button)
+}
+
 .subDataTable > .dataTableWrapper {
   width: 95%;
 }
 
 .sortIconContainer {
-  float: right;
+  float: left;
   position: relative;
 }
 
@@ -224,7 +200,7 @@ table.dataTable img {
   width: 114px;
   height: auto;
   overflow: visible;
-  padding: 2px 6px;
+  padding: 2px 6px !important;
   opacity: 1;
   cursor: text;
   filter: Alpha(opacity=100);
@@ -285,101 +261,145 @@ table.dataTable img {
   padding-bottom: 4px;
 }
 
-#content {
-
-  .dataTableFeatures {
-    &.expanded {
-      .dataTableFooterIcons {
-        display: block;
-      }
-
-      .expandDataTableFooterDrawer {
-        display: none;
-      }
-    }
-
-    &.hasEvolution {
-      .dataTableFooterIcons {
-        margin-top: 17px;
-      }
-      .expandDataTableFooterDrawer {
-        margin-top: 20px;
-      }
+.dataTableFeatures {
+  &.expanded {
+    .dataTableFooterIcons {
+      display: block;
     }
 
     .expandDataTableFooterDrawer {
-      display: block;
-      margin-top: 5px;
-      margin-bottom: 0px;
-      margin-left: auto;
-      margin-right: auto;
-      background-color: #D9D9D9;
-      height: 7px;
-      width: 70px;
-      -webkit-border-top-left-radius: 10px;
-      -webkit-border-top-right-radius: 10px;
-      -moz-border-radius-topleft: 10px;
-      -moz-border-radius-topright: 10px;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
-      line-height: 0px;
-
-      img {
-        margin-bottom: 0px;
-        line-height: 0px;
-      }
+      display: none;
     }
   }
 
-  .dataTableFooterIcons {
+  &.hasEvolution {
+    .dataTableFooterIcons {
+      margin-top: 17px;
+    }
+    .expandDataTableFooterDrawer {
+      margin-top: 20px;
+    }
+  }
 
-    display: none;
+  .expandDataTableFooterDrawer {
+    display: block;
     margin-top: 5px;
-    height: auto;
+    margin-bottom: -1px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: @theme-color-background-base;
+    border: 1px solid @theme-color-background-tinyContrast;
+    height: 9px;
+    width: 70px;
+    -webkit-border-bottom-left-radius: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    -moz-border-radius-bottomright: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    line-height: 0px;
 
-    div {
-      padding-bottom: 2px;
-    }
-
-    .foldDataTableFooterDrawer {
-      display: block;
-      padding-bottom: 0px;
-      margin-top: 0px;
-      margin-left: auto;
-      margin-right: auto;
-      background-color: #D9D9D9;
-      -webkit-border-top-left-radius: 10px;
-      -webkit-border-top-right-radius: 10px;
-      -moz-border-radius-topleft: 10px;
-      -moz-border-radius-topright: 10px;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
+    img {
+      margin-bottom: 0px;
       line-height: 0px;
-      height: 7px;
-      width: 70px;
-      clear: both;
-
-      img {
-        margin-top: 2px;
-        margin-bottom: 0px;
-        line-height: 0px;
-      }
     }
+  }
+}
 
-    .controls {
-      clear: left;
-      padding: 0px 0px 15px;
-      text-align: left;
-      color: #333;
+.dataTableFeatures {
+  border-bottom: 1px solid @theme-color-background-tinyContrast;
+}
+
+.widget .dataTableFeatures {
+  border-bottom-style: none !important;
+}
+
+.dataTableFooterIcons {
+
+  display: none;
+  margin-top: 5px;
+  height: auto;
+
+  div {
+    padding-bottom: 2px;
+  }
+
+  .foldDataTableFooterDrawer {
+    display: block;
+    padding-bottom: 0px;
+    margin-bottom: -1px;
+    margin-top: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: @theme-color-background-base;
+    border: 1px solid @theme-color-background-tinyContrast;
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    line-height: 0px;
+    height: 9px;
+    width: 70px;
+    clear: both;
+
+    img {
+      margin-top: 2px;
+      margin-bottom: 0px;
+      line-height: 0px;
     }
   }
 
+  .controls {
+    clear: left;
+    padding: 0px 0px 15px;
+    text-align: left;
+    color: #333;
+  }
+}
+
+#dashboard .dataTableFeatures,.widget .dataTableFeatures {
+  .expandDataTableFooterDrawer {
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+
+    -webkit-border-bottom-left-radius: 0px;
+    -webkit-border-bottom-right-radius: 0px;
+    -moz-border-radius-bottomleft: 0px;
+    -moz-border-radius-bottomright: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
 }
 
 .dataTableFooterIcons .foldDataTableFooterDrawer,
 .dataTableFeatures .expandDataTableFooterDrawer {
-  display: none;
   cursor: pointer;
+}
+
+.widget .foldDataTableFooterDrawer {
+  margin-bottom: -9px;
+}
+
+// customizing footer appearance for row evolution graph
+.ui-dialog .dataTableVizEvolution {
+  .expandDataTableFooterDrawer,.foldDataTableFooterDrawer {
+    display: none !important;
+  }
+
+  .dataTableFooterIcons {
+    display: block;
+  }
+
+  .dataTableFeatures {
+    border-bottom-style: none !important;
+    margin-top: 0 !important;
+  }
 }
 
 @-moz-document url-prefix() {
@@ -395,10 +415,10 @@ table.dataTable img {
 }
 
 .dataTableFooterIcons {
-  height: 20px;
+  min-height: 26px;
   white-space: nowrap;
   font-size: 10px;
-  padding: 6px 5px;
+  padding: 6px 5px 0px;
   border-top: 1px solid #B6B0A6;
 }
 
@@ -499,7 +519,7 @@ table.dataTable img {
 }
 
 /* Actions table */
-.dataTableActions table.dataTable tr td.labelodd {
+.dataTableActions table.dataTable tr td.label {
   background-image: none;
 }
 
@@ -560,7 +580,7 @@ tr.level12 td.label {
 }
 
 tr td.label img.plusMinus {
-  margin-left: -1em;
+  margin-left: -10px;
   margin-right: 3px;
   margin-top: -5px;
 }
@@ -568,8 +588,13 @@ tr td.label img.plusMinus {
 .pk-emptyDataTable {
   padding-top: 20px;
   padding-bottom: 10px;
+  padding-left: 11px;
+}
+
+.widget .pk-emptyDataTable {
+  padding-left: 0px;
+  padding-top: 33px;
   text-align: center;
-  font-style: italic;
 }
 
 .helpDate {

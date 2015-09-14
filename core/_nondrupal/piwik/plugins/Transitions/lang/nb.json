@@ -1,0 +1,20 @@
+{
+    "Transitions": {
+        "ErrorBack": "Gå tilbake til forrige handling",
+        "FromCampaigns": "Fra kampanjer",
+        "FromPreviousPages": "Fra interne sider",
+        "FromPreviousPagesInline": "%s fra interne sider",
+        "FromPreviousSiteSearches": "Fra interne søk",
+        "FromPreviousSiteSearchesInline": "%s fra interne søk",
+        "FromSearchEngines": "Fra søkemotorer",
+        "FromWebsites": "Fra nettsider",
+        "IncomingTraffic": "Innkommende trafikk",
+        "NoDataForAction": "Det finnes ingen data for %s",
+        "OutgoingTraffic": "Utgående trafikk",
+        "ToFollowingPages": "Til interne sider",
+        "ToFollowingPagesInline": "%s til interne sider",
+        "ToFollowingSiteSearches": "Interne søk",
+        "ToFollowingSiteSearchesInline": "%s interne søk",
+        "XOutOfYVisits": "%s (av %s)"
+    }
+}

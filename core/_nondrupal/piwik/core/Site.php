@@ -10,32 +10,33 @@
 namespace Piwik;
 
 use Exception;
+use Piwik\Exception\UnexpectedWebsiteFoundException;
 use Piwik\Plugins\SitesManager\API;
 
 /**
  * Provides access to individual [site entity](/guides/persistence-and-the-mysql-backend#websites-aka-sites) data
  * (including name, URL, etc.).
- * 
+ *
  * **Data Cache**
- * 
+ *
  * Site data can be cached in order to avoid performing too many queries.
  * If a method needs many site entities, it is more efficient to query all of what
  * you need beforehand via the **SitesManager** API, then cache it using {@link setSites()} or
  * {@link setSitesFromArray()}.
- * 
+ *
  * Subsequent calls to `new Site($id)` will use the data in the cache instead of querying the database.
- * 
+ *
  * ### Examples
- * 
+ *
  * **Basic usage**
- * 
+ *
  *     $site = new Site($idSite);
  *     $name = $site->getName();
- * 
+ *
  * **Without allocation**
- * 
+ *
  *     $name = Site::getNameFor($idSite);
- * 
+ *
  * @api
  */
 class Site
@@ -54,7 +55,7 @@ class Site
 
     /**
      * Constructor.
-     * 
+     *
      * @param int $idsite The ID of the site we want data for.
      */
     public function __construct($idsite)
@@ -62,7 +63,7 @@ class Site
         $this->id = (int)$idsite;
         if (!isset(self::$infoSites[$this->id])) {
             $site = API::getInstance()->getSiteFromId($this->id);
-            self::setSite($this->id, $site);
+            self::setSiteFromArray($this->id, $site);
         }
     }
 
@@ -71,15 +72,42 @@ class Site
      * individual site data.
      *
      * @param array $sites The array of sites data. Indexed by site ID. eg,
-     *                     
+     *
      *                         array('1' => array('name' => 'Site 1', ...),
      *                               '2' => array('name' => 'Site 2', ...))`
      */
     public static function setSites($sites)
     {
-        foreach($sites as $idsite => $site) {
-            self::setSite($idsite, $site);
+        self::triggerSetSitesEvent($sites);
+
+        foreach ($sites as $idsite => $site) {
+            self::setSiteFromArray($idsite, $site);
         }
+    }
+
+    private static function triggerSetSitesEvent(&$sites)
+    {
+        /**
+         * Triggered so plugins can modify website entities without modifying the database.
+         *
+         * This event should **not** be used to add data that is expensive to compute. If you
+         * need to make HTTP requests or query the database for more information, this is not
+         * the place to do it.
+         *
+         * **Example**
+         *
+         *     Piwik::addAction('Site.setSites', function (&$sites) {
+         *         foreach ($sites as &$site) {
+         *             $site['name'] .= " (original)";
+         *         }
+         *     });
+         *
+         * @param array $sites An array of website entities. [Learn more.](/guides/persistence-and-the-mysql-backend#websites-aka-sites)
+         *
+         * This is not yet public as it doesn't work 100% accurately. Eg if `setSiteFromArray()` is called directly this event will not be triggered.
+         * @ignore
+         */
+        Piwik::postEvent('Site.setSites', array(&$sites));
     }
 
     /**
@@ -92,38 +120,20 @@ class Site
      * @param $infoSite
      * @throws Exception if website or idsite is invalid
      */
-    protected static function setSite($idSite, $infoSite)
+    public static function setSiteFromArray($idSite, $infoSite)
     {
-        if(empty($idSite) || empty($infoSite)) {
-            throw new Exception("An unexpected website was found, check idSite in the request.");
+        if (empty($idSite) || empty($infoSite)) {
+            throw new UnexpectedWebsiteFoundException("An unexpected website was found in the request: website id was set to '$idSite' .");
         }
-
-        /**
-         * Triggered so plugins can modify website entities without modifying the database.
-         * 
-         * This event should **not** be used to add data that is expensive to compute. If you
-         * need to make HTTP requests or query the database for more information, this is not
-         * the place to do it.
-         *
-         * **Example**
-         * 
-         *     Piwik::addAction('Site.setSite', function ($idSite, &$info) {
-         *         $info['name'] .= " (original)";
-         *     });
-         * 
-         * @param int $idSite The ID of the website entity that will be modified.
-         * @param array $infoSite The website entity. [Learn more.](/guides/persistence-and-the-mysql-backend#websites-aka-sites)
-         */
-        Piwik::postEvent('Site.setSite', array($idSite, &$infoSite));
 
         self::$infoSites[$idSite] = $infoSite;
     }
 
     /**
      * Sets the cached Site data with a non-associated array of site data.
-     * 
+     *
      * @param array $sites The array of sites data. eg,
-     *                     
+     *
      *                         array(
      *                             array('idsite' => '1', 'name' => 'Site 1', ...),
      *                             array('idsite' => '2', 'name' => 'Site 2', ...),
@@ -131,8 +141,15 @@ class Site
      */
     public static function setSitesFromArray($sites)
     {
+        self::triggerSetSitesEvent($sites);
+
         foreach ($sites as $site) {
-            self::setSite($site['idsite'], $site);
+            $idSite = null;
+            if (!empty($site['idsite'])) {
+                $idSite = $site['idsite'];
+            }
+
+            self::setSiteFromArray($idSite, $site);
         }
     }
 
@@ -172,9 +189,9 @@ class Site
 
     /**
      * Returns a string representation of the site this instance references.
-     * 
+     *
      * Useful for debugging.
-     * 
+     *
      * @return string
      */
     public function __toString()
@@ -223,22 +240,31 @@ class Site
 
     /**
      * Returns a site property by name.
-     * 
+     *
      * @param string $name Name of the property to return (eg, `'main_url'` or `'name'`).
      * @return mixed
      * @throws Exception
      */
     protected function get($name)
     {
+        if (!isset(self::$infoSites[$this->id])) {
+            $site = API::getInstance()->getSiteFromId($this->id);
+
+            if (empty($site)) {
+                throw new UnexpectedWebsiteFoundException('The requested website id = ' . (int)$this->id . ' couldn\'t be found');
+            }
+
+            self::setSiteFromArray($this->id, $site);
+        }
         if (!isset(self::$infoSites[$this->id][$name])) {
-            throw new Exception('The requested website id = ' . (int)$this->id . ' (or its property ' . $name . ') couldn\'t be found');
+            throw new Exception("The property $name could not be found on the website ID " . (int)$this->id);
         }
         return self::$infoSites[$this->id][$name];
     }
 
     /**
      * Returns the website type (by default `"website"`, which means it is a single website).
-     * 
+     *
      * @return string
      */
     public function getType()
@@ -316,7 +342,7 @@ class Site
 
     /**
      * Returns the site search keyword query parameters for the site.
-     * 
+     *
      * @return string
      * @throws Exception if data for the site cannot be found.
      */
@@ -327,7 +353,7 @@ class Site
 
     /**
      * Returns the site search category query parameters for the site.
-     * 
+     *
      * @return string
      * @throws Exception if data for the site cannot be found.
      */
@@ -355,13 +381,13 @@ class Site
      * @param bool|string $_restrictSitesToLogin Implementation detail. Used only when running as a scheduled task.
      * @return array An array of valid, unique integers.
      */
-    static public function getIdSitesFromIdSitesString($ids, $_restrictSitesToLogin = false)
+    public static function getIdSitesFromIdSitesString($ids, $_restrictSitesToLogin = false)
     {
         if ($ids === 'all') {
             return API::getInstance()->getSitesIdWithAtLeastViewAccess($_restrictSitesToLogin);
         }
 
-        if(is_bool($ids)) {
+        if (is_bool($ids)) {
             return array();
         }
         if (!is_array($ids)) {
@@ -382,10 +408,10 @@ class Site
 
     /**
      * Clears the site data cache.
-     * 
+     *
      * See also {@link setSites()} and {@link setSitesFromArray()}.
      */
-    static public function clearCache()
+    public static function clearCache()
     {
         self::$infoSites = array();
     }
@@ -395,21 +421,17 @@ class Site
      * site with the specified ID.
      *
      * @param int $idsite The ID of the site whose data is being accessed.
-     * @param bool|string $field The name of the field to get.
-     * @return array|string
+     * @param string $field The name of the field to get.
+     * @return string
      */
-    static protected function getFor($idsite, $field = false)
+    protected static function getFor($idsite, $field)
     {
-        $idsite = (int)$idsite;
-
         if (!isset(self::$infoSites[$idsite])) {
             $site = API::getInstance()->getSiteFromId($idsite);
-            self::setSite($idsite, $site);
+            self::setSiteFromArray($idsite, $site);
         }
-        if($field) {
-            return self::$infoSites[$idsite][$field];
-        }
-        return self::$infoSites[$idsite];
+
+        return self::$infoSites[$idsite][$field];
     }
 
     /**
@@ -417,7 +439,7 @@ class Site
      *
      * @ignore
      */
-    static public function getSites()
+    public static function getSites()
     {
         return self::$infoSites;
     }
@@ -425,9 +447,16 @@ class Site
     /**
      * @ignore
      */
-    static public function getSite($id)
+    public static function getSite($idsite)
     {
-        return self::getFor($id);
+        $idsite = (int)$idsite;
+
+        if (!isset(self::$infoSites[$idsite])) {
+            $site = API::getInstance()->getSiteFromId($idsite);
+            self::setSiteFromArray($idsite, $site);
+        }
+
+        return self::$infoSites[$idsite];
     }
 
     /**
@@ -436,7 +465,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function getNameFor($idsite)
+    public static function getNameFor($idsite)
     {
         return self::getFor($idsite, 'name');
     }
@@ -447,7 +476,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function getGroupFor($idsite)
+    public static function getGroupFor($idsite)
     {
         return self::getFor($idsite, 'group');
     }
@@ -458,7 +487,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function getTimezoneFor($idsite)
+    public static function getTimezoneFor($idsite)
     {
         return self::getFor($idsite, 'timezone');
     }
@@ -469,7 +498,7 @@ class Site
      * @param $idsite
      * @return string
      */
-    static public function getTypeFor($idsite)
+    public static function getTypeFor($idsite)
     {
         return self::getFor($idsite, 'type');
     }
@@ -480,7 +509,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function getCreationDateFor($idsite)
+    public static function getCreationDateFor($idsite)
     {
         return self::getFor($idsite, 'ts_created');
     }
@@ -491,7 +520,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function getMainUrlFor($idsite)
+    public static function getMainUrlFor($idsite)
     {
         return self::getFor($idsite, 'main_url');
     }
@@ -502,7 +531,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function isEcommerceEnabledFor($idsite)
+    public static function isEcommerceEnabledFor($idsite)
     {
         return self::getFor($idsite, 'ecommerce') == 1;
     }
@@ -513,7 +542,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function isSiteSearchEnabledFor($idsite)
+    public static function isSiteSearchEnabledFor($idsite)
     {
         return self::getFor($idsite, 'sitesearch') == 1;
     }
@@ -524,7 +553,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function getCurrencyFor($idsite)
+    public static function getCurrencyFor($idsite)
     {
         return self::getFor($idsite, 'currency');
     }
@@ -535,7 +564,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function getExcludedIpsFor($idsite)
+    public static function getExcludedIpsFor($idsite)
     {
         return self::getFor($idsite, 'excluded_ips');
     }
@@ -546,7 +575,7 @@ class Site
      * @param int $idsite The site ID.
      * @return string
      */
-    static public function getExcludedQueryParametersFor($idsite)
+    public static function getExcludedQueryParametersFor($idsite)
     {
         return self::getFor($idsite, 'excluded_parameters');
     }

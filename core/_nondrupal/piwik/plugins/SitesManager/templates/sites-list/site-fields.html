@@ -1,0 +1,144 @@
+<div class="site" ng-class="{'editingSite': site.editMode==true}">
+
+    <div class="row" ng-if="!site.editMode">
+
+        <div class="col-md-3">
+            <h4>{{ site.name }}</h4>
+            <ul>
+                <li><span class="title">{{ 'General_Id'|translate }}:</span> {{ site.idsite }}</li>
+                <li ng-show="availableTypes.length > 1"><span class="title">Type:</span> {{ currentType.name }}</li>
+            </ul>
+        </div>
+        <div class="col-md-3">
+            <ul>
+                <li><span class="title">{{ 'SitesManager_Timezone'|translate }}:</span> {{ site.timezone }}</li>
+                <li><span class="title">{{ 'SitesManager_Currency'|translate }}:</span> {{ site.currency }}</li>
+                <li ng-show="site.ecommerce == 1">
+                    <span class="title">{{ 'Goals_Ecommerce'|translate }}:</span> {{ 'General_Yes'|translate }}
+                </li>
+                <li ng-show="site.sitesearch == 1">
+                    <span class="title">{{ 'Actions_SubmenuSitesearch'|translate }}:</span> {{ 'General_Yes'|translate }}
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <ul>
+                <li>
+                    <span class="title">{{ 'SitesManager_Urls'|translate }}</span>:
+                    {{ site.alias_urls.join(', ') }}
+                </li>
+                <li ng-show="site.excluded_ips.length">
+                    <span class="title">{{ 'SitesManager_ExcludedIps'|translate }}:</span>
+                    {{ site.excluded_ips.join(', ') }}
+                </li>
+                <li ng-show="site.excluded_parameters.length">
+                    <span class="title">{{ 'SitesManager_ExcludedParameters'|translate }}:</span>
+                    {{ site.excluded_parameters.join(', ') }}
+                </li>
+                <li ng-if="globalSettings.siteSpecificUserAgentExcludeEnabled && site.excluded_user_agents.length">
+                    <span class="title">{{ 'SitesManager_ExcludedUserAgents'|translate }}:</span>
+                    {{ site.excluded_user_agents.join(', ') }}
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-2 text-right">
+            <ul>
+                <li>
+                    <span class="link_but" ng-click="editSite()">
+                        <img src='plugins/Morpheus/images/ico_edit.png' title="{{ 'General_Edit'|translate }}"/>
+                        Edit
+                    </span>
+                </li>
+                <li>
+                    <span ng-show="site.idsite" class="link_but" ng-click="openDeleteDialog()">
+                        <img src='plugins/Morpheus/images/ico_delete.png' title="{{ 'General_Delete'|translate }}"/>
+                        Delete
+                    </span>
+                </li>
+                <li ng-show="site.idsite && howToSetupUrl">
+                    <a target="{{ isInternalSetupUrl ? '_self' : '_blank' }}" ng-href="{{ howToSetupUrl }}{{ isInternalSetupUrl ? '&idSite=' + site.idsite + '&period=' + period + '&date=' + date +'&updated=false' : ''}}">
+                        {{ 'SitesManager_ShowTrackingTag'|translate }}</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div ng-if="site.editMode">
+
+        <div class="form-group">
+            <label>{{ 'General_Name'|translate }}</label>
+            <input type="text" ng-model="site.name"/>
+        </div>
+
+        <div class="form-group typeSettings"
+             ng-include="'?module=SitesManager&action=getMeasurableTypeSettings&idSite=' + site.idsite + '&idType=' + site.type"
+                >
+        </div>
+
+        <div class="form-group">
+            <label>{{ 'SitesManager_Urls'|translate }}</label>
+            <div class="form-help">
+                {{ 'SitesManager_AliasUrlHelp' | translate }}
+            </div>
+            <div sites-manager-multiline-field field="site.alias_urls" cols="25" rows="3"></div>
+        </div>
+
+        <div class="form-group">
+            <label>{{ 'SitesManager_KeepURLFragmentsLong'|translate }}</label>
+            <select ng-options="key as value for (key, value) in keepURLFragmentsOptions"
+                    ng-model="site.keep_url_fragment"></select>
+        </div>
+
+        <div class="form-group">
+            <label>{{ 'SitesManager_ExcludedIps'|translate }}</label>
+            <div ng-include="'plugins/SitesManager/templates/help/excluded-ip-help.html'"></div>
+            <div sites-manager-multiline-field field="site.excluded_ips" cols="20" rows="4"></div>
+        </div>
+
+        <div class="form-group">
+            <label>{{ 'SitesManager_ExcludedParameters'|translate }}</label>
+            <div ng-include="'plugins/SitesManager/templates/help/excluded-query-parameters-help.html'"></div>
+            <div sites-manager-multiline-field field="site.excluded_parameters" cols="20" rows="4"></div>
+        </div>
+
+        <div class="form-group" ng-if="globalSettings.siteSpecificUserAgentExcludeEnabled">
+            <label>{{ 'SitesManager_ExcludedUserAgents'|translate }}</label>
+            <div ng-include="'plugins/SitesManager/templates/help/excluded-user-agents-help.html'"></div>
+            <div sites-manager-multiline-field field="site.excluded_user_agents" cols="20" rows="4"></div>
+        </div>
+
+        <div ng-include="'plugins/SitesManager/templates/sites-list/site-search-field.html'"></div>
+
+        <div class="form-group">
+            <label>{{ 'SitesManager_Timezone'|translate }}</label>
+            <div ng-include="'plugins/SitesManager/templates/help/timezone-help.html'"></div>
+            <select ng-model="site.timezone" ng-options="t.code as t.label group by t.group for t in timezones"></select>
+        </div>
+
+        <div class="form-group">
+            <label>{{ 'SitesManager_Currency'|translate }}</label>
+            <div class="form-help">
+                {{ 'SitesManager_CurrencySymbolWillBeUsedForGoals' | translate }}
+            </div>
+            <select ng-model="site.currency" ng-options="k as v for (k, v) in currencies"></select>
+        </div>
+
+        <div class="form-group">
+            <label>{{ 'Goals_Ecommerce'|translate }}</label>
+            <div class="form-help">
+                {{ 'SitesManager_EcommerceHelp' | translate }}
+                <br/>
+                <span ng-bind-html="'SitesManager_PiwikOffersEcommerceAnalytics'|translate:'<a href=\'http://piwik.org/docs/ecommerce-analytics/\' target=\'_blank\'>':'</a>'"></span>
+            </div>
+            <select ng-options="option.key as option.value for option in eCommerceptions" ng-model="site.ecommerce"></select>
+        </div>
+
+        <div class="editingSiteFooter">
+            <input type="submit" class="btn" value="{{ 'General_Save' | translate }}" ng-click="saveSite()"/>
+            <button class="btn btn-link" ng-click="cancelEditSite($event)">{{ 'General_Cancel' | translate:'':'' }}</button>
+        </div>
+
+    </div>
+
+</div>

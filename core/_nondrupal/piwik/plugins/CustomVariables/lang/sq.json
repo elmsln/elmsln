@@ -1,0 +1,10 @@
+{
+    "CustomVariables": {
+        "ColumnCustomVariableName": "Emër Ndryshoreje të Personalizueshme",
+        "ColumnCustomVariableValue": "Vlerë Ndryshoreje të Personalizueshme",
+        "CustomVariables": "Ndryshore të Personalizueshme",
+        "CustomVariablesReportDocumentation": "Ky raport përmban të dhëna rreth Ndryshoreve tuaja të Personalizuara. Klikoni mbi një emër ndryshoreje që të shihni shpërndarjen e vlerave. %s Për më tepër të dhëna rreth Ndryshoresh të Personalizuara në përgjithësi, lexoni %sdokumentimin e Ndryshoreve të Personalizuara te piwik.org%s",
+        "ScopePage": "faqe me qëllim",
+        "ScopeVisit": "vizitë me qëllim"
+    }
+}

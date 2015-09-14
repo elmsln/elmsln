@@ -10,15 +10,16 @@ namespace Piwik\ViewDataTable;
 
 use Piwik\Common;
 use Piwik\Piwik;
+use Piwik\Plugin\Report;
 use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
 
 /**
  * Provides a means of creating {@link Piwik\Plugin\ViewDataTable} instances by ID.
  *
  * ### Examples
- * 
+ *
  * **Creating a ViewDataTable for a report**
- * 
+ *
  *     // method in MyPlugin\Controller
  *     public function myReport()
  *     {
@@ -27,9 +28,9 @@ use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
  *         $view->config->translations['myFancyMetric'] = "My Fancy Metric";
  *         return $view->render();
  *     }
- * 
+ *
  * **Displaying a report in another way**
- * 
+ *
  *     // method in MyPlugin\Controller
  *     // use the same data that's used in myReport() above, but transform it in some way before
  *     // displaying.
@@ -39,9 +40,9 @@ use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
  *         $view->config->filters[] = array('MyMagicFilter', array('an arg', 'another arg'));
  *         return $view->render();
  *     }
- * 
+ *
  * **Force a report to be shown as a bar graph**
- * 
+ *
  *     // method in MyPlugin\Controller
  *     // force the myReport report to show as a bar graph if there is no viewDataTable query param,
  *     // even though it is configured to show as a table.
@@ -51,7 +52,7 @@ use Piwik\Plugins\CoreVisualizations\Visualizations\HtmlTable;
  *                                $forceDefault = true);
  *         return $view->render();
  *     }
- * 
+ *
  *
  * @api
  */
@@ -79,48 +80,65 @@ class Factory
      *                                 If nothing is configured for the report and `null` is supplied for this
      *                                 argument, **table** is used.
      * @param bool|false|string $apiAction The API method for the report that will be displayed, eg,
-     *                               `'UserSettings.getBrowser'`.
+     *                               `'DevicesDetection.getBrowsers'`.
      * @param bool|false|string $controllerAction The controller name and action dedicated to displaying the report. This
      *                                       action is used when reloading reports or changing the report visualization.
      *                                       Defaulted to `$apiAction` if `false` is supplied.
      * @param bool $forceDefault If true, then the visualization type that was configured for the report will be
      *                           ignored and `$defaultType` will be used as the default.
+     * @param bool $loadViewDataTableParametersForUser Whether the per-user parameters for this user, this ViewDataTable and this Api action
+     *                                          should be loaded from the user preferences and override the default params values.
      * @throws \Exception
      * @return \Piwik\Plugin\ViewDataTable
      */
-    public static function build($defaultType = null, $apiAction = false, $controllerAction = false, $forceDefault = false)
+    public static function build($defaultType = null, $apiAction = false, $controllerAction = false, $forceDefault = false, $loadViewDataTableParametersForUser = null)
     {
         if (false === $controllerAction) {
             $controllerAction = $apiAction;
         }
 
-        $defaultViewType = self::getDefaultViewTypeForReport($apiAction);
+        $report = self::getReport($apiAction);
 
-        if (!$forceDefault && !empty($defaultViewType)) {
-            $defaultType = $defaultViewType;
+        $defaultViewType = self::getDefaultViewTypeForReport($report, $apiAction);
+
+        $params = array();
+
+        if(is_null($loadViewDataTableParametersForUser)) {
+            $loadViewDataTableParametersForUser = ('0' == Common::getRequestVar('widget', '0', 'string'));
         }
-
-        $isWidget = Common::getRequestVar('widget', '0', 'string');
-
-        if (!empty($isWidget)) {
-            $params = array();
-        } else {
+        if ($loadViewDataTableParametersForUser) {
             $login  = Piwik::getCurrentUserLogin();
             $params = Manager::getViewDataTableParameters($login, $controllerAction);
         }
 
-        $savedViewDataTable = false;
-        if (!empty($params['viewDataTable'])) {
-            $savedViewDataTable = $params['viewDataTable'];
+        if (!self::isDefaultViewTypeForReportFixed($report)) {
+            $savedViewDataTable = false;
+            if (!empty($params['viewDataTable'])) {
+                $savedViewDataTable = $params['viewDataTable'];
+            }
+
+            // order of default viewDataTables' priority is: function specified default, saved default, configured default for report
+            //   function specified default is preferred
+            // -> force default == true : defaultType ?: saved ?: defaultView
+            // -> force default == false : saved ?: defaultType ?: defaultView
+            if ($forceDefault) {
+                $defaultType = $defaultType ?: $savedViewDataTable ?: $defaultViewType;
+            } else {
+                $defaultType = $savedViewDataTable ?: $defaultType ?: $defaultViewType;
+            }
+
+            $type = Common::getRequestVar('viewDataTable', $defaultType, 'string');
+
+            // Common::getRequestVar removes backslashes from the defaultValue in case magic quotes are enabled.
+            // therefore do not pass this as a default value to getRequestVar()
+            if ('' === $type) {
+                $type = $defaultType ?: HtmlTable::ID;
+            }
+        } else {
+            $type = $defaultViewType;
         }
 
-        $type = Common::getRequestVar('viewDataTable', $savedViewDataTable, 'string');
-
-        // Common::getRequestVar removes backslashes from the defaultValue in case magic quotes are enabled.
-        // therefore do not pass this as a default value to getRequestVar()
-        if ('' === $type) {
-            $type = $defaultType ? : HtmlTable::ID;
-        }
+        $params['viewDataTable'] = $type;
 
         $visualizations = Manager::getAvailableViewDataTables();
 
@@ -144,12 +162,48 @@ class Factory
     }
 
     /**
-     * Returns the default viewDataTable ID to use when determining which visualization to use.
+     * Return the report object for the given apiAction
+     * @param $apiAction
+     * @return null|Report
      */
-    private static function getDefaultViewTypeForReport($apiAction)
+    private static function getReport($apiAction)
     {
+        list($module, $action) = explode('.', $apiAction);
+        $report = Report::factory($module, $action);
+        return $report;
+    }
+
+    /**
+     * Returns the default viewDataTable ID to use when determining which visualization to use.
+     *
+     * @param Report $report
+     * @param string $apiAction
+     *
+     * @return bool|string
+     */
+    private static function getDefaultViewTypeForReport($report, $apiAction)
+    {
+        if (!empty($report) && $report->isEnabled()) {
+            return $report->getDefaultTypeViewDataTable();
+        }
+
         $defaultViewTypes = self::getDefaultTypeViewDataTable();
         return isset($defaultViewTypes[$apiAction]) ? $defaultViewTypes[$apiAction] : false;
+    }
+
+    /**
+     * Returns if the default viewDataTable ID to use is fixed.
+     *
+     * @param Report $report
+     * @return bool
+     */
+    private static function isDefaultViewTypeForReportFixed($report)
+    {
+        if (!empty($report) && $report->isEnabled()) {
+            return $report->alwaysUseDefaultViewDataTable();
+        }
+
+        return false;
     }
 
     /**
@@ -161,24 +215,7 @@ class Factory
         if (null === self::$defaultViewTypes) {
             self::$defaultViewTypes = array();
             /**
-             * Triggered when gathering the default view types for all available reports.
-             * 
-             * If you define your own report, you may want to subscribe to this event to
-             * make sure the correct default Visualization is used (for example, a pie graph,
-             * bar graph, or something else).
-             *
-             * If there is no default type associated with a report, the **table** visualization
-             * used.
-             * 
-             * **Example**
-             * 
-             *     public function getDefaultTypeViewDataTable(&$defaultViewTypes)
-             *     {
-             *         $defaultViewTypes['Referrers.getSocials']       = HtmlTable::ID;
-             *         $defaultViewTypes['Referrers.getUrlsForSocial'] = Pie::ID;
-             *     }
-             * 
-             * @param array &$defaultViewTypes The array mapping report IDs with visualization IDs.
+             * @ignore
              */
             Piwik::postEvent('ViewDataTable.getDefaultType', array(&self::$defaultViewTypes));
         }
@@ -205,6 +242,10 @@ class Factory
             // for now we ignore those params in case it is not a visualization. We do not want to apply
             // any of those saved parameters to sparklines etc. Need to find a better solution here
             $params = array();
+        }
+
+        if(!is_subclass_of($klass, 'Piwik\View\ViewInterface')) {
+            throw new \Exception("viewDataTable $klass must implement Piwik\View\ViewInterface interface.");
         }
 
         return new $klass($controllerAction, $apiAction, $params);

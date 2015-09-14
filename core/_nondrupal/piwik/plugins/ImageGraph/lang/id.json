@@ -1,0 +1,5 @@
+{
+    "ImageGraph": {
+        "ColumnOrdinateMissing": "Kolom '%s' tidak ditemukan dalam laporan ini. Coba salah satu dari %s"
+    }
+}

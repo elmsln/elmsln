@@ -11,8 +11,11 @@
       margin-left: 5px;
       margin-bottom: 0;
       margin-top: 0.1em;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      border: 1px solid @theme-color-background-lowContrast;
+    }
+    
+    > li {
+      border-bottom: 1px solid @theme-color-background-lowContrast;
     }
   }
 
@@ -26,7 +29,7 @@
     padding: 0;
     float: left;
     width: 240px;
-    padding-top: 10px;
+    padding-top: 24px;
     clear: left;
 
     > .Menu-tabList {
@@ -113,6 +116,7 @@
 
   .top_controls {
     clear: none;
+    left: 34px;
   }
 
   .nav_sep {
@@ -125,8 +129,7 @@
 
   .pageWrap {
     margin-left: 240px;
-    border-width: 0;
-    padding-top: 0;
+    margin-top: 0;
     max-height: none;
   }
 

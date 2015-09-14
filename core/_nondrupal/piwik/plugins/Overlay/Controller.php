@@ -8,12 +8,13 @@
  */
 namespace Piwik\Plugins\Overlay;
 
+use Piwik\API\CORSHandler;
 use Piwik\API\Request;
 use Piwik\Common;
 use Piwik\Config;
 use Piwik\Metrics;
-use Piwik\MetricsFormatter;
 use Piwik\Piwik;
+use Piwik\Plugin\Report;
 use Piwik\Plugins\Actions\ArchivingHelper;
 use Piwik\Plugins\SitesManager\API as APISitesManager;
 use Piwik\ProxyHttp;
@@ -38,12 +39,9 @@ class Controller extends \Piwik\Plugin\Controller
 
         $this->setGeneralVariablesView($view);
 
-        $view->idSite = $this->idSite;
-        $view->date = Common::getRequestVar('date', 'today');
-        $view->period = Common::getRequestVar('period', 'day');
-
         $view->ssl = ProxyHttp::isHttps();
 
+        $this->outputCORSHeaders();
         return $view->render();
     }
 
@@ -55,6 +53,7 @@ class Controller extends \Piwik\Plugin\Controller
         $date = Common::getRequestVar('date');
         $currentUrl = Common::getRequestVar('currentUrl');
         $currentUrl = Common::unsanitizeInputValue($currentUrl);
+        $segment = '';
 
         $normalizedCurrentUrl = PageUrl::excludeQueryParametersFromUrl($currentUrl, $idSite);
         $normalizedCurrentUrl = Common::unsanitizeInputValue($normalizedCurrentUrl);
@@ -71,16 +70,21 @@ class Controller extends \Piwik\Plugin\Controller
             . '&period=' . urlencode($period)
             . '&label=' . urlencode($label)
             . '&format=original'
+            . '&format_metrics=0'
         );
         $dataTable = $request->process();
+
+        $formatter = new Metrics\Formatter\Html();
 
         $data = array();
         if ($dataTable->getRowsCount() > 0) {
             $row = $dataTable->getFirstRow();
 
             $translations = Metrics::getDefaultMetricTranslations();
-            $showMetrics = array('nb_hits', 'nb_visits', 'nb_uniq_visitors',
+            $showMetrics = array('nb_hits', 'nb_visits', 'nb_users', 'nb_uniq_visitors',
                                  'bounce_rate', 'exit_rate', 'avg_time_on_page');
+
+            $segment = $row->getMetadata('segment');
 
             foreach ($showMetrics as $metric) {
                 $value = $row->getColumn($metric);
@@ -88,9 +92,15 @@ class Controller extends \Piwik\Plugin\Controller
                     // skip unique visitors for period != day
                     continue;
                 }
-                if ($metric == 'avg_time_on_page') {
-                    $value = MetricsFormatter::getPrettyTimeFromSeconds($value);
+
+                if ($metric == 'bounce_rate'
+                    || $metric == 'exit_rate'
+                ) {
+                    $value = $formatter->getPrettyPercentFromQuotient($value);
+                } else if ($metric == 'avg_time_on_page') {
+                    $value = $formatter->getPrettyTimeFromSeconds($value, $displayAsSentence = true);
                 }
+
                 $data[] = array(
                     'name'  => $translations[$metric],
                     'value' => $value
@@ -117,6 +127,9 @@ class Controller extends \Piwik\Plugin\Controller
         $view->idSite = $idSite;
         $view->period = $period;
         $view->date = $date;
+        $view->segment = $segment;
+
+        $this->outputCORSHeaders();
         return $view->render();
     }
 
@@ -133,7 +146,8 @@ class Controller extends \Piwik\Plugin\Controller
         $site = $sitesManager->getSiteFromId($idSite);
         $urls = $sitesManager->getSiteUrlsFromId($idSite);
 
-        @header('Content-Type: text/html; charset=UTF-8');
+        $this->outputCORSHeaders();
+        Common::sendHeader('Content-Type: text/html; charset=UTF-8');
         return '
 			<html><head><title></title></head><body>
 			<script type="text/javascript">
@@ -155,7 +169,7 @@ class Controller extends \Piwik\Plugin\Controller
 					var urlToRedirect = window.location.hash.substr(1);
 					var urlToRedirectWithoutPrefix = removeUrlPrefix(urlToRedirect);
 
-					var knownUrls = ' . Common::json_encode($urls) . ';
+					var knownUrls = ' . json_encode($urls) . ';
 					for (var i = 0; i < knownUrls.length; i++) {
 						var testUrl = removeUrlPrefix(knownUrls[i]);
 						if (urlToRedirectWithoutPrefix.substr(0, testUrl.length) == testUrl) {
@@ -218,6 +232,7 @@ class Controller extends \Piwik\Plugin\Controller
             $view->troubleshoot = htmlentities(Piwik::translate('Overlay_RedirectUrlErrorUser'));
         }
 
+        $this->outputCORSHeaders();
         return $view->render();
     }
 
@@ -232,6 +247,13 @@ class Controller extends \Piwik\Plugin\Controller
     public function notifyParentIframe()
     {
         $view = new View('@Overlay/notifyParentIframe');
+        $this->outputCORSHeaders();
         return $view->render();
+    }
+
+    protected function outputCORSHeaders()
+    {
+        $corsHandler = new CORSHandler();
+        $corsHandler->handle();
     }
 }
