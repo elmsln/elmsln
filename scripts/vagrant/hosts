@@ -13,6 +13,8 @@
 127.0.0.1      discuss.elmsln.local
 127.0.0.1      people.elmsln.local
 127.0.0.1      inbox.elmsln.local
+127.0.0.1      innovate.elmsln.local
+127.0.0.1      grades.elmsln.local
 
 
 # backend webservices addresses
@@ -26,3 +28,5 @@
 127.0.0.1      data-discuss.elmsln.local
 127.0.0.1      data-people.elmsln.local
 127.0.0.1      data-inbox.elmsln.local
+127.0.0.1      data-innovate.elmsln.local
+127.0.0.1      data-grades.elmsln.local
