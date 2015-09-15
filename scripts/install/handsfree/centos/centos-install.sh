@@ -78,7 +78,7 @@ groupadd admin
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
 
 
-# get things in place so that we can run mysql / php 5.5
+# get things in place so that we can run mysql 5.5
 yes | yum -y --enablerepo=remi install mysql mysql-server
 /etc/init.d/mysqld restart
 
