@@ -703,7 +703,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
     // set course title
     $course->field_course_title[LANGUAGE_NONE][0]['value'] = check_plain($form_state['values']['new_title']);
     // generate machine name
-    $mname = preg_replace('/[^a-z0-9_]+/', '', drupal_strtolower($name));
+    $mname = preg_replace('/[^a-z0-9]+/', '', drupal_strtolower($name));
     // max size of machine name is 16
     if (strlen($mname) > 10) {
       $mname = substr($mname, 0, 10);
