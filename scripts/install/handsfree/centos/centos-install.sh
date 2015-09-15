@@ -67,8 +67,8 @@ echo "opcache.validate_timestamps=1" >> /etc/php.d/opcache.ini
 echo "opcache.fast_shutdown=1" >> /etc/php.d/opcache.ini
 echo "opcache.interned_strings_buffer=8" >> /etc/php.d/opcache.ini
 echo "opcache.enable_cli=1" >> /etc/php.d/opcache.ini
-# remove legacy apc file
-rm /etc/php.d/apc.ini
+# remove default apc file that might exist
+yes | rm /etc/php.d/apc.ini
 
 /etc/init.d/httpd restart
 # make an admin group
@@ -79,8 +79,6 @@ bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $
 
 
 # get things in place so that we can run mysql / php 5.5
-rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
-rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 yes | yum -y --enablerepo=remi install mysql mysql-server
 /etc/init.d/mysqld restart
 
