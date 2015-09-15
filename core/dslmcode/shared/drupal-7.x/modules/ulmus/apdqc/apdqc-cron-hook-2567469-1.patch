@@ -1,0 +1,14 @@
+diff --git a/apdqc.module b/apdqc.module
+index a27878e..be6137c 100644
+--- a/apdqc.module
++++ b/apdqc.module
+@@ -109,6 +109,9 @@ function apdqc_cron() {
+ 
+   // Get all cache tables.
+   module_load_include('admin.inc', 'apdqc');
++  if (!function_exists('apdqc_get_db_object')) {
++    module_load_include('mysql.inc', 'apdqc');
++  }
+   $tables = apdqc_get_cache_tables();
+   foreach ($tables as $table) {
+     $mysqli = apdqc_get_db_object(array($table), array('*'));
