@@ -18,6 +18,7 @@ function cis_section_page_build(&$page) {
 }
 
 /**
+ * Implements hook_og_context_negotiation_info().
  * Add context negotiation info.
  *
  * Define context "handlers".
