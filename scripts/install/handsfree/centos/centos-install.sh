@@ -24,7 +24,8 @@ rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
 # make sure we're up to date w/ the remi repos
 yes | yum update
 # using yum to install the main packages
-yes | yum -y install patch git nano gcc make mysql mysql-server httpd php php-gd php-xml php-pdo php-mbstring php-mysql php-pear php-devel php-pecl-ssh2 php-pecl-apc php-mcrypt*
+yes | yum -y install patch git nano gcc make mysql mysql-server
+yes | yum -y --enablerepo=remi,remi-php55 install httpd php php-common php-opcache php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-mysql php-devel php-pecl-ssh2
 
 yes | yum groupinstall 'Development Tools'
 # using pecl to install uploadprogress
@@ -46,9 +47,6 @@ cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
 
 service varnish start
 chkconfig varnish on
-
-yes | yum -y --enablerepo=remi,remi-php55 install httpd php php-common
-yes | yum -y --enablerepo=remi,remi-php55 install php-opcache php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
 
 # optimize apc
 echo "" >> /etc/php.d/apcu.ini
