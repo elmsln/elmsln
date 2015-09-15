@@ -17,15 +17,17 @@ timestamp(){
   date +"%s"
 }
 start="$(timestamp)"
+# make sure we're up to date w/ the remi repos
+yes | yum update
+# using yum to install the main packages
+yes | yum -y install patch git nano gcc make mysql mysql-server httpd
 # get the epel and remi repo listings so we can get additional packages like mcrypt
 wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
 # make sure we're up to date w/ the remi repos
 yes | yum update
-# using yum to install the main packages
-yes | yum -y install patch git nano gcc make mysql mysql-server
-yes | yum -y --enablerepo=remi,remi-php55 install httpd php php-common php-opcache php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-mysql php-devel php-pecl-ssh2
+yes | yum -y --enablerepo=remi,remi-php55 install php php-common php-opcache php-pecl-apcu php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-devel php-pecl-ssh2
 
 yes | yum groupinstall 'Development Tools'
 # using pecl to install uploadprogress
