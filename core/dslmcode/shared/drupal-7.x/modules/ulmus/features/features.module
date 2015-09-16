@@ -268,14 +268,17 @@ function features_theme() {
  * Implements hook_flush_caches().
  */
 function features_flush_caches() {
-  if (variable_get('features_rebuild_on_flush', TRUE)) {
+  if (($modules_changed = variable_get('features_modules_changed', FALSE)) || variable_get('features_rebuild_on_flush', TRUE)) {
+    if ($modules_changed) {
+      variable_set('features_modules_changed', FALSE);
+    }
     features_rebuild();
     // Don't flush the modules cache during installation, for performance reasons.
     if (variable_get('install_task') == 'done') {
       features_get_modules(NULL, TRUE);
     }
   }
-  return array();
+  return array('cache_features');
 }
 
 /**
@@ -349,6 +352,15 @@ function features_modules_disabled($modules) {
  * Implements hook_modules_enabled().
  */
 function features_modules_enabled($modules) {
+  // Allow distributions to disable this behavior and rebuild the features
+  // manually inside a batch.
+  if (!variable_get('features_rebuild_on_module_install', TRUE)) {
+    return;
+  }
+
+  // mark modules as being changed for test in features_flush_caches
+  variable_set('features_modules_changed', TRUE);
+
   // Go through all modules and gather features that can be enabled.
   $items = array();
   foreach ($modules as $module) {
@@ -385,7 +397,7 @@ function features_include($reset = FALSE) {
     // Features provides integration on behalf of these modules.
     // The features include provides handling for the feature dependencies.
     // Note that ctools is placed last because it implements hooks "dynamically" for other modules.
-    $modules = array('features', 'block', 'context', 'field', 'filter', 'image', 'locale', 'menu', 'node', 'taxonomy', 'user', 'views', 'ctools');
+    $modules = array('features', 'block', 'contact', 'context', 'field', 'filter', 'image', 'locale', 'menu', 'node', 'taxonomy', 'user', 'views', 'ctools');
 
     foreach (array_filter($modules, 'module_exists') as $module) {
       module_load_include('inc', 'features', "includes/features.$module");
@@ -535,13 +547,13 @@ function features_get_components($component = NULL, $key = NULL, $reset = FALSE)
 
   if ($reset || !isset($components) || !isset($component_by_key)) {
     $components = $component_by_key = array();
-    if (!$reset && ($cache = cache_get('features_api'))) {
+    if (!$reset && ($cache = cache_get('features_api', 'cache_features'))) {
       $components = $cache->data;
     }
     else {
       $components = module_invoke_all('features_api');
       drupal_alter('features_api', $components);
-      cache_set('features_api', $components);
+      cache_set('features_api', $components, 'cache_features');
     }
 
     foreach ($components as $component_type => $component_information) {
@@ -607,6 +619,8 @@ function features_hook($component, $hook, $reset = FALSE) {
  *   Clear the module info cache.
  */
 function features_install_modules($modules) {
+  variable_set('features_modules_changed', TRUE);
+
   module_load_include('inc', 'features', 'features.export');
   $files = system_rebuild_module_data();
 
@@ -650,7 +664,7 @@ function features_get_features($name = NULL, $reset = FALSE) {
 function features_get_info($type = 'module', $name = NULL, $reset = FALSE) {
   static $cache;
   if (!isset($cache)) {
-    $cache = cache_get('features_module_info');
+    $cache = cache_get('features_module_info', 'cache_features');
   }
   if (empty($cache) || $reset) {
     $data = array(
@@ -738,7 +752,7 @@ function features_get_info($type = 'module', $name = NULL, $reset = FALSE) {
     $data['feature'] = $sorted;
 
     variable_set('features_ignored_orphans', $ignored);
-    cache_set("features_module_info", $data);
+    cache_set('features_module_info', $data, 'cache_features');
     $cache = new stdClass();
     $cache->data = $data;
   }
@@ -1067,6 +1081,7 @@ function features_hook_info() {
     'features_api',
     'features_pipe_alter',
     'features_export_alter',
+    'features_export_options_alter',
   );
   return array_fill_keys($hooks, array('group' => 'features'));
 }
@@ -1189,7 +1204,6 @@ function features_feature_lock($feature, $component = NULL) {
   variable_set('features_feature_locked', $locked);
 }
 
-
 /**
  * Unlocks a feature or it's component.
  */
@@ -1202,4 +1216,116 @@ function features_feature_unlock($feature, $component = NULL) {
     unset($locked[$feature]['_all']);
   }
   variable_set('features_feature_locked', $locked);
+}
+
+/**
+ * Sets the current language to english to ensure a proper export.
+ */
+function _features_set_export_language() {
+  // Ensure this is only done if the language isn't already en.
+  // This can be called multiple times - ensure the handling is done just once.
+  if ($GLOBALS['language']->language != 'en' && !drupal_static(__FUNCTION__)) {
+    // Create the language object as language_default() does.
+    $GLOBALS['language'] = (object) array(
+      'language' => 'en',
+      'name' => 'English',
+      'native' => 'English',
+      'direction' => 0,
+      'enabled' => 1,
+      'plurals' => 0,
+      'formula' => '',
+      'domain' => '',
+      'prefix' => '',
+      'weight' => 0,
+      'javascript' => '',
+    );
+    // Ensure that static caches are cleared, as they might contain language
+    // specific information. But keep some important ones. The call below
+    // accesses a non existing key and requests to reset it. In such cases the
+    // whole caching data array is returned.
+    $static = drupal_static(uniqid('', TRUE), NULL, TRUE);
+    drupal_static_reset();
+    // Restore some of the language independent, runtime state information to
+    // keep everything working and avoid unnecessary double processing.
+    $static_caches_to_keep = array(
+      'conf_path',
+      'system_list',
+      'ip_address',
+      'drupal_page_is_cacheable',
+      'list_themes',
+      'drupal_page_header',
+      'drupal_send_headers',
+      'drupal_http_headers',
+      'language_list',
+      'module_implements',
+      'drupal_alter',
+      'path_is_admin',
+      'path_get_admin_paths',
+      'drupal_match_path',
+      'menu_get_custom_theme',
+      'menu_get_item',
+      'arg',
+      'drupal_system_listing',
+      'drupal_parse_info_file',
+      'libraries_get_path',
+      'module_hook_info',
+      'drupal_add_js',
+      'drupal_add_js:jquery_added',
+      'drupal_add_library',
+      'drupal_get_library',
+      'drupal_add_css',
+      'menu_set_active_trail',
+      'menu_link_get_preferred',
+      'menu_set_active_menu_names',
+      'theme_get_registry',
+      'features_get_components',
+      'features_get_components_by_key',
+    );
+    foreach ($static_caches_to_keep as $cid) {
+      if (isset($static[$cid])) {
+        $data = &drupal_static($cid);
+        $data = $static[$cid];
+      }
+    }
+    $called = &drupal_static(__FUNCTION__);
+    $called = TRUE;
+  }
+}
+
+/**
+ * Implements hook_features_ignore().
+ */
+function features_features_ignore($component) {
+  // Determine which keys need to be ignored for override diff for various components.
+  // Value is how many levels deep the key is.
+  $ignores = array();
+  switch ($component) {
+    case 'views_view':
+      $ignores['current_display'] = 0;
+      $ignores['display_handler'] = 0;
+      $ignores['handler'] = 2;
+      $ignores['query'] = 0;
+      $ignores['localization_plugin'] = 0;
+      // Views automatically adds these two on export to set values.
+      $ignores['api_version'] = 0;
+      $ignores['disabled'] = 0;
+      break;
+    case 'image':
+      $ignores['module'] = 0;
+      $ignores['name'] = 0;
+      $ignores['storage'] = 0;
+      // Various properties are loaded into the effect in image_styles.
+      $ignores['summary theme'] = 2;
+      $ignores['module'] = 2;
+      $ignores['label'] = 2;
+      $ignores['help'] = 2;
+      $ignores['form callback'] = 2;
+      $ignores['effect callback'] = 2;
+      $ignores['dimensions callback'] = 2;
+      break;
+    case 'field':
+      $ignores['locked'] = 1;
+      break;
+  }
+  return $ignores;
 }

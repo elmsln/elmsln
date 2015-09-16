@@ -6,6 +6,15 @@
  */
 
 /**
+ * Implements hook_schema().
+ */
+function features_schema() {
+  $schema['cache_features'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_features']['description'] = 'Cache table for features to store module info.';
+  return $schema;
+}
+
+/**
  * Implements hook_install().
  */
 function features_install() {
@@ -33,7 +42,7 @@ function features_uninstall() {
     ->execute();
   db_delete('variable')
     ->condition('name', 'features_component_locked_%', 'LIKE')
-    ->execute();variable_del('features_component_locked_' . $component);
+    ->execute();
 
   if (db_table_exists('menu_custom')) {
     db_delete('menu_custom')
@@ -129,4 +138,14 @@ function features_update_6101() {
     }
   }
   return array();
+}
+
+/**
+ * Add {cache_features} table.
+ */
+function features_update_7200() {
+  if (!db_table_exists('cache_features')) {
+    $schema = drupal_get_schema_unprocessed('system', 'cache');
+    db_create_table('cache_features', $schema);
+  }
 }

@@ -287,3 +287,43 @@ class FeaturesCtoolsIntegrationTest extends DrupalWebTestCase {
     }
   }
 }
+
+
+/**
+ * Test detecting modules as features. 
+ */
+class FeaturesDetectionTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  /**
+   * Test info.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Feature Detection tests'),
+      'description' => t('Run tests for detecting items as features.') ,
+      'group' => t('Features'),
+    );
+  }
+
+  /**
+   * Set up test.
+   */
+  public function setUp() {
+    parent::setUp(array(
+      'features',
+    ));
+  }
+
+  /**
+   * Run test.
+   */
+  public function test() {
+    module_load_include('inc', 'features', 'features.export');
+    // First test that features_populate inserts the features api key.
+    $export = features_populate(array(), array(), 'features_test_empty_fake');
+    $this->assertTrue(!empty($export['features']['features_api']) && key($export['features']['features_api']) == 'api:' . FEATURES_API, 'Features API key added to new export.');
+    $this->assertTrue((bool)features_get_features('features_test'), 'Features test recognized as a feature.');
+    $this->assertFalse((bool)features_get_features('features'), 'Features module not recognized as a feature.');
+  }
+}

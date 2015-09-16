@@ -6,9 +6,9 @@ files[] = tests/features.test
 
 configure = admin/structure/features/settings
 
-; Information added by Drupal.org packaging script on 2015-04-13
-version = "7.x-2.5"
+; Information added by Drupal.org packaging script on 2015-06-24
+version = "7.x-2.6"
 core = "7.x"
 project = "features"
-datestamp = "1428944073"
+datestamp = "1435165997"
 

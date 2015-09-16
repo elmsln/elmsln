@@ -253,11 +253,11 @@ function menu_links_features_export_render($module, $data, $export = NULL) {
       $translatables[] = $link['link_title'];
     }
   }
+  $code[] = '';
   if (!empty($translatables)) {
     $code[] = features_translatables_export($translatables, '  ');
   }
 
-  $code[] = '';
   $code[] = '  return $menu_links;';
   $code = implode("\n", $code);
   return array('menu_default_menu_links' => $code);
