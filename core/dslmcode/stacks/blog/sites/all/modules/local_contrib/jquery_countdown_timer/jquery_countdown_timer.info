@@ -3,9 +3,9 @@ description = This module provides a block with a jQuery countdown timer
 core = 7.x
 dependencies[] = date_api
 
-; Information added by drupal.org packaging script on 2013-09-30
-version = "7.x-1.5+0-dev"
+; Information added by Drupal.org packaging script on 2015-09-15
+version = "7.x-1.5+1-dev"
 core = "7.x"
 project = "jquery_countdown_timer"
-datestamp = "1380583978"
+datestamp = "1442325540"
 
