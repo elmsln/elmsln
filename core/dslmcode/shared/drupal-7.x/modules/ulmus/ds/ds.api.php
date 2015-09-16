@@ -196,7 +196,10 @@ function hook_ds_fields_info($entity_type) {
       'use_token' => TRUE, // or FALSE,
 
       // block: the module and delta of the block, only for block fields.
-      'block' => 'user-menu',
+      //
+      // @note: Display Suite uses a "|" token to split the module from
+      // the delta.
+      'block' => 'user|menu',
 
       // block_render: block render type, only for block fields.
       // - DS_BLOCK_CONTENT       : render through block template file.

@@ -144,7 +144,7 @@ function ds_emergency_region_to_block_submit($form, &$form_state) {
     $region_blocks = variable_get('ds_extras_region_blocks', array());
     $remove = $form_state['values']['remove_block_region'];
     foreach ($remove as $key => $value) {
-      if ($value != 0 && $key == $value) {
+      if ($value !== 0 && $key == $value) {
         $variable_set = TRUE;
         if (module_exists('block')) {
           db_delete('block')

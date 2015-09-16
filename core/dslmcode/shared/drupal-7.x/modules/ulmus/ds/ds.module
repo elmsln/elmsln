@@ -695,7 +695,7 @@ function ds_entity_variables(&$vars) {
         $vars[$region_name . '_classes'] = !empty($layout['settings']['classes'][$region_name]) ? ' ' . implode(' ', $layout['settings']['classes'][$region_name]) : '';
 
         // Token support for region classes.
-        if (module_exists('token') && isset($var[$object])) {
+        if (module_exists('token') && isset($vars[$object])) {
           $vars[$region_name . '_classes'] = token_replace($vars[$region_name . '_classes'], array($object => $vars[$object]), array('clear' => TRUE, 'sanitize' => TRUE));
         }
       }
@@ -732,7 +732,7 @@ function ds_entity_variables(&$vars) {
     }
 
     // Token support for layout classes.
-    if (module_exists('token') && isset($var[$object])) {
+    if (module_exists('token') && isset($vars[$object])) {
       foreach ($vars['classes_array'] as &$class) {
         $class = token_replace($class, array($object => $vars[$object]), array('clear' => TRUE, 'sanitize' => TRUE));
       }

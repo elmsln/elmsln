@@ -485,7 +485,7 @@ function node_ds_search_execute($keys = NULL, $conditions = NULL) {
   // Load results.
   $find = $query->execute();
   $results = array();
-  foreach ((array) $find as $item) {
+  foreach ($find as $item) {
     $node = node_load($item->sid);
     $node->entity_type = 'node';
     $node->entity_id = $item->sid;

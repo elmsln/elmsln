@@ -425,8 +425,6 @@ function ds_extras_form_node_form_alter(&$form, $form_state, $form_id) {
       $mode = isset($form_state['input']['ds_switch']) ? $form_state['input']['ds_switch'] : (isset($node->ds_switch) ? $node->ds_switch : 'default');
       if (isset($layouts[$mode])) {
         $chosen_layout = $layouts[$mode];
-        $chosen_layout = (isset($layouts[$mode])) ? $layouts[$mode] : 'default';
-
         $image = (isset($chosen_layout['image']) && !empty($chosen_layout['image'])) ? $chosen_layout['path'] . '/' . $chosen_layout['layout'] . '.png' : $fallback_image;
         if (isset($chosen_layout['panels']) && !empty($chosen_layout['panels']['icon'])) {
           $image = $chosen_layout['panels']['path'] . '/' . $chosen_layout['panels']['icon'];
@@ -1054,6 +1052,7 @@ function ds_extras_preprocess_field(&$variables) {
     $variables['ds-config'] = $config;
     $variables['theme_hook_suggestions'] = array();
     // Either it uses the function.
+    $variables['theme_hook_suggestions'][] = str_replace('theme_', '', $config['func']);
     $variables['theme_hook_suggestions'][] = $config['func'];
     // Or the template file(s).
     $suggestion = 'field__' . str_replace('theme_ds_field_', '', $config['func']);
@@ -1066,6 +1065,7 @@ function ds_extras_preprocess_field(&$variables) {
   elseif (isset($field_instance_info['ds_extras_field_template']) && !empty($field_instance_info['ds_extras_field_template']) && $field_instance_info['ds_extras_field_template'] != 'theme_field') {
     $variables['theme_hook_suggestions'] = array();
     // Either it uses the function.
+    $variables['theme_hook_suggestions'][] = str_replace('theme_', '', $field_instance_info['ds_extras_field_template']);
     $variables['theme_hook_suggestions'][] = $field_instance_info['ds_extras_field_template'];
     // Or the template file(s).
     $suggestion = 'field__' . str_replace('theme_ds_field_', '', $field_instance_info['ds_extras_field_template']);
@@ -1081,6 +1081,7 @@ function ds_extras_preprocess_field(&$variables) {
       $variables['theme_hook_suggestions'] = array();
       $variables['ds-config'] = $config;
       // Either it uses the function.
+      $variables['theme_hook_suggestions'][] = str_replace('theme_', '', $field_theme_function);
       $variables['theme_hook_suggestions'][] = $field_theme_function;
       // Or the template file(s).
       $suggestion = 'field__' . str_replace('theme_ds_field_', '', $field_theme_function);

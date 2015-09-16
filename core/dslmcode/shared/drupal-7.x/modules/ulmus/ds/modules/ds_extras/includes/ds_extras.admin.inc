@@ -573,7 +573,7 @@ function ds_extras_block_submit($form, &$form_state) {
     $region_blocks = variable_get('ds_extras_region_blocks', array());
     $remove = $form_state['values']['additional_settings']['region_to_block']['remove_block_region'];
     foreach ($remove as $key => $value) {
-      if ($value != 0 && $key == $value) {
+      if ($value !== 0 && $key == $value) {
         $variable_set = TRUE;
         if (module_exists('block')) {
           db_delete('block')
