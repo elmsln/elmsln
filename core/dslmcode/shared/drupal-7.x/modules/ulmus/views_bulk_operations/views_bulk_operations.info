@@ -9,9 +9,9 @@ php = 5.2.9
 files[] = plugins/operation_types/base.class.php
 files[] = views/views_bulk_operations_handler_field_operations.inc
 
-; Information added by Drupal.org packaging script on 2013-12-23
-version = "7.x-3.2"
+; Information added by Drupal.org packaging script on 2015-07-01
+version = "7.x-3.3"
 core = "7.x"
 project = "views_bulk_operations"
-datestamp = "1387798183"
+datestamp = "1435764542"
 

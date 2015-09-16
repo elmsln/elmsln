@@ -13,11 +13,13 @@ function views_bulk_operations_book_action_info() {
       'label' => t('Move to book'),
       'configurable' => TRUE,
       'behavior' => array('changes_property'),
+      'triggers' => array('any'),
     );
     $actions['views_bulk_operations_remove_from_book_action'] = array(
       'type' => 'node',
       'label' => t('Remove from book'),
       'configurable' => FALSE,
+      'triggers' => array('any'),
     );
   }
 

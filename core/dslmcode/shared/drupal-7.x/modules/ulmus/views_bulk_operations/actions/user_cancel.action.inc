@@ -10,6 +10,7 @@ function views_bulk_operations_user_cancel_action_info() {
     'label' => t('Cancel user account'),
     'configurable' => TRUE,
     'behavior' => array('deletes_property'),
+    'triggers' => array('any'),
   ));
 }
 
