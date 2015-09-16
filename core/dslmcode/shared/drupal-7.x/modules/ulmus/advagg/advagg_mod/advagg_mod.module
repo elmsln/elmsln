@@ -2408,7 +2408,7 @@ function advagg_mod_devel_shutdown() {
  */
 function advagg_mod_devel_shutdown_real() {
   global $user;
-  $output = $txt = '';
+  $output = '';
 
   // Set $GLOBALS['devel_shutdown'] = FALSE in order to supress the
   // devel footer for a page.  Not necessary if your page outputs any
@@ -2458,7 +2458,7 @@ function advagg_mod_devel_shutdown_query($queries) {
   if (!empty($queries)) {
     if (function_exists('theme_get_registry') && theme_get_registry()) {
       // Safe to call theme('table).
-      list($counts, $query_summary) = devel_query_summary($queries);
+      list($counts) = devel_query_summary($queries);
       $output = devel_query_table($queries, $counts);
 
       // Save all queries to a file in temp dir. Retrieved via AJAX.

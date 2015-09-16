@@ -189,7 +189,7 @@ define('ADVAGG_AUTH_BASIC_PASS', '');
 define('ADVAGG_SKIP_FAR_FUTURE_CHECK', FALSE);
 
 /**
- * Skip far future check on status page.
+ * Skip preprocess check on status page.
  */
 define('ADVAGG_SKIP_ENABLED_PREPROCESS_CHECK', FALSE);
 
@@ -202,6 +202,16 @@ define('ADVAGG_BROWSER_DNS_PREFETCH', FALSE);
  * Function to use when converting a non scalar to a string.
  */
 define('ADVAGG_SERIALIZE', 'json_encode');
+
+/**
+ * Default root dir for the advagg files; controls advagg_get_root_files_dir().
+ */
+define('ADVAGG_ROOT_DIR_PREFIX', 'public://');
+
+/**
+ * Skip gzip check on status page.
+ */
+define('ADVAGG_SKIP_GZIP_CHECK', FALSE);
 
 // Core hook implementations.
 /**
@@ -1916,10 +1926,10 @@ function advagg_cleanup_settings_array(array $data) {
   if (isset($data['ajaxPageState']['js'])) {
     foreach ((array) $data['ajaxPageState']['js'] as $key => $value) {
       if (advagg_remove_short_keys($key)) {
-        if (is_array($data['ajaxPageState']['js'])) {
+        if (is_array($data['ajaxPageState']['js']) && isset($data['ajaxPageState']['js'][$key])) {
           unset($data['ajaxPageState']['js'][$key]);
         }
-        else {
+        elseif (isset($data['ajaxPageState']['js']->{$key})) {
           unset($data['ajaxPageState']['js']->{$key});
         }
       }
@@ -1929,10 +1939,10 @@ function advagg_cleanup_settings_array(array $data) {
   if (isset($data['ajaxPageState']['css'])) {
     foreach ((array) $data['ajaxPageState']['css'] as $key => $value) {
       if (advagg_remove_short_keys($key, 6)) {
-        if (is_object($data['ajaxPageState']['css'])) {
+        if (is_object($data['ajaxPageState']['css']) && isset($data['ajaxPageState']['css']->{$key})) {
           unset($data['ajaxPageState']['css']->{$key});
         }
-        else {
+        elseif (isset($data['ajaxPageState']['css'][$key])) {
           unset($data['ajaxPageState']['css'][$key]);
         }
       }
@@ -2713,6 +2723,7 @@ function advagg_current_hooks_hash_array() {
   if (isset($aggregate_settings)) {
     return $aggregate_settings;
   }
+  list($css_path, $js_path) = advagg_get_root_files_dir();
 
   // Put all enabled hooks and settings into a big array.
   $aggregate_settings = array(
@@ -2728,6 +2739,8 @@ function advagg_current_hooks_hash_array() {
       'advagg_convert_absolute_to_relative_path' => variable_get('advagg_convert_absolute_to_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_RELATIVE_PATH),
       'advagg_convert_absolute_to_protocol_relative_path' => variable_get('advagg_convert_absolute_to_protocol_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_PROTOCOL_RELATIVE_PATH),
       'advagg_force_https_path' => variable_get('advagg_force_https_path', ADVAGG_FORCE_HTTPS_PATH),
+      'advagg_css_dir' => $css_path[0],
+      'advagg_js_dir' => $js_path[0],
     ),
     'hooks' => advagg_hooks_implemented(FALSE),
   );
@@ -2924,8 +2937,10 @@ function advagg_get_root_files_dir($reset = FALSE) {
 
   // Make sure directories are available and writable.
   if (empty($css_paths) || empty($js_paths) || $reset) {
-    $css_paths[0] = 'public://advagg_css';
-    $js_paths[0] = 'public://advagg_js';
+    // Default is public://
+    $prefix = variable_get('advagg_root_dir_prefix', ADVAGG_ROOT_DIR_PREFIX);
+    $css_paths[0] = $prefix . 'advagg_css';
+    $js_paths[0] = $prefix . 'advagg_js';
 
     file_prepare_directory($css_paths[0], FILE_CREATE_DIRECTORY);
     file_prepare_directory($js_paths[0], FILE_CREATE_DIRECTORY);

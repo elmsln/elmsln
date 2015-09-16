@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * @file
+ * Handles Advanced Aggregation installation and upgrade tasks.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function advagg_font_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time.
+  $t = get_t();
+
+  // If not at runtime, return here.
+  if ($phase !== 'runtime') {
+    return $requirements;
+  }
+
+  // Get local and external fontfaceobserver version numbers.
+  $package = drupal_http_request('https://cdn.rawgit.com/bramstein/fontfaceobserver/master/package.json');
+  $package = json_decode($package->data);
+  $lib_info = array();
+  if (function_exists('libraries_info')) {
+    $lib_info = libraries_detect('fontfaceobserver');
+  }
+
+  if ( variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0
+    && function_exists('libraries_info')
+    && variable_get('advagg_font_fontfaceobserver', ADVAGG_FONT_FONTFACEOBSERVER) == 6
+  ) {
+    $requirements['advagg_font_rawgithub'] = array(
+      'title' => $t('AdvAgg Font - Host locally'),
+      'severity' => REQUIREMENT_WARNING,
+      'value' => $t('The fontfaceobserver.js file should be local for better performance.'),
+      'description' => empty($lib_info['version']) ?
+        $t('Directions on how to install it can be found on the <a href="@url">Async Font Loader</a> settings page', array('@url' => url('admin/config/development/performance/advagg/font'))) :
+        $t('Please go to the <a href="@url">Async Font Loader</a> settings page and choose inline or local.', array('@url' => url('admin/config/development/performance/advagg/font'))),
+    );
+  }
+
+  if ( isset($lib_info['version'])
+    && version_compare($package->version,  $lib_info['version']) >= 1
+  ) {
+    $requirements['advagg_font_old_library'] = array(
+      'title' => $t('AdvAgg Font - Version is out of date'),
+      'severity' => REQUIREMENT_WARNING,
+      'value' => $t('Local version of font face observer is old'),
+      'description' => $t('Please upgrade your current version (@local-ver) of <a href="@url">font face observer</a> to the latest (@remote-ver). The local copy of font face observer is located in the %dir directory', array(
+        '@local-ver' => $lib_info['version'],
+        '@remote-ver' => $package->version,
+        '%dir' => $lib_info['library path'],
+        '@url' => 'https://github.com/bramstein/fontfaceobserver',
+      )),
+    );
+  }
+
+  if (empty($requirements)) {
+    $requirements['advagg_font'] = array(
+      'title' => $t('AdvAgg Font'),
+      'severity' => REQUIREMENT_OK,
+      'value' => $t('OK'),
+      'description' => $t('The font face observer JavaScript library is up to date (%version).', array('%version' => $package->version)),
+    );
+  }
+
+  return $requirements;
+}

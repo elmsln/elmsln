@@ -249,6 +249,9 @@ current defaults are shown.
     // Skip preprocess and enabled checks.
     $conf['advagg_skip_enabled_preprocess_check'] = FALSE;
 
+    // Default root dir for the advagg files; see advagg_get_root_files_dir().
+    $conf['advagg_root_dir_prefix'] = 'public://';
+
 JSMIN PHP EXTENSION
 -------------------
 

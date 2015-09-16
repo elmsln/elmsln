@@ -323,6 +323,30 @@ function advagg_js_compress_prep(&$contents, $filename, array $aggregate_setting
     }
   }
 
+  // Do not use jsmin() if the js file contains cyrillic characters.
+  if ($compressor == 3 && preg_match('/[А-Яа-яЁё]/u', $contents)) {
+    if (defined('PHP_VERSION_ID') && constant('PHP_VERSION_ID') >= 50300) {
+      $compressor = 5;
+      watchdog('advagg_js_compress', 'The jsmin function does not handle cyrillic characters. Using JSqueeze.');
+    }
+    else {
+      $compressor = 1;
+      watchdog('advagg_js_compress', 'The jsmin function does not handle cyrillic characters. Using JSmin+.');
+    }
+  }
+
+  // Do not use jsmin() if the js file contains cyrillic characters.
+  if ($compressor == 3 && preg_match('/[А-Яа-яЁё]/u', $contents)) {
+    if (defined('PHP_VERSION_ID') && constant('PHP_VERSION_ID') >= 50300) {
+      $compressor = 5;
+      watchdog('advagg_js_compress', 'The jsmin function does not handle cyrillic characters. Using JSqueeze.');
+    }
+    else {
+      $compressor = 1;
+      watchdog('advagg_js_compress', 'The jsmin function does not handle cyrillic characters. Using JSmin+.');
+    }
+  }
+
   // Try cache.
   $info = advagg_get_info_on_files(array($filename), FALSE, FALSE);
   $info = $info[$filename];
