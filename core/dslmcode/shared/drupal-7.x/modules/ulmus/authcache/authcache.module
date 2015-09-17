@@ -121,7 +121,7 @@ function authcache_init() {
         'domain' => ini_get('session.cookie_domain'),
         'secure' => ini_get('session.cookie_secure') == '1',
       ),
-      'cl' => authcache_key_lifetime() / 86400,
+      'cl' => max(1, (int) authcache_key_lifetime() / 86400),
     ),
   ), 'setting');
 
@@ -222,9 +222,21 @@ function authcache_form_alter(&$form, &$form_state, $form_id) {
     }
 
     // Add post-render callback ensuring that caching is canceled when a form
+    // requiring the form cache is rendered on a page for authenticated users.
+    if ($user->uid && !empty($form['form_build_id'])) {
+      authcache_element_suspect($form['form_build_id'],
+        t('Form requiring the form cache on the page. Enable authcache_form or implement custom code capable of handling cached forms.'));
+    }
+
+    // Add post-render callback ensuring that caching is canceled when a form
     // was not handled by any module.
-    authcache_element_suspect($form,
-      t('Form with CSRF protection on page. Enable authcache_form or implement custom code capable of handling CSRF protected forms.'));
+    if (!empty($form['form_token'])) {
+      authcache_element_suspect($form['form_token'],
+        t('Form with CSRF protection on page. Enable authcache_form or implement custom code capable of handling CSRF protected forms.'));
+    }
+
+    // Recursively find elements of type value and flag them as suspicous.
+    authcache_form_value_suspect($form, $form_id);
   }
 
   // Alter all forms.
@@ -306,6 +318,33 @@ function authcache_form_system_performance_settings_alter(&$form, &$form_state) 
 }
 
 /**
+ * Recursively find elements of type value and flag them as suspicous.
+ */
+function authcache_form_value_suspect(&$element, $form_id) {
+  if (isset($element['#type']) && $element['#type'] === 'value') {
+    authcache_element_suspect($element,
+      t('Value element contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%form_id' => $form_id)));
+  }
+
+  foreach (element_children($element, FALSE) as $key) {
+    authcache_form_value_suspect($element[$key], $form_id);
+  }
+}
+
+/**
+ * Recursively find elements of type value and set them cacheable.
+ */
+function authcache_form_value_set_cacheable(&$element) {
+  if (isset($element['#type']) && $element['#type'] === 'value') {
+    authcache_element_set_cacheable($element);
+  }
+
+  foreach (element_children($element, FALSE) as $key) {
+    authcache_form_value_set_cacheable($element[$key]);
+  }
+}
+
+/**
  * Form API default after-build callback for forms on cacheable pages.
  */
 function _authcache_default_form_after_build($form, $form_state) {
@@ -318,12 +357,10 @@ function _authcache_default_form_after_build($form, $form_state) {
       $form_state['no_cache'] = TRUE;
       unset($form['form_build_id']);
       unset($form['#build_id']);
-    }
 
-    // Enable caching without further processing when no CSRF-token is present
-    // on the form.
-    if (empty($form['form_token']) && (!$user->uid || empty($form['form_build_id']))) {
-      authcache_element_set_cacheable($form);
+      // Enable caching of form value elements without further processing when
+      // the form cache is not used.
+      authcache_form_value_set_cacheable($form);
     }
   }
 
@@ -395,10 +432,13 @@ function authcache_preprocess_toolbar(&$variables) {
 /**
  * Specify that the given element cannot be cached without further processing.
  */
-function authcache_element_suspect(&$element, $message = NULL) {
+function authcache_element_suspect(&$element, $message = NULL, $strict = FALSE) {
   $element['#post_render'][] = 'authcache_ensure_element_cacheable';
   if ($message) {
     $element['#authcache_cancel_message'] = $message;
+  }
+  if ($strict || (isset($element['#type']) && $element['#type'] === 'value')) {
+    $element['#authcache_cancel_strict'] = TRUE;
   }
 }
 
@@ -423,7 +463,8 @@ function authcache_element_is_cacheable($element) {
  * modules.
  */
 function authcache_ensure_element_cacheable($markup, $element) {
-  if (!empty($markup) && !authcache_element_is_cacheable($element)) {
+  $strict = !empty($element['#authcache_cancel_strict']);
+  if (($strict || !empty($markup)) && !authcache_element_is_cacheable($element)) {
     $message = !empty($element['#authcache_cancel_message']) ?
       $element['#authcache_cancel_message'] :
       t('Non cacheable render element on page');
@@ -942,7 +983,7 @@ function authcache_authcache_account_exclude($account) {
   $pagecaching = variable_get('authcache_pagecaching', _authcache_default_pagecaching());
   foreach ($pagecaching as $page_rules) {
     // Do caching page roles apply to the given account?
-    if (authcache_role_restrict_access($page_rules['roles'])) {
+    if (authcache_role_restrict_access($page_rules['roles'], $account)) {
       $no_rule_matches = FALSE;
       break;
     }

@@ -598,6 +598,31 @@ class AuthcachePolicyTestCase extends AuthcacheWebTestCase {
     $this->authcacheGet('authcache-test-form', $this->plainUser);
     $this->assertAuthcacheCanceled(t('Form with CSRF protection on page. Enable authcache_form or implement custom code capable of handling CSRF protected forms.'));
 
+    // Forms with value elements.
+    $this->setupConfig(array('authcache_roles' => drupal_map_assoc(array_keys(user_roles()))));
+
+    $this->resetTestVariables();
+    $save_stub = $this->stubbackend->hook('authcache_backend_cache_save');
+    $this->authcacheGet('authcache-test-form-value-no-cache', drupal_anonymous_user());
+    $this->assertAuthcacheNotCanceled();
+    $this->assertAuthcacheNotExcluded();
+    $this->assertStub($save_stub, HookStub::any());
+
+    $this->resetTestVariables();
+    $save_stub = $this->stubbackend->hook('authcache_backend_cache_save');
+    $this->authcacheGet('authcache-test-form-value-no-cache', $this->plainUser);
+    $this->assertAuthcacheNotCanceled();
+    $this->assertAuthcacheNotExcluded();
+    $this->assertStub($save_stub, HookStub::any());
+
+    $this->resetTestVariables();
+    $this->authcacheGet('authcache-test-form-value-cache', drupal_anonymous_user());
+    $this->assertAuthcacheCanceled(t('Value element contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%form_id' => 'authcache_test_form_value')));
+
+    $this->resetTestVariables();
+    $this->authcacheGet('authcache-test-form-value-cache', $this->plainUser);
+    $this->assertAuthcacheCanceled(t('Value element contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%form_id' => 'authcache_test_form_value')));
+
     // Pages with tabs.
     $this->setupConfig(array('authcache_roles' => drupal_map_assoc(array_keys(user_roles()))));
 
@@ -1652,6 +1677,18 @@ class AuthcacheElementCacheabilityAPITestCase extends AuthcacheWebTestCase {
     $this->assertEqual(t('Does not contain personalized content'), $output);
     $this->assertAuthcacheNotCanceled();
 
+    // Ensure that rendering of empty suspected elements are left alone.
+    $this->resetTestVariables();
+    $element = array(
+      '#markup' => '',
+    );
+    authcache_element_suspect($element);
+
+    variable_set('authcache_test_record', TRUE);
+    $output = render($element);
+    $this->assertFalse($output);
+    $this->assertAuthcacheNotCanceled();
+
     // Ensure that rendering of suspected elements trigger cancelation with
     // generic message.
     $this->resetTestVariables();
@@ -1676,6 +1713,32 @@ class AuthcacheElementCacheabilityAPITestCase extends AuthcacheWebTestCase {
     $output = render($element);
     $this->assertEqual(t('Some personalized content'), $output);
     $this->assertAuthcacheCanceled(t('Customized cancelation message'));
+
+    // Ensure that rendering of empty suspected elements trigger cancelation if
+    // strict mode is enabled.
+    $this->resetTestVariables();
+    $element = array(
+      '#markup' => '',
+    );
+    authcache_element_suspect($element, t('Customized cancelation message'), TRUE);
+
+    variable_set('authcache_test_record', TRUE);
+    $output = render($element);
+    $this->assertFalse($output);
+    $this->assertAuthcacheCanceled(t('Customized cancelation message'));
+
+    // Ensure that value elements trigger cancelation.
+    $this->resetTestVariables();
+    $element = array(
+      '#type' => 'value',
+      '#value' => 42,
+    );
+    authcache_element_suspect($element);
+
+    variable_set('authcache_test_record', TRUE);
+    $output = render($element);
+    $this->assertFalse($output);
+    $this->assertAuthcacheCanceled(t('Non cacheable render element on page'));
 
     // Ensure that suspicous elements can be marked as being cacheable.
     $this->resetTestVariables();

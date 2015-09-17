@@ -1,0 +1,37 @@
+varnishtest "Do not cache if backend responds with Vary: * / session / no key"
+
+server s1 {
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: *"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/" -hdr "Cookie: SESSabc=efg"
+        rxresp
+        expect resp.http.Vary == "*"
+
+        txreq -url "/" -hdr "Cookie: SESSabc=efg"
+        rxresp
+        expect resp.http.Vary == <undef>
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 0
+
+server s1 -wait
+varnish v1 -stop

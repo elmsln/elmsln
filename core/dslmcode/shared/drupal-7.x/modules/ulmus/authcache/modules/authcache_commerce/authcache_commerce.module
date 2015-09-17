@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Authcache support for Drupal Commerce.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Remove the uid value from the commerce add-to-cart form.
+ */
+function authcache_commerce_form_commerce_cart_add_to_cart_form_alter(&$form, &$form_state) {
+  if (authcache_page_is_cacheable()) {
+    // Remove the customer uid #value in order to prevent it from entering the
+    // form cache. Instead add a validation callback which will restore the
+    // value from the $user global upon submission.
+    if (isset($form['uid']['#type']) && $form['uid']['#type'] === 'value' && !authcache_element_is_cacheable($form['uid'])) {
+      $form['uid']['#value'] = '';
+      $form['uid']['#element_validate'][] = 'authcache_commerce_form_restore_customer';
+      authcache_element_set_cacheable($form['uid']);
+    }
+
+    // The add-to-cart form maintains a list of value elements used to pass
+    // attribute state between form rebuilds.
+    if (isset($form['unchanged_attributes'])) {
+      foreach (element_children($form['unchanged_attributes']) as $key) {
+        if (isset($form['unchanged_attributes'][$key]['#type']) && $form['unchanged_attributes'][$key]['#type'] === 'value') {
+          authcache_element_set_cacheable($form['unchanged_attributes'][$key]);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Restore the name of the logged in user in the form customer field.
+ */
+function authcache_commerce_form_restore_customer($element, &$form_state) {
+  global $user;
+
+  $element['#value'] = $user->uid;
+  form_set_value($element, $element['#value'], $form_state);
+}

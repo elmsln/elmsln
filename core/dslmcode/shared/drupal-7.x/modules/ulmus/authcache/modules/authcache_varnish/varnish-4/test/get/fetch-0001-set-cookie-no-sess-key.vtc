@@ -1,0 +1,43 @@
+varnishtest "Do not cache if backend sets cookies when no session is open but key retrieval is enabled"
+
+server s1 {
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: 123"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Set-Cookie: foo=bar"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/"
+        rxresp
+        expect resp.http.Set-Cookie == "foo=bar"
+
+        txreq -url "/"
+        rxresp
+}
+
+client c1 -run
+
+# On cache hit for second call to /authcache-varnish-get-key
+varnish v1 -expect cache_hit == 1
+
+server s1 -wait
+varnish v1 -stop

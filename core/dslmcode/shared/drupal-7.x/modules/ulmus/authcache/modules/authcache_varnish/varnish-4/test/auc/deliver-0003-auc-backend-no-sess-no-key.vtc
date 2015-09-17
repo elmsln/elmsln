@@ -1,0 +1,57 @@
+varnishtest "Ensure that vcl_deliver adds Cookie to Vary and removes X-Authcache-Key from it if response is comming from authcache enabled backend / no session / no key"
+
+server s1 {
+        rxreq
+        expect req.url == "/vary-none"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+
+        rxreq
+        expect req.url == "/vary-cookie"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key, Cookie"
+
+        rxreq
+        expect req.url == "/vary-candy"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Candy, X-Authcache-Key"
+
+        rxreq
+        expect req.url == "/vary-sweets"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: Cookie, X-Authcache-Key, Candy"
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/vary-none"
+        rxresp
+        expect resp.http.Vary == "Cookie"
+
+        txreq -url "/vary-cookie"
+        rxresp
+        expect resp.http.Vary == "Cookie"
+
+        txreq -url "/vary-candy"
+        rxresp
+        expect resp.http.Vary == "Candy, Cookie"
+
+        txreq -url "/vary-sweets"
+        rxresp
+        expect resp.http.Vary == "Cookie, Candy"
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 0
+
+server s1 -wait
+varnish v1 -stop

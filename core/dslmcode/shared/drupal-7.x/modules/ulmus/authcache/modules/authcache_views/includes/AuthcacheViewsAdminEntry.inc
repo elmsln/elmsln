@@ -22,7 +22,7 @@ class AuthcacheViewsAdminEntry {
     $this->group = t('Views');
 
     $view = views_get_view($view_name);
-    $this->name = $view->get_human_name();
+    $this->name = check_plain($view->get_human_name());
     $this->description = t('Display %display_name on view %view_name', array(
       '%view_name' => $view->human_name,
       '%display_name' => $view->display[$display_id]->display_title,

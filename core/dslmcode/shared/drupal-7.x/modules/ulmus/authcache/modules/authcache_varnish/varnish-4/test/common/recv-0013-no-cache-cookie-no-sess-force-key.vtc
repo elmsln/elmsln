@@ -1,0 +1,49 @@
+varnishtest "Do not cache anonymous requests when nocache cookie is set and key-retrieval is enforced"
+
+server s1 {
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: 123"
+
+        rxreq
+        expect req.url == "/anon"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+        txresp
+
+        rxreq
+        expect req.url == "/anon"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+        txresp
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        # Results in two misses (/authcache-varnish-get-key and /anon)
+        txreq -url "/anon"
+        rxresp
+
+        # Results in one miss
+        txreq -url "/anon" -hdr "Cookie: nocache=1"
+        rxresp
+
+        # Results in two hits (from first request)
+        txreq -url "/anon"
+        rxresp
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 2
+
+server s1 -wait
+varnish v1 -stop

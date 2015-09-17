@@ -58,11 +58,12 @@ function authcache_panels_panels_pane_content_alter($content, $pane, $args, $con
       '#fallback' => $config['fallback'],
     );
 
-    $markup = !empty($content->content) ? $content->content : '';
-    $element = array('#markup' => $markup);
-    authcache_p13n_attach($element, $fragment);
+    if (!is_array($content->content)) {
+      $markup = !empty($content->content) ? $content->content : '';
+      $content->content = array('#markup' => $markup);
+    }
 
-    $content->content = render($element);
+    authcache_p13n_attach($content->content, $fragment);
   }
 }
 

@@ -7,9 +7,9 @@ dependencies[] = flag (3.x)
 files[] = authcache_flag.test
 files[] = includes/AuthcacheFlagFlagFragment.inc
 
-; Information added by Drupal.org packaging script on 2014-10-21
-version = "7.x-2.0-beta4"
+; Information added by Drupal.org packaging script on 2015-07-29
+version = "7.x-2.0-beta7"
 core = "7.x"
 project = "authcache"
-datestamp = "1413923939"
+datestamp = "1438156442"
 

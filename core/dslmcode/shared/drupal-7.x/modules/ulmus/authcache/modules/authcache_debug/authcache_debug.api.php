@@ -5,6 +5,18 @@
  */
 
 /**
+ * Prevent that debug info is recorded on a given request.
+ *
+ * @return bool|NULL
+ *   TRUE if no debug info should be recorded, otherwise NULL.
+ */
+function authcache_p13n_authcache_debug_exclude() {
+  if (authcache_p13n_is_authcache_p13n_request()) {
+    return TRUE;
+  }
+}
+
+/**
  * Collect information displayed in the authcache debug widget.
  *
  * Return an array of key-value pairs which will be displayed in the debug

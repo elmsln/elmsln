@@ -40,13 +40,26 @@
   // Simple Ajax fragment
   Drupal.behaviors.authcacheP13nAjaxFragments = {
     attach: function (context, settings) {
-      $('span.authcache-ajax-frag', context).once('authcache-ajax-frag', function() {
-        var $tarauthcacheGet = $(this);
-        var url = $tarauthcacheGet.data('authcache-ajax-src');
-        authcacheGet(url, function(data) {
-          $tarauthcacheGet.authcacheP13nReplaceWith(data);
+      if (settings.authcacheP13nAjaxFragments) {
+        $.each(settings.authcacheP13nAjaxFragments, function(frag) {
+          var params = this;
+          $.each(params, function(url) {
+            var param = this;
+            var $targets = $('.authcache-ajax-frag', context).filter(function () {
+              // Use attr() instead of data() in order to prevent jQuery from
+              // converting numeric strings to integers.
+              return $(this).attr('data-p13n-frag') === frag && (!param || $(this).attr('data-p13n-param') === param);
+            });
+            if ($targets.length) {
+              authcacheGet(url, function(markup) {
+                $targets.each(function() {
+                  $(this).authcacheP13nReplaceWith(markup);
+                });
+              });
+            }
+          });
         });
-      });
+      }
     }
   };
 
@@ -72,9 +85,9 @@
     attach: function (context, settings) {
       if (settings.authcacheP13nAjaxAssemblies) {
         $.each(settings.authcacheP13nAjaxAssemblies, function(selector) {
-          var tarauthcacheGets = $(selector, context);
+          var targets = $(selector, context);
           var url = this;
-          if (tarauthcacheGets.length) {
+          if (targets.length) {
             authcacheGetJSON(url, function(data) {
               var response = {};
               response[selector] = data;

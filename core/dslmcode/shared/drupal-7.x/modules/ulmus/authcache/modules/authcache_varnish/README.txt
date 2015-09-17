@@ -18,6 +18,10 @@ The module and the VCL is based on the ideas of Josh Waihi. Please refer to
 his excellent blog post for further background:
 * http://joshwaihi.com/content/authenticated-page-caching-varnish-drupal
 
+Detailed documentation with screenshots and additional notes is available
+online in the Drupal Administration & Security Guide:
+* https://www.drupal.org/node/2162047
+
 The test folder contains a test-suite for the example.vcl. Run it by issuing
 "make check". If you like to test your own version of the VCL, point the
 AUTHCACHE_VCL variable to your file, e.g.:
@@ -34,7 +38,14 @@ support in settings.php. E.g:
 
     $conf['reverse_proxy'] = TRUE;
     $conf['reverse_proxy_addresses'] = array('a.b.c.d');
-    // Replace 'a.b.c.d' with the IP address of the revers proxy server.
+    // Replace 'a.b.c.d' with the IP address of the reverse proxy server.
+
+Some web servers restore the original client IP address before before handing
+over the request to PHP/Drupal, e.g. Nginx when configured with the real_ip
+module. In this case a shared secret can be configured in settings.php as well
+as in the vcl_miss() subroutine.
+
+    $conf['authcache_varnish_passphrase'] = 'correct horse battery staple';
 
 For testing purposes it is possible to disable the reverse proxy check by
 placing the following line into the settings.php file:

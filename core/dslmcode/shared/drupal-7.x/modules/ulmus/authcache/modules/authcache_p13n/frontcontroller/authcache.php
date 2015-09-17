@@ -6,7 +6,7 @@
  */
 
 // Detect root directory of the Drupal installation.
-$__file__ = __FILE__;
+$__file__ = isset($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : __FILE__;
 if ($__file__[0] !== '/') {
   $__file__ = str_replace(DIRECTORY_SEPARATOR, '/', $__file__);
 }

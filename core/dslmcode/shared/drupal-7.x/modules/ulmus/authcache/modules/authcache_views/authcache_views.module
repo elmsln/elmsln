@@ -88,6 +88,18 @@ function authcache_views_views_plugins() {
 }
 
 /**
+ * Implements hook_views_pre_view().
+ */
+function authcache_views_views_pre_view(&$view, &$display_id, &$args) {
+  // Enforce a static dom-id for views loaded by authcache.
+  $config = _authcache_views_view_get_options($view, $view->current_display);
+
+  if (!empty($config['status'])) {
+    $view->dom_id = drupal_html_class("authcache-{$view->name}-{$view->current_display}");
+  }
+}
+
+/**
  * Implements hook_views_post_render().
  */
 function authcache_views_views_post_render(&$view, &$output, &$cache) {

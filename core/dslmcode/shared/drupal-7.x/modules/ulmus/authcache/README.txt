@@ -24,7 +24,6 @@ Installation
    - authcache_builtin: Cache backend for the drupal core cache system. Also
      choose that one when using a third party cache like memcache.
    - authcache_varnish: Use varnish as the cache backend.
-   - authcache_boost (experimental): Use boost as the cache backend.
 
    All of those cache backends need to be configured properly. Please read and
    follow the instructions given in the respective README.txt files.

@@ -82,7 +82,8 @@ function authcache_builtin_cacheinc_retrieve_cache_page() {
   // Connect to database and initialize configuration if not disabled from
   // within settings.php
   if (!variable_get('authcache_builtin_cache_without_database')) {
-    drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES, FALSE);
+    $phase = variable_get('authcache_builtin_cache_without_variables') ? DRUPAL_BOOTSTRAP_DATABASE : DRUPAL_BOOTSTRAP_VARIABLES;
+    drupal_bootstrap($phase, FALSE);
   }
 
   // The following three basic exclusion rules are mirrored in

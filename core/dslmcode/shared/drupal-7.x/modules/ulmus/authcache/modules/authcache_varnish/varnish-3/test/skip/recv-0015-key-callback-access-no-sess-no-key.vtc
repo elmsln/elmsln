@@ -1,0 +1,36 @@
+varnishtest "Ensure that X-Authcache-Key is never sent to the browser / no session / no key"
+
+server s1 {
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -status 200
+
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -status 200
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/"
+        rxresp
+        expect resp.status == 200
+        expect resp.http.X-Authcache-Key == <undef>
+
+        txreq -url "/authcache-varnish-get-key"
+        rxresp
+        expect resp.status == 200
+        expect resp.http.X-Authcache-Key == <undef>
+} -run
+
+server s1 -wait
+varnish v1 -stop

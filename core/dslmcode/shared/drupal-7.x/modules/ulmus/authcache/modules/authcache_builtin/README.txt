@@ -58,8 +58,20 @@ Installation
 
    $conf['authcache_builtin_cache_without_database'] = TRUE;
 
-   Please note that it is necessary to hard-code all the settings affecting
-   delivery of cached pages in settings.php in that case.
+   When using the built-in DrupalDatabaseCache it is also possible to
+   significantly speed up delivery of cached pages by simply bypassing the
+   initialization of the variable subsystem:
+
+   $conf['authcache_builtin_cache_without_variables'] = TRUE;
+
+   In both cases it is necessary to hard-code all the settings affecting
+   delivery of cached pages in settings.php. For example:
+
+    // Deliver gzip compressed pages if possible
+    $conf['page_compression'] = 1;
+
+    // Allow browsers to store the page for up to 10 minutes
+    $conf['page_cache_maximum_age'] = 600;
 
 5. (Optional) Install and setup the Cache Expiration module allowing finer
    grained control over which pages are should be purged from cache whenever

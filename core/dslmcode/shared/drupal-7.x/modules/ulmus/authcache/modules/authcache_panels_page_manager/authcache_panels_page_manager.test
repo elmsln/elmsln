@@ -37,6 +37,7 @@ class AuthcachePanelsPageManagerTest extends DrupalWebTestCase {
     $this->admin = $this->drupalCreateUser(array(
       'use page manager',
       'administer page manager',
+      'use ctools import',
       'use PHP for settings',
       'create article content',
     ));

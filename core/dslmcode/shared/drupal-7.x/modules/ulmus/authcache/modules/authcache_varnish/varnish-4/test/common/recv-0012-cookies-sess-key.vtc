@@ -1,0 +1,62 @@
+varnishtest "Cache requests when session cookies are on the request and key-retrieval is enabled"
+
+server s1 {
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: 123"
+
+        rxreq
+        expect req.url == "/auth"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: abc"
+
+        rxreq
+        expect req.url == "/auth-ssl"
+        expect req.http.X-Authcache-Key == abc
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+# Cacheable: authenticated request
+client c1 {
+        txreq -url "/auth" -hdr "Cookie: SESSabc=efg; bar=baz"
+        rxresp
+}
+
+# Cacheable: authenticated request with mixed mode SSL session cookie
+client c2 {
+        txreq -url "/auth-ssl" -hdr "Cookie: SSESSdef=hik"
+        rxresp
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 0
+
+# Two hits because /auth and /authcache-varnish-get-key both count
+client c1 -run
+varnish v1 -expect cache_hit == 2
+
+client c2 -run
+varnish v1 -expect cache_hit == 2
+
+# Two hits because /auth and /authcache-varnish-get-key both count
+client c2 -run
+varnish v1 -expect cache_hit == 4
+
+server s1 -wait
+varnish v1 -stop

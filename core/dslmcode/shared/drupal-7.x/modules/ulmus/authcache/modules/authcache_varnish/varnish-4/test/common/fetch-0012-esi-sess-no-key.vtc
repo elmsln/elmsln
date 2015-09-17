@@ -1,0 +1,34 @@
+varnishtest "If the backend indicates that ESI tags are in the content, enable ESI processing / session / no key"
+
+server s1 {
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Do-ESI: 1" -body "<html><esi:include src='/frag1'></html>"
+
+        rxreq
+        expect req.url == "/frag1"
+        expect req.http.X-Authcache == <undef>
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -body "frag1"
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/" -hdr "Cookie: SESSabc=efg"
+        rxresp
+        expect resp.bodylen == 18
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 0
+
+server s1 -wait
+varnish v1 -stop

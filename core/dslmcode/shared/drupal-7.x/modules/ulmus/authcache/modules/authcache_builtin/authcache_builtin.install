@@ -5,16 +5,6 @@
  */
 
 /**
- * Implements hook_enable().
- */
-function authcache_builtin_enable() {
-  // Did admin follow install instructions?
-  if (!_authcache_builtin_backendstatus()) {
-    drupal_set_message(st('Your settings.php file must be modified to enable Authcache builtin cache backend. See <a href="@url">README.txt</a>.', array('@url' => base_path() . drupal_get_path('module', 'authcache_builtin') . '/README.txt')), 'error');
-  }
-}
-
-/**
  * Implements hook_requirements().
  */
 function authcache_builtin_requirements($phase) {

@@ -126,6 +126,7 @@ function authcache_p13n_theme() {
         'clients' => NULL,
         'fallback' => 'hide',
         'original' => NULL,
+        'attributes' => array(),
       ),
     ),
     'authcache_p13n_setting' => array(
@@ -154,6 +155,7 @@ function authcache_p13n_theme() {
         'clients' => NULL,
         'fallback' => 'hide',
         'original' => NULL,
+        'attributes' => array(),
       ),
     ),
     'authcache_p13n_config_client_order' => array(
@@ -1237,6 +1239,16 @@ function authcache_p13n_is_authcache_p13n_request() {
  * @{
  * Provide additional status information through the debug widget.
  */
+
+
+/**
+ * Implements hook_authcache_debug_exclude().
+ */
+function authcache_p13n_authcache_debug_exclude() {
+  if (authcache_p13n_is_authcache_p13n_request()) {
+    return TRUE;
+  }
+}
 
 
 /**
