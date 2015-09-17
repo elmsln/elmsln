@@ -1,11 +1,11 @@
 name = ECD Displays
 core = 7.x
 package = ECD
-dependencies[] = views
+dependencies[] = ctools
 dependencies[] = editableviews
 dependencies[] = eva
+dependencies[] = views
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
 features[views_view][] = ecd_asset_audit
 features[views_view][] = ecd_quality_overview
-features_exclude[dependencies][ctools] = ctools

@@ -10,7 +10,8 @@
 function ecd_entityforms_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'entityform-course_access_request-field_access_status'
+  // Exported field_instance:
+  // 'entityform-course_access_request-field_access_status'
   $field_instances['entityform-course_access_request-field_access_status'] = array(
     'bundle' => 'course_access_request',
     'default_value' => array(
@@ -47,7 +48,8 @@ function ecd_entityforms_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'entityform-course_access_request-field_account_request'
+  // Exported field_instance:
+  // 'entityform-course_access_request-field_account_request'
   $field_instances['entityform-course_access_request-field_account_request'] = array(
     'bundle' => 'course_access_request',
     'default_value' => NULL,
@@ -81,7 +83,8 @@ function ecd_entityforms_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'entityform-course_access_request-field_course_access'
+  // Exported field_instance:
+  // 'entityform-course_access_request-field_course_access'
   $field_instances['entityform-course_access_request-field_course_access'] = array(
     'bundle' => 'course_access_request',
     'default_value' => NULL,
@@ -130,7 +133,8 @@ function ecd_entityforms_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'entityform-course_access_request-field_documentation'
+  // Exported field_instance:
+  // 'entityform-course_access_request-field_documentation'
   $field_instances['entityform-course_access_request-field_documentation'] = array(
     'bundle' => 'course_access_request',
     'deleted' => 0,
@@ -169,6 +173,7 @@ function ecd_entityforms_field_default_field_instances() {
   // Exported field_instance: 'entityform-course_access_request-field_duration'
   $field_instances['entityform-course_access_request-field_duration'] = array(
     'bundle' => 'course_access_request',
+    'default_value' => NULL,
     'deleted' => 0,
     'description' => 'Length of time for access to persist',
     'display' => array(
@@ -208,7 +213,7 @@ function ecd_entityforms_field_default_field_instances() {
         'text_parts' => array(),
         'year_range' => '-0:+2',
       ),
-      'type' => 'date_popup',
+      'type' => 'date_select',
       'weight' => 7,
     ),
   );
@@ -430,6 +435,7 @@ function ecd_entityforms_field_default_field_instances() {
   // Exported field_instance: 'entityform-system_access_request-field_duration'
   $field_instances['entityform-system_access_request-field_duration'] = array(
     'bundle' => 'system_access_request',
+    'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -469,7 +475,7 @@ function ecd_entityforms_field_default_field_instances() {
         'text_parts' => array(),
         'year_range' => '-0:+2',
       ),
-      'type' => 'date_popup',
+      'type' => 'date_select',
       'weight' => 7,
     ),
   );
