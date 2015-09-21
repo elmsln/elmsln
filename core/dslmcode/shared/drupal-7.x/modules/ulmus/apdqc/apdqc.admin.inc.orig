@@ -115,20 +115,24 @@ function apdqc_admin_operations_form($form, $form_state) {
 
   // Check semaphore table.
   // Get MySQL version.
-  $conversion = apdqc_semaphore_conversion();
-  if ($conversion == 1) {
-    $form['convert_semaphore_table'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Convert semaphore table'),
-      '#description' => t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.'),
-    );
-    $form['convert_semaphore_table']['convert_table_to_memory'] = array(
-      '#type' => 'submit',
-      '#value' => t('Convert semaphore table to MEMORY'),
-      '#submit' => array('apdqc_admin_convert_table_to_memory'),
-    );
+  $results = db_query("SELECT VERSION()")->fetchAssoc();
+  $version = reset($results);
+  $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
+  if (version_compare($version, '5.6.0', '<=')) {
+    if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
+      $form['convert_semaphore_table'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Convert semaphore table'),
+        '#description' => t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.'),
+      );
+      $form['convert_semaphore_table']['convert_table_to_memory'] = array(
+        '#type' => 'submit',
+        '#value' => t('Convert semaphore table to MEMORY'),
+        '#submit' => array('apdqc_admin_convert_table_to_memory'),
+      );
+    }
   }
-  elseif ($conversion == 2) {
+  elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
     $form['convert_semaphore_table'] = array(
       '#type' => 'fieldset',
       '#title' => t('Convert semaphore table'),
@@ -328,30 +332,26 @@ function apdqc_admin_convert_table_to_innodb($show_msg = TRUE) {
 /**
  * Convert table collations to utf8.
  */
-function apdqc_admin_convert_table_collations_to_utf8_bin($show_msg = TRUE) {
+function apdqc_admin_convert_table_collations_to_utf8_bin() {
   // Run the command.
   apdqc_admin_change_table_collation(TRUE);
 
   // Let user know it worked.
-  if ($show_msg) {
-    drupal_set_message(t('APDQC: All cache tables collations converted to utf8_bin'));
-  }
+  drupal_set_message(t('APDQC: All cache tables collations converted to utf8_bin'));
   variable_set('apdqc_table_collations', TRUE);
 }
 
 /**
  * Convert table indexes to expire, created.
  */
-function apdqc_admin_convert_tables_indexes($show_msg = TRUE) {
+function apdqc_admin_convert_tables_indexes() {
   // Drop the expire index; use expire_created.
   $before = array('expire');
   $after = array('expire', 'created');
   apdqc_convert_cache_index($before, $after);
 
   // Let user know it worked.
-  if ($show_msg) {
-    drupal_set_message(t('APDQC: All cache tables indexes where updated.'));
-  }
+  drupal_set_message(t('APDQC: All cache tables indexes where updated.'));
   variable_set('apdqc_table_indexes', TRUE);
 }
 
@@ -530,20 +530,4 @@ function apdqc_get_cache_tables($get_truncated = TRUE) {
     $cache_tables = $schema;
   }
   return $cache_tables;
-}
-
-function apdqc_semaphore_conversion() {
-  $conversion = 0;
-  $results = db_query("SELECT VERSION()")->fetchAssoc();
-  $version = reset($results);
-  $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
-  if (version_compare($version, '5.6.0', '<=')) {
-    if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
-      $conversion = 1;
-    }
-  }
-  elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
-    $conversion = 2;
-  }
-  return $conversion;
 }

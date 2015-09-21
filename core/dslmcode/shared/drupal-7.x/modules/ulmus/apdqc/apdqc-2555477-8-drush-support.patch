@@ -1,0 +1,221 @@
+diff --git a/apdqc.admin.inc b/apdqc.admin.inc
+index 6ce1fef..e99f27f 100644
+--- a/apdqc.admin.inc
++++ b/apdqc.admin.inc
+@@ -115,24 +115,20 @@ function apdqc_admin_operations_form($form, $form_state) {
+ 
+   // Check semaphore table.
+   // Get MySQL version.
+-  $results = db_query("SELECT VERSION()")->fetchAssoc();
+-  $version = reset($results);
+-  $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
+-  if (version_compare($version, '5.6.0', '<=')) {
+-    if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
+-      $form['convert_semaphore_table'] = array(
+-        '#type' => 'fieldset',
+-        '#title' => t('Convert semaphore table'),
+-        '#description' => t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.'),
+-      );
+-      $form['convert_semaphore_table']['convert_table_to_memory'] = array(
+-        '#type' => 'submit',
+-        '#value' => t('Convert semaphore table to MEMORY'),
+-        '#submit' => array('apdqc_admin_convert_table_to_memory'),
+-      );
+-    }
++  $conversion = apdqc_semaphore_conversion();
++  if ($conversion == 1) {
++    $form['convert_semaphore_table'] = array(
++      '#type' => 'fieldset',
++      '#title' => t('Convert semaphore table'),
++      '#description' => t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.'),
++    );
++    $form['convert_semaphore_table']['convert_table_to_memory'] = array(
++      '#type' => 'submit',
++      '#value' => t('Convert semaphore table to MEMORY'),
++      '#submit' => array('apdqc_admin_convert_table_to_memory'),
++    );
+   }
+-  elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
++  elseif ($conversion == 2) {
+     $form['convert_semaphore_table'] = array(
+       '#type' => 'fieldset',
+       '#title' => t('Convert semaphore table'),
+@@ -328,26 +324,30 @@ function apdqc_admin_convert_table_to_innodb($show_msg = TRUE) {
+ /**
+  * Convert table collations to utf8.
+  */
+-function apdqc_admin_convert_table_collations_to_utf8_bin() {
++function apdqc_admin_convert_table_collations_to_utf8_bin($show_msg = TRUE) {
+   // Run the command.
+   apdqc_admin_change_table_collation(TRUE);
+ 
+   // Let user know it worked.
+-  drupal_set_message(t('APDQC: All cache tables collations converted to utf8_bin'));
++  if ($show_msg) {
++    drupal_set_message(t('APDQC: All cache tables collations converted to utf8_bin'));
++  }
+   variable_set('apdqc_table_collations', TRUE);
+ }
+ 
+ /**
+  * Convert table indexes to expire, created.
+  */
+-function apdqc_admin_convert_tables_indexes() {
++function apdqc_admin_convert_tables_indexes($show_msg = TRUE) {
+   // Drop the expire index; use expire_created.
+   $before = array('expire');
+   $after = array('expire', 'created');
+   apdqc_convert_cache_index($before, $after);
+ 
+   // Let user know it worked.
+-  drupal_set_message(t('APDQC: All cache tables indexes where updated.'));
++  if ($show_msg) {
++    drupal_set_message(t('APDQC: All cache tables indexes where updated.'));
++  }
+   variable_set('apdqc_table_indexes', TRUE);
+ }
+ 
+@@ -527,3 +527,19 @@ function apdqc_get_cache_tables($get_truncated = TRUE) {
+   }
+   return $cache_tables;
+ }
++
++function apdqc_semaphore_conversion() {
++  $conversion = 0;
++  $results = db_query("SELECT VERSION()")->fetchAssoc();
++  $version = reset($results);
++  $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
++  if (version_compare($version, '5.6.0', '<=')) {
++    if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
++      $conversion = 1;
++    }
++  }
++  elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
++    $conversion = 2;
++  }
++  return $conversion;
++}
+diff --git a/apdqc.drush.inc b/apdqc.drush.inc
+new file mode 100644
+index 0000000..1af47c6
+--- /dev/null
++++ b/apdqc.drush.inc
+@@ -0,0 +1,63 @@
++<?php
++
++/**
++ * @file
++ * Drush integration for APDQC module.
++ */
++
++/**
++ * Implements hook_drush_command().
++ */
++function apdqc_drush_command() {
++  $items['apdqc'] = array(
++    'description' => dt('Apply the enhacements described on the project page'),
++    'examples' => array(
++      'drush apdqc' => dt('Takes site offline, runs the functions to process changes in the database, brings it back online.'),
++    ),
++  );
++  return $items;
++}
++
++/**
++ * Implements hook_drush_help().
++ */
++function apdqc_drush_help($section) {
++  switch ($section) {
++    case 'drush:apdqc':
++      return dt('Run this to automatically apply the database performance optimizations.');
++  }
++}
++
++/**
++ * Drush command to all all the apdqc functions
++ */
++function drush_apdqc() {
++  $maintenance_mode = variable_get('maintenance_mode', 0);
++  // Take site offline.
++  if (empty($maintenance_mode)) {
++    variable_set('maintenance_mode', TRUE);
++  }
++
++  // Ensure we have the admin form in order to submit it.
++  module_load_include('inc', 'apdqc', 'apdqc.admin');
++
++  // Apply semaphore modifications if needed.
++  $conversion = apdqc_semaphore_conversion();
++  if ($conversion == 1) {
++    apdqc_admin_convert_table_to_memory();
++  }
++  elseif ($conversion == 2) {
++    apdqc_admin_convert_table_to_innodb();
++  }
++
++  // Collation of tables.
++  apdqc_admin_convert_table_collations_to_utf8_bin();
++
++  // Convert cache table indexes.
++  apdqc_admin_convert_tables_indexes();
++
++  // Bring site back online if it was online before.
++  if (empty($maintenance_mode)) {
++    variable_del('maintenance_mode');
++  }
++}
+diff --git a/apdqc.install b/apdqc.install
+index 4390437..082a4cc 100644
+--- a/apdqc.install
++++ b/apdqc.install
+@@ -347,35 +347,29 @@ function apdqc_requirements($phase) {
+     }
+ 
+     // Recommendation of engine type for the semaphore table.
+-    $results = db_query("SELECT VERSION()")->fetchAssoc();
+-    $version = reset($results);
+-    $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
+-    if (version_compare($version, '5.6.0', '<=')) {
+-      if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
+-        $requirements['apdqc_memory_table'] = array(
+-          'title'       => $t('APDQC - MySQL semaphore table'),
+-          'severity'    => REQUIREMENT_WARNING,
+-          'value'       => $t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.', array(
+-            '@value' => $iso_level,
+-          )),
+-          'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table from <code>@old-engine</code> to <code>@new-engine</code>.', array(
+-            '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+-            '@old-engine' => $results['Engine'],
+-            '@new-engine' => 'MEMORY',
+-          )),
+-        );
+-      }
++    $conversion = apdqc_semaphore_conversion();
++    if ($conversion == 1) {
++      $requirements['apdqc_memory_table'] = array(
++        'title'       => $t('APDQC - MySQL semaphore table'),
++        'severity'    => REQUIREMENT_WARNING,
++        'value'       => $t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.', array(
++          '@value' => $iso_level,
++        )),
++        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table to <code>@new-engine</code>.', array(
++          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
++          '@new-engine' => 'MEMORY',
++        )),
++      );
+     }
+-    elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
++    elseif ($conversion == 2) {
+       $requirements['apdqc_memory_table'] = array(
+         'title'       => $t('APDQC - MySQL semaphore table'),
+         'severity'    => REQUIREMENT_WARNING,
+         'value'       => $t('For newer versions of MySQL (5.6 and higher) the InnoDB engine for the semaphore table is recommended.', array(
+           '@value' => $iso_level,
+         )),
+-        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table from <code>@old-engine</code> to <code>@new-engine</code>.', array(
++        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table to <code>@new-engine</code>.', array(
+           '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+-          '@old-engine' => $results['Engine'],
+           '@new-engine' => 'InnoDB',
+         )),
+       );

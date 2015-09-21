@@ -22,7 +22,7 @@ else {
   $lock_file_included = FALSE;
   $default_cache_class = variable_get('cache_default_class');
   // Memcache.
-  if ($default_cache_class == 'MemCacheDrupal' || strpos($base_lock_location, '/memcache/memcache-lock.inc') !== FALSE) {
+  if ($default_cache_class === 'MemCacheDrupal' || strpos($base_lock_location, '/memcache/memcache-lock.inc') !== FALSE) {
     require_once dirname($base_lock_location) . '/dmemcache.inc';
 
     // Use memcache locking if memcached is available.
@@ -32,7 +32,7 @@ else {
     }
   }
   // Memcache storage.
-  if ($default_cache_class == 'MemcacheStorage' || strpos($base_lock_location, '/memcache_storage/includes/lock.inc') !== FALSE) {
+  if ($default_cache_class === 'MemcacheStorage' || strpos($base_lock_location, '/memcache_storage/includes/lock.inc') !== FALSE) {
     // Use memcache storage locking if memcache storage is available.
     if (class_exists('MemcacheStorageAPI')) {
       $lock_file_included = TRUE;
@@ -40,15 +40,23 @@ else {
     }
   }
   // APCu.
-  if ($default_cache_class == 'DrupalAPCCache' || strpos($base_lock_location, '/apc/drupal_apc_lock.inc') !== FALSE) {
+  if ($default_cache_class === 'DrupalAPCCache' || strpos($base_lock_location, '/apc/drupal_apc_lock.inc') !== FALSE) {
     // Use apc locking if apc_fetch && apc_store are available.
     if (function_exists('apc_fetch') && function_exists('apc_store')) {
       $lock_file_included = TRUE;
       require_once 'apdqc.lock.apc.inc';
     }
   }
+  // Redis.
+  if ($default_cache_class === 'Redis_Cache' || strpos($base_lock_location, '/redis/redis.lock.inc') !== FALSE) {
+    // Use redis locking.
+    $lock_file_included = TRUE;
+    require_once 'apdqc.lock.redis.inc';
+  }
   // Core.
   if (strpos($base_lock_location, 'includes/lock.inc') !== FALSE || !$lock_file_included) {
+    // Make sure apdqc_fast_get_db_type() is available.
+    require_once 'apdqc.cache.inc';
     // Load the correct database backend.
     $db_type = apdqc_fast_get_db_type();
     if ($db_type === 'mysql') {

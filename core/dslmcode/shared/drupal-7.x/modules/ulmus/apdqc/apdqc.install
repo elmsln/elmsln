@@ -129,15 +129,20 @@ function apdqc_requirements($phase) {
 
   if ($phase === 'runtime') {
 
-    // This module requires MySQL 5.5 or higher.
-    $results = db_query("SELECT VERSION()")->fetchAssoc();
-    $version = reset($results);
-    if (version_compare($version, '5.5.0', '<=')) {
-      $requirements['apdqc_mysql_version'] = array(
-        'title' => $t('APDQC'),
-        'value' => $phase === 'install' ? FALSE : $t('This module requires MySQL 5.5 or higher.'),
-        'severity' => REQUIREMENT_ERROR,
-      );
+    if (!variable_get('apdqc_install_ignore_mysql_version', APDQC_INSTALL_IGNORE_MYSQL_VERSION)) {
+      // This module requires MySQL 5.5 or higher.
+      $results = db_query("SELECT VERSION()")->fetchAssoc();
+      $version = reset($results);
+      if (version_compare($version, '5.5.0', '<=')) {
+        $requirements['apdqc_mysql_version'] = array(
+          'title' => $t('APDQC'),
+          'value' => $phase === 'install' ? FALSE : $t('This module requires MySQL 5.5 or higher.'),
+          'description' => $t('Note that some older versions of MySQL will work with this module. If that is the case you can set this variable in your settings.php file to make this warning go away. <p><code>@code</code></p>', array(
+            '@code' => '$conf[\'apdqc_install_ignore_mysql_version\'] = TRUE;',
+          )),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
     }
 
     // Check if mysqlnd is installed.
@@ -342,35 +347,29 @@ function apdqc_requirements($phase) {
     }
 
     // Recommendation of engine type for the semaphore table.
-    $results = db_query("SELECT VERSION()")->fetchAssoc();
-    $version = reset($results);
-    $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
-    if (version_compare($version, '5.6.0', '<=')) {
-      if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
-        $requirements['apdqc_memory_table'] = array(
-          'title'       => $t('APDQC - MySQL semaphore table'),
-          'severity'    => REQUIREMENT_WARNING,
-          'value'       => $t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.', array(
-            '@value' => $iso_level,
-          )),
-          'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table from <code>@old-engine</code> to <code>@new-engine</code>.', array(
-            '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
-            '@old-engine' => $results['Engine'],
-            '@new-engine' => 'MEMORY',
-          )),
-        );
-      }
+    $conversion = apdqc_semaphore_conversion();
+    if ($conversion == 1) {
+      $requirements['apdqc_memory_table'] = array(
+        'title'       => $t('APDQC - MySQL semaphore table'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.', array(
+          '@value' => $iso_level,
+        )),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table to <code>@new-engine</code>.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+          '@new-engine' => 'MEMORY',
+        )),
+      );
     }
-    elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
+    elseif ($conversion == 2) {
       $requirements['apdqc_memory_table'] = array(
         'title'       => $t('APDQC - MySQL semaphore table'),
         'severity'    => REQUIREMENT_WARNING,
         'value'       => $t('For newer versions of MySQL (5.6 and higher) the InnoDB engine for the semaphore table is recommended.', array(
           '@value' => $iso_level,
         )),
-        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table from <code>@old-engine</code> to <code>@new-engine</code>.', array(
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table to <code>@new-engine</code>.', array(
           '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
-          '@old-engine' => $results['Engine'],
           '@new-engine' => 'InnoDB',
         )),
       );

@@ -32,37 +32,32 @@ function apdqc_drush_help($section) {
  * Drush command to all all the apdqc functions
  */
 function drush_apdqc() {
-  // take site offline
-  variable_set('maintenance_mode', TRUE);
-  // ensure we have the admin form in order to submit it
+  $maintenance_mode = variable_get('maintenance_mode', 0);
+  // Take site offline.
+  if (empty($maintenance_mode)) {
+    variable_set('maintenance_mode', TRUE);
+  }
+
+  // Ensure we have the admin form in order to submit it.
   module_load_include('inc', 'apdqc', 'apdqc.admin');
-  // test for what version to run and if to apply semaphore modifications
-  $results = db_query("SELECT VERSION()")->fetchAssoc();
-  $version = reset($results);
-  $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
-  if (version_compare($version, '5.6.0', '<=')) {
-    if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
-      $form_state = array();
-      $form_state['values']['op'] = t('Convert semaphore table to MEMORY');
-      drupal_form_submit('apdqc_admin_operations_form', $form_state);
-    }
+
+  // Apply semaphore modifications if needed.
+  $conversion = apdqc_semaphore_conversion();
+  if ($conversion == 1) {
+    apdqc_admin_convert_table_to_memory();
   }
-  elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
-    $form_state = array();
-    $form_state['values']['op'] = t('Convert semaphore table to InnoDB');
-    drupal_form_submit('apdqc_admin_operations_form', $form_state);
+  elseif ($conversion == 2) {
+    apdqc_admin_convert_table_to_innodb();
   }
 
-  // collation of tables
-  $form_state = array();
-  $form_state['values']['op'] = t('Convert cache tables collations');
-  drupal_form_submit('apdqc_admin_operations_form', $form_state);
+  // Collation of tables.
+  apdqc_admin_convert_table_collations_to_utf8_bin();
 
-  // convert cache table indexes
-  $form_state = array();
-  $form_state['values']['op'] = t('Convert cache tables indexes');
-  drupal_form_submit('apdqc_admin_operations_form', $form_state);
+  // Convert cache table indexes.
+  apdqc_admin_convert_tables_indexes();
 
-  // bring site back online
-  variable_del('maintenance_mode');
+  // Bring site back online if it was online before.
+  if (empty($maintenance_mode)) {
+    variable_del('maintenance_mode');
+  }
 }

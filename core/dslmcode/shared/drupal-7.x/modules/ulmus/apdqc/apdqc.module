@@ -47,6 +47,12 @@ define('APDQC_TABLE_COLLATIONS', FALSE);
 define('APDQC_TABLE_INDEXES', FALSE);
 
 /**
+ * Set to TRUE to ignore the MySQL version checking on status report page.
+ */
+define('APDQC_INSTALL_IGNORE_MYSQL_VERSION', FALSE);
+
+
+/**
  * Implements hook_menu().
  */
 function apdqc_menu() {
@@ -243,6 +249,11 @@ function _apdqc_dblog_watchdog(array $log_entry) {
  */
 function apdqc_schema_alter(&$schema) {
   foreach ($schema as $table_name => $values) {
+    if (strpos($table_name, 'semaphore') === 0) {
+      $schema[$table_name]['primary key'][] = 'value';
+      continue;
+    }
+
     if (strpos($table_name, 'cache') !== 0) {
       // Skip if not a cache table.
       continue;
@@ -255,6 +266,11 @@ function apdqc_schema_alter(&$schema) {
       // Create a expire_created index.
       $schema[$table_name]['indexes']['expire_created'] = array('expire', 'created');
       unset($schema[$table_name]['indexes']['expire']);
+    }
+
+    // Add cache*__truncated_table to the schema.
+    if (strpos(strrev($table_name), strrev('__truncated_table')) !== 0 && db_table_exists($table_name . '__truncated_table')) {
+      $schema[$table_name . '__truncated_table'] = $values;
     }
   }
 }
