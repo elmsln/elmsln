@@ -532,18 +532,3 @@ function apdqc_get_cache_tables($get_truncated = TRUE) {
   return $cache_tables;
 }
 
-function apdqc_semaphore_conversion() {
-  $conversion = 0;
-  $results = db_query("SELECT VERSION()")->fetchAssoc();
-  $version = reset($results);
-  $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
-  if (version_compare($version, '5.6.0', '<=')) {
-    if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
-      $conversion = 1;
-    }
-  }
-  elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
-    $conversion = 2;
-  }
-  return $conversion;
-}
