@@ -182,6 +182,7 @@ function advagg_admin_settings_form($form, $form_state) {
     '#type' => 'select',
     '#options' => $long_times,
     '#title' => 'Delete aggregates accessed/modified more than a set time ago.',
+    // @codingStandardsIgnoreLine
     '#default_value' => variable_get('drupal_stale_file_threshold', 2592000),
     '#description' => t('The default value for this is %value.', array('%value' => format_interval(2592000))),
   );
@@ -755,6 +756,7 @@ function advagg_admin_toggle_bypass_cookie($form, &$form_state) {
  * Display file info in a drupal message.
  */
 function advagg_admin_get_file_info_submit($form, &$form_state) {
+  // @codingStandardsIgnoreLine
   if (!empty($form_state['input']['ajax_page_state'])) {
     return;
   }

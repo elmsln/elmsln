@@ -1929,7 +1929,7 @@ function advagg_cleanup_settings_array(array $data) {
         if (is_array($data['ajaxPageState']['js']) && isset($data['ajaxPageState']['js'][$key])) {
           unset($data['ajaxPageState']['js'][$key]);
         }
-        elseif (isset($data['ajaxPageState']['js']->{$key})) {
+        elseif (is_object($data['ajaxPageState']['js']) && isset($data['ajaxPageState']['js']->{$key})) {
           unset($data['ajaxPageState']['js']->{$key});
         }
       }
@@ -1942,7 +1942,7 @@ function advagg_cleanup_settings_array(array $data) {
         if (is_object($data['ajaxPageState']['css']) && isset($data['ajaxPageState']['css']->{$key})) {
           unset($data['ajaxPageState']['css']->{$key});
         }
-        elseif (isset($data['ajaxPageState']['css'][$key])) {
+        elseif (is_array($data['ajaxPageState']['css']) && isset($data['ajaxPageState']['css'][$key])) {
           unset($data['ajaxPageState']['css'][$key]);
         }
       }
