@@ -531,4 +531,3 @@ function apdqc_get_cache_tables($get_truncated = TRUE) {
   }
   return $cache_tables;
 }
-

@@ -1016,6 +1016,14 @@ function apdqc_get_lang() {
   return 'en';
 }
 
+/**
+ * Returns an int depending on the state of the semaphore table.
+ *
+ * @return int
+ *   0 - No changes needed.
+ *   1 - Convert to MEMORY.
+ *   2 - Convert to InnoDB.
+ */
 function apdqc_semaphore_conversion() {
   $conversion = 0;
   $results = db_query("SELECT VERSION()")->fetchAssoc();
