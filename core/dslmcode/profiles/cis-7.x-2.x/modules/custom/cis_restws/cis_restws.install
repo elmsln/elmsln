@@ -13,7 +13,7 @@ function cis_restws_install() {
   // webservices "data" addresses.
   db_update('system')
   ->fields(array(
-    'weight' => -1000,
+    'weight' => -100,
   ))
   ->condition('name', 'cis_restws')
   ->condition('type', 'module')
@@ -34,16 +34,6 @@ function cis_restws_install() {
         // generate a fake address
         $mail = $registry['user'] . '@' . $registry['user'] . '.' . $registry['user'];
       }
-      // odd check to ensure role name is created prior to assignment to user
-      $rname = 'SERVICE ACCOUNT';
-      // @ignore druplart_conditional_assignment
-      if (!$srole = user_role_load_by_name($rname)) {
-        // Create new role if role doesn't exist
-        $srole = new stdClass();
-        $srole->name = $rname;
-        user_role_save($srole);
-        $srole = user_role_load_by_name($rname);
-      }
       // assemble a user object
       $fields = array(
         'name' => $registry['user'],
@@ -53,11 +43,44 @@ function cis_restws_install() {
         'init' => $GLOBALS['user']->name,
         'roles' => array(
           DRUPAL_AUTHENTICATED_RID => 'authenticated user',
-          $srole->rid => $rname,
         ),
       );
+      // load the service account role
+      $rname = 'SERVICE ACCOUNT';
+      if ($srole = user_role_load_by_name($rname)) {
+        $fields['roles'][$srole->rid] = $rname;
+      }
+      // load the administrator role to ensure webservices can get data needed
+      $aname = 'administrator';
+      if ($arole = user_role_load_by_name($aname)) {
+        $fields['roles'][$arole->rid] = $aname;
+      }
       // the first parameter is left blank so a new user is created
       $account = user_save('', $fields);
+    }
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ * Adds the administrator role to the webservice user if detected.
+ * This avoids needless permissions management for an account that
+ * largely can do what it wants anyway and is only invoked on behalf
+ * of operations that do the permissions checks ahead of time.
+ */
+function cis_restws_update_7001(&$sandbox) {
+  $distro = variable_get('install_profile', FALSE);
+  $registry = _cis_connector_build_registry($distro);
+  // ensure that user and pass are set
+  if (isset($registry['user'])) {
+    // make sure this account exist to avoid an error
+    if ($account = user_load_by_name($registry['user'])) {
+      // load the administrator role to ensure webservices can get data needed
+      $aname = 'administrator';
+      if ($arole = user_role_load_by_name($aname)) {
+        $account->roles[$arole->rid] = $aname;
+        user_save($account);
+      }
     }
   }
 }
