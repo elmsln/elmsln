@@ -109,7 +109,11 @@ dependencies[] = cis_service_connection
 dependencies[] = cis_service_connection_ux
 dependencies[] = cis_service_roles
 dependencies[] = cis_lmsless
+dependencies[] = cis_shortcodes
 dependencies[] = foundation_access_ux
+; ELMSLN Core - Performance
+dependencies[] = elmsln_authcache
+dependencies[] = elmsln_advagg
 
 ; ----------
 ; Authority Dependencies
