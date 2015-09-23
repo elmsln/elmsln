@@ -1,0 +1,3 @@
+name = "PSU 3 Play Media integration"
+description = "PSU Integration with 3 play media"
+core = 7.x

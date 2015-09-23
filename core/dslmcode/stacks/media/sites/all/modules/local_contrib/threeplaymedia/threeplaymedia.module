@@ -1,0 +1,238 @@
+<?php
+
+/**
+ * Implementation of hook_cron().
+ */
+function threeplaymedia_cron() {
+  // handle the requests that we are waiting on
+  _threeplaymedia_handle_processing();
+  // handle anything that's been approved and needs shipped off
+  _threeplaymedia_handle_approved();
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function threeplaymedia_menu() {
+  $items = array();
+  $items['threeplaymedia/files'] = array(
+    'title' => 'File download',
+    'page callback' => '_threeplaymedia_file_passthrough',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/settings/threeplaymedia'] = array(
+    'title' => '3PlayMedia settings',
+    'description' => "API and integration settings",
+    'access arguments' => array('administer site configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('threeplaymedia_admin_settings'),
+    'file' => 'threeplaymedia.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Helper function to send file to 3playmedia when ready.
+ */
+function _threeplaymedia_handle_approved() {
+	global $base_url;
+  // check for items that are marked approved
+  // when something is approved, we change the status and push to 3play
+  $items = _threeplaymedia_internal_status_list('approved');
+  // attempt to push to 3play one at a time
+  foreach ($items as $nid) {
+    // load a full object
+    $node = node_load($nid);
+    // build special data object with private key path
+    $link = $base_url . base_path() .'threeplaymedia/files/'. variable_get('drupal_private_key', '');
+    // find audio / video source to append for file to grab
+    if ($node->type == 'audio') {
+      $link .= str_replace('sites/default/files', '', $node->field_audio[0]['filepath']);
+    }
+    elseif ($node->type == 'video') {
+      $link .= str_replace('sites/default/files', '', $node->field_video[0]['filepath']);
+    }
+    // build data object for api call
+		$term_tmp = $node->taxonomy;
+		$term = array_shift($term_tmp);
+    $data = array(
+      'apikey' => variable_get('threeplaymedia_api', ''),
+      'api_secret_key' => variable_get('threeplaymedia_secret', ''),
+      'link' => $link,
+      'name' => $node->title,
+      'video_id' => $nid,
+  		'batch_name' => $term->name,
+    );
+    // send request to 3play
+    $file3playid = _threeplaymedia_apicall('send_file', $data);
+    // verify that 3play gave us an id for the file
+    if (is_numeric($file3playid->data)) {
+      // set status to sent to avoid double send
+      $node->field_cc_job_status[0]['value'] = 'sent';
+      node_save($node);
+    }
+  }
+}
+
+/**
+ * Helper function to check and download transcription/caption files.
+ */
+function _threeplaymedia_handle_processing() {
+// when something is marked processing, we check its status
+  $items1 = _threeplaymedia_internal_status_list('processing');
+  // when something is marked sent, we check its status
+  $items2 = _threeplaymedia_internal_status_list('sent');
+  // merge the arrays into one
+  $items = $items1 + $items2;
+  // pull file status for each nid in need
+  foreach ($items as $nid) {
+		$object = _threeplaymedia_apicall('status', $nid);
+		// if it is complete or we already got it, process it
+		if ($object['state'] == 'complete' || $object['state'] == 'delivered') {
+			$node = node_load($nid);
+			// pull caption file
+			$caption_data = _threeplaymedia_apicall('get_caption', $nid);
+			// save caption data to xml file
+			if ($caption_data != '') {
+				$dir = file_create_path(file_directory_path() .'/captions');
+				file_check_directory($dir, 1);
+				$file_path = $dir .'/caption-'. $nid .'.xml';
+				if ($file = fopen($file_path , 'w')) {
+					fwrite($file, $caption_data);
+					fclose($file);
+					// write to database
+					_threeplaymedia_write_file_info($file_path, $fid);
+					// associate file to node
+					$node->field_caption_file[0]['fid'] = $fid;
+				}
+			}
+			// pull transcript
+			$transcript_data = _threeplaymedia_apicall('get_transcript', $nid);
+			// save transcript data to a txt file
+			if ($transcript_data != '') {
+				$dir = file_create_path(file_directory_path() .'/transcript');
+				file_check_directory($dir, 1);
+				$file_path = $dir .'/transcript-'. $nid .'.txt';
+				if ($file = fopen($file_path , 'w')) {
+					// save file
+					fwrite($file, $transcript_data);
+					fclose($file);
+					// write to database
+					_threeplaymedia_write_file_info($file_path, $fid);
+					// associate file to node
+					$node->field_transcript_file[0]['fid'] = $fid;
+				}
+				// associate to the transcript file field
+			}
+			// transcript and caption are saved, change status
+			$node->field_cc_job_status[0]['value'] = 'complete';
+			node_save($node);
+		}
+		elseif ($object['state'] == 'in_progress' || $object['state'] == 'pending') {
+			$node = node_load($nid);
+			// update state is one of these two come back
+			$node->field_cc_job_status[0]['value'] = 'processing';
+			node_save($node);
+		}
+	}
+}
+
+/**
+ * Helper function to query local status of nodes
+ */
+function _threeplaymedia_internal_status_list($job_status) {
+  // join status field with node ids that are published
+  $result = db_query("SELECT n.nid, cs.field_cc_job_status_value AS job_status FROM {node} n JOIN {content_field_cc_job_status} cs ON n.vid=cs.vid WHERE cs.field_cc_job_status_value='%s' AND n.status=1", $job_status);
+  // build array from nids found
+  $items = array();
+  while ($value = db_fetch_object($result)) {
+    $items[$value->nid] = $value->nid;
+  }
+  return $items;
+}
+
+/**
+ * Helper function to call 3playapi consistently
+ */
+function _threeplaymedia_apicall($call, $data) {
+  switch ($call) {
+    case 'send_file':
+      // data is an array
+      $query = http_build_query($data, '', '&');
+      $result = drupal_http_request("http://api.3playmedia.com/files?". $query, array(), 'POST');
+			$vtext = $data['title'] . ' : '. $data['link'] .' : '. $video_id;
+			$rtext = '3play internal ID '. $result;
+      $return = $result;
+    break;
+    case 'get_transcript':
+      // data is an nid
+      $result = drupal_http_request("http://static.3playmedia.com/files/". $data."/transcript.txt?usevideoid=1&apikey=". variable_get('threeplaymedia_api', ''));
+      $transcript_file = $result->data;
+			$vtext = 'nid:'. $data;
+			$rtext = 'valid transcript file';
+      $return = $transcript_file;
+    break;
+    case 'get_caption':
+      // data is an nid
+      $result = drupal_http_request("http://api.3playmedia.com/files/". $data."/captions.dfxp?usevideoid=1&apikey=". variable_get('threeplaymedia_api', ''));
+      $caption_file = $result->data;
+			$vtext = 'nid:'. $data;
+			$rtext = 'valid caption file';
+      $return = $caption_file;
+    break;
+    case 'status':
+      // data is an nid
+      $result = drupal_http_request("http://api.3playmedia.com/files/". $data ."?usevideoid=1&apikey=". variable_get('threeplaymedia_api', ''));
+      $status = json_decode($result->data, 1);
+			$vtext = 'nid:'. $data;
+			$rtext = $status['state'];
+      $return = $status;
+    break;
+  }
+	// report that this happened and what was found
+	watchdog('3playmedia', 'Call: @call was made with Data: @vtext Result: @rtext', array('@call' => $call, '@vtext' => $vtext, '@rtext' => $rtext));
+	return $return;
+}
+
+/**
+ * Callback for 3play secure file transfer based on system.module
+ */
+function _threeplaymedia_file_passthrough() {
+  // Merge remainder of arguments from GET['q'], into relative file path.
+  $args = func_get_args();
+  // cut off the private key
+  $key = array_shift($args);
+  $filepath = implode('/', $args);
+  // verify the file exists and private key matches
+  if (file_exists(file_create_path($filepath)) && $key == variable_get('drupal_private_key','')) {
+    // build the mime type for transmitting to end destination
+    $filemime = file_create_path($filepath);
+    $headers = array('Content-type:' . file_get_mimetype($filemime));
+    // transfer file
+    file_transfer($filepath, $headers);
+  }
+  return drupal_not_found();
+}
+
+/**
+ * Helper function to write file info and get an fid back
+ */
+function _threeplaymedia_write_file_info($file_path, &$fid){
+	if (file_exists($file_path)){
+    $name_arr = explode('/', $file_path );
+    $name = end($name_arr);
+    $file = array(
+      'uid' => 1,
+      'filename' => $name,
+      'filepath' => $file_path,
+      'filemime' => file_get_mimetype($name),
+      'filesize' => @filesize($file_path),
+      'status' => FILE_STATUS_PERMANENT,
+      'timestamp' => time(),
+    );
+    drupal_write_record('files', $file);
+    $fid = $file['fid'];
+  }
+  return $output;
+}
