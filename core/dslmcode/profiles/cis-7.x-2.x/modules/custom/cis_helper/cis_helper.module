@@ -332,37 +332,28 @@ function cis_helper_draw_chart_alter(&$settings) {
 }
 
 /**
- * Implements hook_form_alter().
+ * Implementation of hook_form_service_instance_node_form_alter().
  */
-function cis_helper_form_alter(&$form, $form_state, $form_id) {
-  // courses overview view / display
-  if ($form_id == 'views_exposed_form' && arg(0) == 'courses' && $form_state['view']->name == 'courses_overview') {
-    // add nice html5 placeholders
-    $form['title']['#placeholder'] = t('Find a course');
-    $form['title_1']['#placeholder'] = t('Enter a number');
-    // course_num container
-    $form['course_num'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Course number'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-      '#weight' => 3,
-    );
-    $form['course_num']['title_1'] = $form['title_1'];
-    unset($form['title_1']);
+function cis_helper_form_service_instance_node_form_alter(&$form, &$form_state, $form_id) {
+  // hide cron key field on node add
+  if (arg(1) == 'add') {
+    $form['field_cron_key']['#attributes']['style'] = 'display:none';
+    if (isset($form_state['entityreference_prepopulate']['node']['service_instance']['field_services']) && isset($form_state['entityreference_prepopulate']['node']['service_instance']['field_course'])) {
+      ;
+      $form['title']['#default_value'] = $form['field_course']['und']['#options'][$form_state['entityreference_prepopulate']['node']['service_instance']['field_course'][0]] . ' - ' . $form['field_services']['und']['#options'][$form_state['entityreference_prepopulate']['node']['service_instance']['field_services'][0]];
+      // disable field cause we already have the value we want
+      $form['title']['#disabled'] = TRUE;
+      $form['field_course']['#disabled'] = TRUE;
+      $form['field_services']['#disabled'] = TRUE;
+    }
   }
-  // faculty overview view / display
-  if ($form_id == 'views_exposed_form' && arg(0) == 'faculty' && $form_state['view']->name == 'cis_faculty') {
-    // add nice html5 placeholders
-    $form['field_display_name_value']['#placeholder'] = t('Search for faculty');
-  }
-  // add quick link to add offering to the list of offerings
-  if ($form_id == 'views_exposed_form' && arg(2) == 'offerings') {
-    $form['cle_add_new']['#markup'] = l(t('Add new offering'), 'field-collection/field-offerings/add/node/' . arg(1), array('query' => array('destination' => 'node/' . arg(1) . '/offerings')));
-    $form['cle_add_new']['#weight'] = 100;
-  }
+}
+/**
+ * Implementation of hook_form_field_collection_item_form_alter().
+ */
+function cis_helper_form_field_collection_item_form_alter(&$form, &$form_state, $form_id) {
   // alterations for the section field collection
-  if ($form_id == 'field_collection_item_form' && isset($form['#entity']) && $form['#entity']->field_name == 'field_sections') {
+  if (isset($form['#entity']) && $form['#entity']->field_name == 'field_sections') {
     // return all service instances this section will have access to
     $service_instances = _cis_helper_derive_service_instances($form['#entity']->item_id, $form['#entity']->HostEntity()->HostEntity());
     // we need to replace the service options based on those that exist
@@ -378,8 +369,40 @@ function cis_helper_form_alter(&$form, $form_state, $form_id) {
     // set the allowed options to those found above
     $form['field_services'][LANGUAGE_NONE]['#options'] = $service_options;
   }
+}
+
+/**
+ * Implementation of hook_form_views_exposed_form_alter().
+ */
+function cis_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  // courses overview view / display
+  if (arg(0) == 'courses' && $form_state['view']->name == 'courses_overview') {
+    // add nice html5 placeholders
+    $form['title']['#placeholder'] = t('Find a course');
+    $form['title_1']['#placeholder'] = t('Enter a number');
+    // course_num container
+    $form['course_num'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Course number'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => 3,
+    );
+    $form['course_num']['title_1'] = $form['title_1'];
+    unset($form['title_1']);
+  }
+  // faculty overview view / display
+  if (arg(0) == 'faculty' && $form_state['view']->name == 'cis_faculty') {
+    // add nice html5 placeholders
+    $form['field_display_name_value']['#placeholder'] = t('Search for faculty');
+  }
+  // add quick link to add offering to the list of offerings
+  if (arg(2) == 'offerings') {
+    $form['cle_add_new']['#markup'] = l(t('Add new offering'), 'field-collection/field-offerings/add/node/' . arg(1), array('query' => array('destination' => 'node/' . arg(1) . '/offerings')));
+    $form['cle_add_new']['#weight'] = 100;
+  }
   // allow for select style output for fields in data table
-  if ($form_id == 'views_exposed_form' && strpos($form['#id'], 'historical-college-data-')) {
+  if (strpos($form['#id'], 'historical-college-data-')) {
     $form['location'] = array(
       '#type' => 'select',
       '#options' => cis_helper_get_data_values('location'),
