@@ -9,7 +9,6 @@
 
 namespace Piwik\Plugins\LanguagesManager\Commands;
 
-use Piwik\Plugin\ConsoleCommand;
 use Piwik\Plugins\LanguagesManager\API;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,14 +17,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  */
-class CreatePull extends ConsoleCommand
+class CreatePull extends TranslationBase
 {
     protected function configure()
     {
         $this->setName('translations:createpull')
             ->setDescription('Updates translation files')
-            ->addOption('username', 'u', InputOption::VALUE_OPTIONAL, 'oTrance username')
-            ->addOption('password', 'p', InputOption::VALUE_OPTIONAL, 'oTrance password')
+            ->addOption('username', 'u', InputOption::VALUE_OPTIONAL, 'Transifex username')
+            ->addOption('password', 'p', InputOption::VALUE_OPTIONAL, 'Transifex password')
             ->addOption('plugin', 'P', InputOption::VALUE_OPTIONAL, 'optional name of plugin to update translations for');
     }
 
@@ -50,7 +49,7 @@ class CreatePull extends ConsoleCommand
         chdir(PIWIK_DOCUMENT_ROOT);
 
         shell_exec('
-            git checkout master > /dev/null 2>&1
+            git checkout -f master > /dev/null 2>&1
             git pull > /dev/null 2>&1
             git submodule init > /dev/null 2>&1
             git submodule update > /dev/null 2>&1
@@ -76,7 +75,7 @@ class CreatePull extends ConsoleCommand
 
         // switch to branch and update it to latest master
         shell_exec('
-            git checkout translationupdates > /dev/null 2>&1
+            git checkout -f translationupdates > /dev/null 2>&1
             git merge master > /dev/null 2>&1
             git push origin translationupdates > /dev/null 2>&1
         ');
@@ -96,7 +95,7 @@ class CreatePull extends ConsoleCommand
         shell_exec('git add lang/. > /dev/null 2>&1');
 
         if (empty($plugin)) {
-            foreach (Update::getPluginsInCore() AS $pluginName) {
+            foreach (Update::getPluginsInCore() as $pluginName) {
                 shell_exec(sprintf('git add plugins/%s/lang/. > /dev/null 2>&1', $pluginName));
             }
         }
@@ -122,7 +121,8 @@ class CreatePull extends ConsoleCommand
         }
 
         $linesSumByLang = array();
-        for($i=0; $i<count($lineChanges[0]); $i++) {
+        $lineChangesCount = count($lineChanges[0]);
+        for ($i = 0; $i < $lineChangesCount; $i++) {
             @$linesSumByLang[$lineChanges[3][$i]] += $lineChanges[1][$i];
         }
 
@@ -133,7 +133,7 @@ class CreatePull extends ConsoleCommand
 
         $languageCodesTouched = array();
         if (!empty($addedFiles[1])) {
-            foreach ($addedFiles[1] AS $addedFile) {
+            foreach ($addedFiles[1] as $addedFile) {
                 $languageInfo = $this->getLanguageInfoByIsoCode($addedFile);
                 $messages[$addedFile] = sprintf('- Added %s (%s changes / %s translated)\n', $languageInfo['english_name'], $linesSumByLang[$addedFile], $languageInfo['percentage_complete']);
             }
@@ -141,11 +141,11 @@ class CreatePull extends ConsoleCommand
         }
 
         if (!empty($modifiedFiles[1])) {
-            foreach ($modifiedFiles[1] AS $modifiedFile) {
+            foreach ($modifiedFiles[1] as $modifiedFile) {
                 $languageInfo = $this->getLanguageInfoByIsoCode($modifiedFile);
                 $messages[$modifiedFile] = sprintf('- Updated %s (%s changes / %s translated)\n', $languageInfo['english_name'], $linesSumByLang[$modifiedFile], $languageInfo['percentage_complete']);
             }
-            $languageCodesTouched = $modifiedFiles[1];
+            $languageCodesTouched = array_merge($languageCodesTouched, $modifiedFiles[1]);
         }
 
         $message = implode('', $messages);
@@ -159,7 +159,7 @@ class CreatePull extends ConsoleCommand
             implode(', ', $languageCodesTouched)
         );
 
-        shell_exec('git commit -m "language update ${pluginName} refs #3430"');
+        shell_exec('git commit -m "language update ${pluginName}"');
         shell_exec('git push');
         shell_exec('git checkout master > /dev/null 2>&1');
 
@@ -169,7 +169,7 @@ class CreatePull extends ConsoleCommand
     private function getLanguageInfoByIsoCode($isoCode)
     {
         $languages = API::getInstance()->getAvailableLanguagesInfo();
-        foreach ($languages AS $languageInfo) {
+        foreach ($languages as $languageInfo) {
             if ($languageInfo['code'] == $isoCode) {
                 return $languageInfo;
             }

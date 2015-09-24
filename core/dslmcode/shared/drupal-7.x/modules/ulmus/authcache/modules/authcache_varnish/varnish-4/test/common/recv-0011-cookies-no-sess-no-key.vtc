@@ -1,0 +1,54 @@
+varnishtest "Do not cache requests when cookies are on the request (other than session-cookie)"
+
+server s1 {
+        rxreq
+        expect req.url == "/anon"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+
+        rxreq
+        expect req.url == "/cookie"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+
+        rxreq
+        expect req.url == "/cookie"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+# Cacheable: anonymous request without cookie
+client c1 {
+        txreq -url "/anon"
+        rxresp
+}
+
+# Not cacheable: anonymous request with cookie
+client c2 {
+        txreq -url "/cookie" -hdr "Cookie: toolbar=fancy"
+        rxresp
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 0
+
+client c1 -run
+varnish v1 -expect cache_hit == 1
+
+client c2 -run
+varnish v1 -expect cache_hit == 1
+
+client c2 -run
+varnish v1 -expect cache_hit == 1
+
+server s1 -wait
+varnish v1 -stop

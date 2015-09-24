@@ -1,0 +1,29 @@
+{
+    "Live": {
+        "ClickToViewMoreAboutVisit": "Kliknij po więcej informacji o tej wizycie",
+        "EcommerceSummaryConversions": "%1$s%2$s zamówienia na łączną %3$s%4$s, zakupione %5$s elementy.",
+        "FirstVisit": "Pierwsza wizyta",
+        "GoalType": "Rodzaj",
+        "HideMap": "ukryj mapę",
+        "KeywordRankedOnSearchResultForThisVisitor": "Słowo kluczowe %1$s zdobyło pozycję %2$s w %3$s wynikach wyszukania strony dla tego odwiedzającego",
+        "LastHours": "w czasie ostatnich %s godzin",
+        "LastMinutes": "w czasie ostatnich %s minut",
+        "LastVisit": "Ostatnia wizyta",
+        "LinkVisitorLog": "Zobacz szczegółowy log twoich odwiedzających",
+        "LoadMoreVisits": "Załaduj więcej odwiedzin",
+        "NbVisitor": "1 gość",
+        "NbVisitors": "%s gości",
+        "NextVisitor": "Następny gość",
+        "PageRefreshed": "Ile razy ta strona została oglądana\/ odświeżana z rzędu.",
+        "PreviousVisitor": "Poprzedni odwiedzający",
+        "Referrer_URL": "Przysyłający adres URL",
+        "ShowMap": "Pokaż mapę",
+        "SimpleRealTimeWidget_Message": "%s %s na %s ostatni",
+        "ViewVisitorProfile": "Zobacz profil odwiedzającego",
+        "VisitedPages": "Odwiedzone strony",
+        "VisitorLog": "Log odwiedzających",
+        "VisitorProfile": "Profil odwiedzającego",
+        "VisitorsInRealTime": "Odwiedzający w czasie rzeczywistym",
+        "VisitorsLastVisit": "Ostatnia wizyta tego gościa była %s dni temu."
+    }
+}

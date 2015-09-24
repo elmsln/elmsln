@@ -80,8 +80,14 @@ if [ $os == '1' ]; then
   elmslnecho "treating this like a RHEL / CentOS install"
   wwwuser='apache'
   elmslnecho "www user automatically set to ${wwwuser}"
-  apcini="/etc/php.d/apc.ini"
-  elmslnecho "apc.ini automatically set to ${apcini}"
+  # test for apcu which would mean we dont need to optimize apc
+  if [ -f /etc/php.d/apcu.ini ]; then
+    apcini=""
+    elmslnecho "apc.ini ignored"
+  else
+    apcini="/etc/php.d/apc.ini"
+    elmslnecho "apc.ini automatically set to ${apcini}"
+  fi
   phpini="/etc/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
   mycnf="/etc/my.cnf"
@@ -96,8 +102,14 @@ elif [ $os == '2' ]; then
   elmslnecho "treating this like ubuntu"
   wwwuser='www-data'
   elmslnecho "www user automatically set to ${wwwuser}"
-  apcini="/etc/php5/conf.d/apc.ini"
-  elmslnecho "apc.ini automatically set to ${apcini}"
+  # test for apcu which would mean we dont need to optimize apc
+  if [ -f /etc/php5/conf.d/apcu.ini ]; then
+    apcini=""
+    elmslnecho "apc.ini ignored"
+  else
+    apcini="/etc/php5/conf.d/apc.ini"
+    elmslnecho "apc.ini automatically set to ${apcini}"
+  fi
   phpini="/etc/php5/apache2/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
   mycnf="/etc/php5/conf.d/mysql.ini"

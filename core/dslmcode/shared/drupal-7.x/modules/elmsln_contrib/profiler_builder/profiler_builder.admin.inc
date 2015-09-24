@@ -896,6 +896,15 @@ function _profiler_builder_standard_profile_default() {
       \'modified\' => 1,
       \'locked\' => 0,
     ),
+    array(
+      \'type\' => \'article\',
+      \'name\' => st(\'Article\'),
+      \'base\' => \'node_content\',
+      \'description\' => st(\'Use <em>articles</em> for time-sensitive content like news, press releases or blog posts.\'),
+      \'custom\' => 1,
+      \'modified\' => 1,
+      \'locked\' => 0,
+    ),
   );
 
   foreach ($types as $type) {

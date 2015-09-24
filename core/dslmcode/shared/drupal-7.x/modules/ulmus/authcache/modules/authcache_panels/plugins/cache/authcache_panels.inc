@@ -74,5 +74,5 @@ function authcache_panels_cache_settings_form($conf, $display, $pid) {
 /**
  * Settings form submit callback.
  */
-function authcache_panels_cache_settings_form_submit($form, &$form_state) {
+function authcache_panels_cache_settings_form_submit($form) {
 }

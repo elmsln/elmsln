@@ -1,0 +1,95 @@
+varnishtest "If the backend indicates that ESI tags are in the content, enable ESI processing / session / key"
+
+server s1 {
+        # c1
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.Cookie == "SESSabc=efg"
+        txresp -hdr "X-Authcache-Key: 123"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.Cookie == "SESSabc=efg"
+        txresp \
+            -hdr "X-Authcache-Do-ESI: 1" \
+            -hdr "Cache-Control: public, max-age=3600" \
+            -body "<html><esi:include src='/frag1'><esi:include src='/frag2'></html>"
+
+        rxreq
+        expect req.url == "/frag1"
+        expect req.http.X-Authcache == 1
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.Cookie == "SESSabc=efg"
+        txresp \
+            -hdr "Cache-Control: public, max-age=3600" \
+            -body "frag1"
+
+        rxreq
+        expect req.url == "/frag2"
+        expect req.http.X-Authcache == 1
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.Cookie == "SESSabc=efg"
+        txresp \
+            -hdr "Cache-Control: private, max-age=3600" \
+            -body "frag2"
+
+        # c2
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.Cookie == "SESSabc=hik"
+        txresp -hdr "X-Authcache-Key: 123"
+
+        rxreq
+        expect req.url == "/frag2"
+        expect req.http.X-Authcache == 1
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        expect req.http.Cookie == "SESSabc=hik"
+        txresp \
+            -hdr "Cache-Control: private, max-age=3600" \
+            -body "frag2"
+
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/" -hdr "Cookie: SESSabc=efg"
+        rxresp
+        expect resp.bodylen == 23
+
+        txreq -url "/" -hdr "Cookie: SESSabc=efg"
+        rxresp
+        expect resp.bodylen == 23
+} -run
+
+# Total requests: 12 (2 x GET /, 2 x GET /frag1, 2 x GET /frag2, 6 x /authcache-varnish-get-key)
+# Four of them are distinctive and need a trip to the backend
+varnish v1 -expect cache_hit == 8
+
+client c2 {
+        txreq -url "/" -hdr "Cookie: SESSabc=hik"
+        rxresp
+        expect resp.bodylen == 23
+
+        txreq -url "/" -hdr "Cookie: SESSabc=hik"
+        rxresp
+        expect resp.bodylen == 23
+} -run
+
+# Total requests: 12 (2 x GET /, 2 x GET /frag1, 2 x GET /frag2, 6 x /authcache-varnish-get-key)
+# Two of them new (one for /authcache-varnish-get-key and one for /frag2 which has per-user cache granularity)
+varnish v1 -expect cache_hit == 18
+
+server s1 -wait
+varnish v1 -stop

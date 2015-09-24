@@ -78,38 +78,14 @@ class API extends \Piwik\Plugin\API
         @$mail->send();
     }
 
-    private function findTranslationKeyForFeatureName($featureName)
-    {
-        if (empty($GLOBALS['Piwik_translations'])) {
-            return;
-        }
-
-        foreach ($GLOBALS['Piwik_translations'] as $key => $translations) {
-            $possibleKey = array_search($featureName, $translations);
-            if (!empty($possibleKey)) {
-                return $key . '_' . $possibleKey;
-            }
-        }
-    }
-
     private function getEnglishTranslationForFeatureName($featureName)
     {
-        $loadedLanguage = Translate::getLanguageLoaded();
-
-        if ($loadedLanguage == 'en') {
+        if (Translate::getLanguageLoaded() == 'en') {
             return $featureName;
         }
 
-        $translationKeyForFeature = $this->findTranslationKeyForFeatureName($featureName);
+        $translationKeyForFeature = Translate::findTranslationKeyForTranslation($featureName);
 
-        if (!empty($translationKeyForFeature)) {
-            Translate::reloadLanguage('en');
-
-            $featureName = Piwik::translate($translationKeyForFeature);
-            Translate::reloadLanguage($loadedLanguage);
-            return $featureName;
-        }
-
-        return $featureName;
+        return Piwik::translate($translationKeyForFeature, array(), 'en');
     }
 }

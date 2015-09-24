@@ -1,0 +1,3 @@
+name = "Ulmus Core"
+description = "Placeholder for make file with all dependencies."
+core = "7.x"

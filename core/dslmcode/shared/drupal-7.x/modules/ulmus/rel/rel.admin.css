@@ -1,0 +1,71 @@
+/**
+ * Refresh button on manage fields form.
+ */
+#edit-refresh {
+  display:none;
+}
+
+/**
+ * Register link.
+ */
+.rel-register-link a {
+  padding-left: 15px;
+  background: transparent url(/themes/seven/images/add.png) no-repeat 0 center;
+  line-height: 30px;
+}
+
+/**
+ * Modal
+ */
+#modalBackdrop {
+  position: fixed!important;
+  background-color: #000!important;
+}
+
+div.ctools-modal-content .modal-header {
+  padding: 5px;
+  background-color: #E1E2DC;
+}
+
+div.ctools-modal-content a.close {
+  color: #666;
+}
+
+div.ctools-modal-content .modal-title {
+  color: #666;
+}
+
+div.ctools-modal-content .modal-header img {
+  display: none;
+}
+
+div.ctools-modal-content .form-item label {
+  width: 100%;
+  float: none;
+  clear: both;
+}
+
+div.ctools-modal-content .resizable-textarea {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+div.ctools-modal-content {
+  font-size: 12px;
+  border: solid 1px #ddd;
+  -webkit-border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
+  -webkit-box-shadow: -1em 1em 1em rgba(0, 0, 0, 0.5);
+}
+
+#ctools-content-selection h2 {
+  color: #666;
+}
+
+#rel-build-register-form .dangerous td {
+  color: red;
+}
+#rel-build-register-form .warning td {
+  color: #840;
+}

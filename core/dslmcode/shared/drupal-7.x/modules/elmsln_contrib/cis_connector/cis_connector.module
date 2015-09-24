@@ -681,11 +681,14 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
           $section_object = $cis_section_items['list'][0];
           if (isset($section_object['field_services']) && is_array($section_object['field_services'])) {
             foreach ($section_object['field_services'] as $tmp) {
-              $output[$tmp['field_machine_name']['und'][0]['value']] = array(
-                'field_machine_name' => $tmp['field_machine_name']['und'][0]['value'],
-                'title' => $tmp['title'],
-                'field_location' => array('url' => $tmp['field_location']['und'][0]['url']),
-              );
+              // ensure we have an array of fields for the services
+              if (isset($tmp['field_machine_name'])) {
+                $output[$tmp['field_machine_name']['und'][0]['value']] = array(
+                  'field_machine_name' => $tmp['field_machine_name']['und'][0]['value'],
+                  'title' => $tmp['title'],
+                  'field_location' => array('url' => $tmp['field_location']['und'][0]['url']),
+                );
+              }
             }
           }
           else {

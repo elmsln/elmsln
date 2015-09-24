@@ -16,6 +16,8 @@ use Symfony\Component\Console\Command\Command;
 
 /**
  * @author Jean-François Simon <jeanfrancois.simon@sensiolabs.com>
+ *
+ * @internal
  */
 class ApplicationDescription
 {
@@ -144,9 +146,11 @@ class ApplicationDescription
         }
         ksort($namespacedCommands);
 
-        foreach ($namespacedCommands as &$commands) {
-            ksort($commands);
+        foreach ($namespacedCommands as &$commandsSet) {
+            ksort($commandsSet);
         }
+        // unset reference to keep scope clear
+        unset($commandsSet);
 
         return $namespacedCommands;
     }

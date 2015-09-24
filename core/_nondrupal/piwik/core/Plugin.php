@@ -8,6 +8,7 @@
  */
 namespace Piwik;
 
+use Piwik\Container\StaticContainer;
 use Piwik\Plugin\Dependency;
 use Piwik\Plugin\MetadataLoader;
 
@@ -18,7 +19,7 @@ require_once PIWIK_INCLUDE_PATH . '/core/Plugin/MetadataLoader.php';
 
 /**
  * Base class of all Plugin Descriptor classes.
- * 
+ *
  * Any plugin that wants to add event observers to one of Piwik's {@hook # hooks},
  * or has special installation/uninstallation logic must implement this class.
  * Plugins that can specify everything they need to in the _plugin.json_ files,
@@ -26,16 +27,16 @@ require_once PIWIK_INCLUDE_PATH . '/core/Plugin/MetadataLoader.php';
  *
  * Class implementations should be named after the plugin they are a part of
  * (eg, `class UserCountry extends Plugin`).
- * 
+ *
  * ### Plugin Metadata
- * 
+ *
  * In addition to providing a place for plugins to install/uninstall themselves
  * and add event observers, this class is also responsible for loading metadata
  * found in the plugin.json file.
- * 
+ *
  * The plugin.json file must exist in the root directory of a plugin. It can
  * contain the following information:
- * 
+ *
  * - **description**: An internationalized string description of what the plugin
  *                    does.
  * - **homepage**: The URL to the plugin's website.
@@ -44,15 +45,15 @@ require_once PIWIK_INCLUDE_PATH . '/core/Plugin/MetadataLoader.php';
  * - **license_homepage**: URL to website describing the license used.
  * - **version**: The plugin version (eg, 1.0.1).
  * - **theme**: `true` or `false`. If `true`, the plugin will be treated as a theme.
- * 
+ *
  * ### Examples
- * 
+ *
  * **How to extend**
- * 
+ *
  *     use Piwik\Common;
  *     use Piwik\Plugin;
  *     use Piwik\Db;
- * 
+ *
  *     class MyPlugin extends Plugin
  *     {
  *         public function getListHooksRegistered()
@@ -65,17 +66,17 @@ require_once PIWIK_INCLUDE_PATH . '/core/Plugin/MetadataLoader.php';
  *                                            )
  *             );
  *         }
- * 
+ *
  *         public function install()
  *         {
  *             Db::exec("CREATE TABLE " . Common::prefixTable('mytable') . "...");
  *         }
- * 
+ *
  *         public function uninstall()
  *         {
  *             Db::exec("DROP TABLE IF EXISTS " . Common::prefixTable('mytable'));
  *         }
- *         
+ *
  *         public function getReportMetadata(&$metadata)
  *         {
  *             // ...
@@ -86,7 +87,7 @@ require_once PIWIK_INCLUDE_PATH . '/core/Plugin/MetadataLoader.php';
  *             // ...
  *         }
  *     }
- * 
+ *
  * @api
  */
 class Plugin
@@ -106,6 +107,15 @@ class Plugin
     private $pluginInformation;
 
     /**
+     * As the cache is used quite often we avoid having to create instances all the time. We reuse it which is not
+     * perfect but efficient. If the cache is used we need to make sure to call setId() before usage as there
+     * is maybe a different key set since last usage.
+     *
+     * @var \Piwik\Cache\Eager
+     */
+    private $cache;
+
+    /**
      * Constructor.
      *
      * @param string|bool $pluginName A plugin name to force. If not supplied, it is set
@@ -121,11 +131,27 @@ class Plugin
         }
         $this->pluginName = $pluginName;
 
-        $metadataLoader = new MetadataLoader($pluginName);
-        $this->pluginInformation = $metadataLoader->load();
+        $cacheId = 'Plugin' . $pluginName . 'Metadata';
+        $cache = Cache::getEagerCache();
 
-        if ($this->hasDefinedPluginInformationInPluginClass() && $metadataLoader->hasPluginJson()) {
-            throw new \Exception('Plugin ' . $pluginName . ' has defined the method getInformation() and as well as having a plugin.json file. Please delete the getInformation() method from the plugin class. Alternatively, you may delete the plugin directory from plugins/' . $pluginName);
+        if ($cache->contains($cacheId)) {
+            $this->pluginInformation = $cache->fetch($cacheId);
+        } else {
+            $metadataLoader = new MetadataLoader($pluginName);
+            $this->pluginInformation = $metadataLoader->load();
+
+            if ($this->hasDefinedPluginInformationInPluginClass() && $metadataLoader->hasPluginJson()) {
+                throw new \Exception('Plugin ' . $pluginName . ' has defined the method getInformation() and as well as having a plugin.json file. Please delete the getInformation() method from the plugin class. Alternatively, you may delete the plugin directory from plugins/' . $pluginName);
+            }
+
+            $cache->save($cacheId, $this->pluginInformation);
+        }
+    }
+
+    private function createCacheIfNeeded()
+    {
+        if (is_null($this->cache)) {
+            $this->cache = Cache::getEagerCache();
         }
     }
 
@@ -147,7 +173,7 @@ class Plugin
 
     /**
      * Returns plugin information, including:
-     * 
+     *
      * - 'description' => string        // 1-2 sentence description of the plugin
      * - 'author' => string             // plugin author
      * - 'author_homepage' => string    // author homepage URL (or email "mailto:youremail@example.org")
@@ -167,11 +193,11 @@ class Plugin
 
     /**
      * Returns a list of hooks with associated event observers.
-     * 
+     *
      * Derived classes should use this method to associate callbacks with events.
      *
      * @return array eg,
-     * 
+     *
      *                   array(
      *                       'API.getReportMetadata' => 'myPluginFunction',
      *                       'Another.event'         => array(
@@ -201,12 +227,12 @@ class Plugin
     /**
      * Installs the plugin. Derived classes should implement this class if the plugin
      * needs to:
-     * 
+     *
      * - create tables
      * - update existing tables
      * - etc.
-     * 
-     * @throws Exception if installation of fails for some reason.
+     *
+     * @throws \Exception if installation of fails for some reason.
      */
     public function install()
     {
@@ -216,10 +242,10 @@ class Plugin
     /**
      * Uninstalls the plugins. Derived classes should implement this method if the changes
      * made in {@link install()} need to be undone during uninstallation.
-     * 
+     *
      * In most cases, if you have an {@link install()} method, you should provide
      * an {@link uninstall()} method.
-     * 
+     *
      * @throws \Exception if uninstallation of fails for some reason.
      */
     public function uninstall()
@@ -293,25 +319,70 @@ class Plugin
      */
     public function findComponent($componentName, $expectedSubclass)
     {
+        $this->createCacheIfNeeded();
+
+        $cacheId = 'Plugin' . $this->pluginName . $componentName . $expectedSubclass;
+
         $componentFile = sprintf('%s/plugins/%s/%s.php', PIWIK_INCLUDE_PATH, $this->pluginName, $componentName);
 
-        if (!file_exists($componentFile)) {
-            return;
+        if ($this->cache->contains($cacheId)) {
+            $classname = $this->cache->fetch($cacheId);
+
+            if (empty($classname)) {
+                return null; // might by "false" in case has no menu, widget, ...
+            }
+
+            if (file_exists($componentFile)) {
+                include_once $componentFile;
+            }
+        } else {
+            $this->cache->save($cacheId, false); // prevent from trying to load over and over again for instance if there is no Menu for a plugin
+
+            if (!file_exists($componentFile)) {
+                return null;
+            }
+
+            require_once $componentFile;
+
+            $classname = sprintf('Piwik\\Plugins\\%s\\%s', $this->pluginName, $componentName);
+
+            if (!class_exists($classname)) {
+                return null;
+            }
+
+            if (!empty($expectedSubclass) && !is_subclass_of($classname, $expectedSubclass)) {
+                Log::warning(sprintf('Cannot use component %s for plugin %s, class %s does not extend %s',
+                    $componentName, $this->pluginName, $classname, $expectedSubclass));
+                return null;
+            }
+
+            $this->cache->save($cacheId, $classname);
         }
 
-        $klassName = sprintf('Piwik\\Plugins\\%s\\%s', $this->pluginName, $componentName);
+        return StaticContainer::get($classname);
+    }
 
-        if (!class_exists($klassName)) {
-            return;
+    public function findMultipleComponents($directoryWithinPlugin, $expectedSubclass)
+    {
+        $this->createCacheIfNeeded();
+
+        $cacheId = 'Plugin' . $this->pluginName . $directoryWithinPlugin . $expectedSubclass;
+
+        if ($this->cache->contains($cacheId)) {
+            $components = $this->cache->fetch($cacheId);
+
+            if ($this->includeComponents($components)) {
+                return $components;
+            } else {
+                // problem including one cached file, refresh cache
+            }
         }
 
-        if (!empty($expectedSubclass) && !is_subclass_of($klassName, $expectedSubclass)) {
-            Log::warning(sprintf('Cannot use component %s for plugin %s, class %s does not extend %s',
-                                 $componentName, $this->pluginName, $klassName, $expectedSubclass));
-            return;
-        }
+        $components = $this->doFindMultipleComponents($directoryWithinPlugin, $expectedSubclass);
 
-        return new $klassName;
+        $this->cache->save($cacheId, $components);
+
+        return $components;
     }
 
     /**
@@ -377,5 +448,59 @@ class Plugin
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param $directoryWithinPlugin
+     * @param $expectedSubclass
+     * @return array
+     */
+    private function doFindMultipleComponents($directoryWithinPlugin, $expectedSubclass)
+    {
+        $components = array();
+
+        $baseDir = PIWIK_INCLUDE_PATH . '/plugins/' . $this->pluginName . '/' . $directoryWithinPlugin;
+        $files   = Filesystem::globr($baseDir, '*.php');
+
+        foreach ($files as $file) {
+            require_once $file;
+
+            $fileName  = str_replace(array($baseDir . '/', '.php'), '', $file);
+            $klassName = sprintf('Piwik\\Plugins\\%s\\%s\\%s', $this->pluginName, $directoryWithinPlugin, str_replace('/', '\\', $fileName));
+
+            if (!class_exists($klassName)) {
+                continue;
+            }
+
+            if (!empty($expectedSubclass) && !is_subclass_of($klassName, $expectedSubclass)) {
+                continue;
+            }
+
+            $klass = new \ReflectionClass($klassName);
+
+            if ($klass->isAbstract()) {
+                continue;
+            }
+
+            $components[$file] = $klassName;
+        }
+        return $components;
+    }
+
+    /**
+     * @param $components
+     * @return bool true if all files were included, false if any file cannot be read
+     */
+    private function includeComponents($components)
+    {
+        foreach ($components as $file => $klass) {
+            if (!is_readable($file)) {
+                return false;
+            }
+        }
+        foreach ($components as $file => $klass) {
+            include_once $file;
+        }
+        return true;
     }
 }

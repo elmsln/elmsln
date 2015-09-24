@@ -22,7 +22,7 @@ use Piwik\Updates;
  */
 class Updates_2_0_4_b5 extends Updates
 {
-    static function getSql()
+    public static function getSql()
     {
         return array(
             // ignore existing column name error (1060)
@@ -31,7 +31,7 @@ class Updates_2_0_4_b5 extends Updates
         );
     }
 
-    static function update()
+    public static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
 
@@ -56,7 +56,10 @@ class Updates_2_0_4_b5 extends Updates
             $superUser = null;
         }
 
-        if (!empty($superUser['bridge']) || empty($superUser)) {
+        if (!empty($superUser['bridge'])
+            || empty($superUser)
+            || empty($superUser['login'])
+        ) {
             // there is a super user which is not from the config but from the bridge, that means we already have
             // a super user in the database
             return;
@@ -75,7 +78,7 @@ class Updates_2_0_4_b5 extends Updates
                     'superuser_access' => 1
                 )
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             echo "There was an issue, but we proceed: " . $e->getMessage();
         }
 

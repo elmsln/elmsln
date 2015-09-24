@@ -9,31 +9,33 @@
 namespace Piwik;
 
 use Exception;
+use Piwik\DataAccess\TableMetadata;
 use Piwik\Db\Adapter;
-use Piwik\Tracker;
 
 /**
  * Contains SQL related helper functions for Piwik's MySQL database.
- * 
+ *
  * Plugins should always use this class to execute SQL against the database.
- * 
+ *
  * ### Examples
- * 
+ *
  *     $rows = Db::fetchAll("SELECT col1, col2 FROM mytable WHERE thing = ?", array('thingvalue'));
  *     foreach ($rows as $row) {
  *         doSomething($row['col1'], $row['col2']);
  *     }
- * 
+ *
  *     $value = Db::fetchOne("SELECT MAX(col1) FROM mytable");
  *     doSomethingElse($value);
- * 
+ *
  *     Db::query("DELETE FROM mytable WHERE id < ?", array(23));
- * 
+ *
  * @api
  */
 class Db
 {
     private static $connection = null;
+
+    private static $logQueries = true;
 
     /**
      * Returns the database connection and creates it if it hasn't been already.
@@ -46,7 +48,7 @@ class Db
             return Tracker::getDatabase();
         }
 
-        if (self::$connection === null) {
+        if (!self::hasDatabaseObject()) {
             self::createDatabaseObject();
         }
 
@@ -81,16 +83,16 @@ class Db
          */
         Piwik::postEvent('Db.getDatabaseConfig', array(&$dbConfig));
 
-        $dbConfig['profiler'] = $config->Debug['enable_sql_profiler'];
+        $dbConfig['profiler'] = @$config->Debug['enable_sql_profiler'];
 
         return $dbConfig;
     }
 
     /**
      * Connects to the database.
-     * 
+     *
      * Shouldn't be called directly, use {@link get()} instead.
-     * 
+     *
      * @param array|null $dbConfig Connection parameters in an array. Defaults to the `[database]`
      *                             INI config section.
      */
@@ -101,6 +103,16 @@ class Db
         $db = @Adapter::factory($dbConfig['adapter'], $dbConfig);
 
         self::$connection = $db;
+    }
+
+    /**
+     * Detect whether a database object is initialized / created or not.
+     *
+     * @internal
+     */
+    public static function hasDatabaseObject()
+    {
+        return isset(self::$connection);
     }
 
     /**
@@ -124,7 +136,7 @@ class Db
      * @throws \Exception If there is an error in the SQL.
      * @return integer|\Zend_Db_Statement
      */
-    static public function exec($sql)
+    public static function exec($sql)
     {
         /** @var \Zend_Db_Adapter_Abstract $db */
         $db = self::get();
@@ -132,6 +144,8 @@ class Db
         $q = $profiler->queryStart($sql, \Zend_Db_Profiler::INSERT);
 
         try {
+            self::logSql(__FUNCTION__, $sql);
+
             $return = self::get()->exec($sql);
         } catch (Exception $ex) {
             self::logExtraInfoIfDeadlock($ex);
@@ -139,13 +153,14 @@ class Db
         }
 
         $profiler->queryEnd($q);
+
         return $return;
     }
 
     /**
      * Executes an SQL query and returns the [Zend_Db_Statement](http://framework.zend.com/manual/1.12/en/zend.db.statement.html)
      * for the query.
-     * 
+     *
      * This method is meant for non-query SQL statements like `INSERT` and `UPDATE. If you want to fetch
      * data from the DB you should use one of the fetch... functions.
      *
@@ -154,9 +169,11 @@ class Db
      * @throws \Exception If there is a problem with the SQL or bind parameters.
      * @return \Zend_Db_Statement
      */
-    static public function query($sql, $parameters = array())
+    public static function query($sql, $parameters = array())
     {
         try {
+            self::logSql(__FUNCTION__, $sql, $parameters);
+
             return self::get()->query($sql, $parameters);
         } catch (Exception $ex) {
             self::logExtraInfoIfDeadlock($ex);
@@ -173,9 +190,11 @@ class Db
      * @return array The fetched rows, each element is an associative array mapping column names
      *               with column values.
      */
-    static public function fetchAll($sql, $parameters = array())
+    public static function fetchAll($sql, $parameters = array())
     {
         try {
+            self::logSql(__FUNCTION__, $sql, $parameters);
+
             return self::get()->fetchAll($sql, $parameters);
         } catch (Exception $ex) {
             self::logExtraInfoIfDeadlock($ex);
@@ -192,9 +211,11 @@ class Db
      * @return array The fetched row, each element is an associative array mapping column names
      *               with column values.
      */
-    static public function fetchRow($sql, $parameters = array())
+    public static function fetchRow($sql, $parameters = array())
     {
         try {
+            self::logSql(__FUNCTION__, $sql, $parameters);
+
             return self::get()->fetchRow($sql, $parameters);
         } catch (Exception $ex) {
             self::logExtraInfoIfDeadlock($ex);
@@ -211,9 +232,11 @@ class Db
      * @throws \Exception If there is a problem with the SQL or bind parameters.
      * @return string
      */
-    static public function fetchOne($sql, $parameters = array())
+    public static function fetchOne($sql, $parameters = array())
     {
         try {
+            self::logSql(__FUNCTION__, $sql, $parameters);
+
             return self::get()->fetchOne($sql, $parameters);
         } catch (Exception $ex) {
             self::logExtraInfoIfDeadlock($ex);
@@ -234,9 +257,11 @@ class Db
      *                     'col1value2' => array('col2' => '...', 'col3' => ...))
      *               ```
      */
-    static public function fetchAssoc($sql, $parameters = array())
+    public static function fetchAssoc($sql, $parameters = array())
     {
         try {
+            self::logSql(__FUNCTION__, $sql, $parameters);
+
             return self::get()->fetchAssoc($sql, $parameters);
         } catch (Exception $ex) {
             self::logExtraInfoIfDeadlock($ex);
@@ -247,33 +272,33 @@ class Db
     /**
      * Deletes all desired rows in a table, while using a limit. This function will execute many
      * DELETE queries until there are no more rows to delete.
-     * 
+     *
      * Use this function when you need to delete many thousands of rows from a table without
      * locking the table for too long.
-     * 
+     *
      * **Example**
-     * 
+     *
      *     // delete all visit rows whose ID is less than a certain value, 100000 rows at a time
      *     $idVisit = // ...
      *     Db::deleteAllRows(Common::prefixTable('log_visit'), "WHERE idvisit <= ?", "idvisit ASC", 100000, array($idVisit));
-     * 
+     *
      * @param string $table The name of the table to delete from. Must be prefixed (see {@link Piwik\Common::prefixTable()}).
      * @param string $where The where clause of the query. Must include the WHERE keyword.
-     * @param $orderBy The column to order by and the order by direction, eg, `idvisit ASC`.
+     * @param string $orderBy The column to order by and the order by direction, eg, `idvisit ASC`.
      * @param int $maxRowsPerQuery The maximum number of rows to delete per `DELETE` query.
      * @param array $parameters Parameters to bind for each query.
      * @return int The total number of rows deleted.
      */
-    static public function deleteAllRows($table, $where, $orderBy, $maxRowsPerQuery = 100000, $parameters = array())
+    public static function deleteAllRows($table, $where, $orderBy, $maxRowsPerQuery = 100000, $parameters = array())
     {
         $orderByClause = $orderBy ? "ORDER BY $orderBy" : "";
-        $sql = "DELETE FROM $table
-                $where
-                $orderByClause
+
+        $sql = "DELETE FROM $table $where $orderByClause
                 LIMIT " . (int)$maxRowsPerQuery;
 
         // delete rows w/ a limit
         $totalRowsDeleted = 0;
+
         do {
             $rowsDeleted = self::query($sql, $parameters)->rowCount();
 
@@ -285,44 +310,60 @@ class Db
 
     /**
      * Runs an `OPTIMIZE TABLE` query on the supplied table or tables.
-     * 
+     *
      * Tables will only be optimized if the `[General] enable_sql_optimize_queries` INI config option is
      * set to **1**.
      *
      * @param string|array $tables The name of the table to optimize or an array of tables to optimize.
      *                             Table names must be prefixed (see {@link Piwik\Common::prefixTable()}).
+     * @param bool $force If true, the `OPTIMIZE TABLE` query will be run even if InnoDB tables are being used.
      * @return \Zend_Db_Statement
      */
-    static public function optimizeTables($tables)
+    public static function optimizeTables($tables, $force = false)
     {
         $optimize = Config::getInstance()->General['enable_sql_optimize_queries'];
-        if (empty($optimize)) {
-            return;
+
+        if (empty($optimize)
+            && !$force
+        ) {
+            return false;
         }
 
         if (empty($tables)) {
             return false;
         }
+
         if (!is_array($tables)) {
             $tables = array($tables);
         }
 
-        // filter out all InnoDB tables
-        $myisamDbTables = array();
-        foreach (Db::fetchAll("SHOW TABLE STATUS") as $row) {
-            if (strtolower($row['Engine']) == 'myisam'
-                && in_array($row['Name'], $tables)
-            ) {
-                $myisamDbTables[] = $row['Name'];
+        if (!self::isOptimizeInnoDBSupported()
+            && !$force
+        ) {
+            // filter out all InnoDB tables
+            $myisamDbTables = array();
+            foreach (self::getTableStatus() as $row) {
+                if (strtolower($row['Engine']) == 'myisam'
+                    && in_array($row['Name'], $tables)
+                ) {
+                    $myisamDbTables[] = $row['Name'];
+                }
             }
+
+            $tables = $myisamDbTables;
         }
 
-        if (empty($myisamDbTables)) {
+        if (empty($tables)) {
             return false;
         }
 
         // optimize the tables
-        return self::query("OPTIMIZE TABLE " . implode(',', $myisamDbTables));
+        return self::query("OPTIMIZE TABLE " . implode(',', $tables));
+    }
+
+    private static function getTableStatus()
+    {
+        return Db::fetchAll("SHOW TABLE STATUS");
     }
 
     /**
@@ -332,19 +373,19 @@ class Db
      *                             Table names must be prefixed (see {@link Piwik\Common::prefixTable()}).
      * @return \Zend_Db_Statement
      */
-    static public function dropTables($tables)
+    public static function dropTables($tables)
     {
         if (!is_array($tables)) {
             $tables = array($tables);
         }
 
-        return self::query("DROP TABLE " . implode(',', $tables));
+        return self::query("DROP TABLE `" . implode('`,`', $tables) . "`");
     }
 
     /**
      * Drops all tables
      */
-    static public function dropAllTables()
+    public static function dropAllTables()
     {
         $tablesAlreadyInstalled = DbHelper::getTablesInstalled();
         self::dropTables($tablesAlreadyInstalled);
@@ -355,36 +396,32 @@ class Db
      *
      * @param string|array $table The name of the table you want to get the columns definition for.
      * @return \Zend_Db_Statement
+     * @deprecated since 2.11.0
      */
-    static public function getColumnNamesFromTable($table)
+    public static function getColumnNamesFromTable($table)
     {
-        $columns = self::fetchAll("SHOW COLUMNS FROM " . $table);
-
-        $columnNames = array();
-        foreach ($columns as $column) {
-            $columnNames[] = $column['Field'];
-        }
-
-        return $columnNames;
+        $tableMetadataAccess = new TableMetadata();
+        return $tableMetadataAccess->getColumns($table);
     }
 
     /**
      * Locks the supplied table or tables.
-     * 
+     *
      * **NOTE:** Piwik does not require the `LOCK TABLES` privilege to be available. Piwik
      * should still work if it has not been granted.
-     * 
+     *
      * @param string|array $tablesToRead The table or tables to obtain 'read' locks on. Table names must
      *                                   be prefixed (see {@link Piwik\Common::prefixTable()}).
      * @param string|array $tablesToWrite The table or tables to obtain 'write' locks on. Table names must
      *                                    be prefixed (see {@link Piwik\Common::prefixTable()}).
      * @return \Zend_Db_Statement
      */
-    static public function lockTables($tablesToRead, $tablesToWrite = array())
+    public static function lockTables($tablesToRead, $tablesToWrite = array())
     {
         if (!is_array($tablesToRead)) {
             $tablesToRead = array($tablesToRead);
         }
+
         if (!is_array($tablesToWrite)) {
             $tablesToWrite = array($tablesToWrite);
         }
@@ -393,6 +430,7 @@ class Db
         foreach ($tablesToWrite as $table) {
             $lockExprs[] = $table . " WRITE";
         }
+
         foreach ($tablesToRead as $table) {
             $lockExprs[] = $table . " READ";
         }
@@ -405,10 +443,10 @@ class Db
      *
      * **NOTE:** Piwik does not require the `LOCK TABLES` privilege to be available. Piwik
      * should still work if it has not been granted.
-     * 
+     *
      * @return \Zend_Db_Statement
      */
-    static public function unlockAllTables()
+    public static function unlockAllTables()
     {
         return self::exec("UNLOCK TABLES");
     }
@@ -416,7 +454,7 @@ class Db
     /**
      * Performs a `SELECT` statement on a table one chunk at a time and returns the first
      * successfully fetched value.
-     * 
+     *
      * This function will execute a query on one set of rows in a table. If nothing
      * is fetched, it will execute the query on the next set of rows and so on until
      * the query returns a value.
@@ -425,10 +463,10 @@ class Db
      * should be used when performing a `SELECT` that can take a long time to finish.
      * Using several smaller `SELECT`s will ensure that the table will not be locked
      * for too long.
-     * 
+     *
      * **Example**
-     * 
-     *     // find the most recent visit that is older than a certain date 
+     *
+     *     // find the most recent visit that is older than a certain date
      *     $dateStart = // ...
      *     $sql = "SELECT idvisit
      *           FROM $logVisit
@@ -451,9 +489,10 @@ class Db
      *
      * @return string
      */
-    static public function segmentedFetchFirst($sql, $first, $last, $step, $params = array())
+    public static function segmentedFetchFirst($sql, $first, $last, $step, $params = array())
     {
         $result = false;
+
         if ($step > 0) {
             for ($i = $first; $result === false && $i <= $last; $i += $step) {
                 $result = self::fetchOne($sql, array_merge($params, array($i, $i + $step)));
@@ -463,17 +502,18 @@ class Db
                 $result = self::fetchOne($sql, array_merge($params, array($i, $i + $step)));
             }
         }
+
         return $result;
     }
 
     /**
      * Performs a `SELECT` on a table one chunk at a time and returns an array
      * of every fetched value.
-     * 
+     *
      * This function will break up a `SELECT` query into several smaller queries by
      * using only a limited number of rows at a time. It will accumulate the results
      * of each smaller query and return the result.
-     * 
+     *
      * This function should be used when performing a `SELECT` that can
      * take a long time to finish. Using several smaller queries will ensure that
      * the table will not be locked for too long.
@@ -487,9 +527,10 @@ class Db
      * @param array $params Parameters to bind in the query, `array(param1 => value1, param2 => value2)`
      * @return array An array of primitive values.
      */
-    static public function segmentedFetchOne($sql, $first, $last, $step, $params = array())
+    public static function segmentedFetchOne($sql, $first, $last, $step, $params = array())
     {
         $result = array();
+
         if ($step > 0) {
             for ($i = $first; $i <= $last; $i += $step) {
                 $result[] = self::fetchOne($sql, array_merge($params, array($i, $i + $step)));
@@ -499,6 +540,7 @@ class Db
                 $result[] = self::fetchOne($sql, array_merge($params, array($i, $i + $step)));
             }
         }
+
         return $result;
     }
 
@@ -509,11 +551,11 @@ class Db
      * This function will break up a `SELECT` query into several smaller queries by
      * using only a limited number of rows at a time. It will accumulate the results
      * of each smaller query and return the result.
-     * 
+     *
      * This function should be used when performing a `SELECT` that can
      * take a long time to finish. Using several smaller queries will ensure that
      * the table will not be locked for too long.
-     * 
+     *
      * @param string $sql The SQL to perform. The last two conditions of the `WHERE`
      *                    expression must be as follows: `'id >= ? AND id < ?'` where
      *                    **id** is the int id of the table.
@@ -524,33 +566,35 @@ class Db
      * @return array An array of rows that includes the result set of every smaller
      *               query.
      */
-    static public function segmentedFetchAll($sql, $first, $last, $step, $params = array())
+    public static function segmentedFetchAll($sql, $first, $last, $step, $params = array())
     {
         $result = array();
+
         if ($step > 0) {
             for ($i = $first; $i <= $last; $i += $step) {
                 $currentParams = array_merge($params, array($i, $i + $step));
-                $result = array_merge($result, self::fetchAll($sql, $currentParams));
+                $result        = array_merge($result, self::fetchAll($sql, $currentParams));
             }
         } else {
             for ($i = $first; $i >= $last; $i += $step) {
                 $currentParams = array_merge($params, array($i, $i + $step));
-                $result = array_merge($result, self::fetchAll($sql, $currentParams));
+                $result        = array_merge($result, self::fetchAll($sql, $currentParams));
             }
         }
+
         return $result;
     }
 
     /**
      * Performs a `UPDATE` or `DELETE` statement on a table one chunk at a time.
-     * 
+     *
      * This function will break up a query into several smaller queries by
      * using only a limited number of rows at a time.
-     * 
+     *
      * This function should be used when executing a non-query statement will
      * take a long time to finish. Using several smaller queries will ensure that
      * the table will not be locked for too long.
-     * 
+     *
      * @param string $sql The SQL to perform. The last two conditions of the `WHERE`
      *                    expression must be as follows: `'id >= ? AND id < ?'` where
      *                    **id** is the int id of the table.
@@ -559,7 +603,7 @@ class Db
      * @param int $step The maximum number of rows to scan in one query.
      * @param array $params Parameters to bind in the query, `array(param1 => value1, param2 => value2)`
      */
-    static public function segmentedQuery($sql, $first, $last, $step, $params = array())
+    public static function segmentedQuery($sql, $first, $last, $step, $params = array())
     {
         if ($step > 0) {
             for ($i = $first; $i <= $last; $i += $step) {
@@ -580,7 +624,7 @@ class Db
      * @param string $tableName The name of the table to check for. Must be prefixed.
      * @return bool
      */
-    static public function tableExists($tableName)
+    public static function tableExists($tableName)
     {
         return self::query("SHOW TABLES LIKE ?", $tableName)->rowCount() > 0;
     }
@@ -593,7 +637,7 @@ class Db
      * @param int $maxRetries The max number of times to retry.
      * @return bool `true` if the lock was obtained, `false` if otherwise.
      */
-    static public function getDbLock($lockName, $maxRetries = 30)
+    public static function getDbLock($lockName, $maxRetries = 30)
     {
         /*
          * the server (e.g., shared hosting) may have a low wait timeout
@@ -611,6 +655,7 @@ class Db
             }
             $maxRetries--;
         }
+
         return false;
     }
 
@@ -620,7 +665,7 @@ class Db
      * @param string $lockName The lock name.
      * @return bool `true` if the lock was released, `false` if otherwise.
      */
-    static public function releaseDbLock($lockName)
+    public static function releaseDbLock($lockName)
     {
         $sql = 'SELECT RELEASE_LOCK(?)';
 
@@ -667,5 +712,49 @@ class Db
             // log using exception so backtrace appears in log output
             Log::debug(new Exception("Encountered deadlock: " . print_r($deadlockInfo, true)));
         }
+    }
+
+    private static function logSql($functionName, $sql, $parameters = array())
+    {
+        if (self::$logQueries === false
+            || @Config::getInstance()->Debug['log_sql_queries'] != 1
+        ) {
+            return;
+        }
+
+        // NOTE: at the moment we don't log parameters in order to avoid sensitive information leaks
+        Log::debug("Db::%s() executing SQL: %s", $functionName, $sql);
+    }
+
+    /**
+     * @param bool $enable
+     */
+    public static function enableQueryLog($enable)
+    {
+        self::$logQueries = $enable;
+    }
+
+    /**
+     * @return boolean
+     */
+    public static function isQueryLogEnabled()
+    {
+        return self::$logQueries;
+    }
+
+    public static function isOptimizeInnoDBSupported($version = null)
+    {
+        if ($version === null) {
+            $version = Db::fetchOne("SELECT VERSION()");
+        }
+
+        $version = strtolower($version);
+
+        if (strpos($version, "mariadb") === false) {
+            return false;
+        }
+
+        $semanticVersion = strstr($version, '-', $beforeNeedle = true);
+        return version_compare($semanticVersion, '10.1.1', '>=');
     }
 }

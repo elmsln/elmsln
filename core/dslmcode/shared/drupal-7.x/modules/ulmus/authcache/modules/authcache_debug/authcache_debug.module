@@ -90,7 +90,9 @@ function authcache_debug_page_build(&$page) {
  * Implements hook_authcache_cache_data_alter().
  */
 function authcache_debug_init() {
-  drupal_register_shutdown_function('_authcache_debug_shutdown');
+  if (!authcache_debug_excluded()) {
+    drupal_register_shutdown_function('_authcache_debug_shutdown');
+  }
 }
 
 /**
@@ -196,6 +198,20 @@ function _authcache_debug_status($status = NULL) {
 }
 
 /**
+ * Determines whether or not to collect debug info on the current request.
+ */
+function authcache_debug_excluded() {
+  $excluded = &drupal_static(__FUNCTION__, NULL);
+
+  if (!isset($excluded)) {
+    $result = module_invoke_all('authcache_debug_exclude');
+    $excluded = count(array_filter($result)) > 0;
+  }
+
+  return $excluded;
+}
+
+/**
  * Return true when log-to-watchdog is enabled for the logged in user.
  */
 function _authcache_debug_watchdog_enabled() {
@@ -203,22 +219,27 @@ function _authcache_debug_watchdog_enabled() {
   $enabled = &drupal_static(__FUNCTION__);
 
   if (!isset($enabled)) {
-    switch (variable_get('authcache_debug_watchdog', AUTHCACHE_DEBUG_WATCHDOG_NEVER)) {
-      case AUTHCACHE_DEBUG_WATCHDOG_ALWAYS:
-        $enabled = TRUE;
-        break;
+    if (authcache_debug_excluded()) {
+      $enabled = FALSE;
+    }
+    else {
+      switch (variable_get('authcache_debug_watchdog', AUTHCACHE_DEBUG_WATCHDOG_NEVER)) {
+        case AUTHCACHE_DEBUG_WATCHDOG_ALWAYS:
+          $enabled = TRUE;
+          break;
 
-      case AUTHCACHE_DEBUG_WATCHDOG_ENABLED_ROLES:
-        $enabled = (NULL === authcache_authcache_account_exclude($user));
-        break;
+        case AUTHCACHE_DEBUG_WATCHDOG_ENABLED_ROLES:
+          $enabled = (NULL === authcache_authcache_account_exclude($user));
+          break;
 
-      case AUTHCACHE_DEBUG_WATCHDOG_DEBUG_USERS:
-        $enabled = ($user->uid && in_array($user->name, variable_get('authcache_debug_users', array())));
-        break;
+        case AUTHCACHE_DEBUG_WATCHDOG_DEBUG_USERS:
+          $enabled = ($user->uid && in_array($user->name, variable_get('authcache_debug_users', array())));
+          break;
 
-      default:
-        $enabled = FALSE;
-        break;
+        default:
+          $enabled = FALSE;
+          break;
+      }
     }
   }
 
@@ -231,6 +252,15 @@ function _authcache_debug_watchdog_enabled() {
 function authcache_debug_authcache_request_exclude() {
   if (arg(0) === 'authcache-debug' && arg(1) === 'ajax') {
     return t('Caching disabled on authcache debug ajax callback.');
+  }
+}
+
+/**
+ * Implements hook_authcache_debug_exclude().
+ */
+function authcache_debug_authcache_debug_exclude() {
+  if (arg(0) === 'authcache-debug' && arg(1) === 'ajax') {
+    return TRUE;
   }
 }
 

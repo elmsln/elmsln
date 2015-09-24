@@ -101,3 +101,36 @@ NameVirtualHost *:80
     allow from all
 </Directory>
 
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/people
+    ServerName people.YOURUNIT.edu
+    ServerAlias DATA.people.SERVICEYOURUNIT.edu
+</VirtualHost>
+<Directory /var/www/elmsln/domains/people>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+    Include /var/www/elmsln/domains/people/.htaccess
+</Directory>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/innovate
+    ServerName innovate.YOURUNIT.edu
+    ServerAlias DATA.innovate.SERVICEYOURUNIT.edu
+</VirtualHost>
+<Directory /var/www/elmsln/domains/innovate>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+    Include /var/www/elmsln/domains/innovate/.htaccess
+</Directory>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/grades
+    ServerName grades.YOURUNIT.edu
+    ServerAlias DATA.grades.SERVICEYOURUNIT.edu
+</VirtualHost>
+<Directory /var/www/elmsln/domains/grades>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+    Include /var/www/elmsln/domains/grades/.htaccess
+</Directory>

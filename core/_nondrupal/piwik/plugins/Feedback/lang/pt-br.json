@@ -1,0 +1,12 @@
+{
+    "Feedback": {
+        "DoYouHaveBugReportOrFeatureRequest": "Você tem algum bug pra relatar ou alguma caracteristica para pedir?",
+        "IWantTo": "Eu quero:",
+        "LearnWaysToParticipate": "Aprenda sobre todas as maneiras que você pode %s participar %s",
+        "ManuallySendEmailTo": "Por favor envie manualmente sua mensagem para",
+        "SendFeedback": "Envie FeedBack",
+        "ThankYou": "Obrigado por nos ajudar a fazer o Piwik melhor!",
+        "TopLinkTooltip": "Diga-nos o que você pensa, ou suporte.",
+        "VisitTheForums": "Visite o %s Foruns %s"
+    }
+}

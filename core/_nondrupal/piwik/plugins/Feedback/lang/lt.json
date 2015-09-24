@@ -1,0 +1,11 @@
+{
+    "Feedback": {
+        "DoYouHaveBugReportOrFeatureRequest": "Norite pranešti apie aptiktą klaidą arba paprašyti naujų ypatybių?",
+        "IWantTo": "Aš noriu:",
+        "LearnWaysToParticipate": "Sužinokite kaip galite %s prisijungti%s",
+        "ManuallySendEmailTo": "Prašome išsiųsti rankiniu būdu",
+        "SendFeedback": "Siųsti atsiliepimą",
+        "ThankYou": "Dėkojame už pagalbą kuriant tobulesnį Piwik!",
+        "VisitTheForums": "Apsilankykite %s forumuose%s"
+    }
+}

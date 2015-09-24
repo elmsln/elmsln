@@ -27,7 +27,7 @@ if (!defined('PIWIK_USER_PATH')) {
  * View lets you set properties that will be passed on to a Twig template.
  * View will also set several properties that will be available in all Twig
  * templates, including:
- * 
+ *
  * - **currentModule**: The value of the **module** query parameter.
  * - **currentAction**: The value of the **action** query parameter.
  * - **userLogin**: The current user login name.
@@ -43,29 +43,29 @@ if (!defined('PIWIK_USER_PATH')) {
  * - **show_autocompleter**: Whether the site selector should be shown or not.
  * - **loginModule**: The name of the currently used authentication module.
  * - **userAlias**: The alias of the current user.
- * 
+ *
  * ### Template Naming Convention
- * 
+ *
  * Template files should be named after the controller method they are used in.
  * If they are used in more than one controller method or are included by another
  * template, they should describe the output they generate and be prefixed with
  * an underscore, eg, **_dataTable.twig**.
- * 
+ *
  * ### Twig
- * 
+ *
  * Twig templates must exist in the **templates** folder in a plugin's root
  * folder.
- * 
+ *
  * The following filters are available to twig templates:
- * 
+ *
  * - **translate**: Outputs internationalized text using a translation token, eg,
  *                  `{{ 'General_Date'|translate }}`. sprintf parameters can be passed
  *                  to the filter.
  * - **urlRewriteWithParameters**: Modifies the current query string with the given
  *                                 set of parameters, eg,
- *                                 
+ *
  *                                     {{ {'module':'MyPlugin', 'action':'index'} | urlRewriteWithParameters }}
- *                                 
+ *
  * - **sumTime**: Pretty formats an number of seconds.
  * - **money**: Formats a numerical value as a monetary value using the currency
  *              of the supplied site (second arg is site ID).
@@ -74,9 +74,9 @@ if (!defined('PIWIK_USER_PATH')) {
  *                 eg, `{{ myReallyLongText|truncate(80) }}`
  * - **implode**: Calls `implode`.
  * - **ucwords**: Calls `ucwords`.
- * 
+ *
  * The following functions are available to twig templates:
- * 
+ *
  * - **linkTo**: Modifies the current query string with the given set of parameters,
  *               eg `{{ linkTo({'module':'MyPlugin', 'action':'index'}) }}`.
  * - **sparkline**: Outputs a sparkline image HTML element using the sparkline image
@@ -85,11 +85,11 @@ if (!defined('PIWIK_USER_PATH')) {
  *                  which is outputted in the template, eg, `{{ postEvent('MyPlugin.event') }}`
  * - **isPluginLoaded**: Returns true if the supplied plugin is loaded, false if otherwise.
  *                       `{% if isPluginLoaded('Goals') %}...{% endif %}`
- * 
+ *
  * ### Examples
- * 
+ *
  * **Basic usage**
- * 
+ *
  *     // a controller method
  *     public function myView()
  *     {
@@ -98,7 +98,7 @@ if (!defined('PIWIK_USER_PATH')) {
  *         $view->property2 = "another view property";
  *         return $view->render();
  *     }
- * 
+ *
  *
  * @api
  */
@@ -117,7 +117,7 @@ class View implements ViewInterface
 
     /**
      * Constructor.
-     * 
+     *
      * @param string $templateFile The template file to load. Must be in the following format:
      *                             `"@MyPlugin/templateFileName"`. Note the absence of .twig
      *                             from the end of the name.
@@ -189,6 +189,17 @@ class View implements ViewInterface
         return $this->templateVars[$key];
     }
 
+    /**
+     * Returns true if a template variable has been set or not.
+     *
+     * @param string $name The name of the template variable.
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return isset($this->templateVars[$name]);
+    }
+
     private function initializeTwig()
     {
         $piwikTwig = new Twig();
@@ -210,39 +221,51 @@ class View implements ViewInterface
             $this->url = Common::sanitizeInputValue(Url::getCurrentUrl());
             $this->token_auth = Piwik::getCurrentUserTokenAuth();
             $this->userHasSomeAdminAccess = Piwik::isUserHasSomeAdminAccess();
+            $this->userIsAnonymous = Piwik::isUserIsAnonymous();
             $this->userIsSuperUser = Piwik::hasUserSuperUserAccess();
             $this->latest_version_available = UpdateCheck::isNewestVersionAvailable();
             $this->disableLink = Common::getRequestVar('disableLink', 0, 'int');
             $this->isWidget = Common::getRequestVar('widget', 0, 'int');
-            $this->cacheBuster = UIAssetCacheBuster::getInstance()->piwikVersionBasedCacheBuster();
+            
+            if (Development::isEnabled()) {
+                $cacheBuster = rand(0, 10000);
+            } else {
+                $cacheBuster = UIAssetCacheBuster::getInstance()->piwikVersionBasedCacheBuster();
+            }
 
+            $this->cacheBuster = $cacheBuster;
+            
             $this->loginModule = Piwik::getLoginPluginName();
 
             $user = APIUsersManager::getInstance()->getUser($this->userLogin);
             $this->userAlias = $user['alias'];
         } catch (Exception $e) {
-            // can fail, for example at installation (no plugin loaded yet)
-        }
+            Log::debug($e);
 
-        try {
-            $this->totalTimeGeneration = Registry::get('timer')->getTime();
-            $this->totalNumberOfQueries = Profiler::getQueryCount();
-        } catch (Exception $e) {
-            $this->totalNumberOfQueries = 0;
+            // can fail, for example at installation (no plugin loaded yet)
         }
 
         ProxyHttp::overrideCacheControlHeaders('no-store');
 
-        @header('Content-Type: ' . $this->contentType);
+        Common::sendHeader('Content-Type: ' . $this->contentType);
         // always sending this header, sometimes empty, to ensure that Dashboard embed loads (which could call this header() multiple times, the last one will prevail)
-        @header('X-Frame-Options: ' . (string)$this->xFrameOptions);
+        Common::sendHeader('X-Frame-Options: ' . (string)$this->xFrameOptions);
 
         return $this->renderTwigTemplate();
     }
 
     protected function renderTwigTemplate()
     {
-        $output = $this->twig->render($this->getTemplateFile(), $this->getTemplateVars());
+        try {
+            $output = $this->twig->render($this->getTemplateFile(), $this->getTemplateVars());
+        } catch (Exception $ex) {
+            // twig does not rethrow exceptions, it wraps them so we log the cause if we can find it
+            $cause = $ex->getPrevious();
+            Log::debug($cause === null ? $ex : $cause);
+
+            throw $ex;
+        }
+
         $output = $this->applyFilter_cacheBuster($output);
 
         $helper = new Theme;
@@ -286,7 +309,7 @@ class View implements ViewInterface
     /**
      * Set stored value used in the Content-Type HTTP header field. The header is
      * set just before rendering.
-     * 
+     *
      * @param string $contentType
      */
     public function setContentType($contentType)
@@ -297,7 +320,7 @@ class View implements ViewInterface
     /**
      * Set X-Frame-Options field in the HTTP response. The header is set just
      * before rendering.
-     * 
+     *
      * _Note: setting this allows you to make sure the View **cannot** be
      * embedded in iframes. Learn more [here](https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options)._
      *
@@ -348,15 +371,23 @@ class View implements ViewInterface
      * Clear compiled Twig templates
      * @ignore
      */
-    static public function clearCompiledTemplates()
+    public static function clearCompiledTemplates()
     {
         $twig = new Twig();
-        $twig->getTwigEnvironment()->clearTemplateCache();
+        $environment = $twig->getTwigEnvironment();
+        $environment->clearTemplateCache();
+
+        $cacheDirectory = $environment->getCache();
+        if (!empty($cacheDirectory)
+            && is_dir($cacheDirectory)
+        ) {
+            $environment->clearCacheFiles();
+        }
     }
 
     /**
      * Creates a View for and then renders the single report template.
-     * 
+     *
      * Can be used for pages that display only one report to avoid having to create
      * a new template.
      *
@@ -364,7 +395,7 @@ class View implements ViewInterface
      * @param string $reportHtml The report body HTML.
      * @return string|void The report contents if `$fetch` is true.
      */
-    static public function singleReport($title, $reportHtml)
+    public static function singleReport($title, $reportHtml)
     {
         $view = new View('@CoreHome/_singleReport');
         $view->title = $title;

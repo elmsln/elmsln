@@ -1,0 +1,29 @@
+{
+    "Referrers": {
+        "Campaigns": "Kampanie reklamowe",
+        "ColumnCampaign": "Kampania",
+        "ColumnSearchEngine": "Wyszukiwarka",
+        "ColumnWebsite": "Strona WWW",
+        "ColumnWebsitePage": "Pojedyncza strona",
+        "DirectEntry": "wejścia bezpośrednie",
+        "Distinct": "Wyróżnione odsyłacze według ich typu",
+        "DistinctCampaigns": "wyróżnione kampanie",
+        "DistinctKeywords": "wyróżnione słowa kluczowe",
+        "DistinctSearchEngines": "Wyróżnione wyszukiwarki",
+        "DistinctWebsites": "wyróżnione serwisy internetowe",
+        "Keywords": "Słowa kluczowe",
+        "ReferrerName": "Nazwa odsyłacza",
+        "Referrers": "Odsyłacze",
+        "SearchEngines": "Wyszukiwarki",
+        "SubmenuSearchEngines": "Wyszukiwarki & słowa kluczowe",
+        "SubmenuWebsites": "Serwisy internetowe",
+        "Type": "Typ odsyłacza",
+        "TypeCampaigns": "%s z kampanii",
+        "TypeDirectEntries": "%s bezpośrednich wejść",
+        "TypeSearchEngines": "%s z wyszukiwarek",
+        "TypeWebsites": "%s ze stron",
+        "UsingNDistinctUrls": "(używając %s wyróżnionych adresów url)",
+        "Websites": "Serwisy internetowe",
+        "WidgetExternalWebsites": "Lista zewnętrznych serwisów internetowych"
+    }
+}

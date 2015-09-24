@@ -11,7 +11,6 @@ namespace Piwik\Plugins\Live;
 use Piwik\API\Request;
 use Piwik\Common;
 use Piwik\Config;
-use Piwik\MetricsFormatter;
 use Piwik\Piwik;
 use Piwik\Plugins\Goals\API as APIGoals;
 use Piwik\Url;
@@ -39,31 +38,6 @@ class Controller extends \Piwik\Plugin\Controller
         return $this->render($view);
     }
 
-    public function getSimpleLastVisitCount()
-    {
-        $lastMinutes = Config::getInstance()->General[self::SIMPLE_VISIT_COUNT_WIDGET_LAST_MINUTES_CONFIG_KEY];
-
-        $lastNData = Request::processRequest('Live.getCounters', array('lastMinutes' => $lastMinutes));
-
-        $view = new View('@Live/getSimpleLastVisitCount');
-        $view->lastMinutes = $lastMinutes;
-        $view->visitors = MetricsFormatter::getPrettyNumber($lastNData[0]['visitors']);
-        $view->visits = MetricsFormatter::getPrettyNumber($lastNData[0]['visits']);
-        $view->actions = MetricsFormatter::getPrettyNumber($lastNData[0]['actions']);
-        $view->refreshAfterXSecs = Config::getInstance()->General['live_widget_refresh_after_seconds'];
-        $view->translations = array(
-            'one_visitor' => Piwik::translate('Live_NbVisitor'),
-            'visitors'    => Piwik::translate('Live_NbVisitors'),
-            'one_visit'   => Piwik::translate('General_OneVisit'),
-            'visits'      => Piwik::translate('General_NVisits'),
-            'one_action'  => Piwik::translate('General_OneAction'),
-            'actions'     => Piwik::translate('VisitsSummary_NbActionsDescription'),
-            'one_minute'  => Piwik::translate('General_OneMinute'),
-            'minutes'     => Piwik::translate('General_NMinutes')
-        );
-        return $this->render($view);
-    }
-
     public function ajaxTotalVisitors()
     {
         $view = new View('@Live/ajaxTotalVisitors');
@@ -82,14 +56,8 @@ class Controller extends \Piwik\Plugin\Controller
     public function indexVisitorLog()
     {
         $view = new View('@Live/indexVisitorLog.twig');
-        $view->filterEcommerce = Common::getRequestVar('filterEcommerce', 0, 'int');
-        $view->visitorLog = $this->getLastVisitsDetails();
+        $view->visitorLog = $this->renderReport('getLastVisitsDetails');
         return $view->render();
-    }
-
-    public function getLastVisitsDetails()
-    {
-        return $this->renderReport(__FUNCTION__);
     }
 
     /**
@@ -97,7 +65,7 @@ class Controller extends \Piwik\Plugin\Controller
      */
     public function getVisitorLog()
     {
-        return $this->getLastVisitsDetails();
+        return $this->renderReport('getLastVisitsDetails');
     }
 
     public function getLastVisitsStart()
@@ -119,9 +87,9 @@ class Controller extends \Piwik\Plugin\Controller
     private function setCounters($view)
     {
         $segment = Request::getRawSegmentFromRequest();
-        $last30min = API::getInstance()->getCounters($this->idSite, $lastMinutes = 30, $segment);
+        $last30min = API::getInstance()->getCounters($this->idSite, $lastMinutes = 30, $segment, array('visits', 'actions'));
         $last30min = $last30min[0];
-        $today = API::getInstance()->getCounters($this->idSite, $lastMinutes = 24 * 60, $segment);
+        $today = API::getInstance()->getCounters($this->idSite, $lastMinutes = 24 * 60, $segment, array('visits', 'actions'));
         $today = $today[0];
         $view->visitorsCountHalfHour = $last30min['visits'];
         $view->visitorsCountToday = $today['visits'];
@@ -140,7 +108,7 @@ class Controller extends \Piwik\Plugin\Controller
         $view = new View('@Live/getVisitorProfilePopup.twig');
         $view->idSite = $idSite;
         $view->goals = APIGoals::getInstance()->getGoals($idSite);
-        $view->visitorData = Request::processRequest('Live.getVisitorProfile', array('checkForLatLong' => true));
+        $view->visitorData = Request::processRequest('Live.getVisitorProfile');
         $view->exportLink = $this->getVisitorProfileExportLink();
 
         if (Common::getRequestVar('showMap', 1) == 1
@@ -164,7 +132,7 @@ class Controller extends \Piwik\Plugin\Controller
                                                                             'date'    => false
                                                                        ));
         $view->visitData = $visits->getFirstRow()->getColumns();
-        $view->visitReferralSummary = API::getReferrerSummaryForVisit($visits->getFirstRow());
+        $view->visitReferralSummary = VisitorProfile::getReferrerSummaryForVisit($visits->getFirstRow());
         $view->showLocation = true;
         $this->setWidgetizedVisitorProfileUrl($view);
         $view->exportLink = $this->getVisitorProfileExportLink();
@@ -176,18 +144,20 @@ class Controller extends \Piwik\Plugin\Controller
         $startCounter = Common::getRequestVar('filter_offset', 0, 'int');
         $nextVisits = Request::processRequest('Live.getLastVisitsDetails', array(
                                                                                 'segment'                 => self::getSegmentWithVisitorId(),
-                                                                                'filter_limit'            => API::VISITOR_PROFILE_MAX_VISITS_TO_SHOW,
+                                                                                'filter_limit'            => VisitorProfile::VISITOR_PROFILE_MAX_VISITS_TO_SHOW,
                                                                                 'filter_offset'           => $startCounter,
                                                                                 'period'                  => false,
                                                                                 'date'                    => false
                                                                            ));
+
+        $idSite = Common::getRequestVar('idSite', null, 'int');
 
         if (empty($nextVisits)) {
             return;
         }
 
         $view = new View('@Live/getVisitList.twig');
-        $view->idSite = Common::getRequestVar('idSite', null, 'int');
+        $view->idSite = $idSite;
         $view->startCounter = $startCounter + 1;
         $view->visits = $nextVisits;
         return $view->render();

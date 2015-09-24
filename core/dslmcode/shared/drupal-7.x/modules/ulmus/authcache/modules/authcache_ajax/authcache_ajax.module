@@ -51,15 +51,21 @@ function authcache_ajax_theme() {
  */
 function theme_authcache_p13n_fragment__authcache_ajax($variables) {
   $url = $variables['url'];
+  $fragment = $variables['fragment'];
+  $param = $variables['param'];
+  $attrs = $variables['attributes'];
 
-  if ($url) {
+  if ($url && $fragment) {
     drupal_add_js(drupal_get_path('module', 'authcache_p13n') . '/authcache_p13n.js');
     drupal_add_js(drupal_get_path('module', 'authcache_ajax') . '/authcache_ajax.js');
 
-    $attrs = array(
-      'class' => array('authcache-ajax-frag'),
-      'data-authcache-ajax-src' => url($url['path'], $url['options']),
-    );
+    $attrs['class'][] = 'authcache-ajax-frag';
+    $attrs['data-p13n-frag'] = $fragment;
+    if ($param) {
+      $attrs['data-p13n-param'] = $param;
+    }
+
+    drupal_add_js(array('authcacheP13nAjaxFragments' => array($fragment => array(url($url['path'], $url['options']) => $param))), 'setting');
 
     return '<span ' . drupal_attributes($attrs) . '></span>';
   }
@@ -110,16 +116,15 @@ function theme_authcache_p13n_partial__authcache_ajax($variables) {
   $partial = $variables['partial'];
   $param = $variables['param'];
   $class = $variables['class'];
+  $attrs = $variables['attributes'];
 
   if ($assembly && $partial && $param && $class) {
     drupal_add_js(drupal_get_path('module', 'authcache_p13n') . '/authcache_p13n.js');
     drupal_add_js(drupal_get_path('module', 'authcache_ajax') . '/authcache_ajax.js');
 
-    $attrs = array(
-      'class' => array($class),
-      'data-p13n-frag' => $partial,
-      'data-p13n-param' => $param,
-    );
+    $attrs['class'][] = $class;
+    $attrs['data-p13n-frag'] = $partial;
+    $attrs['data-p13n-param'] = $param;
 
     return '<span ' . drupal_attributes($attrs) . '></span>';
   }

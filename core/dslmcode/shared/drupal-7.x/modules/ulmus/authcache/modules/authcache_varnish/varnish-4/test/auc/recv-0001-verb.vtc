@@ -1,0 +1,29 @@
+varnishtest "Pipe requests with non-standard HTTP verb"
+
+server s1 {
+        rxreq
+        expect req.method == "HIDEANDSEEK"
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == <undef>
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -body "1234"
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/"  -req "HIDEANDSEEK"
+        rxresp
+        expect resp.body == "1234"
+}
+
+client c1 -run
+varnish v1 -expect cache_hit == 0
+varnish v1 -expect s_pipe == 1
+
+server s1 -wait
+varnish v1 -stop

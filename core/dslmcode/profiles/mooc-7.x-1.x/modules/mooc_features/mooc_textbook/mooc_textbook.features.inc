@@ -35,8 +35,7 @@ function mooc_textbook_filter_default_formats_alter(&$data) {
       'settings' => array(),
       'status' => 1,
       'weight' => -42,
-    ); /* WAS: '' */
-    unset($data['textbook_editor']['filters']['typogrify']);
+    );
   }
 }
 

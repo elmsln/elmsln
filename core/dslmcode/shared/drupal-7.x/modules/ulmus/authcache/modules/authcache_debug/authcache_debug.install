@@ -23,5 +23,4 @@ function authcache_debug_uninstall() {
   variable_del('authcache_debug_page');
   variable_del('authcache_debug_users');
   variable_del('authcache_debug_watchdog');
-  variable_del('dev_query');
 }

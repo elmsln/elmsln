@@ -1,11 +1,20 @@
 {
     "DevicesDetection": {
+        "BrowserEngine": "Browser",
+        "BrowserEngineDocumentation": "Diagrammet viser de besøgendes browsere opdelt i grupper. %s De vigtigste oplysninger for web-udviklere er, hvilken slags rendering motor de besøgende bruger. Etiketterne indeholder navnene på motorerne, efterfulgt af de mest almindelige browsere, der benytter motoren i parentes.",
+        "BrowserEngines": "Browser motorer",
+        "BrowserFamily": "Browsertype",
+        "Browsers": "Browsere",
+        "BrowserVersion": "Browserversion",
         "BrowserVersions": "Browser-versioner",
         "Camera": "Kamera",
         "CarBrowser": "Bil browser",
+        "Software": "Software",
+        "ColumnBrowser": "Browser",
+        "ColumnOperatingSystem": "Operativsystem",
+        "ColumnOperatingSystemVersion": "Operativsystem version",
         "Console": "Konsol",
         "dataTableLabelBrands": "Mærke",
-        "dataTableLabelBrowserFamily": "Browser familie",
         "dataTableLabelModels": "Model",
         "dataTableLabelSystemVersion": "Operativsystem-version",
         "dataTableLabelTypes": "Type",
@@ -17,13 +26,18 @@
         "DeviceType": "Enhedstypen",
         "FeaturePhone": "Telefonfunktioner",
         "OperatingSystemFamilies": "Operativsystem familier",
+        "OperatingSystemFamily": "Operativsystemsfamilie",
+        "OperatingSystems": "Operativsystemer",
         "OperatingSystemVersions": "Operativsystem-versioner",
-        "PluginDescription": "Udvidelsen indeholderudvidet information om mobile enheder, såsom mærke (producent), model (enhed version) og bedre enhedstype detektion (tv, konsoller, smartphones, desktop, osv). Programudvidelsen tilføjer en ny rapport i 'Besøgende > Enheder'.",
+        "PluginDescription": "Giver udvidet information om brugerens enheder, såsom mærke (fremstiller), model (enhedsversion), enhedstype (tv, konsoller, smartphones, desktop, osv) m. m.",
         "SmartDisplay": "Smart skærm",
         "Smartphone": "Smartphone",
-        "submenu": "Enheder",
+        "PortableMediaPlayer": "Bærbar medieafspiller",
+        "Devices": "Enheder",
         "Tablet": "Tablet",
         "TV": "TV",
-        "UserAgent": "Brugeragent"
+        "UserAgent": "Brugeragent",
+        "WidgetBrowsers": "Besøgendes browser",
+        "WidgetBrowsersDocumentation": "Rapporten indeholder oplysninger om hvilken browser de besøgende bruger. Hver version er angivet særskilt."
     }
 }

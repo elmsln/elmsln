@@ -40,6 +40,20 @@ function authcache_test_menu() {
     'access callback' => TRUE,
   );
 
+  $item['authcache-test-form-value-no-cache'] = array(
+    'title' => 'Test form with value not cached',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_test_form_value', 'no'),
+    'access callback' => TRUE,
+  );
+
+  $item['authcache-test-form-value-cache'] = array(
+    'title' => 'Test form with value cached',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_test_form_value', 'yes'),
+    'access callback' => TRUE,
+  );
+
   $item['authcache-test-action'] = array(
     'title' => 'Test site with action link',
     'page callback' => 'authcache_test_empty_page',
@@ -156,6 +170,24 @@ function authcache_test_form($form, &$form_state) {
   $form['authcache_test_form_comment'] = array(
     '#type' => 'textarea',
   );
+  return system_settings_form($form, $form_state);
+}
+
+/**
+ * Form API callback for test from with a value element.
+ */
+function authcache_test_form_value($form, &$form_state, $cached) {
+  $form['authcache_test_form_value'] = array(
+    '#type' => 'value',
+    '#value' => '42',
+  );
+
+  $form_state['cache'] = filter_var($cached, FILTER_VALIDATE_BOOLEAN);
+
+  // Disable CSRF protection on this form in order to avoid interference with
+  // other tests.
+  $form['#token'] = FALSE;
+
   return system_settings_form($form, $form_state);
 }
 

@@ -1,0 +1,14 @@
+name="Renderable elements"
+description="Register any forms to enable you to manage the display through an UI"
+core=7.x
+dependencies[] = ctools
+files[] = rel.module
+files[] = rel.test
+files[] = rel.admin.inc
+
+; Information added by drupal.org packaging script on 2013-01-22
+version = "7.x-1.0-alpha2"
+core = "7.x"
+project = "rel"
+datestamp = "1358839857"
+

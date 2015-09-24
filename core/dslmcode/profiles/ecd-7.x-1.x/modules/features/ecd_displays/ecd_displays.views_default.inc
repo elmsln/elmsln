@@ -284,7 +284,7 @@ function ecd_displays_views_default_views() {
   $handler = $view->new_display('entity_view', 'Course EVA', 'entity_view_1');
   $handler->display->display_options['entity_type'] = 'node';
   $handler->display->display_options['bundles'] = array(
-    0 => 'course',
+    0 => 'cis_course',
   );
   $export['ecd_asset_audit'] = $view;
 
@@ -424,7 +424,7 @@ function ecd_displays_views_default_views() {
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
-    'course' => 'course',
+    'cis_course' => 'cis_course',
   );
 
   /* Display: Page */

@@ -1,0 +1,32 @@
+{
+    "Feedback": {
+        "DoYouHaveBugReportOrFeatureRequest": "У вас есть багрепорт, или предложение по улучшению функционала?",
+        "IWantTo": "Я хочу:",
+        "LearnWaysToParticipate": "Изучить все способы, с помощью которых вы можете %s поучаствовать%s",
+        "ManuallySendEmailTo": "Пожалуйста, отправьте ваше сообщение вручную на",
+        "PluginDescription": "Направляет обратную связь команде Piwik. Делитесь своими идеями и предложениями чтобы сделать Piwik лучшей аналитической платформой в мире!",
+        "PrivacyClaim": "Piwik уважает вашу %1$sконфиденциальность%2$s и дает вам полный контроль над вашими данными.",
+        "RateFeatureLeaveMessageDislike": "Мы сожалеем, что вам не понравилось! Пожалуйста, дайте нам знать что мы можем улучшить.",
+        "RateFeatureLeaveMessageLike": "Пожалуйста, дайте нам знать, что вам нравится больше всего, или хотите в дальнейшем улучшить.",
+        "RateFeatureSendFeedbackInformation": "Ваша система Piwik отправит нам(команде Piwik) email (содержащий ваш email адрес) так что мы сможем связаться с вами, если у вас возникли вопросы.",
+        "RateFeatureThankYouTitle": "Спасибо за оценку '%s'!",
+        "RateFeatureTitle": "Вам нравится эта возможность: «%s»? Пожалуйста, оцените и оставьте комментарий",
+        "SendFeedback": "Отправить отзыв",
+        "ThankYou": "Спасибо за помощь в развитии Piwik!",
+        "TopLinkTooltip": "Расскажите о своей проблеме с Piwik или запросите профессиональную помощь.",
+        "ViewAnswersToFAQ": "Посмотреть ответы на %sЧасто Задаваемые Вопросы%s",
+        "ViewUserGuides": "Узнайте, как настроить Piwik и эффективно анализировать Ваши данные, используя %1$s руководства пользователя%2$s",
+        "CommunityHelp": "Помощь сообщества",
+        "ProfessionalHelp": "Помощь профессионала",
+        "PiwikProOfferIntro": "Наше предложение включает",
+        "PiwikProReviewPiwikSetup": "Просмотр Вашей установки Piwik",
+        "PiwikProOptimizationMaintenance": "Услуги оптимизации и обслуживания Piwik",
+        "PiwikProPhoneEmailSupport": "Поддержку по телефону и электронной почте",
+        "PiwikProTraining": "Обучение пользователей, технических специалистов и разработчиков",
+        "PiwikProPremiumFeatures": "Премиальные возможности",
+        "PiwikProCustomDevelopment": "Услуги разработки",
+        "PiwikProAnalystConsulting": "Услуги аналитика-консультанта",
+        "ContactUs": "Свяжитесь с нами",
+        "VisitTheForums": "Посетить %s Форумы%s"
+    }
+}

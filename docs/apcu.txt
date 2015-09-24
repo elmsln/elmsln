@@ -1,0 +1,6 @@
+# ELMSLN recommendations for upload progress
+apc.rfc1867=1
+apc.rfc1867_prefix=upload_
+apc.rfc1867_name=APC_UPLOAD_PROGRESS
+apc.rfc1867_freq=0
+apc.rfc1867_ttl=3600

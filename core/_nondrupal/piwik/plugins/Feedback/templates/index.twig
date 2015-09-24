@@ -1,11 +1,11 @@
-{% extends 'dashboard.twig' %}
+{% extends 'user.twig' %}
 
 {% set test_piwikUrl='http://demo.piwik.org/' %}
 {% set isPiwikDemo %}{{ piwikUrl == 'http://demo.piwik.org/' or piwikUrl == 'https://demo.piwik.org/'}}{% endset %}
 
 {% block content %}
 
-    <div id="feedback-faq" class="admin centerLargeDiv">
+    <div id="feedback-faq" class="admin">
         <h2 piwik-enriched-headline
             feature-name="{{ 'General_Help'|translate }}"
             >{{ 'General_AboutPiwikX'|translate(piwikVersion) }}</h2>
@@ -22,49 +22,53 @@
             "</a>"
             )|raw }}
             </p>
-            <br/>
         </div>
 
-        <h2>{{ 'Do you need help?'|translate }}</h2>
+        <h2>{{ 'Feedback_CommunityHelp'|translate }}</h2>
 
         <div class="header_full">
             <p> &bull; {{ 'Feedback_ViewUserGuides'|translate("<a target='_blank' href='?module=Proxy&action=redirect&url=http://piwik.org/docs/'>","</a>")|raw }}.</p>
             <p> &bull; {{ 'Feedback_ViewAnswersToFAQ'|translate("<a target='_blank' href='?module=Proxy&action=redirect&url=http://piwik.org/faq/'>","</a>")|raw }}.</p>
             <p> &bull; {{ 'Feedback_VisitTheForums'|translate("<a target='_blank' href='?module=Proxy&action=redirect&url=http://forum.piwik.org/'>","</a>")|raw }}.</p>
-            <br/>
         </div>
+
+        <h2>{{ 'Feedback_ProfessionalHelp'|translate }}</h2>
+
+        <div class="header_full">
+            <p>{{ 'Feedback_PiwikProIntro'|translate }}</p>
+
+            <p>{{ 'Feedback_PiwikProOfferIntro'|translate }}:</p>
+            <p> &bull; {{ 'Feedback_PiwikProReviewPiwikSetup'|translate }}</p>
+            <p> &bull; {{ 'Feedback_PiwikProOptimizationMaintenance'|translate }}</p>
+            <p> &bull; {{ 'Feedback_PiwikProPhoneEmailSupport'|translate }}</p>
+            <p> &bull; {{ 'Feedback_PiwikProTraining'|translate }}</p>
+            <p> &bull; {{ 'Feedback_PiwikProPremiumFeatures'|translate }}</p>
+            <p> &bull; {{ 'Feedback_PiwikProCustomDevelopment'|translate }}</p>
+            <p> &bull; {{ 'Feedback_PiwikProAnalystConsulting'|translate }}</p>
+        </div>
+
+        <form target="_blank" action="https://piwik.pro/contact#contact-form">
+            <input type="hidden" name="pk_campaign" value="App_Help">
+            <input type="hidden" name="pk_source" value="Piwik_App">
+            <input type="hidden" name="pk_medium" value="App_ContactUs_button">
+            <br />
+            <input type="submit" value="{{ 'Feedback_ContactUs'|translate }}">
+        </form>
 
         <h2>{{ 'Feedback_DoYouHaveBugReportOrFeatureRequest'|translate }}</h2>
 
         <div class="header_full">
-            <p>{{ 'Feedback_HowToCreateIssue'|translate(
+                <p>{{ 'Feedback_HowToCreateTicket'|translate(
                 "<a target='_blank' href='?module=Proxy&action=redirect&url=http://developer.piwik.org/guides/core-team-workflow%23submitting-a-bug-report'>",
                 "</a>",
                 "<a target='_blank' href='?module=Proxy&action=redirect&url=http://developer.piwik.org/guides/core-team-workflow%23submitting-a-feature-request'>",
                 "</a>",
-                "<a target='_blank' href='?module=Proxy&action=redirect&url=http://dev.piwik.org/trac/register'>",
+                "<a target='_blank' href='?module=Proxy&action=redirect&url=https://github.com/piwik/piwik/issues'>",
                 "</a>",
-                "<a target='_blank' href='?module=Proxy&action=redirect&url=http://dev.piwik.org/trac/login'>",
-                "</a>",
-                "<a target='_blank' href='?module=Proxy&action=redirect&url=http://dev.piwik.org/trac/newticket'>",
+                "<a target='_blank' href='?module=Proxy&action=redirect&url=https://github.com/piwik/piwik/issues/new'>",
                 "</a>"
                 )|raw }}</p>
-            <br/>
         </div>
-
-        <h2>{{ 'Feedback_SpecialRequest'|translate }}</h2>
-
-        <div class="header_full">
-            <p>{{ 'Feedback_GetInTouch'|translate }}
-                <a target='_blank' href="?module=Proxy&action=redirect&url=http://piwik.org/contact/"
-                    >{{ 'Feedback_ContactThePiwikTeam'|translate }}</a>
-            </p>
-            <br/>
-        </div>
-
-        <h2 id="donate">{{ 'Feedback_WantToThankConsiderDonating'|translate }}</h2>
-        {% include "@CoreHome/_donate.twig" with { 'msg':""} %}
-        <br/>
 
         <div class="footer">
             <hr/>
@@ -74,20 +78,20 @@
                     <a target="_blank" href="?module=Proxy&action=redirect&url=http://piwik.org/newsletter/">Newsletter</a>
                 </li>
                 <li>
-                    <a target="_blank" href="http://www.facebook.com/Piwik"><img class="icon" src="plugins/Feedback/images/facebook.png"></a>
-                    <a target="_blank" href="http://www.facebook.com/Piwik">Facebook</a>
+                    <a rel="noreferrer"  target="_blank" href="http://www.facebook.com/Piwik"><img class="icon" src="plugins/Feedback/images/facebook.png"></a>
+                    <a rel="noreferrer"  target="_blank" href="http://www.facebook.com/Piwik">Facebook</a>
                 </li>
                 <li>
-                    <a target="_blank" href="http://twitter.com/piwik"><img class="icon" src="plugins/Feedback/images/twitter.png"></a>
-                    <a target="_blank" href="http://twitter.com/piwik">Twitter</a>
+                    <a rel="noreferrer"  target="_blank" href="http://twitter.com/piwik"><img class="icon" src="plugins/Feedback/images/twitter.png"></a>
+                    <a rel="noreferrer"  target="_blank" href="http://twitter.com/piwik">Twitter</a>
                 </li>
                 <li>
-                    <a target="_blank" href="http://www.linkedin.com/groups?gid=867857"><img class="icon" src="plugins/Feedback/images/linkedin.png"></a>
-                    <a target="_blank" href="http://www.linkedin.com/groups?gid=867857">Linkedin</a>
+                    <a rel="noreferrer"  target="_blank" href="http://www.linkedin.com/groups?gid=867857"><img class="icon" src="plugins/Feedback/images/linkedin.png"></a>
+                    <a rel="noreferrer"  target="_blank" href="http://www.linkedin.com/groups?gid=867857">Linkedin</a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://github.com/piwik/piwik"><img class="icon" src="plugins/Feedback/images/github.png"></a>
-                    <a target="_blank" href="https://github.com/piwik/piwik">GitHub</a>
+                    <a rel="noreferrer"  target="_blank" href="https://github.com/piwik/piwik"><img class="icon" src="plugins/Feedback/images/github.png"></a>
+                    <a rel="noreferrer"  target="_blank" href="https://github.com/piwik/piwik">GitHub</a>
                 </li>
             </ul>
             <ul class="menu">

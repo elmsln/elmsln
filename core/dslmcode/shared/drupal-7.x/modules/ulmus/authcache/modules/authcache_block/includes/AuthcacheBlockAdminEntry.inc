@@ -25,7 +25,7 @@ class AuthcacheBlockAdminEntry {
     $blocks_by_id = static::blocksById();
     $block = $blocks_by_id[$block_id];
 
-    $this->name = $block['info'];
+    $this->name = check_plain($block['info']);
     $this->description = t('Block in region %region', array('%region' => $block['region name']));
     $this->clients = isset($config['clients']) ? $config['clients'] : array();
     $this->adminPath = 'admin/structure/block/manage/' . $block['module'] . '/' . $block['delta'] . '/configure';

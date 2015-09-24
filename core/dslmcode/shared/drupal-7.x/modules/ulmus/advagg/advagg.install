@@ -1268,74 +1268,92 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
     advagg_install_url_mod($url, $options, $mod_url);
     $request = drupal_http_request($url, $options);
 
-    // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
-    // Check response. Report an error if
-    //  Not a 200.
-    //  Headers do not contain "content-encoding".
-    //  content-encoding is not gzip or deflate.
-    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-    if ( $request->code != 200
-      || empty($request->headers['content-encoding'])
-      || ( $request->headers['content-encoding'] !== 'gzip'
-        && $request->headers['content-encoding'] !== 'deflate'
-      )
-    ) {
-      $config_path = advagg_admin_config_root_path();
-      // Gzip failed.
-      if (!variable_get('advagg_gzip', ADVAGG_GZIP)) {
-        // Recommend that gzip be turned on.
-        $requirements['advagg_' . $type . '_gzip' . $key] = array(
-          'title' => $t('Adv CSS/JS Agg - gzip'),
-          'severity' => REQUIREMENT_WARNING,
-          'value' => $t('Gzip is failing for %type files.', array('%type' => $type)),
-          'description' => $t('Try enabling on the "Create .gz files" setting on the <a href="@advagg">Advanced CSS/JS Aggregation Configuration page</a>', array(
-            '@advagg' => url($config_path . '/advagg'),
-            '%type' => $type,
-          )),
-        );
-      }
-      else {
-        // If the apache_get_modules function doesn't exist, skip this
-        // entirely.
-        $apache_module_missing = FALSE;
-        if (function_exists('apache_get_modules')) {
-          // Get all available Apache modules.
-          $modules = apache_get_modules();
-          if (!in_array('mod_headers', $modules) || !in_array('mod_rewrite', $modules)) {
-            $apache_module_missing = TRUE;
-
-            if (!in_array('mod_headers', $modules)) {
-              $requirements['advagg_mod_headers' . $key] = array(
-                'title'       => $t('Adv CSS/JS Agg - Apache'),
-                'description' => $t('The Apache module "mod_headers" is not available. Enable <a href="!link">mod_headers</a> for Apache if at all possible. This is causing gzip to fail.', array('!link' => 'http://httpd.apache.org/docs/current/mod/mod_headers.html')),
-                'severity'    => REQUIREMENT_WARNING,
-                'value'       => $t('Apache module "mod_headers" is not installed.'),
-              );
-            }
-            if (!in_array('mod_rewrite', $modules)) {
-              $requirements['advagg_mod_rewrite' . $key] = array(
-                'title'       => $t('Adv CSS/JS Agg - Apache'),
-                'description' => $t('The Apache module "mod_rewrite" is not available.  You must enable <a href="!link">mod_rewrite</a> for Apache. This is causing gzip to fail.', array('!link' => 'http://httpd.apache.org/docs/current/mod/mod_rewrite.html')),
-                'severity'    => REQUIREMENT_ERROR,
-                'value'       => $t('Apache module "mod_rewrite" is not installed.'),
-              );
-            }
-          }
-        }
-        if (!$apache_module_missing) {
-          // Recommend servers configuration be adjusted.
-          $request->data = '...';
-          $requirements['advagg_' . $type . '_gzip' . $key . $options['version']] = array(
+    if (!variable_get('advagg_skip_gzip_check', ADVAGG_SKIP_GZIP_CHECK)) {
+      // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
+      // Check response. Report an error if
+      //  Not a 200.
+      //  Headers do not contain "content-encoding".
+      //  content-encoding is not gzip or deflate.
+      // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
+      if ( $request->code != 200
+        || empty($request->headers['content-encoding'])
+        || ( $request->headers['content-encoding'] !== 'gzip'
+          && $request->headers['content-encoding'] !== 'deflate'
+        )
+      ) {
+        $config_path = advagg_admin_config_root_path();
+        // Gzip failed.
+        if (!variable_get('advagg_gzip', ADVAGG_GZIP)) {
+          // Recommend that gzip be turned on.
+          $requirements['advagg_' . $type . '_gzip' . $key] = array(
             'title' => $t('Adv CSS/JS Agg - gzip'),
             'severity' => REQUIREMENT_WARNING,
             'value' => $t('Gzip is failing for %type files.', array('%type' => $type)),
-            'description' => $t('The web servers configuration will need to be adjusted. In most cases make sure that the webroots .htaccess file still contains this section "Rules to correctly serve gzip compressed CSS and JS files". Certain default web server configurations (<a href="!nginx">nginx</a>) do not gzip HTTP/1.0 requests. If you are using cloudfront you will have to <a href="!cloudfront">add metadata</a> to the .gz files. There are some other options if using <a href="!so">cloudfront</a>. Raw request info: <pre>@request</pre>', array(
-              '!nginx' => 'http://www.cdnplanet.com/blog/gzip-nginx-cloudfront/',
-              '@request' => print_r($request, TRUE),
-              '!cloudfront' => 'http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3',
-              '!so' => 'http://stackoverflow.com/questions/5442011/serving-gzipped-css-and-javascript-from-amazon-cloudfront-via-s3',
+            'description' => $t('Try enabling on the "Create .gz files" setting on the <a href="@advagg">Advanced CSS/JS Aggregation Configuration page</a>', array(
+              '@advagg' => url($config_path . '/advagg'),
+              '%type' => $type,
             )),
           );
+        }
+        else {
+          // If the apache_get_modules function doesn't exist, skip this
+          // entirely.
+          $apache_module_missing = FALSE;
+          if (function_exists('apache_get_modules')) {
+            // Get all available Apache modules.
+            $modules = apache_get_modules();
+            if (!in_array('mod_headers', $modules) || !in_array('mod_rewrite', $modules)) {
+              $apache_module_missing = TRUE;
+
+              if (!in_array('mod_headers', $modules)) {
+                $requirements['advagg_mod_headers' . $key] = array(
+                  'title'       => $t('Adv CSS/JS Agg - Apache'),
+                  'description' => $t('The Apache module "mod_headers" is not available. Enable <a href="!link">mod_headers</a> for Apache if at all possible. This is causing gzip to fail.', array('!link' => 'http://httpd.apache.org/docs/current/mod/mod_headers.html')),
+                  'severity'    => REQUIREMENT_WARNING,
+                  'value'       => $t('Apache module "mod_headers" is not installed.'),
+                );
+              }
+              if (!in_array('mod_rewrite', $modules)) {
+                $requirements['advagg_mod_rewrite' . $key] = array(
+                  'title'       => $t('Adv CSS/JS Agg - Apache'),
+                  'description' => $t('The Apache module "mod_rewrite" is not available.  You must enable <a href="!link">mod_rewrite</a> for Apache. This is causing gzip to fail.', array('!link' => 'http://httpd.apache.org/docs/current/mod/mod_rewrite.html')),
+                  'severity'    => REQUIREMENT_ERROR,
+                  'value'       => $t('Apache module "mod_rewrite" is not installed.'),
+                );
+              }
+            }
+          }
+          if (!$apache_module_missing) {
+            // No data returned.
+            if (empty($request->data)) {
+              $requirements['advagg_' . $type . '_gzip' . $key . $options['version']] = array(
+                'title' => $t('Adv CSS/JS Agg - gzip'),
+                'severity' => REQUIREMENT_WARNING,
+                'value' => $t('Gzip is failing for %type files.', array('%type' => $type)),
+                'description' => $t('No data was returned from your server; this gzip test can not be done locally. Error: @error - @message You can manually test if gzip is working by <a href="@url">going here</a> and seeing if gzip is enabled. You can turn this warning off by adding this to your settings.php file: <code>@skipcode</code>', array(
+                  '@error' => $request->code,
+                  '@message' => isset($request->error) ? $request->error : '',
+                  '@url' => 'http://checkgzipcompression.com/?url=' . urlencode($url),
+                  '@skipcode' => '$conf[\'advagg_skip_gzip_check\'] = TRUE;',
+                )),
+              );
+            }
+            else {
+              // Recommend servers configuration be adjusted.
+              $request->data = '...';
+              $requirements['advagg_' . $type . '_gzip' . $key . $options['version']] = array(
+                'title' => $t('Adv CSS/JS Agg - gzip'),
+                'severity' => REQUIREMENT_WARNING,
+                'value' => $t('Gzip is failing for %type files.', array('%type' => $type)),
+                'description' => $t('The web servers configuration will need to be adjusted. In most cases make sure that the webroots .htaccess file still contains this section "Rules to correctly serve gzip compressed CSS and JS files". Certain default web server configurations (<a href="!nginx">nginx</a>) do not gzip HTTP/1.0 requests. If you are using cloudfront you will have to <a href="!cloudfront">add metadata</a> to the .gz files. There are some other options if using <a href="!so">cloudfront</a>. Raw request info: <pre>@request</pre>', array(
+                  '!nginx' => 'http://www.cdnplanet.com/blog/gzip-nginx-cloudfront/',
+                  '@request' => print_r($request, TRUE),
+                  '!cloudfront' => 'http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3',
+                  '!so' => 'http://stackoverflow.com/questions/5442011/serving-gzipped-css-and-javascript-from-amazon-cloudfront-via-s3',
+                )),
+              );
+            }
+          }
         }
       }
     }
@@ -1710,14 +1728,20 @@ function advagg_install_url_mod(&$url, array &$options, $mod_url = FALSE) {
       $new_url = httprl_build_url_self($path);
     }
     else {
-      if (!empty($_SERVER['HTTP_HOST']) && $parts['host'] != $_SERVER['HTTP_HOST']) {
-        $parts['host'] = $_SERVER['HTTP_HOST'];
+      if (!empty($_SERVER['HTTP_HOST'])) {
+        if ($parts['host'] != $_SERVER['HTTP_HOST']) {
+          $parts['host'] = $_SERVER['HTTP_HOST'];
+        }
       }
-      elseif (!empty($_SERVER['SERVER_NAME']) && $parts['host'] != $_SERVER['SERVER_NAME']) {
-        $parts['host'] = $_SERVER['SERVER_NAME'];
+      elseif (!empty($_SERVER['SERVER_NAME'])) {
+        if ($parts['host'] != $_SERVER['SERVER_NAME']) {
+          $parts['host'] = $_SERVER['SERVER_NAME'];
+        }
       }
-      elseif (!empty($_SERVER['SERVER_ADDR']) && $parts['host'] != $_SERVER['SERVER_ADDR']) {
-        $parts['host'] = $_SERVER['SERVER_ADDR'];
+      elseif (!empty($_SERVER['SERVER_ADDR'])) {
+        if ($parts['host'] != $_SERVER['SERVER_ADDR']) {
+          $parts['host'] = $_SERVER['SERVER_ADDR'];
+        }
       }
       else {
         $parts['host'] = '127.0.0.1';

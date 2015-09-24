@@ -1,0 +1,42 @@
+varnishtest "Ensure that the VCL stores one variant of the result for authcache-varnish-get-key per user / session / key"
+
+server s1 {
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: 123"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == 123
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+
+        rxreq
+        expect req.url == "/authcache-varnish-get-key"
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "X-Authcache-Key: 456"
+
+        rxreq
+        expect req.url == "/"
+        expect req.http.X-Authcache-Key == 456
+        expect req.http.X-Forwarded-For == "127.0.0.1"
+        txresp -hdr "Vary: X-Authcache-Key"
+} -start
+
+varnish v1 -vcl+backend {
+        ${vcl1}
+        ${vcl2}
+        ${vcl3}
+} -start
+
+client c1 {
+        txreq -url "/" -hdr "Cookie: SESSabc=efg"
+        rxresp
+
+        txreq -url "/" -hdr "Cookie: SESSdef=hik"
+        rxresp
+} -run
+
+server s1 -wait
+varnish v1 -stop

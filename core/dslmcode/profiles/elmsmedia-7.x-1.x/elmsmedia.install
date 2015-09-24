@@ -17,4 +17,7 @@ function elmsmedia_install() {
   _elmsln_installer_post_install_cleanup();
   // front-page for media is the media path
   variable_set('site_frontpage', 'media-overview');
+  // we don't need a help and syllabus link for most authority systems
+  variable_set('cis_help_page', '');
+  variable_set('cis_syllabus_page', '');
 }

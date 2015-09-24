@@ -157,7 +157,8 @@ function hook_features_export_options() {
  *   of the module, e.g. the key for `hook_example` should simply be `example`
  *   The values in the array can also be in the form of an associative array
  *   with the required key of 'code' and optional key of 'args', if 'args' need
- *   to be added to the hook.
+ *   to be added to the hook. Alternate it can be an associative array in the
+ *   same style as hook_features_export_files() to add additional files.
  */
 function hook_features_export_render($module_name, $data, $export = NULL) {
   $code = array();
@@ -312,6 +313,26 @@ function hook_features_pipe_alter(&$pipe, $data, $export) {
   if ($export['component'] == 'node' && in_array($data, 'my-node-type')) {
     $pipe['dependencies'][] = 'mymodule';
   }
+}
+
+
+/**
+ * Add extra files to the exported file.
+ *
+ * @return array
+ *   An array of files, keyed by file name that will appear in feature and
+ *   with either file_path key to indicate where to copy the file from or
+ *   file_content key to indicate the contents of the file.
+ */
+function hook_features_export_files($module_name, $export) {
+  return array('css/main.css' => array('file_content' => 'body {background-color:blue;}'));
+}
+
+/**
+ * Alter the extra files added to the export.
+ */
+function hook_features_export_files_alter(&$files, $module_name, $export) {
+  $files['css/main.css']['file_content'] = 'body {background-color:black;}';
 }
 
 /**

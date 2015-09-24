@@ -55,6 +55,7 @@ class views_bulk_operations_handler_field_operations extends views_handler_field
       'contains' => array(
         'display_type' => array('default' => 0),
         'enable_select_all_pages' => array('default' => TRUE),
+        'row_clickable' => array('default' => TRUE),
         'force_single' => array('default' => FALSE),
         'entity_load_capacity' => array('default' => 10),
         'skip_batching' => array('default' => 0),
@@ -63,9 +64,24 @@ class views_bulk_operations_handler_field_operations extends views_handler_field
     $options['vbo_operations'] = array(
       'default' => array(),
       'unpack_translatable' => 'unpack_operations',
+      'export' => 'export_vbo_operations',
     );
 
     return $options;
+  }
+
+  function export_vbo_operations($indent, $prefix, $storage, $option, $definition, $parents) {
+    // Anti-recursion, since we use the parent export helper.
+    unset($definition['export']);
+
+    // Find and remove all unselected/disabled operations.
+    foreach ($storage['vbo_operations'] as $operation_id => $operation) {
+      if (empty($operation['selected'])) {
+        unset($storage['vbo_operations'][$operation_id]);
+      }
+    }
+
+    return parent::export_option($indent, $prefix, $storage, $option, $definition, $parents);
   }
 
   function unpack_operations(&$translatable, $storage, $option, $definition, $parents, $keys) {
@@ -106,6 +122,12 @@ class views_bulk_operations_handler_field_operations extends views_handler_field
       '#title' => t('Enable "Select all items on all pages"'),
       '#default_value' => $this->options['vbo_settings']['enable_select_all_pages'],
       '#description' => t('Check this box to enable the ability to select all items on all pages.'),
+    );
+    $form['vbo_settings']['row_clickable'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Make the whole row clickable'),
+      '#default_value' => $this->options['vbo_settings']['row_clickable'],
+      '#description' => t('Check this box to select an item when its row has been clicked. Requires JavaScript.'),
     );
     $form['vbo_settings']['force_single'] = array(
       '#type' => 'checkbox',

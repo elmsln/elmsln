@@ -14,7 +14,6 @@ dependencies[] = imce
 dependencies[] = imce_wysiwyg
 dependencies[] = strongarm
 dependencies[] = transliteration
-dependencies[] = typogrify
 dependencies[] = video_filter
 dependencies[] = wysiwyg
 datestamp = 1408544031

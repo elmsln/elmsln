@@ -29,8 +29,14 @@
   #logo > a {
     text-decoration: none;
   }
+  
+  #logo {
+    // IE 9 only
+    width: 200px\9\0;
+  }
 }
 
+// IE 10+
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
   #root #logo {
     width: 80px;
@@ -52,9 +58,10 @@
   right: 0px;
   position: absolute;
   padding-left: 110px;
-  color: #9c9c9c;
+  color: #acacac;
   margin: 4px 10px 8px;
   font-size: 13px;
+  z-index: 140;
 }
 
 #topRightBar {

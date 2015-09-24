@@ -8,7 +8,7 @@
 # are spinning this up to actually run somewhere, but the example input
 # will work to give you a taste of what its about to do when your ready for
 # the real deal to be deployed somewhere.
-yes | yum -y install git && git clone https://github.com/elmsln/elmsln.git /var/www/elmsln && bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh elmsln ln elmsln.dev http admin@elmsln.dev yes
+yes | yum -y install wget git && git clone https://github.com/elmsln/elmsln.git /var/www/elmsln && bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh elmsln ln elmsln.dev http admin@elmsln.dev yes
 cd $HOME && source .bashrc
 
 # for production usage:

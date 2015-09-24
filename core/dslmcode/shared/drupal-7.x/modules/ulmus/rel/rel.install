@@ -1,0 +1,140 @@
+<?php
+
+/**
+ * @file
+ * Install file.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function rel_install() {
+  db_update('system')
+    ->fields(array('weight' => 10))
+    ->condition('name', 'rel')
+    ->execute();
+
+  variable_set('rel_build_registration_ignore', 'admin/*');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function rel_uninstall() {
+  variable_del('rel_build_form_registration');
+  variable_del('rel_build_registration_ignore');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function rel_schema() {
+  $schema = array();
+
+  $schema['rel_builds'] = array(
+    'description' => 'The table that holds builds.',
+
+    // CTools export definitions.
+    'export' => array(
+      'key' => 'build_id',
+      'identifier' => 'rel',
+      'default hook' => 'rel_build_info',
+      'can disable' => FALSE,
+      'api' => array(
+        'owner' => 'rel',
+        'api' => 'rel',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+
+    'fields' => array(
+      'build_id' => array(
+        'description' => 'The unique build_id.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'description' => 'The label of the build.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entity_type' => array(
+        'description' => 'The name of the entity type.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'bundle' => array(
+        'description' => 'The name of the bundle.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'view_mode' => array(
+        'description' => 'The name of the view mode.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'context' => array(
+        'description' => 'The context of the element, either form or display.',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'path' => array(
+        'description' => 'The path of the manage build screen.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'elements' => array(
+        'description' => 'The elements for this build.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+      'duplicate' => array(
+        'description' => 'The duplicated elements for this build.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('build_id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function rel_update_7001() {
+  $schema = rel_schema();
+  if (!db_field_exists('rel_builds', 'duplicate')) {
+    $field_schema = $schema['rel_builds']['fields']['duplicate'];
+    $field_schema['initial'] = 'a:0:{}';
+    db_add_field('rel_builds', 'duplicate', $field_schema);
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function rel_update_7002() {
+  $schema = rel_schema();
+  db_change_field('rel_builds', 'label', 'label', $schema['rel_builds']['fields']['label']);
+}

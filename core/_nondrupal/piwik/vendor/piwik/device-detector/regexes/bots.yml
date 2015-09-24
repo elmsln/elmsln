@@ -2,7 +2,7 @@
 # Device Detector - The Universal Device Detection library for parsing User Agents
 #
 # @link http://piwik.org
-# @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+# @license http://www.gnu.org/licenses/lgpl.html LGPL v3 or later
 ###############
 
 - regex: '360Spider(-Image|-Video)?'
@@ -337,6 +337,14 @@
   name: 'Google PageSpeed Insights'
   category: 'Site Monitor'
   url: 'http://developers.google.com/speed/pagespeed/insights/'
+  producer:
+    name: 'Google Inc.'
+    url: 'http://www.google.com'
+
+- regex: 'via ggpht.com GoogleImageProxy'
+  name: 'Gmail Image Proxy'
+  category: 'Crawler'
+  url: ''
   producer:
     name: 'Google Inc.'
     url: 'http://www.google.com'
@@ -933,6 +941,53 @@
     name: 'Yottaa'
     url: 'http://www.yottaa.com/'
 
+- regex: 'Yahoo Ad monitoring.*yahoo-ad-monitoring-SLN24857.*'
+  name: 'Yahoo Gemini'
+  category: 'Crawler'
+  url: 'https://help.yahoo.com/kb/yahoo-ad-monitoring-SLN24857.html'
+  producer:
+    name: 'Yahoo! Inc.'
+    url: 'http://www.yahoo.com'
+
+- regex: '.*Java.*outbrain'
+  name: 'Outbrain'
+  category: 'Crawler'
+  url: ''
+  producer:
+    name: 'Outbrain'
+    url: 'http://www.outbrain.com/'
+
+- regex: 'HubPages.*crawlingpolicy'
+  name: 'HubPages'
+  category: 'Crawler'
+  url: 'http://hubpages.com/help/crawlingpolicy'
+  producer:
+    name: 'HubPages'
+    url: 'http://hubpages.com/'
+
+- regex: 'Pinterest/\d\.\d.*www.pinterest.com.*'
+  name: 'Pinterest'
+  url: ''
+  category: 'Crawler'
+  producer:
+    name: 'Pinterest'
+    url: 'http://www.pinterest.com/'
+
+- regex: 'Site24x7'
+  name: 'Site24x7 Website Monitoring'
+  category: 'Site Monitor'
+  url: 'https://www.site24x7.com/site24x7-faq.html'
+  producer:
+    name: 'Site24x7'
+    url: 'https://www.site24x7.com'
+
+- regex: 'www.monitor.us'
+  name: 'Monitor.Us'
+  category: 'Site Monitor'
+  url: 'http://www.monitor.us'
+  producer:
+    name: 'Monitor.Us'
+    url: 'http://www.monitor.us'
 
 
 - regex: 'lycos'
@@ -977,10 +1032,17 @@
 - regex: 'EmailWolf'
   name: 'EmailWolf'
 
+- regex: 'NetLyzer FastProbe'
+  name: 'NetLyzer FastProbe'
+
+- regex: 'AdMantX.*admantx.com'
+  name: 'ADMantX'
+
+- regex: 'Server Density Service Monitoring.*'
+  name: 'Server Density'
 
 - regex: '(nuhk|TsolCrawler|Yammybot|Openbot|Gulper Web Bot|grub-client|Download Demon|SearchExpress|Microsoft URL Control|borg|altavista|teoma|blitzbot|oegp|furlbot|http%20client|polybot|htdig|mogimogi|larbin|scrubby|searchsight|seekbot|semanticdiscovery|snappy|vortex|zao|zeal|fast-webcrawler|converacrawler|dataparksearch|findlinks|BrowserMob|HttpMonitor|ThumbShotsBot|URL2PNG|ZooShot|GomezA|Catchpoint bot|Google SketchUp|Read%20Later|Minimo|RackspaceBot)'
   name: 'Bot'
-
 
 # Generic detections
 
@@ -992,5 +1054,5 @@
     name: 'The Apache Software Foundation'
     url: 'http://www.apache.org/foundation/'
 
-- regex: '[a-z0-9-_]*(bot|crawler|archiver|transcoder|spider)'
+- regex: '[a-z0-9\-_]*((?<!cu)bot|crawler|archiver|transcoder|spider)'
   name: 'Generic Bot'

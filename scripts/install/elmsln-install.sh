@@ -305,7 +305,8 @@ if [ -f  $hooksdir/post-install.sh ]; then
   bash $hooksdir/post-install.sh
 fi
 
-
+# run all the existing crons so that they hit the CIS data and get sing100 for example
+drush @elmsln cron --y
 
 
 # a message so you know where our head is at. you get candy if you reference this

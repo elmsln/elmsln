@@ -292,7 +292,7 @@ function advagg_bundler_analyisis_query($safesql) {
     $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
     $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
   }
-  elseif ($db_type === 'sqlsrv' && !$mssql_group_concat) {
+  elseif ($db_type === 'sqlsrv' && $mssql_group_concat) {
     $fields[] = 'hashlist';
     if ($mssql_md5) {
       $subquery_aggregates->addExpression('MD5(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash))', 'hashlist');
@@ -300,7 +300,9 @@ function advagg_bundler_analyisis_query($safesql) {
     else {
       $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
     }
-    $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
+    // The ORDER BY clause is invalid in views, inline functions, derived tables, subqueries, 
+    // and common table expressions, unless TOP or FOR XML is also specified. So no point in 
+    // doing an order-by like in the other cases.
   }
 
   // Create join for the advagg_aggregates_versions table.

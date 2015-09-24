@@ -9,12 +9,11 @@
 namespace Piwik\DataTable;
 
 use Piwik\DataTable;
-use Piwik\DataTable\Row;
 
 /**
  * A filter is set of logic that manipulates a DataTable. Existing filters do things like,
- * 
- * - remove rows
+ *
+ * - add/remove rows
  * - change column values (change string to lowercase, truncate, etc.)
  * - add/remove columns or metadata (compute percentage values, add an 'icon' metadata based on the label, etc.)
  * - add/remove/edit subtable associated with rows
@@ -22,10 +21,10 @@ use Piwik\DataTable\Row;
  *
  * Filters are called with a DataTable instance and extra parameters that are specified
  * in {@link Piwik\DataTable::filter()} and {@link Piwik\DataTable::queueFilter()}.
- * 
+ *
  * To see examples of Filters look at the existing ones in the Piwik\DataTable\BaseFilter
  * namespace.
- * 
+ *
  * @api
  */
 abstract class BaseFilter
@@ -37,7 +36,7 @@ abstract class BaseFilter
 
     /**
      * Constructor.
-     * 
+     *
      * @param DataTable $table
      */
     public function __construct(DataTable $table)
@@ -73,8 +72,8 @@ abstract class BaseFilter
         if (!$this->enableRecursive) {
             return;
         }
-        if ($row->isSubtableLoaded()) {
-            $subTable = Manager::getInstance()->getTable($row->getIdSubDataTable());
+        $subTable = $row->getSubtable();
+        if ($subTable) {
             $this->filter($subTable);
         }
     }

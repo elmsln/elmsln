@@ -47,6 +47,12 @@ define('APDQC_TABLE_COLLATIONS', FALSE);
 define('APDQC_TABLE_INDEXES', FALSE);
 
 /**
+ * Set to TRUE to ignore the MySQL version checking on status report page.
+ */
+define('APDQC_INSTALL_IGNORE_MYSQL_VERSION', FALSE);
+
+
+/**
  * Implements hook_menu().
  */
 function apdqc_menu() {
@@ -103,6 +109,9 @@ function apdqc_cron() {
 
   // Get all cache tables.
   module_load_include('admin.inc', 'apdqc');
+  if (!function_exists('apdqc_get_db_object')) {
+    module_load_include('mysql.inc', 'apdqc');
+  }
   $tables = apdqc_get_cache_tables();
   foreach ($tables as $table) {
     $mysqli = apdqc_get_db_object(array($table), array('*'));
@@ -240,6 +249,11 @@ function _apdqc_dblog_watchdog(array $log_entry) {
  */
 function apdqc_schema_alter(&$schema) {
   foreach ($schema as $table_name => $values) {
+    if (strpos($table_name, 'semaphore') === 0) {
+      $schema[$table_name]['primary key'][] = 'value';
+      continue;
+    }
+
     if (strpos($table_name, 'cache') !== 0) {
       // Skip if not a cache table.
       continue;
@@ -252,6 +266,11 @@ function apdqc_schema_alter(&$schema) {
       // Create a expire_created index.
       $schema[$table_name]['indexes']['expire_created'] = array('expire', 'created');
       unset($schema[$table_name]['indexes']['expire']);
+    }
+
+    // Add cache*__truncated_table to the schema.
+    if (strpos(strrev($table_name), strrev('__truncated_table')) !== 0 && db_table_exists($table_name . '__truncated_table')) {
+      $schema[$table_name . '__truncated_table'] = $values;
     }
   }
 }
@@ -995,4 +1014,28 @@ function apdqc_get_lang() {
     return $lang_shorthand;
   }
   return 'en';
+}
+
+/**
+ * Returns an int depending on the state of the semaphore table.
+ *
+ * @return int
+ *   0 - No changes needed.
+ *   1 - Convert to MEMORY.
+ *   2 - Convert to InnoDB.
+ */
+function apdqc_semaphore_conversion() {
+  $conversion = 0;
+  $results = db_query("SELECT VERSION()")->fetchAssoc();
+  $version = reset($results);
+  $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
+  if (version_compare($version, '5.6.0', '<=')) {
+    if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
+      $conversion = 1;
+    }
+  }
+  elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
+    $conversion = 2;
+  }
+  return $conversion;
 }

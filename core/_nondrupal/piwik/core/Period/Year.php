@@ -58,6 +58,7 @@ class Year extends Period
         if ($this->subperiodsProcessed) {
             return;
         }
+
         parent::generate();
 
         $year = $this->date->toString("Y");
@@ -75,13 +76,15 @@ class Year extends Period
      * @param string $format
      * @return array
      */
-    function toString($format = 'ignored')
+    public function toString($format = 'ignored')
     {
         $this->generate();
+
         $stringMonth = array();
         foreach ($this->subperiods as $month) {
             $stringMonth[] = $month->getDateStart()->toString("Y") . "-" . $month->getDateStart()->toString("m") . "-01";
         }
+
         return $stringMonth;
     }
 }

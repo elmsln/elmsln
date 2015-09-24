@@ -7,7 +7,8 @@ $(document).ready(function () {
     function initICheck()
     {
         $('input').filter(function () {
-            return !$(this).parent().is('.form-radio');
+            return !$(this).parent().is('.form-radio')
+                && !$(this).hasClass('no-icheck');
         }).iCheck({
             checkboxClass: 'form-checkbox',
             radioClass: 'form-radio',
@@ -18,11 +19,15 @@ $(document).ready(function () {
 
     initICheck();
     $(document).bind('ScheduledReport.edit', initICheck);
+    $(document).bind('Goals.edit', initICheck);
     $(broadcast).bind('locationChangeSuccess', initICheck);
+    $(broadcast).bind('updateICheck', initICheck);
 
     $('body').on('ifClicked', 'input', function () {
         $(this).trigger('click');
     }).on('ifChanged', 'input', function () {
-        $(this).trigger('change');
+        if(this.type != 'radio' || this.checked) {
+            $(this).trigger('change');
+        }
     });
 });

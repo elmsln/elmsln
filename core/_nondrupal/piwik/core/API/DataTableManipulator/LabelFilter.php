@@ -24,6 +24,7 @@ use Piwik\DataTable\Row;
 class LabelFilter extends DataTableManipulator
 {
     const SEPARATOR_RECURSIVE_LABEL = '>';
+    const TERMINAL_OPERATOR = '@';
 
     private $labels;
     private $addLabelIndex;
@@ -63,6 +64,10 @@ class LabelFilter extends DataTableManipulator
      */
     private function doFilterRecursiveDescend($labelParts, $dataTable)
     {
+        // we need to make sure to rebuild the index as some filters change the label column directly via
+        // $row->setColumn('label', '') which would not be noticed in the label index otherwise.
+        $dataTable->rebuildIndex();
+
         // search for the first part of the tree search
         $labelPart = array_shift($labelParts);
 
@@ -101,6 +106,9 @@ class LabelFilter extends DataTableManipulator
     protected function manipulateSubtableRequest($request)
     {
         unset($request['label']);
+        unset($request['flat']);
+        $request['totals'] = 0;
+        $request['filter_sort_column'] = ''; // do not sort, we only want to find a matching column
 
         return $request;
     }
@@ -118,9 +126,15 @@ class LabelFilter extends DataTableManipulator
     {
         static $pageTitleReports = array('getPageTitles', 'getEntryPageTitles', 'getExitPageTitles');
 
+        $originalLabel = trim($originalLabel);
+
+        $isTerminal = substr($originalLabel, 0, 1) == self::TERMINAL_OPERATOR;
+        if ($isTerminal) {
+            $originalLabel = substr($originalLabel, 1);
+        }
+
         $variations = array();
-        $label = urldecode($originalLabel);
-        $label = trim($label);
+        $label = trim(urldecode($originalLabel));
 
         $sanitizedLabel = Common::sanitizeInputValue($label);
         $variations[] = $sanitizedLabel;
@@ -128,9 +142,7 @@ class LabelFilter extends DataTableManipulator
         if ($this->apiModule == 'Actions'
             && in_array($this->apiMethod, $pageTitleReports)
         ) {
-            // temporary workaround for #4363, if a '+' is at the end of this label, we assume it is a
-            // terminal label and only check for a terminal row.
-            if (substr($originalLabel, -1) == '+') {
+            if ($isTerminal) {
                 array_unshift($variations, ' ' . $sanitizedLabel);
                 array_unshift($variations, ' ' . $label);
             } else {
@@ -141,6 +153,8 @@ class LabelFilter extends DataTableManipulator
             }
         }
         $variations[] = $label;
+
+        $variations = array_unique($variations);
 
         return $variations;
     }

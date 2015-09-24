@@ -17,21 +17,21 @@ use Piwik\Updates;
  */
 class Updates_0_2_12 extends Updates
 {
-    static function getSql()
+    public static function getSql()
     {
         return array(
             'ALTER TABLE `' . Common::prefixTable('site') . '`
 				CHANGE `ts_created` `ts_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL'              => false,
             'ALTER TABLE `' . Common::prefixTable('log_visit') . '`
-				DROP `config_color_depth`' => false,
+				DROP `config_color_depth`'                                                                  => 1091,
 
             // 0.2.12 [673]
             // Note: requires INDEX privilege
-            'DROP INDEX index_idaction ON `' . Common::prefixTable('log_action') . '`'                      => '1091',
+            'DROP INDEX index_idaction ON `' . Common::prefixTable('log_action') . '`'                      => 1091,
         );
     }
 
-    static function update()
+    public static function update()
     {
         Updater::updateDatabase(__FILE__, self::getSql());
     }

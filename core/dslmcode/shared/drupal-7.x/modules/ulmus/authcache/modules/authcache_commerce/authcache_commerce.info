@@ -1,0 +1,14 @@
+name = Authcache Commerce
+description = Authcache support for Drupal Commerce
+package = Performance and scalability
+core = 7.x
+dependencies[] = commerce
+dependencies[] = commerce_cart
+files[] = authcache_commerce.test
+
+; Information added by Drupal.org packaging script on 2015-07-29
+version = "7.x-2.0-beta7"
+core = "7.x"
+project = "authcache"
+datestamp = "1438156442"
+

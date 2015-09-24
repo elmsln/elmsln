@@ -15,26 +15,6 @@ function authcache_schema() {
 }
 
 /**
- * Implements hook_enable().
- */
-function authcache_enable() {
-  // Is there any cache backend present?
-  $modules = module_implements('authcache_backend_cache_save');
-  if (empty($modules)) {
-    drupal_set_message(st('No cache backend module enabled. See <a href="@url">README.txt</a>.', array('@url' => base_path() . drupal_get_path('module', 'authcache') . '/README.txt')), 'error');
-  }
-
-  drupal_set_message(st('Authcache has been enabled. Please configure your caching settings under <a href="@url">Site Configuration -> Performance -> Authcache</a>.', array('@url' => base_path() . 'admin/config/system/authcache/config')), 'warning');
-}
-
-/**
- * Implements hook_disable().
- */
-function authcache_disable() {
-
-}
-
-/**
  * Implements hook_requirements().
  */
 function authcache_requirements($phase) {
@@ -47,7 +27,7 @@ function authcache_requirements($phase) {
   if (empty($modules)) {
     $requirements['authcache'] = array(
       'value' => $t('No cache backend enabled'),
-      'description' => $t('None of the enabled modules implements hook_authcache_backend_cache_save(). This means that page caching will not have any effect. You should enable a module which implements this hook, e.g., authcache_builtin, authcache_varnish or authcache_boost.'),
+      'description' => $t('None of the enabled modules implements hook_authcache_backend_cache_save(). This means that page caching will not have any effect. You should enable a module which implements this hook, e.g., authcache_builtin or authcache_varnish.'),
       'severity' => REQUIREMENT_WARNING,
     );
   }

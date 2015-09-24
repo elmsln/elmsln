@@ -46,21 +46,23 @@
     });
 
     // Set up the ability to click anywhere on the row to select it.
-    $('.views-table tbody tr', form).click(function(event) {
-      if (event.target.tagName.toLowerCase() != 'input' && event.target.tagName.toLowerCase() != 'a') {
-        $('input[id^="edit-views-bulk-operations"]:not(:disabled)', this).each(function() {
-          var checked = this.checked;
-          // trigger() toggles the checkmark *after* the event is set,
-          // whereas manually clicking the checkbox toggles it *beforehand*.
-          // that's why we manually set the checkmark first, then trigger the
-          // event (so that listeners get notified), then re-set the checkmark
-          // which the trigger will have toggled. yuck!
-          this.checked = !checked;
-          $(this).trigger('click');
-          this.checked = !checked;
-        });
-      }
-    });
+    if (Drupal.settings.vbo.row_clickable) {
+      $('.views-table tbody tr', form).click(function(event) {
+        if (event.target.tagName.toLowerCase() != 'input' && event.target.tagName.toLowerCase() != 'a') {
+          $('input[id^="edit-views-bulk-operations"]:not(:disabled)', this).each(function() {
+            var checked = this.checked;
+            // trigger() toggles the checkmark *after* the event is set,
+            // whereas manually clicking the checkbox toggles it *beforehand*.
+            // that's why we manually set the checkmark first, then trigger the
+            // event (so that listeners get notified), then re-set the checkmark
+            // which the trigger will have toggled. yuck!
+            this.checked = !checked;
+            $(this).trigger('click');
+            this.checked = !checked;
+          });
+        }
+      });
+    }
   }
 
   Drupal.vbo.tableSelectAllPages = function(form) {

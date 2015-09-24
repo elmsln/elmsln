@@ -45,15 +45,14 @@ class Parameters
 
     /**
      * Constructor.
-     * 
+     *
      * @ignore
      */
-    public function __construct(Site $site, Period $period, Segment $segment, $skipAggregationOfSubTables = false)
+    public function __construct(Site $site, Period $period, Segment $segment)
     {
         $this->site = $site;
         $this->period = $period;
         $this->segment = $segment;
-        $this->skipAggregationOfSubTables = $skipAggregationOfSubTables;
     }
 
     /**
@@ -91,7 +90,7 @@ class Parameters
      */
     public function getSubPeriods()
     {
-        if($this->getPeriod()->getLabel() == 'day') {
+        if ($this->getPeriod()->getLabel() == 'day') {
             return array( $this->getPeriod() );
         }
         return $this->getPeriod()->getSubperiods();
@@ -169,18 +168,13 @@ class Parameters
         return count($this->getIdSites()) == 1;
     }
 
-    public function isSkipAggregationOfSubTables()
-    {
-        return $this->skipAggregationOfSubTables;
-    }
-
     public function logStatusDebug($isTemporary)
     {
         $temporary = 'definitive archive';
         if ($isTemporary) {
             $temporary = 'temporary archive';
         }
-        Log::verbose(
+        Log::debug(
             "%s archive, idSite = %d (%s), segment '%s', report = '%s', UTC datetime [%s -> %s]",
             $this->getPeriod()->getLabel(),
             $this->getSite()->getId(),

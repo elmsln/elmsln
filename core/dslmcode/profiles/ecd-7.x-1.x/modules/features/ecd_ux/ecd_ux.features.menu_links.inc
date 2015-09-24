@@ -10,10 +10,10 @@
 function ecd_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_course-access-request:eform/submit/course-access
-  $menu_links['menu-cis-add_course-access-request:eform/submit/course-access'] = array(
+  // Exported menu link: menu-cis-add_course-access-request:eform/submit/course-access-request
+  $menu_links['menu-cis-add_course-access-request:eform/submit/course-access-request'] = array(
     'menu_name' => 'menu-cis-add',
-    'link_path' => 'eform/submit/course-access',
+    'link_path' => 'eform/submit/course-access-request',
     'router_path' => 'eform/submit/%',
     'link_title' => 'Course access request',
     'options' => array(
@@ -23,7 +23,7 @@ function ecd_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_course-access-request:eform/submit/course-access',
+      'identifier' => 'menu-cis-add_course-access-request:eform/submit/course-access-request',
     ),
     'module' => 'menu',
     'hidden' => 0,

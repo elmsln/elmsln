@@ -89,7 +89,6 @@ function authcache_form_form_alter(&$form, &$form_state, $form_id) {
     // submitted.
     unset($form['#token']);
     unset($form['form_token']);
-    authcache_element_set_cacheable($form);
   }
   elseif (authcache_page_is_cacheable()) {
     // Set the immutable flag on the form.
@@ -144,14 +143,19 @@ function authcache_form_cache_lifespan() {
 function _authcache_form_after_build($form, $form_state) {
   global $user;
 
-  if (authcache_page_is_cacheable() && !authcache_element_is_cacheable($form)) {
-    // Cached forms break for authenticated users unless Cache Object API is
-    // configured properly.
-    if (!empty($form['form_build_id']) && $user->uid && !module_exists('cacheobject')) {
-      authcache_cancel(t('Cached form on the page (likely Ajax enabled). Download and configure the Cache Object API module.'));
+  if (authcache_page_is_cacheable()) {
+    if (!empty($form['form_build_id']) && $user->uid && !authcache_element_is_cacheable($form['form_build_id'])) {
+      // Cached forms break for authenticated users unless Cache Object API is
+      // configured properly.
+      if (module_exists('cacheobject')) {
+        authcache_element_set_cacheable($form['form_build_id']);
+      }
+      else {
+        authcache_cancel(t('Cached form on the page (likely Ajax enabled). Download and configure the Cache Object API module.'));
+      }
     }
 
-    if (!empty($form['form_token'])) {
+    if (!empty($form['form_token']) && !authcache_element_is_cacheable($form['form_token'])) {
       // Replace hidden form_token input with personalization request fragment.
       $form_token_id = isset($form['#token']) ? $form['#token'] : $form['#form_id'];
       authcache_p13n_attach($form['form_token'], array(
@@ -160,9 +164,10 @@ function _authcache_form_after_build($form, $form_state) {
         '#param' => $form_token_id,
         '#fallback' => 'cancel',
       ));
+
+      authcache_element_set_cacheable($form['form_token']);
     }
 
-    authcache_element_set_cacheable($form);
   }
 
   return $form;

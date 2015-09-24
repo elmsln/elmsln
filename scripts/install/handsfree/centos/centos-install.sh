@@ -18,13 +18,16 @@ timestamp(){
 }
 start="$(timestamp)"
 # get the epel and remi repo listings so we can get additional packages like mcrypt
-wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
+rpm -Uvh remi-release-6*.rpm
+wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+rpm -Uvh epel-release-6*.rpm
 # make sure we're up to date w/ the remi repos
 yes | yum update
 # using yum to install the main packages
-yes | yum -y install patch git nano gcc make mysql mysql-server httpd php php-gd php-xml php-pdo php-mbstring php-mysql php-pear php-devel php-pecl-ssh2 php-pecl-apc php-mcrypt*
+yes | yum -y install patch git nano gcc make mysql mysql-server httpd
+# install php 5.5
+yes | yum -y --enablerepo=remi-php55 install php php-common php-opcache php-pecl-apcu php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-devel php-pecl-ssh2
 
 yes | yum groupinstall 'Development Tools'
 # using pecl to install uploadprogress
@@ -47,22 +50,6 @@ cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
 service varnish start
 chkconfig varnish on
 
-# make an admin group
-groupadd admin
-# run the handsfree installer that's the same for all deployments
-# kick off hands free deployment
-bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
-
-
-# get things in place so that we can run mysql / php 5.5
-rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
-rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-yes | yum -y --enablerepo=remi install mysql mysql-server
-/etc/init.d/mysqld restart
-yes | yum -y --enablerepo=remi,remi-php55 install httpd php php-common
-yes | yum -y --enablerepo=remi,remi-php55 install php-opcache php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
-/etc/init.d/httpd restart
-
 # optimize apc
 echo "" >> /etc/php.d/apcu.ini
 echo "apc.rfc1867=1" >> /etc/php.d/apcu.ini
@@ -80,8 +67,20 @@ echo "opcache.validate_timestamps=1" >> /etc/php.d/opcache.ini
 echo "opcache.fast_shutdown=1" >> /etc/php.d/opcache.ini
 echo "opcache.interned_strings_buffer=8" >> /etc/php.d/opcache.ini
 echo "opcache.enable_cli=1" >> /etc/php.d/opcache.ini
+# remove default apc file that might exist
+yes | rm /etc/php.d/apc.ini
 
 /etc/init.d/httpd restart
+# make an admin group
+groupadd admin
+# run the handsfree installer that's the same for all deployments
+# kick off hands free deployment
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
+
+
+# get things in place so that we can run mysql 5.5
+yes | yum -y --enablerepo=remi install mysql mysql-server
+/etc/init.d/mysqld restart
 
 cd $HOME
 source .bashrc

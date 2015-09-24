@@ -10,18 +10,18 @@ namespace Piwik\DataTable;
 
 use Exception;
 use Piwik\DataTable;
+use Piwik\Log;
 use Piwik\Metrics;
 
 /**
  * This is what a {@link Piwik\DataTable} is composed of.
- * 
+ *
  * DataTable rows contain columns, metadata and a subtable ID. Columns and metadata
  * are stored as an array of name => value mappings.
  *
- *
  * @api
  */
-class Row
+class Row implements \ArrayAccess, \IteratorAggregate
 {
     /**
      * List of columns that cannot be summed. An associative array for speed.
@@ -33,23 +33,17 @@ class Row
         'full_url' => true // column used w/ old Piwik versions,
     );
 
-    /**
-     * This array contains the row information:
-     * - array indexed by self::COLUMNS contains the columns, pairs of (column names, value)
-     * - (optional) array indexed by self::METADATA contains the metadata,  pairs of (metadata name, value)
-     * - (optional) integer indexed by self::DATATABLE_ASSOCIATED contains the ID of the DataTable associated to this row.
-     *   This ID can be used to read the DataTable from the DataTable_Manager.
-     *
-     * @var array
-     * @see constructor for more information
-     * @ignore
-     */
-    public $c = array();
-
-    private $subtableIdWasNegativeBeforeSerialize = false;
-
     // @see sumRow - implementation detail
     public $maxVisitsSummed = 0;
+
+    private $columns = array();
+    private $metadata = array();
+    private $isSubtableLoaded = false;
+
+    /**
+     * @internal
+     */
+    public $subtableId = null;
 
     const COLUMNS = 0;
     const METADATA = 1;
@@ -59,7 +53,7 @@ class Row
      * Constructor.
      *
      * @param array $row An array with the following structure:
-     *                   
+     *
      *                       array(
      *                           Row::COLUMNS => array('label' => 'Piwik',
      *                                                 'column1' => 42,
@@ -72,51 +66,33 @@ class Row
      */
     public function __construct($row = array())
     {
-        $this->c[self::COLUMNS] = array();
-        $this->c[self::METADATA] = array();
-        $this->c[self::DATATABLE_ASSOCIATED] = null;
-
         if (isset($row[self::COLUMNS])) {
-            $this->c[self::COLUMNS] = $row[self::COLUMNS];
+            $this->columns = $row[self::COLUMNS];
         }
         if (isset($row[self::METADATA])) {
-            $this->c[self::METADATA] = $row[self::METADATA];
+            $this->metadata = $row[self::METADATA];
         }
-        if (isset($row[self::DATATABLE_ASSOCIATED])
-            && $row[self::DATATABLE_ASSOCIATED] instanceof DataTable
-        ) {
-            $this->setSubtable($row[self::DATATABLE_ASSOCIATED]);
+        if (isset($row[self::DATATABLE_ASSOCIATED])) {
+            if ($row[self::DATATABLE_ASSOCIATED] instanceof DataTable) {
+                $this->setSubtable($row[self::DATATABLE_ASSOCIATED]);
+            } else {
+                $this->subtableId = $row[self::DATATABLE_ASSOCIATED];
+            }
         }
     }
 
     /**
-     * Because $this->c[self::DATATABLE_ASSOCIATED] is negative when the table is in memory,
-     * we must prior to serialize() call, make sure the ID is saved as positive integer
-     *
-     * Only serialize the "c" member
+     * Used when archiving to serialize the Row's properties.
+     * @return array
      * @ignore
      */
-    public function __sleep()
+    public function export()
     {
-        if (!empty($this->c[self::DATATABLE_ASSOCIATED])
-            && $this->c[self::DATATABLE_ASSOCIATED] < 0
-        ) {
-            $this->c[self::DATATABLE_ASSOCIATED] = -1 * $this->c[self::DATATABLE_ASSOCIATED];
-            $this->subtableIdWasNegativeBeforeSerialize = true;
-        }
-        return array('c');
-    }
-
-    /**
-     * Must be called after the row was serialized and __sleep was called.
-     * @ignore
-     */
-    public function cleanPostSerialize()
-    {
-        if ($this->subtableIdWasNegativeBeforeSerialize) {
-            $this->c[self::DATATABLE_ASSOCIATED] = -1 * $this->c[self::DATATABLE_ASSOCIATED];
-            $this->subtableIdWasNegativeBeforeSerialize = false;
-        }
+        return array(
+            self::COLUMNS => $this->columns,
+            self::METADATA => $this->metadata,
+            self::DATATABLE_ASSOCIATED => $this->subtableId,
+        );
     }
 
     /**
@@ -125,9 +101,10 @@ class Row
      */
     public function __destruct()
     {
-        if ($this->isSubtableLoaded()) {
-            Manager::getInstance()->deleteTable($this->getIdSubDataTable());
-            $this->c[self::DATATABLE_ASSOCIATED] = null;
+        if ($this->isSubtableLoaded) {
+            Manager::getInstance()->deleteTable($this->subtableId);
+            $this->subtableId = null;
+            $this->isSubtableLoaded = false;
         }
     }
 
@@ -141,15 +118,21 @@ class Row
     {
         $columns = array();
         foreach ($this->getColumns() as $column => $value) {
-            if (is_string($value)) $value = "'$value'";
-            elseif (is_array($value)) $value = var_export($value, true);
+            if (is_string($value)) {
+                $value = "'$value'";
+            } elseif (is_array($value)) {
+                $value = var_export($value, true);
+            }
             $columns[] = "'$column' => $value";
         }
         $columns = implode(", ", $columns);
         $metadata = array();
         foreach ($this->getMetadata() as $name => $value) {
-            if (is_string($value)) $value = "'$value'";
-            elseif (is_array($value)) $value = var_export($value, true);
+            if (is_string($value)) {
+                $value = "'$value'";
+            } elseif (is_array($value)) {
+                $value = var_export($value, true);
+            }
             $metadata[] = "'$name' => $value";
         }
         $metadata = implode(", ", $metadata);
@@ -165,10 +148,11 @@ class Row
      */
     public function deleteColumn($name)
     {
-        if (!$this->hasColumn($name)) {
+        if (!array_key_exists($name, $this->columns)) {
             return false;
         }
-        unset($this->c[self::COLUMNS][$name]);
+
+        unset($this->columns[$name]);
         return true;
     }
 
@@ -180,11 +164,12 @@ class Row
      */
     public function renameColumn($oldName, $newName)
     {
-        if (isset($this->c[self::COLUMNS][$oldName])) {
-            $this->c[self::COLUMNS][$newName] = $this->c[self::COLUMNS][$oldName];
+        if (isset($this->columns[$oldName])) {
+            $this->columns[$newName] = $this->columns[$oldName];
         }
-        // outside the if() since we want to delete nulled columns
-        unset($this->c[self::COLUMNS][$oldName]);
+
+        // outside the if () since we want to delete nulled columns
+        unset($this->columns[$oldName]);
     }
 
     /**
@@ -195,35 +180,11 @@ class Row
      */
     public function getColumn($name)
     {
-        if (!isset($this->c[self::COLUMNS][$name])) {
+        if (!isset($this->columns[$name])) {
             return false;
         }
 
-        if ($this->isColumnValueCallable($this->c[self::COLUMNS][$name])) {
-            $value = $this->resolveCallableColumn($name);
-
-            if (!isset($value)) {
-                return false;
-            }
-
-            return $value;
-        }
-
-        return $this->c[self::COLUMNS][$name];
-    }
-
-    private function isColumnValueCallable($name)
-    {
-        if (is_object($name) && ($name instanceof \Closure)) {
-            return true;
-        }
-
-        return is_array($name) && array_key_exists(0, $name) && is_object($name[0]) && is_callable($name);
-    }
-
-    private function resolveCallableColumn($columnName)
-    {
-        return call_user_func($this->c[self::COLUMNS][$columnName], $this);
+        return $this->columns[$name];
     }
 
     /**
@@ -235,17 +196,12 @@ class Row
     public function getMetadata($name = null)
     {
         if (is_null($name)) {
-            return $this->c[self::METADATA];
+            return $this->metadata;
         }
-        if (!isset($this->c[self::METADATA][$name])) {
+        if (!isset($this->metadata[$name])) {
             return false;
         }
-        return $this->c[self::METADATA][$name];
-    }
-
-    private function getColumnsRaw()
-    {
-        return $this->c[self::COLUMNS];
+        return $this->metadata[$name];
     }
 
     /**
@@ -257,14 +213,14 @@ class Row
      */
     public function hasColumn($name)
     {
-        return array_key_exists($name, $this->c[self::COLUMNS]);
+        return array_key_exists($name, $this->columns);
     }
 
     /**
      * Returns the array containing all the columns.
      *
      * @return array  Example:
-     *                
+     *
      *                    array(
      *                        'column1'   => VALUE,
      *                        'label'     => 'www.php.net'
@@ -273,16 +229,7 @@ class Row
      */
     public function getColumns()
     {
-        $values = array();
-        foreach ($this->c[self::COLUMNS] as $columnName => $val) {
-            if ($this->isColumnValueCallable($val)) {
-                $values[$columnName] = $this->resolveCallableColumn($columnName);
-            } else {
-                $values[$columnName] = $val;
-            }
-        }
-
-        return $values;
+        return $this->columns;
     }
 
     /**
@@ -293,10 +240,7 @@ class Row
      */
     public function getIdSubDataTable()
     {
-        return !is_null($this->c[self::DATATABLE_ASSOCIATED])
-            // abs() is to ensure we return a positive int, @see isSubtableLoaded()
-            ? abs($this->c[self::DATATABLE_ASSOCIATED])
-            : null;
+        return $this->subtableId;
     }
 
     /**
@@ -306,46 +250,47 @@ class Row
      */
     public function getSubtable()
     {
-        if ($this->isSubtableLoaded()) {
-            return Manager::getInstance()->getTable($this->getIdSubDataTable());
+        if ($this->isSubtableLoaded) {
+            try {
+                return Manager::getInstance()->getTable($this->subtableId);
+            } catch (TableNotFoundException $e) {
+                // edge case
+            }
         }
         return false;
     }
 
     /**
+     * @param int $subtableId
+     * @ignore
+     */
+    public function setNonLoadedSubtableId($subtableId)
+    {
+        $this->subtableId = $subtableId;
+        $this->isSubtableLoaded = false;
+    }
+
+    /**
      * Sums a DataTable to this row's subtable. If this row has no subtable a new
      * one is created.
-     * 
+     *
      * See {@link Piwik\DataTable::addDataTable()} to learn how DataTables are summed.
-     * 
+     *
      * @param DataTable $subTable Table to sum to this row's subtable.
      */
     public function sumSubtable(DataTable $subTable)
     {
-        if ($this->isSubtableLoaded()) {
+        if ($this->isSubtableLoaded) {
             $thisSubTable = $this->getSubtable();
         } else {
+            $this->warnIfSubtableAlreadyExists();
+
             $thisSubTable = new DataTable();
-            $this->addSubtable($thisSubTable);
+            $this->setSubtable($thisSubTable);
         }
         $columnOps = $subTable->getMetadata(DataTable::COLUMN_AGGREGATION_OPS_METADATA_NAME);
         $thisSubTable->setMetadata(DataTable::COLUMN_AGGREGATION_OPS_METADATA_NAME, $columnOps);
         $thisSubTable->addDataTable($subTable);
-    }
-
-    /**
-     * Attaches a subtable to this row.
-     *
-     * @param DataTable $subTable DataTable to associate to this row.
-     * @return DataTable Returns `$subTable`.
-     * @throws Exception if a subtable already exists for this row.
-     */
-    public function addSubtable(DataTable $subTable)
-    {
-        if (!is_null($this->c[self::DATATABLE_ASSOCIATED])) {
-            throw new Exception("Adding a subtable to the row, but it already has a subtable associated.");
-        }
-        return $this->setSubtable($subTable);
     }
 
     /**
@@ -357,9 +302,9 @@ class Row
      */
     public function setSubtable(DataTable $subTable)
     {
-        // Hacking -1 to ensure value is negative, so we know the table was loaded
-        // @see isSubtableLoaded()
-        $this->c[self::DATATABLE_ASSOCIATED] = -1 * $subTable->getId();
+        $this->subtableId = $subTable->getId();
+        $this->isSubtableLoaded = true;
+
         return $subTable;
     }
 
@@ -372,8 +317,7 @@ class Row
     {
         // self::DATATABLE_ASSOCIATED are set as negative values,
         // as a flag to signify that the subtable is loaded in memory
-        return !is_null($this->c[self::DATATABLE_ASSOCIATED])
-        && $this->c[self::DATATABLE_ASSOCIATED] < 0;
+        return $this->isSubtableLoaded;
     }
 
     /**
@@ -381,17 +325,18 @@ class Row
      */
     public function removeSubtable()
     {
-        $this->c[self::DATATABLE_ASSOCIATED] = null;
+        $this->subtableId = null;
+        $this->isSubtableLoaded = false;
     }
 
     /**
      * Set all the columns at once. Overwrites **all** previously set columns.
      *
-     * @param array eg, `array('label' => 'www.php.net', 'nb_visits' => 15894)`
+     * @param array $columns eg, `array('label' => 'www.php.net', 'nb_visits' => 15894)`
      */
     public function setColumns($columns)
     {
-        $this->c[self::COLUMNS] = $columns;
+        $this->columns = $columns;
     }
 
     /**
@@ -402,7 +347,7 @@ class Row
      */
     public function setColumn($name, $value)
     {
-        $this->c[self::COLUMNS][$name] = $value;
+        $this->columns[$name] = $value;
     }
 
     /**
@@ -413,7 +358,7 @@ class Row
      */
     public function setMetadata($name, $value)
     {
-        $this->c[self::METADATA][$name] = $value;
+        $this->metadata[$name] = $value;
     }
 
     /**
@@ -425,13 +370,13 @@ class Row
     public function deleteMetadata($name = false)
     {
         if ($name === false) {
-            $this->c[self::METADATA] = array();
+            $this->metadata = array();
             return true;
         }
-        if (!isset($this->c[self::METADATA][$name])) {
+        if (!isset($this->metadata[$name])) {
             return false;
         }
-        unset($this->c[self::METADATA][$name]);
+        unset($this->metadata[$name]);
         return true;
     }
 
@@ -444,7 +389,7 @@ class Row
      */
     public function addColumn($name, $value)
     {
-        if (isset($this->c[self::COLUMNS][$name])) {
+        if (isset($this->columns[$name])) {
             throw new Exception("Column $name already in the array!");
         }
         $this->setColumn($name, $value);
@@ -480,7 +425,7 @@ class Row
      */
     public function addMetadata($name, $value)
     {
-        if (isset($this->c[self::METADATA][$name])) {
+        if (isset($this->metadata[$name])) {
             throw new Exception("Metadata $name already in the array!");
         }
         $this->setMetadata($name, $value);
@@ -495,24 +440,20 @@ class Row
      * Sums the given `$rowToSum` columns values to the existing row column values.
      * Only the int or float values will be summed. Label columns will be ignored
      * even if they have a numeric value.
-     * 
+     *
      * Columns in `$rowToSum` that don't exist in `$this` are added to `$this`.
      *
      * @param \Piwik\DataTable\Row $rowToSum The row to sum to this row.
      * @param bool $enableCopyMetadata Whether metadata should be copied or not.
-     * @param array $aggregationOperations for columns that should not be summed, determine which
+     * @param array|bool $aggregationOperations for columns that should not be summed, determine which
      *                                     aggregation should be used (min, max). format:
      *                                     `array('column name' => 'function name')`
+     * @throws Exception
      */
     public function sumRow(Row $rowToSum, $enableCopyMetadata = true, $aggregationOperations = false)
     {
-        foreach ($rowToSum->getColumnsRaw() as $columnToSumName => $columnToSumValue) {
+        foreach ($rowToSum->getColumns() as $columnToSumName => $columnToSumValue) {
             if (!$this->isSummableColumn($columnToSumName)) {
-                continue;
-            }
-
-            if ($this->isColumnValueCallable($columnToSumValue)) {
-                $this->setColumn($columnToSumName, $columnToSumValue);
                 continue;
             }
 
@@ -528,7 +469,7 @@ class Row
             if ($columnToSumName == Metrics::INDEX_MAX_ACTIONS) {
                 $operation = 'max';
             }
-            if(empty($operation)) {
+            if (empty($operation)) {
                 throw new Exception("Unknown aggregation operation for column $columnToSumName.");
             }
 
@@ -556,7 +497,7 @@ class Row
             case 'min':
                 if (!$thisColumnValue) {
                     $newValue = $columnToSumValue;
-                } else if (!$columnToSumValue) {
+                } elseif (!$columnToSumValue) {
                     $newValue = $thisColumnValue;
                 } else {
                     $newValue = min($thisColumnValue, $columnToSumValue);
@@ -573,12 +514,12 @@ class Row
 
     /**
      * Sums the metadata in `$rowToSum` with the metadata in `$this` row.
-     * 
+     *
      * @param Row $rowToSum
      */
     public function sumRowMetadata($rowToSum)
     {
-        if (!empty($rowToSum->c[self::METADATA])
+        if (!empty($rowToSum->metadata)
             && !$this->isSummaryRow()
         ) {
             // We shall update metadata, and keep the metadata with the _most visits or pageviews_, rather than first or last seen
@@ -586,10 +527,10 @@ class Row
                 // Old format pre-1.2, @see also method doSumVisitsMetrics()
                 $rowToSum->getColumn('nb_actions') || $rowToSum->getColumn('nb_visits'));
             if (($visits && $visits > $this->maxVisitsSummed)
-                || empty($this->c[self::METADATA])
+                || empty($this->metadata)
             ) {
                 $this->maxVisitsSummed = $visits;
-                $this->c[self::METADATA] = $rowToSum->c[self::METADATA];
+                $this->metadata = $rowToSum->metadata;
             }
         }
     }
@@ -597,7 +538,7 @@ class Row
     /**
      * Returns `true` if this row is the summary row, `false` if otherwise. This function
      * depends on the label of the row, and so, is not 100% accurate.
-     * 
+     *
      * @return bool
      */
     public function isSummaryRow()
@@ -642,10 +583,7 @@ class Row
             return $newValue;
         }
 
-        if (is_string($columnToSumValue)) {
-            throw new Exception("Trying to add two strings in DataTable\Row::sumRowArray: "
-                              . "'$thisColumnValue' + '$columnToSumValue'" . " for row " . $this->__toString());
-        }
+        $this->warnWhenSummingTwoStrings($thisColumnValue, $columnToSumValue);
 
         return 0;
     }
@@ -658,7 +596,7 @@ class Row
      * @return bool
      * @ignore
      */
-    static public function compareElements($elem1, $elem2)
+    public static function compareElements($elem1, $elem2)
     {
         if (is_array($elem1)) {
             if (is_array($elem2)) {
@@ -666,11 +604,13 @@ class Row
             }
             return 1;
         }
-        if (is_array($elem2))
+        if (is_array($elem2)) {
             return -1;
+        }
 
-        if ((string)$elem1 === (string)$elem2)
+        if ((string)$elem1 === (string)$elem2) {
             return 0;
+        }
 
         return ((string)$elem1 > (string)$elem2) ? 1 : -1;
     }
@@ -679,17 +619,17 @@ class Row
      * Helper function that tests if two rows are equal.
      *
      * Two rows are equal if:
-     * 
+     *
      * - they have exactly the same columns / metadata
      * - they have a subDataTable associated, then we check that both of them are the same.
-     * 
+     *
      * Column order is not important.
      *
      * @param \Piwik\DataTable\Row $row1 first to compare
      * @param \Piwik\DataTable\Row $row2 second to compare
      * @return bool
      */
-    static public function isEqual(Row $row1, Row $row2)
+    public static function isEqual(Row $row1, Row $row2)
     {
         //same columns
         $cols1 = $row1->getColumns();
@@ -725,5 +665,54 @@ class Row
             }
         }
         return true;
+    }
+
+    public function offsetExists($offset)
+    {
+        return $this->hasColumn($offset);
+    }
+
+    public function offsetGet($offset)
+    {
+        return $this->getColumn($offset);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        $this->setColumn($offset, $value);
+    }
+
+    public function offsetUnset($offset)
+    {
+        $this->deleteColumn($offset);
+    }
+
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->columns);
+    }
+
+    private function warnIfSubtableAlreadyExists()
+    {
+        if (!is_null($this->subtableId)) {
+            Log::warning(
+                "Row with label '%s' (columns = %s) has already a subtable id=%s but it was not loaded - overwriting the existing sub-table.",
+                $this->getColumn('label'),
+                implode(", ", $this->getColumns()),
+                $this->getIdSubDataTable()
+            );
+        }
+    }
+
+    protected function warnWhenSummingTwoStrings($thisColumnValue, $columnToSumValue)
+    {
+        if (is_string($columnToSumValue)) {
+            Log::warning(
+                "Trying to add two strings in DataTable\Row::sumRowArray: %s + %s for row %s",
+                $thisColumnValue,
+                $columnToSumValue,
+                $this->__toString()
+            );
+        }
     }
 }

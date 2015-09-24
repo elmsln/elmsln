@@ -198,6 +198,16 @@ function advagg_mod_library_alter(&$javascript, $module) {
  * Implements hook_init().
  */
 function advagg_mod_init() {
+  // Adjust devel_shutdown callback.
+  $callbacks = &drupal_register_shutdown_function();
+  foreach ($callbacks as $key => $values) {
+    if ($values['callback'] === 'devel_shutdown') {
+      $callbacks[$key]['callback'] = 'advagg_mod_devel_shutdown';
+      break;
+    }
+  }
+  reset($callbacks);
+
   // Return if unified_multisite_dir is not set.
   $dir = rtrim(variable_get('advagg_mod_unified_multisite_dir', ''), '/');
   if (empty($dir) || !file_exists($dir) || !is_dir($dir)) {
@@ -2376,4 +2386,149 @@ function advagg_mod_magic_form_validate($form, &$form_state) {
   $form_state['values']['magic_footer_js'] = 0;
   $form_state['values']['magic_library_head'] = 0;
   $form_state['values']['magic_experimental_js'] = 0;
+}
+
+
+/**
+ * Runs on shutdown to clean up and display developer information.
+ *
+ * devel_boot() registers this function as a shutdown function.
+ * The bulk of the work is done in devel_shutdown_real().
+ */
+function advagg_mod_devel_shutdown() {
+  // Register the real shutdown function so it runs after other shutdown
+  // functions.
+  drupal_register_shutdown_function('advagg_mod_devel_shutdown_real');
+}
+
+/**
+ * Runs on shutdown to display developer information in the footer.
+ *
+ * devel_shutdown() registers this function as a shutdown function.
+ */
+function advagg_mod_devel_shutdown_real() {
+  global $user;
+  $output = '';
+
+  // Set $GLOBALS['devel_shutdown'] = FALSE in order to supress the
+  // devel footer for a page.  Not necessary if your page outputs any
+  // of the Content-type http headers tested below (e.g. text/xml,
+  // text/javascript, etc).  This is is advised where applicable.
+  if (!devel_silent() && !isset($GLOBALS['devel_shutdown']) && !isset($GLOBALS['devel_redirecting'])) {
+    // Try not to break non html pages.
+    if (function_exists('drupal_get_http_header')) {
+      $header = drupal_get_http_header('content-type');
+      if ($header) {
+        $formats = array('xml', 'javascript', 'json', 'plain', 'image',
+          'application', 'csv', 'x-comma-separated-values');
+        foreach ($formats as $format) {
+          if (strstr($header, $format)) {
+            return;
+          }
+        }
+      }
+    }
+
+    if (isset($user) && user_access('access devel information')) {
+      $queries = (devel_query_enabled() ? Database::getLog('devel', 'default') : NULL);
+      if (!empty($queries)) {
+        // Remove caller args to avoid recursion.
+        foreach ($queries as &$query) {
+          unset($query['caller']['args']);
+        }
+      }
+      $output .= devel_shutdown_summary($queries);
+      $output .= advagg_mod_devel_shutdown_query($queries);
+    }
+
+    if ($output) {
+      // TODO: gzip this text if we are sending a gzip page.
+      // See drupal_page_header().
+      // For some reason, this is not actually printing for cached pages even
+      // though it gets executed and $output looks good.
+      print $output;
+    }
+  }
+}
+
+/**
+ * Returns the rendered query log.
+ */
+function advagg_mod_devel_shutdown_query($queries) {
+  if (!empty($queries)) {
+    if (function_exists('theme_get_registry') && theme_get_registry()) {
+      // Safe to call theme('table).
+      list($counts) = devel_query_summary($queries);
+      $output = devel_query_table($queries, $counts);
+
+      // Save all queries to a file in temp dir. Retrieved via AJAX.
+      advagg_mod_devel_query_put_contents($queries);
+    }
+    else {
+      $output = '</div>' . dprint_r($queries, TRUE);
+    }
+    return $output;
+  }
+}
+
+/**
+ * Writes the variables information to a file.
+ *
+ * It will be retrieved on demand via AJAX.
+ */
+function advagg_mod_devel_query_put_contents($queries) {
+  $request_id = mt_rand(1, 1000000);
+  $path = "temporary://devel_querylog";
+
+  // Create the devel_querylog within the temp folder, if needed.
+  file_prepare_directory($path, FILE_CREATE_DIRECTORY);
+
+  // Occassionally wipe the querylog dir so that files don't accumulate.
+  if (mt_rand(1, 1000) == 401) {
+    devel_empty_dir($path);
+  }
+
+  $path .= "/$request_id.txt";
+  $path = file_stream_wrapper_uri_normalize($path);
+  // Save queries as a json array. Suppress errors due to recursion ()
+  $options = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT;
+  if (version_compare(PHP_VERSION, '5.5.0', '>=')) {
+    $options |= JSON_PARTIAL_OUTPUT_ON_ERROR;
+  }
+  if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+    $options |= JSON_PRETTY_PRINT;
+  }
+
+  // Prevent empty json data due to recursion.
+  $depth = 32;
+  $json_data = FALSE;
+  while (empty($json_data) && $depth > 0) {
+    $json_data = @json_encode($queries, $options, $depth);
+    $depth--;
+  }
+
+  file_put_contents($path, $json_data);
+  $settings['devel'] = array(
+    // A random string that is sent to the browser.
+    // It enables the AJAX to retrieve queries from this request.
+    'request_id' => $request_id,
+  );
+  $inline = 'jQuery.extend(Drupal.settings, ' . json_encode($settings) . ');';
+  if ( variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)
+    || variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)
+  ) {
+    $matches[2] = $matches[0] = $inline;
+    $inline = advagg_mod_wrap_inline_js($matches);
+  }
+  $options = array(
+    'type' => 'inline',
+  );
+  $options += drupal_js_defaults($inline);
+  $scripts_array = array(
+    '#type' => 'scripts',
+    '#items' => array($options),
+  );
+  $scripts = drupal_render($scripts_array);
+
+  print $scripts;
 }

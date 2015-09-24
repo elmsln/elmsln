@@ -1,24 +1,29 @@
 .Menu--admin {
     .Menu-tabList {
         .border-radius(0px);
-        border-color: @color-gray;
+        border-color: @theme-color-background-lowContrast;
         background-image: none;
         padding-left: 0;
         border-top: 0;
+        > li:first-child span {
+          border-bottom: 3px solid @theme-color-brand;
+        }
         > li {
             padding-bottom: 0px;
             > span {
                 color: @theme-color-text;
                 .font-default(18px, 26px);
-                border-top: 1px solid @color-gray;
-                border-bottom: 1px solid @color-gray;
+                border-top: 1px solid @theme-color-background-lowContrast;
+                border-bottom: 1px solid @theme-color-background-lowContrast;
                 padding: 12px 15px;
             }
             ul {
+                background-color: @theme-color-menu-contrast-background;
+
                 li {
                     a {
                         color: @theme-color-text-lighter !important;
-                        padding: 0.6em 1.1em;
+                        padding: 0.8em 1.1em;
                         &:hover {
                             color: @theme-color-text;
                             text-decoration: none;
@@ -27,21 +32,6 @@
                 }
             }
         }
-    }   
-}
-
-.admin {
-    h2 {
-        border-bottom: 1px solid @color-gray;
-        margin-right:0;
-    }
-    h3 {
-        color: @theme-color-text;
-        .font-default(18px, 24px);
-        font-weight: normal;
-    }
-    a:hover {
-        text-decoration:underline;
     }
 }
 
@@ -56,7 +46,7 @@
 
 .adminTable {
     td {
-        padding: 0;
+        padding: 2px 0;
     }
     label {
         cursor: pointer;
@@ -82,12 +72,18 @@
     padding-bottom: 0;
 }
 
-.form-description {
-    margin-left: 0;
-}
-
 .adminTable a {
     color: @theme-color-link;
+}
+
+.admin .adminTable a {
+  color: @theme-color-text;
+  text-decoration: underline;
+}
+
+.admin .adminTable .ui-inline-help a {
+  color: @theme-color-link;
+  text-decoration: none;
 }
 
 .addRowSite,
@@ -95,21 +91,25 @@
     cursor: pointer;
 }
 
+.addrow:hover {
+  text-decoration: underline;
+}
+
 .addrow {
-    margin-top: 10px;
+    margin-top: 16px;
 }
 
 .addRowSite {
     display: inline-block;
     margin: 5px 0;
+    text-decoration: none !important;
     &:before {
         content: url(plugins/Morpheus/images/add.png) !important;
     }
-}
 
-code {
-    border-color: @color-silver-l80;
-    border-left: 5px solid @theme-color-brand;
+    &:hover {
+      text-decoration: underline !important;
+    }
 }
 
 #geoipdb-screen1>div>p {

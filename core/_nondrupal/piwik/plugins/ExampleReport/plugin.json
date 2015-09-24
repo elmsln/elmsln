@@ -1,0 +1,13 @@
+{
+ "name": "ExampleReport",
+ "version": "0.1.0",
+ "description": "Piwik Platform showcase: how to define and display a data report.",
+ "theme": false,
+ "authors": [
+     {
+         "name": "Piwik",
+         "email": "",
+         "homepage": ""
+     }
+ ]
+}

@@ -1,0 +1,882 @@
+<?php
+
+/**
+ * @file
+ * Renderable elements.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function rel_menu() {
+  $items = array();
+
+  $items['admin/structure/rel'] = array(
+    'title' => 'Renderable elements',
+    'description' => 'Displays a list of builds which can be styled.',
+    'page callback' => 'rel_builds_overview',
+    'access arguments' => array('rel_build_registration'),
+    'file' => 'rel.admin.inc',
+  );
+
+  $items['admin/structure/rel/overview'] = array(
+    'title' => 'Renderable elements',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['admin/structure/rel/config'] = array(
+    'title' => 'Settings',
+    'description' => 'Enable on site registration of builds.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rel_register_admin_form'),
+    'access arguments' => array('rel_build_registration'),
+    'file' => 'rel.admin.inc',
+    'type' => MENU_LOCAL_TASK | MENU_NORMAL_ITEM,
+  );
+
+  $items['rel-register/%ctools_js/%'] = array(
+    'title' => 'Register',
+    'description' => 'Register a build',
+    'page callback' => 'rel_build_register',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('rel_build_registration'),
+    'file' => 'rel.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['rel-unregister/%ctools_js/%'] = array(
+    'title' => 'Unregister',
+    'description' => 'Unregister a build',
+    'page callback' => 'rel_build_unregister',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('rel_build_registration'),
+    'file' => 'rel.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/structure/rel/manage/%rel_build'] = array(
+    'title' => 'Manage build',
+    'description' => 'Manage a custom build',
+    'page callback' => 'rel_build_manage_custom',
+    'page arguments' => array(4),
+    'access arguments' => array('rel_build_registration'),
+    'file' => 'rel.admin.inc',
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+
+  // We need to register our own delete callback for deleting
+  // field groups since the rel_build entity is not fieldable.
+  if (module_exists('field_group')) {
+    $builds = rel_get_builds();
+    foreach ($builds as $build_id => $rel_build) {
+      if ($rel_build->entity_type == 'rel_build') {
+        $items['admin/structure/rel/manage/%rel_build/groups/%/delete'] = array(
+          'title' => 'Delete',
+          'page callback' => 'drupal_get_form',
+          'page arguments' => array('rel_delete_group_form', 4, 6),
+          'type' => MENU_CALLBACK,
+          'file' => 'rel.admin.inc',
+          'access arguments' => array('rel_build_registration'),
+        );
+      }
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function rel_admin_paths() {
+  $paths = array(
+    'rel-register/*' => TRUE,
+    'rel-unregister/*' => TRUE,
+  );
+  return $paths;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function rel_permission() {
+  return array(
+    'rel_build_registration' => array(
+      'title' => t('Register forms'),
+      'description' => t('Create custom view modes for every entity.')
+    ),
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function rel_ctools_plugin_api($module, $api) {
+  if (($module == 'rel' && $api == 'rel') || $module == 'field_group') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function rel_entity_info() {
+
+  // Make sure rel_builds table exists.
+  if (!db_table_exists('rel_builds')) {
+    return;
+  }
+
+  $bundles = $entity_info = array();
+  $builds = rel_get_builds();
+  foreach ($builds as $build_id => $data) {
+
+    // Only register custom builds.
+    if ($data->entity_type == 'rel_build') {
+      $bundles[$build_id] = array(
+        'label' => check_plain($data->label),
+        'admin' => array(
+          'path' => $data->path,
+        ),
+      );
+    }
+  }
+
+  if (!empty($bundles)) {
+    $entity_info['rel_build'] = array(
+      'label' => t('Renderable elements'),
+      'bundles' => $bundles,
+      'rel_build' => TRUE,
+    );
+    return $entity_info;
+  }
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function rel_field_extra_fields() {
+  $extra = array();
+
+  $builds = rel_get_builds();
+  foreach ($builds as $build_id => $data) {
+    if (isset($data->elements)) {
+      foreach ($data->elements as $key => $info) {
+        if ($info['owner'] == 'rel' && empty($info['group'])) {
+          $extra[$data->entity_type][$data->bundle][$data->context][$key] = array(
+            'label' => check_plain($info['label']),
+            'weight' => $info['weight'],
+          );
+        }
+      }
+    }
+  }
+
+  return $extra;
+}
+
+/**
+ * Implements hook_field_group_info().
+ */
+function rel_field_group_info() {
+  $groups = array();
+  $builds = rel_get_builds();
+  foreach ($builds as $build_id => $build_info) {
+    foreach ($build_info->elements as $key => $element) {
+      if (!empty($element['group_info'])) {
+        $group = new stdClass();
+        $group->disabled = FALSE;
+        $group->api_version = 1;
+        $group->group_name = $key;
+        $group->identifier = $key . '|' . $build_info->entity_type . '|' . $build_info->bundle . '|' . $build_info->view_mode;
+        $group->entity_type = $build_info->entity_type;
+        $group->bundle = $build_info->bundle;
+        $group->mode = $build_info->view_mode;
+        $group->parent_name = $element['parent'];
+        $children = _rel_field_group_get_children($build_info->elements, $key);
+        $group_info = array(
+          'label' => $element['label'],
+          'weight' => $element['weight'],
+          'children' => $children,
+          'format_type' => $element['group_info']['format_type'],
+          'format_settings' => $element['group_info']['format_settings'],
+        );
+        $group->data = $group_info;
+        $groups[$group->identifier] = $group;
+      }
+    }
+  }
+
+  return $groups;
+}
+
+/**
+ * Implements hook_rel_build_unregister().
+ */
+function rel_rel_build_unregister($build) {
+  // Remove field groups owned by 'rel'.
+  if (module_exists('field_group')) {
+    foreach ($build->elements as $key => $element) {
+      if ((!empty($element['group_info']) && $element['owner'] == 'rel')) {
+        db_delete('field_group')
+          ->condition('entity_type', $build->entity_type)
+          ->condition('bundle', $build->bundle)
+          ->condition('mode', $build->view_mode)
+          ->condition('group_name', $key)
+          ->execute();
+      }
+    }
+    if ($build->entity_type == 'rel_build') {
+      db_delete('field_group')
+        ->condition('entity_type', $build->entity_type)
+        ->condition('bundle', $build->bundle)
+        ->condition('mode', $build->view_mode)
+        ->execute();
+    }
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function rel_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'field_attach_form') {
+    $groups = $implementations;
+    unset($groups['rel']);
+    $array = array('rel' => FALSE);
+    $array += $groups;
+    $implementations = $array;
+  }
+}
+
+/**
+ * Implements hook_field_attach_form().
+ */
+function rel_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  $rel_build = rel_build_load(NULL, $entity_type, $form['#bundle'], 'form', TRUE);
+  if ($rel_build && $rel_build->entity_type != 'rel_build') {
+    $new_build = $form;
+    _rel_recursive_elements(FALSE, $form, '', $new_build, array(), $rel_build->elements);
+    if (isset($new_build['additional_settings']) && isset($rel_build->elements['additional_settings']) && module_exists('field_group')) {
+      unset($new_build['additional_settings']);
+    }
+    $form = $new_build;
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function rel_form_alter(&$form, &$form_state, $form_id) {
+
+  // Form rendering.
+  $rel_build = rel_build_load($form_id);
+  if ($rel_build) {
+
+    if ($rel_build->entity_type == 'rel_build') {
+
+      $form['#entity_type'] = $rel_build->entity_type;
+      $form['#bundle'] = $rel_build->bundle;
+      $form['#view_mode'] = 'form';
+      $form['#rel_id'] = $form_id;
+      $form['#pre_render'][] = '_rel_pre_render';
+      $form['#pre_render'][] = '_field_extra_fields_pre_render';
+
+      // Field group support.
+      if (module_exists('field_group')) {
+        field_group_attach_groups($form, 'form');
+      }
+    }
+    else {
+      $form['#rel_id'] = $form_id;
+      $pre_render = $form['#pre_render'];
+      $pre_render_new = array('_rel_pre_render');
+      $form['#pre_render'] = array_merge($pre_render_new, $pre_render);
+    }
+  }
+
+  if (variable_get('rel_build_form_registration', TRUE) && user_access('rel_build_registration') && arg(0) != 'rel-register' && arg(0) != 'rel-unregister') {
+
+    // Check if we show the 'Register form' link on this page.
+    $ignore = variable_get('rel_build_registration_ignore');
+    $path = drupal_get_path_alias($_GET['q']);
+    $page_match = drupal_match_path($path, $ignore);
+    if ($path != $_GET['q']) {
+      $page_match = $page_match || drupal_match_path($_GET['q'], $ignore);
+    }
+    $page_match = !(0 xor $page_match);
+    if (!$page_match) {
+      return;
+    }
+
+    // We are going to register the form in the $_SESSION, that's really easiest way.
+    // Always rebuild on every page request, otherwhise we're going to end up with
+    // a huge rel_builds collection.
+    static $run = FALSE;
+    if (!$run) {
+      $run = TRUE;
+      $_SESSION['rel_builds'] = array();
+    }
+
+    // Ignore builds coming from code.
+    $rel_build = rel_build_load($form_id);
+    if (!empty($rel_build) && (isset($rel_build->export_type) && $rel_build->export_type == 2)) {
+      return;
+    }
+
+    // Include CTools modal.
+    ctools_include('modal');
+    ctools_include('ajax');
+    ctools_modal_add_js();
+
+    if ($rel_build) {
+      $callback = 'rel-unregister/nojs';
+      $link_text = t('Reset form display');
+    }
+    else {
+      $link_text = t('Manage form display');
+      $callback = 'rel-register/nojs';
+      _rel_build_rip_out_elements($form, $form_id, 'form');
+    }
+
+    // Add css and links. Because not all modules use an array
+    // this sometimes clashes. We'll babysit so make sure we can
+    // avoid the numerous bug reports we get for this.
+    if ((isset($form['#attributes']['class']) && is_array($form['#attributes']['class'])) || !(isset($form['#attributes']['class']))) {
+      $form['#attributes']['class'][] = 'rel-register-build';
+    }
+    elseif (isset($form['#attributes']['class']) && is_string($form['#attributes']['class'])) {
+      $form['#attributes']['class'] .= ' rel-register-build ';
+    }
+    $form['#attached']['js'][] = drupal_get_path('module', 'rel') . '/rel.js';
+    $form['#attached']['css'][] = drupal_get_path('module', 'rel') . '/rel.admin.css';
+
+    // (Un)Register link.
+    drupal_add_js('misc/ajax.js');
+    $link = l($link_text, $callback . '/' . $form_id, array('attributes' => array('class' => array('ctools-use-modal')), 'query' => drupal_get_destination()));
+    $form['rel_register_link'] = array(
+      '#type' => 'markup',
+      '#markup' => '<div class="rel-register-link">' . $link . '</div>',
+      '#weight' => -100,
+    );
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function rel_form_field_ui_field_overview_form_alter(&$form, &$form_state) {
+
+  if (isset($form_state['rel_build'])) {
+
+    if (!module_exists('field_group') && !module_exists('ds_forms')) {
+
+      $form['#attached']['css'][] = drupal_get_path('module', 'rel') . '/rel.admin.css';
+
+      // Add AJAX wrapper.
+      $form['fields']['#prefix'] = '<div id="field-display-overview-wrapper">';
+      $form['fields']['#suffix'] = '</div>';
+
+      $form['refresh_rows'] = array('#type' => 'hidden');
+      $form['refresh'] = array(
+        '#type' => 'submit',
+        '#value' => t('Refresh'),
+        '#op' => 'refresh_table',
+        '#submit' => array('field_ui_display_overview_multistep_submit'),
+        '#ajax' => array(
+          'callback' => 'field_ui_display_overview_multistep_js',
+          'wrapper' => 'field-display-overview-wrapper',
+          'effect' => 'fade',
+          // The button stays hidden, so we hide the AJAX spinner too. Ad-hoc
+          // spinners will be added manually by the client-side script.
+          'progress' => 'none',
+        ),
+      );
+    }
+
+    // We need to add an extra validate to inject those keys back in,
+    // so it doesn't trigger notices in Field UI.
+    if (isset($form_state['no_fapi_fields'])) {
+      unset($form['fields']['_add_new_field']);
+      unset($form['fields']['_add_existing_field']);
+      array_unshift($form['#validate'], 'rel_field_ui_fix_notices');
+    }
+  }
+
+  // Add the duplicate buttons functionality, but only if there
+  // are buttons to duplicate.
+  $rel_build = rel_build_load(NULL, $form['#entity_type'], $form['#bundle'], 'form', TRUE);
+  if ($rel_build) {
+
+    // For now we only allow to duplicate delete, preview and save
+    // buttons. No point in duplicating others.
+    $duplicate_fields = $duplicate_fields_selected = array();
+    foreach ($rel_build->elements as $key => $element) {
+      if (in_array($key, array('delete', 'preview', 'submit'))) {
+        $duplicate_fields[$key] = t($element['label']);
+        if (isset($rel_build->elements['duplicate_' . $key])) {
+          $duplicate_fields_selected[$key] = $key;
+        }
+      }
+    }
+
+    if (empty($duplicate_fields)) {
+      return;
+    }
+
+    // Add additional settings vertical tab.
+    if (!isset($form['additional_settings'])) {
+      $form['additional_settings'] = array(
+        '#type' => 'vertical_tabs',
+        '#theme_wrappers' => array('vertical_tabs'),
+        '#prefix' => '<div>',
+        '#suffix' => '</div>',
+        '#tree' => TRUE,
+      );
+      $form['#attached']['js'][] = 'misc/form.js';
+      $form['#attached']['js'][] = 'misc/collapse.js';
+    }
+
+    // Add layouts form.
+    $form['additional_settings']['rel_duplicate'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Duplicate fields'),
+      '#description' => t('For now, only the save, preview and delete button can be duplicated.'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+      '#parents' => array('additional_settings'),
+    );
+
+    $form['additional_settings']['rel_duplicate']['duplicate'] = array(
+      '#type' => 'select',
+      '#multiple' => TRUE,
+      '#title' => t('Select field(s) to duplicate'),
+      '#options' => $duplicate_fields,
+      '#default_value' => $duplicate_fields_selected,
+    );
+
+    $form['#submit'][] = 'rel_duplicate_buttons_submit';
+  }
+}
+
+/**
+ * Submit callback: duplicate fields.
+ */
+function rel_duplicate_buttons_submit($form, &$form_state) {
+  $save = FALSE;
+  $duplicate = $duplicated_fields = array();
+
+  if (isset($form_state['values']['additional_settings']['duplicate'])) {
+    $duplicate = $form_state['values']['additional_settings']['duplicate'];
+  }
+
+  $rel_build = rel_build_load(NULL, $form['#entity_type'], $form['#bundle'], 'form', TRUE);
+  $duplicated_fields = array();
+  foreach ($duplicate as $key) {
+    $save = TRUE;
+    $rel_build->elements['duplicate_' . $key] = $rel_build->elements[$key];
+    $rel_build->elements['duplicate_' . $key]['duplicate'] = TRUE;
+    $duplicated_fields[$key] = 'duplicate_' . $key;
+  }
+
+  // Check the duplicate key and remove if nessary
+  foreach ($rel_build->duplicate as $key => $duplicate) {
+    if (!isset($duplicated_fields[$key]) && isset($rel_build->elements[$duplicate])) {
+      $save = TRUE;
+      unset($rel_build->elements[$duplicate]);
+    }
+  }
+
+  if ($save) {
+    // Store the duplicated fields.
+    $rel_build->duplicate = $duplicated_fields;
+
+    // Let other modules act on the registration of the build before save.
+    drupal_alter('rel_build_register_alter', $rel_build);
+
+    // Save the record.
+    drupal_write_record('rel_builds', $rel_build, array('build_id'));
+
+    // Let other modules act on the registration of the build after save.
+    module_invoke_all('rel_build_register', $rel_build);
+
+    // Clear caches.
+      drupal_flush_all_caches();
+  }
+}
+
+/**
+ * Validate function which adds the _add_new_field key back
+ * on to the form_state so no notices are triggered on the rel_build entity type.
+ */
+function rel_field_ui_fix_notices($form, &$form_state) {
+  $field = array(
+    'label' => '',
+    'field_name' => '',
+    'type' => '',
+    'widget_type' => ''
+  );
+  $form_state['values']['fields']['_add_new_field'] = $field;
+}
+
+/**
+ * API function to load one build.
+ */
+function rel_build_load($build_id = NULL, $entity_type = NULL, $bundle = NULL, $view_mode = NULL, $flattenend = FALSE) {
+
+  // On load of a fieldgroup delete confirm form, we have a build_id, entity_type and bundle.
+  if ($build_id && $entity_type && $bundle) {
+    $flattenend = FALSE;
+  }
+
+  $builds = rel_get_builds(FALSE, $flattenend);
+
+  if ($build_id) {
+    if (isset($builds[$build_id])) {
+      return $builds[$build_id];
+    }
+  }
+  elseif ($entity_type && $bundle && $view_mode && $flattenend) {
+    if (isset($builds['flattenend'][$entity_type][$bundle][$view_mode])) {
+      $build_id = $builds['flattenend'][$entity_type][$bundle][$view_mode];
+      return $builds['full'][$build_id];
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Get the registered builds.
+ *
+ * @param $reset
+ *   Whether to reset the internal and database cache.
+ * @param $flattenend
+ *   Whether to get the flattenend array as well.
+ */
+function rel_get_builds($reset = FALSE, $flattenend = FALSE) {
+  static $builds = NULL;
+
+  if (!isset($builds)) {
+    if (!$reset && $cache = cache_get('rel_builds')) {
+      $builds = $cache->data;
+    }
+    else {
+      ctools_include('export');
+      $load = ctools_export_crud_load_all('rel_builds');
+      $builds = array();
+      $builds['full'] = $load;
+      $builds['flattenend'] = array();
+      foreach ($load as $key => $build) {
+        $builds['flattenend'][$build->entity_type][$build->bundle][$build->view_mode] = $build->build_id;
+      }
+      drupal_alter('rel_build_load_all', $builds);
+      cache_set('rel_builds', $builds, 'cache');
+    }
+  }
+
+  if ($flattenend) {
+    return $builds;
+  }
+  else {
+    return $builds['full'];
+  }
+}
+
+/**
+ * Pre render function.
+ */
+function _rel_pre_render($element) {
+  $rel_build = rel_build_load($element['#rel_id']);
+  if ($rel_build) {
+
+    $new_build = $element;
+    _rel_recursive_elements(FALSE, $element, '', $new_build, array(), $rel_build->elements);
+    if (isset($new_build['additional_settings']) && isset($rel_build->elements['additional_settings']) && module_exists('field_group')) {
+      unset($new_build['additional_settings']);
+    }
+
+    // Add any duplicate fields if wanted.
+    foreach ($rel_build->duplicate as $key => $duplicate) {
+      $new_build[$duplicate] = $new_build[$key];
+    }
+
+    $element = $new_build;
+  }
+
+  return $element;
+}
+
+/**
+ * Rip out a complete build if necessary.
+ *
+ * @param $build
+ *   An array of elements. Can be anything as long it's an array.
+ * @param $build_id
+ *   The name of the build.
+ * @param $view_mode
+ *   The name of the view mode to register.
+ */
+function _rel_build_rip_out_elements($build, $build_id, $view_mode) {
+  $registered_fields = $stash = array();
+
+  // Check entity type and bundle.
+  $entity_type = isset($build['#entity_type']) ? $build['#entity_type'] : 'rel_build';
+  $bundle = isset($build['#bundle']) ? $build['#bundle'] : $build_id;
+
+  // In case the entity type is not rel_build, get the fields from Field API.
+  $entity_fields = array();
+  if ($entity_type != 'rel_build') {
+    $path = _field_ui_bundle_admin_path($entity_type, $bundle) . '/fields';
+    $entity_fields = field_info_instances($entity_type, $bundle);
+    $extra_fields = field_info_extra_fields($entity_type, $bundle, $view_mode);
+    $registered_fields = array_merge($entity_fields, $extra_fields);
+  }
+  else {
+    $path = 'admin/structure/rel/manage/' . $build_id;
+  }
+
+  // Get the elements.
+  $parent = '';
+  _rel_recursive_elements(TRUE, $build, $parent, $stash, $registered_fields);
+
+  // Register this build.
+  // @todo Create a unique idea if necessary (eg Views exposed forms).
+  $_SESSION['rel_builds'][$build_id]['path'] = $path;
+  $_SESSION['rel_builds'][$build_id]['entity_type'] = $entity_type;
+  $_SESSION['rel_builds'][$build_id]['bundle'] = $bundle;
+  $_SESSION['rel_builds'][$build_id]['view_mode'] = 'form';
+  $_SESSION['rel_builds'][$build_id]['context'] = 'form';
+  $_SESSION['rel_builds'][$build_id]['elements'] = $stash;
+}
+
+/**
+ * Recursive recursive elements analyzer.
+ *
+ * @param $register.
+ *   Whether to register or not.
+ * @param $elements
+ *   The elements to inspect.
+ * @param $stash
+ *   The array to stash the elements on to register.
+ * @param $registered_fields
+ *   The fields which are already registered by core.
+ * @param $build
+ *   A build with the registered elements.
+ */
+function _rel_recursive_elements($register, $elements, $parent, &$stash = array(), $registered_fields = array(), $build = array()) {
+  $keys = is_array($elements) ? element_children($elements) : array();
+  $internal_weight = 0;
+  foreach ($keys as $key) {
+    $owner = 'rel';
+
+    if (!_rel_valid_element($key, $elements[$key], $build, $register)) {
+      continue;
+    }
+
+    // Special check here to see if these are options of radios. In case the parent
+    // of this element is from the #radios type, do not register these elements.
+    $temp_parent = isset($element['#group']) ? $element['#group'] : $parent;
+    if (!empty($parent) && isset($stash[$parent]) && isset($stash[$parent]['element_type']) && $stash[$parent]['element_type'] == 'radios') {
+      continue;
+    }
+
+    // Do not register already registered fields.
+    if (isset($registered_fields[$key])) {
+      $owner = 'drupal';
+    }
+
+    $element = $elements[$key];
+
+    // Stash the element.
+    if ($register) {
+      $weight = isset($element['#weight']) ? $element['#weight'] : $internal_weight++;
+      // Actions have always the lowest weight by default.
+      if ($key == 'actions') {
+        $weight = 100;
+      }
+      $stash[$key] = array(
+        'owner' => $owner,
+        'label' => _rel_create_label($key, $element),
+        'parent' => isset($element['#group']) ? $element['#group'] : $parent,
+        'group_info' => _rel_check_group_info($element, $key, isset($element['#group']) ? $element['#group'] : $parent),
+        'weight' => $weight,
+        'element_type' => isset($element['#type']) ? $element['#type'] : '',
+      );
+    }
+    else {
+      $stash[$key] = $element;
+      // Process states and attached.
+      // Fieldgroup creates its own id's - some states won't work at all.
+      // Even hardcoding them doesn't solve the menu link for instance :/
+      if (isset($element['#states']) && isset($element['#id'])) {
+        drupal_process_states($element);
+      }
+      if (isset($element['#attached'])) {
+        drupal_process_attached($element);
+      }
+    }
+
+    // Go nest baby.
+    _rel_recursive_elements($register, $elements[$key], $key, $stash, $registered_fields, $build);
+
+    if (!empty($parent) && !$register) {
+      unset($stash[$parent]);
+    }
+  }
+}
+
+/**
+ * Helper function to check if this element is valid.
+ *
+ * @param $key
+ *   The key name of the element.
+ * @param $element
+ *   The current element of a build or form to analyze.
+ * @param $build
+ *   A build with the registered elements.
+ * @param $register
+ *   Whether is during registration or not.
+ */
+function _rel_valid_element($key, $element, $build, $register) {
+
+  // Ignore a couple of types.
+  if (isset($element['#type']) && in_array($element['#type'], array('hidden', 'value', 'token'))) {
+    return FALSE;
+  }
+
+  // If this is a widget from Field API, ignore it.
+  if (isset($element['#field_name'])) {
+    return FALSE;
+  }
+
+  // Do not rip out if a build has been registered,
+  // but not the element in it.
+  if (!$register && !isset($build[$key])) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Create a human readable label.
+  *
+ * @param $key
+ *   The name of the element
+ * @param $element
+ *   The current element of a build or form to analyze.
+ */
+function _rel_create_label($key, $element) {
+  if (isset($element['#title'])) {
+    $label = $element['#title'];
+  }
+  elseif (isset($element['#value'])) {
+    $label = $element['#value'];
+  }
+  else {
+    $label = drupal_ucfirst(str_replace('_', ' ', $key));
+  }
+
+  return $label;
+}
+
+/**
+ * Check whether this element is a group or not.
+
+ * @param $element
+ *   The current element of a build or form to analyze.
+ * @param $key
+ *   The key of the element.
+ * @param $parent
+ *   The parent of this element.
+ */
+function _rel_check_group_info($element, $key, $parent) {
+
+  $info = FALSE;
+  $field_group_info = function_exists('field_group_formatter_info') ? field_group_formatter_info() : array();
+
+  if (isset($element['#type']) && in_array($element['#type'], array('fieldset', 'vertical_tabs', 'container', 'actions')) && !isset($element['#language'])) {
+    $info = array();
+
+    if (isset($element['#group'])) {
+      $field_group_type = 'tab';
+    }
+    elseif (in_array($element['#type'], array('container', 'actions'))) {
+      $field_group_type = 'div';
+    }
+    else {
+      switch ($element['#type']) {
+        case 'vertical_tabs':
+          $field_group_type = 'tabs';
+          break;
+        default:
+          $field_group_type = 'fieldset';
+          break;
+      }
+    }
+
+    // Set the format type.
+    $info['format_type'] = $field_group_type;
+    $info['format_settings'] = array();
+
+    if (isset($field_group_info['form'][$field_group_type])) {
+      $info += $field_group_info['form'][$field_group_type];
+    }
+
+    // Defaults for div.
+    if ($field_group_type == 'div') {
+      $info['format_settings']['formatter'] = 'open';
+      $info['format_settings']['instance_settings']['show_label'] = FALSE;
+    }
+
+    // Special case for menu links.
+    if ($key == 'link' && $parent == 'menu') {
+      $info['format_settings']['instance_settings']['id'] = 'edit-menu--2';
+      $info['format_settings']['instance_settings']['classes'] = 'form-wrapper';
+    }
+
+    // CSS.
+    if (isset($element['#attributes']['class'])) {
+      $classes = array();
+      foreach ($element['#attributes']['class'] as $class) {
+        // Ignore default classes.
+        if (in_array($class, array('form-item', 'form-wrapper', 'collapsible', 'collapsed'))) {
+          continue;
+        }
+        $classes[] = $class;
+      }
+      if (!empty($class)) {
+        $info['format_settings']['instance_settings']['classes'] = implode(' ', $classes);
+      }
+    }
+
+    // Collapsed - collapsible state.
+    if (isset($element['#collapsed'])) {
+      $formatter = $element['#collapsed'] ? 'collapsed' : 'collapsible';
+      $info['format_settings']['formatter'] = $formatter;
+    }
+  }
+
+  return $info;
+}
+
+/**
+ * Helper function to get the children of a group.
+ *
+ * @param $elements
+ *   An array of all elements of the build.
+ * @param $parent
+ *   The name of the parent.
+ */
+function _rel_field_group_get_children($elements, $parent) {
+  $children = array();
+
+  foreach ($elements as $key => $element) {
+    if ($element['parent'] == $parent) {
+      $children[] = $key;
+    }
+  }
+
+  return $children;
+}

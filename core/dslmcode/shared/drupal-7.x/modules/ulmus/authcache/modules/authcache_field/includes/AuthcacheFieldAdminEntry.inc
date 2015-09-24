@@ -27,7 +27,7 @@ class AuthcacheFieldAdminEntry {
     $bundle_definitions = field_info_bundles();
     $bundle_label = $bundle_definitions[$entity_type][$bundle_name]['label'];
 
-    $this->name = $instance['label'];
+    $this->name = check_plain($instance['label']);
     $this->description = t('Field on bundle %bundle_label of type %entity_type_label', array(
       '%entity_type_label' => $entity_type_label,
       '%bundle_label' => $bundle_label,

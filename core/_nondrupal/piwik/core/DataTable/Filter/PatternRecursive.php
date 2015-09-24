@@ -8,17 +8,15 @@
  */
 namespace Piwik\DataTable\Filter;
 
-use Exception;
 use Piwik\DataTable\BaseFilter;
 use Piwik\DataTable;
-use Piwik\DataTable\Manager;
 
 /**
  * Deletes rows that do not contain a column that matches a regex pattern and do not contain a
  * subtable that contains a column that matches a regex pattern.
- * 
+ *
  * **Example**
- * 
+ *
  *     // only display index pageviews in Actions.getPageUrls
  *     $dataTable->filter('PatternRecursive', array('label', 'index'));
  *
@@ -32,7 +30,7 @@ class PatternRecursive extends BaseFilter
 
     /**
      * Constructor.
-     * 
+     *
      * @param DataTable $table The table to eventually filter.
      * @param string $columnToFilter The column to match with the `$patternToSearch` pattern.
      * @param string $patternToSearch The regex pattern to use.
@@ -48,7 +46,7 @@ class PatternRecursive extends BaseFilter
 
     /**
      * See {@link PatternRecursive}.
-     * 
+     *
      * @param DataTable $table
      * @return int The number of deleted rows.
      */
@@ -62,18 +60,15 @@ class PatternRecursive extends BaseFilter
             // AND 2 - the label is not found in the children
             $patternNotFoundInChildren = false;
 
-            try {
-                $idSubTable = $row->getIdSubDataTable();
-                $subTable = Manager::getInstance()->getTable($idSubTable);
-
+            $subTable = $row->getSubtable();
+            if (!$subTable) {
+                $patternNotFoundInChildren = true;
+            } else {
                 // we delete the row if we couldn't find the pattern in any row in the
                 // children hierarchy
                 if ($this->filter($subTable) == 0) {
                     $patternNotFoundInChildren = true;
                 }
-            } catch (Exception $e) {
-                // there is no subtable loaded for example
-                $patternNotFoundInChildren = true;
             }
 
             if ($patternNotFoundInChildren

@@ -7213,6 +7213,14 @@ footer {
   color: #002135;
   text-shadow: none; }
 
+.etb-book ul, .etb-book ol, .etb-book dl {
+  font-family: inherit;
+  font-size: inherit;
+  margin-left: 20px;
+  margin-left: 2em;
+  line-height: inherit;
+  list-style-position: inside; }
+
 .etb-book mark {
   background-color: #9BD9FF;
   color: #002135; }

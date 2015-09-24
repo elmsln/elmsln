@@ -9,6 +9,7 @@
 
 namespace Piwik\Plugins\UserCountry;
 
+use Piwik\Container\StaticContainer;
 use Piwik\DataTable;
 use Piwik\Piwik;
 use Piwik\Plugins\UserCountry\LocationProvider\GeoIp;
@@ -42,7 +43,7 @@ function continentTranslate($label)
     if ($label == 'unk' || $label == '') {
         return Piwik::translate('General_Unknown');
     }
-    return Piwik::translate('UserCountry_continent_' . $label);
+    return Piwik::translate('Intl_Continent_' . $label);
 }
 
 /**
@@ -56,7 +57,24 @@ function countryTranslate($label)
     if ($label == Visit::UNKNOWN_CODE || $label == '') {
         return Piwik::translate('General_Unknown');
     }
-    return Piwik::translate('UserCountry_country_' . $label);
+
+    // Try to get name from Intl plugin
+    $key = 'Intl_Country_' . strtoupper($label);
+    $country = Piwik::translate($key);
+
+    if ($country != $key) {
+        return $country;
+    }
+
+    // Handle special country codes
+    $key = 'UserCountry_country_' . $label;
+    $country = Piwik::translate($key);
+
+    if ($country != $key) {
+        return $country;
+    }
+
+    return Piwik::translate('General_Unknown');
 }
 
 /**

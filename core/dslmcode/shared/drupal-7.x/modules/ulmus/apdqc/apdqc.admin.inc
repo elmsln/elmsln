@@ -115,24 +115,20 @@ function apdqc_admin_operations_form($form, $form_state) {
 
   // Check semaphore table.
   // Get MySQL version.
-  $results = db_query("SELECT VERSION()")->fetchAssoc();
-  $version = reset($results);
-  $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
-  if (version_compare($version, '5.6.0', '<=')) {
-    if (strcasecmp($results['Engine'], 'MEMORY') != 0) {
-      $form['convert_semaphore_table'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Convert semaphore table'),
-        '#description' => t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.'),
-      );
-      $form['convert_semaphore_table']['convert_table_to_memory'] = array(
-        '#type' => 'submit',
-        '#value' => t('Convert semaphore table to MEMORY'),
-        '#submit' => array('apdqc_admin_convert_table_to_memory'),
-      );
-    }
+  $conversion = apdqc_semaphore_conversion();
+  if ($conversion == 1) {
+    $form['convert_semaphore_table'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Convert semaphore table'),
+      '#description' => t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.'),
+    );
+    $form['convert_semaphore_table']['convert_table_to_memory'] = array(
+      '#type' => 'submit',
+      '#value' => t('Convert semaphore table to MEMORY'),
+      '#submit' => array('apdqc_admin_convert_table_to_memory'),
+    );
   }
-  elseif (strcasecmp($results['Engine'], 'InnoDB') != 0) {
+  elseif ($conversion == 2) {
     $form['convert_semaphore_table'] = array(
       '#type' => 'fieldset',
       '#title' => t('Convert semaphore table'),
@@ -233,6 +229,10 @@ function apdqc_admin_get_settings() {
   $period += apdqc_admin_additional_times();
   ksort($period);
 
+  if (!defined('CACHE_GARBAGE_COLLECTION_FREQUENCY')) {
+    module_load_include('cache.inc', 'apdqc');
+  }
+
   // Set GC collection frequency.
   $form['cache_garbage_collection_frequency'] = array(
     '#type' => 'select',
@@ -328,26 +328,30 @@ function apdqc_admin_convert_table_to_innodb($show_msg = TRUE) {
 /**
  * Convert table collations to utf8.
  */
-function apdqc_admin_convert_table_collations_to_utf8_bin() {
+function apdqc_admin_convert_table_collations_to_utf8_bin($show_msg = TRUE) {
   // Run the command.
   apdqc_admin_change_table_collation(TRUE);
 
   // Let user know it worked.
-  drupal_set_message(t('APDQC: All cache tables collations converted to utf8_bin'));
+  if ($show_msg) {
+    drupal_set_message(t('APDQC: All cache tables collations converted to utf8_bin'));
+  }
   variable_set('apdqc_table_collations', TRUE);
 }
 
 /**
  * Convert table indexes to expire, created.
  */
-function apdqc_admin_convert_tables_indexes() {
+function apdqc_admin_convert_tables_indexes($show_msg = TRUE) {
   // Drop the expire index; use expire_created.
   $before = array('expire');
   $after = array('expire', 'created');
   apdqc_convert_cache_index($before, $after);
 
   // Let user know it worked.
-  drupal_set_message(t('APDQC: All cache tables indexes where updated.'));
+  if ($show_msg) {
+    drupal_set_message(t('APDQC: All cache tables indexes where updated.'));
+  }
   variable_set('apdqc_table_indexes', TRUE);
 }
 
@@ -391,7 +395,7 @@ function apdqc_admin_change_table_collation($preform_alter = FALSE, $collation =
 function apdqc_admin_change_table_collation_queries($table_name, $collation, $preform_alter) {
   $db_type = Database::getConnection()->databaseType();
   $tables_altered = array();
-  if ($db_type === 'mysql') {
+  if ($db_type === 'mysql' && db_table_exists($table_name)) {
     $table_name = Database::getConnection()->prefixTables('{' . db_escape_table($table_name) . '}');
     $results = db_query("SHOW FULL FIELDS FROM $table_name")->fetchAllAssoc('Field');
     foreach ($results as $row) {
@@ -436,6 +440,9 @@ function apdqc_get_cache_table_indexes() {
 
   $results = array();
   foreach ($table_names as &$table_name) {
+    if (!db_table_exists($table_name)) {
+      continue;
+    }
     $table_name = Database::getConnection()->prefixTables('{' . db_escape_table($table_name) . '}');
     $result = db_query("SHOW INDEX IN $table_name")->fetchAll();
     foreach ($result as $row) {

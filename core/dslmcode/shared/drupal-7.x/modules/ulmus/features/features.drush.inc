@@ -610,6 +610,28 @@ function _drush_features_export($info, $module_name = NULL, $directory = NULL) {
       drupal_flush_all_caches();
       $export = _drush_features_generate_export($info, $module_name);
       $files = features_export_render($export, $module_name, TRUE);
+      // Copy any files if _files key is there.
+      if (!empty($files['_files'])) {
+        foreach ($files['_files'] as $file_name => $file_info) {
+          // See if files are in a sub directory.
+          if (strpos($file_name, '/')) {
+            $file_directory = $directory . '/' . substr($file_name, 0, strrpos($file_name, '/'));
+            if (!is_dir($file_directory)) {
+              drush_op('mkdir', $file_directory);
+            }
+          }
+          if (!empty($file_info['file_path'])) {
+            drush_op('file_unmanaged_copy', $file_info['file_path'], "{$directory}/{$file_name}", FILE_EXISTS_REPLACE);
+          }
+          elseif (!empty($file_info['file_content'])) {
+            drush_op('file_put_contents', "{$directory}/{$file_name}", $file_info['file_content']);
+          }
+          else {
+            drush_log(dt("Entry for @file_name.in !module is invalid. ", array('!module' => $module_name, '@file_name' => $file_name)), 'ok');
+          }
+        }
+        unset($files['_files']);
+      }
       foreach ($files as $extension => $file_contents) {
         if (!in_array($extension, array('module', 'info'))) {
           $extension .= '.inc';

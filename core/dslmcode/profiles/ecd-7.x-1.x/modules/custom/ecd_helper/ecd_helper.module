@@ -167,29 +167,30 @@ function _ecd_helper_change_system_access($access, $state = 'active') {
 function _ecd_helper_sync_system_registry() {
   // load up the services and the registry to compare them
   $services = _cis_connector_assemble_entity_list('node', 'system', 'field_machine_name', 'nid');
-  $registry = _cis_connector_build_registry();
-  foreach ($registry as $distribution => $reg) {
-    // ensure we have an address since it contains our machine name key
-    if (isset($reg['address']) && !empty($reg['address'])) {
-      $addr = explode('.', $reg['address']);
-      $machine_name = $addr[0];
-      // if we don't know about this address and it has a default title, build a node
-      if (!isset($services[$machine_name]) && isset($reg['default_title'])) {
-        $node = new stdClass();
-        $node->type = 'system';
-        node_object_prepare($node);
-        $node->language = LANGUAGE_NONE;
-        $node->uid = 1;
-        $node->status = 1;
-        $node->promote = 0;
-        $node->comment = 0;
-        $node->revision = 0;
-        $node->sticky = 0;
-        $node->type = 'system';
-        $node->title = $reg['default_title'];
-        $node->field_machine_name['und'][0]['value'] = $machine_name;
-        if($node = node_submit($node)) {
-          node_save($node);
+  if ($registry = _cis_connector_build_registry()) {
+    foreach ($registry as $distribution => $reg) {
+      // ensure we have an address since it contains our machine name key
+      if (isset($reg['address']) && !empty($reg['address'])) {
+        $addr = explode('.', $reg['address']);
+        $machine_name = $addr[0];
+        // if we don't know about this address and it has a default title, build a node
+        if (!isset($services[$machine_name]) && isset($reg['default_title'])) {
+          $node = new stdClass();
+          $node->type = 'system';
+          node_object_prepare($node);
+          $node->language = LANGUAGE_NONE;
+          $node->uid = 1;
+          $node->status = 1;
+          $node->promote = 0;
+          $node->comment = 0;
+          $node->revision = 0;
+          $node->sticky = 0;
+          $node->type = 'system';
+          $node->title = $reg['default_title'];
+          $node->field_machine_name['und'][0]['value'] = $machine_name;
+          if($node = node_submit($node)) {
+            node_save($node);
+          }
         }
       }
     }

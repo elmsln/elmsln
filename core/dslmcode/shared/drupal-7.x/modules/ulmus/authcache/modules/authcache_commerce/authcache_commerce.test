@@ -1,0 +1,197 @@
+<?php
+/**
+ * @file
+ * Test cases for the Authcache Commerce module.
+ */
+
+/**
+ * Tests for markup substitution.
+ */
+class AuthcacheCommerceTest extends CommerceCartTestCase {
+  protected $stubmod;
+  protected $products = array();
+  protected $productNode;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Commerce Cart',
+      'description' => 'Test markup substitution and fragment generation for Commerce',
+      'group' => 'Authcache Commerce',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    $this->setUpHelper('all', array(
+      'authcache_commerce',
+      'authcache_form',
+      'authcache_p13n',
+      'authcache_p13n_test',
+      'cacheobject',
+    ));
+    variable_set('cache_class_cache_form', 'CacheObjectAPIWrapper');
+    variable_set('cacheobject_class_cache_form', 'DrupalDatabaseCache');
+    module_disable(array('comment'));
+    $this->resetAll();
+
+    // Create a dummy product display content type.
+    $this->createDummyProductDisplayContentType('product_display', TRUE, 'field_product', FIELD_CARDINALITY_UNLIMITED);
+
+    // Create the fields and bind them to the product.
+    $this->fields['field_1'] = array(
+      'field_name' => 'field_1',
+      'type' => 'list_text',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array('field_1_value_1' => 'field_1_value_1', 'field_1_value_2' => 'field_1_value_2'),
+      ),
+    );
+    $this->fields['field_1'] = field_create_field($this->fields['field_1']);
+    $this->fields['field_2'] = array(
+      'field_name' => 'field_2',
+      'type' => 'list_text',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array('field_2_value_1' => 'field_2_value_1', 'field_2_value_2' => 'field_2_value_2'),
+      ),
+    );
+    $this->fields['field_2'] = field_create_field($this->fields['field_2']);
+    foreach ($this->fields as $field) {
+      $instance = array(
+        'field_name' => $field['field_name'],
+        'entity_type' => 'commerce_product',
+        'bundle' => 'product',
+        'label' => $field['field_name'] . '_label',
+        'description' => $field['field_name'] . '_description',
+        'required' => TRUE,
+        'widget' => array(
+          'module' => 'options',
+          'type' => 'options_select',
+        ),
+        'commerce_cart_settings' => array(
+          'attribute_field' => TRUE,
+          'attribute_widget' => 'select',
+        ),
+      );
+      field_create_instance($instance);
+    }
+
+    // Populate the different values for the fields and create products.
+    foreach ($this->fields['field_1']['settings']['allowed_values'] as $field_1_value) {
+      foreach ($this->fields['field_2']['settings']['allowed_values'] as $field_2_value) {
+        $product = $this->createDummyProduct('PROD-' . $field_1_value . '-' . $field_2_value, $field_1_value . '_' . $field_2_value);
+        $product->field_1[LANGUAGE_NONE][0]['value'] = $field_1_value;
+        $product->field_2[LANGUAGE_NONE][0]['value'] = $field_2_value;
+        $product->is_new = FALSE;
+        commerce_product_save($product);
+        $this->products[$product->product_id] = $product;
+      }
+    }
+
+    // Create dummy product display node.
+    $this->productNode = $this->createDummyProductNode(array_keys($this->products), 'Combined Product');
+
+    $authcache_roles = array(
+      DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+      DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+    ) + $this->store_customer->roles;
+
+    // Setup authcache.
+    variable_set('authcache_roles', $authcache_roles);
+    $pagecaching = _authcache_default_pagecaching();
+    $pagecaching[0]['roles']['roles'] = $authcache_roles;
+    variable_set('authcache_pagecaching', $pagecaching);
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_p13n_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test that products are added to the proper cart.
+   *
+   * Bug: https://www.drupal.org/node/2475503
+   */
+  public function testCommerceAddToCartWithFormCache() {
+    $this->stubmod->hook('authcache_p13n_client', array(
+      'authcache_p13n_test' => array(
+        'title' => t('Test Client'),
+        'enabled' => TRUE,
+      ),
+    ));
+
+    // Create a clone of store_customer with the same set of roles.
+    $cloned_customer = $this->drupalCreateUser();
+    $cloned_customer->roles = $this->store_customer->roles;
+    user_save($cloned_customer);
+
+    $this->drupalLogin($this->store_customer);
+
+    // Customer 1: Visit the product display in order to warm the form cache.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('node/' . $this->productNode->nid);
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $content = $this->drupalGetContent();
+    $url = $this->getUrl();
+
+    // Customer 2: Add one product to the cart.
+    $this->drupalLogin($cloned_customer);
+
+    // Simulate a cache-hit by restoring the content and url from
+    // store_customer.
+    $this->drupalSetContent($content, $url);
+
+    // Compute CSRF token and supply it via the extra_post parameter.
+    $token = $this->drupalGetToken('commerce_cart_add_to_cart_form');
+    $extra_post = '&form_token=' . urlencode($token);
+
+    $this->drupalPost(NULL, array(), 'Add to cart', array(), array(), NULL, $extra_post);
+
+    // Ensure that we are not running into CSRF protection.
+    $this->assertNoText('The form has become outdated.');
+
+    // Ensure the add to cart message is displayed.
+    $message = t('%title added to <a href="!cart-url">your cart</a>.', array('%title' => 'field_1_value_1_field_2_value_1', '!cart-url' => url('cart')));
+    $this->assertRaw($message, t('Product add to cart message displayed.'));
+
+    // Go to cart url.
+    $this->drupalGet($this->getCommerceUrl('cart'));
+
+    // Test if the page resolves and there is something in the cart.
+    $this->assertResponse(200);
+    $this->assertNoText(t('Your shopping cart is empty.'), t('Cart is not empty'));
+    $this->assertText('field_1_value_1_field_2_value_1', t('Product was added to the cart'));
+
+    $this->drupalLogout();
+  }
+
+  /**
+   * Overrides the defective method in the parent class.
+   */
+  protected function drupalGetToken($value = '') {
+    return drupal_hmac_base64($value, $this->session_id . drupal_get_private_key() . drupal_get_hash_salt());
+  }
+}

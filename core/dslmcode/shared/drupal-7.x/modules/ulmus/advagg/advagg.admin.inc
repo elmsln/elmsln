@@ -182,6 +182,7 @@ function advagg_admin_settings_form($form, $form_state) {
     '#type' => 'select',
     '#options' => $long_times,
     '#title' => 'Delete aggregates accessed/modified more than a set time ago.',
+    // @codingStandardsIgnoreLine
     '#default_value' => variable_get('drupal_stale_file_threshold', 2592000),
     '#description' => t('The default value for this is %value.', array('%value' => format_interval(2592000))),
   );
@@ -695,6 +696,30 @@ function advagg_admin_info_form($form, $form_state) {
   return $form;
 }
 
+/**
+ * Add various advagg settings to the system_performance_settings form.
+ */
+function advagg_admin_system_performance_settings_form(&$form, $form_state) {
+  $msg = t('NOTE: If you wish to bypass aggregation for a set amount of time, you can go to the <a href="@operations">AdvAgg operations</a> page and press the "aggregation bypass cookie" button.', array(
+    '@operations' => url('admin/config/development/performance/advagg/operations'),
+  )) . ' ';
+  if (user_access('bypass advanced aggregation')) {
+    $msg .= t('You can also selectively bypass aggregation by adding <code>@code</code> to the URL of any page.', array(
+      '@code' => '?advagg=0',
+    ));
+  }
+  else {
+    $msg .= t('You do not have the <a href="@permission">bypass advanced aggregation permission</a> so adding <code>@code</code> to the URL will not work at this time for you; either grant this permission to your user role or use the bypass cookie if you wish to selectively bypass aggregation.', array(
+      '@permission' => url('admin/people/permissions', array('fragment' => 'module-advagg')),
+      '@code' => '?advagg=0',
+    ));
+  }
+
+  $form['bandwidth_optimization']['advagg_note'] = array(
+    '#markup' => $msg,
+  );
+}
+
 // Submit callback.
 /**
  * Clear out the advagg cache bin when the save configuration button is pressed.
@@ -731,6 +756,7 @@ function advagg_admin_toggle_bypass_cookie($form, &$form_state) {
  * Display file info in a drupal message.
  */
 function advagg_admin_get_file_info_submit($form, &$form_state) {
+  // @codingStandardsIgnoreLine
   if (!empty($form_state['input']['ajax_page_state'])) {
     return;
   }
