@@ -389,7 +389,7 @@ function cis_section_cis_section_deactivate() {
 }
 
 /**
- * Implements hook_cis_section_deactivate().
+ * Callback for hook_cis_section_deactivate().
  */
 function _cis_section_deactivate_section($node) {
   // standard conversion of student to past student roles
