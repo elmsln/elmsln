@@ -30,7 +30,6 @@ yes | yum -y install patch git nano gcc make mysql mysql-server httpd
 yes | yum -y --enablerepo=remi-php55 install php php-common php-opcache php-pecl-apcu php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-devel php-pecl-ssh2
 
 yes | yum groupinstall 'Development Tools'
-# using pecl to install uploadprogress
 pecl channel-update pecl.php.net
 
 # set httpd_can_sendmail so drupal mails go out
