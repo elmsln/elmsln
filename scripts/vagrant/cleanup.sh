@@ -8,13 +8,12 @@ source $HOME/.bashrc
 sudo usermod -a -G admin vagrant
 # set all permissions correctly and for vagrant user
 sudo bash /var/www/elmsln/scripts/utilities/harden-security.sh vagrant
-# restart apache / mysql just to be safe
-sudo /etc/init.d/httpd restart
-sudo /etc/init.d/mysqld restart
 
-#port swap to not use varnish in local dev
+# port swap to not use varnish in local dev
 sudo sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
 sudo sed -i 's/8080/80/g' /etc/httpd/conf.d/elmsln.conf
 sudo service varnish stop
-sudo service httpd restart
-chkconfig varnish off
+sudo /etc/init.d/httpd restart
+sudo /etc/init.d/mysqld restart
+# disable varnish from starting automatically on reboot
+sudo chkconfig varnish off
