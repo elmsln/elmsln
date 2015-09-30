@@ -1,0 +1,13 @@
+name = Jmol
+description = Exposes a file field formatter for displaying molecular structures in a Jmol applet.
+core = 7.x
+package = Other
+dependencies[] = libraries
+
+
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "jmol"
+datestamp = "1380583833"
+
