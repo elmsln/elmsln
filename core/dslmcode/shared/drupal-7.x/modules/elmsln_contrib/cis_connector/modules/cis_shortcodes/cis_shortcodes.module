@@ -152,8 +152,39 @@ function _cis_shortcode_render_codes($entity, $type) {
     'tool' => variable_get('install_profile', ''),
     'item' => $entity->{$type_info['entity keys']['id']},
     'entity_type' => $type,
+    'render' => 'display-mode',
+    'display-mode' => 'default',
   );
+  // assume the default view mode since this is basically a remote rendering engine
+  $view_modes = field_view_mode_settings($type, $bundle);
+  $field['cis_shortcodes']['rendered_default'] = array(
+    '#title' => t('Render using default template'),
+    '#attributes' => array('class' => array('cis_shortcodes_embed')),
+    '#value' => _cis_shortcodes_build_code($properties),
+    '#type' => 'textfield',
+    '#weight' => 0,
+  );
+  // loop through the other potential view modes for this item
+  foreach ($view_modes as $mode => $mode_settings) {
+    if ($mode_settings['custom_settings']) {
+      $properties['display-mode'] = $mode;
+      $field['cis_shortcodes']['rendered_' . $mode] = array(
+        '#title' => t('Render using template: @mode', array('@mode' => $mode)),
+        '#attributes' => array('class' => array('cis_shortcodes_embed')),
+        '#value' => _cis_shortcodes_build_code($properties),
+        '#type' => 'textfield',
+        '#weight' => 1,
+      );
+    }
+  }
 
+  // tee back up for direct link rendering
+  $properties = array(
+    'rev' => CIS_SHORTCODES_API_REV,
+    'tool' => variable_get('install_profile', ''),
+    'item' => $entity->{$type_info['entity keys']['id']},
+    'entity_type' => $type,
+  );
   // support for entity iframe direct link
   if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
     $field['cis_shortcodes']['cis_shortcodes_embed'] = array(
