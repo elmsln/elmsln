@@ -1,0 +1,9 @@
+set debugscript
+ 
+  set echo ~test2 IMAGE "images/test2.jpg"
+  set echo ~test2 50% 50%
+  set echo ~test2 SCALE 0.3
+
+  set echo ~test1 IMAGE "images/test1.jpg"
+  set echo ~test1 15% 95%
+  set echo ~test1 SCALE 0.4

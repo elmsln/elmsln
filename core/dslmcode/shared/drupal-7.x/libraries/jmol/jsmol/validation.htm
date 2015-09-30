@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="JSmol.min.js"></script>
+
+<script type="text/javascript">
+
+// validation.htm -- demonstrates loading and using validation annotations from PDBe
+
+// Bob Hanson, 7/30/2014 1:53:06 AM
+
+var jmolApplet0; // set up in HTML table, below
+
+// logic is set by indicating order of USE -- default is HTML5 for this test page, though
+var use = "SIGNED" // JAVA HTML5 WEBGL IMAGE  are all otions
+var s = document.location.search;
+
+jmol_isReady = function(applet) {
+	Jmol._getElement(applet, "appletdiv").style.border="1px solid blue"
+}		
+
+var xxxx = document.location.search
+if (xxxx.indexOf("_USE=") > 0)xxxx = xxxx.substring(0, xxxx.indexOf("_USE=") - 1);
+if (xxxx.length == 5 || xxxx.length == 0) { 
+	xxxx = (xxxx + "?1cbs").substring(1,5)
+	script = 'set measurementUnits angstroms;set zoomlarge false;set echo top left;echo loading XXXX...;refresh;'
+	+'load "*XXXX/val";set echo top center;echo XXXX;'
+	script = script.replace(/XXXX/g, xxxx)
+} else {
+	script = unescape(xxxx.substring(1))
+}
+
+// we add a Jmol script highlightValidation() function to the start-up script
+ 
+	script = "function highlightValidation(type){\n\
+							select *;wireframe only;\n\
+							select on within(validation,@type);\n\
+							wireframe 0.2;spacefill 23%;\n\
+							set echo bottom left;if ({selected} == 0){echo no issues reported} else {echo};\n\
+							var x = '%[validation.'+type+']';\n\
+							script inline @{'set hoverlabel \"'+ x + '\"'};\n\
+							}\n" + script;
+							
+
+var Info = {
+	width: 450,
+	height: 450,
+	debug: false,
+	color: "white",
+	addSelectionOptions: false,
+	serverURL: "http://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
+	LOADSTRUCTCallback: "fileLoaded",
+	use: "HTML5",
+	j2sPath: "j2s",
+	readyFunction: jmol_isReady,
+	script: script,
+	jarPath: "java",
+	jarFile: "JmolAppletSigned.jar",
+	isSigned: true,
+	//disableJ2SLoadMonitor: true,
+	disableInitialConsole: true
+	//defaultModel: "$dopamine",
+	//console: "none", // default will be jmolApplet0_infodiv
+}
+
+// create the model list for Jmol.jmolMenu()
+
+Models = []
+
+template = "xid='%1';echo loading %1...;refresh;load *%1/val|%2 (%1)"
+function addModel(xxxx, text) {
+ Models.push(template.replace(/\%1/g, xxxx).replace(/%2/g, text).split("|"))
+}
+
+addModel("1cbs", "small")
+addModel("1blu","Fe/S")
+addModel("1d66","transcription")
+addModel("2x9t","ribosome (Java recommended)")
+
+// these are conveniences that mimic behavior of Jmol.js
+
+function jmolCheckbox(script1, script0,text,ischecked) {Jmol.jmolCheckbox(jmolApplet0,script1, script0, text, ischecked)}
+function jmolButton(script, text) {Jmol.jmolButton(jmolApplet0, script,text)}
+function jmolHtml(s) { document.write(s) };
+function jmolBr() { jmolHtml("<br />") }
+function jmolMenu(a) {Jmol.jmolMenu(jmolApplet0, a)}
+
+// the validations to report
+ 
+var types = [
+	["clashes", "clashes"],
+	["symmetry clashes", "symm_clashes"],
+	["missing electron density", "rsrz"],
+	["side chain problems", "sidechains"],
+	["chirality issues", "chirals"],
+	null,
+	["bond distance problems", "bond_lengths"],
+	["bond angles problems", "bond_angles"],
+	["aromatic ring planarity", "planes"],
+	null,
+	["Ramachandran issues", "rama"],
+	["RNA suite", "RNA_suite"],
+	["RNA pucker", "RNA_pucker"]
+	];
+	
+// the left-panel buttons run the highlightValidation() function within Jmol
+
+function createButtons() {
+	Jmol.setButtonCss(null,"style='width:180px'")
+	for (var i = 0; i < types.length; i++) {
+		var type = types[i];
+		if (type) {
+			Jmol.jmolButton("jmolApplet0", "highlightValidation('" + type[1]+"')", type[0], "val_" + type[1]);
+		}
+		jmolBr();
+	}
+	$("input[id^='val_']").prop("disabled",true)
+}
+function fileLoaded() {
+// enable only the relevant buttons, and label them with counts
+	x =(Jmol.getPropertyAsString(jmolApplet0, "validationInfo.types"))
+	x = x.replace(/,/g,'"');
+	for (var i = types.length; --i >= 0;) {
+		var type = types[i];
+		if (!type)
+			continue;
+		var n = x.split('"'+type[1]+'"').length - 1;
+		$("#val_"+type[1]).prop("disabled",(n == 0))
+		$("#val_"+type[1]).val(type[0] + (n == 0 ? "" : " (" + n + ")"));
+	}
+}
+
+
+</script>
+</head>
+<body>
+
+<center>
+
+
+<table><tr>
+<td>
+<i>set platformSpeed...</i>
+<br>
+<a href="javascript:Jmol.script(jmolApplet0, 'set platformSpeed 8')">8</a>
+<a href="javascript:Jmol.script(jmolApplet0, 'set platformSpeed 7')">7</a>
+<a href="javascript:Jmol.script(jmolApplet0, 'set platformSpeed 6')">6</a>
+<a href="javascript:Jmol.script(jmolApplet0, 'set platformSpeed 5')">5</a>
+<a href="javascript:Jmol.script(jmolApplet0, 'set platformSpeed 4')">4</a>
+<a href="javascript:Jmol.script(jmolApplet0, 'set platformSpeed 3')">3</a>
+<a href="javascript:Jmol.script(jmolApplet0, 'set platformSpeed 2')">2</a>
+<a href="javascript:Jmol.script(jmolApplet0, 'set platformSpeed 1')">1</a>
+<br>
+<br>
+<script type="text/javascript">
+createButtons();
+
+
+</script>
+</td>
+<td align=center>
+
+<script type="text/javascript">
+
+jmolApplet0 = Jmol.getApplet("jmolApplet0", Info)
+
+</script>
+</td><td>
+<form><!-- (FORM tag is important to automatically set checkbox off when page reloads) -->
+<script type="text/javascript">
+Jmol.setButtonCss(null,"style='width:160px'")
+Jmol.setMenuCss(null,"style='width:160px'")
+jmolButton("if (!xid) { xid = '1cbs'};var x = prompt('Enter a four-digit PDB ID',xid);if (!x) { quit }; xid = x; load @{'*' + x + '/val'}","Load mmCIF by PDB ID")
+Jmol.setButtonCss(null,"style='width:160px'")
+jmolBr()
+jmolCheckbox("set pdbAddHydrogens TRUE","set pdbAddHydrogens FALSE","with hydrogens",false)
+jmolBr()
+jmolCheckbox("set defaultLoadFilter 'biomolecule 1'","set defaultLoadFilter ''","biomolecule 1",false)
+jmolBr()
+jmolHtml("Examples:")
+jmolBr()
+jmolMenu(Models)
+jmolBr()
+jmolBr()
+jmolButton("write IMAGE ?.png","Save PNG")
+jmolBr()
+jmolButton("write PNGJ ?.png","Save PNG+Jmol")
+jmolBr()
+jmolBr()
+jmolButton("JSCONSOLE","console log")
+jmolBr()
+jmolBr()
+
+</script>
+</form>
+<a href="validation.htm?_USE=JAVA">Java version</a>
+<br />
+<a href="validation.htm?_USE=HTML5">HTML5 version</a>
+
+</td></tr>
+<tr>
+<td></td>
+<td align=center>
+
+
+
+
+<script type="text/javascript">
+jmolBr()
+Jmol.setButtonCss(null,"style='width:120px'")
+jmolButton("color cpk")
+jmolButton("color group")
+jmolButton("color amino")
+jmolButton("color structure")
+jmolBr()
+jmolButton("trace only")
+jmolButton("cartoon only")
+jmolButton("backbone only")
+jmolButton("spacefill only;spacefill 23%;wireframe 0.15","ball&stick")
+jmolBr()
+Jmol.setButtonCss(null,"style='width:100px'")
+jmolButton("console")
+Jmol.jmolCommandInput(jmolApplet0)
+</script>
+
+</td></tr></table>
+
+</body>
+</html>
