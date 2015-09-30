@@ -845,6 +845,7 @@ function theme_outline_designer_book_admin_table($variables) {
     else {
       $title = '';
     }
+    $title = check_plain($title);
     // append span automatically instead of post render
     $form[$key]['title']['#field_suffix'] = '<span id="edit-table-book-admin-'. $nid .'-title-span" class="od_title_span">'. $title .'</span>';
     $data = array(
@@ -880,6 +881,7 @@ function _outline_designer_book_admin_edit_submit($form, &$form_state) {
     if ($form['table'][$key]['#item']) {
       $row = $form['table'][$key];
       $values = $form_state['values']['table'][$key];
+      $values['title'] = check_plain($values['title']);
       // Update menu item if moved.
       if ($row['plid']['#default_value'] != $values['plid'] || $row['weight']['#default_value'] != $values['weight']) {
         $update_order = true;

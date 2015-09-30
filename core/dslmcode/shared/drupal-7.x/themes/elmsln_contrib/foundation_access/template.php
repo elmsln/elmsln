@@ -127,7 +127,7 @@ function foundation_access_preprocess_page(&$variables) {
 function foundation_access_menu_link(&$variables) {
   $element = $variables['element'];
   $sub_menu = '';
-  $title = $element['#title'];
+  $title = check_plain($element['#title']);
   if ($element['#below']) {
     $sub_menu = drupal_render($element['#below']);
   }
@@ -171,6 +171,7 @@ function foundation_access_menu_tree__menu_course_tools_menu($variables) {
 function _foundation_access_single_menu_link($element) {
   $options = $element['#localized_options'];
   $options['html'] = TRUE;
+  $title = check_plain($element['#title']);
   // ensure class array is at least set
   if (empty($element['#attributes']['class'])) {
     $element['#attributes']['class'] = array();
@@ -181,7 +182,7 @@ function _foundation_access_single_menu_link($element) {
   if (isset($options['fa_icon'])) {
     $icon = $options['fa_icon'];
   }
-  return '<li>' . l('<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $element['#title'], $element['#href'], $options) . '</li>';
+  return '<li>' . l('<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $title, $element['#href'], $options) . '</li>';
 }
 
 /**
@@ -193,13 +194,14 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
   $element = $variables['element'];
   $sub_menu = '';
   $return = '';
+  $title = check_plain($element['#title']);
   if ($element['#below']) {
     $sub_menu = drupal_render($element['#below']);
   }
   $id = 'zfa-menu-panel-' . $element['#original_link']['mlid'];
   // account for no link'ed items
   if ($element['#href'] == '<nolink>') {
-    $output = '<a href="#">' . $element['#title'] . '</a>';
+    $output = '<a href="#">' . $title . '</a>';
   }
   // account for sub menu things being rendered differently
   if (empty($sub_menu)) {
@@ -219,7 +221,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
     // calculate relative depth
     $depth = $element['#original_link']['depth'] - 2;
     // generate a short name
-    $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($element['#title'])) . '-' . $element['#original_link']['mlid'];
+    $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($title)) . '-' . $element['#original_link']['mlid'];
     // extract nid
     $nid = str_replace('node/', '', $element['#href']);
     // test for active class, meaning this should be expanded by default
@@ -231,7 +233,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       if (!empty($labeltmp)) {
         $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
       }
-      $return .= '<h3>' . $element['#title'] . '</h3>' . "\n" .
+      $return .= '<h3>' . $title . '</h3>' . "\n" .
       '</a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       '<div>'  . "\n";
@@ -247,7 +249,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       $counter++;
     }
     else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon"></div><span class="outline-nav-text">' . $element['#title'] . '</span></a>' . "\n" .
+      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon"></div><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       '<div>'  . "\n";
       $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
@@ -292,7 +294,7 @@ function _foundation_access_auto_label_build($word, $number, $counter) {
  */
 function foundation_access_menu_local_task(&$variables) {
   $link = $variables['element']['#link'];
-  $link_text = $link['title'];
+  $link_text = check_plain($link['title']);
   $li_class = (!empty($variables['element']['#active']) ? ' class="active"' : '');
 
   if (!empty($variables['element']['#active'])) {
