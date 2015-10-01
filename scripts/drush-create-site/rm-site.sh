@@ -43,8 +43,12 @@ if [ -z "$rmstack" ]; then
   fi
 fi
 
-# backup config before proceeding since we are removing a lot of stuff here
-sudo bash /var/www/elmsln/scripts/utilities/backup-config.sh
+elmslnwarn "Back up everything before removing items?(y/n)"
+read backupeverything
+if [ $backupeverything == "y" ]; then
+  # backup config before proceeding since we are removing a lot of stuff here
+  sudo bash /var/www/elmsln/scripts/utilities/backup-config.sh
+fi
 
 # backup db before we kill it
 drush @$rmstack.$rmcourse sql-dump --result-file
