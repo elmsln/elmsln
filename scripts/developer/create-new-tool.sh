@@ -141,7 +141,6 @@ echo "<Directory /var/www/elmsln/domains/$domain>" >> $elmsln/docs/domains.txt
 echo "    AllowOverride All" >> $elmsln/docs/domains.txt
 echo "    Order allow,deny" >> $elmsln/docs/domains.txt
 echo "    allow from all" >> $elmsln/docs/domains.txt
-echo "    Include /var/www/elmsln/domains/$domain/.htaccess" >> $elmsln/docs/domains.txt
 echo "</Directory>" >> $elmsln/docs/domains.txt
 
 elmslnecho "The tool named $domain has now been added to the ELMSLN structure."

@@ -9,12 +9,13 @@
    */
   $parent_count = '';
   $parent_icon = '';
+  $parent_title = check_plain($parent['link_title']);
   // support for ... with screen readers
   if ($parent['mlid'] == -1) {
     $ptitle = t('Pages nested below the current one.');
   }
   else {
-    $ptitle = t('Pages on the same level as @name', array('@name' => $parent['link_title']));
+    $ptitle = t('Pages on the same level as @name', array('@name' => $parent_title));
   }
   // support for count on the lowest level parent
   if (isset($parent['_count'])) {
@@ -29,7 +30,7 @@
 <li class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
   <a href="#" title="<?php print $ptitle ?>" class="<?php print $parent['_class'] ?>" data-dropdown="book-sibling-children-<?php print $parent['mlid'] ?>" aria-controls="middle-section-buttons" aria-expanded="false">
     <?php if ($parent_icon !== ''): ?><?php print $parent_icon ?><?php endif; ?>
-    <div class="book-sibling-parent-text"><?php print $parent_count; ?><?php print $parent['link_title'] ?></div><div class="book-sibling-parent-arrow icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
+    <div class="book-sibling-parent-text"><?php print $parent_count; ?><?php print $parent_title ?></div><div class="book-sibling-parent-arrow icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
   </a>
 </li>
 <div id="book-sibling-children-<?php print $parent['mlid'] ?>" data-dropdown-content class="f-dropdown content book-sibling-children" aria-hidden="true" tabindex="-1">
@@ -48,11 +49,12 @@
     if (isset($item['_icon'])) {
       $pre = $item['_count'] . '. ' . ' <div class="book-menu-item-' . $item['mlid'] . ' icon-' . $item['_icon'] . '-black outline-nav-icon"></div>';
     }
-    $link = '<li class="' . $active . '">' . l($pre . $item['link_title'],
+    $link_title = check_plain($item['link_title']);
+    $link = '<li class="' . $active . '">' . l($pre . $link_title,
         $item['link_path'],
         array('html' => TRUE,
           'attributes' => array(
-            'title' => $item['link_title'],
+            'title' => $link_title,
             'class' => array($active . '-link'),
           )
         )

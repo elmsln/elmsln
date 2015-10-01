@@ -1,0 +1,424 @@
+<?php
+
+/**
+ * @file
+ * This file is the main Jmol module file.
+ * The module creates a new file field formatter to display molecular structure
+ * files using the Jmol java applet.
+ */
+
+/**
+ * Implements hook_libraries_info().
+ */
+function jmol_libraries_info() {
+  $libraries['jmol'] = array(
+    'name' => 'Jmol library',
+    'vendor url' => 'http://jmol.sourceforge.net',
+    'download url' => 'http://sourceforge.net/projects/jmol/files/Jmol/',
+    'version callback' => 'jmol_get_version',
+  );
+  return $libraries;
+}
+
+/**
+ * Function to get the Jmol library version.
+ */
+function jmol_get_version($library) {
+  $file = DRUPAL_ROOT . '/' . $library['library path'] . '/CHANGES.txt';
+  if (!file_exists($file)) {
+    return;
+  }
+  $lines = file($file, FILE_IGNORE_NEW_LINES);
+  foreach ($lines as $line) {
+    if (substr($line, 0, 11) == '___version=') {
+      $version = substr($line, 11);
+      break;
+    }
+    if (substr($line, 0, 15) == '___JmolVersion=') {
+      $fullversion = substr($line, 15);
+      $version = substr($fullversion, 1, -1);
+      break;
+    }
+  }
+  return $version;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ *
+ * Exposes the Jmol applet file field formatter to the Field UI.
+ */
+function jmol_field_formatter_info() {
+  return array(
+    'jmol' => array(
+      'label' => t('Jmol applet'),
+      'field types' => array('file'),
+      'description' => t('Display molecular structure files using the Jmol java applet'),
+      'settings' => array(
+        'use' => 'mixed',
+        'size' => '400',
+        'viewstyle' => array(
+          'wireframe' => 'wireframe',
+          'sticks'    => 'sticks',
+          'balls'     => 'balls',
+          'backbone'  => 'backbone',
+          'trace'     => 'trace',
+          'ribbon'    => 'ribbon',
+        ),
+        'defaultstyle' => 'wireframe',
+        'alignment' => 'left',
+        'units' => 'angstroms',
+        'script' => 0,
+        'filename' => 0,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ *
+ * Specify the form elements for a formatter's settings.
+ */
+function jmol_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $form_lala = $form_state;
+
+  $element = array();
+
+  if ($display['type'] == 'jmol') {
+    $styleoptions = array(
+      'wireframe' => t('Wireframe'),
+      'sticks'    => t('Sticks'),
+      'balls'     => t('Balls (spacefill)'),
+      'backbone'  => t('Backbone (C-alpha)'),
+      'trace'     => t('Trace'),
+      'ribbon'    => t('Ribbon'),
+    );
+    $element['use'] = array(
+      '#title' => t('Applet type'),
+      '#type' => 'radios',
+      '#default_value' => $settings['use'],
+      '#required' => TRUE,
+      '#options' => array(
+        'mixed' => t('Java and HTML5'),
+        'java'  => t('Java only'),
+        'html5' => t('HTML5 only'),
+      ),
+    );
+    $element['size'] = array(
+      '#title' => t('Applet size'),
+      '#type' => 'textfield',
+      '#description' => t('The size of the applet in pixels'),
+      '#size' => 10,
+      '#default_value' => $settings['size'],
+      '#element_validate' => array('element_validate_integer_positive'),
+      '#required' => TRUE,
+    );
+    $element['viewstyle'] = array(
+      '#title' => t('Exposed view styles'),
+      '#type' => 'checkboxes',
+      '#required' => TRUE,
+      '#options' => $styleoptions,
+      '#default_value' => $settings['viewstyle'],
+    );
+    $element['defaultstyle'] = array(
+      '#title' => t('Default view style'),
+      '#type' => 'select',
+      '#description' => t('Make sure that you select a style that is also exposed above. If not, the default style will be the first exposed style in the list.'),
+      '#required' => TRUE,
+      '#options' => $styleoptions,
+      '#default_value' => $settings['defaultstyle'],
+    );
+    $element['script'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Expose custom Jmol script textbox'),
+      '#default_value' => $settings['script'],
+    );
+    $element['filename'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Display the filename above the applet'),
+      '#default_value' => $settings['filename'],
+    );
+    $element['alignment'] = array(
+      '#title' => t('Applet alignment'),
+      '#type' => 'radios',
+      '#default_value' => $settings['alignment'],
+      '#required' => TRUE,
+      '#options' => array(
+        'left'   => t('Left'),
+        'center' => t('Center'),
+        'right'  => t('Right'),
+      ),
+    );
+    $element['units'] = array(
+      '#title' => t('Measurements units'),
+      '#type' => 'radios',
+      '#default_value' => $settings['units'],
+      '#required' => TRUE,
+      '#options' => array(
+        'angstroms'  => t('Angstroms'),
+        'nanometers' => t('Nanometers'),
+      ),
+    );
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ *
+ * Return a short summary for the current formatter settings of an instance.
+ */
+function jmol_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = '';
+
+  if ($display['type'] == 'jmol') {
+
+    // Remove unchecked (value = 0) styles from $settings['viewstyle'].
+    foreach ($settings['viewstyle'] as $key => $value) {
+      if ($value) {
+        $checked_styles[$key] = $value;
+      }
+    }
+    // Build the summary.
+    if ($settings['use'] == 'mixed') {
+      $summary  = t('Applet type: java and html5<br />');
+    }
+    else {
+      $summary  = t('Applet type: @type<br />', array('@type' => $settings['use']));
+    }
+    $summary .= t('Size: @px px<br />', array('@px' => $settings['size']));
+    $summary .= t('Exposed view styles: @buttons<br />', array('@buttons' => implode(',', $checked_styles)));
+    $summary .= t('Default style: @defaultstyle<br />', array('@defaultstyle' => $settings['defaultstyle']));
+    if ($settings['script']) {
+      $summary .= t('Custom Jmol script textbox exposed<br />');
+    }
+    if ($settings['filename']) {
+      $summary .= t('Display filename above the applet<br />');
+    }
+    $summary .= t('Alignment: @alignment<br />', array('@alignment' => $settings['alignment']));
+    $summary .= t('Units: @units', array('@units' => $settings['units']));
+  }
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ *
+ * Build a renderable array for a field value.
+ */
+function jmol_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  $settings = $display['settings'];
+  if ($display['type'] == 'jmol') {
+    // Get the Jmol javascript library path.
+    $jmoldir = libraries_get_path('jmol');
+    drupal_add_js($jmoldir . '/jsmol/JSmol.min.js');
+    // Loop over multiple file attachments.
+    foreach ($items as $delta => $item) {
+      $variables = array(
+        'settings' => $settings,
+        'item'     => $item,
+        'jmoldir'  => $jmoldir,
+        'delta'    => $delta,
+      );
+      // Send settings to theme function.
+      $html = theme('jmol_formatter', $variables);
+      $element[$delta] = array('#markup' => $html);
+    }
+    // Add css.
+    $css = jmol_build_css($settings);
+    drupal_add_css($data = $css, $type = 'inline');
+  }
+  return $element;
+}
+
+/**
+ * Function to build applet alignment css code.
+ *
+ * To return to jmol_field_formatter_view().
+ */
+function jmol_build_css($settings) {
+  $css = '';
+  // Remove unchecked (value = 0) radiobuttons from $settings['radios'].
+  foreach ($settings['viewstyle'] as $key => $value) {
+    if ($value) {
+      $checked_styles[$key] = $value;
+    }
+  }
+  // Create div style for chosen alignment.
+  switch ($settings['alignment']) {
+    case 'left':
+      $css .= '.left {margin-left:0;margin-right:auto;width:' . $settings['size'] . 'px;}';
+      break;
+
+    case 'center':
+      $css .= '.center {margin:auto;width:' . $settings['size'] . 'px;}';
+      break;
+
+    case 'right':
+      $css .= '.right {margin-right:0;margin-left:auto;width:' . $settings['size'] . 'px;}';
+      break;
+  }
+  return $css;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function jmol_theme() {
+  return array(
+    'jmol_formatter' => array(
+      'variables' => array(
+        'settings' => NULL,
+        'item'     => NULL,
+        'jmoldir'  => NULL,
+        'delta'    => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Theme function for theming the Jmol applet with formatter settings.
+ *
+ * @param array $variables
+ *   - settings: Formatter settings as an array with following key/value pairs:
+ *     - size : size of the applet in pixels, as a string.
+ *     - viewstyles : the selected exposed viewstyles as an array where the
+ *       value of a viewstyle is 0 when not selected.
+ *       In the following example sticks, balls and ribbon were not selected.
+ *       array = ('wireframe' => 'wireframe',
+ *                'sticks'    => 0,
+ *                'balls'     => 0,
+ *                'backbone'  => 'backbone',
+ *                'trace'     => 'trace',
+ *                'ribbon'    => 0)
+ *     - defaultstyle : the default view style, as a string.
+ *     - alignment : the alignment of the applet. Is one of 'left', 'right'
+ *       or 'center'. A string.
+ *     - units : A string. Can be 'angstroms' or 'nanometers'.
+ *     - script : 0 if no textfield is requested for custom Jmol script input,
+ *       1 if it is requested.
+ *     - filename : 0 if the filename should not be printed above the applet,
+ *       1 if filename should be printed.
+ *   - item: Array of values for a file field.
+ *   - jmoldir : The Jmol javascript library path.
+ *   - delta : An index number for the files if multiple files were attached.
+ *
+ * @return string
+ *   An HTML themed string.
+ */
+function theme_jmol_formatter($variables) {
+  global $base_url;
+
+  // Define the applet types.
+  $types = array(
+    'mixed' => 'Java HTML5',
+    'java'  => 'Java',
+    'html5' => 'HTML5',
+  );
+  // Define the array describing the scripts behind the provided radiobuttons.
+  $stylescripts = array(
+    'wireframe' => '"wireframe ONLY","Wireframe"',
+    'sticks'    => '"wireframe ONLY;wireframe 0.4;", "Sticks"',
+    'balls'     => '"spacefill ONLY","Balls"',
+    'backbone'  => '"backbone ONLY","Backbone"',
+    'trace'     => '"trace ONLY","Trace"',
+    'ribbon'    => '"ribbon ONLY","Ribbon"',
+  );
+  // Get formatter settings.
+  $use = $variables['settings']['use'];
+  $size = $variables['settings']['size'];
+  $viewstyles = $variables['settings']['viewstyle'];
+  $defaultstyle = $variables['settings']['defaultstyle'];
+  $alignment = $variables['settings']['alignment'];
+  $units = $variables['settings']['units'];
+  $script = $variables['settings']['script'];
+  $filename = $variables['settings']['filename'];
+  $delta = $variables['delta'];
+
+  // We need to grab the full file url for our applet.
+  $url = file_create_url($variables['item']['uri']);
+  // Get the filename.
+  $file = $variables['item']['filename'];
+
+  // Build the final array for jmolMenu.
+  $finalstyles = '';
+  $i = 0;
+  foreach ($viewstyles as $key => $value) {
+    if ($value) {
+      if ($i == 0) {
+        // Get the first exposed style in case default style
+        // is not in exposed styles.
+        $firststyle = $key;
+      }
+      // Populate jmolMenu options.
+      $finalstyles[$key] = '[' . $stylescripts[$key] . ']';
+      $i++;
+    }
+  }
+  // The default style should be in $finalstyles, if not use first style.
+  if (!(array_key_exists($defaultstyle, $finalstyles))) {
+    $defaultstyle = $firststyle;
+  }
+  // Define the actual Jmol code default style.
+  $initcommand = explode(',', $stylescripts[$defaultstyle]);
+  $initcommand = str_replace('"', '', $initcommand[0]);
+  $finalstyles[$defaultstyle] = '[' . $stylescripts[$defaultstyle] . ',"selected"]';
+
+  // Convert array to string separated by comma.
+  $stylestring = implode(',', $finalstyles);
+
+  // When Clean URLs is enabled, we have to provide absolute urls for Java
+  // applets. See @link http://drupal.org/node/312642#comment-1053077 @endlink.
+  $jmolpath = $base_url . '/' . $variables['jmoldir'];
+
+  $output  = '<div class=' . $alignment . '>';
+  // Display filename.
+  if ($filename) {
+    $output .= $file . '<br />';
+  }
+  $output .= '<script type="text/javascript">';
+  $output .= "var myInfo" . $delta . " = {
+              height: " . $size . ",
+              width: " . $size . ",
+              color: '#000000',
+              jarFile: 'JmolApplet.jar',
+              isSigned: false,
+              jarPath: '" . $jmolpath . "/jsmol/java',
+              j2sPath: '" . $jmolpath . "/jsmol/j2s',
+              use: '" . $types[$use] . "',
+              debug: false
+              };";
+  $output .= '</script>';
+  $output .= '<script type="text/javascript">';
+  $output .= 'myJmol' . $delta . ' = Jmol.getApplet("myJmol' . $delta . '", myInfo' . $delta . ');
+              Jmol.script(myJmol' . $delta . ', "load ' . $url . ';' . $initcommand . '; set measurementUnits ' . $units . ';");';
+  $output .= 'Jmol.jmolBr();';
+
+  // Only display jmolMenu of we have more than one style option.
+  if ($i > 1) {
+    $output .= 'Jmol.jmolHtml("<b>View style:</b>&nbsp;&nbsp;");';
+    $output .= 'Jmol.jmolMenu(myJmol' . $delta . ', [' . $stylestring . ']);';
+  }
+  $output .= 'Jmol.jmolBr();';
+
+  // Display a custom Jmol script textfield.
+  if ($script) {
+    $output .= 'Jmol.jmolBr();';
+    $output .= 'Jmol.jmolHtml("<b>Custom Jmol script</b>");';
+    $output .= 'Jmol.jmolBr();';
+    $output .= "Jmol.jmolCommandInput(myJmol" . $delta . ", 'Apply', 20, 'script', 'Type your Jmol scipt here');";
+    $output .= 'Jmol.jmolBr();';
+  }
+  $output .= '</script>';
+  $output .= '<br />';
+  $output .= '</div>';
+  return $output;
+}

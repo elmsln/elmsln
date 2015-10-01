@@ -110,7 +110,6 @@ NameVirtualHost *:80
     AllowOverride All
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/people/.htaccess
 </Directory>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/innovate
@@ -121,7 +120,6 @@ NameVirtualHost *:80
     AllowOverride All
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/innovate/.htaccess
 </Directory>
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/grades
@@ -132,5 +130,4 @@ NameVirtualHost *:80
     AllowOverride All
     Order allow,deny
     allow from all
-    Include /var/www/elmsln/domains/grades/.htaccess
 </Directory>
