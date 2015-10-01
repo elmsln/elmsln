@@ -289,6 +289,114 @@ function ecd_displays_views_default_views() {
   $export['ecd_asset_audit'] = $view;
 
   $view = new view();
+  $view->name = 'ecd_bulk_update';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'node';
+  $view->human_name = 'ECD bulk update';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = 'Bulk Course Update';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['style_plugin'] = 'table';
+  /* Field: Bulk operations: Content */
+  $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'node';
+  $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '1';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['row_clickable'] = 1;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+    'action::views_bulk_operations_modify_action' => array(
+      'selected' => 1,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+      'settings' => array(
+        'show_all_tokens' => 1,
+        'display_values' => array(
+          'cis_course::field_accessibility_audit' => 'cis_course::field_accessibility_audit',
+          'cis_course::field_copyright_audit' => 'cis_course::field_copyright_audit',
+          'cis_course::field_quality_audit' => 'cis_course::field_quality_audit',
+        ),
+      ),
+    ),
+  );
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: Accessibility audit */
+  $handler->display->display_options['fields']['field_accessibility_audit']['id'] = 'field_accessibility_audit';
+  $handler->display->display_options['fields']['field_accessibility_audit']['table'] = 'field_data_field_accessibility_audit';
+  $handler->display->display_options['fields']['field_accessibility_audit']['field'] = 'field_accessibility_audit';
+  $handler->display->display_options['fields']['field_accessibility_audit']['label'] = 'Accessibility';
+  /* Field: Content: Copyright audit */
+  $handler->display->display_options['fields']['field_copyright_audit']['id'] = 'field_copyright_audit';
+  $handler->display->display_options['fields']['field_copyright_audit']['table'] = 'field_data_field_copyright_audit';
+  $handler->display->display_options['fields']['field_copyright_audit']['field'] = 'field_copyright_audit';
+  $handler->display->display_options['fields']['field_copyright_audit']['label'] = 'Copyright';
+  /* Field: Content: Quality Audit */
+  $handler->display->display_options['fields']['field_quality_audit']['id'] = 'field_quality_audit';
+  $handler->display->display_options['fields']['field_quality_audit']['table'] = 'field_data_field_quality_audit';
+  $handler->display->display_options['fields']['field_quality_audit']['field'] = 'field_quality_audit';
+  /* Field: Content: Last formal quality audit */
+  $handler->display->display_options['fields']['field_last_quality_date']['id'] = 'field_last_quality_date';
+  $handler->display->display_options['fields']['field_last_quality_date']['table'] = 'field_data_field_last_quality_date';
+  $handler->display->display_options['fields']['field_last_quality_date']['field'] = 'field_last_quality_date';
+  $handler->display->display_options['fields']['field_last_quality_date']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
+  /* Sort criterion: Content: Title */
+  $handler->display->display_options['sorts']['title']['id'] = 'title';
+  $handler->display->display_options['sorts']['title']['table'] = 'node';
+  $handler->display->display_options['sorts']['title']['field'] = 'title';
+  $handler->display->display_options['sorts']['title']['order'] = 'DESC';
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cis_course' => 'cis_course',
+  );
+
+  /* Display: Page */
+  $handler = $view->new_display('page', 'Page', 'page');
+  $handler->display->display_options['path'] = 'courses/bulk-update';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'Bulk Update Courses';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['name'] = 'menu-comply-navigation';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $export['ecd_bulk_update'] = $view;
+
+  $view = new view();
   $view->name = 'ecd_quality_overview';
   $view->description = '';
   $view->tag = 'default';
@@ -307,8 +415,8 @@ function ecd_displays_views_default_views() {
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
-  $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
     'title' => 'title',
@@ -429,11 +537,11 @@ function ecd_displays_views_default_views() {
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
-  $handler->display->display_options['path'] = 'course-compliance';
+  $handler->display->display_options['path'] = 'courses/compliance';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Courses';
+  $handler->display->display_options['menu']['title'] = 'Course Compliance';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'main-menu';
+  $handler->display->display_options['menu']['name'] = 'menu-comply-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['ecd_quality_overview'] = $view;
