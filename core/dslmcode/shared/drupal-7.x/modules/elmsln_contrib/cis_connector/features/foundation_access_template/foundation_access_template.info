@@ -1,6 +1,6 @@
 name = Foundation Access Template
 core = 7.x
-package = Features
+package = Foundation Access
 dependencies[] = features
 dependencies[] = wysiwyg_template
 features[features_api][] = api:2
