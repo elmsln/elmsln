@@ -7973,7 +7973,7 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
     margin-top: .5em; } }
 
 .image--left .image__img {
-  max-height: 400px; }
+  max-height: 40em; }
 
 @media only screen and (min-width: 40.063em) {
   .image--right {
@@ -7983,7 +7983,7 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
     margin-top: .5em; } }
 
 .image--right .image__img {
-  max-height: 400px; }
+  max-height: 40em; }
 
 .image--boxed {
   margin: 0;
