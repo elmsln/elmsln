@@ -51,6 +51,9 @@ scripts[] = js/foundation.min.js
 ; This file is empty, just uncomment this line and start editing!
 scripts[] = js/jquery.sticky.js
 
+; Add libraries from styleguide
+scripts[] = libraries/imagelightbox/imagelightbox.js
+
 ; Our themes custom scripts compiled by Browserify
 scripts[] = js/dist/app.js
 
