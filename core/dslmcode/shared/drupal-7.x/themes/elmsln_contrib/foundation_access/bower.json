@@ -4,7 +4,6 @@
     "foundation": "zurb/bower-foundation"
   },
   "devDependencies": {
-    "Cortana": "~1.2.7",
     "modular-scale": "~2.1.1",
     "north": "~0.2.0"
   }

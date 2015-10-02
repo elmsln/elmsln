@@ -8,8 +8,8 @@ source: ./scss
 destination: ./styleguide
 
 # Hologram theme
-documentation_assets: ./bower_components/Cortana
-custom_markdown: ./bower_components/Cortana/CortanaMarkdownRenderer.rb
+documentation_assets: ./styleguide-theme
+custom_markdown: ./styleguide-theme/CortanaMarkdownRenderer.rb
 
 # List all css to include for the styleguide render examples (path from styleguide directory)
 css_include:

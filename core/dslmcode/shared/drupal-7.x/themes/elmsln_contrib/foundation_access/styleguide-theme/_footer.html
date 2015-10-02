@@ -1,0 +1,60 @@
+<% nameScope = @config['name_scope'] %>
+        </div>
+      </div>
+    </div>
+
+    <footer class="cortana-footer">
+      Build with love using Trulia's <a href="https://github.com/trulia/hologram">Hologram</a> and <a href="https://github.com/Yago/Cortana">Cortana</a> !
+    </footer>  
+  </div>
+
+  <script src="theme-build/js/vendors.min.js"></script>
+  <script type="text/javascript">
+    var jQuery_no_conflict = $.noConflict(true);
+  </script>
+  <script src="theme-build/js/main.js"></script>
+  <script type="text/javascript">
+
+    angular.module("cortana").controller("TypeaheadCtrl", function($scope) {
+      $scope.selected = undefined;
+      $scope.searchData = 
+      <%= "[" %>
+        <% @pages.each do |file_name, page| %>
+          <% if not page[:blocks].empty? %>
+            <% page[:blocks].each do |block| %>
+              <% file_path = block[:categories][0].to_s.gsub(' ', '_').downcase + '.html' %>
+              <% file_id = "#"+block[:name].to_s %>
+              <%= "{" %>
+              <%= "\"title\": \""+block[:title].to_s+"\"," %>
+              <%= "\"breadcrumb\": \""+block[:categories][0].to_s+" > "+block[:title]+"\"," %>
+              <%= "\"path\": \""+file_path+file_id+"\"" %>
+              <%= "}," %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <%= "{}]" %>;
+      $scope.onSelect = function ($item, $model, $label) {
+        window.location.replace($item.path);
+      };
+    });
+
+  </script>
+  <script type="text/ng-template" id="customTemplate.html">
+    <a href="{{match.model.path}}">
+      <p class="cortana-search-title">{{match.model.title}}</p>
+      <p class="cortana-search-path">{{match.model.breadcrumb}}</p>
+    </a>
+  </script>
+  <% if @config['js_include'].to_s.strip.length != 0 %>
+    <% @config['js_include'].each do |js| %>
+      <script type="text/javascript" src="<%= js %>"></script>
+    <% end %>
+  <% end %>
+  <!-- Source Components -->
+  <% if @config['components_include'].to_s.strip.length != 0 %>
+    <% @config['components_include'].each do |component| %>
+      <link rel="import" href="<%= component %>">
+    <% end %>
+  <% end %>
+</body>
+</html>
