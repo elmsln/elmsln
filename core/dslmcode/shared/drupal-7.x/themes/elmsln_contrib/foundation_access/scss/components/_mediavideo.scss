@@ -33,7 +33,7 @@ and Vimeo.
 	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://www.youtube.com/embed/CKZLuYOnPCk?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe></div>
   <aside class="mediavideo__poster">
 		<img src="../img/unsplash.jpg">
-		<a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
   </aside>
 </figure>
 
@@ -41,7 +41,7 @@ and Vimeo.
 	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://player.vimeo.com/video/111237065?title=0&byline=0&portrait=0" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/104641191">Jeffrey Zeldman: 20 years of Web Design and Community</a> from <a href="https://vimeo.com/lyndavimeo">lynda.com</a> on <a href="https://vimeo.com">Vimeo</a>.</p></div>
   <aside class="mediavideo__poster">
 		<img src="../img/unsplash.jpg">
-		<a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
   </aside>
 </figure>
 ```
@@ -64,7 +64,7 @@ category:
 	</div>
   <aside class="mediavideo__poster">
 		<img src="../img/unsplash.jpg">
-		<a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
   </aside>
 </figure>
 <p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
@@ -88,7 +88,7 @@ category:
 	</div>
   <aside class="mediavideo__poster">
 		<img src="../img/unsplash.jpg">
-		<a class="mediavideo__open icon-elmsmedia-black" href="#" title="Click to view video."></a>
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
   </aside>
 </figure>
 <p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
@@ -149,15 +149,20 @@ category:
 		transform: translate(-50%, -50%);
 		// @Todo
 		// need to set a max-width on this button.
-		width: 30%;
+		width: 25%;
+		padding-top: 25%;
 		height: 0;
-		padding-top: 30%;
-		background-size: cover;
+		margin: 0;
+		background-size: contain;
+
+		&:hover {
+			text-shadow: 10px 10px white;
+		}
 	}
 
 	&__close {
-		width: 5em;
-		height: 5em;
+		width: 4em;
+		height: 4em;
 		display: block;
 		// Hide initially
 		height: 0;
@@ -165,6 +170,9 @@ category:
 		visibility: hidden;
 		transition: all .5s linear;
 		margin-left: auto;
+		// @Todo
+		// Need to adjust the svg so it doesn't have whitespace around it.
+		margin-right: -.8em;
 	}
 }
 
