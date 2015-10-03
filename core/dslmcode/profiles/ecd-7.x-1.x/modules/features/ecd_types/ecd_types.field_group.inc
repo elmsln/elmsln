@@ -55,6 +55,7 @@ function ecd_types_field_group_info() {
       0 => 'field_course',
       1 => 'field_resource_uuid_bind',
       2 => 'field_source',
+      3 => 'field_student_count',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -82,8 +83,8 @@ function ecd_types_field_group_info() {
     'weight' => '3',
     'children' => array(
       0 => 'field_accessibility_verified',
-      1 => 'field_quality_verified',
-      2 => 'field_copyright_verified',
+      1 => 'field_copyright_verified',
+      2 => 'field_quality_verified',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
