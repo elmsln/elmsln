@@ -143,14 +143,8 @@
 	}
 
 	p {
-		 @include p-column(0);
-
-		 font-size: 1em;
-		 // line-height: 1.4em;
-		 color: rgba(51, 51, 51, 1);
-		 text-align: left;
-		 margin: 0em 0em 1.421em 0%;
-		 padding: 0px;
+		margin-top: 0;
+		margin-bottom: 1.421em;
 	}
 		// p.txtbk-intro {
 		// 	 // border-top: 1px;

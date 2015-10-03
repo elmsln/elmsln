@@ -1,3 +1,6 @@
+var imageLightbox = require('./components/imageLightbox.js');
+var mediavideo = require('./components/mediavideo.js');
+
 (function ($) {
   // Accessibility To Do:
   //
@@ -33,6 +36,21 @@
   // print page: p
   // edit page: e
   // Bring up list of shortcuts: k
+
+  if (typeof Drupal != 'undefined') {
+    Drupal.behaviors.init = {
+      attach: function (context, settings) {
+        imageLightbox();
+        mediavideo();
+      }
+    };
+  }
+  else {
+    $(document).ready(function() {
+      imageLightbox();
+      mediavideo();
+    });
+  }
 
   Drupal.behaviors.foundation_access = {
     attach: function(context, settings) {
@@ -172,4 +190,5 @@
       }
     });
   });
+
 })(jQuery);

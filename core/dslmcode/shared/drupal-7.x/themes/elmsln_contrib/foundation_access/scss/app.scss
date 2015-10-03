@@ -1,3 +1,10 @@
+// Sass Libraries
+@import "../bower_components/modular-scale/stylesheets/modular-scale.scss";
+
+// Settings
+@import "settings/modular-scale";
+@import "settings/misc";
+
 // Color variables used in settings and other partials
 @import "main-styles/colorscheme";
 
@@ -28,8 +35,13 @@
 // Content/Responsive Typography Styling
 @import "main-styles/content-styles/content";
 @import "main-styles/content-styles/intro";
-@import "main-styles/content-styles/pullquote";
 @import "main-styles/content-styles/print";
+
+// Components
+@import "components/pullquote";
+@import "components/image";
+@import "components/imagelightbox";
+@import "components/mediavideo";
 
 // elmsmedia
 @import "subtheme-elmsmedia/service-toolbar";

@@ -1,0 +1,259 @@
+/*doc
+---
+title: Media Video
+name: 1mediavideo
+category:
+  - Components MediaVideo
+---
+
+Description.
+
+```html_example
+<figure class="mediavideo">
+  <div class="mediavideo__video-wrapper"><iframe src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0"></iframe><script src="https://platform.vine.co/static/scripts/embed.js"></script></div>
+</figure>
+```
+*/
+
+/*doc
+---
+title: Media Video with Poster
+name: 2mediavideoposter
+category:
+  - Components MediaVideo
+---
+
+STILL IN DEVELOPMENT. Example with Poster and Play button.  This uses a psudo lazy load technique to allow the
+play button to start the video. To use it, add the video's source url to a data attribute called `data-mediavideo-src`.
+A javascript function will is it to populate the `src` attribute when the button is clicked. Currently works with Youtube
+and Vimeo.
+
+```html_example
+<figure class="mediavideo mediavideo--poster">
+	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://www.youtube.com/embed/CKZLuYOnPCk?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe></div>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+  </aside>
+</figure>
+
+<figure class="mediavideo mediavideo--poster">
+	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://player.vimeo.com/video/111237065?title=0&byline=0&portrait=0" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/104641191">Jeffrey Zeldman: 20 years of Web Design and Community</a> from <a href="https://vimeo.com/lyndavimeo">lynda.com</a> on <a href="https://vimeo.com">Vimeo</a>.</p></div>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+  </aside>
+</figure>
+```
+*/
+
+/*doc
+---
+title: Media Video Thumbnail
+name: 3mediavideothumbnail
+category:
+  - Components MediaVideo
+---
+
+```html_example
+<p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
+<figure class="mediavideo mediavideo--thumbnail">
+	<a href="#" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
+	<div class="mediavideo__video-wrapper">
+		<iframe data-mediavideo-src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+	</div>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+  </aside>
+</figure>
+<p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
+```
+*/
+
+/*doc
+---
+title: Media Video Thumbnail Right
+name: 4mediavideothumbnailright
+category:
+  - Components MediaVideo
+---
+
+```html_example
+<p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
+<figure class="mediavideo mediavideo--thumbnail-right">
+	<a href="#" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
+	<div class="mediavideo__video-wrapper">
+		<iframe data-mediavideo-src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+	</div>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+  </aside>
+</figure>
+<p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
+```
+*/
+.mediavideo {
+	position: relative;
+	display: block;
+	overflow: hidden;
+	margin: 0;
+	margin-bottom: 1rem;
+
+	&__video-wrapper {
+		background: black;
+		position: relative;
+		display: block;
+		overflow: hidden;
+		// Set ratio at 16:9 using intrinsic ratio
+		width: 100%;
+		height: 0;
+		padding-top: 56.25%;
+		margin: 0; 
+	}
+
+	iframe,
+	video,
+	&__video {
+		display: block;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	&__poster {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: auto;
+		opacity: 1;
+		visibility: visible;
+	}
+
+	&__open {
+		position: absolute;
+		top: 50%;
+		text-align: center;
+		left: 50%;
+		color: white;
+		opacity: 1;
+		visibility: visible;
+		transform: translate(-50%, -50%);
+		// @Todo
+		// need to set a max-width on this button.
+		width: 25%;
+		padding-top: 25%;
+		height: 0;
+		margin: 0;
+		background-size: contain;
+
+		&:hover {
+			text-shadow: 10px 10px white;
+		}
+	}
+
+	&__close {
+		width: 4em;
+		height: 4em;
+		display: block;
+		// Hide initially
+		height: 0;
+		opacity: 0;
+		visibility: hidden;
+		transition: all .5s linear;
+		margin-left: auto;
+		// @Todo
+		// Need to adjust the svg so it doesn't have whitespace around it.
+		margin-right: -.8em;
+	}
+}
+
+// Media is open
+.mediavideo--is-open {
+	.mediavideo__close {
+		opacity: 1;
+		height: 5em;
+		display: block;
+		visibility: visible;
+	}
+}
+
+// Poster
+.mediavideo--poster {
+	&.mediavideo--is-open {
+		.mediavideo__poster,
+		.mediavideo__open {
+			transition:visibility 0s linear 0.5s,opacity 0.5s linear;
+			visibility: hidden;
+			opacity: 0;
+		}
+	}
+}
+
+// Thumbnail
+.mediavideo--thumbnail,
+%mediavideo--thumbnail {
+	position: relative;
+	width: 50%;
+	float: left;
+	margin-right: 1rem;
+	margin-bottom: .5rem;
+	// Mimic line height so it lines up with text
+	margin-top: .5rem;
+	transition: width 0.5s linear;
+	will-change: width;
+	@media #{$medium-up} {
+		width: 35%;
+	}
+
+	.mediavideo__video-wrapper {
+		padding-top: 0;
+		visibility: hidden;
+		opacity: 0;
+		transition:visibility 0s linear 0.5s,opacity 0.5s linear,padding-top .5s linear;
+		z-index: 100;
+	}
+
+	.mediavideo__poster {
+		@extend .image;
+		// Margin has already been accounted for in the base element.
+		margin: 0;
+		position: relative;
+		width: 100%;
+		transition: all .5s linear;
+		will-change: transform, opacity, width;
+	}
+
+	&.mediavideo--is-open {
+		width: 100%;
+
+		.mediavideo__video-wrapper {
+			padding-top: 56.25%;
+			visibility: visible;
+			opacity: 1;
+		}
+
+		.mediavideo__poster {
+			width: 0;
+			visibility: hidden;
+			opacity: 0;
+			transform: translateY(-200%);
+		}
+	}
+}
+
+// Thumbnail Right {
+.mediavideo--thumbnail-right {
+	@extend %mediavideo--thumbnail;
+	float: right;
+	margin-left: 1rem;
+	margin-right: 0;
+}

@@ -1,0 +1,457 @@
+
+<!DOCTYPE html>
+<html ng-app="cortana">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Components - Image</title>
+
+    <!-- Styleguide CSS -->
+    <link rel="stylesheet" href="./theme-build/css/vendors.css">
+    <link rel="stylesheet" href="./theme-build/css/cortana.css">
+
+    <!-- Source CSS -->
+    
+      
+        <link rel="stylesheet" href="../css/app.css">
+      
+        <link rel="stylesheet" href="../css/tweaks.css">
+      
+        <link rel="stylesheet" href="../css/normalize.css">
+      
+        <link rel="stylesheet" href="../css/foundation.min.css">
+      
+    
+
+    <!--[if lt IE 9]>
+      <script src="theme-build/polyfill/html5shiv.js"></script>
+      <script src="theme-build/polyfill/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Grunticon Loader -->
+    <script>
+      /*! grunt-grunticon Stylesheet Loader - v2.1.6 | https://github.com/filamentgroup/grunticon | (c) 2015 Scott Jehl, Filament Group, Inc. | MIT license. */
+      !function(){function e(e,n,t){"use strict";var o=window.document.createElement("link"),r=n||window.document.getElementsByTagName("script")[0],a=window.document.styleSheets;return o.rel="stylesheet",o.href=e,o.media="only x",r.parentNode.insertBefore(o,r),o.onloadcssdefined=function(e){for(var n,t=0;t<a.length;t++)a[t].href&&a[t].href===o.href&&(n=!0);n?e():setTimeout(function(){o.onloadcssdefined(e)})},o.onloadcssdefined(function(){o.media=t||"all"}),o}function n(e,n){e.onload=function(){e.onload=null,n&&n.call(e)},"isApplicationInstalled"in navigator&&"onloadcssdefined"in e&&e.onloadcssdefined(n)}!function(t){var o=function(r,a){"use strict";if(r&&3===r.length){var i=t.navigator,c=t.document,s=t.Image,d=!(!c.createElementNS||!c.createElementNS("http://www.w3.org/2000/svg","svg").createSVGRect||!c.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Image","1.1")||t.opera&&-1===i.userAgent.indexOf("Chrome")||-1!==i.userAgent.indexOf("Series40")),l=new s;l.onerror=function(){o.method="png",o.href=r[2],e(r[2])},l.onload=function(){var t=1===l.width&&1===l.height,i=r[t&&d?0:t?1:2];t&&d?o.method="svg":t?o.method="datapng":o.method="png",o.href=i,n(e(i),a)},l.src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",c.documentElement.className+=" grunticon"}};o.loadCSS=e,o.onloadCSS=n,t.grunticon=o}(this),function(e,n){"use strict";var t=n.document,o="grunticon:",r=function(e){if(t.attachEvent?"complete"===t.readyState:"loading"!==t.readyState)e();else{var n=!1;t.addEventListener("readystatechange",function(){n||(n=!0,e())},!1)}},a=function(e){return n.document.querySelector('link[href$="'+e+'"]')},i=function(e){var n,t,r,a,i,c,s={};if(n=e.sheet,!n)return s;t=n.cssRules?n.cssRules:n.rules;for(var d=0;d<t.length;d++)r=t[d].cssText,a=o+t[d].selectorText,i=r.split(");")[0].match(/US\-ASCII\,([^"']+)/),i&&i[1]&&(c=decodeURIComponent(i[1]),s[a]=c);return s},c=function(e){var n,r,a,i;a="data-grunticon-embed";for(var c in e){i=c.slice(o.length);try{n=t.querySelectorAll(i)}catch(s){continue}r=[];for(var d=0;d<n.length;d++)null!==n[d].getAttribute(a)&&r.push(n[d]);if(r.length)for(d=0;d<r.length;d++)r[d].innerHTML=e[c],r[d].style.backgroundImage="none",r[d].removeAttribute(a)}return r},s=function(n){"svg"===e.method&&r(function(){c(i(a(e.href))),"function"==typeof n&&n()})};e.embedIcons=c,e.getCSS=a,e.getIcons=i,e.ready=r,e.svgLoadedCallback=s,e.embedSVG=s}(grunticon,this)}();
+
+        grunticon(["../icons/faccess-icons/output/icons.data.svg.css", "../icons/faccess-icons/output/icons.data.png.css", "../icons/faccess-icons/output/icons.fallback.css"], grunticon.svgLoadedCallback);
+    </script>
+    <noscript><link href="../icons/faccess-icons/output/icons.fallback.css" rel="stylesheet"></noscript>
+</head>
+
+  <body class="cortana-body"  ng-controller="MainController">
+
+    <div class="sb-slidebar sb-left cortana-sidenav sb-style-push">
+
+      
+      
+        
+        
+          
+        
+      
+        
+        
+      
+        
+        
+          
+        
+      
+        
+        
+      
+
+      <nav class="cortana-nav">
+        <ul>
+          
+            <li><a href="index.html">Home</a></li>
+          
+        </ul>
+        
+          <h3>Components</h3>
+          <ul>
+          
+            
+              
+              
+                <li><a class="active" href="components_-_image.html">Image</a></li>
+              
+            
+          
+            
+              
+              
+                <li><a href="components_mediavideo.html">MediaVideo</a></li>
+              
+            
+          
+            
+          
+            
+              
+              
+                <li><a href="components_-_quote.html">Quote</a></li>
+              
+            
+          
+          </ul>
+        
+          <h3>Widgets</h3>
+          <ul>
+          
+            
+          
+            
+          
+            
+              
+              
+                <li><a href="widgets_imagelightbox.html">ImageLightbox</a></li>
+              
+            
+          
+            
+          
+          </ul>
+        
+      </nav>
+    </div>
+
+    <header class="cortana-header sb-slide">
+      
+        <h1>Image</h1>
+      
+      <div id="open-left" class="cortana-menu-btn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="cortana-search-wrapper" ng-controller="TypeaheadCtrl">
+        <input id="cortana-search" type="text" class="form-control cortana-search" ng-model="customSelected" placeholder="Search" typeahead="data as data.title for data in searchData | filter:{title:$viewValue}" typeahead-template-url="customTemplate.html" class="form-control" typeahead-on-select="onSelect($item, $model, $label)">
+      </div>
+    </header>
+
+    <div id="sb-site">
+
+      <div class="cortana-container">
+
+        <nav id="cortana-inside-nav" class="cortana-inside-nav" bs-affix>
+          <ul bs-scrollspy-list data-offset="-30">
+            
+              
+                <li><a href="#1image">Image</a></li>
+              
+            
+              
+                <li><a href="#2image_left">Image Left</a></li>
+              
+            
+              
+                <li><a href="#3image_right">Image Right</a></li>
+              
+            
+              
+                <li><a href="#4image_boxed">Image Boxed</a></li>
+              
+            
+              
+                <li><a href="#5image_lightboxed">Image Lightboxed</a></li>
+              
+            
+          </ul>
+        </nav>
+
+        <div class="cortana-content-wrapper clearfix">
+          <div class="cortana-content">
+
+
+
+<h1 id="1image">Image</h1>
+
+<p>This is an inline image that can be used in any rich text area.</p>
+</div><div class="codeExample"><div class="exampleOutput"><p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image">
+  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600">
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+    <figcaption class="image__caption">
+        <p>This is the caption for the image.</p>
+    </figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;p&gt;</span>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;figure</span> <span class="na">class=</span><span class="s">"image"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">alt=</span><span class="s">"This is the images alt info."</span> <span class="na">class=</span><span class="s">"image__img"</span> <span class="na">src=</span><span class="s">"https://unsplash.it/1200/600"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;cite</span> <span class="na">class=</span><span class="s">"image__cite"</span><span class="nt">&gt;</span>Here is the citation or photo credit for the image.<span class="nt">&lt;/cite&gt;</span>
+    <span class="nt">&lt;figcaption</span> <span class="na">class=</span><span class="s">"image__caption"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;p&gt;</span>This is the caption for the image.<span class="nt">&lt;/p&gt;</span>
+    <span class="nt">&lt;/figcaption&gt;</span>
+<span class="nt">&lt;/figure&gt;</span>
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.<span class="nt">&lt;/p&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="2image_left">Image Left</h1>
+</div><div class="codeExample"><div class="exampleOutput"><p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image image--left">
+  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600">
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+    <figcaption class="image__caption">
+        <p>This is the caption for the image.</p>
+    </figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;p&gt;</span>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;figure</span> <span class="na">class=</span><span class="s">"image image--left"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">alt=</span><span class="s">"This is the images alt info."</span> <span class="na">class=</span><span class="s">"image__img"</span> <span class="na">src=</span><span class="s">"https://unsplash.it/1200/600"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;cite</span> <span class="na">class=</span><span class="s">"image__cite"</span><span class="nt">&gt;</span>Here is the citation or photo credit for the image.<span class="nt">&lt;/cite&gt;</span>
+    <span class="nt">&lt;figcaption</span> <span class="na">class=</span><span class="s">"image__caption"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;p&gt;</span>This is the caption for the image.<span class="nt">&lt;/p&gt;</span>
+    <span class="nt">&lt;/figcaption&gt;</span>
+<span class="nt">&lt;/figure&gt;</span>
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.<span class="nt">&lt;/p&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="3image_right">Image Right</h1>
+</div><div class="codeExample"><div class="exampleOutput"><p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image image--right">
+  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/600/1200/">
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+    <figcaption class="image__caption">
+        <p>This is the caption for the image.</p>
+    </figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;p&gt;</span>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;figure</span> <span class="na">class=</span><span class="s">"image image--right"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">alt=</span><span class="s">"This is the images alt info."</span> <span class="na">class=</span><span class="s">"image__img"</span> <span class="na">src=</span><span class="s">"https://unsplash.it/600/1200/"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;cite</span> <span class="na">class=</span><span class="s">"image__cite"</span><span class="nt">&gt;</span>Here is the citation or photo credit for the image.<span class="nt">&lt;/cite&gt;</span>
+    <span class="nt">&lt;figcaption</span> <span class="na">class=</span><span class="s">"image__caption"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;p&gt;</span>This is the caption for the image.<span class="nt">&lt;/p&gt;</span>
+    <span class="nt">&lt;/figcaption&gt;</span>
+<span class="nt">&lt;/figure&gt;</span>
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.<span class="nt">&lt;/p&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="4image_boxed">Image Boxed</h1>
+</div><div class="codeExample"><div class="exampleOutput"><p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image image--boxed">
+  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/800/">
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+    <figcaption class="image__caption">
+        <p>This is the caption for the image.</p>
+    </figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;p&gt;</span>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;figure</span> <span class="na">class=</span><span class="s">"image image--boxed"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">alt=</span><span class="s">"This is the images alt info."</span> <span class="na">class=</span><span class="s">"image__img"</span> <span class="na">src=</span><span class="s">"https://unsplash.it/1200/800/"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;cite</span> <span class="na">class=</span><span class="s">"image__cite"</span><span class="nt">&gt;</span>Here is the citation or photo credit for the image.<span class="nt">&lt;/cite&gt;</span>
+    <span class="nt">&lt;figcaption</span> <span class="na">class=</span><span class="s">"image__caption"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;p&gt;</span>This is the caption for the image.<span class="nt">&lt;/p&gt;</span>
+    <span class="nt">&lt;/figcaption&gt;</span>
+<span class="nt">&lt;/figure&gt;</span>
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.<span class="nt">&lt;/p&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="5image_lightboxed">Image Lightboxed</h1>
+
+<p>This is an example of how to use the <a href="widgets_imagelightbox.html">imagelightbox widget</a> in conjuction with the image component.</p>
+</div><div class="codeExample"><div class="exampleOutput"><p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image image--left">
+  <a data-imagelightbox href="https://unsplash.it/1200/800/"><img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/800/"></a>
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+    <figcaption class="image__caption">
+        <p>This is the caption for the image.</p>
+    </figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;p&gt;</span>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;figure</span> <span class="na">class=</span><span class="s">"image image--left"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;a</span> <span class="na">data-imagelightbox</span> <span class="na">href=</span><span class="s">"https://unsplash.it/1200/800/"</span><span class="nt">&gt;&lt;img</span> <span class="na">alt=</span><span class="s">"This is the images alt info."</span> <span class="na">class=</span><span class="s">"image__img"</span> <span class="na">src=</span><span class="s">"https://unsplash.it/1200/800/"</span><span class="nt">&gt;&lt;/a&gt;</span>
+  <span class="nt">&lt;cite</span> <span class="na">class=</span><span class="s">"image__cite"</span><span class="nt">&gt;</span>Here is the citation or photo credit for the image.<span class="nt">&lt;/cite&gt;</span>
+    <span class="nt">&lt;figcaption</span> <span class="na">class=</span><span class="s">"image__caption"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;p&gt;</span>This is the caption for the image.<span class="nt">&lt;/p&gt;</span>
+    <span class="nt">&lt;/figcaption&gt;</span>
+<span class="nt">&lt;/figure&gt;</span>
+<span class="nt">&lt;p&gt;</span>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.<span class="nt">&lt;/p&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+        </div>
+      </div>
+    </div>
+
+    <footer class="cortana-footer">
+      Build with love using Trulia's <a href="https://github.com/trulia/hologram">Hologram</a> and <a href="https://github.com/Yago/Cortana">Cortana</a> !
+    </footer>  
+  </div>
+
+  <script src="theme-build/js/vendors.min.js"></script>
+  <script type="text/javascript">
+    var jQuery_no_conflict = $.noConflict(true);
+  </script>
+  <script src="theme-build/js/main.js"></script>
+  <script type="text/javascript">
+
+    angular.module("cortana").controller("TypeaheadCtrl", function($scope) {
+      $scope.selected = undefined;
+      $scope.searchData = 
+      [
+        
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Image",
+              "breadcrumb": "Components - Image > Image",
+              "path": "components_-_image.html#1image"
+              },
+            
+              
+              
+              {
+              "title": "Image Left",
+              "breadcrumb": "Components - Image > Image Left",
+              "path": "components_-_image.html#2image_left"
+              },
+            
+              
+              
+              {
+              "title": "Image Right",
+              "breadcrumb": "Components - Image > Image Right",
+              "path": "components_-_image.html#3image_right"
+              },
+            
+              
+              
+              {
+              "title": "Image Boxed",
+              "breadcrumb": "Components - Image > Image Boxed",
+              "path": "components_-_image.html#4image_boxed"
+              },
+            
+              
+              
+              {
+              "title": "Image Lightboxed",
+              "breadcrumb": "Components - Image > Image Lightboxed",
+              "path": "components_-_image.html#5image_lightboxed"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Media Video",
+              "breadcrumb": "Components MediaVideo > Media Video",
+              "path": "components_mediavideo.html#1mediavideo"
+              },
+            
+              
+              
+              {
+              "title": "Media Video with Poster",
+              "breadcrumb": "Components MediaVideo > Media Video with Poster",
+              "path": "components_mediavideo.html#2mediavideoposter"
+              },
+            
+              
+              
+              {
+              "title": "Media Video Thumbnail",
+              "breadcrumb": "Components MediaVideo > Media Video Thumbnail",
+              "path": "components_mediavideo.html#3mediavideothumbnail"
+              },
+            
+              
+              
+              {
+              "title": "Media Video Thumbnail Right",
+              "breadcrumb": "Components MediaVideo > Media Video Thumbnail Right",
+              "path": "components_mediavideo.html#4mediavideothumbnailright"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Imagelightbox",
+              "breadcrumb": "Widgets ImageLightbox > Imagelightbox",
+              "path": "widgets_imagelightbox.html#imagelightbox"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Quote",
+              "breadcrumb": "Components - Quote > Quote",
+              "path": "components_-_quote.html#quote"
+              },
+            
+              
+              
+              {
+              "title": "Quote Left",
+              "breadcrumb": "Components - Quote > Quote Left",
+              "path": "components_-_quote.html#quote-left"
+              },
+            
+              
+              
+              {
+              "title": "Quote Right",
+              "breadcrumb": "Components - Quote > Quote Right",
+              "path": "components_-_quote.html#quote-right"
+              },
+            
+              
+              
+              {
+              "title": "Quote Examples",
+              "breadcrumb": "Components - Quote > Quote Examples",
+              "path": "components_-_quote.html#x-quote-example"
+              },
+            
+          
+        
+          
+        
+      {}];
+      $scope.onSelect = function ($item, $model, $label) {
+        window.location.replace($item.path);
+      };
+    });
+
+  </script>
+  <script type="text/ng-template" id="customTemplate.html">
+    <a href="{{match.model.path}}">
+      <p class="cortana-search-title">{{match.model.title}}</p>
+      <p class="cortana-search-path">{{match.model.breadcrumb}}</p>
+    </a>
+  </script>
+  
+    
+      <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    
+      <script type="text/javascript" src="../js/libs.min.js"></script>
+    
+      <script type="text/javascript" src="../js/jquery.sticky.js"></script>
+    
+      <script type="text/javascript" src="../js/foundation.min.js"></script>
+    
+      <script type="text/javascript" src="../libraries/imagelightbox/imagelightbox.js"></script>
+    
+      <script type="text/javascript" src="../js/dist/app.js"></script>
+    
+  
+  <!-- Source Components -->
+  
+</body>
+</html>

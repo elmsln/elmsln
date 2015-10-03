@@ -1,3 +1,6 @@
+/*
+ * This is for Utility sass mixins and functions
+ */
 meta.foundation-version {
   font-family: "/5.5.2/"; }
 
@@ -48,6 +51,7 @@ html {
 
 *,
 *:before,
+*.imagelightbox__close:after,
 *:after {
   box-sizing: inherit; }
 
@@ -94,7 +98,7 @@ img {
 .right {
   float: right !important; }
 
-.clearfix:before, .clearfix:after {
+.clearfix:before, .clearfix.imagelightbox__close:after, .clearfix:after {
   content: " ";
   display: table; }
 
@@ -126,7 +130,7 @@ select {
   margin: 0 auto;
   max-width: 80rem;
   width: 100%; }
-  .row:before, .row:after {
+  .row:before, .row.imagelightbox__close:after, .row:after {
     content: " ";
     display: table; }
   .row:after {
@@ -142,7 +146,7 @@ select {
     margin: 0 -0.9375rem;
     max-width: none;
     width: auto; }
-    .row .row:before, .row .row:after {
+    .row .row:before, .row .row.imagelightbox__close:after, .row .row:after {
       content: " ";
       display: table; }
     .row .row:after {
@@ -151,7 +155,7 @@ select {
       margin: 0;
       max-width: none;
       width: auto; }
-      .row .row.collapse:before, .row .row.collapse:after {
+      .row .row.collapse:before, .row .row.collapse.imagelightbox__close:after, .row .row.collapse:after {
         content: " ";
         display: table; }
       .row .row.collapse:after {
@@ -933,7 +937,7 @@ select {
 
 .accordion {
   margin-bottom: 0; }
-  .accordion:before, .accordion:after {
+  .accordion:before, .accordion.imagelightbox__close:after, .accordion:after {
     content: " ";
     display: table; }
   .accordion:after {
@@ -1017,7 +1021,7 @@ select {
   display: block;
   padding: 0;
   margin: 0 -0.625rem; }
-  [class*="block-grid-"]:before, [class*="block-grid-"]:after {
+  [class*="block-grid-"]:before, [class*="block-grid-"].imagelightbox__close:after, [class*="block-grid-"]:after {
     content: " ";
     display: table; }
   [class*="block-grid-"]:after {
@@ -1328,13 +1332,13 @@ select {
         color: #999999;
         cursor: not-allowed;
         text-decoration: none; }
-    .breadcrumbs > *:before {
+    .breadcrumbs > *:before, .breadcrumbs > *.imagelightbox__close:after {
       color: #AAAAAA;
       content: "/";
       margin: 0 0.75rem;
       position: relative;
       top: 1px; }
-    .breadcrumbs > *:first-child:before {
+    .breadcrumbs > *:first-child:before, .breadcrumbs > *.imagelightbox__close:first-child:after {
       content: " ";
       margin: 0; }
 
@@ -1617,7 +1621,7 @@ button::-moz-focus-inner {
   list-style: none;
   margin: 0;
   left: 0; }
-  .button-group:before, .button-group:after {
+  .button-group:before, .button-group.imagelightbox__close:after, .button-group:after {
     content: " ";
     display: table; }
   .button-group:after {
@@ -2030,7 +2034,7 @@ button::-moz-focus-inner {
         border-bottom-left-radius: 1rem;
         border-bottom-right-radius: 1rem; } }
 
-.button-bar:before, .button-bar:after {
+.button-bar:before, .button-bar.imagelightbox__close:after, .button-bar:after {
   content: " ";
   display: table; }
 
@@ -2048,7 +2052,7 @@ button::-moz-focus-inner {
   list-style: none;
   margin-left: 0;
   margin-bottom: 0; }
-  .clearing-thumbs:before, .clearing-thumbs:after, [data-clearing]:before, [data-clearing]:after {
+  .clearing-thumbs:before, .clearing-thumbs.imagelightbox__close:after, .clearing-thumbs:after, [data-clearing]:before, [data-clearing].imagelightbox__close:after, [data-clearing]:after {
     content: " ";
     display: table; }
   .clearing-thumbs:after, [data-clearing]:after {
@@ -2234,7 +2238,7 @@ button::-moz-focus-inner {
     margin-top: 0; }
   .f-dropdown > *:last-child {
     margin-bottom: 0; }
-  .f-dropdown:before {
+  .f-dropdown:before, .f-dropdown.imagelightbox__close:after {
     border: inset 6px;
     content: "";
     display: block;
@@ -2258,7 +2262,7 @@ button::-moz-focus-inner {
     top: -14px;
     left: 9px;
     z-index: 88; }
-  .f-dropdown.right:before {
+  .f-dropdown.right:before, .f-dropdown.right.imagelightbox__close:after {
     left: auto;
     right: 10px; }
   .f-dropdown.right:after {
@@ -2286,7 +2290,7 @@ button::-moz-focus-inner {
       margin-top: 0; }
     .f-dropdown.drop-right > *:last-child {
       margin-bottom: 0; }
-    .f-dropdown.drop-right:before {
+    .f-dropdown.drop-right:before, .f-dropdown.drop-right.imagelightbox__close:after {
       border: inset 6px;
       content: "";
       display: block;
@@ -2332,7 +2336,7 @@ button::-moz-focus-inner {
       margin-top: 0; }
     .f-dropdown.drop-left > *:last-child {
       margin-bottom: 0; }
-    .f-dropdown.drop-left:before {
+    .f-dropdown.drop-left:before, .f-dropdown.drop-left.imagelightbox__close:after {
       border: inset 6px;
       content: "";
       display: block;
@@ -2380,7 +2384,7 @@ button::-moz-focus-inner {
       margin-top: 0; }
     .f-dropdown.drop-top > *:last-child {
       margin-bottom: 0; }
-    .f-dropdown.drop-top:before {
+    .f-dropdown.drop-top:before, .f-dropdown.drop-top.imagelightbox__close:after {
       border: inset 6px;
       content: "";
       display: block;
@@ -4146,7 +4150,7 @@ button:focus {
     -webkit-border-top-right-radius: 1000px;
     border-bottom-right-radius: 1000px;
     border-top-right-radius: 1000px; }
-  .split.button.no-pip span:before {
+  .split.button.no-pip span:before, .split.button.no-pip span.imagelightbox__close:after {
     border-style: none; }
   .split.button.no-pip span:after {
     border-style: none; }
@@ -4345,7 +4349,7 @@ table {
 .tabs {
   margin-bottom: 0 !important;
   margin-left: 0; }
-  .tabs:before, .tabs:after {
+  .tabs:before, .tabs.imagelightbox__close:after, .tabs:after {
     content: " ";
     display: table; }
   .tabs:after {
@@ -4393,7 +4397,7 @@ table {
 .tabs-content {
   margin-bottom: 1.5rem;
   width: 100%; }
-  .tabs-content:before, .tabs-content:after {
+  .tabs-content:before, .tabs-content.imagelightbox__close:after, .tabs-content:after {
     content: " ";
     display: table; }
   .tabs-content:after {
@@ -4902,7 +4906,7 @@ meta.foundation-mq-topbar {
   .top-bar {
     background: #333333;
     overflow: visible; }
-    .top-bar:before, .top-bar:after {
+    .top-bar:before, .top-bar.imagelightbox__close:after, .top-bar:after {
       content: " ";
       display: table; }
     .top-bar:after {
@@ -5392,7 +5396,7 @@ blockquote {
     display: block;
     font-size: 0.8125rem;
     color: #555555; }
-    blockquote cite:before {
+    blockquote cite:before, blockquote cite.imagelightbox__close:after {
       content: "\2014 \0020"; }
     blockquote cite a,
     blockquote cite a:visited {
@@ -5457,7 +5461,7 @@ blockquote p {
   width: 100%;
   transition: -webkit-transform 500ms ease;
   transition: transform 500ms ease; }
-  .inner-wrap:before, .inner-wrap:after {
+  .inner-wrap:before, .inner-wrap.imagelightbox__close:after, .inner-wrap:after {
     content: " ";
     display: table; }
   .inner-wrap:after {
@@ -5776,7 +5780,7 @@ ul.off-canvas-list {
       background: #2b2b2b;
       border-bottom: none;
       border-top: 1px solid #5e5e5e; }
-    .left-submenu .back > a:before {
+    .left-submenu .back > a:before, .left-submenu .back > a.imagelightbox__close:after {
       content: "\AB";
       margin-right: .5rem;
       display: inline; }
@@ -5836,7 +5840,7 @@ ul.off-canvas-list {
   margin-left: .5rem;
   display: inline; }
 
-.right-off-canvas-menu ul.off-canvas-list li.has-submenu > a:before {
+.right-off-canvas-menu ul.off-canvas-list li.has-submenu > a:before, .right-off-canvas-menu ul.off-canvas-list li.has-submenu > a.imagelightbox__close:after {
   content: "\AB";
   margin-right: .5rem;
   display: inline; }
@@ -6760,7 +6764,7 @@ img.svg {
   display: -ms-inline-flexbox;
   display: inline-flex; }
 
-.left-submenu .back > a.kill-content-before:before {
+.left-submenu .back > a.kill-content-before:before, .left-submenu .back > a.kill-content-before.imagelightbox__close:after {
   content: none;
   margin-right: 0rem;
   display: inherit;
@@ -7294,16 +7298,8 @@ footer {
     margin: 2rem 0rem 2rem; }
 
 .etb-book p {
-  -webkit-column-count: 0;
-  -o-column-count: 0;
-  -moz-column-count: 0;
-  -ms-column-count: 0;
-  column-count: 0;
-  font-size: 1em;
-  color: #333333;
-  text-align: left;
-  margin: 0em 0em 1.421em 0%;
-  padding: 0px; }
+  margin-top: 0;
+  margin-bottom: 1.421em; }
 
 .etb-book div.txtbk-basic {
   -webkit-column-count: 2;
@@ -7417,7 +7413,7 @@ footer {
     content: "";
     display: table;
     clear: both; }
-  .etb-book div.left-head:before {
+  .etb-book div.left-head:before, .etb-book div.left-head.imagelightbox__close:after {
     content: "";
     display: table; }
 
@@ -7487,7 +7483,7 @@ footer {
         width: 100%;
         margin: 0;
         padding: 0 4% 1.421em 4%; } }
-  .etb-book div.pull-quote-p:before {
+  .etb-book div.pull-quote-p:before, .etb-book div.pull-quote-p.imagelightbox__close:after {
     content: "";
     display: table; }
   .etb-book div.pull-quote-p:after {
@@ -7501,7 +7497,7 @@ footer {
   margin: 0 auto;
   padding: 0 0 5em 0; }
 
-.etb-book div.image-media:before {
+.etb-book div.image-media:before, .etb-book div.image-media.imagelightbox__close:after {
   content: "";
   display: table; }
 
@@ -7558,7 +7554,7 @@ footer {
   padding: 1em 20% 5em 0;
   margin: 0 0 1.5em 0; }
 
-.etb-book div.three-col-gallery:before {
+.etb-book div.three-col-gallery:before, .etb-book div.three-col-gallery.imagelightbox__close:after {
   content: "";
   display: table; }
 
@@ -7670,42 +7666,6 @@ p.txtbk-intro {
       font-size: 1.278em;
       line-height: 1.5em; } }
 
-p.txtbk-pullquote {
-  -webkit-column-count: 1;
-  -o-column-count: 1;
-  -moz-column-count: 1;
-  -ms-column-count: 1;
-  column-count: 1;
-  border-style: solid;
-  border-width: 0 0 0 3px;
-  color: #333333;
-  font-size: 1.3em;
-  margin: 2em 4.364em 2em 2.182em;
-  padding: 0.455em 0em 0.455em 0.455em; }
-  @media only screen and (max-width: 40em) {
-    p.txtbk-pullquote {
-      font-size: 0.889em;
-      line-height: 1.438em;
-      margin: 0px 1.44em 1.688em 1.44em;
-      padding: 0.313em 0px 0.313em 0.625em; } }
-  @media only screen and (min-width: 40.063em) {
-    p.txtbk-pullquote {
-      font-size: 1em;
-      line-height: 1.4em;
-      margin: 0 7% 1.5em 7%;
-      padding: 0.313em 0px 0.313em 0.625em;
-      font-family: "Vollkorn", "Georgia", serif; } }
-  @media only screen and (min-width: 64.063em) {
-    p.txtbk-pullquote {
-      margin: 0px 3.072em 2em 1.229em;
-      line-height: 1.424em;
-      font-size: 1.278em; } }
-  @media only screen and (min-width: 90.063em) {
-    p.txtbk-pullquote {
-      margin: 2.035em 4.44em 2.035em 2.22em;
-      line-height: 1.424em;
-      font-size: 1.278em; } }
-
 @media print {
   p {
     -webkit-column-count: 2;
@@ -7718,6 +7678,641 @@ p.txtbk-pullquote {
     font-size: 1.75rem; }
   h3 {
     font-size: 1.5rem; } }
+
+/*doc
+---
+title: Quote
+name: quote
+category:
+  - Components - Quote
+---
+
+This is a pullquote that can be used in the body of any rich text area. The base element class is `quote`. It can be attached to a
+`<p>` tag or a `<div>`.
+
+`blockquote` tags and `.txtbk-pullquote` elements will inherit these styles.
+
+```html_example
+<p class="quote">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<div class="quote">
+	<p>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+	<p>For me, open source is a moral thing.</p>
+</div>
+```
+*/
+/*doc
+---
+title: Quote Left
+name: quote-left
+category:
+  - Components - Quote
+---
+
+```html_example
+<p class="quote quote--left">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+```
+*/
+/*doc
+---
+title: Quote Right
+name: quote-right
+category:
+  - Components - Quote
+---
+
+```html_example
+<p class="quote quote--right">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+```
+*/
+/*doc
+---
+title: Quote Examples
+name: x-quote-example
+category:
+  - Components - Quote
+---
+
+```html_example
+<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
+
+<p class="quote">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
+<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
+
+<p class="quote quote--left">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
+<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
+
+<p class="quote quote--right">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
+<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
+
+<p class="quote">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
+
+<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
+```
+*/
+.quote,
+.txtbk-pullquote,
+blockquote, .quote p {
+  -webkit-column-count: 1;
+  -o-column-count: 1;
+  -moz-column-count: 1;
+  -ms-column-count: 1;
+  column-count: 1;
+  border-style: solid;
+  border-width: 0 0 0 3px;
+  color: #333333;
+  font-size: 1.3em;
+  margin: 2em 4.364em 2em 2.182em;
+  padding: 0.455em 0em 0.455em 0.455em;
+  font-style: italic; }
+  @media only screen and (max-width: 40em) {
+    .quote,
+    .txtbk-pullquote,
+    blockquote, .quote p {
+      font-size: 0.889em;
+      line-height: 1.438em;
+      margin: 0px 1.44em 1.688em 1.44em;
+      padding: 0.313em 0px 0.313em 0.625em; } }
+  @media only screen and (min-width: 40.063em) {
+    .quote,
+    .txtbk-pullquote,
+    blockquote, .quote p {
+      font-size: 1em;
+      line-height: 1.4em;
+      margin: 0 7% 1.5em 7%;
+      padding: 0.313em 0px 0.313em 0.625em;
+      font-family: "Vollkorn", "Georgia", serif; } }
+  @media only screen and (min-width: 64.063em) {
+    .quote,
+    .txtbk-pullquote,
+    blockquote, .quote p {
+      margin: 0px 3.072em 2em 1.229em;
+      line-height: 1.424em;
+      font-size: 1.278em; } }
+  @media only screen and (min-width: 90.063em) {
+    .quote,
+    .txtbk-pullquote,
+    blockquote, .quote p {
+      margin: 2.035em 4.44em 2.035em 2.22em;
+      line-height: 1.424em;
+      font-size: 1.278em; } }
+
+@media only screen and (min-width: 40.063em) {
+  .quote--left {
+    width: 25%;
+    margin-left: 0;
+    margin-right: 1em;
+    float: left; } }
+
+@media only screen and (min-width: 40.063em) {
+  .quote--right {
+    width: 25%;
+    margin-right: 0;
+    margin-left: 1em;
+    float: right; } }
+
+/**
+ * Extends
+ */
+.quote p {
+  border: none;
+  margin: 0;
+  padding: 0;
+  font-size: inherit; }
+
+.quote p + p {
+  margin-top: 1em; }
+
+/*doc
+---
+title: Image
+name: 1image
+category:
+  - Components - Image
+---
+
+This is an inline image that can be used in any rich text area.
+
+```html_example
+<p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image">
+  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600">
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+	<figcaption class="image__caption">
+		<p>This is the caption for the image.</p>
+	</figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+```
+*/
+/*doc
+---
+title: Image Left
+name: 2image_left
+category:
+  - Components - Image
+---
+
+```html_example
+<p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image image--left">
+  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600">
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+	<figcaption class="image__caption">
+		<p>This is the caption for the image.</p>
+	</figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+```
+*/
+/*doc
+---
+title: Image Right
+name: 3image_right
+category:
+  - Components - Image
+---
+
+```html_example
+<p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image image--right">
+  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/600/1200/">
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+	<figcaption class="image__caption">
+		<p>This is the caption for the image.</p>
+	</figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+```
+*/
+/*doc
+---
+title: Image Boxed
+name: 4image_boxed
+category:
+  - Components - Image
+---
+
+```html_example
+<p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image image--boxed">
+  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/800/">
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+	<figcaption class="image__caption">
+		<p>This is the caption for the image.</p>
+	</figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+```
+*/
+/*doc
+---
+title: Image Lightboxed
+name: 5image_lightboxed
+category:
+  - Components - Image
+---
+
+This is an example of how to use the [imagelightbox widget](widgets_imagelightbox.html) in conjuction with the image component.
+
+```html_example
+<p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
+<figure class="image image--left">
+  <a data-imagelightbox href="https://unsplash.it/1200/800/"><img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/800/"></a>
+  <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
+	<figcaption class="image__caption">
+		<p>This is the caption for the image.</p>
+	</figcaption>
+</figure>
+<p>Lorem ipsum Minim do adipisicing veniam consectetur fugiat aliqua eu quis esse irure tempor est eu ex officia minim reprehenderit in laborum cillum pariatur consequat quis culpa in amet Excepteur in sit laborum exercitation Ut laboris labore est aliquip nulla do quis eu est labore quis aliqua ea sint ea pariatur non Excepteur mollit id mollit Excepteur veniam do anim irure elit sint officia adipisicing dolore reprehenderit elit cillum ad amet tempor veniam id ut consequat quis do proident ut nostrud dolor sunt magna non qui dolore eiusmod ullamco exercitation ex eiusmod dolore Duis anim mollit anim esse mollit quis officia adipisicing dolore mollit ad commodo occaecat sed in ut elit minim Duis nostrud in elit id consequat Excepteur ex aliquip est sint dolore eiusmod in dolore consequat Ut proident consectetur ut dolore laborum tempor magna magna dolor ex quis veniam aliquip dolore enim non minim laboris quis amet quis dolore anim irure ad Excepteur Excepteur consectetur do sed deserunt occaecat qui eu anim veniam dolore ex aute consequat veniam qui nulla nisi eiusmod velit ad ut quis esse Ut officia irure enim exercitation aute non culpa Duis consequat magna cupidatat minim minim elit laboris.</p>
+```
+*/
+/**
+ * Variables
+ */
+/**
+ * Styles
+ */
+.image, .mediavideo--thumbnail .mediavideo__poster,
+.mediavideo--thumbnail-right .mediavideo__poster {
+  border-bottom: 2px dashed lightgray;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  margin: 1em 1.5em;
+  padding-bottom: 1em; }
+  .image__img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    -webkit-flex: auto;
+        -ms-flex: auto;
+            flex: auto; }
+  .image__cite {
+    font-size: .8em;
+    color: gray; }
+  .image__caption {
+    font-size: 1em; }
+    .image__caption > p:last-of-type {
+      margin-bottom: 0; }
+
+@media only screen and (min-width: 40.063em) {
+  .image--left {
+    max-width: 50%;
+    margin-left: 0;
+    float: left;
+    margin-top: .5em; } }
+
+.image--left .image__img {
+  max-height: 40em; }
+
+@media only screen and (min-width: 40.063em) {
+  .image--right {
+    max-width: 50%;
+    margin-right: 0;
+    float: right;
+    margin-top: .5em; } }
+
+.image--right .image__img {
+  max-height: 40em; }
+
+.image--boxed {
+  margin: 0;
+  background: #F7F6EF;
+  margin-bottom: 1em;
+  padding: 1em; }
+
+/*doc
+---
+title: Imagelightbox
+name: imagelightbox
+category:
+  - Widgets ImageLightbox
+---
+
+This is a responsive lightbox for view images.  To use this plugin, you need to define an `a` tag 
+with an `href` attribute that points a larger version of the image as well as a `data-imagelightbox` 
+tag that initiates the lightbox.
+
+```html_example
+
+<a data-imagelightbox href="https://unsplash.it/1200/600/"><img src="https://unsplash.it/1200/600"></a>
+
+```
+*/
+/*
+ * Variables
+ */
+/*
+ * Styles
+ */
+[data-imagelightbox] {
+  cursor: -webkit-zoom-in;
+  cursor: -moz-zoom-in; }
+  [data-imagelightbox] * {
+    cursor: -webkit-zoom-in;
+    cursor: -moz-zoom-in; }
+
+.imagelightbox {
+  position: fixed;
+  z-index: 10000;
+  -ms-touch-action: none;
+  touch-action: none;
+  box-shadow: 0 0 2em rgba(0, 0, 0, 0.3); }
+
+.imagelightbox__overlay {
+  background-color: transparent;
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: none;
+  opacity: 0;
+  transition: none; }
+  .lightbox--is-open .imagelightbox__overlay {
+    opacity: 1;
+    transition: all 0.8s ease;
+    transition-delay: 0.5s;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: block;
+    opacity: 1; }
+
+.imagelightbox__close {
+  width: 2.5em;
+  height: 2.5em;
+  text-align: left;
+  text-indent: -9999px;
+  background-color: #666;
+  position: fixed;
+  z-index: -1;
+  right: 5%;
+  top: 5%;
+  border-radius: 50%;
+  opacity: 0; }
+  .lightbox--is-open .imagelightbox__close {
+    z-index: 10002;
+    opacity: 1;
+    transition: opacity 0.8s ease;
+    transition-delay: 0.5s; }
+  .imagelightbox__close:hover {
+    background-color: shade(#666, 20); }
+  .imagelightbox__close:before, .imagelightbox__close:after {
+    width: 2px;
+    background-color: #FFF;
+    content: '';
+    position: absolute;
+    top: 20%;
+    bottom: 20%;
+    left: 50%;
+    margin-left: -1px;
+    -webkit-transform: rotate(90deg);
+        -ms-transform: rotate(90deg);
+            transform: rotate(90deg); }
+    .lightbox--is-open .imagelightbox__close:before, .lightbox--is-open .imagelightbox__close:after {
+      -webkit-transform: rotate(45deg);
+          -ms-transform: rotate(45deg);
+              transform: rotate(45deg);
+      transition: all 0.3s ease;
+      transition-delay: 0.9s; }
+  .imagelightbox__close:after {
+    -webkit-transform: rotate(-90deg);
+        -ms-transform: rotate(-90deg);
+            transform: rotate(-90deg); }
+    .lightbox--is-open .imagelightbox__close:after {
+      -webkit-transform: rotate(-45deg);
+          -ms-transform: rotate(-45deg);
+              transform: rotate(-45deg); }
+
+/*doc
+---
+title: Media Video
+name: 1mediavideo
+category:
+  - Components MediaVideo
+---
+
+Description.
+
+```html_example
+<figure class="mediavideo">
+  <div class="mediavideo__video-wrapper"><iframe src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0"></iframe><script src="https://platform.vine.co/static/scripts/embed.js"></script></div>
+</figure>
+```
+*/
+/*doc
+---
+title: Media Video with Poster
+name: 2mediavideoposter
+category:
+  - Components MediaVideo
+---
+
+STILL IN DEVELOPMENT. Example with Poster and Play button.  This uses a psudo lazy load technique to allow the
+play button to start the video. To use it, add the video's source url to a data attribute called `data-mediavideo-src`.
+A javascript function will is it to populate the `src` attribute when the button is clicked. Currently works with Youtube
+and Vimeo.
+
+```html_example
+<figure class="mediavideo mediavideo--poster">
+	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://www.youtube.com/embed/CKZLuYOnPCk?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe></div>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+  </aside>
+</figure>
+
+<figure class="mediavideo mediavideo--poster">
+	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://player.vimeo.com/video/111237065?title=0&byline=0&portrait=0" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/104641191">Jeffrey Zeldman: 20 years of Web Design and Community</a> from <a href="https://vimeo.com/lyndavimeo">lynda.com</a> on <a href="https://vimeo.com">Vimeo</a>.</p></div>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+  </aside>
+</figure>
+```
+*/
+/*doc
+---
+title: Media Video Thumbnail
+name: 3mediavideothumbnail
+category:
+  - Components MediaVideo
+---
+
+```html_example
+<p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
+<figure class="mediavideo mediavideo--thumbnail">
+	<a href="#" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
+	<div class="mediavideo__video-wrapper">
+		<iframe data-mediavideo-src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+	</div>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+  </aside>
+</figure>
+<p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
+```
+*/
+/*doc
+---
+title: Media Video Thumbnail Right
+name: 4mediavideothumbnailright
+category:
+  - Components MediaVideo
+---
+
+```html_example
+<p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
+<figure class="mediavideo mediavideo--thumbnail-right">
+	<a href="#" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
+	<div class="mediavideo__video-wrapper">
+		<iframe data-mediavideo-src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+	</div>
+  <aside class="mediavideo__poster">
+		<img src="../img/unsplash.jpg">
+		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+  </aside>
+</figure>
+<p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
+```
+*/
+.mediavideo {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  margin-bottom: 1rem; }
+  .mediavideo__video-wrapper {
+    background: black;
+    position: relative;
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    height: 0;
+    padding-top: 56.25%;
+    margin: 0; }
+  .mediavideo iframe,
+  .mediavideo video,
+  .mediavideo__video {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%; }
+  .mediavideo__poster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    opacity: 1;
+    visibility: visible; }
+  .mediavideo__open {
+    position: absolute;
+    top: 50%;
+    text-align: center;
+    left: 50%;
+    color: white;
+    opacity: 1;
+    visibility: visible;
+    -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+    width: 25%;
+    padding-top: 25%;
+    height: 0;
+    margin: 0;
+    background-size: contain; }
+    .mediavideo__open:hover {
+      text-shadow: 10px 10px white; }
+  .mediavideo__close {
+    width: 4em;
+    height: 4em;
+    display: block;
+    height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s linear;
+    margin-left: auto;
+    margin-right: -.8em; }
+
+.mediavideo--is-open .mediavideo__close {
+  opacity: 1;
+  height: 5em;
+  display: block;
+  visibility: visible; }
+
+.mediavideo--poster.mediavideo--is-open .mediavideo__poster,
+.mediavideo--poster.mediavideo--is-open .mediavideo__open {
+  transition: visibility 0s linear 0.5s, opacity 0.5s linear;
+  visibility: hidden;
+  opacity: 0; }
+
+.mediavideo--thumbnail,
+.mediavideo--thumbnail-right {
+  position: relative;
+  width: 50%;
+  float: left;
+  margin-right: 1rem;
+  margin-bottom: .5rem;
+  margin-top: .5rem;
+  transition: width 0.5s linear;
+  will-change: width; }
+  @media only screen and (min-width: 40.063em) {
+    .mediavideo--thumbnail,
+    .mediavideo--thumbnail-right {
+      width: 35%; } }
+  .mediavideo--thumbnail .mediavideo__video-wrapper,
+  .mediavideo--thumbnail-right .mediavideo__video-wrapper {
+    padding-top: 0;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear 0.5s, opacity 0.5s linear, padding-top 0.5s linear;
+    z-index: 100; }
+  .mediavideo--thumbnail .mediavideo__poster,
+  .mediavideo--thumbnail-right .mediavideo__poster {
+    margin: 0;
+    position: relative;
+    width: 100%;
+    transition: all 0.5s linear;
+    will-change: transform, opacity, width; }
+  .mediavideo--thumbnail.mediavideo--is-open,
+  .mediavideo--is-open.mediavideo--thumbnail-right {
+    width: 100%; }
+    .mediavideo--thumbnail.mediavideo--is-open .mediavideo__video-wrapper,
+    .mediavideo--is-open.mediavideo--thumbnail-right .mediavideo__video-wrapper {
+      padding-top: 56.25%;
+      visibility: visible;
+      opacity: 1; }
+    .mediavideo--thumbnail.mediavideo--is-open .mediavideo__poster,
+    .mediavideo--is-open.mediavideo--thumbnail-right .mediavideo__poster {
+      width: 0;
+      visibility: hidden;
+      opacity: 0;
+      -webkit-transform: translateY(-200%);
+          -ms-transform: translateY(-200%);
+              transform: translateY(-200%); }
+
+.mediavideo--thumbnail-right {
+  float: right;
+  margin-left: 1rem;
+  margin-right: 0; }
 
 .tab-bar a.add-menu-drop {
   margin: 0 0.3rem;

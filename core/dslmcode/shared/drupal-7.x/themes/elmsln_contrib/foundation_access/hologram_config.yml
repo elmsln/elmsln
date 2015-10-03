@@ -1,0 +1,33 @@
+# Hologram will run from same directory where this config file resides
+# All paths should be relative to there
+
+# The directory containing the source files to parse recursively
+source: ./scss
+
+# The directory that hologram will build to
+destination: ./styleguide
+
+# Hologram theme
+documentation_assets: ./styleguide-theme
+custom_markdown: ./styleguide-theme/CortanaMarkdownRenderer.rb
+
+# List all css to include for the styleguide render examples (path from styleguide directory)
+css_include:
+  - '../css/app.css'
+  - '../css/tweaks.css'
+  - '../css/normalize.css'
+  - '../css/foundation.min.css'
+
+# List all js to include for the styleguide render examples (path from styleguide directory)
+js_include:
+  - 'https://code.jquery.com/jquery-1.10.2.min.js'
+  - '../js/libs.min.js'
+  - '../js/jquery.sticky.js'
+  - '../js/foundation.min.js'
+  - '../libraries/imagelightbox/imagelightbox.js'
+  - '../js/dist/app.js'
+
+# Mark which category should be the index page
+# Alternatively, you may have an index.md in the documentation assets
+# folder instead of specifying this config.
+index: README

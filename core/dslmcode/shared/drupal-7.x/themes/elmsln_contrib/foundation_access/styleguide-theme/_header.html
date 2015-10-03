@@ -1,0 +1,107 @@
+<% nameScope = @config['name_scope'] %>
+<!DOCTYPE html>
+<html ng-app="cortana">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title><%= title %></title>
+
+    <!-- Styleguide CSS -->
+    <link rel="stylesheet" href="./theme-build/css/vendors.css">
+    <link rel="stylesheet" href="./theme-build/css/cortana.css">
+
+    <!-- Source CSS -->
+    <% if @config['css_include'].to_s.strip.length != 0 %>
+      <% @config['css_include'].each do |css| %>
+        <link rel="stylesheet" href="<%= css %>">
+      <% end %>
+    <% end %>
+
+    <!--[if lt IE 9]>
+      <script src="theme-build/polyfill/html5shiv.js"></script>
+      <script src="theme-build/polyfill/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Grunticon Loader -->
+    <script>
+      /*! grunt-grunticon Stylesheet Loader - v2.1.6 | https://github.com/filamentgroup/grunticon | (c) 2015 Scott Jehl, Filament Group, Inc. | MIT license. */
+      !function(){function e(e,n,t){"use strict";var o=window.document.createElement("link"),r=n||window.document.getElementsByTagName("script")[0],a=window.document.styleSheets;return o.rel="stylesheet",o.href=e,o.media="only x",r.parentNode.insertBefore(o,r),o.onloadcssdefined=function(e){for(var n,t=0;t<a.length;t++)a[t].href&&a[t].href===o.href&&(n=!0);n?e():setTimeout(function(){o.onloadcssdefined(e)})},o.onloadcssdefined(function(){o.media=t||"all"}),o}function n(e,n){e.onload=function(){e.onload=null,n&&n.call(e)},"isApplicationInstalled"in navigator&&"onloadcssdefined"in e&&e.onloadcssdefined(n)}!function(t){var o=function(r,a){"use strict";if(r&&3===r.length){var i=t.navigator,c=t.document,s=t.Image,d=!(!c.createElementNS||!c.createElementNS("http://www.w3.org/2000/svg","svg").createSVGRect||!c.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Image","1.1")||t.opera&&-1===i.userAgent.indexOf("Chrome")||-1!==i.userAgent.indexOf("Series40")),l=new s;l.onerror=function(){o.method="png",o.href=r[2],e(r[2])},l.onload=function(){var t=1===l.width&&1===l.height,i=r[t&&d?0:t?1:2];t&&d?o.method="svg":t?o.method="datapng":o.method="png",o.href=i,n(e(i),a)},l.src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",c.documentElement.className+=" grunticon"}};o.loadCSS=e,o.onloadCSS=n,t.grunticon=o}(this),function(e,n){"use strict";var t=n.document,o="grunticon:",r=function(e){if(t.attachEvent?"complete"===t.readyState:"loading"!==t.readyState)e();else{var n=!1;t.addEventListener("readystatechange",function(){n||(n=!0,e())},!1)}},a=function(e){return n.document.querySelector('link[href$="'+e+'"]')},i=function(e){var n,t,r,a,i,c,s={};if(n=e.sheet,!n)return s;t=n.cssRules?n.cssRules:n.rules;for(var d=0;d<t.length;d++)r=t[d].cssText,a=o+t[d].selectorText,i=r.split(");")[0].match(/US\-ASCII\,([^"']+)/),i&&i[1]&&(c=decodeURIComponent(i[1]),s[a]=c);return s},c=function(e){var n,r,a,i;a="data-grunticon-embed";for(var c in e){i=c.slice(o.length);try{n=t.querySelectorAll(i)}catch(s){continue}r=[];for(var d=0;d<n.length;d++)null!==n[d].getAttribute(a)&&r.push(n[d]);if(r.length)for(d=0;d<r.length;d++)r[d].innerHTML=e[c],r[d].style.backgroundImage="none",r[d].removeAttribute(a)}return r},s=function(n){"svg"===e.method&&r(function(){c(i(a(e.href))),"function"==typeof n&&n()})};e.embedIcons=c,e.getCSS=a,e.getIcons=i,e.ready=r,e.svgLoadedCallback=s,e.embedSVG=s}(grunticon,this)}();
+
+        grunticon(["../icons/faccess-icons/output/icons.data.svg.css", "../icons/faccess-icons/output/icons.data.png.css", "../icons/faccess-icons/output/icons.fallback.css"], grunticon.svgLoadedCallback);
+    </script>
+    <noscript><link href="../icons/faccess-icons/output/icons.fallback.css" rel="stylesheet"></noscript>
+</head>
+
+  <body class="cortana-body"  ng-controller="MainController">
+
+    <div class="sb-slidebar sb-left cortana-sidenav sb-style-push">
+
+      <% catWrappers = Array.new %>
+      <% @categories.each do |cat| %>
+        <% catWrapperName = cat[0].split(nameScope).first %>
+        <% if not catWrappers.include?(catWrapperName) %>
+          <% catWrappers.push(catWrapperName) %>
+        <% end %>
+      <% end %>
+
+      <nav class="cortana-nav">
+        <ul>
+          <% if file_name.include?('index.html') %>
+            <li><a class="active" href="index.html">Home</a></li>
+          <% else %>
+            <li><a href="index.html">Home</a></li>
+          <% end %>
+        </ul>
+        <% catWrappers.each do |wrapper| %>
+          <h3><%= wrapper %></h3>
+          <ul>
+          <% @categories.each do |cat| %>
+            <% if cat[0].include?(wrapper) %>
+              <% catName = cat[0].split(nameScope).last %>
+              <% if catName == title.split(nameScope).last %>
+                <li><a class="active" href="<%= cat[1] %>"><%= catName %></a></li>
+              <% else %>
+                <li><a href="<%= cat[1] %>"><%= catName %></a></li>
+              <% end %>
+            <% end %>
+          <% end %>
+          </ul>
+        <% end %>
+      </nav>
+    </div>
+
+    <header class="cortana-header sb-slide">
+      <% if title.split(nameScope).last %>
+        <h1><%= title.split(nameScope).last %></h1>
+      <% elsif file_name.include?('index.html') %>
+        <h1>Styleguide home</h1>
+      <% end %>
+      <div id="open-left" class="cortana-menu-btn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="cortana-search-wrapper" ng-controller="TypeaheadCtrl">
+        <input id="cortana-search" type="text" class="form-control cortana-search" ng-model="customSelected" placeholder="Search" typeahead="data as data.title for data in searchData | filter:{title:$viewValue}" typeahead-template-url="customTemplate.html" class="form-control" typeahead-on-select="onSelect($item, $model, $label)">
+      </div>
+    </header>
+
+    <div id="sb-site">
+
+      <div class="cortana-container">
+
+        <nav id="cortana-inside-nav" class="cortana-inside-nav" bs-affix>
+          <ul bs-scrollspy-list data-offset="-30">
+            <% @blocks.each do |block| %>
+              <% if not block[:parent] %>
+                <li><a href="#<%= block[:name] %>"><%= block[:title] %></a></li>
+              <% end %>
+            <% end %>
+          </ul>
+        </nav>
+
+        <div class="cortana-content-wrapper clearfix">
+          <div class="cortana-content">
+
+
+

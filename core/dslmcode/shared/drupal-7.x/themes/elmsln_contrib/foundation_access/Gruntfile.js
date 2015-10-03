@@ -22,17 +22,6 @@ module.exports = function(grunt) {
   			}
   		}
     },
-    // uglify: {
-    //   myScripts: {
-    //     files: [{
-    //         expand: true,
-    //         cwd: 'js/',
-    //         src: '**.js',
-    //         dest: 'js/',
-    //         ext: '.min.js'
-    //     }]
-    //   }
-    // },
     svgmin: {
       dist: {
         files: [{
@@ -58,12 +47,40 @@ module.exports = function(grunt) {
         }
       }
     },
-    watch: {
-      grunt: { files: ['Gruntfile.js'] },
-      sass: {
-        files: 'scss/**/*.scss',
-        tasks: ['sass', 'autoprefixer']
+    hologram: {
+      generate: {
+        options: {
+          config: 'hologram_config.yml'
+        }
       }
+    },
+    browserSync: {
+      bsFiles: {
+          src : ['css/*.css', 'styleguide/*.html', 'js/dist/app.js']
+      },
+      options: {
+          server: {
+            baseDir: './'
+          },
+          startPath: '/styleguide',
+          watchTask: true
+      }
+    },
+    browserify: {
+      'js/dist/app.js': ['js/app.js']
+    },
+    watch: {
+      grunt: { 
+        files: ['Gruntfile.js'] 
+      },
+      sass: {
+        files: ['scss/**/*.scss','scss/README.md'],
+        tasks: ['sass', 'autoprefixer']
+      },
+      js: {
+        files: ['js/app.js', 'js/components/**/*.js'],
+        tasks: ['browserify']
+      },
     }
   });
 
@@ -73,8 +90,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-svgmin');
   grunt.loadNpmTasks('grunt-grunticon');
   grunt.loadNpmTasks('grunt-autoprefixer');
+  grunt.loadNpmTasks('grunt-hologram');
+  grunt.loadNpmTasks('grunt-browser-sync'); 
+  grunt.loadNpmTasks('grunt-browserify');
 
   // grunt.registerTask('uglify', ['uglify:myScripts']);
-  grunt.registerTask('build', ['sass','autoprefixer','svgmin','grunticon:myIcons']);
+  grunt.registerTask('styleguide', ['hologram', 'browserSync', 'watch']);
+  grunt.registerTask('build', ['sass','autoprefixer','svgmin','grunticon:myIcons', 'browserify', 'hologram']);
   grunt.registerTask('default', ['build','watch']);
 }

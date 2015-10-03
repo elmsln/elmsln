@@ -2,5 +2,9 @@
   "name": "foundation-libsass-template",
   "dependencies": {
     "foundation": "zurb/bower-foundation"
+  },
+  "devDependencies": {
+    "modular-scale": "~2.1.1",
+    "north": "~0.2.0"
   }
 }

@@ -51,8 +51,11 @@ scripts[] = js/foundation.min.js
 ; This file is empty, just uncomment this line and start editing!
 scripts[] = js/jquery.sticky.js
 
-scripts[] = js/app.js
-; scripts[] = js/app.min.js
+; Add libraries from styleguide
+scripts[] = libraries/imagelightbox/imagelightbox.js
+
+; Our themes custom scripts compiled by Browserify
+scripts[] = js/dist/app.js
 
 ; This section lists the regions defined in the page.tpl.php. The name in
 ; brackets is the machine name of the region. The text after the equals sign is
