@@ -13,6 +13,5 @@ features[wysiwyg_template][] = media_video
 features[wysiwyg_template][] = media_video_thumbnail
 features[wysiwyg_template][] = media_video_thumbnail_right
 features[wysiwyg_template][] = media_video_with_poster
-features[wysiwyg_template][] = quote_examples
 features[wysiwyg_template][] = quote_left
 features[wysiwyg_template][] = quote_right
