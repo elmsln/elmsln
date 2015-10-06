@@ -2585,10 +2585,6 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* Field: : field_internal_classification */
-  $handler->display->display_options['fields']['field_internal_classification']['id'] = 'field_internal_classification';
-  $handler->display->display_options['fields']['field_internal_classification']['table'] = 'field_data_field_internal_classification';
-  $handler->display->display_options['fields']['field_internal_classification']['field'] = 'field_internal_classification';
   /* Field: Content: Edit link */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
