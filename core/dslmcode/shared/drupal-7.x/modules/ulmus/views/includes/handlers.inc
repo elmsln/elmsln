@@ -274,6 +274,7 @@ class views_handler extends views_object {
       return $title;
     }
     $title = ($short && isset($this->definition['title short'])) ? $this->definition['title short'] : $this->definition['title'];
+    dpm($this); // figure out what field is messed up ... turn on devel
     return t('!group: !title', array('!group' => $this->definition['group'], '!title' => $title));
   }
 
