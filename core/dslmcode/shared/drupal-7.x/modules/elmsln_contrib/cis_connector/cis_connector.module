@@ -22,7 +22,7 @@ function cis_connector_restws_meta_controls_alter(&$controls) {
   $controls['xml-out'] = 'xml-out';
   $controls['role-filter'] = 'role-filter';
   $controls['count'] = 'count';
-  $controls['display-mode'] = 'display-mode';
+  $controls['display_mode'] = 'display_mode';
 }
 
 /**

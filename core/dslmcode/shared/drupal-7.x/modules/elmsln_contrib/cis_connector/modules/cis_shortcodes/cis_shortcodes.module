@@ -152,8 +152,8 @@ function _cis_shortcode_render_codes($entity, $type) {
     'tool' => variable_get('install_profile', ''),
     'item' => $entity->{$type_info['entity keys']['id']},
     'entity_type' => $type,
-    'render' => 'display-mode',
-    'display-mode' => 'default',
+    'render' => 'display_mode',
+    'display_mode' => 'default',
   );
   // assume the default view mode since this is basically a remote rendering engine
   $view_modes = field_view_mode_settings($type, $bundle);
@@ -167,7 +167,7 @@ function _cis_shortcode_render_codes($entity, $type) {
   // loop through the other potential view modes for this item
   foreach ($view_modes as $mode => $mode_settings) {
     if ($mode_settings['custom_settings']) {
-      $properties['display-mode'] = $mode;
+      $properties['display_mode'] = $mode;
       $field['cis_shortcodes']['rendered_' . $mode] = array(
         '#title' => t('Render using template: @mode', array('@mode' => $mode)),
         '#attributes' => array('class' => array('cis_shortcodes_embed')),
