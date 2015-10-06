@@ -7,4 +7,4 @@
   //  $width - width of the frame
   //  $height - height of the frame
 ?>
-<iframe id="<?php print $id; ?>" class="<?php print $class; ?>" src="<?php print $link; ?>" width="<?php print $width; ?>" height="<?php print $height; ?>"></iframe>
+<iframe id="<?php print $id; ?>" frameborder="0" class="<?php print $class; ?>" src="<?php print $link; ?>" width="<?php print $width; ?>" height="<?php print $height; ?>"></iframe>
