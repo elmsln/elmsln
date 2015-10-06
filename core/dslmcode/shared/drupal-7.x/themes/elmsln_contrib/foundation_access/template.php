@@ -1,6 +1,65 @@
 <?php
 
 /**
+ * Implements hook_preprocess().
+ *
+ * Add template suggestions for an entity based on view modes if they do not
+ * already exist.
+ *
+ * The eventual order of the entity's theme suggestions are:
+ * - entity-type__bundle (lowest priority = first in the array)
+ * - entity-type__bundle__view-mode
+ * - entity-type__id
+ * - entity-type__id__view-mode (highest priority = last in the array)
+ *
+ *
+ * Add preprocess functions for use in foundation access theme.
+ * 
+ * The eventual order of the entity's theme suggestions are:
+ * - foundation_access_entitytype_bundle 
+ * - foundation_access_entitytype_bundle_viewmode
+ * - foundation_access_entitytype_id
+ * - foundation_access_entitytype_id_viewmode
+ */
+function foundation_access_preprocess(&$variables, $hook) {
+  if (isset($variables['elements']['#entity_type'])) {
+    $entity_type = $variables['elements']['#entity_type'];
+    $entity_bundle = $variables['elements']['#bundle'];
+    $entity_id = $variables['id'];
+    $entity_viewmode = $variables['elements']['#view_mode'];
+
+    if ($entity_bundle) {
+      $variables['theme_hook_suggestions'][] = $entity_type . '__' . $entity_bundle;
+      $function = __FUNCTION__ . '_' . $entity_type . '_' . $entity_bundle;
+      if (function_exists($function)) {
+        $function($variables);
+      }
+    }
+    if ($entity_bundle && $entity_viewmode) {
+      $variables['theme_hook_suggestions'][] = $entity_type . '__' . $entity_bundle . '__' . $entity_viewmode;
+      $function = __FUNCTION__ . '_' . $entity_type . '_' . $entity_bundle . '_' . $entity_viewmode;
+      if (function_exists($function)) {
+        $function($variables);
+      }
+    }
+    if ($entity_id) {
+      $variables['theme_hook_suggestions'][] = $entity_type . '__' . $entity_id;
+      $function = __FUNCTION__ . '_' . $entity_type . '_' . $entity_id;
+      if (function_exists($function)) {
+        $function($variables);
+      }
+    }
+    if ($entity_id && $entity_viewmode) {
+      $variables['theme_hook_suggestions'][] = $entity_type . '__' . $entity_id . '__' . $entity_viewmode; 
+      $function = __FUNCTION__ . '_' . $entity_type . '_' . $entity_id . '_' . $entity_viewmode;
+      if (function_exists($function)) {
+        $function($variables);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_menu_link_alter().
  *
  * Allow Foundation Access to affect the menu links table
@@ -119,6 +178,23 @@ function foundation_access_preprocess_page(&$variables) {
   if (isset($variables['page']['content']['system_main']['main'])) {
     $variables['page']['content']['system_main']['main']['#markup'] = '<article class="large-12 columns view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
   }
+}
+
+/**
+ * Implementation of hook_preprocess_node().
+ */
+function foundation_access_preprocess_node(&$variables) {
+  // Add the view mode name to the classes array.
+  if (isset($variables['view_mode'])) {
+    $variables['classes_array'][] = str_replace('_', '-', $variables['view_mode']);
+  }
+}
+
+/**
+ * Implementation of hook_preprocess_node_elmsmedia_image().
+ */
+function foundation_access_preprocess_node_elmsmedia_image(&$variables) {
+  krumo($variables);
 }
 
 /**
