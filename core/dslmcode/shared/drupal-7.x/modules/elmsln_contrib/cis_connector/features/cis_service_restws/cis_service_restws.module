@@ -84,13 +84,13 @@ function cis_service_restws_restws_response_alter(&$response, $function, $format
         $response['count'] = count($response['list']);
       }
     }
-    // allow for rendering based on a display-mode
-    // @todo need to validate display-mode
+    // allow for rendering based on a display_mode
+    // @todo need to validate display_mode
     // @todo need to allow for a query of items
-    if (isset($_GET['display-mode']) && $function == 'viewResource') {
+    if (isset($_GET['display_mode']) && $function == 'viewResource') {
       $entity_type = arg(0);
       $entity = menu_get_object($entity_type);
-      $render_array = entity_view($entity_type, array($entity), $_GET['display-mode']);
+      $render_array = entity_view($entity_type, array($entity), $_GET['display_mode']);
       $response['rendered'] = drupal_render($render_array);
     }
     // @sillyhack to convert json object to xml quickly and deliver

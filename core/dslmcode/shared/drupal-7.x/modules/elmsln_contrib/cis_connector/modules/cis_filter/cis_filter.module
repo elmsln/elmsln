@@ -65,7 +65,48 @@ function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_
         }
       }
       $patterns[] = $regex;
-      $media[] = theme('cis_filter_render', array('settings' => $vars));
+      $prefix = 'cis_filter_render__';
+      $template = '';
+      if ($vars['rev'] == 1) {
+        $code = array_merge(array(
+          'render' => 'iframe',
+          'item_type' => 'id',
+          'entity_type' => 'node',
+          'entity_bundle' => NULL,
+          'entity_unique_field' => 'item',
+        ), $vars);
+        // spec requires tool and item be set
+        if (isset($code['tool'])) {
+          // @ignore druplart_conditional_assignment
+          if ($settings = _cis_connector_build_registry($code['tool'])) {
+            $instance = '/';
+            if (isset($settings['instance']) && $settings['instance']) {
+              $instance = base_path();
+              //test for non-subdomain installation
+              $test = explode('/', $instance);
+              if (count($test) == 4) {
+                $instance = '/' . $test[2] . '/';
+              }
+            }
+          }
+        }
+      }
+      $render = $prefix . str_replace('-', '_', $code['render']);
+      // figure out template suggestion
+      if (isset($vars['template'])) {
+        $template = $render . '__' . $vars['template'];
+      }
+
+      $ary = array(
+        'settings' => array(
+          'code' => $code,
+          'instance' => $instance,
+          'settings' => $settings,
+          'content' => '',
+        ),
+        'theme_hook_suggestion' => $template,
+      );
+      $media[] = theme($render, $ary);
     }
     $text = preg_replace($patterns, $media, $text, 1);
   }
@@ -79,252 +120,130 @@ function cis_filter_theme() {
   return array(
     'cis_filter_render' => array(
       'variables' => array(
+        'code' => array(),
         'settings' => array(),
+        'instance' => '',
+        'content' => '',
       ),
+      'template' => 'templates/cis-filter-render',
+    ),
+    'cis_filter_render__display_mode' => array(
+      'variables' => array(
+        'code' => array(),
+        'settings' => array(),
+        'instance' => '',
+        'content' => '',
+      ),
+      'template' => 'templates/cis-filter-render--display-mode',
+    ),
+    'cis_filter_render__link' => array(
+      'variables' => array(
+        'code' => array(),
+        'settings' => array(),
+        'instance' => '',
+        'content' => '',
+      ),
+      'template' => 'templates/cis-filter-render--link',
+    ),
+    'cis_filter_render__value' => array(
+      'variables' => array(
+        'code' => array(),
+        'settings' => array(),
+        'instance' => '',
+        'content' => '',
+      ),
+      'template' => 'templates/cis-filter-render--value',
+    ),
+    'cis_filter_render__submit' => array(
+      'variables' => array(
+        'code' => array(),
+        'settings' => array(),
+        'instance' => '',
+        'content' => '',
+        'tool' => '',
+        'class' => 'cis-filter-activity-item',
+      ),
+      'template' => 'templates/cis-filter-render--submit',
+    ),
+    'cis_filter_render__iframe' => array(
+      'variables' => array(
+        'code' => array(),
+        'settings' => array(),
+        'instance' => '',
+        'content' => '',
+        'width' => '100%',
+        'height' => '400',
+        'link' => '',
+        'class' => 'entity_iframe',
+        'id' => '',
+      ),
+      'template' => 'templates/cis-filter-render--iframe',
     ),
   );
 }
 
 /**
- * Theme callback to render media.
+ * Implements hook_preprocess_cis_filter_render__value().
+ * @param  [array] &$vars theme array
  */
-function theme_cis_filter_render($vars) {
-  // generate a unique call signature
-  $static_call = __FUNCTION__ . implode('_', $vars['settings']) . $vars['theme_hook_original'];
-  // statically cache future calls
-  $result = &drupal_static($static_call);
-  if (!isset($result)) {
-    $result = CIS_FILTER_INVALID;
-    // @notice allows for future rewrites to the API
-    if ($vars['settings']['rev'] == 1) {
-      $code = array_merge(array(
-        'render' => 'iframe',
-        'item_type' => 'id',
-        'entity_type' => 'node',
-        'entity_bundle' => NULL,
-        'entity_unique_field' => 'item',
-      ), $vars['settings']);
-      // spec requires tool and item be set
-      if (isset($code['tool'])) {
-        // @ignore druplart_conditional_assignment
-        if ($settings = _cis_connector_build_registry($code['tool'])) {
-          $instance = '/';
-          if (isset($settings['instance']) && $settings['instance']) {
-            $instance = base_path();
-            //test for non-subdomain installation
-            $test = explode('/', $instance);
-            if (count($test) == 4) {
-              $instance = '/' . $test[2] . '/';
-            }
-          }
-          // select the render method
-          switch ($code['render']) {
-            // display this item as a link to what we were trying to construct
-            case 'link':
-              $link = _cis_connector_format_address($settings, $instance, 'front');
-              // link based request requires RESTful webservice
-              $url = $code['entity_type'] . '/' . $code['item'] . '.json';
-              // uses property to allow for rapid load of a complex resource
-              $url .= '?deep-load-refs=file';
-              // fallback in case there was nothing to query
-              $link .= $code['entity_type'] . '/' . $code['item'];
-              $result = _cis_filter_link_render($url, $code, $link, $instance);
-            break;
-            // generate an iframe to display the referenced material
-            case 'iframe':
-              $link = _cis_connector_format_address($settings, $instance, 'front');
-              $result = _cis_filter_iframe_render($link, $code);
-            break;
-            // request a value from an object via webservice and render in place
-            // this currently supports simple field values and markup rendered
-            // fields.
-            case 'value':
-              // request the object via webservice
-              $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance);
-              // see if this text value is a complex one to filter
-              if (isset($response[$code['field']]) && is_array($response[$code['field']])) {
-                $result = check_markup($response[$code['field']]['value'], $response[$code['field']]['format']);
-              }
-              else {
-                $result = filter_xss($response[$code['field']]);
-              }
-            break;
-            // allow for the embedding of submission modals within content of different systems
-            // this allows you to craft a token that will turn itself into a link to do
-            // assignment, blog, discussion and other tool submission from places other then
-            // where they exist. For example, embedding a discussion board post link in
-            // the course outline / MOOC distro
-            case 'submit':
-              // allow for simplest use-case of a direct link
-              // this is usful if the target is figuring itself out
-              if (isset($code['link'])) {
-                $target_found = TRUE;
-                _cis_filter_attach_modal();
-                $result = '<div class="small-4 medium-6 elmsln-action-required cis-filter-activity-item icon-' . $code['tool'] . '-black">';
-                // support for modal and direct linkage
-                if ($code['modal']) {
-                  $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['link'];
-                  $result .= ctools_modal_text_button(t('@name', array('@name' => $code['text'])), $link, t('@name', array('@name' => html_entity_decode($code['text']))), 'ctools-modal-cis-filter-modal disable-scroll');
-                }
-                else {
-                  $link = _cis_connector_format_address($settings, $instance, 'front') . $code['link'];
-                  $result .= l(t('@name', array('@name' => $code['text'])), $link);
-                }
-                $result .= '</div>';
-              }
-              else {
-                $result = '';
-                // allow for tokens that turn themselves into the correct submission contextually
-                // this is one of the more ridiculous capabilities of this system
-                $target_found = FALSE;
-                $section = _cis_connector_section_context();
-                // check for master_ since we need to hit the title of the mastet then
-                // since they are variable based on the design of the system
-                $query = array(
-                  'deep-load-refs' => $code['entity_type'],
-                  'type' => 'section',
-                );
-                // check if this is a master section or not
-                if ($is_master = _cis_section_is_master($section)) {
-                  $query['title'] = 'Master Section';
-                }
-                else {
-                  $query['field_section_id'] = $section;
-                }
-                // look for the section in question
-                $response = _cis_connection_query($query, 'node', 'json', 'GET', $code['tool'], $instance, FALSE);
-                if (isset($response['list'])) {
-                  $rem_section = array_pop($response['list']);
-                  // check that we have something of the type asked for on the remote section node
-                  if (!empty($rem_section['field_' . $code['entity_bundle'] . 's'])) {
-                    foreach ($rem_section['field_' . $code['entity_bundle'] . 's'] as $key => $item) {
-                      // taxonomy support
-                      if (!isset($item['title']) && isset($item['name'])) {
-                        $item['title'] = $item['name'];
-                      }
-                      // look for something unique to verify this is the item we wanted to find
-                      if (isset($item[$code['entity_unique_field']][LANGUAGE_NONE][0]['value']) && $item[$code['entity_unique_field']][LANGUAGE_NONE][0]['value'] == $code[$code['entity_unique_field']]) {
-                        $target_found = TRUE;
-                      }
-                      // case where unique key is a property instead of a value
-                      else if (isset($code['entity_unique_field']) && isset($item[$code['entity_unique_field']]) && $item[$code['entity_unique_field']] == $code[$code['entity_unique_field']]) {
-                        $target_found = TRUE;
-                      }
-                      // case where the unique value is actually the entity id so we need the key to point to
-                      else if (isset($code['entity_key']) && isset($item[$code['entity_key']]) && $item[$code['entity_key']] == $code[$code['entity_unique_field']]) {
-                        $target_found = TRUE;
-                      }
-                      if ($target_found) {
-                        // request something they could have submitted as this thing after we
-                        // snag the uid first since it could differ between systems; name won't tho
-                        $query = array(
-                          'name' => $GLOBALS['user']->name,
-                          'full' => 0,
-                        );
-                        $response = _cis_connection_query($query, 'user', 'json', 'GET', $code['tool'], $instance);
-                        // see if there's a user with that name in the other system
-                        if (isset($response['list'][0])) {
-                          // snag the uid from the response which is resource id
-                          $rem_uid = $response['list'][0]['id'];
-                          // ask for any submission of this entity bundle type for their user name
-                          $query = array(
-                            'type' => $code['submit_bundle'],
-                            'full' => 0,
-                          );
-                          if (isset($code['author_field'])) {
-                            $query[$code['author_field']] = $rem_uid;
-                          }
-                          if (isset($code['submit_reference']) && isset($item[$code['entity_key']])) {
-                            $query[$code['submit_reference']] = $item[$code['entity_key']];
-                          }
-                          // ugh
-                          if ($code['submit_type'] == 'harmony_post') {
-                            unset($query['type']);
-                          }
-                          // allow for query endpoint to differ from submit path
-                          if (!isset($code['submit_endpoint'])) {
-                            $code['submit_endpoint'] = $code['submit_type'];
-                          }
-                          // this call is not cached, ever.
-                          $response = _cis_connection_query($query, $code['submit_type'], 'json', 'GET', $code['tool'], $instance, FALSE);
-                          // see if we got anything, if we did this means they submitted it
-                          // so we should provide a link to the resource they submitted
-                          // if we don't then that means we need to present a for the submission modal
-                          _cis_filter_attach_modal();
-                          if (isset($response['list'][0])) {
-                            if ($code['submit_type'] == 'harmony_post') {
-                              $link = 'cis/service/render/1/' . $code['tool'] . '/thread/' . $item[$code['entity_key']] . '#' . $code['submit_endpoint'] . '-' . $response['list'][0]['id'];
-                            }
-                            else {
-                              $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/' . $response['list'][0]['id'];
-                            }
-                            // support for manually added text
-                            if (isset($code['submitted_text'])) {
-                              $submitted_text = $code['submitted_text'];
-                            }
-                            else {
-                              $submitted_text = t('View your submission for @name', array('@name' => $item['title']));
-                            }
-                            $result = '<div class="small-4 medium-6 elmsln-action-finished cis-filter-activity-item icon-' . $code['tool'] . '-black">' . ctools_modal_text_button($submitted_text, $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll') . '</div>';
-                          }
-                          else {
-                            // need to use prepopulate method for taxonomy
-                            if ($code['entity_type'] == 'taxonomy_term') {
-                              $prepopulate = 'edit[' . $code['submit_reference'] . '][und]=' . $item[$code['entity_key']];
-                            }
-                            else {
-                              $prepopulate = $code['submit_reference'] . '=' . $item[$code['entity_key']];
-                            }
-                            $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/add/' . str_replace('_', '-', $code['submit_bundle']) . '/auto-refresh-on-close?' . $prepopulate;
-                            // support for manually added text
-                            if (isset($code['text'])) {
-                              $text = $code['text'];
-                            }
-                            else {
-                              $text = t('Submit @name', array('@name' => $item['title']));
-                            }
-                            // present a modal for them to submit this thing
-                            $result = '<div class="small-4 medium-6 elmsln-action-unfinished cis-filter-activity-item icon-' . $code['tool'] . '-black">' . ctools_modal_text_button($text, $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll') . '</div>';
-                            // we found something so bust the for loop
-                          }
-                        }
-                        break;
-                      }
-                    }
-                  }
-                  else {
-                    $result = '';
-                    drupal_set_message(t('Submission target doesn\'t exist in remote'), 'error', FALSE);
-                  }
-                }
-                else {
-                  $result = '';
-                  drupal_set_message(t('This section doesn\'t exist in remote'), 'error', FALSE);
-                }
-              }
-              // ensure we were able to find the shortcode item target
-              if (!$target_found) {
-                $result = '';
-                drupal_set_message(t('Submission target doesn\'t exist in remote tool. Make sure this section is allowed to use this item.'), 'error', FALSE);
-              }
-            break;
-            // we got a token but didn't understand how to render, bail
-            default:
-              $result = '';
-            break;
-          }
-        }
-      }
-    }
+function cis_filter_preprocess_cis_filter_render__value(&$vars) {
+  // pull in settings from code processing
+  $settings = $vars['settings']['settings'];
+  // see if this is an instance to call
+  $instance = $vars['settings']['instance'];
+  // pull in the original code as an array
+  $code = $vars['settings']['code'];
+  // request a value from an object via webservice and render in place
+  // this currently supports simple field values and markup rendered
+  // fields.
+  // request the object via webservice
+  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance);
+  // see if this text value is a complex one to filter
+  if (isset($response[$code['field']]) && is_array($response[$code['field']])) {
+    $vars['content'] = check_markup($response[$code['field']]['value'], $response[$code['field']]['format']);
   }
-  return $result;
+  else {
+    $vars['content'] = filter_xss($response[$code['field']]);
+  }
 }
 
 /**
- * Default callback for rendering a link to the item
+ * Implements hook_preprocess_cis_filter_render__display_mode().
+ * @param  [array] &$vars theme array
  */
-function _cis_filter_link_render($url, $code, $link = '', $instance = '/') {
-  // request data
+function cis_filter_preprocess_cis_filter_render__display_mode(&$vars) {
+  // pull in settings from code processing
+  $settings = $vars['settings']['settings'];
+  // see if this is an instance to call
+  $instance = $vars['settings']['instance'];
+  // pull in the original code as an array
+  $code = $vars['settings']['code'];
+  // get response from loading the object
+  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, TRUE, 'display_mode=' . $code['display_mode']);
+  // @todo might want to preg_match this badboy
+  $response['rendered'] = str_replace('/services/', '/', str_replace($settings['service_address'], $settings['address'], $response['rendered']));
+  // rendered property will have the assessed output
+  $vars['content'] = $response['rendered'];
+}
+
+/**
+ * Implements cis_filter_preprocess_cis_filter_render__link().
+ * @param  [array] &$vars theme array
+ */
+function cis_filter_preprocess_cis_filter_render__link(&$vars) {
+  // pull in settings from code processing
+  $settings = $vars['settings']['settings'];
+  // see if this is an instance to call
+  $instance = $vars['settings']['instance'];
+  // pull in the original code as an array
+  $code = $vars['settings']['code'];
+  $link = _cis_connector_format_address($settings, $instance, 'front');
+  // link based request requires RESTful webservice
+  $url = $code['entity_type'] . '/' . $code['item'] . '.json';
+  // uses property to allow for rapid load of a complex resource
+  $url .= '?deep-load-refs=file';
+  // fallback in case there was nothing to query
+  $link .= $code['entity_type'] . '/' . $code['item'];
   $instance = str_replace('/', '', $instance);
   $response = _cis_connector_request($instance . '/' . $url, array(), $code['tool']);
   $data = drupal_json_decode($response->data);
@@ -352,11 +271,9 @@ function _cis_filter_link_render($url, $code, $link = '', $instance = '/') {
       if (isset($code['alt'])) {
         $alt = $code['alt'];
       }
-      // @todo investigate a theme function for this
       $link = "<img src=\"$path\" $width $height alt=\"$alt\" title=\"$title\" />";
     }
     elseif (isset($code['text'])) {
-      // @todo investigate a theme function for this
       $link = l(t('@t', array('@t' => $code['text'])), $path);
     }
     else {
@@ -367,28 +284,235 @@ function _cis_filter_link_render($url, $code, $link = '', $instance = '/') {
     // @todo investigate a theme function for this
     $link = l(t('@t', array('@t' => $code['text'])), $link);
   }
-  return $link;
+  $vars['content'] = $link;
 }
 
 /**
- * Default callback for rendering a shortcode as an iframe
+ * Implements cis_filter_preprocess_cis_filter_render__iframe().
+ * @param  [array] &$vars theme array
  */
-function _cis_filter_iframe_render($link, $code) {
-  $width = '100%';
+function cis_filter_preprocess_cis_filter_render__iframe(&$vars) {
+  // pull in settings from code processing
+  $settings = $vars['settings']['settings'];
+  // see if this is an instance to call
+  $instance = $vars['settings']['instance'];
+  // pull in the original code as an array
+  $code = $vars['settings']['code'];
+  // format an address call but to the front end
+  $vars['link'] = _cis_connector_format_address($settings, $instance, 'front');
+  // ensure width and height are set
   if (isset($code['width'])) {
-    $width = $code['width'];
+    $vars['width'] = $code['width'];
   }
-  $height = '300';
   if (isset($code['height'])) {
-    $height = $code['height'];
+    $vars['height'] = $code['height'];
   }
-  // ids we render via entity iframe, otherwise fallback
+  // check for a specific id we can reference
   if ($code['item_type'] == 'id') {
-    return '<iframe id="entity_iframe_' . $code['entity_type'] . '_' . $code['item'] . '" frameborder="0" class="entity_iframe entity_iframe_' . $code['entity_type'] . '" src="' . $link . 'entity_iframe/' . $code['entity_type'] . '/' . $code['item'] . '" width="' . $width . '" height="' . $height . '"></iframe>';
+     $vars['id'] = $code['entity_type'] . '_' . $code['item'];
+     // form a class that has a lot of info about this item encoded in it
+     $vars['class'] .=' entity_iframe_' . $code['entity_type'] . ' entity_iframe_tool_' . $code['tool'];
+     $vars['link'] .= 'entity_iframe/' . $code['entity_type'] . '/' . $code['item'];
   }
   else {
-    return '<iframe src="' . $link . 'cis-find-tag/' . $code['entity_type'] . '/' . $code['item'] . '" width="' . $width . '" height="' . $height . '"></iframe>';
+    $vars['link'] .= $link . 'cis-find-tag/' . $code['entity_type'] . '/' . $code['item'];
   }
+}
+
+/**
+ * Implements cis_filter_preprocess_cis_filter_render__submit().
+ * @param  [array] &$vars theme array
+ * @see    http://memecrunch.com/meme/9ZQJQ/you-found-the-submit-function
+ */
+function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
+  // allow for simplest use-case of a direct link
+  // this is usful if the target is figuring itself out
+  $vars['content'] = '';
+    // pull in settings from code processing
+  $settings = $vars['settings']['settings'];
+  // see if this is an instance to call
+  $instance = $vars['settings']['instance'];
+  // pull in the original code as an array
+  $code = $vars['settings']['code'];
+  $vars['tool'] = $code['tool'];
+  $vars['class'] = 'cis-filter-activity-item';
+  if (isset($code['link'])) {
+    $target_found = TRUE;
+    _cis_filter_attach_modal();
+    // support for modal and direct linkage
+    if ($code['modal']) {
+      $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['link'];
+      $vars['content'] .= ctools_modal_text_button(t('@name', array('@name' => $code['text'])), $link, t('@name', array('@name' => html_entity_decode($code['text']))), 'ctools-modal-cis-filter-modal disable-scroll');
+    }
+    else {
+      $link = _cis_connector_format_address($settings, $instance, 'front') . $code['link'];
+      $vars['content'] .= l(t('@name', array('@name' => $code['text'])), $link);
+    }
+    $vars['class'] .= ' elmsln-action-required';
+  }
+  else {
+    // allow for tokens that turn themselves into the correct submission contextually
+    // this is one of the more ridiculous capabilities of this system
+    $target_found = FALSE;
+    $section = _cis_connector_section_context();
+    // check for master_ since we need to hit the title of the mastet then
+    // since they are variable based on the design of the system
+    $query = array(
+      'deep-load-refs' => $code['entity_type'],
+      'type' => 'section',
+    );
+    // check if this is a master section or not
+    if ($is_master = _cis_section_is_master($section)) {
+      $query['title'] = 'Master Section';
+    }
+    else {
+      $query['field_section_id'] = $section;
+    }
+    // look for the section in question
+    $response = _cis_connection_query($query, 'node', 'json', 'GET', $code['tool'], $instance, FALSE);
+    if (isset($response['list'])) {
+      $rem_section = array_pop($response['list']);
+      // check that we have something of the type asked for on the remote section node
+      if (!empty($rem_section['field_' . $code['entity_bundle'] . 's'])) {
+        foreach ($rem_section['field_' . $code['entity_bundle'] . 's'] as $key => $item) {
+          // taxonomy support
+          if (!isset($item['title']) && isset($item['name'])) {
+            $item['title'] = $item['name'];
+          }
+          // look for something unique to verify this is the item we wanted to find
+          if (isset($item[$code['entity_unique_field']][LANGUAGE_NONE][0]['value']) && $item[$code['entity_unique_field']][LANGUAGE_NONE][0]['value'] == $code[$code['entity_unique_field']]) {
+            $target_found = TRUE;
+          }
+          // case where unique key is a property instead of a value
+          else if (isset($code['entity_unique_field']) && isset($item[$code['entity_unique_field']]) && $item[$code['entity_unique_field']] == $code[$code['entity_unique_field']]) {
+            $target_found = TRUE;
+          }
+          // case where the unique value is actually the entity id so we need the key to point to
+          else if (isset($code['entity_key']) && isset($item[$code['entity_key']]) && $item[$code['entity_key']] == $code[$code['entity_unique_field']]) {
+            $target_found = TRUE;
+          }
+          if ($target_found) {
+            // request something they could have submitted as this thing after we
+            // snag the uid first since it could differ between systems; name won't tho
+            $query = array(
+              'name' => $GLOBALS['user']->name,
+              'full' => 0,
+            );
+            $response = _cis_connection_query($query, 'user', 'json', 'GET', $code['tool'], $instance);
+            // see if there's a user with that name in the other system
+            if (isset($response['list'][0])) {
+              // snag the uid from the response which is resource id
+              $rem_uid = $response['list'][0]['id'];
+              // ask for any submission of this entity bundle type for their user name
+              $query = array(
+                'type' => $code['submit_bundle'],
+                'full' => 0,
+              );
+              if (isset($code['author_field'])) {
+                $query[$code['author_field']] = $rem_uid;
+              }
+              if (isset($code['submit_reference']) && isset($item[$code['entity_key']])) {
+                $query[$code['submit_reference']] = $item[$code['entity_key']];
+              }
+              // ugh
+              if ($code['submit_type'] == 'harmony_post') {
+                unset($query['type']);
+              }
+              // allow for query endpoint to differ from submit path
+              if (!isset($code['submit_endpoint'])) {
+                $code['submit_endpoint'] = $code['submit_type'];
+              }
+              // this call is not cached, ever.
+              $response = _cis_connection_query($query, $code['submit_type'], 'json', 'GET', $code['tool'], $instance, FALSE);
+              // see if we got anything, if we did this means they submitted it
+              // so we should provide a link to the resource they submitted
+              // if we don't then that means we need to present a for the submission modal
+              _cis_filter_attach_modal();
+              if (isset($response['list'][0])) {
+                if ($code['submit_type'] == 'harmony_post') {
+                  $link = 'cis/service/render/1/' . $code['tool'] . '/thread/' . $item[$code['entity_key']] . '#' . $code['submit_endpoint'] . '-' . $response['list'][0]['id'];
+                }
+                else {
+                  $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/' . $response['list'][0]['id'];
+                }
+                // support for manually added text
+                if (isset($code['submitted_text'])) {
+                  $submitted_text = $code['submitted_text'];
+                }
+                else {
+                  $submitted_text = t('View your submission for @name', array('@name' => $item['title']));
+                }
+                $vars['content'] = ctools_modal_text_button($submitted_text, $link, t('Click this link to view @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll');
+                $vars['class'] .= ' elmsln-action-finished';
+              }
+              else {
+                // need to use prepopulate method for taxonomy
+                if ($code['entity_type'] == 'taxonomy_term') {
+                  $prepopulate = 'edit[' . $code['submit_reference'] . '][und]=' . $item[$code['entity_key']];
+                }
+                else {
+                  $prepopulate = $code['submit_reference'] . '=' . $item[$code['entity_key']];
+                }
+                $link = 'cis/service/render/1/' . $code['tool'] . '/' . $code['submit_endpoint'] . '/add/' . str_replace('_', '-', $code['submit_bundle']) . '/auto-refresh-on-close?' . $prepopulate;
+                // support for manually added text
+                if (isset($code['text'])) {
+                  $text = $code['text'];
+                }
+                else {
+                  $text = t('Submit @name', array('@name' => $item['title']));
+                }
+                // present a modal for them to submit this thing
+                $vars['content'] = ctools_modal_text_button($text, $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll');
+                $vars['class'] .= ' elmsln-action-unfinished';
+              }
+            }
+            break;
+          }
+        }
+      }
+      else {
+        $vars['content'] = '';
+        drupal_set_message(t('Submission target doesn\'t exist in remote'), 'error', FALSE);
+      }
+    }
+    else {
+      $vars['content'] = '';
+      drupal_set_message(t('This section doesn\'t exist in remote'), 'error', FALSE);
+    }
+  }
+  // ensure we were able to find the shortcode item target
+  if (!$target_found) {
+    $vars['content'] = '';
+    drupal_set_message(t('Submission target doesn\'t exist in remote tool. Make sure this section is allowed to use this item.'), 'error', FALSE);
+  }
+}
+
+/**
+ * Fallback case which means there was a token constructed that is invalid.
+ */
+function cis_filter_preprocess_cis_filter_render(&$vars) {
+  $vars['content'] = CIS_FILTER_INVALID;
+}
+
+/**
+ * Helper function to build an object from a shortcode
+ * @param  array $code      shortcode converted to an array
+ * @param  string $instance string associated with the requesting space
+ * @return array            fully loaded, filtered object from a webservice
+ */
+function _cis_filter_filtered_request_object($code, $instance) {
+  // request the object via webservice
+  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance);
+  // see if this text value is a complex one to filter
+  foreach($response as &$field) {
+    if (is_array($field)) {
+      $field = check_markup($field['value'], $field['format']);
+    }
+    else {
+      $field = filter_xss($field);
+    }
+  }
+  return $response;
 }
 
 /**
@@ -433,7 +557,6 @@ function _cis_filter_attach_modal() {
  *   string The contents of the node, that will fill the modal window.
  */
 function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL, $a3 = NULL, $a4) {
-  // @todo verify that path will work and then open it up in an iframe
   // nothing fancy about this for now; close when it's been submitted / url changes
   // render interface in such a way that it hides all the crap we don't care about
   if ($tool == NULL) {
@@ -456,7 +579,7 @@ function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL
     }
     // create a UUID for this frame id so it knows where to send the data back to
     $id = uniqid();
-    $classes = 'entity_iframe cis_filter_modal_frame';
+    $classes = 'entity_iframe cis_filter_modal_frame entity_iframe_tool_' . $tool;
     $link = _cis_connector_format_address($settings, $instance, 'front') . $a1 . '/' . $a2;
     if (isset($a3) && $a3 != 'auto-refresh-on-close') {
       $tmp = explode('?', $a3);
