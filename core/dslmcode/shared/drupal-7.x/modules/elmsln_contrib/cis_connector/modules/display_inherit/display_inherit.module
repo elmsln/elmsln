@@ -1,0 +1,71 @@
+<?php
+
+/**
+ * Implements hook_field_display_alter().
+ *
+ * @todo put an if statement in for 'full' viewmode
+ */
+function display_inherit_field_display_alter(&$display, $context) {
+  $current_viewmode = $context['view_mode'];
+  $entity_type = $context['instance']['entity_type'];
+  $bundle = $context['instance']['bundle'];
+  $display_settings = $context['instance']['display'];
+
+  $viewmode_settings = field_view_mode_settings($entity_type, $bundle);
+
+  // Create the inheritance stack based on the current viewmode.
+  // We don't need the full inheritance stack since the display settings are
+  // only tied to viewmode names.
+  $viewmode_inheritance_stack = explode('__', $current_viewmode);
+
+  // Find out if their is in fact an inheritance stack greater than one value
+  // and that the current viewmode has custom settings and if it doesn't,
+  // loop back through the viewmode inheritance stack to attempt to find one.
+  if (isset($viewmode_inheritance_stack[1]) && !$viewmode_settings[$current_viewmode]['custom_settings']) {
+    foreach ($viewmode_inheritance_stack as $key => $stack_name) {
+      // If the inherited viewmode has custom settings then we can use that as the new viewmode
+      if (isset($viewmode_settings[$stack_name]) && $viewmode_settings[$stack_name]['custom_settings']) {
+        if (array_key_exists($stack_name, $display_settings)) {
+          $new_viewmode = $stack_name;
+          $display = $display_settings[$new_viewmode];
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Function for creating template and preprocess functions
+ *
+ * @todo if theme_name is undefined then default to active theme.
+ */
+function display_inherit_inheritance_factory($type, $bundle, $viewmode, $theme_name, &$variables) {
+  if (isset($type)) {
+    $inheritance_stack = array();
+
+    // Build the inheritance stack
+    array_push($inheritance_stack, $type);
+    array_push($inheritance_stack, $bundle);
+    foreach (explode('__', $viewmode) as $viewmode_name) {
+      array_push($inheritance_stack, $viewmode_name);
+    }
+
+    // Loop though the inheritance stack and build out the templates and preprocess
+    // functions in the correct order`.
+    foreach ($inheritance_stack as $key => $name) {
+      // We can skip the first row of the array because it just contains
+      // the entity type which Drupal core is already accounting for.
+      if (!is_null($name) && $key != '0') {
+      	// split the inheritance stack at it's current point
+        $stack = array_slice($inheritance_stack, 0, ++$key);
+        // create template suggestions based on the stack names
+        $variables['theme_hook_suggestions'][] = 'inherit__' . implode('__', $stack);
+        // create preprocess functions on the stack names
+        $function = $theme_name . '_preprocess_inherit__' . implode('__', $stack);
+        if (function_exists($function)) {
+          $function($variables);
+        }
+      }
+    }
+  }
+}
