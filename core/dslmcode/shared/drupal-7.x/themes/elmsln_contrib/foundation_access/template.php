@@ -1,65 +1,6 @@
 <?php
 
 /**
- * Implements hook_preprocess().
- *
- * Add template suggestions for an entity based on view modes if they do not
- * already exist.
- *
- * The eventual order of the entity's theme suggestions are:
- * - entity-type__bundle (lowest priority = first in the array)
- * - entity-type__bundle__view-mode
- * - entity-type__id
- * - entity-type__id__view-mode (highest priority = last in the array)
- *
- *
- * Add preprocess functions for use in foundation access theme.
- * 
- * The eventual order of the entity's theme suggestions are:
- * - foundation_access_entitytype_bundle 
- * - foundation_access_entitytype_bundle_viewmode
- * - foundation_access_entitytype_id
- * - foundation_access_entitytype_id_viewmode
- */
-function foundation_access_preprocess(&$variables, $hook) {
-  if (isset($variables['elements']['#entity_type'])) {
-    $entity_type = $variables['elements']['#entity_type'];
-    $entity_bundle = $variables['elements']['#bundle'];
-    $entity_id = $variables['id'];
-    $entity_viewmode = $variables['elements']['#view_mode'];
-
-    if ($entity_bundle) {
-      $variables['theme_hook_suggestions'][] = $entity_type . '__' . $entity_bundle;
-      $function = __FUNCTION__ . '_' . $entity_type . '_' . $entity_bundle;
-      if (function_exists($function)) {
-        $function($variables);
-      }
-    }
-    if ($entity_bundle && $entity_viewmode) {
-      $variables['theme_hook_suggestions'][] = $entity_type . '__' . $entity_bundle . '__' . $entity_viewmode;
-      $function = __FUNCTION__ . '_' . $entity_type . '_' . $entity_bundle . '_' . $entity_viewmode;
-      if (function_exists($function)) {
-        $function($variables);
-      }
-    }
-    if ($entity_id) {
-      $variables['theme_hook_suggestions'][] = $entity_type . '__' . $entity_id;
-      $function = __FUNCTION__ . '_' . $entity_type . '_' . $entity_id;
-      if (function_exists($function)) {
-        $function($variables);
-      }
-    }
-    if ($entity_id && $entity_viewmode) {
-      $variables['theme_hook_suggestions'][] = $entity_type . '__' . $entity_id . '__' . $entity_viewmode; 
-      $function = __FUNCTION__ . '_' . $entity_type . '_' . $entity_id . '_' . $entity_viewmode;
-      if (function_exists($function)) {
-        $function($variables);
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_menu_link_alter().
  *
  * Allow Foundation Access to affect the menu links table
@@ -184,17 +125,47 @@ function foundation_access_preprocess_page(&$variables) {
  * Implementation of hook_preprocess_node().
  */
 function foundation_access_preprocess_node(&$variables) {
-  // Add the view mode name to the classes array.
-  if (isset($variables['view_mode'])) {
-    $variables['classes_array'][] = str_replace('_', '-', $variables['view_mode']);
+  $type = 'node';
+  $bundle = $variables['type'];
+  $viewmode = $variables['view_mode'];
+
+  // add the view mode name to the classes array.
+  if (isset($viewmode)) {
+    $variables['classes_array'][] = str_replace('_', '-', $viewmode);
   }
+
+  // create inheritance templates and preprocess functions for this entity
+  display_inherit_inheritance_factory($type, $bundle, $viewmode, 'foundation_access', $variables);
 }
 
 /**
- * Implementation of hook_preprocess_node_elmsmedia_image().
+ * Display Inherit External Video
  */
-function foundation_access_preprocess_node_elmsmedia_image(&$variables) {
-  krumo($variables);
+function foundation_access_preprocess_node__inherit__external_video__mediavideo(&$variables) {
+  $variables['poster'] = NULL;
+  $variables['video_url'] = NULL;
+  $variables['thumbnail'] = NULL;
+
+  // Set the poster
+  if (isset($variables['content']['field_poster'][0]['#image_style'])) {
+    $variables['poster'] = image_style_url($variables['content']['field_poster'][0]['#image_style'], $variables['content']['field_poster'][0]['#item']['uri']);
+  }
+  elseif (isset($variables['field_external_media'][0]['thumbnail_path'])) {
+    $variables['poster'] = image_style_url('mediavideo_poster', $variables['field_external_media'][0]['thumbnail_path']);
+  }
+
+  // Set the video url
+  if (isset($variables['field_external_media'][0]['video_url'])) {
+    $variables['video_url'] = $variables['field_external_media'][0]['video_url'];
+  }
+
+  if ($variables['view_mode'] == 'mediavideo') {
+    $variables['poster'] = NULL;
+  }
+}
+
+function foundation_access_preprocess_node__inherit__external_video__mediavideo__thumbnail(&$variables) {
+  $variables['thumbnail'] = true;
 }
 
 /**
