@@ -8240,6 +8240,18 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
   max-height: 40em; }
 
 @media only screen and (min-width: 40.063em) {
+  .image--left--small,
+  .image--left--small--lightboxed {
+    max-width: 30%;
+    margin-left: 0;
+    float: left;
+    margin-top: .5em; } }
+
+.image--left--small .image__img,
+.image--left--small--lightboxed .image__img {
+  max-height: 40em; }
+
+@media only screen and (min-width: 40.063em) {
   .image--right,
   .image--right--lightboxed {
     max-width: 50%;

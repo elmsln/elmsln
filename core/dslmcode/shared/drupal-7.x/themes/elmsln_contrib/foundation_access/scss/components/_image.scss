@@ -161,6 +161,21 @@ $image--margin: 1em;
 	}
 }
 
+.image--left--small,
+.image--left--small--lightboxed {
+	@media #{$medium-up} {
+		max-width: 30%;
+		margin-left: 0;
+		float: left;
+		// Mimic line height so it lines up with text
+		margin-top: .5em;
+	}
+
+	.image__img {
+		max-height: 40em;
+	}
+}
+
 .image--right,
 .image--right--lightboxed {
 	@media #{$medium-up} {

@@ -145,13 +145,20 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
   $variables['poster'] = FALSE;
   $variables['video_url'] = FALSE;
   $variables['thumbnail'] = FALSE;
+  $poster_image_uri = '';
 
-  // Set the poster
-  if (isset($variables['content']['field_poster'][0]['#image_style'])) {
-    $variables['poster'] = image_style_url($variables['content']['field_poster'][0]['#image_style'], $variables['content']['field_poster'][0]['#item']['uri']);
+  // Assign Poster
+  // if the poster field is available use that for the poster imgage
+  if (isset($variables['field_poster']) && $variables['field_poster']) {
+    $poster_image_uri = $variables['field_poster'][LANGUAGE_NONE][0]['uri'];
   }
-  elseif (isset($variables['field_external_media'][0]['thumbnail_path'])) {
-    $variables['poster'] = image_style_url('mediavideo_poster', $variables['field_external_media'][0]['thumbnail_path']);
+  // if not, attempt to use the thumbnail created by the video upload field
+  elseif (isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {
+    $poster_image_uri = $variables['content']['field_external_media']['#items'][0]['thumbnail_path'];
+  }
+  // if we have found a poster then assign it
+  if ($poster_image_uri) {
+    $variables['poster'] = image_style_url('image_poster', $poster_image_uri);
   }
 
   // Set the video url
@@ -159,6 +166,7 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
     $variables['video_url'] = $variables['field_external_media'][0]['video_url'];
   }
 
+  // Unset the poster if on the Mediavideo viewmode
   if ($variables['view_mode'] == 'mediavideo') {
     $variables['poster'] = NULL;
   }
@@ -177,18 +185,18 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
   $variables['image_cite'] = '';
   $variables['image_lightbox_url'] = '';
 
-  // Asign Image
+  // Assign Image
   if (isset($variables['elements']['field_image'][0])) {
     $variables['image'] = $variables['elements']['field_image'][0];
     $variables['image']['#item']['attributes']['class'][] = 'image__img';
   }
 
-  // Asign Caption
+  // Assign Caption
   if (isset($variables['elements']['field_image_caption'][0]['#markup'])) {
     $variables['image_caption'] = $variables['elements']['field_image_caption'][0]['#markup'];
   }
 
-  // Asign Cite
+  // Assign Cite
   if (isset($variables['elements']['field_citation'][0]['#markup'])) {
     $variables['image_cite'] = $variables['elements']['field_citation'][0]['#markup'];
   }
