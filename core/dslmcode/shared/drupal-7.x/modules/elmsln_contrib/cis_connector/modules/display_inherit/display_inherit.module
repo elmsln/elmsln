@@ -37,6 +37,14 @@ function display_inherit_field_display_alter(&$display, $context) {
 /**
  * Function for creating template and preprocess functions
  *
+ * This factory should be invoked at the preprocess level.
+ *
+ * Example:
+ * 		foundation_access_preprocess_node(&$variables) {
+ * 			// create inheritance templates and preprocess functions for this entity
+ *  		display_inherit_inheritance_factory('node', $variables['type'], $variables['view_mode'], 'foundation_access', $variables);
+ * 		}
+ *
  * @todo if theme_name is undefined then default to active theme.
  */
 function display_inherit_inheritance_factory($type, $bundle, $viewmode, $theme_name, &$variables) {
@@ -44,7 +52,6 @@ function display_inherit_inheritance_factory($type, $bundle, $viewmode, $theme_n
     $inheritance_stack = array();
 
     // Build the inheritance stack
-    array_push($inheritance_stack, $type);
     array_push($inheritance_stack, $bundle);
     foreach (explode('__', $viewmode) as $viewmode_name) {
       array_push($inheritance_stack, $viewmode_name);
@@ -53,15 +60,15 @@ function display_inherit_inheritance_factory($type, $bundle, $viewmode, $theme_n
     // Loop though the inheritance stack and build out the templates and preprocess
     // functions in the correct order`.
     foreach ($inheritance_stack as $key => $name) {
-      // We can skip the first row of the array because it just contains
-      // the entity type which Drupal core is already accounting for.
-      if (!is_null($name) && $key != '0') {
-      	// split the inheritance stack at it's current point
+      if (!is_null($name)) {
+        // split the inheritance stack at it's current point
         $stack = array_slice($inheritance_stack, 0, ++$key);
+        // Turn the stack order into a string
+        $stack_name = $type . '__inherit__' . implode('__', $stack);
         // create template suggestions based on the stack names
-        $variables['theme_hook_suggestions'][] = 'inherit__' . implode('__', $stack);
+        $variables['theme_hook_suggestions'][] = $stack_name;
         // create preprocess functions on the stack names
-        $function = $theme_name . '_preprocess_inherit__' . implode('__', $stack);
+        $function = $theme_name . '_preprocess_' . $stack_name;
         if (function_exists($function)) {
           $function($variables);
         }
