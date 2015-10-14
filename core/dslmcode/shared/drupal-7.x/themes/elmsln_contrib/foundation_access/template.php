@@ -142,9 +142,9 @@ function foundation_access_preprocess_node(&$variables) {
  * Display Inherit External Video
  */
 function foundation_access_preprocess_node__inherit__external_video__mediavideo(&$variables) {
-  $variables['poster'] = NULL;
-  $variables['video_url'] = NULL;
-  $variables['thumbnail'] = NULL;
+  $variables['poster'] = FALSE;
+  $variables['video_url'] = FALSE;
+  $variables['thumbnail'] = FALSE;
 
   // Set the poster
   if (isset($variables['content']['field_poster'][0]['#image_style'])) {
@@ -167,6 +167,38 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
 function foundation_access_preprocess_node__inherit__external_video__mediavideo__thumbnail(&$variables) {
   $variables['thumbnail'] = true;
 }
+
+/**
+ * Display Inherit Image
+ */
+function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$variables) {
+  $variables['image'] = array();
+  $variables['image_caption'] = '';
+  $variables['image_cite'] = '';
+  $variables['image_lightbox_url'] = '';
+
+  // Asign Image
+  if (isset($variables['elements']['field_image'][0])) {
+    $variables['image'] = $variables['elements']['field_image'][0];
+    $variables['image']['#item']['attributes']['class'][] = 'image__img';
+  }
+
+  // Asign Caption
+  if (isset($variables['elements']['field_image_caption'][0]['#markup'])) {
+    $variables['image_caption'] = $variables['elements']['field_image_caption'][0]['#markup'];
+  }
+
+  // Asign Cite
+  if (isset($variables['elements']['field_citation'][0]['#markup'])) {
+    $variables['image_cite'] = $variables['elements']['field_citation'][0]['#markup'];
+  }
+
+  // If the viewmode contains "lightbox" then enable the lightbox option
+  if (strpos($variables['view_mode'], 'lightboxed')) {
+    $variables['image_lightbox_url'] = image_style_url('image_lightboxed', $variables['image']['#item']['uri']);
+  }
+}
+
 
 /**
  * Implements template_menu_link.

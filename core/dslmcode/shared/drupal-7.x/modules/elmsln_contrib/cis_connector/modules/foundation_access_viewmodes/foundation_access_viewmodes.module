@@ -24,6 +24,22 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
     'label' => t('Image Boxed'),
     'custom settings' => FALSE,
   );
+  $entity_info['node']['view modes']['image__lightboxed'] = array(
+    'label' => t('Image Lightboxed'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__left__lightboxed'] = array(
+    'label' => t('Image Left Lightboxed'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__right__lightboxed'] = array(
+    'label' => t('Image Right Lightboxed'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__boxed__lightboxed'] = array(
+    'label' => t('Image Boxed Lightboxed'),
+    'custom settings' => FALSE,
+  );
   $entity_info['node']['view modes']['mediavideo'] = array(
     'label' => t('Media Video'),
     'custom settings' => FALSE,
