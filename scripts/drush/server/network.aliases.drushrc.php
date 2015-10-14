@@ -18,7 +18,7 @@ foreach ($aliases as $key => $alias) {
   // ensure we have two pieces here
   if (count($tmp) == 2) {
     // group as networks
-    $name = 'network.' . $tmp[1];
+    $name = $tmp[1];
     // ensure we have a site-list since this is just an alternate form of
     // what we already know about in the alias arrays
     if (isset($network[$name]['site-list'])) {
