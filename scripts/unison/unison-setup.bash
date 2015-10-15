@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-# create ssh-config file
-ssh_config="/Users/scienceonlineed/Documents/websites/elmsln/.vagrant/ssh-config"
-vagrant ssh-config > "$ssh_config"
-
 local_root="/Users/scienceonlineed/Documents/websites/elmsln"
 remote_root="ssh://default//var/www/elmsln"
+
+# create ssh-config file
+ssh_config="$local_root/.vagrant/ssh-config"
+vagrant ssh-config > "$ssh_config"
 
 # create unison profile
 profile="  
 root = $local_root
 root = $remote_root
-ignore = Name {.git,.vagrant,node_modules}
+ignore = Name {.git,.vagrant,node_modules,config/}
 
 prefer = $local_root  
 repeat = 2  
