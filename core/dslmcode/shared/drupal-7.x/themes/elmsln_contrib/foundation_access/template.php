@@ -135,7 +135,9 @@ function foundation_access_preprocess_node(&$variables) {
   }
 
   // create inheritance templates and preprocess functions for this entity
-  display_inherit_inheritance_factory($type, $bundle, $viewmode, 'foundation_access', $variables);
+  if (module_exists('display_inherit')) {
+    display_inherit_inheritance_factory($type, $bundle, $viewmode, 'foundation_access', $variables);
+  }
 }
 
 /**

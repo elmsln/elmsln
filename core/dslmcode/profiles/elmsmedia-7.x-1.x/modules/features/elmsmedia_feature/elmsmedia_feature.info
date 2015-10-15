@@ -56,6 +56,7 @@ features[field_instance][] = node-video-field_poster
 features[field_instance][] = node-video-field_tagging
 features[field_instance][] = node-video-field_transcript
 features[field_instance][] = node-video-field_video
+features[image][] = mediavideo_poster
 features[node][] = audio
 features[node][] = document
 features[node][] = elmsmedia_image

@@ -261,14 +261,11 @@ function elmsmedia_feature_strongarm() {
       'token' => array(
         'custom_settings' => FALSE,
       ),
-      'diff_standard' => array(
-        'custom_settings' => FALSE,
-      ),
-      'revision' => array(
-        'custom_settings' => FALSE,
-      ),
       'mediavideo' => array(
         'custom_settings' => TRUE,
+      ),
+      'diff_standard' => array(
+        'custom_settings' => FALSE,
       ),
       'image' => array(
         'custom_settings' => FALSE,
@@ -301,6 +298,9 @@ function elmsmedia_feature_strongarm() {
         'custom_settings' => FALSE,
       ),
       'mediavideo__thumbnail__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'revision' => array(
         'custom_settings' => FALSE,
       ),
     ),
