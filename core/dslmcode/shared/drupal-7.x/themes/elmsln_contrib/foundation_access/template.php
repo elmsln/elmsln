@@ -146,11 +146,12 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
   $variables['video_url'] = FALSE;
   $variables['thumbnail'] = FALSE;
   $poster_image_uri = '';
+  $elements = &$variables['elements'];
 
   // Assign Poster
   // if the poster field is available use that for the poster imgage
-  if (isset($variables['field_poster']) && $variables['field_poster']) {
-    $poster_image_uri = $variables['field_poster'][LANGUAGE_NONE][0]['uri'];
+  if (isset($elements['field_poster']['#items'][0])) {
+    $poster_image_uri = $elements['field_poster']['#items'][0]['uri'];
   }
   // if not, attempt to use the thumbnail created by the video upload field
   elseif (isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {
@@ -158,12 +159,12 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
   }
   // if we have found a poster then assign it
   if ($poster_image_uri) {
-    $variables['poster'] = image_style_url('image_poster', $poster_image_uri);
+    $variables['poster'] = image_style_url('mediavideo_poster', $poster_image_uri);
   }
 
   // Set the video url
-  if (isset($variables['field_external_media'][0]['video_url'])) {
-    $variables['video_url'] = $variables['field_external_media'][0]['video_url'];
+  if (isset($elements['field_external_media']['#items'][0]['video_url']) && $elements['field_external_media']['#items'][0]['video_url']) {
+    $variables['video_url'] = $elements['field_external_media']['#items'][0]['video_url'];
   }
 
   // Unset the poster if on the Mediavideo viewmode
