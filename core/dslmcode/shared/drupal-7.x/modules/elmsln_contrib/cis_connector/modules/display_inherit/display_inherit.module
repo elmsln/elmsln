@@ -1,6 +1,12 @@
 <?php
 
 /**
+ * @file
+ * Contains display alters and template/preprocess creation function
+ * to set up inheritance stacks for view modes.
+ */
+
+/**
  * Implements hook_field_display_alter().
  *
  * @todo put an if statement in for 'full' viewmode
