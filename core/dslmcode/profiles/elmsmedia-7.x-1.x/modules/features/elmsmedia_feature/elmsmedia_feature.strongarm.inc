@@ -225,6 +225,48 @@ function elmsmedia_feature_strongarm() {
       'token' => array(
         'custom_settings' => FALSE,
       ),
+      'image' => array(
+        'custom_settings' => TRUE,
+      ),
+      'diff_standard' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo__poster' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo__thumbnail' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'revision' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
