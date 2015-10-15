@@ -11,7 +11,7 @@ vagrant ssh-config > "$ssh_config"
 profile="  
 root = $local_root
 root = $remote_root
-ignore = Name {.git,.vagrant,node_modules,config/}
+ignore = Name {.git,.vagrant,node_modules,config}
 
 prefer = $local_root  
 repeat = 2  
