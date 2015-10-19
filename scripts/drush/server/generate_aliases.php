@@ -3,9 +3,10 @@
  * Automatically find and create drush aliases on the server.
  * @param  array $aliases  array of drush aliases
  */
-function _elmsln_alises_build_server(&$aliases) {
+function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
   // static cache assembled aliases as this can get tripped often
   static $pulledaliases = array();
+  static $pulledauthorities = array();
   // check for pervasive cache if static is empty
   if (empty($pulledaliases)) {
     // assumption here is that it lives where we expect
@@ -62,6 +63,12 @@ function _elmsln_alises_build_server(&$aliases) {
             // only include stack if it has things we can step through
             // this helps avoid issues of unused stacks throwing errors
             if (file_exists("$root$stack/sites/$stack/$group")) {
+              // build root alias for the stack
+              $pulledauthorities[$stack] = array(
+                'root' => $root . $stack,
+                'uri' => "$stack.$address",
+              );
+
               // step through sites directory
               $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
               while ($site->valid()) {
@@ -95,4 +102,5 @@ function _elmsln_alises_build_server(&$aliases) {
     }
   }
   $aliases = $pulledaliases;
+  $authorities = $pulledauthorities;
 }
