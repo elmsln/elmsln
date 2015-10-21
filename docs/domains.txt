@@ -131,3 +131,13 @@ NameVirtualHost *:80
     Order allow,deny
     allow from all
 </Directory>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/lq
+    ServerName lq.YOURUNIT.edu
+    ServerAlias DATA.lq.SERVICEYOURUNIT.edu
+</VirtualHost>
+<Directory /var/www/elmsln/domains/lq>
+    AllowOverride All
+    Order allow,deny
+    allow from all
+</Directory>
