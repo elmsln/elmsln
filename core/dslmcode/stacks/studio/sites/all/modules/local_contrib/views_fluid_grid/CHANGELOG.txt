@@ -1,0 +1,8 @@
+7.x-3.0
+=======
+
+Features:
+- Issue #[908920] by [recidive, BWPanda, Matthew Davidson]: Port to Drupal 7, Views 3 (Views Fluid Grid).
+
+Bugfixes:
+- Issue #[1349104] by [ckng]: Restore missing css files from 6.x-1.x.

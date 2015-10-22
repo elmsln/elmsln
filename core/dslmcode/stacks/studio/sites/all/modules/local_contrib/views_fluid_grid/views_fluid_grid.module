@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Exposes a views style plugin to render items on a fluid grid.
+ */
+
+/**
+ * Implementation of hook_views_api().
+ */
+function views_fluid_grid_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'views_fluid_grid') .'/views',
+  );
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function views_fluid_grid_init() {
+  // Views live preview does not load additional stylesheets because it
+  // does not use Ajax Load module properly here.
+  // So, let's make sure our stylesheets are loaded in Views UI.
+  if (strpos($_GET['q'], 'admin/build/views/edit/') === 0) {
+    $module_path = drupal_get_path('module', 'views_fluid_grid');
+    drupal_add_css($module_path .'/css/views_fluid_grid.base.css');
+    drupal_add_css($module_path .'/css/views_fluid_grid.size.css');
+    drupal_add_css($module_path .'/css/views_fluid_grid.advanced.css');
+  }
+}
