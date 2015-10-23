@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Headless Authoring eXperience
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function hax_menu() {
+  $items['node/%node/authoring'] = array(
+    'title' => 'Edit',
+    'page callback' => 'hax_page_edit',
+    'page arguments' => array(1),
+    'access callback' => 'hax_access',
+    'access arguments' => array('update', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'hax.pages.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function hax_permission() {
+  return array(
+    'use hax' =>  array(
+      'title' => t('Use HAX editor'),
+      'description' => t('Advanced authoring experience that allows drag and drop layout and page assembly.'),
+    ),
+  );
+}
+
+function hax_access($op, $node) {
+  if (user_access('use hax') && node_access($op, $node)) {
+    return TRUE;
+  }
+  return FALSE;
+}
