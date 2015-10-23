@@ -4,6 +4,8 @@
  * Implements hook_menu().
  */
 function hax_page_edit($node) {
+  drupal_add_js(drupal_get_path('module', 'hax') . '/js/hax.js');
+  drupal_add_css(drupal_get_path('module', 'hax') . '/css/hax.css');
   return '<div class="columns hax-accessible">
   <!-- drop zones (need to add these via jquery) -->
 

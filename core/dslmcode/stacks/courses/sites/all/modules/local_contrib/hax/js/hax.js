@@ -1,7 +1,4 @@
 (function ($) {
-  $(document).foundation();
-
-
 ////////////////////////////
 ////////////////////////////
 // http://www.sitepoint.com/accessible-drag-drop
