@@ -1,0 +1,15 @@
+name = Inbox UX
+description = User experience glue for Inbox distribution.
+core = 7.x
+package = Inbox
+dependencies[] = cis_service_connection_ux
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = menu
+dependencies[] = views
+dependencies[] = inbox_event
+features[context][] = inbox-home
+features[ctools][] = context:context:3
+features[features_api][] = api:2
+features[menu_links][] = menu-cis-add_calendar-event:node/add/inbox-event

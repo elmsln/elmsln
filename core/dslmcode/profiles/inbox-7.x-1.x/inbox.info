@@ -136,3 +136,8 @@ dependencies[] = cis_course_authority
 dependencies[] = og
 dependencies[] = og_ui
 dependencies[] = calendar
+
+dependencies[] = inbox_helper
+dependencies[] = inbox_calendar
+dependencies[] = inbox_event
+dependencies[] = inbox_ux

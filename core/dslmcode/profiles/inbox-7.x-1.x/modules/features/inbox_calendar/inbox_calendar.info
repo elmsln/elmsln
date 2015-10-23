@@ -1,0 +1,12 @@
+name = Inbox Calendar
+description = Calendar for visualizing when inbox events are due
+core = 7.x
+package = Inbox
+dependencies[] = calendar
+dependencies[] = date_views
+dependencies[] = views
+dependencies[] = inbox_event
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = inbox_calendar
+features_exclude[dependencies][ctools] = ctools
