@@ -24,6 +24,16 @@ function hax_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function hax_menu_alter(&$items) {
+  // change the "node/edit" tab label to say advanced
+  $items['node/%node/edit']['title'] = t('Advanced edit');
+  $items['node/%node/edit']['weight'] = 1;
+
+}
+
+/**
  * Implements hook_permission().
  */
 function hax_permission() {
