@@ -71,6 +71,7 @@ function _cis_section_og_context_handler() {
  * Implements hook_cron().
  */
 function cis_section_cron() {
+  // @todo ensure cis_section_authority isn't enabled or we need to sync differently
   // the magic that keeps sections in sync with the cis
   $query = array(
     'type' => 'course',
