@@ -130,3 +130,9 @@ dependencies[] = cis_course_authority
 ; END ELMSLN Core Dependencies
 ; ----------
 
+; ----------
+; Inbox Dependencies
+; ----------
+dependencies[] = og
+dependencies[] = og_ui
+dependencies[] = calendar
