@@ -1,0 +1,7 @@
+## Why doesn’t this look like Drupal?
+
+Because it’s Drupal and other packages setup in an optimal format for a network of deployed distributions. This is Drupal, we assure you. Everything is still done in a completely core compliant way, it's just structured to maximize needed efficiencies of a heavily networked ecosystem (as well as being able to support low-resource environments). The packaging deployment methodology is referred to as Galaxy as it's for managing a distribution, of distributions.
+
+Everything is setup in a manner that has flexibility, sustainability and long term system growth in mind. It’s using a patched version of a drush extension called DSLM to help manage the symlinks between items but it’s heavily symlink. This helps optimize APC as well as make it maintainable for a single person to manage 100s of sites with similar code pushes. the config directory also has all local changes (of any kind) symlinked from it. This allows for the ability to manage the entire ELMSLN deployment as 2 independent repos (1 that's this repo, another that's your own for configuration).
+
+An example of the config directory can be found here: https://github.com/btopro/elmsln-config-example . The config directory heavily mirrors the structure of the main galaxy based repo. By symlinking everything over, technically the config directory of any ELMSLN deployment can be hot swapped by using a simple script like the one found in: https://github.com/btopro/elmsln/blob/master/scripts/utilities/migration/pull-down.sh
