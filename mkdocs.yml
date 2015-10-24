@@ -7,8 +7,20 @@ pages:
   - Roadmap: Roadmap.md
   - Information Architecture: Information-Architecture.md
   - Tools:
-    - Authorities:
-      - CIS: systems/authority/CIS.md
+    - Authorities: systems/authority.md
+      - Online: systems/authority/online.md
+      - Media: systems/authority/media.md
+      - Interact: systems/authority/interact.md
+      - People: systems/authority/people.md
+      - Inbox: systems/authority/inbox.md
+      - LQ: systems/authority/lq.md
+      - Grades: systems/authority/grades.md
+    - Services: systems/services.md
+      - Courses: systems/services/courses.md
+      - Studio: systems/services/studio.md
+      - Discuss: systems/services/discuss.md
+      - Blog: systems/services/blog.md
+    - Innovate: systems/developer/innovate.md
 - Installation:
   - Installation: Installation.md
   - Package Structure:
