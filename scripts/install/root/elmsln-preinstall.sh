@@ -265,18 +265,18 @@ fi
 # performance / recommended settings
 if [[ -n "$apcini" ]]; then
   rm $apcini
-  cp /var/www/elmsln/docs/apc.txt $apcini
+  cp /var/www/elmsln/scripts/server/apc.txt $apcini
 fi
 if [[ -n "$phpini" ]]; then
-  cat /var/www/elmsln/docs/php.txt >> $phpini
+  cat /var/www/elmsln/scripts/server/php.txt >> $phpini
 fi
 if [[ -n "$mycnf" ]]; then
-  cat /var/www/elmsln/docs/my.txt >> $mycnf
+  cat /var/www/elmsln/scripts/server/my.txt >> $mycnf
 fi
 
 if [[ -n "$domains" ]]; then
   # try to automatically author the domains file(s)
-  cp /var/www/elmsln/docs/domains.txt "$domains"
+  cp /var/www/elmsln/scripts/server/domains.txt "$domains"
   # replace servicedomain partial with what was entered above
   sed -e "s/SERVICEYOURUNIT.edu/${serviceaddress}/g" $domains > "${domains}.tmp" && mv "${domains}.tmp" $domains
   # replace domain partial with what was entered above
@@ -311,7 +311,7 @@ if [ $os == '1' ]; then
 fi
 
 if [[ -n "$zzz_performance" ]]; then
-  cp /var/www/elmsln/docs/zzz_performance.conf $zzz_performance
+  cp /var/www/elmsln/scripts/server/zzz_performance.conf $zzz_performance
   # account for ubuntu being a little different here when it comes to apache
   if [ $os == '2' ]; then
     ln -s $zzz_performance /etc/apache2/sites-enabled/zzz_performance.conf
@@ -362,7 +362,7 @@ fi
 # source one last time before hooking crontab into the root user call
 source $HOME/.bashrc
 if [[ -n "$crontab" ]]; then
-  cat /var/www/elmsln/docs/crontab.txt >> $crontab
+  cat /var/www/elmsln/scripts/server/crontab.txt >> $crontab
 fi
 
 elmslnecho "Everything should be in place, now you can log out and run the following commands:"
