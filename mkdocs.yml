@@ -6,6 +6,9 @@ pages:
   - Acronyms: Acronyms.md
   - Roadmap: Roadmap.md
   - Information Architecture: Information-Architecture.md
+  - Tools:
+    - Authorities:
+      - CIS: systems/authority/CIS.md
 - Installation:
   - Installation: Installation.md
   - Package Structure:
