@@ -7,7 +7,8 @@ pages:
   - Roadmap: Roadmap.md
   - Information Architecture: Information-Architecture.md
   - Tools:
-    - Authorities: systems/authority.md
+    - Authority:
+      - What is an authority?: systems/authority.md
       - Online: systems/authority/online.md
       - Media: systems/authority/media.md
       - Interact: systems/authority/interact.md
@@ -15,11 +16,12 @@ pages:
       - Inbox: systems/authority/inbox.md
       - LQ: systems/authority/lq.md
       - Grades: systems/authority/grades.md
-    - Services: systems/services.md
-      - Courses: systems/services/courses.md
-      - Studio: systems/services/studio.md
-      - Discuss: systems/services/discuss.md
-      - Blog: systems/services/blog.md
+    - Service:
+      - What is a service?: systems/service.md
+      - Courses: systems/service/courses.md
+      - Studio: systems/service/studio.md
+      - Discuss: systems/service/discuss.md
+      - Blog: systems/service/blog.md
     - Innovate: systems/developer/innovate.md
 - Installation:
   - Installation: Installation.md
