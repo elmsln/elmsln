@@ -2,6 +2,8 @@
 
 ELMSLN
 ==============
+
+[![Join the chat at https://gitter.im/elmsln/elmsln](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/elmsln/elmsln?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ELMS Learning Network (ELMSLN) is an open source educational technology platform for building and sustaining innovation in course technologies. It accomplishes this by taking a Suite of Tools approach to learning design, allowing several systems to make up the different aspects of a course learning environment.  Each course effectively forms a network of technologies (hence the name) which can then be better tailored to each individual course's needs.
 
 Learn more about ELMSLN @ [elmsln.org](http://elmsln.org/)
