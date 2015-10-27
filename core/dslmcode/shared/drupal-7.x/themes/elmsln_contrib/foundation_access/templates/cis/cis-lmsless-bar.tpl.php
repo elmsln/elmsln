@@ -18,6 +18,7 @@
           <li class="apps">
             <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap" data-reveal-id="apps-nav-modal">
               <div class="icon-apps-black etb-icons svg"></div>
+              <span class="visible-for-large-up"><?php print t('Network'); ?></span>
             </a>
           </li>
           <?php endif; ?>
