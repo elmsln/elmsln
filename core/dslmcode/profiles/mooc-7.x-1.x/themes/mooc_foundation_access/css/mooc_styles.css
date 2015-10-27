@@ -232,6 +232,9 @@ a.mooc-helper-toc {
 }
 
 @media all and (max-width: 720px) {
+  .magellan-wrap.fixed {
+    top: 0 !important;
+  }
   .left-off-canvas-toggle.menu-icon {
     display: block;
   }
