@@ -62,7 +62,7 @@ if [ ! -d "$configsdir/config/stacks/$domain" ]; then
   cp "$elmsln/core/dslmcode/cores/drupal-7/sites/default/default.settings.php" "$configsdir/config/stacks/$domain/sites/default/default.settings.php"
   mkdir "$configsdir/config/stacks/$domain/sites/$domain"
   # get favicon in place
-  cp "$elmsln/docs/assets/favicon.png" "$configsdir/config/stacks/$domain/favicon.ico"
+  cp "$elmsln/scripts/server/assets/favicon.png" "$configsdir/config/stacks/$domain/favicon.ico"
   cp "$elmsln/core/dslmcode/cores/drupal-7/.htaccess" "$configsdir/config/stacks/$domain/.htaccess"
   # copy sites.php example then write into it at bottom
   cp "$elmsln/core/dslmcode/cores/drupal-7/sites/example.sites.php" "$configsdir/config/stacks/$domain/sites/sites.php"
@@ -97,7 +97,7 @@ fi
 # todo, need to issue a registry resync against CIS
 # this will activate the new service once we've populated the info above
 elmslnecho "The tool named $domain has now been added to the ELMSLN structure, but the URLs associated to it are not active."
-elmslnecho "You should review $elmsln/docs/domains.txt for how to hook it up to apache."
+elmslnecho "You should review $elmsln/scripts/server/domains.txt for how to hook it up to apache."
 elmslnecho "You'll want to add something like the following to /etc/httpd/conf.d/elmsln.conf"
 elmslnecho "<VirtualHost *:80>"
 elmslnecho "    DocumentRoot $elmsln/domains/$domain"

@@ -77,7 +77,7 @@ Drupal.behaviors.outline_designer_book = {
       }
       if(e.keyCode == 27){  // ESC pressed
         Drupal.outline_designer_ops.active('span').css('display','');
-        Drupal.outline_designer_ops.active('input').val(Drupal.outline_designer_ops.active('span').html().replace(/(<([^>]+)>)/ig,""));
+        Drupal.outline_designer_ops.active('input').val(Drupal.checkPlain(Drupal.outline_designer_ops.active('span').html()));
         Drupal.outline_designer_ops.active('input').blur();
       }
     });
@@ -225,7 +225,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
       title = title.replace(/%23/g,"@2@3@"); //weird escape for ajax with #
       title = title.replace(/%2B/g,"@2@B@"); //weird escape for ajax with +
       title = title.replace(/%26/g,"@2@6@"); // Fix ampersand issue &
-      title = title.replace(/(<([^>]+)>)/ig,"");
+      title = Drupal.checkPlain(title);
       Drupal.outline_designer.ajax_call(Drupal.settings.outline_designer.type, 'rename', Drupal.settings.outline_designer.activeNid, title, null, 'Drupal.outline_designer_ops.rename_submit_success');
     }
   };
@@ -234,7 +234,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
     // if message isn't 0 then we were successful
     if (msg != 0) {
       msg = jQuery.parseJSON(msg);
-      msg = msg.replace(/(<([^>]+)>)/ig,"");
+      msg = Drupal.checkPlain(msg);
       Drupal.outline_designer_ops.active('span').html(msg);
       Drupal.outline_designer_ops.active('input').val(msg);
       $("#reload_table").trigger('change');
@@ -250,7 +250,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
   };
   Drupal.outline_designer_ops.add_content_submit = function() {
     var title = $.param($("#od_add_content_title"));
-    title = title.replace(/(<([^>]+)>)/ig,""); // xss filter, no tags in here
+    title = Drupal.checkPlain(title); // xss filter, no tags in here
     title = title.replace(/%2F/g,"@2@F@"); //weird escape for ajax with /
     title = title.replace(/%23/g,"@2@3@"); //weird escape for ajax with #
     title = title.replace(/%2B/g,"@2@B@"); //weird escape for ajax with +
@@ -295,7 +295,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
     attach: function (context, settings) {
     $("#od_add_content_title", context).keyup(function(e){
       // filter xss
-      var titleval = $("#od_add_content_title").val().replace(/(<([^>]+)>)/ig,"");
+      var titleval = Drupal.checkPlain($("#od_add_content_title").val());
       $(".popup-statusbar .tmptitle").empty().append(titleval);
 });
     }

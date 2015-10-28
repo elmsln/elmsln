@@ -5,9 +5,9 @@ package = Fields
 hidden = TRUE
 
 
-; Information added by Drupal.org packaging script on 2014-06-04
-version = "7.x-1.4"
+; Information added by Drupal.org packaging script on 2015-10-01
+version = "7.x-1.4+19-dev"
 core = "7.x"
 project = "field_group"
-datestamp = "1401918529"
+datestamp = "1443700916"
 

@@ -15,6 +15,7 @@
 127.0.0.1      inbox.elmsln.local
 127.0.0.1      innovate.elmsln.local
 127.0.0.1      grades.elmsln.local
+127.0.0.1      lq.elmsln.local
 
 
 # backend webservices addresses
@@ -30,3 +31,4 @@
 127.0.0.1      data-inbox.elmsln.local
 127.0.0.1      data-innovate.elmsln.local
 127.0.0.1      data-grades.elmsln.local
+127.0.0.1      data-lq.elmsln.local

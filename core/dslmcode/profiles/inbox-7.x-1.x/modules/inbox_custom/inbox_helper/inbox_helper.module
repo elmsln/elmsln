@@ -1,0 +1,27 @@
+<?php
+/**
+ * @file
+ * Code for the Inbox Helper feature.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function inbox_helper_menu() {
+  $items['inbox-home'] = array(
+    'title' => 'Inbox',
+    'page callback' => 'inbox_home',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Callback for inbox home
+ * Placeholder menu path for blocks and views to tack onto.
+ */
+function inbox_home() {
+  return '';
+}

@@ -3,9 +3,10 @@
  * Automatically find and create drush aliases on the server.
  * @param  array $aliases  array of drush aliases
  */
-function _elmsln_alises_build_server(&$aliases) {
+function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
   // static cache assembled aliases as this can get tripped often
   static $pulledaliases = array();
+  static $pulledauthorities = array();
   // check for pervasive cache if static is empty
   if (empty($pulledaliases)) {
     // assumption here is that it lives where we expect
@@ -16,7 +17,7 @@ function _elmsln_alises_build_server(&$aliases) {
     $config = array();
     // read each line of the config file
     foreach ($lines as $line) {
-      // make sure this line isn't a comment and has a=
+      // make sure this line isn't a comment and has a = in it
       if (strpos($line, '#') !== 0 && strpos($line, '=')) {
         $tmp = explode('=', $line);
         // ensure we have 2 settings before doing this
@@ -63,10 +64,11 @@ function _elmsln_alises_build_server(&$aliases) {
             // this helps avoid issues of unused stacks throwing errors
             if (file_exists("$root$stack/sites/$stack/$group")) {
               // build root alias for the stack
-              $pulledaliases[$stack] = array(
+              $pulledauthorities[$stack] = array(
                 'root' => $root . $stack,
                 'uri' => "$stack.$address",
               );
+
               // step through sites directory
               $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
               while ($site->valid()) {
@@ -76,7 +78,7 @@ function _elmsln_alises_build_server(&$aliases) {
                     // Add site alias
                     $basename = $site->getBasename();
                     $pulledaliases["$stack.$basename"] = array(
-                      'parent' => "@$stack",
+                      'root' => $root . $stack,
                       'uri' => "$stack.$address.$basename",
                     );
                   }
@@ -87,7 +89,7 @@ function _elmsln_alises_build_server(&$aliases) {
             // account for stacks that function more like CIS
             if (file_exists("$root$stack/sites/$stack/$group/settings.php")) {
               $pulledaliases["$stack.$group"] = array(
-                'parent' => "@$stack",
+                'root' => $root . $stack,
                 'uri' => "$stack.$address",
               );
             }
@@ -99,21 +101,6 @@ function _elmsln_alises_build_server(&$aliases) {
       }
     }
   }
-
-  /**
-   * Magic to auto produce additional alias sub-groups
-   */
-  $modifier = '-all';
-  foreach ($pulledaliases as $key => $values) {
-    $aliases[$key] = $values;
-    $parts = explode('.', $key);
-    if (count($parts) >= 2) {
-      // something that's in a subgroup
-      array_push($aliases[$parts[0] . $modifier]['site-list'], '@' . $key);
-    }
-    else {
-      // something is group-able
-      $aliases[$key . $modifier] = array('site-list' => array());
-    }
-  }
+  $aliases = $pulledaliases;
+  $authorities = $pulledauthorities;
 }

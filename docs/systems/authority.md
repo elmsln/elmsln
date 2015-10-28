@@ -1,0 +1,3 @@
+Authority systems are those that have a single source. These are systems in a network that really need to only exist in one place. For example, if there were multiple asset management systems, or per course asset management systems, it would become unmanagable.
+
+Also, if there were multiple authorities of section data, it would become difficult to maintain integrity of sections across the rest of the network.

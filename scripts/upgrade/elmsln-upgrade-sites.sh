@@ -36,12 +36,6 @@ elmslnecho "Running update hooks"
 drush @elmsln cook dr_run_updates --y
 # run global upgrades from drup recipes
 drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --y
-# trigger crons to run now that these sites are all back and happy
-elmslnecho "Run crons as clean up"
-drush @elmsln cron --y
-# now loop through and prime the caches on everything
-elmslnecho "Seeding caches of all entities"
-drush @elmsln ecl --y
 
 # load the stacks in question
 cd /var/www/elmsln/core/dslmcode/stacks
@@ -50,5 +44,12 @@ for stack in "${stacklist[@]}"
 do
   elmslnecho "Applying specific upgrades against $stack"
   # run stack specific upgrades if they exist
-  drush @${stack}-all drup d7_elmsln_${stack}-all ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack}-all --y
+  drush @${stack}-all drup d7_elmsln_${stack} ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack} --y
 done
+
+# trigger crons to run now that these sites are all back and happy
+elmslnecho "Run crons as clean up"
+drush @elmsln cron --y
+# now loop through and prime the caches on everything
+elmslnecho "Seeding caches of all entities"
+drush @elmsln ecl --y

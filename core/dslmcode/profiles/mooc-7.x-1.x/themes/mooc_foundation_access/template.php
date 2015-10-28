@@ -14,7 +14,7 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   }
   // support for add child page shortcut
   $node = menu_get_object();
-  if (user_access('access printer-friendly version')) {
+  if ($node && user_access('access printer-friendly version')) {
     $variables['tabs_extras'][200][] = '<hr>';
     $variables['tabs_extras'][200][] = l(t('Print'), 'book/export/html/' . arg(1));
   }
