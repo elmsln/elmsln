@@ -117,6 +117,96 @@ function foundation_access_preprocess_page(&$variables) {
 }
 
 /**
+ * Implementation of hook_preprocess_node().
+ */
+function foundation_access_preprocess_node(&$variables) {
+  $type = 'node';
+  $bundle = $variables['type'];
+  $viewmode = $variables['view_mode'];
+
+  // add the view mode name to the classes array.
+  if (isset($viewmode)) {
+    $variables['classes_array'][] = str_replace('_', '-', $viewmode);
+  }
+
+  // create inheritance templates and preprocess functions for this entity
+  if (module_exists('display_inherit')) {
+    display_inherit_inheritance_factory($type, $bundle, $viewmode, 'foundation_access', $variables);
+  }
+}
+
+/**
+ * Display Inherit External Video
+ */
+function foundation_access_preprocess_node__inherit__external_video__mediavideo(&$variables) {
+  $variables['poster'] = FALSE;
+  $variables['video_url'] = FALSE;
+  $variables['thumbnail'] = FALSE;
+  $poster_image_uri = '';
+  $elements = &$variables['elements'];
+
+  // Assign Poster
+  // if the poster field is available use that for the poster imgage
+  if (isset($elements['field_poster']['#items'][0])) {
+    $poster_image_uri = $elements['field_poster']['#items'][0]['uri'];
+  }
+  // if not, attempt to use the thumbnail created by the video upload field
+  elseif (isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {
+    $poster_image_uri = $variables['content']['field_external_media']['#items'][0]['thumbnail_path'];
+  }
+  // if we have found a poster then assign it
+  if ($poster_image_uri) {
+    $variables['poster'] = image_style_url('mediavideo_poster', $poster_image_uri);
+  }
+
+  // Set the video url
+  if (isset($elements['field_external_media']['#items'][0]['video_url']) && $elements['field_external_media']['#items'][0]['video_url']) {
+    $variables['video_url'] = $elements['field_external_media']['#items'][0]['video_url'];
+  }
+
+  // Unset the poster if on the Mediavideo viewmode
+  if ($variables['view_mode'] == 'mediavideo') {
+    $variables['poster'] = NULL;
+  }
+}
+
+function foundation_access_preprocess_node__inherit__external_video__mediavideo__thumbnail(&$variables) {
+  $variables['thumbnail'] = true;
+}
+
+/**
+ * Display Inherit Image
+ */
+function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$variables) {
+  $variables['image'] = array();
+  $variables['image_caption'] = '';
+  $variables['image_cite'] = '';
+  $variables['image_lightbox_url'] = '';
+
+  // Assign Image
+  if (isset($variables['elements']['field_image'][0])) {
+    $variables['image'] = $variables['elements']['field_image'][0];
+    $variables['image']['#item']['attributes']['class'][] = 'image__img';
+  }
+
+  // Assign Caption
+  if (isset($variables['elements']['field_image_caption'][0]['#markup'])) {
+    $variables['image_caption'] = $variables['elements']['field_image_caption'][0]['#markup'];
+  }
+
+  // Assign Cite
+  if (isset($variables['elements']['field_citation'][0]['#markup'])) {
+    $variables['image_cite'] = $variables['elements']['field_citation'][0]['#markup'];
+  }
+
+  // If the viewmode contains "lightbox" then enable the lightbox option
+  if (strpos($variables['view_mode'], 'lightboxed')) {
+    $variables['image_lightbox_url'] = image_style_url('image_lightboxed', $variables['image']['#item']['uri']);
+  }
+}
+
+
+/**
  * Implements template_menu_link.
  */
 function foundation_access_menu_link(&$variables) {

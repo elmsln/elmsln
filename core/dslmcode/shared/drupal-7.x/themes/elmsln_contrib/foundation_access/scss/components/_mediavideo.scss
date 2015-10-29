@@ -81,7 +81,7 @@ category:
 
 ```html_example
 <p>Lorem ipsum Quis eu velit amet ut deserunt qui et et ut exercitation sit dolore do non labore laborum cillum mollit adipisicing ut est fugiat incididunt laboris aliquip ad non anim quis commodo mollit dolore qui eu est consequat dolore mollit cillum id adipisicing sit veniam magna sunt id sit ut incididunt esse in sed ex consequat culpa tempor deserunt sed minim proident dolor et ullamco aute incididunt ad elit incididunt ullamco ea laboris sunt et aute amet cillum voluptate cillum ut irure dolore proident nulla eu fugiat est aute Excepteur minim do anim dolore nostrud consequat cupidatat dolor dolor pariatur sed Excepteur sit id sunt in cillum amet sint laborum incididunt ut sit dolore eu commodo sit qui Ut velit ullamco occaecat reprehenderit non laborum exercitation dolore enim reprehenderit velit exercitation sit commodo consectetur dolore nostrud adipisicing mollit dolor dolor minim commodo Duis ut enim cillum elit ullamco anim deserunt proident velit proident reprehenderit dolor magna pariatur nisi enim Duis culpa elit laborum minim sint est dolor deserunt adipisicing ut anim consequat sunt nulla quis ad culpa Excepteur sit laborum dolore consectetur ex aliqua magna sunt quis mollit ea dolor in Ut adipisicing non in cillum cillum cupidatat anim exercitation sunt laborum aliqua in ut dolore eu cupidatat.</p>
-<figure class="mediavideo mediavideo--thumbnail-right">
+<figure class="mediavideo mediavideo--thumbnail--right">
 	<a href="#" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
 	<div class="mediavideo__video-wrapper">
 		<iframe data-mediavideo-src="https://www.youtube.com/embed/UvEiSa6_EPA?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
@@ -136,6 +136,13 @@ category:
 		height: auto;
 		opacity: 1;
 		visibility: visible;
+		display: flex;
+		align-items: center;
+
+		img {
+			width: 100%;
+			height: auto;
+		}
 	}
 
 	&__open {
@@ -251,7 +258,7 @@ category:
 }
 
 // Thumbnail Right {
-.mediavideo--thumbnail-right {
+.mediavideo--thumbnail--right {
 	@extend %mediavideo--thumbnail;
 	float: right;
 	margin-left: 1rem;

@@ -1,0 +1,59 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
+  $entity_info['node']['view modes']['image'] = array(
+    'label' => t('Image'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__left'] = array(
+    'label' => t('Image Left'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__right'] = array(
+    'label' => t('Image Right'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__boxed'] = array(
+    'label' => t('Image Boxed'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__lightboxed'] = array(
+    'label' => t('Image Lightboxed'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__left__lightboxed'] = array(
+    'label' => t('Image Left Lightboxed'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__right__lightboxed'] = array(
+    'label' => t('Image Right Lightboxed'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image__boxed__lightboxed'] = array(
+    'label' => t('Image Boxed Lightboxed'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediavideo'] = array(
+    'label' => t('Media Video'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediavideo__poster'] = array(
+    'label' => t('Media Video Poster'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediavideo__thumbnail'] = array(
+    'label' => t('Media Video Thumbnail'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediavideo__thumbnail__right'] = array(
+    'label' => t('Media Video Thumbnail Right'),
+    'custom settings' => FALSE,
+  );
+}

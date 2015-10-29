@@ -21,6 +21,64 @@ function elmsmedia_feature_views_api($module = NULL, $api = NULL) {
 }
 
 /**
+ * Implements hook_image_default_styles().
+ */
+function elmsmedia_feature_image_default_styles() {
+  $styles = array();
+
+  // Exported image style: image.
+  $styles['image'] = array(
+    'label' => 'Image',
+    'effects' => array(
+      3 => array(
+        'name' => 'image_scale',
+        'data' => array(
+          'width' => 1200,
+          'height' => '',
+          'upscale' => 0,
+          '#imageinfo_cache_effect_callback' => 'image_scale_effect',
+        ),
+        'weight' => 1,
+      ),
+    ),
+  );
+
+  // Exported image style: image_lightboxed.
+  $styles['image_lightboxed'] = array(
+    'label' => 'Image Lightboxed',
+    'effects' => array(
+      2 => array(
+        'name' => 'image_scale_and_crop',
+        'data' => array(
+          'width' => 1200,
+          'height' => 800,
+          '#imageinfo_cache_effect_callback' => 'image_scale_and_crop_effect',
+        ),
+        'weight' => 1,
+      ),
+    ),
+  );
+
+  // Exported image style: mediavideo_poster.
+  $styles['mediavideo_poster'] = array(
+    'label' => 'Mediavideo Poster',
+    'effects' => array(
+      1 => array(
+        'name' => 'image_scale_and_crop',
+        'data' => array(
+          'width' => 1200,
+          'height' => 800,
+          '#imageinfo_cache_effect_callback' => 'image_scale_and_crop_effect',
+        ),
+        'weight' => 1,
+      ),
+    ),
+  );
+
+  return $styles;
+}
+
+/**
  * Implements hook_node_info().
  */
 function elmsmedia_feature_node_info() {

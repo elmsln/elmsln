@@ -1,0 +1,5 @@
+name = Foundation Access View Modes
+description = Define custom view modes for the Foundation Access theme.
+core = 7.x
+package = Foundation Access
+dependencies[] = entity
