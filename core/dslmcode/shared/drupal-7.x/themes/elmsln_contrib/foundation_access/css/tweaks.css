@@ -1,3 +1,24 @@
+#block-speedreader-speedreader-block-nav-modal {
+  top:25% !important;
+  left: 25%;
+  width: 50%;
+  height: 50%;
+}
+
+#block-speedreader-speedreader-block-nav-modal .words {
+  margin: 1rem auto;
+}
+
+a[data-reveal-id="block-speedreader-speedreader-block-nav-modal"] {
+  font-size: 1.5rem;
+}
+
+.spritz-word {
+  font-size: 5rem;
+  line-height: 9.5rem;
+  height: 50%;
+}
+
 .entity_iframe_tool_icor {
   border: 2px solid #eeeeee;
  }
