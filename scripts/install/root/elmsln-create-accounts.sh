@@ -50,10 +50,8 @@ sudo -u ulmus bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
 # create a new file inside sudoers.d so we can add some people here
 touch /etc/sudoers.d/ulmusdrush
 # commands this user can do
-echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd restart" > /etc/sudoers.d/ulmusdrush
-echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld restart" > /etc/sudoers.d/ulmusdrush
-echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd status" > /etc/sudoers.d/ulmusdrush
-echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld status" > /etc/sudoers.d/ulmusdrush
+echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld" >> /etc/sudoers.d/ulmusdrush
+echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd" >> /etc/sudoers.d/ulmusdrush
 
 # this user can just run drush commands and is used much more often
 sudo -u ulmusdrush bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
