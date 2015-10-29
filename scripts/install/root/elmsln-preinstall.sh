@@ -40,6 +40,9 @@ fi
 # we assume you install it in the place that we like
 cd /var/www/elmsln
 
+# setup the standard user accounts to work on the backend
+bash scripts/install/root/elmsln-create-accounts.sh
+
 # blow away old repo
 rm -rf config
 # make git not track filemode changes
