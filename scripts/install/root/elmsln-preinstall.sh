@@ -72,7 +72,7 @@ fi
 # detect what OS this is on and make suggestions for settings
 cat /etc/*-release
 elmslnecho "The above should list information about the system this is being installed on. We currently support semi-automated install routines for RHEL, CentOS and Ubuntu. Please verify the above and select one of the following options:"
-elmslnecho "1. RHEL / CentOS"
+elmslnecho "1. RHEL 6.x / CentOS 6.x"
 elmslnecho "2. Ubuntu"
 elmslnecho "3. other / manual"
 read os
