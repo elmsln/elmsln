@@ -1,0 +1,27 @@
+{
+	"name": "ELMSLN ELMSMedia upgrade 1445446888",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "fr",
+			"arguments": [
+				"elmsmedia_feature",
+				"-y"
+			]
+		},
+		{
+			"command": "cc",
+			"arguments": [
+				"all"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1445446888",
+		"author": "heyMP",
+		"description": "Update recipe for the media authority. See pull request #285."
+	}
+}
