@@ -1,6 +1,7 @@
 name = Foundation Access Templates
 core = 7.x
 package = Foundation Access
+description = WYSIWYG templates for foundation access.
 dependencies[] = features
 dependencies[] = wysiwyg_template
 features[features_api][] = api:2
