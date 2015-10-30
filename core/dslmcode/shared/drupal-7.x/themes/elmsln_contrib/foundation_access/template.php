@@ -110,11 +110,6 @@ function foundation_access_preprocess_page(&$variables) {
       $variables['cis_shortcodes'] .= $block['content'];
     }
   }
-  // show staff / instructors the course tools menu
-  if (_cis_connector_role_groupings(array('staff','teacher'))) {
-    $variables['tabs_extras'][100][] = '<hr>';
-    $variables['tabs_extras'][100][] = '<a href="#" data-reveal-id="block-menu-menu-course-tools-menu-nav-modal">' . t('Course Settings') . '</a>';
-  }
   // wrap non-node content in an article tag
   if (isset($variables['page']['content']['system_main']['main'])) {
     $variables['page']['content']['system_main']['main']['#markup'] = '<article class="large-12 columns view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';

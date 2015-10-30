@@ -60,7 +60,7 @@ if [ ! -d "$configsdir/stacks/$domain" ]; then
   cp "$elmsln/core/dslmcode/cores/drupal-7/sites/default/default.settings.php" "$configsdir/stacks/$domain/sites/default/default.settings.php"
   mkdir "$configsdir/stacks/$domain/sites/$domain"
   # get favicon in place
-  cp "$elmsln/docs/assets/favicon.png" "$configsdir/stacks/$domain/favicon.ico"
+  cp "$elmsln/scripts/server/assets/favicon.png" "$configsdir/stacks/$domain/favicon.ico"
   cp "$elmsln/core/dslmcode/cores/drupal-7/.htaccess" "$configsdir/stacks/$domain/.htaccess"
   # copy sites.php example then write into it at bottom
   cp "$elmsln/core/dslmcode/cores/drupal-7/sites/example.sites.php" "$configsdir/stacks/$domain/sites/sites.php"
@@ -132,15 +132,15 @@ if [ ! -d "$elmsln/domains/$domain" ]; then
 fi
 
 # update the documentation file on apache config
-echo "<VirtualHost *:80>" >>  $elmsln/docs/domains.txt
-echo "    DocumentRoot /var/www/elmsln/domains/$domain" >> $elmsln/docs/domains.txt
-echo "    ServerName $domain.${address}.edu" >> $elmsln/docs/domains.txt
-echo "    ServerAlias ${serviceprefix}${domain}.${serviceaddress}.edu" >> $elmsln/docs/domains.txt
-echo "</VirtualHost>" >> $elmsln/docs/domains.txt
-echo "<Directory /var/www/elmsln/domains/$domain>" >> $elmsln/docs/domains.txt
-echo "    AllowOverride All" >> $elmsln/docs/domains.txt
-echo "    Order allow,deny" >> $elmsln/docs/domains.txt
-echo "    allow from all" >> $elmsln/docs/domains.txt
-echo "</Directory>" >> $elmsln/docs/domains.txt
+echo "<VirtualHost *:80>" >>  $elmsln/scripts/server/domains.txt
+echo "    DocumentRoot /var/www/elmsln/domains/$domain" >> $elmsln/scripts/server/domains.txt
+echo "    ServerName $domain.${address}.edu" >> $elmsln/scripts/server/domains.txt
+echo "    ServerAlias ${serviceprefix}${domain}.${serviceaddress}.edu" >> $elmsln/scripts/server/domains.txt
+echo "</VirtualHost>" >> $elmsln/scripts/server/domains.txt
+echo "<Directory /var/www/elmsln/domains/$domain>" >> $elmsln/scripts/server/domains.txt
+echo "    AllowOverride All" >> $elmsln/scripts/server/domains.txt
+echo "    Order allow,deny" >> $elmsln/scripts/server/domains.txt
+echo "    allow from all" >> $elmsln/scripts/server/domains.txt
+echo "</Directory>" >> $elmsln/scripts/server/domains.txt
 
 elmslnecho "The tool named $domain has now been added to the ELMSLN structure."

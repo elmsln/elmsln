@@ -17,11 +17,12 @@ timestamp(){
   date +"%s"
 }
 start="$(timestamp)"
+RPM="$(which rpm)"
 # get the epel and remi repo listings so we can get additional packages like mcrypt
 wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-rpm -Uvh remi-release-6*.rpm
+$RPM -Uvh remi-release-6*.rpm
 wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-rpm -Uvh epel-release-6*.rpm
+$RPM -Uvh epel-release-6*.rpm
 # make sure we're up to date w/ the remi repos
 yes | yum update
 # using yum to install the main packages
@@ -38,13 +39,13 @@ setsebool -P httpd_can_sendmail on
 /etc/init.d/mysqld restart
 
 #install varnish
-rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
+$RPM --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
 yum install varnish -y
 
 sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varnish
 sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
 cat /dev/null > /etc/varnish/default.vcl
-cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
+cat /var/www/elmsln/scripts/server/varnish.txt > /etc/varnish/default.vcl
 
 service varnish start
 chkconfig varnish on

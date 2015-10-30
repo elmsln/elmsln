@@ -1,0 +1,80 @@
+
+/* Items margin options. */
+ul.views-fluid-grid-items-h-margin-0 li.views-fluid-grid-item { margin-left: 0; margin-right: 0; }
+ul.views-fluid-grid-items-h-margin-2px li.views-fluid-grid-item { margin-left: 2px; margin-right: 2px; }
+ul.views-fluid-grid-items-h-margin-4px li.views-fluid-grid-item { margin-left: 4px; margin-right: 4px; }
+ul.views-fluid-grid-items-h-margin-6px li.views-fluid-grid-item { margin-left: 6px; margin-right: 6px; }
+ul.views-fluid-grid-items-h-margin-8px li.views-fluid-grid-item { margin-left: 8px; margin-right: 8px; }
+ul.views-fluid-grid-items-h-margin-10px li.views-fluid-grid-item { margin-left: 10px; margin-right: 10px; }
+
+ul.views-fluid-grid-items-h-margin-0-2em li.views-fluid-grid-item { margin-left: 0.2em; margin-right: 0.2em; }
+ul.views-fluid-grid-items-h-margin-0-5em li.views-fluid-grid-item { margin-left: 0.5em; margin-right: 0.5em; }
+ul.views-fluid-grid-items-h-margin-0-8em li.views-fluid-grid-item { margin-left: 0.8em; margin-right: 0.8em; }
+ul.views-fluid-grid-items-h-margin-1em li.views-fluid-grid-item { margin-left: 1em; margin-right: 1em; }
+ul.views-fluid-grid-items-h-margin-1-2em li.views-fluid-grid-item { margin-left: 1.2em; margin-right: 1.2em; }
+ul.views-fluid-grid-items-h-margin-1-5em li.views-fluid-grid-item { margin-left: 1.5em; margin-right: 1.5em; }
+ul.views-fluid-grid-items-h-margin-1-8em li.views-fluid-grid-item { margin-left: 1.8em; margin-right: 1.8em; }
+ul.views-fluid-grid-items-h-margin-2em li.views-fluid-grid-item { margin-left: 2em; margin-right: 2em; }
+
+ul.views-fluid-grid-items-v-margin-0 li.views-fluid-grid-item { margin-top: 0; margin-bottom: 0; }
+ul.views-fluid-grid-items-v-margin-2px li.views-fluid-grid-item { margin-top: 2px; margin-bottom: 2px; }
+ul.views-fluid-grid-items-v-margin-4px li.views-fluid-grid-item { margin-top: 4px; margin-bottom: 4px; }
+ul.views-fluid-grid-items-v-margin-6px li.views-fluid-grid-item { margin-top: 6px; margin-bottom: 6px; }
+ul.views-fluid-grid-items-v-margin-8px li.views-fluid-grid-item { margin-top: 8px; margin-bottom: 8px; }
+ul.views-fluid-grid-items-v-margin-10px li.views-fluid-grid-item { margin-top: 10px; margin-bottom: 10px; }
+
+ul.views-fluid-grid-items-v-margin-0-2em li.views-fluid-grid-item { margin-top: 0.2em; margin-bottom: 0.2em; }
+ul.views-fluid-grid-items-v-margin-0-5em li.views-fluid-grid-item { margin-top: 0.5em; margin-bottom: 0.5em; }
+ul.views-fluid-grid-items-v-margin-0-8em li.views-fluid-grid-item { margin-top: 0.8em; margin-bottom: 0.8em; }
+ul.views-fluid-grid-items-v-margin-1em li.views-fluid-grid-item { margin-top: 1em; margin-bottom: 1em; }
+ul.views-fluid-grid-items-v-margin-1-2em li.views-fluid-grid-item { margin-top: 1.2em; margin-bottom: 1.2em; }
+ul.views-fluid-grid-items-v-margin-1-5em li.views-fluid-grid-item { margin-top: 1.5em; margin-bottom: 1.5em; }
+ul.views-fluid-grid-items-v-margin-1-8em li.views-fluid-grid-item { margin-top: 1.8em; margin-bottom: 1.8em; }
+ul.views-fluid-grid-items-v-margin-2em li.views-fluid-grid-item { margin-top: 2em; margin-bottom: 2em; }
+
+/* Advanced CCS3 style properties. */
+ul.views-fluid-grid-items-box-shadow li.views-fluid-grid-item {
+  -webkit-box-shadow: 2px 2px 2px #ccc;
+   -khtml-box-shadow: 2px 2px 2px #ccc;
+    -icab-box-shadow: 2px 2px 2px #ccc;
+     -moz-box-shadow: 2px 2px 2px #ccc;
+       -o-box-shadow: 2px 2px 2px #ccc;
+          box-shadow: 2px 2px 2px #ccc;
+}
+ul.views-fluid-grid-items-border-radius li.views-fluid-grid-item {
+  -webkit-border-radius: 5px;
+   -khtml-border-radius: 5px;
+    -icab-border-radius: 5px;
+     -moz-border-radius: 5px;
+       -o-border-radius: 5px;
+          border-radius: 5px;
+}
+
+/* List alignment options. */
+ul.views-fluid-grid-list-left { text-align: left; }
+ul.views-fluid-grid-list-right { text-align: right; }
+ul.views-fluid-grid-list-center { text-align: center; }
+ul.views-fluid-grid-list-justify { text-align: justify; }
+
+/* Items alignment options. */
+ul.views-fluid-grid-items-left li.views-fluid-grid-item { text-align: left; }
+ul.views-fluid-grid-items-right li.views-fluid-grid-item { text-align: right; }
+ul.views-fluid-grid-items-center li.views-fluid-grid-item { text-align: center; }
+ul.views-fluid-grid-items-justify li.views-fluid-grid-item { text-align: justify; }
+
+/* Enforce justification of last row in the grid. */
+li.views-fluid-grid-justify-last {
+  display: inline-block;
+  width: 100% !important;
+  height: 1px !important;
+  list-style-type: none;
+  background-image: none;
+}
+ul.views-fluid-grid-items-border-radius li.views-fluid-grid-justify-last {
+  -webkit-box-shadow: none !important;
+   -khtml-box-shadow: none !important;
+    -icab-box-shadow: none !important;
+     -moz-box-shadow: none !important;
+       -o-box-shadow: none !important;
+          box-shadow: none !important;
+}

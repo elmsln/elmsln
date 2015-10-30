@@ -17,6 +17,7 @@ timestamp(){
   date +"%s"
 }
 start="$(timestamp)"
+RPM="$(which rpm)"
 # get the epel and remi repo listings so we can get additional packages like mcrypt
 yes | yum -y install git && git clone https://github.com/bradallenfisher/php-fpm-apache-2.4-centos7.git && cd php-fpm-apache-2.4-centos7/install && chmod 700 prod.sh && ./prod.sh
 
@@ -30,13 +31,13 @@ setsebool -P httpd_can_sendmail on
 /etc/init.d/mysqld restart
 
 #install varnish
-rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
+$RPM --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
 yum install varnish -y
 
 sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varnish
 sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
 cat /dev/null > /etc/varnish/default.vcl
-cat /var/www/elmsln/docs/varnish.txt > /etc/varnish/default.vcl
+cat /var/www/elmsln/scripts/server/varnish.txt > /etc/varnish/default.vcl
 
 service varnish start
 chkconfig varnish on

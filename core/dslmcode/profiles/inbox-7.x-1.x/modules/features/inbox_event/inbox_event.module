@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Inbox Event feature.
+ */
+
+include_once 'inbox_event.features.inc';

@@ -44,7 +44,7 @@ for stack in "${stacklist[@]}"
 do
   elmslnecho "Applying specific upgrades against $stack"
   # run stack specific upgrades if they exist
-  drush @${stack}-all drup d7_elmsln_${stack}-all ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack}-all --y
+  drush @${stack}-all drup d7_elmsln_${stack} ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack} --y
 done
 
 # trigger crons to run now that these sites are all back and happy

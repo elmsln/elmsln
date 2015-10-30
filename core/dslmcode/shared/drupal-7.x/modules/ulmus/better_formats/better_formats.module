@@ -129,7 +129,8 @@ function better_formats_filter_process_format($element) {
           }
         }
         $element['format']['format']['#options'] = $options;
-        $element['format']['format']['#default_value'] = array_shift(array_keys($options));
+        $options_keys = array_keys($options);
+        $element['format']['format']['#default_value'] = array_shift($options_keys);
       }
     }
 
@@ -295,7 +296,7 @@ function better_formats_field_settings_form($bf_form = array()) {
   $form['better_formats']['default_order_toggle'] = array(
     '#type' => 'checkbox',
     '#title' => t('Override default order'),
-    '#description' => t('Override the gloabl order that will determine the default text format a user will get <strong>only on entity creation</strong>.'),
+    '#description' => t('Override the global order that will determine the default text format a user will get <strong>only on entity creation</strong>.'),
     '#weight' => 3,
     '#default_value' => $order_toggle_default,
   );

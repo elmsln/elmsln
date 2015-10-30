@@ -1,0 +1,5 @@
+name = HAX
+description = Headless Authoring eXperience
+core = 7.x
+dependencies[] = field
+

@@ -1,0 +1,5 @@
+name = Inbox Helper
+description = Helper functions and glue code for the Inbox code base
+core = 7.x
+package = Inbox
+dependencies[] = calendar

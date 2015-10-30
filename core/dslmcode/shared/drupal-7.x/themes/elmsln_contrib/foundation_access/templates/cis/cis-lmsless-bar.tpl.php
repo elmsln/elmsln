@@ -2,6 +2,10 @@
 /**
  * CIS LMS-less template file
  */
+  // support authcache_cookie value that gets dynamically loaded instead
+  if (isset($user_name)) {
+    $username = $user_name;
+  }
 ?>
 <!-- Ecosystem Top Nav -->
 <div id="etb-course-nav" class="row full collapse">
@@ -14,6 +18,7 @@
           <li class="apps">
             <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap" data-reveal-id="apps-nav-modal">
               <div class="icon-apps-black etb-icons svg"></div>
+              <span class="visible-for-large-up"><?php print t('Network'); ?></span>
             </a>
           </li>
           <?php endif; ?>

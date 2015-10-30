@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Inbox Calendar feature.
+ */
+
+include_once 'inbox_calendar.features.inc';

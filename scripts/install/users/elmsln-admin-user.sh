@@ -25,26 +25,32 @@ if [[ $EUID -eq 0 ]]; then
   elmslnwarn "You are running this as root, make sure you establish it for you as well!"
 fi
 
-# modify the user's home directory to run drush and make life lazy
-if [[ ! -d "${HOME}/elmsln" ]] ; then
-  ln -s ${elmsln} $HOME/elmsln
+# check for a user passed in, if not default to home directory of active
+homedir=$1
+if [ -z "$homedir" ]; then
+  homedir=$HOME
 fi
-touch $HOME/.bashrc
-echo "alias g='git'" >> $HOME/.bashrc
-echo "alias d='drush'" >> $HOME/.bashrc
-echo "alias l='ls -laHF'" >> $HOME/.bashrc
-echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> $HOME/.bashrc
+
+# modify the user's home directory to run drush and make life lazy
+if [[ ! -d "${homedir}/elmsln" ]] ; then
+  ln -s ${elmsln} $homedir/elmsln
+fi
+touch $homedir/.bashrc
+echo "alias g='git'" >> $homedir/.bashrc
+echo "alias d='drush'" >> $homedir/.bashrc
+echo "alias l='ls -laHF'" >> $homedir/.bashrc
+echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> $homedir/.bashrc
 
 # setup drush
-sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
-source $HOME/.bashrc
+sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $homedir/.bashrc
+source $homedir/.bashrc
 php /usr/local/bin/composer global require drush/drush:6.*
 
 # copy in the elmsln server stuff as the baseline for .drush
-if [ ! -d $HOME/.drush ]; then
-  mkdir $HOME/.drush
+if [ ! -d $homedir/.drush ]; then
+  mkdir $homedir/.drush
 fi
-yes | cp -rf ${elmsln}/scripts/drush/server/* $HOME/.drush/
+yes | cp -rf ${elmsln}/scripts/drush/server/* $homedir/.drush/
 # clear caches to force a rebuild of the functions in there
 drush cc drush
 # list the available aliases

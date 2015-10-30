@@ -1,0 +1,50 @@
+
+site_name: ELMSLN docs
+pages:
+- Home: index.md
+- General:
+  - Acronyms: Acronyms.md
+  - Roadmap: Roadmap.md
+  - Information Architecture: Information-Architecture.md
+  - Tools:
+    - Authority:
+      - What is an authority?: systems/authority.md
+      - Online: systems/authority/online.md
+      - Media: systems/authority/media.md
+      - Interact: systems/authority/interact.md
+      - People: systems/authority/people.md
+      - Inbox: systems/authority/inbox.md
+      - LQ: systems/authority/lq.md
+      - Grades: systems/authority/grades.md
+    - Service:
+      - What is a service?: systems/service.md
+      - Courses: systems/service/courses.md
+      - Studio: systems/service/studio.md
+      - Discuss: systems/service/discuss.md
+      - Blog: systems/service/blog.md
+    - Innovate: systems/developer/innovate.md
+- Installation:
+  - Installation: Installation.md
+  - Package Structure:
+    - Structure: Package-Structure.md
+    - Config Directory: config-is-empty-what-do-I-put-there.md
+- Developer:
+  - General Questions: Developer-questions.md
+  - Release Cycle: Project-Release-Cycle.md
+  - Vagrant: Vagrant-Step-by-Step-setup.md
+  - Should I upgrade modules?: Should-I-update-Drupal-modules.md
+  - Where can I add modules / themes?: Where-can-I-add-new-modules-themes.md
+  - Where should I point addresses?: Where-should-I-point-addresses.md
+  - Front end:
+    - Style Guide: Styleguide.md
+    - Front End workflow: Front-End-Development-Workflow.md
+  - Upgrades:
+    - How do I run upgrades?: How-do-I-run-upgrades.md
+    - MOOC:
+      - Optional: Course-UX-upgrade-for-0.1.0.md
+theme: readthedocs
+site_author: "elmsln"
+repo_name: ELMSLN
+repo_url: https://github.com/elmsln/elmsln
+include_search: true
+#use_directory_urls: false

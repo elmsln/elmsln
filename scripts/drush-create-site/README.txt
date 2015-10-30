@@ -40,5 +40,5 @@ There is no automation with CIS to use this and it's a backend
 developer command only (for now) because of its destructive nature.
 
 basic usage: rm-site.sh <course> <stack>
-example (based on docs w/ symlinked command): drs test100 studio
+example (based on scripts/server w/ symlinked command): drs test100 studio
 This will remove the course test100 from the studio stack.  This command only destroys information related to a single tool so it needs to be run against each stack to remove it from that system.  The Online stack does not have this capability.

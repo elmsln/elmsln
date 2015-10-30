@@ -1,0 +1,23 @@
+
+/* Items width options. */
+ul.views-fluid-grid-items-width-100 li.views-fluid-grid-item { width: 100px; }
+ul.views-fluid-grid-items-width-150 li.views-fluid-grid-item { width: 150px; }
+ul.views-fluid-grid-items-width-180 li.views-fluid-grid-item { width: 180px; }
+ul.views-fluid-grid-items-width-200 li.views-fluid-grid-item { width: 200px; }
+ul.views-fluid-grid-items-width-250 li.views-fluid-grid-item { width: 250px; }
+ul.views-fluid-grid-items-width-300 li.views-fluid-grid-item { width: 300px; }
+ul.views-fluid-grid-items-width-350 li.views-fluid-grid-item { width: 350px; }
+ul.views-fluid-grid-items-width-400 li.views-fluid-grid-item { width: 400px; }
+ul.views-fluid-grid-items-width-450 li.views-fluid-grid-item { width: 450px; }
+ul.views-fluid-grid-items-width-500 li.views-fluid-grid-item { width: 500px; }
+
+/* Items height options. */
+ul.views-fluid-grid-items-height-100 li.views-fluid-grid-item { height: 100px; }
+ul.views-fluid-grid-items-height-150 li.views-fluid-grid-item { height: 150px; }
+ul.views-fluid-grid-items-height-200 li.views-fluid-grid-item { height: 200px; }
+ul.views-fluid-grid-items-height-250 li.views-fluid-grid-item { height: 250px; }
+ul.views-fluid-grid-items-height-300 li.views-fluid-grid-item { height: 300px; }
+ul.views-fluid-grid-items-height-350 li.views-fluid-grid-item { height: 350px; }
+ul.views-fluid-grid-items-height-400 li.views-fluid-grid-item { height: 400px; }
+ul.views-fluid-grid-items-height-450 li.views-fluid-grid-item { height: 450px; }
+ul.views-fluid-grid-items-height-500 li.views-fluid-grid-item { height: 500px; }
