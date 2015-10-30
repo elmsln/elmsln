@@ -1,0 +1,1090 @@
+/* Import the Open Sans webfont from Google CDN */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Roboto Light'), local('Roboto-Light'), url(https://fonts.gstatic.com/s/roboto/v15/El-bgsteBznJNL5pgUfFLA.woff2) format('woff2'), url(https://fonts.gstatic.com/s/roboto/v15/d-QWLnp4didxos_6urzFtg.woff) format('woff');
+  }
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto'), local('Roboto-Regular'), url(https://fonts.gstatic.com/s/roboto/v15/N5Lbe1fynPA1KT8BFvAiGw.woff2) format('woff2'), url(https://fonts.gstatic.com/s/roboto/v15/grlryt2bdKIyfMSOhzd1eA.woff) format('woff');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Roboto Bold'), local('Roboto-Bold'), url(https://fonts.gstatic.com/s/roboto/v15/tZdhd9Zzj0I2MwoD56osIw.woff2) format('woff2'), url(https://fonts.gstatic.com/s/roboto/v15/vxNK-E6B13CyehuDCmvQvw.woff) format('woff');
+}
+
+html,
+body.adminimal-skin-material {
+  height: 100%;
+  background: #f9f9f9;
+}
+
+body.adminimal-skin-material {
+  font-family: Roboto, sans-serif;
+}
+
+body.adminimal-skin-material #page {
+  background: #f9f9f9;
+}
+
+body.adminimal-skin-material a {
+  color: #2196F3;
+  -o-transition:.3s;
+  -ms-transition:.3s;
+  -moz-transition:.3s;
+  -webkit-transition:.3s;
+  transition:.3s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Roboto, sans-serif;
+}
+
+body.adminimal-skin-material table th.active {
+  background: #607D8B;
+  color: #fff;
+}
+
+body.adminimal-skin-material table tr.selected td.active,
+body.adminimal-skin-material table tr.selected td {
+  background: #ECEFF1;
+}
+
+body.adminimal-skin-material table th {
+  background: #E0E0E0;
+}
+
+body.adminimal-skin-material tr.even:hover, .adminimal-theme tr.odd:hover {
+  background: #FFF9C4;
+}
+
+body.adminimal-skin-material .marker,
+body.adminimal-skin-material .form-required {
+  color: #FF9800;
+}
+
+body.adminimal-skin-material td .marker {
+  position: relative;
+  top: 0.5em;
+  vertical-align: top;
+}
+
+body.adminimal-skin-material table.tableheader-processed {
+  border: 1px solid #E0E0E0;
+}
+
+body.adminimal-skin-material tr.even,
+body.adminimal-skin-material tr.odd {
+    background: #FFF;
+}
+
+body.adminimal-skin-material .messages ul {
+  list-style-type: none;
+}
+
+body.adminimal-skin-material div.messages ul li {
+  font-size: 14px;
+  padding-bottom: 0.5em;
+}
+
+body.adminimal-skin-material div.messages ul li:last-of-type {
+  padding-bottom: 0;
+}
+
+body.adminimal-skin-material #help p {
+  font-size: 13px;
+}
+
+body.adminimal-skin-material div.messages ul.krumo-node {
+  margin : 0;
+}
+
+body.adminimal-skin-material div.messages ul.krumo-node li.krumo-child {
+  font-size: 12px;
+  padding-bottom: 0;
+}
+
+body.adminimal-skin-material div.warning {
+  background-color: #fff3e0;
+  border: none;
+  border-radius: 3px;
+  background-position: 14px 50%;
+}
+
+body.adminimal-skin-material  div.status {
+  background-color: #E8F5E9;
+  border: none;
+  border-radius: 3px;
+  background-position: 14px 50%;
+}
+
+body.adminimal-menu.adminimal-skin-material div#admin-menu {
+  background: #1b2327;
+  border-color: #1b2327;
+}
+
+body.adminimal-skin-material #branding {
+  background-color: #263238;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.26);
+}
+
+body.adminimal-skin-material.adminimal-menu div#admin-menu a,
+body.adminimal-skin-material.adminimal-menu div#admin-menu span {
+  font-family: Roboto;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action:first-child a {
+  background: #1B2327;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-search input {
+  background: #1B2327;
+  box-shadow: inset 0px -2px 0px #64696C;
+  transition: all, 0.3s;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-search input:focus {
+  box-shadow: inset 0px -2px 0px #FFFFFF;
+  background: #1B2327;
+  color: #FFF;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action.admin-menu-account a {
+  background: #1B2327 !important;
+}
+
+body.adminimal-skin-material ul.primary li.active a,
+body.adminimal-skin-material ul.primary li.active a.active,
+body.adminimal-skin-material ul.primary li.active a:active,
+body.adminimal-skin-material ul.primary li.active a:visited {
+  margin-top: 0px;
+  border-top: none;
+}
+
+body.adminimal-skin-material ul.primary li {
+  text-transform: uppercase;
+}
+
+body.adminimal-skin-material #navigation ul.primary li:first-of-type.active {
+    margin-left: 10px;
+}
+
+body.adminimal-skin-material div.breadcrumb a {
+  color: #A3A3A3;
+}
+
+body.adminimal-skin-material div.breadcrumb a:hover {
+  color: #fff;
+}
+
+
+body.adminimal-skin-material ul.primary li.active a,
+body.adminimal-skin-material ul.primary li.active a.active,
+body.adminimal-skin-material ul.primary li.active a:active,
+body.adminimal-skin-material ul.primary li.active a:visited {
+  box-shadow: none;
+  background-color: transparent;
+  color: #000;
+}
+
+body.adminimal-skin-material ul.primary {
+  background-color: #EEEEEE;
+}
+
+body.adminimal-skin-material #branding h1.page-title {
+  font-family: Roboto, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.5em;
+  padding: 0px 0px 8px;
+}
+
+body.adminimal-skin-material div.add-or-remove-shortcuts {
+  padding-left: 2px;
+  padding-top: 16px;
+}
+
+body.adminimal-skin-material ul.action-links a {
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 15px;
+  background: #2196f3;
+  color: #FFFFFF;
+  padding: 3px 20px 2px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+body.adminimal-skin-material ul.action-links a:hover {
+  background: #29B6F6;
+  text-decoration: none;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+}
+
+body.adminimal-skin-material .theme-selector {
+  padding-bottom: 40px;
+  background: #FFFFFF;
+  border-radius: 4px;
+  border: 1px solid #ECECEC;
+  margin: 26px 0;
+  padding: 40px 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+body.adminimal-skin-material #system-themes-page h2 {
+  color: #455a64;
+  font-size: 26px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+body.adminimal-skin-material #page .operations a {
+  text-transform: uppercase;
+}
+
+body.adminimal-skin-material.page-admin-appearance fieldset legend {
+  font-family: Roboto, sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 20px !important;
+}
+
+body.adminimal-skin-material fieldset {
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  background: #fff;
+  border-radius: 3px;
+  padding-top: 42px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+body.adminimal-skin-material .fieldset-description {
+  padding-top: 28px;
+  padding-bottom: 20px;
+  color: #909090;
+}
+
+body.adminimal-skin-material .text-format-wrapper fieldset.filter-wrapper {
+  box-shadow: none;
+  border: 1px solid #DDD;
+  border-radius: 0;
+}
+
+body.adminimal-skin-material .vertical-tabs-panes fieldset.vertical-tabs-pane {
+  box-shadow: none;
+}
+
+body.adminimal-skin-material .form-item label,
+body.adminimal-skin-material .exposed-filters .form-item label {
+  font-family: Roboto, sans-serif;
+}
+
+body.adminimal-skin-material fieldset legend {
+  font-family: Roboto, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  position: absolute;
+  top: 14px;
+}
+
+body.adminimal-skin-material .features-export-parent fieldset legend {
+  top: 0;
+}
+
+/* Omega Fieldset fix */
+
+body.page-admin-appearance-settings-omega.adminimal-skin-material fieldset {
+  border: solid 1px #ddd !important;
+  border-top: 1px #ddd !important;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18) !important;
+  padding: 12px !important;
+  padding-top: 42px !important;
+  margin: 18px 0 !important;
+}
+
+/* Apperance page */
+body.page-admin-appearance.adminimal-skin-material fieldset legend {
+  font-family: Roboto, sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  top: 16px;
+}
+
+body.page-admin-appearance.adminimal-skin-material fieldset#edit-admin-theme {
+  padding-top: 13px;
+}
+
+body.page-admin-appearance.adminimal-skin-material .theme-selector {
+  padding-bottom: 40px;
+  background: #FFFFFF;
+  border-radius: 4px;
+  border: none;
+  margin: 26px 0;
+  padding: 32px 25px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.17);
+  width: 306px;
+  float: left;
+  margin-right: 20px;
+  height: 410px;
+  position: relative;
+  -o-transition:.3s;
+  -ms-transition:.3s;
+  -moz-transition:.3s;
+  -webkit-transition:.3s;
+  transition:.3s;
+}
+
+body.page-admin-appearance.adminimal-skin-material .system-themes-list-disabled .theme-selector .screenshot,
+body.page-admin-appearance.adminimal-skin-material .system-themes-list-disabled .theme-selector .no-screenshot {
+  border: 1px solid #e0e0d8;
+  padding: 2px;
+  vertical-align: bottom;
+  width: 294px;
+  height: 219px;
+  line-height: 219px;
+  text-align: center;
+}
+
+body.page-admin-appearance.adminimal-skin-material .system-themes-list-enabled .theme-info h3{
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5rem;
+  float: left;
+  width: 100%;
+  margin-top: 15px;
+}
+
+body.page-admin-appearance.adminimal-skin-material .theme-selector .theme-description {
+  overflow: auto;
+  float: left;
+  margin-top: 2px;
+  max-height: 100px;
+}
+
+body.page-admin-appearance.adminimal-skin-material .theme-selector .operations {
+  padding: 0;
+  position: absolute;
+  bottom: 0px;
+  font-size: 14px;
+  width: 100%;
+  font-weight: bold;
+  margin: 0;
+  left: 0px;
+  padding-top: 5px;
+  border-top: 1px solid #eee;
+}
+
+body.page-admin-appearance.adminimal-skin-material .theme-selector .operations li {
+  float: right;
+  border: none;
+  padding: 0;
+}
+
+body.page-admin-appearance.adminimal-skin-material .theme-selector .operations li a {
+  padding: 10px;
+}
+
+body.page-admin-appearance.adminimal-skin-material .theme-selector .operations li.first a{
+  padding: 10px;
+  margin-right: 10px;
+}
+
+body.page-admin-appearance.adminimal-skin-material .theme-selector .operations li a:hover{
+  color: #FF9800;
+  text-decoration: none;
+}
+
+/* Custom Checkbox styling */
+
+/* Chrome + Safari + Opera */
+@supports (-webkit-appearance:none) {
+body.adminimal-skin-material.style-checkboxes input[type=checkbox],
+body.adminimal-skin-material.style-checkboxes input[type=radio] {
+-webkit-appearance:none; /* Safari and Chrome */
+  display: inline-block;
+  position: relative;
+  top: 3px;
+  margin-right: 0.25em;
+  padding: 0;
+  background: #fff;
+  border: 2px solid #757575;
+  border-radius: 2px;
+  width: 14px !important;
+  height: 14px !important;
+  -webkit-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: background 0.5s ease;
+  outline: none;
+}
+
+body.adminimal-skin-material.style-checkboxes input[type=radio] {
+  border-radius: 50%;
+  box-shadow: inset 0px 0px 0px 0px #fff;
+  transition: box-shadow .1s cubic-bezier(0.28,0.63,0.77,0.17);
+}
+
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:hover,
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:focus,
+body.adminimal-skin-material.style-checkboxes input[type=radio]:hover,
+body.adminimal-skin-material.style-checkboxes input[type=radio]:focus {
+  border-color: #757575;
+  cursor: pointer;
+}
+
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:checked,
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:disabled:checked,
+body.adminimal-skin-material.style-checkboxes input[type=radio]:checked,
+body.adminimal-skin-material.style-checkboxes input[type=radio]:disabled:checked{
+  border-color: #0E9C57;
+}
+
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:checked,
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:disabled:checked {
+  background: url('images/check.svg') scroll no-repeat 0 0 #0E9C57;
+}
+
+body.adminimal-skin-material.style-checkboxes input[type=radio]:checked,
+body.adminimal-skin-material.style-checkboxes input[type=radio]:disabled:checked {
+  background: #0E9C57;
+  box-shadow: inset 0px 0px 0px 3px #fff;
+}
+
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:disabled,
+body.adminimal-skin-material.style-checkboxes input[type=radio]:disabled {
+  opacity: .5;
+  background: #E2E2E2;
+}
+
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:disabled:hover,
+body.adminimal-skin-material.style-checkboxes input[type=radio]:disabled:hover {
+  border-color: #0E9C57;
+  cursor: default;
+  /*cursor: not-allowed;*/
+  }
+}
+
+/* Waves plugin (Ripple effect) */
+/*!
+ * Waves v0.6.6
+ * http://fian.my.id/Waves
+ *
+ * Copyright 2014 Alfiana E. Sibuea and other contributors
+ * Released under the MIT license
+ * https://github.com/fians/Waves/blob/master/LICENSE
+ */
+.waves-effect {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  overflow: hidden;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.waves-effect .waves-ripple {
+  position: absolute;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  margin-top: -50px;
+  margin-left: -50px;
+  opacity: 0;
+  background: rgba(0, 0, 0, 0.2);
+  background: -webkit-radial-gradient(rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+  background: -o-radial-gradient(rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+  background: -moz-radial-gradient(rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+  background: radial-gradient(rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  -o-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
+  -webkit-transition-property: -webkit-transform, opacity;
+  -moz-transition-property: -moz-transform, opacity;
+  -o-transition-property: -o-transform, opacity;
+  transition-property: transform, opacity;
+  -webkit-transform: scale(0);
+  -moz-transform: scale(0);
+  -ms-transform: scale(0);
+  -o-transform: scale(0);
+  transform: scale(0);
+  pointer-events: none;
+}
+.waves-effect.waves-light .waves-ripple {
+  background: rgba(255, 255, 255, 0.4);
+  background: -webkit-radial-gradient(rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0.3) 40%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+  background: -o-radial-gradient(rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0.3) 40%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+  background: -moz-radial-gradient(rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0.3) 40%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+  background: radial-gradient(rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0.3) 40%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+}
+.waves-effect.waves-classic .waves-ripple {
+  background: rgba(0, 0, 0, 0.2);
+}
+.waves-effect.waves-classic.waves-light .waves-ripple {
+  background: rgba(255, 255, 255, 0.4);
+}
+.waves-notransition {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+.waves-button,
+.waves-circle {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-mask-image: -webkit-radial-gradient(circle, #ffffff 100%, #000000 100%);
+}
+.waves-button,
+.waves-button:hover,
+.waves-button:visited,
+.waves-button-input {
+  white-space: nowrap;
+  outline: none;
+  text-decoration: none;
+  z-index: 1;
+}
+.waves-button {
+  border-radius: 0.2em;
+}
+.waves-button-input {
+  margin: 0;
+  padding: 0.85em 1.1em;
+}
+.waves-input-wrapper {
+  border-radius: 0.2em;
+  vertical-align: middle;
+  z-index: 999;
+  margin-right: 1em;
+}
+.waves-input-wrapper.waves-button {
+  padding: 0;
+}
+.waves-input-wrapper .waves-button-input {
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+.waves-circle {
+  text-align: center;
+  width: 2.5em;
+  height: 2.5em;
+  line-height: 2.5em;
+  border-radius: 50%;
+}
+.waves-float {
+  -webkit-mask-image: none;
+  -webkit-box-shadow: 0px 1px 1.5px 1px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 1px 1.5px 1px rgba(0, 0, 0, 0.12);
+}
+.waves-float:active {
+  -webkit-box-shadow: 0px 8px 20px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 8px 20px 1px rgba(0, 0, 0, 0.3);
+}
+.waves-block {
+  display: block;
+}
+/* Firefox Bug: link not triggered */
+a.waves-effect .waves-ripple {
+  z-index: -1;
+}
+
+body.adminimal-skin-material #navigation ul.secondary {
+  overflow: hidden;
+}
+
+body.adminimal-skin-material #navigation ul.secondary li {
+  height: 39px;
+}
+
+body.adminimal-skin-material #navigation ul.secondary li a {
+  color: #777 !important;
+  background: #fff;
+}
+
+body.adminimal-skin-material #navigation ul.secondary li a:hover {
+  color: #2196F3 !important;
+  border-color: #2196F3 !important;
+  background: #fff;
+}
+
+body.adminimal-skin-material #navigation ul.secondary li a.active {
+  color: #000 !important;
+  background: #fff;
+}
+
+body.adminimal-skin-material #navigation ul.secondary li a.active:hover {
+  border-color: #000 !important;
+}
+
+body.adminimal-skin-material table th {
+  font-family: Roboto;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+body.adminimal-skin-material #webform-components tr.webform-add-form {
+  background-color: #E8F5E9;
+}
+
+body.adminimal-skin-material table tr.add-new,
+body.adminimal-skin-material table tr.add-new:hover {
+  background-color: #E8F5E9;
+}
+
+body.adminimal-skin-material table tbody td a {
+  padding: .5em .75em;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+body.adminimal-skin-material table tbody td a.module-link {
+  padding: .5em 10px .5em 30px;
+}
+
+body.adminimal-skin-material table tbody td a.module-link {
+    background-position-x: 10px;
+}
+
+body.adminimal-skin-material table tbody td a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+
+/* Gray Button */
+input[type="submit"],
+input.form-submit,
+a.button,
+div.exposed-filters input#edit-submit {
+  cursor: pointer;
+  background: #BBBBBB;
+  border: none;
+  padding: 6px 18px;
+  color: #fff;
+  text-align: center;
+  font-size: 1.077em;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.2rem;
+  transition: all, 0.3s;
+}
+
+input[type="submit"]:hover,
+input.form-submit:hover,
+a.button:hover,
+div.exposed-filters input#edit-submit:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+
+input[type="submit"]:active,
+input.form-submit:active,
+a.button:active,
+div.exposed-filters input#edit-submit:active {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+input[type="submit"]:focus,
+input.form-submit:focus,
+a.button:focus,
+div.exposed-filters input#edit-submit:focus {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+
+/* Green Button */
+input[type="submit"][id^="edit-submit"],
+input#edit-actions-submit,
+input[id^="save-continue"],
+input[type="submit"][id^="edit-save"],
+input#edit-save,
+input#edit-submit,
+input#edit-actions-save,
+#media-browser-page a.button-yes,
+input.add-new-condition,
+#edit-field-product-und-form-actions input.ief-entity-submit {
+  cursor: pointer;
+  border: none;
+  padding: 6px 18px;
+  text-align: center;
+  font-weight: normal;
+  font-size: 1.077em;
+  background: #0E9C57;
+  color: #fff;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.2rem;
+}
+
+input[type="submit"][id^="edit-submit"]:hover,
+input#edit-actions-submit:hover,
+input[id^="save-continue"]:hover,
+input[type="submit"][id^="edit-save"]:hover,
+input#edit-save:hover,
+input#edit-submit:hover,
+input#edit-actions-save:hover,
+#media-browser-page a.button-yes:hover,
+input.add-new-condition:hover,
+#edit-field-product-und-form-actions input.ief-entity-submit:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+input[type="submit"][id^="edit-submit"]:active,
+input#edit-actions-submit:active,
+input[id^="save-continue"]:active,
+input[type="submit"][id^="edit-save"]:active,
+input#edit-save:active,
+input#edit-submit:active,
+input#edit-actions-save:active,
+#media-browser-page a.button-yes:active,
+input.add-new-condition:active,
+#edit-field-product-und-form-actions input.ief-entity-submit:active {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+input[type="submit"][id^="edit-submit"]:focus,
+input#edit-actions-submit:focus,
+input[id^="save-continue"]:focus,
+input[type="submit"][id^="edit-save"]:focus,
+input#edit-save:focus,
+input#edit-submit:focus,
+input#edit-actions-save:focus,
+#media-browser-page a.button-yes:focus,
+input.add-new-condition:focus,
+#edit-field-product-und-form-actions input.ief-entity-submit:focus {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+/* Red Button */
+input#edit-delete,
+input#remove-button,
+input#edit-remove,
+input#edit-clear,
+a.button.remove,
+input[id*="remove-button"],
+.page-node-delete input#edit-submit,
+.page-admin-modules-uninstall input#edit-submit,
+.remove-condition input,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit {
+  cursor: pointer;
+  padding: 6px 18px;
+  border: none;
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 1.077em;
+  background: #D32F2F;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.2rem;
+  transition: all, 0.3s;
+}
+
+input#edit-delete:hover,
+input#remove-button:hover,
+input#edit-remove:hover,
+input#edit-clear:hover,
+a.button.remove:hover,
+input[id*="remove-button"]:hover,
+.page-node-delete input#edit-submit:hover,
+body.page-admin-modules-uninstall input#edit-submit:hover,
+.remove-condition input:hover,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+input#edit-delete:active,
+input#remove-button:active,
+input#edit-remove:active,
+input#edit-clear:active,
+input[id*="remove-button"]:active,
+.page-node-delete input#edit-submit:active,
+body.page-admin-modules-uninstall input#edit-submit:active,
+.remove-condition input:active,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit:active {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+input#edit-delete:focus,
+input#remove-button:focus,
+input#edit-remove:focus,
+input#edit-clear:focus,
+input[id*="remove-button"]:focus,
+.page-node-delete input#edit-submit:focus,
+body.page-admin-modules-uninstall input#edit-submit:focus,
+.remove-condition input:focus,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit:focus {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+/* Blue Button */
+input#edit-preview,
+input#edit-next,
+input#preview-submit,
+input.ief-entity-submit,
+input[type="submit"][id^="edit-return"],
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"] {
+  cursor: pointer;
+  border: none;
+  padding: 6px 18px;
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 1.077em;
+  background: #0074BD;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.2rem;
+  transition: all, 0.3s;
+}
+
+input#edit-preview:hover,
+input#edit-next:hover,
+input#preview-submit:hover,
+input.ief-entity-submit:hover,
+input[type="submit"][id^="edit-return"]:hover,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"]:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+input#edit-preview:active,
+input#edit-next:active,
+input#preview-submit:active,
+input.ief-entity-submit:active,
+input[type="submit"][id^="edit-return"]:active,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"]:active {
+  border: none;
+  color: #fff;
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+input#edit-preview:focus,
+input#edit-next:focus,
+input#preview-submit:focus,
+input.ief-entity-submit:focus,
+input[type="submit"][id^="edit-return"]:focus,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"]:focus {
+  border: none;
+  color: #fff;
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+/* Orange Button */
+#edit-cancel,
+#edit-actions-cancel,
+input#edit-buttons-revert,
+#media-browser-page a.button-no,
+.field-widget-inline-entity-form input[id*="cancel"] {
+  cursor: pointer;
+  border: none;
+  padding: 6px 18px;
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 1.077em;
+  font-family: "Lucida Grande",Verdana,sans-serif;
+  background: #f69231;
+  transition: all, 0.3s;
+}
+
+a#edit-cancel,a#edit-actions-cancel {
+  padding: 6px 10px;
+  text-decoration: none;
+  border: none;
+}
+
+#edit-cancel:hover,
+#edit-actions-cancel:hover,
+input#edit-buttons-revert:hover,
+#media-browser-page a.button-no:hover,
+.field-widget-inline-entity-form input[id*="cancel"]:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+#edit-cancel:active,
+#edit-actions-cancel:active,
+input#edit-buttons-revert:active,
+.field-widget-inline-entity-form input[id*="cancel"]:active {
+  background: #333;
+  border: none;
+  color: #fff;
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+#edit-cancel:focus,
+#edit-actions-cancel:focus,
+input#edit-buttons-revert:focus,
+.field-widget-inline-entity-form input[id*="cancel"]:focus {
+  background: #333;
+  border: none;
+  color: #fff;
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+.waves-input-wrapper input {
+  -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition:.5s;
+}
+
+.waves-input-wrapper:hover input {
+  box-shadow: inset 0 -2px 0px rgba(0, 0, 0, 0.18);
+}
+
+body.adminimal-skin-material div.vertical-tabs ul li.vertical-tab-button strong {
+  font-size: 13px;
+}
+
+/*body.adminimal-skin-material input.form-autocomplete,
+body.adminimal-skin-material input.form-text,
+body.adminimal-skin-material input.form-file,
+body.adminimal-skin-material textarea.form-textarea,
+body.adminimal-skin-material select.form-select {
+  border: none;
+  border-bottom: 2px solid #FF9800;
+  -o-transition:.3s;
+  -ms-transition:.3s;
+  -moz-transition:.3s;
+  -webkit-transition:.3s;
+  transition:.3s;
+}
+
+body.adminimal-skin-material textarea.form-textarea {
+  border: 1px solid #ddd;
+}
+
+body.adminimal-skin-material input.form-text:hover,
+body.adminimal-skin-material input.form-file:hover,
+body.adminimal-skin-material select.form-select:hover {
+  border-bottom: 2px solid #F57C00;
+}
+
+body.adminimal-skin-material input.form-text:focus,
+body.adminimal-skin-material input.form-file:focus,
+body.adminimal-skin-material select.form-select:focus {
+  color: #000;
+  border-bottom: 2px solid #9C27B0;
+  outline: none;
+  outline-offset: 0px;
+}*/
+
+body.adminimal-skin-material #main-content div.admin-panel {
+  background-color: #fff;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.17);
+  border-radius: 3px;
+  padding: 15px 100px 20px 15px;
+}
+
+html.js body.adminimal-skin-material #module-filter-submit input {
+  margin: 0;
+}
+
+html.js body.adminimal-skin-material #module-filter-submit .form-actions {
+  padding: 20px 0;
+}
+
+body.adminimal-skin-material .form-actions input {
+  height: 24px;
+  margin-right: 1rem;
+}
+
+body.adminimal-skin-material .block-search .form-actions input,
+body.adminimal-skin-material .exposed-filters input{
+  height: initial;
+}
+
+body.adminimal-skin-material.overlay #branding {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+  box-shadow: none;
+}
+
+body.adminimal-skin-material.overlay div.breadcrumb a:hover {
+  color: #0074bd;
+}
+
+body.adminimal-skin-material.overlay #overlay-close,
+body.adminimal-skin-material.overlay #overlay-close:hover {
+  height: 44px;
+  background-position-y: 10px;
+  left: -36px;
+}
+
+body.adminimal-skin-material.overlay #overlay-tabs {
+  right: 2px;
+}
+
+body.adminimal-skin-material.overlay #overlay-tabs li:first-of-type a {
+  border-radius: 0.2em 0 0 0;
+}
+
+body.adminimal-skin-material.overlay #overlay-tabs li:last-of-type a {
+  border-radius: 0 0.2em 0 0;
+}
+
+body.adminimal-skin-material.overlay ul.secondary {
+  background: #F9F9F9;
+}
+
+body.adminimal-skin-material .rules-elements-add ul.action-links a,
+body.adminimal-skin-material ul.rules-operations a,
+body.adminimal-skin-material .rules-elements-add ul.action-links a {
+    background: transparent;
+    color: #2196F3;
+    box-shadow: none;
+    padding: 8px 18px;
+    margin: 5px 0 0 0;
+}
+
+body.adminimal-skin-material .rules-elements-add ul.action-links a:hover,
+body.adminimal-skin-material ul.rules-operations a:hover,
+body.adminimal-skin-material .rules-elements-add ul.action-links a:hover {
+    background: transparent;
+    color: #2196F3;
+    box-shadow: none;
+}
+
+body.adminimal-skin-material .rules-elements-add ul.action-links a:focus,
+body.adminimal-skin-material ul.rules-operations a:focus,
+body.adminimal-skin-material .rules-elements-add ul.action-links a:focus {
+  text-decoration: none;
+}
+
+body.sticky-actions.adminimal-skin-material .form-actions.form-wrapper {
+  padding: 20px 40px 20px;
+  box-shadow: -20px 2px 40px rgba(0,0,0,0.2);
+  border-bottom: none;
+}
+
+body.sticky-actions.adminimal-skin-material #page {
+    margin-bottom: 80px;
+}

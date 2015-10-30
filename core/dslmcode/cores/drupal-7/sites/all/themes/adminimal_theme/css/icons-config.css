@@ -1,0 +1,137 @@
+/* General styling */
+body.adminimal-theme div.admin-panel.admin {
+    background: url("images/config/gears-medium.png") no-repeat scroll 100% 50% #F8F8F8;
+    padding: 10px 100px 10px 10px;
+}
+
+body.adminimal-theme div.admin-panel.admin h3 {
+    background: url("images/config/gears-small.png") no-repeat scroll 0 0 transparent;
+    line-height: 26px;
+    text-indent: 32px;
+}
+
+/* People menu */
+body.adminimal-theme div.admin-panel.admin.people {
+    background-image: url("images/config/people-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.people h3 {
+    background-image: url("images/config/people-small.png");
+}
+
+/* Content menu */
+body.adminimal-theme div.admin-panel.admin.content {
+    background-image: url("images/config/pen-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.content h3 {
+    background-image: url("images/config/pen-small.png");
+}
+
+/* Date menu */
+body.adminimal-theme div.admin-panel.admin.date {
+    background-image: url("images/config/calendar-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.date h3 {
+    background-image: url("images/config/calendar-small.png");
+}
+
+/* Media menu */
+body.adminimal-theme div.admin-panel.admin.media {
+    background-image: url("images/config/media-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.media h3 {
+    background-image: url("images/config/media-small.png");
+}
+
+/* Search menu */
+body.adminimal-theme div.admin-panel.admin.search {
+    background-image: url("images/config/search-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.search h3 {
+    background-image: url("images/config/search-small.png");
+}
+
+/* Regional menu */
+body.adminimal-theme div.admin-panel.admin.regional {
+    background-image: url("images/config/regional-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.regional h3 {
+    background-image: url("images/config/regional-small.png");
+}
+
+/* Administration menu */
+body.adminimal-theme div.admin-panel.admin.administration {
+    background-image: url("images/config/gears-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.administration h3 {
+    background-image: url("images/config/gears-small.png");
+}
+
+/* System menu */
+body.adminimal-theme div.admin-panel.admin.system {
+    background-image: url("images/config/system-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.system h3 {
+    background-image: url("images/config/system-small.png");
+}
+
+/* User Interface menu */
+body.adminimal-theme div.admin-panel.admin.user-interface {
+    background-image: url("images/config/user-interface-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.user-interface h3 {
+    background-image: url("images/config/user-interface-small.png");
+}
+
+/* Development menu */
+body.adminimal-theme div.admin-panel.admin.development {
+    background-image: url("images/config/development-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.development h3 {
+    background-image: url("images/config/development-small.png");
+}
+
+/* Services menu */
+body.adminimal-theme div.admin-panel.admin.services {
+    background-image: url("images/config/services-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.services h3 {
+    background-image: url("images/config/services-small.png");
+}
+
+/* Organic Groups */
+body.adminimal-theme div.admin-panel.admin.group {
+    background-image: url("images/config/organic-groups-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.group h3 {
+    background-image: url("images/config/organic-groups-small.png");
+}
+
+/* Messaging */
+body.adminimal-theme div.admin-panel.admin.messaging {
+    background-image: url("images/config/messaging-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.messaging h3 {
+    background-image: url("images/config/messaging-small.png");
+}
+
+/* Workflow */
+body.adminimal-theme div.admin-panel.admin.workflow {
+    background-image: url("images/config/workflow-medium.png");
+}
+
+body.adminimal-theme div.admin-panel.admin.workflow h3 {
+    background-image: url("images/config/workflow-small.png");
+}
