@@ -67,9 +67,10 @@ yes | rm /etc/php.d/apc.ini
 /etc/init.d/httpd restart
 # make an admin group
 groupadd admin
+groupadd elmsln
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
-bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
 
 /etc/init.d/mysqld restart
 
