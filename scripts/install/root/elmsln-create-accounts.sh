@@ -43,7 +43,7 @@ touch /etc/sudoers.d/ulmus
 # this user can do anything basically since it has to create so much stuff
 echo "ulmus ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ulmus
 # replicate the .composer directory for this user since composer doesn't like sudo -i
-cp -R $HOME/.composer /home/ulmus/
+cp -R /root/.composer /home/ulmus/
 chown -R ulmus:elmsln /home/ulmus/.composer/
 
 # this user can just run drush commands and is used much more often
@@ -60,7 +60,7 @@ echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd status" >> /etc/sudoers
 echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld restart" >> /etc/sudoers.d/ulmusdrush
 echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd restart" >> /etc/sudoers.d/ulmusdrush
 # replicate the .composer directory for this user since composer doesn't like sudo -i
-cp -R $HOME/.composer /home/ulmusdrush/
+cp -R /root/.composer /home/ulmusdrush/
 chown -R ulmusdrush:elmsln /home/ulmusdrush/.composer/
 
 # this user can just run drush commands and is used much more often
