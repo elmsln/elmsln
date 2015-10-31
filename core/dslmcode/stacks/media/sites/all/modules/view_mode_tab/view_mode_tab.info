@@ -1,0 +1,10 @@
+name = View Mode Tab
+description = Provides a tab which shows a node rendered into all it's view modes
+core = 7.x
+files[] = view_mode_tab.module
+; Information added by Drupal.org packaging script on 2014-08-14
+version = "7.x-1.1"
+core = "7.x"
+project = "view_mode_tab"
+datestamp = "1408034761"
+
