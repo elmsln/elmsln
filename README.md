@@ -23,7 +23,7 @@ Styleguide
 ==============
 View the living [ELMSLN UI Styleguide](https://cdn.rawgit.com/elmsln/elmsln/master/core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access/styleguide/index.html)
 
-To make it even easier to contribute design elements to ELMSLN we have created a starting point on [codepen.io](http://codepen.io/heyMP/pen/KdyKgK). To add your own components, fork the [ELMSLN Component Starter](http://codepen.io/heyMP/pen/KdyKgK) pen, make your new componenet directly codepen, [create a new issue](https://github.com/elmsln/elmsln/issues/new) that points to your new pen and we'll get that into our styleguide.
+To make it even easier to contribute design elements to ELMSLN we have created a starting point on [codepen.io](http://codepen.io/heyMP/pen/KdyKgK). To add your own components, fork the [ELMSLN Component Starter](http://codepen.io/heyMP/pen/KdyKgK) pen, make your new componenet directly in codepen, [create a new issue](https://github.com/elmsln/elmsln/issues/new) that points to your new pen and we'll get that into our styleguide.
 
 FAQ
 ==============
