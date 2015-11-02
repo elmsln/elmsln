@@ -1,0 +1,46 @@
+diff --git a/view_mode_tab.module b/view_mode_tab.module
+index dd65b51..4b572ee 100644
+--- a/view_mode_tab.module
++++ b/view_mode_tab.module
+@@ -9,6 +9,10 @@ function view_mode_tab_permission() {
+       'title' => t('Access view mode tab'),
+       'description' => t('Access the view mode tab.'),
+     ),
++    'administer view mode tab' => array(
++      'title' => t('Administer view mode tab'),
++      'description' => t('Administer the view mode tab.'),
++    ),
+   );
+ }
+ 
+@@ -29,6 +33,15 @@ function view_mode_tab_menu() {
+     'weight' => 100,
+   );
+ 
++  $items['admin/config/media/view_mode_tab'] = array(
++    'title' => 'View Mode Tab',
++    'description' => t('Settings for view mode tab'),
++    'access arguments' => array('administer view mode tab'),
++    'page callback' => 'drupal_get_form',
++    'page arguments' => array('view_mode_tab_admin_config_form'),
++    'file' => 'view_mode_tab.admin.inc',
++  );
++
+   return $items;
+ }
+ 
+@@ -75,12 +88,13 @@ function view_mode_tab_form_node_type_form_alter(&$form, &$form_state) {
+   );
+ 
+   $view_mode_tab_settings = variable_get('view_mode_tab_settings__' . $type, array());
++  $enable_viewmode_default = variable_get('view_mode_enable_by_default', TRUE);
+ 
+   foreach ($view_modes as $view_mode) {
+     $form['view_mode_tab']['view_mode_tab_settings__' . $type . '__' . $view_mode] = array(
+       '#type' => 'checkbox',
+       '#title' => $view_mode,
+-      '#default_value' => (isset($view_mode_tab_settings[$view_mode]) && $view_mode_tab_settings[$view_mode] === 0) ? 0 : 1,
++      '#default_value' => (isset($view_mode_tab_settings[$view_mode])) ? $view_mode_tab_settings[$view_mode] : $enable_viewmode_default,
+     );
+   }
+ 
