@@ -1,9 +1,17 @@
 #START ELMSLN#
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/.composer/vendor/bin
-HOME=/root/
-00 05 * * * root drush @elmsln cron --y
-#ELMSLN drush-create-site activation for site request processing
-* * * * * root  /usr/local/bin/drush-create-site/drush-create-site >> /var/log/drush.log
+
+# ulmusdrush user for running basic tasks
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmusdrush/.composer/vendor/bin
+HOME=/home/ulmusdrush/
+00 05 * * * ulmusdrush drush @elmsln cron --y
 #ELMSLN drush-command-job activation for command processing
-* * * * * root  /usr/local/bin/drush-command-job/drush-command-job >> /var/log/drush.log
+* * * * * ulmusdrush /usr/local/bin/drush-command-job/drush-command-job >> /var/log/drush.log
+
+# ulmus user that has higher privs
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmus/.composer/vendor/bin
+HOME=/home/ulmus/
+
+# ELMSLN drush-create-site activation for site request processing
+* * * * * ulmus /usr/local/bin/drush-create-site/drush-create-site >> /var/log/drush.log
+
 #END ELMSLN#
