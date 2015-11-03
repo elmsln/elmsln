@@ -20,18 +20,12 @@ start="$(timestamp)"
 
 # make sure we're up to date with 5.6 repos
 apt-get update -y
-
+export DEBIAN_FRONTEND=noninteractive
 # using apt-get to install the main packages
-apt-get -y install policycoreutils patch git nano gcc make apache2 libapache2-mod-php5 php5 php5-common php-xml-parser php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear php5-dev php5-mcrypt php5-gd
-# ubuntu trips off the installer as mysql
-cat <<EOF | apt-get -y install php5-mysql mysql-server
-
-
-
-EOF
+apt-get -y install policycoreutils php5-mysql mysql-server patch git nano gcc make apache2 libapache2-mod-php5 php5 php5-common php-xml-parser php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear php5-dev php5-mcrypt php5-gd
 
 pecl channel-update pecl.php.net
-
+# install uploadprogress
 pecl install uploadprogress
 
 # adding uploadprogresss to php conf files
