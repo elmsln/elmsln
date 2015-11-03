@@ -34,7 +34,8 @@ fi
 # add a user group of elmsln
 /usr/sbin/groupadd elmsln
 # add the system user and put them in the above group
-/usr/sbin/useradd -g elmsln ulmus
+/usr/sbin/useradd -g elmsln ulmus -m -d /home/ulmus -s /bin/bash -c "ELMSLN task runner"
+
 # create a new file inside sudoers.d
 touch /etc/sudoers.d/ulmus
 
@@ -42,13 +43,6 @@ touch /etc/sudoers.d/ulmus
 echo "ulmus ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ulmus
 # replicate the .composer directory for this user since composer doesn't like sudo -i
 cp -R /root/.composer /home/ulmus/
-# replicate bash profile settings for these new accounts
-if [ -f /root/.profile ]; then
-  cp /root/.profile /home/ulmus/
-fi
-if [ -f /root/.bash_profile ]; then
-  cp /root/.bash_profile /home/ulmus/
-fi
 chown -R ulmus:elmsln /home/ulmus/
 # this user can just run drush commands and is used much more often
 # now run this as the user we just made so it has the drush plugins
@@ -56,7 +50,7 @@ sudo -u ulmus bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /h
 
 chown -R ulmus:elmsln /home/ulmus/
 # add the system user and put them in the above group
-/usr/sbin/useradd -g elmsln ulmusdrush
+/usr/sbin/useradd -g elmsln ulmusdrush -m -d /home/ulmusdrush -s /bin/bash -c "Drush task runner"
 # create a new file inside sudoers.d so we can add some people here
 touch /etc/sudoers.d/ulmusdrush
 # commands this user can do
@@ -66,13 +60,6 @@ echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld restart" >> /etc/sudoe
 echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd restart" >> /etc/sudoers.d/ulmusdrush
 # replicate the .composer directory for this user since composer doesn't like sudo -i
 cp -R /root/.composer /home/ulmusdrush/
-# replicate bash profile settings for these new accounts
-if [ -f /root/.profile ]; then
-  cp /root/.profile /home/ulmusdrush/
-fi
-if [ -f /root/.bash_profile ]; then
-  cp /root/.bash_profile /home/ulmusdrush/
-fi
 chown -R ulmusdrush:elmsln /home/ulmusdrush/
 
 # this user can just run drush commands and is used much more often
