@@ -83,7 +83,8 @@ if [ $os == '1' ]; then
   # test for apcu which would mean we dont need to optimize apc
   if [ -f /etc/php.d/apcu.ini ]; then
     apcini=""
-    elmslnecho "apc.ini ignored"
+    apcuini="/etc/php.d/apcu.ini"
+    elmslnecho "apcu.ini automatically set to ${apcuini}"
   else
     apcini="/etc/php.d/apc.ini"
     elmslnecho "apc.ini automatically set to ${apcini}"
@@ -103,16 +104,17 @@ elif [ $os == '2' ]; then
   wwwuser='www-data'
   elmslnecho "www user automatically set to ${wwwuser}"
   # test for apcu which would mean we dont need to optimize apc
-  if [ -f /etc/php5/conf.d/apcu.ini ]; then
+  if [ -f /etc/php5/mods-available/apcu.ini ]; then
     apcini=""
-    elmslnecho "apc.ini ignored"
+    apcuini="/etc/php5/mods-available/apcu.ini"
+    elmslnecho "apcu.ini automatically set to ${apcuini}"
   else
-    apcini="/etc/php5/conf.d/apc.ini"
+    apcini="/etc/php5/mods-available/apc.ini"
     elmslnecho "apc.ini automatically set to ${apcini}"
   fi
   phpini="/etc/php5/apache2/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
-  mycnf="/etc/php5/conf.d/mysql.ini"
+  mycnf="/etc/php5/mods-available/mysql.ini"
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
@@ -144,7 +146,7 @@ else
   elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf (empty to skip)"
   read zzz_performance
 
-  elmslnecho "Is this some flavor of linux like Ubuntu? (yes for travis, vagrant, etc)"
+  elmslnecho "Is this some flavor of linux like Ubuntu / Debian? (yes for travis, vagrant, etc)"
   read likeubuntu
   if [[ $likeubuntu == 'yes' ]]; then
     os='2'
@@ -266,6 +268,10 @@ fi
 if [[ -n "$apcini" ]]; then
   rm $apcini
   cp /var/www/elmsln/scripts/server/apc.txt $apcini
+fi
+if [[ -n "$apcuini" ]]; then
+  rm $apcuini
+  cp /var/www/elmsln/scripts/server/apcu.txt $apcuini
 fi
 if [[ -n "$phpini" ]]; then
   cat /var/www/elmsln/scripts/server/php.txt >> $phpini
