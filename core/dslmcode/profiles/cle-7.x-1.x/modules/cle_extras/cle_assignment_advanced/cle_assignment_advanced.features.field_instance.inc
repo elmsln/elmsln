@@ -22,7 +22,7 @@ function cle_assignment_advanced_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 16,
+        'weight' => 11,
       ),
       'full' => array(
         'label' => 'inline',
@@ -90,7 +90,7 @@ function cle_assignment_advanced_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 15,
+        'weight' => 10,
       ),
       'full' => array(
         'label' => 'inline',

@@ -728,43 +728,55 @@ function cle_submission_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Open Studio';
+  $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
-  $handler->display->display_options['pager']['type'] = 'infinite_scroll';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '15';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['pager']['options']['id'] = '0';
   $handler->display->display_options['pager']['options']['quantity'] = '';
-  $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
-  $handler->display->display_options['style_options']['masonry_width'] = '260';
-  $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_resizable'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_center'] = TRUE;
-  $handler->display->display_options['style_options']['masonry_gutter'] = '2';
-  $handler->display->display_options['style_options']['masonry_rtl'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'fluid_grid';
+  $handler->display->display_options['style_options']['items_width'] = '250';
+  $handler->display->display_options['style_options']['items_height'] = '250';
+  $handler->display->display_options['style_options']['advanced_layout'] = array(
+    'align' => TRUE,
+    'margins' => TRUE,
+    'css3' => TRUE,
+  );
+  $handler->display->display_options['style_options']['list_alignment'] = 'center';
+  $handler->display->display_options['style_options']['items_alignment'] = 'center';
+  $handler->display->display_options['style_options']['items_h_margin'] = '0.2em';
+  $handler->display->display_options['style_options']['items_v_margin'] = '0.2em';
+  $handler->display->display_options['style_options']['box_shadow'] = '1';
+  $handler->display->display_options['style_options']['border_radius'] = '1';
   $handler->display->display_options['row_plugin'] = 'fields';
   /* Relationship: Content: Author */
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
   $handler->display->display_options['relationships']['uid']['required'] = TRUE;
-  /* Relationship: Content: Vote results */
-  $handler->display->display_options['relationships']['votingapi_cache']['id'] = 'votingapi_cache';
-  $handler->display->display_options['relationships']['votingapi_cache']['table'] = 'node';
-  $handler->display->display_options['relationships']['votingapi_cache']['field'] = 'votingapi_cache';
-  $handler->display->display_options['relationships']['votingapi_cache']['votingapi'] = array(
-    'value_type' => '',
-    'tag' => 'vote',
-    'function' => 'sum',
-  );
   /* Relationship: Entity Reference: Referenced Entity */
   $handler->display->display_options['relationships']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
   $handler->display->display_options['relationships']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
   $handler->display->display_options['relationships']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
   $handler->display->display_options['relationships']['field_assignment_target_id']['label'] = 'Assignment';
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name']['label'] = 'Artist';
+  $handler->display->display_options['fields']['name']['exclude'] = TRUE;
+  /* Field: Content: Link */
+  $handler->display->display_options['fields']['view_node']['id'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
+  $handler->display->display_options['fields']['view_node']['field'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['label'] = 'Action';
+  $handler->display->display_options['fields']['view_node']['text'] = 'Comment / Critique';
   /* Field: Content: Images */
   $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
   $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
@@ -774,80 +786,23 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_images']['element_class'] = 'cle-image';
   $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_images']['type'] = 'colorbox';
   $handler->display->display_options['fields']['field_images']['settings'] = array(
-    'image_style' => 'cle_submission',
-    'image_link' => '',
+    'colorbox_node_style' => 'cle_square',
+    'colorbox_node_style_first' => '',
+    'colorbox_image_style' => 'cle_submission',
+    'colorbox_gallery' => 'page',
+    'colorbox_gallery_custom' => '',
+    'colorbox_caption' => 'node_title',
+    'colorbox_caption_custom' => '',
   );
   $handler->display->display_options['fields']['field_images']['delta_limit'] = '1';
   $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
-  /* Field: User: Name */
-  $handler->display->display_options['fields']['name']['id'] = 'name';
-  $handler->display->display_options['fields']['name']['table'] = 'users';
-  $handler->display->display_options['fields']['name']['field'] = 'name';
-  $handler->display->display_options['fields']['name']['relationship'] = 'uid';
-  $handler->display->display_options['fields']['name']['label'] = '';
-  $handler->display->display_options['fields']['name']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['name']['link_to_user'] = FALSE;
-  /* Field: Content: Assignment */
-  $handler->display->display_options['fields']['field_assignment']['id'] = 'field_assignment';
-  $handler->display->display_options['fields']['field_assignment']['table'] = 'field_data_field_assignment';
-  $handler->display->display_options['fields']['field_assignment']['field'] = 'field_assignment';
-  $handler->display->display_options['fields']['field_assignment']['label'] = '';
-  $handler->display->display_options['fields']['field_assignment']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['field_assignment']['alter']['text'] = '[field_assignment] by [name]';
-  $handler->display->display_options['fields']['field_assignment']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_assignment']['settings'] = array(
-    'link' => 0,
-  );
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['title']['link_to_node'] = FALSE;
-  /* Field: Content: Comment count */
-  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
-  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
-  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
-  $handler->display->display_options['fields']['comment_count']['label'] = '';
-  $handler->display->display_options['fields']['comment_count']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['comment_count']['separator'] = '';
-  /* Field: Vote results: Value */
-  $handler->display->display_options['fields']['value']['id'] = 'value';
-  $handler->display->display_options['fields']['value']['table'] = 'votingapi_cache';
-  $handler->display->display_options['fields']['value']['field'] = 'value';
-  $handler->display->display_options['fields']['value']['relationship'] = 'votingapi_cache';
-  $handler->display->display_options['fields']['value']['label'] = '';
-  $handler->display->display_options['fields']['value']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['value']['precision'] = '0';
-  $handler->display->display_options['fields']['value']['separator'] = '';
-  $handler->display->display_options['fields']['value']['appearance'] = 'rate_views_widget_disabled';
-  /* Field: Content: Color */
-  $handler->display->display_options['fields']['field_color']['id'] = 'field_color';
-  $handler->display->display_options['fields']['field_color']['table'] = 'field_data_field_color';
-  $handler->display->display_options['fields']['field_color']['field'] = 'field_color';
-  $handler->display->display_options['fields']['field_color']['relationship'] = 'field_assignment_target_id';
-  $handler->display->display_options['fields']['field_color']['label'] = '';
-  $handler->display->display_options['fields']['field_color']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_color']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_color']['type'] = 'jquery_colorpicker_raw_hex_display';
-  /* Sort criterion: Content: Energy (field_energy:radioactivity_energy) */
-  $handler->display->display_options['sorts']['field_energy_radioactivity_energy']['id'] = 'field_energy_radioactivity_energy';
-  $handler->display->display_options['sorts']['field_energy_radioactivity_energy']['table'] = 'field_data_field_energy';
-  $handler->display->display_options['sorts']['field_energy_radioactivity_energy']['field'] = 'field_energy_radioactivity_energy';
-  $handler->display->display_options['sorts']['field_energy_radioactivity_energy']['order'] = 'DESC';
-  /* Contextual filter: Content: Section (og_group_ref) */
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['table'] = 'og_membership';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['default_argument_type'] = 'og_user_groups';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['summary_options']['items_per_page'] = '25';
-  $handler->display->display_options['arguments']['og_group_ref_target_id']['break_phrase'] = TRUE;
+  /* Sort criterion: Content: Post date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
   /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -862,7 +817,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'cle_submission' => 'cle_submission',
   );
-  $handler->display->display_options['filters']['type']['group'] = 1;
   /* Filter criterion: Content: Assignment (field_assignment) */
   $handler->display->display_options['filters']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
   $handler->display->display_options['filters']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
@@ -883,14 +837,6 @@ function cle_submission_views_default_views() {
     166149871 => 0,
     30037204 => 0,
     76550217 => 0,
-  );
-  /* Filter criterion: Content: Visibility (field_visibility) */
-  $handler->display->display_options['filters']['field_visibility_value']['id'] = 'field_visibility_value';
-  $handler->display->display_options['filters']['field_visibility_value']['table'] = 'field_data_field_visibility';
-  $handler->display->display_options['filters']['field_visibility_value']['field'] = 'field_visibility_value';
-  $handler->display->display_options['filters']['field_visibility_value']['relationship'] = 'field_assignment_target_id';
-  $handler->display->display_options['filters']['field_visibility_value']['value'] = array(
-    1 => '1',
   );
   /* Filter criterion: Content: Submission type (field_submission_type) */
   $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
@@ -914,18 +860,18 @@ function cle_submission_views_default_views() {
     30037204 => 0,
     76550217 => 0,
   );
-  /* Filter criterion: User: Name (raw) */
-  $handler->display->display_options['filters']['name']['id'] = 'name';
-  $handler->display->display_options['filters']['name']['table'] = 'users';
-  $handler->display->display_options['filters']['name']['field'] = 'name';
-  $handler->display->display_options['filters']['name']['relationship'] = 'uid';
-  $handler->display->display_options['filters']['name']['operator'] = 'starts';
-  $handler->display->display_options['filters']['name']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['name']['expose']['operator_id'] = 'name_op';
-  $handler->display->display_options['filters']['name']['expose']['label'] = 'Author';
-  $handler->display->display_options['filters']['name']['expose']['operator'] = 'name_op';
-  $handler->display->display_options['filters']['name']['expose']['identifier'] = 'name';
-  $handler->display->display_options['filters']['name']['expose']['remember_roles'] = array(
+  /* Filter criterion: User: Name */
+  $handler->display->display_options['filters']['uid']['id'] = 'uid';
+  $handler->display->display_options['filters']['uid']['table'] = 'users';
+  $handler->display->display_options['filters']['uid']['field'] = 'uid';
+  $handler->display->display_options['filters']['uid']['relationship'] = 'uid';
+  $handler->display->display_options['filters']['uid']['value'] = '';
+  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = 'Artist';
+  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
     6065076 => 0,
@@ -937,13 +883,6 @@ function cle_submission_views_default_views() {
     30037204 => 0,
     76550217 => 0,
   );
-  $handler->display->display_options['filters']['name']['expose']['autocomplete_filter'] = 1;
-  $handler->display->display_options['filters']['name']['expose']['autocomplete_items'] = '10';
-  $handler->display->display_options['filters']['name']['expose']['autocomplete_min_chars'] = '0';
-  $handler->display->display_options['filters']['name']['expose']['autocomplete_field'] = 'name';
-  $handler->display->display_options['filters']['name']['expose']['autocomplete_raw_suggestion'] = 1;
-  $handler->display->display_options['filters']['name']['expose']['autocomplete_raw_dropdown'] = 1;
-  $handler->display->display_options['filters']['name']['expose']['autocomplete_dependent'] = 0;
 
   /* Display: Open Studio */
   $handler = $view->new_display('page', 'Open Studio', 'page');
@@ -1858,7 +1797,7 @@ function cle_submission_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'My Sketch book';
+  $handler->display->display_options['title'] = 'Open Studio 2.0';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -1877,6 +1816,11 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['relationships']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
   $handler->display->display_options['relationships']['field_assignment_target_id']['label'] = 'Assignment';
   $handler->display->display_options['relationships']['field_assignment_target_id']['required'] = TRUE;
+  /* Relationship: Content: Author */
+  $handler->display->display_options['relationships']['uid']['id'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['table'] = 'node';
+  $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['required'] = TRUE;
   /* Field: Content: Images */
   $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
   $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';

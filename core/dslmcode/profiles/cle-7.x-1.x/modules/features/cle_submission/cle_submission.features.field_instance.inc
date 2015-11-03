@@ -78,7 +78,7 @@ function cle_submission_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 5,
+        'weight' => 0,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -155,7 +155,7 @@ function cle_submission_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 1,
+        'weight' => 2,
       ),
       'gradebook_viewer' => array(
         'label' => 'inline',
@@ -252,7 +252,7 @@ function cle_submission_field_default_field_instances() {
           'text' => 'Download [file:name]',
         ),
         'type' => 'file_download_link',
-        'weight' => 7,
+        'weight' => 12,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -316,11 +316,11 @@ function cle_submission_field_default_field_instances() {
           'colorbox_gallery_custom' => '',
           'colorbox_image_style' => '',
           'colorbox_multivalue_index' => NULL,
-          'colorbox_node_style' => 'cle_square',
-          'colorbox_node_style_first' => 'cle_square',
+          'colorbox_node_style' => 'cle_submission',
+          'colorbox_node_style_first' => 'cle_submission',
         ),
         'type' => 'colorbox',
-        'weight' => 5,
+        'weight' => 11,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -377,7 +377,7 @@ function cle_submission_field_default_field_instances() {
       'max_filesize' => '',
       'max_resolution' => '',
       'min_resolution' => '',
-      'title_field' => 1,
+      'title_field' => 0,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -508,7 +508,7 @@ function cle_submission_field_default_field_instances() {
           'video_style' => 'cle_default',
         ),
         'type' => 'video_embed_field',
-        'weight' => 8,
+        'weight' => 13,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
