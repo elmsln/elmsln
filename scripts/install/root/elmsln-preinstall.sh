@@ -120,7 +120,7 @@ elif [ $os == '2' ]; then
   elmslnecho "crontab automatically set to ${crontab}"
   domains="/etc/apache2/sites-available/elmsln.conf"
   elmslnecho "domains automatically set to ${domains}"
-  zzz_performance="/etc/apache2/sites-available/zzz_performance.conf"
+  zzz_performance="/etc/apache2/conf-available/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
 else
   elmslnecho "need to ask you some more questions"
@@ -320,7 +320,7 @@ if [[ -n "$zzz_performance" ]]; then
   cp /var/www/elmsln/scripts/server/zzz_performance.conf $zzz_performance
   # account for ubuntu being a little different here when it comes to apache
   if [ $os == '2' ]; then
-    ln -s $zzz_performance /etc/apache2/sites-enabled/zzz_performance.conf
+    ln -s $zzz_performance /etc/apache2/conf-enabled/zzz_performance.conf
   fi
 fi
 
