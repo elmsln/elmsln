@@ -322,15 +322,37 @@ fi
 ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 
-# setup the standard user accounts to work on the backend
-bash scripts/install/root/elmsln-create-accounts.sh
+# shortcuts for ease of use
+cd $HOME
+touch .bashrc
+ln -s /var/www/elmsln $HOME/elmsln
+echo "alias g='git'" >> .bashrc
+echo "alias d='drush'" >> .bashrc
+echo "alias l='ls -laHF'" >> .bashrc
+echo "alias drs='/usr/local/bin/drush-create-site/rm-site.sh'" >> .bashrc
+echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> .bashrc
+
+# setup drush
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer
+sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' .bashrc
+source $HOME/.bashrc
+
+# full path to execute in case root needs to log out before it picks it up
+php /usr/local/bin/composer global require drush/drush:6.*
+# copy in the elmsln server stuff as the baseline for .drush
+if [ ! -d $HOME/.drush ]; then
+  mkdir $HOME/.drush
+fi
+yes | cp -rf /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 
 # stupid ubuntu drush thing to work with sudo
 if [[ $os == '2' ]]; then
   ln -s /root/.composer/vendor/drush/drush /usr/share/drush
 fi
 drush cc drush
-
+# setup the standard user accounts to work on the backend
+bash scripts/install/root/elmsln-create-accounts.sh
 # ubuntu restarts differently
 if [[ $os == '2' ]]; then
   service apache2 restart

@@ -31,8 +31,6 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
-
 # add a user group of elmsln
 /usr/sbin/groupadd elmsln
 # add the system user and put them in the above group
