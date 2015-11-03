@@ -42,8 +42,14 @@ touch /etc/sudoers.d/ulmus
 echo "ulmus ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ulmus
 # replicate the .composer directory for this user since composer doesn't like sudo -i
 cp -R /root/.composer /home/ulmus/
+# replicate bash profile settings for these new accounts
+if [ -f /root/.profile ]; then
+  cp /root/.composer /home/ulmus/
+fi
+if [ -f /root/.bash_profile ]; then
+  cp /root/.bash_profile /home/ulmus/
+fi
 chown -R ulmus:elmsln /home/ulmus/
-
 # this user can just run drush commands and is used much more often
 # now run this as the user we just made so it has the drush plugins
 sudo -u ulmus bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/ulmus
@@ -60,6 +66,13 @@ echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld restart" >> /etc/sudoe
 echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd restart" >> /etc/sudoers.d/ulmusdrush
 # replicate the .composer directory for this user since composer doesn't like sudo -i
 cp -R /root/.composer /home/ulmusdrush/
+# replicate bash profile settings for these new accounts
+if [ -f /root/.profile ]; then
+  cp /root/.composer /home/ulmusdrush/
+fi
+if [ -f /root/.bash_profile ]; then
+  cp /root/.bash_profile /home/ulmusdrush/
+fi
 chown -R ulmusdrush:elmsln /home/ulmusdrush/
 
 # this user can just run drush commands and is used much more often
