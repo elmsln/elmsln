@@ -46,7 +46,7 @@ chown -R ulmus:elmsln /home/ulmus/
 
 # this user can just run drush commands and is used much more often
 # now run this as the user we just made so it has the drush plugins
-sudo -u ulmus bash /var/wwwq/elmsln/scripts/install/users/elmsln-admin-user.sh /home/ulmus
+sudo -u ulmus bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/ulmus
 
 chown -R ulmus:elmsln /home/ulmus/
 # add the system user and put them in the above group
