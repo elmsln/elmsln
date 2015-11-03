@@ -44,7 +44,7 @@ echo "ulmus ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ulmus
 cp -R /root/.composer /home/ulmus/
 # replicate bash profile settings for these new accounts
 if [ -f /root/.profile ]; then
-  cp /root/.composer /home/ulmus/
+  cp /root/.profile /home/ulmus/
 fi
 if [ -f /root/.bash_profile ]; then
   cp /root/.bash_profile /home/ulmus/
@@ -68,7 +68,7 @@ echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd restart" >> /etc/sudoer
 cp -R /root/.composer /home/ulmusdrush/
 # replicate bash profile settings for these new accounts
 if [ -f /root/.profile ]; then
-  cp /root/.composer /home/ulmusdrush/
+  cp /root/.profile /home/ulmusdrush/
 fi
 if [ -f /root/.bash_profile ]; then
   cp /root/.bash_profile /home/ulmusdrush/
