@@ -1,9 +1,8 @@
-
-site_name: ELMSLN docs
+site_name: ELMSLN
 pages:
 - Home: index.md
 - Installation:
-  - Installation: ../INSTALL.md
+  - Installation: INSTALL.md
   - Structure: Package-Structure.md
   - Config Directory: config-is-empty-what-do-I-put-there.md
 - Acronyms: Acronyms.md
