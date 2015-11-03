@@ -662,13 +662,15 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
           if (isset($service_instances['list'][0])) {
             // hold onto the objects returned here
             foreach ($service_instances['list'] as $instance) {
-              $tmp = $instance['field_services'][0];
-              if (isset($tmp['field_machine_name'])) {
-                $output[$tmp['field_machine_name']['und'][0]['value']] = array(
-                  'field_machine_name' => $tmp['field_machine_name']['und'][0]['value'],
-                  'title' => $tmp['title'],
-                  'field_location' => array('url' => $tmp['field_location']['und'][0]['url']),
-                );
+              if (isset($instance['field_services'])) {
+                $tmp = $instance['field_services'][0];
+                if (isset($tmp['field_machine_name'])) {
+                  $output[$tmp['field_machine_name']['und'][0]['value']] = array(
+                    'field_machine_name' => $tmp['field_machine_name']['und'][0]['value'],
+                    'title' => $tmp['title'],
+                    'field_location' => array('url' => $tmp['field_location']['und'][0]['url']),
+                  );
+                }
               }
             }
           }
