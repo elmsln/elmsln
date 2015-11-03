@@ -1,4 +1,4 @@
-# optimize opcodecache for php 5.5
+; optimize opcodecache for php 5.5
 opcache.enable=1
 opcache.memory_consumption=256
 opcache.max_accelerated_files=100000
