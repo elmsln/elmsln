@@ -19,6 +19,7 @@ dependencies[] = transliteration
 dependencies[] = video_embed_field
 dependencies[] = views_fluid_grid
 dependencies[] = views_litepager
+dependencies[] = masonry_views
 dependencies[] = wysiwyg
 features[ctools][] = ds:ds:1
 features[ctools][] = field_group:field_group:1
