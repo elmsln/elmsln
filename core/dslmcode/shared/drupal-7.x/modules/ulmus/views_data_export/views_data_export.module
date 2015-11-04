@@ -1,0 +1,282 @@
+<?php
+
+/**
+ * @file
+ * Provides the ability to export to specific
+ */
+
+define('VIEWS_DATA_EXPORT_HEADER', 'header');
+define('VIEWS_DATA_EXPORT_BODY', 'body');
+define('VIEWS_DATA_EXPORT_FOOTER', 'footer');
+define('VIEWS_DATA_EXPORT_FINISHED', 'finished');
+
+define('VIEWS_DATA_EXPORT_INDEX_TABLE_PREFIX', 'views_data_export_index_');
+
+/**
+ * Implements hook_init().
+ */
+function views_data_export_init() {
+  // We have to include our theme preprocessors here until:
+  // http://drupal.org/node/1096770 is fixed.
+  module_load_include('inc', 'views_data_export', 'theme/views_data_export.theme');
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function views_data_export_views_api() {
+  return array(
+    'api' => 2,
+  );
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function views_data_export_theme() {
+  // Make sure that views picks up the preprocess functions.
+  module_load_include('inc', 'views_data_export', 'theme/views_data_export.theme');
+  $hooks = array();
+  $hooks['views_data_export_feed_icon'] = array(
+    'pattern' => 'views_data_export_feed_icon__',
+    'variables' => array(
+      'image_path' => NULL,
+      'url' => NULL,
+      'query' => '',
+      'text' => '',
+    ),
+    'file' => 'theme/views_data_export.theme.inc',
+  );
+
+  $hooks['views_data_export_complete_page'] = array (
+    'variables' => array(
+      'file' => '',
+      'errors' => array(),
+      'return_url'=> '',
+    ),
+    'file' => 'theme/views_data_export.theme.inc',
+  );
+
+  $hooks['views_data_export_message'] = array (
+    'variables' => array(
+      'message' => '',
+      'type' => 'info',
+    ),
+    'file' => 'theme/views_data_export.theme.inc',
+  );
+
+  return $hooks;
+}
+
+
+/**
+ * Implementation of hook_cron().
+ */
+function views_data_export_cron() {
+  views_data_export_garbage_collect();
+}
+
+/**
+ * Removes any temporary index tables that have been left
+ * behind. This is caused by batch processes which are
+ * started but never finished.
+ *
+ * Removes all trace of exports from the database that
+ * were created more than $expires seconds ago
+ *
+ * @param $expires
+ *   Seconds ago. Defaults to that given in the settings.
+ * @param $chunk
+ *   The number of tables to test for and delete.
+ *   Defaults to that given in the settings. Pass -1
+ *   for this setting to remove any restriction and to
+ *   garbage collect all exports.
+ */
+function views_data_export_garbage_collect($expires = NULL, $chunk = NULL) {
+  if (lock_acquire('views_data_export_gc')) {
+    if (!isset($expires)) {
+      $expires = variable_get('views_data_export_gc_expires', 604800); // one week
+    }
+    if (!isset($chunk)) {
+      $chunk = variable_get('views_data_export_gc_chunk', 30);
+    }
+
+    if ($chunk == -1) {
+      $result = db_query("SELECT eid FROM {views_data_export} WHERE time_stamp <= :timestamp ORDER BY time_stamp ASC", array(':timestamp' => REQUEST_TIME - $expires));
+    }
+    else {
+      $result = db_query_range("SELECT eid FROM {views_data_export} WHERE time_stamp <= :timestamp ORDER BY time_stamp ASC", 0, $chunk, array(':timestamp' => REQUEST_TIME - $expires));
+    }
+
+    $eids_to_clear = array();
+    foreach ($result as $row) {
+      $eids_to_clear[] = $row->eid;
+    }
+
+    // We do two things to exports we want to garbage collect
+    // 1. Delete the index table for it, if it is still around
+    // 2. Delete the row from the exports table
+    // 3. Delete the view from the object_cache
+    if (count($eids_to_clear)) {
+      foreach ($eids_to_clear as $eid) {
+        // 1. Delete index table, if it is still around for some reason
+        $table = VIEWS_DATA_EXPORT_INDEX_TABLE_PREFIX . $eid;
+        if (db_table_exists($table)) {
+          db_drop_table($table);
+        }
+      }
+
+      // 2. Delete the entries in the exports table.
+      db_delete('views_data_export')
+        ->condition('eid', $eids_to_clear, 'IN')
+        ->execute();
+
+      // 3. Clear the cached views
+      views_data_export_view_clear($eids_to_clear);
+    }
+
+    lock_release('views_data_export_gc');
+  }
+}
+
+
+/**
+ * Batch API callback.
+ * Handles all batching operations by executing the appropriate view.
+ */
+function _views_data_export_batch_process($export_id, $display_id, $exposed_input, &$context) {
+  // Don't show the admin menu on batch page, some people don't like it.
+  if (module_exists('admin_menu')) {
+    module_invoke('admin_menu', 'suppress');
+  }
+
+  // Fetch the view in question from our cache
+  $view = views_data_export_view_retrieve($export_id);
+  $view->set_display($display_id);
+  if (!empty($exposed_input)) {
+    $view->set_exposed_input($exposed_input);
+  }
+  // Inform the data_export display which export it corresponds to and execute
+  if (!isset($view->display_handler->batched_execution_state)) {
+    $view->display_handler->batched_execution_state = new stdClass();
+  }
+  $view->display_handler->batched_execution_state->eid = $export_id;
+  $view->display_handler->views_data_export_cached_view_loaded = TRUE;
+  $view->execute_display($display_id);
+
+  // Update batch api progress information
+  $sandbox = $view->display_handler->batched_execution_state->sandbox;
+  $context['finished'] = $sandbox['finished'];
+  $context['message'] = $sandbox['message'];
+
+  views_data_export_view_store($export_id, $view);
+}
+
+
+
+/**********/
+/** CRUD **/
+/**********/
+
+/**
+ * Save a new export into the database.
+ */
+function views_data_export_new($view_name, $view_display_id, $file) {
+  // Insert new row into exports table
+  $record = (object) array(
+    'view_name' => $view_name,
+    'view_display_id' => $view_display_id,
+    'time_stamp' => REQUEST_TIME,
+    'fid' => $file,
+    'batch_state' => VIEWS_DATA_EXPORT_HEADER,
+    'sandbox' => array(),
+  );
+  drupal_write_record('views_data_export', $record);
+  return $record;
+}
+
+
+/**
+ * Update an export row in the database
+ */
+function views_data_export_update($state) {
+  // Note, drupal_write_record handles serializing
+  // the sandbox field as per our schema definition
+  drupal_write_record('views_data_export', $state, 'eid');
+}
+
+
+
+/**
+ * Get the information about a previous export.
+ */
+function views_data_export_get($export_id) {
+  $object = db_query("SELECT * FROM {views_data_export} WHERE eid = :eid", array(':eid' => (int)$export_id))->fetch();
+  if ($object) {
+    $object->sandbox = unserialize($object->sandbox);
+  }
+  return $object;
+}
+
+/**
+ * Remove the information about an export.
+ */
+function views_data_export_clear($export_id) {
+  db_delete('views_data_export')
+    ->condition('eid', $export_id)
+    ->execute();
+  views_data_export_view_clear($export_id);
+}
+
+
+/**
+ * Store a view in the object cache.
+ */
+function views_data_export_view_store($export_id, $view) {
+  // Store a clean copy of the view.
+  $_view = $view->clone_view();
+
+  views_data_export_view_clear($export_id);
+  $record = array(
+    'eid' => $export_id,
+    'data' => $_view,
+    'updated' => REQUEST_TIME,
+  );
+  drupal_write_record('views_data_export_object_cache', $record);
+}
+
+/**
+ * Retrieve a view from the object cache.
+ */
+function views_data_export_view_retrieve($export_id) {
+  views_include('view');
+  $data = db_query("SELECT * FROM {views_data_export_object_cache} WHERE eid = :eid", array(':eid' => $export_id))->fetch();
+  if ($data) {
+    $view = unserialize($data->data);
+  }
+  return $view;
+}
+
+/**
+ * Clear a view from the object cache.
+ *
+ * @param $export_id
+ *   An export ID or an array of export IDs to clear from the object cache.
+ */
+function views_data_export_view_clear($export_id) {
+  db_delete('views_data_export_object_cache')
+    ->condition('eid', $export_id)
+    ->execute();
+}
+
+/**
+ * Implements hook_file_presave().
+ */
+function views_data_export_file_presave($file) {
+  // Ensure temporary files really are temporary.
+  // @see: https://drupal.org/node/2198399
+  if (strpos($file->filename, 'views_data_export') === 0) {
+    // There is no FILE_STATUS_TEMPORARY.
+    $file->status = 0;
+  }
+}

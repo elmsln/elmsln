@@ -1,0 +1,386 @@
+<?php
+
+class XMLExportViewsDataExportTests extends ViewsDataExportSimpleExportTest {
+
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'XML Export',
+      'description' => 'Various tests for exporting to XML.',
+      'group' => 'Views Data Export',
+    );
+  }
+
+  protected $vde_export_type = 'XML';
+
+  protected function getStylePluginName() {
+    return 'views_data_export_xml';
+  }
+
+  protected function getExportView($path = 'vde_test') {
+    // Create the basic view.
+    $view = $this->getBasicExportView();
+
+    $display = $view->new_display('views_data_export', 'Data export', 'vde_test');
+    $display->override_option('style_plugin', 'views_data_export_xml');
+    $display->override_option('path', $path);
+
+    $expected = '<?xml version="1.0" encoding="UTF-8" ?>
+<views_tests>
+  <views_test>
+    <ID>1</ID>
+    <Name>John</Name>
+    <Age>25</Age>
+  </views_test>
+  <views_test>
+    <ID>2</ID>
+    <Name>George</Name>
+    <Age>27</Age>
+  </views_test>
+  <views_test>
+    <ID>3</ID>
+    <Name>Ringo</Name>
+    <Age>28</Age>
+  </views_test>
+  <views_test>
+    <ID>4</ID>
+    <Name>Paul</Name>
+    <Age>26</Age>
+  </views_test>
+  <views_test>
+    <ID>5</ID>
+    <Name>Meredith</Name>
+    <Age>30</Age>
+  </views_test>
+</views_tests>';
+
+    return array(&$view, $expected);
+  }
+
+  /**
+   * Test to check if empty fields are correctly hidden.
+   */
+  protected function testHideEmptySupport() {
+    $view = $this->getHideIfEmptyExportView();
+
+    // We need to ensure that the test fields are actually empty/0.
+    db_update('views_test')
+      ->fields(array('age' => 0,))
+      ->condition('name', 'Paul')
+      ->execute();
+
+    db_update('views_test')
+      ->fields(array('name' => '',))
+      ->condition('name', 'George')
+      ->execute();
+
+    db_update('views_test')
+      ->fields(array('name' => 0,))
+      ->condition('name', 'John')
+      ->execute();
+
+    $expected = '<?xml version="1.0" encoding="UTF-8" ?>
+<views_tests>
+  <views_test>
+    <ID>1</ID>
+    <Name>0</Name>
+    <Age>25</Age>
+  </views_test>
+  <views_test>
+    <ID>2</ID>
+    <Age>27</Age>
+  </views_test>
+  <views_test>
+    <ID>3</ID>
+    <Name>Ringo</Name>
+    <Age>28</Age>
+  </views_test>
+  <views_test>
+    <ID>4</ID>
+    <Name>Paul</Name>
+  </views_test>
+  <views_test>
+    <ID>5</ID>
+    <Name>Meredith</Name>
+    <Age>30</Age>
+  </views_test>
+</views_tests>';
+
+    $message = 'Hide if empty support for ' . $this->vde_export_type . ' export matched expected output.';
+
+    $this->executeAndCompareGivenView($view, $expected, $message);
+
+  }
+
+  /**
+   * Test to ensure that valid XML is produced when someone doesn't specify a label.
+   */
+  protected function testEmptyLabels() {
+    $view = $this->getBasicExportView();
+
+    $display = $view->display['default']->handler;
+
+    $display->override_option('fields', array(
+      'id' => array(
+        'id' => 'id',
+        'table' => 'views_test',
+        'field' => 'id',
+        'relationship' => 'none',
+      ),
+      'name' => array(
+        'id' => 'name',
+        'table' => 'views_test',
+        'field' => 'name',
+        'relationship' => 'none',
+        // Remove the label from the name field.
+        'label' => '',
+      ),
+      'age' => array(
+        'id' => 'age',
+        'table' => 'views_test',
+        'field' => 'age',
+        'relationship' => 'none',
+        // Make this label intentially invalid XML.
+        'label' => '.',
+      ),
+    ));
+
+    $expected = '<?xml version="1.0" encoding="UTF-8" ?>
+<views_tests>
+  <views_test>
+    <ID>1</ID>
+    <no-name>John</no-name>
+    <invalid-tag-name>25</invalid-tag-name>
+  </views_test>
+  <views_test>
+    <ID>2</ID>
+    <no-name>George</no-name>
+    <invalid-tag-name>27</invalid-tag-name>
+  </views_test>
+  <views_test>
+    <ID>3</ID>
+    <no-name>Ringo</no-name>
+    <invalid-tag-name>28</invalid-tag-name>
+  </views_test>
+  <views_test>
+    <ID>4</ID>
+    <no-name>Paul</no-name>
+    <invalid-tag-name>26</invalid-tag-name>
+  </views_test>
+  <views_test>
+    <ID>5</ID>
+    <no-name>Meredith</no-name>
+    <invalid-tag-name>30</invalid-tag-name>
+  </views_test>
+</views_tests>';
+
+    $message = 'Empty label test in ' . $this->vde_export_type . ' export matched expected output.';
+
+    $this->executeAndCompareGivenView($view, $expected, $message);
+  }
+
+  /**
+   * Test to ensure that XML nodes names can be manually specified.
+   */
+  protected function testCustomiseXMLNodes() {
+    $view = $this->getBasicExportView();
+
+    // Load the include that contains the _views_data_export_xml_tag_clean function.
+    module_load_include('inc', 'views_data_export', 'theme/views_data_export.theme');
+
+
+    $root_node = _views_data_export_xml_tag_clean($this->randomName());
+    $item_node = _views_data_export_xml_tag_clean($this->randomName());
+
+    $style_options = array(
+      'root_node' => $root_node,
+      'item_node' => $item_node,
+    );
+
+    $expected = '<?xml version="1.0" encoding="UTF-8" ?>
+<' . $root_node . '>
+  <' . $item_node . '>
+    <ID>1</ID>
+    <Name>John</Name>
+    <Age>25</Age>
+  </' . $item_node . '>
+  <' . $item_node . '>
+    <ID>2</ID>
+    <Name>George</Name>
+    <Age>27</Age>
+  </' . $item_node . '>
+  <' . $item_node . '>
+    <ID>3</ID>
+    <Name>Ringo</Name>
+    <Age>28</Age>
+  </' . $item_node . '>
+  <' . $item_node . '>
+    <ID>4</ID>
+    <Name>Paul</Name>
+    <Age>26</Age>
+  </' . $item_node . '>
+  <' . $item_node . '>
+    <ID>5</ID>
+    <Name>Meredith</Name>
+    <Age>30</Age>
+  </' . $item_node . '>
+</' . $root_node . '>';
+
+    $message = 'Custom XML nodes test in ' . $this->vde_export_type . ' export matched expected output.';
+
+    $this->executeAndCompareGivenView($view, $expected, $message, $style_options);
+  }
+
+  /**
+   * Test to ensure certain fields can be optionally non-escaped.
+   */
+  protected function testXMLNoEntityEncode() {
+    $view = $this->getBasicExportView();
+
+    $display = $view->display['default']->handler;
+
+    $style_options = array(
+      'no_entity_encode' => array(
+        'id' => 'id',
+      ),
+    );
+
+    $display->override_option('fields', array(
+      'id' => array(
+        'id' => 'id',
+        'table' => 'views_test',
+        'field' => 'id',
+        'relationship' => 'none',
+        'alter' => array(
+          'alter_text' => TRUE,
+          'text' => '<strong>[id]</strong>',
+        ),
+      ),
+      'name' => array(
+        'id' => 'name',
+        'table' => 'views_test',
+        'field' => 'name',
+        'relationship' => 'none',
+        'alter' => array(
+          'alter_text' => TRUE,
+          'text' => '<em>[name]</em>',
+        ),
+      ),
+      'age' => array(
+        'id' => 'age',
+        'table' => 'views_test',
+        'field' => 'age',
+        'relationship' => 'none',
+      ),
+    ));
+
+    $expected = '<?xml version="1.0" encoding="UTF-8" ?>
+<views_tests>
+  <views_test>
+    <ID><strong>1</strong></ID>
+    <Name>&lt;em&gt;John&lt;/em&gt;</Name>
+    <Age>25</Age>
+  </views_test>
+  <views_test>
+    <ID><strong>2</strong></ID>
+    <Name>&lt;em&gt;George&lt;/em&gt;</Name>
+    <Age>27</Age>
+  </views_test>
+  <views_test>
+    <ID><strong>3</strong></ID>
+    <Name>&lt;em&gt;Ringo&lt;/em&gt;</Name>
+    <Age>28</Age>
+  </views_test>
+  <views_test>
+    <ID><strong>4</strong></ID>
+    <Name>&lt;em&gt;Paul&lt;/em&gt;</Name>
+    <Age>26</Age>
+  </views_test>
+  <views_test>
+    <ID><strong>5</strong></ID>
+    <Name>&lt;em&gt;Meredith&lt;/em&gt;</Name>
+    <Age>30</Age>
+  </views_test>
+</views_tests>';
+
+    $message = 'XML in values test in ' . $this->vde_export_type . ' export matched expected output.';
+
+    $this->executeAndCompareGivenView($view, $expected, $message, $style_options);
+  }
+
+  /**
+   * Test to ensure certain fields can be optionally non-escaped.
+   */
+  protected function testXMLCDATAWrapper() {
+    $view = $this->getBasicExportView();
+
+    $style_options = array(
+      'cdata_wrapper' => array(
+        'id' => 'id',
+        'name' => 'name',
+      ),
+    );
+
+    $display = $view->display['default']->handler;
+
+    $display->override_option('fields', array(
+      'id' => array(
+        'id' => 'id',
+        'table' => 'views_test',
+        'field' => 'id',
+        'relationship' => 'none',
+      ),
+      'name' => array(
+        'id' => 'name',
+        'table' => 'views_test',
+        'field' => 'name',
+        'relationship' => 'none',
+        'alter' => array(
+          'alter_text' => TRUE,
+          'text' => '<em>[name]</em>',
+        ),
+      ),
+      'age' => array(
+        'id' => 'age',
+        'table' => 'views_test',
+        'field' => 'age',
+        'relationship' => 'none',
+      ),
+    ));
+
+    $expected = '<?xml version="1.0" encoding="UTF-8" ?>
+<views_tests>
+  <views_test>
+    <ID><![CDATA[1]]></ID>
+    <Name><![CDATA[<em>John</em>]]></Name>
+    <Age>25</Age>
+  </views_test>
+  <views_test>
+    <ID><![CDATA[2]]></ID>
+    <Name><![CDATA[<em>George</em>]]></Name>
+    <Age>27</Age>
+  </views_test>
+  <views_test>
+    <ID><![CDATA[3]]></ID>
+    <Name><![CDATA[<em>Ringo</em>]]></Name>
+    <Age>28</Age>
+  </views_test>
+  <views_test>
+    <ID><![CDATA[4]]></ID>
+    <Name><![CDATA[<em>Paul</em>]]></Name>
+    <Age>26</Age>
+  </views_test>
+  <views_test>
+    <ID><![CDATA[5]]></ID>
+    <Name><![CDATA[<em>Meredith</em>]]></Name>
+    <Age>30</Age>
+  </views_test>
+</views_tests>';
+
+    $message = 'XML in values test in ' . $this->vde_export_type . ' export matched expected output.';
+
+    $this->executeAndCompareGivenView($view, $expected, $message, $style_options);
+  }
+
+}
