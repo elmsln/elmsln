@@ -20,8 +20,7 @@
                 "textbook_editor",
                 "cis_unique_tag",
                 "cis_shortcodes",
-                "cis_lmsless",
-                "cis_lmsless_ux"
+                "cis_lmsless"
             ]
         },
         {
@@ -30,7 +29,6 @@
                 "textbook_editor",
                 "cis_lms_required",
                 "cis_account_required",
-                "cis_lmsless_ux",
                 "cis_section",
                 "cis_service_connection_ux",
                 "cis_service_restws",

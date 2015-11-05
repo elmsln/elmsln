@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall functions for the Tin Can API (Vimeo) module.
+ */
+
+// Hooks and callbacks for libraries module.
+module_load_include('module', 'libraries', 'libraries');
+
+/**
+ * Implements hook_requirements().
+ */
+function tincanapi_vimeo_requirements() {
+  $requirements = array();
+
+  // Ensure translations don't break during installation.
+  $t = get_t();
+
+  $requirements['froogaloop'] = array(
+    'title' => $t('Froogaloop Library'),
+  );
+
+  $libraries = libraries_get_libraries();
+
+  if (isset($libraries['froogaloop'])) {
+    $requirements['froogaloop']['value'] = $t('Installed');
+    $requirements['froogaloop']['severity'] = REQUIREMENT_OK;
+  }
+  else {
+    $requirements['froogaloop']['value'] = $t('Not Installed');
+    $requirements['froogaloop']['severity'] = REQUIREMENT_ERROR;
+    $requirements['froogaloop']['description'] = $t('Please install the Froogaloop library %url.', array('%url' => 'https://github.com/vimeo/player-api/tree/master/javascript'));
+  }
+
+  return $requirements;
+}

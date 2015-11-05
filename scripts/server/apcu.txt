@@ -1,4 +1,5 @@
-# ELMSLN recommendations for upload progress
+extension=apcu.so
+; ELMSLN recommendations for upload progress
 apc.rfc1867=1
 apc.rfc1867_prefix=upload_
 apc.rfc1867_name=APC_UPLOAD_PROGRESS

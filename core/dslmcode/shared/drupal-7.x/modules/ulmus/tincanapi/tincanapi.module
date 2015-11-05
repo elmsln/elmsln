@@ -1,0 +1,456 @@
+<?php
+
+/**
+ * @file
+ * Integrate with an LRS using the Tin Can API to store data.
+ */
+
+/**
+ * Contants.
+ */
+define('TINCANAPI_CUSTOM_URI', 'http://orw.iminds.be/tincan');
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function tincanapi_preprocess_page(&$variables) {
+  global $base_url;
+
+  $query = drupal_get_query_parameters();
+  if (!empty($query)) {
+    $query = "?" . http_build_query($query);
+  }
+  else {
+    $query = "";
+  }
+
+  drupal_add_js(
+    array(
+      'tincanapi' => array(
+        'token' => drupal_get_token(),
+        'currentPage' => $base_url . '/' . current_path() . $query,
+      ),
+    ),
+    'setting'
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function tincanapi_menu() {
+  $items = array();
+
+  $items['ajax/tincanapi/track'] = array(
+    'title' => 'Tin Can API',
+    'description' => 'AJAX callback to track Tin Can API events.',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'tincanapi_ajax_track',
+    'access arguments' => array('access content'),
+  );
+
+  $items['admin/config/services/tincanapi'] = array(
+    'title' => 'Tin Can API',
+    'description' => 'Configure the Tin Can API settings.',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tincanapi_admin_form'),
+    'access arguments' => array('administer tincanapi configuration'),
+    'file' => 'tincanapi.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function tincanapi_permission() {
+  $perms = array();
+
+  $perms['administer tincanapi configuration'] = array(
+    'title' => t('Administer Tin Can API Configuration'),
+  );
+
+  return $perms;
+}
+
+/**
+ * Menu callback for JavaScript event tracking.
+ */
+function tincanapi_ajax_track() {
+  if (isset($_POST['token']) && drupal_get_token() == $_POST['token'] && isset($_POST['module'])) {
+    $module_name = $_POST['module'];
+    $context = $_POST;
+
+    $data = array();
+    $data['storage'] = array();
+
+    $hook = 'tincanapi_ajax_data_alter';
+
+    foreach (module_implements($hook) as $module) {
+      $function = $module . '_' . $hook;
+      $function($module_name, $data, $context);
+    }
+
+    // Check to see if the data array is empty without the storage array.
+    $storage = $data['storage'];
+    unset($data['storage']);
+
+    if (!empty($data)) {
+      $data['storage'] = $storage;
+      tincanapi_track_data($module_name, $data);
+    }
+  }
+
+  drupal_exit();
+}
+
+/**
+ * Create an 'actor' for the LRS.
+ *
+ * @param mixed $account
+ *   Optional. A Drupal user object or a user id.
+ *
+ * @return array
+ *   An array representing an 'actor'.
+ */
+function tincanapi_get_actor($account = NULL) {
+  if (is_null($account)) {
+    global $user;
+    $account = user_load($user->uid);
+  }
+  else {
+    if (is_int($account)) {
+      $account = user_load($account);
+    }
+  }
+
+  $actor = array();
+
+  if (module_exists('token') && variable_get('tincanapi_statement_actor') && user_is_logged_in()) {
+    $actor['name'] = token_replace(variable_get('tincanapi_statement_actor'), array('user' => $account), array('clear' => TRUE));
+
+    if (empty($actor['name'])) {
+      $actor['name'] = format_username($account);
+    }
+  }
+  else {
+    $actor['name'] = format_username($account);
+  }
+
+  if ($account->mail) {
+    $actor['mbox'] = 'mailto:' . $account->mail;
+  }
+  elseif (!empty($actor['name'])) {
+    $actor['mbox'] = 'mailto:' . $actor['name'] . '@no-email.' . $_SERVER['SERVER_NAME'];
+  }
+  else {
+    $actor['mbox'] = 'mailto:' . variable_get('site_mail');
+  }
+
+  return $actor;
+}
+
+/**
+ * Return a 'object' for the LRS.
+ *
+ * @param string $entity_type
+ *   The type of entity provided.
+ * @param object $entity
+ *   A Drupal entity.
+ *
+ * @return array
+ *   An array representing an 'object'.
+ */
+function tincanapi_get_object($entity_type, $entity) {
+  global $base_url;
+
+  switch ($entity_type) {
+    case 'node':
+      $id = $entity->nid;
+      $name = $entity->title;
+      break;
+  }
+
+  $object = array();
+
+  $object['id'] = $base_url . '/' . $entity_type . '/' . $id;
+  $object['definition']['name']['en-US'] = $name;
+
+  return $object;
+}
+
+/**
+ * Return a 'verb' array.
+ *
+ * @param string $id
+ *   The id of the verb.
+ * @param string $display
+ *   Optional. The display name of the verb.
+ *
+ * @return array
+ *   A 'verb' array.
+ */
+function tincanapi_get_verb($id, $display = NULL) {
+  if (is_null($display)) {
+    $display = $id;
+  }
+
+  $verb = array();
+
+  $verb['id'] = 'http://adlnet.gov/expapi/verbs/' . $id;
+  $verb['display']['en-US'] = $display;
+
+  return $verb;
+}
+
+/**
+ * Create an array with the key value and language.
+ *
+ * @param string $key
+ *   The key for the value.
+ * @param string $value
+ *   The value for the object.
+ * @param string $language
+ *   Optional. The language.
+ *
+ * @return array
+ *   An array with the value nested in the key and lanuage.
+ */
+function tincanapi_get_language_value($key, $value, $language = 'en-US') {
+  return array(
+    $key => array(
+      $language => $value,
+    ),
+  );
+}
+
+/**
+ * Add a language based value to an existing array.
+ *
+ * @param array $data
+ *   The data array to add the value.
+ * @param string $key
+ *   The key for the value.
+ * @param string $value
+ *   The value for the object.
+ * @param string $language
+ *   Optional. The language.
+ */
+function tincanapi_add_language_value(array &$data, $key, $value, $language = 'en-US') {
+  $data[$key] = array(
+    $language => $value,
+  );
+}
+
+/**
+ * Get the page path for an absolute URL.
+ *
+ * @param string $url
+ *   An absolute url.
+ *
+ * @return string
+ *   The page path.
+ */
+function tincanapi_get_page_path($url) {
+  $url = parse_url($url);
+
+  if (!isset($url['path'])) {
+    return '';
+  }
+
+  $path = substr($url['path'], strlen(base_path()));
+
+  if ($source = drupal_lookup_path('source', $path)) {
+    return $source;
+  }
+
+  return $path;
+}
+
+/**
+ * Send the data collection to the LRS.
+ *
+ * @param string $module_name
+ *   The name of the sub module that is tracking data.
+ * @param array $data
+ *   An associative array that conforms to the API specification.
+ * @param mixed $user
+ *   Optional. A user object or user id.
+ */
+function tincanapi_track_data($module_name, $data = array(), $user = NULL, $cron = FALSE) {
+  if (!$cron && user_is_anonymous() && !variable_get('tincanapi_anonymous')) {
+    return;
+  }
+
+  $data['actor'] = tincanapi_get_actor($user);
+  $data['storage'] = isset($data['storage']) ? $data['storage'] : array();
+
+  $hook = 'tincanapi_data_alter';
+
+  foreach (module_implements($hook) as $module) {
+    $function = $module . '_' . $hook;
+    $function($module_name, $data);
+  }
+
+  unset($data['storage']);
+
+  if (!empty($data)) {
+
+    // Simplify the data IDs to http version.
+    if (variable_get('tincanapi_simplify_id')) {
+      if (isset($data["object"]) && isset($data["object"]["id"])) {
+        $data["object"]["id"] = str_replace(array("http://www.", "https://www.", "https://", "https://"), "http://", $data["object"]["id"]);
+      }
+      if (isset($data["context"]) && isset($data["context"]["contextActivities"]) && isset($data["context"]["contextActivities"]["grouping"]) && isset($data["context"]["contextActivities"]["grouping"][0]) && isset($data["context"]["contextActivities"]["grouping"][0]["id"])) {
+        $data["context"]["contextActivities"]["grouping"][0]["id"] = str_replace(array("http://www.", "https://www.", "https://", "https://"), "http://", $data["context"]["contextActivities"]["grouping"][0]["id"]);
+      }
+      if (isset($data["context"]) && isset($data["context"]["contextActivities"]) && isset($data["context"]["contextActivities"]["parent"]) && isset($data["context"]["contextActivities"]["parent"][0]) && isset($data["context"]["contextActivities"]["parent"][0]["id"])) {
+        $data["context"]["contextActivities"]["parent"][0]["id"] = str_replace(array("http://www.", "https://www.", "https://", "https://"), "http://", $data["context"]["contextActivities"]["parent"][0]["id"]);
+      }
+    }
+
+    tincanapi_send("statements", "POST", $data);
+  }
+}
+
+/**
+ * Send the data collection to the LRS.
+ *
+ * @param string $action
+ *   The name of the action to submit.
+ * @param string $method
+ *   The HTTP method.
+ * @param array $data
+ *   An associative array that conforms to the API specification.
+ */
+function tincanapi_send($action, $method, array $data) {
+  $end_point = variable_get('tincanapi_endpoint');
+  $basic_auth_user = variable_get('tincanapi_auth_user');
+  $basic_auth_pass = variable_get('tincanapi_auth_password');
+
+  // Sanitize endpoint.
+  $end_point = trim($end_point);
+  if (substr($end_point, -1) == "/") {
+    $end_point = substr($end_point, 0, -1);
+  }
+
+  // Sanitize action.
+  $action = trim($action);
+  if (substr($end_point, 0, 1) == "/") {
+    $action = substr($end_point, 1);
+  }
+
+  if ($method == "GET" || $method == "DELETE") {
+    $action .= "?" . http_build_query($data, '', '&');
+  }
+
+  // Init call.
+  $url = $end_point . '/' . $action;
+  $ch = curl_init($url);
+
+  $headers = array(
+    'Content-Type: application/json',
+    'X-Experience-API-Version: 1.0.0',
+  );
+
+  // Differentiate for different methods.
+  if ($method == "POST") {
+    $json = json_encode($data);
+    curl_setopt($ch, CURLOPT_POST, TRUE);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+    $headers[] = 'Content-Length: ' . strlen($json);
+  }
+  elseif ($method == "PUT") {
+    $json = json_encode($data);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+    $headers[] = 'Content-Length: ' . strlen($json);
+  }
+  elseif ($method == "DELETE") {
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+  }
+
+  // Make CURL request.
+  curl_setopt($ch, CURLOPT_USERPWD, $basic_auth_user . ':' . $basic_auth_pass);
+  curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+  $response = curl_exec($ch);
+
+  // Check for connection errors.
+  if ($response === FALSE || $response === NULL) {
+    if (variable_get('tincanapi_watchdog')) {
+      watchdog('tincanapi', curl_error($ch), array(), WATCHDOG_DEBUG);
+    }
+    
+    return;
+  }
+
+  $response = json_decode($response, TRUE);
+  $error = isset($response["error"]) && $response["error"];
+
+  // Log the response.
+  if (variable_get('tincanapi_watchdog') || $error) {
+    $debug = array(
+      "request" => array(
+        "url" => $url,
+        "post" => $data,
+      ),
+      "response" => array(
+        "txt" => $response,
+      ),
+    );
+
+    $severity = $error ? WATCHDOG_ERROR : WATCHDOG_DEBUG;
+    watchdog('tincanapi', json_encode($debug), array(), $severity);
+  }
+
+  return $response;
+}
+
+/**
+ * Get ISO 8601 duration from a timestamp.
+ *
+ * @param int $timestamp
+ *   A timestamp.
+ *
+ * @return string
+ *   The ISO 8601 duration.
+ */
+function tincanapi_format_iso8601_duration($timestamp) {
+  $units = array(
+    'Y' => 365 * 24 * 3600,
+    'D' => 24 * 3600,
+    'H' => 3600,
+    'M' => 60,
+    'S' => 1,
+  );
+
+  $output = 'P';
+  $time = FALSE;
+
+  foreach ($units as $name => &$unit) {
+    $value = intval($timestamp / $unit);
+    $timestamp -= $value * $unit;
+    $unit = $value;
+
+    if ($unit > 0) {
+      if (!$time && in_array($name, array('H', 'M', 'S'))) {
+        $output .= "T";
+        $time = TRUE;
+      }
+
+      $output .= strval($unit) . $name;
+    }
+  }
+
+  if ('P' == $output) {
+    $output .= 'T0S';
+  }
+
+  return $output;
+}

@@ -1,10 +1,15 @@
 #ELMSLN - Installation Guide
 
 ## Hands free install
-There are some handsfree install routines (copy and paste) that you can try
-### CentOS / RHEL
+There are some handsfree install routines (copy and paste) that you can try. This is the preferred method of installing ELMS Learning Network as it'll get you up and running with the least steps possible.
+
+### CentOS 6.x / RHEL 6.x
 https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos/example-deploy
-### Ubuntu
+### AWS managed image
+https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/amazon/example-deploy
+### CentOS 7.x
+https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos7/example-deploy
+### Ubuntu 14.x / Debian 8.x
 https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu/example-deploy
 
 Hands free has some arguments passed into it to get going but these are for installation against a fresh copy of a server.
@@ -65,7 +70,7 @@ elmsln-config-vagrant also includes a working analytics example to see how
 a feature might be created to help make hooking in new systems easier.
 
 ## MCRYPT
-You might need / want mcrypt if you are going to use file system encryption.
+You might need / want mcrypt if you are going to use file system encryption. All handsfree installers include this automatically.
 
 Go here: https://mirrors.fedoraproject.org/publiclist/EPEL/6/x86_64/#US find a mirror that you want to use.
 

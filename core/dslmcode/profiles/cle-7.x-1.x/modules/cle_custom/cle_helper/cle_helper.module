@@ -7,13 +7,6 @@
 define('CLE_HELPER_GROUP_BUNDLE', 'section');
 
 /**
- * Implements hook_page_build().
- */
-function cle_helper_page_build(&$page) {
-  drupal_add_css(drupal_get_path('module', 'cle_helper') . '/cle_helper.css');
-}
-
-/**
  * Implementation of hook_form_BASE_FORM_ID_alter().
  */
 function cle_helper_form_node_form_alter(&$form, &$form_state, $form_id) {

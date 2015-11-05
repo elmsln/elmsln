@@ -1,33 +1,28 @@
-
-site_name: ELMSLN docs
+site_name: ELMSLN
 pages:
 - Home: index.md
-- General:
-  - Acronyms: Acronyms.md
-  - Roadmap: Roadmap.md
-  - Information Architecture: Information-Architecture.md
-  - Tools:
-    - Authority:
-      - What is an authority?: systems/authority.md
-      - Online: systems/authority/online.md
-      - Media: systems/authority/media.md
-      - Interact: systems/authority/interact.md
-      - People: systems/authority/people.md
-      - Inbox: systems/authority/inbox.md
-      - LQ: systems/authority/lq.md
-      - Grades: systems/authority/grades.md
-    - Service:
-      - What is a service?: systems/service.md
-      - Courses: systems/service/courses.md
-      - Studio: systems/service/studio.md
-      - Discuss: systems/service/discuss.md
-      - Blog: systems/service/blog.md
-    - Innovate: systems/developer/innovate.md
 - Installation:
-  - Installation: Installation.md
-  - Package Structure:
-    - Structure: Package-Structure.md
-    - Config Directory: config-is-empty-what-do-I-put-there.md
+  - Installation: INSTALL.md
+  - Structure: Package-Structure.md
+  - Config Directory: config-is-empty-what-do-I-put-there.md
+- Acronyms: Acronyms.md
+- Roadmap: Roadmap.md
+- Information Architecture: Information-Architecture.md
+- Tools:
+  - What is an authority?: systems/authority.md
+  - Online: systems/authority/online.md
+  - Media: systems/authority/media.md
+  - Interact: systems/authority/interact.md
+  - People: systems/authority/people.md
+  - Inbox: systems/authority/inbox.md
+  - LQ: systems/authority/lq.md
+  - Grades: systems/authority/grades.md
+  - What is a service?: systems/service.md
+  - Courses: systems/service/courses.md
+  - Studio: systems/service/studio.md
+  - Discuss: systems/service/discuss.md
+  - Blog: systems/service/blog.md
+  - Innovate: systems/developer/innovate.md
 - Developer:
   - General Questions: Developer-questions.md
   - Release Cycle: Project-Release-Cycle.md

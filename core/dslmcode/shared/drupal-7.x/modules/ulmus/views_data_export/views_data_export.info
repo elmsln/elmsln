@@ -1,0 +1,28 @@
+name = Views Data Export
+description = "Plugin to export views data into various file formats"
+
+package = Views
+core = 7.x
+
+dependencies[] = views
+
+; Plugins
+files[] = plugins/views_data_export_plugin_display_export.inc
+files[] = plugins/views_data_export_plugin_style_export.inc
+files[] = plugins/views_data_export_plugin_style_export_csv.inc
+files[] = plugins/views_data_export_plugin_style_export_xml.inc
+
+; Tests
+files[] = "tests/base.test"
+files[] = "tests/csv_export.test"
+files[] = "tests/doc_export.test"
+files[] = "tests/txt_export.test"
+files[] = "tests/xls_export.test"
+files[] = "tests/xml_export.test"
+
+; Information added by Drupal.org packaging script on 2015-10-26
+version = "7.x-3.0-beta9"
+core = "7.x"
+project = "views_data_export"
+datestamp = "1445842742"
+

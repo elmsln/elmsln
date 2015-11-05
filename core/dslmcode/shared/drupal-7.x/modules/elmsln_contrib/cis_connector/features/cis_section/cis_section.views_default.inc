@@ -27,9 +27,9 @@ function cis_section_views_default_views() {
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    4 => '4',
-    6 => '6',
-    8 => '8',
+    75987638 => 75987638,
+    166149871 => 166149871,
+    67296478 => 67296478,
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -212,10 +212,10 @@ function cis_section_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    10 => '10',
-    4 => '4',
-    6 => '6',
-    8 => '8',
+    75987638 => 75987638,
+    166149871 => 166149871,
+    67296478 => 67296478,
+    76550217 => 76550217,
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -250,13 +250,13 @@ function cis_section_views_default_views() {
   $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid']['field'] = 'rid';
   $handler->display->display_options['filters']['rid']['value'] = array(
-    5 => '5',
-    3 => '3',
-    7 => '7',
-    8 => '8',
-    4 => '4',
-    6 => '6',
-    9 => '9',
+    6065076 => 6065076,
+    75987638 => 75987638,
+    135574917 => 135574917,
+    166149871 => 166149871,
+    66784200 => 66784200,
+    67296478 => 67296478,
+    30037204 => 30037204,
   );
   /* Filter criterion: User: Roles */
   $handler->display->display_options['filters']['rid_1']['id'] = 'rid_1';

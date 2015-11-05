@@ -1,0 +1,14 @@
+name = Tin Can API (Content Types)
+description = Tin Can API reporting for specific content types.
+package = Tin Can API
+
+dependencies[] = tincanapi
+
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2015-08-11
+version = "7.x-1.0-alpha1+1-dev"
+core = "7.x"
+project = "tincanapi"
+datestamp = "1439325858"
+

@@ -40,9 +40,6 @@ fi
 # we assume you install it in the place that we like
 cd /var/www/elmsln
 
-# setup the standard user accounts to work on the backend
-bash scripts/install/root/elmsln-create-accounts.sh
-
 # blow away old repo
 rm -rf config
 # make git not track filemode changes
@@ -86,7 +83,8 @@ if [ $os == '1' ]; then
   # test for apcu which would mean we dont need to optimize apc
   if [ -f /etc/php.d/apcu.ini ]; then
     apcini=""
-    elmslnecho "apc.ini ignored"
+    apcuini="/etc/php.d/apcu.ini"
+    elmslnecho "apcu.ini automatically set to ${apcuini}"
   else
     apcini="/etc/php.d/apc.ini"
     elmslnecho "apc.ini automatically set to ${apcini}"
@@ -106,22 +104,23 @@ elif [ $os == '2' ]; then
   wwwuser='www-data'
   elmslnecho "www user automatically set to ${wwwuser}"
   # test for apcu which would mean we dont need to optimize apc
-  if [ -f /etc/php5/conf.d/apcu.ini ]; then
+  if [ -f /etc/php5/mods-available/apcu.ini ]; then
     apcini=""
-    elmslnecho "apc.ini ignored"
+    apcuini="/etc/php5/mods-available/apcu.ini"
+    elmslnecho "apcu.ini automatically set to ${apcuini}"
   else
-    apcini="/etc/php5/conf.d/apc.ini"
+    apcini="/etc/php5/mods-available/apc.ini"
     elmslnecho "apc.ini automatically set to ${apcini}"
   fi
   phpini="/etc/php5/apache2/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
-  mycnf="/etc/php5/conf.d/mysql.ini"
+  mycnf="/etc/php5/mods-available/mysql.ini"
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
   domains="/etc/apache2/sites-available/elmsln.conf"
   elmslnecho "domains automatically set to ${domains}"
-  zzz_performance="/etc/apache2/sites-available/zzz_performance.conf"
+  zzz_performance="/etc/apache2/conf-available/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
 else
   elmslnecho "need to ask you some more questions"
@@ -147,7 +146,7 @@ else
   elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf (empty to skip)"
   read zzz_performance
 
-  elmslnecho "Is this some flavor of linux like Ubuntu? (yes for travis, vagrant, etc)"
+  elmslnecho "Is this some flavor of linux like Ubuntu / Debian? (yes for travis, vagrant, etc)"
   read likeubuntu
   if [[ $likeubuntu == 'yes' ]]; then
     os='2'
@@ -270,6 +269,10 @@ if [[ -n "$apcini" ]]; then
   rm $apcini
   cp /var/www/elmsln/scripts/server/apc.txt $apcini
 fi
+if [[ -n "$apcuini" ]]; then
+  rm $apcuini
+  cp /var/www/elmsln/scripts/server/apcu.txt $apcuini
+fi
 if [[ -n "$phpini" ]]; then
   cat /var/www/elmsln/scripts/server/php.txt >> $phpini
 fi
@@ -317,7 +320,7 @@ if [[ -n "$zzz_performance" ]]; then
   cp /var/www/elmsln/scripts/server/zzz_performance.conf $zzz_performance
   # account for ubuntu being a little different here when it comes to apache
   if [ $os == '2' ]; then
-    ln -s $zzz_performance /etc/apache2/sites-enabled/zzz_performance.conf
+    ln -s $zzz_performance /etc/apache2/conf-enabled/zzz_performance.conf
   fi
 fi
 
@@ -348,21 +351,23 @@ if [ ! -d $HOME/.drush ]; then
   mkdir $HOME/.drush
 fi
 yes | cp -rf /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
+
 # stupid ubuntu drush thing to work with sudo
 if [[ $os == '2' ]]; then
   ln -s /root/.composer/vendor/drush/drush /usr/share/drush
 fi
 drush cc drush
-
+# setup the standard user accounts to work on the backend
+bash /var/www/elmsln/scripts/install/root/elmsln-create-accounts.sh
 # ubuntu restarts differently
 if [[ $os == '2' ]]; then
   service apache2 restart
-  /etc/init.d/mysql restart
+  service mysql restart
 else
   /etc/init.d/httpd restart
   /etc/init.d/mysqld restart
 fi
-# source one last time before hooking crontab into the root user call
+# source one last time before hooking crontab up
 source $HOME/.bashrc
 if [[ -n "$crontab" ]]; then
   cat /var/www/elmsln/scripts/server/crontab.txt >> $crontab

@@ -20,7 +20,7 @@ start="$(timestamp)"
 # make sure we're up to date
 yes | yum update
 # using yum to install the main packages
-yes | yum -y install patch git nano gcc make mysql mysql-server httpd
+yes | yum -y install curl uuid patch git nano gcc make mysql mysql-server httpd
 # amazon packages on 56
 yes | yum -y install php56 php56-common php56-opcache php56-fpm php56-pecl-apcu php56-cli php56-pdo php56-mysqlnd php56-gd php56-mbstring php56-mcrypt php56-xml php56-devel php56-pecl-ssh2 --skip-broken
 
@@ -67,9 +67,10 @@ yes | rm /etc/php.d/apc.ini
 /etc/init.d/httpd restart
 # make an admin group
 groupadd admin
+groupadd elmsln
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
-bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
 
 /etc/init.d/mysqld restart
 

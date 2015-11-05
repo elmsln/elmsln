@@ -1,0 +1,205 @@
+<?php
+
+/**
+ * Implementation of hook_schema()
+ */
+function views_data_export_schema() {
+  $schema = array();
+
+  $schema['views_data_export'] = array(
+    'description' => t('Keep track of currently executing exports.'),
+    'fields' => array(
+      'eid' => array(
+        'description' => 'Unique id for each on-going export.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'view_name' => array(
+        'type' => 'varchar',
+        'length' => '128',
+        'default' => '',
+        'not null' => TRUE,
+        'description' => 'The unique name of the view. This is the primary field views are loaded from, and is used so that views may be internal and not necessarily in the database. May only be alphanumeric characters plus underscores.',
+      ),
+      'view_display_id' => array(
+        'type' => 'varchar',
+        'length' => '64',
+        'default' => '',
+        'not null' => TRUE,
+        'description' => 'The unique name of the view. This is the primary field views are loaded from, and is used so that views may be internal and not necessarily in the database. May only be alphanumeric characters plus underscores.',
+      ),
+      'time_stamp' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time this export started',
+      ),
+      'fid' => array(
+        'description' => 'Files ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'batch_state' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'default' => 'init',
+        'not null' => TRUE,
+        'description' => 'The current state of the batch.',
+      ),
+      'sandbox' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('eid'),
+  );
+
+  $schema['views_data_export_object_cache'] = array(
+    'description' => 'A modified version of the views_object_cache that ignores session id.',
+    'fields' => array(
+      'eid' => array(
+        'type' => 'varchar',
+        'length' => '64',
+        'description' => 'The export ID this view equates too.',
+      ),
+      'updated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time this cache was created or updated.',
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'description' => 'Serialized data being stored.',
+        'serialize' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'eid' => array('eid'),
+      'updated' => array('updated'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function views_data_export_uninstall() {
+  // Clean up any tables we may have left around.
+  module_load_include('module', 'views_data_export');
+  views_data_export_garbage_collect(0, -1);
+}
+
+/**
+ * Convert the data column in the object cache.
+ */
+function views_data_export_update_7100() {
+  $new_field = array(
+    'type' => 'text',
+    'size' => 'big',
+    'description' => 'Serialized data being stored.',
+    'serialize' => TRUE,
+  );
+
+  // Drop and re-add this field because there is a bug in
+  // db_change_field that causes this to fail when trying to cast the data.
+  db_drop_field('views_data_export_object_cache', 'data');
+  db_add_field('views_data_export_object_cache', 'data', $new_field);
+}
+
+/**
+ * Increase the length of the view_name field to match views_schema_7301().
+ */
+function views_data_export_update_7300() {
+  $fields = array();
+
+  $fields['view_name'] = array(
+    'type' => 'varchar',
+    'length' => '128',
+    'default' => '',
+    'not null' => TRUE,
+    'description' => 'The unique name of the view. This is the primary field views are loaded from, and is used so that views may be internal and not necessarily in the database. May only be alphanumeric characters plus underscores.',
+  );
+
+  $fields['view_display_id'] = array(
+    'type' => 'varchar',
+    'length' => '64',
+    'default' => '',
+    'not null' => TRUE,
+    'description' => 'An identifier for this display; usually generated from the display_plugin, so should be something like page or page_1 or block_2, etc.',
+  );
+
+  // Apply the updates to the DB.
+  foreach ($fields as $field_name => $spec) {
+    db_change_field('views_data_export', $field_name, $field_name, $spec);
+  }
+}
+/**
+ * Change the object cache table to support postgres installations
+ */
+function views_data_export_update_7301(){
+  $spec = array(
+        'type' => 'blob',
+        'size' => 'big',
+        'description' => 'Serialized data being stored.',
+        'serialize' => TRUE,
+      );
+  db_change_field('views_data_export_object_cache', 'data', 'data', $spec);
+}
+
+
+/**
+ * Implements hook_requirements().
+ */
+function views_data_export_requirements($phase) {
+  $requirements = array();
+
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  switch ($phase) {
+    case 'runtime':
+
+      $requirements['views_data_export_temp'] = array(
+        'title' => t('Views Data Export temporary directory'),
+        'severity' => REQUIREMENT_OK,
+        'value' => t('Exists'),
+      );
+
+      $path = variable_get('views_data_export_directory', 'temporary://views_plugin_display');
+      if (!file_prepare_directory($path, FILE_CREATE_DIRECTORY)) {
+        $requirements['views_data_export_temp']['description'] = t('The Views Data Export temporary directory, %path could not be created due to a misconfigured directory. Please ensure that the temporary directory is correctly configured and that the webserver has permission to create directories.', array('%path' => file_uri_target($path)));
+        $requirements['views_data_export_temp']['severity'] = REQUIREMENT_ERROR;
+        $requirements['views_data_export_temp']['value'] = t('Unable to create');
+      }
+
+      $db_type = Database::getConnection()->databaseType();
+      switch ($db_type) {
+        case 'mysql':
+          // Check the max allowed packet size.
+          $max_allowed_packet = db_query('SHOW VARIABLES WHERE variable_name = :name', array(':name' => 'max_allowed_packet'))->fetchField(1);
+          if (is_numeric($max_allowed_packet)) {
+            if ($max_allowed_packet < (16 * 1024 * 1024)) {
+              $requirements['views_data_export'] = array(
+                'title' => $t('MySQL - max allowed packet'),
+                'value' => format_size($max_allowed_packet),
+                'description' => $t("Your MySQL 'max_allowed_packet' setting may be too low for Views data export to function correctly, Drupal's requirements recommend setting it to at least 16M. See: !link", array('!link' => l('http://drupal.org/requirements', 'http://drupal.org/requirements'))),
+                'severity' => REQUIREMENT_WARNING,
+              );
+            }
+          }
+          break;
+      }
+      break;
+  }
+
+  return $requirements;
+}
