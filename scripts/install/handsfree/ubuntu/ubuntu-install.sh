@@ -24,7 +24,7 @@ export DEBIAN_FRONTEND=noninteractive
 # using apt-get to install the main packages
 apt-get -y install uuid curl policycoreutils php5-mysql mysql-server patch git nano gcc make apache2 libapache2-mod-php5 php5 php5-common php-xml-parser php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear php5-dev php5-mcrypt php5-gd
 # enable apache headers
-a2enmod headers
+a2enmod ssl rewrite headers
 pecl channel-update pecl.php.net
 # install uploadprogress
 pecl install uploadprogress
@@ -38,6 +38,7 @@ ln -s ../../mods-available/uploadprogress.ini 20-uploadprogress.ini
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
 service mysql restart
+service apache2 restart
 # make an admin group
 groupadd admin
 groupadd elmsln
