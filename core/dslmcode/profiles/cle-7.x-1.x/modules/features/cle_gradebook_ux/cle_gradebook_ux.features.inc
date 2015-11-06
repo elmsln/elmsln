@@ -5,6 +5,19 @@
  */
 
 /**
+ * Implements hook_default_assessment_entity_type().
+ */
+function cle_gradebook_ux_default_assessment_entity_type() {
+  $items = array();
+  $items['submission_evaluation'] = entity_import('assessment_entity_type', '{
+    "type" : "submission_evaluation",
+    "label" : "Submission evaluation",
+    "weight" : "0"
+  }');
+  return $items;
+}
+
+/**
  * Implements hook_ctools_plugin_api().
  */
 function cle_gradebook_ux_ctools_plugin_api($module = NULL, $api = NULL) {

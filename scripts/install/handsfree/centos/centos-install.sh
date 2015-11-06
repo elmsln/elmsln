@@ -26,7 +26,7 @@ $RPM -Uvh epel-release-6*.rpm
 # make sure we're up to date w/ the remi repos
 yes | yum update
 # using yum to install the main packages
-yes | yum -y install curl uuid patch git nano gcc make mysql mysql-server httpd
+yes | yum -y install patch git nano gcc make mysql mysql-server httpd
 # install php 5.5
 yes | yum -y --enablerepo=remi-php55 install php php-common php-opcache php-pecl-apcu php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-devel php-pecl-ssh2
 
@@ -73,10 +73,9 @@ yes | rm /etc/php.d/apc.ini
 /etc/init.d/httpd restart
 # make an admin group
 groupadd admin
-groupadd elmsln
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
-bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
 
 
 # get things in place so that we can run mysql 5.5

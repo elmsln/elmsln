@@ -8,7 +8,7 @@
  * Implements hook_field_group_info().
  */
 function cle_gradebook_ux_field_group_info() {
-  $field_groups = array();
+  $export = array();
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -36,7 +36,7 @@ function cle_gradebook_ux_field_group_info() {
       'formatter' => 'closed',
     ),
   );
-  $field_groups['group_actions|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_actions|node|cle_submission|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -63,7 +63,7 @@ function cle_gradebook_ux_field_group_info() {
       'formatter' => 'collapsed',
     ),
   );
-  $field_groups['group_assignment_description|node|cle_assignment|gradebook_viewer'] = $field_group;
+  $export['group_assignment_description|node|cle_assignment|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -90,7 +90,7 @@ function cle_gradebook_ux_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_assignment|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_assignment|node|cle_submission|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -122,7 +122,7 @@ function cle_gradebook_ux_field_group_info() {
       'formatter' => 'open',
     ),
   );
-  $field_groups['group_details|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_details|node|cle_submission|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -149,7 +149,7 @@ function cle_gradebook_ux_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_files|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_files|node|cle_submission|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -177,7 +177,7 @@ function cle_gradebook_ux_field_group_info() {
       'formatter' => 'open',
     ),
   );
-  $field_groups['group_images|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_images|node|cle_submission|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -204,7 +204,7 @@ function cle_gradebook_ux_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_links|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_links|node|cle_submission|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -232,7 +232,7 @@ function cle_gradebook_ux_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_media|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_media|node|cle_submission|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -259,7 +259,7 @@ function cle_gradebook_ux_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_past_submissions|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_past_submissions|node|cle_submission|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -287,7 +287,7 @@ function cle_gradebook_ux_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_submission_details|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_submission_details|node|cle_submission|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -314,21 +314,7 @@ function cle_gradebook_ux_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_video|node|cle_submission|gradebook_viewer'] = $field_group;
+  $export['group_video|node|cle_submission|gradebook_viewer'] = $field_group;
 
-  // Translatables
-  // Included for use with string extractors like potx.
-  t('Assignment');
-  t('Assignment Description');
-  t('Details');
-  t('Evaluate');
-  t('Files');
-  t('Images');
-  t('Links');
-  t('Media');
-  t('Past submissions');
-  t('Submission Details');
-  t('Video');
-
-  return $field_groups;
+  return $export;
 }

@@ -8,7 +8,7 @@
  * Implements hook_field_group_info().
  */
 function cle_submission_field_group_info() {
-  $field_groups = array();
+  $export = array();
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -25,16 +25,15 @@ function cle_submission_field_group_info() {
     'children' => array(),
     'format_type' => 'tab',
     'format_settings' => array(
-      'label' => 'Admin',
+      'formatter' => 'collapsible',
       'instance_settings' => array(
-        'required_fields' => 1,
-        'classes' => 'group-admin field-group-fieldset',
         'description' => '',
+        'classes' => 'group-admin field-group-fieldset',
+        'required_fields' => 1,
       ),
-      'formatter' => 'open',
     ),
   );
-  $field_groups['group_admin|node|cle_submission|form'] = $field_group;
+  $export['group_admin|node|cle_submission|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -47,20 +46,19 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = 'group_media';
   $field_group->data = array(
     'label' => 'Files',
-    'weight' => '3',
+    'weight' => '21',
     'children' => array(
       0 => 'field_files',
     ),
     'format_type' => 'accordion-item',
     'format_settings' => array(
-      'label' => 'Files',
+      'formatter' => 'closed',
       'instance_settings' => array(
         'classes' => 'group-files field-group-accordion-item',
       ),
-      'formatter' => 'open',
     ),
   );
-  $field_groups['group_files|node|cle_submission|default'] = $field_group;
+  $export['group_files|node|cle_submission|default'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -79,16 +77,13 @@ function cle_submission_field_group_info() {
     ),
     'format_type' => 'accordion-item',
     'format_settings' => array(
-      'label' => 'Files',
+      'formatter' => 'closed',
       'instance_settings' => array(
-        'required_fields' => 1,
         'classes' => 'group-files field-group-accordion-item',
-        'description' => '',
       ),
-      'formatter' => 'open',
     ),
   );
-  $field_groups['group_files|node|cle_submission|form'] = $field_group;
+  $export['group_files|node|cle_submission|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -101,7 +96,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = 'group_media';
   $field_group->data = array(
     'label' => 'Images',
-    'weight' => '1',
+    'weight' => '19',
     'children' => array(
       0 => 'field_images',
     ),
@@ -114,7 +109,7 @@ function cle_submission_field_group_info() {
       'formatter' => 'open',
     ),
   );
-  $field_groups['group_images|node|cle_submission|default'] = $field_group;
+  $export['group_images|node|cle_submission|default'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -140,7 +135,7 @@ function cle_submission_field_group_info() {
       'formatter' => 'open',
     ),
   );
-  $field_groups['group_images|node|cle_submission|form'] = $field_group;
+  $export['group_images|node|cle_submission|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -153,20 +148,19 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = 'group_media';
   $field_group->data = array(
     'label' => 'Links',
-    'weight' => '4',
+    'weight' => '22',
     'children' => array(
       0 => 'field_links',
     ),
     'format_type' => 'accordion-item',
     'format_settings' => array(
-      'label' => 'Links',
+      'formatter' => 'closed',
       'instance_settings' => array(
         'classes' => 'group-links field-group-accordion-item',
       ),
-      'formatter' => 'open',
     ),
   );
-  $field_groups['group_links|node|cle_submission|default'] = $field_group;
+  $export['group_links|node|cle_submission|default'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -185,16 +179,13 @@ function cle_submission_field_group_info() {
     ),
     'format_type' => 'accordion-item',
     'format_settings' => array(
-      'label' => 'Links',
+      'formatter' => 'closed',
       'instance_settings' => array(
-        'required_fields' => 1,
         'classes' => 'group-links field-group-accordion-item',
-        'description' => '',
       ),
-      'formatter' => 'open',
     ),
   );
-  $field_groups['group_links|node|cle_submission|form'] = $field_group;
+  $export['group_links|node|cle_submission|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -207,12 +198,12 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Media',
-    'weight' => '1',
+    'weight' => '4',
     'children' => array(
-      0 => 'group_files',
-      1 => 'group_images',
-      2 => 'group_links',
-      3 => 'group_video',
+      0 => 'group_images',
+      1 => 'group_video',
+      2 => 'group_files',
+      3 => 'group_links',
     ),
     'format_type' => 'accordion',
     'format_settings' => array(
@@ -220,11 +211,11 @@ function cle_submission_field_group_info() {
       'instance_settings' => array(
         'classes' => 'group-media field-group-accordion',
         'description' => '',
-        'effect' => 'bounceslide',
+        'effect' => 'none',
       ),
     ),
   );
-  $field_groups['group_media|node|cle_submission|default'] = $field_group;
+  $export['group_media|node|cle_submission|default'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -239,10 +230,10 @@ function cle_submission_field_group_info() {
     'label' => 'Media',
     'weight' => '4',
     'children' => array(
-      0 => 'group_files',
-      1 => 'group_images',
-      2 => 'group_links',
-      3 => 'group_video',
+      0 => 'group_images',
+      1 => 'group_video',
+      2 => 'group_files',
+      3 => 'group_links',
     ),
     'format_type' => 'accordion',
     'format_settings' => array(
@@ -254,7 +245,7 @@ function cle_submission_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_media|node|cle_submission|form'] = $field_group;
+  $export['group_media|node|cle_submission|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -267,20 +258,19 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = 'group_media';
   $field_group->data = array(
     'label' => 'Video',
-    'weight' => '2',
+    'weight' => '20',
     'children' => array(
       0 => 'field_video',
     ),
     'format_type' => 'accordion-item',
     'format_settings' => array(
-      'label' => 'Video',
+      'formatter' => 'closed',
       'instance_settings' => array(
         'classes' => 'group-video field-group-accordion-item',
       ),
-      'formatter' => 'open',
     ),
   );
-  $field_groups['group_video|node|cle_submission|default'] = $field_group;
+  $export['group_video|node|cle_submission|default'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -299,25 +289,13 @@ function cle_submission_field_group_info() {
     ),
     'format_type' => 'accordion-item',
     'format_settings' => array(
-      'label' => 'Video',
+      'formatter' => 'closed',
       'instance_settings' => array(
-        'required_fields' => 1,
         'classes' => 'group-video field-group-accordion-item',
-        'description' => '',
       ),
-      'formatter' => 'open',
     ),
   );
-  $field_groups['group_video|node|cle_submission|form'] = $field_group;
+  $export['group_video|node|cle_submission|form'] = $field_group;
 
-  // Translatables
-  // Included for use with string extractors like potx.
-  t('Admin');
-  t('Files');
-  t('Images');
-  t('Links');
-  t('Media');
-  t('Video');
-
-  return $field_groups;
+  return $export;
 }

@@ -73,12 +73,23 @@ function cle_submission_page_build(&$page) {
   }
   else {
     // add special js handling to the submissions overview
-    switch (arg(2)) {
-      case 'assignments':
-      case 'assignments-list':
-        $file = 'assignment_listing';
-        drupal_add_js($path . 'js/' . $file . '.js');
-        drupal_add_css($path . 'css/' . $file . '.css');
+    switch (arg(0)) {
+      case 'cle':
+        if (arg(1) == 'submissions' || arg(1) == '') {
+          $file = 'submission_overview';
+          drupal_add_js($path . 'js/' . $file . '.js');
+          drupal_add_css($path . 'css/' . $file . '.css');
+        }
+      break;
+      default:
+        switch (arg(2)) {
+          case 'assignments':
+          case 'assignments-list':
+            $file = 'assignment_listing';
+            drupal_add_js($path . 'js/' . $file . '.js');
+            drupal_add_css($path . 'css/' . $file . '.css');
+          break;
+        }
       break;
     }
   }

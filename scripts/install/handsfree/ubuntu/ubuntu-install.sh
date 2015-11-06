@@ -17,16 +17,13 @@ timestamp(){
   date +"%s"
 }
 start="$(timestamp)"
+yes | apt-get update
+# using yum to install the main packages
+yes | apt-get -f -y install policycoreutils patch git nano gcc make mysql-server apache2 libapache2-mod-php5 php5 php5-common php5-mysql php-xml-parser php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear php5-dev php5-mcrypt php5-gd
 
-# make sure we're up to date with 5.6 repos
-apt-get update -y
-export DEBIAN_FRONTEND=noninteractive
-# using apt-get to install the main packages
-apt-get -y install uuid curl policycoreutils php5-mysql mysql-server patch git nano gcc make apache2 libapache2-mod-php5 php5 php5-common php-xml-parser php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear php5-dev php5-mcrypt php5-gd
-# enable apache headers
-a2enmod ssl rewrite headers
+# using pecl to install uploadprogress
 pecl channel-update pecl.php.net
-# install uploadprogress
+# uploadprogress to get rid of that warning
 pecl install uploadprogress
 
 # adding uploadprogresss to php conf files
@@ -37,15 +34,13 @@ ln -s ../../mods-available/uploadprogress.ini 20-uploadprogress.ini
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
-service mysql restart
-service apache2 restart
+/etc/init.d/mysql restart
 # make an admin group
 groupadd admin
-groupadd elmsln
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
 cd $HOME
-bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 2 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 2 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
 cd $HOME
 source .bashrc
 end="$(timestamp)"

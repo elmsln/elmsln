@@ -48,24 +48,13 @@ function elmsmedia_feature_image_default_styles() {
     'label' => 'Image Lightboxed',
     'effects' => array(
       2 => array(
-        'name' => 'image_scale',
+        'name' => 'image_scale_and_crop',
         'data' => array(
           'width' => 1200,
-          'height' => '',
-          'upscale' => 0,
-          '#imageinfo_cache_effect_callback' => 'image_scale_effect',
-        ),
-        'weight' => 2,
-      ),
-      3 => array(
-        'name' => 'image_scale',
-        'data' => array(
-          'width' => '',
           'height' => 800,
-          'upscale' => 0,
-          '#imageinfo_cache_effect_callback' => 'image_scale_effect',
+          '#imageinfo_cache_effect_callback' => 'image_scale_and_crop_effect',
         ),
-        'weight' => 3,
+        'weight' => 1,
       ),
     ),
   );

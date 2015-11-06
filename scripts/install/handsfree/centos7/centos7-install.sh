@@ -19,7 +19,7 @@ timestamp(){
 start="$(timestamp)"
 RPM="$(which rpm)"
 # get the epel and remi repo listings so we can get additional packages like mcrypt
-yes | yum -y install git uuid curl && git clone https://github.com/bradallenfisher/php-fpm-apache-2.4-centos7.git && cd php-fpm-apache-2.4-centos7/install && chmod 700 prod.sh && ./prod.sh
+yes | yum -y install git && git clone https://github.com/bradallenfisher/php-fpm-apache-2.4-centos7.git && cd php-fpm-apache-2.4-centos7/install && chmod 700 prod.sh && ./prod.sh
 
 yes | yum groupinstall 'Development Tools'
 # using pecl to install uploadprogress
@@ -65,10 +65,9 @@ yes | rm /etc/php.d/apc.ini
 /etc/init.d/httpd restart
 # make an admin group
 groupadd admin
-groupadd elmsln
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
-bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 admin $6
 
 
 # get things in place so that we can run mysql 5.5

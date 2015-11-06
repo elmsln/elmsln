@@ -125,7 +125,6 @@ function icor_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-
   // Translatables
   // Included for use with string extractors like potx.
   t('Assembled timeline');
@@ -133,6 +132,7 @@ function icor_ux_menu_default_menu_links() {
   t('Object listing');
   t('Timeline item');
   t('Zip file');
+
 
   return $menu_links;
 }
