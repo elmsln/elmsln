@@ -5,6 +5,12 @@
   "core": "7",
   "recipe": [
     {
+      "command": "en",
+      "arguments": [
+        "adminimal"
+      ]
+    },
+    {
       "command": "dis",
       "arguments": [
         "rubik"
