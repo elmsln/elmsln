@@ -1,0 +1,31 @@
+name = Adminimal
+description = Minimalist administration theme.
+core = 7.x
+scripts[] = js/jRespond.js
+scripts[] = js/adminimal_theme.js
+settings[shortcut_module_link] = 1
+settings[style_checkboxes] = 1
+settings[display_icons_config] = 1
+settings[rounded_buttons] = 1
+settings[sticky_actions] = 0
+settings[avoid_custom_font] = 0
+settings[custom_css] = 0
+settings[use_custom_media_queries] = 0
+settings[media_query_mobile] = only screen and (max-width: 480px)
+settings[media_query_tablet] = only screen and (min-width : 481px) and (max-width : 1024px)
+regions[hidden] = Hidden
+regions[content_before] = Before Content
+regions[sidebar_left] = Sidebar Left
+regions[content] = Content
+regions[sidebar_right] = Sidebar Right
+regions[content_after] = After Content
+regions[help] = Help
+regions[page_top] = Page top
+regions[page_bottom] = Page bottom
+
+; Information added by Drupal.org packaging script on 2015-10-18
+version = "7.x-1.23"
+core = "7.x"
+project = "adminimal_theme"
+datestamp = "1445193540"
+

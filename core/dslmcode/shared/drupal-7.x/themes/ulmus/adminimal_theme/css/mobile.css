@@ -1,0 +1,272 @@
+/* Mobile Styles - You can edit the media query from the theme settings page. */
+#branding {
+  padding: 0;
+}
+
+#branding.has-primary-tabs {
+  border-bottom: 5px solid #0074BD;
+}
+
+#branding .breadcrumb {
+  padding: 10px 10px 0px 10px;
+}
+
+#branding h1.page-title {
+  padding: 0 0 15px 10px;
+}
+
+#branding .add-or-remove-shortcuts {
+  display: none;
+}
+
+#page {
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 10px 0;
+  position: relative;
+}
+
+ul.primary {
+  float: none;
+  clear: both;
+  display: block;
+  padding: 0 10px 0 10px;
+  background: #333;
+  width: 100%;
+  border-bottom: 5px solid #0074BD;
+  box-sizing: border-box;
+}
+
+ul.primary li {
+  clear: both;
+  display: table;
+  float: none;
+  margin: 0;
+  width: 100%;
+}
+
+body.adminimal-theme #navigation ul.primary li:first-of-type {
+  margin-left: 0;
+}
+
+body.adminimal-theme ul.primary li a:active, body.adminimal-theme ul.primary li a:link, body.adminimal-theme ul.primary li a:visited {
+  border: 0 none;
+  display: block;
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 1.2em;
+  width: 100%;
+  background: #444;
+  color: #fff;
+  margin-top: 5px;
+}
+
+body.adminimal-theme ul.primary li a.active, body.adminimal-theme ul.primary li a.active:link, body.adminimal-theme ul.primary li a.active:visited, body.adminimal-theme ul.primary li a:hover {
+  margin-top: 5px;
+  border: 0 none;
+  background-color: #0074BD;
+}
+
+ul.secondary li {
+  float: left;
+  margin: 5px;
+}
+
+body.adminimal-theme ul.secondary li a, body.adminimal-theme ul.secondary li a:hover, body.adminimal-theme ul.secondary li.active a, body.adminimal-theme ul.secondary li.active a.active {
+  padding: 5px 10px;
+}
+
+body.adminimal-theme div.admin .right, body.adminimal-theme div.admin .left {
+  margin: 0;
+  width: 100%;
+}
+
+.help-items {
+  width: 100%;
+}
+
+.form-item label, .exposed-filters .form-item label {
+  margin: 0 0.5em 0.25em 0;
+}
+
+.container-inline div, .container-inline label {
+  display: block;
+}
+
+.exposed-filters .form-item {
+  width: 100%;
+}
+
+.exposed-filters .form-select {
+  clear: both;
+  margin-bottom: 10px;
+  width: auto;
+}
+
+.views-exposed-form label {
+  margin: 0;
+  padding: 0 0 0.5em;
+}
+
+.overflow-fix {
+  overflow: auto;
+}
+
+input, textarea, img {
+  max-width: 99%;
+}
+
+input[size] {
+  width: 99%;
+}
+
+.system-themes-list-enabled .theme-default .theme-info h3 {
+  clear: both;
+  padding-top: 10px;
+}
+
+table.sticky-header {
+  display: none;
+}
+
+.system-themes-list-enabled .theme-info {
+  clear: both;
+  float: left;
+  margin-top: 1em;
+}
+
+ul.action-links li {
+  clear: both;
+  float: left;
+  margin: 0 1em 0 0;
+  padding-bottom: 1em;
+}
+
+ul.action-links li:last-child {
+  padding-bottom: 0;
+}
+
+.ctools-dropbutton-processed {
+  position: relative;
+}
+.views-display-top .ctools-button-processed, .views-ui-display-tab-bucket .ctools-button-processed {
+  font-size: 13px;
+  left: 5px;
+  margin-bottom: 10px;
+  position: relative;
+  top: 5px;
+}
+
+.views-display-columns > * {
+  width: 100%;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+div.vertical-tabs {
+  background: #fff;
+  border: none;
+}
+
+div.vertical-tabs .vertical-tabs-list {
+  margin: 0;
+  width: 100%;
+  padding-bottom: 20px;
+  width: 100%;
+  border: none;
+}
+div.vertical-tabs .vertical-tabs-panes {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  clear: both;
+}
+div.vertical-tabs ul li.vertical-tab-button a {
+  background: none repeat scroll 0 0 #eee;
+  border: none;
+}
+
+div.vertical-tabs ul li.vertical-tab-button a {
+  background: #eee;
+  border: none;
+}
+
+div.vertical-tabs ul li.vertical-tab-button a:hover, div.vertical-tabs ul li.selected a:hover, div.vertical-tabs ul li.selected a, div.vertical-tabs ul li.selected a:focus, div.vertical-tabs ul li.selected a:active {
+  background: #ddd;
+  border: none;
+}
+
+html.js .adminimal-theme #module-filter-modules {
+  margin-left: 0;
+  margin-bottom: 55px;
+  width: 100%;
+}
+
+html.js .adminimal-theme #module-filter-tabs>ul {
+  display: none;
+}
+
+html.js .adminimal-theme #module-filter-submit {
+  bottom: 0;
+  margin-left: -10px;
+  position: fixed;
+  width: 100%;
+  z-index: 999;
+  border: none;
+  border-top: 3px solid #0074BD;
+  background: #fff;
+}
+
+table.module-filter-tabs-processed td.description, table.module-filter-tabs-processed > thead:nth-child(1) > tr:nth-child(1) > th:nth-child(4) {
+  display: none;
+}
+
+html.js .adminimal-theme #module-filter-show-wrapper .form-item-module-filter-show-required {
+  clear: both;
+  display: block;
+}
+
+html.js .adminimal-theme #module-filter-show-wrapper .form-item {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    width: 45%;
+}
+
+/* Sidebars */
+#content-wrapper {
+    display: block;
+}
+
+#main-content {
+  width: 100%;
+  clear: both;
+  display: block;
+}
+
+#sidebar-left .region-sidebar-left, #sidebar-right .region-sidebar-right {
+  display: block;
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+
+#sidebar-left .region-sidebar-left {
+  padding-right: 0px;
+}
+
+#sidebar-right .region-sidebar-right {
+  padding-left: 0px;
+}
+
+.adminimal-theme #module-filter-tabs.top-fixed{
+  position: relative;
+}
+
+.adminimal-theme #dashboard div#dashboard_sidebar {
+  width: 100%;
+}
+
+.container-inline.form-actions.form-wrapper {
+  clear: both;
+}

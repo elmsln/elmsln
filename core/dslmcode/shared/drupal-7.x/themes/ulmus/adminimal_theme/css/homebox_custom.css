@@ -1,0 +1,85 @@
+/*
+* @file
+* Includes style for homebox module boxes
+*
+* Includes proper styling for homebox module when enabled. Includes style for boxes
+* and icons for the box actions
+*/
+
+#homebox-buttons {
+  margin: 20px 0 10px;
+}
+#homebox-buttons a {
+  padding: 0px 20px;
+  font-family: "Helvetica", sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  background: #fff;
+  line-height: 30px;
+  border: 2px solid #0074BD;
+  margin: 5px auto;
+  border-radius: 100px;
+  display: inline-block;
+  transition: all, 0.3s;
+}
+#homebox-buttons a:hover {
+  text-decoration: none;
+  background: #0074BD;
+  color: #fff;
+}
+
+#homebox .homebox-column {
+  background: transparent;
+}
+
+#homebox .homebox-portlet {
+  border: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  margin-bottom: 15px;
+}
+#homebox .homebox-portlet .portlet-header {
+  font-size: 15px;
+  padding: 8px 13px;
+  background-color: #F3F4EE;
+  color: #333;
+}
+
+/* Just some support for views on homebox portlets */
+#homebox .homebox-portlet .view .view-footer{
+  padding: 5px;
+}
+
+/*
+* Material style
+*/
+body.adminimal-skin-material #homebox-buttons a {
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 15px;
+  background: #2196f3;
+  border: none;
+  color: #FFFFFF;
+  padding: 3px 20px 2px;
+  border-radius: 3px;
+  display: inline-block;
+}
+body.adminimal-skin-material #homebox-buttons a:hover {
+  background: #29B6F6;
+  text-decoration: none;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+}
+
+body.adminimal-skin-material #homebox .homebox-portlet {
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  background: #fff;
+  border-radius: 3px;
+}
+body.adminimal-skin-material #homebox .homebox-portlet-inner {
+  border: none;
+}
+body.adminimal-skin-material #homebox .homebox-portlet .portlet-header {
+  font-family: Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+}

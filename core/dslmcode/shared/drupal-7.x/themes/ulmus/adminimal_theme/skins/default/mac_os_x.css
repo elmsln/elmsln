@@ -1,0 +1,59 @@
+body.mac,
+body.mac input[type="submit"],
+body.mac div.admin-panel h3 {
+  font-family: Helvetica !important;
+}
+
+body.mac .exposed-filters .form-item label {
+  line-height: 38px;
+}
+
+body.mac.style-checkboxes input[type=checkbox] {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  top: 2px;
+}
+
+body.mac.style-checkboxes input[type=radio] {
+  width: 14px;
+  height: 14px;
+  top: 2px;
+}
+
+body.mac.style-checkboxes input[type=checkbox]:checked,
+body.mac.style-checkboxes input[type=checkbox]:disabled:checked,
+body.mac.style-checkboxes input[type=radio]:checked,
+body.mac.style-checkboxes input[type=radio]:disabled:checked {
+  box-shadow: inset 0px 0px 0px 4px #fff;
+}
+
+body.mac table th {
+  font-family: "Helvetica", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #696969;
+}
+
+body.mac input.form-file {
+  background: #F5F5F5;
+  border: none;
+}
+
+body.mac #branding h1.page-title {
+  margin: -2px 0 4px 0;
+}
+
+body.mac div.add-or-remove-shortcuts {
+  padding-top: 15px;
+}
+
+body.adminimal-theme.mac .exposed-filters .container-inline .form-actions,
+body.mac .exposed-filters .container-inline.form-actions {
+  margin: 4px 0 0 -5px;
+}
+
+body.mac input[type="submit"]{
+  position: relative;
+  top: 1px;
+}
