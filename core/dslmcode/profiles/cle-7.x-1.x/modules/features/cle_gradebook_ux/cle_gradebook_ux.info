@@ -10,6 +10,7 @@ dependencies[] = editableviews
 dependencies[] = features
 dependencies[] = field_group
 dependencies[] = views
+features[assessment_entity_type][] = submission_evaluation
 features[ctools][] = ds:ds:1
 features[ctools][] = field_group:field_group:1
 features[ctools][] = views:views_default:3.0

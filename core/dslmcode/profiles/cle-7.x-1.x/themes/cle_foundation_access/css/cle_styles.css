@@ -1,14 +1,4 @@
 /* CSS Document */
-ol.cle-assignment-listing-multi-submission {
-	margin: 0;
-	padding: 0;
-}
-
-ol.cle-assignment-listing-multi-submission li {
-	padding: .25rem;
-	margin: 0;
-}
-
 .user-picture {
 	float:right;
 	margin-bottom:10px;

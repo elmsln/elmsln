@@ -26,11 +26,8 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    30037204 => '30037204',
-    75987638 => '75987638',
-    76550217 => '76550217',
-    166149871 => '166149871',
-    67296478 => '67296478',
+    6065076 => 6065076,
+    66784200 => 66784200,
   );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -99,6 +96,12 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['fields']['type']['id'] = 'type';
   $handler->display->display_options['fields']['type']['table'] = 'node';
   $handler->display->display_options['fields']['type']['field'] = 'type';
+  /* Field: Content: iframe link */
+  $handler->display->display_options['fields']['entity_iframe_link']['id'] = 'entity_iframe_link';
+  $handler->display->display_options['fields']['entity_iframe_link']['table'] = 'views_entity_node';
+  $handler->display->display_options['fields']['entity_iframe_link']['field'] = 'entity_iframe_link';
+  $handler->display->display_options['fields']['entity_iframe_link']['label'] = 'Operations';
+  $handler->display->display_options['fields']['entity_iframe_link']['text'] = 'iframe';
   /* Field: Content: Edit link */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
@@ -106,20 +109,24 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['fields']['edit_node']['label'] = '';
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['edit_node']['text'] = 'edit';
+  /* Field: Content: Clone link */
+  $handler->display->display_options['fields']['clone_node']['id'] = 'clone_node';
+  $handler->display->display_options['fields']['clone_node']['table'] = 'node';
+  $handler->display->display_options['fields']['clone_node']['field'] = 'clone_node';
+  $handler->display->display_options['fields']['clone_node']['label'] = '';
+  $handler->display->display_options['fields']['clone_node']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['clone_node']['text'] = 'clone';
+  /* Field: Content: embed code */
+  $handler->display->display_options['fields']['entity_iframe_embed']['id'] = 'entity_iframe_embed';
+  $handler->display->display_options['fields']['entity_iframe_embed']['table'] = 'views_entity_node';
+  $handler->display->display_options['fields']['entity_iframe_embed']['field'] = 'entity_iframe_embed';
+  $handler->display->display_options['fields']['entity_iframe_embed']['label'] = 'Entity iframe embed';
+  $handler->display->display_options['fields']['entity_iframe_embed']['link_to_entity'] = 0;
   /* Sort criterion: Content: Title */
   $handler->display->display_options['sorts']['title']['id'] = 'title';
   $handler->display->display_options['sorts']['title']['table'] = 'node';
   $handler->display->display_options['sorts']['title']['field'] = 'title';
   $handler->display->display_options['sorts']['title']['order'] = 'DESC';
-  /* Contextual filter: Content: Course (field_cis_course_ref) */
-  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['id'] = 'field_cis_course_ref_target_id';
-  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['table'] = 'field_data_field_cis_course_ref';
-  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['field'] = 'field_cis_course_ref_target_id';
-  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['default_argument_type'] = 'node';
-  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['summary_options']['items_per_page'] = '25';
   /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -170,13 +177,12 @@ function icor_defaults_views_default_views() {
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
-  $handler->display->display_options['defaults']['arguments'] = FALSE;
   $handler->display->display_options['path'] = 'icor-object-lists';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Object list';
   $handler->display->display_options['menu']['description'] = 'listing of allmavailable instructional objects';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'menu-icor-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
   $handler->display->display_options['menu']['context'] = 0;
 
   /* Display: Entity Reference View Widget */
@@ -192,15 +198,7 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['row_plugin'] = 'entity';
   $handler->display->display_options['row_options']['view_mode'] = 'entityreference_view_widget';
   $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $handler->display->display_options['defaults']['arguments'] = FALSE;
   $handler->display->display_options['hide_left'] = 0;
-
-  /* Display: EVA Field */
-  $handler = $view->new_display('entity_view', 'EVA Field', 'entity_view_1');
-  $handler->display->display_options['entity_type'] = 'node';
-  $handler->display->display_options['bundles'] = array(
-    0 => 'cis_course',
-  );
   $export['icor_object_lists'] = $view;
 
   return $export;

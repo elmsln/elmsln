@@ -29,25 +29,12 @@ if (isset($row->node_field_data_field_cle_assignments_nid)) {
 	}
 	$field_conditions['field_assignment'] = array('target_id', array($row->node_field_data_field_cle_assignments_nid), 'IN');
 	$submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
-	$items= array();
+	$output = '';
 	foreach ($submission as $nid => $title) {
-		$items[] = l($title,'node/' . $nid);
+		$output .= l($title,'node/' . $nid) . ' ';
 	}
-	if (empty($items)) {
+	if (empty($output)) {
 		$output = l(t('Submit assignment'),'node/add/cle-submission', array('query' => array('field_assignment' => $row->node_field_data_field_cle_assignments_nid)));
-	}
-	else {
-		if (count($items) > 1) {
-			$output = '<ol class="cle-assignment-listing-multi-submission">' . "\n";
-			foreach ($items as $item) {
-				$output .= '<li>' . $item . '</li>' . "\n";
-			}
-			$output .= '</ol>' . "\n";
-		}
-		else {
-			// if we only have one thing don't print a list item
-			$output = $items[0] . "\n";
-		}
 	}
 }
 ?>
