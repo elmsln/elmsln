@@ -1,0 +1,36 @@
+{
+  "name": "ELMSLN global upgrade 1446834205",
+  "drush_recipes_api": "1.0",
+  "weight": "0",
+  "core": "7",
+  "recipe": [
+    {
+      "command": "en",
+      "arguments": [
+        "adminimal"
+      ]
+    },
+    {
+      "command": "dis",
+      "arguments": [
+        "rubik"
+      ]
+    },
+    {
+      "command": "vset",
+      "arguments": [
+        "admin_theme",
+        "adminimal"
+      ]
+    },
+    {
+      "command": "rr"
+    }
+  ],
+  "metadata": {
+    "type": "upgrade",
+    "description": "Swap the current admin (rubik) theme with the Adminimal theme.",
+    "version": "1446834205",
+    "author": "mmilutinovic1313"
+  }
+}

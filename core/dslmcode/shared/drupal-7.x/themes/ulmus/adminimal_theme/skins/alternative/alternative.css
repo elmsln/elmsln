@@ -1,0 +1,646 @@
+body.adminimal-skin-alternative {
+  font-family: "Segoe UI", "Helvetica", sans-serif;
+  font-size: 14px;
+}
+
+body.adminimal-skin-alternative #branding div.breadcrumb {
+  padding-bottom: 0px;
+  margin-top: -4px;
+}
+
+body.adminimal-skin-alternative h1,
+body.adminimal-skin-alternative h2,
+body.adminimal-skin-alternative h3,
+body.adminimal-skin-alternative h4,
+body.adminimal-skin-alternative h5,
+body.adminimal-skin-alternative h6 {
+  font-family: "Segoe UI", "Helvetica", sans-serif;
+  font-weight: 300;
+}
+
+/* Style checkbox and radio buttons in Chrome + Safari + Opera */
+@supports (-webkit-appearance:none) {
+  .style-checkboxes input[type=checkbox],
+  .style-checkboxes input[type=radio],
+  .style-checkboxes input[type=checkbox]#edit-delete {
+    -webkit-appearance:none;
+    display: inline-block;
+    position: relative;
+    top: 3px;
+    margin-right: 0.25em;
+    padding: 0;
+    background: #fff;
+    border: 1px solid #B5B5B5;
+    width: 16px !important;
+    height: 16px !important;
+    -webkit-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: background 0.5s ease;
+    outline: none;
+  }
+
+  .adminimal-theme .location .form-item input.form-checkbox {
+    width: 16px;
+    display: inline-block;
+  }
+
+  .style-checkboxes input[type=checkbox]#edit-delete {
+    margin-bottom: 0;
+  }
+
+  .style-checkboxes input[type=radio] {
+    border-radius: 50%;
+  }
+
+  .style-checkboxes input[type=checkbox]:hover,
+  .style-checkboxes input[type=checkbox]:focus,
+  .style-checkboxes input[type=radio]:hover,
+  .style-checkboxes input[type=radio]:focus {
+    border-color: #0074BD;
+    cursor: pointer;
+  }
+
+  .style-checkboxes input[type=checkbox]#edit-delete:hover,
+  .style-checkboxes input[type=checkbox]#edit-delete:focus {
+    border-color: #D01616;
+    cursor: pointer;
+  }
+
+  .style-checkboxes input[type=checkbox]:checked,
+  .style-checkboxes input[type=checkbox]:disabled:checked,
+  .style-checkboxes input[type=radio]:checked,
+  .style-checkboxes input[type=radio]:disabled:checked{
+    background: #0074BD;
+    box-shadow: inset 0px 0px 0px 4px #fff;
+  }
+
+  .style-checkboxes input[type=checkbox]#edit-delete:checked,
+  .style-checkboxes input[type=checkbox]#edit-delete:disabled:checked {
+    background: #D01616;
+    box-shadow: inset 0px 0px 0px 4px #fff;
+  }
+
+  .style-checkboxes input[type=checkbox]:disabled,
+  .style-checkboxes input[type=radio]:disabled {
+    opacity: .5;
+    background: #E2E2E2;
+  }
+
+  .style-checkboxes input[type=checkbox]#edit-delete:disabled {
+    opacity: .5;
+    background: #E88181;
+  }
+
+  .style-checkboxes input[type=checkbox]:disabled:hover {
+    border-color: #B5B5B5;
+    cursor: default;
+  }
+
+  .style-checkboxes input[type=checkbox]:disabled:hover,
+  .style-checkboxes input[type=radio]:disabled:hover {
+    border-color: #B5B5B5;
+    cursor: default;
+    /*cursor: not-allowed;*/
+  }
+
+}
+
+/* Buttons */
+
+/* Gray Button */
+input.form-submit,
+a.button,
+div.exposed-filters input#edit-submit {
+  cursor: pointer;
+  background: #e3e3e3;
+  border: none;
+  border-radius: 0;
+  padding: 6px 10px;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #555;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: "Segoe UI", "Helvetica",sans-serif;
+  transition: all, 0.3s;
+}
+
+input.form-submit:hover,
+a.button:hover,
+div.exposed-filters input#edit-submit:hover {
+  background: #CECECE;
+}
+
+input.form-submit:active,
+a.button:active,
+div.exposed-filters input#edit-submit:active {
+  border-radius: 0;
+  border: none;
+}
+
+input.form-submit:focus,
+a.button:focus,
+div.exposed-filters input#edit-submit:focus {
+  outline: 3px solid #EFEFEF;
+}
+
+/* Green Button */
+input[type="submit"][id^="edit-submit"],
+input#edit-actions-submit,
+input[id^="save-continue"],
+input[type="submit"][id^="edit-save"],
+input#edit-save,
+input#edit-submit,
+input#edit-actions-save,
+.field-widget-inline-entity-form .container-inline .form-submit,
+#media-browser-page a.button-yes,
+input.add-new-condition,
+#edit-field-product-und-form-actions input.ief-entity-submit {
+  cursor: pointer;
+  border-radius: 0;
+  border: none;
+  padding: 6px 10px;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #fff;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: "Segoe UI", "Helvetica",sans-serif;
+  background: #4d8f46;
+  transition: all, 0.3s;
+}
+
+input[type="submit"][id^="edit-submit"]:hover,
+input#edit-actions-submit:hover,
+input[id^="save-continue"]:hover,
+input[type="submit"][id^="edit-save"]:hover,
+input#edit-save:hover,
+input#edit-submit:hover,
+input#edit-actions-save:hover,
+.field-widget-inline-entity-form .container-inline .form-submit:hover,
+#media-browser-page a.button-yes:hover,
+input.add-new-condition:hover,
+#edit-field-product-und-form-actions input.ief-entity-submit:hover {
+  background: #0a6700;
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input[type="submit"][id^="edit-submit"]:active,
+input#edit-actions-submit:active,
+input[id^="save-continue"]:active,
+input[type="submit"][id^="edit-save"]:active,
+input#edit-save:active,
+input#edit-submit:active,
+.field-widget-inline-entity-form .container-inline .form-submit:active,
+input#edit-actions-save:active,
+input.add-new-condition:active,
+#edit-field-product-und-form-actions input.ief-entity-submit:active {
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input[type="submit"][id^="edit-submit"]:focus,
+input#edit-actions-submit:focus,
+input[id^="save-continue"]:focus,
+input[type="submit"][id^="edit-save"]:focus,
+input#edit-save:focus,
+input#edit-submit:focus,
+.field-widget-inline-entity-form .container-inline .form-submit:focus,
+input#edit-actions-save:focus,
+input.add-new-condition:focus,
+#edit-field-product-und-form-actions input.ief-entity-submit:focus {
+  outline: 3px solid #D0E8CE;
+}
+
+/* Red Button */
+input#edit-delete,
+input#remove-button,
+input#edit-remove,
+input#edit-clear,
+a.button.remove,
+.page-node-delete input#edit-submit,
+input[id*="remove-button"],
+.page-admin-modules-uninstall input#edit-submit,
+.remove-condition input,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit {
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 0;
+  border: none;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #fff;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: "Segoe UI", "Helvetica",sans-serif;
+  background: #b73939;
+  transition: all, 0.3s;
+}
+
+input#edit-delete:hover,
+input#remove-button:hover,
+input#edit-remove:hover,
+input#edit-clear:hover,
+a.button.remove:hover,
+.page-node-delete input#edit-submit:hover,
+input[id*="remove-button"]:hover,
+body.page-admin-modules-uninstall input#edit-submit:hover,
+.remove-condition input:hover,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit:hover {
+  background: #990000;
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input#edit-delete:active,
+input#remove-button:active,
+input#edit-remove:active,
+input#edit-clear:active,
+.page-node-delete input#edit-submit:active,
+input[id*="remove-button"]:active,
+body.page-admin-modules-uninstall input#edit-submit:active,
+.remove-condition input:active,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit:active {
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input#edit-delete:focus,
+input#remove-button:focus,
+input#edit-remove:focus,
+input#edit-clear:focus,
+.page-node-delete input#edit-submit:focus,
+input[id*="remove-button"]:focus,
+body.page-admin-modules-uninstall input#edit-submit:focus,
+.remove-condition input:focus,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit:focus {
+  outline: 3px solid #FFD8D8;
+}
+
+/* Blue Button */
+input#edit-preview,
+input#edit-next,
+input#preview-submit,
+input.ief-entity-submit,
+input[type="submit"][id^="edit-return"],
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"] {
+  cursor: pointer;
+  border-radius: 0;
+  border: none;
+  padding: 6px 10px;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #fff;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: "Segoe UI", "Helvetica",sans-serif;
+  background: #0074BD;
+  transition: all, 0.3s;
+}
+
+input#edit-preview:hover,
+input#edit-next:hover,
+input#preview-submit:hover,
+input.ief-entity-submit:hover,
+input[type="submit"][id^="edit-return"]:hover,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"]:hover {
+  background: #004c99;
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input#edit-preview:active,
+input#edit-next:active,
+input#preview-submit:active,
+input.ief-entity-submit:active,
+input[type="submit"][id^="edit-return"]:active,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"]:active {
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input#edit-preview:focus,
+input#edit-next:focus,
+input#preview-submit:focus,
+input.ief-entity-submit:focus,
+input[type="submit"][id^="edit-return"]:focus,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"]:focus {
+  outline: 3px solid #D2E4F7;
+}
+
+/* Orange Button */
+#edit-cancel,
+#edit-actions-cancel,
+input#edit-buttons-revert,
+#media-browser-page a.button-no,
+.field-widget-inline-entity-form input[id*="cancel"] {
+  cursor: pointer;
+  border-radius: 0;
+  border: none;
+  padding: 6px 10px;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #fff;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: "Segoe UI", "Helvetica",sans-serif;
+  background: #f69231;
+  transition: all, 0.3s;
+}
+
+a#edit-cancel,a#edit-actions-cancel {
+  padding: 6px 10px;
+  text-decoration: none;
+  border-radius: 0;
+  border: none;
+}
+
+#edit-cancel:hover,
+#edit-actions-cancel:hover,
+input#edit-buttons-revert:hover,
+#media-browser-page a.button-no:hover,
+.field-widget-inline-entity-form input[id*="cancel"]:hover {
+  background: #ef6114;
+  text-decoration: none;
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+#edit-cancel:active,
+#edit-actions-cancel:active,
+input#edit-buttons-revert:active,
+.field-widget-inline-entity-form input[id*="cancel"]:active {
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+#edit-cancel:focus,
+#edit-actions-cancel:focus,
+input#edit-buttons-revert:focus,
+.field-widget-inline-entity-form input[id*="cancel"]:focus {
+  outline: 3px solid #FFE8D2;
+}
+
+html body input.disabled,
+html body input.disabled:hover,
+html body input.disabled:active,
+html body input.disabled:focus {
+  background-color: #A0A0A0;
+  color: #CCCCCC;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+input[type="submit"]:disabled {
+  background: repeating-linear-gradient(
+    -45deg,
+    #FFFFFF,
+    #D2D2D2 4px
+  ) !important;
+  color: #6B6B6B !important;
+  cursor: not-allowed !important;
+  outline: none !important;
+  opacity: 0.665 !important;
+  text-shadow: 1px 1px 0px #fff !important;
+}
+
+/* END Buttons */
+
+strong {
+  font-family: "Segoe UI", "Helvetica",sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Omega Fieldset fix */
+html body.adminimal-skin-alternative.page-admin-appearance.page-admin-appearance-settings-omega fieldset {
+  border: solid 1px #ddd !important;
+  border-top: 3px solid #0074BD !important;
+  padding: 12px !important;
+  margin: 18px 0 !important;
+}
+
+html body.adminimal-skin-alternative.page-admin-appearance.page-admin-appearance-settings-omega fieldset legend {
+  color: #484848 !important;
+}
+
+div.breadcrumb a {
+  transition: all, 0.3s;
+}
+
+ul.action-links a {
+  padding: 0px 20px;
+  font-family: "Segoe UI", "Helvetica", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  background: #fff;
+  line-height: 30px;
+  border: 2px solid #0074BD;
+  margin: 5px auto;
+  border-radius: 100px;
+  display: block;
+  transition: all, 0.3s;
+}
+
+body.no-rounded-buttons ul.action-links a {
+  border-radius: 0;
+}
+
+ul.action-links a:hover {
+  text-decoration: none;
+  background: #0074BD;
+  color: #fff;
+}
+
+#admin-menu {
+  box-shadow: none;
+  background: #2B2B2B;
+}
+
+#admin-menu .dropdown .admin-menu-toolbar-category > a.active-trail {
+  background: #0074BD;
+}
+
+.overlay #overlay-close,
+.overlay #overlay-close:hover {
+  height: 44px;
+  background-position-y: 10px;
+  left: -36px;
+}
+
+.overlay #overlay-tabs {
+  right: 2px;
+}
+
+body.adminimal-skin-alternative fieldset legend {
+  background: white;
+  padding: 0 6px;
+  margin: 0;
+  margin-left: -6px;
+  font-family: "Segoe UI", "Helvetica",sans-serif;
+  font-size: 21px;
+  font-weight: 100;
+  color: #9E9E9E6
+  margin-bottom: 2px;
+}
+
+body.adminimal-skin-alternative fieldset legend span {
+  /*border-bottom: 3px solid #F1F1F1;*/
+  /*padding-bottom: 10px;*/
+  display: inline-block;
+  font-size: 21px;
+  transition: all, 0.3s;
+}
+
+body.adminimal-skin-alternative fieldset:hover legend span {
+  /*border-color: #0074BD;*/
+  /*color: #000;*/
+}
+
+html body.adminimal-skin-alternative.page-admin-appearance fieldset legend {
+  background: white !important;
+  padding: 0 6px !important;
+  margin: 0 !important;
+  margin-left: -6px !important;
+  font-family: "Segoe UI", "Helvetica",sans-serif !important;
+  font-size: 21px !important;
+  font-weight: 100 !important;
+  color: #AFAFAF !important;
+  margin-bottom: 2px !important;
+}
+
+body.adminimal-skin-alternative fieldset {
+  border: none;
+  border-top: none;
+  padding: 12px 0;
+  margin: 0 0 20px;
+}
+
+body.adminimal-skin-alternative div.vertical-tabs .vertical-tabs-panes {
+  margin: 0 0 0 265px;
+  padding: 20px 15px 10px 0;
+}
+
+body.adminimal-skin-alternative .form-item label {
+  font-family: "Segoe UI", "Helvetica", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+body.adminimal-skin-alternative .form-item.form-type-checkbox label {
+  font-family: "Segoe UI", "Helvetica", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+body.adminimal-skin-alternative .form-item.form-type-radio label {
+  font-family: "Segoe UI", "Helvetica", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+body.adminimal-skin-alternative #branding {
+  overflow: hidden;
+  padding: 12px 20px 0 20px;
+  position: relative;
+  background-color: #3B3C3E;
+}
+
+body.adminimal-skin-alternative #branding h1.page-title {
+  color: #FFFFFF;
+  float: left;
+  font-family: "Segoe UI", "Helvetica", sans-serif;
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 38px;
+  margin: 0;
+  padding: 0 0 12px;
+  letter-spacing: normal;
+}
+
+body.adminimal-skin-alternative div.add-or-remove-shortcuts {
+  padding-top: 18px;
+}
+
+body.adminimal-skin-alternative #toolbar div.toolbar-menu {
+  background: #464646;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+
+body.adminimal-skin-alternative #toolbar div.toolbar-menu ul li a:hover {
+  background: #5D5D5D;
+}
+
+body.adminimal-skin-alternative.adminimal-menu div#admin-menu {
+  background: #424242;
+  border-bottom: 1px solid #3B3C3E;
+  box-shadow: none;
+}
+
+body.adminimal-skin-alternative.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable,
+body.adminimal-skin-alternative.adminimal-menu #admin-menu .dropdown li li,
+body.adminimal-skin-alternative.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu:hover li {
+  background-color: #353535;
+}
+
+body.adminimal-skin-alternative.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li.label a:hover {
+  background-color: #353535 !important;
+}
+
+body.adminimal-skin-alternative.adminimal-theme.page-admin-structure-features fieldset legend {
+  margin-left: 0;
+}
+
+body.adminimal-skin-alternative.adminimal-theme.page-admin-structure-features fieldset.features-export-component .fieldset-wrapper .form-checkboxes {
+  padding: 0 10px;
+}
+
+body.adminimal-skin-alternative.adminimal-theme.page-admin-structure-features #features-filter span {
+  margin-top: 7px;
+}
+
+body.adminimal-skin-alternative.adminimal-theme.page-admin-structure-features #features-filter .form-item.form-type-checkbox.form-item-checkall {
+  margin: 5px 2px;
+}
+
+body.adminimal-skin-alternative table th {
+  font-family: "Segoe UI", "Helvetica", sans-serif;
+  background-color: #F3F3F3;
+  font-weight: 400;
+}
+
+body.adminimal-skin-alternative table th.active {
+  background-color: #0074BD;
+  color: #fff;
+}
+
+body.adminimal-skin-alternative #permissions td.module {
+  font-family: "Segoe UI", "Helvetica", sans-serif;
+  color: #4C4C4C;
+}
+
+body.adminimal-skin-alternative div.form-type-radio div.description,
+body.adminimal-skin-alternative div.form-type-checkbox div.description {
+  color: #AFAFAF;
+}
+
+body.adminimal-skin-alternative tr.even,
+body.adminimal-skin-alternative tr.odd {
+  background-color: #fff;
+  transition: all, 0.2s;
+}
