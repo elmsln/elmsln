@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-local_root="/Users/scienceonlineed/Documents/websites/elmsln"
+# Assumes you have a symlink to the elmsln repo in your home directory on your local computer
+local_root="~/elmsln"
 remote_root="ssh://default//var/www/elmsln"
 
 # create ssh-config file
