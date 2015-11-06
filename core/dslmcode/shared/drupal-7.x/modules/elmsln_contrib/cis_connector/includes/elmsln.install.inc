@@ -24,9 +24,10 @@ function _elmsln_installer_preflight($makesection = FALSE) {
  */
 function _elmsln_installer_theme($default_theme = 'foundation_access') {
   // Enable some default blocks.
-  $admin_theme = 'rubik';
-  // fix jquery update rubrik admin theme issue
-  variable_set('theme_rubik_settings', array('rubik_disable_sidebar_in_form' => 1));
+  $admin_theme = 'adminimal';
+  // TODO: figure out what to put into variable set. See below...
+  //
+  //variable_set('theme_adminimal_settings', array('sticky_actions' => 1));
   // disable all themes
   db_update('system')
     ->fields(array('status' => 0))
