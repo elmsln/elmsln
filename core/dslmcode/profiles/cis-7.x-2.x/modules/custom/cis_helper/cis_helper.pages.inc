@@ -986,10 +986,15 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
  * Batch process to check for creation script's status.
  */
 function _cis_helper_batch_add_service_instances($instances_created) {
+  $tmptitle = 'course';
+  // can't assume course space requested in this form
+  if (isset($instances_created[CIS_HELPER_COURSE_SERVICE])) {
+    $tmptitle = $instances_created[CIS_HELPER_COURSE_SERVICE]['course']->title;
+  }
   // establish the base for the batch call array
   $batch = array(
     'finished' => '_cis_helper_batch_add_service_instances_finished',
-    'title' => t('Creating @course', array('@course' => $instances_created[CIS_HELPER_COURSE_SERVICE]['course']->title)),
+    'title' => t('Creating @course', array('@course' => $tmptitle)),
     'init_message' => t('Waiting for server to start site request..'),
     'progress_message' => t('Step @current out of @total.'),
     'error_message' => t('Request has encountered an error.'),
