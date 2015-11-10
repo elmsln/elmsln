@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * XMLRPC callback for remote cache seeding without index.php hit
+ * this allows robots, spiders, crontabs, etc to crawl sites
+ * that might otherwise be locked behind authentication systems utilizing
+ * a secret key in order to access the data.
+ */
+
+
+/**
+ * Implements hook_xmlrpc().
+ */
+function xmlrpc_page_load_xmlrpc() {
+  $methods[] =  array(
+    'xmlrpc_page_load', // Method name.
+    'xmlrpc_page_load', // Callback.
+    array(
+      'array', // Return variable.
+      'array', // Input variable.
+    ),
+    t('XMLRPC callback to enable cache seeding'), // Description
+  );
+
+  return $methods;
+}
+
+/**
+ * XMLRPC callback to enable cache seeding from drush / CLI.
+ */
+function xmlrpc_page_load($variables) {
+  $path = isset($variables['path']) ? $variables['path'] : NULL;
+  $secret = isset($variables['secret']) ? $variables['secret'] : array();
+
+  if (empty($path) || variable_get('xmlrpc_page_load_secret', drupal_get_private_key() ) != $secret) {
+    watchdog('xmlrpc_page_load', 'Invalid Secret attempted', array(), WATCHDOG_ERROR);
+    return array(
+      'success' => FALSE,
+      'message' => t('Page load blocked, invalid secret key attempted'),
+    );
+  }
+  else {
+    menu_execute_active_handler($path);
+    return array(
+      'success' => TRUE,
+      'message' => t('Page loaded successfully.'),
+    );
+  }
+}

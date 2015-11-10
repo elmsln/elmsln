@@ -1,0 +1,4 @@
+name = XMLRPC page load
+description = Loads a page via XMLRPC request, allows for cache seeding via drush / external systems even if behind access controls.
+core = 7.x
+package = Developer
