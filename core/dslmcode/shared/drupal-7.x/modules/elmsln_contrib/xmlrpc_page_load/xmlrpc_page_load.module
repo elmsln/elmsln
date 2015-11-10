@@ -8,14 +8,13 @@
  * a secret key in order to access the data.
  */
 
-
 /**
  * Implements hook_xmlrpc().
  */
 function xmlrpc_page_load_xmlrpc() {
   $methods[] =  array(
     'xmlrpc_page_load', // Method name.
-    'xmlrpc_page_load', // Callback.
+    '_xmlrpc_page_load', // Callback.
     array(
       'array', // Return variable.
       'array', // Input variable.
@@ -29,22 +28,208 @@ function xmlrpc_page_load_xmlrpc() {
 /**
  * XMLRPC callback to enable cache seeding from drush / CLI.
  */
-function xmlrpc_page_load($variables) {
+function _xmlrpc_page_load($variables) {
   $path = isset($variables['path']) ? $variables['path'] : NULL;
+  // xmlrpc doesn't like blank calls to the homepage, do it this way
+  if ($path == '') {
+    $path = variable_get('site_frontpage', 'node');
+  }
+  $uid = isset($variables['uid']) ? $variables['uid'] : NULL;
   $secret = isset($variables['secret']) ? $variables['secret'] : array();
-
-  if (empty($path) || variable_get('xmlrpc_page_load_secret', drupal_get_private_key() ) != $secret) {
-    watchdog('xmlrpc_page_load', 'Invalid Secret attempted', array(), WATCHDOG_ERROR);
+  // ensure we have a path and secret set successfully
+  if (isset($path) && variable_get('xmlrpc_page_load_secret', drupal_get_private_key()) != $secret) {
+    watchdog('xmlrpc_page_load', 'Invalid secret or path', array(), WATCHDOG_ERROR);
     return array(
       'success' => FALSE,
-      'message' => t('Page load blocked, invalid secret key attempted'),
+      'message' => t($path .'Page load blocked, invalid secret key attempted'),
     );
   }
   else {
-    menu_execute_active_handler($path);
+    // simulate this page load as this user account if requested
+    // this is rather evil so we make sure we reset on the other side
+    // this is also only used for a simulated page delivery against xmlrpc
+    // while knowing the private key of the drupal site or another related value
+    if (isset($uid)) {
+      global $user;
+      $tmp = $user->uid;
+      // kids, don't try this at home
+      $user = user_load($uid);
+    }
+    // render the page; if successful, this actually throws a -32700 parse error
+    _xmlrpc_page_load_menu_execute_active_handler($path);
+    // restore order to the universe
+    if (isset($uid)) {
+      $user = user_load($tmp);
+    }
     return array(
       'success' => TRUE,
-      'message' => t('Page loaded successfully.'),
+      'message' => t('"@path" loaded successfully.', array('@path' => $path)),
     );
   }
+}
+
+/**
+ * fork of function menu_execute_active_handler
+ * @see  menu_execute_active_handler
+ */
+function _xmlrpc_page_load_menu_execute_active_handler($path = NULL, $deliver = TRUE) {
+  // Check if site is offline.
+  $page_callback_result = _menu_site_is_offline() ? MENU_SITE_OFFLINE : MENU_SITE_ONLINE;
+
+  // Allow other modules to change the site status but not the path because that
+  // would not change the global variable. hook_url_inbound_alter() can be used
+  // to change the path. Code later will not use the $read_only_path variable.
+  $read_only_path = !empty($path) ? $path : $_GET['q'];
+  drupal_alter('menu_site_status', $page_callback_result, $read_only_path);
+
+  // Only continue if the site status is not set.
+  if ($page_callback_result == MENU_SITE_ONLINE) {
+    if ($router_item = menu_get_item($path)) {
+      if ($router_item['access']) {
+        if ($router_item['include_file']) {
+          require_once DRUPAL_ROOT . '/' . $router_item['include_file'];
+        }
+        $page_callback_result = call_user_func_array($router_item['page_callback'], $router_item['page_arguments']);
+      }
+      else {
+        $page_callback_result = MENU_ACCESS_DENIED;
+      }
+    }
+    else {
+      $page_callback_result = MENU_NOT_FOUND;
+    }
+  }
+
+  // Deliver the result of the page callback to the browser, or if requested,
+  // return it raw, so calling code can do more processing.
+  if ($deliver) {
+    $default_delivery_callback = (isset($router_item) && $router_item) ? $router_item['delivery_callback'] : NULL;
+    _xmlrpc_page_load_drupal_deliver_page($page_callback_result, $default_delivery_callback);
+  }
+  else {
+    return $page_callback_result;
+  }
+}
+
+/**
+ * Fork of drupal_deliver_page
+ * @see   drupal_deliver_page
+ */
+function _xmlrpc_page_load_drupal_deliver_page($page_callback_result, $default_delivery_callback = NULL) {
+  if (!isset($default_delivery_callback) && ($router_item = menu_get_item())) {
+    $default_delivery_callback = $router_item['delivery_callback'];
+  }
+  $delivery_callback = !empty($default_delivery_callback) ? $default_delivery_callback : '_xmlrpc_page_load_drupal_deliver_html_page';
+  // Give modules a chance to alter the delivery callback used, based on
+  // request-time context (e.g., HTTP request headers).
+  drupal_alter('page_delivery_callback', $delivery_callback);
+  if (function_exists($delivery_callback)) {
+    $delivery_callback($page_callback_result);
+  }
+  else {
+    // If a delivery callback is specified, but doesn't exist as a function,
+    // something is wrong, but don't print anything, since it's not known
+    // what format the response needs to be in.
+    watchdog('delivery callback not found', 'callback %callback not found: %q.', array('%callback' => $delivery_callback, '%q' => $_GET['q']), WATCHDOG_ERROR);
+  }
+}
+
+/**
+ * Fork of drupal_deliver_html_page
+ * @see   drupal_deliver_html_page
+ */
+function _xmlrpc_page_load_drupal_deliver_html_page($page_callback_result) {
+  // Emit the correct charset HTTP header, but not if the page callback
+  // result is NULL, since that likely indicates that it printed something
+  // in which case, no further headers may be sent, and not if code running
+  // for this page request has already set the content type header.
+  if (isset($page_callback_result) && is_null(drupal_get_http_header('Content-Type'))) {
+    //drupal_add_http_header('Content-Type', 'text/html; charset=utf-8');
+  }
+
+  // Send appropriate HTTP-Header for browsers and search engines.
+  global $language;
+  //drupal_add_http_header('Content-Language', $language->language);
+
+  // Menu status constants are integers; page content is a string or array.
+  if (is_int($page_callback_result)) {
+    // @todo: Break these up into separate functions?
+    switch ($page_callback_result) {
+      case MENU_NOT_FOUND:
+        // Print a 404 page.
+        //drupal_add_http_header('Status', '404 Not Found');
+
+        watchdog('page not found', check_plain($_GET['q']), NULL, WATCHDOG_WARNING);
+
+        // Check for and return a fast 404 page if configured.
+        drupal_fast_404();
+
+        // Keep old path for reference, and to allow forms to redirect to it.
+        if (!isset($_GET['destination'])) {
+          $_GET['destination'] = $_GET['q'];
+        }
+
+        $path = drupal_get_normal_path(variable_get('site_404', ''));
+        if ($path && $path != $_GET['q']) {
+          // Custom 404 handler. Set the active item in case there are tabs to
+          // display, or other dependencies on the path.
+          menu_set_active_item($path);
+          $return = _xmlrpc_page_load_menu_execute_active_handler($path, FALSE);
+        }
+
+        if (empty($return) || $return == MENU_NOT_FOUND || $return == MENU_ACCESS_DENIED) {
+          // Standard 404 handler.
+          drupal_set_title(t('Page not found'));
+          $return = t('The requested page "@path" could not be found.', array('@path' => request_uri()));
+        }
+
+        drupal_set_page_content($return);
+        $page = element_info('page');
+        /*print*/ drupal_render_page($page);
+        break;
+
+      case MENU_ACCESS_DENIED:
+        // Print a 403 page.
+        //drupal_add_http_header('Status', '403 Forbidden');
+        watchdog('access denied', check_plain($_GET['q']), NULL, WATCHDOG_WARNING);
+
+        // Keep old path for reference, and to allow forms to redirect to it.
+        if (!isset($_GET['destination'])) {
+          $_GET['destination'] = $_GET['q'];
+        }
+
+        $path = drupal_get_normal_path(variable_get('site_403', ''));
+        if ($path && $path != $_GET['q']) {
+          // Custom 403 handler. Set the active item in case there are tabs to
+          // display or other dependencies on the path.
+          menu_set_active_item($path);
+          $return = menu_execute_active_handler($path, FALSE);
+        }
+
+        if (empty($return) || $return == MENU_NOT_FOUND || $return == MENU_ACCESS_DENIED) {
+          // Standard 403 handler.
+          drupal_set_title(t('Access denied'));
+          $return = t('You are not authorized to access this page.');
+        }
+
+        /*print*/ drupal_render_page($return);
+        break;
+
+      case MENU_SITE_OFFLINE:
+        // Print a 503 page.
+        drupal_maintenance_theme();
+        //drupal_add_http_header('Status', '503 Service unavailable');
+        drupal_set_title(t('Site under maintenance'));
+        /*print*/ theme('maintenance_page', array('content' => filter_xss_admin(variable_get('maintenance_mode_message', t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal')))))));
+        break;
+    }
+  }
+  elseif (isset($page_callback_result)) {
+    // Print anything besides a menu constant, assuming it's not NULL or
+    // undefined.
+    /*print*/ drupal_render_page($page_callback_result);
+  }
+
+  // Perform end-of-request tasks.
+  drupal_page_footer();
 }
