@@ -556,7 +556,7 @@ function _cis_filter_attach_modal() {
  * @return
  *   string The contents of the node, that will fill the modal window.
  */
-function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL, $a3 = NULL, $a4) {
+function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL, $a3 = NULL, $a4 = NULL) {
   // nothing fancy about this for now; close when it's been submitted / url changes
   // render interface in such a way that it hides all the crap we don't care about
   if ($tool == NULL) {
