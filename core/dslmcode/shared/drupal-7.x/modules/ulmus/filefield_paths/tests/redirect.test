@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * @file
+ * Redirect module tests for the File (Field) Paths module.
+ */
+
+/**
+ * Class FileFieldPathsRedirectTestCase
+ */
+class FileFieldPathsRedirectTestCase extends FileFieldPathsTestCase {
+  /**
+   * @inheritdoc
+   */
+  function setUp() {
+    // Setup required modules.
+    parent::setUp(array('redirect'));
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public static function getInfo() {
+    return array(
+      'name'        => 'Redirect module integration',
+      'description' => 'Test redirect module integration.',
+      'group'       => 'File (Field) Paths',
+    );
+  }
+
+  /**
+   * Test File (Field) Paths Redirect UI.
+   */
+  public function testUI() {
+    // Create a File field.
+    $field_name = drupal_strtolower($this->randomName());
+    $this->createFileField($field_name, $this->content_type);
+
+    // Ensure File (Field) Paths Pathauto settings are present and available.
+    $this->drupalGet("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}");
+
+    $this->assertField('instance[settings][filefield_paths][redirect]', t('Redirect checkbox is present in File (Field) Path settings.'));
+
+    $element = $this->xpath('//input[@name=:name]/@disabled', array(':name' => 'instance[settings][filefield_paths][redirect]'));
+    $this->assert(empty($element), t('Redirect checkbox is not disabled.'));
+  }
+
+  /**
+   * Test File (Field) Paths Redirect functionality.
+   */
+  public function testRedirect() {
+    global $base_path;
+    $langcode = LANGUAGE_NONE;
+
+    // Create a File field with a random File path.
+    $field_name                                                 = drupal_strtolower($this->randomName());
+    $instance_settings['filefield_paths']['file_path']['value'] = $this->randomName();
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Create a node with a test file.
+    $test_file = $this->getTestFile('text');
+    $nid       = $this->uploadNodeFile($test_file, $field_name, $this->content_type);
+
+    // Get processed source file uri.
+    $node   = node_load($nid, NULL, TRUE);
+    $source = $node->{$field_name}[$langcode][0]['uri'];
+
+    // Update file path and create redirect.
+    $edit = array(
+      'instance[settings][filefield_paths][file_path][value]'   => $this->randomName(),
+      'instance[settings][filefield_paths][redirect]'           => TRUE,
+      'instance[settings][filefield_paths][retroactive_update]' => TRUE,
+    );
+    $this->drupalPost("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}", $edit, t('Save settings'));
+
+    // Get processed destination file uri.
+    $node        = node_load($nid, NULL, TRUE);
+    $destination = $node->{$field_name}[$langcode][0]['uri'];
+
+    // Ensure that the source uri redirects to the destination uri.
+    $parsed_source   = parse_url(file_create_url($source), PHP_URL_PATH);
+    $redirect_source = drupal_substr(urldecode($parsed_source), drupal_strlen($base_path));
+
+    $parsed_destination   = parse_url(file_create_url($destination), PHP_URL_PATH);
+    $redirect_destination = drupal_substr(urldecode($parsed_destination), drupal_strlen($base_path));
+
+    $redirect = redirect_load_by_source($redirect_source);
+    $this->assert(is_object($redirect) && $redirect->redirect == $redirect_destination, t('Redirect created for relocated file.'));
+  }
+}

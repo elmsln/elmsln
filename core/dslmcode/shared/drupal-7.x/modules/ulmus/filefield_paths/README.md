@@ -1,63 +1,64 @@
-The File (Field) Paths module extends the default functionality of Drupals core
+File (Field) Paths
+==================
+
+The File (Field) Paths module extends the default functionality of Drupal's core
 File module, Image module and many other File upload modules, by adding the
-ability to use entity based tokens in destination paths and filenames.
+ability to use entity based tokens in destination paths and file names.
 
 In simple terms, File (Field) Paths allows you to automatically sort and rename
 your uploaded files using token based replacement patterns to maintain a nice
 clean filesystem.
 
-File (Field) Paths was written and is maintained by Stuart Clark (deciphered).
-- http://stuar.tc/lark
-- http://twitter.com/Decipher
 
 
 Features
---------------------------------------------------------------------------------
+--------
 
 * Configurable file paths now use entity tokens in addition to user tokens.
-* Configurable filenames.
-* Support for:
-  * Drupal core File module.
-  * Drupal core Image module.
-  * Video module.
+* Configurable file names.
+* Support for file based fields, including but not limited to:
+    * Drupal core File module.
+    * Drupal core Image module.
+    * Video module.
 * File path and filename cleanup options:
-  * Filter out words and punctuation by taking advantage of the Pathauto module.
-  * Convert unicode characters into US-ASCII with the Transliteration module.
+    * Remove slashes from tokens.
+    * Filter out words and punctuation by taking advantage of the Pathauto
+      module.
+    * Convert unicode characters into US-ASCII with the Transliteration module.
 * Automatically updates unprocessed file paths in any Text fields on the entity.
-* Retroactive updates - rename and/or move previously uploaded files (Use with
-  caution)
+* Retroactive updates - rename and/or move previously uploaded files.
+* Active updating - actively rename and/or move previously uploaded files.
+* Automatically create an redirect when moving uploaded files using the Redirect
+  module.
 
-
-Required Modules
---------------------------------------------------------------------------------
-
-* Token           - http://drupal.org/project/token
 
 
 Recommended Modules
---------------------------------------------------------------------------------
+-------------------
 
-* Pathauto        - http://drupal.org/project/pathauto
-* Transliteration - http://drupal.org/project/transliteration
+* [Pathauto](https://www.drupal.org/project/pathauto)
+* [Redirect](https://www.drupal.org/project/redirect)
+* [Token](https://www.drupal.org/project/token)
+* [Transliteration](https://www.drupal.org/project/transliteration)
+
 
 
 Usage/Configuration
---------------------------------------------------------------------------------
+-------------------
 
 Once installed, File (Field) Paths needs to be configured for each file field
-you wish to use.
+you wish to use. Settings can be found on the settings form of any supported
+file based field.
 
-* Drupal core File/Image and other Field based supported modules
-  Settings an be found on the fields configuration page.
-
-  Example:
+  *Example:*
+  
     Administration > Structure > Content types > Article > Manage fields > Image
-    http://[www.yoursite.com/path/to/drupal]/admin/structure/types/manage/article/fields/field_image
+    http://example.com/admin/structure/types/manage/article/fields/field_image
 
 
 
 Frequently Asked Questions
---------------------------------------------------------------------------------
+--------------------------
 
 Q. Aren't tokens already supported in the File module?
 
@@ -85,3 +86,13 @@ A. Retroactive updates will go through every single entity of the particular
    possible that the moving/renaming of these files could break links. It is
    strongly advised that you only use this functionality on your developmental
    servers so that you can make sure not to introduce any linking issues.
+
+
+
+History and Maintainers
+-----------------------
+
+File (Field) Paths was written and is maintained by Stuart Clark (deciphered).
+
+* http://stuar.tc/lark
+* http://twitter.com/Decipher

@@ -1,0 +1,316 @@
+<?php
+
+/**
+ * @file
+ * Tests for the File (Field) Paths module.
+ */
+
+/**
+ * Class FileFieldPathsGeneralTestCase
+ */
+class FileFieldPathsGeneralTestCase extends FileFieldPathsTestCase {
+  /**
+   * @inheritdoc
+   */
+  public static function getInfo() {
+    return array(
+      'name'        => 'General functionality',
+      'description' => 'Test general functionality.',
+      'group'       => 'File (Field) Paths',
+    );
+  }
+
+  /**
+   * Test that the File (Field) Paths UI works as expected.
+   */
+  public function testAddField() {
+    // Create a File field.
+    $field_name        = drupal_strtolower($this->randomName());
+    $instance_settings = array('file_directory' => "fields/{$field_name}");
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Ensure File (Field) Paths settings are present.
+    $this->drupalGet("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}");
+    $this->assertText('Enable File (Field) Paths?', t('File (Field) Path settings are present.'));
+
+    // Ensure that 'Enable File (Field) Paths?' is a direct sibling of
+    // 'File (Field) Path settings'.
+    $element = $this->xpath('//div[contains(@class, :class)]/following-sibling::*[1]/@id', array(':class' => 'form-item-instance-settings-filefield-paths-enabled'));
+    $this->assert(isset($element[0]) && 'edit-instance-settings-filefield-paths' == (string) $element[0], t('Enable checkbox is next to settings fieldset.'));
+
+    // Ensure that the File path used the File directory as it's default value.
+    $this->assertFieldByName('instance[settings][filefield_paths][file_path][value]', "fields/{$field_name}");
+  }
+
+  /**
+   * Test File (Field) Paths works as normal when no file uploaded.
+   */
+  public function testNoFile() {
+    // Create a File field.
+    $field_name                                                 = drupal_strtolower($this->randomName());
+    $instance_settings['filefield_paths']['file_path']['value'] = 'node/[node:nid]';
+    $instance_settings['filefield_paths']['file_name']['value'] = '[node:nid].[file:ffp-extension-original]';
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Create a node without a file attached.
+    $this->drupalCreateNode(array('type' => $this->content_type));
+  }
+
+  /**
+   * Test a basic file upload with File (Field) Paths.
+   */
+  public function testUploadFile() {
+    $langcode = LANGUAGE_NONE;
+
+    // Create a File field with 'node/[node:nid]' as the File path and
+    // '[node:nid].[file:ffp-extension-original]' as the File name.
+    $field_name                                                 = drupal_strtolower($this->randomName());
+    $instance_settings['filefield_paths']['file_path']['value'] = 'node/[node:nid]';
+    $instance_settings['filefield_paths']['file_name']['value'] = '[node:nid].[file:ffp-extension-original]';
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Upload a file to a node.
+    $test_file = $this->getTestFile('text');
+    $this->drupalGet("node/add/{$this->content_type}");
+    $edit['title']                              = $this->randomName();
+    $edit["files[{$field_name}_{$langcode}_0]"] = $test_file->uri;
+    $this->drupalPost(NULL, $edit, t('Upload'));
+
+    // Ensure that the file was put into the Temporary file system.
+    $this->assertRaw(file_create_url("temporary://filefield_paths/{$test_file->filename}"), t('File has been uploaded to the temporary file system.'));
+
+    // Save the node.
+    $this->drupalPost(NULL, array(), t('Save'));
+
+    // Get created Node ID.
+    $matches = array();
+    preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
+    $nid = $matches[1];
+
+    // Ensure that the File path has been processed correctly.
+    $this->assertRaw("{$this->public_files_directory}/node/{$nid}/{$nid}.txt", t('The File path has been processed correctly.'));
+  }
+
+  /**
+   * Tests a multivalue file upload with File (Field) Paths.
+   */
+  public function testUploadFileMultivalue() {
+    $langcode = LANGUAGE_NONE;
+
+    // Create a multivalue File field with 'node/[node:nid]' as the File path
+    // and '[file:fid].txt' as the File name.
+    $field_name                                                 = drupal_strtolower($this->randomName());
+    $field_settings['cardinality']                              = FIELD_CARDINALITY_UNLIMITED;
+    $instance_settings['filefield_paths']['file_path']['value'] = 'node/[node:nid]';
+    $instance_settings['filefield_paths']['file_name']['value'] = '[file:fid].txt';
+    $this->createFileField($field_name, $this->content_type, $field_settings, $instance_settings);
+
+    // Create a node with three (3) test files.
+    $text_files = $this->drupalGetTestFiles('text');
+    $this->drupalGet("node/add/{$this->content_type}");
+    $this->drupalPost(NULL, array("files[{$field_name}_{$langcode}_0]" => drupal_realpath($text_files[0]->uri)), t('Upload'));
+    $this->drupalPost(NULL, array("files[{$field_name}_{$langcode}_1]" => drupal_realpath($text_files[1]->uri)), t('Upload'));
+    $edit = array(
+      'title'                              => $this->randomName(),
+      "files[{$field_name}_{$langcode}_2]" => drupal_realpath($text_files[1]->uri),
+    );
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    // Get created Node ID.
+    $matches = array();
+    preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
+    $nid = $matches[1];
+
+    // Ensure that the File path has been processed correctly.
+    $this->assertRaw("{$this->public_files_directory}/node/{$nid}/1.txt", t('The first File path has been processed correctly.'));
+    $this->assertRaw("{$this->public_files_directory}/node/{$nid}/2.txt", t('The second File path has been processed correctly.'));
+    $this->assertRaw("{$this->public_files_directory}/node/{$nid}/3.txt", t('The third File path has been processed correctly.'));
+  }
+
+  /**
+   * Test File (Field) Paths with a very long path.
+   */
+  public function testLongPath() {
+    // Create a File field with 'node/[random:hash:sha256]' as the File path.
+    $field_name                                                 = drupal_strtolower($this->randomName());
+    $instance_settings['filefield_paths']['file_path']['value'] = 'node/[random:hash:sha512]/[random:hash:sha512]';
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Create a node with a test file.
+    $test_file = $this->getTestFile('text');
+    $nid       = $this->uploadNodeFile($test_file, $field_name, $this->content_type);
+
+    // Ensure file path is no more than 255 characters.
+    $node = node_load($nid, NULL, TRUE);
+    $this->assert(drupal_strlen($node->{$field_name}[LANGUAGE_NONE][0]['uri']) <= 255, t('File path is no more than 255 characters'));
+  }
+
+  /**
+   * Test File (Field) Paths on a programmatically added file.
+   */
+  public function testProgrammaticAttach() {
+    // Create a File field with 'node/[node:nid]' as the File path and
+    // '[node:nid].[file:ffp-extension-original]' as the File name.
+    $field_name                                                 = drupal_strtolower($this->randomName());
+    $instance_settings['filefield_paths']['file_path']['value'] = 'node/[node:nid]';
+    $instance_settings['filefield_paths']['file_name']['value'] = '[node:nid].[file:ffp-extension-original]';
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Create a node without an attached file.
+    $node = $this->drupalCreateNode(array('type' => $this->content_type));
+
+    // Create a file object.
+    $test_file = $this->getTestFile('text');
+
+    $file           = new stdClass();
+    $file->fid      = NULL;
+    $file->uri      = $test_file->uri;
+    $file->filename = basename($file->uri);
+    $file->filemime = file_get_mimetype($file->uri);
+    $file->uid      = $GLOBALS['user']->uid;
+    $file->status   = FILE_STATUS_PERMANENT;
+    $file->display  = TRUE;
+    file_save($file);
+
+    // Adjust timestamp to simulate real-world experience.
+    $file->timestamp = REQUEST_TIME - 60;
+
+    // Attach the file to the node.
+    $node->{$field_name}[LANGUAGE_NONE][0] = (array) $file;
+    node_save($node);
+
+    // Ensure that the File path has been processed correctly.
+    $node = node_load($node->nid, NULL, TRUE);
+    $this->assertEqual("public://node/{$node->nid}/{$node->nid}.txt", $node->{$field_name}[LANGUAGE_NONE][0]['uri'], t('The File path has been processed correctly.'));
+  }
+
+  /**
+   * Test File (Field) Paths slashes cleanup functionality.
+   */
+  public function testSlashes() {
+    $langcode = LANGUAGE_NONE;
+
+    // Create a File field with 'node/[node:title]' as the File path and
+    // '[node:title].[file:ffp-extension-original]' as the File name.
+    $field_name                                                 = drupal_strtolower($this->randomName());
+    $instance_settings['filefield_paths']['file_path']['value'] = 'node/[node:title]';
+    $instance_settings['filefield_paths']['file_name']['value'] = '[node:title].[file:ffp-extension-original]';
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Create a node with a test file.
+    $test_file = $this->getTestFile('text');
+
+    $title                                      = "{$this->randomName()}/{$this->randomName()}";
+    $edit['title']                              = $title;
+    $edit["body[{$langcode}][0][value]"]        = '';
+    $edit["files[{$field_name}_{$langcode}_0]"] = drupal_realpath($test_file->uri);
+    $this->drupalPost("node/add/{$this->content_type}", $edit, t('Save'));
+
+    // Get created Node ID.
+    $matches = array();
+    preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
+    $nid = $matches[1];
+
+    // Ensure slashes are present in file path and name.
+    $node = node_load($nid);
+    $this->assertEqual("public://node/{$title}/{$title}.txt", $node->{$field_name}[$langcode][0]['uri']);
+
+    // Remove slashes.
+    $edit = array(
+      'instance[settings][filefield_paths][file_path][options][slashes]' => TRUE,
+      'instance[settings][filefield_paths][file_name][options][slashes]' => TRUE,
+      'instance[settings][filefield_paths][retroactive_update]'          => TRUE,
+    );
+    $this->drupalPost("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}", $edit, t('Save settings'));
+
+    // Ensure slashes are not present in file path and name.
+    $node  = node_load($nid, NULL, TRUE);
+    $title = str_replace('/', '', $title);
+    $this->assertEqual("public://node/{$title}/{$title}.txt", $node->{$field_name}[$langcode][0]['uri']);
+  }
+
+  /**
+   * Test a file usage of a basic file upload with File (Field) Paths.
+   */
+  public function testFileUsage() {
+    // Create a File field with 'node/[node:nid]' as the File path.
+    $field_name                                                 = drupal_strtolower($this->randomName());
+    $instance_settings['filefield_paths']['file_path']['value'] = 'node/[node:nid]';
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Create a node with a test file.
+    $test_file = $this->getTestFile('text');
+    $nid       = $this->uploadNodeFile($test_file, $field_name, $this->content_type);
+
+    // Get file usage for uploaded file.
+    $node  = node_load($nid, NULL, TRUE);
+    $items = field_get_items('node', $node, $field_name);
+    $file  = file_load($items[0]['fid']);
+    $usage = file_usage_list($file);
+
+    // Ensure file usage count for new node is correct.
+    $this->assert(isset($usage['file']['node'][$nid]) && $usage['file']['node'][$nid] == 1, t('File usage count for new node is correct.'));
+
+    // Update node.
+    $this->drupalPost("node/{$nid}/edit", array(), t('Save'));
+    $usage = file_usage_list($file);
+
+    // Ensure file usage count for updated node is correct.
+    $this->assert(isset($usage['file']['node'][$nid]) && $usage['file']['node'][$nid] == 1, t('File usage count for updated node is correct.'));
+
+    // Update node with revision.
+    $this->drupalPost("node/{$nid}/edit", array('revision' => TRUE), t('Save'));
+    $usage = file_usage_list($file);
+
+    // Ensure file usage count for updated node with revision is correct.
+    $this->assert(isset($usage['file']['node'][$nid]) && $usage['file']['node'][$nid] == 2, t('File usage count for updated node with revision is correct.'));
+  }
+
+  /**
+   * Test File (Field) Paths works with read-only stream wrappers.
+   */
+  public function testReadOnly() {
+    // Create a File field.
+    $field_name        = drupal_strtolower($this->randomName());
+    $field_settings    = array('uri_scheme' => 'ffp');
+    $instance_settings = array('file_directory' => "fields/{$field_name}");
+    $this->createFileField($field_name, $this->content_type, $field_settings, $instance_settings);
+
+    // Get a test file.
+    $file = $this->getTestFile('image');
+
+    // Prepare the file for the test 'ffp://' read-only stream wrapper.
+    $file->uri = str_replace('public', 'ffp', $file->uri);
+    $uri       = file_stream_wrapper_uri_normalize($file->uri);
+
+    // Create a file object.
+    $file           = new stdClass();
+    $file->fid      = NULL;
+    $file->uri      = $uri;
+    $file->filename = basename($file->uri);
+    $file->filemime = file_get_mimetype($file->uri);
+    $file->uid      = $GLOBALS['user']->uid;
+    $file->status   = FILE_STATUS_PERMANENT;
+    $file->display  = TRUE;
+    file_save($file);
+
+    // Attach the file to a node.
+    $node                                = array();
+    $node['type']                        = $this->content_type;
+    $node[$field_name][LANGUAGE_NONE][0] = (array) $file;
+
+    $node = $this->drupalCreateNode($node);
+
+    // Ensure file has been attached to a node.
+    $this->assert(isset($node->{$field_name}[LANGUAGE_NONE][0]) && !empty($node->{$field_name}[LANGUAGE_NONE][0]), t('Read-only file is correctly attached to a node.'));
+
+    $edit                                                            = array();
+    $edit['instance[settings][filefield_paths][retroactive_update]'] = TRUE;
+    $edit['instance[settings][filefield_paths][file_path][value]']   = 'node/[node:nid]';
+    $this->drupalPost("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}", $edit, t('Save settings'));
+
+    // Ensure file is still in original location.
+    $this->drupalGet("node/{$node->nid}");
+    $this->assertRaw("{$this->public_files_directory}/{$file->filename}", t('Read-only file not affected by Retroactive updates.'));
+  }
+}

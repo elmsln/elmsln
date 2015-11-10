@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * @file
+ * Tests for the File (Field) Paths module.
+ */
+
+/**
+ * Class FileFieldPathsTextReplaceTestCase
+ */
+class FileFieldPathsTextReplaceTestCase extends FileFieldPathsTestCase {
+  /**
+   * @inheritdoc
+   */
+  public static function getInfo() {
+    return array(
+      'name'        => 'Text replace functionality',
+      'description' => 'Tests text replace functionality.',
+      'group'       => 'File (Field) Paths',
+    );
+  }
+
+  /**
+   * Generates all variations of the URI for text replacement.
+   *
+   * @param        $uri
+   * @param string $type
+   *
+   * @return mixed
+   */
+  protected function getPathVariations($uri, $type = 'image') {
+    // Force clean urls on.
+    $GLOBALS['conf']['clean_url'] = TRUE;
+
+    $variations['uri']      = $uri;
+    $variations['absolute'] = urldecode(file_create_url($uri));
+    $variations['relative'] = parse_url($variations['absolute'], PHP_URL_PATH);
+
+    if ($type == 'image') {
+      $variations['image_style']          = urldecode(image_style_url('thumbnail', $uri));
+      $variations['image_style_relative'] = parse_url($variations['image_style'], PHP_URL_PATH) . '?' . parse_url($variations['image_style'], PHP_URL_QUERY);
+    }
+
+    foreach ($variations as $key => $value) {
+      $variations["{$key}_urlencode"]          = urlencode($value);
+      $variations["{$key}_drupal_encode_path"] = drupal_encode_path($value);
+    }
+
+    return $variations;
+  }
+
+  /**
+   * Test text replace with multiple file uploads.
+   */
+  public function testTextReplace() {
+    $langcode = LANGUAGE_NONE;
+
+    // Create a File field with 'node/[node:nid]' as the File path and
+    // '[node:nid].png’ as the File name,
+    $field_name                                                 = drupal_strtolower($this->randomName());
+    $instance_settings['filefield_paths']['file_path']['value'] = 'node/[node:nid]';
+    $instance_settings['filefield_paths']['file_name']['value'] = '[node:nid].png';
+    $this->createImageField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Prepare test files.
+    $test_files['basic_image']   = $this->getTestFile('image');
+    $test_files['complex_image'] = $this->getTestFile('image');
+    file_unmanaged_copy($test_files['complex_image']->uri, 'public://test image.png');
+    $files                       = file_scan_directory('public://', '/test image\.png/');
+    $test_files['complex_image'] = current($files);
+
+    // Iterate over each test file.
+    foreach ($test_files as $type => $test_file) {
+      // Get the available file paths for the test file.
+      $uri          = str_replace('public://', 'temporary://filefield_paths/', $test_file->uri);
+      $source_paths = $this->getPathVariations($uri);
+
+      // Upload a file and reference the original path(s) to the file in the body
+      // field.
+      $edit['title']                              = $this->randomName();
+      $edit["body[{$langcode}][0][value]"]        = '';
+      $edit["files[{$field_name}_{$langcode}_0]"] = drupal_realpath($test_file->uri);
+      foreach ($source_paths as $key => $value) {
+        $edit["body[{$langcode}][0][value]"] .= "{$key}: {$value}\n";
+      }
+      $this->drupalPost("node/add/{$this->content_type}", $edit, t('Save'));
+
+      // Get created Node ID.
+      $matches = array();
+      preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
+      $nid = $matches[1];
+
+      // Ensure body field has updated file path.
+      $node              = node_load($nid);
+      $destination_paths = $this->getPathVariations($node->{$field_name}[$langcode][0]['uri']);
+      foreach ($destination_paths as $key => $value) {
+        $this->assert($source_paths[$key] !== $destination_paths[$key] && strpos($node->body[$langcode][0]['value'], "{$key}: {$value}") !== FALSE, t('@type %key file path replaced successfully.', array(
+          '@type' => str_replace('_', ' ', drupal_ucfirst($type)),
+          '%key'  => $key
+        )));
+      }
+    }
+  }
+}

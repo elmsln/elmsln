@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * @file
+ * Tests for the File (Field) Paths module.
+ */
+
+/**
+ * Class FileFieldPathsTestCase
+ */
+class FileFieldPathsTestCase extends FileFieldTestCase {
+  var $content_type = NULL;
+  var $public_files_directory = NULL;
+
+  /**
+   * @inheritdoc
+   */
+  function setUp() {
+    // Setup required modules.
+    $modules = func_get_args();
+    if (isset($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    $modules[] = 'filefield_paths_test';
+    $modules[] = 'image';
+    $modules[] = 'token';
+    parent::setUp($modules);
+
+    // Include all optional dependency files.
+    $dirname  = dirname(__FILE__) . "/../modules";
+    $includes = file_scan_directory($dirname, '/.inc$/');
+    foreach (array_keys($includes) as $file) {
+      require_once $file;
+    }
+
+    // Create a content type.
+    $content_type       = $this->drupalCreateContentType();
+    $this->content_type = $content_type->name;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  function createFileField($name, $type_name, $field_settings = array(), $instance_settings = array(), $widget_settings = array()) {
+    parent::createFileField($name, $type_name, $field_settings, $instance_settings, $widget_settings);
+    $this->drupalPost("admin/structure/types/manage/{$this->content_type}/fields/{$name}", array(), t('Save settings'));
+  }
+
+  /**
+   * Creates a new image field.
+   *
+   * @param $name
+   *   The name of the new field (all lowercase), exclude the "field_" prefix.
+   * @param $type_name
+   *   The node type that this field will be added to.
+   * @param $field_settings
+   *   A list of field settings that will be added to the defaults.
+   * @param $instance_settings
+   *   A list of instance settings that will be added to the instance defaults.
+   * @param $widget_settings
+   *   A list of widget settings that will be added to the widget defaults.
+   */
+  function createImageField($name, $type_name, $field_settings = array(), $instance_settings = array(), $widget_settings = array()) {
+    $field             = array(
+      'field_name'  => $name,
+      'type'        => 'image',
+      'settings'    => array(),
+      'cardinality' => !empty($field_settings['cardinality']) ? $field_settings['cardinality'] : 1,
+    );
+    $field['settings'] = array_merge($field['settings'], $field_settings);
+    field_create_field($field);
+
+    $instance                       = array(
+      'field_name'  => $name,
+      'label'       => $name,
+      'entity_type' => 'node',
+      'bundle'      => $type_name,
+      'required'    => !empty($instance_settings['required']),
+      'settings'    => array(),
+      'widget'      => array(
+        'type'     => 'image_image',
+        'settings' => array(),
+      ),
+    );
+    $instance['settings']           = array_merge($instance['settings'], $instance_settings);
+    $instance['widget']['settings'] = array_merge($instance['widget']['settings'], $widget_settings);
+    field_create_instance($instance);
+    $this->drupalPost("admin/structure/types/manage/{$this->content_type}/fields/{$name}", array(), t('Save settings'));
+  }
+}

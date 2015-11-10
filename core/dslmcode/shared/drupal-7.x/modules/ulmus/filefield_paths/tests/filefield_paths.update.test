@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @file
+ * Tests for the File (Field) Paths module.
+ */
+
+/**
+ * Class FileFieldPathsUpdatesCase
+ */
+class FileFieldPathsUpdatesCase extends FileFieldPathsTestCase {
+  /**
+   * @inheritdoc
+   */
+  public static function getInfo() {
+    return array(
+      'name'        => 'Update functionality',
+      'description' => 'Tests retroactive and active updates functionality.',
+      'group'       => 'File (Field) Paths',
+    );
+  }
+
+  /**
+   * Test behaviour of Retroactive updates when no updates are needed.
+   */
+  public function testRetroEmpty() {
+    // Create a File field.
+    $field_name = drupal_strtolower($this->randomName());
+    $this->createFileField($field_name, $this->content_type);
+
+    // Trigger retroactive updates.
+    $edit = array(
+      'instance[settings][filefield_paths][retroactive_update]' => TRUE
+    );
+    $this->drupalPost("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}", $edit, t('Save settings'));
+
+    // Ensure no errors are thrown.
+    $this->assertNoText('Error', t('No errors were found.'));
+  }
+
+  /**
+   * Test basic Retroactive updates functionality.
+   */
+  public function testRetroBasic() {
+    // Create an Image field.
+    $field_name = drupal_strtolower($this->randomName());
+    $this->createImageField($field_name, $this->content_type, array());
+
+    // Modify instance settings.
+    $instance = field_info_instance('node', $field_name, $this->content_type);
+
+    $instance['display']['default']['settings']['image_style'] = 'thumbnail';
+    $instance['display']['default']['settings']['image_link']  = 'content';
+    field_update_instance($instance);
+    $this->drupalGet("admin/structure/types/manage/{$this->content_type}/display");
+    $original_instance = field_info_instance('node', $field_name, $this->content_type);
+
+    // Create a node with a test file.
+    $test_file = $this->getTestFile('image');
+    $nid       = $this->uploadNodeFile($test_file, $field_name, $this->content_type);
+
+    // Ensure that the file is in the default path.
+    $this->drupalGet("node/{$nid}");
+    $this->assertRaw("{$this->public_files_directory}/styles/thumbnail/public/{$test_file->name}", t('The File is in the default path.'));
+
+    // Trigger retroactive updates.
+    $edit['instance[settings][filefield_paths][retroactive_update]'] = TRUE;
+    $edit['instance[settings][filefield_paths][file_path][value]']   = 'node/[node:nid]';
+    $this->drupalPost("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}", $edit, t('Save settings'));
+
+    // Ensure instance display settings haven't changed.
+    // @see https://www.drupal.org/node/2276435
+    drupal_static_reset('_field_info_field_cache');
+    $instance = field_info_instance('node', $field_name, $this->content_type);
+    $this->assert($original_instance['display'] === $instance['display'], t('Instance settings have not changed.'));
+
+    // Ensure that the file path has been retroactively updated.
+    $this->drupalGet("node/{$nid}");
+    $this->assertRaw("{$this->public_files_directory}/styles/thumbnail/public/node/{$nid}/{$test_file->name}", t('The File path has been retroactively updated.'));
+  }
+}

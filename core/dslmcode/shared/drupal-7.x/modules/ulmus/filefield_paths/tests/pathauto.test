@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * @file
+ * Pathauto module tests for the File (Field) Paths module.
+ */
+
+/**
+ * Class FileFieldPathsPathautoCase
+ */
+class FileFieldPathsPathautoCase extends FileFieldPathsTestCase {
+  /**
+   * @inheritdoc
+   */
+  function setUp() {
+    // Setup required modules.
+    parent::setUp(array('pathauto'));
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public static function getInfo() {
+    return array(
+      'name'        => 'Pathauto integration',
+      'description' => 'Tests the Pathauto module integration.',
+      'group'       => 'File (Field) Paths',
+    );
+  }
+
+  /**
+   * Test File (Field) Paths Pathauto UI.
+   */
+  public function testUI() {
+    // Create a File field.
+    $field_name = drupal_strtolower($this->randomName());
+    $this->createFileField($field_name, $this->content_type);
+
+    // Ensure File (Field) Paths Pathauto settings are present and available.
+    $this->drupalGet("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}");
+    foreach (array('path', 'name') as $field) {
+      $this->assertField("instance[settings][filefield_paths][file_{$field}][options][pathauto]", t('Pathauto checkbox is present in File @field settings.', array('@field' => drupal_ucfirst($field))));
+
+      $element = $this->xpath('//input[@name=:name]/@disabled', array(':name' => "instance[settings][filefield_paths][file_{$field}][options][pathauto]"));
+      $this->assert(empty($element), t('Pathauto checkbox is not disabled in File @field settings.', array('@field' => drupal_ucfirst($field))));
+    }
+  }
+
+  /**
+   * Test Pathauto cleanup in File (Field) Paths.
+   */
+  public function testPathauto() {
+    $langcode = LANGUAGE_NONE;
+
+    // Create a File field.
+    $field_name = drupal_strtolower($this->randomName());
+
+    $instance_settings['filefield_paths']['file_path']['value']               = 'node/[node:title]';
+    $instance_settings['filefield_paths']['file_path']['options']['pathauto'] = TRUE;
+    $instance_settings['filefield_paths']['file_name']['value']               = '[node:title].[file:ffp-extension-original]';
+    $instance_settings['filefield_paths']['file_name']['options']['pathauto'] = TRUE;
+
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Create a node with a test file.
+    $test_file     = $this->getTestFile('text');
+    $edit['title'] = $this->randomString() . ' ' . $this->randomString();
+
+    $edit['files[' . $field_name . '_' . $langcode . '_0]'] = drupal_realpath($test_file->uri);
+    $this->drupalPost("node/add/{$this->content_type}", $edit, t('Save'));
+
+    // Ensure that file path/name have been processed correctly by Pathauto.
+    $node = node_load(1);
+
+    module_load_include('inc', 'pathauto');
+    $parts = explode('/', $node->title);
+    foreach ($parts as &$part) {
+      $part = pathauto_cleanstring($part);
+    }
+    $title = implode('/', $parts);
+
+    $this->assertEqual($node->{$field_name}[$langcode][0]['uri'], "public://node/{$title}/{$title}.txt", t('File path/name has been processed correctly by Pathauto'));
+  }
+}

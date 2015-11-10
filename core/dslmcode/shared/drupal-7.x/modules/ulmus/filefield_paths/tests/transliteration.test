@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @file
+ * Transliteration module tests for the File (Field) Paths module.
+ */
+
+/**
+ * Class FileFieldPathsTransliterationCase
+ */
+class FileFieldPathsTransliterationCase extends FileFieldPathsTestCase {
+  /**
+   * @inheritdoc
+   */
+  function setUp() {
+    // Setup required modules.
+    parent::setUp(array('transliteration'));
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public static function getInfo() {
+    return array(
+      'name'        => 'Transliteration integration',
+      'description' => 'Tests the Transliteration module integration.',
+      'group'       => 'File (Field) Paths',
+    );
+  }
+
+  /**
+   * Test File (Field) Paths Transliteration UI.
+   */
+  public function testUI() {
+    // Create a File field.
+    $field_name = drupal_strtolower($this->randomName());
+    $this->createFileField($field_name, $this->content_type);
+
+    // Ensure File (Field) Paths Transliteration settings are present and available.
+    $this->drupalGet("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}");
+    foreach (array('path', 'name') as $field) {
+      $this->assertField("instance[settings][filefield_paths][file_{$field}][options][transliterate]", t('Transliteration checkbox is present in File @field settings.', array('@field' => drupal_ucfirst($field))));
+
+      $element = $this->xpath('//input[@name=:name]/@disabled', array(':name' => "instance[settings][filefield_paths][file_{$field}][options][transliterate]"));
+      $this->assert(empty($element), t('Transliteration checkbox is not disabled in File @field settings.', array('@field' => drupal_ucfirst($field))));
+    }
+  }
+
+  /**
+   * Test Transliteration cleanup in File (Field) Paths.
+   */
+  public function testTransliteration() {
+    $langcode = LANGUAGE_NONE;
+
+    // Create a File field.
+    $field_name = drupal_strtolower($this->randomName());
+
+    $instance_settings['filefield_paths']['file_path']['value']                    = 'node/[node:title]';
+    $instance_settings['filefield_paths']['file_path']['options']['transliterate'] = TRUE;
+    $instance_settings['filefield_paths']['file_name']['value']                    = '[node:title].[file:ffp-extension-original]';
+    $instance_settings['filefield_paths']['file_name']['options']['transliterate'] = TRUE;
+
+    $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
+
+    // Create a node with a test file.
+    $test_file     = $this->getTestFile('text');
+    $edit['title'] = 'тест';
+
+    $edit['files[' . $field_name . '_' . $langcode . '_0]'] = drupal_realpath($test_file->uri);
+    $this->drupalPost("node/add/{$this->content_type}", $edit, t('Save'));
+
+    // Get created Node ID.
+    $matches = array();
+    preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
+    $nid = $matches[1];
+
+    // Ensure that file path/name have been processed correctly by
+    // Transliteration.
+    $node = node_load($nid);
+    $this->assertEqual($node->{$field_name}[$langcode][0]['uri'], "public://node/test/test.txt", t('File path/name has been processed correctly by Transliteration'));
+  }
+}

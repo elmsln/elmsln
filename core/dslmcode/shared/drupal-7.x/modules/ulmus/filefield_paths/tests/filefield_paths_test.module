@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Core functions for the File (Field) Paths tests module.
+ */
+
+/**
+ * Implements hook_stream_wrappers_alter().
+ *
+ * @param $wrappers
+ */
+function filefield_paths_test_stream_wrappers_alter(&$wrappers) {
+  $wrappers['ffp']         = $wrappers['public'];
+  $wrappers['ffp']['type'] = STREAM_WRAPPERS_READ_VISIBLE;
+}
