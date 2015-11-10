@@ -948,6 +948,132 @@ function elmsmedia_feature_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-svg-field_svg'
+  $field_instances['node-svg-field_svg'] = array(
+    'bundle' => 'svg',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 1,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_svg',
+    'label' => 'SVG',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'description_field' => 0,
+      'file_directory' => '',
+      'file_extensions' => 'svg',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 32,
+    ),
+  );
+
+  // Exported field_instance: 'node-svg-field_svg_alttext'
+  $field_instances['node-svg-field_svg_alttext'] = array(
+    'bundle' => 'svg',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Use this text area if the included SVG needs alternative text description.  If text is included in this field, the SVG will be hidden from screen readers and text will be read from this field.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 2,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_svg_alttext',
+    'label' => 'Alternative Text',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 33,
+    ),
+  );
+
   // Exported field_instance: 'node-video-field_caption'
   $field_instances['node-video-field_caption'] = array(
     'bundle' => 'video',
@@ -1254,6 +1380,7 @@ function elmsmedia_feature_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Alternative Text');
   t('Audio');
   t('Caption');
   t('Citation');
@@ -1263,8 +1390,10 @@ function elmsmedia_feature_field_default_field_instances() {
   t('Image');
   t('MP3 files only');
   t('Poster');
+  t('SVG');
   t('Tagging');
   t('Transcript');
+  t('Use this text area if the included SVG needs alternative text description.  If text is included in this field, the SVG will be hidden from screen readers and text will be read from this field.');
   t('Video');
 
   return $field_instances;

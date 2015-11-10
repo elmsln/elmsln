@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title></title>
+    <title>Components - SVG</title>
 
     <!-- Styleguide CSS -->
     <link rel="stylesheet" href="./theme-build/css/vendors.css">
@@ -84,14 +84,14 @@
             
               
               
-                <li><a href="components_-_mediasvg.html">MediaSVG</a></li>
+                <li><a href="components_mediavideo.html">MediaVideo</a></li>
               
             
           
             
               
               
-                <li><a href="components_mediavideo.html">MediaVideo</a></li>
+                <li><a class="active" href="components_-_svg.html">SVG</a></li>
               
             
           
@@ -131,6 +131,8 @@
 
     <header class="cortana-header sb-slide">
       
+        <h1>SVG</h1>
+      
       <div id="open-left" class="cortana-menu-btn">
         <span></span>
         <span></span>
@@ -148,6 +150,26 @@
         <nav id="cortana-inside-nav" class="cortana-inside-nav" bs-affix>
           <ul bs-scrollspy-list data-offset="-30">
             
+              
+                <li><a href="#1svg">SVG</a></li>
+              
+            
+              
+                <li><a href="#2svg__left">SVG Left</a></li>
+              
+            
+              
+                <li><a href="#3svg__right">SVG Right</a></li>
+              
+            
+              
+                <li><a href="#4svg__stretch">SVG Stretch</a></li>
+              
+            
+              
+                <li><a href="#5svg__max-height">SVG w/ Max Height</a></li>
+              
+            
           </ul>
         </nav>
 
@@ -156,63 +178,76 @@
 
 
 
-<h1>ELMSLN UI Styleguide</h1>
+<h1 id="1svg">SVG</h1>
 
-<p><img src="https://raw.githubusercontent.com/michael-collins/elmsln-logos/master/png-lowres-solid/lowres_square-color.png" alt="ELMSLN" title="ELMS Learning Network"></p>
+<p>This is a simple design component that defines a single svg file and optional svg-alt text.<br>
+If the alt-text is provided then we will add the <code>aria-hidden</code> attribute as well as the <code>svg__alttext</code>.
+By default the svg is centered.</p>
+</div><div class="codeExample"><div class="exampleOutput"><div class="svg">
+  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="svg__alttext">Drupal Logo</div>
+</div>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div></div></div><div class="cortana-content"></div><div class="codeExample"><div class="exampleOutput"><div class="svg svg__stretch">
+  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="svg__alttext">Drupal Logo</div>
+</div>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg svg__stretch"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="2svg__left">SVG Left</h1>
 
-<h2>About</h2>
+<p>Aligns the SVG to the left of it&#39;s container.</p>
+</div><div class="codeExample"><div class="exampleOutput"><div class="svg svg__left">
+  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="svg__alttext">Drupal Logo</div>
+</div>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg svg__left"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="3svg__right">SVG Right</h1>
 
-<p>This is a living styleguide for the ELMSLN Drupal theme. Here is an <a href="http://yago.github.io/Cortana-example/index.html">example styleguide</a> for reference.</p>
+<p>This is an inline SVG that can be used in any rich text area.</p>
+</div><div class="codeExample"><div class="exampleOutput"><div class="svg svg__right">
+  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="svg__alttext">Drupal Logo</div>
+</div>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg svg__right"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="4svg__stretch">SVG Stretch</h1>
 
-<p>This is a living styleguide that exists to:</p>
+<p>This is an inline SVG that can be used in any rich text area.</p>
+</div><div class="codeExample"><div class="exampleOutput"><div class="svg svg__stretch">
+  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="svg__alttext">Drupal Logo</div>
+</div>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg svg__stretch"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div></div></div><div class="cortana-content">
+<h1 id="5svg__max-height">SVG w/ Max Height</h1>
 
-<ul>
-<li>maintain best practices of responsive web design by building UI componenets modularly</li>
-<li>reduce the barier of entry for designers and themers to participate and contribute</li>
-<li>establish a defined language and naming convention for UI elements</li>
-<li>provide a baseline for user experience, accessiblity, and visual regression testing</li>
-<li>increase the velocity of adding functionality by allowing developers to easily reuse UI components</li>
-</ul>
-
-<h2>Usage</h2>
-
-<p>When creating a new component in Sass, you can define the component by adding a docblock to the bottom of your <code>.scss</code> file.</p>
-</div><div class="codeBlock"><div class="highlight"><pre>/*doc
----
-title: Component Name
-name: componentname
-category: Components - Component Name
----
-
-A breif explanation on how to use this componenet and in what context would be most appropriate to use.
-
-```html_example
-&lt;div class="componentname"&gt;Lorem ipsum Pariatur in ullamco pariatur proident in culpa consequat mollit pariatur occaecat in ea consectetur ad.&lt;/p&gt;
-&lt;/div&gt;
-```
-
-*/
-</pre></div></div><div class="cortana-content">
-<h2>Installation</h2>
-
-<p>To contribute to this styleguide you will need to install the front-end stack that supports generating the css and js from the theme as well
-as the styleguide itself.</p>
-
-<p>From inside of the <a href="https://github.com/elmsln/elmsln/tree/master/core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access">ELMSLN foundation_access theme</a>, 
-install Grunt, Hologram, and Bower globally</p>
-</div><div class="codeBlock"><div class="highlight"><pre>$ npm install -g grunt-cli grunt-hologram bower
-$ gem install bundler
-</pre></div></div><div class="cortana-content">
-<p>Install the dependencies</p>
-</div><div class="codeBlock"><div class="highlight"><pre>$ npm install
-$ bower install
-$ bundle install
-</pre></div></div><div class="cortana-content">
-<p>Run the Grunt Server</p>
-</div><div class="codeBlock"><div class="highlight"><pre>$ grunt styleguide
-</pre></div></div><div class="cortana-content">
-<p>By running <code>grunt styleguide</code> the browsersync plugin should open the styleguide automatically.  If it does not then visit this url <a href="http://localhost:3000/styleguide/index.html">http://localhost:3000/styleguide/index.html</a></p>
-
+<p>This is an inline SVG that can be used in any rich text area.</p>
+</div><div class="codeExample"><div class="exampleOutput"><div class="svg">
+  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg" style="max-height:100px;">
+  <div class="svg__alttext">Drupal Logo</div>
+</div>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span> <span class="na">style=</span><span class="s">"max-height:100px;"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div></div></div><div class="cortana-content">
         </div>
       </div>
     </div>
@@ -285,50 +320,6 @@ $ bundle install
               
               
               {
-              "title": "Media SVG",
-              "breadcrumb": "Components - MediaSVG > Media SVG",
-              "path": "components_-_mediasvg.html#1mediasvg"
-              },
-            
-              
-              
-              {
-              "title": "Media SVG Left",
-              "breadcrumb": "Components - MediaSVG > Media SVG Left",
-              "path": "components_-_mediasvg.html#2svg__left"
-              },
-            
-              
-              
-              {
-              "title": "Media SVG Right",
-              "breadcrumb": "Components - MediaSVG > Media SVG Right",
-              "path": "components_-_mediasvg.html#3svg__right"
-              },
-            
-              
-              
-              {
-              "title": "Media SVG Stretch",
-              "breadcrumb": "Components - MediaSVG > Media SVG Stretch",
-              "path": "components_-_mediasvg.html#4svg__stretch"
-              },
-            
-              
-              
-              {
-              "title": "Media SVG w/ Max Height",
-              "breadcrumb": "Components - MediaSVG > Media SVG w/ Max Height",
-              "path": "components_-_mediasvg.html#5svg__max-height"
-              },
-            
-          
-        
-          
-            
-              
-              
-              {
               "title": "Media Video",
               "breadcrumb": "Components MediaVideo > Media Video",
               "path": "components_mediavideo.html#1mediavideo"
@@ -356,6 +347,50 @@ $ bundle install
               "title": "Media Video Thumbnail Right",
               "breadcrumb": "Components MediaVideo > Media Video Thumbnail Right",
               "path": "components_mediavideo.html#4mediavideothumbnailright"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
+              "title": "SVG",
+              "breadcrumb": "Components - SVG > SVG",
+              "path": "components_-_svg.html#1svg"
+              },
+            
+              
+              
+              {
+              "title": "SVG Left",
+              "breadcrumb": "Components - SVG > SVG Left",
+              "path": "components_-_svg.html#2svg__left"
+              },
+            
+              
+              
+              {
+              "title": "SVG Right",
+              "breadcrumb": "Components - SVG > SVG Right",
+              "path": "components_-_svg.html#3svg__right"
+              },
+            
+              
+              
+              {
+              "title": "SVG Stretch",
+              "breadcrumb": "Components - SVG > SVG Stretch",
+              "path": "components_-_svg.html#4svg__stretch"
+              },
+            
+              
+              
+              {
+              "title": "SVG w/ Max Height",
+              "breadcrumb": "Components - SVG > SVG w/ Max Height",
+              "path": "components_-_svg.html#5svg__max-height"
               },
             
           

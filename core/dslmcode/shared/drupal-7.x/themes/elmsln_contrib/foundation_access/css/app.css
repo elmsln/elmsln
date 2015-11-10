@@ -7354,7 +7354,7 @@ footer {
   overflow: hidden; }
 
 .sticky-wrapper.is-sticky {
-  z-index: 999;
+  z-index: 10000;
   position: absolute; }
 
 .row.full {
@@ -8229,14 +8229,16 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
 
 @media only screen and (min-width: 40.063em) {
   .image--left,
-  .image--left--lightboxed {
+  .mediasvg--left,
+  .mediasvg--left--medium, .mediasvg--left--small, .image--left--lightboxed {
     max-width: 50%;
     margin-left: 0;
     float: left;
     margin-top: .5em; } }
 
 .image--left .image__img,
-.image--left--lightboxed .image__img {
+.mediasvg--left .image__img,
+.mediasvg--left--medium .image__img, .mediasvg--left--small .image__img, .image--left--lightboxed .image__img {
   max-height: 40em; }
 
 @media only screen and (min-width: 40.063em) {
@@ -8253,14 +8255,16 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
 
 @media only screen and (min-width: 40.063em) {
   .image--right,
-  .image--right--lightboxed {
+  .mediasvg--right,
+  .mediasvg--right--medium, .mediasvg--right--small, .image--right--lightboxed {
     max-width: 50%;
     margin-right: 0;
     float: right;
     margin-top: .5em; } }
 
 .image--right .image__img,
-.image--right--lightboxed .image__img {
+.mediasvg--right .image__img,
+.mediasvg--right--medium .image__img, .mediasvg--right--small .image__img, .image--right--lightboxed .image__img {
   max-height: 40em; }
 
 .image--boxed,
@@ -8617,6 +8621,165 @@ category:
   float: right;
   margin-left: 1rem;
   margin-right: 0; }
+
+/*doc
+---
+title: Media SVG
+name: 1mediasvg
+category:
+  - Components - MediaSVG
+---
+
+This is a simple design component that defines a single svg file and optional svg-alt text.  
+If the alt-text is provided then we will add the `aria-hidden` attribute as well as the `svg__alttext`.
+By default the svg is centered.
+
+```html_example
+<div class="mediasvg">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+
+```html_example
+<div class="mediasvg mediasvg--stretch">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+*/
+/*doc
+---
+title: Media SVG Left
+name: 2svg__left
+category:
+  - Components - MediaSVG
+---
+
+Aligns the SVG to the left of it's container.
+
+```html_example
+<div class="mediasvg mediasvg--left">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+
+```html_example
+<div class="mediasvg mediasvg--left--medium">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+
+```html_example
+<div class="mediasvg mediasvg--left--small">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+*/
+/*doc
+---
+title: Media SVG Right
+name: 3svg__right
+category:
+  - Components - MediaSVG
+---
+
+This is an inline SVG that can be used in any rich text area.
+
+```html_example
+<div class="mediasvg mediasvg--right">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+
+```html_example
+<div class="mediasvg mediasvg--right--medium">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+
+```html_example
+<div class="mediasvg mediasvg--right--small">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+*/
+/*doc
+---
+title: Media SVG Stretch
+name: 4svg__stretch
+category:
+  - Components - MediaSVG
+---
+
+This is an inline SVG that can be used in any rich text area.
+
+```html_example
+<div class="mediasvg mediasvg--stretch">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+*/
+/*doc
+---
+title: Media SVG w/ Max Height
+name: 5svg__max-height
+category:
+  - Components - MediaSVG
+---
+
+This is an inline SVG that can be used in any rich text area.
+
+```html_example
+<div class="mediasvg">
+  <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg" style="max-height:100px;">
+  <div class="mediasvg__alttext">Drupal Logo</div>
+</div>
+```
+*/
+.mediasvg {
+  text-align: center; }
+  .mediasvg__alttext {
+    display: block;
+    position: absolute !important;
+    clip: rect(1px 1px 1px 1px);
+    /* IE6, IE7 */
+    clip: rect(1px, 1px, 1px, 1px); }
+
+.mediasvg--left, .mediasvg--left--medium, .mediasvg--left--small {
+  text-align: left;
+  float: left; }
+
+@media only screen and (min-width: 40.063em) {
+  .mediasvg--left--medium {
+    max-width: 30%; } }
+
+@media only screen and (min-width: 40.063em) {
+  .mediasvg--left--small {
+    max-width: 20%; } }
+
+.mediasvg--right, .mediasvg--right--medium, .mediasvg--right--small {
+  text-align: right;
+  float: right; }
+
+@media only screen and (min-width: 40.063em) {
+  .mediasvg--right--medium {
+    max-width: 30%; } }
+
+@media only screen and (min-width: 40.063em) {
+  .mediasvg--right--small {
+    max-width: 20%; } }
+
+.mediasvg--stretch .mediasvg__img {
+  width: 100%;
+  height: auto; }
 
 .tab-bar a.add-menu-drop {
   margin: 0 0.3rem;

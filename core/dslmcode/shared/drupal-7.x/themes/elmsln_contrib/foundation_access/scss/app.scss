@@ -37,13 +37,15 @@
 @import "main-styles/content-styles/intro";
 @import "main-styles/content-styles/print";
 
+// Global
+@import "global/utility";
+
 // Components
 @import "components/pullquote";
 @import "components/image";
 @import "components/imagelightbox";
 @import "components/mediavideo";
+@import "components/mediasvg";
 
 // elmsmedia
 @import "subtheme-elmsmedia/service-toolbar";
-
-$testing: 1px;

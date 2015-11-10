@@ -56,4 +56,38 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
     'label' => t('Media Video Thumbnail Right'),
     'custom settings' => FALSE,
   );
+
+  // MediaSVG
+  $entity_info['node']['view modes']['mediasvg'] = array(
+    'label' => t('Media SVG'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediasvg__left'] = array(
+    'label' => t('Media SVG Left'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediasvg__left__medium'] = array(
+    'label' => t('Media SVG Left Medium'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediasvg__left__small'] = array(
+    'label' => t('Media SVG Left Small'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediasvg__right'] = array(
+    'label' => t('Media SVG Right'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediasvg__right__medium'] = array(
+    'label' => t('Media SVG Right Medium'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediasvg__right__small'] = array(
+    'label' => t('Media SVG Right Small'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['mediasvg__stretch'] = array(
+    'label' => t('Media SVG Stretch'),
+    'custom settings' => FALSE,
+  );
 }

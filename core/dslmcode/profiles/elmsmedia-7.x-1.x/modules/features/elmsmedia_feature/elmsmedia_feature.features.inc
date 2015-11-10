@@ -126,6 +126,14 @@ function elmsmedia_feature_node_info() {
       'title_label' => t('Title'),
       'help' => '',
     ),
+    'svg' => array(
+      'name' => t('SVG'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
     'video' => array(
       'name' => t('Video'),
       'base' => 'node_content',
