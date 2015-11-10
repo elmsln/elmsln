@@ -25,6 +25,7 @@ function httprl_spider_drush_command() {
     'options' => array(
       'nonblocking' => dt('Including this option will issue the call as non-blocking.'),
       'print' => dt('Print debug statements about requests being made.'),
+      'xmlrpcuid' => dt('Use the XMLRPC page load module with this uid'),
     ),
     'aliases' => array('hsr'),
     'examples' => array(
@@ -42,6 +43,7 @@ function httprl_spider_drush_command() {
     'options' => array(
       'nonblocking' => dt('Including this option will issue the call as non-blocking.'),
        'print' => dt('Print debug statements about requests being made.'),
+       'xmlrpcuid' => dt('Use the XMLRPC page load module with this uid'),
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
     'aliases' => array('hss'),
@@ -52,6 +54,27 @@ function httprl_spider_drush_command() {
         'Request all nodes in a nonblocking manner to prime cache',
     ),
   );
+  // we only support this crazy mode if we actually have the module to do it
+  if (function_exists('_xmlrpc_page_load')) {
+    $items['httprl-user-self-spider'] = array(
+      'description' => dt('Load all entities with web-based urls and hit them to prime the cache but do it as all users in the database. Crazy but allows things like authcache to be 100% primed for all possible users on all possible paths. This is mostly for demonstration purposes.'),
+      'arguments' => array(
+        'type' => dt('Optional. Only prime this particular entity type'),
+      ),
+      'options' => array(
+        'nonblocking' => dt('Including this option will issue the call as non-blocking.'),
+         'print' => dt('Print debug statements about requests being made.'),
+      ),
+      'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+      'aliases' => array('huss'),
+      'examples' => array(
+        'drush httprl-user-self-spider' => 
+          'Self request all known, web-accessible entities at their URL for each user',
+        'drush hss node' => 
+          'Request all nodes for all users',
+      ),
+    );
+  }
   return $items;
 }
 
@@ -64,6 +87,8 @@ function httprl_spider_drush_help($section) {
       return dt('Perform a command-lind based http self request');
     case 'drush:httprl-self-spider':
       return dt('Spider all web-accessible entity paths');
+    case 'drush:httprl-user-self-spider':
+      return dt('Spider all web-accessible entity paths per user');
   }
 }
 
@@ -72,7 +97,7 @@ function httprl_spider_drush_help($section) {
  */
 function drush_httprl_spider_httprl_self_request($path = '', $delay_request = FALSE) {
   $batch = batch_get();
-  // set default options for 
+  // set default options
    $options = array(
     'headers' => array(
       // Set the Host header to self.
@@ -88,15 +113,53 @@ function drush_httprl_spider_httprl_self_request($path = '', $delay_request = FA
   }
   // build path to request
   $url = httprl_build_url_self($path);
-  // Queue up the request
-  httprl_request($url, $options);
-  // Execute requests unless told to delay processing
-  if (!$delay_request) {
-    $request = httprl_send_request();
-    // Print request and return code if asked
-    if (isset($batch['httprl_print']) || drush_get_option('print')) {
-      foreach ($request as $id => $result) {
-        drush_print($id . ' -- code: ' . $result->code);
+  // support for the xmlrpc page load module
+  $xmlrpc = FALSE;
+  // allow for xmlrpc page load module in batch or directly
+  if (isset($batch['httprl_xmlrpcuid'])) {
+    $xmlrpc = TRUE;
+    $uid = $batch['httprl_xmlrpcuid'];
+  }
+  elseif (module_exists('xmlrpc_page_load') && $uid = drush_get_option('xmlrpcuid')) {
+    $xmlrpc = TRUE;
+  }
+  // if we need to call xmlrpc then kick that off now
+  if ($xmlrpc) {
+    $xmlrpcargs = array(
+      'xmlrpc_page_load' => array(array(
+        'path' => $path,
+        'uid' => $uid,
+        'secret' => variable_get('xmlrpc_page_load_secret', drupal_get_private_key()),
+      )),
+    );
+    // modify url to include xmlrpc instead
+    $url = str_replace($path, '', $url) . 'xmlrpc.php';
+    $response = xmlrpc($url, $xmlrpcargs);
+    global $base_url;
+    if ($response === FALSE) {
+      drush_log('xmlrpc() error: (' . xmlrpc_errno() . ') ' . xmlrpc_error_msg(), 'error');
+      if ($base_url == 'http://' . basename(conf_path())) {
+        drush_log('The base_url might not be set correctly try using the -l/--uri option for drush.', 'warning');
+      }
+    }
+    elseif (!$response['success']) {
+      drush_log($response['message'], 'error');
+    }
+    else {
+      drush_log("XMLRPC page load response {$response['message']}", 'success');
+    }
+  }
+  else {
+    // Queue up the request
+    httprl_request($url, $options);
+    // Execute requests unless told to delay processing
+    if (!$delay_request) {
+      $request = httprl_send_request();
+      // Print request and return code if asked
+      if (isset($batch['httprl_print']) || drush_get_option('print')) {
+        foreach ($request as $id => $result) {
+          drush_print($id . ' -- code: ' . $result->code);
+        }
       }
     }
   }
@@ -139,9 +202,42 @@ function drush_httprl_spider_httprl_self_spider($type = '') {
   $batch['progressive'] = FALSE;
   $batch['httprl_nonblocking'] = drush_get_option('nonblocking');
   $batch['httprl_print'] = drush_get_option('print');
+  if (module_exists('xmlrpc_page_load') && $uid = drush_get_option('xmlrpcuid')) {
+    $batch['httprl_xmlrpcuid'] = $uid;
+  }
   drush_backend_batch_process();
 }
 
+/**
+ * Load the cache bin with content from the various entities.
+ * @param $type Optional. The specific type of entity that should
+ *   get it's content cached.
+ */
+function drush_httprl_spider_httprl_user_self_spider($type = '') {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'user')
+    ->propertyCondition('status', 1)
+    ->addMetaData('account', user_load(1)); // Run the query as user 1.
+  $result = $query->execute();
+  // ensure we have results
+  if (isset($result['user'])) {
+    $uids = array_keys($result['user']);
+    foreach ($uids as $uid) {
+      // seed the xmlrpcuid as all users in the database that are active
+      drush_set_option('xmlrpcuid', $uid);
+      // pass type down
+      drush_print(dt('Requesting all paths for uid @uid', array('@uid' => $uid)));
+      $batch =& batch_get();
+      $batch = array();
+      drush_httprl_spider_httprl_self_spider($type);
+    }
+  }
+  else {
+    dt('Uhh.. you have no active users somehow.');
+  }
+}
+
+// Callback to load the cache in a batch API manner
 function _httprl_spider_batch_load_cache($types) {
   $batch = array(
     'operations' => array(),
@@ -151,7 +247,7 @@ function _httprl_spider_batch_load_cache($types) {
     'progress_message' => dt('Submitting content...'),
     'error_message' => dt('Content could not be spidered'),
   );
-  
+
   foreach ($types as $entity_type => $entity_info) {
     $batch['operations'][] = array(
       'httprl_spider_batch_load_cache', array($entity_type, $entity_info),
@@ -209,7 +305,7 @@ function _httprl_spider_load_cache($entity_type, $entity_info, &$context) {
     ->entityOrderBy('entity_id', 'ASC')
     ->range(0, $max_limit)
     ->execute();
-    
+
   $keys = array();
   $limit = 0;
   if (count($result) <= 0) {
@@ -285,11 +381,13 @@ function _httprl_spider_load_entities($entity_type, $keys = array()) {
       drush_httprl_spider_httprl_self_request($path['path'], TRUE);
     }
     // execute the request
-    $request = httprl_send_request();
-    // Print request and return code if asked
-    if (isset($batch['httprl_print'])) {
-      foreach ($request as $id => $result) {
-        drush_print($id . ' -- code: ' . $result->code);
+    if (!isset($batch['xmlrpcuid'])) {
+      $request = httprl_send_request();
+      // Print request and return code if asked
+      if (isset($batch['httprl_print'])) {
+        foreach ($request as $id => $result) {
+          drush_print($id . ' -- code: ' . $result->code);
+        }
       }
     }
   }
