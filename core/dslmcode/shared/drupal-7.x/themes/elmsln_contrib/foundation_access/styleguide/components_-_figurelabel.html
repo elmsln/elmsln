@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>Components - SVG</title>
+    <title>Components - FigureLabel</title>
 
     <!-- Styleguide CSS -->
     <link rel="stylesheet" href="./theme-build/css/vendors.css">
@@ -57,6 +57,9 @@
       
         
         
+      
+        
+        
           
         
       
@@ -77,6 +80,13 @@
             
               
               
+                <li><a class="active" href="components_-_figurelabel.html">FigureLabel</a></li>
+              
+            
+          
+            
+              
+              
                 <li><a href="components_-_image.html">Image</a></li>
               
             
@@ -84,14 +94,14 @@
             
               
               
-                <li><a href="components_mediavideo.html">MediaVideo</a></li>
+                <li><a href="components_-_mediasvg.html">MediaSVG</a></li>
               
             
           
             
               
               
-                <li><a class="active" href="components_-_svg.html">SVG</a></li>
+                <li><a href="components_mediavideo.html">MediaVideo</a></li>
               
             
           
@@ -116,6 +126,8 @@
             
           
             
+          
+            
               
               
                 <li><a href="widgets_imagelightbox.html">ImageLightbox</a></li>
@@ -131,7 +143,7 @@
 
     <header class="cortana-header sb-slide">
       
-        <h1>SVG</h1>
+        <h1>FigureLabel</h1>
       
       <div id="open-left" class="cortana-menu-btn">
         <span></span>
@@ -151,23 +163,7 @@
           <ul bs-scrollspy-list data-offset="-30">
             
               
-                <li><a href="#1svg">SVG</a></li>
-              
-            
-              
-                <li><a href="#2svg__left">SVG Left</a></li>
-              
-            
-              
-                <li><a href="#3svg__right">SVG Right</a></li>
-              
-            
-              
-                <li><a href="#4svg__stretch">SVG Stretch</a></li>
-              
-            
-              
-                <li><a href="#5svg__max-height">SVG w/ Max Height</a></li>
+                <li><a href="#1figurelabel">Figure Label</a></li>
               
             
           </ul>
@@ -178,74 +174,18 @@
 
 
 
-<h1 id="1svg">SVG</h1>
+<h1 id="1figurelabel">Figure Label</h1>
 
-<p>This is a simple design component that defines a single svg file and optional svg-alt text.<br>
-If the alt-text is provided then we will add the <code>aria-hidden</code> attribute as well as the <code>svg__alttext</code>.
-By default the svg is centered.</p>
-</div><div class="codeExample"><div class="exampleOutput"><div class="svg">
-  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
-  <div class="svg__alttext">Drupal Logo</div>
+<p>The figure label component is used to present textbook like captions to media elements.</p>
+</div><div class="codeExample"><div class="exampleOutput"><div class="figurelabel">
+  <div class="figurelabel__title">Figure F03-5-1</div>
+  <div class="figurelabel__desc"><a href="http://ed.ted.com/lessons/the-science-of-macaroni-salad-what-s-in-a-molecule-josh-kurz"
+  >The science of macaroni salad: What's in a molecule?</a></div>
 </div>
-</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
-<span class="nt">&lt;/div&gt;</span>
-</pre></div></div></div><div class="cortana-content"></div><div class="codeExample"><div class="exampleOutput"><div class="svg svg__stretch">
-  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
-  <div class="svg__alttext">Drupal Logo</div>
-</div>
-</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg svg__stretch"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
-<span class="nt">&lt;/div&gt;</span>
-</pre></div></div></div><div class="cortana-content">
-<h1 id="2svg__left">SVG Left</h1>
-
-<p>Aligns the SVG to the left of it&#39;s container.</p>
-</div><div class="codeExample"><div class="exampleOutput"><div class="svg svg__left">
-  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
-  <div class="svg__alttext">Drupal Logo</div>
-</div>
-</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg svg__left"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
-<span class="nt">&lt;/div&gt;</span>
-</pre></div></div></div><div class="cortana-content">
-<h1 id="3svg__right">SVG Right</h1>
-
-<p>This is an inline SVG that can be used in any rich text area.</p>
-</div><div class="codeExample"><div class="exampleOutput"><div class="svg svg__right">
-  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
-  <div class="svg__alttext">Drupal Logo</div>
-</div>
-</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg svg__right"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
-<span class="nt">&lt;/div&gt;</span>
-</pre></div></div></div><div class="cortana-content">
-<h1 id="4svg__stretch">SVG Stretch</h1>
-
-<p>This is an inline SVG that can be used in any rich text area.</p>
-</div><div class="codeExample"><div class="exampleOutput"><div class="svg svg__stretch">
-  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
-  <div class="svg__alttext">Drupal Logo</div>
-</div>
-</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg svg__stretch"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
-<span class="nt">&lt;/div&gt;</span>
-</pre></div></div></div><div class="cortana-content">
-<h1 id="5svg__max-height">SVG w/ Max Height</h1>
-
-<p>This is an inline SVG that can be used in any rich text area.</p>
-</div><div class="codeExample"><div class="exampleOutput"><div class="svg">
-  <img class="svg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg" style="max-height:100px;">
-  <div class="svg__alttext">Drupal Logo</div>
-</div>
-</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"svg__img"</span> <span class="na">aria-hidden=</span><span class="s">"true"</span> <span class="na">src=</span><span class="s">"https://www.drupal.org/files/druplicon.vector.svg"</span> <span class="na">style=</span><span class="s">"max-height:100px;"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"svg__alttext"</span><span class="nt">&gt;</span>Drupal Logo<span class="nt">&lt;/div&gt;</span>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"figurelabel"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"figurelabel__title"</span><span class="nt">&gt;</span>Figure F03-5-1<span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"figurelabel__desc"</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">"http://ed.ted.com/lessons/the-science-of-macaroni-salad-what-s-in-a-molecule-josh-kurz"</span>
+  <span class="nt">&gt;</span>The science of macaroni salad: What's in a molecule?<span class="nt">&lt;/a&gt;&lt;/div&gt;</span>
 <span class="nt">&lt;/div&gt;</span>
 </pre></div></div></div><div class="cortana-content">
         </div>
@@ -269,6 +209,18 @@ By default the svg is centered.</p>
       $scope.searchData = 
       [
         
+          
+        
+          
+            
+              
+              
+              {
+              "title": "Figure Label",
+              "breadcrumb": "Components - FigureLabel > Figure Label",
+              "path": "components_-_figurelabel.html#1figurelabel"
+              },
+            
           
         
           
@@ -320,6 +272,50 @@ By default the svg is centered.</p>
               
               
               {
+              "title": "Media SVG",
+              "breadcrumb": "Components - MediaSVG > Media SVG",
+              "path": "components_-_mediasvg.html#1mediasvg"
+              },
+            
+              
+              
+              {
+              "title": "Media SVG Left",
+              "breadcrumb": "Components - MediaSVG > Media SVG Left",
+              "path": "components_-_mediasvg.html#2svg__left"
+              },
+            
+              
+              
+              {
+              "title": "Media SVG Right",
+              "breadcrumb": "Components - MediaSVG > Media SVG Right",
+              "path": "components_-_mediasvg.html#3svg__right"
+              },
+            
+              
+              
+              {
+              "title": "Media SVG Stretch",
+              "breadcrumb": "Components - MediaSVG > Media SVG Stretch",
+              "path": "components_-_mediasvg.html#4svg__stretch"
+              },
+            
+              
+              
+              {
+              "title": "Media SVG w/ Max Height",
+              "breadcrumb": "Components - MediaSVG > Media SVG w/ Max Height",
+              "path": "components_-_mediasvg.html#5svg__max-height"
+              },
+            
+          
+        
+          
+            
+              
+              
+              {
               "title": "Media Video",
               "breadcrumb": "Components MediaVideo > Media Video",
               "path": "components_mediavideo.html#1mediavideo"
@@ -347,50 +343,6 @@ By default the svg is centered.</p>
               "title": "Media Video Thumbnail Right",
               "breadcrumb": "Components MediaVideo > Media Video Thumbnail Right",
               "path": "components_mediavideo.html#4mediavideothumbnailright"
-              },
-            
-          
-        
-          
-            
-              
-              
-              {
-              "title": "SVG",
-              "breadcrumb": "Components - SVG > SVG",
-              "path": "components_-_svg.html#1svg"
-              },
-            
-              
-              
-              {
-              "title": "SVG Left",
-              "breadcrumb": "Components - SVG > SVG Left",
-              "path": "components_-_svg.html#2svg__left"
-              },
-            
-              
-              
-              {
-              "title": "SVG Right",
-              "breadcrumb": "Components - SVG > SVG Right",
-              "path": "components_-_svg.html#3svg__right"
-              },
-            
-              
-              
-              {
-              "title": "SVG Stretch",
-              "breadcrumb": "Components - SVG > SVG Stretch",
-              "path": "components_-_svg.html#4svg__stretch"
-              },
-            
-              
-              
-              {
-              "title": "SVG w/ Max Height",
-              "breadcrumb": "Components - SVG > SVG w/ Max Height",
-              "path": "components_-_svg.html#5svg__max-height"
               },
             
           

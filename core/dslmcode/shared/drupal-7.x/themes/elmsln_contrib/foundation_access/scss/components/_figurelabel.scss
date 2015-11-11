@@ -1,0 +1,40 @@
+/*doc
+---
+title: Figure Label
+name: 1figurelabel
+category:
+  - Components - FigureLabel
+---
+
+The figure label component is used to present textbook like captions to media elements.
+
+```html_example
+<div class="figurelabel">
+  <div class="figurelabel__title">Figure F03-5-1</div>
+  <div class="figurelabel__desc"><a href="http://ed.ted.com/lessons/the-science-of-macaroni-salad-what-s-in-a-molecule-josh-kurz"
+  >The science of macaroni salad: What's in a molecule?</a></div>
+</div>
+```
+*/
+
+.figurelabel {
+  $background: #F2F2F2;
+
+  font-size: .75em;
+  margin-bottom: 1em;
+  
+  > * {
+    padding: .8em 1em;
+    border: 1px solid $background;
+  }
+  
+  &__title {
+    float: left;
+    background: $background;
+  }
+  &__desc {
+    float: left;
+    border: 1px solid $background;
+    border-radius: .1em;
+  }
+}
