@@ -70,7 +70,7 @@ function httprl_spider_drush_command() {
       'examples' => array(
         'drush httprl-user-self-spider' => 
           'Self request all known, web-accessible entities at their URL for each user',
-        'drush hss node' => 
+        'drush huss node' => 
           'Request all nodes for all users',
       ),
     );
