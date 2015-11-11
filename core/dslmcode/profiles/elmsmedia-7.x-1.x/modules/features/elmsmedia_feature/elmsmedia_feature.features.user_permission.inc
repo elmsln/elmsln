@@ -31,5 +31,62 @@ function elmsmedia_feature_user_default_permissions() {
     'module' => 'view_mode_tab',
   );
 
+  // Exported permission: 'create svg content'.
+  $permissions['create svg content'] = array(
+    'name' => 'create svg content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete any svg content'.
+  $permissions['delete any svg content'] = array(
+    'name' => 'delete any svg content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete own svg content'.
+  $permissions['delete own svg content'] = array(
+    'name' => 'delete own svg content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any svg content'.
+  $permissions['edit any svg content'] = array(
+    'name' => 'edit any svg content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit own svg content'.
+  $permissions['edit own svg content'] = array(
+    'name' => 'edit own svg content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
   return $permissions;
 }

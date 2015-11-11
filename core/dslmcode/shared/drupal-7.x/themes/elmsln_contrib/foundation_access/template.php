@@ -205,6 +205,24 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
   }
 }
 
+/**
+ * Display Inherit Image
+ */
+function foundation_access_preprocess_node__inherit__svg(&$variables) {
+  $variables['svg_url'] = '';
+  $variables['svg_aria_hidden'] = 'false';
+  $variables['svg_alttext'] = NULL;
+  $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
+
+  // get the url of the svg
+  $variables['svg_url'] = ($node_wrapper->field_svg->value() ? $node_wrapper->field_svg->file->url->value() : NULL);
+  // if there is an accessbile text alternative se tthe svg to aria-hidden
+  if ($node_wrapper->field_svg_alttext->value()) {
+    $variables['svg_aria_hidden'] = 'true';
+    $variables['svg_alttext'] = $node_wrapper->field_svg_alttext->value();
+  }
+}
+
 
 /**
  * Implements template_menu_link.
