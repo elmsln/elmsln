@@ -1,17 +1,23 @@
 <?php
 
 /**
- * Implements hook_menu().
+ * Edit mode callback.
  */
 function hax_page_edit($node) {
-  drupal_add_js(drupal_get_path('module', 'hax') . '/js/hax.js');
+  drupal_add_js(drupal_get_path('module', 'hax') . '/js/hax-drag-drop.js');
   drupal_add_css(drupal_get_path('module', 'hax') . '/css/hax.css');
-  return '<div class="columns hax-accessible">
+  // @todo make this more generic then simply the node body field
+  $markup = check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
+  // quick and dirty substitution, all p/img tags can be moved
+  $markup = str_replace('<p', '<p data-draggable="item"', $markup);
+  $markup = str_replace('<img', '<img data-draggable="item"', $markup);
+  // quick and dirty substitution, all div tags are containers
+  $markup = str_replace('<div', '<div data-draggable="target"', $markup);
+  $output = '<div class="columns hax-accessible hax-body">
   <!-- drop zones (need to add these via jquery) -->
-
+  ' . $markup . '
   <div class="row layout-garage collapse">
     <div class="columns small-12 sub-target" data-draggable="target">
-
       <p data-draggable="item"><strong>Directions:</strong> Tab to this item. To Select via Keyboard, press spacebar. To confirm a Move, press Enter. To release selection, press escape.</p>
       <h2 data-draggable="item">HEADER: DRAG ME</h2>
       <h3 data-draggable="item">SUB HEADER</h3>
@@ -43,15 +49,6 @@ function hax_page_edit($node) {
 
   <div class="row layout-garage collapse">
     <div class="columns small-12 sub-target" data-draggable="target">
-    </div>
-  </div>
-
-  <div class="row layout-garage collapse">
-    <div class="columns small-12 sub-target" data-draggable="target">
-      <div class="row layout-group" data-draggable="item" data-equalizer>
-        <div class="columns small-8 sub-target" data-draggable="target" data-equalizer-watch></div>
-        <div class="columns small-4 sub-target" data-draggable="target" data-equalizer-watch></div>
-      </div>
     </div>
   </div>
 
@@ -175,7 +172,9 @@ function hax_page_edit($node) {
       <div class="drag-item" data-draggable="item"><img   src="http://placehold.it/1200x80&text=[text]"></div>
     </div>
   </div>
-
-
 </div>';
+
+  // apply the toolbar to the interface
+  $output .= _hax_render_toolbar();
+  return $output;
 }

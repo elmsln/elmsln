@@ -1,0 +1,31 @@
+.hax-toolbar {
+  text-align: center;
+  top:20%;
+  bottom:20%;
+  right: 0;
+  position: fixed;
+  z-index: 100000;
+  width: 20%;
+  background-color: #CCCCCC;
+  padding: 2rem;
+}
+
+.hax-toolbar-groupname {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.hax-toolbar-tool {
+  width: 90%;
+  float: left;
+  height:2.5rem;
+  margin:.5rem;
+  font-size: 1rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #CCCCCC;
+}
+.hax-toolbar-tool:hover {
+  background-color: #FF0000;
+  cursor: pointer;
+}

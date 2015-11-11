@@ -45,9 +45,164 @@ function hax_permission() {
   );
 }
 
+/**
+ * Access callback to ensure hax can be used on this node
+ */
 function hax_access($op, $node) {
   if (user_access('use hax') && node_access($op, $node)) {
     return TRUE;
   }
   return FALSE;
 }
+
+/**
+ * Callback to return list of components we can add via our toolbar
+ */
+function _hax_get_tools() {
+  // return a lost of all tools we know about
+  $tools = module_invoke_all('hax_tools');
+  drupal_alter('hax_tools', $tools);
+  return $tools;
+}
+
+/**
+ * Renders the toolbar on the interface.
+ */
+function _hax_render_toolbar() {
+  // load css / js we need for the toolbar
+  drupal_add_css(drupal_get_path('module', 'hax') . '/css/hax-toolbar.css');
+  drupal_add_js(drupal_get_path('module', 'hax') . '/js/hax-toolbar.js');
+  // load in all the tools
+  $tools = _hax_get_tools();
+  // pass these along as a javascript array
+  drupal_add_js(array('hax' => $tools), 'setting');
+  // establish the core groupings
+  $core_groups = _hax_toolbar_groups();
+  // support for any other groups we've given
+  $other_groups = array();
+  // start to form the toolbar
+  $toolbar = '<div class="hax-toolbar">';
+  // organize the tools into groups
+  foreach ($tools as $key => $tool) {
+    // this is a core grouping item, add it to the known groups
+    if (isset($core_groups[$tool['group']])) {
+      $core_groups[$tool['group']][$key] = $tool;
+    }
+    else {
+      $other_groups[$tool['group']][$key] = $tool;
+    }
+  }
+  $groups = $core_groups + $other_groups;
+  // kick the groups out to the screen
+  foreach ($groups as $gname => $group) {
+    $toolbar .= '<div class="hax-toolbar-group hax-toolbar-group-' . $gname . '">' . "\n";
+    $toolbar .= '<span class="hax-toolbar-groupname">' . $gname . '</span>' . "\n";
+    foreach ($group as $key => $tool) {
+      $toolbar .= '<span class="hax-toolbar-tool" style="background-image:url(\'' . $tool['icon'] . '\')" alt="' . $tool['description'] . '" data-hax-tool="' . $key . '">' . "\n";
+      $toolbar .= $tool['name'] . "\n";
+      $toolbar .= '</span>' . "\n";
+    }
+    $toolbar .= '</div>' . "\n";
+  }
+  $tools['hax-core-container-12'] = array(
+    'action' => 'insert',
+    'markup' => '<div class="columns small-12 sub-target" data-draggable="target"></div>',
+  );
+  return $toolbar;
+}
+
+/**
+ * Load a template file and return the contents
+ */
+function _hax_load_template($name, $project = 'hax', $type = 'module') {
+  $template = '';
+  $filename = DRUPAL_ROOT . '/' . drupal_get_path($type, $project) . '/templates/' . $name . '.tpl.php';
+  if (file_exists($filename)) {
+    $template = file_get_contents($filename);
+  }
+  else {
+    drupal_set_message(t('@file not found for loading template in HAX'), 'warning');
+  }
+  return $template;
+}
+
+/**
+ * Support for overriding / altering core tool groups
+ * @return array
+ */
+function _hax_toolbar_groups() {
+  $groups = array(
+    t('Container') => array(),
+    t('Content') => array(),
+    t('Layout') => array()
+  );
+  // allow people to alter the groupings if needed
+  drupal_alter('hax_toolbar_groups', $groups);
+  return $groups;
+}
+
+/**
+ * Implements hook_hax_tools().
+ * @return array an array of tool definitions
+ */
+function hax_hax_tools() {
+  $tools['hax-core-container-12'] = array(
+    'group' => t('Container'),
+    'name' => t('Wide'),
+    'description' => t('12 column container you can drop content into'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<div class="columns small-12 sub-target" data-draggable="target"></div>',
+  );
+  $tools['hax-core-container-6'] = array(
+    'group' => t('Container'),
+    'name' => t('Half'),
+    'description' => t('6 column container you can drop content into'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<div class="columns small-6 sub-target" data-draggable="target"></div>',
+  );
+  $tools['hax-core-container-3'] = array(
+    'group' => t('Container'),
+    'name' => t('Quarter'),
+    'description' => t('3 column container you can drop content into'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<div class="columns small-3 sub-target" data-draggable="target"></div>',
+  );
+  $tools['hax-core-content-paragraph'] = array(
+    'group' => t('Content'),
+    'name' => t('Paragraph'),
+    'description' => t('Simple paragraph of text to modify'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<p data-draggable="item">The simplest of content can impact the greatest of minds.</p>',
+  );
+  $tools['hax-core-content-heading'] = array(
+    'group' => t('Content'),
+    'name' => t('Heading'),
+    'description' => t('Simple heading to modify'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<h2 data-draggable="item">Dribs and Drabs</h2>',
+  );
+  $tools['hax-core-content-subheading'] = array(
+    'group' => t('Content'),
+    'name' => t('Subheading'),
+    'description' => t('Simple subheading to modify'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<h3 data-draggable="item">Ex Uno Plures</h3>',
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-template-1'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Template 1'),
+    'description' => t('A simple two column layout with an image.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-template-1'),
+  );
+  return $tools;
+}
+

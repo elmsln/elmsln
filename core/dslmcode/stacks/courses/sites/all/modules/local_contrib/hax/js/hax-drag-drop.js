@@ -1,15 +1,14 @@
 (function ($) {
 ////////////////////////////
-////////////////////////////
 // http://www.sitepoint.com/accessible-drag-drop
 // With some modifications to work with Zurb Foundation 5 Equalizer JS
 ////////////////////////////
-////////////////////////////
-(function()
 
-  {
+//extend the drupal js object by adding in an hax name-space
+Drupal.hax = Drupal.hax || { functions: {} };
 
-    //exclude older browsers by the features we need them to support
+Drupal.hax.activate = function() {
+  //exclude older browsers by the features we need them to support
     //and legacy opera explicitly so we don't waste time on a dead browser
     if (!document.querySelectorAll ||
       !('draggable' in document.createElement('span')) ||
@@ -24,7 +23,6 @@
         len = targets.length,
         i = 0; i < len; i++) {
       targets[i].setAttribute('aria-dropeffect', 'none');
-      
     }
 
     //get the collection of draggable items and add their draggable attributes
@@ -47,7 +45,6 @@
       droptarget: null
     };
       // That's all.
-   
     //function for selecting an item
     function addSelection(item) {
       //if the owner reference is still null, set it to this item's parent
@@ -85,10 +82,7 @@
     function removeSelection(item) {
       //reset this item's grabbed state
       item.setAttribute('aria-grabbed', 'false');
-      
-       
-      
-      
+
       //then find and remove this item from the existing items array
       for (var len = selections.items.length, i = 0; i < len; i++) {
         if (selections.items[i] == item) {
@@ -524,7 +518,9 @@
       }
 
     }, false);
-
-  })();
+};
+$(document).ready(function() {
+    Drupal.hax.activate();
+});
 
 })(jQuery);
