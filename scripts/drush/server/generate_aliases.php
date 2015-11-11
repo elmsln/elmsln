@@ -53,51 +53,53 @@ function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
     }
     // loop through known stacks
     foreach ($stacks as $stack) {
-      // step through sites directory
-      try {
-        $stackdir = new DirectoryIterator("$root$stack/sites/$stack");
-        while ($stackdir->valid()) {
-          // Look for directories containing a 'settings.php' file
-          if ($stackdir->isDir() && !$stackdir->isDot() && !$stackdir->isLink()) {
-            $group = $stackdir->getBasename();
-            // only include stack if it has things we can step through
-            // this helps avoid issues of unused stacks throwing errors
-            if (file_exists("$root$stack/sites/$stack/$group")) {
-              // build root alias for the stack
-              $pulledauthorities[$stack] = array(
-                'root' => $root . $stack,
-                'uri' => "$stack.$address",
-              );
+      // step through sites directory assuming it isn't the 'default'
+      if ($stack != 'default') {
+        try {
+          $stackdir = new DirectoryIterator("$root$stack/sites/$stack");
+          while ($stackdir->valid()) {
+            // Look for directories containing a 'settings.php' file
+            if ($stackdir->isDir() && !$stackdir->isDot() && !$stackdir->isLink()) {
+              $group = $stackdir->getBasename();
+              // only include stack if it has things we can step through
+              // this helps avoid issues of unused stacks throwing errors
+              if (file_exists("$root$stack/sites/$stack/$group")) {
+                // build root alias for the stack
+                $pulledauthorities[$stack] = array(
+                  'root' => $root . $stack,
+                  'uri' => "$stack.$address",
+                );
 
-              // step through sites directory
-              $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
-              while ($site->valid()) {
-                // Look for directories containing a 'settings.php' file
-                if ($site->isDir() && !$site->isDot() && !$site->isLink()) {
-                  if (file_exists($site->getPathname() . '/settings.php')) {
-                    // Add site alias
-                    $basename = $site->getBasename();
-                    $pulledaliases["$stack.$basename"] = array(
-                      'root' => $root . $stack,
-                      'uri' => "$stack.$address.$basename",
-                    );
+                // step through sites directory
+                $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
+                while ($site->valid()) {
+                  // Look for directories containing a 'settings.php' file
+                  if ($site->isDir() && !$site->isDot() && !$site->isLink()) {
+                    if (file_exists($site->getPathname() . '/settings.php')) {
+                      // Add site alias
+                      $basename = $site->getBasename();
+                      $pulledaliases["$stack.$basename"] = array(
+                        'root' => $root . $stack,
+                        'uri' => "$stack.$address.$basename",
+                      );
+                    }
                   }
+                  $site->next();
                 }
-                $site->next();
+              }
+              // account for stacks that function more like CIS
+              if (file_exists("$root$stack/sites/$stack/$group/settings.php")) {
+                $pulledaliases["$stack.$group"] = array(
+                  'root' => $root . $stack,
+                  'uri' => "$stack.$address",
+                );
               }
             }
-            // account for stacks that function more like CIS
-            if (file_exists("$root$stack/sites/$stack/$group/settings.php")) {
-              $pulledaliases["$stack.$group"] = array(
-                'root' => $root . $stack,
-                'uri' => "$stack.$address",
-              );
-            }
+            $stackdir->next();
           }
-          $stackdir->next();
+        } catch (Exception $e) {
+          // that tool doesn't have a directory, oh well
         }
-      } catch (Exception $e) {
-        // that tool doesn't have a directory, oh well
       }
     }
   }
