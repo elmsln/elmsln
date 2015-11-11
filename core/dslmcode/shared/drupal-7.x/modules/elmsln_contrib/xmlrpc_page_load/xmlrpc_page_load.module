@@ -54,9 +54,6 @@ function _xmlrpc_page_load($variables) {
       $tmp = $user->uid;
       // kids, don't try this at home
       $user = user_load($uid);
-      // now we can fake the bootstrap to improve the cache seeding
-      module_invoke_all('boot');
-      module_invoke_all('init');
     }
     // render the page; if successful, this actually throws a -32700 parse error
     _xmlrpc_page_load_menu_execute_active_handler($path);
