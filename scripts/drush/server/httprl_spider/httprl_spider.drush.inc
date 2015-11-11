@@ -111,8 +111,6 @@ function drush_httprl_spider_httprl_self_request($path = '', $delay_request = FA
   if (drush_get_option('nonblocking')) {
     $options['blocking'] = FALSE;
   }
-  // build path to request
-  $url = httprl_build_url_self($path);
   // support for the xmlrpc page load module
   $xmlrpc = FALSE;
   // allow for xmlrpc page load module in batch or directly
@@ -133,7 +131,9 @@ function drush_httprl_spider_httprl_self_request($path = '', $delay_request = FA
       )),
     );
     // modify url to include xmlrpc instead
-    $url = str_replace($path, '', $url) . '/xmlrpc.php';
+    global $base_url;
+    $url = $base_url . '/xmlrpc.php';
+    drush_print($url);
     $response = xmlrpc($url, $xmlrpcargs);
     global $base_url;
     if ($response === FALSE) {
@@ -150,6 +150,8 @@ function drush_httprl_spider_httprl_self_request($path = '', $delay_request = FA
     }
   }
   else {
+    // build path to request
+    $url = httprl_build_url_self($path);
     // Queue up the request
     httprl_request($url, $options);
     // Execute requests unless told to delay processing
