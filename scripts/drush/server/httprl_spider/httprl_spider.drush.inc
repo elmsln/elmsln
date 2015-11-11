@@ -133,7 +133,6 @@ function drush_httprl_spider_httprl_self_request($path = '', $delay_request = FA
     // modify url to include xmlrpc instead
     global $base_url;
     $url = $base_url . '/xmlrpc.php';
-    drush_print($url);
     $response = xmlrpc($url, $xmlrpcargs);
     global $base_url;
     if ($response === FALSE) {
