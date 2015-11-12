@@ -215,9 +215,12 @@ function foundation_access_preprocess_node__inherit__svg(&$variables) {
   $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
 
   try {
-    // get the url of the svg
+    // get the url of the svg file
     $svg_file = ($node_wrapper->field_svg->value() ? $node_wrapper->field_svg->file->url->value() : NULL);
-    $variables['svg'] = file_get_contents($svg_file);
+    // get the contents of the file
+    $svg_contents = file_get_contents($svg_file);
+    // remove all non-whitelisted elements from the svg
+    $variables['svg'] = filter_xss($svg_contents, _foundation_access_svg_whitelist_tags());
 
     // if there is an accessbile text alternative then set the svg to aria-hidden
     if ($node_wrapper->field_svg_alttext->value()) {
@@ -476,4 +479,95 @@ function foundation_access_breadcrumb($variables) {
 
     return $breadcrumbs;
   }
+}
+
+/**
+ * Helper function for return a whitelist of allowed tags that can be
+ * present in an SVG file.
+ */
+function _foundation_access_svg_whitelist_tags() {
+  $allowed_tags = array(
+    'animate',
+    'animateColor',
+    'animateMotion',
+    'animateTransform',
+    'mpath',
+    'set',
+    'circle',
+    'ellipse',
+    'line',
+    'polygon',
+    'polyline',
+    'rect',
+    'a',
+    'defs',
+    'glyph',
+    'g',
+    'marker',
+    'mask',
+    'missing-glyph',
+    'pattern',
+    'svg',
+    'switch',
+    'symbol',
+    'desc',
+    'metadata',
+    'title',
+    'feBlend',
+    'feColorMatrix',
+    'feComponentTransfer',
+    'feComposite',
+    'feConvolveMatrix',
+    'feDiffuseLighting',
+    'feDisplacementMap',
+    'feFlood',
+    'feFuncA',
+    'feFuncB',
+    'feFuncG',
+    'feFuncR',
+    'feGaussianBlur',
+    'feImage',
+    'feMerge',
+    'feMergeNode',
+    'feMorphology',
+    'feOffset',
+    'feSpecularLighting',
+    'feTile',
+    'feTurbulence',
+    'font',
+    'font-face',
+    'font-face-format',
+    'font-face-name',
+    'font-face-src',
+    'font-face-uri',
+    'hkern',
+    'vkern',
+    'linearGradient',
+    'radialGradient',
+    'stop',
+    'image',
+    'path',
+    'text',
+    'use',
+    'feDistantLight',
+    'fePointLight',
+    'feSpotLight',
+    'altGlyph',
+    'altGlyphDef',
+    'altGlyphItem',
+    'glyphRef',
+    'textPath',
+    'tref',
+    'tspan',
+    'clipPath',
+    'color-profile',
+    'cursor',
+    'filter',
+    'foreignObject',
+    'script',
+    'style',
+    'view',
+  );
+
+  return $allowed_tags;
 }
