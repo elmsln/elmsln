@@ -24,6 +24,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'style' => '',
       ),
       'identifier' => 'menu-cis-add_audio:node/add/audio',
+      'fa_icon' => 'page',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -47,6 +48,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'style' => '',
       ),
       'identifier' => 'menu-cis-add_document:node/add/document',
+      'fa_icon' => 'page',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -70,6 +72,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'style' => '',
       ),
       'identifier' => 'menu-cis-add_external-video:node/add/external-video',
+      'fa_icon' => 'page',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -93,6 +96,30 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'style' => '',
       ),
       'identifier' => 'menu-cis-add_image:node/add/elmsmedia-image',
+      'fa_icon' => 'page',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => 0,
+    'customized' => 1,
+  );
+  // Exported menu link: menu-cis-add_svg:node/add/svg
+  $menu_links['menu-cis-add_svg:node/add/svg'] = array(
+    'menu_name' => 'menu-cis-add',
+    'link_path' => 'node/add/svg',
+    'router_path' => 'node/add/svg',
+    'link_title' => 'SVG',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'identifier' => 'menu-cis-add_svg:node/add/svg',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -116,6 +143,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'style' => '',
       ),
       'identifier' => 'menu-cis-add_video:node/add/video',
+      'fa_icon' => 'page',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -139,6 +167,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'style' => '',
       ),
       'identifier' => 'menu-elmsmedia-navigation_asset-overview:media-overview',
+      'fa_icon' => 'page',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -162,6 +191,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'style' => '',
       ),
       'identifier' => 'menu-elmsmedia-navigation_course-list:courses',
+      'fa_icon' => 'page',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -171,6 +201,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Asset overview');
@@ -179,8 +210,8 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
   t('Document');
   t('External Video');
   t('Image');
+  t('SVG');
   t('Video');
-
 
   return $menu_links;
 }
