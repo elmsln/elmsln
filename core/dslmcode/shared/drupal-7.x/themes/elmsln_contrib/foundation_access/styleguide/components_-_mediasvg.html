@@ -195,6 +195,10 @@
 <p>This is a simple design component that defines a single svg file and optional svg-alt text.<br>
 If the alt-text is provided then we will add the <code>aria-hidden</code> attribute as well as the <code>svg__alttext</code>.
 By default the svg is centered.</p>
+
+<p>The SVG can also be inlined instead of being loaded through an <code>img</code> tag. To do this, simply wrap the
+inline SVG inside of a conatainer with the class of <code>mediasvg__img</code>. Be sure to also include the <code>aria-hidden</code>
+attribute if their is alternative text present.</p>
 </div><div class="codeExample"><div class="exampleOutput"><div class="mediasvg">
   <img class="mediasvg__img" aria-hidden="true" src="https://www.drupal.org/files/druplicon.vector.svg">
   <div class="mediasvg__alttext">Drupal Logo</div>

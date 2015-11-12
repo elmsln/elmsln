@@ -214,12 +214,24 @@ function foundation_access_preprocess_node__inherit__svg(&$variables) {
   $variables['svg_alttext'] = NULL;
   $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
 
-  // get the url of the svg
-  $variables['svg_url'] = ($node_wrapper->field_svg->value() ? $node_wrapper->field_svg->file->url->value() : NULL);
-  // if there is an accessbile text alternative se tthe svg to aria-hidden
-  if ($node_wrapper->field_svg_alttext->value()) {
-    $variables['svg_aria_hidden'] = 'true';
-    $variables['svg_alttext'] = $node_wrapper->field_svg_alttext->value();
+  try {
+    // get the url of the svg
+    $svg_file = ($node_wrapper->field_svg->value() ? $node_wrapper->field_svg->file->url->value() : NULL);
+    $variables['svg'] = file_get_contents($svg_file);
+
+    // if there is an accessbile text alternative then set the svg to aria-hidden
+    if ($node_wrapper->field_svg_alttext->value()) {
+      $variables['svg_aria_hidden'] = 'true';
+      $variables['svg_alttext'] = $node_wrapper->field_svg_alttext->value();
+    } 
+  } 
+  catch (EntityMetadataWrapperException $exc) {
+    watchdog(
+      'foundation_access',
+      'EntityMetadataWrapper exception in %function() <pre>@trace</pre>',
+      array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
+      WATCHDOG_ERROR
+    );
   }
 }
 
