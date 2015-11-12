@@ -8781,6 +8781,38 @@ This is an inline SVG that can be used in any rich text area.
   width: 100%;
   height: auto; }
 
+/*doc
+---
+title: Figure Label
+name: 1figurelabel
+category:
+  - Components - FigureLabel
+---
+
+The figure label component is used to present textbook like captions to media elements.
+
+```html_example
+<div class="figurelabel">
+  <div class="figurelabel__title">Figure F03-5-1</div>
+  <div class="figurelabel__desc"><a href="http://ed.ted.com/lessons/the-science-of-macaroni-salad-what-s-in-a-molecule-josh-kurz"
+  >The science of macaroni salad: What's in a molecule?</a></div>
+</div>
+```
+*/
+.figurelabel {
+  font-size: .75em;
+  margin-bottom: 1em; }
+  .figurelabel > * {
+    padding: 0.8em 1em;
+    border: 1px solid #F2F2F2; }
+  .figurelabel__title {
+    float: left;
+    background: #F2F2F2; }
+  .figurelabel__desc {
+    float: left;
+    border: 1px solid #F2F2F2;
+    border-radius: .1em; }
+
 .tab-bar a.add-menu-drop {
   margin: 0 0.3rem;
   height: 2.8125rem;
