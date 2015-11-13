@@ -137,7 +137,7 @@ function _hax_toolbar_groups() {
   $groups = array(
     t('Container') => array(),
     t('Content') => array(),
-    t('Layout') => array()
+    t('Layouts') => array()
   );
   // allow people to alter the groupings if needed
   drupal_alter('hax_toolbar_groups', $groups);
