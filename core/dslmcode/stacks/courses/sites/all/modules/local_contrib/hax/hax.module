@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Headless Authoring eXperience
@@ -71,6 +70,7 @@ function _hax_get_tools() {
 function _hax_render_toolbar() {
   // load css / js we need for the toolbar
   drupal_add_css(drupal_get_path('module', 'hax') . '/css/hax-toolbar.css');
+  drupal_add_css('http://cdnjs.cloudflare.com/ajax/libs/foundicons/3.0.0/foundation-icons.css');
   drupal_add_js(drupal_get_path('module', 'hax') . '/js/hax-toolbar.js');
   // load in all the tools
   $tools = _hax_get_tools();
@@ -82,6 +82,9 @@ function _hax_render_toolbar() {
   $other_groups = array();
   // start to form the toolbar
   $toolbar = '<div class="hax-toolbar">';
+  // add the form submission stuff
+  $form = drupal_get_form('hax_page_edit_form');
+  $toolbar .= drupal_render($form);
   // organize the tools into groups
   foreach ($tools as $key => $tool) {
     // this is a core grouping item, add it to the known groups
@@ -146,9 +149,19 @@ function _hax_toolbar_groups() {
  * @return array an array of tool definitions
  */
 function hax_hax_tools() {
+  $tools['hax-core-row'] = array(
+    'group' => t('Container'),
+    'name' => t('Row'),
+    'type' => 'row',
+    'description' => t('Row'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<div class="row layout-garage"><div class="columns small-12 sub-target" data-draggable="target"></div></div>',
+  );
   $tools['hax-core-container-12'] = array(
     'group' => t('Container'),
     'name' => t('Wide'),
+    'type' => 'column',
     'description' => t('12 column container you can drop content into'),
     'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
     'action' => 'insert',
@@ -157,6 +170,7 @@ function hax_hax_tools() {
   $tools['hax-core-container-6'] = array(
     'group' => t('Container'),
     'name' => t('Half'),
+    'type' => 'column',
     'description' => t('6 column container you can drop content into'),
     'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
     'action' => 'insert',
@@ -165,6 +179,7 @@ function hax_hax_tools() {
   $tools['hax-core-container-3'] = array(
     'group' => t('Container'),
     'name' => t('Quarter'),
+    'type' => 'column',
     'description' => t('3 column container you can drop content into'),
     'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
     'action' => 'insert',
@@ -173,6 +188,7 @@ function hax_hax_tools() {
   $tools['hax-core-content-paragraph'] = array(
     'group' => t('Content'),
     'name' => t('Paragraph'),
+    'type' => 'content',
     'description' => t('Simple paragraph of text to modify'),
     'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
     'action' => 'insert',
@@ -181,6 +197,7 @@ function hax_hax_tools() {
   $tools['hax-core-content-heading'] = array(
     'group' => t('Content'),
     'name' => t('Heading'),
+    'type' => 'content',
     'description' => t('Simple heading to modify'),
     'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
     'action' => 'insert',
@@ -189,6 +206,7 @@ function hax_hax_tools() {
   $tools['hax-core-content-subheading'] = array(
     'group' => t('Content'),
     'name' => t('Subheading'),
+    'type' => 'content',
     'description' => t('Simple subheading to modify'),
     'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
     'action' => 'insert',
@@ -198,10 +216,55 @@ function hax_hax_tools() {
   $tools['hax-core-template-1'] = array(
     'group' => t('Layouts'),
     'name' => t('Template 1'),
-    'description' => t('A simple two column layout with an image.'),
+    'description' => t('A simple template.'),
     'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
     'action' => 'insert',
     'markup' => _hax_load_template('hax-core-template-1'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-template-2'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Template 2'),
+    'description' => t('A simple layout.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-template-2'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-template-3'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Template 3'),
+    'description' => t('A simple layout.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-template-3'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-template-4'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Template 4'),
+    'description' => t('A simple template.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-template-4'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-images-1'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Images 1'),
+    'description' => t('A simple template.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-images-1'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-images-2'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Images 2'),
+    'description' => t('A simple template.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-images-2'),
   );
   return $tools;
 }

@@ -11,6 +11,7 @@
  * --- group: group to display in the toolbar
  * --- name: Name for the item
  * --- description: Longer description of what it does
+ * --- type: row, column or content
  * --- icon: icon for the button
  * --- action: action to take, insert simply injects markup
  * --- markup: optional, markup to insert
@@ -21,6 +22,7 @@ function hook_hax_tool() {
     'group' => t('Layout'),
     'name' => t('Template 1'),
     'description' => t('A simple layout element with an image'),
+    'type' => 'container',
     'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
     'action' => 'insert',
     'markup' => _hax_load_template('hax-core-template1'),
