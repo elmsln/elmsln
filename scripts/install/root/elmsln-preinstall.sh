@@ -140,7 +140,7 @@ else
   elmslnecho "where is crontab? ex: /etc/crontab (empty to skip)"
   read crontab
 
-  elmslnecho "where should elmsln apache elmsln.conf files live? ex: /etc/httpd/conf.d/elmsln.conf (empty to skip)"
+  elmslnecho "where should elmsln apache conf elmsln.conf files live? ex: /etc/httpd/conf.d/elmsln.conf (empty to skip)"
   read domains
 
   elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf (empty to skip)"
@@ -282,6 +282,7 @@ fi
 
 if [[ -n "$domains" ]]; then
   # try to automatically author the domains file(s)
+  # @todo replace this part with the ability to split each domain off into its own conf file
   cp /var/www/elmsln/scripts/server/domains.txt "$domains"
   # replace servicedomain partial with what was entered above
   sed -e "s/SERVICEYOURUNIT.edu/${serviceaddress}/g" $domains > "${domains}.tmp" && mv "${domains}.tmp" $domains
