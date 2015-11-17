@@ -132,15 +132,15 @@ if [ ! -d "$elmsln/domains/$domain" ]; then
 fi
 
 # update the documentation file on apache config
-echo "<VirtualHost *:80>" >>  $elmsln/scripts/server/domains.txt
-echo "    DocumentRoot /var/www/elmsln/domains/$domain" >> $elmsln/scripts/server/domains.txt
-echo "    ServerName $domain.${address}.edu" >> $elmsln/scripts/server/domains.txt
-echo "    ServerAlias ${serviceprefix}${domain}.${serviceaddress}.edu" >> $elmsln/scripts/server/domains.txt
-echo "</VirtualHost>" >> $elmsln/scripts/server/domains.txt
-echo "<Directory /var/www/elmsln/domains/$domain>" >> $elmsln/scripts/server/domains.txt
-echo "    AllowOverride All" >> $elmsln/scripts/server/domains.txt
-echo "    Order allow,deny" >> $elmsln/scripts/server/domains.txt
-echo "    allow from all" >> $elmsln/scripts/server/domains.txt
-echo "</Directory>" >> $elmsln/scripts/server/domains.txt
+echo "<VirtualHost *:80>" >>  "$elmsln/scripts/server/domains/${domain}.conf"
+echo "    DocumentRoot /var/www/elmsln/domains/$domain" >> "$elmsln/scripts/server/domains/${domain}.conf"
+echo "    ServerName $domain.${address}.edu" >> "$elmsln/scripts/server/domains/${domain}.conf"
+echo "    ServerAlias ${serviceprefix}${domain}.${serviceaddress}.edu" >> "$elmsln/scripts/server/domains/${domain}.conf"
+echo "</VirtualHost>" >> "$elmsln/scripts/server/domains/${domain}.conf"
+echo "<Directory /var/www/elmsln/domains/$domain>" >> "$elmsln/scripts/server/domains/${domain}.conf"
+echo "    AllowOverride All" >> "$elmsln/scripts/server/domains/${domain}.conf"
+echo "    Order allow,deny" >> "$elmsln/scripts/server/domains/${domain}.conf"
+echo "    allow from all" >> "$elmsln/scripts/server/domains/${domain}.conf"
+echo "</Directory>" >> "$elmsln/scripts/server/domains/${domain}.conf"
 
 elmslnecho "The tool named $domain has now been added to the ELMSLN structure."

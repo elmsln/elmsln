@@ -97,8 +97,7 @@ fi
 # todo, need to issue a registry resync against CIS
 # this will activate the new service once we've populated the info above
 elmslnecho "The tool named $domain has now been added to the ELMSLN structure, but the URLs associated to it are not active."
-elmslnecho "You should review $elmsln/scripts/server/domains.txt for how to hook it up to apache."
-elmslnecho "You'll want to add something like the following to /etc/httpd/conf.d/elmsln.conf"
+elmslnecho "You should review $elmsln/scripts/server/domains/${domain}.conf for how to hook it up to apache."
 elmslnecho "<VirtualHost *:80>"
 elmslnecho "    DocumentRoot $elmsln/domains/$domain"
 elmslnecho "    ServerName $domain.${address}"
