@@ -162,8 +162,16 @@ function _cis_lmsless_theme_vars() {
     }
     $distro = variable_get('install_profile', 'standard');
     $reg = _cis_connector_build_registry();
-    $tmp = explode('.', $reg[$distro]['address']);
-    $machine_name = $tmp[0];
+    // make sure this is in the registry
+    if (isset($reg[$distro])) {
+      $tmp = explode('.', $reg[$distro]['address']);
+      $machine_name = $tmp[0];
+      $title = (isset($reg[$distro]['default_title']) ? $reg[$distro]['default_title'] : '');
+    }
+    else {
+      $machine_name = $distro;
+      $title = $distro;#
+    }
     // account for the current service being worked on but not actually
     // being actively used in the section in question
     $current_url = $GLOBALS['base_url'] . '/';
@@ -172,7 +180,7 @@ function _cis_lmsless_theme_vars() {
       $current_url .= $course_context;
     }
     $vars['active'] = array(
-      'title' => (isset($reg[$distro]['default_title']) ? $reg[$distro]['default_title'] : ''),
+      'title' => $title,
       'url' => $current_url,
       'machine_name' => $machine_name,
     );
