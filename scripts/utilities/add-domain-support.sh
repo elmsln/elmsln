@@ -145,12 +145,12 @@ if [ $tooltype == 'authority' ];
   echo ");" >> $sitedir/sites.php
   # set base_url
   echo "\$base_url= '$protocol://$site_domain';" >> $sitedir/$tool/$host/settings.php
-
+  cissettings=${university}_${host}_settings
   # enable the cis_settings registry, set private path then execute clean up routines
-  drush -y --uri=$protocol://$site_domain en $cissettings
-  drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
+  drush -y @${domain} en $cissettings
+  drush -y @${domain} vset file_private_path ${drupal_priv}/$tool/$tool
   # distro specific additional install routine
-  drush -y --uri=$protocol://$site_domain cook elmsln_$dist
+  drush -y @${domain} cook elmsln_$dist
 
   # add in our cache bins now that we know it built successfully
   echo "" >> $sitedir/$tool/$host/settings.php
@@ -181,9 +181,9 @@ if [ $tooltype == 'authority' ];
   # forcibly apply 1st ELMSLN global update since it isn't fixed tools
   # this makes it so that we don't REQUIRE multi-sites to run tools (stupid)
   # while still fixing the issue with httprl when used in multisites
-  drush -y --uri=$protocol://$site_domain cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global
+  drush -y @${domain} cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global
   # ELMSLN clean up for authority distributions (single point)
-  drush -y --uri=$protocol://$site_domain cook elmsln_authority_setup
+  drush -y @${domain} cook elmsln_authority_setup
 fi
 # if its a service instance we need to build a default site for drush
 if [ $tooltype == 'instance' ];
