@@ -38,18 +38,25 @@ if [ -z $elmsln ]; then
   elmslnwarn "You must have a functioning config directory."
   exit 1
 fi
-# test for an argument as to what user to write as
+# if this is an authority of instance, can check but its annoying
 if [ -z $1 ]; then
-  elmslnwarn "You must supply a domain to produce"
-  exit 1
-fi
-# test for an argument as to what user to write as
-if [ -z $2 ]; then
   elmslnwarn "You must supply the type of tool this is, authority or instance?"
   exit 1
 fi
-domain=$1
-tooltype=$2
+# need to know what domain
+if [ -z $2 ]; then
+  elmslnwarn "You must supply the domain to produce"
+  exit 1
+fi
+# need to know what distro to build
+if [ -z $3 ]; then
+  elmslnwarn "You must supply the type of tool this is, authority or instance?"
+  exit 1
+fi
+tooltype=$1
+domain=$2
+tool=$2
+dist=$3
 # check that this domain exists as a stack, otherwise error out
 if [ ! -d "$elmsln/core/dslmcode/stacks/$domain" ]; then
   elmslnwarn "This domain must already exist if we are to correctly discover it."
@@ -89,6 +96,98 @@ if [ ! -d "$elmsln/domains/$domain" ]; then
     cp "courses/.gitignore" "$domain/.gitignore"
     cp "courses/README.txt" "$domain/README.txt"
   fi
+fi
+
+# now build the tool in question and user account
+dbpw=''
+for j in `seq 1 30`
+do
+  let "rand=$RANDOM % 62"
+  dbpw="${dbpw}${char[$rand]}"
+done
+# if authority we need to build the distro
+if [ $tooltype == 'authority' ];
+  then
+  cd "$elmsln/domains/$domain"
+
+  sitedir=${webdir}/${tool}/sites
+  drush site-install ${dist} -y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
+  #move out of $tool site directory to host
+  sudo mkdir -p $sitedir/$tool/$host
+  sudo mkdir -p $sitedir/$tool/$host/files
+  #modify ownership of these directories
+  sudo chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
+  sudo chmod -R 755 $sitedir/$tool/$host/files
+
+  # setup private file directory
+  sudo mkdir -p $drupal_priv/$tool
+  sudo mkdir -p $drupal_priv/$tool/$tool
+  sudo chown -R $wwwuser:$webgroup $drupal_priv
+  sudo chmod -R 755 $drupal_priv
+
+  # copy the default settings file to this location
+  # we leave the original for the time being because this is the first instace
+  # of the system. most likely we'll always need a default to fall back on anyway
+  sudo cp "$sitedir/default/settings.php" "$sitedir/$tool/$host/settings.php"
+  sudo chown $USER:$webgroup $sitedir/default/settings.php
+  sudo chown $USER:$webgroup $sitedir/$tool/$host/settings.php
+  sudo chmod -R 755 $sitedir/$tool/$host/settings.php
+
+  # establish these values real quick so its more readable below
+  site_domain="$tool.${address}"
+  site_service_domain="${serviceprefix}$tool.${serviceaddress}"
+  # add site to the sites array
+  echo "\$sites = array(" >> $sitedir/sites.php
+  echo "  '$site_domain' => '$tool/$host'," >> $sitedir/sites.php
+  echo "  '$site_service_domain' => '$tool/services/$host'," >> $sitedir/sites.php
+  echo ");" >> $sitedir/sites.php
+  # set base_url
+  echo "\$base_url= '$protocol://$site_domain';" >> $sitedir/$tool/$host/settings.php
+
+  # enable the cis_settings registry, set private path then execute clean up routines
+  drush -y --uri=$protocol://$site_domain en $cissettings
+  drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
+  # distro specific additional install routine
+  drush -y --uri=$protocol://$site_domain cook elmsln_$dist
+
+  # add in our cache bins now that we know it built successfully
+  echo "" >> $sitedir/$tool/$host/settings.php
+  echo "" >> $sitedir/$tool/$host/settings.php
+  echo "\$conf['cache_prefix'] = '$tool_$host';" >> $sitedir/$tool/$host/settings.php
+  echo "" >> $sitedir/$tool/$host/settings.php
+  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/$tool/$host/settings.php
+
+  # adding servies conf file
+  if [ ! -d $sitedir/$tool/services/$host ];
+    then
+      sudo mkdir -p $sitedir/$tool/services/$host
+      sudo mkdir -p $sitedir/$tool/services/$host/files
+      sudo chown -R $wwwuser:$webgroup $sitedir/$tool/services/$host/files
+      sudo chmod -R 755 $sitedir/$tool/services/$host/files
+      if [ -f $sitedir/$tool/$host/settings.php ]; then
+        sudo cp $sitedir/$tool/$host/settings.php $sitedir/$tool/services/$host/settings.php
+      fi
+      if [ -f $sitedir/$tool/services/$host/settings.php ]; then
+        sudo chown $USER:$webgroup $sitedir/$tool/services/$host/settings.php
+        echo "" >> $sitedir/$tool/services/$host/settings.php
+        echo "" >> $sitedir/$tool/services/$host/settings.php
+        echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/$tool/services/$host/settings.php
+      fi
+  fi
+  # make sure everything in that folder is as it should be ownerwise
+  sudo chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
+  # forcibly apply 1st ELMSLN global update since it isn't fixed tools
+  # this makes it so that we don't REQUIRE multi-sites to run tools (stupid)
+  # while still fixing the issue with httprl when used in multisites
+  drush -y --uri=$protocol://$site_domain cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global
+  # ELMSLN clean up for authority distributions (single point)
+  drush -y --uri=$protocol://$site_domain cook elmsln_authority_setup
+fi
+# if its a service instance we need to build a default site for drush
+if [ $tooltype == 'instance' ];
+  then
+  cd "$elmsln/core/dslmcode/stacks/$domain"
+  drush site-install -y --db-url=mysql://${domain}_${host}_dbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 fi
 
 # todo, still need to re-up the _elmsln_scripted key that's been generated
