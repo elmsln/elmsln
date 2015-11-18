@@ -60,7 +60,7 @@ To connect to the console of your instance: `vagrant ssh`
 This project is based on the [Vagrant Project](http://drupal.org/project/vagrant) on Drupal.org, but includes a number of tweaks.  It has been optimized and heavily tested for use with ELMS Learning Network.  It's what [@btopro](http://twitter.com/btopro) uses in daily testing and development and the drop dead easiest way to get up and running with such a complex system.
 
 ###Other projects of interest / that this is based on
-
+*  If your having issues with Vagrant in general, try installing this plugin https://github.com/dotless-de/vagrant-vbguest
 *  [https://github.com/msonnabaum/drupalcon-training-chef-repo](https://github.com/msonnabaum/drupalcon-training-chef-repo)
 *  [http://drupal.org/sandbox/mbutcher/1356522](http://drupal.org/sandbox/mbutcher/1356522)
 *  [http://drupal.org/project/drush-vagrant](http://drupal.org/project/drush-vagrant)
