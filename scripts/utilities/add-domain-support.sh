@@ -189,7 +189,7 @@ fi
 if [ $tooltype == 'instance' ];
   then
   cd "$elmsln/core/dslmcode/stacks/$domain"
-  drush site-install -y --db-url=mysql://${domain}_${host}_dbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
+  drush site-install -y --db-url=mysql://${domain}_${host}_dbo:$dbpw@127.0.0.1/default_${domain} --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 fi
 
 # todo, still need to re-up the _elmsln_scripted key that's been generated
