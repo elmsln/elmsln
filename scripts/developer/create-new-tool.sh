@@ -60,7 +60,7 @@ if [ ! -d "$configsdir/stacks/$domain" ]; then
   cp "$elmsln/core/dslmcode/cores/drupal-7/sites/default/default.settings.php" "$configsdir/stacks/$domain/sites/default/default.settings.php"
   mkdir "$configsdir/stacks/$domain/sites/$domain"
   # get favicon in place
-  cp "$elmsln/scripts/server/assets/favicon.png" "$configsdir/stacks/$domain/favicon.ico"
+  cp "$elmsln/scripts/server/assets/favicon.ico" "$configsdir/stacks/$domain/favicon.ico"
   cp "$elmsln/core/dslmcode/cores/drupal-7/.htaccess" "$configsdir/stacks/$domain/.htaccess"
   # copy sites.php example then write into it at bottom
   cp "$elmsln/core/dslmcode/cores/drupal-7/sites/example.sites.php" "$configsdir/stacks/$domain/sites/sites.php"
