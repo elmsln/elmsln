@@ -1,0 +1,286 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the CDN module.
+ */
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function cdn_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'cdn_%%'");
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function cdn_requirements($phase) {
+  module_load_include('module', 'cdn');
+
+  $requirements = array();
+  $t = get_t();
+
+  switch ($phase) {
+    case 'install' :
+    case 'runtime' :
+      // CDN  status.
+      $status = variable_get(CDN_STATUS_VARIABLE, CDN_DISABLED);
+      $mode   = variable_get(CDN_MODE_VARIABLE, CDN_MODE_BASIC);
+
+      $requirements['cdn']['title'] = $t('CDN');
+
+      // Set the basic info: disabled/testing/enabled.
+      if ($status == CDN_DISABLED) {
+        $requirements['cdn'] += array(
+          'description' => $t('CDN integration is disabled for all users.'),
+          'severity'    => REQUIREMENT_WARNING,
+        );
+        $requirements['cdn']['value'] = $t('Disabled');
+      }
+      elseif ($status == CDN_TESTING) {
+        $requirements['cdn'] += array(
+          'description' => $t(
+            'CDN integration is only enabled for users with the
+            %cdn-testing-mode-permission permission',
+            array('%cdn-testing-mode-permission' => CDN_PERM_ACCESS_TESTING)
+          ),
+          'severity' => REQUIREMENT_WARNING,
+        );
+        $requirements['cdn']['value'] = $t('Testing');
+      }
+      else {
+        $requirements['cdn'] += array(
+          'description' => $t('CDN integration is enabled for all users.'),
+          'severity'    => REQUIREMENT_OK,
+        );
+        $requirements['cdn']['value'] = $t('Enabled');
+      }
+
+      // When enabled, add more information.
+      if ($status != CDN_DISABLED) {
+        if ($mode == CDN_MODE_BASIC) {
+          $requirements['cdn']['value'] .= ' – ' . t('Origin Pull mode');
+          $farfuture = variable_get(CDN_BASIC_FARFUTURE_VARIABLE, CDN_BASIC_FARFUTURE_DEFAULT);
+          $preprocess_css = variable_get('preprocess_css');
+
+          if (!$preprocess_css) {
+            $args = array(
+              '!preprocess-css-link' => l(
+                '"Aggregate and compress CSS files"',
+                'admin/config/development/performance',
+                array('fragment' => 'edit-bandwidth-optimization')
+              ),
+            );
+            if ($farfuture) {
+              $requirements['cdn']['description'] = t(
+                'CSS aggregation is disabled. Files referenced by CSS files
+                will fail to load!<br />
+                Please enable the !preprocess-css-link performance setting.',
+                $args
+              );
+              $requirements['cdn']['severity'] = REQUIREMENT_ERROR;
+            }
+            else {
+              $requirements['cdn']['description'] = t(
+                'CSS aggregation is disabled. Files referenced by CSS files
+                such as background images and fonts will <em>not</em> be
+                served from the CDN!<br />
+                Please consider enabling the !preprocess-css-link performance
+                setting.',
+                $args
+              );
+              $requirements['cdn']['severity'] = REQUIREMENT_WARNING;
+            }
+          }
+
+          if ($farfuture) {
+            $requirements['cdn']['value'] .= ' (' . t('with Far Future expiration') . ')';
+          }
+          else {
+            $requirements['cdn']['value'] .= ' (' . t('without Far Future expiration') . ')';
+          }
+        }
+        else {
+          $requirements['cdn']['value'] .= ' – ' . t('File Conveyor mode');
+
+          $items = array();
+
+          $daemon_pid_file = variable_get(CDN_ADVANCED_PID_FILE_VARIABLE, FALSE);
+          $synced_files_db = variable_get(CDN_ADVANCED_SYNCED_FILES_DB_VARIABLE, FALSE);
+
+          if ($synced_files_db !== FALSE) {
+            $persistent_data_db = str_replace(CDN_DAEMON_SYNCED_FILES_DB, CDN_DAEMON_PERSISTENT_DATA_DB, $synced_files_db);
+            $drupal_root_path = variable_get(CDN_DRUPAL_ROOT_VARIABLE, realpath('.'));
+
+            $synced_files_db_exists      = file_exists($synced_files_db);
+            $synced_files_db_readable    = @fopen($synced_files_db, 'r');
+            $persistent_data_db_exists   = file_exists($persistent_data_db);
+            $persistent_data_db_readable = @fopen($persistent_data_db, 'r');
+            $daemon_pid_file_exists      = file_exists($daemon_pid_file);
+
+            cdn_load_include('advanced');
+            $db = _cdn_advanced_get_db_connection();
+            if ($db !== FALSE) {
+              $input_file_mask = $drupal_root_path . '%';
+              $sql = "SELECT COUNT(*) AS count, server
+                      FROM synced_files
+                      WHERE input_file LIKE :input_file
+                      GROUP BY server";
+              $stmt = $db->prepare($sql);
+              $stmt->bindParam(':input_file', $input_file_mask, PDO::PARAM_STR);
+              $stmt->execute();
+              $result = $stmt->fetchAll();
+              $synced_file_stats = $result;
+            }
+
+            if ($persistent_data_db_exists && $persistent_data_db_readable) {
+              try {
+                $db = new PDO('sqlite:' . $persistent_data_db);
+              } catch (PDOException $e) {
+                $items[] = t("Could not connect to persistent data database.");
+              }
+              if ($db !== FALSE) {
+                $sql = "SELECT COUNT(*)
+                        FROM pipeline_queue";
+                $stmt = $db->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->fetchAll();
+                $pipeline_queue_count = $result[0][0];
+
+                $sql = "SELECT COUNT(*)
+                        FROM pipeline_list";
+                $stmt = $db->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->fetchAll();
+                $pipeline_list_count = $result[0][0];
+              }
+            }
+
+            $items[] = ($synced_files_db_exists) ? t('The synced files database exists.') : t("The synced files database doesn't exist.");
+            $items[] = ($synced_files_db_readable) ? t('The synced files database is readable.') : t("The synced files database isn't readable.");
+            if ($synced_files_db_readable) {
+              foreach ($synced_file_stats as $row) {
+                $items[] = t('!synced-file-count files have been synced to the %server server.', array('!synced-file-count' => $row['count'], '%server' => $row['server']));
+              }
+            }
+            else {
+              $items[] = t("Number of synced files is unknown.");
+            }
+            $items[] = ($daemon_pid_file_exists) ? t('File Conveyor is currently running.') : '<strong>' . t('File Conveyor is currently not running.') . '</strong>';
+            if (isset($pipeline_queue_count)) {
+              $items[] = t("!pipeline-queue-count files are waiting to be synced.", array('!pipeline-queue-count' => $pipeline_queue_count));
+              $items[] = t("!pipeline-list-count files are currently being synced.", array('!pipeline-list-count' => $pipeline_list_count));
+            }
+
+            // If either of these 3 checks failed, mark this requirement's
+            // severity as being an error.
+            if (!($synced_files_db_exists && $synced_files_db_readable && $daemon_pid_file_exists)) {
+              $requirements['cdn']['severity'] = REQUIREMENT_ERROR;
+            }
+          }
+          else {
+            $items[] = t('The synced files database setting has not yet been configured.');
+            $requirements['cdn']['severity'] = REQUIREMENT_ERROR;
+          }
+
+          $requirements['cdn']['description'] .= '<br />' . theme('item_list', array('items' => $items));
+        }
+      }
+  }
+
+  return $requirements;
+}
+
+
+//----------------------------------------------------------------------------
+// Update hooks.
+
+/**
+ * In version 2 of the CDN integration module, basic mode is more flexible
+ * than in version 1: there now is the ability to have multiple CDN URLs.
+ */
+function cdn_update_6200() {
+  $url  = variable_get('cdn_basic_url', '');
+  $exts = variable_get('cdn_basic_extensions', '');
+
+  // Store URL variable in new format, then delete old variables.
+  $cdn_basic_mapping = $url;
+  if (!empty($exts)) {
+    $cdn_basic_mapping .= '|' . $exts;
+  }
+  variable_set('cdn_basic_mapping', $url . '|' . $exts);
+  variable_del('cdn_basic_url');
+  variable_del('cdn_basic_extensions');
+
+  return t('Updated variables to allow for multiple Origin Pull CDN URLs instead of just one.');
+}
+
+/**
+ * More consistent variable names: upgrade path.
+ */
+function cdn_update_6201() {
+  $cdn_exception_path_blacklist = variable_get('cdn_exclusion');
+  variable_del('cdn_exclusion');
+  if (isset($cdn_exception_path_blacklist)) {
+    variable_set('cdn_exception_path_blacklist', $cdn_exception_path_blacklist);
+  }
+
+  $cdn_exception_auth_users_blacklist = variable_get('cdn_exclusion_logged_in');
+  variable_del('cdn_exclusion_logged_in');
+  if (isset($cdn_exception_auth_users_blacklist)) {
+    variable_set('cdn_exception_auth_users_blacklist', $cdn_exception_auth_users_blacklist);
+  }
+
+  return t('Updated variables (internal name changes only, for improved consistency).');
+}
+
+/**
+ * CDN must run after JavaScript aggregator (weight 9999) in fallback mode.
+ */
+function cdn_update_6202() {
+  db_query("UPDATE {system} SET weight = 10000 WHERE name = 'cdn'");
+  // update.php runs drupal_rebuild_theme_registry();
+
+  return t('Ensured the CDN module runs after the JavaScript aggregator module.');
+}
+
+/**
+ * More consistent variable names: upgrade path.
+ */
+function cdn_update_6203() {
+  db_query("UPDATE {variable} SET name = 'cdn_exception_file_path_blacklist' WHERE name = 'cdn_exception_path_blacklist'");
+  db_query("UPDATE {variable} SET name = 'cdn_exception_file_path_whitelist' WHERE name = 'cdn_exception_path_whitelist'");
+
+  return t('Updated variables (internal name changes only, for improved consistency).');
+}
+
+/**
+ * Fallback mode is not needed in Drupal 7, hence also no more need for an
+ * altered module weight.
+ */
+function cdn_update_7200() {
+  db_query("UPDATE {system} SET weight = 0 WHERE name = 'cdn'");
+}
+
+/**
+ * New: File Conveyor PID file variable.
+ */
+function cdn_update_7210() {
+  $ret = array();
+
+  if (variable_get('cdn_mode', FALSE) == 'advanced') {
+    // Only do this if cdn_update_6210() for the Drupal 6 version of this
+    // module hasn't run.
+    if (variable_get('cdn_advanced_pid_file', FALSE) != FALSE) {
+      $synced_files_db = variable_get('cdn_advanced_synced_files_db', FALSE);
+      $daemon_pid_file = str_replace('synced_files.db', 'daemon.pid', $synced_files_db);
+      variable_set('cdn_advanced_pid_file', $daemon_pid_file);
+
+      $ret[] = array('success' => TRUE, 'query' => 'Created File Conveyor PID file variable.');
+    }
+  }
+
+  return $ret;
+}

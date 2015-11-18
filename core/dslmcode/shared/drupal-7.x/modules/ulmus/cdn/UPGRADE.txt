@@ -1,0 +1,1 @@
+No upgrade notes required for the Drupal 7 version of this module … yet.

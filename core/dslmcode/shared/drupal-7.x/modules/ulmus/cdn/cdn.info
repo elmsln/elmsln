@@ -1,0 +1,14 @@
+name = CDN
+description = "Integrates your site with a CDN, through altering file URLs."
+
+core = 7.x
+package = Performance and scalability
+configure = admin/config/development/cdn
+files[] = cdn.test
+
+; Information added by drupal.org packaging script on 2013-03-10
+version = "7.x-2.6"
+core = "7.x"
+project = "cdn"
+datestamp = "1362918918"
+

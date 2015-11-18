@@ -1,0 +1,33 @@
+<p><strong>By default, some (mostly JavaScript) files are excluded. This is necessary to ensure a painless out-of-the-box experience.</strong> For maximum performance, you should only exclude problematic JavaScript files.<br />
+Finally, when any of the pages of the Drupal back-end (admin section) are used, CDN integration is disabled by default.</p>
+
+<u>Detailed explanation</u>
+<p>It's necessary prevent any possible cross-domain AJAX requests, which would violate the <a href="http://en.wikipedia.org/wiki/Same_origin_policy">same origin policy</a> of browsers. Such violations potentially result in broken functionality. Note that <strong>even requests to subdomains such as cdn.yourdomain.com count as cross-domain requests!</strong></p>
+<p>You can opt-in to including JavaScript files by default and then exclude problematic ones, but then you should carefully note which JavaScript files perform AJAX requests. You can prevent all potential problems by using <a href="http://en.wikipedia.org/wiki/JSON#JSONP">JSONP</a>, which is a work-around to allow for cross-domain AJAX requests.</p>
+
+
+<h2>File URL</h2>
+
+<h3>Blacklist</h3>
+<p>A user-configurable blacklist.</p>
+
+<h3>Blacklist from modules</h3>
+<p>The CDN module blacklists the following files by default:
+<ul>
+	<li>WYSIWYG JavaScript files</li>
+	<li>Image CAPTCHA image files (because they need to be generated dynamically every time and thus can not be cached)</li>
+</ul>
+</p>
+<p><u>Note:</u> If you develop a module that ships with JavaScript files that should not be served from a CDN, you can implement the <tt>hook_cdn_blacklist()</tt> hook to automatically blacklist those files.</p>
+
+
+<h3>Whitelist</h3>
+<p>Drupal core JavaScript files are whitelisted.</p>
+
+
+<h2>Drupal path</h2>
+<p>A user-configurable blacklist of Drupal paths on which no files should be served from a CDN. This blacklist applies to <em>all users</em></p>
+
+<h2>Drupal path for authenticated users</h2>
+<p>Similar to "Drupal path", but only applied to <em>authenticated users</em>.</p>
+<p>By default, all Drupal back-end (<tt>admin*</tt>) pages are blacklisted and will thus not use any files from a CDN.</p>

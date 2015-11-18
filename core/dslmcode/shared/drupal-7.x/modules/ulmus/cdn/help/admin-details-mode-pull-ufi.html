@@ -1,0 +1,28 @@
+<h2>What is this?</h2>
+
+<p>To be able to use Far Future expiration, we need to make sure that the URL of a file changes whenever the file changes. Otherwise, visitors will continue to use the old version of the file, that they've cached.<br />
+Depending on the type of file, it is usually better to use a different <em>unique file identifier (UFI)</em> method. Overall, you will want to minimize the number of times that the file system needs to be accessed.</p>
+
+<p>That's why the <tt>perpetual</tt>, <tt>drupal_version</tt>, <tt>drupal_cache</tt> and <tt>deployment_id</tt> methods are the most efficient: they don't touch the file system at all. However, <tt>perpetual</tt> will never detect file changes, so only use that if you're absolutely certain a file will never change (e.g. for video files). <tt>drupal_version</tt> should only be used for Drupal core files. <tt>drupal_cache</tt> is useful while doing development and for validating your cache stack. And <tt>deployment_id</tt> should probably only be used for files that are managed through version control.</p>
+
+<h2>Format</h2>
+<p>Enter one rule per line, in the format <strong>&lt;directory&gt;[|&lt;extensions&gt;]|&lt;unique file identifier (UFI) method&gt;</strong>:</p>
+<ul>
+<li><strong>&lt;directory&gt;</strong> is the directory (may include wildcards) to which a unique identifier method will be applied. Multiple directories may be listed, separated with semi-colons (<strong><tt>:</tt></strong>). E.g.: <pre>sites/*/modules/*:sites/*/themes/*</pre></li>
+<li><strong>&lt;extensions&gt;</strong> is an optional setting to limit which file types should use this unique identifier method. E.g.: <pre>.css .jpg .jpeg .png</pre></li>
+<li><strong>&lt;UFI method&gt;</strong> sets the unique identifier method that should be applied to the aforementioned directories, and only to (optionally) the listed file types. </li>
+</ul>
+
+<p><u>Note:</u> To see which UFI methods are available, please consult the UI — this help system only allows for static content.</p>
+
+
+<h2>Examples</h2>
+<p>This would generate a unique identifier for Drupal core files based on the Drupal core version, files in the site directory would get unique identifiers based on the last time they were modified and movie files would not receive a unique identifier (they're so large browser can't cache them anyway):</p>
+<pre>misc/*:modules/*:themes/*|drupal_version
+sites/*|mtime
+sites/*|.avi .m4v .mov .mp4 .wmv .flv|perpetual</pre>
+<p>In this second example, we're dealing with a more high-traffic website, where it is too costly to access the filesystem for every served file. Therefor, this site defines a <tt>CDN_DEPLOYMENT_ID</tt> constant somewhere in its codebase. This constant changes whenever a module or theme changes. This is therefor far more efficient. See the last line:</p>
+<pre>misc/*:modules/*:themes/*|drupal_version
+sites/*|mtime
+sites/*|.avi .m4v .mov .mp4 .wmv .flv|perpetual
+sites/*/modules/*:sites/*/themes/*|deployment_id</pre>

@@ -1,0 +1,32 @@
+#cdn-integration-page-stats li {
+  list-style-type: square;
+  margin: 0px 0px 0.25em 1.5em;
+}
+#cdn-integration-page-stats .file-list li {
+  list-style-type: decimal;
+}
+
+#cdn-integration-page-stats .file-link .touch-link {
+  display: none;
+}
+#cdn-integration-page-stats .file-link .touch-link .touch-help {
+  display: none;
+}
+#cdn-integration-page-stats .file-link:hover {
+  border: 1px solid black;
+  padding: 0.5em;
+  margin: 0.1em;
+  font-weight: bold;
+}
+#cdn-integration-page-stats .file-link:hover .touch-link {
+  display: inline;
+}
+#cdn-integration-page-stats .file-link:hover .touch-link .arrow {
+  padding: 0 1em;
+}
+#cdn-integration-page-stats .file-link:hover .touch-link:hover .touch-help {
+  display: inline;
+  font-weight: lighter;
+  font-style: italic;
+  padding-left: 2em;
+}

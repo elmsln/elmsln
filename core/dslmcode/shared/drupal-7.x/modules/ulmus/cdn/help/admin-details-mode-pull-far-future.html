@@ -1,0 +1,20 @@
+<p><strong>Recommended for maximum performance boost!</strong></p>
+<p>Mark all files served from the CDN to expire in the far future (decades from now). This is the same as telling browsers to <em>always</em> use the cached files. This can significantly speed up page loads. Files are also automatically compressed (when the browser supports it), to speed up page loads even further.<br />
+Finally, <a href="http://en.wikipedia.org/wiki/Cross-Origin_Resource_Sharing">CORS</a> (Cross-Origin Resource Sharing) is also enabled automatically for all these files, to prevent issues with fonts and JavaScript files being served from domains other than the origin domain.</p>
+<p>Of course, you still want visitors to immediately get new versions of files when they change. That is why unique filenames are generated automatically.</p>
+
+<h2>CSS aggregation</h2>
+<p>It is necessary to enable CSS aggregation, if you don't enable CSS aggregation, files referenced by the CSS (such as images and fonts) files that are served from the CDN will <em>not</em> load. To prevent access to unauthorized files, every "Far Future URL" is <em>signed</em> with a security token.</p>
+<p><em>Without</em> CSS aggregation, the URLs in the CSS files continue to be relative, and consquently, these files will be loaded using the same security token. But since the token is based on the filename, this will result in a HTTP 403 response.</p>
+<p><em>With</em> CSS aggregation, the URLs in the CSS files will be rewritten. <em>However</em>, Drupal core's CSS aggregation is not very smart either, and it will in fact cause more or less the same problem. That's why the CDN module comes with an override of Drupal core's CSS aggregation, which correctly alters <em>every</em> file URL. As a result, this also enables us to e.g. serve the CSS file from one CDN, the images referenced by it from another and the fonts referenced by it from yet another.</p>
+
+<h2>CDN or reverse proxy required</h2>
+<p>The Far Future expiration setting causes files to be served through PHP for with the optimal headers, and some files are compressed automatically. This causes a lot of overhead.</p>
+<p>This implies that you <em>must</em> use a CDN or a reverse proxy such as Varnish (a CDN is actually just a very advanced and expensive reverse proxy). If you don't, very long load times will be the result — your site will actually become <em>slower</em>!</p>
+<p>In fact, if you use the simple "subdomains point to main domain" trick to parallelize page loads, you'll even find that Far Future expiration will <em>not work at all</em> when you're using a separate web server just for static files (typically nginx or lighttpd). This is because they won't be able to find the files due to the Far Future URLs being signed with a security token.<br />
+It <em>will</em> work when you're using the same web server for these alternative domains as you're using for serving the actual Drupal site. But in that case, very long load times will be the result.</p>
+<p>Conclusion: only use Far Future expiration when using a CDN or a reverse proxy.</p>
+
+
+<h2>Detailed information for the experts</h2>
+<p>The following HTTP headers are set: <tt>Expires</tt>, <tt>Cache-Control</tt>, <tt>Last-Modified</tt>, <tt>Vary</tt> and <tt>Access-Control-Allow-Origin</tt> for files with one of the following extensions: <tt>css</tt>, <tt>js</tt>, <tt>svg</tt>, <tt>ico</tt>, <tt>gif</tt>, <tt>jpg</tt>, <tt>jpeg</tt>, <tt>png</tt>, <tt>otf</tt>, <tt>ttf</tt>, <tt>eot</tt>, <tt>woff</tt>, <tt>flv</tt>, <tt>swf</tt> and of these extensions, some will also be automatically compressed: <tt>css</tt>, <tt>js</tt>, <tt>ico</tt>, <tt>svg</tt>, <tt>eot</tt>, <tt>otf</tt>, <tt>ttf</tt>.</p>

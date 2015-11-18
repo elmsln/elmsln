@@ -1,0 +1,22 @@
+<h2>Format</h2>
+<p>Enter one mapping per line, in the format <strong>&lt;URL&gt;[|&lt;extensions&gt;]</strong>:</p>
+<ul>
+	<li><strong>&lt;URL&gt;</strong> is the CDN URL that should be used. E.g.: <code>http://cdn-a.com</code>
+	However, you can also enter <em>multiple</em> URLs, the files will then be distributed randomly (yet <em>consistently</em>, meaning that the same file will always be served from the same URL) from the different URLs! E.g.: <code>http://cdn-a.com http://cdn-b.com</code>
+	Note that if you want to save just a few more bytes, you should use <em>protocol-relative</em> URLs: <code>//cdn-a.com</code> instead of <code>http://cdn-a.com</code> (this works fine in all browsers).</li>
+	<li><strong>&lt;extensions&gt;</strong> is an <strong>optional</strong> setting to limit which files should be served from a CDN. E.g.: <code>.css .jpg .jpeg .png</code></li>
+</ul>
+
+
+<h2>Sample mappings</h2>
+<ul>
+	<li>This would serve <em>all</em> files from a single CDN: <pre>http://cdn-a.com</pre></li>
+	<li>This would serve CSS files and images from CDN A, .zip files from CDN B and everything else from CDN C:
+<pre>http://cdn-a.com|.css .jpg .jpeg .png
+http://cdn-b.com|.zip
+http://cdn-c.com</pre></li>
+	<li>This would serve CSS and JS files from CDN A, images from either CDN B or C and everything else from CDN C:
+<pre>http://cdn-a.com|.css .js
+http://cdn-b.com http://cdn-c.com|.jpg .jpeg .png
+http://cdn-c.com</pre></li>
+</ul>

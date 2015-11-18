@@ -1,0 +1,26 @@
+<h2>How to use</h2>
+<p>The parameter <tt>$servers_for_file</tt> is available to you (which is an array of servers), you should return one of them (or return an empty array if you do not want any of them to be used).<p>
+<p>Internally, <tt>$servers_for_file</tt> looks like this:</p>
+<pre>$servers_for_file[0] = array('url' =&gt; 'http://cdn1.com/image.jpg', 'server' =&gt; 'cdn1.com');
+$servers_for_file[1] = array('url' =&gt; 'http://cdn2.net/image.jpg', 'server' =&gt; 'cdn2.net');</pre>
+<p>Eventually, you should always end your code with something like:</p>
+<pre>return $servers_for_file[$some_index];</pre>
+
+<p><u>Note:</u> it's also possible to define a <tt>cdn_pick_server()</tt> function in a module. Because, yes, if you use the UI to implement this, PHP's <tt>eval()</tt> will be used.</p>
+
+
+<h2>Example</h2>
+
+<ol>
+	<li><p>Default behavior (pick the first server found — note that multiple servers can only be found if you're using File Conveyor), one would write:
+<pre>return $servers_for_file[0];</pre>
+</p></li>
+	<li>If you want to balance the number of files served by each CDN (i.e. on
+average, each CDN serves the same amount of files on a page) instead of
+picking the CDN based purely on filetype, one could write:
+<pre>
+$filename = basename($servers_for_file[0]['url']);
+$unique_file_id = hexdec(substr(md5($filename), 0, 5));
+return $servers_for_file[$unique_file_id % count($servers_for_file)];
+</pre>
+</li></ol>

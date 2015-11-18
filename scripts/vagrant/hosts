@@ -32,3 +32,8 @@
 127.0.0.1      data-innovate.elmsln.local
 127.0.0.1      data-grades.elmsln.local
 127.0.0.1      data-lq.elmsln.local
+
+# CDN paths
+127.0.0.1      cdn1.elmsln.local
+127.0.0.1      cdn2.elmsln.local
+127.0.0.1      cdn3.elmsln.local
