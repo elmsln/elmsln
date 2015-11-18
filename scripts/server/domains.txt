@@ -1,5 +1,4 @@
 #ELMSLN domains.conf recommendations
-NameVirtualHost *:80
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/online
     ServerName online.YOURUNIT.edu
@@ -44,10 +43,6 @@ NameVirtualHost *:80
     DocumentRoot /var/www/elmsln/domains/inbox
     ServerName inbox.YOURUNIT.edu
     ServerAlias DATA.inbox.SERVICEYOURUNIT.edu
-</VirtualHost>
-<VirtualHost *:80>
-    DocumentRoot /var/www/elmsln/domains/analytics
-    ServerName analytics.YOURUNIT.edu
 </VirtualHost>
 
 <Directory /var/www/elmsln/domains/online>
@@ -95,11 +90,6 @@ NameVirtualHost *:80
     Order allow,deny
     allow from all
 </Directory>
-<Directory /var/www/elmsln/domains/analytics>
-    AllowOverride None
-    Order allow,deny
-    allow from all
-</Directory>
 
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains/people
@@ -141,3 +131,28 @@ NameVirtualHost *:80
     Order allow,deny
     allow from all
 </Directory>
+
+# piwik analytics domain
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains/analytics
+    ServerName analytics.YOURUNIT.edu
+</VirtualHost>
+<Directory /var/www/elmsln/domains/analytics>
+    AllowOverride None
+    Order allow,deny
+    allow from all
+</Directory>
+# CDN module / static domain support
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains
+    ServerName cdn1.YOURUNIT.edu
+</VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains
+    ServerName cdn2.YOURUNIT.edu
+</VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/elmsln/domains
+    ServerName cdn3.YOURUNIT.edu
+</VirtualHost>
+
