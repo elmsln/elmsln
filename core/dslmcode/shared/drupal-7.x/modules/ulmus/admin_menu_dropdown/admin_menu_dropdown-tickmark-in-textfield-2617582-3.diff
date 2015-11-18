@@ -1,0 +1,72 @@
+From ecd501b9c2de6b3cef02be8307b553c265e34beb Mon Sep 17 00:00:00 2001
+From: mmilutinovic1313 <mmilutinovic1313@gmail.com>
+Date: Tue, 17 Nov 2015 17:03:51 -0500
+Subject: [PATCH] Applying patch for tickmark ` issue
+
+---
+ .../admin_menu-backticks-in-textbox-108746-1.patch         | 14 ++++++++++++++
+ .../ulmus/admin_menu_dropdown/admin_menu_dropdown.js       |  3 ++-
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+ create mode 100644 core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu-backticks-in-textbox-108746-1.patch
+
+diff --git a/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu-backticks-in-textbox-108746-1.patch b/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu-backticks-in-textbox-108746-1.patch
+new file mode 100644
+index 0000000..676bf87
+--- /dev/null
++++ b/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu-backticks-in-textbox-108746-1.patch
+@@ -0,0 +1,14 @@
++diff --git a/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js b/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js
++index f270214..fee3906 100644
++--- a/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js
+++++ b/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js
++@@ -16,7 +16,8 @@
++         // Attach to keypress event.
++         $(document).keypress(function(e) {
++           var unicode = e.keyCode? e.keyCode : e.charCode;
++-          if (String.fromCharCode(unicode) == settings.admin_menu_dropdown.key) {
+++          if (String.fromCharCode(unicode) == settings.admin_menu_dropdown.key && !($(document.activeElement).attr("type") == "text" || $(document.activeElement)[0].tagName == "TEXTAREA")) {
+++            console.log($(document.activeElement));
++             $('#admin-menu').slideToggle('fast');
++             // TODO: Maybe animate the margin change so its not so jumpy?
++             $('body').toggleClass('adm_menu_hidden');
+diff --git a/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js b/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js
+index f270214..fee3906 100644
+--- a/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js
++++ b/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js
+@@ -16,7 +16,8 @@
+         // Attach to keypress event.
+         $(document).keypress(function(e) {
+           var unicode = e.keyCode? e.keyCode : e.charCode;
+-          if (String.fromCharCode(unicode) == settings.admin_menu_dropdown.key) {
++          if (String.fromCharCode(unicode) == settings.admin_menu_dropdown.key && !($(document.activeElement).attr("type") == "text" || $(document.activeElement)[0].tagName == "TEXTAREA")) {
++            console.log($(document.activeElement));
+             $('#admin-menu').slideToggle('fast');
+             // TODO: Maybe animate the margin change so its not so jumpy?
+             $('body').toggleClass('adm_menu_hidden');
+-- 
+2.2.1
+
+From 3ab8c5957a432038d507fdf459af4a1900bc69e6 Mon Sep 17 00:00:00 2001
+From: mmilutinovic1313 <mmilutinovic1313@gmail.com>
+Date: Tue, 17 Nov 2015 17:07:16 -0500
+Subject: [PATCH] Removed console.log
+
+---
+ .../drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js  | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js b/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js
+index fee3906..d5f88d9 100644
+--- a/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js
++++ b/core/dslmcode/shared/drupal-7.x/modules/ulmus/admin_menu_dropdown/admin_menu_dropdown.js
+@@ -17,7 +17,6 @@
+         $(document).keypress(function(e) {
+           var unicode = e.keyCode? e.keyCode : e.charCode;
+           if (String.fromCharCode(unicode) == settings.admin_menu_dropdown.key && !($(document.activeElement).attr("type") == "text" || $(document.activeElement)[0].tagName == "TEXTAREA")) {
+-            console.log($(document.activeElement));
+             $('#admin-menu').slideToggle('fast');
+             // TODO: Maybe animate the margin change so its not so jumpy?
+             $('body').toggleClass('adm_menu_hidden');
+-- 
+2.2.1
+
