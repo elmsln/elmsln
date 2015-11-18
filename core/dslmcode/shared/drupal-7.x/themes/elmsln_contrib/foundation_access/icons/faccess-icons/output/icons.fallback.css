@@ -1,3 +1,7 @@
+.icon-innovate-black { background-image: url('png/innovate-black.png'); background-repeat: no-repeat; }
+
+.icon-ulmus-black { background-image: url('png/ulmus-black.png'); background-repeat: no-repeat; }
+
 .icon-about-black { background-image: url('png/about-black.png'); background-repeat: no-repeat; }
 
 .icon-access-black { background-image: url('png/access-black.png'); background-repeat: no-repeat; }
@@ -35,6 +39,8 @@
 .icon-close-white { background-image: url('png/close-white.png'); background-repeat: no-repeat; }
 
 .icon-collab-black { background-image: url('png/collab-black.png'); background-repeat: no-repeat; }
+
+.icon-comply-black { background-image: url('png/comply-black.png'); background-repeat: no-repeat; }
 
 .icon-comment-black { background-image: url('png/comment-black.png'); background-repeat: no-repeat; }
 
@@ -77,6 +83,8 @@
 .icon-interact-black { background-image: url('png/interact-black.png'); background-repeat: no-repeat; }
 
 .icon-labs-black { background-image: url('png/labs-black.png'); background-repeat: no-repeat; }
+
+.icon-media-black { background-image: url('png/media-black.png'); background-repeat: no-repeat; }
 
 .icon-mooc-black { background-image: url('png/mooc-black.png'); background-repeat: no-repeat; }
 
