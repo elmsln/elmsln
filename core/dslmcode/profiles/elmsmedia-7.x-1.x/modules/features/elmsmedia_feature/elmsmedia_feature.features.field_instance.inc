@@ -955,10 +955,17 @@ function elmsmedia_feature_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'file',
+        'label' => 'hidden',
+        'module' => 'svg_sanitizer',
         'settings' => array(),
-        'type' => 'file_default',
+        'type' => 'svg_sanitizer',
+        'weight' => 1,
+      ),
+      'mediasvg' => array(
+        'label' => 'hidden',
+        'module' => 'svg_sanitizer',
+        'settings' => array(),
+        'type' => 'svg_sanitizer',
         'weight' => 1,
       ),
       'teaser' => array(
@@ -1011,7 +1018,14 @@ function elmsmedia_feature_field_default_field_instances() {
     'description' => 'Use this text area if the included SVG needs alternative text description.  If text is included in this field, the SVG will be hidden from screen readers and text will be read from this field.',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 2,
+      ),
+      'mediasvg' => array(
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',

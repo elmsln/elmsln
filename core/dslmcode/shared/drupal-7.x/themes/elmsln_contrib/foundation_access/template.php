@@ -209,24 +209,11 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
  * Display Inherit Image
  */
 function foundation_access_preprocess_node__inherit__svg(&$variables) {
-  $variables['svg_url'] = '';
   $variables['svg_aria_hidden'] = 'false';
   $variables['svg_alttext'] = NULL;
   $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
 
   try {
-    // get the url of the svg file
-    $svg_file = ($node_wrapper->field_svg->value() ? $node_wrapper->field_svg->file->url->value() : NULL);
-    // make sure that we are getting the real file address in case this is coming from
-    // an api call from another system.
-    $svg_file = _cis_connector_real_address($svg_file);
-    // get the contents of the file
-    $svg_contents = file_get_contents($svg_file);
-    // remove all non-whitelisted elements from the svg
-    // @Todo: Figure out how to filter this for XSS without remove SVG attributes
-    // $variables['svg'] = filter_xss($svg_contents, _foundation_access_svg_whitelist_tags());
-    $variables['svg'] = $svg_contents;
-
     // if there is an accessbile text alternative then set the svg to aria-hidden
     if ($node_wrapper->field_svg_alttext->value()) {
       $variables['svg_aria_hidden'] = 'true';

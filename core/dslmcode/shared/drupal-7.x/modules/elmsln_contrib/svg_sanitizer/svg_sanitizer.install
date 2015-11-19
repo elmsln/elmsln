@@ -1,0 +1,50 @@
+<?php
+/**
+ * @file
+ * Install file for svg_sanitizer module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function svg_sanitizer_install() {
+  variable_set('svg_sanitizer_allowedattrs', array('viewBox'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function svg_sanitizer_uninstall() {
+  variable_del('svg_sanitizer_allowedattrs');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function svg_sanitizer_requirements($phase) {
+  if ($phase == 'runtime') {
+    $library = libraries_load('svg_sanitizer');
+    $t = get_t();
+
+    if (empty($library['loaded'])) {
+      return array(
+        'phpexcel' => array(
+          'title' => $t('SVG Sanitizer'),
+          'value' => $t('Not Installed'),
+          'description' => $t('Please install the example library %url.', array('%url' => SVG_SANITIZER_URL)),
+          'severity' => REQUIREMENT_ERROR,
+        ),
+      );
+    }
+    else {
+      return array(
+        'phpexcel' => array(
+          'title' => $t('SVG Sanitizer'),
+          'value' => $t('SVG Sanitizer installed. This module has been tested against version 0.2.1'),
+          'severity' => REQUIREMENT_OK,
+        ),
+      );
+    }
+  }
+  return array();
+}
