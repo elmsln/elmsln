@@ -1,0 +1,11 @@
+ ; See http://davehall.com.au/blog/dave/2011/05/17/drush-make-and-module-dependencies#comment-2261
+; as to why this file ends with .example rather than .make.
+core = "7.x"
+api = "2"
+projects[drupal][version] = "7.x"
+
+; SVG Sanitizer library location
+libraries[svg-sanitizer][download][type] = "git"
+libraries[svg-sanitizer][download][url] = "git://github.com/darylldoyle/svg-sanitizer.git"
+libraries[svg-sanitizer][directory_name] = "svg_sanitizer"
+libraries[svg-sanitizer][destination] = "libraries"

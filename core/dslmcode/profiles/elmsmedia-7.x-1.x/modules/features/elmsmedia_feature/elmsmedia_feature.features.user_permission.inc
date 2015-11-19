@@ -22,6 +22,15 @@ function elmsmedia_feature_user_default_permissions() {
     'module' => 'view_mode_tab',
   );
 
+  // Exported permission: 'administer svg sanitizer'.
+  $permissions['administer svg sanitizer'] = array(
+    'name' => 'administer svg sanitizer',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'svg_sanitizer',
+  );
+
   // Exported permission: 'administer view mode tab'.
   $permissions['administer view mode tab'] = array(
     'name' => 'administer view mode tab',
