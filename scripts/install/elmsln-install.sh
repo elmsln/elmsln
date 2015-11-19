@@ -247,7 +247,8 @@ for tool in "${authoritylist[@]}"
   # add in our cache bins now that we know it built successfully
   echo "" >> $sitedir/$tool/$host/settings.php
   echo "" >> $sitedir/$tool/$host/settings.php
-  echo "\$conf['cache_prefix'] = '$tool_$host';" >> $sitedir/$tool/$host/settings.php
+  cachebin="${tool}_${host}"
+  echo "\$conf['cache_prefix'] = '${cachebin}';" >> $sitedir/$tool/$host/settings.php
   echo "" >> $sitedir/$tool/$host/settings.php
   echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/$tool/$host/settings.php
 
