@@ -48,7 +48,14 @@ git config core.fileMode false
 git config --global core.filemode false
 
 git clone https://github.com/elmsln/elmsln-config-example.git config
+# set version to match the VERSION.txt we are starting with
+cd /var/www/elmsln
+code_version=$(<VERSION.txt)
+cp /var/www/elmsln/VERSION.txt /var/www/elmsln/config/SYSTEM_VERSION.txt
 cd /var/www/elmsln/config
+touch /var/www/elmsln/config/logs/upgrade_history.txt
+echo "Initially installed as: ${code_version}" >> /var/www/elmsln/config/logs/upgrade_history.txt
+
 rm -rf .git
 
 # make a new repo
