@@ -250,7 +250,6 @@ for tool in "${authoritylist[@]}"
   cachebin="${tool}_${host}"
   echo "\$conf['cache_prefix'] = '${cachebin}';" >> $sitedir/$tool/$host/settings.php
   echo "" >> $sitedir/$tool/$host/settings.php
-  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/$tool/$host/settings.php
 
   # adding servies conf file
   if [ ! -d $sitedir/$tool/services/$host ];
@@ -269,6 +268,8 @@ for tool in "${authoritylist[@]}"
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/$tool/services/$host/settings.php
       fi
   fi
+
+  echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/$tool/$host/settings.php
   # make sure everything in that folder is as it should be ownerwise
   sudo chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
   # forcibly apply 1st ELMSLN global update since it isn't fixed tools
