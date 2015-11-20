@@ -88,10 +88,12 @@ do
     # fallback case to see if they are the same so we know to apply
     # this last upgrade script
     if [[ "$upgrade" = "$code_version" ]]; then
-      elmslnecho "$(timestamp): We need to run upgrade: $upgrade"
-      bash "${upgrade}.sh"
-      echo "Applied upgrade $upgrade on ${timestamp}" >> $upgrade_history
-      # this is a sanity check to ensure we don't run scripts that shouldn't exist
+      if [[ "$upgrade" != "$code_version" ]]; then
+        elmslnecho "$(timestamp): We need to run upgrade: $upgrade"
+        bash "${upgrade}.sh"
+        echo "Applied upgrade $upgrade on ${timestamp}" >> $upgrade_history
+        # this is a sanity check to ensure we don't run scripts that shouldn't exist
+      fi
       break
     fi
   fi
