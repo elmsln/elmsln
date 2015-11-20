@@ -55,10 +55,11 @@ if [ ! -f ${upgrade_history} ];
   echo "Initially installed as: ${code_version}" >> $upgrade_history
 fi
 
-if [[ "$code_version" < "$system_version" ]]; then
-  elmslnwarn "Your codebase is furter behind then the reported version of this config directory! Can't apply updates as this may have been migrated from a newer deployment into an older one. Make sure you update the elmsln code base via leafy in order to correct this issue!"
-  exit 1
-fi
+# todo, need to account for config directories that are further ahead then the code base
+#if [[ "$code_version" < "$system_version" ]]; then
+#  elmslnwarn "Your codebase is furter behind then the reported version of this config directory! Can't apply updates as this may have been migrated from a newer deployment into an older one. Make sure you update the elmsln code base via leafy in order to correct this issue!"
+#  exit 1
+#fi
 elmslnwarn "Current version of codebase: $code_version"
 elmslnwarn "Current version of your system: $system_version"
 
@@ -79,11 +80,20 @@ do
   # by running all upgrades in the correct sort order for all things
   # greater then 0.0.1 with the sanity check ensuring a 1.2.2 would not
   # be possible to run
-  if [[ "$upgrade" > "$system_version" ]] && [[ "$upgrade" = "$code_version" || "$upgrade" < "$code_version" ]]; then
+  if [[ "$upgrade" > "$system_version" ]] && [[ "$upgrade" != "$code_version" ]]; then
     elmslnecho "$(timestamp): We need to run upgrade: $upgrade"
     bash "${upgrade}.sh"
-    # write this to the history that it was applied
     echo "Applied upgrade $upgrade on ${timestamp}" >> $upgrade_history
+  else
+    # fallback case to see if they are the same so we know to apply
+    # this last upgrade script
+    if [[ "$upgrade" = "$code_version" ]]; then
+      elmslnecho "$(timestamp): We need to run upgrade: $upgrade"
+      bash "${upgrade}.sh"
+      echo "Applied upgrade $upgrade on ${timestamp}" >> $upgrade_history
+      # this is a sanity check to ensure we don't run scripts that shouldn't exist
+      break
+    fi
   fi
 done
 # set to code version in case that version release doesn't have a bash script for it
