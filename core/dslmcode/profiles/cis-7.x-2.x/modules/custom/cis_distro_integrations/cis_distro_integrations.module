@@ -59,4 +59,8 @@ function cis_distro_integrations_cis_service_instance_discuss_options_alter(&$op
       unset($options['dis'][$key]);
     }
   }
+  // make sure we don't get empty disables as a result of the above
+  if (empty($options['dis'])) {
+    unset($options['dis']);
+  }
 }
