@@ -121,7 +121,7 @@ H5PEditor.ListEditor = (function ($) {
        *
        * @private
        */
-      var down = function () {
+      var down = function (event) {
         if (event.which !== 1) {
           return; // Only allow left mouse button
         }
@@ -204,7 +204,7 @@ H5PEditor.ListEditor = (function ($) {
       // Append item to list
       $item.appendTo($list);
 
-      // Good UX: automatically expand groups
+      // Good UX: automatically expand groups if not explicitly disabled by semantics
       if (item instanceof H5PEditor.Group) {
         item.expand();
       }

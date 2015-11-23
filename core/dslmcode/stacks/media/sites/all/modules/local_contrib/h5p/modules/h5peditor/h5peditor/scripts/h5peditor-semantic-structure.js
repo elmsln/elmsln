@@ -103,7 +103,7 @@ H5PEditor.SemanticStructure = (function ($) {
      *
      * @private
      */
-    var addWidgetOption = function (widget, active) {
+    var addWidgetOption = function (widget, active) {
       var $option = $('<li/>', {
         'class': 'h5peditor-widget-option' + (active ? ' ' + CLASS_WIDGET_ACTIVE : ''),
         text: widget.label,

@@ -82,8 +82,12 @@ H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore) 
  */
 H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, verb) {
   var event = this.createXAPIEventTemplate(verb);
-  event.setScoredResult(score, maxScore);
+  event.setScoredResult(score, maxScore, this);
   this.trigger(event);
+};
+
+H5P.EventDispatcher.prototype.setActivityStarted = function() {
+  this.activityStartTime = Date.now();
 };
 
 /**
@@ -92,7 +96,7 @@ H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, ver
  * @param {H5P.XAPIEvent} event
  */
 H5P.xAPICompletedListener = function (event) {
-  if (event.getVerb() === 'completed' && !event.getVerifiedStatementValue(['context', 'contextActivities', 'parent'])) {
+  if ((event.getVerb() === 'completed' || event.getVerb() === 'answered') && !event.getVerifiedStatementValue(['context', 'contextActivities', 'parent'])) {
     var score = event.getScore();
     var maxScore = event.getMaxScore();
     var contentId = event.getVerifiedStatementValue(['object', 'definition', 'extensions', 'http://h5p.org/x-api/h5p-local-content-id']);

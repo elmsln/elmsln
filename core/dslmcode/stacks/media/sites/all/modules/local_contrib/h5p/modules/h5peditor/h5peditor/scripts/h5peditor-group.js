@@ -81,12 +81,12 @@ ns.Group.prototype.appendTo = function ($wrapper) {
     role: 'button',
     tabIndex: 0,
     on: {
-      click: function () {
-        that.expand();
+      click: function () {
+        that.toggle();
       },
-      keypress: function (event) {
+      keypress: function (event) {
         if ((event.charCode || event.keyCode) === 32) {
-          that.expand();
+          that.toggle();
         }
       }
     },
@@ -118,30 +118,48 @@ ns.Group.prototype.appendTo = function ($wrapper) {
 
   // Set summary
   this.findSummary();
+
+  // Check if group should be expanded.
+  // Default is to be collapsed unless explicity defined in semantics by optional attribute expanded
+  if (this.field.expanded === true) {
+    this.expand();
+  }
+};
+
+/**
+ * Toggle expand/collapse for the given group.
+ */
+ns.Group.prototype.toggle = function () {
+  if (this.$group.hasClass('expanded')) {
+    this.collapse();
+  }
+  else {
+    this.expand();
+  }
 };
 
 /**
  * Expand the given group.
  */
 ns.Group.prototype.expand = function () {
-  var expandedClass = 'expanded';
-
-  if (this.$group.hasClass(expandedClass)) {
-    // Do not collapse before valid!
-    var valid = true;
-    for (var i = 0; i < this.children.length; i++) {
-      if (this.children[i].validate() === false) {
-        valid = false;
-      }
-    }
-    if (valid) {
-      this.$group.removeClass(expandedClass);
-    }
-  }
-  else {
-    this.$group.addClass(expandedClass);
-  }
+  this.$group.addClass('expanded');
 };
+
+/**
+ * Collapse the given group (if valid)
+ */
+ns.Group.prototype.collapse = function () {
+  // Do not collapse before valid!
+  var valid = true;
+  for (var i = 0; i < this.children.length; i++) {
+    if (this.children[i].validate() === false) {
+      valid = false;
+    }
+  }
+  if (valid) {
+    this.$group.removeClass('expanded');
+  }
+}
 
 /**
  * Find summary to display in group header.
@@ -197,7 +215,7 @@ ns.Group.prototype.setSummary = function (summary) {
     summary = this.field.label;
   }
 
-  this.$group.children('.title').text(summary);
+  this.$group.children('.title').html(summary);
 };
 
 /**

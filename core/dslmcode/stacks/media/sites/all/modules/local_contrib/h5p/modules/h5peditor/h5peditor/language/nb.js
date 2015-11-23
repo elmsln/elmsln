@@ -20,7 +20,7 @@ H5PEditor.language.core = {
   addEntity: 'Legg til :entity',
   tooLong: 'Feltets verdi er for lang, den må være på :max tegn eller mindre.',
   invalidFormat: 'Feltets verdi er på et ugyldig format eller bruker ulovlige tegn.',
-  confirmChangeLibrary: 'Er du sikker på at du ønsker å bytte bibliotek?',
+  confirmChangeLibrary: 'Ved å gjøre dette mister du alt arbeid gjort med nåværende innholdstype. Er du sikker på at du ønsker å bytte innholdstype?',
   moreLibraries: 'Se etter <a href="http://h5p.org/content-types-and-applications" target="_blank">flere innholdstyper</a> på h5p.org',
   commonFields: 'Innstillinger og tekster',
   commonFieldsDescription: 'Her kan du redigere innstillinger eller oversette tekster som brukes i dette innholdet.',
@@ -30,5 +30,8 @@ H5PEditor.language.core = {
   close: 'Lukk',
   tutorialAvailable: 'Veiledning tilgjengelig',
   editMode: 'Redigeringsmodus',
-  listLabel: 'Liste'
+  listLabel: 'Liste',
+  uploadError: 'Filopplasting feilet',
+  fileToLarge: 'Filen du prøver å laste opp kan være for stor.',
+  noSemantics: 'Feil, kunne ikke laste skjemaet for innholdstypen.'
 };

@@ -19,7 +19,7 @@ H5P.XAPIEvent.prototype.constructor = H5P.XAPIEvent;
  * @param {number} score
  * @param {number} maxScore
  */
-H5P.XAPIEvent.prototype.setScoredResult = function (score, maxScore) {
+H5P.XAPIEvent.prototype.setScoredResult = function (score, maxScore, instance) {
   this.data.statement.result = {
     'score': {
       'min': 0,
@@ -27,6 +27,15 @@ H5P.XAPIEvent.prototype.setScoredResult = function (score, maxScore) {
       'raw': score
     }
   };
+  if (maxScore > 0) {
+    this.data.statement.result.score.scaled = Math.round(score / maxScore * 10000) / 10000;
+  }
+  if (instance && instance.activityStartTime) {
+    var duration = Math.round((Date.now() - instance.activityStartTime ) / 10) / 100;
+    // xAPI spec allows a precision of 0.01 seconds
+    
+    this.data.statement.result.duration = 'PT' + duration + 'S';
+  }
 };
 
 /**
@@ -130,6 +139,17 @@ H5P.XAPIEvent.prototype.setContext = function (instance) {
         ]
       }
     };
+  }
+  if (instance.libraryInfo) {
+    if (this.data.statement.context === undefined) {
+      this.data.statement.context = {"contextActivities":{}};
+    }
+    this.data.statement.context.contextActivities.category = [
+      {
+        "id": "http://h5p.org/libraries/" + instance.libraryInfo.versionedNameNoSpaces,
+        "objectType": "Activity"
+      }
+    ];
   }
 };
 

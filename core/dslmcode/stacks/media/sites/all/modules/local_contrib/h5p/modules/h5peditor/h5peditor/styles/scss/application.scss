@@ -67,6 +67,9 @@ a {
     min-height: 20px;
     @include border-radius(3px);
   }
+  .h5peditor-ckeditor-placeholder {
+    color: #888;
+  }
   select {
     padding: 2px;
   }

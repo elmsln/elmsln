@@ -28,7 +28,7 @@ ns.Editor = function (library, defaultParams, replace) {
     'class': 'h5p-editor-iframe',
     frameBorder: '0'
   }).replaceAll(replace).load(function () {
-    var $ = this.contentWindow.H5P.jQuery;
+    var $ = this.contentWindow.H5P.jQuery;
     var LibrarySelector = this.contentWindow.H5PEditor.LibrarySelector;
     this.contentWindow.H5P.$body = $(this.contentDocument.body);
     var $container = $('body > .h5p-editor');

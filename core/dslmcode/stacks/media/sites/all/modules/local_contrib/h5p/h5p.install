@@ -7,6 +7,13 @@
  */
 
 /**
+ * Implements hook_disable
+ */
+function h5p_disable() {
+  drupal_set_message("The H5P Community is working hard every day to improve H5P. Would you like to drop them a one-liner about how they may improve H5P or why you disabled the module? <a href=\"https://h5p.org/drupal-module-disabled\">https://h5p.org/drupal-module-disabled</a>");
+}
+
+/**
  * Implements hook_uninstall().
  */
 function h5p_uninstall() {
@@ -48,6 +55,8 @@ function h5p_uninstall() {
 
   // Intentionally not deleting variable h5p_site_uuid. If h5p module is uninstalled/installed,
   // the uuid should be the same
+  // variable_del('h5p_site_uuid');
+  // variable_del('h5p_allow_communication_with_h5p_org');
 }
 
 /**
@@ -106,7 +115,7 @@ function h5p_schema() {
       'dependency_type' => array(
         'description' => "dynamic, preloaded or editor",
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 31,
         'not null' => TRUE,
         'default' => 'preloaded',
       ),
@@ -141,7 +150,7 @@ function h5p_schema() {
       'machine_name' => array(
         'description' => 'The library machine name',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 127,
         'not null' => TRUE,
         'default' => '',
       ),
@@ -245,7 +254,7 @@ function h5p_schema() {
       'dependency_type' => array(
         'description' => 'preloaded, dynamic, or editor',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 31,
         'not null' => TRUE,
       ),
     ),
@@ -264,7 +273,7 @@ function h5p_schema() {
       'language_code' => array(
         'description' => 'Primary Key: The language code.',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 31,
         'not null' => TRUE,
       ),
       'language_json' => array(
@@ -345,6 +354,12 @@ function h5p_schema() {
         'size' => 'big',
         'not null' => TRUE
       ),
+      'slug' => array(
+        'description' => 'Human readable content identifier that is unique',
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE
+      )
     ),
     'primary key' => array('content_id'),
   );
@@ -877,6 +892,23 @@ function h5p_update_7108() {
     ));
   }
 }
+
+/**
+ * Add unique human readable content identifier. Useful for creating human
+ * readable file names, URLs and SEO.
+ */
+function h5p_update_7109() {
+  if (!db_field_exists('h5p_nodes', 'slug')) {
+    db_add_field('h5p_nodes', 'slug', array(
+      'description' => 'Human readable content identifier that is unique',
+      'type' => 'varchar',
+      'length' => 127,
+      'not null' => TRUE,
+      'default' => ''
+    ));
+  }
+}
+
 
 /**
  * Check if any library installed is unsupported by core

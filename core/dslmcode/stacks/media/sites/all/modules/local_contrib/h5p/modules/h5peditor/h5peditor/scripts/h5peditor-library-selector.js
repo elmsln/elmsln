@@ -35,9 +35,9 @@ ns.LibrarySelector = function (libraries, defaultLibrary, defaultParams) {
 
     // Never deny editing existing content
     // For new content deny old or restricted libs.
-    if (this.defaultLibrary === libraryName
-      || ((library.restricted === undefined || !library.restricted)
-        && library.isOld !== true
+    if (this.defaultLibrary === libraryName ||
+       ((library.restricted === undefined || !library.restricted) &&
+         library.isOld !== true
       )
     ) {
       options += '<option value="' + libraryName + '"';
@@ -122,10 +122,18 @@ ns.LibrarySelector.prototype.loadSemantics = function (library) {
   this.$selector.attr('disabled', true);
 
   ns.loadLibrary(library, function (semantics) {
-    that.form = new ns.Form();
-    that.form.replace($loading);
-
-    that.form.processSemantics(semantics, (library === that.defaultLibrary || library === that.defaultLibraryParameterized ? that.defaultParams : {}));
+    if (!semantics) {
+      that.form = ns.$('<div/>', {
+        'class': 'h5p-errors',
+        text: H5PEditor.t('core', 'noSemantics'),
+        insertAfter: $loading
+      });
+    }
+    else {
+      that.form = new ns.Form();
+      that.form.replace($loading);
+      that.form.processSemantics(semantics, (library === that.defaultLibrary || library === that.defaultLibraryParameterized ? that.defaultParams : {}));
+    }
 
     that.$selector.attr('disabled', false);
     $loading.remove();

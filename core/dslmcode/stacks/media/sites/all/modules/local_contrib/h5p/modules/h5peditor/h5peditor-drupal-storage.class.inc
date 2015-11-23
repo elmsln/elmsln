@@ -39,17 +39,16 @@ class H5peditorDrupalStorage implements H5peditorStorage {
     global $user;
     $path = str_replace(file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . '/', 'public://', $file->path);
     $filename = explode('/', $file->name);
-    $id = db_insert('file_managed')
-      ->fields(array(
-        'uid' => $user->uid,
-        'filename' => $filename[count($filename) - 1],
-        'uri' => $path,
-        'filemime' => $file->type,
-        'filesize' => $file->size,
-        'status' => 0,
-        'timestamp' => REQUEST_TIME,
-      ))
-      ->execute();
+    $file_managed = (object) array(
+      'uid' => $user->uid,
+      'filename' => $filename[count($filename) - 1],
+      'uri' => $path,
+      'filemime' => $file->type,
+      'filesize' => $file->size,
+      'status' => 0,
+      'timestamp' => REQUEST_TIME,
+    );
+    file_save($file_managed);
   }
 
   /**
@@ -156,7 +155,7 @@ class H5peditorDrupalStorage implements H5peditorStorage {
 
     return $libraries;
   }
-  
+
   public function alterLibraryFiles(&$files, $libraries) {
     $mode = 'editor';
     $library_list = _h5p_dependencies_to_library_list($libraries);

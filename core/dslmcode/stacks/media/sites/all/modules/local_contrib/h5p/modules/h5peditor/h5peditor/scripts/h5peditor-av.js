@@ -156,11 +156,10 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
       that.$uploading = $('<div class="h5peditor-uploading h5p-throbber">' + H5PEditor.t('core', 'uploading') + '</div>').insertAfter(that.$add.hide());
     };
 
-    H5PEditor.File.callback = function (json) {
+    H5PEditor.File.callback = function (err, result) {
       try {
-        var result = JSON.parse(json);
-        if (result.error !== undefined) {
-          throw(result.error);
+        if (err) {
+          throw err;
         }
 
         if (that.params === undefined) {
@@ -219,7 +218,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
     }
 
     var mime;
-    var matches = url.match(/\.(webm|mp4|ogv)/i);
+    var matches = url.match(/\.(webm|mp4|ogv|m4a|mp3|ogg|oga|wav)/i);
     if (matches !== null) {
       mime = matches[matches.length - 1];
     }

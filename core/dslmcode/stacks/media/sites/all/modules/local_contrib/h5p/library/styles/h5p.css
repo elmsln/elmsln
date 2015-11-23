@@ -34,6 +34,10 @@ html.h5p-iframe .h5p-content {
   font-size: 16px;
   line-height: 1.5em;
   width: 100%;
+  height: auto;
+}
+html.h5p-iframe .h5p-fullscreen .h5p-content,
+html.h5p-iframe .h5p-semi-fullscreen .h5p-content {
   height: 100%;
 }
 .h5p-content.h5p-no-frame,

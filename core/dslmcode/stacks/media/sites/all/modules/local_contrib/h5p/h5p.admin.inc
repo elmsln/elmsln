@@ -514,16 +514,16 @@ function h5p_content_upgrade($library_id) {
   }
   $core = _h5p_get_instance('core');
 
-  $versions = db_query('SELECT hl2.library_id as id, hl2.machine_name as name, hl2.title, hl2.major_version, hl2.minor_version, hl2.patch_version FROM {h5p_libraries} hl1 JOIN {h5p_libraries} hl2 ON hl1.machine_name = hl2.machine_name WHERE hl1.library_id = :id ORDER BY hl2.title ASC, hl2.major_version ASC, hl2.minor_version ASC', array(':id' => $library_id));
-  foreach ($versions as $library) {
-    if ($library->id === $library_id) {
-      $upgrades = $core->getUpgrades($library, $versions);
-      break;
-    }
+  $results = db_query('SELECT hl2.library_id as id, hl2.machine_name as name, hl2.title, hl2.major_version, hl2.minor_version, hl2.patch_version FROM {h5p_libraries} hl1 JOIN {h5p_libraries} hl2 ON hl1.machine_name = hl2.machine_name WHERE hl1.library_id = :id ORDER BY hl2.title ASC, hl2.major_version ASC, hl2.minor_version ASC', array(':id' => $library_id));
+  $versions = array();
+  foreach ($results as $result) {
+    $versions[$result->id] = $result;
   }
+  $library = $versions[$library_id];
+  $upgrades = $core->getUpgrades($library, $versions);
 
   drupal_set_title(t('Upgrade @library content', array('@library' => $library->title . ' (' . H5PCore::libraryVersion($library) . ')')));
-  if ($versions->rowCount() < 2) {
+  if (count($versions) < 2) {
     return t("There are no available upgrades for this library.");
   }
 
@@ -616,7 +616,9 @@ function h5p_content_upgrade_progress($library_id) {
         ->execute();
 
       // Clear content cache
-      $interface->setFilteredParameters($id);
+      $interface->updateContentFields($content['id'], array(
+        'filtered' => ''
+      ));
     }
   }
 

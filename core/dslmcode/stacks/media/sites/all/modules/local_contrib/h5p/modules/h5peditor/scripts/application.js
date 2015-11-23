@@ -3,7 +3,7 @@ var ns = H5PEditor;
 (function($) {
   ns.init = function () {
     var h5peditor;
-    var $upload = $('.form-item-files-h5p');
+    var $upload = $('input[name="files[h5p]"]').parents('.form-item');
     var $editor = $('.h5p-editor');
     var $create = $('#edit-h5p-editor').hide();
     var $type = $('input[name="h5p_type"]');
@@ -17,13 +17,13 @@ var ns = H5PEditor;
     ns.fileIcon = Drupal.settings.h5peditor.fileIcon;
     ns.ajaxPath = Drupal.settings.h5peditor.ajaxPath;
     ns.filesPath = Drupal.settings.h5peditor.filesPath;
-    
+
     // Semantics describing what copyright information can be stored for media.
     ns.copyrightSemantics = Drupal.settings.h5peditor.copyrightSemantics;
-    
+
     // Required styles and scripts for the editor
     ns.assets = Drupal.settings.h5peditor.assets;
-    
+
     // Required for assets
     ns.baseUrl = Drupal.settings.basePath;
 
@@ -60,16 +60,16 @@ var ns = H5PEditor;
       }
     });
   };
-  
+
   ns.getAjaxUrl = function (action, parameters) {
     var url = Drupal.settings.h5peditor.ajaxPath + action;
-    
+
     if (parameters !== undefined) {
       for (var key in parameters) {
         url += '/' + parameters[key];
       }
     }
-    
+
     return url;
   };
 

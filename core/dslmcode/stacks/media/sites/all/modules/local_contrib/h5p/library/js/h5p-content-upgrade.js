@@ -115,7 +115,7 @@
 
     // Register message handlers
     var messageHandlers = {
-      done: function (result) {
+      done: function (result) {
         self.workDone(result.id, result.params, this);
       },
       error: function (error) {
@@ -124,7 +124,7 @@
         // Stop everything
         self.terminate();
       },
-      loadLibrary: function (details) {
+      loadLibrary: function (details) {
         var worker = this;
         self.loadLibrary(details.name, new Version(details.version), function (err, library) {
           if (err) {
@@ -258,8 +258,8 @@
       });
     }
     else {
-      new H5P.ContentUpgradeProcess(info.library.name, new Version(info.library.version), self.version, self.parameters[id], id, function loadLibrary(name, version, next) {
-        self.loadLibrary(name, version, function (err, library) {
+      new H5P.ContentUpgradeProcess(info.library.name, new Version(info.library.version), self.version, self.parameters[id], id, function loadLibrary(name, version, next) {
+        self.loadLibrary(name, version, function (err, library) {
           if (library.upgradesScript) {
             self.loadScript(library.upgradesScript, function (err) {
               if (err) {

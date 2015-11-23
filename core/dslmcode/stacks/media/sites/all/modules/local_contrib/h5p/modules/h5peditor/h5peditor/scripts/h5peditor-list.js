@@ -202,7 +202,7 @@ H5PEditor.List = (function ($) {
      * @param {Number} currentIndex
      * @param {Number} newIndex
      */
-    self.moveItem = function (currentIndex, newIndex) {
+    self.moveItem = function (currentIndex, newIndex) {
       // Update child fields
       var child = children.splice(currentIndex, 1);
       children.splice(newIndex, 0, child[0]);

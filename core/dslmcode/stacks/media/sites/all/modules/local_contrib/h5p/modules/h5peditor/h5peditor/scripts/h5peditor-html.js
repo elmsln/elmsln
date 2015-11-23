@@ -66,6 +66,12 @@ ns.Html.prototype.createToolbar = function () {
     });
   }
 
+  // Alignment is added to all wysiwygs
+  toolbar.push({
+    name: "justify",
+    items: ["JustifyLeft", "JustifyCenter", "JustifyRight"]
+  });
+
   // Paragraph styles
   if (this.inTags("ul")) {
     paragraph.push("BulletedList");
@@ -250,11 +256,9 @@ ns.Html.prototype.createToolbar = function () {
   // Add the text styling options
   if (styles.items.length) {
     toolbar.push(styles);
-    ret.extraPlugins = 'font';
   }
   if (colors.items.length) {
     toolbar.push(colors);
-    ret.extraPlugins = (ret.extraPlugins ? ret.extraPlugins + ',' : '') + 'colorbutton';
   }
 
   // Set format_tags if not empty. CKeditor does not like empty format_tags.
@@ -285,6 +289,7 @@ ns.Html.prototype.appendTo = function ($wrapper) {
   var that = this;
 
   this.$item = ns.$(ns.createItem(this.field.type, this.createHtml(), this.field.description)).appendTo($wrapper);
+
   this.$input = this.$item.children('.ckeditor');
   this.$errors = this.$item.children('.h5p-errors');
 
@@ -309,6 +314,9 @@ ns.Html.prototype.appendTo = function ($wrapper) {
   }
 
   this.$item.children('.ckeditor').focus(function () {
+    // Remove placeholder
+    that.$item.find('.h5peditor-ckeditor-placeholder').remove();
+
     if (ns.Html.first) {
       CKEDITOR.basePath = ns.basePath + '/ckeditor/';
     }
@@ -371,6 +379,10 @@ ns.Html.prototype.createHtml = function () {
   if (this.value !== undefined) {
     html += this.value;
   }
+  else if (this.field.placeholder !== undefined) {
+    html += '<span class="h5peditor-ckeditor-placeholder">' + this.field.placeholder + '</span>';
+  }
+
   html += '</div>';
 
   return html;

@@ -1,7 +1,7 @@
 /*jshint -W083 */
 var H5PUpgrades = H5PUpgrades || {};
 
-H5P.ContentUpgradeProcess = (function (Version) {
+H5P.ContentUpgradeProcess = (function (Version) {
 
   /**
    * @class
@@ -25,7 +25,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
     }
 
     self.loadLibrary = loadLibrary;
-    self.upgrade(name, oldVersion, newVersion, params, function (err, result) {
+    self.upgrade(name, oldVersion, newVersion, params, function (err, result) {
       if (err) {
         return done(err);
       }
@@ -200,7 +200,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
               }
               next(err);
             });
-            
+
           }, function (err) {
             done(err, params);
           });

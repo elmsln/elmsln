@@ -497,12 +497,12 @@ interface H5PFrameworkInterface {
   public function setOption($name, $value);
 
   /**
-   * This will set the filtered parameters for the given content.
+   * This will update selected fields on the given content.
    *
-   * @param int $content_id
-   * @param string $parameters filtered
+   * @param int $id Content identifier
+   * @param array $fields Content fields, e.g. filtered or slug.
    */
-  public function setFilteredParameters($content_id, $parameters = '');
+  public function updateContentFields($id, $fields);
 
   /**
    * Will clear filtered params for all the content that uses the specified
@@ -528,6 +528,14 @@ interface H5PFrameworkInterface {
    * @return int
    */
   public function getNumContent($libraryId);
+
+  /**
+   * Determines if content slug is used.
+   *
+   * @param string $slug
+   * @return boolean
+   */
+  public function isContentSlugAvailable($slug);
 }
 
 /**
@@ -632,9 +640,30 @@ class H5PValidator {
    *  TRUE if the .h5p file is valid
    */
   public function isValidPackage($skipContent = FALSE, $upgradeOnly = FALSE) {
+    // Check that directories are writable
+    if (!H5PCore::dirReady($this->h5pC->path . DIRECTORY_SEPARATOR . 'content')) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the content directory.'));
+      return FALSE;
+    }
+    if (!H5PCore::dirReady($this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries')) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the libraries directory.'));
+      return FALSE;
+    }
+
+    // Make sure Zip is present.
+    if (!class_exists('ZipArchive')) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Your PHP version does not support ZipArchive.'));
+      return FALSE;
+    }
+
     // Create a temporary dir to extract package in.
     $tmpDir = $this->h5pF->getUploadedH5pFolderPath();
     $tmpPath = $this->h5pF->getUploadedH5pPath();
+
+    if (!H5PCore::dirReady($tmpDir)) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the temporary directory.'));
+      return FALSE;
+    }
 
     $valid = TRUE;
 
@@ -1000,9 +1029,9 @@ class H5PValidator {
             ($h5pData['coreApi']['minorVersion'] > H5PCore::$coreApi['minorVersion'])))
       {
         $this->h5pF->setErrorMessage(
-          $this->h5pF->t('The library "%library_name" requires H5P %requiredVersion, but only H5P %coreApi is installed.',
+          $this->h5pF->t('The library "%libraryName" requires H5P %requiredVersion, but only H5P %coreApi is installed.',
           array(
-            '%library_name' => $library_name,
+            '%libraryName' => $library_name,
             '%requiredVersion' => $h5pData['coreApi']['majorVersion'] . '.' . $h5pData['coreApi']['minorVersion'],
             '%coreApi' => H5PCore::$coreApi['majorVersion'] . '.' . H5PCore::$coreApi['minorVersion']
           )));
@@ -1275,12 +1304,8 @@ class H5PStorage {
       $contentId = $this->h5pC->saveContent($content, $contentMainId);
       $this->contentId = $contentId;
 
-      $contents_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content';
-      if (!is_dir($contents_path)) {
-        mkdir($contents_path, 0777, true);
-      }
-
       // Move the content folder
+      $contents_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content';
       $destination_path = $contents_path . DIRECTORY_SEPARATOR . $contentId;
       $this->h5pC->copyFileTree($current_path, $destination_path);
 
@@ -1301,12 +1326,6 @@ class H5PStorage {
     // Keep track of the number of libraries that have been saved
     $newOnes = 0;
     $oldOnes = 0;
-
-    // Find libraries directory and make sure it exists
-    $libraries_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries';
-    if (!is_dir($libraries_path)) {
-      mkdir($libraries_path, 0777, true);
-    }
 
     // Go through libraries that came with this package
     foreach ($this->h5pC->librariesJsonData as $libString => &$library) {
@@ -1337,6 +1356,7 @@ class H5PStorage {
       $this->h5pF->saveLibraryData($library, $new);
 
       // Make sure destination dir is free
+      $libraries_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries';
       $destination_path = $libraries_path . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
       H5PCore::deleteFileTree($destination_path);
 
@@ -1417,7 +1437,7 @@ class H5PStorage {
    *  TRUE if one or more libraries were updated
    *  FALSE otherwise
    */
-  public function updatePackage($contentId, $contentMainId = NULL, $options) {
+  public function updatePackage($contentId, $contentMainId = NULL, $options = array()) {
     $this->deletePackage($contentId);
     return $this->savePackage($contentId, $contentMainId, FALSE, $options);
   }
@@ -1475,17 +1495,20 @@ Class H5PExport {
   public function createExportFile($content) {
     $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
     $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['id'] . '.h5p';
+    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['slug'] . '-' . $content['id'] . '.h5p';
 
-    // Temp dir to put the h5p files in
-    @mkdir($tempPath, 0777, TRUE);
-    @mkdir($h5pDir . 'exports', 0777, TRUE);
+    // Make sure the exports dir is ready
+    if (!H5PCore::dirReady($h5pDir . 'exports')) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the exports directory.'));
+      return FALSE;
+    }
 
     // Create content folder
     if ($this->h5pC->copyFileTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $content['id'], $tempPath . DIRECTORY_SEPARATOR . 'content') === FALSE) {
       return FALSE;
     }
     file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json', $content['params']);
+
 
     // Make embedTypes into an array
     $embedTypes = explode(', ', $content['embedType']); // Won't content always be embedded in one way?
@@ -1572,12 +1595,11 @@ Class H5PExport {
   /**
    * Delete .h5p file
    *
-   * @param int/string $contentId
-   *  Identifier for the H5P
+   * @param array $content object
    */
-  public function deleteExport($contentId) {
+  public function deleteExport($content) {
     $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $contentId . '.h5p';
+    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . ($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p';
     if (file_exists($zipPath)) {
       unlink($zipPath);
     }
@@ -1610,7 +1632,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 5
+    'minorVersion' => 6
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -1621,6 +1643,7 @@ class H5PCore {
     'js/h5p-event-dispatcher.js',
     'js/h5p-x-api-event.js',
     'js/h5p-x-api.js',
+    'js/h5p-content-type.js',
   );
   public static $adminScripts = array(
     'js/jquery.js',
@@ -1738,7 +1761,7 @@ class H5PCore {
    * @param Object $content
    * @return Object NULL on failure.
    */
-  public function filterParameters($content) {
+  public function filterParameters(&$content) {
     if (isset($content['filtered']) && $content['filtered'] !== '') {
       return $content['filtered'];
     }
@@ -1749,6 +1772,9 @@ class H5PCore {
       'library' => H5PCore::libraryToString($content['library']),
       'params' => json_decode($content['params'])
     );
+    if (!$params->params) {
+      return NULL;
+    }
     $validator->validateLibrary($params, (object) array('options' => array($params->library)));
 
     $params = json_encode($params->params);
@@ -1761,6 +1787,16 @@ class H5PCore {
       $this->h5pF->deleteLibraryUsage($content['id']);
       $this->h5pF->saveLibraryUsage($content['id'], $content['dependencies']);
 
+      if (!$content['slug']) {
+        $content['slug'] = $this->generateContentSlug($content);
+
+        // Remove old export file
+        $oldExport = $this->path . '/exports/' . $content['id'] . '.h5p';
+        if (file_exists($oldExport)) {
+          unlink($oldExport);
+        }
+      }
+
       if ($this->exportEnabled) {
         // Recreate export file
         $exporter = new H5PExport($this->h5pF, $this);
@@ -1768,9 +1804,39 @@ class H5PCore {
       }
 
       // Cache.
-      $this->h5pF->setFilteredParameters($content['id'], $params);
+      $this->h5pF->updateContentFields($content['id'], array(
+        'filtered' => $params,
+        'slug' => $content['slug']
+      ));
     }
     return $params;
+  }
+
+  /**
+   * Generate content slug
+   *
+   * @param array $content object
+   * @return string unique content slug
+   */
+  private function generateContentSlug($content) {
+    $slug = H5PCore::slugify($content['title']);
+
+    $available = NULL;
+    while (!$available) {
+      if ($available === FALSE) {
+        // If not available, add number suffix.
+        $matches = array();
+        if (preg_match('/(.+-)([0-9]+)$/', $slug, $matches)) {
+          $slug = $matches[1] . (intval($matches[2]) + 1);
+        }
+        else {
+          $slug .=  '-2';
+        }
+      }
+      $available = $this->h5pF->isContentSlugAvailable($slug);
+    }
+
+    return $slug;
   }
 
   /**
@@ -2037,14 +2103,17 @@ class H5PCore {
    *  Indicates if the directory existed.
    */
   public function copyFileTree($source, $destination) {
-    $dir = opendir($source);
-
-    if ($dir === FALSE) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy tree, no such directory: @dir', array('@dir' => $source)));
+    if (!H5PCore::dirReady($destination)) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy file tree.'));
       return FALSE;
     }
 
-    @mkdir($destination);
+    $dir = opendir($source);
+    if ($dir === FALSE) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy file tree.'));
+      return FALSE;
+    }
+
     while (false !== ($file = readdir($dir))) {
         if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
             if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
@@ -2389,6 +2458,75 @@ class H5PCore {
 
     return $libraryIdMap[$libString];
   }
+
+  /**
+   * Convert strings of text into simple kebab case slugs.
+   * Very useful for readable urls etc.
+   *
+   * @param string $input
+   * @return string
+   */
+  public static function slugify($input) {
+    // Down low
+    $input = strtolower($input);
+
+    // Replace common chars
+    $input = str_replace(
+      array('æ',  'ø',  'ö', 'ó', 'ô', 'Ò',  'Õ', 'Ý', 'ý', 'ÿ', 'ā', 'ă', 'ą', 'œ', 'å', 'ä', 'á', 'à', 'â', 'ã', 'ç', 'ć', 'ĉ', 'ċ', 'č', 'é', 'è', 'ê', 'ë', 'í', 'ì', 'î', 'ï', 'ú', 'ñ', 'ü', 'ù', 'û', 'ß',  'ď', 'đ', 'ē', 'ĕ', 'ė', 'ę', 'ě', 'ĝ', 'ğ', 'ġ', 'ģ', 'ĥ', 'ħ', 'ĩ', 'ī', 'ĭ', 'į', 'ı', 'ĳ',  'ĵ', 'ķ', 'ĺ', 'ļ', 'ľ', 'ŀ', 'ł', 'ń', 'ņ', 'ň', 'ŉ', 'ō', 'ŏ', 'ő', 'ŕ', 'ŗ', 'ř', 'ś', 'ŝ', 'ş', 'š', 'ţ', 'ť', 'ŧ', 'ũ', 'ū', 'ŭ', 'ů', 'ű', 'ų', 'ŵ', 'ŷ', 'ź', 'ż', 'ž', 'ſ', 'ƒ', 'ơ', 'ư', 'ǎ', 'ǐ', 'ǒ', 'ǔ', 'ǖ', 'ǘ', 'ǚ', 'ǜ', 'ǻ', 'ǽ',  'ǿ'),
+      array('ae', 'oe', 'o', 'o', 'o', 'oe', 'o', 'o', 'y', 'y', 'y', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'c', 'c', 'c', 'c', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'u', 'n', 'u', 'u', 'u', 'es', 'd', 'd', 'e', 'e', 'e', 'e', 'e', 'g', 'g', 'g', 'g', 'h', 'h', 'i', 'i', 'i', 'i', 'i', 'ij', 'j', 'k', 'l', 'l', 'l', 'l', 'l', 'n', 'n', 'n', 'n', 'o', 'o', 'o', 'r', 'r', 'r', 's', 's', 's', 's', 't', 't', 't', 'u', 'u', 'u', 'u', 'u', 'u', 'w', 'y', 'z', 'z', 'z', 's', 'f', 'o', 'u', 'a', 'i', 'o', 'u', 'u', 'u', 'u', 'u', 'a', 'ae', 'oe'),
+      $input);
+
+    // Replace everything else
+    $input = preg_replace('/[^a-z0-9]/', '-', $input);
+
+    // Prevent double hyphen
+    $input = preg_replace('/-{2,}/', '-', $input);
+
+    // Prevent hyphen in beginning or end
+    $input = trim($input, '-');
+
+    // Prevent to long slug
+    if (strlen($input) > 91) {
+      $input = substr($input, 0, 92);
+    }
+
+    // Prevent empty slug
+    if ($input === '') {
+      $input = 'interactive';
+    }
+
+    return $input;
+  }
+
+  /**
+   * Recursive function that makes sure the specified directory exists and
+   * is writable.
+   *
+   * @param string $path
+   * @return bool
+   */
+  public static function dirReady($path) {
+    if (!file_exists($path)) {
+      $parent = preg_replace("/\/[^\/]+\/?$/", '', $path);
+      if (!H5PCore::dirReady($parent)) {
+        return FALSE;
+      }
+
+      mkdir($path, 0777, true);
+    }
+
+    if (!is_dir($path)) {
+      trigger_error('Path is not a directory ' . $path, E_USER_WARNING);
+      return FALSE;
+    }
+
+    if (!is_writable($path)) {
+      trigger_error('Unable to write to ' . $path . ' – check directory permissions –', E_USER_WARNING);
+      return FALSE;
+    }
+
+    return TRUE;
+  }
 }
 
 /**
@@ -2398,6 +2536,7 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
+  private static $allowed_stylable_tags = array('span', 'p', 'div');
 
   /**
    * Constructor for the H5PContentValidator
@@ -2487,6 +2626,9 @@ class H5PContentValidator {
         }
       }
 
+      // Aligment is allowed for all wysiwyg texts
+      $stylePatterns[] = '/^text-align: *(center|left|right);?$/i';
+
       // Strip invalid HTML tags.
       $text = $this->filter_xss($text, $tags, $stylePatterns);
     }
@@ -2501,7 +2643,7 @@ class H5PContentValidator {
     }
 
     // Check if string is according to optional regexp in semantics
-    if (!($text === '' && $semantics->optional) && isset($semantics->regexp)) {
+    if (!($text === '' && isset($semantics->optional) && $semantics->optional) && isset($semantics->regexp)) {
       // Escaping '/' found in patterns, so that it does not break regexp fencing.
       $pattern = '/' . str_replace('/', '\\/', $semantics->regexp->pattern) . '/';
       $pattern .= isset($semantics->regexp->modifiers) ? $semantics->regexp->modifiers : '';
@@ -3021,7 +3163,8 @@ class H5PContentValidator {
     $xhtml_slash = $count ? ' /' : '';
 
     // Clean up attributes.
-    $attr2 = implode(' ', $this->_filter_xss_attributes($attrlist, ($elem === 'span' ? $this->allowedStyles : FALSE)));
+
+    $attr2 = implode(' ', $this->_filter_xss_attributes($attrlist, (in_array($elem, self::$allowed_stylable_tags) ? $this->allowedStyles : FALSE)));
     $attr2 = preg_replace('/[<>]/', '', $attr2);
     $attr2 = strlen($attr2) ? ' ' . $attr2 : '';
 

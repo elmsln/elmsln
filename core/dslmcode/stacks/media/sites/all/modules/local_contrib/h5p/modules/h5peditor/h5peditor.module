@@ -238,7 +238,7 @@ function _h5peditor_create_content($node) {
   $content_id = h5p_get_content_id($node);
 
   if (!$editor->createDirectories($content_id)) {
-    drupal_set_message('Unable to create h5p content directories.', 'error');
+    drupal_set_message('Unable to create content directory.', 'error');
     return;
   }
 

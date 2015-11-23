@@ -401,8 +401,9 @@ class H5PDrupal implements H5PFrameworkInterface {
         'json_content' => $content['params'],
         'embed_type' => 'div', // TODO: Determine from library?
         'main_library_id' => $content['library']['libraryId'],
+        'disable' => $content['disable'],
         'filtered' => '',
-        'disable' => $content['disable']
+        'slug' => ''
       ))
       ->execute();
 
@@ -610,7 +611,8 @@ class H5PDrupal implements H5PFrameworkInterface {
                 hl.embed_types AS library_embed_types,
                 hl.fullscreen AS library_fullscreen,
                 hn.filtered,
-                hn.disable
+                hn.disable,
+                hn.slug
           FROM {h5p_nodes} hn
           JOIN {node} n ON n.nid = hn.nid
           JOIN {h5p_libraries} hl ON hl.library_id = hn.main_library_id
@@ -684,18 +686,26 @@ class H5PDrupal implements H5PFrameworkInterface {
   }
 
   /**
-   * This will set the filtered parameters for the given content.
-   *
-   * @param int $content_id
-   * @param string $parameters filtered
+   * Convert variables to fit our DB.
    */
-  public function setFilteredParameters($content_id, $parameters = '') {
+  private static function camelToString($input) {
+    $input = preg_replace('/[a-z0-9]([A-Z])[a-z0-9]/', '_$1', $input);
+    return strtolower($input);
+  }
+
+  /**
+   * Implements updateContentFields().
+   */
+  public function updateContentFields($id, $fields) {
+    $processedFields = array();
+    foreach ($fields as $name => $value) {
+      $processedFields[self::camelToString($name)] = $value;
+    }
+
     db_update('h5p_nodes')
-    ->fields(array(
-      'filtered' => $parameters,
-    ))
-    ->condition('content_id', $content_id)
-    ->execute();
+      ->fields($processedFields)
+      ->condition('content_id', $id)
+      ->execute();
   }
 
   /**
@@ -733,5 +743,12 @@ class H5PDrupal implements H5PFrameworkInterface {
    */
   public function getNumContent($library_id) {
     return intval(db_query('SELECT COUNT(content_id) FROM {h5p_nodes} WHERE main_library_id = :id', array(':id' => $library_id))->fetchField());
+  }
+
+  /**
+   * Implements isContentSlugAvailable
+   */
+  public function isContentSlugAvailable($slug) {
+    return !db_query('SELECT slug FROM {h5p_nodes} WHERE slug = :slug', array(':slug' => $slug))->fetchField();
   }
 }

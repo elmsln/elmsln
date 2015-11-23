@@ -12,17 +12,17 @@ var ns = H5PEditor;
  */
 ns.File = function (parent, field, params, setValue) {
   var self = this;
-  
+
   this.parent = parent;
   this.field = field;
   this.params = params;
   this.setValue = setValue;
   this.library = parent.library + '/' + field.name;
-  
+
   if (params !== undefined) {
     this.copyright = params.copyright;
   }
-  
+
   this.changes = [];
   this.passReadies = true;
   parent.ready(function () {
@@ -51,13 +51,13 @@ ns.File.prototype.appendTo = function ($wrapper) {
   this.$file = $container.find('.file');
   this.$errors = $container.find('.h5p-errors');
   this.addFile();
-  
+
   var $dialog = $container.find('.h5p-editor-dialog');
   $container.find('.h5p-copyright-button').add($dialog.find('.h5p-close')).click(function () {
     $dialog.toggleClass('h5p-open');
     return false;
   });
-  
+
   var group = new ns.widgets.group(self, ns.copyrightSemantics, self.copyright, function (field, value) {
     if (self.params !== undefined) {
       self.params.copyright = value;
@@ -70,7 +70,7 @@ ns.File.prototype.appendTo = function ($wrapper) {
   this.children = [group];
 };
 
-  
+
 /**
  * Sync copyright between all video files.
  *
@@ -79,7 +79,7 @@ ns.File.prototype.appendTo = function ($wrapper) {
 ns.File.prototype.setCopyright = function (value) {
   this.copyright = this.params.copyright = value;
 };
-  
+
 
 /**
  * Creates thumbnail HTML and actions.
@@ -145,11 +145,10 @@ ns.File.prototype.uploadFile = function () {
     that.$file.html('<div class="h5peditor-uploading h5p-throbber">' + ns.t('core', 'uploading') + '</div>');
   };
 
-  ns.File.callback = function (json) {
+  ns.File.callback = function (err, result) {
     try {
-      var result = JSON.parse(json);
-      if (result['error'] !== undefined) {
-        throw(result['error']);
+      if (err) {
+        throw err;
       }
 
       that.params = {
@@ -232,12 +231,39 @@ ns.File.addIframe = function () {
   }
   ns.File.iframeLoaded = true;
 
+  // Prevent trying to parse first load event.
+  var initialized = false;
+
   // All editor uploads share this iframe to conserve valuable resources.
-  ns.$('<iframe id="h5peditor-uploader"></iframe>').load(function () {
+  ns.$('<iframe id="h5peditor-uploader"></iframe>').load(function (data) {
     var $body = ns.$(this).contents().find('body');
-    var json = $body.text();
-    if (ns.File.callback !== undefined) {
-      ns.File.callback(json);
+
+    if (initialized) {
+      // Try to read response
+      var response, error;
+      try {
+        response = JSON.parse($body.text());
+        if (response.error) {
+          error = response.error;
+        }
+      }
+      catch (err) {
+        H5P.error(err);
+        error = H5PEditor.t('core', 'fileToLarge');
+      }
+
+      // Trigger callback if set.
+      if (ns.File.callback !== undefined) {
+        if (error) {
+          ns.File.callback(H5PEditor.t('core', 'uploadError') + ': ' + error);
+        }
+        else {
+          ns.File.callback(undefined, response);
+        }
+      }
+    }
+    else {
+      initialized = true;
     }
 
     $body.html('');

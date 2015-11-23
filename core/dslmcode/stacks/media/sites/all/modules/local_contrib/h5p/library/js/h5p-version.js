@@ -1,4 +1,4 @@
-H5P.Version = (function () {
+H5P.Version = (function () {
   /**
    * Make it easy to keep track of version details.
    *

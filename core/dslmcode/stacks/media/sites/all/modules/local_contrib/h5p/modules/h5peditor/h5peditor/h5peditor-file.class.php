@@ -25,13 +25,9 @@ class H5peditorFile {
     // Create the temporary directory if it doesn't exist.
     $dirs = array ('', '/files', '/images', '/videos', '/audios');
     foreach ($dirs as $dir) {
-      $dir = $this->files_directory . $dir;
-      if (!is_dir($dir)) {
-        if (!mkdir($dir)) {
-          // TODO: Move all t-s out of here.
-          $this->result->error = $this->interface->t('Unable to create directory.');
-          return;
-        }
+      if (!H5PCore::dirReady($this->files_directory . $dir)) {
+        $this->result->error = $this->interface->t('Unable to create directory.');
+        return;
       }
     }
 

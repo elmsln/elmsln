@@ -174,8 +174,8 @@ function _h5p_make_urls_absolute($urls, $remove = NULL) {
  * @param int $content_id
  * @return string
  */
-function h5p_get_export_path($content_id) {
-  return variable_get('h5p_export', 1) ? file_create_url(_h5p_get_h5p_path() . '/exports/' . $content_id . '.h5p') : '';
+function h5p_get_export_path($content) {
+  return variable_get('h5p_export', 1) ? file_create_url(_h5p_get_h5p_path() . '/exports/' . ($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p') : '';
 }
 
 /**
@@ -257,15 +257,7 @@ function h5p_form(&$node, $form_state) {
   );
 
   if (isset($node->json_content) || isset($node->translation_source) && isset($node->translation_source->json_content)) {
-    $source = isset($node->translation_source) ? $node->translation_source : $node;
-    $content = array(
-      'id' => h5p_get_content_id($node),
-      'title' => $source->title,
-      'params' => $source->json_content,
-      'language' => $source->language,
-      'library' => $source->main_library,
-      'embedType' => 'div',
-    );
+    $content = h5p_get_content(isset($node->translation_source) ? $node->translation_source : $node);
     $core = _h5p_get_instance('core');
     $filtered_params = $core->filterParameters($content);
   }
@@ -454,19 +446,21 @@ function h5p_delete($node) {
   $h5p_core = _h5p_get_instance('storage');
   $h5p_export = _h5p_get_instance('export');
 
-  $res = db_query("SELECT content_id FROM {h5p_nodes} WHERE nid = :nid", array(':nid' => $node->nid));
-  while ($content_id = $res->fetchField()) {
-    $h5p_core->deletePackage($content_id);
-    $h5p_export->deleteExport($content_id);
-  }
-  db_delete('h5p_points')
-    ->condition('content_id', h5p_get_content_id($node))
-    ->execute();
+  $res = db_query("SELECT content_id AS id, slug FROM {h5p_nodes} WHERE nid = :nid", array(':nid' => $node->nid));
+  while($content = $res->fetchAssoc()) {
+    $h5p_core->deletePackage($content['id']);
+    $h5p_export->deleteExport($content);
 
-  // Remove content user data
-  db_delete('h5p_content_user_data')
-    ->condition('content_main_id', $node->nid)
-    ->execute();
+    // Remove content points
+    db_delete('h5p_points')
+      ->condition('content_id', $content['id'])
+      ->execute();
+
+    // Remove content user data
+    db_delete('h5p_content_user_data')
+      ->condition('content_main_id', $content['id'])
+      ->execute();
+  }
 }
 
 /**
@@ -484,6 +478,7 @@ function h5p_load($nodes) {
       $node->main_library = $content['library'];
       $node->filtered = $content['filtered'];
       $node->disable = $content['disable'];
+      $node->h5p_slug = $content['slug'];
     }
   }
 }
@@ -495,17 +490,7 @@ function h5p_view($node, $view_mode = 'full') {
   node_object_prepare($node);
 
   if (!isset($node->in_preview) && isset($node->main_library_id)) {
-    $content_id = h5p_get_content_id($node);
-    $embed = H5PCore::determineEmbedType($node->embed_type, $node->main_library['embedTypes']);
-
-    h5p_add_files_and_settings($node, $embed);
-    // TODO: Should we use Drupal's theme system?
-    if ($embed === 'div') {
-      $html = '<div class="h5p-content" data-content-id="' .  $content_id . '"></div>';
-    }
-    else {
-      $html = '<div class="h5p-iframe-wrapper"><iframe id="h5p-iframe-' . $content_id . '" class="h5p-iframe" data-content-id="' . $content_id . '" style="height:1px" src="about:blank" frameBorder="0" scrolling="no"></iframe></div>';
-    }
+    $html = _include_h5p($node);
   }
 
   if (!isset($html)) {
@@ -561,6 +546,64 @@ function h5p_user_delete($account) {
   db_delete('h5p_content_user_data')
     ->condition('user_id', $account->uid)
     ->execute();
+}
+
+/**
+ * Implements hook_filter_info().
+ */
+function h5p_filter_info() {
+  $filters['h5p_content'] = array(
+    'title' => t('H5P Content'),
+    'description' => t("Provides shortcodes for adding H5P content to this text format. Should be applied last so that other filters doesn't strip away tags added by this filter."),
+    'process callback' => '_h5p_process_shortcodes',
+    'tips callback' => '_h5p_filter_tips',
+    'cache' => FALSE, // Needs to add its scripts every time. Will make the entire text format not cacheable
+  );
+
+  return $filters;
+}
+
+/**
+ * Provides filter tips callback.
+ */
+function _h5p_filter_tips($filter, $format, $long = FALSE) {
+  return t('Add a [h5p=&lt;h5p id&gt;] tag to include h5p content, for instance [h5p=12] to include the H5P with node id 12.');
+}
+
+/**
+ * Replace H5P tags with h5p embed codes and add H5P files
+ */
+function _h5p_process_shortcodes($text, $filter) {
+  return preg_replace_callback('%\[h5p=([0-9]*)]%', function($matches) {
+    $node = node_load($matches[1]);
+    if (!$node || $node->type !== 'h5p_content') {
+      return '';
+    }
+    $html = _include_h5p($node);
+    h5p_set_started(h5p_get_content_id($node));
+    return $html;
+  }, $text);
+}
+
+/**
+ * Adds H5P embed code and necessary files
+ *
+ * @param object $node - H5P node
+ * @return string - HTML code for embedding the H5P
+ */
+
+function _include_h5p($node) {
+  $content_id = h5p_get_content_id($node);
+  $embed = H5PCore::determineEmbedType($node->embed_type, $node->main_library['embedTypes']);
+
+  h5p_add_files_and_settings($node, $embed);
+  if ($embed === 'div') {
+    $html = '<div class="h5p-content" data-content-id="' .  $content_id . '"></div>';
+  }
+  else {
+    $html = '<div class="h5p-iframe-wrapper"><iframe id="h5p-iframe-' . $content_id . '" class="h5p-iframe" data-content-id="' . $content_id . '" style="height:1px" src="about:blank" frameBorder="0" scrolling="no"></iframe></div>';
+  }
+  return $html;
 }
 
 /**
@@ -716,7 +759,11 @@ function h5p_get_core_settings() {
         'embedDescription' => t('View the embed code for this content.'),
         'h5pDescription' => t('Visit H5P.org to check out more cool content.'),
         'contentChanged' => t('This content has changed since you last used it.'),
-        'startingOver' => t("You'll be starting over.")
+        'startingOver' => t("You'll be starting over."),
+        'by' => t('by'),
+        'showMore' => t('Show more'),
+        'showLess' => t('Show less'),
+        'subLevel' => t('Sublevel')
       )
     )
   );
@@ -726,6 +773,9 @@ function h5p_get_core_settings() {
       'name' => $user->name,
       'mail' => $user->mail
     );
+  }
+  else {
+    $settings['siteUrl'] = url('<front>', array('absolute' => TRUE));
   }
 
   return $settings;
@@ -748,6 +798,7 @@ function h5p_get_content($node) {
     'filtered' => $node->filtered,
     'url' => url('node/' . $node->nid, array('absolute' => TRUE)),
     'disable' => $node->disable,
+    'slug' => $node->h5p_slug
   );
 }
 
@@ -782,7 +833,11 @@ function h5p_get_content_settings($content) {
                         ':content_id' => $content['mainId']
   ));
 
-  $content_user_data = array();
+  $content_user_data = array(
+    0 => array(
+      'state' => FALSE
+    )
+  );
   foreach ($results as $result) {
     $content_user_data[$result->sub_content_id][$result->data_id] = $result->data;
   }
@@ -791,9 +846,9 @@ function h5p_get_content_settings($content) {
     'library' => H5PCore::libraryToString($content['library']),
     'jsonContent' => $filtered,
     'fullScreen' => $content['library']['fullscreen'],
-    'exportUrl' => h5p_get_export_path($content['id']),
+    'exportUrl' => h5p_get_export_path($content),
     'embedCode' => '<iframe src="' . url('h5p/embed/' . $content['mainId'], array('absolute' => TRUE)) . '" width=":w" height=":h" frameborder="0" allowfullscreen="allowfullscreen"></iframe>',
-    'resizeCode' => '<script src="' . h5p_get_resize_url() . '"></script>',
+    'resizeCode' => '<script src="' . h5p_get_resize_url() . '" charset="UTF-8"></script>',
     'mainId' => $content['mainId'],
     'url' => $content['url'],
     'title' => $content['title'],
@@ -869,6 +924,16 @@ function h5p_add_files_and_settings($node, $embed_type) {
 }
 
 /**
+ * Checks to see if the path is external.
+ *
+ * @param string $path
+ * @return bool
+ */
+function h5p_is_external_asset($path) {
+  return preg_match('/^[a-z0-9]+:\/\//i', $path) ? TRUE : FALSE;
+}
+
+/**
  * Add the necessary assets for content to run in an iframe.
  *
  * @param array $integration
@@ -899,15 +964,23 @@ function h5p_add_iframe_assets(&$integration, $content_id, $files) {
   if ($is_writable && $preprocess_css) {
     // Refactor styles array to Drupal eatable format.
     $styles = array();
+    // Filters out external styles
+    $external_styles = array();
     foreach ($files['styles'] as $style) {
+      if (h5p_is_external_asset($style->path)) {
+        $external_styles[] = $style;
+      }
+      else {
+        // Aggregate
       $styles[] = array(
         'data' => $style->path,
         'type' => 'file'
       );
     }
+    }
 
-    $css_url = file_create_url(drupal_build_css_cache($styles));
-    $integration['contents']['cid-' . $content_id]['styles'] = array($css_url);
+    $integration['contents']['cid-' . $content_id]['styles'] = $core->getAssetsUrls($external_styles);
+    $integration['contents']['cid-' . $content_id]['styles'][] = file_create_url(drupal_build_css_cache($styles));
   }
   else {
     $integration['contents']['cid-' . $content_id]['styles'] = $core->getAssetsUrls($files['styles']);
@@ -916,16 +989,24 @@ function h5p_add_iframe_assets(&$integration, $content_id, $files) {
   if ($is_writable && $preprocess_js) {
     // Refactor scripts array to Drupal eatable format.
     $scripts = array();
+    // Filters out external scripts
+    $external_scripts = array();
     foreach ($files['scripts'] as $script) {
+      if (h5p_is_external_asset($script->path)) {
+        $external_scripts[] = $script;
+      }
+      else {
+        // Aggregate
       $scripts[$script->path] = array(
         'data' => $script->path,
         'type' => 'file',
         'preprocess' => TRUE,
       );
     }
+    }
 
-    $js_url = file_create_url(drupal_build_js_cache($scripts));
-    $integration['contents']['cid-' . $content_id]['scripts'] = array($js_url);
+    $integration['contents']['cid-' . $content_id]['scripts'] = $core->getAssetsUrls($external_scripts);
+    $integration['contents']['cid-' . $content_id]['scripts'][] = file_create_url(drupal_build_js_cache($scripts));
   }
   else {
     $integration['contents']['cid-' . $content_id]['scripts'] = $core->getAssetsUrls($files['scripts']);

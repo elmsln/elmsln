@@ -120,7 +120,7 @@ class H5peditor {
     $sub_directories = array('', 'files', 'images', 'videos', 'audios');
     foreach ($sub_directories AS $sub_directory) {
       $sub_directory = $this->content_directory . $sub_directory;
-      if (!is_dir($sub_directory) && !@mkdir($sub_directory)) {
+      if (!is_dir($sub_directory) && !mkdir($sub_directory)) {
         return FALSE;
       }
     }

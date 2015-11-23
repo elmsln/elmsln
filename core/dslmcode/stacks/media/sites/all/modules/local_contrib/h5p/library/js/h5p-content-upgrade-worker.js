@@ -7,9 +7,9 @@ var libraryLoadedCallback;
  * Register message handlers
  */
 var messageHandlers = {
-  newJob: function (job) {
+  newJob: function (job) {
     // Start new job
-    new H5P.ContentUpgradeProcess(job.name, new H5P.Version(job.oldVersion), new H5P.Version(job.newVersion), job.params, job.id, function loadLibrary(name, version, next) {
+    new H5P.ContentUpgradeProcess(job.name, new H5P.Version(job.oldVersion), new H5P.Version(job.newVersion), job.params, job.id, function loadLibrary(name, version, next) {
       // TODO: Cache?
       postMessage({
         action: 'loadLibrary',
