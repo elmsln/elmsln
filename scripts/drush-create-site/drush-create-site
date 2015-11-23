@@ -313,10 +313,12 @@ do
       ;;
       urol)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      background='FALSE'
       ;;
       ucrt)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-  ;;
+      background='FALSE'
+      ;;
       fr)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
