@@ -39,8 +39,8 @@ function cis_helper_drush_command() {
     'examples' => array(
       'drush cis-release-kraken' =>
         'Add service instances to all known courses in system',
-      'drush cis-kraken --outline_import --build_service=course' =>
-        'Add service instances to all known courses in system, attempt outline importing, only building the "course" instance.',
+      'drush cis-kraken --outline_import --build_service=courses' =>
+        'Add service instances to all known courses in system, attempt outline importing, only building the "courses" instance.',
     ),
   );
   $items['cis-sync-registry'] = array(
@@ -107,6 +107,7 @@ function drush_cis_helper_cis_sync_registry() {
  * Drush command callback for cis-release-kraken.
  */
 function drush_cis_helper_cis_release_kraken() {
+  // load all courses
   $courses = _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title');
   // load all services
   $services = _cis_connector_assemble_entity_list('node', 'service', 'field_machine_name', 'title');
