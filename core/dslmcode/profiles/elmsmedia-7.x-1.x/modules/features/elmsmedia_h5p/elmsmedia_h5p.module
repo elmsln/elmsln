@@ -11,3 +11,13 @@
 function elmsmedia_h5p_page_build(&$page) {
   drupal_add_css(drupal_get_path('module', 'elmsmedia_h5p') . '/elmsmedia_h5p.css', array('group' => CSS_THEME, 'weight' => 1000));
 }
+
+/**
+ * Implements hook_embedded_h5p_alter()
+ */
+function elmsmedia_h5p_embedded_h5p_alter(&$node) {
+  // append domain partcial if we can for avoiding XSS blocking on same origin root
+  if ($domain = _cis_connector_parent_domain()) {
+    print '<script>document.domain = "' . $domain . '"</script>';
+  }
+}

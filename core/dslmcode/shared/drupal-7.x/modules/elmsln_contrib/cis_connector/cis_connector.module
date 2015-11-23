@@ -1672,3 +1672,25 @@ function _cis_connector_banned_drush_commands() {
   // and as a result should not be allowed to run via this task no matter what
   return array('si', 'site-install', 'eval', 'ev', 'scr', 'php-script', 'runserver', 'rs', 'ssh', 'site-ssh', 'test-run');
 }
+
+/**
+ * Figure out the parent domain of this tool
+ * useful for making safe iframe parent domain exceptions
+ * @return string domain parent of the current system's domain
+ */
+function _cis_connector_parent_domain($bucket = NULL) {
+  // if null, rely on the install profile
+  if (empty($bucket)) {
+    $bucket = variable_get('install_profile', 'standard');
+  }
+  // ensure we have something to bother trying to obtain domain off of
+  if ($settings = _cis_connector_build_registry($bucket)) {
+    $tmp = explode('.', $settings['address']);
+    // remove the first sub-domain
+    array_shift($tmp);
+    // rebuild as higher level domain
+    $domain = implode('.', $tmp);
+    return $domain;
+  }
+  return FALSE;
+}
