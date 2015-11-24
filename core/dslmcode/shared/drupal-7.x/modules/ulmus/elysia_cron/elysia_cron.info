@@ -1,0 +1,12 @@
+name = "Elysia Cron"
+description = "Extended cron support with crontab-like scheduling and other features."
+core = 7.x
+files[] = elysia_cron_update.php
+files[] = elysia_drupalconv.php
+configure = admin/config/system/cron
+; Information added by drupal.org packaging script on 2012-03-13
+version = "7.x-2.1"
+core = "7.x"
+project = "elysia_cron"
+datestamp = "1331658045"
+
