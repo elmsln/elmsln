@@ -135,6 +135,7 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
   .top-bar {
     background-color:transparent;
     height: $top-bar-base-height;
+    overflow: visible; // need this to allow the dropdown to display
     @media #{$small-only} {
       border-bottom:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
     }
@@ -223,5 +224,38 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     @media #{$small-only} {
        text-align: center;
     }
+  }
+}
+
+#courseToolsMenu {
+  width: 98%;
+  margin-top: 1em;
+  margin-left: -1rem;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+
+  // The following is a stupid hack to get
+  // the little top arrow to line up properly
+  // on the right
+  &:after {
+    left: 89.5%;
+  }
+  &:before {
+    left: 90%;
+  }
+
+  li {
+    width: 100%;
+    a {
+      width: 100%;
+      line-height: 2.5;
+      &:hover {
+        background-color: $smoke !important;
+      }
+    }
+  }
+
+  .nolink {
+    margin: .75em;
+    color: #BABABA;
   }
 }

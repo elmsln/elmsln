@@ -93,12 +93,22 @@
     <div class="etb-title small-12 medium-6 columns">
       <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar role="navigation">
        <section class="top-bar-section title-link">
-          <ul class="right">
-            <li>
-              <?php print l('<span class="course-title">' . $slogan . '</span><span class="course-abrv">' . $site_name . '</span></a>', '<front>', array('html' => TRUE)); ?>
-            </li>
-          </ul>
-        </section>
+        <ul class="menu right clearfix">
+          <li class="first expanded menu-mlid-365">
+            <a href="/" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
+              <span class="course-title"><?php print $slogan; ?></span>
+              <span class="course-abrv"><?php print $site_name; ?></span>
+            </a>
+            <ul id="courseToolsMenu" class="f-dropdown" aria-hidden="true" aria-autoclose="true">
+              <?php
+                $menu = menu_tree('menu-course-tools-menu');
+                print render($menu); 
+              ?>
+            </ul>
+          </li>
+        </ul>
+      </section>
       </nav>
     </div>
   </div>
+
