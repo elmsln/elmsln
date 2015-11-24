@@ -95,9 +95,10 @@
        <section class="top-bar-section title-link">
         <ul class="menu right clearfix">
           <li class="first expanded menu-mlid-365">
-            <a href="/" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
+            <a id="courseToolsMenuTrigger" href="/" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
               <span class="course-title"><?php print $slogan; ?></span>
               <span class="course-abrv"><?php print $site_name; ?></span>
+              <span class="icon icon--dropdown"></span>
             </a>
             <ul id="courseToolsMenu" class="f-dropdown" data-dropdown-content aria-hidden="true" aria-autoclose="true">
               <?php
