@@ -82,6 +82,14 @@ function _cis_lmsless_theme_vars() {
     // build in section context if we have one we can pull
     if ($section = _cis_connector_section_context()) {
       $vars['section'] = $section;
+      // do a full load so we can get at the title
+      // which could be in better form for interface presentation
+      if (module_exists('cis_section')) {
+        if ($nid = _cis_section_load_section_by_id($section)) {
+          $tmpnode = node_load($nid);
+          $vars['section_title'] = filter_xss($tmpnode->title);
+        }
+      }
     }
     // pull in the instructor contact info block
     $vars['contact_block'] = cis_service_connection_block_instructor_contact();
@@ -118,35 +126,18 @@ function _cis_lmsless_theme_vars() {
       $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout', 'text-center', 'row'))));
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
-      $vars['admin_status_bar'] = array();
-      if (_cis_connector_role_groupings(array('staff','teacher'))) {
-        $vars['admin_status_bar']['course-settings'] = array(
-          'modal' => 'block-menu-menu-course-tools-menu-nav-modal',
-          'title' => t('settings'),
-          'content' => str_replace('/', '', base_path()),
-        );
-      }
       // account for systems without sections (like authorities)
       if ($section && user_access('switch section context')) {
-        $vars['admin_status_bar']['course-section'] = array(
-          'modal' => 'block-cis-service-connection-section-context-changer-nav-modal',
-          'title' => t('change'),
-          'content' => $section,
-        );
+        $tmptext = '<span>' . filter_xss($section) . '</span>';
+        $vars['user_section'] = $tmptext . '<span><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal" class="admin-alert">' . t('change') . '</a></span>';
       }
       // render differently if the user is already masquerading
       if (isset($_SESSION['masquerading'])) {
-        $vars['admin_status_bar']['current-user-id'] = array(
-          'title' => l(t('revert'), 'masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch')))),
-          'content' => filter_xss($GLOBALS['user']->name),
-        );
+        $tmptext = '<span><div>' . filter_xss($GLOBALS['user']->name) . '</div></span>';
+        $vars['masquerade'] = $tmptext . '<div>' . l(t('revert'), 'masquerade/unswitch', array('attributes' => array('class' => 'admin-alert'), 'query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '</div>';
       }
       else {
-        $vars['admin_status_bar']['current-user-id'] = array(
-          'modal' => 'block-masquerade-masquerade-nav-modal',
-          'title' => t('impersonate'),
-          'content' => filter_xss($GLOBALS['user']->name),
-        );
+        $vars['masquerade'] = '<a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal" class="admin-alert">' . t('impersonate account') . '</a>';
       }
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
@@ -155,9 +146,7 @@ function _cis_lmsless_theme_vars() {
       // figure out how to present roles, don't assume there are roles
       if (!empty($tmproles)) {
         sort($tmproles);
-        $vars['admin_status_bar']['user-role'] = array(
-          'content' => filter_xss(implode(', ', $tmproles)),
-        );
+        $vars['user_roles'] = filter_xss(implode(', ', $tmproles));
       }
     }
     $distro = variable_get('install_profile', 'standard');
@@ -259,7 +248,9 @@ function _cis_lmsless_theme_vars() {
       $vars['bar_elements']['syllabus'] = FALSE;
     }
     $vars['syllabus_link'] = url($syllabus_link);
-
+    // account for standard cross system menu
+    $course_tools = menu_tree('menu-course-tools-menu');
+    $vars['elmsln_main_menu'] = render($course_tools);
     // allow other projects to alter these values
     drupal_alter('cis_lmsless_theme_vars', $vars);
   }
@@ -275,7 +266,7 @@ function cis_lmsless_theme() {
       'variables' => array(
         'front_page' => 'node',
         'site_name' => t('Service'),
-        'section' => t('Master Section'),
+        'section' => 'master_1234',
         'active' => array('title' => ''),
         'services' => array(),
         'tour' => url('guided_tour'),
@@ -284,9 +275,12 @@ function cis_lmsless_theme() {
         'syllabus_link' => url('syllabus'),
         'username' => t('Account'),
         'userlink' => '',
+        'masquerade' => '',
+        'user_roles' => '',
+        'user_section' => '',
         'resources' => array(),
         'tech_support' => array(),
-        'admin_status_bar' => array(),
+        'elmsln_main_menu' => '',
         'bar_elements' => array('network' => TRUE, 'user' => TRUE, 'help' => TRUE, 'syllabus' => TRUE),
       ),
       'render element' => 'element',

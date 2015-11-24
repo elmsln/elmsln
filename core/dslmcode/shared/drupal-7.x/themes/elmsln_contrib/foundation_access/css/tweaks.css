@@ -1,3 +1,26 @@
+.cis-admin-area {
+  background-color: #5CB61F;
+}
+.user-nav-masquerade {
+  width: 100%;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 10px;
+}
+.user-nav-masquerade span {
+  color: #333333;
+  font-weight: bold;
+}
+.user-nav-masquerade div {
+  padding: .25rem;
+}
+.user-nav-user-roles {
+  width: 100%;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
 #block-speedreader-speedreader-block-nav-modal {
   top:25% !important;
   left: 25%;

@@ -79,12 +79,33 @@
          <div id="user-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
             <h1><?php print t('Account'); ?></h1>
               <hr class="pad-1" />
-                <?php print $userlink; ?>
-              <hr />
+              <?php if (isset($masquerade)) : ?>
+              <h2><?php print t('Impersonate'); ?></h2>
+              <div class="cis-admin-area user-nav-masquerade">
+                <?php print $masquerade; ?>
+              </div>
+              <?php endif; ?>
+              <hr class="pad-1" />
+              <?php if (isset($user_roles)) : ?>
+              <h2><?php print t('Roles'); ?></h2>
+              <div class="cis-admin-area user-nav-user-roles">
+                <?php print $user_roles; ?>
+              </div>
+              <?php endif; ?>
+              <?php if (isset($section_title)) : ?>
+              <h2><?php print t('Section'); ?></h2>
+              <div class="cis-admin-area user-nav-section">
+                <?php print $user_section; ?>
+              </div>
+              <?php endif; ?>
+              <hr class="pad-1" />
               <?php if (!empty($username)) : ?>
-              <h2><?php print t('Profile'); ?></h2>
+              <h2><?php print t('User'); ?></h2>
               <span><?php print $username; ?></span>
               <?php endif; ?>
+              <hr class="pad-1" />
+                <?php print $userlink; ?>
+              <hr />
             <a class="close-reveal-modal">&#215;</a>
          </div>
         </section>
@@ -98,13 +119,13 @@
             <a id="courseToolsMenuTrigger" href="/" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
               <span class="course-title"><?php print $slogan; ?></span>
               <span class="course-abrv"><?php print $site_name; ?></span>
+              <?php if (isset($section_title)) : ?>
+                <span class="course-section"><?php print $section_title; ?></span>
+              <?php endif; ?>
               <span class="icon icon--dropdown"></span>
             </a>
             <ul id="courseToolsMenu" class="f-dropdown" data-dropdown-content aria-hidden="true" aria-autoclose="true">
-              <?php
-                $menu = menu_tree('menu-course-tools-menu');
-                print render($menu); 
-              ?>
+              <?php print $elmsln_main_menu; ?>
             </ul>
           </li>
         </ul>
