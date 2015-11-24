@@ -99,7 +99,7 @@
               <span class="course-title"><?php print $slogan; ?></span>
               <span class="course-abrv"><?php print $site_name; ?></span>
             </a>
-            <ul id="courseToolsMenu" class="f-dropdown" aria-hidden="true" aria-autoclose="true">
+            <ul id="courseToolsMenu" class="f-dropdown" data-dropdown-content aria-hidden="true" aria-autoclose="true">
               <?php
                 $menu = menu_tree('menu-course-tools-menu');
                 print render($menu); 
