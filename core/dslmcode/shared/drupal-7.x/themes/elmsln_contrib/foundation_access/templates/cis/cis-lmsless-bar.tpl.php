@@ -116,13 +116,9 @@
        <section class="top-bar-section title-link">
         <ul class="menu right clearfix">
           <li class="first expanded menu-mlid-365">
-            <a id="courseToolsMenuTrigger" href="/" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
+            <a id="courseToolsMenuTrigger" class="icon icon--dropdown" href="/" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
               <span class="course-title"><?php print $slogan; ?></span>
-              <span class="course-abrv"><?php print $site_name; ?></span>
-              <?php if (isset($section_title)) : ?>
-                <span class="course-section"><?php print $section_title; ?></span>
-              <?php endif; ?>
-              <span class="icon icon--dropdown"></span>
+              <span class="course-abrv"><?php print $site_name; ?> <?php print $section_title; ?></span>
             </a>
             <ul id="courseToolsMenu" class="f-dropdown" data-dropdown-content aria-hidden="true" aria-autoclose="true">
               <?php print $elmsln_main_menu; ?>

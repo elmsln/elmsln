@@ -221,6 +221,19 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     color: #000;
     color:#333333;
     font-size: 1em;
+    font-weight: bold;
+    @media #{$small-only} {
+       text-align: center;
+    }
+  }
+  span.course-section {
+    display: block;
+    text-align: right;
+    line-height:1rem;
+    color:#333333;
+    font-size: 1em;
+    padding: 0;
+    font-weight: bold;
     @media #{$small-only} {
        text-align: center;
     }
@@ -269,21 +282,10 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     color: #BABABA;
     display: block;
   }
-
-  li:first-of-type > .nolink {
-
-  }
 }
 #courseToolsMenuTrigger {
   position: relative;
   @media #{$medium} {
     padding-right: 2em;
-  }
-  
-  .icon {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    margin-right: 1em;
   }
 }
