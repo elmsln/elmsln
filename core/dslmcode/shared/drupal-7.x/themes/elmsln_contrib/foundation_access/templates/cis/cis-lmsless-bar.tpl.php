@@ -116,7 +116,7 @@
        <section class="top-bar-section title-link">
         <ul class="menu right clearfix">
           <li class="first expanded menu-mlid-365">
-            <a id="courseToolsMenuTrigger" class="icon icon--dropdown" href="/" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
+            <a id="courseToolsMenuTrigger" class="etb-icon icon icon--dropdown" href="/" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
               <span class="course-title"><?php print $slogan; ?></span>
               <span class="course-abrv"><?php print $site_name; ?> <?php print $section_title; ?></span>
             </a>
