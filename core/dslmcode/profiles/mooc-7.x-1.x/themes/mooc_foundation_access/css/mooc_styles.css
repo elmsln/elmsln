@@ -2,6 +2,14 @@
   top: 2rem !important;
 }
 
+ul.book-navigation-wrapper {
+  margin: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
 .book-menu-item-active {
   background-color: #eeeeee;
 }
@@ -17,7 +25,7 @@
 }
 
 .book-sibling-nav-container {
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
 .book-sibling-parent-pagination-wrapper {
@@ -238,14 +246,6 @@ a.mooc-helper-toc {
   }
   .left-off-canvas-toggle.menu-icon {
     display: block;
-  }
-  .book-navigation-header {
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    display: none;
   }
 
   .book-sibling-parent,

@@ -1,0 +1,48 @@
+.region-header {
+	background: white;
+	padding: 1em .3em;
+	display: flex;
+	max-width: 90rem;
+
+	&__left {
+		width: 70%;
+		float: left;
+	}
+
+	&__right {
+		width: 30%;
+		float: right;
+		text-align: right;
+		margin-left: auto;
+	}
+
+	&__edit-icons {
+		margin: 0;
+		padding: 0;
+
+		&__list-item {
+			margin: 0;
+			padding: 0;
+			list-style: none;			
+		}
+	}
+
+	&__icon {
+		height: 2em;
+		width: 2em;
+	}
+
+	.f-dropdown {
+		text-align: left;
+		margin: 0;
+
+		> ul {
+			margin: 0;
+		}
+	}
+}
+
+.is-sticky > .region-header {
+	padding: .5em .3em;
+	border-bottom: 1px solid $smoke;
+}

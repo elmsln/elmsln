@@ -16,21 +16,11 @@
   $output = implode('<span class="book-sibling-spacer">/</span>', $breadcrumbs);
 ?>
 <div class="book-navigation-header small-12 medium-12 large-12 book-sibling-nav-container book-navigation-header-<?php print $count ?>">
-  <?php print $output ?>
-  <div class="book-sibling-parent-pagination-wrapper">
-  <?php if ($prev_url): ?>
-    <li class="toolbar-menu-icon book-sibling-parent-pagination book-sibling-parent-pagination-previous">
-      <a href="<?php print $prev_url; ?>" class="page-previous" title="<?php print t('Go to previous page'); ?>"><?php print $prev_title; ?></a>
-    </li>
-  <?php else : ?>
-    <span class="page-previous"><?php print $prev_title; ?></span>
-  <?php endif; ?>
-  <?php if ($next_url): ?>
-    <li class="toolbar-menu-icon book-sibling-parent-pagination book-sibling-parent-pagination-next">
-      <a href="<?php print $next_url; ?>" class="page-next" title="<?php print t('Go to next page'); ?>"><?php print $next_title; ?></a>
-    </li>
-  <?php else : ?>
-    <span class="page-next"><?php print $next_title; ?></span>
-  <?php endif; ?>
-  </div>
+  <!-- TOC Icon -->
+  <a href="#" class="mooc-helper-toc etb-modal-icon courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents">
+    <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div>
+  </a>
+  <ul class="book-navigation-wrapper show-for-large-up">
+    <?php print $output ?>
+  </ul>
 </div>

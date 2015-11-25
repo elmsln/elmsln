@@ -6324,6 +6324,41 @@ th.hide-for-touch {
   th.show-for-print {
     display: table-cell !important; } }
 
+.region-header {
+  background: white;
+  padding: 1em .3em;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  max-width: 90rem; }
+  .region-header__left {
+    width: 70%;
+    float: left; }
+  .region-header__right {
+    width: 30%;
+    float: right;
+    text-align: right;
+    margin-left: auto; }
+  .region-header__edit-icons {
+    margin: 0;
+    padding: 0; }
+    .region-header__edit-icons__list-item {
+      margin: 0;
+      padding: 0;
+      list-style: none; }
+  .region-header__icon {
+    height: 2em;
+    width: 2em; }
+  .region-header .f-dropdown {
+    text-align: left;
+    margin: 0; }
+    .region-header .f-dropdown > ul {
+      margin: 0; }
+
+.is-sticky > .region-header {
+  padding: .5em .3em;
+  border-bottom: 1px solid #EEEEEE; }
+
 body, p, p a {
   font-family: "Droid Serif", "Georgia", serif;
   font-style: normal;
