@@ -45,7 +45,7 @@
               </ul> 
               <!-- Middle Section Dropdown Page Tabs -->
               <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-              <div id="r-header__icon--advanced" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
+              <div id="r-header__icon--advanced" data-dropdown-content class="f-dropdown f-dropdown--classic content" aria-hidden="true" tabindex="-1">
                 <?php if (!empty($tabs)): ?>
                     <?php print render($tabs); ?>
                   <?php if (!empty($tabs2)): print render($tabs2); endif; ?>

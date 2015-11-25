@@ -6371,6 +6371,12 @@ th.hide-for-touch {
   border-bottom: 1px solid #EEEEEE;
   width: 100% !important; }
 
+@media only screen and (min-width: 40.063em) {
+  #r-header__icon--advanced.open {
+    -webkit-transform: translateX(-5%);
+        -ms-transform: translateX(-5%);
+            transform: translateX(-5%); } }
+
 body, p, p a {
   font-family: "Droid Serif", "Georgia", serif;
   font-style: normal;
@@ -6740,6 +6746,12 @@ a.modal-img-link {
     #courseToolsMenu {
       margin-top: 1em;
       margin-left: -1rem; } }
+  #courseToolsMenu.open {
+    left: inherit !important;
+    right: .5em; }
+    @media only screen and (min-width: 40.063em) {
+      #courseToolsMenu.open {
+        right: 1em; } }
   #courseToolsMenu:after {
     left: 89.8%; }
     @media only screen and (min-width: 40.063em) {
@@ -6747,16 +6759,6 @@ a.modal-img-link {
         left: 89.5%; } }
   #courseToolsMenu:before, #courseToolsMenu.imagelightbox__close:after {
     left: 90%; }
-  #courseToolsMenu li {
-    width: 100%; }
-    #courseToolsMenu li a {
-      width: 100%;
-      line-height: 1; }
-      @media only screen and (min-width: 40.063em) {
-        #courseToolsMenu li a {
-          line-height: 2.5; } }
-      #courseToolsMenu li a:hover {
-        background-color: #EEEEEE !important; }
   #courseToolsMenu .nolink {
     margin: .75em;
     color: #BABABA;
@@ -8773,6 +8775,22 @@ The figure label component is used to present textbook like captions to media el
     float: left;
     border: 1px solid #F2F2F2;
     border-radius: .1em; }
+
+.f-dropdown.content:focus {
+  outline-style: none; }
+
+.f-dropdown--classic li {
+  width: 100%; }
+  .f-dropdown--classic li a {
+    font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif !important;
+    font-size: 0.8125rem !important;
+    font-weight: normal !important;
+    color: #333333 !important;
+    padding: .75rem !important;
+    height: auto !important;
+    line-height: 1rem !important; }
+    .f-dropdown--classic li a:hover {
+      background-color: #EEEEEE !important; }
 
 .tab-bar a.add-menu-drop {
   margin: 0 0.3rem;

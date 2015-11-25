@@ -249,6 +249,14 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     margin-left: -1rem;
   }
 
+  &.open {
+    left: inherit !important;
+    right: .5em;
+    @media #{$medium} {
+      right: 1em;
+    }
+  }
+
   // The following is a stupid hack to get
   // the little top arrow to line up properly
   // on the right
@@ -261,20 +269,6 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
   }
   &:before {
     left: 90%;
-  }
-
-  li {
-    width: 100%;
-    a {
-      width: 100%;
-      line-height: 1;
-      @media #{$medium} {
-        line-height: 2.5;
-      }
-      &:hover {
-        background-color: $smoke !important;
-      }
-    }
   }
 
   .nolink {

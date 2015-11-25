@@ -58,3 +58,13 @@
 	// a calculated width that is stupid and dumb
 	width: 100% !important; 
 }
+
+// Possition the dropdown perfectly on the advanced
+// menu option
+#r-header__icon--advanced {
+	&.open {
+		@media #{$medium} {
+			transform: translateX(-5%);
+		}
+	}
+}

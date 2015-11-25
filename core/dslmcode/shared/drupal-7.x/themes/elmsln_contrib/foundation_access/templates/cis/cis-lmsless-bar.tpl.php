@@ -120,7 +120,7 @@
               <span class="course-title"><?php print $slogan; ?></span>
               <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
             </a>
-            <ul id="courseToolsMenu" class="f-dropdown" data-dropdown-content aria-hidden="true" aria-autoclose="true">
+            <ul id="courseToolsMenu" class="f-dropdown f-dropdown--classic content" data-dropdown-content aria-hidden="true" aria-autoclose="true">
               <?php print $elmsln_main_menu; ?>
             </ul>
           </li>
