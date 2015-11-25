@@ -6326,7 +6326,7 @@ th.hide-for-touch {
 
 .region-header {
   background: white;
-  padding: 1em .3em;
+  padding: 1em 0;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
@@ -6341,14 +6341,25 @@ th.hide-for-touch {
     margin-left: auto; }
   .region-header__edit-icons {
     margin: 0;
-    padding: 0; }
+    padding: 0;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-justify-content: flex-end;
+        -ms-flex-pack: end;
+            justify-content: flex-end; }
     .region-header__edit-icons__list-item {
       margin: 0;
       padding: 0;
-      list-style: none; }
+      list-style: none;
+      float: right; }
   .region-header__icon {
     height: 2em;
-    width: 2em; }
+    width: 2em;
+    padding: 0 .5em; }
+    .region-header__icon.icon--dropdown {
+      padding-right: 3.7em;
+      color: black; }
   .region-header .f-dropdown {
     text-align: left;
     margin: 0; }
@@ -6356,7 +6367,7 @@ th.hide-for-touch {
       margin: 0; }
 
 .is-sticky > .region-header {
-  padding: .5em .3em;
+  padding: .5em 0;
   border-bottom: 1px solid #EEEEEE; }
 
 body, p, p a {
@@ -7842,7 +7853,9 @@ p.txtbk-intro {
     font-size: 1.5rem; } }
 
 .icon--dropdown {
-  padding-right: 2em; }
+  padding-right: 2em;
+  position: relative;
+  display: block; }
   .icon--dropdown:after {
     display: inline-block;
     width: 0;

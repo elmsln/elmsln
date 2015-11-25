@@ -1,7 +1,3 @@
-.icon-innovate-black { background-image: url('png/innovate-black.png'); background-repeat: no-repeat; }
-
-.icon-ulmus-black { background-image: url('png/ulmus-black.png'); background-repeat: no-repeat; }
-
 .icon-about-black { background-image: url('png/about-black.png'); background-repeat: no-repeat; }
 
 .icon-access-black { background-image: url('png/access-black.png'); background-repeat: no-repeat; }
@@ -40,9 +36,11 @@
 
 .icon-collab-black { background-image: url('png/collab-black.png'); background-repeat: no-repeat; }
 
+.icon-comment-black { background-image: url('png/comment-black.png'); background-repeat: no-repeat; }
+
 .icon-comply-black { background-image: url('png/comply-black.png'); background-repeat: no-repeat; }
 
-.icon-comment-black { background-image: url('png/comment-black.png'); background-repeat: no-repeat; }
+.icon-comply-white { background-image: url('png/comply-white.png'); background-repeat: no-repeat; }
 
 .icon-content-black { background-image: url('png/content-black.png'); background-repeat: no-repeat; }
 
@@ -64,9 +62,15 @@
 
 .icon-ecd-white { background-image: url('png/ecd-white.png'); background-repeat: no-repeat; }
 
+.icon-edit-black { background-image: url('png/edit-black.png'); background-repeat: no-repeat; }
+
 .icon-editorial-black { background-image: url('png/editorial-black.png'); background-repeat: no-repeat; }
 
 .icon-elmsmedia-black { background-image: url('png/elmsmedia-black.png'); background-repeat: no-repeat; }
+
+.icon-gear-outline { background-image: url('png/gear-outline.png'); background-repeat: no-repeat; }
+
+.icon-gear { background-image: url('png/gear.png'); background-repeat: no-repeat; }
 
 .icon-grades-black { background-image: url('png/grades-black.png'); background-repeat: no-repeat; }
 
@@ -79,6 +83,8 @@
 .icon-inbox-black { background-image: url('png/inbox-black.png'); background-repeat: no-repeat; }
 
 .icon-info-black { background-image: url('png/info-black.png'); background-repeat: no-repeat; }
+
+.icon-innovate-black { background-image: url('png/innovate-black.png'); background-repeat: no-repeat; }
 
 .icon-interact-black { background-image: url('png/interact-black.png'); background-repeat: no-repeat; }
 
@@ -113,6 +119,8 @@
 .icon-teacher-black { background-image: url('png/teacher-black.png'); background-repeat: no-repeat; }
 
 .icon-tour-black { background-image: url('png/tour-black.png'); background-repeat: no-repeat; }
+
+.icon-ulmus-black { background-image: url('png/ulmus-black.png'); background-repeat: no-repeat; }
 
 .icon-user-black { background-image: url('png/user-black.png'); background-repeat: no-repeat; }
 

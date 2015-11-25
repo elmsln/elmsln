@@ -28,15 +28,24 @@
             </div>
             <div class="region-header__right">
               <ul class="region-header__edit-icons">
+                <!-- Edit Icon -->
+                <?php if (isset($edit_path)): ?>
                 <li class="region-header__edit-icons__list-item">
-                  <a href="#" class="region-header__icon" data-dropdown="region-header__icon--edit" aria-controls="region-header__icon--edit" aria-expanded="false">
+                  <a href="<?php print $edit_path; ?>" class="region-header__icon">
                     <div class="icon-edit-black off-canvas-toolbar-item-icon"></div>
                   </a>
                 </li>
-              </ul>
+                <?php endif; ?>
+                <!-- end Edit Icon -->
+                <li class="region-header__edit-icons__list-item">
+                  <a href="#" class="region-header__icon icon--dropdown" data-dropdown="region-header__icon--advanced" aria-controls="region-header__icon--advanced" aria-expanded="false">
+                    <div class="icon-gear-outline off-canvas-toolbar-item-icon"></div>
+                  </a>
+                </li>
+              </ul> 
               <!-- Middle Section Dropdown Page Tabs -->
               <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-              <div id="region-header__icon--edit" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
+              <div id="region-header__icon--advanced" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <?php if (!empty($tabs)): ?>
                     <?php print render($tabs); ?>
                   <?php if (!empty($tabs2)): print render($tabs2); endif; ?>

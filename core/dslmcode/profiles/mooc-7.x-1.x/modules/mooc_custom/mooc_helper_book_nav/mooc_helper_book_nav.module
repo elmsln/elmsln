@@ -46,7 +46,8 @@ function mooc_helper_book_nav_block_view($delta = '') {
   switch ($delta) {
     case 'book_sibling_nav':
       $block['subject'] = '';
-      $block['content'] = '';
+      $block['content'] = '<a href="#" class="mooc-helper-toc etb-modal-icon courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents">
+        <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div></a>';
       $next_title = t('>');
       $prev_title = t('<');
       // load the node in scope globally at the moment and ensure we have one

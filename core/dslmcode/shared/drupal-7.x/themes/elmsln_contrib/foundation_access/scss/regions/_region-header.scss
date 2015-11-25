@@ -1,6 +1,6 @@
 .region-header {
 	background: white;
-	padding: 1em .3em;
+	padding: 1em 0;
 	display: flex;
 	max-width: 90rem;
 
@@ -19,17 +19,26 @@
 	&__edit-icons {
 		margin: 0;
 		padding: 0;
+		display: flex;
+		justify-content: flex-end;
 
 		&__list-item {
 			margin: 0;
 			padding: 0;
 			list-style: none;			
+			float: right;
 		}
 	}
 
 	&__icon {
 		height: 2em;
 		width: 2em;
+		padding: 0 .5em;
+
+		&.icon--dropdown {
+			padding-right: 3.7em;
+			color: black;
+		}
 	}
 
 	.f-dropdown {
@@ -43,6 +52,7 @@
 }
 
 .is-sticky > .region-header {
-	padding: .5em .3em;
+	padding: .5em 0;
 	border-bottom: 1px solid $smoke;
+	// box-shadow: 0 3px 12px rgba(0,0,0,0.15);
 }

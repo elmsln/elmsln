@@ -1,5 +1,7 @@
 .icon--dropdown {
 	padding-right: 2em;
+	position: relative;
+	display: block;
 	&:after {
 		display: inline-block;
 		width: 0;
