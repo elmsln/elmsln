@@ -242,7 +242,20 @@ class RestWSException extends Exception {
  * Sets the router item for the current path when it has a format.
  */
 function restws_init() {
-  // Do not act on paths that do not contain a period.
+  // Determine the router item for the current path.
+  _restws_determine_router_item();
+}
+
+/**
+ * Reroute requests that come from *.{format} paths.
+ * For example /node/2.json will need a correct page callback to be treated as
+ * a restws request.
+ *
+ * Also, the restws_basic_auth module will need to use this function as well
+ * to perform this again after logging a user in.
+ */
+function _restws_determine_router_item() {
+  // Determine the position of the resource and resource id in the path.
   if (strpos(request_path(), '.') === FALSE) {
     return;
   }
@@ -252,12 +265,16 @@ function restws_init() {
   }
   $formats = array_keys(restws_get_format_info());
 
-  $pattern = '/^((?:';
+  // The pattern matches menu paths like 'node', 'user' followed by an ID.
+  // This ID cannot start with a 0 but can contain any digit.
+  $pattern = '#^((?:';
   $pattern .= implode($menu_paths,'|');
   $pattern .= ')\/[1-9][0-9]*)\.(?:';
 
+  // The path will end with a format that is supported by restws, for example
+  // 'json' or 'xml'.
   $pattern .= implode($formats,'|');
-  $pattern .= ')$/i';
+  $pattern .= ')$#i';
 
   // Replace pattern precisely once.
   $count = 0;

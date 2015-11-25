@@ -33,6 +33,10 @@ function restws_basic_auth_init() {
         // Always make sure to disable the page cache after we authenticated the
         // user so that a response never gets into the page cache.
         drupal_page_is_cacheable(FALSE);
+
+        // Redetermine the page callback for restws calls like node/1.json
+        // and user/1.json.
+        _restws_determine_router_item();
       }
       else {
         // Clear the login form error and remove the login failure message.
