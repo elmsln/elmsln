@@ -124,6 +124,10 @@ ul.book-navigation-wrapper {
   text-decoration: none;
 }
 
+.book-parent-tree.icon--dropdown {
+
+}
+
 a.mooc-helper-toc {
   margin: -.75rem 1rem;
   height: 3rem;
@@ -187,10 +191,15 @@ a.mooc-helper-toc {
   }
 }
 .book-sibling-parent-arrow {
-  margin: 0 0rem -.2rem;
-  padding: .8rem;
+  margin: 0 0;
+  padding: 0;
   width: 0;
   height: 0;
+  width: 1.2em;
+  margin-top: -.1em;
+}
+.book-sibling-parent-arrow:after {
+  right: 0;
 }
 
 .book-sibling-parent-icon {
