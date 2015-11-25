@@ -22,30 +22,30 @@
         <?php print render($page['left_menu']); ?>
 
         <section class="main-section etb-book">
-          <div class="region-header row">
-            <div class="region-header__left">
+          <div class="r-header row">
+            <div class="r-header__left">
               <?php print render($page['header']); ?>
             </div>
-            <div class="region-header__right">
-              <ul class="region-header__edit-icons">
+            <div class="r-header__right">
+              <ul class="r-header__edit-icons">
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>
-                <li class="region-header__edit-icons__list-item">
-                  <a href="<?php print $edit_path; ?>" class="region-header__icon">
+                <li class="r-header__edit-icons__list-item">
+                  <a href="<?php print $edit_path; ?>" class="r-header__icon">
                     <div class="icon-edit-black off-canvas-toolbar-item-icon"></div>
                   </a>
                 </li>
                 <?php endif; ?>
                 <!-- end Edit Icon -->
-                <li class="region-header__edit-icons__list-item">
-                  <a href="#" class="region-header__icon icon--dropdown" data-dropdown="region-header__icon--advanced" aria-controls="region-header__icon--advanced" aria-expanded="false">
+                <li class="r-header__edit-icons__list-item">
+                  <a href="#" class="r-header__icon icon--dropdown" data-dropdown="r-header__icon--advanced" aria-controls="r-header__icon--advanced" aria-expanded="false">
                     <div class="icon-gear-outline off-canvas-toolbar-item-icon"></div>
                   </a>
                 </li>
               </ul> 
               <!-- Middle Section Dropdown Page Tabs -->
               <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-              <div id="region-header__icon--advanced" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
+              <div id="r-header__icon--advanced" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
                 <?php if (!empty($tabs)): ?>
                     <?php print render($tabs); ?>
                   <?php if (!empty($tabs2)): print render($tabs2); endif; ?>

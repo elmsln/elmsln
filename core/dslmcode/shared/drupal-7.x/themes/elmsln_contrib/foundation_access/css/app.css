@@ -6324,22 +6324,22 @@ th.hide-for-touch {
   th.show-for-print {
     display: table-cell !important; } }
 
-.region-header {
+.r-header {
   background: white;
   padding: 1em 0;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   max-width: 90rem; }
-  .region-header__left {
+  .r-header__left {
     width: 70%;
     float: left; }
-  .region-header__right {
+  .r-header__right {
     width: 30%;
     float: right;
     text-align: right;
     margin-left: auto; }
-  .region-header__edit-icons {
+  .r-header__edit-icons {
     margin: 0;
     padding: 0;
     display: -webkit-flex;
@@ -6348,27 +6348,28 @@ th.hide-for-touch {
     -webkit-justify-content: flex-end;
         -ms-flex-pack: end;
             justify-content: flex-end; }
-    .region-header__edit-icons__list-item {
+    .r-header__edit-icons__list-item {
       margin: 0;
       padding: 0;
       list-style: none;
       float: right; }
-  .region-header__icon {
+  .r-header__icon {
     height: 2em;
     width: 2em;
     padding: 0 .5em; }
-    .region-header__icon.icon--dropdown {
+    .r-header__icon.icon--dropdown {
       padding-right: 3.7em;
       color: black; }
-  .region-header .f-dropdown {
+  .r-header .f-dropdown {
     text-align: left;
     margin: 0; }
-    .region-header .f-dropdown > ul {
+    .r-header .f-dropdown > ul {
       margin: 0; }
 
-.is-sticky > .region-header {
+.is-sticky > .r-header {
   padding: .5em 0;
-  border-bottom: 1px solid #EEEEEE; }
+  border-bottom: 1px solid #EEEEEE;
+  width: 100% !important; }
 
 body, p, p a {
   font-family: "Droid Serif", "Georgia", serif;

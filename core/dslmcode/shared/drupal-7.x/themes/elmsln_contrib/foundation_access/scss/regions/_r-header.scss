@@ -1,4 +1,4 @@
-.region-header {
+.r-header {
 	background: white;
 	padding: 1em 0;
 	display: flex;
@@ -51,8 +51,10 @@
 	}
 }
 
-.is-sticky > .region-header {
+.is-sticky > .r-header {
 	padding: .5em 0;
 	border-bottom: 1px solid $smoke;
-	// box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+	// need this to override the sticky navigation that sets 
+	// a calculated width that is stupid and dumb
+	width: 100% !important; 
 }
