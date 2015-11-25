@@ -127,9 +127,11 @@ function foundation_access_preprocess_page(&$variables) {
   }
   // now we'll attempt to find an primary tab called 'Edit'
   else {
-    foreach ($variables['tabs']['#primary'] as $tab) {
-      if (isset($tab['#link']['title']) && $tab['#link']['title'] == 'Edit') {
-        $variables['edit_path'] = $tab['#link']['path'];
+    if (isset($variables['tabs']) && is_array($variables['tabs']['#primary'])) {
+      foreach ($variables['tabs']['#primary'] as $tab) {
+        if (isset($tab['#link']['title']) && $tab['#link']['title'] == 'Edit') {
+          $variables['edit_path'] = $tab['#link']['path'];
+        }
       }
     }
   }
