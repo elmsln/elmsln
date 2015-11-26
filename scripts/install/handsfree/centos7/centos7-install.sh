@@ -30,10 +30,6 @@ setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
 /etc/init.d/mysqld restart
 
-#install varnish
-$RPM --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
-yum install varnish -y
-
 sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varnish
 sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
 cat /dev/null > /etc/varnish/default.vcl
@@ -70,9 +66,6 @@ groupadd elmsln
 # kick off hands free deployment
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
 
-
-# get things in place so that we can run mysql 5.5
-yes | yum -y --enablerepo=remi install mysql mysql-server
 /etc/init.d/mysqld restart
 
 cd $HOME
