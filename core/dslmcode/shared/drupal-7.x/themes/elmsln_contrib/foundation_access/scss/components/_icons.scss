@@ -1,19 +1,14 @@
 .icon--dropdown {
-	padding-right: 2em;
-	position: relative;
-	display: block;
 	&:after {
 		display: inline-block;
-		width: 0;
-		height: 0;
-		content: "";
-		vertical-align: -2px;
-		border: 4px solid;
-		border-right-color: transparent;
-		border-left-color: transparent;
-		border-bottom-color: transparent;
-		position: absolute;
-		top: 50%;
-		right: 1em;
+	  width: 0;
+	  height: 0;
+	  content: "";
+	  vertical-align: 50%;
+	  border: 4px solid;
+	  border-right-color: transparent;
+	  border-left-color: transparent;
+	  border-bottom-color: transparent;
+	  transform: translateY(50%);
 	}
 }

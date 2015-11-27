@@ -65,7 +65,7 @@ var mediavideo = require('./components/mediavideo.js');
   // sticky stuff
   Drupal.behaviors.stickyStuff = {
     attach: function (context, settings) {
-      $('.region-header', context).sticky({topSpacing:4, width: '100%'}).css({backgroundColor: '#FFFFFF',width: '100%'});
+      $('.r-header', context).sticky({topSpacing:4, width: '100%'}).css({backgroundColor: '#FFFFFF',width: '100%'});
       $('.page-scroll.progress', context).sticky({topSpacing:0}).css('background-color','#EEEEEE');
     }
   };

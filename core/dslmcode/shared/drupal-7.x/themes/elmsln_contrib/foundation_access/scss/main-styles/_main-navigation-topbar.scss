@@ -199,6 +199,19 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
       }
     }
   }
+
+  .course-title {
+    line-height: inherit;
+    padding: 0;
+    margin-right: 1rem;
+    text-align: center;
+  }
+
+  .course-title-group {
+    display: inline-block;
+    line-height: inherit;
+  }
+
   span.course-title {
     display: block;
     margin: 0;
@@ -237,6 +250,10 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     @media #{$small-only} {
        text-align: center;
     }
+  }
+
+  .icon--dropdown {
+    color: black;
   }
 }
 

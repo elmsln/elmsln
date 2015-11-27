@@ -2,6 +2,10 @@
 
 .icon-access-black { background-image: url('png/access-black.png'); background-repeat: no-repeat; }
 
+.icon-add-black { background-image: url('png/add-black.png'); background-repeat: no-repeat; }
+
+.icon-add { background-image: url('png/add.png'); background-repeat: no-repeat; }
+
 .icon-apps-black { background-image: url('png/apps-black.png'); background-repeat: no-repeat; }
 
 .icon-apps-white { background-image: url('png/apps-white.png'); background-repeat: no-repeat; }
@@ -63,6 +67,8 @@
 .icon-ecd-white { background-image: url('png/ecd-white.png'); background-repeat: no-repeat; }
 
 .icon-edit-black { background-image: url('png/edit-black.png'); background-repeat: no-repeat; }
+
+.icon-edit { background-image: url('png/edit.png'); background-repeat: no-repeat; }
 
 .icon-editorial-black { background-image: url('png/editorial-black.png'); background-repeat: no-repeat; }
 

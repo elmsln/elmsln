@@ -7,6 +7,8 @@
 	&__left {
 		width: 70%;
 		float: left;
+		display: flex;
+		align-items: center;
 	}
 
 	&__right {
@@ -14,6 +16,9 @@
 		float: right;
 		text-align: right;
 		margin-left: auto;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
 	}
 
 	&__edit-icons {
@@ -31,14 +36,25 @@
 	}
 
 	&__icon {
-		height: 2em;
-		width: 2em;
 		padding: 0 .5em;
+		display: flex;
+		color: black;
+		align-items: baseline;
 
-		&.icon--dropdown {
-			padding-right: 3.7em;
-			color: black;
+		.icon {
+			height: 1.8em;
+			width: 2em;
 		}
+	}
+
+	.book-navigation-header {
+		display: flex;
+		align-items: center;
+	}
+
+	ul.book-navigation-wrapper {
+		display: flex;
+		align-items: center;	
 	}
 
 	.f-dropdown {

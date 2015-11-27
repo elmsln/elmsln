@@ -129,13 +129,14 @@ ul.book-navigation-wrapper {
 }
 
 a.mooc-helper-toc {
-  margin: -.75rem 1rem;
-  height: 3rem;
-  width: 3rem;
+  padding: 0;
+  margin: 0;
 }
 .mooc-helper-toc-icon{
-  height: 3rem;
-  width: 3rem;
+  width: 2.8em;
+  height: 2.5em;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 #block-mooc-helper-mooc-helper-toc-nav-modal {
@@ -196,10 +197,12 @@ a.mooc-helper-toc {
   width: 0;
   height: 0;
   width: 1.2em;
-  margin-top: -.1em;
 }
 .book-sibling-parent-arrow:after {
   right: 0;
+  -webkit-transform: translateY(0%);
+  -ms-transform: translateY(0%);
+  transform: translateY(0);
 }
 
 .book-sibling-parent-icon {

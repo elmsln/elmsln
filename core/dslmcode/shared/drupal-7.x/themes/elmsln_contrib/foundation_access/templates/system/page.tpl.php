@@ -31,17 +31,28 @@
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>
                 <li class="r-header__edit-icons__list-item">
-                  <a href="<?php print $edit_path; ?>" class="r-header__icon">
-                    <div class="icon-edit-black off-canvas-toolbar-item-icon"></div>
+                  <a href="<?php print $edit_path; ?>" title="Edit content" class="r-header__icon">
+                    <div class="icon icon-edit-black"></div>
                   </a>
                 </li>
                 <?php endif; ?>
                 <!-- end Edit Icon -->
                 <li class="r-header__edit-icons__list-item">
-                  <a href="#" class="r-header__icon icon--dropdown" data-dropdown="r-header__icon--advanced" aria-controls="r-header__icon--advanced" aria-expanded="false">
-                    <div class="icon-gear-outline off-canvas-toolbar-item-icon"></div>
+                  <a href="#" class="r-header__icon" data-dropdown="r-header__icon--advanced" aria-controls="r-header__icon--advanced" aria-expanded="false">
+                    <div class="icon icon-gear-outline"></div>
+                    <span class="icon--dropdown"></span>
                   </a>
                 </li>
+                <!-- Add Icon -->
+                <?php if (isset($add_menu)): ?>
+                <li class="r-header__edit-icons__list-item">
+                  <a href="<?php print $add_menu; ?>" title="Add content" class="r-header__icon">
+                    <div class="icon icon-add"></div>
+                    <span class="icon--dropdown"></span>
+                  </a>
+                </li>
+                <?php endif; ?>
+                <!-- end Add Icon -->
               </ul> 
               <!-- Middle Section Dropdown Page Tabs -->
               <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
@@ -62,6 +73,12 @@
                 <?php endif; ?>
               </div>
               <?php endif; ?>
+            </div>
+          </div>
+
+          <div class="r-subheader">
+            <div class="row">
+            testing
             </div>
           </div>
 

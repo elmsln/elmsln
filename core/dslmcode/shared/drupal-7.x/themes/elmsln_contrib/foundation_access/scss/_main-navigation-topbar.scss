@@ -179,6 +179,14 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
       }
     }
   }
+
+  .course-title {
+    text-align: center;
+  }
+
+  .course-title-group {
+    display: inline-block;
+  }
   span.course-title {
     display: block;
     margin: 0;

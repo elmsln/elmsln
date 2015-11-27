@@ -119,6 +119,11 @@ function foundation_access_preprocess_page(&$variables) {
     $variables['page']['content']['system_main']['main']['#markup'] = '<article class="large-12 columns view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
   }
 
+  $add_menu = menu_tree('menu-cis-add');
+  if (!empty($add_menu)) {
+    $variables['add_menu'] = $add_menu;
+  }
+
   // attempt to find an edit path for the current page
   // first try to retrive it from the standard 'entity/entity_id/'
   if (!is_null(arg(0)) && !is_null(arg(1))) {
