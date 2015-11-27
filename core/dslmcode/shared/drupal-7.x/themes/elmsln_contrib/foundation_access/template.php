@@ -121,6 +121,10 @@ function foundation_access_preprocess_page(&$variables) {
 
   $add_menu = menu_tree('menu-cis-add');
   if (!empty($add_menu)) {
+    // @todo
+    // Need to handle removing the default wrappers more effectively
+    $add_menu['#theme_wrappers'] = array();
+    $add_menu['#theme_wrappers'][] = 'menu_tree';
     $variables['add_menu'] = $add_menu;
   }
 

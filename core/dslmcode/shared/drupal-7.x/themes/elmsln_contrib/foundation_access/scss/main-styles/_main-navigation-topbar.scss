@@ -223,7 +223,6 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     color:#626262;
     
     @media #{$small-only} {
-       
        text-align: center;
     }
   }

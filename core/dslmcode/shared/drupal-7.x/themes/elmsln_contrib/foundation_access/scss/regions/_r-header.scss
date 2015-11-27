@@ -77,7 +77,8 @@
 
 // Possition the dropdown perfectly on the advanced
 // menu option
-#r-header__icon--advanced {
+#r-header__icon--advanced,
+#r-header__icon--add {
 	&.open {
 		@media #{$medium} {
 			transform: translateX(-5%);

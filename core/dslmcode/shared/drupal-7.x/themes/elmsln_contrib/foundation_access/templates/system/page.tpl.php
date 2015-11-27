@@ -37,16 +37,18 @@
                 </li>
                 <?php endif; ?>
                 <!-- end Edit Icon -->
+                <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
                 <li class="r-header__edit-icons__list-item">
                   <a href="#" class="r-header__icon" data-dropdown="r-header__icon--advanced" aria-controls="r-header__icon--advanced" aria-expanded="false">
                     <div class="icon icon-gear-outline"></div>
                     <span class="icon--dropdown"></span>
                   </a>
                 </li>
+                <?php endif; ?>
                 <!-- Add Icon -->
                 <?php if (isset($add_menu)): ?>
                 <li class="r-header__edit-icons__list-item">
-                  <a href="<?php print $add_menu; ?>" title="Add content" class="r-header__icon">
+                  <a href="#" class="r-header__icon" data-dropdown="r-header__icon--add" aria-controls="r-header__icon--add" aria-expanded="false">
                     <div class="icon icon-add"></div>
                     <span class="icon--dropdown"></span>
                   </a>
@@ -73,12 +75,19 @@
                 <?php endif; ?>
               </div>
               <?php endif; ?>
+
+              <!-- Add Menu Dropdown -->
+              <?php if (isset($add_menu)): ?>
+              <div id="r-header__icon--add" data-dropdown-content class="f-dropdown f-dropdown--classic content" aria-hidden="true" tabindex="-1">
+                <?php print render($add_menu); ?>
+              </div>
+              <?php endif; ?>
             </div>
           </div>
 
           <div class="r-subheader">
             <div class="row">
-            testing
+
             </div>
           </div>
 

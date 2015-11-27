@@ -6406,7 +6406,8 @@ th.hide-for-touch {
   width: 100% !important; }
 
 @media only screen and (min-width: 40.063em) {
-  #r-header__icon--advanced.open {
+  #r-header__icon--advanced.open,
+  #r-header__icon--add.open {
     -webkit-transform: translateX(-5%);
         -ms-transform: translateX(-5%);
             transform: translateX(-5%); } }
