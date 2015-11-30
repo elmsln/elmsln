@@ -328,7 +328,7 @@ if [[ -n "$zzz_performance" ]]; then
   cp /var/www/elmsln/scripts/server/zzz_performance.conf $zzz_performance
   # account for ubuntu being a little different here when it comes to apache
   if [ $os == '2' ]; then
-    ln -s $zzz_performance /etc/apache2/conf-enabled/zzz_performance.conf
+    ln -s $zzz_performance /etc/apache2/sites-enabled/zzz_performance.conf
   fi
 fi
 
