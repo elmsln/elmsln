@@ -332,8 +332,9 @@ if [[ -n "$zzz_performance" ]]; then
   fi
 fi
 
-# setup site removal admin tool
+# setup infrastructure tools
 ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
+ln -s /var/www/elmsln/scripts/drush-command-job /usr/local/bin/drush-command-job
 chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
 
 # shortcuts for ease of use
