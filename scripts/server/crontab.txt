@@ -1,15 +1,12 @@
 #START ELMSLN#
 
-# ulmusdrush user for running basic tasks
-PATH=/home/ulmusdrush/.composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-HOME=/home/ulmusdrush/
-00 05 * * * ulmusdrush drush @elmsln cron --y
-#ELMSLN drush-command-job activation for command processing
-* * * * * ulmusdrush /usr/local/bin/drush-command-job/drush-command-job >> /var/log/drush.log
+# nightly cron
+00 05 * * * root su -c 'HOME=/home/ulmusdrush/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmusdrush/.composer/vendor/bin drush @elmsln cron --y' ulmusdrush
 
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/.composer/vendor/bin
-HOME=/root/
+#ELMSLN drush-command-job activation for command processing
+* * * * * root su -c 'HOME=/home/ulmusdrush/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmusdrush/.composer/vendor/bin /usr/local/bin/drush-command-job/drush-command-job >> /var/www/elmsln/config/logs/drush-command-job.log' ulmusdrush
+
 #ELMSLN drush-create-site activation for site request processing
-* * * * * root  /usr/local/bin/drush-create-site/drush-create-site >> /var/log/drush.log
+* * * * * root su -c 'HOME=/home/ulmus/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmus/.composer/vendor/bin /usr/local/bin/drush-create-site/drush-create-site >> /var/www/elmsln/config/logs/drush-create-site.log' ulmus
 
 #END ELMSLN#
