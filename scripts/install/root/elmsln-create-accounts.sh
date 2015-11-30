@@ -49,6 +49,7 @@ chown -R ulmus:elmsln /home/ulmus/
 sudo -u ulmus bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/ulmus
 
 chown -R ulmus:elmsln /home/ulmus/
+chmod -R 770 /home/ulmus
 # add the system user and put them in the above group
 /usr/sbin/useradd -g elmsln ulmusdrush -m -d /home/ulmusdrush -s /bin/bash -c "Drush task runner"
 # create a new file inside sudoers.d so we can add some people here
@@ -66,4 +67,5 @@ chown -R ulmusdrush:elmsln /home/ulmusdrush/
 sudo -u ulmusdrush bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/ulmusdrush
 
 chown -R ulmusdrush:elmsln /home/ulmusdrush/
+chmod -R 770 /home/ulmusdrush
 elmslnecho "users created for ulmus and ulmusdrush to run backend commands"
