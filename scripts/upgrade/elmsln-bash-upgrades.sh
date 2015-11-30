@@ -36,6 +36,37 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+vercomp () {
+  if [[ $1 == $2 ]]
+  then
+      return 0
+  fi
+  local IFS=.
+  local i ver1=($1) ver2=($2)
+  # fill empty fields in ver1 with zeros
+  for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+  do
+      ver1[i]=0
+  done
+  for ((i=0; i<${#ver1[@]}; i++))
+  do
+      if [[ -z ${ver2[i]} ]]
+      then
+          # fill empty fields in ver2 with zeros
+          ver2[i]=0
+      fi
+      if ((10#${ver1[i]} > 10#${ver2[i]}))
+      then
+          return 1
+      fi
+      if ((10#${ver1[i]} < 10#${ver2[i]}))
+      then
+          return 2
+      fi
+  done
+  return 0
+}
+
 # variables for finding versions and doing comparisons
 source_dir="${elmsln}/scripts/upgrade/system"
 cd $elmsln
@@ -80,10 +111,14 @@ do
   # by running all upgrades in the correct sort order for all things
   # greater then 0.0.1 with the sanity check ensuring a 1.2.2 would not
   # be possible to run
-  if [[ "$upgrade" > "$system_version" ]] && [[ "$upgrade" != "$code_version" ]]; then
+  mincomp=$(vercomp $upgrade $system_version)
+  min=$?
+  maxcomp=$(vercomp $code_version $upgrade)
+  max=$?
+  if [[ $min == 1 ]] && [[ $max == 1 ]]; then
     elmslnecho "$(timestamp): We need to run upgrade: $upgrade"
     bash "${upgrade}.sh"
-    echo "Applied upgrade $upgrade on ${timestamp}" >> $upgrade_history
+    echo "Applied upgrade $upgrade on $(timestamp)" >> $upgrade_history
   else
     # fallback case to see if they are the same so we know to apply
     # this last upgrade script
@@ -91,7 +126,7 @@ do
       if [[ "$upgrade" != "$system_version" ]]; then
         elmslnecho "$(timestamp): We need to run upgrade: $upgrade"
         bash "${upgrade}.sh"
-        echo "Applied upgrade $upgrade on ${timestamp}" >> $upgrade_history
+        echo "Applied upgrade $upgrade on $(timestamp)" >> $upgrade_history
         # this is a sanity check to ensure we don't run scripts that shouldn't exist
       fi
       break
