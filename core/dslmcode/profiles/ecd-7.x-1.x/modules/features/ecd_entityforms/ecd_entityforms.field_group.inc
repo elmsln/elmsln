@@ -8,7 +8,7 @@
  * Implements hook_field_group_info().
  */
 function ecd_entityforms_field_group_info() {
-  $export = array();
+  $field_groups = array();
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -21,7 +21,7 @@ function ecd_entityforms_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Justification',
-    'weight' => '3',
+    'weight' => '4',
     'children' => array(
       0 => 'field_documentation',
       1 => 'field_written_justification',
@@ -36,7 +36,7 @@ function ecd_entityforms_field_group_info() {
       ),
     ),
   );
-  $export['group_justification|entityform|course_access_request|form'] = $field_group;
+  $field_groups['group_justification|entityform|course_access_request|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -49,7 +49,7 @@ function ecd_entityforms_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Justification',
-    'weight' => '3',
+    'weight' => '4',
     'children' => array(
       0 => 'field_documentation',
       1 => 'field_written_justification',
@@ -64,7 +64,7 @@ function ecd_entityforms_field_group_info() {
       ),
     ),
   );
-  $export['group_justification|entityform|system_access_request|form'] = $field_group;
+  $field_groups['group_justification|entityform|system_access_request|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -77,7 +77,7 @@ function ecd_entityforms_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Request Details',
-    'weight' => '2',
+    'weight' => '3',
     'children' => array(
       0 => 'field_course_access',
       1 => 'field_duration',
@@ -92,7 +92,7 @@ function ecd_entityforms_field_group_info() {
       ),
     ),
   );
-  $export['group_request_details|entityform|course_access_request|form'] = $field_group;
+  $field_groups['group_request_details|entityform|course_access_request|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -105,7 +105,7 @@ function ecd_entityforms_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Request Details',
-    'weight' => '2',
+    'weight' => '3',
     'children' => array(
       0 => 'field_duration',
       1 => 'field_ecd_systems',
@@ -120,7 +120,12 @@ function ecd_entityforms_field_group_info() {
       ),
     ),
   );
-  $export['group_request_details|entityform|system_access_request|form'] = $field_group;
+  $field_groups['group_request_details|entityform|system_access_request|form'] = $field_group;
 
-  return $export;
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Justification');
+  t('Request Details');
+
+  return $field_groups;
 }
