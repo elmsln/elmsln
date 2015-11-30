@@ -46,7 +46,7 @@ function ecd_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'field_bundle_settings_node__system';
+  $strongarm->name = 'field_bundle_settings_node__cis_system';
   $strongarm->value = array(
     'view_modes' => array(),
     'extra_fields' => array(
@@ -61,21 +61,21 @@ function ecd_types_strongarm() {
       'display' => array(),
     ),
   );
-  $export['field_bundle_settings_node__system'] = $strongarm;
+  $export['field_bundle_settings_node__cis_system'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'menu_options_system';
+  $strongarm->name = 'menu_options_cis_system';
   $strongarm->value = array();
-  $export['menu_options_system'] = $strongarm;
+  $export['menu_options_cis_system'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'menu_parent_system';
+  $strongarm->name = 'menu_parent_cis_system';
   $strongarm->value = 'main-menu:0';
-  $export['menu_parent_system'] = $strongarm;
+  $export['menu_parent_cis_system'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -89,11 +89,11 @@ function ecd_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'node_options_system';
+  $strongarm->name = 'node_options_cis_system';
   $strongarm->value = array(
     0 => 'status',
   );
-  $export['node_options_system'] = $strongarm;
+  $export['node_options_cis_system'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -105,9 +105,9 @@ function ecd_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'node_preview_system';
+  $strongarm->name = 'node_preview_cis_system';
   $strongarm->value = '0';
-  $export['node_preview_system'] = $strongarm;
+  $export['node_preview_cis_system'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -119,9 +119,9 @@ function ecd_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'node_submitted_system';
+  $strongarm->name = 'node_submitted_cis_system';
   $strongarm->value = 0;
-  $export['node_submitted_system'] = $strongarm;
+  $export['node_submitted_cis_system'] = $strongarm;
 
   return $export;
 }

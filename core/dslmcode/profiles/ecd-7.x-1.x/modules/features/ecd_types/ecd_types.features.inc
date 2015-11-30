@@ -29,10 +29,10 @@ function ecd_types_node_info() {
       'title_label' => t('Title'),
       'help' => '',
     ),
-    'system' => array(
+    'cis_system' => array(
       'name' => t('System'),
       'base' => 'node_content',
-      'description' => t('Systems used in ELMS Learning Network'),
+      'description' => t('Systems used in ELMS Learning Network as reported by CIS.'),
       'has_title' => '1',
       'title_label' => t('Title'),
       'help' => '',
