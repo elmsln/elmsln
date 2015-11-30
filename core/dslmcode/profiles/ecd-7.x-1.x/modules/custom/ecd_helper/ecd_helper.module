@@ -5,13 +5,6 @@
  */
 
 /**
- * Implements hook_init().
- */
-function ecd_helper_init() {
-}
-
-
-/**
  * Implements hook_cron().
  */
 function ecd_helper_cron() {
@@ -91,16 +84,15 @@ function _ecd_helper_change_course_access($access, $state = 'active') {
   $nid = $access->field_course_access['und'][0]['target_id'];
   $course = node_load($nid);
   // @todo target all systems of the course once we have that capability
-  $target = '@courses.' . $course->field_course_machine_name['und'][0]['value'];
+  $target = '@network.' . $course->field_course_machine_name['und'][0]['value'];
   // formulate the drush call
   if ($state == 'active') {
     $task = 'urol';
     // ensure that user already exists in all targets before adding role to nothing
     $commands[] = array(
       'target' => array($target),
-      'args' => array('ucrt', $access->field_account_request['und'][0]['value']),
-      // @todo pull mail ending from the global cfg file
-      //'options' => array('--mail=' . ),
+      'args' => array('ucrt', check_plain($access->field_account_request['und'][0]['value'])),
+      'options' => array('mail=' . check_plain($access->field_account_email['und'][0]['value'])),
     );
   }
   else {
@@ -109,7 +101,7 @@ function _ecd_helper_change_course_access($access, $state = 'active') {
   $role = user_role_load($access->field_role['und'][0]['value']);
   $commands[] = array(
     'target' => array($target),
-    'args' => array($task, $role->name, '"' . $access->field_account_request['und'][0]['value'] . '"'),
+    'args' => array($task, check_plain($role->name), check_plain($access->field_account_request['und'][0]['value'])),
   );
   // ensure our task runner was able to write to the file
   // this doesn't ensure its processed but at least puts it in position
@@ -139,9 +131,8 @@ function _ecd_helper_change_system_access($access, $state = 'active') {
     // ensure that user already exists in all targets before adding role to nothing
     $commands[] = array(
       'target' => $target,
-      'args' => array('ucrt', $access->field_account_request['und'][0]['value']),
-      // @todo pull mail ending from the global cfg file
-      //'options' => array('--mail=' . ),
+      'args' => array('ucrt', check_plain($access->field_account_request['und'][0]['value'])),
+      'options' => array('mail=' . check_plain($access->field_account_email['und'][0]['value'])),
     );
   }
   else {
@@ -151,7 +142,7 @@ function _ecd_helper_change_system_access($access, $state = 'active') {
   $role = user_role_load($access->field_role['und'][0]['value']);
   $commands[] = array(
     'target' => $target,
-    'args' => array($task, $role->name, '"' . $access->field_account_request['und'][0]['value'] . '"'),
+    'args' => array($task, check_plain($role->name), check_plain($access->field_account_request['und'][0]['value'])),
   );
   // ensure our task runner was able to write to the file
   // this doesn't ensure its processed but at least puts it in position
@@ -162,11 +153,11 @@ function _ecd_helper_change_system_access($access, $state = 'active') {
 }
 
 /**
- * Sync the system registry with the system nodes in this site.
+ * Sync the system registry with the cis_system nodes in this site.
  */
 function _ecd_helper_sync_system_registry() {
   // load up the services and the registry to compare them
-  $services = _cis_connector_assemble_entity_list('node', 'system', 'field_machine_name', 'nid');
+  $services = _cis_connector_assemble_entity_list('node', 'cis_system', 'field_machine_name', 'nid');
   if ($registry = _cis_connector_build_registry()) {
     foreach ($registry as $distribution => $reg) {
       // ensure we have an address since it contains our machine name key
@@ -176,7 +167,7 @@ function _ecd_helper_sync_system_registry() {
         // if we don't know about this address and it has a default title, build a node
         if (!isset($services[$machine_name]) && isset($reg['default_title'])) {
           $node = new stdClass();
-          $node->type = 'system';
+          $node->type = 'cis_system';
           node_object_prepare($node);
           $node->language = LANGUAGE_NONE;
           $node->uid = 1;
@@ -185,7 +176,6 @@ function _ecd_helper_sync_system_registry() {
           $node->comment = 0;
           $node->revision = 0;
           $node->sticky = 0;
-          $node->type = 'system';
           $node->title = $reg['default_title'];
           $node->field_machine_name['und'][0]['value'] = $machine_name;
           if($node = node_submit($node)) {
