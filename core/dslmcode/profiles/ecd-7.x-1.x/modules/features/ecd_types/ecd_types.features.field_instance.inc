@@ -15,7 +15,7 @@ function ecd_types_field_default_field_instances() {
     'bundle' => 'cis_course',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'Status of the accessibility audit as marked by people. The system can send a completed audit into needs review if it detects potentially inaccessible content has been created (for example).',
+    'description' => 'Status of the accessibility audit as marked by people. The cis_system can send a completed audit into needs review if it detects potentially inaccessible content has been created (for example).',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -54,7 +54,7 @@ function ecd_types_field_default_field_instances() {
     'bundle' => 'cis_course',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'Status of the copyright audit as marked by people. The system can send a completed audit into needs review if it detects new content has been created (for example).',
+    'description' => 'Status of the copyright audit as marked by people. The cis_system can send a completed audit into needs review if it detects new content has been created (for example).',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -526,7 +526,7 @@ function ecd_types_field_default_field_instances() {
     'bundle' => 'ecd_asset',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'Where did this come from? Usually a system address though it could be external.',
+    'description' => 'Where did this come from? Usually a cis_system address though it could be external.',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -637,9 +637,9 @@ function ecd_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-system-field_machine_name'
-  $field_instances['node-system-field_machine_name'] = array(
-    'bundle' => 'system',
+  // Exported field_instance: 'node-cis_system-field_machine_name'
+  $field_instances['node-cis_system-field_machine_name'] = array(
+    'bundle' => 'cis_system',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
@@ -708,12 +708,12 @@ function ecd_types_field_default_field_instances() {
   t('Quality verified');
   t('Resource UUID Bind');
   t('Source');
-  t('Status of the accessibility audit as marked by people. The system can send a completed audit into needs review if it detects potentially inaccessible content has been created (for example).');
-  t('Status of the copyright audit as marked by people. The system can send a completed audit into needs review if it detects new content has been created (for example).');
+  t('Status of the accessibility audit as marked by people. The cis_system can send a completed audit into needs review if it detects potentially inaccessible content has been created (for example).');
+  t('Status of the copyright audit as marked by people. The cis_system can send a completed audit into needs review if it detects new content has been created (for example).');
   t('Student Count');
   t('UUID in ELMSLN that this is associated with');
   t('What course is this asset associated to. All assets must be associated with a course');
-  t('Where did this come from? Usually a system address though it could be external.');
+  t('Where did this come from? Usually a cis_system address though it could be external.');
 
   return $field_instances;
 }
