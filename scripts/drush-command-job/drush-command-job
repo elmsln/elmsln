@@ -1,4 +1,12 @@
 #!/bin/bash
+# drush-command-job assumes the structure of this file to be drush commands.
+# This means each line will be something like:
+# drush @network.sing100 en views
+# It will then automatically append --y to the end and move onto the next command
+# This is similar to the end of the drush-create-site routine where it can keep
+# calling drush commands but has less commands that its allowed to execute for
+# security.
+#
 #where am i? move to where I am. This ensures source is properly sourced
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
@@ -31,11 +39,56 @@ do
   #start processing
   /bin/mv $jobfile $jobfile.processing
   #this will be made up of drush calls
-  #@todo do more then just this as far as error checking is concerned
-  bash $jobfile.processing
+  grep ^drush $jobfile.processing | while read drush; do
+    drushcommand=`echo $drush | awk '{print $3}'`
+    background='TRUE'
+    case $drushcommand in
+    cron)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    ;;
+    cc)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    ;;
+    ucrt)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
+    urol)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
+    ucan)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
+    urrol)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
+    cook)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
+    *)
+    badcommand=`echo "$drush" | cut -f 2- -d ' '`
+    drushcommand="NULL"
+    ;;
+    esac
+    if [[ $drushcommand = "NULL" ]]; then
+      echo "$badcommand is not a supported drush command."
+      rm /tmp/drush-lock
+      exit 1
+    fi
+    # do most commands in a background thread
+    if [[ $background = 'TRUE' ]]; then
+        (drush $drushcommand --y < /dev/null &) >> $configsdir/logs/drush-command-job.log
+      else
+        drush $drushcommand --y >> $configsdir/logs/drush-command-job.log
+    fi
+  done
   # move this to processed state after its finished
-  if [[ -f  $coursefile.processing ]]; then
-    mv $coursefile.processing $coursefile.processed
+  if [[ -f  $jobfile.processing ]]; then
+    mv $jobfile.processing $jobfile.processed
   fi
 done
 rm /tmp/drush-command-lock
