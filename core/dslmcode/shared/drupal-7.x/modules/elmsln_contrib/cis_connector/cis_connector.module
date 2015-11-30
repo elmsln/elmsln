@@ -1627,8 +1627,6 @@ function _cis_connector_drush_task_runner($commands) {
     }
     $target = implode(',', $command['target']);
     $clean_target = str_replace(',', '.', str_replace('@', '', $target));
-    // generate name as path - target - time - uuid
-    $task_runner = CIS_CONNECTOR_DRUSH_TASK_RUNNER_PATH . $clean_target . '-' . REQUEST_TIME . '-' . $uuid;
     // args are required
     if (!isset($command['args']) || !is_array($command['args'])) {
       return FALSE;
@@ -1639,7 +1637,7 @@ function _cis_connector_drush_task_runner($commands) {
     }
     $args = implode(' ', $command['args']);
 
-    $options = '--y';
+    $options = '';
     // options is not required
     if (isset($command['options']) && is_array($command['options'])) {
       $options .= ' --' . implode(' --', $command['options']);
@@ -1647,6 +1645,8 @@ function _cis_connector_drush_task_runner($commands) {
     // convert command into a string
     $content .= "drush $target $args $options" . "\n";
   }
+  // generate name as path - target - time - uuid
+  $task_runner = CIS_CONNECTOR_DRUSH_TASK_RUNNER_PATH . REQUEST_TIME . '.' . $clean_target . '.' . $uuid;
   // don't write if we got nothing to put into the file
   if (empty($content)) {
     return FALSE;
