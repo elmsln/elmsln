@@ -81,6 +81,8 @@ projects[transliteration][subdir] = "contrib"
 projects[video_filter][version] = "3.1"
 projects[video_filter][subdir] = "contrib"
 ; Performance and scalability
+projects[authcache][version] = "2.0-beta7"
+projects[authcache][subdir] = "contrib"
 projects[advagg][version] = "2.x-dev"
 projects[advagg][subdir] = "contrib"
 projects[blockcache_alter][version] = "1.0"
