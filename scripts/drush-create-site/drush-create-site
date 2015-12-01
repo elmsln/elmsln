@@ -40,7 +40,7 @@ date=`date +%Y-%m-%d_%H:%M:%S`
 if [ -f /tmp/drush-lock ]; then
   exit 1
 fi
-touch /tmp/drush-lock
+sudo touch /tmp/drush-lock
 
 #read the files in the $fileloc and set vars based on file name.
 for coursefile in `find $fileloc -maxdepth 1 ! -name *.swp ! -name '*progress'  ! -name '*processing*' ! -name '*error' ! -name '*processed' ! -name '*example' ! -name '*.md' -type f`
@@ -180,16 +180,16 @@ do
 
   #if errors are found, back out
   if [ $error = 1 ]; then
-    mv $coursefile $coursefile.$date.error
+    sudo mv $coursefile $coursefile.$date.error
     echo "there was an error processing $coursefile. please check the logs" | mail -s "error creating site" $admin
     echo "there was an error processing site, please contact your admin" | mail -s "error creating site" $requester
     echo "error" > $fileloc/$course.$service.progress
-    rm /tmp/drush-lock
+    sudo rm /tmp/drush-lock
     exit 1
   fi
 
   #start processing
-  mv $coursefile $coursefile.processing
+  sudo mv $coursefile $coursefile.processing
 
   #makeshift progress bar
   echo "2" > $fileloc/$course.$service.progress
@@ -203,47 +203,58 @@ do
 
   #create symlink for subdir
   cd $webdir/$service
-  ln -s $drupalroot $course
+  sudo ln -s $drupalroot $course
 
-  mkdir -p $drupalroot/sites/$subdir
-  mv  $drupalroot/sites/$course $drupalroot/sites/$subdir/$course
-  mkdir $drupalroot/sites/$subdir/$course/files/feeds
+  sudo mkdir -p $drupalroot/sites/$subdir
+  sudo mv $drupalroot/sites/$course $drupalroot/sites/$subdir/$course
+  sudo mkdir $drupalroot/sites/$subdir/$course/files/feeds
+  sudo chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files/feeds
+  sudo chown $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files/feeds -v
+  sudo chmod 774 $drupalroot/sites/$subdir/$course/files/feeds -v
   #add site to the sites array
-
 
   if [ -f $configsdir/stacks/$service/sites/sites.php ]; then
     arraytest=`grep -e "^\\$sites" $configsdir/stacks/$service/sites/sites.php`
     if [[ -z $arraytest ]]; then
+      # modify sites permissions so we can edit it for this operation
+      sudo chmod 774 $configsdir/stacks/$service/sites/sites.php
+      # add in a sites array placeholder; this is very rare
       echo "\$sites = array(" >> $configsdir/stacks/$service/sites/sites.php
       echo "" >> $configsdir/stacks/$service/sites/sites.php
       echo ");" >> $configsdir/stacks/$service/sites/sites.php
+      # set it back safely
+      sudo chmod 644 $configsdir/stacks/$service/sites/sites.php
     fi
-    sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+    sudo sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $configsdir/stacks/$service/sites/sites.php
   	if [[ $datahostname ]]; then
-  		sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+  		sudo sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
   	else
-  		sed -i "/^\$sites = array/a \ \t \'$serviceprefix.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+  		sudo sed -i "/^\$sites = array/a \ \t \'$serviceprefix.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
   	fi
   fi
 
   # add in our cache bins
+  sudo chmod 774 $drupalroot/sites/$subdir/$course/settings.php
   echo "\$conf['cache_prefix'] = '$coursedb';" >> $drupalroot/sites/$subdir/$course/settings.php
-
+  sudo chmod 444 $drupalroot/sites/$subdir/$course/settings.php
   #adding services conf file
-  if [ ! -d $drupalroot/sites/$service/services/$college/$course ];
-    then mkdir -p $drupalroot/sites/$service/services/$college/$course
-      mkdir $drupalroot/sites/$service/services/$college/$course/files
-      chown -R $wwwuser:$webgroup $drupalroot/sites/$service/services/$college/$course/files
+  if [ ! -d $drupalroot/sites/$service/services/$college/$course ]; then
+      sudo mkdir -p $drupalroot/sites/$service/services/$college/$course
+      sudo mkdir $drupalroot/sites/$service/services/$college/$course/files
+      sudo chown -R $wwwuser:$webgroup $drupalroot/sites/$service/services/$college/$course/files
       if [ -f $drupalroot/sites/$service/$college/$course/settings.php ]; then
-        cp $drupalroot/sites/$service/$college/$course/settings.php $drupalroot/sites/$service/services/$college/$course/settings.php
+        sudo cp $drupalroot/sites/$service/$college/$course/settings.php $drupalroot/sites/$service/services/$college/$course/settings.php
       fi
       if [ -f $drupalroot/sites/$service/services/$college/$course/settings.php ]; then
+        sudo chmod 777 $drupalroot/sites/$service/services/$college/$course/settings.php
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $drupalroot/sites/$service/services/$college/$course/settings.php
-        sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$datahostname/$course';" $drupalroot/sites/$service/services/$college/$course/settings.php
+        sudo sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$datahostname/$course';" $drupalroot/sites/$service/services/$college/$course/settings.php
+        sudo chmod 444 $drupalroot/sites/$service/services/$college/$course/settings.php
       fi
   fi
   ##set base_url
-  sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$hostname/$course';" $drupalroot/sites/$subdir/$course/settings.php
+
+  sudo sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$hostname/$course';" $drupalroot/sites/$subdir/$course/settings.php
 
   cd $drupalroot
   ###options
@@ -272,13 +283,13 @@ do
   ##permissions fun
   find $drupalroot/sites/$subdir/$course/files  -type f | xargs chmod 664
   find $drupalroot/sites/$subdir/$course/files  -type d | xargs chmod 775
-  chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files
+  sudo chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files
 
   ##add drupal_priv directories, set permissions
   if [ ! -d $drupal_priv/$service/$course ]; then
-    mkdir -p $drupal_priv/$service/$course
-    chown $wwwuser:$webgroup $drupal_priv/$service/$course
-    chmod g+w $drupal_priv/$service/$course
+    sudo mkdir -p $drupal_priv/$service/$course
+    sudo chown $wwwuser:$webgroup $drupal_priv/$service/$course
+    sudo chmod g+w $drupal_priv/$service/$course
   fi
 
   # work through the open ended drush commands
@@ -360,19 +371,22 @@ do
     done
   fi
   # done running commands, now we add in our cache bin optimization settings
+  sudo chmod 774 $drupalroot/sites/$subdir/$course/settings.php
   echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $drupalroot/sites/$subdir/$course/settings.php
+  sudo chmod 444 $drupalroot/sites/$subdir/$course/settings.php
+  sudo chmod 777 $drupalroot/sites/$service/services/$college/$course/settings.php
   echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $drupalroot/sites/$service/services/$college/$course/settings.php
-
+  sudo chmod 444 $drupalroot/sites/$service/services/$college/$course/settings.php
   echo "6" > $fileloc/$course.$service.progress
 
   echo "$course was added by $requester on $date" | mail -s "$course has been added to $hostname" $admin
   echo "$course was added to $hostname on $date"
   if [[ -f  $coursefile.processing ]]; then
-    mv $coursefile.processing $coursefile.processed
+    sudo mv $coursefile.processing $coursefile.processed
   fi
 
   if [[ -f $fileloc/$course.$service.progress ]]; then
-    rm $fileloc/$course.$service.progress
+    sudo rm $fileloc/$course.$service.progress
   fi
 done
-rm /tmp/drush-lock
+sudo rm /tmp/drush-lock
