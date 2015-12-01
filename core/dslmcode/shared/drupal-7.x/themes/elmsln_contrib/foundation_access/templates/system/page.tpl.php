@@ -68,11 +68,7 @@
             </div>
           </div>
 
-          <div class="r-subheader">
-            <div class="row">
 
-            </div>
-          </div>
 
           <div class="row">
             <div class="content-element-region small-12 medium-12 large-12 columns">

@@ -13,7 +13,7 @@
    * - $prev_title: Title of the previous node.
    * - $count - number of children in the container so we can name the wrapper
    */
-  $output = implode('<span class="book-sibling-spacer">/</span>', $breadcrumbs);
+  $output = implode('<span class="book-sibling-spacer icon-chevron-right">/</span>', $breadcrumbs);
 ?>
 <div class="book-navigation-header small-12 medium-12 large-12 book-sibling-nav-container book-navigation-header-<?php print $count ?>">
   <!-- TOC Icon -->
