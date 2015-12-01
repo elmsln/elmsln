@@ -87,7 +87,7 @@ do
     fi
   done
   # move this to processed state after its finished
-  if [[ -f  $jobfile.processing ]]; then
+  if [[ -f $jobfile.processing ]]; then
     mv $jobfile.processing $jobfile.processed
   fi
 done
