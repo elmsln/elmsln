@@ -24,6 +24,7 @@ mysql:
   encoding: $DB_ENCODE
 
 before_install:
+  - ~/.phpenv/versions/$(phpenv version-name)/bin/composer self-update
   - export UPDATE TRAVIS_BUILD_DIR
   - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
   - EXIT_VALUE=0
