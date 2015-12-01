@@ -101,7 +101,7 @@ function _ecd_helper_change_course_access($access, $state = 'active') {
   $role = user_role_load($access->field_role['und'][0]['value']);
   $commands[] = array(
     'target' => array($target),
-    'args' => array($task, check_plain($role->name), check_plain($access->field_account_request['und'][0]['value'])),
+    'args' => array($task, '"' . check_plain($role->name) . '"', check_plain($access->field_account_request['und'][0]['value'])),
   );
   // ensure our task runner was able to write to the file
   // this doesn't ensure its processed but at least puts it in position
@@ -142,7 +142,7 @@ function _ecd_helper_change_system_access($access, $state = 'active') {
   $role = user_role_load($access->field_role['und'][0]['value']);
   $commands[] = array(
     'target' => $target,
-    'args' => array($task, check_plain($role->name), check_plain($access->field_account_request['und'][0]['value'])),
+    'args' => array($task, '"' . check_plain($role->name) . '"', check_plain($access->field_account_request['und'][0]['value'])),
   );
   // ensure our task runner was able to write to the file
   // this doesn't ensure its processed but at least puts it in position
