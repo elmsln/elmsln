@@ -208,7 +208,7 @@ function ecd_entityforms_field_default_field_bases() {
           'type' => 'property',
         ),
         'target_bundles' => array(
-          'system' => 'system',
+          'cis_system' => 'cis_system',
         ),
       ),
       'target_type' => 'node',
