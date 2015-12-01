@@ -684,8 +684,8 @@ function module_hook($module, $hook) {
  * Determines which modules are implementing a hook.
  *
  * Lazy-loaded include files specified with "group" via hook_hook_info() or
- * hook_module_implements_alter() will be automatically included as part of
- * module_implements(*, *, FALSE).
+ * hook_module_implements_alter() will be automatically included by this
+ * function when necessary.
  *
  * @param string $hook
  *   The name of the hook (e.g. "help" or "menu").
@@ -697,7 +697,7 @@ function module_hook($module, $hook) {
  *   implementations to be regenerated (such as after enabling a new module,
  *   before processing hook_enable).
  *
- * @return string[]|null
+ * @return
  *   An array with the names of the modules which are implementing this hook.
  *
  * @see module_implements_write_cache()
@@ -729,7 +729,7 @@ function module_implements($hook, $sort = FALSE, $reset = FALSE) {
     drupal_static_reset('module_hook_info');
     drupal_static_reset('drupal_alter');
     cache_clear_all('hook_info', 'cache_bootstrap');
-    return NULL;
+    return;
   }
 
   // Fetch implementations from cache.
@@ -785,7 +785,7 @@ function module_implements($hook, $sort = FALSE, $reset = FALSE) {
         }
       }
     }
-    // Implementations for this hook are now "verified"
+    // Implementations for this hook are now "verified".
     $verified[$hook] = TRUE;
   }
   elseif (!isset($verified[$hook])) {
@@ -874,6 +874,11 @@ function module_hook_info() {
  * @see module_implements()
  */
 function module_implements_write_cache() {
+  // The list of implementations includes vital modules only before full
+  // bootstrap, so do not write cache if we are not fully bootstrapped yet.
+  if (drupal_get_bootstrap_phase() != DRUPAL_BOOTSTRAP_FULL) {
+    return;
+  }
   $implementations = &drupal_static('module_implements');
   if (isset($implementations['#write_cache'])) {
     unset($implementations['#write_cache']);
