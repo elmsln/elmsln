@@ -45,16 +45,6 @@
                   </a>
                 </li>
                 <?php endif; ?>
-                <!-- Add Icon -->
-                <?php if (isset($add_menu)): ?>
-                <li class="r-header__edit-icons__list-item">
-                  <a href="#" class="r-header__icon" data-dropdown="r-header__icon--add" aria-controls="r-header__icon--add" aria-expanded="false">
-                    <div class="icon icon-add"></div>
-                    <span class="icon--dropdown"></span>
-                  </a>
-                </li>
-                <?php endif; ?>
-                <!-- end Add Icon -->
               </ul> 
               <!-- Middle Section Dropdown Page Tabs -->
               <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
@@ -73,13 +63,6 @@
                   <?php endforeach; ?>
                  <?php endforeach; ?>
                 <?php endif; ?>
-              </div>
-              <?php endif; ?>
-
-              <!-- Add Menu Dropdown -->
-              <?php if (isset($add_menu)): ?>
-              <div id="r-header__icon--add" data-dropdown-content class="f-dropdown f-dropdown--classic content" aria-hidden="true" tabindex="-1">
-                <?php print render($add_menu); ?>
               </div>
               <?php endif; ?>
             </div>
