@@ -1,0 +1,14 @@
+name = Conditional Fields test
+description = Provides hooks for testing Conditional Fields.
+package = Fields
+core = 7.x
+dependencies[] = conditional_fields
+files[] = conditional_fields.test
+hidden = TRUE
+
+; Information added by Drupal.org packaging script on 2015-09-29
+version = "7.x-3.0-alpha2"
+core = "7.x"
+project = "conditional_fields"
+datestamp = "1443545943"
+

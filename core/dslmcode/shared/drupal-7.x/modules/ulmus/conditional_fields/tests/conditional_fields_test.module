@@ -1,0 +1,18 @@
+<?php
+/**
+ * @file
+ * Test Conditional Fields functionality.
+ */
+
+/**
+ * Implements hook_node_info().
+ */
+function conditional_fields_test_node_info() {
+  return array(
+    'conditional_fields_test' => array(
+      'name' => t('Conditional Fields Test Node Type'),
+      'module' => 'conditional_fields_test',
+      'base' => 'conditional_fields_test',
+    ),
+  );
+}

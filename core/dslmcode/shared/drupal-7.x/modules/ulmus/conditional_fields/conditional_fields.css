@@ -1,0 +1,24 @@
+/* Dependencies overview */
+
+table.conditional-fields-overview .add-new-placeholder {
+  font-weight: bold;
+  padding-bottom: .5em;
+}
+
+table.conditional-fields-overview .form-submit {
+  margin-top: 1em;
+}
+
+table.conditional-fields-overview .description-select .form-type-select {
+  display: inline;
+}
+
+/* Dependency edit */
+
+#conditional-fields-dependency-edit-form .form-item-state .description {
+  clear: both;
+}
+
+#conditional-fields-dependency-edit-form .form-item-state .ajax-progress {
+  width: 120px;
+}
