@@ -354,7 +354,7 @@ sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' .bashrc
 source $HOME/.bashrc
 
 # full path to execute in case root needs to log out before it picks it up
-php /usr/local/bin/composer global require drush/drush:7.*
+php /usr/local/bin/composer global require drush/drush:6.*
 # copy in the elmsln server stuff as the baseline for .drush
 if [ ! -d $HOME/.drush ]; then
   mkdir $HOME/.drush

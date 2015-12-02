@@ -44,7 +44,7 @@ echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> $homedir/.bashrc
 # setup drush
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $homedir/.bashrc
 source $homedir/.bashrc
-php /usr/local/bin/composer global require drush/drush:7.*
+php /usr/local/bin/composer global require drush/drush:6.*
 
 # copy in the elmsln server stuff as the baseline for .drush
 if [ ! -d $homedir/.drush ]; then
