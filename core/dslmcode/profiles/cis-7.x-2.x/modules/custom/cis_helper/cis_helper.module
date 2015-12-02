@@ -725,6 +725,10 @@ function cis_helper_cis_service_instance_job_file_alter(&$content, $course, $ser
   }
   // preseed all entity caches after any potential caching projects are on
   $content .= 'drush ecl' . "\n";
+  // send cron key home so that we know this built successfully
+  // and so that we can talk to it. This is critical for future calls
+  // at the moment where we are destructive with our caches.
+  $content .= 'drush cis-sck' . "\n";
 }
 
 /**

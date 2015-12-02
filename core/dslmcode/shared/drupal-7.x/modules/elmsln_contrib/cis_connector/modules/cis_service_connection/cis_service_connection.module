@@ -268,20 +268,6 @@ function cis_service_connection_cron() {
   }
   // see if this is just beyond the initial run
   if (variable_get('cis_service_connection_initial', FALSE)) {
-    // select the instance uuid
-    $select = array(
-      'type' => 'service_instance',
-      'uuid' => variable_get('cis_service_instance_uuid', ''),
-    );
-    // cron key is critical that its set this needs to happen
-    // on a second pass running of local cron this is because
-    // during installation we might not have a connection to
-    // the CIS established based on install order.
-    $data = array(
-      'field_cron_key' => variable_get('cron_key', ''),
-    );
-    // set the data in the CIS
-    _cis_connection_set_data($select, $data);
     // ask for the LTI request that will be recognized locally
     if (module_exists('cis_service_lti')) {
       _cis_service_lti_get_consumer();
