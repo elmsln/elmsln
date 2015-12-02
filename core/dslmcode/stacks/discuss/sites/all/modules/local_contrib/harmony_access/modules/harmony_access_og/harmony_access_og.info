@@ -6,9 +6,9 @@ package = Harmony
 dependencies[] = harmony_access
 dependencies[] = og_access
 
-; Information added by Drupal.org packaging script on 2015-01-11
-version = "7.x-1.x-dev"
+; Information added by Drupal.org packaging script on 2015-11-16
+version = "7.x-1.0-alpha1"
 core = "7.x"
 project = "harmony_access"
-datestamp = "1420976281"
+datestamp = "1447672141"
 
