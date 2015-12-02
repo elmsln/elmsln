@@ -87,7 +87,7 @@ function _ecd_helper_change_course_access($access, $state = 'active') {
   $target = '@network.' . $course->field_course_machine_name['und'][0]['value'];
   // formulate the drush call
   if ($state == 'active') {
-    $task = 'urol';
+    $task = 'ugrid';
     // ensure that user already exists in all targets before adding role to nothing
     $commands[] = array(
       'target' => array($target),
@@ -96,12 +96,12 @@ function _ecd_helper_change_course_access($access, $state = 'active') {
     );
   }
   else {
-    $task = 'urrol';
+    $task = 'urrid';
   }
   $role = user_role_load($access->field_role['und'][0]['value']);
   $commands[] = array(
     'target' => array($target),
-    'args' => array($task, '"' . check_plain($role->name) . '"', check_plain($access->field_account_request['und'][0]['value'])),
+    'args' => array($task, $role->rid, check_plain($access->field_account_request['und'][0]['value'])),
   );
   // ensure our task runner was able to write to the file
   // this doesn't ensure its processed but at least puts it in position
@@ -127,7 +127,7 @@ function _ecd_helper_change_system_access($access, $state = 'active') {
     $targets[] = $system->field_machine_name['und'][0]['value'];
   }
   if ($state == 'active') {
-    $task = 'urol';
+    $task = 'ugrid';
     // ensure that user already exists in all targets before adding role to nothing
     $commands[] = array(
       'target' => $target,
@@ -136,13 +136,13 @@ function _ecd_helper_change_system_access($access, $state = 'active') {
     );
   }
   else {
-    $task = 'urrol';
+    $task = 'urrid';
   }
   // formulate the drush call
   $role = user_role_load($access->field_role['und'][0]['value']);
   $commands[] = array(
     'target' => $target,
-    'args' => array($task, '"' . check_plain($role->name) . '"', check_plain($access->field_account_request['und'][0]['value'])),
+    'args' => array($task, $role->rid, check_plain($access->field_account_request['und'][0]['value'])),
   );
   // ensure our task runner was able to write to the file
   // this doesn't ensure its processed but at least puts it in position

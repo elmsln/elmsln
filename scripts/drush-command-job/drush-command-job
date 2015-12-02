@@ -65,6 +65,14 @@ do
     drushcommand=`echo "$drush" | cut -f 2- -d ' '`
     background='FALSE'
     ;;
+    ugrid)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
+    urrid)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
     cook)
     drushcommand=`echo "$drush" | cut -f 2- -d ' '`
     background='FALSE'

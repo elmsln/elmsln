@@ -1,0 +1,2 @@
+name = Drush grant RID
+description = Grant and remove roles based on RID
