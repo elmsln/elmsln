@@ -348,6 +348,9 @@ do
       ecl)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
+      cis-sck)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
       *)
       badcommand=`echo "$drush" | cut -f 2- -d ' '`
       drushcommand="NULL"
