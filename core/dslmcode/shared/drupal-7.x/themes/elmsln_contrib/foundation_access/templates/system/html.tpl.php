@@ -53,9 +53,6 @@
   <title><?php print $head_title; ?></title>
   <?php print $styles; ?>
   <?php print $scripts; ?>
-  <?php if (!empty($parent_origin)) : ?>
-    <script>document.domain = "<?php print $parent_origin; ?>";</script>
-  <?php endif; ?>
   <!--[if lt IE 9]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
