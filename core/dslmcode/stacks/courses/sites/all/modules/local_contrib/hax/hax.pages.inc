@@ -3,18 +3,19 @@
 /**
  * Edit mode callback.
  */
+
 /**
  * Implementation of hook_form().
  */
 function hax_page_edit_form($form, $form_state) {
-  $form = array();
   $node = menu_get_object();
   $form['hax_body'] = array(
     '#type' => 'textfield',
     '#title' => t('body'),
     '#value' => $node->body['und'][0]['value'],
   );
-  $form['submit'] = array(
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#title' => t('Submit'),
     '#value' => 'submit'
@@ -23,7 +24,7 @@ function hax_page_edit_form($form, $form_state) {
 }
 
 /**
- * Implementation of hook_bean_form_submit().
+ * Implementation of hook_form_submit().
  */
 function hax_page_edit_form_submit($form, $form_state) {
   $node = menu_get_object();
