@@ -39,9 +39,9 @@ function discuss_perms_defaultconfig_user_default_permissions() {
     'module' => 'harmony_core',
   );
 
-  // Exported permission: 'administer forum content'.
-  $permissions['administer forum content'] = array(
-    'name' => 'administer forum content',
+  // Exported permission: 'administer harmony forum content'.
+  $permissions['administer harmony forum content'] = array(
+    'name' => 'administer harmony forum content',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
