@@ -9,7 +9,6 @@
         event.preventDefault();
       }
       $('#edit-hax-body').val($('.hax-body').html());
-      $('#edit-hax-body').html($('.hax-body').html());
       $('#hax-page-edit-form').submit();
     });
     // create toolbar buttons for appending items to the interface
@@ -32,7 +31,6 @@
           Drupal.hax.applyDrag(container[0]);
         }
         Drupal.hax.applyEventListeners(container[0]);
-        console.log();
         var prependto = '';
         for (var len = Drupal.hax.selections.activeitems.length, i = 0; i < len; i++) {
           // drop item after the current one in the same parent
@@ -50,6 +48,7 @@
         if (prependto == '') {
           $(container[0]).prependTo('.hax-body');
         }
+        $('#edit-hax-body').val($('.hax-body').html());
       }
     });
   });
