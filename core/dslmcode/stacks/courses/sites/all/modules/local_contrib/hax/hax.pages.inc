@@ -28,9 +28,13 @@ function hax_page_edit_form($form, $form_state) {
  */
 function hax_page_edit_form_submit($form, $form_state) {
   $node = menu_get_object();
-  $node->body['und'][0]['value'] = $form_state['input']['hax_body'];
+  $body = $form_state['input']['hax_body'];
+  $search = array('data-draggable="item"','data-draggable="target"','data-hax-processed="true"', 'draggable="true"', 'aria-grabbed="false"', 'tabindex="0"');
+  $body = str_replace($search, array(''), $body);
+  $node->body['und'][0]['value'] = $body;
   node_save($node);
   drupal_set_message(t('Page saved!'), 'status');
+  drupal_goto('node/' . $node->nid);
 }
 
 /**
