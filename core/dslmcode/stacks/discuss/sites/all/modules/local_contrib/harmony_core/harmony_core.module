@@ -103,6 +103,7 @@ function harmony_core_entity_info() {
     'module' => 'harmony_core',
     'access callback' => 'harmony_core_thread_access_callback',
     'metatags' => TRUE,
+    'modified property name' => 'updated',
   );
 
   // Add bundle info but bypass entity_load() as we cannot use it here.
@@ -113,7 +114,7 @@ function harmony_core_entity_info() {
 
   foreach ($types as $type => $info) {
     $entities['harmony_thread']['bundles'][$type] = array(
-      'label' => $info->label,
+      'label' => check_plain($info->label),
       'admin' => array(
         'path' => 'admin/harmony/structure/thread/%harmony_thread_type',
         'real path' => 'admin/harmony/structure/thread/' . $type,
@@ -185,6 +186,7 @@ function harmony_core_entity_info() {
       'controller' => 'HarmonyPostInlineEntityFormController',
     ),
     'metatags' => TRUE,
+    'modified property name' => 'updated',
   );
 
   return $entities;
@@ -201,7 +203,7 @@ function harmony_core_entity_info_alter(&$entity_info) {
 }
 
 function harmony_core_post_revision_access($op, $name, $entity = NULL, $account = NULL) {
-  return $op == 'view' ? user_access('view harmony_post revisions', $account) || user_access('bypass harmony forum access control', $account) : user_access('administer forum content', $account);
+  return $op == 'view' ? user_access('view harmony_post revisions', $account) || user_access('bypass harmony forum access control', $account) : user_access('administer harmony forum content', $account);
 }
 
 /**
@@ -237,7 +239,7 @@ function harmony_core_entity_property_info() {
     'type' => 'user',
     'description' => t('The author of the thread.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'required' => TRUE,
     'schema field' => 'uid',
   );
@@ -247,7 +249,7 @@ function harmony_core_entity_property_info() {
     'type' => 'integer',
     'options list' => 'entity_metadata_status_options_list',
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'status',
   );
   $thread_properties['created'] = array(
@@ -255,7 +257,7 @@ function harmony_core_entity_property_info() {
     'type' => 'date',
     'description' => t('The date the thread was created.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'created',
   );
   $thread_properties['updated'] = array(
@@ -263,14 +265,14 @@ function harmony_core_entity_property_info() {
     'type' => 'date',
     'description' => t('The date the thread was most recently updated.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'updated',
   );
   $thread_properties['pinned'] = array(
     'label' => t('Pinned'),
     'description' => t('Whether the thread should be displayed at the top of lists in which it appears.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'pinned',
     'type' => 'boolean',
   );
@@ -278,7 +280,7 @@ function harmony_core_entity_property_info() {
     'label' => t('Locked'),
     'description' => t('Whether the thread is locked from changes.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'locked',
     'type' => 'boolean',
   );
@@ -286,7 +288,7 @@ function harmony_core_entity_property_info() {
     'label' => t('Hidden'),
     'description' => t('Whether the thread is hidden in listings.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'hidden',
     'type' => 'boolean',
   );
@@ -354,7 +356,7 @@ function harmony_core_entity_property_info() {
     'type' => 'user',
     'description' => t('The author of the post.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'required' => TRUE,
     'schema field' => 'uid',
   );
@@ -364,7 +366,7 @@ function harmony_core_entity_property_info() {
     'type' => 'integer',
     'options list' => 'entity_metadata_status_options_list',
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'status',
   );
   $post_properties['created'] = array(
@@ -372,7 +374,7 @@ function harmony_core_entity_property_info() {
     'type' => 'date',
     'description' => t('The date the post was created.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'created',
   );
   $post_properties['updated'] = array(
@@ -380,14 +382,14 @@ function harmony_core_entity_property_info() {
     'type' => 'date',
     'description' => t('The date the post was most recently updated.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'updated',
   );
   $post_properties['locked'] = array(
     'label' => t('Locked'),
     'description' => t('Whether the post is locked from changes.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'locked',
     'type' => 'boolean',
   );
@@ -395,7 +397,7 @@ function harmony_core_entity_property_info() {
     'label' => t('Hidden'),
     'description' => t('Whether the post is hidden.'),
     'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer forum content',
+    'setter permission' => 'administer harmony forum content',
     'schema field' => 'hidden',
     'type' => 'boolean',
   );
@@ -501,8 +503,8 @@ function harmony_core_permission() {
       'description' => t('Allows users to configure the post entity type and its fields.'),
       'restrict access' => TRUE,
     ),
-    'administer forum content' => array(
-      'title' => t('Administer forum content'),
+    'administer harmony forum content' => array(
+      'title' => t('administer harmony forum content'),
       'description' => t('Allows users to create, edit and delete any forum threads or posts.'),
       'restrict access' => TRUE,
     ),
@@ -567,7 +569,6 @@ function harmony_core_permission() {
     'edit own harmony_threads' => array(
       'title' => t('Edit own threads'),
       'description' => t('Allows users to edit their own threads.'),
-      'restrict access' => TRUE,
     ),
     'delete any harmony_thread' => array(
       'title' => t('Delete any thread'),
@@ -641,7 +642,7 @@ function harmony_core_permission() {
       'title' => t('Delete own posts'),
       'description' => t('Allows users to delete own posts.'),
     ),
-    'access show replies' => array(
+    'access harmony_post show replies' => array(
       'title' => t('Access the show direct replies link on posts'),
       'description' => t('Allows access to the show direct replies links on posts.'),
     ),
@@ -1001,7 +1002,7 @@ function harmony_core_menu() {
         'description' => 'Generate a given number of threads and posts. Optionally delete current menus.',
         'page callback' => 'drupal_get_form',
         'page arguments' => array('harmony_core_devel_generate_form'),
-        'access arguments' => array('administer forum content'),
+        'access arguments' => array('administer harmony forum content'),
         'file' => 'harmony_core.devel.inc',
         'file path' => $includes_dir,
       );
@@ -1250,7 +1251,7 @@ function harmony_core_thread_access_callback($op, $entity, $account = NULL, $thr
   }
 
   // Admin-ish access checks.
-  if (user_access('bypass harmony forum access control', $account) || user_access('administer forum content', $account)) {
+  if (user_access('bypass harmony forum access control', $account) || user_access('administer harmony forum content', $account)) {
     $rights[$account->uid][$cid][$op] = TRUE;
     return TRUE;
   }
@@ -1259,8 +1260,13 @@ function harmony_core_thread_access_callback($op, $entity, $account = NULL, $thr
   // - No modules say to deny access.
   // - At least one module says to grant access.
   // If no module specified either allow or deny, we fall back to the
-  // thread_access table.
-  $access = module_invoke_all('harmony_thread_access', $op, $entity, $account, $entity_type);
+  // harmony_access_records table.
+  //
+  // For the create operation when invoking harmony_thread_access
+  // implementations we change the entity type to "harmony_post" as the check
+  // is "can we create posts within this thread?".
+  $hta_invoke_type = $op === 'create' ? 'harmony_post' : $entity_type;
+  $access = module_invoke_all('harmony_thread_access', $op, $entity, $account, $hta_invoke_type);
   if (in_array(HARMONY_ACCESS_DENY, $access, TRUE)) {
     $rights[$account->uid][$cid][$op] = FALSE;
     return FALSE;
@@ -1423,7 +1429,7 @@ function harmony_core_post_access_callback($op, $entity, $account = NULL) {
   }
 
   // Admin-ish access checks.
-  if (user_access('bypass harmony forum access control', $account) || user_access('administer forum content', $account)) {
+  if (user_access('bypass harmony forum access control', $account) || user_access('administer harmony forum content', $account)) {
     $rights[$account->uid][$cid][$op] = TRUE;
     return TRUE;
   }
@@ -1517,7 +1523,7 @@ function harmony_core_post_revision_access_callback($op, $post, $account = NULL)
   }
 
   // Admin-ish access checks.
-  if (user_access('bypass harmony forum access control', $account) || user_access('administer forum content', $account)) {
+  if (user_access('bypass harmony forum access control', $account) || user_access('administer harmony forum content', $account)) {
     $rights[$account->uid][$cid][$op] = TRUE;
     return TRUE;
   }
@@ -2341,7 +2347,7 @@ function harmony_core_post_reassign_action_form($settings) {
 
 function harmony_core_post_reassign_action_validate($form, &$form_state) {
   $lang = !empty($form['#entity']->language) ? $form['#entity']->language : LANGUAGE_NONE;
-  $view_arg = !empty($form_state['build_info']['args'][0]->args[0]) && is_numeric($form_state['build_info']['args'][0]->args[0]) ? $form_state['build_info']['args'][0]->args[0] : 0;
+  $view_arg = !empty($form_state['build_info']['args'][0]->args[0]) && ctype_digit((string) $form_state['build_info']['args'][0]->args[0]) ? $form_state['build_info']['args'][0]->args[0] : 0;
 
   // Check we're not moving posts to the same thread as they're in now.
   if ($form_state['values']['field_harmony_thread'][$lang][0]['target_id'] === $view_arg) {
@@ -2509,7 +2515,7 @@ function harmony_core_post_split_action_form($settings, $vbo = array()) {
   // Options for administrators
   $form['options'] = array(
     '#type' => 'fieldset',
-    '#access' => user_access('administer forum content'),
+    '#access' => user_access('administer harmony forum content'),
     '#title' => t('Thread options'),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
@@ -2782,7 +2788,7 @@ function harmony_core_block_view($delta = '') {
   switch ($delta) {
     case 'reply_form':
       // Check that we're on a thread page.
-      if (arg(0) === 'thread' && is_numeric(arg(1)) && !arg(2) && user_access('create harmony_posts')) {
+      if (arg(0) === 'thread' && ctype_digit((string) arg(1)) && !arg(2) && user_access('create harmony_posts')) {
         $thread = harmony_thread_load(arg(1));
 
         if ($thread) {
@@ -2807,7 +2813,7 @@ function harmony_core_block_view($delta = '') {
  * Add body classes!
  */
 function harmony_core_preprocess_html(&$variables) {
-  if (arg(0) === 'thread' && is_numeric(arg(1)) && !arg(2)) {
+  if (arg(0) === 'thread' && ctype_digit((string) arg(1)) && !arg(2)) {
     $thread = harmony_thread_load(arg(1));
     $variables['classes_array'][] = 'harmony-thread';
     $variables['classes_array'][] = 'harmony-thread-' . drupal_html_class($thread->type);
@@ -2818,7 +2824,7 @@ function harmony_core_preprocess_html(&$variables) {
  * Implements template_preprocess_page().
  */
 function harmony_core_preprocess_page(&$variables) {
-  if (arg(0) === 'thread' && is_numeric(arg(1)) && !arg(2)) {
+  if (arg(0) === 'thread' && ctype_digit((string) arg(1)) && !arg(2)) {
     $thread = harmony_thread_load(arg(1));
     if (variable_get('harmony_core_bundle__' . $thread->type . '__thread_meta_in_title', 1)) {
       $thread_properties = harmony_core_thread_get_properties($thread->thread_id, $thread);
@@ -2952,7 +2958,7 @@ function harmony_core_thread_form($form, &$form_state, $thread = NULL) {
   // Allow category to be preopulated, also check access if
   // harmony_access_forum is in place.
   $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
-  if (!empty($form[$category_field]) && !empty($_GET[$category_field]) && is_numeric($_GET[$category_field])) {
+  if (!empty($form[$category_field]) && !empty($_GET[$category_field]) && ctype_digit((string) $_GET[$category_field])) {
     // Load up the term to check it exists and that it's in the correct vocab.
     $vocab = variable_get('harmony_core_category_vocabulary', 'harmony_category');
     $term = taxonomy_term_load($_GET[$category_field]);
@@ -2966,7 +2972,7 @@ function harmony_core_thread_form($form, &$form_state, $thread = NULL) {
   // Options for administrators
   $form['options'] = array(
     '#type' => 'fieldset',
-    '#access' => user_access('administer forum content'),
+    '#access' => user_access('administer harmony forum content'),
     '#title' => t('Thread options'),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
@@ -3009,7 +3015,7 @@ function harmony_core_thread_form($form, &$form_state, $thread = NULL) {
   $form['field_harmony_post_count']['#access'] = FALSE;
 
   // Hide the continued from field if not populated.
-  if (!empty($_GET['field_harmony_thread_cont_from']) && is_numeric($_GET['field_harmony_thread_cont_from'])) {
+  if (!empty($_GET['field_harmony_thread_cont_from']) && ctype_digit((string) $_GET['field_harmony_thread_cont_from'])) {
   }
 
   // Add the buttons.
@@ -3343,6 +3349,7 @@ function harmony_core_harmony_thread_type_delete($harmony_thread_type) {
  * Post add/edit form callback.
  */
 function harmony_core_post_form($form, &$form_state, $post) {
+  global $user;
   $form = array();
 
   $form['post'] = array(
@@ -3410,7 +3417,7 @@ function harmony_core_post_form($form, &$form_state, $post) {
       $thread_default_value_id = substr($thread_default_value_id, 0, strpos($thread_default_value_id, ')'));
 
       // Check just to be safe.
-      if (is_numeric($thread_default_value_id)) {
+      if (ctype_digit((string) $thread_default_value_id)) {
         $thread_id = $thread_default_value_id;
       }
     }
@@ -3428,7 +3435,7 @@ function harmony_core_post_form($form, &$form_state, $post) {
 
     if ($thread) {
       $thread_properties = harmony_core_thread_get_properties($thread_id, $thread);
-      if (isset($thread_properties['can_post_in']) && !$thread_properties['can_post_in'] && !user_access('administer forum content')) {
+      if (isset($thread_properties['can_post_in']) && !$thread_properties['can_post_in'] && !user_access('administer harmony forum content')) {
         $bail_out = TRUE;
         $bail_out_reason = 'Cannot post in due to thread properties.';
       }
@@ -3439,12 +3446,16 @@ function harmony_core_post_form($form, &$form_state, $post) {
     }
   }
   else {
-    $bail_out = TRUE;
-    $bail_out_reason = 'No thread id was specified.';
+    // When AJAX stuff is happening we don't want to stop things.
+    if (!isset($_REQUEST['ajax_page_state'])) {
+      $bail_out = TRUE;
+      $bail_out_reason = 'No thread id was specified.';
+    }
   }
 
   // Bail out!
   if ($bail_out) {
+    watchdog('harmony_core', 'The user @name attempted to edit a post but something went wrong... @reason', array('@name' => $user->name, '@reason' => $bail_out_reason), WATCHDOG_NOTICE);
     return array(
       'text' => array(
         '#markup' => t("<p>The thread you're trying to post in is either locked, appears in an unpublished thread or is missing. If this is in error please contact the site administrator."),
@@ -3456,13 +3467,13 @@ function harmony_core_post_form($form, &$form_state, $post) {
   $form['title'] = array(
     '#type' => 'value',
     '#title' => t('Post title'),
-    '#default_value' => $thread->title,
+    '#default_value' => !empty($thread->title) ? $thread->title : NULL,
   );
 
   // Quoting integration with entity_quote.
   // @todo rewrite so that we can take in quoting or reply as new thread, may
   // take place in inline_entity_form integration.
-  if ($post->is_new && !empty($_GET['quote']) && is_numeric($_GET['quote'])) {
+  if ($post->is_new && !empty($_GET['quote']) && ctype_digit((string) $_GET['quote'])) {
     $post_to_quote_id = $_GET['quote'];
     $post_to_quote = entity_load_single('harmony_post', $post_to_quote_id);
 
@@ -3483,7 +3494,7 @@ function harmony_core_post_form($form, &$form_state, $post) {
   // Options for administrators
   $form['options'] = array(
     '#type' => 'fieldset',
-    '#access' => user_access('administer forum content'),
+    '#access' => user_access('administer harmony forum content'),
     '#title' => t('Post options'),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
@@ -3559,7 +3570,7 @@ function harmony_core_post_form($form, &$form_state, $post) {
   // Add cancel link.
   if (arg(0) === 'post' && arg(1) === 'add') {
     // Bounce the user back to the thread.
-    if (isset($_GET['field_harmony_thread']) && is_numeric($_GET['field_harmony_thread'])) {
+    if (isset($_GET['field_harmony_thread']) && ctype_digit((string) $_GET['field_harmony_thread'])) {
       $cancel_options = drupal_parse_url('thread/' . $_GET['field_harmony_thread']);
     }
     // Can't figure out where to go, go home!
@@ -3823,7 +3834,7 @@ function harmony_core_flag_unflag($flag, $entity_id, $account, $flagging) {
  *
  */
 function harmony_core_update_meta_count($fields, $entity_type, $entity_id, $op = 'increment', $value = 1) {
-  if (empty($fields) || !is_numeric($value)) {
+  if (empty($fields) || !ctype_digit((string) $value)) {
     return;
   }
 
@@ -4320,7 +4331,7 @@ function harmony_core_metatag_config_default() {
       'value' => '[harmony_thread:title] | [site:name]',
     ),
     'description' => array(
-      'value' => '[harmony_thread:summary]',
+      'value' => '[harmony_thread:summary-pt]',
     ),
   );
   $configs[$config->instance] = $config;
@@ -4350,7 +4361,7 @@ function harmony_core_page_alter(&$page) {
     global $_harmony;
 
     // Only track thread pages, also check for a global do not track flag.
-    if (!(arg(0) == 'thread' && is_numeric(arg(1)) && !arg(2)) || isset($_harmony['thread_do_not_track'])) {
+    if (!(arg(0) == 'thread' && ctype_digit((string) arg(1)) && !arg(2)) || isset($_harmony['thread_do_not_track'])) {
       return;
     }
 
@@ -4374,7 +4385,7 @@ function harmony_core_page_alter(&$page) {
 }
 
 function harmony_core_thread_track_view($thread_id) {
-  if (!empty($thread_id) && is_numeric($thread_id) && $thread_id > 0) {
+  if (!empty($thread_id) && ctype_digit((string) $thread_id) && $thread_id > 0) {
     // Increment via db query.
     $transaction = db_transaction();
 
@@ -4402,7 +4413,7 @@ function harmony_core_thread_log_view($thread_id) {
   $valid_referer = !empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $base_root) === 0;
 
   // Check the id is numeric.
-  if ($valid_referer && !empty($thread_id) && is_numeric($thread_id) && $thread_id > 0) {
+  if ($valid_referer && !empty($thread_id) && ctype_digit((string) $thread_id) && $thread_id > 0) {
     // Load the thread.
     $thread = harmony_thread_load($thread_id);
   }
@@ -4777,7 +4788,7 @@ function harmony_core_post_in_thread_position($thread_id, $post_id, $callback = 
  * Function to return a URL to a post on the correct page of a thread.
  */
 function harmony_core_post_thread_url($thread_id, $post_id, $return_array = FALSE) {
-  if (is_numeric($thread_id) && !is_numeric($post_id)) {
+  if (ctype_digit((string) $thread_id) && !ctype_digit((string) $post_id)) {
     return !$return_array ? url("thread/{$thread_id}") : array('path' => "thread/{$thread_id}", 'query' => array(), 'fragment' => array());
   }
 
@@ -4842,8 +4853,21 @@ function harmony_core_meta_get_property($type, $property = NULL, $all = FALSE) {
  * Redirect the user from the permalink URL to it's place within its thread.
  */
 function harmony_core_post_permalink_callback($post) {
+  global $user;
   $wrapper = entity_metadata_wrapper('harmony_post', $post);
 
+  $path = 'post/' . $post->post_id;
+  $options = array();
+
+  // In the case that the post is unpublished check to see if the user has
+  // access, if so send them to the posts individual page.
+  if ($post->status == HARMONY_NOT_PUBLISHED && harmony_core_entity_access_check('view', $post, $user, 'harmony_post')) {
+      drupal_goto($path, $options, 301);
+  }
+
+  // First check to see if the post is published or not, if so set the default
+  // path of the post URL. If it's attached to a thread (which it should be)
+  // then use that instead.
   if ($wrapper->field_harmony_thread->value()) {
     $thread_id = $wrapper->field_harmony_thread->thread_id->value();
     $thread_post_url = harmony_core_post_thread_url($thread_id, $post->post_id, TRUE);
@@ -4851,10 +4875,6 @@ function harmony_core_post_permalink_callback($post) {
     $path = $thread_post_url['path'];
     unset($thread_post_url['path']);
     $options = $thread_post_url;
-  }
-  else {
-    $path = 'post/' . $post->post_id;
-    $options = array();
   }
 
   drupal_goto($path, $options, 301);
@@ -4868,7 +4888,7 @@ function harmony_core_post_property_get_permalink($data, array $options, $name, 
   $wrapper = entity_metadata_wrapper('harmony_post', $data);
   $path = NULL;
 
-  if ($wrapper->field_harmony_thread->value()) {
+  if ($wrapper->field_harmony_thread->value() && $data->status == HARMONY_PUBLISHED) {
     $thread_id = $wrapper->field_harmony_thread->thread_id->value();
     $path = harmony_core_post_thread_url($thread_id, $data->post_id);
   }

@@ -45,7 +45,7 @@ class harmony_core_views_handler_area_add_thread extends views_handler_area {
       if (user_access('create harmony_thread harmony threads')) {
         $attrs = array();
         // @todo this should grab tid value from view object.
-        if (arg(0) === 'taxonomy' && arg(1) === 'term' && is_numeric(arg(2))) {
+        if (arg(0) === 'taxonomy' && arg(1) === 'term' && ctype_digit((string) arg(2))) {
           $category_field = variable_get('harmony_core_category_field', 'field_harmony_category');
           $attrs = array(
             'query' => array(

@@ -13,7 +13,7 @@
 class harmony_core_views_handler_post_field_link extends views_handler_field_entity {
   function option_definition() {
     $options = parent::option_definition();
-    $options['text'] = array('default' => '', 'translatable' => TRUE);
+    $options['text'] = array('default' => '', 'translatable' => TRUE, 'tokenize' => TRUE);
     return $options;
   }
 
@@ -21,6 +21,7 @@ class harmony_core_views_handler_post_field_link extends views_handler_field_ent
     $form['text'] = array(
       '#type' => 'textfield',
       '#title' => t('Text to display'),
+      '#description' => t('This field will accept replacement patterns.'),
       '#default_value' => $this->options['text'],
     );
     parent::options_form($form, $form_state);
@@ -39,8 +40,8 @@ class harmony_core_views_handler_post_field_link extends views_handler_field_ent
   function render_link($post, $values) {
     if (harmony_core_post_access_callback('view', $post)) {
       $this->options['alter']['make_link'] = TRUE;
-      $this->options['alter']['path'] = "post/$post->post_id";
-      $text = !empty($this->options['text']) ? check_plain($this->options['text']) : t('view');
+      $this->options['alter']['path'] = $post->status == HARMONY_PUBLISHED ? "post/$post->post_id/permalink" : "post/$post->post_id";
+      $text = !empty($this->options['text']) ? $this->tokenize_value(check_plain($this->options['text'])) : t('view');
 
       return $text;
     }

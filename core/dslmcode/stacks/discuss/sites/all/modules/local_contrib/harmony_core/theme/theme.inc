@@ -105,9 +105,11 @@ function template_preprocess_harmony_post(&$variables) {
 
   // Add in some useful variables.
   $variables['title'] = check_plain($post->title);
+  $variables['belongs_to_thread'] = FALSE;
   if ($thread_id) {
     $variables['thread_url'] = url("thread/$thread_id");
     $variables['thread_post_url'] = harmony_core_post_thread_url($thread_id, $post->post_id);
+    $variables['belongs_to_thread'] = TRUE;
   }
   $variables['url'] = url("post/$post->post_id");
   $variables['permalink_url'] = $variables['url'];

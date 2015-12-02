@@ -24,7 +24,7 @@ class harmony_core_views_handler_thread_field_link_delete extends harmony_core_v
     $this->options['alter']['path'] = "thread/$thread->thread_id/delete";
     $this->options['alter']['query'] = drupal_get_destination();
 
-    $text = !empty($this->options['text']) ? check_plain($this->options['text']) : t('delete');
+    $text = !empty($this->options['text']) ? $this->tokenize_value(check_plain($this->options['text'])) : t('delete');
     return $text;
   }
 }

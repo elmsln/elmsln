@@ -140,8 +140,11 @@ function harmony_core_devel_generate_batch_thread_add(&$context) {
   module_load_include('inc', 'devel_generate', 'devel_generate');
 
   $users = $context['results']['users'];
+  // Filter out the unselected thread types.
+  $thread_types = array_filter($context['results']['types']);
+
   $thread = (object) array(
-    'type' => array_rand($context['results']['types']),
+    'type' => array_rand($thread_types),
     'uid' => $users[array_rand($users)],
     'language' => LANGUAGE_NONE,
     'status' => HARMONY_PUBLISHED,

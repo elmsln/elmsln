@@ -7,8 +7,8 @@ dependencies[] = filter
 dependencies[] = flag
 dependencies[] = harmony_core
 features[features_api][] = api:2
-features[user_permission][] = access show replies
-features[user_permission][] = administer forum content
+features[user_permission][] = access harmony_post show replies
+features[user_permission][] = administer harmony forum content
 features[user_permission][] = administer harmony settings
 features[user_permission][] = administer harmony_post entity
 features[user_permission][] = administer harmony_thread_types
@@ -42,9 +42,9 @@ features[user_permission][] = view own unpublished harmony_threads
 features[user_permission][] = view unpublished harmony_posts
 features[user_permission][] = view unpublished harmony_threads
 
-; Information added by Drupal.org packaging script on 2015-03-19
-version = "7.x-1.x-dev"
+; Information added by Drupal.org packaging script on 2015-10-31
+version = "7.x-1.0-alpha7"
 core = "7.x"
 project = "harmony_core"
-datestamp = "1426798689"
+datestamp = "1446332361"
 

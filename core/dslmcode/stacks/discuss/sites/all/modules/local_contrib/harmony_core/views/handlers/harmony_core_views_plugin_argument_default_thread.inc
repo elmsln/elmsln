@@ -19,7 +19,7 @@ class harmony_core_views_plugin_argument_default_thread extends views_plugin_arg
       }
     }
 
-    if (arg(0) == 'thread' && is_numeric(arg(1))) {
+    if (arg(0) == 'thread' && ctype_digit((string) arg(1))) {
       return arg(1);
     }
   }

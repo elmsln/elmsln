@@ -22,7 +22,7 @@ function harmony_atjs_atjs_ajax_results_alter(&$results, $context) {
       $filepath = NULL;
 
       if (!empty($entity->picture)) {
-        if (is_numeric($entity->picture)) {
+        if (ctype_digit((string) $entity->picture)) {
           $entity->picture = file_load($entity->picture);
         }
         if (!empty($entity->picture->uri)) {

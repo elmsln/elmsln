@@ -268,7 +268,7 @@ function harmony_core_post_view($post, $view_mode = 'full', $langcode = NULL) {
     variable_get('harmony_core_post_show_hostname', FALSE) &&
     isset($extra_fields['harmony_core_post_display_hostname']['display'][$view_mode]['visible']) &&
     $extra_fields['harmony_core_post_display_hostname']['display'][$view_mode]['visible'] &&
-    user_access('administer forum content')
+    user_access('administer harmony forum content')
   ) {
     $build['harmony_core_post_display_hostname'] = array(
       '#markup' => theme('harmony_core_post_display_hostname', array('post' => $post, 'view_mode' => $view_mode)),
@@ -319,7 +319,7 @@ function harmony_core_post_build_content($post, $view_mode = 'full', $langcode =
     '#attributes' => array('class' => array('post-links', 'inline')),
   );
   // Check for direct replies.
-  if ($view_mode != 'inline_reply' && user_access('access show replies')) {
+  if ($view_mode != 'inline_reply' && user_access('access harmony_post show replies')) {
     $post_replies = harmony_post_get_replies($post->post_id);
     if (!empty($post_replies)) {
       $links['show_replies'] = array(
@@ -340,7 +340,7 @@ function harmony_core_post_build_content($post, $view_mode = 'full', $langcode =
   }
 
   // Edit link.
-  if (user_access('administer forum content') || !empty($thread_properties) && !$thread_properties['is_locked'] && harmony_core_post_access_callback('update', $post)) {
+  if (user_access('administer harmony forum content') || !empty($thread_properties) && !$thread_properties['is_locked'] && harmony_core_post_access_callback('update', $post)) {
     $links['edit'] = array(
       'title' => t('Edit'),
       'href' => "post/$post->post_id/edit",
@@ -359,7 +359,7 @@ function harmony_core_post_build_content($post, $view_mode = 'full', $langcode =
         'destination' => url("thread/$thread_id"),
       );
 
-      if (!empty($_GET['page']) && is_numeric($_GET['page'])) {
+      if (!empty($_GET['page']) && ctype_digit((string) $_GET['page'])) {
         $edit_query['destination'] = url("thread/$thread_id", array('query' => array('page' => $_GET['page'])));
       }
       // If we're editing the thread instead, it's possible that the path alias

@@ -149,7 +149,8 @@ function _harmony_core_rebuild_counts_operation($target, &$context) {
         $context['sandbox']['entity_type'] = 'taxonomy_term';
         $context['sandbox']['entity_table'] = 'taxonomy_term_data';
         $context['sandbox']['id_key'] = 'tid';
-        $vocabulary = taxonomy_vocabulary_machine_name_load('harmony_category');
+        $harmony_vocabulary = variable_get('harmony_core_category_vocabulary', 'harmony_category');
+        $vocabulary = taxonomy_vocabulary_machine_name_load($harmony_vocabulary);
         $context['sandbox']['vid'] = $vocabulary->vid;
         $context['sandbox']['limit'] = 1;
         $context['sandbox']['max'] = db_query('SELECT COUNT(DISTINCT tid) FROM {taxonomy_term_data} WHERE vid = :vid', array(':vid' => $vocabulary->vid))->fetchField();
@@ -161,7 +162,15 @@ function _harmony_core_rebuild_counts_operation($target, &$context) {
   // slow and we know that the input is internal.
   $table = $context['sandbox']['entity_table'];
   $id_key = $context['sandbox']['id_key'];
-  $entity_ids = db_query_range('SELECT ' . $id_key . ' FROM {' . $table . '} WHERE ' . $id_key . ' > :entity_id ORDER BY ' . $id_key . ' ASC', 0, $context['sandbox']['limit'], array(
+  $query_extra = NULL;
+
+  // Taxonomy count rebuild is a special case which needs an extra level of
+  // specificity to the query.
+  if ($context['sandbox']['entity_type'] === 'taxonomy_term') {
+    $query_extra = ' AND vid = ' . $context['sandbox']['vid'];
+  }
+
+  $entity_ids = db_query_range('SELECT ' . $id_key . ' FROM {' . $table . '} WHERE ' . $id_key . ' > :entity_id' . $query_extra . ' ORDER BY ' . $id_key . ' ASC', 0, $context['sandbox']['limit'], array(
     ':entity_id' => $context['sandbox']['current_entity_id']
   ))->fetchCol();
   $entities = entity_load($context['sandbox']['entity_type'], $entity_ids, array(), TRUE);

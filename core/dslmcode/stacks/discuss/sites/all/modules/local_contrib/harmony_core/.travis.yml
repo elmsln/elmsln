@@ -1,0 +1,113 @@
+# Harmony Travis CI config.
+# Lessons learned from the following places:
+#  - https://www.drupal.org/node/2353081 (Thanks btopro for the first nudge)
+#  - https://github.com/sonnym/travis-ci-drupal-module-example/blob/7.x-1.x/.travis.yml
+#  - https://github.com/commerceguys/kickstart-drops-7/blob/master/profiles/commerce_kickstart/.travis.yml (BEHAT_PARAMS is the most important thing from this)
+#  - https://github.com/RESTful-Drupal/restful/blob/7.x-1.x/.travis.yml
+#  - https://github.com/Gizra/behat-drupal-phantomjs (the lock file here was the key)
+
+language: php
+
+php:
+#  - 5.3
+  - 5.4
+  - 5.5
+#  - hhvm
+
+matrix:
+  fast_finish: true
+  allow_failures:
+#    - php: hhvm
+
+addons:
+  apt:
+    packages:
+    - php5-cgi
+    - php5-mysql
+    - php5-cli
+    - php5-curl
+    - php5-gd
+
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
+install:
+  # Set the timezone.
+  - echo 'date.timezone = "Europe/London"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+
+  # Add composer's global bin directory to the path
+  # see: https://github.com/drush-ops/drush#install---composer
+  # And install latest Drush 6.
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - composer global require --no-interaction --prefer-source drush/drush:6.*
+  - drush dl -y drupalorg_drush-7.x-1.x-dev --destination=$HOME/.drush
+  - drush cc drush
+
+  # Build Behat dependencies.
+  - cd ./tests/behat
+  # Composer install.
+  - composer install --no-interaction --prefer-source
+  - cd ../../
+
+before_script:
+  # Navigate out of git checkout module directory to prevent blown stack by recursive module lookup.
+  # For reference we're here: /home/travis/build/lohi-io/harmony_core
+  - cd ../..
+
+  # Create the database.
+  - mysql -e 'create database drupal'
+
+  # Install Drupal and Harmony Core (and submodules).
+  - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes qd drupal --profile=minimal --no-server --db-url=mysql://root:@127.0.0.1/drupal --account-name=admin --account-pass=admin
+
+  # Symlink the module code.
+  - ln -s /home/travis/build/lohi-io/harmony_core drupal/drupal/sites/all/modules/harmony_core
+
+  # Set some environment variables.
+  - export DRUPAL_HOSTNAME="http://127.0.0.1:8888"
+  - export DRUPAL_LOGIN=admin
+  - export DRUPAL_PASSWORD=admin
+
+  # Jump back into the install.
+  - cd drupal/drupal
+
+  # Enable harmony_core.
+  - drush en -y harmony_core
+
+  # Enable some more modules.
+  - drush en -y harmony_default_permissions harmony_default_input_format harmony_atjs
+
+  # Setup files.
+  - sudo chmod -R 777 sites/all
+
+  # Time for Behat stuffs.
+  # Setup display for Selenium.
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - sleep 5
+
+  # Get Selenium.
+  - wget http://selenium-release.storage.googleapis.com/2.42/selenium-server-standalone-2.42.1.jar
+  - java -jar selenium-server-standalone-2.42.1.jar > /dev/null 2>&1 &
+  - until netstat -an 2>/dev/null | grep '4444.*LISTEN'; do true; done
+
+   # Disable sendmail.
+  - echo sendmail_path=`which true` >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+
+  # Start the server.
+  - drush runserver --server=builtin 8888 > /dev/null 2>&1 &
+  - until netstat -an 2>/dev/null | grep '8888.*LISTEN'; do true; done
+  - cd sites/all/modules/harmony_core
+  - cd tests/behat
+  - LS_VAR=`ls -alhC`
+  - echo $LS_VAR
+
+script:
+  # Run the Behat tests.
+  ./bin/behat
+
+notifications:
+  email:
+    on_success: never

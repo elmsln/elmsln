@@ -53,7 +53,7 @@ class harmony_core_views_handler_thread_field_reply_link extends harmony_core_vi
     }
 
     if ($return_link) {
-      return !empty($this->options['text']) ? check_plain($this->options['text']) : t('reply');
+      return !empty($this->options['text']) ? $this->tokenize_value(check_plain($this->options['text'])) : t('reply');
     }
   }
 }

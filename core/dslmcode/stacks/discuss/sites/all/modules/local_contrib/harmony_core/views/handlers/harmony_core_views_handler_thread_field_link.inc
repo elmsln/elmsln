@@ -13,7 +13,7 @@
 class harmony_core_views_handler_thread_field_link extends views_handler_field_entity {
   function option_definition() {
     $options = parent::option_definition();
-    $options['text'] = array('default' => '', 'translatable' => TRUE);
+    $options['text'] = array('default' => '', 'translatable' => TRUE, 'tokenize' => TRUE);
     return $options;
   }
 
@@ -21,6 +21,7 @@ class harmony_core_views_handler_thread_field_link extends views_handler_field_e
     $form['text'] = array(
       '#type' => 'textfield',
       '#title' => t('Text to display'),
+      '#description' => t('This field will accept replacement patterns.'),
       '#default_value' => $this->options['text'],
     );
     parent::options_form($form, $form_state);
@@ -40,7 +41,7 @@ class harmony_core_views_handler_thread_field_link extends views_handler_field_e
     if (harmony_core_thread_access_callback('view', $thread)) {
       $this->options['alter']['make_link'] = TRUE;
       $this->options['alter']['path'] = "thread/$thread->thread_id";
-      $text = !empty($this->options['text']) ? check_plain($this->options['text']) : t('view');
+      $text = !empty($this->options['text']) ? $this->tokenize_value(check_plain($this->options['text'])) : t('view');
 
       return $text;
     }

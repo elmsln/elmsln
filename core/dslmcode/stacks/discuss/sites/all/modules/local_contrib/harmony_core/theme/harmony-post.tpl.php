@@ -61,7 +61,7 @@ $links = render($content['links']);
     </div>
   </div>
 </div>
-<?php if ($is_page): ?>
+<?php if ($is_page && $belongs_to_thread): ?>
 <div class="post-return">
   <a href="<?php print $thread_post_url; ?>"><?php print t('Return to thread'); ?></a>
 </div>

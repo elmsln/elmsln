@@ -10,9 +10,9 @@
 function harmony_default_permissions_user_default_permissions() {
   $permissions = array();
 
-  // Exported permission: 'access show replies'.
-  $permissions['access show replies'] = array(
-    'name' => 'access show replies',
+  // Exported permission: 'access harmony_post show replies'.
+  $permissions['access harmony_post show replies'] = array(
+    'name' => 'access harmony_post show replies',
     'roles' => array(
       'administrator' => 'administrator',
       'anonymous user' => 'anonymous user',
@@ -21,9 +21,9 @@ function harmony_default_permissions_user_default_permissions() {
     'module' => 'harmony_core',
   );
 
-  // Exported permission: 'administer forum content'.
-  $permissions['administer forum content'] = array(
-    'name' => 'administer forum content',
+  // Exported permission: 'administer harmony forum content'.
+  $permissions['administer harmony forum content'] = array(
+    'name' => 'administer harmony forum content',
     'roles' => array(
       'administrator' => 'administrator',
     ),

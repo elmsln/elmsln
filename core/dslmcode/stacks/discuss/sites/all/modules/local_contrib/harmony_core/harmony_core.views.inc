@@ -126,6 +126,16 @@ function harmony_core_views_data_alter(&$data) {
     ),
   );
 
+  $data['harmony_thread']['term_thread_tid_depth'] = array(
+    'help' => t('Display thread if it has the selected taxonomy terms, or children of the selected terms. Due to additional complexity, this has fewer options than the versions without depth.'),
+    'real field' => 'thread_id',
+    'argument' => array(
+      'title' => t('Category (with depth)'),
+      'handler' => 'harmony_core_views_handler_argument_default_taxonomy_tid_depth',
+      'accept depth modifier' => TRUE,
+    ),
+  );
+
   // Provide a field which shows number of replies to a thread which is post
   // count - 1.
   $data['field_data_field_harmony_post_count']['harmony_thread_replies'] = array(

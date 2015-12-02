@@ -35,7 +35,7 @@ class HarmonyThreadSelectionPlugin extends EntityReference_SelectionHandler_Gene
     // 'unpublished'. We need to do that as long as there are no access control
     // modules in use on the site. As long as one access control module is there,
     // it is supposed to handle this check.
-    if ((!user_access('bypass harmony forum access control') || !user_access('administer forum content')) && !count(module_implements('harmony_thread_grants'))) {
+    if ((!user_access('bypass harmony forum access control') || !user_access('administer harmony forum content')) && !count(module_implements('harmony_thread_grants'))) {
       $query->propertyCondition('status', HARMONY_PUBLISHED);
       $query->propertyCondition('locked', HARMONY_NOT_LOCKED);
     }

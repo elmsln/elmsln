@@ -92,7 +92,7 @@ class HarmonyPostInlineEntityFormController extends EntityInlineEntityFormContro
     $form['field_harmony_text'][$text_lang][0]['#attributes']['placeholder'] = t('Type here...');
 
     // Thread continued from stuff.
-    if ($post->is_new && !empty($_GET['field_harmony_thread_cont_from']) && is_numeric($_GET['field_harmony_thread_cont_from']) && user_access('reply as new harmony_thread')) {
+    if ($post->is_new && !empty($_GET['field_harmony_thread_cont_from']) && ctype_digit((string) $_GET['field_harmony_thread_cont_from']) && user_access('reply as new harmony_thread')) {
       $post_to_quote_id = $_GET['field_harmony_thread_cont_from'];
       $post_to_quote = entity_load_single('harmony_post', $post_to_quote_id);
 
@@ -131,47 +131,52 @@ class HarmonyPostInlineEntityFormController extends EntityInlineEntityFormContro
       }
     }
 
-  // Add in the log for revisions, if not new.
-  if (empty($post->is_new) || !empty($post->is_new) && !$post->is_new) {
-    $form['revisions'] = array(
-      '#type' => 'fieldset',
-      '#access' => user_access('administer forum content'),
-      '#title' => t('Revision options'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-      '#group' => 'additional_settings',
-      '#attributes' => array(
-        'class' => array('post-form-options'),
-      ),
-    );
+    // Add in the log for revisions, if not new.
+    if (empty($post->is_new) || !empty($post->is_new) && !$post->is_new) {
+      $form['revisions'] = array(
+        '#type' => 'fieldset',
+        '#access' => user_access('administer harmony forum content'),
+        '#title' => t('Revision options'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#group' => 'additional_settings',
+        '#attributes' => array(
+          'class' => array('post-form-options'),
+        ),
+      );
 
-    $form['revisions']['log'] = array(
-      '#type' => 'textarea',
-      '#title' => t('Reason for edit'),
-      '#rows' => 4,
-    );
+      $form['revisions']['log'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Reason for edit'),
+        '#rows' => 4,
+      );
 
-    $form['revisions']['log_show'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Show reason for edit to the public?'),
-      '#default_value' => 0,
-    );
-  }
-  else {
-    $form['revisions']['log'] = array(
-      '#type' => 'value',
-      '#value' => NULL,
-    );
-    $form['revisions']['log_show'] = array(
-      '#type' => 'value',
-      '#value' => 0,
-    );
-  }
+      $form['revisions']['log_show'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Show reason for edit to the public?'),
+        '#default_value' => 0,
+      );
+    }
+    else {
+      $form['revisions']['log'] = array(
+        '#type' => 'value',
+        '#value' => NULL,
+      );
+      $form['revisions']['log_show'] = array(
+        '#type' => 'value',
+        '#value' => 0,
+      );
+    }
 
     // Hide the thread entity reference field.
     $form['field_harmony_thread']['#access'] = FALSE;
     // Hide the "Post is reply to" entity reference field.
     $form['field_harmony_post_is_reply_to']['#access'] = FALSE;
+
+    // Hide the redirect fieldset if present as they'll appear for the thread.
+    if (!empty($form['redirect'])) {
+      $form['redirect']['#access'] = FALSE;
+    }
 
     return $form;
   }
