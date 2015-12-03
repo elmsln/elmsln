@@ -1,0 +1,5 @@
+name = Git.php Library
+description = "Makes the Git.php library available to Drupal."
+core = 7.x
+package = "Git"
+dependencies[] = libraries

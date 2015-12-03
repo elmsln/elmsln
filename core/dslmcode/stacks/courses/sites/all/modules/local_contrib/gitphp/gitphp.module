@@ -1,0 +1,30 @@
+<?php
+/**
+ * @file
+ * Wrapper to help include Git.php library.
+ */
+
+// gitphp global variables
+define('GIT_PHP_URL', 'https://github.com/kbjr/Git.php.git');
+
+/**
+ * Impliments hook_libraries_info
+ *
+ * Defines the gitphp library as well as loading the php files.
+ */
+function gitphp_libraries_info() {
+  $libraries['gitphp'] = array(
+    'name' => 'Git.php',
+    'vendor url' => GIT_PHP_URL,
+    'download url' => GIT_PHP_URL,
+    'version' => '0.x',
+    'path' => 'src',
+    'files' => array(
+      'php' => array(
+        'Git.php',
+      ),
+    ),
+  );
+
+  return $libraries;
+}

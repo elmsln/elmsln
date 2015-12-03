@@ -1,0 +1,9 @@
+core = "7.x"
+api = "2"
+projects[drupal][version] = "7.x"
+
+; Git.php library location
+libraries[gitphp][download][type] = "git"
+libraries[gitphp][download][url] = "https://github.com/kbjr/Git.php.git"
+libraries[gitphp][directory_name] = "gitphp"
+libraries[gitphp][destination] = "libraries"

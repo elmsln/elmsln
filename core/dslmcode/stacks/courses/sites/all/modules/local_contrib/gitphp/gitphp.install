@@ -1,0 +1,36 @@
+<?php
+/**
+ * @file
+ * Install file for gitphp module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function gitphp_requirements($phase) {
+  if ($phase == 'runtime') {
+    $library = libraries_load('gitphp');
+    $t = get_t();
+
+    if (empty($library['loaded'])) {
+      return array(
+        'phpexcel' => array(
+          'title' => $t('Git.php'),
+          'value' => $t('Not Installed'),
+          'description' => $t('Please install the example library %url.', array('%url' => GIT_PHP_URL)),
+          'severity' => REQUIREMENT_ERROR,
+        ),
+      );
+    }
+    else {
+      return array(
+        'phpexcel' => array(
+          'title' => $t('Git.php'),
+          'value' => $t('Git.php installed.'),
+          'severity' => REQUIREMENT_OK,
+        ),
+      );
+    }
+  }
+  return array();
+}
