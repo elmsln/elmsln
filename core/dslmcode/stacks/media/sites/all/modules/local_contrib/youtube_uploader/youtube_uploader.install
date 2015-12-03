@@ -1,0 +1,155 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the youtube module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function youtube_uploader_install() {
+  $t = get_t();
+  drupal_set_message(filter_xss($t('Youtube Uploader successfully installed, can be configured !here.', array('!here' => l($t('here'), 'admin/config/media/youtube_uploader')))));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function youtube_uploader_uninstall() {
+  variable_del('youtube_uploader_app_name');
+  variable_del('youtube_uploader_client_secret');
+  variable_del('youtube_uploader_client_id');
+  variable_del('youtube_uploader_app_country');
+  variable_del('youtube_uploader_token');
+
+  variable_del('youtube_uploader_delete');
+  variable_del('youtube_uploader_publishing_options');
+  variable_del('youtube_uploader_category');
+  variable_del('youtube_uploader_description');
+  variable_del('youtube_uploader_tags');
+}
+
+/**
+ * Implements hook_field_schema().
+ */
+function youtube_uploader_field_schema($field) {
+  $columns = array(
+    'fid' => array(
+      'type' => 'varchar',
+      'description' => 'The youtube id. fid is kept to preserve compatibility with file__submit functions',
+      'length' => 255,
+      'not null' => TRUE,
+    ),
+    'thumb_fid' => array(
+      'description' => 'The {file_managed}.fid of the thumbnail being referenced in this field.',
+      'type' => 'int',
+      'not null' => FALSE,
+      'unsigned' => TRUE,
+    ),
+    'video_title' => array(
+      'type' => 'varchar',
+      'description' => 'The title of the field',
+      'length' => 255,
+      'not null' => TRUE,
+    ),
+    'display' => array(
+      'description' => 'Flag to control whether this file should be displayed when viewing content.',
+      'type' => 'int',
+      'size' => 'tiny',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 1,
+    ),
+  );
+  $indexes = array(
+    'fid' => array('fid'),
+    'thumb_fid' => array('thumb_fid'),
+  );
+  $foreign_keys = array(
+    'thumb_fid' => array(
+      'table' => 'file_managed',
+      'columns' => array('fid' => 'fid'),
+    ),
+  );
+
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+    'foreign keys' => $foreign_keys,
+  );
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function youtube_uploader_requirements($phase) {
+
+  // Test if libraries are available and google account working.
+  $requirements = array();
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    $ytapi = new youtubeUploaderYtapi();
+    $t = get_t();
+    // Check PHP library.
+    $requirements['youtube_uploader_php'] = array(
+      'title' => $t('Google API CLient'),
+      'value' => '',
+      'description' => '',
+      'severity' => REQUIREMENT_OK,
+    );
+    if (!$ytapi->mtestGoogleLib()) {
+      $url = l($t('here'), 'https://github.com/google/google-api-php-client/archive/master.zip');
+      $requirements['youtube_uploader_php']['description'] = $t('Install the Google api php client library code with drush command <em>drush ytu-libraries</em><br /> or manually (from !here) and extract it so the path <br />sites/all/libraries/google-api-php-client/src/Google/autoload.php <br />or sites/!domain/libraries/google-api-php-client/src/Google/autoload.php<br /> is available',
+          array(
+            '!here' => $url,
+            '!domain' => $_SERVER['SERVER_NAME'],
+          ));
+      $requirements['youtube_uploader_php']['severity'] = REQUIREMENT_ERROR;
+    }
+    else {
+      $requirements['youtube_uploader_php']['value'] = 'Loaded';
+
+      // Test Google Account.
+      $requirements['youtube_uploader_app'] = array(
+        'title' => $t('Google Application'),
+        'value' => '',
+        'description' => '',
+        'severity' => REQUIREMENT_OK,
+      );
+
+      $ac = $ytapi->getFreshToken();
+      if ($ac['error']) {
+        $url = l($t('here'), 'https://github.com/google/google-api-php-client/archive/master.zip');
+        $requirements['youtube_uploader_app']['description'] = $t('Please link first your Google Application in !yt_settings and authorize it',
+            array('!yt_settings' => l($t('YouTube uploader settings'), 'admin/config/media/youtube_uploader')));
+        $requirements['youtube_uploader_app']['severity'] = REQUIREMENT_ERROR;
+      }
+      else {
+        $requirements['youtube_uploader_app']['value'] = 'Checked';
+      }
+    }
+
+    // Check JS file.
+    $requirements['youtube_uploader_js'] = array(
+      'title' => $t('Google CORS Upload'),
+      'value' => '',
+      'description' => '',
+      'severity' => REQUIREMENT_OK,
+    );
+    $info = _youtube_uploader_get_cors_upload();
+    if (!$info) {
+      $url = l($t('here'), 'https://raw.githubusercontent.com/youtube/api-samples/master/javascript/cors_upload.js');
+      $requirements['youtube_uploader_js']['description'] = $t('Install the Google CORS upload library code with drush <em>drush ytu-libraries</em><br /> or manually (1 single file from !here) and extract it so the path <br />sites/all/libraries/google-api-cors-upload/cors_upload.js <br />or sites/!domain/libraries/google-api-cors-upload/cors_upload.js<br /> is available',
+          array(
+            '!here' => $url,
+            '!domain' => $_SERVER['SERVER_NAME'],
+          ));
+      $requirements['youtube_uploader_js']['severity'] = REQUIREMENT_ERROR;
+    }
+    else {
+      $requirements['youtube_uploader_js']['value'] = 'Loaded';
+    }
+  }
+  return $requirements;
+}

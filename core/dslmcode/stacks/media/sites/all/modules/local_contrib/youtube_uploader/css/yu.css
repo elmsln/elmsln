@@ -1,0 +1,34 @@
+.video-form-preview li.title {
+  font-weight: bold;
+}
+
+.video-form-preview .title_options,
+.video-form-preview .thumb {
+  float: left;
+  padding-left: 10px;
+}
+
+.video-form-preview .thumb span,
+.field-type-youtube-upload span.thumb-not-available {
+  background: #ccc;
+  border: 1px solid black;
+  color: #fff;
+  display: block;
+  font-size: 12px;
+  padding: 10px;
+  text-align: center;
+  width: 80px;
+}
+
+.video-form-preview ul li {
+  list-style: none;
+}
+
+.form-video-upload .form-item {
+  display: inline-block;
+  padding-top: 0;
+}
+
+tr.draggable .form-video-upload label {
+  display: none;
+}

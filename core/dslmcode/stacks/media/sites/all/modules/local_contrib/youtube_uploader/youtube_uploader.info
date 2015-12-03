@@ -1,0 +1,13 @@
+name = YouTube Uploader
+description = Provides a field to upload videos directly to YouTube and a formatter to display them.
+dependencies[] = file
+
+core = "7.x"
+package = "Media"
+configure = "admin/config/media/youtube_uploader"
+; Information added by Drupal.org packaging script on 2015-09-11
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "youtube_uploader"
+datestamp = "1441961646"
+

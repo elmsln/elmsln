@@ -1,0 +1,408 @@
+<?php
+/**
+ * @file
+ * upload video files directly to YouTube
+ */
+
+// Include the field element.
+module_load_include('ytapi.inc', 'youtube_uploader');
+module_load_include('inc', 'youtube_uploader', 'youtube_uploader.field');
+
+
+/**
+ * Implements hook_permission().
+ */
+function youtube_uploader_permission() {
+
+  return array(
+    'use youtube_uploader' => array(
+      'title' => t('Upload a video'),
+      'description' => t('Upload a video to YouTube using the video field'),
+    ),
+    'youtube_uploader edit on youtube' => array(
+      'title' => t('Edit video on youtube'),
+      'description' => t('Login to YouTube account and edit video settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function youtube_uploader_menu() {
+  $items = array();
+
+  $items['admin/config/media/youtube_uploader'] = array(
+    'title' => 'YouTube Uploader',
+    'description' => 'Adjust YouTube Account settings.',
+    'file' => 'youtube_uploader.admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('youtube_uploader_account_settings_form'),
+    'access arguments' => array('administer site configuration'),
+  );
+
+  $items['youtube_uploader/oauth2callback'] = array(
+    'title' => 'YouTube callback',
+    'page callback' => '_youtube_uploader_ytcallback',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['youtube_uploader/get_upload_data'] = array(
+    'title' => 'YouTube callback',
+    'page callback' => '_youtube_uploader_get_upload_data',
+    'access arguments' => array('use youtube_uploader'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['youtube_uploader/refreshthumb'] = array(
+    'title' => 'YouTube callback',
+    'page callback' => '_youtube_uploader_refreshdata',
+    'access arguments' => array('youtube_uploader edit on youtube'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Get a token from Google to initialize our upload.
+ *
+ * @see youtube_uploader_menu()
+ */
+function _youtube_uploader_get_upload_data($field_refp = NULL) {
+
+  $ytapi = new youtubeUploaderYtapi();
+  $tok = $ytapi->getFreshToken();
+
+  if (!empty($field_refp)) {
+    $field_ref = rawurldecode($field_refp);
+    list($entity_type, $field_name, $bundle) = explode('|', $field_ref);
+    $field_info = field_info_instance($entity_type, $field_name, $bundle);
+    $field_settings = $field_info['settings']['youtube_settings'];
+  }
+
+  return drupal_json_output(array('up_token' => $tok, 'up_settings' => $field_settings));
+}
+
+ /**
+  * Refresh the thumb and the title from YouTube..
+  *
+  * @see youtube_uploader_menu()
+  */
+function _youtube_uploader_refreshdata($video_id) {
+  $new_data = _youtube_uploader_get_default_image($video_id);
+  if (!empty($new_data['error'])) {
+    return drupal_json_output(array('error' => $new_data['error']));
+  }
+
+  $src = image_style_url('thumbnail', $new_data['file']->uri);
+
+  return drupal_json_output(array(
+    'src' => $src,
+    'fid' => $new_data['file']->fid,
+    'title' => $new_data['title'],
+    ));
+}
+
+ /**
+  * Google redirect here when user allowed application.
+  *
+  * @see youtube_uploader_menu()
+  */
+function _youtube_uploader_ytcallback() {
+
+  $params = drupal_get_query_parameters();
+
+  if (!empty($params['code'])) {
+    module_load_include('ytapi.inc', 'youtube_uploader');
+    $ytapi = new youtubeUploaderYtapi();
+    $ytapi->getTokenFromCode($params['code']);
+
+    // Set a default video category if empty because it is requested to upload.
+    if (variable_get('youtube_uploader_category', 0) == 0) {
+      $ytapi = new youtubeUploaderYtapi();
+      $cats = $ytapi->getCategories();
+      $rand_key = array_rand($cats);
+      variable_set('youtube_uploader_category', $rand_key);
+    }
+  }
+
+  drupal_goto('admin/config/media/youtube_uploader');
+
+}
+
+ /**
+  * Get default thumb from youtube.
+  *
+  * @see youtube_uploader_menu()
+  */
+function _youtube_uploader_get_default_image($video_id) {
+
+  if (empty($video_id)) {
+    $er['error'] = t('no video id');
+    return $er;
+  }
+
+  module_load_include('ytapi.inc', 'youtube_uploader');
+  $ytapi = new youtubeUploaderYtapi();
+  $imginfo = $ytapi->getTitleThumbs($video_id);
+
+  if (!empty($imginfo['error'])) {
+    $er['error'] = $imginfo['error'];
+    return $er;
+  }
+  $video_title = $imginfo['title'];
+
+  $remote_path = $imginfo['default_thumb'];
+  $scheme     = file_default_scheme();
+  $directory  = $scheme . '://youtube_upload';
+
+  // Replace the existing one.
+  if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+    $result = drupal_http_request($remote_path);
+    if (!empty($result->error) && $result->code != 404) {
+      $er['error'] = t('Error @code getting the thumb: @error', array('@code' => $result->code, '@error' => $result->error));
+      return $er;
+    }
+
+    // If the image is the default placeholder, reject it.
+    if (md5($result->data) == 'e2ddfee11ae7edcae257da47f3a78a70') {
+      $er['error'] = t('no thumb generated yet');
+      return $er;
+    }
+    // Create the thumb.
+    $code   = floor($result->code / 100) * 100;
+    $types  = array('image/jpeg', 'image/png', 'image/gif');
+    if (isset($result->data) && $result->data && $code != 500 && in_array($result->headers['content-type'], $types)) {
+      $file = file_save_data($result->data, $directory . '/' . $video_id . '.jpg', FILE_EXISTS_REPLACE);
+
+      return array('file' => $file, 'title' => $video_title);
+    }
+  }
+  $er['error'] = t('error !error', array('!error' => $code));
+
+  return $er;
+}
+
+ /**
+  * Helper.
+  *
+  * get form field for the youtube settings
+  * (used on at the module and the field level)
+  *
+  * @see youtube_uploader_menu()
+  */
+function youtube_uploader_get_settings_form() {
+  $ret = array(
+    '#type' => 'fieldset',
+    '#title' => t('YouTube settings'),
+    '#description' => t('These settings can be overriden in each field settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $ret['youtube_uploader_delete'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Delete video from YouTube when video is removed or node deleted'),
+    '#default_value' => variable_get('youtube_uploader_delete', TRUE),
+  );
+  $ret['youtube_uploader_publishing_options'] = array(
+    '#type' => 'radios',
+    '#title' => t('Default privacy options'),
+    '#description' => t('More info on !here', array('!here' => l(t('YouTube support page'), 'http://support.google.com/youtube/bin/answer.py?hl=en&answer=157177'))),
+    '#options' => array('public' => t('Public'), 'unlisted' => t('Unlisted')),
+    '#default_value' => strtolower(variable_get('youtube_uploader_publishing_options', 'unlisted')),
+  );
+  $ytapi = new youtubeUploaderYtapi();
+  $cats = $ytapi->getCategories();
+  $ret['youtube_uploader_category'] = array(
+    '#type' => 'select',
+    '#title' => t('Default main category'),
+    '#options' => $cats,
+    '#description' => t('The category is required by YouTube.'),
+    '#default_value' => variable_get('youtube_uploader_category', 0),
+    '#required' => !empty($rand_key),
+  );
+  $ret['youtube_uploader_description'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Default description'),
+    '#description' => t('The description is required by YouTube.'),
+    '#default_value' => variable_get('youtube_uploader_description', 'default description'),
+    '#required' => TRUE,
+  );
+  $ret['youtube_uploader_tags'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default tags'),
+    '#description' => t('Separate the tags by a coma. Example <em> funny, fun</em>'),
+    '#default_value' => variable_get('youtube_uploader_tags', 'funny, fun'),
+    '#required' => TRUE,
+  );
+
+  return $ret;
+}
+
+
+/**
+ * Get country.
+ */
+function _youtube_uploader_get_country() {
+  $country = variable_get('youtube_uploader_app_country', NULL);
+  if (empty($country)) {
+    $sd_country = variable_get('site_default_country', 'US');
+    $country = empty($sd_country) ? 'US' : $sd_country;
+  }
+  return $country;
+}
+
+/**
+ * Get cors_upload.js file.
+ */
+function _youtube_uploader_get_cors_upload() {
+  $path = '';
+  if (file_exists("sites/all/libraries/google-api-cors-upload/cors_upload.js")) {
+    $path = "sites/all/libraries/google-api-cors-upload/cors_upload.js";
+  }
+  elseif (file_exists("sites/" . $_SERVER['SERVER_NAME'] . "/libraries/google-api-cors-upload/cors_upload.js")) {
+    $path = "sites/" . $_SERVER['SERVER_NAME'] . "/libraries/google-api-cors-upload/cors_upload.js";
+  }
+  elseif (file_exists('profiles/' . drupal_get_profile() . '/libraries/google-api-cors-upload/cors_upload.js')) {
+    $path = 'profiles/' . drupal_get_profile() . '/libraries/google-api-cors-upload/cors_upload.js';
+  }
+  else {
+    return FALSE;
+  }
+  return $path;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function youtube_uploader_theme() {
+
+  return array(
+    'youtube_uploader_field_widget' => array(
+      'render element' => 'element',
+    ),
+    'youtube_uploader_form_preview' => array(
+      'variables' => array(
+        'video_id' => NULL,
+        'title' => NULL,
+        'thumb' => NULL,
+      ),
+    ),
+    'youtube_uploader_video' => array(
+      'variables' => array(
+        'video_id' => NULL,
+        'title' => NULL,
+        'player_size' => NULL,
+      ),
+    ),
+    'youtube_uploader_thumbnail' => array(
+      'variables' => array(
+        'video_id' => NULL,
+        'title' => NULL,
+        'image' => NULL,
+      ),
+    ),
+  );
+}
+
+ /**
+  * theme functions.
+  */
+
+/**
+ * Theme the form widget.
+ */
+function theme_youtube_uploader_field_widget($vars) {
+  $element = $vars['element'];
+
+  $required = !empty($element['#required']) ? ' ' . theme('form_required_marker', $vars) : '';
+
+  $output = '';
+  // The "form-managed-file" class is required for proper Ajax functionality.
+  $output .= '<div class="file-widget form-managed-file clearfix form-video-upload">';
+  $output .= '<label>' . $element['#title'] . $required . '</label>';
+  $output .= drupal_render_children($element);
+  $output .= '</div>';
+
+  return $output;
+}
+
+/**
+ * Theme the form field item.
+ */
+function theme_youtube_uploader_form_preview($vars) {
+
+  $output = '<div class="video-form-preview">';
+  $output .= '<div class="thumb">';
+  if ($vars['thumb']) {
+    $output .= theme('image_style', array(
+      'path' => $vars['thumb'],
+      'style_name' => 'thumbnail',
+      'title' => $vars['title'],
+    ));
+  }
+  else {
+    $output .= '<span>' . t('Thumb not available yet') . '</span>';
+  }
+  $output .= '</div>';
+  $output .= '<ul class="title_options">';
+  $output .= '<li class="title">' . $vars['title'] . '</li>';
+  $output .= '<li class="refresh_thumb"><a href="javascript:;">' . t('refresh data from YouTube') . '</a></li>';
+  if (user_access('youtube_uploader edit on youtube')) {
+    $output .= '<li>' . l(t('edit video on YouTube'), 'https://www.youtube.com/edit?video_id=' . check_plain($vars['video_id'])) . '</li>';
+  }
+  $output .= '</ul></div>';
+
+  return $output;
+}
+
+/**
+ * Output the video.
+ */
+function theme_youtube_uploader_video($vars) {
+
+  $protocol = (isset($_SERVER['HTTPS'])) ? 'https' : 'http';
+  $suggest = variable_get('youtube_uploader_suggest', FALSE);
+  $privacy = variable_get('youtube_uploader_privacy', FALSE);
+  list($width, $height) = explode('x', $vars['player_size']);
+
+  // Query string changes based on setings.
+  $query = array();
+  if (!$suggest) {
+    // @TODO add 'related / suggested' checkbox in the settings.
+    $query['rel'] = '0';
+  }
+
+  // Domain changes based on settings.
+  $domain = ($privacy) ? 'youtube-nocookie.com' : 'youtube.com';
+
+  $path = $protocol . '://www.youtube.com/embed/' . $vars['video_id'];
+  $src = url($path, array('query' => $query));
+
+  $output = '<iframe width="' . $width . '"
+  height="' . $height . '" src="' . $src . '"
+  frameborder="0" allowfullscreen></iframe>';
+
+  return $output;
+}
+
+/**
+ * Output the thumbnails.
+ */
+function theme_youtube_uploader_thumbnail($vars) {
+
+  if (!empty($vars['image'])) {
+    $image = $vars['image'];
+  }
+  else {
+    $image = '<span class="thumb-not-available">' . t('Thumb not available yet') . '</span>';
+  }
+
+  if ($vars['title']) {
+    $image .= '<span class="video-title">' . $vars['title'] . '</span>';
+  }
+
+  return $image;
+}
