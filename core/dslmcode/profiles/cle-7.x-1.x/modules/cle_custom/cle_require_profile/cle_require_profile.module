@@ -9,16 +9,14 @@
  */
 function cle_require_profile_user_login(&$edit, $account) {
   // first time access save when they first logged in to compare
-  if (isset($account->uid) && !isset($account->data['cle_profile_required'])) {
+  if (_cle_require_profile_filled_out($account)) {
     // test if they filled it out
-    if (_cle_require_profile_filled_out($account)) {
-      _cle_require_profile_apply_required($account);
-    }
-    else {
-      // edge case where they have a profile photo but this variable wasn't set
-      drupal_set_message(t('Welcome to the Studio! Please submit a photo to represent yourself to your fellow classmates.'), 'status');
-      drupal_goto('user/' . $account->uid . '/edit', array('query'=>drupal_get_destination()));
-    }
+    _cle_require_profile_apply_required($account);
+  }
+  else {
+    // edge case where they have a profile photo but this variable wasn't set
+    drupal_set_message(t('Welcome to the Studio! Please submit a photo to represent yourself to your fellow classmates.'), 'status');
+    drupal_goto('user/' . $account->uid . '/edit', array('query'=>drupal_get_destination()));
   }
 }
 
@@ -49,11 +47,11 @@ function cle_require_profile_user_update(&$edit, $account, $category) {
  * @return bool   if they have filled out all the required fields
  */
 function _cle_require_profile_filled_out($account) {
-  // ensure picture is filled out
-  if (isset($account->picture) && !empty($account->picture)) {
-    return TRUE;
-  }
-  return FALSE;
+  $status = TRUE;
+  // allow projects to determine if something is required or not
+  // its on them to actually indicate what needs filled out though
+  drupal_alter('cle_require_profile_filled_out', $status, $account);
+  return $status;
 }
 
 /**
@@ -84,4 +82,16 @@ function _cle_require_profile_apply_required($account, $unset = FALSE) {
   }
   // need to set this variable directly into the user object
   db_update('users')->fields(array('data' => serialize($new_data)))->condition('uid', $account->uid)->execute();
+}
+
+/**
+ * Implements hook_cle_require_profile_filled_out_alter().
+ * @param  bool &$status if they have met requirements
+ * @param  object $account user account object
+ */
+function cle_require_profile_cle_require_profile_filled_out_alter(&$status, $account) {
+  // they need to have a picture set
+  if (!isset($account->picture) || empty($account->picture)) {
+    $status = FALSE;
+  }
 }
