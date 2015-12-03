@@ -16,7 +16,7 @@ function cle_require_profile_user_login(&$edit, $account) {
   else {
     // edge case where they have a profile photo but this variable wasn't set
     drupal_set_message(t('Welcome to the Studio! Please submit a photo to represent yourself to your fellow classmates.'), 'status');
-    drupal_goto('user/' . $account->uid . '/edit', array('query'=>drupal_get_destination()));
+    drupal_goto('user/' . $account->uid . '/edit', array('query' => ''));
   }
 }
 
@@ -37,7 +37,7 @@ function cle_require_profile_user_update(&$edit, $account, $category) {
   else {
     _cle_require_profile_apply_required($account, FALSE);
     drupal_set_message(t('Welcome to the Studio! Please submit a photo to represent yourself to your fellow classmates.'), 'warning');
-    drupal_goto('user/' . $account->uid . '/edit', array('query' => drupal_get_destination()));
+    drupal_goto('user/' . $account->uid . '/edit', array('query' => ''));
   }
 }
 
