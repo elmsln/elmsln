@@ -1,0 +1,16 @@
+name = MOOC Autosave
+description = Adds automatic save functionality to MOOC
+core = 7.x
+package = MOOC
+dependencies[] = autosave
+dependencies[] = ctools
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[variable][] = autosave_form_ids
+features[variable][] = autosave_hidden
+features[variable][] = autosave_ignore_behavior
+features[variable][] = autosave_mooc_container
+features[variable][] = autosave_page
+features[variable][] = autosave_period
+features[variable][] = autosave_timeout

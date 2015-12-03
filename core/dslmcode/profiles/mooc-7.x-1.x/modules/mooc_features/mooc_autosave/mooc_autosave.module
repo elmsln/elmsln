@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC Autosave feature.
+ */
+
+include_once 'mooc_autosave.features.inc';

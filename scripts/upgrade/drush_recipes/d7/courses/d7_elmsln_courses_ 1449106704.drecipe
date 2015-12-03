@@ -1,0 +1,21 @@
+{
+	"name": "ELMSLN ELMSMedia upgrade 1449106704",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "en",
+			"arguments": [
+				"autosave",
+				"mooc_autosave"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1449106704",
+		"author": "elmsln",
+		"description": "Update recipe for courses service instances to provide autosave support."
+	}
+}

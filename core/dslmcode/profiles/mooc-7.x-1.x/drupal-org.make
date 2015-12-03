@@ -11,6 +11,9 @@ projects[ulmus_core][subdir] = "contrib"
 ; ----------
 ; MOOC Dependencies
 ; ----------
+; Autosave
+projects[autosave][version] = "2.x-dev"
+projects[autosave][subdir] = "contrib"
 ; Book
 projects[book_title_override][version] = "1.0"
 projects[book_title_override][subdir] = "contrib"
