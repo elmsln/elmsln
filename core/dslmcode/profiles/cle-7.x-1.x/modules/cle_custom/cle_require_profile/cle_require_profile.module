@@ -1,0 +1,87 @@
+<?php
+/**
+ * @file
+ * Code to Require Profiles be filled out by users after logging in.
+ */
+
+/**
+ * Implements hook_user_login().
+ */
+function cle_require_profile_user_login(&$edit, $account) {
+  // first time access save when they first logged in to compare
+  if (isset($account->uid) && !isset($account->data['cle_profile_required'])) {
+    // test if they filled it out
+    if (_cle_require_profile_filled_out($account)) {
+      _cle_require_profile_apply_required($account);
+    }
+    else {
+      // edge case where they have a profile photo but this variable wasn't set
+      drupal_set_message(t('Welcome to the Studio! Please submit a photo to represent yourself to your fellow classmates.'), 'status');
+      drupal_goto('user/' . $account->uid . '/edit', array('query'=>drupal_get_destination()));
+    }
+  }
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function cle_require_profile_user_update(&$edit, $account, $category) {
+  // see if they actually filled out the values needed
+  if (_cle_require_profile_filled_out($account)) {
+    _cle_require_profile_apply_required($account);
+    $tmp = drupal_get_destination();
+    // make sure it doesn't keep redirecting to /edit cause that's stupid
+    if ($tmp['destination'] == 'user/' . $account->uid . '/edit') {
+      drupal_set_message(t('Studio profile updated!'), 'status');
+      drupal_goto('user', array('query'=> ''));
+    }
+  }
+  else {
+    _cle_require_profile_apply_required($account, FALSE);
+    drupal_set_message(t('Welcome to the Studio! Please submit a photo to represent yourself to your fellow classmates.'), 'warning');
+    drupal_goto('user/' . $account->uid . '/edit', array('query' => drupal_get_destination()));
+  }
+}
+
+/**
+ * Test that the account has filled out a profile by our definition.
+ * @param  object $account user account we are testing
+ * @return bool   if they have filled out all the required fields
+ */
+function _cle_require_profile_filled_out($account) {
+  // ensure picture is filled out
+  if (isset($account->picture) && !empty($account->picture)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Sets or unsets the required state for the profile filled out.
+ */
+function _cle_require_profile_apply_required($account, $unset = FALSE) {
+  if (isset($account->data)) {
+    $new_data = $account->data;
+  }
+  else {
+    $new_data = array();
+  }
+  // ensure we have an array for new_data
+  if (!is_array($new_data)) {
+    // try to unserialize what's in there
+    $new_data = unserialize($new_data);
+  }
+  // support destroying the property in the event they removed their photo
+  // they will be required to have SOME photo of some kind
+  if ($unset) {
+    // remove the property if set, if not we're good
+    if (isset($new_data['cle_profile_required'])) {
+      unset($new_data['cle_profile_required']);
+    }
+  }
+  else {
+    $new_data['cle_profile_required'] = TRUE;
+  }
+  // need to set this variable directly into the user object
+  db_update('users')->fields(array('data' => serialize($new_data)))->condition('uid', $account->uid)->execute();
+}

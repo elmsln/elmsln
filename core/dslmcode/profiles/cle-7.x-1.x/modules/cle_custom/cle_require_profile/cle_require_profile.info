@@ -1,0 +1,4 @@
+name = CLE Require Profile
+description = This makes sure that students fill out a profile in the studio
+core = 7.x
+package = CLE

@@ -1,0 +1,20 @@
+{
+	"name": "ELMSLN Studio upgrade 1449157158",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "en",
+			"arguments": [
+				"cle_require_profile"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1449157158",
+		"author": "elmsln",
+		"description": "Update recipe for studio service instances to require profile be filled out."
+	}
+}
