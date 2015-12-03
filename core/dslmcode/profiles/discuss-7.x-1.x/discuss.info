@@ -1,6 +1,7 @@
 ; Packaging information for discuss
 name = "Discuss"
 description = "Discussion forum distribution built on harmony_core."
+exclusive = "1"
 core = "7.x"
 elmslndefaulttitle = "Discussions"
 elmslntype = "service"
@@ -48,6 +49,7 @@ dependencies[] = prepopulate
 dependencies[] = menu_attributes
 dependencies[] = special_menu_items
 ; Other
+dependencies[] = navigation404
 dependencies[] = better_formats
 dependencies[] = chosen
 dependencies[] = defaultconfig

@@ -50,6 +50,7 @@ dependencies[] = prepopulate
 dependencies[] = menu_attributes
 dependencies[] = special_menu_items
 ; Other
+dependencies[] = navigation404
 dependencies[] = better_formats
 dependencies[] = chosen
 dependencies[] = defaultconfig

@@ -1,6 +1,7 @@
 ; Packaging information for cpr
 name = "Central Person Registry"
 description = "Central person registry to power profiles and preferences from an authority distribution."
+exclusive = "1"
 core = "7.x"
 elmslndefaulttitle = "People"
 elmslntype = "authority"
@@ -49,6 +50,7 @@ dependencies[] = prepopulate
 dependencies[] = menu_attributes
 dependencies[] = special_menu_items
 ; Other
+dependencies[] = navigation404
 dependencies[] = better_formats
 dependencies[] = chosen
 dependencies[] = defaultconfig

@@ -2,6 +2,7 @@
 name = "assessment"
 description = "A new idea for powering flexible educational ecosystems."
 core = "7.x"
+exclusive = "1"
 elmslndefaulttitle = "assessment"
 elmslntype = "authority"
 
@@ -49,6 +50,7 @@ dependencies[] = prepopulate
 dependencies[] = menu_attributes
 dependencies[] = special_menu_items
 ; Other
+dependencies[] = navigation404
 dependencies[] = better_formats
 dependencies[] = chosen
 dependencies[] = defaultconfig
