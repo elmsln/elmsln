@@ -1,0 +1,20 @@
+<?php
+/**
+ * Implements hook_enable().
+ *
+ * If site_404 is not set, all menu-related items disappear on 404.
+ */
+function navigation404_enable() {
+  if (variable_get('site_404', '') == '') {
+    variable_set('site_404', NAVIGATION404_PAGE);
+  }
+}
+
+/**
+ * Implements hook_disable().
+ */
+function navigation404_disable() {
+  if (variable_get('site_404', '') == NAVIGATION404_PAGE) {
+    variable_del('site_404');
+  }
+}

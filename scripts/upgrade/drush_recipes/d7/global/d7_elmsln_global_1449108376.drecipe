@@ -1,0 +1,20 @@
+{
+	"name": "ELMSLN Global upgrade 1449108376",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "en",
+			"arguments": [
+				"navigation404"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1449108376",
+		"author": "elmsln",
+		"description": "Update recipe that adds in navigational404 which resolves #187"
+	}
+}

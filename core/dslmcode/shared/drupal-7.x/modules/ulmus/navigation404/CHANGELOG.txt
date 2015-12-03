@@ -1,0 +1,4 @@
+404 Navigation 7.x-1.0, 2010-01-08
+----------------------------------
+- Port to Drupal 7
+- Rename 404 Blocks module to "404 Navigation" to reflect functionality in D7

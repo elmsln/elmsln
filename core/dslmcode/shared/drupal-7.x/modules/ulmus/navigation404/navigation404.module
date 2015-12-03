@@ -1,0 +1,45 @@
+<?php
+define('NAVIGATION404_PAGE', 'navigation404');
+
+/**
+ * Implements hook_menu().
+ */
+function navigation404_menu() {
+  $items[NAVIGATION404_PAGE] = array(
+    'title'           => 'Page not found',
+    'access callback' => TRUE,
+    'page callback'   => 'navigation404_404_page',
+    'type'            => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Our custom menu callback that returns Drupal's standard 404 message.
+ */
+function navigation404_404_page() {
+  drupal_set_title(t('Page not found'));
+  return t('The requested page could not be found.');
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function navigation404_form_system_site_information_settings_alter(&$form, $form_state) {
+  // Since we don't care what site_404 is set to, let the user set it if they want.
+  if ($form['error_page']['site_404']['#default_value'] == NAVIGATION404_PAGE) {
+    $form['error_page']['site_404']['#default_value'] = '';
+  }
+  // Insert our submit handler first.
+  array_unshift($form['#submit'], 'navigation404_site_404_submit');
+}
+
+/**
+ * Submit callback for system_site_information_settings form.
+ */
+function navigation404_site_404_submit($form, &$form_state) {
+  // Make sure site_404 is not empty.
+  if ($form_state['values']['site_404'] == '') {
+    $form_state['values']['site_404'] = NAVIGATION404_PAGE;
+  }
+}

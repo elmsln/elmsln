@@ -1,0 +1,39 @@
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  navigation404.module,v 1.4 2009/01/06 06:42:50 johnalbin
+#  navigation404.info,v 1.2 2009/01/06 06:39:55 johnalbin
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 404 Blocks 6.x-1.x\n"
+"POT-Creation-Date: 2009-01-05 23:43-0700\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: navigation404.module:36
+msgid "The requested page could not be found."
+msgstr ""
+
+#: navigation404.module:24
+msgid "Page not found"
+msgstr ""
+
+#: navigation404.module:0
+msgid "navigation404"
+msgstr ""
+
+#: navigation404.info:0
+msgid "404 Blocks"
+msgstr ""
+
+#: navigation404.info:0
+msgid "On a 404 page, ensure blocks and Primary links are displayed properly."
+msgstr ""
+
