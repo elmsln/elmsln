@@ -18,7 +18,6 @@ function gitphp_libraries_info() {
     'vendor url' => GIT_PHP_URL,
     'download url' => GIT_PHP_URL,
     'version' => '0.x',
-    'path' => 'src',
     'files' => array(
       'php' => array(
         'Git.php',

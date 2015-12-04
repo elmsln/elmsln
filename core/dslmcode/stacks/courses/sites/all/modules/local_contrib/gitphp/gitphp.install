@@ -14,7 +14,7 @@ function gitphp_requirements($phase) {
 
     if (empty($library['loaded'])) {
       return array(
-        'phpexcel' => array(
+        'gitphp' => array(
           'title' => $t('Git.php'),
           'value' => $t('Not Installed'),
           'description' => $t('Please install the example library %url.', array('%url' => GIT_PHP_URL)),
@@ -24,7 +24,7 @@ function gitphp_requirements($phase) {
     }
     else {
       return array(
-        'phpexcel' => array(
+        'gitphp' => array(
           'title' => $t('Git.php'),
           'value' => $t('Git.php installed.'),
           'severity' => REQUIREMENT_OK,

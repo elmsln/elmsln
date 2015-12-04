@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Git book: Read the Docs feature.
- */
-
-include_once 'git_book_rtd.features.inc';

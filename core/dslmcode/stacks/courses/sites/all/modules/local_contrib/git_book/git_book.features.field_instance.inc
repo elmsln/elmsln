@@ -1,18 +1,18 @@
 <?php
 /**
  * @file
- * git_book_rtd.features.field_instance.inc
+ * git_book.features.field_instance.inc
  */
 
 /**
  * Implements hook_field_default_field_instances().
  */
-function git_book_rtd_field_default_field_instances() {
+function git_book_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-git_content_book-body'
-  $field_instances['node-git_content_book-body'] = array(
-    'bundle' => 'git_content_book',
+  // Exported field_instance: 'node-git_book-body'
+  $field_instances['node-git_book-body'] = array(
+    'bundle' => 'git_book',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
@@ -54,9 +54,9 @@ function git_book_rtd_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-git_content_book-field_git_repo'
-  $field_instances['node-git_content_book-field_git_repo'] = array(
-    'bundle' => 'git_content_book',
+  // Exported field_instance: 'node-git_book-field_git_repo'
+  $field_instances['node-git_book-field_git_repo'] = array(
+    'bundle' => 'git_book',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'Git repo that you want associated to this book.',

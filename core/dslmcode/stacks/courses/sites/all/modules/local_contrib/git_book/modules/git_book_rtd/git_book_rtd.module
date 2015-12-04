@@ -1,0 +1,69 @@
+<?php
+/**
+ * @file
+ * Code for the Git book: Read the Docs.
+ */
+
+/**
+ * Implements hook_node_insert().
+ */
+function git_book_rtd_node_insert($node) {
+  // if we see a new git book is about to be inserted
+  if ($node->type == 'git_book') {
+    // invoke the library and bring in the content
+    libraries_load('gitphp');
+    $repo_url = $node->field_git_repo[LANGUAGE_NONE][0]['value'];
+    // create an acceptable machine name
+    $tmp = explode('/', str_replace('.git', '', $repo_url));
+    $path = drupal_realpath('private://') . '/' . array_pop($tmp) . '/';
+    // Create a new repo or open existing
+    if (is_dir($path)) {
+      $repo = Git::open($path);
+    }
+    else {
+      $repo = Git::create($path, $repo_url, true);
+    }
+    $ymlstructure = $path . '/mkdocs.yml';
+    if (file_exists($ymlstructure)) {
+      $mkdocs = yaml_parse_file($ymlstructure);
+      if (isset($mkdocs['pages']) && is_array($mkdocs['pages'])) {
+        _git_book_rtd_parse($mkdocs['pages'], $path .'/docs/', $node);
+      }
+    }
+  }
+}
+
+/**
+ * Parse a Read the Docs style repo
+ * @param  array  &$rtd      level of the structure
+ * @param  string  $path     path to the docs folder
+ * @param  object  $parent   parent node
+ */
+function _git_book_rtd_parse(&$rtd, $path, $parent, $weight = -15) {
+  // this helps keep the pages in the same order they were parsed in
+  // run through each level
+  foreach ($rtd as $key => $contents) {
+    $weight++;
+    // see if this has content under it or not
+    if (is_array($contents)) {
+      // default to the parent item
+      $node = $parent;
+      // if this isn't an array key it means its a level without content
+      if (!is_numeric($key)) {
+        $node = _git_book_make_node($key, '', $parent, $weight);
+        $weight = -15;
+      }
+      // drop down another level and keep going
+      _git_book_rtd_parse($contents, $path, $node, $weight);
+    }
+    else {
+      $body = '';
+      // ensure this file exists
+      if (file_exists($path . $contents)) {
+        $body = file_get_contents($path . $contents);
+      }
+      // create the page
+      $node = _git_book_make_node($key, $body, $parent, $weight);
+    }
+  }
+}

@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * git_book_rtd.features.field_base.inc
+ * git_book.features.field_base.inc
  */
 
 /**
  * Implements hook_field_default_field_bases().
  */
-function git_book_rtd_field_default_field_bases() {
+function git_book_field_default_field_bases() {
   $field_bases = array();
 
   // Exported field_base: 'field_git_repo'

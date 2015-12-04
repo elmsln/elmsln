@@ -1,0 +1,14 @@
+name = Git Book
+description = Provides the content type and fields for doing git content outline syncing
+core = 7.x
+package = Git
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = text
+dependencies[] = book
+dependencies[] = gitphp
+features[features_api][] = api:2
+features[field_base][] = field_git_repo
+features[field_instance][] = node-git_book-body
+features[field_instance][] = node-git_book-field_git_repo
+features[node][] = git_book
