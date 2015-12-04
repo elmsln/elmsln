@@ -5,30 +5,15 @@
  */
 
 /**
- * Implements hook_node_insert().
+ * Implements hook_git_book_parse().
  */
-function git_book_rtd_node_insert($node) {
-  // if we see a new git book is about to be inserted
-  if ($node->type == 'git_book') {
-    // invoke the library and bring in the content
-    libraries_load('gitphp');
-    $repo_url = $node->field_git_repo[LANGUAGE_NONE][0]['value'];
-    // create an acceptable machine name
-    $tmp = explode('/', str_replace('.git', '', $repo_url));
-    $path = drupal_realpath('private://') . '/' . array_pop($tmp) . '/';
-    // Create a new repo or open existing
-    if (is_dir($path)) {
-      $repo = Git::open($path);
-    }
-    else {
-      $repo = Git::create($path, $repo_url, true);
-    }
-    $ymlstructure = $path . '/mkdocs.yml';
-    if (file_exists($ymlstructure)) {
-      $mkdocs = yaml_parse_file($ymlstructure);
-      if (isset($mkdocs['pages']) && is_array($mkdocs['pages'])) {
-        _git_book_rtd_parse($mkdocs['pages'], $path .'/docs/', $node);
-      }
+function git_book_rtd_git_book_parse($repo, $path, $node) {
+  $ymlstructure = $path . '/mkdocs.yml';
+  if (file_exists($ymlstructure)) {
+    $mkdocs = yaml_parse_file($ymlstructure);
+    if (isset($mkdocs['pages']) && is_array($mkdocs['pages'])) {
+      _git_book_rtd_parse($mkdocs['pages'], $path .'/docs/', $node);
+      return $mkdocs['pages'];
     }
   }
 }
