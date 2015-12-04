@@ -38,6 +38,7 @@ pages:
     - How do I run upgrades?: development/upgrades/How-do-I-run-upgrades.md
     - MOOC:
       - Optional: development/upgrades/Course-UX-upgrade-for-0.1.0.md
+  - Debug : development/debug.md
 theme: readthedocs
 site_author: "elmsln"
 repo_name: ELMSLN
