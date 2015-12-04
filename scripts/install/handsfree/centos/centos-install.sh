@@ -28,7 +28,7 @@ yes | yum update
 # using yum to install the main packages
 yes | yum -y install curl uuid patch git nano gcc make mysql mysql-server httpd
 # install php 5.5
-yes | yum -y --enablerepo=remi-php55 install php php-common php-opcache php-pecl-apcu php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-devel php-pecl-ssh2
+yes | yum -y --enablerepo=remi-php55 install php php-common php-opcache php-pecl-apcu php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-devel php-pecl-ssh2 php-pecl-yaml
 
 yes | yum groupinstall 'Development Tools'
 pecl channel-update pecl.php.net
