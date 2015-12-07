@@ -10,8 +10,8 @@ include_once 'git_book.features.inc';
  * Implements hook_node_presave().
  */
 function git_book_node_presave($node) {
-  // make sure this gets inserted as a book
-  if (!isset($node->nid) && $node->type == 'git_book') {
+  // make sure this gets inserted as a book if it isn't in one
+  if (!isset($node->nid) && $node->type == 'git_book' && $node->book['bid'] == 0) {
     $node->book['bid'] = 'new';
   }
 }
@@ -39,6 +39,10 @@ function git_book_node_insert($node) {
     $gitcontent = module_invoke_all('git_book_parse', $repo, $path, $node);
     // incase anyone wants to do their build operations AFTER parsing
     drupal_alter('git_book_parse', $gitcontent);
+    // tell them nothing else got created
+    if (empty($gitcontent)) {
+      drupal_set_message(t('No structure was able to be parsed. Are you sure you have a way of importing this type of git repo?'), 'warning');
+    }
   }
 }
 
