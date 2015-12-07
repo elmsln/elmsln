@@ -118,6 +118,22 @@ function _cis_lmsless_theme_vars() {
     $vars['resources'] = $resources;
     // throw in username
     $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
+    // set defaualt for userpicture rendering
+    $vars['userpicture'] = '<div class="icon-user-black etb-icons svg"></div>';
+    // load in the user picture if it exists
+    if ($file = file_load($GLOBALS['user']->picture)) {
+      $image = array(
+        'style_name' => 'foundation_access_lmsless_bar',
+        'path' => $file->uri,
+        'width' => '26',
+        'height' => '26',
+        'alt' => t('Picture of @name', array('@name' => $vars['username'])),
+        'attributes' => array(
+          'class' => 'cis-lmsless-avatar etb-icons',
+        )
+      );
+      $vars['userpicture'] = theme_image_style($image);
+    }
     // set a login link if we don't have a user name
     if ($vars['username'] == '') {
       $vars['userlink'] = l(t('login'), 'user', array('attributes' => array('class' => array('account-logout', 'text-center', 'row'))));

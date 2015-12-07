@@ -25,7 +25,7 @@
           <?php if ($bar_elements['user']) : ?>
           <li>
             <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap" data-reveal-id="user-nav-modal">
-              <div class="icon-user-black etb-icons svg"></div>
+              <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="visible-for-large-up"><?php print $username; ?></span>
             </a>
           </li>
