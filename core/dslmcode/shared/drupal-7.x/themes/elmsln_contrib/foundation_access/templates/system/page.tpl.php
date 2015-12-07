@@ -90,7 +90,8 @@
                       <?php print render($page['help']); ?>
                     </div>
                   <?php endif; ?>
-
+                  <?php print render($page['local_header']); ?>
+                  <?php print render($page['local_subheader']); ?>
                   <a id="main-content"></a>
                   <?php if ($title): ?>
                     <?php print render($title_prefix); ?>

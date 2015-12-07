@@ -1,3 +1,31 @@
+ul.header-menu-options {
+  padding: 0;
+  max-width: 100%;
+  margin: 0 auto;
+  font-size: 1rem;
+}
+ul.header-menu-options li {
+  float:left;
+  margin: 0;
+  list-style: none;
+  display: inline-flex;
+  border-bottom: 1px solid #333333;
+}
+ul.header-menu-options li a {
+  padding: .75rem 1rem;
+  margin: 0;
+}
+ul.header-menu-options li.active-trail {
+  background-color: #eeeeee;
+  border-left: 1px solid #333333;
+  border-right: 1px solid #333333;
+  border-top: 1px solid #333333;
+  border-bottom: transparent;
+}
+ul.header-menu-options li:hover {
+  background-color: #eeeeee;
+}
+
 .cis-admin-area {
   background-color: #5CB61F;
 }
