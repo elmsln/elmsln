@@ -4,8 +4,8 @@ cd $HOME
 bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
 # refresh file so its good when next call uses it
 source $HOME/.bashrc
-# add vagrant to the admin group
-sudo usermod -a -G admin vagrant
+# add vagrant to the elmsln group
+sudo usermod -a -G elmsln vagrant
 # set all permissions correctly and for vagrant user
 sudo bash /var/www/elmsln/scripts/utilities/harden-security.sh vagrant
 
