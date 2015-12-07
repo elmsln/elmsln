@@ -29,7 +29,7 @@ function editorial_ux_context_default_contexts() {
         'menu-menu-editorial-navigation' => array(
           'module' => 'menu',
           'delta' => 'menu-editorial-navigation',
-          'region' => 'left_menu',
+          'region' => 'header',
           'weight' => '-10',
         ),
       ),

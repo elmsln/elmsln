@@ -29,7 +29,7 @@ function ecd_ux_context_default_contexts() {
         'menu-menu-comply-navigation' => array(
           'module' => 'menu',
           'delta' => 'menu-comply-navigation',
-          'region' => 'left_menu',
+          'region' => 'header',
           'weight' => '-10',
         ),
       ),

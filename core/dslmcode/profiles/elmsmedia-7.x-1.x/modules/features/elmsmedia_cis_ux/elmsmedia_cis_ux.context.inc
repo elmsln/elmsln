@@ -29,7 +29,7 @@ function elmsmedia_cis_ux_context_default_contexts() {
         'menu-menu-elmsmedia-navigation' => array(
           'module' => 'menu',
           'delta' => 'menu-elmsmedia-navigation',
-          'region' => 'left_menu',
+          'region' => 'header',
           'weight' => '-10',
         ),
       ),

@@ -29,7 +29,7 @@ function discuss_ux_context_default_contexts() {
         'menu-menu-discuss-navigation' => array(
           'module' => 'menu',
           'delta' => 'menu-discuss-navigation',
-          'region' => 'left_menu',
+          'region' => 'header',
           'weight' => '-10',
         ),
       ),

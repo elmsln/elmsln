@@ -17,10 +17,6 @@
         <div class="page-scroll progress">
           <span class="meter" style="width: 0%"></span>
         </div>
-
-        <?php print render($page['cis_appbar_first']); ?>
-        <?php print render($page['left_menu']); ?>
-
         <section class="main-section etb-book">
           <div class="r-header row">
             <div class="r-header__left">
@@ -67,9 +63,6 @@
               <?php endif; ?>
             </div>
           </div>
-
-
-
           <div class="row">
             <div class="content-element-region small-12 medium-12 large-12 columns">
               <div class="row">
@@ -139,4 +132,4 @@
       </div>
     </footer>
 <!-- generic container for other off canvas modals -->
-<?php print render($page['cis_appbar_modal']); ?>
+<?php print render($page['cis_lmsless_modal']); ?>

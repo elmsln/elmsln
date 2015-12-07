@@ -66,13 +66,13 @@ function foundation_access_ux_context_default_contexts() {
         'menu-menu-course-tools-menu' => array(
           'module' => 'menu',
           'delta' => 'menu-course-tools-menu',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-10',
         ),
         'cis_service_connection-section_context_changer' => array(
           'module' => 'cis_service_connection',
           'delta' => 'section_context_changer',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-9',
         ),
       ),
@@ -105,7 +105,7 @@ function foundation_access_ux_context_default_contexts() {
         'masquerade-masquerade' => array(
           'module' => 'masquerade',
           'delta' => 'masquerade',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-10',
         ),
         'system-main' => array(
