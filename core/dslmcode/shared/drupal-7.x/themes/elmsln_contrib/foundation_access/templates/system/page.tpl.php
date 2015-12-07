@@ -90,8 +90,16 @@
                       <?php print render($page['help']); ?>
                     </div>
                   <?php endif; ?>
-                  <?php print render($page['local_header']); ?>
-                  <?php print render($page['local_subheader']); ?>
+                  <?php if (!empty($page['local_header'])): ?>
+                  <div class="r-local-header row">
+                    <?php print render($page['local_header']); ?>
+                  </div>
+                  <?php endif; ?>
+                  <?php if (!empty($page['local_subheader'])): ?>
+                  <div class="r-local-subheader row">
+                    <?php print render($page['local_subheader']); ?>
+                  </div>
+                  <?php endif; ?>
                   <a id="main-content"></a>
                   <?php if ($title): ?>
                     <?php print render($title_prefix); ?>
