@@ -26,17 +26,20 @@ function apc_requirements($phase) {
     $cache['start_time'] = isset($cache['start_time']) ? $cache['start_time'] : $cache['stime'];
 
   }
-  // account for installation via drush
-  elseif (drupal_is_cli() && function_exists('drush_log') && $phase == 'install') {
-    $requirements['apc']['severity'] = REQUIREMENT_INFO;
-    drush_log(dt('The APC module needs the apc extension but we cannot reliable detect this via drush. Ensure that you have APC installed on the server before enabling this.'), 'ok');
-    return $requirements;
-  }
   else {
     $version = phpversion('apc');
     $name = $t('APCu');
     $description = $t('APC needs version >=3.1.1.');
+
     $meets_version = version_compare($version, '3.1.1') >= 0;
+  }
+  // drush can't determine version correctly because of memory partition of
+  // front-end and back-end. If you are running this via drush we assume you
+  // know what you are doing.
+  if (drupal_is_cli() && function_exists('drush_log') && $phase == 'install') {
+    $requirements['apc']['severity'] = REQUIREMENT_INFO;
+    drush_log(dt('The APC module needs the apc extension but we cannot reliable detect this via drush. Ensure that you have APC installed on the server before enabling this.'), 'ok');
+    return $requirements;
   }
 
   $requirements['apc'] = array(
