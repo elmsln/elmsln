@@ -29,7 +29,7 @@ function foundation_access_ux_context_default_contexts() {
         'menu-menu-cis-add' => array(
           'module' => 'menu',
           'delta' => 'menu-cis-add',
-          'region' => 'add_content_menu',
+          'region' => 'local_header',
           'weight' => '-10',
         ),
       ),
