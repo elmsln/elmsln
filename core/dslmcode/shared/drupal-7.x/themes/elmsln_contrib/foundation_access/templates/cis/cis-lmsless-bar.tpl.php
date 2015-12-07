@@ -79,6 +79,11 @@
          <div id="user-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
             <h1><?php print t('Account'); ?></h1>
               <hr class="pad-1" />
+              <?php if (!empty($username)) : ?>
+                <h2><?php print "$username ($userlink)"; ?></h2>
+                <?php if (isset($userpicturebig)) { print $userpicturebig; } ?>
+              <?php endif; ?>
+              <hr class="pad-1" />
               <?php if (isset($masquerade)) : ?>
               <h2><?php print t('Impersonate'); ?></h2>
               <div class="cis-admin-area user-nav-masquerade">
@@ -98,13 +103,6 @@
                 <?php print $user_section; ?>
               </div>
               <?php endif; ?>
-              <hr class="pad-1" />
-              <?php if (!empty($username)) : ?>
-              <h2><?php print t('User'); ?></h2>
-              <span><?php print $username; ?></span>
-              <?php endif; ?>
-              <hr class="pad-1" />
-                <?php print $userlink; ?>
               <hr />
             <a class="close-reveal-modal">&#215;</a>
          </div>

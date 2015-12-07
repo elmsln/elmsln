@@ -4,3 +4,7 @@ core = 7.x
 package = ELMSLN Core
 dependencies[] = cis_connector
 dependencies[] = cis_service_connection
+dependencies[] = image
+features[features_api][] = api:2
+features[image][] = foundation_access_lmsless_bar
+features[image][] = foundation_access_profile

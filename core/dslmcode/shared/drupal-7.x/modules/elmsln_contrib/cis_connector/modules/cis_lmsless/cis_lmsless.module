@@ -4,6 +4,8 @@
  * Code for CIS LMSless to place branding on page and create experience.
  */
 
+include_once 'cis_lmsless.features.inc';
+
 /**
  * Implements hook_permission().
  */
@@ -118,10 +120,8 @@ function _cis_lmsless_theme_vars() {
     $vars['resources'] = $resources;
     // throw in username
     $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
-    // set defaualt for userpicture rendering
-    $vars['userpicture'] = '<div class="icon-user-black etb-icons svg"></div>';
     // load in the user picture if it exists
-    if ($file = file_load($GLOBALS['user']->picture)) {
+    if (isset($GLOBALS['user']->picture) && $file = file_load($GLOBALS['user']->picture)) {
       $image = array(
         'style_name' => 'foundation_access_lmsless_bar',
         'path' => $file->uri,
@@ -133,13 +133,24 @@ function _cis_lmsless_theme_vars() {
         )
       );
       $vars['userpicture'] = theme_image_style($image);
+      $image = array(
+        'style_name' => 'foundation_access_profile',
+        'path' => $file->uri,
+        'width' => '220',
+        'height' => '220',
+        'alt' => t('Picture of @name', array('@name' => $vars['username'])),
+        'attributes' => array(
+          'class' => 'cis-lmsless-avatar-big',
+        )
+      );
+      $vars['userpicturebig'] = theme_image_style($image);
     }
     // set a login link if we don't have a user name
     if ($vars['username'] == '') {
-      $vars['userlink'] = l(t('login'), 'user', array('attributes' => array('class' => array('account-logout', 'text-center', 'row'))));
+      $vars['userlink'] = l(t('login'), 'user', array('attributes' => array('class' => array('account-logout'))));
     }
     else {
-      $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout', 'text-center', 'row'))));
+      $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout'))));
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       // account for systems without sections (like authorities)
@@ -291,6 +302,8 @@ function cis_lmsless_theme() {
         'syllabus_link' => url('syllabus'),
         'username' => t('Account'),
         'userlink' => '',
+        'userpicture' => '<div class="icon-user-black etb-icons svg"></div>',
+        'userpicturebig' => '<div class="icon-user-black etb-icons svg"></div>',
         'masquerade' => '',
         'user_roles' => '',
         'user_section' => '',
