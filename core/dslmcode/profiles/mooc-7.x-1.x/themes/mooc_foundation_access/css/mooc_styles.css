@@ -1,3 +1,9 @@
+#block-mooc-helper-mooc-helper-toc-nav-modal a.mooc-home-button {
+  float:left;
+  height: 2.5rem;
+  margin-right:1rem;
+}
+
 .magellan-wrap.fixed {
   top: 2rem !important;
 }
