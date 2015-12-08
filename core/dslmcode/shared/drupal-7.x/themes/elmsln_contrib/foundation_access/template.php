@@ -91,6 +91,14 @@ function foundation_access_preprocess_html(&$variables) {
  * Implements template_preprocess_page.
  */
 function foundation_access_preprocess_page(&$variables) {
+  $menu_item = menu_get_item();
+  // sniff out if this is a view
+  if ($menu_item['page_callback'] == 'views_page') {
+    // try and auto append exposed filters to our local_subheader region
+    $bid = '-exp-' . $menu_item['page_arguments'][0] . '-' . $menu_item['page_arguments'][1];
+    $block = module_invoke('views', 'block_view', $bid);
+    $variables['page']['local_subheader'][$bid] = $block['content'];
+  }
   // make sure we have lmsless enabled so we don't WSOD
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
   // support for lmsless since we don't require it
