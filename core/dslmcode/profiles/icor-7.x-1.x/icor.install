@@ -18,4 +18,5 @@ function icor_install() {
   // we don't need a help and syllabus link for most authority systems
   variable_set('cis_help_page', '');
   variable_set('cis_syllabus_page', '');
+  variable_set('site_frontpage', 'icor-object-lists');
 }
