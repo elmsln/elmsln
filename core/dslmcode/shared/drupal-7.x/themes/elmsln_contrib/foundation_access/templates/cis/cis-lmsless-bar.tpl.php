@@ -16,7 +16,7 @@
         <ul class="left kill-margin middle-align-wrap">
         <?php if ($bar_elements['network']) : ?>
           <li class="apps">
-            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap" data-reveal-id="apps-nav-modal">
+            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap" data-reveal-id="block-cis-lmsless-cis-lmsless-network-nav-modal">
               <div class="icon-apps-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Network'); ?></span>
             </a>
@@ -24,7 +24,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
           <li>
-            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap" data-reveal-id="user-nav-modal">
+            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap" data-reveal-id="block-cis-lmsless-cis-lmsless-user-nav-modal">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="visible-for-large-up"><?php print $username; ?></span>
             </a>
@@ -47,65 +47,6 @@
           </li>
           <?php endif; ?>
         </ul>
-        <!-- Eco Nav Modals -->
-        <div id="apps-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
-            <h1><?php print $site_name; ?></h1>
-              <?php if (isset($service_option_link)) : ?>
-                <div class="minimal-edit-buttons in-modal">
-                <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-services-edit-menu-1" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-                  <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-                </a>
-              </div>
-              <!-- Menu Item Dropdowns -->
-              <div id="eco-services-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-                <ul class="button-group">
-                  <li><?php print l(t('Add services'), $service_option_link); ?></li>
-                </ul>
-              </div>
-              <?php endif; ?>
-              <!-- End Menu Item Dropdowns -->
-              <?php foreach ($services as $title => $items) : ?>
-                <hr/>
-                <h2><?php print t('@title', array('@title' => $title)); ?></h2>
-                <?php foreach ($items as $service) : ?>
-                <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
-                  <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
-                  <span class=""><?php print $service['title']; ?></span>
-                </a>
-                <?php endforeach ?>
-              <?php endforeach ?>
-            <a class="close-reveal-modal">&#215;</a>
-         </div>
-         <div id="user-nav-modal" class="reveal-modal etb-nav-modal disable-scroll" data-reveal>
-            <h1><?php print t('Account'); ?></h1>
-              <hr class="pad-1" />
-              <?php if (!empty($username)) : ?>
-                <h2><?php print "$username ($userlink)"; ?></h2>
-                <?php if (isset($userpicturebig)) { print $userpicturebig; } ?>
-              <?php endif; ?>
-              <hr class="pad-1" />
-              <?php if (isset($masquerade)) : ?>
-              <h2><?php print t('Impersonate'); ?></h2>
-              <div class="cis-admin-area user-nav-masquerade">
-                <?php print $masquerade; ?>
-              </div>
-              <?php endif; ?>
-              <hr class="pad-1" />
-              <?php if (isset($user_roles)) : ?>
-              <h2><?php print t('Roles'); ?></h2>
-              <div class="cis-admin-area user-nav-user-roles">
-                <?php print $user_roles; ?>
-              </div>
-              <?php endif; ?>
-              <?php if (isset($section_title)) : ?>
-              <h2><?php print t('Section'); ?></h2>
-              <div class="cis-admin-area user-nav-section">
-                <?php print $user_section; ?>
-              </div>
-              <?php endif; ?>
-              <hr />
-            <a class="close-reveal-modal">&#215;</a>
-         </div>
         </section>
       </nav>
     </div>

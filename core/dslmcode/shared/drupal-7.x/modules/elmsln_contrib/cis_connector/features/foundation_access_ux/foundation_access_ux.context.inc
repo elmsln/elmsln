@@ -108,6 +108,18 @@ function foundation_access_ux_context_default_contexts() {
           'region' => 'cis_lmsless_modal',
           'weight' => '-10',
         ),
+        'cis_lmsless-cis_lmsless_user' => array(
+          'module' => 'cis_lmsless',
+          'delta' => 'cis_lmsless_user',
+          'region' => 'cis_lmsless_modal',
+          'weight' => '-9',
+        ),
+        'cis_lmsless-cis_lmsless_network' => array(
+          'module' => 'cis_lmsless',
+          'delta' => 'cis_lmsless_network',
+          'region' => 'cis_lmsless_modal',
+          'weight' => '-8',
+        ),
         'system-main' => array(
           'module' => 'system',
           'delta' => 'main',

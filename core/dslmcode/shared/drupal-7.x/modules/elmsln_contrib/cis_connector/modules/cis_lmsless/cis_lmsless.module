@@ -23,6 +23,44 @@ function cis_lmsless_permission() {
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function cis_lmsless_block_info() {
+  $blocks['cis_lmsless_user'] = array(
+    'info' => t('CIS LMSless user'),
+    'cache' => DRUPAL_CACHE_PER_USER,
+  );
+  $blocks['cis_lmsless_network'] = array(
+    'info' => t('CIS LMSless network'),
+    'cache' => DRUPAL_CACHE_PER_USER,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function cis_lmsless_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'cis_lmsless_user':
+      $vars = _cis_lmsless_assemble_user();
+      $block['subject'] = t('User');
+      $block['content'] = theme('cis_lmsless_user', $vars);
+    break;
+    case 'cis_lmsless_network':
+      $vars = _cis_lmsless_assemble_network();
+      $block['subject'] = t('Network');
+      $block['content'] = theme('cis_lmsless_network', $vars);
+    break;
+  }
+  return $block;
+}
+
+
+
+/**
  * Implements hook_page_build().
  */
 function cis_lmsless_page_build(&$page) {
@@ -36,51 +74,13 @@ function cis_lmsless_page_build(&$page) {
 }
 
 /**
- * Callback to assemble the bar
+ * Callback to assemble user block variables
  */
-function _cis_lmsless_assemble() {
-  // assemble variables for theming
-  $vars = _cis_lmsless_theme_vars();
-  drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
-  return theme('cis_lmsless_bar', $vars);
-}
-
-/**
- * Implementation of hook_form_FORM_ID_alter().
- */
-function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_id) {
-  $section = _cis_connector_section_context();
-  // don't do these for the master section or it makes no sense
-  if (strpos($section, 'master_') !== 0) {
-    $form['masquerade_user_field']['#chosen'] = TRUE;
-    $form['masquerade_user_field']['#type'] = 'select';
-    $field_conditions = array();
-    // don't assume there is a section context when masquerade is enabled
-    if (module_exists('cis_section') && $gid = _cis_section_load_section_by_id($section)) {
-      $field_conditions = array('og_user_node' => array('target_id', array($gid), 'IN'));
-    }
-    // pull together the users
-    $users = _cis_connector_assemble_entity_list('user', 'user', 'name', 'name', $field_conditions);
-    $form['masquerade_user_field']['#options'] = $users;
-    unset($form['masquerade_user_field']['#size']);
-    unset($form['masquerade_user_field']['#autocomplete_path']);
-  }
-}
-
-/**
- * Callback to return common theme variables when styling CIS theme components
- * @return array array of variables to pass to the theme
- */
-function _cis_lmsless_theme_vars() {
-  // @todo cache this as it's around 250k memory transaction
+function _cis_lmsless_assemble_user() {
   // ensure this doesn't load when it doesn't have to
   $vars = &drupal_static(__FUNCTION__);
   if (!isset($vars)) {
-    $vars = array(
-      'front_page' => variable_get('site_frontpage','node'),
-      'site_name' => variable_get('site_name', t('Service')),
-      'slogan' => variable_get('site_slogan', ''),
-    );
+    $vars = array();
     // build in section context if we have one we can pull
     if ($section = _cis_connector_section_context()) {
       $vars['section'] = $section;
@@ -122,17 +122,6 @@ function _cis_lmsless_theme_vars() {
     $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
     // load in the user picture if it exists
     if (isset($GLOBALS['user']->picture) && $file = file_load($GLOBALS['user']->picture)) {
-      $image = array(
-        'style_name' => 'foundation_access_lmsless_bar',
-        'path' => $file->uri,
-        'width' => '26',
-        'height' => '26',
-        'alt' => t('Picture of @name', array('@name' => $vars['username'])),
-        'attributes' => array(
-          'class' => 'cis-lmsless-avatar etb-icons',
-        )
-      );
-      $vars['userpicture'] = theme_image_style($image);
       $image = array(
         'style_name' => 'foundation_access_profile',
         'path' => $file->uri,
@@ -176,6 +165,20 @@ function _cis_lmsless_theme_vars() {
         $vars['user_roles'] = filter_xss(implode(', ', $tmproles));
       }
     }
+  }
+  return $vars;
+}
+
+/**
+ * Callback to assemble network block variables
+ */
+function _cis_lmsless_assemble_network() {
+  // ensure this doesn't load when it doesn't have to
+  $vars = &drupal_static(__FUNCTION__);
+  if (!isset($vars)) {
+    $vars = array(
+      'site_name' => variable_get('site_name', t('Service')),
+    );
     $distro = variable_get('install_profile', 'standard');
     $reg = _cis_connector_build_registry();
     // make sure this is in the registry
@@ -186,7 +189,7 @@ function _cis_lmsless_theme_vars() {
     }
     else {
       $machine_name = $distro;
-      $title = $distro;#
+      $title = $distro;
     }
     // account for the current service being worked on but not actually
     // being actively used in the section in question
@@ -253,6 +256,109 @@ function _cis_lmsless_theme_vars() {
       );
     }
     $vars['services'] = $list;
+  }
+  return $vars;
+}
+
+/**
+ * Callback to assemble the bar
+ */
+function _cis_lmsless_assemble() {
+  // assemble variables for theming
+  $vars = _cis_lmsless_theme_vars();
+  drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
+  return theme('cis_lmsless_bar', $vars);
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_id) {
+  $section = _cis_connector_section_context();
+  // don't do these for the master section or it makes no sense
+  if (strpos($section, 'master_') !== 0) {
+    $form['masquerade_user_field']['#chosen'] = TRUE;
+    $form['masquerade_user_field']['#type'] = 'select';
+    $field_conditions = array();
+    // don't assume there is a section context when masquerade is enabled
+    if (module_exists('cis_section') && $gid = _cis_section_load_section_by_id($section)) {
+      $field_conditions = array('og_user_node' => array('target_id', array($gid), 'IN'));
+    }
+    // pull together the users
+    $users = _cis_connector_assemble_entity_list('user', 'user', 'name', 'name', $field_conditions);
+    $form['masquerade_user_field']['#options'] = $users;
+    unset($form['masquerade_user_field']['#size']);
+    unset($form['masquerade_user_field']['#autocomplete_path']);
+  }
+}
+
+/**
+ * Callback to return common theme variables when styling CIS theme components
+ * @return array array of variables to pass to the theme
+ */
+function _cis_lmsless_theme_vars() {
+  // ensure this doesn't load when it doesn't have to
+  $vars = &drupal_static(__FUNCTION__);
+  if (!isset($vars)) {
+    $vars = array(
+      'front_page' => variable_get('site_frontpage','node'),
+      'site_name' => variable_get('site_name', t('Service')),
+      'slogan' => variable_get('site_slogan', ''),
+    );
+    // build in section context if we have one we can pull
+    if ($section = _cis_connector_section_context()) {
+      $vars['section'] = $section;
+      // do a full load so we can get at the title
+      // which could be in better form for interface presentation
+      if (module_exists('cis_section')) {
+        if ($nid = _cis_section_load_section_by_id($section)) {
+          $tmpnode = node_load($nid);
+          $vars['section_title'] = filter_xss($tmpnode->title);
+        }
+      }
+    }
+    // pull in the instructor contact info block
+    $vars['contact_block'] = cis_service_connection_block_instructor_contact();
+    // pull list of resources as an array
+    $query = array('field_access_string' => $section, 'archived' => 0);
+    // request the section of the user
+    $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+    // make sure it got data
+    $resources = array();
+    if (!empty($cis_section_item) && !empty($cis_section_item['list'])) {
+      $list = '';
+      if (isset($cis_section_item['list'][0]['field_resources'])) {
+        foreach ($cis_section_item['list'][0]['field_resources'] as $reid) {
+          $resource = _cis_connection_object($reid['id'], $reid['resource']);
+          $resources[$resource['field_machine_name']] = array(
+            'title' => check_plain($resource['title']),
+            'body' => check_markup($resource['body']['value'], $resource['body']['format'])
+          );
+          // check for tech support resource
+          if (strpos($resource['field_machine_name'], 'tech_support') === 0 || strpos($resource['field_machine_name'], 'techsupport') === 0) {
+            $vars['tech_support'] = $resources[$resource['field_machine_name']];
+          }
+        }
+      }
+    }
+    $vars['resources'] = $resources;
+    // throw in username
+    $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
+    // load in the user picture if it exists
+    if (isset($GLOBALS['user']->picture) && $file = file_load($GLOBALS['user']->picture)) {
+      $image = array(
+        'style_name' => 'foundation_access_lmsless_bar',
+        'path' => $file->uri,
+        'width' => '26',
+        'height' => '26',
+        'alt' => t('Picture of @name', array('@name' => $vars['username'])),
+        'attributes' => array(
+          'class' => 'cis-lmsless-avatar etb-icons',
+        )
+      );
+      $vars['userpicture'] = theme_image_style($image);
+    }
+    // available bar elements
     $vars['bar_elements'] = array(
       'network' => TRUE,
       'user' => TRUE,
@@ -289,17 +395,11 @@ function _cis_lmsless_theme_vars() {
  */
 function cis_lmsless_theme() {
   return array(
-    'cis_lmsless_bar' => array(
+    'cis_lmsless_user' => array(
       'variables' => array(
-        'front_page' => 'node',
-        'site_name' => t('Service'),
         'section' => 'master_1234',
         'active' => array('title' => ''),
-        'services' => array(),
         'tour' => url('guided_tour'),
-        'main_menu' => menu_tree(variable_get('menu_main_links_source', 'main-menu')),
-        'help_link' => url('course-help'),
-        'syllabus_link' => url('syllabus'),
         'username' => t('Account'),
         'userlink' => '',
         'userpicture' => '<div class="icon-user-black etb-icons svg"></div>',
@@ -307,6 +407,34 @@ function cis_lmsless_theme() {
         'masquerade' => '',
         'user_roles' => '',
         'user_section' => '',
+        ),
+      'render element' => 'element',
+      'template' => 'templates/cis-lmsless-user',
+    ),
+    'cis_lmsless_network' => array(
+      'variables' => array(
+        'front_page' => 'node',
+        'site_name' => t('Service'),
+        'section' => 'master_1234',
+        'active' => array('title' => ''),
+        'services' => array(),
+        'tour' => url('guided_tour'),
+        'resources' => array(),
+        'tech_support' => array(),
+        ),
+      'render element' => 'element',
+      'template' => 'templates/cis-lmsless-network',
+    ),
+    'cis_lmsless_bar' => array(
+      'variables' => array(
+        'front_page' => 'node',
+        'site_name' => t('Service'),
+        'section' => 'master_1234',
+        'active' => array('title' => ''),
+        'help_link' => url('course-help'),
+        'syllabus_link' => url('syllabus'),
+        'username' => t('Account'),
+        'userpicture' => '<div class="icon-user-black etb-icons svg"></div>',
         'resources' => array(),
         'tech_support' => array(),
         'elmsln_main_menu' => '',
