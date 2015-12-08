@@ -140,6 +140,7 @@ function _cis_lmsless_assemble_user() {
     }
     else {
       $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout'))));
+      $vars['userprofile'] = l('profile', 'user/' . $GLOBALS['user']->uid);
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       // account for systems without sections (like authorities)
