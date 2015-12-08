@@ -31,7 +31,7 @@
           </li>
           <?php endif; ?>
           <?php if ($bar_elements['help']) : ?>
-          <li>
+          <li class="divider-left">
             <a href="<?php print $help_link;?>" class="etb-nav_item_service_btn etb-icon help-icon middle-align-wrap">
               <div class="icon-help-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Help'); ?></span>
@@ -39,7 +39,11 @@
           </li>
           <?php endif; ?>
           <?php if ($bar_elements['syllabus']) : ?>
-          <li class="divider-left">
+            <?php if ($bar_elements['help']) : ?>
+            <li>
+            <?php else : ?>
+            <li class="divider-left">
+            <?php endif; ?>
             <a href="<?php print $syllabus_link;?>" class="etb-nav_item_service_btn etb-icon info-icon middle-align-wrap">
               <div class="icon-info-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Syllabus'); ?></span>

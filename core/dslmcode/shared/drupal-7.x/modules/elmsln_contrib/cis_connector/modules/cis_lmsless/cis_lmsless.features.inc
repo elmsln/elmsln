@@ -26,8 +26,8 @@ function cis_lmsless_image_default_styles() {
       1 => array(
         'name' => 'smartcrop_scale_and_crop',
         'data' => array(
-          'width' => 26,
-          'height' => 26,
+          'width' => 40,
+          'height' => 40,
           'upscale' => 0,
           '#imageinfo_cache_effect_callback' => 'smartcrop_scale_effect',
         ),

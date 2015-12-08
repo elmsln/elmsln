@@ -404,7 +404,6 @@ function cis_lmsless_theme() {
         'tour' => url('guided_tour'),
         'username' => t('Account'),
         'userlink' => '',
-        'userpicture' => '<div class="icon-user-black etb-icons svg"></div>',
         'userpicturebig' => '<div class="icon-user-black etb-icons svg"></div>',
         'masquerade' => '',
         'user_roles' => '',
