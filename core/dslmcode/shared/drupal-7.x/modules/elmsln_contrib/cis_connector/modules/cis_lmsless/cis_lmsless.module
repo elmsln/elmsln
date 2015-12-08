@@ -165,6 +165,7 @@ function _cis_lmsless_assemble_user() {
         $vars['user_roles'] = filter_xss(implode(', ', $tmproles));
       }
     }
+    drupal_alter('cis_lmsless_theme_vars', $vars);
   }
   return $vars;
 }
@@ -256,6 +257,7 @@ function _cis_lmsless_assemble_network() {
       );
     }
     $vars['services'] = $list;
+    drupal_alter('cis_lmsless_theme_vars', $vars);
   }
   return $vars;
 }
