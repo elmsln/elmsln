@@ -1,3 +1,13 @@
+.elmsln-home-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.elmsln-home-button-link {
+  padding: 0;
+  margin: 0 1rem 0;
+  font-size: 1rem;
+  line-height: 2.5rem
+}
 .cis-lmsless-avatar {
   width: 2.5rem;
   height: 2.5rem;
@@ -5,7 +15,7 @@
 ul.header-menu-options {
   padding: 0;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0;
   font-size: 1rem;
 }
 ul.header-menu-options li {

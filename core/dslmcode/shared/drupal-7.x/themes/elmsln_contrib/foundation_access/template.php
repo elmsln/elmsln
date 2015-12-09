@@ -99,6 +99,12 @@ function foundation_access_preprocess_page(&$variables) {
     $block = module_invoke('views', 'block_view', $bid);
     $variables['page']['local_subheader'][$bid] = $block['content'];
   }
+  $variables['distro'] = variable_get('install_profile', 'standard');
+  $variables['home'] = l('<div class="' . $variables['distro'] . '-home elmsln-home-icon icon-' . $variables['distro'] . '-black etb-modal-icons"></div><span>' . t('Home') . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($variables['distro'] . '-home-button', 'elmsln-home-button-link'))));
+  // clever
+  $keys = array_keys($variables['page']['header']);
+  $keyname = array_shift($keys);
+  $variables['page']['header'][$keyname]['#prefix'] = $variables['home'];
   // make sure we have lmsless enabled so we don't WSOD
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
   // support for lmsless since we don't require it

@@ -307,7 +307,9 @@ function _cis_lmsless_theme_vars() {
       'front_page' => variable_get('site_frontpage','node'),
       'site_name' => variable_get('site_name', t('Service')),
       'slogan' => variable_get('site_slogan', ''),
+      'distro' => variable_get('install_profile', 'standard'),
     );
+    $vars['home'] = l('<div class="' . $vars['distro'] . '-home elmsln-home-icon icon-' . $vars['distro'] . '-black etb-modal-icons"></div><span>' . t('Home') . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($vars['distro'] . '-home-button'))));
     // build in section context if we have one we can pull
     if ($section = _cis_connector_section_context()) {
       $vars['section'] = $section;
