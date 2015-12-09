@@ -128,8 +128,9 @@ function foundation_access_preprocess_page(&$variables) {
     $url_options = array(
       'absolute' => TRUE,
     );
-    if (isset($_SESSION['cis_section_context']) && $section_id = $_SESSION['cis_section_context']) {
-      $url_options['query']['elmsln_active_course'] = $section_id;
+    $current_section = _cis_connector_section_context();
+    if (isset($current_section) && $current_section) {
+      $url_options['query']['elmsln_active_course'] = $current_section;
     }
     $current_page = url(current_path(), $url_options);
 
