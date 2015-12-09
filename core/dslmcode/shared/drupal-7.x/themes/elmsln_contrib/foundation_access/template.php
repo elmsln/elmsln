@@ -124,7 +124,7 @@ function foundation_access_preprocess_page(&$variables) {
    *       based on the new design.
    */
   // add a sharing url to view the specific section
-  if (module_exists('cis_section')) {
+  if (module_exists('cis_connector')) {
     $url_options = array(
       'absolute' => TRUE,
     );
