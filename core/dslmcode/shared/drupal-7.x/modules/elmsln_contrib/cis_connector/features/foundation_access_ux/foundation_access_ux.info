@@ -36,3 +36,5 @@ features[variable][] = jquery_update_compression_type
 features[variable][] = jquery_update_jquery_admin_version
 features[variable][] = jquery_update_jquery_version
 features[variable][] = node_admin_theme
+features[variable][] = textbook_active
+features[variable][] = textbook_reset

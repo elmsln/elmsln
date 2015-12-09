@@ -146,5 +146,19 @@ function foundation_access_ux_strongarm() {
   $strongarm->value = 0;
   $export['node_admin_theme'] = $strongarm;
 
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'textbook_active';
+  $strongarm->value = 'textbook_zurb';
+  $export['textbook_active'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'textbook_reset';
+  $strongarm->value = 0;
+  $export['textbook_reset'] = $strongarm;
+
   return $export;
 }
