@@ -3,11 +3,3 @@
  * @file
  * Install routine for the MOOC theme foundation feature.
  */
-
-/**
- * Implements hook_install().
- */
-function mooc_theme_foundation_install() {
-  // disable the reset textbook value
-  variable_set('textbook_reset', FALSE);
-}
