@@ -17,9 +17,10 @@
 ?>
 <div class="book-navigation-header small-12 medium-12 large-12 book-sibling-nav-container book-navigation-header-<?php print $count ?>">
   <!-- TOC Icon -->
-  <a href="#" class="mooc-helper-toc etb-modal-icon courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents">
-    <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div>
+  <a href="#" class="mooc-helper-toc courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents">
+    <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div><span class="book-sibling-parent-text show-for-large-up"><?php print t('Outline'); ?></span>
   </a>
+  <span class="book-sibling-spacer icon-chevron-right">/</span>
   <ul class="book-navigation-wrapper show-for-large-up">
     <?php print $output ?>
   </ul>
