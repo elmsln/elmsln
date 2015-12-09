@@ -35,7 +35,7 @@ drush @elmsln rr --y
 elmslnecho "Running update hooks"
 drush @elmsln cook dr_run_updates --y
 # run global upgrades from drup recipes
-drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --y
+drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --v --y
 
 # load the stacks in question
 cd /var/www/elmsln/core/dslmcode/stacks
@@ -44,7 +44,7 @@ for stack in "${stacklist[@]}"
 do
   elmslnecho "Applying specific upgrades against $stack"
   # run stack specific upgrades if they exist
-  drush @${stack}-all drup d7_elmsln_${stack} ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack} --y
+  drush @${stack}-all drup d7_elmsln_${stack} ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack} --v --y
 done
 
 # trigger crons to run now that these sites are all back and happy
