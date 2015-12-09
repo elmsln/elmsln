@@ -33,12 +33,12 @@
     <?php if ($has_links): ?>
       <?php if ($prev_url): ?>
         <li class="toolbar-menu-icon book-sibling-parent-pagination book-sibling-parent-pagination-previous">
-          <a href="<?php print $prev_url; ?>" class="page-previous" title="<?php print t('Go to previous page'); ?>"><?php print t('<'); ?></a>
+          <a href="<?php print $prev_url; ?>" class="page-previous" title="<?php print t('Go to previous page'); ?>"><span class="book-sibling-spacer icon-chevron-left"></span><span class="book-pagination-button-text book-prev visible-for-large-up"><?php print t('previous'); ?></span></a>
         </li>
       <?php endif; ?>
       <?php if ($next_url): ?>
         <li class="toolbar-menu-icon book-sibling-parent-pagination book-sibling-parent-pagination-next">
-          <a href="<?php print $next_url; ?>" class="page-next" title="<?php print t('Go to next page'); ?>"><?php print t('>'); ?></a>
+          <a href="<?php print $next_url; ?>" class="page-next" title="<?php print t('Go to next page'); ?>"><span class="book-pagination-button-text book-next visible-for-large-up"><?php print t('next'); ?></span><span class="book-sibling-spacer icon-chevron-right"></span></a>
         </li>
       <?php endif; ?>
     <?php endif; ?>
