@@ -65,6 +65,14 @@ do
     drushcommand=`echo "$drush" | cut -f 2- -d ' '`
     background='FALSE'
     ;;
+    ugrid)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
+    urrid)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
     cook)
     drushcommand=`echo "$drush" | cut -f 2- -d ' '`
     background='FALSE'
@@ -87,7 +95,7 @@ do
     fi
   done
   # move this to processed state after its finished
-  if [[ -f  $jobfile.processing ]]; then
+  if [[ -f $jobfile.processing ]]; then
     mv $jobfile.processing $jobfile.processed
   fi
 done
