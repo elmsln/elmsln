@@ -655,10 +655,10 @@ function cis_section_url_outbound_alter(&$path, &$options, $original_path) {
       $outgoing_domain = _cis_connector_url_get_properties($original_path);
       // verify that the link is going to a separate subdomain
       if ($current_domain['subdomain'] != $outgoing_domain['subdomain']) {
-        // verify that the user as a section context set in their session
-        if (isset($_SESSION['cis_section_context']) && $section_id = $_SESSION['cis_section_context']) {
+        $current_section = _cis_connector_section_context();
+        if (isset($current_section) && $current_section) {
           // append the section context query parameter to the outgoing url
-          $options['query']['elmsln_active_course'] = $section_id;
+          $options['query']['elmsln_active_course'] = $current_section;
         }
       }
     }
