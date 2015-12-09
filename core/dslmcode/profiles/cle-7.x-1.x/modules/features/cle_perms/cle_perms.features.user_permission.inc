@@ -145,16 +145,6 @@ function cle_perms_defaultconfig_user_default_permissions() {
     'module' => 'addanother',
   );
 
-  // Exported permission: 'use text format student_work'.
-  $permissions['use text format student_work'] = array(
-    'name' => 'use text format student_work',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'authenticated user' => 'authenticated user',
-    ),
-    'module' => 'filter',
-  );
-
   // Exported permission: 'view rate results page'.
   $permissions['view rate results page'] = array(
     'name' => 'view rate results page',
