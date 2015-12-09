@@ -631,10 +631,10 @@ function cis_section_url_inbound_alter(&$path, $original_path, $path_language) {
     if ($user_is_active) {
       // Set the active session
       $_SESSION['cis_section_context'] = $section_id;
-      // Remove the active course query parameter and proceed to the url
-      unset($query['elmsln_active_course']);
-      drupal_goto($path, array('query' => $query));
     }
+    // Remove the active course query parameter and proceed to the url
+    unset($query['elmsln_active_course']);
+    drupal_goto($path, array('query' => $query));
   }
 }
 
