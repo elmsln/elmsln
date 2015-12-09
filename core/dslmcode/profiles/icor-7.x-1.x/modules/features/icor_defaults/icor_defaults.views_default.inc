@@ -170,6 +170,7 @@ function icor_defaults_views_default_views() {
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
+  $handler->display->display_options['exposed_block'] = TRUE;
   $handler->display->display_options['defaults']['arguments'] = FALSE;
   $handler->display->display_options['path'] = 'icor-object-lists';
   $handler->display->display_options['menu']['type'] = 'normal';
