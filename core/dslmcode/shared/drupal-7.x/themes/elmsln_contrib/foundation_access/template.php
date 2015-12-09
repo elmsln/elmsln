@@ -118,6 +118,36 @@ function foundation_access_preprocess_page(&$variables) {
   if (isset($variables['page']['content']['system_main']['main'])) {
     $variables['page']['content']['system_main']['main']['#markup'] = '<article class="large-12 columns view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
   }
+
+  /**
+   * @todo Get rid of this logic and put it somewhere else
+   *       based on the new design.
+   */
+  // add a sharing url to view the specific section
+  if (module_exists('cis_section')) {
+    $url_options = array(
+      'absolute' => TRUE,
+    );
+    if (isset($_SESSION['cis_section_context']) && $section_id = $_SESSION['cis_section_context']) {
+      $url_options['query']['elmsln_active_course'] = $section_id;
+    }
+    $current_page = url(current_path(), $url_options);
+
+    // establish the fieldset container for shortcodes
+    $field['cis_section_share'] = array(
+      '#type' => 'fieldset',
+      '#collapsed' => FALSE,
+      '#collapsible' => TRUE,
+      '#title' => t('Share this page'),
+    );
+    $field['cis_section_share']['cis_section_share_link'] = array(
+      '#title' => t('Page URL'),
+      '#value' => $current_page,
+      '#type' => 'textfield',
+      '#weight' => 0,
+    );
+    $variables['cis_section_share'] = $field;
+  }
 }
 
 /**
