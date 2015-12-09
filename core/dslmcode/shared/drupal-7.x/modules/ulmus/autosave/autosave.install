@@ -1,0 +1,117 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the autosave module.
+ *
+ */
+
+/**
+ * Implements hook_enable().
+().
+ */
+function autosave_enable() {
+  drupal_set_message(t('Autosave module successfully installed. Please review the <a href="@settings">configuration settings</a>.', array('@settings' => url('admin/config/content/autosave'))));
+}
+
+/**
+ * Implements hook_uninstall().
+().
+ */
+function autosave_uninstall() {
+  variable_del('autosave_period');
+  variable_del('autosave_hidden');
+  variable_del('autosave_form_ids');
+  variable_del('autosave_timeout');
+}
+
+/**
+ * Implements hook_schema()
+ */
+function autosave_schema() {
+  return array(
+    'autosaved_forms' => array(
+      'description' => 'Saves the input (POST) contents of partially filled forms for restoration by the autosave module.',
+      'fields' => array(
+        'form_id' => array(
+          'type'        => 'varchar',
+          'length'      => 64,
+          'not null'    => TRUE,
+        ),
+        'path' => array(
+          'type'        => 'varchar',
+          'length'      => 255,
+          'not null'    => TRUE,
+        ),
+        'uid' => array(
+          'type'        => 'int',
+          'not null'    => TRUE,
+          'default'     => 0,
+        ),
+        'timestamp' => array(
+          'type'        => 'int',
+          'not null'    => TRUE,
+          'default'     => 0,
+        ),
+        'serialized' => array(
+          'type'        => 'text',
+          'not null'    => TRUE,
+          'size'        => 'big',
+        ),
+        'args' => array(
+          'type'        => 'text',
+          'size'        => 'big',
+        ),
+      ),
+      'primary key' => array('form_id', 'path', 'uid'),
+    ),
+  );
+}
+
+/**
+ * New column in {autosaved_forms} : args
+ */
+function autosave_update_7000() {
+  $spec = array(
+    'type'        => 'text',
+    'size'        => 'big',
+  );
+  db_add_field( 'autosaved_forms', 'args', $spec);
+
+  // Fill in the args field of already saved forms.
+  $result = db_select('autosaved_forms', 'af')
+    ->fields('af', array('path', 'uid', 'form_id'))
+    ->execute()
+    ->fetchAll();
+
+  foreach ($result as $form) {
+    $path_parts = explode('/', $form->path);
+    unset($node);
+    if (strpos($form->path, 'node/add/') === 0) {
+      $node = new stdClass();
+      $node->type = $path_parts[2];
+      node_object_prepare($node);
+      $node->uid = $form->uid;
+      $author = user_load($form->uid);
+      $node->name = $author->name;
+    }
+    elseif (($path_parts[0] == 'node') && ($path_parts[2] == 'edit')) {
+      $node = node_load($path_parts[1]);
+    }
+    if (isset($node)) {
+      db_update('autosaved_forms')
+        ->condition('form_id', $form->form_id)
+        ->condition('uid', $form->uid)
+        ->condition('path', $form->path)
+        ->fields(array('args' => array(serialize($node))))
+        ->execute();
+    }
+  }
+}
+
+/**
+ * Clear menu cache.
+ */
+function autosave_update_7001() {
+  menu_cache_clear_all();
+}

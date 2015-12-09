@@ -1,0 +1,539 @@
+<?php
+
+/**
+ * @file
+ * Does background saves of node being edited.
+ */
+
+define('AUTOSAVE_PATH', drupal_get_path('module', 'autosave'));
+require_once DRUPAL_ROOT . '/' . AUTOSAVE_PATH . '/autosave.theme.inc';
+
+/**
+ * Implements hook_help().
+ */
+function autosave_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case 'admin/help#autosave':
+      $output = '<p>' . t('The autosave module automatically saves a form after a period of time.') . '</p>';
+      break;
+  }
+  return $output;
+}
+
+/**
+* Implements hook_menu().
+*/
+function autosave_menu() {
+  $items = array();
+  $items['autosave/handler'] = array(
+    'title'           => 'Autosave save',
+    'page callback'   => 'autosave_save',
+    'access callback' => 'autosave_save_access',
+    'type'            => MENU_CALLBACK,
+  );
+  $items['autosave/restore'] = array(
+    'title'           => 'Autosave form restore',
+    'page callback'   => 'autosave_restore',
+    'access callback' => 'autosave_restore_access',
+    'access arguments' => array(2, 3, 4),
+    'type'            => MENU_CALLBACK,
+    'delivery callback' => 'ajax_deliver',
+  );
+
+  $items['admin/config/content/autosave'] = array(
+    'title'            => 'Autosave',
+    'description'      => 'Configure autosave settings.',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('autosave_admin_settings'),
+    'access arguments' => array('administer nodes'),
+  );
+  $items['autosave/popup'] = array(
+    'title'           => 'Autosave popup markup',
+    'page callback'   => 'autosave_popup',
+    'page arguments' => array(2),
+    'type'            => MENU_CALLBACK,
+    'delivery callback' => 'autosave_delivery_callback',
+    'access callback' => 'autosave_popup_access',
+  );
+  $items['autosave/remove'] = array(
+    'title'           => 'Autosave form removal',
+    'page callback'   => 'autosave_remove',
+    'type'            => MENU_CALLBACK,
+    'access callback' => 'autosave_restore_access',
+    'access arguments' => array(2, 3, 4),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_library().
+ */
+function autosave_library() {
+  $libraries = array();
+  $libraries['jquery.autosave'] = array(
+    'title' => 'jQuery Autosave',
+    'website' => 'https://bitbucket.org/stanlemon/jquery-autosave',
+    'version' => '1.1.0',
+    'js' => array(
+      drupal_get_path('module', 'autosave') . '/jquery.autosave.js' => array(),
+    ),
+  );
+
+  $libraries['autosave'] = array(
+    'title' => 'Autosave',
+    'website' => 'http://drupal.org/project/autosave',
+    'version' => '',
+    'js' => array(
+      drupal_get_path('module', 'autosave') . '/autosave.js' => array(),
+    ),
+    'css' => array(
+      drupal_get_path('module', 'autosave') . '/autosave.css' => array(),
+    ),
+    'dependencies' => array(
+      array('system', 'drupal.ajax'),
+      array('autosave', 'jquery.autosave'),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_custom_theme().
+ */
+function autosave_custom_theme() {
+  // Ensure that the correct theme is used when restoring a form.
+  if (strpos($_GET['q'], 'autosave/restore') === 0) {
+    $theme = arg(5);
+    return !empty($theme) ? $theme : NULL;
+  }
+}
+
+/**
+ * Menu callback; return the autosave module settings form.
+ */
+function autosave_admin_settings($form, &$form_state) {
+  $form['autosave_period'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Autosave after this amount of seconds has passed'),
+    '#default_value' => variable_get('autosave_period', 10),
+  );
+  $form['autosave_timeout'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Autosave timeout'),
+    '#description' => t('No autosaving happens while the Ignore/Restore popup is shown. Here you can set the amount of seconds to show this popup for. Set this to 0 to hide it only if the user clicks either Ignore or Restore.'),
+    '#default_value' => variable_get('autosave_timeout', 0),
+  );
+  $form['autosave_hidden'] = array(
+    '#prefix' =>  '<div class="form-item"><label for="edit-autosave-hidden">' . t('Stealth Mode') . '</label>',
+    '#type' => 'checkbox',
+    '#title' => t('Run in stealth mode'),
+    '#description' => t('If this check box is selected no popup will appear notifying user that the form has been autosaved.'),
+    '#default_value' => variable_get('autosave_hidden', 0),
+    '#suffix' => "</div>",
+  );
+  $form['autosave_ignore_behavior'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Remove autosaved form when clicking \'Ignore\''),
+    '#description' => t('If this checkbox is selected the autosaved form will be deleted from the database when clicking the Ignore button.'),
+    '#default_value' => variable_get('autosave_ignore_behavior', 0),
+  );
+
+  $form['autosave_form_ids'] = array(
+    '#type' => 'textarea',
+    '#default_value' => variable_get('autosave_form_ids', ''),
+    '#title' => t('Form ids to autosave'),
+    '#description' => t('Add the form ids that autosave should apply to. Each form id should go into a separate line. Note that node form autosaving can also be enabled on the node type admin form. The form id of a form is the \'value\' attribute of the hidden &lt;input&gt; HTML element with the name \'form_id\' in the &lt;form&gt;.'),
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_form_alter() for node_type_form().
+ */
+function autosave_form_node_type_form_alter(&$form, $form_state) {
+  $form['workflow']['autosave'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable Autosave to add/edit forms for this node type'),
+    '#default_value' => variable_get('autosave_' . $form['#node_type']->type, 0),
+    '#description' => t('Check this box to enable Autosave for this node type.')
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function autosave_form_alter(&$form, &$form_state, $form_id) {
+  // Autosaving node forms can be enabled both by adding the form_id at
+  // admin/config/content/autosave or by checking the 'Enable Autosave'
+  // checkbox at admin/structure/types/manage/[node:type]. The following
+  // variable is TRUE if autosaving is enabled on the latter link and we
+  // are on a node form.
+  $autosave_node_form = FALSE;
+  if (!empty($form['#node_edit_form'])) {
+    $node = $form['#node'];
+    $autosave_node_form = (variable_get('autosave_' . $node->type, 0) && (arg(0) != 'admin'));
+  }
+  $form_ids = explode("\n", variable_get('autosave_form_ids', ''));
+  foreach ($form_ids as &$formid) {
+    $formid = trim($formid);
+  }
+
+  if (($autosave_node_form || in_array($form_id, $form_ids))) {
+    // Remove the autosaved form when submitting it.
+    array_unshift($form['#submit'], 'autosave_remove_autosaved_form_submit');
+    if (empty($_POST['autosave_form_path'])) {
+      $request_path = request_path();
+      // We store the drupal system paths, not the aliases.
+      $path = drupal_lookup_path('source', $request_path);
+      // For already system paths $path is FALSE.
+      if (!$path) {
+        $path = $request_path;
+      }
+      // Make a note in the form of what the original path is, since when
+      // submitting the autosaved form to our own callback it will not be
+      // the same.
+      $form['autosave_form_path'] = array(
+        '#type' => 'hidden',
+        '#value' => $path,
+      );
+
+      // Store form arguments in db only if the form has not been autosaved
+      // before. The second part of the condition prevents the creation of db
+      // entries with autosave/restore/ path during autosave restore AJAX.
+      // Note that 'autosave/restore' might be after a language prefix.
+      if (!empty($form_state['build_info']['args']) && (strpos($path, 'autosave/restore/') === FALSE)) {
+        $key = array(
+          'form_id' => $form_id,
+          'uid' => $GLOBALS['user']->uid,
+          'path' => $path,
+        );
+        db_merge('autosaved_forms')
+          ->key($key)
+          ->insertFields(array_merge($key, array(
+            'timestamp' => 0,
+            'serialized' => '',
+            'args' => serialize($form_state['build_info']['args'])
+          )))
+          ->updateFields($key)
+          ->execute();
+      }
+
+      $settings = array();
+      $settings['autosave']['form_id'] = $form_id;
+      $settings['autosave']['url'] = url('autosave/handler');
+      $settings['autosave']['period'] = variable_get('autosave_period', 10);
+      $settings['autosave']['timeout'] = intval(variable_get('autosave_timeout', 0));
+      $settings['autosave']['q'] = $path;
+      $settings['autosave']['hidden'] = variable_get('autosave_hidden', 0);
+      $settings['autosave']['ignoreBehavior'] = variable_get('autosave_ignore_behavior', 0);
+      $settings['autosave']['theme'] = $GLOBALS['theme'];
+
+      // If an autosaved version of the form exists, let the user know so that
+      // he can restore it if desired.
+      $timestamp = db_query("SELECT timestamp FROM {autosaved_forms} WHERE form_id = :form_id AND path = :path AND uid = :uid", array(
+        ':form_id' => $form_id,
+        ':path' => $path,
+        ':uid' => $GLOBALS['user']->uid,
+      ))->fetchField();
+      $settings['autosave']['savedTimestamp'] = $timestamp ? $timestamp : 0;
+      $settings['autosave']['savedDate'] = $timestamp ? format_date($timestamp) : 0;
+      $settings['autosave']['form_token'] = drupal_get_token($form_id);
+
+      $form['#id'] = str_replace("_", "-", $form_id);
+      $form['autosave_form_path']['#attached']['library'][] = array('autosave', 'autosave');
+      $form['autosave_form_path']['#attached']['js'][] = array(
+        'data' => $settings,
+        'type' => 'setting',
+        'scope' => JS_DEFAULT,
+      );
+    }
+  }
+}
+
+/**
+ * Form submit callback to remove the autosaved form when submitting it.
+ */
+function autosave_remove_autosaved_form_submit($form, $form_state) {
+  global $user;
+  db_delete('autosaved_forms')
+    ->condition('form_id', $form['#form_id'])
+    ->condition('path', $_POST['autosave_form_path'])
+    ->condition('uid', $user->uid)
+    ->execute();
+}
+
+/**
+ * Menu callback; AHAH return the form, repopulated with autosaved data.
+ *
+ * @global type $user
+ * @param string $form_id
+ *   The form_id of the form to reload.
+ * @param int $timestamp
+ *   The timestamp at which the autosaved form was saved.  This is used to
+ *   differentiate between different people mucking with the same form.
+ */
+function autosave_restore($form_id, $timestamp) {
+  global $user;
+  // Fetch the saved form, if any.
+  $record = autosave_get_autosaved_form($form_id, $timestamp, $user->uid);
+  $commands = array();
+
+  if ($record) {
+    $form_state = array();
+    // We need to extract and reuse any additional page arguments that the
+    // original form may have.  That's especially true for, say, a node form,
+    // which needs the node object passed in as well.
+    $menu_item = autosave_menu_get_item($record->path);
+    if ($menu_item['include_file']) {
+      require_once DRUPAL_ROOT . '/' . $menu_item['include_file'];
+      $form_state['build_info']['files'][] = $menu_item['include_file'];
+    }
+    $form_state['input'] = unserialize($record->serialized);
+
+    // Restore form arguments.
+    if (!empty($record->args)) {
+      $args = unserialize($record->args);
+      $form_state['build_info']['args'] = $args;
+    }
+
+    // Disable the "this form has already been submitted" nonsense by making
+    // Drupal think the form is being rebuilt as part of a multi-step form.
+    $form_state['rebuild'] = TRUE;
+
+    // Stop recording of form error messages
+    $form_state['triggering_element']['#limit_validation_errors'] = array();
+
+    // When restoring we will need to know the form token so that the user can
+    // be validated.
+    $form = drupal_build_form($form_id, $form_state);
+
+    // Because the form will by default submit back to this URL, we need to
+    // tell it to actually submit back to where it would have submitted to
+    // originally.
+    $form['#action'] = url($record->path);
+    $form['autosave_form_path']['#value'] = $record->path;
+    // We don't want to change the HTML ID of the form, because we're replacing
+    // it in-place.  Drupal wants to give this a suffix for some reason.
+    $form['#id'] = str_replace("_", "-", $form_id);
+
+    $commands[] = ajax_command_replace('#' . $form['#id'], drupal_render($form));
+
+    return array(
+      '#type' => 'ajax',
+      '#commands' => $commands,
+    );
+  }
+}
+
+/**
+ * Access callback for the form save menu callback.
+ *
+ *
+ * For security reasons, we need to confirm that the user would have access
+ * to the page where the form lives in the first place.  If they don't, they
+ * should not be able to access its saved version.  We also check that the
+ * form's token is correct to avoid CSRF attacks.
+ *
+ * Because the form data is not available to us, the only way we can access
+ * the path is by checking $_POST directly.  Sux.
+ *
+ *  @return boolean
+ *   True if this user should have access to save this form, false otherwise.
+ */
+function autosave_save_access() {
+  $path = $_POST['autosave_form_path'];
+  $menu_item = autosave_menu_get_item($path);
+
+  $token = isset($_POST['form_token'], $_POST['form_id']) && drupal_valid_token($_POST['form_token'], $_POST['form_id']);
+  $menu = isset($menu_item['access']) ? $menu_item['access'] : FALSE;
+  return $token && $menu;
+}
+
+/**
+ * Access callback for the form restore menu callback.
+ *
+ * For security reasons, we need to confirm that the user would have access
+ * to the page where the form lives in the first place.  If they don't, they
+ * should not be able to access its saved version.  We also check that the
+ * form's token is correct to avoid CSRF attacks.
+ *
+ * @param string $form_id
+ *   The form_id of the form to reload.
+ * @param int $timestamp
+ *   The timestamp at which the autosaved form was saved.  This is used to
+ *   differentiate between different people mucking with the same form.
+ * @param string $form_token
+ *   The form token used for CSRF prevention.
+ *
+ * @return boolean
+ *   True if the user should have restore access to this form, false otherwise.
+ */
+function autosave_restore_access($form_id, $timestamp, $form_token) {
+  $record = autosave_get_autosaved_form($form_id, $timestamp, $GLOBALS['user']->uid);
+
+  if (isset($record->path)) {
+    $menu_item = autosave_menu_get_item($record->path);
+    $token = drupal_valid_token($form_token, $form_id);
+    $menu = isset($menu_item['access']) ? $menu_item['access'] : FALSE;
+    return $token && $menu;
+  }
+}
+
+/**
+ * Menu callback; autosaves the form.
+ */
+function autosave_save() {
+  global $user;
+  // Possibility to prevent autosaving.
+  $prevent_autosave = FALSE;
+  drupal_alter('autosave_prevent', $prevent_autosave);
+
+  $path = $_POST['autosave_form_path'];
+  $form_id = $_POST['form_id'];
+  // Not all variables need to be serialized.
+  unset($_POST['autosave_form_path'], $_POST['op'], $_POST['form_build_id']);
+  $serialized = serialize($_POST);
+
+  if (!$prevent_autosave) {
+    // Currently, each user can have only one autosave form at a particular path.
+    db_merge('autosaved_forms')->key(array(
+      'form_id' => $form_id,
+      'path' => $path,
+      'uid' => $user->uid,
+    ))
+    ->fields(array(
+      'timestamp' => REQUEST_TIME,
+      'serialized' => $serialized,
+    ))
+    ->execute();
+  }
+
+  exit();
+}
+
+/**
+ * Implements hook_autosave_prevent_alter().
+ */
+function autosave_autosave_prevent_alter(&$prevent_autosave) {
+  // TODO: Do something clever for not just node forms.
+  global $user;
+  $path = $_POST['autosave_form_path'];
+  $path_args = explode("/", $path);
+  // check if node has just been saved - if it has then it's because AS ajax fired off as user was submitting
+  // if it had just been submitted - no need to AS now
+  //    - easy to figure out if we are submitting an edit to existing node
+  //    - little harder if we have just added a node
+  if ($path_args[0] == 'node') {
+    // update case
+    if (($path_args[2] == 'edit') && is_numeric($path_args[1])) {
+      $submitted = node_load($path_args[1]);
+    }
+    elseif ($path_args[1] == 'add') {
+      // add case
+      $submitted = db_query_range("SELECT created AS changed FROM {node} WHERE uid = :uid and type = :type ORDER BY created DESC", 0, 1, array(
+        ':uid' => $user->uid,
+        ':type' => str_replace("-", "_", $path_args[2])))->fetchObject();
+    }
+    $prevent_autosave = ($submitted && (REQUEST_TIME - $submitted->changed < variable_get('autosave_period', 10))) ? TRUE : $prevent_autosave;
+  }
+}
+
+/**
+ * Get the autosaved form at a particular path for a user.
+ *
+ * @param string $form_id
+ *   The form_id of the form.
+ * @param string $formid
+ *   The ID of the form to reload.  This should be in Javascript format, vis,
+ *   using - instead of _.
+ * @param int $timestamp
+ *   The timestamp at which the autosaved form was saved.  This is used to
+ *   differentiate between different people mucking with the same form.
+ * @return
+ *   An array containing the serialized values of the autosaved form and the timestamp of when the form was autosaved.
+ */
+function autosave_get_autosaved_form($form_id, $timestamp, $uid) {
+
+  static $forms = array();
+
+  if (empty($forms[$form_id][$timestamp])) {
+    // Fetch the saved form, if any.
+    $forms[$form_id][$timestamp] = db_query("SELECT form_id, serialized, path, timestamp, args FROM {autosaved_forms} WHERE form_id = :form_id AND timestamp = :timestamp AND uid = :uid", array(
+      ':form_id' => str_replace('-', '_', $form_id),
+      ':timestamp' => $timestamp,
+      ':uid' => $uid,
+    ))->fetchObject();
+  }
+
+
+  return $forms[$form_id][$timestamp];
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function autosave_node_update($node) {
+  if (isset($node->form_id)) {
+    // we remove ALL edits for that page (not just the users) to avoid:
+    //  - user1 saves but doesn't submit
+    //  - user2 edits same node and submits
+    //  - user1 comes back to edit -> user1 SHOULD lose edits since user2 has precedence
+    db_delete('autosaved_forms')
+      ->condition('form_id', $node->form_id)
+      ->condition('path', $_GET['q'])
+      ->execute();
+  }
+}
+
+/**
+ * Retreives a menu item for a given path.
+ *
+ * This is a wrapper around menu_get_item() that removes any language prefixes
+ * from the path if present.
+ *
+ * @param $path
+ *   A menu path such as es/node/add/article.
+ * @return
+ *   A menu item array as returned by menu_get_item().
+ */
+function autosave_menu_get_item($path) {
+  if (drupal_multilingual() && language_negotiation_get_any(LOCALE_LANGUAGE_NEGOTIATION_URL)) {
+    $url_part = variable_get('locale_language_negotiation_url_part', LOCALE_LANGUAGE_NEGOTIATION_URL_PREFIX);
+    if ($url_part == LOCALE_LANGUAGE_NEGOTIATION_URL_PREFIX) {
+      list($lang, $path) = language_url_split_prefix($path, language_list());
+    }
+  }
+  return menu_get_item($path);
+}
+
+/**
+ * Menu callback to remove autosaved form from database.
+ *
+ * Gets its data from $_POST.
+ */
+function autosave_remove() {
+  if (!empty($_POST['form_id']) && !empty($_POST['form_token'])) {
+    global $user;
+    $form = array();
+    $form['#form_id'] = str_replace('-', '_', $_POST['form_id']);
+    if (drupal_valid_token($_POST['form_token'], $form['#form_id'])) {
+      $_POST['autosave_form_path'] = $_POST['q'];
+      $form_id = check_plain($_POST['form_id']);
+      $path = check_plain($_POST['q']);
+      $key = array(
+          'form_id' => $form_id,
+          'uid' => $user->uid,
+          'path' => $path,
+        );
+        db_merge('autosaved_forms')
+          ->key($key)
+          ->updateFields(array(
+            'timestamp' => 0,
+            'serialized' => '',
+          ))
+          ->execute();
+    }
+  }
+}
