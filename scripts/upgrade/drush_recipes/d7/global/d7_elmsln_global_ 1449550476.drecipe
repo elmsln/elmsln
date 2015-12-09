@@ -14,11 +14,9 @@
       "command": "fr",
       "arguments": [
         "cis_lmsless",
-        "foundation_access_ux"
+        "foundation_access_ux",
+        "elmsln_student"
       ]
-    },
-    {
-      "command": "rr"
     }
   ],
   "metadata": {
