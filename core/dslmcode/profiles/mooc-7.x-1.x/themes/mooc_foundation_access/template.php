@@ -26,6 +26,9 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   if (user_access('access contextual links')) {
     $variables['tabs_extras'][0][] = '<li class="cis_accessibility_check"></li>';
   }
+  $keys = array_keys($variables['page']['header']);
+  $keyname = array_shift($keys);
+  unset($variables['page']['header'][$keyname]['#prefix']);
 }
 
 /**
