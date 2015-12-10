@@ -57,6 +57,7 @@ features[field_instance][] = node-external_video-field_cis_course_ref
 features[field_instance][] = node-external_video-field_external_media
 features[field_instance][] = node-external_video-field_poster
 features[field_instance][] = node-external_video-field_tagging
+features[field_instance][] = node-svg-field_cis_course_ref
 features[field_instance][] = node-svg-field_svg
 features[field_instance][] = node-svg-field_svg_alttext
 features[field_instance][] = node-video-field_caption
