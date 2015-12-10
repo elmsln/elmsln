@@ -368,7 +368,7 @@ fi
 drush cc drush
 # setup the standard user accounts to work on the backend
 # travis can't do these kind of modifications so drop running them
-if [[ $USER != 'travis' ]]; then
+if [[ $HOME != '/home/travis' ]]; then
   bash /var/www/elmsln/scripts/install/root/elmsln-create-accounts.sh
 fi
 # ubuntu restarts differently
