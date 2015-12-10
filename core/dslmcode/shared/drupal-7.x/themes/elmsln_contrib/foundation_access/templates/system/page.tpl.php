@@ -73,6 +73,7 @@
           <div id="page-share-menu" class="reveal-modal" data-reveal aria-labelledby="Share" aria-hidden="true" role="dialog">
             <h2 id="Share"><?php print t('Share') ?></h2>
             <?php print $cis_shortcodes; ?>
+            <?php print render($cis_section_share); ?>
             <a class="close-reveal-modal">&#215;</a>
           </div>
           <?php endif; ?>

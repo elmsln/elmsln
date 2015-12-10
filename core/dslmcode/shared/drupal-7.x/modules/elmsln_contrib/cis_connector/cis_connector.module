@@ -1694,3 +1694,41 @@ function _cis_connector_parent_domain($bucket = NULL) {
   }
   return FALSE;
 }
+
+/**
+ * Helper function to break an elmsln url into
+ * identifiable parts. 
+ * 
+ * @param  string $url
+ * @return array()
+ *         - protocol
+ *         - path
+ *         - subdomain
+ *         - domain
+ */
+function _cis_connector_url_get_properties($url) {
+  $function_id = drupal_hash_base64(__FUNCTION__ . $url);
+  $properties = &drupal_static($function_id);
+  
+  if (!isset($properties)) {
+    // split the url at the protocol
+    $url_array = preg_split('/(:\/\/)/', $url);
+    $properties['protocol'] = $url_array[0];
+    // delete the protocol
+    array_shift($url_array);
+    // split the domain at the first backslash
+    $url_array = preg_split('/\//', $url_array[0], 2);
+    if (isset($url_array[1])) {
+      $properties['path'] = $url_array[1];
+    }
+    // split the url into subdomain and domain
+    $url_array = preg_split('/\./', $url_array[0], 2);
+    $properties['subdomain'] = $url_array[0];
+    $properties['domain'] = $url_array[1];
+  }
+
+  return $properties;
+}
+
+
+
