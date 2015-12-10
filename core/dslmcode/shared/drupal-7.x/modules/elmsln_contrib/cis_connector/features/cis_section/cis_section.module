@@ -627,10 +627,15 @@ function cis_section_url_inbound_alter(&$path, $original_path, $path_language) {
   $query = drupal_get_query_parameters();
   
   if (isset($query['elmsln_active_course']) && $section_id = $query['elmsln_active_course']) {
-    $user_is_active = _cis_section_user_active_in_section($section_id);
-    if ($user_is_active) {
-      // Set the active session
+    // get a list of allowed sections for this user
+    $sections = cis_section_all_sections();
+    // check if the proposed section is in the list of allowed sections
+    if (in_array($section_id, $sections)) {
+      // set the active session
       $_SESSION['cis_section_context'] = $section_id;
+    }
+    else {
+      drupal_set_message(t('You currently do not have access to section @section_id', array('@section_id' => $section_id)), 'warning');
     }
     // Remove the active course query parameter and proceed to the url
     unset($query['elmsln_active_course']);
@@ -663,41 +668,4 @@ function cis_section_url_outbound_alter(&$path, &$options, $original_path) {
       }
     }
   }
-}
-
-
-/**
- * Helper function to check if a user is active in a section
- * @param  String $section_id
- *         The section_id of the section node.
- * @param  Object $user
- *         Optional user object to check against. Defaults to global $user
- * @return Boolean
- */
-function _cis_section_user_active_in_section($section_id, $user = NULL) {
-  if ($user == NULL) {
-    global $user;
-  }
-  $user_wrapper = entity_metadata_wrapper('user', user_load($user->uid));
-  
-  // og_membership__1 is a listing of all active memberships for this user.
-  // loop through those and see if the cooresponding group node matches
-  // the elmsln_active_course value from the url.
-  foreach ($user_wrapper->og_membership__1->getIterator() as $delta => $membership) {
-    try {
-      if ($membership->group->field_section_id->value() == $section_id) {
-        return TRUE;
-      }
-    } 
-    catch (EntityMetadataWrapperException $exc) {
-      watchdog(
-        'cis_section',
-        'EntityMetadataWrapper exception in %function() <pre>@trace</pre>',
-        array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
-        WATCHDOG_ERROR
-      );
-    }
-  }
-
-  return FALSE;
 }
