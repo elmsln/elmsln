@@ -367,7 +367,10 @@ if [[ $os == '2' ]]; then
 fi
 drush cc drush
 # setup the standard user accounts to work on the backend
-bash /var/www/elmsln/scripts/install/root/elmsln-create-accounts.sh
+# travis can't do these kind of modifications so drop running them
+if [[ $USER != 'travis' ]]; then
+  bash /var/www/elmsln/scripts/install/root/elmsln-create-accounts.sh
+fi
 # ubuntu restarts differently
 if [[ $os == '2' ]]; then
   service apache2 restart
