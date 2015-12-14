@@ -47,7 +47,7 @@ function elmsmedia_feature_image_default_styles() {
   $styles['image_lightboxed'] = array(
     'label' => 'Image Lightboxed',
     'effects' => array(
-      2 => array(
+      6 => array(
         'name' => 'image_scale',
         'data' => array(
           'width' => 1200,
@@ -57,11 +57,11 @@ function elmsmedia_feature_image_default_styles() {
         ),
         'weight' => 2,
       ),
-      3 => array(
+      7 => array(
         'name' => 'image_scale',
         'data' => array(
           'width' => '',
-          'height' => 800,
+          'height' => 675,
           'upscale' => 0,
           '#imageinfo_cache_effect_callback' => 'image_scale_effect',
         ),
@@ -74,14 +74,25 @@ function elmsmedia_feature_image_default_styles() {
   $styles['mediavideo_poster'] = array(
     'label' => 'Mediavideo Poster',
     'effects' => array(
-      1 => array(
-        'name' => 'image_scale_and_crop',
+      9 => array(
+        'name' => 'image_scale',
         'data' => array(
           'width' => 1200,
-          'height' => 800,
-          '#imageinfo_cache_effect_callback' => 'image_scale_and_crop_effect',
+          'height' => '',
+          'upscale' => 0,
+          '#imageinfo_cache_effect_callback' => 'image_scale_effect',
         ),
         'weight' => 1,
+      ),
+      10 => array(
+        'name' => 'image_scale',
+        'data' => array(
+          'width' => '',
+          'height' => 675,
+          'upscale' => 0,
+          '#imageinfo_cache_effect_callback' => 'image_scale_effect',
+        ),
+        'weight' => 2,
       ),
     ),
   );
