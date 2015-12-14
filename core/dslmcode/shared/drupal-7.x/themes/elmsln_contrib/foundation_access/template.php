@@ -134,18 +134,13 @@ function foundation_access_preprocess_page(&$variables) {
   }
 
   // attempt to find an edit path for the current page
-  // first try to retrive it from the standard 'entity/entity_id/'
-  if (!is_null(arg(0)) && !is_null(arg(1))) {
-    $edit_path = base_path() . arg(0) . '/' . arg(1) . '/edit';
-    $variables['edit_path'] = $edit_path;
-  }
-  // now we'll attempt to find an primary tab called 'Edit'
-  else {
-    if (isset($variables['tabs']) && is_array($variables['tabs']['#primary'])) {
-      foreach ($variables['tabs']['#primary'] as $tab) {
-        if (isset($tab['#link']['title']) && $tab['#link']['title'] == 'Edit') {
-          $variables['edit_path'] = $tab['#link']['path'];
-        }
+  if (isset($variables['tabs']) && is_array($variables['tabs']['#primary'])) {
+    foreach ($variables['tabs']['#primary'] as $key => $tab) {
+      $edit_path = arg(0) . '/' . arg(1) . '/edit';
+      if (isset($tab['#link']['href']) && $tab['#link']['href'] == $edit_path) {
+        $variables['edit_path'] = base_path() . $edit_path;
+        // hide the edit tab cause our on canvas pencil does this
+        unset($variables['tabs']['#primary'][$key]);
       }
     }
   }
