@@ -1,0 +1,19 @@
+name = Comment Notify
+description = "Comment follow-up e-mail notification for anonymous as well as registered users."
+dependencies[] = comment
+dependencies[] = token
+core = 7.x
+configure = admin/config/people/comment_notify
+files[] = comment_notify.install
+files[] = comment_notify.module
+files[] = comment_notify.migrate.inc
+files[] = comment_notify.tokens.inc
+files[] = comment_notify.inc
+files[] = comment_notify.test
+
+; Information added by Drupal.org packaging script on 2015-10-23
+version = "7.x-1.3"
+core = "7.x"
+project = "comment_notify"
+datestamp = "1445617161"
+

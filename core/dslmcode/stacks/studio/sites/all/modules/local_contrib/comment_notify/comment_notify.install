@@ -1,0 +1,184 @@
+<?php
+/**
+ * @file
+ * comment_notify.install.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function comment_notify_install() {
+
+  // Create entries for existing comments.
+
+  $comments_select = db_select('comment', 'c');
+  $comments_select->join('users', 'u', 'c.uid = u.uid');
+  $comments_select->addField('c', 'cid');
+  $comments_select->addExpression('0', 'notify');
+  // Mix in a random string to all values.
+  $salt = uniqid(mt_rand(), TRUE);
+  if (db_driver() == 'pgsql') {
+    $comments_select->addExpression("MD5(:salt || c.mail || COALESCE(u.mail, u.init) || c.uid || c.name || c.nid || c.hostname || c.cid)", 'notify_hash', array(':salt' => $salt));
+  }
+  else {
+    $comments_select->addExpression("MD5(CONCAT(:salt, c.mail, COALESCE(u.mail, u.init), c.uid, c.name, c.nid, c.hostname, c.cid))", 'notify_hash', array(':salt' => $salt));
+  }
+
+  // Set module weight low so that other modules act on the comment first.
+  db_insert('comment_notify')->from($comments_select)->execute();
+  db_update('system')->
+    fields(array(
+    'weight' => 10
+    ))
+    ->condition('name', 'comment_notify');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function comment_notify_uninstall() {
+  variable_del('node_notify_default_mailtext');
+  db_delete('variable')
+    ->where('name', "comment_notify_%", 'LIKE');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function comment_notify_schema() {
+  $schema['comment_notify'] = array(
+    'description' => t('Stores information about which commenters on the site have subscriped to followup emails.'),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'description' => 'The comment id from {comments}.cid',
+        'not null' => TRUE,
+        'disp-width' => '11'),
+      'notify' => array(
+        'type' => 'int',
+        'description' => 'An integer indicating the type of subscription: 0 means not subscribed, 1 means subscribed to all comments, and 2 means only subscribed to replies of this comment.',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'disp-width' => '11'),
+      'notify_hash' => array(
+        'type' => 'varchar',
+        'description' => 'A hash of unique information about the commenter.  Used for unsubscribing users.',
+        'length' => '128',
+        'not null' => TRUE,
+        'default' => ''),
+      'notified' => array(
+        'type' => 'int',
+        'description' => 'A boolean indicator for whether or not a notification for the comment has been sent: 1 means yes, 0 means no.',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+        'disp-width' => '11'),
+    ),
+    'primary key' => array('cid'),
+    'indexes' => array(
+      'notify_hash' => array('notify_hash')),
+  );
+  $schema['comment_notify_user_settings'] = array(
+    'fields' => array(
+        'uid' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'description' => 'The user id from {users}.cid',
+          'not null' => TRUE,
+          'disp-width' => '11'),
+        'node_notify' => array(
+          'type' => 'int',
+          'description' => 'An integer indicating the default type of subscription: 0 means not subscribed, 1 means subscribed to all comments, and 2 means only subscribed to replies of this comment.',
+          'size' => 'tiny',
+          'not null' => TRUE,
+          'default' => 0,
+          'disp-width' => '11'),
+        'comment_notify' => array(
+          'type' => 'int',
+          'description' => 'An integer indicating the default type of subscription: 0 means not subscribed, 1 means subscribed to all comments, and 2 means only subscribed to replies of this comment.',
+          'size' => 'tiny',
+          'not null' => TRUE,
+          'default' => 0,
+          'disp-width' => '11'),
+    ),
+    'primary key' => array('uid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Head 2 head update for the new size of the hash field.
+ */
+function comment_notify_update_7002() {
+  $new_spec = array(
+    'type' => 'varchar',
+    'description' => 'A hash of unique information about the commenter.  Used for unsubscribing users.',
+    'length' => '128',
+    'not null' => TRUE,
+    'default' => ''
+  );
+  $keys = array(
+    'indexes' => array('notify_hash' => array('notify_hash')),
+  );
+  db_drop_index('comment_notify', 'notify_hash');
+  db_change_field('comment_notify', 'notify_hash', 'notify_hash', $new_spec, $keys);
+}
+
+/**
+ * Fix tokens in comment subscriber e-mail template.
+ */
+function comment_notify_update_7003() {
+  $variables = array(
+    'comment_notify_author_subject' => 'author',
+    'comment_notify_node_notify_default_mailtext' => 'author',
+    'comment_notify_watcher_subject' => 'commenter',
+    'comment_notify_comment_notify_default_mailtext' => 'commenter',
+  );
+  foreach ($variables as $variable => $context) {
+    // If the variable is using the default value, this will return NULL and we
+    // can skip it.
+    if ($text = variable_get($variable)) {
+      $replacements = array(
+        '[comment:unsubscribe-url]' => '[comment-subscribed:unsubscribe-url]',
+        '[comment:name]' => '[comment:author]',
+        '[node:' => '[comment:node:', // Replace all node tokens with comment:node.
+      );
+      if ($context == 'author') {
+        $replacements['[user:name]'] = '[comment:node:author]';
+        $replacements['[user:'] = '[comment:node:author:';
+      }
+      elseif ($context == 'commenter') {
+        $replacements['[user:name]'] = '[comment-subscribed:author]';
+        $replacements['[user:'] = '[comment-subscribed:author:';
+      }
+      $text = strtr($text, $replacements);
+      variable_set($variable, $text);
+    }
+  }
+  return 'Comment Notify token strings updated.';
+}
+
+/**
+ * Fix a missing default causes warnings for Postgresql and some MySQL.
+ */
+function comment_notify_update_7004() {
+  db_change_field('comment_notify', 'notified', 'notified',  array('type' => 'int', 'size' => 'small', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
+}
+
+/**
+ * Fix minor schema inconsistencies caused by the last update.
+ */
+function comment_notify_update_7005() {
+  // Previous update altered size and unsigned unnecessarily.
+  $notified_field = array(
+    'type' => 'int',
+    'description' => 'A boolean indicator for whether or not a notification for the comment has been sent: 1 means yes, 0 means no.',
+    'size' => 'tiny',
+    'not null' => TRUE,
+    'default' => 0,
+    'disp-width' => '11',
+  );
+  db_change_field('comment_notify', 'notified', 'notified', $notified_field);
+}
