@@ -28,7 +28,7 @@
                 <?php if (isset($edit_path)): ?>
                 <li class="r-header__edit-icons__list-item">
                   <a href="<?php print $edit_path; ?>" title="Edit content" class="r-header__icon">
-                    <div class="icon icon-edit-black"></div><span><?php print t('Edit'); ?></span>
+                    <div class="icon icon-edit-black"></div><span class="visible-for-large-up"><?php print t('Edit'); ?></span>
                   </a>
                 </li>
                 <?php endif; ?>
@@ -39,38 +39,35 @@
                     <div class="icon icon-gear-outline"></div>
                     <span class="icon--dropdown"></span>
                   </a>
+                  <ul id="r-header__icon--advanced" data-dropdown-content class="f-dropdown f-dropdown--classic content" aria-hidden="true" tabindex="-1">
+                  <?php if (!empty($tabs)): ?>
+                      <?php print render($tabs); ?>
+                    <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
+                  <?php endif; ?>
+                  <?php if ($action_links): ?>
+                      <?php print render($action_links); ?>
+                  <?php endif; ?>
+                  <?php if (isset($tabs_extras)): ksort($tabs_extras); ?>
+                   <?php foreach ($tabs_extras as $group) : ?>
+                    <?php foreach ($group as $button) : ?>
+                      <li><?php print $button; ?></li>
+                    <?php endforeach; ?>
+                   <?php endforeach; ?>
+                  <?php endif; ?>
+                  </ul>
                 </li>
-                <?php endif; ?>
-              </ul> 
-              <!-- Middle Section Dropdown Page Tabs -->
-              <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-              <div id="r-header__icon--advanced" data-dropdown-content class="f-dropdown f-dropdown--classic content" aria-hidden="true" tabindex="-1">
-                <?php if (!empty($tabs)): ?>
-                    <?php print render($tabs); ?>
-                  <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
-                <?php endif; ?>
-                <?php if ($action_links): ?>
-                    <?php print render($action_links); ?>
-                <?php endif; ?>
-                <?php if (isset($tabs_extras)): ksort($tabs_extras); ?>
-                 <?php foreach ($tabs_extras as $group) : ?>
-                  <?php foreach ($group as $button) : ?>
-                    <li><?php print $button; ?></li>
-                  <?php endforeach; ?>
-                 <?php endforeach; ?>
-                <?php endif; ?>
-              </div>
               <?php endif; ?>
               <?php if (!empty($cis_shortcodes)) : ?>
-                <li class="toolbar-menu-icon"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-reveal-id="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="cis-shortcodes-drop" aria-expanded="false">
+                <li class="r-header__edit-icons__list-item"><a href="#" class="r-header__icon r-header__icon-secondary" data-reveal-id="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="cis-shortcodes-drop" aria-expanded="false">
                   <div class="icon-collab-black off-canvas-toolbar-item-icon"></div>
                 </a></li>
               <?php endif; ?>
               <?php if (isset($speedreader) || isset($mespeak)) : ?>
-                <li class="toolbar-menu-icon"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-reveal-id="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false">
+                <li class="r-header__edit-icons__list-item"><a href="#" class="r-header__icon r-header__icon-secondary" data-reveal-id="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false">
                   <div class="icon-access-black off-canvas-toolbar-item-icon"></div>
                 </a></li>
               <?php endif; ?>
+              </ul>
             </div>
           </div>
           <div class="row">

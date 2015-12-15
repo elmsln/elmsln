@@ -1,3 +1,16 @@
+.r-header__icon {
+  opacity: 0.5;
+}
+.r-header__icon:hover {
+  opacity: 0.8;
+}
+.r-header__icon-secondary {
+  opacity: 0.2;
+}
+.r-header__icon-secondary:hover {
+  opacity: 0.8;
+}
+
 #backtotop {
   background: url(../img/backtotop.png) no-repeat center center;
 }
