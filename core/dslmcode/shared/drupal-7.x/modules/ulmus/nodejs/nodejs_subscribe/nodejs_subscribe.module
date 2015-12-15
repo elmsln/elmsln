@@ -1,0 +1,286 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function nodejs_subscribe_menu() {
+  return array(
+    'nodejs/subscribe/%node' => array(
+      'title' => 'Subscribe to a node',
+      'page callback' => 'nodejs_subscribe_subscribe_node',
+      'page arguments' => array(2),
+      'access arguments' => array('nodejs subscribe to node'),
+      'type' => MENU_CALLBACK,
+    ),
+    'nodejs/unsubscribe/%node' => array(
+      'title' => 'Subscribe to a node',
+      'page callback' => 'nodejs_subscribe_unsubscribe_node',
+      'page arguments' => array(2),
+      'access arguments' => array('nodejs subscribe to node'),
+      'type' => MENU_CALLBACK,
+    ),
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function nodejs_subscribe_permission() {
+  return array(
+    'nodejs subscribe to node' => array(
+      'title' => t('Subscribe to realtime content updates'),
+      'description' => t('Allows users to subscribe to content and receive realtime notifications.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_comment_insert().
+ */
+function nodejs_subscribe_comment_insert($comment) {
+  if (nodejs_subscribe_is_node_subscribed_to($comment->nid)) {
+    nodejs_subscribe_send_notification(node_load($comment->nid), 'commented on', array('fragment' => 'comment-' . $comment->cid));
+  }
+}
+
+/**
+ * Implements hook_nodejs_user_channels().
+ */
+function nodejs_subscribe_nodejs_user_channels($account) {
+  $channels = array();
+  foreach (nodejs_subscribe_get_user_channels($account->uid) as $subscription) {
+    $channels[] = 'nodejs_subscribe_node_' . $subscription->nid;
+  }
+  return $channels;
+}
+
+/**
+ * Check to see if anyone is subscribed to this node.
+ *
+ * @param mixed $nid
+ * @return boolean
+ */
+function nodejs_subscribe_is_node_subscribed_to($nid) {
+  return db_query('SELECT COUNT(*) subscription_count FROM {nodejs_subscribe_subscription} WHERE nid = :nid', array(':nid' => $nid))->fetchField();
+}
+
+/**
+ * Check to see if the given uid is subscribed to the given node.
+ *
+ * @param mixed $uid
+ * @param mixed $nid
+ * @return boolean
+ */
+function nodejs_subscribe_is_user_subscribed_to_node($uid, $nid) {
+  return db_query('SELECT nid FROM {nodejs_subscribe_subscription} WHERE uid = :uid AND nid = :nid', array(':uid' => $uid, ':nid' => $nid))->fetchField();
+}
+
+/**
+ * Get a list of channels this user is subscribed to.
+ *
+ * @param mixed $uid
+ * @return array
+ */
+function nodejs_subscribe_get_user_channels($uid) {
+  return db_query('SELECT nid FROM {nodejs_subscribe_subscription} WHERE uid = :uid', array(':uid' => $uid))->fetchAll();
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function nodejs_subscribe_form_node_form_alter(&$form, $form_state) {
+  $subscriptions_allowed = FALSE;
+  if (!empty($form['#node']->nid)) {
+    if (isset($form['#node']->nodejs_subscribe)) {
+      $subscriptions_allowed = $form['#node']->nodejs_subscribe ? '1' : '0';
+    }
+  }
+
+  $form['nodejs_subscribe'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Realtime notifications'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
+    '#attributes' => array(
+      'class' => array('nodejs-subscribe-form'),
+    ),
+    '#access' => TRUE,
+    '#weight' => 30,
+    '#tree' => TRUE,
+  );
+  $form['nodejs_subscribe']['nodejs_subscriptions_allowed'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow users to subscribe'),
+    '#description' => t('Allow users to subscribe for realtime notifications'),
+    '#default_value' => $subscriptions_allowed,
+  );
+}
+
+/**
+ * Page callback for unsubscribing to a node.
+ */
+function nodejs_subscribe_unsubscribe_node($node) {
+  global $user;
+
+  nodejs_subscribe_delete($node, $user->uid);
+  drupal_set_message(t("You have been unsubscribed from '%node_title'.", array('%node_title' => $node->title)));
+  drupal_goto('node/' . $node->nid);
+}
+
+/**
+ * Page callback for subscribing/unsubscribing to a node.
+ */
+function nodejs_subscribe_subscribe_node($node) {
+  global $user;
+
+  if (!nodejs_subscribe_is_user_subscribed_to_node($user->uid, $node->nid)) {
+    nodejs_subscribe_insert($node, $user->uid);
+    drupal_set_message(t("You have subscribed to '%node_title'.", array('%node_title' => $node->title)));
+  }
+  drupal_goto('node/' . $node->nid);
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function nodejs_subscribe_node_load($nodes, $types) {
+  $result = db_query('SELECT nid, subscribe FROM {nodejs_subscribe_node} WHERE nid IN (:nids)', array(':nids' => array_keys($nodes)));
+  foreach ($result as $record) {
+    $nodes[$record->nid]->nodejs_subscribe = $record->subscribe;
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function nodejs_subscribe_node_insert($node) {
+  if (isset($node->nodejs_subscribe)) {
+    if ($node->nodejs_subscribe['nodejs_subscriptions_allowed']) {
+      db_query('INSERT INTO {nodejs_subscribe_node} (nid, subscribe) VALUES (:nid, :subscribe)', array(':nid' => $node->nid, ':subscribe' => 1));
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ *
+ * TODO: When disabling subscriptions for users on a node, delete all active subscriptions
+ */
+function nodejs_subscribe_node_update($node) {
+  global $user;
+
+  if (isset($node->nodejs_subscribe)) {
+    if ($node->nodejs_subscribe['nodejs_subscriptions_allowed']) {
+      $transaction = db_transaction();
+      try {
+        db_query('DELETE FROM {nodejs_subscribe_node} WHERE nid = :nid', array(':nid' => $node->nid));
+        db_query('INSERT INTO {nodejs_subscribe_node} (nid, subscribe) VALUES (:nid, :subscribe)', array(':nid' => $node->nid, ':subscribe' => $node->nodejs_subscribe['nodejs_subscriptions_allowed']));
+      }
+      catch (Exception $e) {
+        $transaction->rollback();
+        watchdog('nodejs_subscribe', t('Error processing node subscription for nid %nid', array(':nid' => $node->nid)));
+      }
+    }
+    else {
+      db_query('DELETE FROM {nodejs_subscribe_node} WHERE nid = :nid', array(':nid' => $node->nid));
+    }
+  }
+
+  if (nodejs_subscribe_is_node_subscribed_to($node->nid)) {
+    nodejs_subscribe_send_notification($node, 'update');
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ *
+ * TODO: When a node is deleted, delete subscriptions of all users on this node.
+ */
+function nodejs_subscribe_node_delete($node) {
+  db_query('DELETE FROM {nodejs_subscribe_node} WHERE nid = :nid', array(':nid' => $node->nid));
+
+  if (nodejs_subscribe_is_node_subscribed_to($node->nid)) {
+    nodejs_subscribe_send_notification($node, 'deleted');
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function nodejs_subscribe_node_view($node, $view_mode) {
+  global $user;
+
+  // If node allows nodejs subscriptions and user has permission to subscribe,
+  // then provide "Subscribe" or "Unsubscribe" links.
+  if (isset($node->nodejs_subscribe) && $node->nodejs_subscribe && user_access('nodejs subscribe to node') && in_array($view_mode, array('full', 'teaser'))) {
+    $links = array();
+    $node_title_stripped = strip_tags($node->title);
+    if (nodejs_subscribe_is_user_subscribed_to_node($user->uid, $node->nid)) {
+      $links['nodejs-subscribe-unsubscribe-node'] = array(
+        'title' => t('Unsubscribe'),
+        'href' => "nodejs/unsubscribe/$node->nid",
+        'attributes' => array('class' => array('nodejs-subscribe-node-link'), 'title' => t('Unsubscribe to @title', array('@title' => $node_title_stripped))),
+      );
+    }
+    else {
+      $links['nodejs-subscribe-subscribe-node'] = array(
+        'title' => t('Subscribe'),
+        'href' => "nodejs/subscribe/$node->nid",
+        'attributes' => array('class' => array('nodejs-subscribe-node-link'), 'title' => t('Subscribe to @title', array('@title' => $node_title_stripped))),
+      );
+    }
+    $node->content['links']['nodejs_subscribe'] = array(
+      '#theme' => 'links__node__nodejs_subscribe',
+      '#links' => $links,
+      '#attributes' => array('class' => array('links', 'inline')),
+    );
+  }
+}
+
+/**
+ * Delete a subscription to a node.
+ *
+ * @param mixed $node
+ * @param mixed $uid
+ * @return boolean
+ */
+function nodejs_subscribe_delete($node, $uid) {
+  nodejs_remove_user_from_channel($uid, 'nodejs_subscribe_node_' . $node->nid);
+  return db_query('DELETE FROM {nodejs_subscribe_subscription} WHERE nid = :nid AND uid = :uid', array(':nid' => $node->nid, ':uid' => $uid));
+}
+
+/**
+ * Create subscription to a node for a given user.
+ *
+ * @param mixed $node
+ * @param mixed $uid
+ * @return boolean
+ */
+function nodejs_subscribe_insert($node, $uid) {
+  nodejs_add_user_to_channel($uid, 'nodejs_subscribe_node_' . $node->nid);
+  return db_query('INSERT INTO {nodejs_subscribe_subscription} (nid, uid) VALUES (:nid, :uid)', array(':nid' => $node->nid, ':uid' => $uid));
+}
+
+/**
+ * Send a message that the given node was updated.
+ *
+ * @param mixed $node
+ * @param mixed $action
+ * @param array $link_options
+ */
+function nodejs_subscribe_send_notification($node, $action, $link_options = array()) {
+  $subject = t('Node %action.', array('%action' => $action));
+  $link = l($node->title, 'node/' . $node->nid);
+  $body = t('The node !link was %action.', array('!link' => $link, '%action' => $action));
+
+  $message = (object) array(
+    'channel' => 'nodejs_subscribe_node_' . $node->nid,
+    'data' => (object) array(
+      'subject' => $subject,
+      'body' => $body,
+    ),
+  );
+  nodejs_enqueue_message($message);
+}
+

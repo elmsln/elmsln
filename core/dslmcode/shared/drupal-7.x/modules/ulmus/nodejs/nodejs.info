@@ -1,0 +1,14 @@
+name = Nodejs integration
+description = Adds Node.js support to Drupal
+package = Nodejs
+version = VERSION
+core = 7.x
+files[] = nodejs.module
+configure = admin/config/nodejs
+
+; Information added by Drupal.org packaging script on 2015-11-29
+version = "7.x-1.10"
+core = "7.x"
+project = "nodejs"
+datestamp = "1448823841"
+

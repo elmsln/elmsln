@@ -1,0 +1,117 @@
+<?php
+
+/**
+ * Implements hook_action_info().
+ */
+function nodejs_actions_action_info() {
+  $actions = array();
+
+  $triggers = module_invoke_all('trigger_info');
+  drupal_alter('trigger_info', $triggers);
+
+  foreach (array('node', 'user', 'comment') as $type) {
+    $actions['nodejs_actions_' . $type . '_action'] = array(
+      'type' => $type,
+      'triggers' => array_keys($triggers[$type]),
+      'label' => t('Publish realtime notifications of @type activity.', array('@type' => $type)),
+      'configurable' => FALSE,
+    );
+  }
+  return $actions;
+}
+
+/**
+ * Try to get the action for the given trigger context.
+ *
+ * @param mixed $context
+ * @return mixed
+ */
+function nodejs_actions_get_action($context) {
+  $triggers = nodejs_actions_get_triggers();
+  if (isset($context['hook'], $triggers[$context['hook']])) {
+    return $triggers[$context['hook']];
+  }
+  return FALSE;
+}
+
+/**
+ * Returns a list of triggers that we supply an action for.
+ *
+ * @return array
+ */
+function nodejs_actions_get_triggers() {
+  return array(
+    'comment_insert' => t('inserted'),
+    'comment_updated' => t('updated'),
+    'node_update' => t('updated'),
+    'node_insert' => t('inserted'),
+    'user_login' => t('logged in'),
+    'user_logout' => t('logged out'),
+    'user_insert' => t('was created'),
+    'user_updated' => t('was updated'),
+  );
+}
+
+/**
+ * Node object action callback.
+ *
+ * @param object $node
+ * @param array $context
+ */
+function nodejs_actions_node_action($node, $context = array()) {
+  if ($action = nodejs_actions_get_action($context)) {
+    $subject = t('Node %action.', array('%action' => $action));
+    $link = l($node->title, 'node/' . $node->nid);
+    $body = t('The node !link was %action.', array('!link' => $link, '%action' => $action));
+    nodejs_actions_enqueue_message($subject, $body);
+  }
+}
+
+/**
+ * Comment object action callback.
+ *
+ * @param object $node
+ * @param array $context
+ */
+function nodejs_actions_comment_action($comment, $context = array()) {
+  if ($action = nodejs_actions_get_action($context)) {
+    $subject = t('Comment %action.', array('%action' => $action));
+    $link = l($comment->subject, 'node/' . $comment->nid, array('fragment' => 'comment-' . $comment->cid));
+    $body = t('The comment !link was %action.', array('!link' => $link, '%action' => $action));
+    nodejs_actions_enqueue_message($subject, $body);
+  }
+}
+
+/**
+ * User object action callback.
+ *
+ * @param object $user
+ * @param array $context
+ */
+function nodejs_actions_user_action($user, $context = array()) {
+  if ($action = nodejs_actions_get_action($context)) {
+    $subject = t('A user %action.', array('%action' => $action));
+    $link = l($user->name, 'user/' . $user->uid);
+    $body = t('The user !link %action.', array('!link' => $link, '%action' => $action));
+    nodejs_actions_enqueue_message($subject, $body);
+  }
+}
+
+/**
+ * Helper function for enqueueing 'nodejs_notify' channel messages.
+ *
+ * @param mixed $subject
+ * @param mixed $body
+ */
+function nodejs_actions_enqueue_message($subject, $body) {
+  $message = (object) array(
+    'broadcast' => TRUE,
+    'data' => (object) array(
+      'subject' => $subject,
+      'body' => $body,
+    ),
+    'channel' => 'nodejs_notify',
+  );
+  nodejs_enqueue_message($message);
+}
+

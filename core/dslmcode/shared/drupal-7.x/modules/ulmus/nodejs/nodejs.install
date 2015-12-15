@@ -1,0 +1,114 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the nodejs module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function nodejs_uninstall() {
+  variable_del('nodejs_server_scheme');
+  variable_del('nodejs_server_host');
+  variable_del('nodejs_server_port');
+  variable_del('nodejs_client_js_scheme');
+  variable_del('nodejs_client_js_host');
+  variable_del('nodejs_client_js_port');
+  variable_del('nodejs_pages');
+  variable_del('nodejs_config_resource');
+  variable_del('nodejs_log_http_errors');
+  variable_del('nodejs_config');
+  variable_del('nodejs_socket_io_path');
+  variable_del('nodejs_socket_io_type');
+  variable_del('nodejs_enable_userchannel');
+  variable_del('nodejs_auth_check_callback');
+  variable_del('nodejs_auth_get_token_callback');
+  variable_del('nodejs_config_backend_host');
+  variable_del('nodejs_config_backend_messagePath');
+  variable_del('nodejs_config_backend_port');
+  variable_del('nodejs_config_cert');
+  variable_del('nodejs_config_debug');
+  variable_del('nodejs_config_extensions');
+  variable_del('nodejs_config_host');
+  variable_del('nodejs_config_js');
+  variable_del('nodejs_config_js_suggestion');
+  variable_del('nodejs_config_key');
+  variable_del('nodejs_config_port');
+  variable_del('nodejs_config_publishUrl');
+  variable_del('nodejs_config_write_channels');
+  variable_del('nodejs_config_write_clients');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function nodejs_schema() {
+  return array(
+    'nodejs_presence' => array(
+      'description' => 'List of currently online users on a node.js server.',
+      'fields' => array(
+        'uid' => array(
+          'description' => 'The uid of the user.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'login_time' => array(
+          'description' => 'The timestamp of when the user came online.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+      ),
+      'indexes' => array(
+        'login_time' => array('login_time'),
+      ),
+      'unique keys' => array(
+        'uid' => array('uid'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_requirements()
+ */
+function nodejs_requirements($phase) {
+  if ($phase != 'runtime') {
+    return array();
+  }
+
+  $requirements['nodejs'] = array(
+    'title' => t('Node.js'),
+    'description' => t('Can Drupal connect to the Node.js server?'),
+  );
+
+  // Initiate a call to the Nodejs server
+  // and react to the response.
+  $message = new StdClass;
+  $response = Nodejs::sendMessage($message);
+
+  // Nodejs::httpRequest() does the work for us. It will return FALSE if the
+  // HTTP Request failed so we just check to see if that happened or not. If
+  // There's a response, we can connect to the server.
+  if ($response) {
+    $result = array(
+      'value' => t('The Node.js server was successfully reached.'),
+      'severity' => REQUIREMENT_OK,
+    );
+  }
+  // Http request to the server failed.
+  else {
+    $result = array(
+      'value' => 'Error reaching the Node.js server. Enable HTTP error-logging and check the dblog page for more details',
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+
+  // Merge the result from Nodejs
+  $requirements['nodejs'] += $result;
+}
+
