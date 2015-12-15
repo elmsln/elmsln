@@ -10,25 +10,6 @@
 function cis_service_connection_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-course-tools-menu_analytics:admin/reports/course-analytics
-  $menu_links['menu-course-tools-menu_analytics:admin/reports/course-analytics'] = array(
-    'menu_name' => 'menu-course-tools-menu',
-    'link_path' => 'admin/reports/course-analytics',
-    'router_path' => 'admin/reports',
-    'link_title' => 'Analytics',
-    'options' => array(
-      'attributes' => array(),
-      'identifier' => 'menu-course-tools-menu_analytics:admin/reports/course-analytics',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -47,
-    'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_course-tools:<nolink>',
-  );
   // Exported menu link: menu-course-tools-menu_course-tools:<nolink>
   $menu_links['menu-course-tools-menu_course-tools:<nolink>'] = array(
     'menu_name' => 'menu-course-tools-menu',
