@@ -101,7 +101,7 @@ function foundation_access_ux_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'admin_theme';
-  $strongarm->value = 'rubik';
+  $strongarm->value = 'adminimal';
   $export['admin_theme'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -157,7 +157,7 @@ function foundation_access_ux_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'textbook_reset';
-  $strongarm->value = 0;
+  $strongarm->value = FALSE;
   $export['textbook_reset'] = $strongarm;
 
   return $export;
