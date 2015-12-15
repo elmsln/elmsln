@@ -59,20 +59,29 @@
        <section class="top-bar-section title-link">
         <ul class="menu right clearfix">
           <li class="first expanded menu-mlid-365">
-            <?php if (!empty($elmsln_main_menu)) : ?>
-            <a id="courseToolsMenuTrigger" class="course-title" href="/" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
-            <?php endif; ?>
+          <?php
+            // account for roles that don't have access to this
+            if (!empty($elmsln_main_menu)) {?>
+            <a id="courseToolsMenuTrigger" class="course-title" href="#" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
               <span class="course-title-group">
                 <span class="course-title"><?php print $slogan; ?></span>
                 <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
               </span>
-            <?php if (!empty($elmsln_main_menu)) : ?>
               <span class="course-title-icon icon--dropdown"></span>
             </a>
             <ul id="courseToolsMenu" class="f-dropdown f-dropdown--classic content" data-dropdown-content aria-hidden="true" aria-autoclose="true">
               <?php print $elmsln_main_menu; ?>
             </ul>
-            <?php endif; ?>
+            <?php
+            }
+            else { ?>
+            <a id="courseToolsMenuTrigger" class="course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>">
+              <span class="course-title-group">
+                <span class="course-title"><?php print $slogan; ?></span>
+                <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
+              </span>
+            </a>
+            <?php } ?>
           </li>
         </ul>
       </section>
