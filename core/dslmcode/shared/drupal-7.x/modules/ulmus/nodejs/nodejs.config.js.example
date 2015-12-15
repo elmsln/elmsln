@@ -1,0 +1,114 @@
+/**
+ * The settings hash defines configuration settings for server.js, the server
+ * code executed by node.
+ *
+ * The following properties should be defined for the settings variable:
+ *
+ * scheme: 'http' or 'https'. This defines whether the node server should
+ * contact the Drupal site using http or https. If https is used, the key and
+ * cert must be set to valid files.
+ *
+ * port: Specify the TCP port that the node server should listen on.
+ *
+ * host: Specify the host name or IP address that the node server should listen
+ * on. Leave blank to listen for any host name. Otherwise, the server will only
+ * respond to names that match the IP address given (or resolved from the given
+ * name).
+ *
+ * resource: http path that the node server should respond to. This value needs
+ * to match the Drupal node.js configuration.
+ *
+ * serviceKey: An arbitrary string used as a secret between the node.js server
+ * and the Drupal site.
+ *
+ * debug: Whether to write a bunch of debug information to the console. false
+ * by default.
+ *
+ * baseAuthPath: base path for all requests from the backend. This is used to
+ * set the authentication call for all requests from the backend.
+ *
+ * sslKeyPath: File system path to a key used for https communication with the server
+ * and clients.
+ *
+ * sslCertPath: File system path to a certificate used for https communication with the
+ * server and clients.
+ *
+ * sslCAPath: File system path to a file containing trusted certificates.
+ *
+ * sslPassPhrase: SSL passphrase, will be passed in the passphrase key to the https
+ * server if set.
+ *
+ * publishUrl: http path on which the node server should accept messages from
+ * the Drupal site.
+ *
+ * backend: An object with the following properties:
+ *
+ *  -- port: TCP port of the server running the Drupal site. Usually 80.
+ *
+ *  -- host: Host name of the Drupal site.
+ *
+ *  -- messagePath: http path on which the Drupal node.js module listens for
+ *  messages from the Node.js server process.
+ *
+ *  -- basePath: the base path of your backend site, defaults to '/'.
+ *
+ *  -- scheme: either 'http' or 'https', defaults to 'http'.
+ *
+ *  -- httpAuth: a username and password in the form 'username:password'
+ *
+ *  -- strictSSL: boolean, whether to be strict with SSL cert, default false.
+ *
+ * extensions: An array of names of node.js modules that should be loaded as
+ * extensions to the node.js server.
+ *
+ * clientsCanWriteToClients: global flag that allows all clients to be written
+ * to by client sockets without going via the backend. defaults to false.
+ *
+ * transports: a list of transports to be used by Socket.Io.
+ *
+ * jsMinification: whether to call io.enable('browser client minification').
+ *
+ * jsEtag: whether to call io.enable('browser client etag').
+ *
+ * logLevel: the log level to be used by Socket.Io.
+ */
+settings = {
+  scheme: 'http',
+  port: 8080,
+  host: 'localhost',
+  resource: '/socket.io',
+  serviceKey: '',
+  backend: {
+    port: 80,
+    host: 'drupalhost',
+    scheme: 'http',
+    basePath: '',
+    messagePath: '/nodejs/message'
+  },
+  debug: false,
+  sslKeyPath: '',
+  sslCertPath: '',
+  sslCAPath: '',
+  baseAuthPath: '/nodejs/',
+  publishUrl: 'publish',
+  kickUserUrl: 'user/kick/:uid',
+  logoutUserUrl: 'user/logout/:authtoken',
+  addUserToChannelUrl: 'user/channel/add/:channel/:uid',
+  removeUserFromChannelUrl: 'user/channel/remove/:channel/:uid',
+  addChannelUrl: 'channel/add/:channel',
+  removeChannelUrl: 'channel/remove/:channel',
+  setUserPresenceListUrl: 'user/presence-list/:uid/:uidList',
+  addAuthTokenToChannelUrl: 'authtoken/channel/add/:channel/:uid',
+  removeAuthTokenFromChannelUrl: 'authtoken/channel/remove/:channel/:uid',
+  toggleDebugUrl: 'debug/toggle',
+  contentTokenUrl: 'content/token',
+  publishMessageToContentChannelUrl: 'content/token/message',
+  extensions: [],
+  clientsCanWriteToChannels: false,
+  clientsCanWriteToClients: false,
+  transports: ['websocket', 'polling'],
+  jsMinification: true,
+  jsEtag: true,
+  logLevel: 1
+};
+

@@ -29,20 +29,14 @@ function icor_ux_context_default_contexts() {
         'cis_service_connection-section_context_changer' => array(
           'module' => 'cis_service_connection',
           'delta' => 'section_context_changer',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-10',
         ),
         'masquerade-masquerade' => array(
           'module' => 'masquerade',
           'delta' => 'masquerade',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-9',
-        ),
-        'menu-menu-icor-toolkit' => array(
-          'module' => 'menu',
-          'delta' => 'menu-icor-toolkit',
-          'region' => 'left_menu',
-          'weight' => '-10',
         ),
         'cis_service_connection-managed_footer' => array(
           'module' => 'cis_service_connection',
@@ -80,7 +74,7 @@ function icor_ux_context_default_contexts() {
         'menu-menu-icor-navigation' => array(
           'module' => 'menu',
           'delta' => 'menu-icor-navigation',
-          'region' => 'left_menu',
+          'region' => 'header',
           'weight' => '-10',
         ),
       ),

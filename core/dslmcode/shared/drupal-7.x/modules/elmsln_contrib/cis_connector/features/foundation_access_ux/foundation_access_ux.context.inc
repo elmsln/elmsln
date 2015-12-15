@@ -29,7 +29,7 @@ function foundation_access_ux_context_default_contexts() {
         'menu-menu-cis-add' => array(
           'module' => 'menu',
           'delta' => 'menu-cis-add',
-          'region' => 'add_content_menu',
+          'region' => 'local_header',
           'weight' => '-10',
         ),
       ),
@@ -66,13 +66,13 @@ function foundation_access_ux_context_default_contexts() {
         'menu-menu-course-tools-menu' => array(
           'module' => 'menu',
           'delta' => 'menu-course-tools-menu',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-10',
         ),
         'cis_service_connection-section_context_changer' => array(
           'module' => 'cis_service_connection',
           'delta' => 'section_context_changer',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-9',
         ),
       ),
@@ -105,8 +105,26 @@ function foundation_access_ux_context_default_contexts() {
         'masquerade-masquerade' => array(
           'module' => 'masquerade',
           'delta' => 'masquerade',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-10',
+        ),
+        'cis_lmsless-cis_lmsless_user' => array(
+          'module' => 'cis_lmsless',
+          'delta' => 'cis_lmsless_user',
+          'region' => 'cis_lmsless_modal',
+          'weight' => '-9',
+        ),
+        'cis_lmsless-cis_lmsless_network' => array(
+          'module' => 'cis_lmsless',
+          'delta' => 'cis_lmsless_network',
+          'region' => 'cis_lmsless_modal',
+          'weight' => '-8',
+        ),
+        'cis_shortcodes-cis_shortcodes_block' => array(
+          'module' => 'cis_shortcodes',
+          'delta' => 'cis_shortcodes_block',
+          'region' => 'cis_lmsless_modal',
+          'weight' => '-7',
         ),
         'system-main' => array(
           'module' => 'system',

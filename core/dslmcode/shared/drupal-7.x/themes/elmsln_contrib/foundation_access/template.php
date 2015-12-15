@@ -91,6 +91,23 @@ function foundation_access_preprocess_html(&$variables) {
  * Implements template_preprocess_page.
  */
 function foundation_access_preprocess_page(&$variables) {
+  $menu_item = menu_get_item();
+  // sniff out if this is a view
+  if ($menu_item['page_callback'] == 'views_page') {
+    // try and auto append exposed filters to our local_subheader region
+    $bid = '-exp-' . $menu_item['page_arguments'][0] . '-' . $menu_item['page_arguments'][1];
+    $block = module_invoke('views', 'block_view', $bid);
+    $variables['page']['local_subheader'][$bid] = $block['content'];
+  }
+  $variables['distro'] = variable_get('install_profile', 'standard');
+  // load registry for this distro
+  $settings = _cis_connector_build_registry($variables['distro']);
+  $home_text = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
+  $variables['home'] = l('<div class="' . $variables['distro'] . '-home elmsln-home-icon icon-' . $variables['distro'] . '-black etb-modal-icons"></div><span>' . $home_text . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($variables['distro'] . '-home-button', 'elmsln-home-button-link'))));
+  // clever
+  $keys = array_keys($variables['page']['header']);
+  $keyname = array_shift($keys);
+  $variables['page']['header'][$keyname]['#prefix'] = $variables['home'];
   // make sure we have lmsless enabled so we don't WSOD
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
   // support for lmsless since we don't require it
@@ -118,7 +135,6 @@ function foundation_access_preprocess_page(&$variables) {
   if (isset($variables['page']['content']['system_main']['main'])) {
     $variables['page']['content']['system_main']['main']['#markup'] = '<article class="large-12 columns view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
   }
-
   /**
    * @todo Get rid of this logic and put it somewhere else
    *       based on the new design.
@@ -148,6 +164,17 @@ function foundation_access_preprocess_page(&$variables) {
       '#weight' => 0,
     );
     $variables['cis_section_share'] = $field;
+  }
+  // attempt to find an edit path for the current page
+  if (isset($variables['tabs']) && is_array($variables['tabs']['#primary'])) {
+    foreach ($variables['tabs']['#primary'] as $key => $tab) {
+      $edit_path = arg(0) . '/' . arg(1) . '/edit';
+      if (isset($tab['#link']['href']) && $tab['#link']['href'] == $edit_path) {
+        $variables['edit_path'] = base_path() . $edit_path;
+        // hide the edit tab cause our on canvas pencil does this
+        unset($variables['tabs']['#primary'][$key]);
+      }
+    }
   }
 }
 

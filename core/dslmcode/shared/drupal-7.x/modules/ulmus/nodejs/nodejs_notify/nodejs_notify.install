@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the nodejs notify module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function nodejs_notify_install() {
+  variable_set('nodejs_notify_notification_lifetime_seconds', 3);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function nodejs_notify_uninstall() {
+  variable_del('nodejs_notify_notification_lifetime_seconds');
+}

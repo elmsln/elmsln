@@ -14,6 +14,10 @@
 // Import foundation components
 @import "foundation";
 
+// Import regions
+@import "regions/r-header";
+@import "regions/r-subheader";
+
 // Customizations
 @import "main-styles/mixins";
 @import "main-styles/fonts";
@@ -41,12 +45,14 @@
 @import "global/utility";
 
 // Components
+@import "components/icons";
 @import "components/pullquote";
 @import "components/image";
 @import "components/imagelightbox";
 @import "components/mediavideo";
 @import "components/mediasvg";
 @import "components/figurelabel";
+@import "components/dropdown";
 
 // elmsmedia
 @import "subtheme-elmsmedia/service-toolbar";

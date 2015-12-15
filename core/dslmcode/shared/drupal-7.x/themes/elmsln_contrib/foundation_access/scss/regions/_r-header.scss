@@ -1,0 +1,87 @@
+.r-header {
+	background: white;
+	padding: 1em 0;
+	display: flex;
+	max-width: 90rem;
+
+	&__left {
+		width: 70%;
+		float: left;
+		display: flex;
+		align-items: center;
+	}
+
+	&__right {
+		width: 30%;
+		float: right;
+		text-align: right;
+		margin-left: auto;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+	}
+
+	&__edit-icons {
+		margin: 0;
+		padding: 0;
+		display: flex;
+		justify-content: flex-end;
+
+		&__list-item {
+			margin: 0;
+			padding: 0;
+			list-style: none;			
+			float: right;
+		}
+	}
+
+	&__icon {
+		padding: 0 .5em;
+		display: flex;
+		color: black;
+		align-items: baseline;
+
+		.icon {
+			height: 1.8em;
+			width: 2em;
+		}
+	}
+
+	.book-navigation-header {
+		display: flex;
+		align-items: center;
+	}
+
+	ul.book-navigation-wrapper {
+		display: flex;
+		align-items: center;	
+	}
+
+	.f-dropdown {
+		text-align: left;
+		margin: 0;
+
+		> ul {
+			margin: 0;
+		}
+	}
+}
+
+.is-sticky > .r-header {
+	padding: .5em 0;
+	border-bottom: 1px solid $smoke;
+	// need this to override the sticky navigation that sets 
+	// a calculated width that is stupid and dumb
+	width: 100% !important; 
+}
+
+// Possition the dropdown perfectly on the advanced
+// menu option
+#r-header__icon--advanced,
+#r-header__icon--add {
+	&.open {
+		@media #{$medium} {
+			transform: translateX(-5%);
+		}
+	}
+}

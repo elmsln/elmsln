@@ -135,6 +135,7 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
   .top-bar {
     background-color:transparent;
     height: $top-bar-base-height;
+    overflow: visible; // need this to allow the dropdown to display
     @media #{$small-only} {
       border-bottom:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
     }
@@ -193,11 +194,26 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
        }
       }
       li:not(.has-form) a:not(.button) {
-        display: block;
         color:lighten($tool-bar-dark-color, 20%);
       }
     }
   }
+
+  .course-title {
+    line-height: inherit;
+    padding: 0;
+    margin-right: 1rem;
+    text-align: center;
+    display: flex;
+    align-item: center;
+    justify-content: center;
+  }
+
+  .course-title-group {
+    display: inline-block;
+    line-height: inherit;
+  }
+
   span.course-title {
     display: block;
     margin: 0;
@@ -206,10 +222,14 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     text-align: right;
     color: #000;
     font-size: 1em;
-    color:#626262;
+    color: #626262;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
     @media #{$small-only} {
-       
        text-align: center;
     }
   }
@@ -220,8 +240,70 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     color: #000;
     color:#333333;
     font-size: 1em;
+    font-weight: bold;
     @media #{$small-only} {
        text-align: center;
     }
+  }
+  span.course-section {
+    display: block;
+    text-align: right;
+    line-height:1rem;
+    color:#333333;
+    font-size: 1em;
+    padding: 0;
+    font-weight: bold;
+    @media #{$small-only} {
+       text-align: center;
+    }
+  }
+
+  .icon--dropdown {
+    color: black;
+    margin-left: 7px;
+  }
+}
+
+#courseToolsMenu {
+  width: 100%;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+  margin-top: .2em;
+  @media #{$medium} {
+    margin-top: 1em;
+    margin-left: -1rem;
+  }
+
+  &.open {
+    left: inherit !important;
+    right: .5em;
+    @media #{$medium} {
+      right: 1em;
+    }
+  }
+
+  // The following is a stupid hack to get
+  // the little top arrow to line up properly
+  // on the right
+  // @media #{$medium} {
+  &:after {
+    left: 89.8%;
+    @media #{$medium} {
+      left: 89.5%;
+    }
+  }
+  &:before {
+    left: 90%;
+  }
+
+  .nolink {
+    margin: .75em;
+    color: #BABABA;
+    display: block;
+  }
+}
+#courseToolsMenuTrigger {
+  position: relative;
+  @media #{$medium} {
+    padding-right: 2em;
   }
 }

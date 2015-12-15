@@ -1,3 +1,80 @@
+#backtotop {
+  background: url(../img/backtotop.png) no-repeat center center;
+}
+
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+  #backtotop {
+    background: url(../img/backtotop2x.png) no-repeat center center;
+    background-size: 70px 70px;
+  }
+}
+
+.elmsln-home-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.elmsln-home-button-link {
+  padding: 0;
+  margin: 0 1rem 0;
+  font-size: 1rem;
+  line-height: 2.5rem
+}
+.cis-lmsless-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+ul.header-menu-options {
+  padding: 0;
+  max-width: 100%;
+  margin: 0;
+  font-size: 1rem;
+}
+ul.header-menu-options li {
+  float:left;
+  margin: 0;
+  list-style: none;
+  display: inline-flex;
+  border-bottom: 1px solid #333333;
+}
+ul.header-menu-options li a {
+  padding: .75rem 1rem;
+  margin: 0;
+}
+ul.header-menu-options li.active-trail {
+  background-color: #eeeeee;
+  border-left: 1px solid #333333;
+  border-right: 1px solid #333333;
+  border-top: 1px solid #333333;
+  border-bottom: transparent;
+}
+ul.header-menu-options li:hover {
+  background-color: #eeeeee;
+}
+
+.cis-admin-area {
+  background-color: #5CB61F;
+}
+.user-nav-masquerade {
+  width: 100%;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 10px;
+}
+.user-nav-masquerade span {
+  color: #333333;
+  font-weight: bold;
+}
+.user-nav-masquerade div {
+  padding: .25rem;
+}
+.user-nav-user-roles {
+  width: 100%;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
 #block-speedreader-speedreader-block-nav-modal {
   top:25% !important;
   left: 25%;
@@ -68,9 +145,4 @@ ul.off-canvas-list .left-submenu li.back {
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex;
-}
-
-/* Removed the outline focus on the dropdown element */
-.f-dropdown.content:focus {
-  outline-style: none;
 }

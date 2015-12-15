@@ -1,0 +1,14 @@
+name = Nodejs Buddylist
+description = Allows for dynamic buddy list and user blocks
+package = Nodejs
+version = 1.0
+core = 7.x
+dependencies[] = nodejs
+dependencies[] = flag_friend
+
+; Information added by Drupal.org packaging script on 2015-11-29
+version = "7.x-1.10"
+core = "7.x"
+project = "nodejs"
+datestamp = "1448823841"
+

@@ -327,7 +327,8 @@ function _cis_shortcode_render_codes($entity, $type) {
         // this is intense
         // create a stub, this looks stupid cause it kind of is
         $stub = entity_create_stub_entity($entity_fields_type, array(0, 1, 2));
-        if ($all_types[$entity_fields_type]['uri callback'] != 'entity_class_uri') {
+        // ignore stubing on entityform as it causes issues
+        if ($entity_fields_type != 'entityform' && $all_types[$entity_fields_type]['uri callback'] != 'entity_class_uri') {
           $uri = call_user_func($all_types[$entity_fields_type]['uri callback'], $stub);
           // ensure we have a path uri, if not, we default to the type
           // often times they will be the same, but it's possible to not be

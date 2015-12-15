@@ -46,10 +46,8 @@ function mooc_helper_book_nav_block_view($delta = '') {
   switch ($delta) {
     case 'book_sibling_nav':
       $block['subject'] = '';
-      // if we have nothing, default back to at least the map
       $block['content'] = '<a href="#" class="mooc-helper-toc etb-modal-icon courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents">
-                <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div>
-              </a>';
+        <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div></a>';
       $next_title = t('>');
       $prev_title = t('<');
       // load the node in scope globally at the moment and ensure we have one
@@ -170,11 +168,6 @@ function mooc_helper_book_nav_block_view($delta = '') {
             $firstlevel = FALSE;
             $breadcrumbs[] = theme('book_sibling_nav', array('parent' => $parents[$mlid] ,'items' => $items, 'count' => $nav_count));
           }
-          // reverse the items cause they load the opposite order of rendering
-          // since it goes backwards up the tree
-          $breadcrumbs[] = '<a href="#" class="mooc-helper-toc etb-modal-icon courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents">
-                <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div>
-              </a>';
           $breadcrumbs = array_reverse($breadcrumbs);
           // support for mooc_containers
           if ($globalnode->type == 'mooc_container' && isset($globalnode->field_mooc_container_type['und'][0]['value'])) {
@@ -200,6 +193,12 @@ function mooc_helper_book_nav_block_view($delta = '') {
     break;
   }
   return $block;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function mooc_helper_book_nav_preprocess_book_sibling_nav_wrapper(&$variables) {
 }
 
 /**

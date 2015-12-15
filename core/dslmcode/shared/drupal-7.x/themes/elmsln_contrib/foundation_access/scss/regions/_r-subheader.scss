@@ -1,0 +1,10 @@
+.r-subheader {
+	background: #3E3E3E;
+	color: $smoke;
+	padding: .5em 1rem;
+	font-size: .8em;
+
+	> .row {
+		max-width: 90rem;
+	}
+}

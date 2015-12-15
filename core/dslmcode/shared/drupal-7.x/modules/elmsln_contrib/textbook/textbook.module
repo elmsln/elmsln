@@ -3,7 +3,7 @@
  * @file
  * Textbook Style Guide
  */
-define('TEXTBOOK_RESET_DEFAULT', 1);
+define('TEXTBOOK_RESET_DEFAULT', 0);
 define('TEXTBOOK_DEFAULT_SET', 'textbook_core');
 
 /**

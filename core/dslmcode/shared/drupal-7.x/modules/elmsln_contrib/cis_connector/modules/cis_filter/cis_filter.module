@@ -245,7 +245,7 @@ function cis_filter_preprocess_cis_filter_render__link(&$vars) {
   // fallback in case there was nothing to query
   $link .= $code['entity_type'] . '/' . $code['item'];
   $instance = str_replace('/', '', $instance);
-  $response = _cis_connector_request($instance . '/' . $url, array(), $code['tool']);
+  $response = _cis_connector_request($instance . '/' . $url, array('method' => 'GET'), $code['tool']);
   $data = drupal_json_decode($response->data);
   // if we have the field property set return a link
   if (isset($code['field']) && isset($data[$code['field']]['url'])) {

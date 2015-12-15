@@ -33,7 +33,7 @@ function cle_submission_field_default_field_instances() {
       'better_formats' => array(
         'allowed_formats' => array(
           'plain_text' => 0,
-          'student_work' => 'student_work',
+          'student_format' => 'student_format',
           'textbook_editor' => 0,
         ),
         'allowed_formats_toggle' => 1,
@@ -43,7 +43,7 @@ function cle_submission_field_default_field_instances() {
             'plain_text' => array(
               'weight' => 10,
             ),
-            'student_work' => array(
+            'student_format' => array(
               'weight' => 0,
             ),
             'textbook_editor' => array(
@@ -105,7 +105,7 @@ function cle_submission_field_default_field_instances() {
       'better_formats' => array(
         'allowed_formats' => array(
           'plain_text' => 0,
-          'student_work' => 'student_work',
+          'student_format' => 'student_format',
           'textbook_editor' => 0,
         ),
         'allowed_formats_toggle' => 1,
@@ -115,7 +115,7 @@ function cle_submission_field_default_field_instances() {
             'plain_text' => array(
               'weight' => 10,
             ),
-            'student_work' => array(
+            'student_format' => array(
               'weight' => 0,
             ),
             'textbook_editor' => array(

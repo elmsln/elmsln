@@ -29,25 +29,19 @@ function mooc_theme_foundation_context_default_contexts() {
         'speedreader-speedreader-block' => array(
           'module' => 'speedreader',
           'delta' => 'speedreader-block',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-9',
         ),
         'mooc_helper-mooc_helper_toc' => array(
           'module' => 'mooc_helper',
           'delta' => 'mooc_helper_toc',
-          'region' => 'cis_appbar_modal',
+          'region' => 'cis_lmsless_modal',
           'weight' => '-8',
         ),
         'mooc_helper_book_nav-book_sibling_nav' => array(
           'module' => 'mooc_helper_book_nav',
           'delta' => 'book_sibling_nav',
           'region' => 'header',
-          'weight' => '-10',
-        ),
-        'cis_service_connection-all_active_outline' => array(
-          'module' => 'cis_service_connection',
-          'delta' => 'all_active_outline',
-          'region' => 'left_menu',
           'weight' => '-10',
         ),
       ),

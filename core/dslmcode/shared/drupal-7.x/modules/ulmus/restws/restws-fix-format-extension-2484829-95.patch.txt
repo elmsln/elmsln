@@ -1,0 +1,78 @@
+diff --git a/restws.module b/restws.module
+index e078411..37812ba 100644
+--- a/restws.module
++++ b/restws.module
+@@ -190,6 +190,58 @@ class RestWSException extends Exception {
+ }
+ 
+ /**
++ * Implements hook_init().
++ *
++ * Sets the router item for the current path when it has a format.
++ */
++function restws_init() {
++  // Determine the router item for the current path.
++  _restws_determine_router_item();
++}
++
++/**
++ * Reroute requests that come from *.{format} paths.
++ * For example /node/2.json will need a correct page callback to be treated as
++ * a restws request.
++ *
++ * Also, the restws_basic_auth module will need to use this function as well
++ * to perform this again after logging a user in.
++ */
++function _restws_determine_router_item() {
++  // Determine the position of the resource and resource id in the path.
++  if (strpos(request_path(), '.') === FALSE) {
++    return;
++  }
++  $menu_paths = array();
++  foreach (restws_get_resource_info() as $resource => $info) {
++    $menu_paths[] = isset($info['menu_path']) ? $info['menu_path'] : $resource;
++  }
++  $formats = array_keys(restws_get_format_info());
++
++  // The pattern matches menu paths like 'node', 'user' followed by an ID.
++  // This ID cannot start with a 0 but can contain any digit.
++  $pattern = '#^((?:';
++  $pattern .= implode($menu_paths,'|');
++  $pattern .= ')\/[1-9][0-9]*)\.(?:';
++
++  // The path will end with a format that is supported by restws, for example
++  // 'json' or 'xml'.
++  $pattern .= implode($formats,'|');
++  $pattern .= ')$#i';
++
++  // Replace pattern precisely once.
++  $count = 0;
++  $path = preg_replace($pattern, '\1', request_path(), 1, $count);
++
++  // When the pattern matches and there is no menu router for the request
++  // path, substitute this module's page callback.
++  if ($count && !menu_get_item()) {
++    $router_item = menu_get_item($path);
++    menu_set_item(NULL, $router_item);
++  }
++}
++
++/**
+  * Implements hook_menu_alter().
+  */
+ function restws_menu_alter(&$items) {
+diff --git a/restws_basic_auth/restws_basic_auth.module b/restws_basic_auth/restws_basic_auth.module
+index 69dc908..dfb0cdd 100644
+--- a/restws_basic_auth/restws_basic_auth.module
++++ b/restws_basic_auth/restws_basic_auth.module
+@@ -33,6 +33,10 @@ function restws_basic_auth_init() {
+         // Always make sure to disable the page cache after we authenticated the
+         // user so that a response never gets into the page cache.
+         drupal_page_is_cacheable(FALSE);
++
++        // Redetermine the page callback for restws calls like node/1.json
++        // and user/1.json.
++        _restws_determine_router_item();
+       }
+       else {
+         // Clear the login form error and remove the login failure message.

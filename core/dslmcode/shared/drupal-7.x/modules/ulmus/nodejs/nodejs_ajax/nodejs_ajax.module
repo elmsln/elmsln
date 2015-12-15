@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * Implements hook_init().
+ */
+function nodejs_ajax_init() {
+  drupal_add_library('system', 'drupal.ajax');
+}
+
+/**
+ * Implements hook_nodejs_handlers_info().
+ */
+function nodejs_ajax_nodejs_handlers_info() {
+  return array(
+    drupal_get_path('module', 'nodejs_ajax') . '/nodejs_ajax.js',
+  );
+}
+
+/**
+ * Implements hook_nodejs_user_channels().
+ */
+function nodejs_ajax_nodejs_user_channels($account) {
+  return array(
+    'nodejs_ajax_broadcast',
+  );
+}
+
+/**
+ * Send some commands to the user asynchronously.
+ *
+ * @param array $commands 
+ * @param array $options 
+ */
+function nodejs_ajax_render($commands = array(), $options = array()) {
+  $options += array(
+    'channel' => 'nodejs_user_',
+    'uid' => NULL,
+  );
+
+  if (!is_null($options['uid'])) {
+    $channel = $options['channel'] . $options['uid'];
+  }
+
+  $message = (object) array(
+    'channel' => $channel,
+    'commands' => $commands,
+  );
+  
+  if (isset($options['callback'])) {
+    $message->callback = $options['callback'];
+  }
+
+  return nodejs_send_message($message);
+}
+

@@ -29,7 +29,7 @@ function cis_ux_context_default_contexts() {
         'menu-menu-cis-toolkit' => array(
           'module' => 'menu',
           'delta' => 'menu-cis-toolkit',
-          'region' => 'left_menu',
+          'region' => 'header',
           'weight' => '-10',
         ),
       ),

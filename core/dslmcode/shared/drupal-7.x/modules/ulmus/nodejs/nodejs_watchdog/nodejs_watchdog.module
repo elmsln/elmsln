@@ -1,0 +1,103 @@
+<?php
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function nodejs_watchdog_form_dblog_filter_form_alter(&$form, &$form_state, $form_id) {
+  nodejs_send_content_channel_token('watchdog_dblog');
+  drupal_add_js(drupal_get_path('module', 'nodejs_watchdog') . '/nodejs.watchdog.js', array('type' => 'file'));
+}
+
+/**
+ * Implements hook_watchdog().
+ */
+function nodejs_watchdog_watchdog(array $entry) {
+  $classes = array(
+    WATCHDOG_DEBUG     => 'dblog-debug',
+    WATCHDOG_INFO      => 'dblog-info',
+    WATCHDOG_NOTICE    => 'dblog-notice',
+    WATCHDOG_WARNING   => 'dblog-warning',
+    WATCHDOG_ERROR     => 'dblog-error',
+    WATCHDOG_CRITICAL  => 'dblog-critical',
+    WATCHDOG_ALERT     => 'dblog-alert',
+    WATCHDOG_EMERGENCY => 'dblog-emerg',
+  );
+
+  $entry['variables'] = isset($entry['variables']) ? serialize($entry['variables']) : serialize(array());
+
+  $row = array(
+    'data' => array(
+      array('class' => 'icon'),
+      t($entry['type']),
+      format_date($entry['timestamp'], 'short'),
+      theme('dblog_message', array('event' => (object) $entry, 'link' => TRUE)),
+      theme('username', array('account' => $entry['user'])),
+      $entry['link'],
+    ),
+    'class' => array(drupal_html_class('dblog-' . $entry['type']), $classes[$entry['severity']]),
+  );
+
+  $commands[] = ajax_command_before('#admin-dblog tr:eq(1)', nodejs_watchdog_theme_row($row));
+  $message = (object) array(
+    'channel' => 'watchdog_dblog',
+    'commands' => $commands,
+    'callback' => 'nodejsWatchdog',
+  );
+  nodejs_send_content_channel_message($message);
+}
+
+/**
+ * Theme a watchdog row.
+ */
+function nodejs_watchdog_theme_row($row) {
+  $attributes = array();
+  $flip = array(
+    'even' => 'odd',
+    'odd' => 'even',
+  );
+
+  $class = 'even';
+  $output = "";
+  // Check if we're dealing with a simple or complex row
+  if (isset($row['data'])) {
+    foreach ($row as $key => $value) {
+      if ($key == 'data') {
+        $cells = $value;
+      }
+      else {
+        $attributes[$key] = $value;
+      }
+    }
+  }
+  else {
+    $cells = $row;
+  }
+  if (count($cells)) {
+    $output .= '<tr' . drupal_attributes($attributes) . '>';
+    $i = 0;
+    foreach ($cells as $cell) {
+      $output .= _theme_table_cell($cell);
+    }
+    $output .= "</tr>";
+  }
+  return $output;
+}
+
+/**
+* Implements hook_nodejs_user_channels().
+*/
+function nodejs_watchdog_nodejs_user_channels($account) {
+  if (user_access('access site reports', $account)) {
+    return array('watchdog_dblog');
+  }
+  return array();
+}
+
+/**
+* Implements hook_nodejs_handlers_info().
+*/
+function nodejs_watchdog_nodejs_handlers_info() {
+  return array(
+    drupal_get_path('module', 'nodejs_watchdog') . '/nodejs.watchdog.js',
+  );
+}

@@ -8,25 +8,17 @@ base theme = foundation_access
 stylesheets[all][]   = css/editorial_styles.css
 
 ; CIS specific regions
-regions[cis_appbar_first]     = CIS AppBar one
-regions[cis_appbar_second]    = CIS AppBar two
-regions[cis_appbar_modal]     = CIS AppBar Modal
-
+regions[cis_lmsless_modal]     = CIS LMSLess Modal
+; Foundation Access navigation levels
+regions[local_header]         = Local Header
+regions[local_subheader]      = Local Sub-header
 ; general theme regions
 regions[header]               = Header
 regions[help]                 = Help
 regions[highlighted]          = Highlighted
-;regions[featured]            = Featured
 regions[content]              = Content
-regions[left_menu]            = Left Off Canvas Menu
-regions[add_content_menu]     = Add content menu
 regions[sidebar_first]        = Left Sidebar
-;regions[sidebar_second]      = Right Sidebar
-;regions[triptych_first]      = Callout one
-;regions[triptych_middle]     = Callout two
-;regions[triptych_last]       = Callout three
+regions[sidebar_second]       = Right Sidebar
 regions[footer]               = Footer
 regions[footer_firstcolumn]   = Footer one
 regions[footer_secondcolumn]  = Footer two
-;regions[footer_thirdcolumn]  = Footer three
-;regions[footer_fourthcolumn] = Footer four

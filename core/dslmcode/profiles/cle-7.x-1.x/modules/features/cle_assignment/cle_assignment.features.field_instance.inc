@@ -95,7 +95,7 @@ function cle_assignment_field_default_field_instances() {
       'better_formats' => array(
         'allowed_formats' => array(
           'plain_text' => 0,
-          'student_work' => 0,
+          'student_format' => 0,
           'textbook_editor' => 'textbook_editor',
         ),
         'allowed_formats_toggle' => 1,
@@ -105,7 +105,7 @@ function cle_assignment_field_default_field_instances() {
             'plain_text' => array(
               'weight' => 10,
             ),
-            'student_work' => array(
+            'student_format' => array(
               'weight' => 0,
             ),
             'textbook_editor' => array(
@@ -158,7 +158,7 @@ function cle_assignment_field_default_field_instances() {
       'better_formats' => array(
         'allowed_formats' => array(
           'plain_text' => 'plain_text',
-          'student_work' => 'student_work',
+          'student_format' => 'student_format',
           'textbook_editor' => 'textbook_editor',
         ),
         'allowed_formats_toggle' => 0,
@@ -168,7 +168,7 @@ function cle_assignment_field_default_field_instances() {
             'plain_text' => array(
               'weight' => 10,
             ),
-            'student_work' => array(
+            'student_format' => array(
               'weight' => 0,
             ),
             'textbook_editor' => array(
@@ -470,7 +470,7 @@ function cle_assignment_field_default_field_instances() {
       'better_formats' => array(
         'allowed_formats' => array(
           'plain_text' => 'plain_text',
-          'student_work' => 'student_work',
+          'student_format' => 'student_format',
           'textbook_editor' => 'textbook_editor',
         ),
         'allowed_formats_toggle' => 0,
@@ -480,7 +480,7 @@ function cle_assignment_field_default_field_instances() {
             'plain_text' => array(
               'weight' => 10,
             ),
-            'student_work' => array(
+            'student_format' => array(
               'weight' => 0,
             ),
             'textbook_editor' => array(
@@ -574,7 +574,7 @@ Page',
       'better_formats' => array(
         'allowed_formats' => array(
           'plain_text' => 'plain_text',
-          'student_work' => 'student_work',
+          'student_format' => 'student_format',
           'textbook_editor' => 'textbook_editor',
         ),
         'allowed_formats_toggle' => 0,
@@ -584,7 +584,7 @@ Page',
             'plain_text' => array(
               'weight' => 10,
             ),
-            'student_work' => array(
+            'student_format' => array(
               'weight' => 0,
             ),
             'textbook_editor' => array(

@@ -1,0 +1,142 @@
+<?php
+
+/**
+ * Implements hook_init().
+ */
+function nodejs_notify_init() {
+  drupal_add_css(drupal_get_path('module', 'nodejs_notify') . '/libraries/jgrowl/jquery.jgrowl.css');
+  drupal_add_js(drupal_get_path('module', 'nodejs_notify') . '/libraries/jgrowl/jquery.jgrowl.js');
+  drupal_add_js(array('nodejs_notify' => array('notification_time' => variable_get('nodejs_notify_notification_lifetime_seconds', 3))), 'setting');
+}
+
+/**
+ * Implements hook_nodejs_handlers_info().
+ */
+function nodejs_notify_nodejs_handlers_info() {
+  return array(
+    drupal_get_path('module', 'nodejs_notify') . '/nodejs.notify.js',
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function nodejs_notify_permission() {
+  return array(
+    'send nodejs broadcast' => array(
+      'title' => t('Perform system-wide broadcasts.'),
+      'description' => t('Perform system-wide broadcasts to all users.'),
+    ),
+    'administer nodejs_notify configuration' => array(
+      'title' => t('Administer Node.js Notification Configuration'),
+      'description' => t('Administer configuration for node.js notifications'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function nodejs_notify_menu() {
+  return array(
+    'admin/config/nodejs/nodejs_notify' => array(
+      'title' => 'Node.js Notification Settings',
+      'description' => 'Settings for node.js notify.',
+      'page callback' => 'system_admin_menu_block_page',
+      'access arguments' => array('access administration pages'),
+      'file' => 'system.admin.inc',
+      'file path' => drupal_get_path('module', 'system'),
+      'position' => 'left',
+      'weight' => 1,
+    ),
+    'admin/config/nodejs/nodejs_notify/settings' => array(
+      'title' => 'Node.js Notification Settings',
+      'description' => 'Settings for node.js notify.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('nodejs_notify_settings_form'),
+      'access arguments' => array('administer nodejs_notify configuration'),
+    ),
+    'admin/config/nodejs/nodejs_notify/broadcast' => array(
+      'title' => 'System-wide broadcast',
+      'description' => 'Do a system-wide broadcast notification that all users see.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('nodejs_notify_broadcast_form'),
+      'access arguments' => array('send nodejs broadcast'),
+    ),
+  );
+}
+
+/**
+ * Settings form
+ */
+function nodejs_notify_settings_form() {
+  $form['settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Node.js Notify Settings'),
+  );
+  $form['settings']['notification_lifetime'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Notification Lifetime',
+    '#description' => 'The number of seconds a notification will live before fading automatically. (Set to 0 for sticky notifications that do not fade.)',
+    '#default_value' => variable_get('nodejs_notify_notification_lifetime_seconds', 3) ,
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Submit Configuration',
+    '#submit' => array('nodejs_notify_settings_form_submit'),
+  );
+  return $form;
+}
+
+/**
+ * Form Validation
+ */
+function nodejs_notify_settings_form_validate($form, &$form_state) {
+  if (!preg_match('/^\d+$/',$form_state['values']['notification_lifetime'])) {
+    form_set_error('notification_lifetime', t('The notification lifetime must be a number.'));
+  }
+}
+
+/**
+ * Form submit for settings form
+ */
+function nodejs_notify_settings_form_submit(&$form, &$form_state) {
+  variable_set('nodejs_notify_notification_lifetime_seconds', $form_state['values']['notification_lifetime']);
+  drupal_set_message(t("Notification settings saved."));
+}
+
+/**
+ * Form builder for broadcast form.
+ */
+function nodejs_notify_broadcast_form() {
+  $form['broadcast_form'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'System-wide Broadcast Notification',
+  );
+  $form['broadcast_form']['broadcast_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Broadcast notification subject',
+    '#required' => TRUE,
+  );
+  $form['broadcast_form']['broadcast_message'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Broadcast notification message',
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Broadcast',
+    '#submit' => array('nodejs_notify_broadcast_form_submit'),
+  );
+  return $form;
+}
+
+/**
+ * The submit handler for the form, after validated.
+ */
+function nodejs_notify_broadcast_form_submit(&$form, &$form_state) {
+  nodejs_broadcast_message($form_state['values']['broadcast_subject'], $form_state['values']['broadcast_message']);
+  drupal_set_message(t("Message broadcast to all users"));
+}
+
