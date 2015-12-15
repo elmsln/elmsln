@@ -100,7 +100,10 @@ function foundation_access_preprocess_page(&$variables) {
     $variables['page']['local_subheader'][$bid] = $block['content'];
   }
   $variables['distro'] = variable_get('install_profile', 'standard');
-  $variables['home'] = l('<div class="' . $variables['distro'] . '-home elmsln-home-icon icon-' . $variables['distro'] . '-black etb-modal-icons"></div><span>' . t('Home') . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($variables['distro'] . '-home-button', 'elmsln-home-button-link'))));
+  // load registry for this distro
+  $settings = _cis_connector_build_registry($variables['distro']);
+  $home_text = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
+  $variables['home'] = l('<div class="' . $variables['distro'] . '-home elmsln-home-icon icon-' . $variables['distro'] . '-black etb-modal-icons"></div><span>' . $home_text . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($variables['distro'] . '-home-button', 'elmsln-home-button-link'))));
   // clever
   $keys = array_keys($variables['page']['header']);
   $keyname = array_shift($keys);
