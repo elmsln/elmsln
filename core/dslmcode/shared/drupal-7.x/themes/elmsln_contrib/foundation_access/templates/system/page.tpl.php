@@ -61,6 +61,16 @@
                 <?php endif; ?>
               </div>
               <?php endif; ?>
+              <?php if (!empty($cis_shortcodes)) : ?>
+                <li class="toolbar-menu-icon"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-reveal-id="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="cis-shortcodes-drop" aria-expanded="false">
+                  <div class="icon-collab-black off-canvas-toolbar-item-icon"></div>
+                </a></li>
+              <?php endif; ?>
+              <?php if (isset($speedreader) || isset($mespeak)) : ?>
+                <li class="toolbar-menu-icon"><a href="#" class="off-canvas-toolbar-item toolbar-menu-icon" data-reveal-id="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false">
+                  <div class="icon-access-black off-canvas-toolbar-item-icon"></div>
+                </a></li>
+              <?php endif; ?>
             </div>
           </div>
           <div class="row">
@@ -142,3 +152,17 @@
     </footer>
 <!-- generic container for other off canvas modals -->
 <?php print render($page['cis_lmsless_modal']); ?>
+<!-- Accessibility Modal -->
+<?php if (isset($speedreader) || isset($mespeak)) : ?>
+<div id="page-accessibility-menu" class="reveal-modal" data-reveal aria-labelledby="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog">
+  <h2 id="Accessibility"><?php print t('Accessibility') ?></h2>
+   <?php if (isset($speedreader)) : ?>
+  <a href="#" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><?php print t('Speed reader'); ?></a>
+  <?php endif; ?>
+  <?php if (isset($mespeak)) : ?>
+  <a href="#" data-reveal-id="block-mespeak-mespeak-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><?php print t('Speak page'); ?></a>
+  <?php endif; ?>
+  <a class="close-reveal-modal">&#215;</a>
+</div>
+<?php endif; ?>
+<!-- /Accessibility Modal -->
