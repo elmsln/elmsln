@@ -7,6 +7,7 @@ dependencies[] = admin_menu
 dependencies[] = cis_lmsless
 dependencies[] = cis_service_connection
 dependencies[] = cis_service_connection_ux
+dependencies[] = cis_shortcodes
 dependencies[] = context
 dependencies[] = ctools
 dependencies[] = jquery_update

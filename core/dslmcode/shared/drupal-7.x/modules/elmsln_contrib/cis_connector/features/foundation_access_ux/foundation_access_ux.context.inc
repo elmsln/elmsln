@@ -120,6 +120,12 @@ function foundation_access_ux_context_default_contexts() {
           'region' => 'cis_lmsless_modal',
           'weight' => '-8',
         ),
+        'cis_shortcodes-cis_shortcodes_block' => array(
+          'module' => 'cis_shortcodes',
+          'delta' => 'cis_shortcodes_block',
+          'region' => 'cis_lmsless_modal',
+          'weight' => '-7',
+        ),
         'system-main' => array(
           'module' => 'system',
           'delta' => 'main',
