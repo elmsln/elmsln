@@ -29,11 +29,11 @@ function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $
   // disable pathauto / path by default for all distros
   // this is to help elimniate issues with paths changing constantly via
   // copy/paste as nid's are static
-  $options['dis'][] = 'pathauto';
   $options['dis'][] = 'path';
+  $options['dis'][] = 'pathauto';
   // uninstall these items
-  $options['pm-uninstall'][] = 'pathauto';
   $options['pm-uninstall'][] = 'path';
+  $options['pm-uninstall'][] = 'pathauto';
   // make everything a webservice by default
   $options['en'][] = 'cis_service_restws';
 }
