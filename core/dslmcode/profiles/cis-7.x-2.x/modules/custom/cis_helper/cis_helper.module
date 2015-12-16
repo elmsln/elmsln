@@ -1187,35 +1187,3 @@ class CISXmlDomConstructor extends DOMDocument {
     }
   }
 }
-
-/**
- * Implements hook_cis_lmsless_theme_vars_alter()
- */
-function cis_helper_cis_lmsless_theme_vars_alter(&$vars) {
-  // target our own services to indicate their state if in the menu on CIS
-  if (isset($vars['services'])) {
-    foreach ($vars['services'] as $key1 => $group) {
-      foreach ($group as $key2 => $service) {
-        switch ($key2) {
-          case 'online':
-          case 'courses':
-          // do nothing, these have graduated
-          // keep bumping everyone else up as we go along
-          break;
-          case 'media':
-            $vars['services'][$key1][$key2]['title'] .= ' (beta)';
-          break;
-          case 'studio':
-            $vars['services'][$key1][$key2]['title'] .= ' (alpha)';
-          break;
-          case 'comply':
-          case 'blog':
-          case 'interact':
-          case 'discuss':
-            $vars['services'][$key1][$key2]['title'] .= ' (dev)';
-          break;
-        }
-      }
-    }
-  }
-}
