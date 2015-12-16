@@ -625,12 +625,11 @@ function _cis_section_is_master($section_id = NULL) {
  */
 function cis_section_url_inbound_alter(&$path, $original_path, $path_language) {
   $query = drupal_get_query_parameters();
-  
   if (isset($query['elmsln_active_course']) && $section_id = $query['elmsln_active_course']) {
     // get a list of allowed sections for this user
     $sections = cis_section_all_sections();
     // check if the proposed section is in the list of allowed sections
-    if (in_array($section_id, $sections)) {
+    if (in_array($section_id, $sections) || _cis_connector_role_grouping('staff')) {
       // set the active session
       $_SESSION['cis_section_context'] = $section_id;
     }
