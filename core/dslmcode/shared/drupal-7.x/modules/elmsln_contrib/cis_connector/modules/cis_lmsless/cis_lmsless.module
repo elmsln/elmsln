@@ -279,7 +279,7 @@ function _cis_lmsless_assemble() {
 function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_id) {
   $section = _cis_connector_section_context();
   // don't do these for the master section or it makes no sense
-  if (strpos($section, 'master_') !== 0) {
+  if ($section != 'master') {
     $form['masquerade_user_field']['#chosen'] = TRUE;
     $form['masquerade_user_field']['#type'] = 'select';
     $field_conditions = array();
@@ -404,7 +404,7 @@ function cis_lmsless_theme() {
   return array(
     'cis_lmsless_user' => array(
       'variables' => array(
-        'section' => 'master_1234',
+        'section' => 'master',
         'active' => array('title' => ''),
         'tour' => url('guided_tour'),
         'username' => t('Account'),
@@ -421,7 +421,7 @@ function cis_lmsless_theme() {
       'variables' => array(
         'front_page' => 'node',
         'site_name' => t('Service'),
-        'section' => 'master_1234',
+        'section' => 'master',
         'active' => array('title' => ''),
         'services' => array(),
         'tour' => url('guided_tour'),
@@ -435,7 +435,7 @@ function cis_lmsless_theme() {
       'variables' => array(
         'front_page' => 'node',
         'site_name' => t('Service'),
-        'section' => 'master_1234',
+        'section' => 'master',
         'active' => array('title' => ''),
         'help_link' => url('course-help'),
         'syllabus_link' => url('syllabus'),

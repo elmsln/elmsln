@@ -6,7 +6,7 @@
 
 define('CIS_SECTION_STUDENT', 'student');
 define('CIS_SECTION_PAST_STUDENT', 'past student');
-define('CIS_SECTION_MASTER_PREFIX', 'master_');
+define('CIS_SECTION_MASTER', 'master');
 
 include_once 'cis_section.features.inc';
 
@@ -612,7 +612,7 @@ function _cis_section_is_master($section_id = NULL) {
     $section_id = _cis_connector_section_context();
   }
   // check for a master section as they all prefix the same way
-  if (strpos($section_id, CIS_SECTION_MASTER_PREFIX) === 0) {
+  if ($section_id == CIS_SECTION_MASTER) {
     return TRUE;
   }
   return FALSE;

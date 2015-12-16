@@ -155,7 +155,7 @@ function _elmsln_installer_make_default_section() {
     $node->revision = 1;
     $node->title = t('Master Section');
     // make up a random section id to make things happy but fake
-    $node->field_section_id[LANGUAGE_NONE][0]['value'] = 'master_' . rand(1000, 5000);
+    $node->field_section_id[LANGUAGE_NONE][0]['value'] = 'master';
     // mark this as inactive so it can sync with systems
     $node->field_cis_active[LANGUAGE_NONE][0]['value'] = 0;
     // build out via submit then save

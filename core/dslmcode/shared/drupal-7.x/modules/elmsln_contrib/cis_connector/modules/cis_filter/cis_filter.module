@@ -355,7 +355,7 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
     // this is one of the more ridiculous capabilities of this system
     $target_found = FALSE;
     $section = _cis_connector_section_context();
-    // check for master_ since we need to hit the title of the mastet then
+    // check for master since we need to hit the title of the master then
     // since they are variable based on the design of the system
     $query = array(
       'deep-load-refs' => $code['entity_type'],
