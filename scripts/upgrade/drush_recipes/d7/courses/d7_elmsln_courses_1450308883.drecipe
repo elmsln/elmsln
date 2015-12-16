@@ -5,6 +5,12 @@
 	"core": "7",
 	"recipe": [
 		{
+			"command": "en",
+			"arguments": [
+				"mooc_nav_block"
+			]
+		},
+		{
 			"command": "fr",
 			"arguments": [
 				"mooc_content_theming"
