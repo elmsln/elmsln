@@ -335,12 +335,14 @@ do
       ;;
       pm-uninstall)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      background='FALSE'
       ;;
       vdel)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
       cook)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      background='FALSE'
       ;;
       uuid-recreate)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
@@ -367,9 +369,9 @@ do
       #echo "drush @$service.$course $drushcommand --y" >> $fileloc/$course.$service.progress
       # do most commands in a background thread
       if [[ $background = 'TRUE' ]]; then
-          (drush --y --root=$drupalroot --uri=$hostname.$course $drushcommand < /dev/null &) >> $configsdir/logs/drush-create-site.log
+          (drush --y --root=$drupalroot --v --uri=$hostname.$course $drushcommand < /dev/null &) >> $configsdir/logs/drush-create-site.log
         else
-          drush --y --root=$drupalroot --uri=$hostname.$course $drushcommand >> $configsdir/logs/drush-create-site.log
+          drush --y --root=$drupalroot --v --uri=$hostname.$course $drushcommand >> $configsdir/logs/drush-create-site.log
       fi
     done
   fi
