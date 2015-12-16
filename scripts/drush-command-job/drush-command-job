@@ -77,6 +77,10 @@ do
     drushcommand=`echo "$drush" | cut -f 2- -d ' '`
     background='FALSE'
     ;;
+    ddt)
+    drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+    background='FALSE'
+    ;;
     *)
     badcommand=`echo "$drush" | cut -f 2- -d ' '`
     drushcommand="NULL"
