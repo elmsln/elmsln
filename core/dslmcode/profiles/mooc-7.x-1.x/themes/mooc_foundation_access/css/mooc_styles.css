@@ -29,8 +29,18 @@ a.mooc-helper-toc span {
   margin-right:1rem;
 }
 
+.magellan-wrap {
+  width: 100%;
+}
+
 .magellan-wrap.fixed {
-  top: 2rem !important;
+  top: 3.3rem !important;
+  width: 100%;
+}
+
+.sub-nav dt, .sub-nav dd, .sub-nav li {
+  display: inline-block;
+  float: none;
 }
 
 ul.book-navigation-wrapper {
@@ -278,18 +288,19 @@ ul.book-navigation-wrapper {
 .etb-book .content-element-region {
   padding-top: .5rem;
 }
-.left-off-canvas-toggle.menu-icon {
-  display: none;
+
+
+@media all and (max-width: 480px) {
+  .magellan-wrap.fixed {
+    display: none;
+  }
+    .sub-nav dt, .sub-nav dd, .sub-nav li {
+    display: block;
+    float: none;
+  }
 }
 
 @media all and (max-width: 720px) {
-  .magellan-wrap.fixed {
-    top: 0 !important;
-  }
-  .left-off-canvas-toggle.menu-icon {
-    display: block;
-  }
-
   .book-sibling-parent,
   .book-sibling-parent a {
     clear: both;
