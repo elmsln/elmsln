@@ -1,0 +1,20 @@
+{
+	"name": "ELMSLN Courses upgrade 1450308883",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "fr",
+			"arguments": [
+				"mooc_content_theming"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1450308883",
+		"author": "elmsln",
+		"description": "MOOC Content theming types need reverted."
+	}
+}

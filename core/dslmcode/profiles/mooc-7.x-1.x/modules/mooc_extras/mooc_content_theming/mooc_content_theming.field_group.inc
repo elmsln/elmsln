@@ -8,7 +8,7 @@
  * Implements hook_field_group_info().
  */
 function mooc_content_theming_field_group_info() {
-  $export = array();
+  $field_groups = array();
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -25,6 +25,8 @@ function mooc_content_theming_field_group_info() {
     'children' => array(
       0 => 'field_instructional_significance',
       1 => 'field_mooc_image',
+      2 => 'field_fa_primary_color',
+      3 => 'field_fa_secondary_color',
     ),
     'format_type' => 'tab',
     'format_settings' => array(
@@ -37,7 +39,11 @@ function mooc_content_theming_field_group_info() {
       'formatter' => 'open',
     ),
   );
-  $export['group_visual_identifiers|node|page|form'] = $field_group;
+  $field_groups['group_visual_identifiers|node|page|form'] = $field_group;
 
-  return $export;
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Visual identifiers');
+
+  return $field_groups;
 }

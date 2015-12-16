@@ -100,3 +100,35 @@ function mooc_content_theming_foundation_access_menu_item_icon_alter(&$icon, $el
     }
   }
 }
+
+/**
+ * Implements hook_foundation_access_colors_alter().
+ */
+function mooc_content_theming_foundation_access_colors_alter(&$color, $current) {
+  $node = menu_get_object('node');
+  // allow pages to pass their styling down
+  if (isset($node) && $node->type == 'page' && isset($node->{'field_fa_' . $current . '_color'})) {
+    if (!empty($node->{'field_fa_' . $current . '_color'})) {
+      $color = $node->{'field_fa_' . $current . '_color'}[LANGUAGE_NONE][0]['jquery_colorpicker'];
+    }
+    else {
+      // spider back up through parents til we find a match
+      $plid = $node->book['plid'];
+      while ($plid != 0) {
+        $pmenu = book_link_load($plid);
+        $parent = node_load($pmenu['nid']);
+        // check that it has the image field set
+        if (empty($parent->{'field_fa_' . $current . '_color'})) {
+          // keep going
+          $plid = $parent->book['plid'];
+        }
+        else {
+          // use this one, we always use the closest parent we find
+          $color = $parent->{'field_fa_' . $current . '_color'}[LANGUAGE_NONE][0]['jquery_colorpicker'];
+          $plid = 0;
+        }
+      }
+    }
+  }
+}
+

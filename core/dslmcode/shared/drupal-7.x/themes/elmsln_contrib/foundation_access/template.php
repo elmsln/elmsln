@@ -31,6 +31,8 @@ function foundation_access_preprocess_html(&$variables) {
   $css = '';
   foreach ($colors as $current) {
     $color = theme_get_setting('foundation_access_' . $current . '_color');
+    // allow other projects to override the FA colors
+    drupal_alter('foundation_access_colors', $color, $current);
     // see if we have something that could be valid hex
     if (strlen($color) == 6 || strlen($color) == 3) {
       $color = '#' . $color;

@@ -10,6 +10,104 @@
 function mooc_content_theming_field_default_field_instances() {
   $field_instances = array();
 
+  // Exported field_instance: 'node-page-field_fa_primary_color'
+  $field_instances['node-page-field_fa_primary_color'] = array(
+    'bundle' => 'page',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 8,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_fa_primary_color',
+    'label' => 'Primary color',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'jquery_colorpicker',
+      'settings' => array(),
+      'type' => 'jquery_colorpicker',
+      'weight' => 16,
+    ),
+  );
+
+  // Exported field_instance: 'node-page-field_fa_secondary_color'
+  $field_instances['node-page-field_fa_secondary_color'] = array(
+    'bundle' => 'page',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 9,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_fa_secondary_color',
+    'label' => 'Secondary color',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'jquery_colorpicker',
+      'settings' => array(),
+      'type' => 'jquery_colorpicker',
+      'weight' => 17,
+    ),
+  );
+
   // Exported field_instance: 'node-page-field_instructional_significance'
   $field_instances['node-page-field_instructional_significance'] = array(
     'bundle' => 'page',
@@ -108,7 +206,7 @@ function mooc_content_theming_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 16,
+      'weight' => 15,
     ),
   );
 
@@ -117,6 +215,8 @@ function mooc_content_theming_field_default_field_instances() {
   t('An image to use to replace the one in the theme.');
   t('Image');
   t('Instructional significance');
+  t('Primary color');
+  t('Secondary color');
 
   return $field_instances;
 }
