@@ -27,8 +27,8 @@
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>
                 <li class="r-header__edit-icons__list-item">
-                  <a href="<?php print $edit_path; ?>" title="Edit content" class="r-header__icon">
-                    <div class="icon icon-edit-black"></div><span class="visible-for-large-up"><?php print t('Edit'); ?></span>
+                  <a href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>" class="r-header__icon">
+                    <div class="icon icon-edit-black"></div>
                   </a>
                 </li>
                 <?php endif; ?>
