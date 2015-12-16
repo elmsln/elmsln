@@ -59,8 +59,18 @@ function cis_distro_integrations_cis_service_instance_discuss_options_alter(&$op
       unset($options['dis'][$key]);
     }
   }
+  // need to drop the uninstall lines too for harmony
+  foreach ($options['pm-uninstall'] as $key => $value) {
+    // make sure we actually found it
+    if (in_array($value, array('path', 'pathauto')) !== false) {
+      unset($options['pm-uninstall'][$key]);
+    }
+  }
   // make sure we don't get empty disables as a result of the above
   if (empty($options['dis'])) {
     unset($options['dis']);
+  }
+  if (empty($options['pm-uninstall'])) {
+    unset($options['pm-uninstall']);
   }
 }
