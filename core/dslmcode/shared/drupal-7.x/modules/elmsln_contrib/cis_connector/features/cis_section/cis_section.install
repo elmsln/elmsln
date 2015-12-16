@@ -1,0 +1,36 @@
+<?php
+/**
+ * @file
+ * Install CIS Section.
+ */
+
+/**
+ * Implements hook_update_N().
+ *
+ * Fix master_ concept to be 'master' everywhere and all
+ * services will have a master section concept.
+ */
+function cis_section_update_7001(&$sandbox) {
+  $query = new EntityFieldQuery();
+  // pull all nodes
+  $query->entityCondition('entity_type', 'node')
+  // that are sections
+  ->entityCondition('bundle', 'section')
+  // where it looks like the old master format
+  ->fieldCondition('field_section_id', 'value', 'master_%', 'like')
+  // load all possible results in system, should only be 1 though
+  ->addMetaData('account', user_load(1));
+  // store result
+  $result = $query->execute();
+  // ensure we have results
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    $sections = entity_load('node', $nids);
+    // loop through the sections
+    foreach ($sections as $section) {
+      $section->field_section_id[LANGUAGE_NONE][0]['value'] = 'master';
+      // save the change so "master_" goes away
+      node_save($section);
+    }
+  }
+}
