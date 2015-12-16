@@ -627,7 +627,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // request the section of the user
       $cis_section_item = _cis_connection_query($query, 'field_collection_item');
       // return the whole section array
-      $output = $cis_section_item['list'][0];
+      $output = (isset($cis_section_item['list'][0]) ? $cis_section_item['list'][0] : FALSE);
     break;
     case 'contact_info':
       // query access string based on section context
