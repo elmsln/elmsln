@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC Nav Block feature.
+ */
+
+include_once 'mooc_nav_block.features.inc';
