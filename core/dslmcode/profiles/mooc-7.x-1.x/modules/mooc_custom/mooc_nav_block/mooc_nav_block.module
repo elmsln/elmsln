@@ -5,3 +5,136 @@
  */
 
 include_once 'mooc_nav_block.features.inc';
+
+/**
+ * Implements hook_page_alter().
+ */
+function mooc_nav_block_page_alter(&$page) {
+  if (isset($page['content']['mooc_nav_block_mooc_nav']) && isset($page['content']['system_main']['nodes'])) {
+    $keys = array_keys($page['content']['system_main']['nodes']);
+    $nid = array_shift($keys);
+    $page['content']['system_main']['nodes'][$nid]['mooc_nav_block_mooc_nav'] = $page['content']['mooc_nav_block_mooc_nav'];
+    unset($page['content']['mooc_nav_block_mooc_nav']);
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function mooc_nav_block_block_info() {
+  $blocks['mooc_nav'] = array(
+    'info' => t('MOOC Navigation'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function mooc_nav_block_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'mooc_nav':
+      $block = _mooc_nav_block_mooc_nav_block();
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Assemble the nav block.
+ * @return array
+ */
+function _mooc_nav_block_mooc_nav_block() {
+  $block = array();
+  $output = '';
+  $node = menu_get_object('node');
+  // make sure nav isset at all
+  if ($nav = _mooc_nav_block_get_nav($node)) {
+    // default config that nav options will modify
+    $config = array(
+      'active_trail' => array($nav['parent'], $node->book['mlid']),
+      'conditions' => array('plid' => $nav['parent']),
+    );
+    // process $nav array modifying the config for building the
+    switch ($nav['type']) {
+      case 'content-outline':
+        $config['conditions'] = array('plid' => $node->book['mlid']);
+        $config['min_depth'] = $node->book['depth'];
+        $config['max_depth'] = 9;
+      break;
+      case 'content-outline-active-current':
+        $config['min_depth'] = $node->book['depth'];
+        $config['max_depth'] = $node->book['depth'];
+      break;
+      case 'content-outline-active-below':
+        $config['min_depth'] = $node->book['depth']+1;
+        $config['max_depth'] = $node->book['depth']+1;
+      break;
+    }
+    // menu tree as needed
+    $children = menu_build_tree($node->book['menu_name'], $config);
+    if (!empty($nav['custom_text'])) {
+      $output = $nav['custom_text'];
+    }
+    $tree = menu_tree_output($children);
+    // @todo need to hijack the theme suggestion here
+    $output .= drupal_render($tree);
+    $block['subject'] = $nav['label'];
+    $block['content'] = $output;
+    $block['mooc_nav'] = $nav;
+  }
+
+  return $block;
+}
+
+/**
+ * Assemble the nav style if it exists for this node
+ * @return array the properties of nav
+ */
+function _mooc_nav_block_get_nav($node) {
+  // allow pages to pass their styling down
+  if (isset($node) && $node->type == 'page') {
+    // easiest case, this item says to display stuff
+    if (!empty($node->field_mooc_nav_display) && $node->field_mooc_nav_display[LANGUAGE_NONE][0]['value'] != 'below') {
+      $nav = array(
+        'parent' => $node->book['mlid'],
+        'display' => $node->field_mooc_nav_display[LANGUAGE_NONE][0]['value'],
+        'style' => (isset($node->field_mooc_nav_style[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_style[LANGUAGE_NONE][0]['value'] : ''),
+        'type' => (isset($node->field_mooc_nav_type[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_type[LANGUAGE_NONE][0]['value'] : ''),
+        'label' => (isset($node->field_mooc_nav_label[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_label[LANGUAGE_NONE][0]['value'] : ''),
+        'custom_text' => (isset($node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value'] : ''),
+      );
+      return $nav;
+    }
+    else {
+      // spider back up through parents til we find a match
+      $plid = $node->book['plid'];
+      while ($plid != 0) {
+        $pmenu = book_link_load($plid);
+        $parent = node_load($pmenu['nid']);
+        // check that it has the image field set
+        if (isset($node->field_mooc_nav_display) && empty($parent->field_mooc_nav_display)) {
+          // keep going
+          $plid = $parent->book['plid'];
+        }
+        else {
+          // use this one, we always use the closest parent we find
+          $nav = array(
+            'parent' => $node->book['plid'],
+            'display' => $parent->field_mooc_nav_display[LANGUAGE_NONE][0]['value'],
+            'style' => (isset($parent->field_mooc_nav_style[LANGUAGE_NONE][0]['value']) ? $parent->field_mooc_nav_style[LANGUAGE_NONE][0]['value'] : ''),
+            'type' => (isset($parent->field_mooc_nav_type[LANGUAGE_NONE][0]['value']) ? $parent->field_mooc_nav_type[LANGUAGE_NONE][0]['value'] : ''),
+            'label' => (isset($parent->field_mooc_nav_label[LANGUAGE_NONE][0]['value']) ? $parent->field_mooc_nav_label[LANGUAGE_NONE][0]['value'] : ''),
+            'custom_text' => (isset($parent->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value']) ? $parent->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value'] : ''),
+          );
+          return $nav;
+        }
+      }
+    }
+  }
+  return FALSE;
+}

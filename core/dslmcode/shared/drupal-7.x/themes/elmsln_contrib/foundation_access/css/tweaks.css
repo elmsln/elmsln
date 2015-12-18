@@ -11,6 +11,40 @@
   opacity: 0.8;
 }
 
+#block-mooc-nav-block-mooc-nav-nav {
+  border:1px solid #cccccc;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+#block-mooc-nav-block-mooc-nav-nav ul{
+  margin: 0;
+  list-style: none;
+}
+
+#block-mooc-nav-block-mooc-nav-nav li {
+  clear: both;
+  padding: .25rem;
+}
+
+#block-mooc-nav-block-mooc-nav-nav li.active-trail {
+  background-color: #eeeeee;
+}
+
+#block-mooc-nav-block-mooc-nav-nav li a.active {
+  text-decoration: underline;
+}
+
+.mooc-nav-block-left {
+  float: left;
+  margin-right: 1rem;
+}
+.mooc-nav-block-right {
+  float: right;
+  margin-left: 1rem;
+}
+
 #backtotop {
   background: url(../img/backtotop.png) no-repeat center center;
 }
