@@ -34,6 +34,7 @@ pages:
   - Should I upgrade modules?: development/Should-I-update-Drupal-modules.md
   - Where can I add modules / themes?: development/Where-can-I-add-new-modules-themes.md
   - Where should I point addresses?: development/Where-should-I-point-addresses.md
+  - Features Specification: development/Features-Specification.md
   - Front end:
     - Style Guide: development/front-end/Styleguide.md
     - Front End workflow: development/front-end/Front-End-Development-Workflow.md
