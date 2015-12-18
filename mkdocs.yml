@@ -1,14 +1,17 @@
 site_name: ELMSLN
 pages:
 - Home: index.md
+- Acronyms: Acronyms.md
+- Roadmap: Roadmap.md
 - Installation:
   - Installation: INSTALL.md
   - Structure: Package-Structure.md
   - Config Directory: config-is-empty-what-do-I-put-there.md
-- Acronyms: Acronyms.md
-- Roadmap: Roadmap.md
-- Information Architecture: Information-Architecture.md
+- Information Architecture:
+  - Index: ia/ia-index.md
+  - Roles: ia/User-roles.md
 - Tools:
+  - Service vs. Authority: systems/service-vs-auth.md
   - What is an authority?: systems/authority.md
   - Online: systems/authority/online.md
   - Media: systems/authority/media.md
