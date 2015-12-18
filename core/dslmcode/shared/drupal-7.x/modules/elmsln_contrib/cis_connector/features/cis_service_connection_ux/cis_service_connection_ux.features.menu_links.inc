@@ -10,15 +10,44 @@
 function cis_service_connection_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-course-tools-menu_course-tools:<nolink>
-  $menu_links['menu-course-tools-menu_course-tools:<nolink>'] = array(
+  // Exported menu link: menu-course-tools-menu_admin:admin
+  $menu_links['menu-course-tools-menu_admin:admin'] = array(
+    'menu_name' => 'menu-course-tools-menu',
+    'link_path' => 'admin',
+    'router_path' => 'admin',
+    'link_title' => 'Admin',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'identifier' => 'menu-course-tools-menu_admin:admin',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -48,
+    'customized' => 1,
+    'parent_identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
+  );
+  // Exported menu link: menu-course-tools-menu_administration-tools:<nolink>
+  $menu_links['menu-course-tools-menu_administration-tools:<nolink>'] = array(
     'menu_name' => 'menu-course-tools-menu',
     'link_path' => '<nolink>',
     'router_path' => '<nolink>',
-    'link_title' => 'Course tools',
+    'link_title' => 'Administration Tools',
     'options' => array(
+      'identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
       'attributes' => array(),
-      'identifier' => 'menu-course-tools-menu_course-tools:<nolink>',
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -45,9 +74,9 @@ function cis_service_connection_ux_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -46,
+    'weight' => -49,
     'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_course-tools:<nolink>',
+    'parent_identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
   );
   // Exported menu link: menu-course-tools-menu_sections-list:cis/section-list
   $menu_links['menu-course-tools-menu_sections-list:cis/section-list'] = array(
@@ -107,7 +136,7 @@ function cis_service_connection_ux_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -50,
     'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_course-tools:<nolink>',
+    'parent_identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
   );
   // Exported menu link: menu-course-tools-menu_users:cis/user-list
   $menu_links['menu-course-tools-menu_users:cis/user-list'] = array(
@@ -127,17 +156,16 @@ function cis_service_connection_ux_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-course-tools-menu_service-tools:<nolink>',
   );
+
   // Translatables
   // Included for use with string extractors like potx.
-  t('Analytics');
-  t('Course tools');
+  t('Admin');
+  t('Administration Tools');
   t('Performance');
   t('Sections List');
   t('Service Tools');
   t('Settings');
-  t('Theme');
   t('Users');
-
 
   return $menu_links;
 }
