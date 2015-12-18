@@ -10,6 +10,7 @@ pages:
 - Information Architecture:
   - Index: ia/ia-index.md
   - Roles: ia/User-roles.md
+  - Sections: ia/Sections.md
 - Tools:
   - Service vs. Authority: systems/service-vs-auth.md
   - What is an authority?: systems/authority.md
