@@ -10,16 +10,21 @@
 function mooc_cis_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-course-tools-menu_content-tool:<nolink>
-  $menu_links['menu-course-tools-menu_content-tool:<nolink>'] = array(
+  // Exported menu link: menu-course-tools-menu_content-tools:<nolink>
+  $menu_links['menu-course-tools-menu_content-tools:<nolink>'] = array(
     'menu_name' => 'menu-course-tools-menu',
     'link_path' => '<nolink>',
     'router_path' => '<nolink>',
-    'link_title' => 'Content tool',
+    'link_title' => 'Content Tools',
     'options' => array(
-      'attributes' => array(),
-      'identifier' => 'menu-course-tools-menu_content-tool:<nolink>',
+      'identifier' => 'menu-course-tools-menu_content-tools:<nolink>',
       'fa_icon' => 'page',
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -52,7 +57,7 @@ function mooc_cis_ux_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -48,
     'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_content-tool:<nolink>',
+    'parent_identifier' => 'menu-course-tools-menu_content-tools:<nolink>',
   );
   // Exported menu link: menu-course-tools-menu_outline-designer:admin/content/book
   $menu_links['menu-course-tools-menu_outline-designer:admin/content/book'] = array(
@@ -68,6 +73,7 @@ function mooc_cis_ux_menu_default_menu_links() {
         'style' => '',
       ),
       'identifier' => 'menu-course-tools-menu_outline-designer:admin/content/book',
+      'fa_icon' => 'page',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -76,7 +82,7 @@ function mooc_cis_ux_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -50,
     'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_content-tool:<nolink>',
+    'parent_identifier' => 'menu-course-tools-menu_content-tools:<nolink>',
   );
   // Exported menu link: menu-course-tools-menu_search-and-replace:admin/content/scanner
   $menu_links['menu-course-tools-menu_search-and-replace:admin/content/scanner'] = array(
@@ -92,6 +98,7 @@ function mooc_cis_ux_menu_default_menu_links() {
         'style' => '',
       ),
       'identifier' => 'menu-course-tools-menu_search-and-replace:admin/content/scanner',
+      'fa_icon' => 'page',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -100,12 +107,12 @@ function mooc_cis_ux_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -49,
     'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_content-tool:<nolink>',
+    'parent_identifier' => 'menu-course-tools-menu_content-tools:<nolink>',
   );
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Content tool');
+  t('Content Tools');
   t('Import content outline');
   t('Outline Designer');
   t('Search and Replace');

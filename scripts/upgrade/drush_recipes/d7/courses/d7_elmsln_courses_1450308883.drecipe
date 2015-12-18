@@ -13,7 +13,8 @@
 		{
 			"command": "fr",
 			"arguments": [
-				"mooc_content_theming"
+				"mooc_content_theming",
+				"mooc_cis_ux"
 			]
 		}
 	],
@@ -21,6 +22,6 @@
 		"type": "upgrade",
 		"version": "1450308883",
 		"author": "elmsln",
-		"description": "MOOC Content theming types need reverted."
+		"description": "MOOC Content theming types need reverted and UX menu."
 	}
 }
