@@ -1,7 +1,7 @@
 #START ELMSLN#
 
-# nightly cron
-00 05 * * * root su -c 'HOME=/home/ulmusdrush/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmusdrush/.composer/vendor/bin drush @elmsln cron --y' ulmusdrush
+# nightly cron and cache seeding routine
+00 04 * * * root su -c 'HOME=/home/ulmusdrush/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmusdrush/.composer/vendor/bin /var/www/elmsln/scripts/crontab/nightly-routine.sh' ulmusdrush
 
 #ELMSLN drush-command-job activation for command processing
 * * * * * root su -c 'HOME=/home/ulmusdrush/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmusdrush/.composer/vendor/bin /usr/local/bin/drush-command-job/drush-command-job >> /var/www/elmsln/config/logs/drush-command-job.log' ulmusdrush
