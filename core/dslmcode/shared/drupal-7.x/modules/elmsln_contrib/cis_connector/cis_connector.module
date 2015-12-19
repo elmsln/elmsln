@@ -13,6 +13,7 @@ define ('CIS_CONNECTOR_ENTITY_BOTH', 0);
 define ('CIS_CONNECTOR_ENTITY_REMOTE_ONLY', 1);
 // @todo read off config directory
 define ('CIS_CONNECTOR_DRUSH_TASK_RUNNER_PATH', '/var/www/elmsln/config/jobs/drush-command-job/');
+define ('CIS_NO_SECTION', 'NO_SECTION');
 
 /**
  * Implements hook_restws_meta_controls_alter().
@@ -470,101 +471,29 @@ function _cis_connector_section_context($account = NULL) {
     if (isset($group['gid'])) {
       $group = node_load($group['gid']);
     }
+    // ensure section is set to master for staff at this point
+    elseif (_cis_connector_role_grouping('staff', $account)) {
+      // we have no context and we are staff, default master
+      $section = 'master';
+    }
     else {
       // load groups they are part of, most likely location for this
       $groups = og_get_entity_groups('user', $account);
       if (!empty($groups['node'])) {
         $group = node_load(array_pop($groups['node']));
       }
-    }
-    // ensure section is set
-    if (isset($group->field_section_id) && is_array($group->field_section_id[LANGUAGE_NONE])) {
-      // pull out the section value if available
-      $section = $group->field_section_id[LANGUAGE_NONE][0]['safe_value'];
-    }
-    else {
-      // see if we are an administrative account that might be missing
-      // access to a group but yet clearly could be in the master
-      if (_cis_connector_role_groupings(array('staff','teacher'), $account)) {
-        // ensure we have section active first
-        $info = entity_get_info('node');
-        if (isset($info['bundles']['section'])) {
-          $query = new EntityFieldQuery();
-          // pull all nodes
-          $query->entityCondition('entity_type', 'node')
-          // that are sections
-          ->entityCondition('bundle', 'section')
-          // that are published
-          ->propertyCondition('status', 1)
-          // that have a section like master
-          ->fieldCondition('field_section_id', 'value', 'master')
-          ->addMetaData('account', user_load(1));
-          // store results
-          $result = $query->execute();
-          // ensure we have results
-          if (isset($result['node'])) {
-            $nids = array_keys($result['node']);
-            $sections = entity_load('node', $nids);
-            $group = array_pop($sections);
-            $section = $group->field_section_id[LANGUAGE_NONE][0]['safe_value'];
-            // add person to this group automatically
-            $values = array(
-              'entity_type' => 'user',
-              'entity' => $account,
-            );
-            og_group('node',$group->nid, $values);
-          }
-        }
-        else {
-          // variable as to what should be considered default
-          // this allows authenticated / anonymous levels of access to still
-          // make sense of the system in a fallback scenario when they actually
-          // should have access to something
-          $section = variable_get('cis_section_default', 'default');
-        }
+      // make sure a section isset
+      if (isset($group->field_section_id) && is_array($group->field_section_id[LANGUAGE_NONE])) {
+        // pull out the section value if available
+        $section = $group->field_section_id[LANGUAGE_NONE][0]['safe_value'];
       }
       else {
-        // last ditch effort, check for ability to see section switcher
-        // this implies a role that should be able to see the way sections
-        // are setup and so we need to just pick the best available option
-        if (user_access('switch section context')) {
-          $query = new EntityFieldQuery();
-          // pull all nodes
-          $query->entityCondition('entity_type', 'node')
-          // that are sections
-          ->entityCondition('bundle', 'section')
-          // that are published
-          ->propertyCondition('status', 1)
-          // that are active
-          ->fieldCondition('field_cis_active', 'value', '1', '=')
-          // ordered by date created
-          ->propertyOrderBy('created', 'DESC')
-          // load all possible results in system
-          ->addMetaData('account', user_load(1))
-          // only get the top one though
-          ->range(0, 1);
-          // store results
-          $result = $query->execute();
-          // ensure we have results
-          if (isset($result['node'])) {
-            $nids = array_keys($result['node']);
-            $sections = entity_load('node', $nids);
-            $group = array_pop($sections);
-            $section = $group->field_section_id[LANGUAGE_NONE][0]['safe_value'];
-            // also hijack the global session so that the form is auto populated
-            // with a reasonable value instead of magically giving a section
-            // association.  This means they won't be able to "unset" their
-            // made up section affiliation but that's ok.
-            $_SESSION['cis_section_context'] = $section;
-          }
-        }
-        else {
-          // variable as to what should be considered default
-          // this allows authenticated / anonymous levels of access to still
-          // make sense of the system in a fallback scenario when they actually
-          // should have access to something
-          $section = variable_get('cis_section_default', 'default');
-        }
+        // variable as to what should be considered default
+        // this allows authenticated / anonymous levels of access
+        // this doesn't default to master because we don't want
+        // to deliver them anything unless specifically set
+        // in the settings area
+        $section = variable_get('cis_section_default', CIS_NO_SECTION);
       }
     }
   }
@@ -722,7 +651,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
             }
           }
         }
-        else if ($request == 'resources') {
+        elseif ($request == 'resources') {
           if (isset($cis_section_item['list'][0])) {
             // loop through resources associated to build their info
             foreach ($cis_section_item['list'][0]['field_' . $request] as $reid) {
