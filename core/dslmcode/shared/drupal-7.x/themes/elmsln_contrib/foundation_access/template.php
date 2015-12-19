@@ -97,7 +97,7 @@ function foundation_access_preprocess_page(&$variables) {
   // sniff out if this is a view
   if ($menu_item['page_callback'] == 'views_page') {
     // try and auto append exposed filters to our local_subheader region
-    $bid = '-exp-' . $menu_item['page_arguments'][0] . '-' . $menu_item['page_arguments'][1];
+    $bid = '-exp-' . $menu_item['page_arguments'][0] . '-' . (is_array($menu_item['page_arguments'][1]) ? $menu_item['page_arguments'][1][0] : $menu_item['page_arguments'][1]);
     $block = module_invoke('views', 'block_view', $bid);
     $variables['page']['local_subheader'][$bid] = $block['content'];
   }
