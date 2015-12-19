@@ -1290,7 +1290,8 @@ function cis_connector_libraries_info_file_paths() {
  * Implements hook_init().
  */
 function cis_connector_init() {
- if (isset($_GET['cis-refresh']) && $_GET['cis-refresh']) {
+  // @todo maybe do an in-bound alter for this
+  if (isset($_GET['cis-refresh']) && $_GET['cis-refresh']) {
     drupal_set_message(t('CIS is currently refreshing its cache, reload this page in a moment to reflect any changes.'), 'status', FALSE);
   }
 }
