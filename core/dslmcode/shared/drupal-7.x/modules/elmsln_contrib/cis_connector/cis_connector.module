@@ -1730,5 +1730,25 @@ function _cis_connector_url_get_properties($url) {
   return $properties;
 }
 
-
+/**
+ * Get user ids by passing in an array of roles.
+ */
+function _cis_connector_load_users_by_role($roles = array()) {
+  // return membership to this group that are students
+  $query = db_select('users_roles', 'ur');
+  // join roles
+  $query->leftJoin('role', 'r', 'r.rid = ur.rid');
+  // join users
+  $query->leftJoin('users', 'u', 'u.uid = ur.uid');
+  // only grab people with these roles
+  $query->condition('r.name', $roles, 'IN');
+  // who are active
+  $query->condition('u.status', '1', '=');
+  // return the entity id which is the user's id
+  $query->fields('u', array('uid'));
+  // execute
+  $result = $query->execute();
+  // weird call but returns an array of the uids selected
+  return array_keys($result->fetchAllAssoc('uid'));
+}
 

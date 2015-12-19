@@ -334,9 +334,27 @@ function cis_section_assemble_roster($sections, $activated = FALSE) {
  * Implements hook_node_insert().
  */
 function cis_section_node_insert($node) {
-  // account for newly created sections being activated so we can react immediately
-  if ($node->type == 'section' && $node->field_cis_active['und'][0]['value'] == 1) {
-    cis_section_state_change($node, 'activate');
+  if ($node->type == 'section') {
+    // ensure all staff / admin users are added to
+    // the group automatically for staff level roles
+    $roles = _cis_connector_role_groups('staff');
+    // load all uids
+    $uids = _cis_connector_load_users_by_role($roles);
+    // load all user entities in the list
+    $users = entity_load('user', $uids);
+    foreach ($users as $member) {
+      $values = array(
+        'entity_type' => 'user',
+        'entity' => $member,
+      );
+      // add user to the group
+      og_group('node',$node->nid, $values);
+    }
+    // account for newly created sections being activated
+    // so we can react immediately
+    if ($node->field_cis_active['und'][0]['value'] == 1) {
+      cis_section_state_change($node, 'activate');
+    }
   }
 }
 
