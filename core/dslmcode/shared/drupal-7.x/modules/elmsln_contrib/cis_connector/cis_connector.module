@@ -754,7 +754,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // request the section of the user, always uncached
       $cis_section_item = _cis_connection_query($query, 'field_collection_item', 'json', 'GET', 'cis', '', FALSE);
       // pull back access duration
-      if ($cis_section_item) {
+      if ($cis_section_item && isset($cis_section_item['list'][0])) {
         $dates = $cis_section_item['list'][0]['field_access_dates'];
         // pull back the date class officially begins
         $class_begin = $cis_section_item['list'][0]['field_course_start'];
