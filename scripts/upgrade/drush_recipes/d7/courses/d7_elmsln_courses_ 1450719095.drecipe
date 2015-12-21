@@ -1,0 +1,20 @@
+{
+	"name": "ELMSLN Courses upgrade 1450719095",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "fr",
+			"arguments": [
+				"mooc_nav_block"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1450719095",
+		"author": "elmsln",
+		"description": "MOOC nav block context needs to be set on deploy."
+	}
+}
