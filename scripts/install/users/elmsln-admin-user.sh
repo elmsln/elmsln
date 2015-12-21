@@ -29,6 +29,11 @@ fi
 homedir=$1
 if [ -z "$homedir" ]; then
   homedir=$HOME
+  # establish as webadmin group otherwise they can't modify the stack at all
+  # only do this when running in interactive mode
+  if [[ $webgroup != 'root' ]]; then
+    sudo usermod -a -G $webgroup $USER
+  fi
 fi
 
 # modify the user's home directory to run drush and make life lazy
@@ -40,11 +45,6 @@ echo "alias g='git'" >> $homedir/.bashrc
 echo "alias d='drush'" >> $homedir/.bashrc
 echo "alias l='ls -laHF'" >> $homedir/.bashrc
 echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> $homedir/.bashrc
-
-# establish as webadmin group otherwise they can't modify the stack at all
-if [[ $webgroup != 'root' ]]; then
-  sudo usermod -a -G $webgroup $USER
-fi
 
 # setup drush
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $homedir/.bashrc
