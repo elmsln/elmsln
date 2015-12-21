@@ -275,7 +275,9 @@ function drush_drush_recipes_upgrade($pattern, $location) {
     // look for the alias in the recipe name
     if (strpos($recipe->name, $pattern) !== FALSE) {
       $basename = $recipe->basename;
-      $num = array_pop(explode('_', str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $basename)));
+      $tmp1 = str_replace('.' . DRUSH_RECIPE_EXTENSION, '', $basename);
+      $numary = explode('_', $tmp1);
+      $num = array_pop($numary);
       // if num is higher then stored value, we have new recipes to run!
       if (is_numeric($num) && $num > $last[$pattern]) {
         $matches[$recipe->name] = array(
