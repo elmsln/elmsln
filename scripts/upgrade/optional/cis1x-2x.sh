@@ -36,6 +36,6 @@ drush @online cook cis1x_2x --dr-locations=${elmsln}/scripts/upgrade/drush_recip
 # revert core features to ensure they match what things are now
 drush @online fr cis_displays cis_default_permissions cis_types cis_users cis_ux --force --y
 # update db
-drush @online updb
+drush @online updb --y
 # remove upgrade lock file
 rm /tmp/elmsln-upgrade-lock
