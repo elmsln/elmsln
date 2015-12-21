@@ -198,7 +198,7 @@ function _cis_connection_set_data($query, $data, $id_field = 'nid', $entity_type
     // update all items that were found
     foreach ($result['list'] as $response_item) {
       // post back to place queried from
-      $saved[] = _cis_connection_object($response_item[$id_field], $entity_type, NULL, 'PUT', $data, $bucket, $instance, $extra, $call_options);
+      $saved[] = _cis_connection_object($response_item[$id_field], $entity_type, NULL, 'PUT', $data, $bucket, $instance, FALSE, $extra, $call_options);
     }
   }
   return $saved;
