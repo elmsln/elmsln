@@ -844,7 +844,9 @@ function apdqc_init() {
     if (!empty($matched)) {
       $entity_name = $matched[0];
       $entity_id = substr($source, strlen($matched[1]));
-      $item = menu_get_item();
+      if (function_exists('menu_get_item')) {
+        $item = menu_get_item();
+      }
       $entity_bundle = '';
       if (!empty($item) && !empty($item['original_map'])) {
         $map_key = array_search($entity_id, $item['original_map']);
@@ -864,21 +866,24 @@ function apdqc_init() {
     }
   }
 
-  $router_item = menu_get_item();
+  if (function_exists('menu_get_item')) {
+    $router_item = menu_get_item();
+  }
   // If this router item points to its parent, start from the parents to
   // compute tabs and actions.
-  if ($router_item && ($router_item['type'] & MENU_LINKS_TO_PARENT)) {
+  if (!empty($router_item) && ($router_item['type'] & MENU_LINKS_TO_PARENT)) {
     $router_item = menu_get_item($router_item['tab_parent_href']);
   }
   // If we failed to fetch a router item or the current user doesn't have
   // access to it, don't bother computing the tabs.
-  if ($router_item && $router_item['access']) {
+  if (!empty($router_item) && $router_item['access']) {
     // Get all tabs (also known as local tasks) and the root page.
     $table_keys_cache_prefetch['cache_menu'][] = 'local_tasks:' . apdqc_escape_string($router_item['tab_root']);
   }
 
   if (module_exists('admin_menu')) {
     $cid = 'admin_menu:' . apdqc_escape_string($GLOBALS['user']->uid . ':' . session_id() . ':' . $GLOBALS['language']->language);
+    $table_keys_cache_prefetch['cache_menu'][] = $cid;
     $table_keys_cache_prefetch['cache_admin_menu'][] = $cid;
   }
 
@@ -897,7 +902,11 @@ function apdqc_init() {
     if ($main !== $secondary) {
       $system_menus[$main] = 'Secondary Menu';
     }
-    if ($secondary === $main && $secondary !== 'user-menu') {
+    if ( $secondary === $main
+      && $secondary !== 'user-menu'
+      && is_array($secondary['user-menu'])
+      && array_key_exists('user-menu', $secondary)
+    ) {
       unset($secondary['user-menu']);
     }
 

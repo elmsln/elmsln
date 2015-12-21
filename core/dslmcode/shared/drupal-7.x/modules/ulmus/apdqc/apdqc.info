@@ -6,9 +6,9 @@ php = 5.3
 
 configure = admin/config/development/performance/apdqc
 
-; Information added by Drupal.org packaging script on 2015-09-22
-version = "7.x-1.0-beta3+9-dev"
+; Information added by Drupal.org packaging script on 2015-12-10
+version = "7.x-1.0-rc1+4-dev"
 core = "7.x"
 project = "apdqc"
-datestamp = "1442884740"
+datestamp = "1449714241"
 

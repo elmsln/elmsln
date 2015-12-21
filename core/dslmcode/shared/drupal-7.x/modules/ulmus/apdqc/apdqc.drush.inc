@@ -29,7 +29,7 @@ function apdqc_drush_help($section) {
 }
 
 /**
- * Drush command to all all the apdqc functions
+ * Drush command to all all the apdqc functions.
  */
 function drush_apdqc() {
   $maintenance_mode = variable_get('maintenance_mode', 0);

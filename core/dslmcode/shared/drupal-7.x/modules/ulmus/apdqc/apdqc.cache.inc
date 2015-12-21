@@ -25,6 +25,11 @@ define('CACHE_BOOTSTRAP_PREFETCH', TRUE);
 define('APDQC_CALL_HOOK_ON_CLEAR', FALSE);
 
 /**
+ * If TRUE a union query will be used when prefetching cache bin data.
+ */
+define('APDQC_USE_UNION_QUERY', FALSE);
+
+/**
  * Prefetch data from a cache table.
  *
  * @param array $table_keys_cache_prefetch
@@ -51,20 +56,13 @@ function apdqc_run_prefetch_array(array $table_keys_cache_prefetch, $reap_on_nex
   }
 
   // Process and run query.
-  $query = '';
-  $tables = array();
-  $all_cids = array();
+  $queries = array();
   foreach ($table_keys_cache_prefetch as $bin => $cids) {
     if (apdqc_get_bin_class_name($bin) !== 'APDQCache') {
       continue;
     }
-    $tables[] = $bin;
-    $all_cids = array_merge($all_cids, $cids);
-    // Use a union query if hitting mutiple cache bins.
-    if (!empty($query)) {
-      $query .= "\nUNION ALL ";
-    }
 
+    $query = '';
     if (isset($cids['*'])) {
       $query .= "SELECT '$bin' AS bin, cid, data, created, expire, serialized FROM " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table($bin) . '}') . "";
       if (!empty($cids['*']) && is_array($cids['*'])) {
@@ -105,11 +103,29 @@ function apdqc_run_prefetch_array(array $table_keys_cache_prefetch, $reap_on_nex
         }
       }
     }
+    $queries[] = array($query, $bin, $cids);
   }
 
   // Prefetch cache.
-  if (!empty($query)) {
+  if (variable_get('apdqc_use_union_query', APDQC_USE_UNION_QUERY)) {
+    $query = '';
+    $all_cids = array();
+    $tables = array();
+    foreach ($queries as $values) {
+      $tables[] = $values[1];
+      $all_cids = array_merge($all_cids, $values[2]);
+      // Use a union query if hitting mutiple cache bins.
+      if (!empty($query)) {
+        $query .= "\nUNION ALL ";
+      }
+      $query .= $values[0];
+    }
     apdqc_query($tables, $all_cids, $query, array('async' => TRUE, 'log' => $log));
+  }
+  else {
+    foreach ($queries as $values) {
+      apdqc_query(array($values[1]), $values[2], $values[0], array('async' => TRUE, 'log' => $log));
+    }
   }
 }
 
@@ -271,6 +287,7 @@ class APDQCache extends DrupalDatabaseCache {
         // circumstances, and is used here only due to the performance overhead
         // we would incur otherwise. When serving an uncached page, the overhead
         // of using db_select() is a much smaller proportion of the request.
+        // @codingStandardsIgnoreLine
         $result = db_query('SELECT cid, data, created, expire, serialized FROM {' . db_escape_table($this->bin) . '} WHERE cid IN (:cids)', array(':cids' => $cids));
       }
       else {

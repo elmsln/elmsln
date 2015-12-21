@@ -388,7 +388,12 @@ function apdqc_get_db_object(array $tables = array(), array $cids = array(), arr
         $mysqli = apdqc_mysqli_new_connection($db_info, TRUE);
       }
       if (!empty($mysqli)) {
-        $db_info['pool'][$mysqli->thread_id] = array($mysqli, $tables, $cids, $options['async']);
+        $db_info['pool'][$mysqli->thread_id] = array(
+          $mysqli,
+          $tables,
+          $cids,
+          $options['async'],
+        );
       }
       return $mysqli;
     }
@@ -430,7 +435,12 @@ function apdqc_get_db_object(array $tables = array(), array $cids = array(), arr
   if (empty($db_info['pool'])) {
     $mysqli = apdqc_mysqli_new_connection($db_info);
     if (!empty($mysqli)) {
-      $db_info['pool'][$mysqli->thread_id] = array($mysqli, $tables, $cids, $options['async']);
+      $db_info['pool'][$mysqli->thread_id] = array(
+        $mysqli,
+        $tables,
+        $cids,
+        $options['async'],
+      );
     }
   }
   return $mysqli;
@@ -468,30 +478,37 @@ function apdqc_reap_async_query(array $db_info, mysqli &$mysqli, array $new_cids
 
   // Stop timer & write to the log if DB logger is enabled.
   if (!empty($logger) && is_object($logger)) {
+    $logit = FALSE;
     $query_end = microtime(TRUE);
-    $data = 'ASYNC READ';
+    $data = 'Waiting for ASYNC READ to finish. ';
     if (isset($old_cids['*'])) {
       $old_cids = $old_cids['*'];
     }
     $intersect = array_intersect($old_tables, $new_tables);
     $extra_data = '';
     if (!empty($intersect)) {
-      $extra_data .= ' TABLE INTERSECTION ' . implode(', ', $intersect) . '.';
+      $extra_data .= ' TABLE INTERSECTION on the ' . implode(', ', $intersect) . ' table(s).';
+      $extra_data .= ' OLD TABLES ' . implode(', ', $old_tables) . '.';
+      $logit = TRUE;
     }
     $intersect = array_intersect($old_cids, $new_cids);
     if (!empty($intersect)) {
-      $extra_data .= ' CID INTERSECTION ' . implode(', ', $intersect) . '.';
+      $extra_data .= ' CID INTERSECTION on these cids: ' . implode(', ', $intersect) . '.';
+      $extra_data .= ' OLD CID ' . implode(', ', $old_cids) . '.';
+      $logit = TRUE;
     }
-    $extra_data .= '||| OLD TABLES ' . implode(', ', $old_tables) . '.';
-    $extra_data .= ' OLD CID ' . implode(', ', $old_cids) . '.';
+
+    $extra_data .= ' Next query lists what closed this query out; a prefetch hit is good.';
 
     $data .= $extra_data;
     $data = trim($data);
 
     $extra_data = 'thread_id:' . $mysqli->thread_id . ' ';
-    require_once 'apdqc.log.inc';
-    $statement = new ApdqcFakeDatabaseStatement($data, $extra_data);
-    $logger->log($statement, array(), $query_end - $query_start);
+    if ($logit) {
+      require_once 'apdqc.log.inc';
+      $statement = new ApdqcFakeDatabaseStatement($data, $extra_data);
+      $logger->log($statement, array(), $query_end - $query_start);
+    }
   }
 }
 
@@ -508,7 +525,21 @@ function apdqc_mysqli_new_connection(array $db_info, $check_max = FALSE) {
   // Create new MySQL connection.
   $mysqli = new mysqli();
   $mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, $db_info['var']['connect_timeout']);
-  @$mysqli->real_connect($db_info['connection']['host'], $db_info['connection']['username'], $db_info['connection']['password'], $db_info['connection']['database'], $db_info['connection']['port'], $db_info['connection']['unix_socket']);
+  if (isset($db_info['connection']['pdo'])) {
+    $pdo = $db_info['connection']['pdo'];
+    $key = isset($pdo[PDO::MYSQL_ATTR_SSL_KEY]) ? $pdo[PDO::MYSQL_ATTR_SSL_KEY] : NULL;
+    $cert = isset($pdo[PDO::MYSQL_ATTR_SSL_CERT]) ? $pdo[PDO::MYSQL_ATTR_SSL_CERT] : NULL;
+    $ca = isset($pdo[PDO::MYSQL_ATTR_SSL_CA]) ? $pdo[PDO::MYSQL_ATTR_SSL_CA] : NULL;
+    $capath = isset($pdo[PDO::MYSQL_ATTR_SSL_CAPATH]) ? $pdo[PDO::MYSQL_ATTR_SSL_CAPATH] : NULL;
+    $cipher = isset($pdo[PDO::MYSQL_ATTR_SSL_CIPHER]) ? $pdo[PDO::MYSQL_ATTR_SSL_CIPHER] : NULL;
+  }
+  if (!empty($key) && !empty($cert) && !empty($ca)) {
+    $mysqli->ssl_set($key, $cert, $ca, $capath, $cipher);
+    @$mysqli->real_connect($db_info['connection']['host'], $db_info['connection']['username'], $db_info['connection']['password'], $db_info['connection']['database'], $db_info['connection']['port'], $db_info['connection']['unix_socket'], MYSQLI_CLIENT_SSL);
+  }
+  else {
+    @$mysqli->real_connect($db_info['connection']['host'], $db_info['connection']['username'], $db_info['connection']['password'], $db_info['connection']['database'], $db_info['connection']['port'], $db_info['connection']['unix_socket']);
+  }
 
   if (empty($mysqli) || !empty($mysqli->connect_errno) || empty($mysqli->host_info)) {
     // Bail out if the DB didn't connect.
@@ -580,7 +611,12 @@ function apdqc_mysqli_ping(mysqli &$mysqli, array &$db_info, array $tables, arra
     }
   }
   if (!empty($mysqli)) {
-    $db_info['pool'][$mysqli->thread_id] = array($mysqli, $tables, $cids, $async);
+    $db_info['pool'][$mysqli->thread_id] = array(
+      $mysqli,
+      $tables,
+      $cids,
+      $async,
+    );
   }
 }
 
@@ -737,7 +773,7 @@ function apdqc_query(array $tables, array $cids, $query, array $options = array(
   if (!empty($logger)) {
     $query_end = microtime(TRUE);
     $affected_rows = $mysqli->affected_rows;
-    $extra_data = $affected_rows . ' ';
+    $extra_data = '';
     if ($options['async']) {
       $extra_data .= 'ASYNC ';
     }
@@ -752,10 +788,13 @@ function apdqc_query(array $tables, array $cids, $query, array $options = array(
         $extra_data .= 'HIT ';
       }
     }
-    require_once 'apdqc.log.inc';
-    $extra_data .= 'thread_id:' . $mysqli->thread_id . ' ';
-    $statement = new ApdqcFakeDatabaseStatement($query, $extra_data);
-    $logger->log($statement, array(), $query_end - $query_start);
+    if (variable_get('apdqc_verbose_devel_output', APDQC_VERBOSE_DEVEL_OUTPUT) || !$options['async']) {
+      $extra_data .= implode(', ', $tables) . ' Rows affected: ' . $affected_rows . ' Error code: ' . $mysqli->sqlstate . ' ';
+      require_once 'apdqc.log.inc';
+      $extra_data .= 'thread_id:' . $mysqli->thread_id . ' ';
+      $statement = new ApdqcFakeDatabaseStatement($query, $extra_data);
+      $logger->log($statement, array(), $query_end - $query_start);
+    }
   }
   if ($options['get_mysqli']) {
     $return = $mysqli;

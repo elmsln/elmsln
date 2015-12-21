@@ -49,6 +49,13 @@ else {
   }
   // Redis.
   if ($default_cache_class === 'Redis_Cache' || strpos($base_lock_location, '/redis/redis.lock.inc') !== FALSE) {
+    // Include our own autoloader to ensure classes to be there.
+    // We cannot rely on core in case of early bootstrap phases.
+    require_once dirname(variable_get('base_lock_inc', BASE_LOCK_INC)) . '/redis.autoload.inc';
+
+    include_once REDIS_ROOT . '/Redis/Lock.php';
+    include_once REDIS_ROOT . '/Redis/Client.php';
+
     // Use redis locking.
     $lock_file_included = TRUE;
     require_once 'apdqc.lock.redis.inc';
@@ -71,19 +78,32 @@ else {
     // @ignore security_19
     eval('namespace base_lock {?>' . file_get_contents(DRUPAL_ROOT . '/' . $base_lock_location) . '}');
   }
+  $GLOBALS['conf']['apdqc_lock_file_included'] = $lock_file_included;
 
   /**
    * Initialize the locking system.
    */
   function lock_initialize() {
-    return base_lock\lock_initialize();
+    if ($GLOBALS['conf']['apdqc_lock_file_included']) {
+      $function = '_apdqc_' . __FUNCTION__;
+      return $function();
+    }
+    else {
+      return base_lock\lock_initialize();
+    }
   }
 
   /**
    * Helper function to get this request's unique id.
    */
   function _lock_id() {
-    return base_lock\_lock_id();
+    if ($GLOBALS['conf']['apdqc_lock_file_included']) {
+      $function = '_apdqc' . __FUNCTION__;
+      return $function();
+    }
+    else {
+      return base_lock\_lock_id();
+    }
   }
 
   /**
@@ -98,7 +118,13 @@ else {
    *   TRUE if the lock was acquired, FALSE if it failed.
    */
   function lock_acquire($name, $timeout = 30.0) {
-    return base_lock\lock_acquire($name, $timeout);
+    if ($GLOBALS['conf']['apdqc_lock_file_included']) {
+      $function = '_apdqc_' . __FUNCTION__;
+      return $function($name, $timeout);
+    }
+    else {
+      return base_lock\lock_acquire($name, $timeout);
+    }
   }
 
   /**
@@ -113,7 +139,13 @@ else {
    *   TRUE if there is no lock or it was removed, FALSE otherwise.
    */
   function lock_may_be_available($name) {
-    return base_lock\lock_may_be_available($name);
+    if ($GLOBALS['conf']['apdqc_lock_file_included']) {
+      $function = '_apdqc_' . __FUNCTION__;
+      return $function($name);
+    }
+    else {
+      return base_lock\lock_may_be_available($name);
+    }
   }
 
   /**
@@ -134,7 +166,13 @@ else {
    *   TRUE if the lock holds, FALSE if it is available.
    */
   function lock_wait($name, $delay = 30) {
-    return base_lock\lock_wait($name, $delay);
+    if ($GLOBALS['conf']['apdqc_lock_file_included']) {
+      $function = '_apdqc_' . __FUNCTION__;
+      return $function($name, $delay);
+    }
+    else {
+      return base_lock\lock_wait($name, $delay);
+    }
   }
 
   /**
@@ -148,7 +186,13 @@ else {
    */
   function lock_release($name) {
     apdqc_wait_for_all_async_queries();
-    return base_lock\lock_release($name);
+    if ($GLOBALS['conf']['apdqc_lock_file_included']) {
+      $function = '_apdqc_' . __FUNCTION__;
+      return $function($name);
+    }
+    else {
+      return base_lock\lock_release($name);
+    }
   }
 
   /**
@@ -156,7 +200,13 @@ else {
    */
   function lock_release_all($lock_id = NULL) {
     apdqc_wait_for_all_async_queries();
-    return base_lock\lock_release_all($lock_id);
+    if ($GLOBALS['conf']['apdqc_lock_file_included']) {
+      $function = '_apdqc_' . __FUNCTION__;
+      return $function($lock_id);
+    }
+    else {
+      return base_lock\lock_release_all($lock_id);
+    }
   }
 
   /**
@@ -182,8 +232,16 @@ else {
     if (empty($old_lock_id)) {
       $old_lock_id = _lock_id();
     }
-    if (function_exists('base_lock\lock_change_lock_id')) {
-      return base_lock\lock_change_lock_id($name, $old_lock_id, $new_lock_id);
+    if ($GLOBALS['conf']['apdqc_lock_file_included']) {
+      $function = '_apdqc_' . __FUNCTION__;
+      if (function_exists($function)) {
+        return $function($name, $old_lock_id, $new_lock_id);
+      }
+    }
+    else {
+      if (function_exists('base_lock\lock_change_lock_id')) {
+        return base_lock\lock_change_lock_id($name, $old_lock_id, $new_lock_id);
+      }
     }
   }
 
@@ -196,7 +254,12 @@ else {
    *   The name of the lock.
    */
   function lock_release_fuzzy($name) {
-    if (function_exists('base_lock\lock_release_fuzzy')) {
+    $function = '_apdqc_' . __FUNCTION__;
+    if ($GLOBALS['conf']['apdqc_lock_file_included'] && function_exists($function)) {
+      apdqc_wait_for_all_async_queries();
+      return $function($name);
+    }
+    elseif (function_exists('base_lock\lock_release_fuzzy')) {
       apdqc_wait_for_all_async_queries();
       return base_lock\lock_release_fuzzy($name);
     }

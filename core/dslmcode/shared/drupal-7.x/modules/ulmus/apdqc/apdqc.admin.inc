@@ -156,6 +156,21 @@ function apdqc_admin_operations_form($form, $form_state) {
     );
   }
 
+  // Check engine.
+  $results = apdqc_admin_change_table_engine();
+  if (!empty($results)) {
+    $form['convert_cache_tables_engine'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Convert cache tables engine'),
+      '#description' => t('Using the InnoDB engine is faster and recommended'),
+    );
+    $form['convert_cache_tables_collation']['convert_table_engine_to_innodb'] = array(
+      '#type' => 'submit',
+      '#value' => t('Convert cache tables engine'),
+      '#submit' => array('apdqc_admin_convert_table_engine_to_innodb'),
+    );
+  }
+
   // Check cache indexes.
   $cache_table_indexes = apdqc_get_cache_table_indexes();
   $missing_expire_created_index = FALSE;
@@ -224,7 +239,23 @@ function apdqc_disable_form(array &$form) {
  *   Array of form elements.
  */
 function apdqc_admin_get_settings() {
-  $period = drupal_map_assoc(array(0, 60, 180, 300, 600, 900, 1800, 2700, 3600, 10800, 21600, 32400, 43200, 86400), 'format_interval');
+  $period = drupal_map_assoc(array(
+    0,
+    60,
+    180,
+    300,
+    600,
+    900,
+    1800,
+    2700,
+    3600,
+    10800,
+    21600,
+    32400,
+    43200,
+    86400,
+  ), 'format_interval');
+  // @codingStandardsIgnoreLine
   $period[0] = '<' . t('none') . '>';
   $period += apdqc_admin_additional_times();
   ksort($period);
@@ -237,6 +268,7 @@ function apdqc_admin_get_settings() {
   $form['cache_garbage_collection_frequency'] = array(
     '#type' => 'select',
     '#title' => t('Cache garbage collection frequency'),
+    // @codingStandardsIgnoreLine
     '#default_value' => variable_get('cache_garbage_collection_frequency', CACHE_GARBAGE_COLLECTION_FREQUENCY),
     '#options' => $period,
     '#description' => t('The frequency with which cache bins are cleared on cron. When ran from system_cron, garbage collection will use the max value of this field and minimum cache lifetime field: <code>max($min_cache_lifetime, $gc_frequency)</code>.'),
@@ -290,6 +322,8 @@ function apdqc_admin_additional_times() {
  * Convert semaphore table to MEMORY.
  */
 function apdqc_admin_convert_table_to_memory($show_msg = TRUE) {
+  $before = apdqc_semaphore_conversion();
+
   // Get current table indexes.
   $indexes = db_query('SHOW INDEX FROM {semaphore}')->fetchAllAssoc('Key_name');
   // Run the commands.
@@ -307,7 +341,16 @@ function apdqc_admin_convert_table_to_memory($show_msg = TRUE) {
 
   // Let user know it worked.
   if ($show_msg) {
-    drupal_set_message(t('APDQC: semaphore table converted to MEMORY engine'));
+    $conversion = apdqc_semaphore_conversion();
+    if ($before != 1) {
+      drupal_set_message(t('APDQC: semaphore table is already using the MEMORY engine.'));
+    }
+    elseif ($conversion == 1) {
+      drupal_set_message(t('APDQC: semaphore table was not converted to MEMORY engine. You need to do this manually by using a tool like phpmyadmin.'), 'error');
+    }
+    else {
+      drupal_set_message(t('APDQC: semaphore table converted to MEMORY engine'));
+    }
   }
   variable_set('apdqc_semaphore_memory', TRUE);
 }
@@ -316,12 +359,22 @@ function apdqc_admin_convert_table_to_memory($show_msg = TRUE) {
  * Convert semaphore table to InnoDB.
  */
 function apdqc_admin_convert_table_to_innodb($show_msg = TRUE) {
+  $before = apdqc_semaphore_conversion();
   // Run the command.
   db_query('ALTER TABLE {semaphore} ENGINE = InnoDB');
 
   // Let user know it worked.
   if ($show_msg) {
-    drupal_set_message(t('APDQC: semaphore table converted to InnoDB engine'));
+    $conversion = apdqc_semaphore_conversion();
+    if ($before != 2) {
+      drupal_set_message(t('APDQC: semaphore table is already using the InnoDB engine.'));
+    }
+    elseif ($conversion == 2) {
+      drupal_set_message(t('APDQC: semaphore table was not converted to InnoDB engine. You need to do this manually by using a tool like phpmyadmin.'), 'error');
+    }
+    else {
+      drupal_set_message(t('APDQC: semaphore table converted to InnoDB engine'));
+    }
   }
 }
 
@@ -329,12 +382,48 @@ function apdqc_admin_convert_table_to_innodb($show_msg = TRUE) {
  * Convert table collations to utf8.
  */
 function apdqc_admin_convert_table_collations_to_utf8_bin($show_msg = TRUE) {
+  $before = apdqc_admin_change_table_collation();
+
   // Run the command.
   apdqc_admin_change_table_collation(TRUE);
 
   // Let user know it worked.
   if ($show_msg) {
-    drupal_set_message(t('APDQC: All cache tables collations converted to utf8_bin'));
+    $results = apdqc_admin_change_table_collation();
+    if (empty($before)) {
+      drupal_set_message(t('APDQC: All cache tables collations were already utf8_bin'));
+    }
+    elseif (!empty($results)) {
+      drupal_set_message(t('APDQC: Cache tables collations were not converted to utf8_bin. You need to do this manually by using a tool like phpmyadmin.'), 'error');
+    }
+    else {
+      drupal_set_message(t('APDQC: All cache tables collations converted to utf8_bin'));
+    }
+  }
+  variable_set('apdqc_table_collations', TRUE);
+}
+
+/**
+ * Convert table engine to InnoDB.
+ */
+function apdqc_admin_convert_table_engine_to_innodb($show_msg = TRUE) {
+  // Run the command.
+  $return = apdqc_admin_change_table_engine(TRUE);
+
+  // Let user know it worked.
+  if ($return !== FALSE) {
+    if ($show_msg) {
+      if (!empty($return)) {
+        drupal_set_message(t('APDQC: All cache tables engines converted to InnoDB'));
+      }
+      else {
+        drupal_set_message(t('APDQC: All cache tables engines were already InnoDB'));
+      }
+    }
+  }
+  else {
+    $tables = apdqc_admin_change_table_engine();
+    drupal_set_message(t('APDQC: Cache tables could not be converted to InnoDB. Use a tool like phpmyadmin and convert these cache tables manually to InnoDB - @tables.', array('@tables' => implode(', ', $tables))), 'error');
   }
   variable_set('apdqc_table_collations', TRUE);
 }
@@ -343,16 +432,105 @@ function apdqc_admin_convert_table_collations_to_utf8_bin($show_msg = TRUE) {
  * Convert table indexes to expire, created.
  */
 function apdqc_admin_convert_tables_indexes($show_msg = TRUE) {
+  $cache_table_indexes = apdqc_get_cache_table_indexes();
+  $missing_expire_created_index_before = FALSE;
+  foreach ($cache_table_indexes as $indexes) {
+    if (!isset($indexes['expire_created'])) {
+      $missing_expire_created_index_before = TRUE;
+      break;
+    }
+  }
+
   // Drop the expire index; use expire_created.
   $before = array('expire');
   $after = array('expire', 'created');
   apdqc_convert_cache_index($before, $after);
 
+  $cache_table_indexes = apdqc_get_cache_table_indexes();
+  $missing_expire_created_index_after = FALSE;
+  foreach ($cache_table_indexes as $indexes) {
+    if (!isset($indexes['expire_created'])) {
+      $missing_expire_created_index_after = TRUE;
+      break;
+    }
+  }
+
   // Let user know it worked.
   if ($show_msg) {
-    drupal_set_message(t('APDQC: All cache tables indexes where updated.'));
+    if (empty($missing_expire_created_index_before)) {
+      drupal_set_message(t('APDQC: All cache tables indexes where already up to date.'));
+    }
+    elseif (empty($missing_expire_created_index_after)) {
+      drupal_set_message(t('APDQC: All cache tables indexes where not updated. You need to do this manually by using a tool like phpmyadmin.'), 'error');
+    }
+    else {
+      drupal_set_message(t('APDQC: All cache tables indexes where updated.'));
+    }
   }
   variable_set('apdqc_table_indexes', TRUE);
+}
+
+/**
+ * Convert cache tables engine to InnoDB.
+ *
+ * @param bool $preform_alter
+ *   Set to TRUE to actually preform the alter.
+ *
+ * @return mixed
+ *   Returns an array of tables that need to be changed or that were changed.
+ *   Will return FALSE if the alter failed.
+ */
+function apdqc_admin_change_table_engine($preform_alter = FALSE) {
+  $cache_tables = apdqc_get_cache_tables();
+  $db_type = Database::getConnection()->databaseType();
+  $db = Database::getConnection()->getConnectionOptions();
+  $tables_altered = array();
+  $results_after = array();
+  if ($db_type === 'mysql') {
+    // Get cache table engine.
+    $results_before = db_query("
+      SELECT
+        table_name,
+        engine
+      FROM information_schema.tables
+      WHERE TABLE_SCHEMA = :dbname
+      AND ENGINE <> 'InnoDB'
+      AND TABLE_NAME IN (:tables)
+    ", array(
+      ':dbname' => $db['database'],
+      ':tables' => $cache_tables,
+    ))->fetchAllAssoc('table_name');
+    if ($preform_alter) {
+      foreach ($results_before as $row) {
+        $table_name = $row->table_name;
+        db_query("ALTER TABLE $table_name ENGINE = InnoDB;");
+        $tables_altered[] = $row->table_name;
+      }
+      $results_after = db_query("
+        SELECT
+          table_name,
+          engine
+        FROM information_schema.tables
+        WHERE TABLE_SCHEMA = :dbname
+        AND ENGINE <> 'InnoDB'
+        AND TABLE_NAME IN (:tables)
+      ", array(
+        ':dbname' => $db['database'],
+        ':tables' => $cache_tables,
+      ))->fetchAllAssoc('table_name');
+    }
+  }
+  if ($preform_alter) {
+    if (empty($results_after)) {
+      return $tables_altered;
+    }
+    else {
+      return FALSE;
+    }
+  }
+  else {
+    return array_keys($results_before);
+  }
 }
 
 /**
@@ -403,7 +581,11 @@ function apdqc_admin_change_table_collation_queries($table_name, $collation, $pr
         if ($preform_alter) {
           $query = "ALTER TABLE $table_name MODIFY {$row->Field} {$row->Type} CHARACTER SET utf8 COLLATE $collation";
           if (function_exists('apdqc_query')) {
-            $mysqli = apdqc_query(array($table_name), array('*'), $query, array('async' => TRUE, 'log' => FALSE, 'get_mysqli' => TRUE));
+            $mysqli = apdqc_query(array($table_name), array('*'), $query, array(
+              'async' => TRUE,
+              'log' => FALSE,
+              'get_mysqli' => TRUE,
+            ));
             $good = TRUE;
             if (isset($mysqli->thread_id)) {
               if (apdqc_kill_metadata_lock($mysqli->thread_id)) {
@@ -468,7 +650,11 @@ function apdqc_convert_cache_index(array $before, array $after) {
     if (isset($indexes[$before_name])) {
       if (function_exists('apdqc_query')) {
         $query = "ALTER TABLE $table_name DROP INDEX `$before_name`";
-        $mysqli = apdqc_query(array($table_name), array('*'), $query, array('async' => TRUE, 'log' => FALSE, 'get_mysqli' => TRUE));
+        $mysqli = apdqc_query(array($table_name), array('*'), $query, array(
+          'async' => TRUE,
+          'log' => FALSE,
+          'get_mysqli' => TRUE,
+        ));
         if (isset($mysqli->thread_id)) {
           apdqc_kill_metadata_lock($mysqli->thread_id);
         }
@@ -481,7 +667,11 @@ function apdqc_convert_cache_index(array $before, array $after) {
       if (function_exists('apdqc_query')) {
         $columns = apdqc_create_key_sql($after);
         $query = "ALTER TABLE $table_name ADD INDEX `$after_name` ($columns)";
-        $mysqli = apdqc_query(array($table_name), array('*'), $query, array('async' => TRUE, 'log' => FALSE, 'get_mysqli' => TRUE));
+        $mysqli = apdqc_query(array($table_name), array('*'), $query, array(
+          'async' => TRUE,
+          'log' => FALSE,
+          'get_mysqli' => TRUE,
+        ));
         if (isset($mysqli->thread_id)) {
           apdqc_kill_metadata_lock($mysqli->thread_id);
         }

@@ -74,12 +74,12 @@ function apdqc_disable() {
     $apdqcache_found = TRUE;
   }
   $session = variable_get('session_inc', 'includes/session.inc');
-  if (stripos($lock_inc, '/apdqc/apdqc.session.inc') !== FALSE) {
+  if (stripos($session, '/apdqc/apdqc.session.inc') !== FALSE) {
     $apdqcache_found = TRUE;
   }
 
   if ($apdqcache_found) {
-    drupal_set_message('Be sure to edit your settings.php file and remove the apdqc code in there.', 'error');
+    drupal_set_message(t('Be sure to edit your settings.php file and remove the apdqc code in there.'), 'error');
   }
 }
 
@@ -110,12 +110,12 @@ function apdqc_uninstall() {
     $apdqcache_found = TRUE;
   }
   $session = variable_get('session_inc', 'includes/session.inc');
-  if (stripos($lock_inc, '/apdqc/apdqc.session.inc') !== FALSE) {
+  if (stripos($session, '/apdqc/apdqc.session.inc') !== FALSE) {
     $apdqcache_found = TRUE;
   }
 
   if ($apdqcache_found) {
-    drupal_set_message('Be sure to edit your settings.php file and remove the apdqc code in there.', 'error');
+    drupal_set_message(t('Be sure to edit your settings.php file and remove the apdqc code in there.'), 'error');
   }
 }
 
@@ -127,89 +127,108 @@ function apdqc_requirements($phase) {
   // Ensure translations don't break at install time.
   $t = get_t();
 
-  if ($phase === 'runtime') {
+  // Only working with MySQL currently.
+  $db_type = Database::getConnection()->databaseType();
+  if ($db_type !== 'mysql') {
+    $requirements['apdqc_mysql'] = array(
+      'title' => $t('APDQC'),
+      'value' => $phase === 'install' ? FALSE : $t('This module requires MySQL.'),
+      'description' => $t('Currently APDQC only works with MySQL.'),
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
 
-    if (!variable_get('apdqc_install_ignore_mysql_version', APDQC_INSTALL_IGNORE_MYSQL_VERSION)) {
-      // This module requires MySQL 5.5 or higher.
-      $results = db_query("SELECT VERSION()")->fetchAssoc();
-      $version = reset($results);
-      if (version_compare($version, '5.5.0', '<=')) {
-        $requirements['apdqc_mysql_version'] = array(
-          'title' => $t('APDQC'),
-          'value' => $phase === 'install' ? FALSE : $t('This module requires MySQL 5.5 or higher.'),
-          'description' => $t('Note that some older versions of MySQL will work with this module. If that is the case you can set this variable in your settings.php file to make this warning go away. <p><code>@code</code></p>', array(
-            '@code' => '$conf[\'apdqc_install_ignore_mysql_version\'] = TRUE;',
-          )),
-          'severity' => REQUIREMENT_ERROR,
-        );
+  // Only working with php 5.3+.
+  if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300) {
+    $requirements['apdqc_php'] = array(
+      'title' => $t('APDQC'),
+      'value' => $phase === 'install' ? FALSE : $t('This module requires PHP 5.3 or higher.'),
+      'description' => $t('Currently APDQC only works with PHP 5.3 or newer.'),
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+
+  // This module requires MySQL 5.5 or higher.
+  if (!variable_get('apdqc_install_ignore_mysql_version', APDQC_INSTALL_IGNORE_MYSQL_VERSION)) {
+    $results = db_query("SELECT VERSION()")->fetchAssoc();
+    $version = reset($results);
+    if (version_compare($version, '5.5.0', '<=')) {
+      $requirements['apdqc_mysql_version'] = array(
+        'title' => $t('APDQC'),
+        'value' => $phase === 'install' ? FALSE : $t('This module requires MySQL 5.5 or higher.'),
+        'description' => $t('Note that some older versions of MySQL will work with this module. If that is the case you can set this variable in your settings.php file to make this warning go away. <p><code>@code</code></p>', array(
+          '@code' => '$conf[\'apdqc_install_ignore_mysql_version\'] = TRUE;',
+        )),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+
+  // Check if mysqlnd is installed.
+  $mysqlnd = get_loaded_extensions();
+  // If mysqlnd is not installed, throw an error.
+  if (empty($mysqlnd) || !in_array('mysqlnd', $mysqlnd)) {
+    $directions = $t('You need to <a href="@url">install the mysqlnd driver</a> on this system.', array('@url' => 'http://php.net/manual/en/mysqlnd.install.php'));
+    if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+      $release_info = array();
+      // Get server version.
+      exec('ls /etc/*release', $release_info);
+      $release_info_string = implode(',', $release_info);
+      $directions .= ' ';
+      if (strpos($release_info_string, 'lsb-release') !== FALSE) {
+        // PHP 5.4 on ubuntu has php5enmod available.
+        if (PHP_VERSION_ID < 50400) {
+          $directions .= $t('Run <code>sudo apt-get install php5-mysqlnd && sudo php5enmod mysqlnd<code>');
+        }
+        else {
+          $directions .= $t('Run <code>sudo apt-get install php5-mysqlnd</code>. You might need to add the extension to your php.ini file as well <code>extension=mysqlnd.so</code>; should be located here: @ini', array('@ini' => php_ini_loaded_file()));
+        }
+      }
+      elseif (strpos($release_info_string, 'redhat-release') !== FALSE) {
+        $directions .= $t('Run <code>sudo yum remove php-mysql && sudo yum install php-mysqlnd</code>. You might need to add the extension to your php.ini file as well <code>extension=mysqlnd.so</code>; should be located here: @ini', array('@ini' => php_ini_loaded_file()));
       }
     }
+    $requirements['apdqc_mysqlnd'] = array(
+      'title' => $t('APDQC'),
+      'value' => $phase === 'install' ? FALSE : $t('The mysqlnd extension is not installed on this server.'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => $directions,
+    );
+  }
 
-    // Check if mysqlnd is installed.
-    if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
-      $mysqlnd = array();
-      exec('php -m | grep mysqlnd', $mysqlnd);
-      if (!in_array('mysqlnd', $mysqlnd)) {
-        $release_info = array();
-        // Get server version.
-        exec('ls /etc/*release', $release_info);
-        $release_info_string = implode(',', $release_info);
-        $directions = '';
-        if (strpos($release_info_string, 'lsb-release') !== FALSE) {
-          // PHP 5.4 on ubuntu has php5enmod available.
-          if (PHP_VERSION_ID < 50400) {
-            $directions = $t('Run <code>sudo apt-get install php5-mysqlnd && sudo php5enmod mysqlnd<code>');
-          }
-          else {
-            $directions = $t('Run <code>sudo apt-get install php5-mysqlnd</code>. You might need to add the extension to your php.ini file as well <code>extension=mysqlnd.so</code>; should be located here: @ini', array('@ini' => php_ini_loaded_file()));
-          }
-        }
-        elseif (strpos($release_info_string, 'redhat-release') !== FALSE) {
-          $directions = $t('Run <code>sudo yum remove php-mysql && sudo yum install php-mysqlnd</code>. You might need to add the extension to your php.ini file as well <code>extension=mysqlnd.so</code>; should be located here: @ini', array('@ini' => php_ini_loaded_file()));
-        }
-        if (!empty($directions)) {
-          $requirements['apdqc_mysqlnd'] = array(
-            'title' => $t('APDQC'),
-            'value' => $phase === 'install' ? FALSE : $t('The mysqlnd extension is not installed on this server.'),
-            'severity' => REQUIREMENT_ERROR,
-            'description' => $directions,
-          );
-        }
+  // Check if mysqli async is available.
+  if (empty($requirements)) {
+    $function_list = array(
+      'mysqli_init',
+      'mysqli_reap_async_query',
+    );
+    // Check each function to make sure it exists.
+    foreach ($function_list as $function_name) {
+      if (!function_exists($function_name)) {
+        $requirements['apdqc_function_' . $function_name] = array(
+          'title' => $t('APDQC'),
+          'value' => $phase === 'install' ? FALSE : $function_name,
+          'severity' => REQUIREMENT_ERROR,
+          'description' => $t('<a href="!url">%name()</a> is disabled on this server. Please contact your hosting provider and see if they can re-enable this function for you.', array(
+            '!url' => 'http://php.net/' . str_replace('_', '-', $function_name),
+            '%name' => $function_name,
+          )),
+        );
       }
     }
 
     // Check if mysqli async is available.
-    if (empty($requirements)) {
-      $function_list = array(
-        'mysqli_init',
-        'mysqli_reap_async_query',
+    if (!defined('MYSQLI_ASYNC')) {
+      $requirements['apdqc_mysqli_async'] = array(
+        'title' => $t('APDQC'),
+        'value' => $phase === 'install' ? FALSE : 'MYSQLI_ASYNC',
+        'severity' => REQUIREMENT_ERROR,
+        'description' => $t('MYSQLI_ASYNC is not available on this server. Please contact your hosting provider and see if they can make it available for you.'),
       );
-      // Check each function to make sure it exists.
-      foreach ($function_list as $function_name) {
-        if (!function_exists($function_name)) {
-          $requirements['apdqc_function_' . $function_name] = array(
-            'title' => $t('APDQC'),
-            'value' => $phase === 'install' ? FALSE : $function_name,
-            'severity' => REQUIREMENT_ERROR,
-            'description' => $t('<a href="!url">%name()</a> is disabled on this server. Please contact your hosting provider and see if they can re-enable this function for you.', array(
-              '!url' => 'http://php.net/' . str_replace('_', '-', $function_name),
-              '%name' => $function_name,
-            )),
-          );
-        }
-      }
-
-      // Check if mysqli async is available.
-      if (!defined('MYSQLI_ASYNC')) {
-        $requirements['apdqc_mysqli_async'] = array(
-          'title' => $t('APDQC'),
-          'value' => $phase === 'install' ? FALSE : 'MYSQLI_ASYNC',
-          'severity' => REQUIREMENT_ERROR,
-          'description' => $t('MYSQLI_ASYNC is not available on this server. Please contact your hosting provider and see if they can make it available for you.'),
-        );
-      }
     }
+  }
 
+  if ($phase === 'runtime') {
     // Warn if drupal_hash_salt is empty.
     // Error if empty and using a private file system.
     if (empty($GLOBALS['drupal_hash_salt'])) {
@@ -289,7 +308,7 @@ function apdqc_requirements($phase) {
       if ( $mysql_ip === '127.0.0.1'
         || $mysql_ip === $_SERVER['SERVER_ADDR']
         || gethostbyname(NULL)
-        ) {
+      ) {
         $use_socket = TRUE;
       }
       else {
@@ -347,6 +366,7 @@ function apdqc_requirements($phase) {
     }
 
     // Recommendation of engine type for the semaphore table.
+    module_load_include('admin.inc', 'apdqc');
     $conversion = apdqc_semaphore_conversion();
     if ($conversion == 1) {
       $requirements['apdqc_memory_table'] = array(
@@ -591,6 +611,69 @@ function apdqc_requirements($phase) {
       );
     }
 
+    // Check connection limits and open files limit.
+    $results = array();
+    $results += db_query("SHOW VARIABLES LIKE 'max_connections'")->fetchAllKeyed();
+    $results += db_query("SHOW VARIABLES LIKE 'max_user_connections'")->fetchAllKeyed();
+    $results += db_query("SHOW VARIABLES LIKE 'open_files_limit'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL STATUS LIKE 'Max_used_connections'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL STATUS LIKE 'Connection_errors_max_connections'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL STATUS LIKE 'Connections'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL STATUS LIKE 'Uptime'")->fetchAllKeyed();
+    $results['max_usable_connections'] = min($results['max_connections'], $results['max_user_connections']);
+    $description = '';
+    if ($results['max_usable_connections'] - 1 < $results['Max_used_connections']) {
+      $description .= ' ' . $t('In the past %time, you have dropped %number of connections due to the max connection limit being reached.', array(
+        '%time' => format_interval($results['Uptime']),
+        '%number' => $results['Connection_errors_max_connections'],
+      ));
+      $connection_limit = TRUE;
+      $severity = REQUIREMENT_ERROR;
+    }
+    elseif (floor($results['max_usable_connections'] * 0.8) < $results['Max_used_connections']) {
+      $description .= ' ' . $t('You are close to the max connections limit.', array(
+        '%time' => format_interval($results['Uptime']),
+        '%number' => $results['Connection_errors_max_connections'],
+      ));
+      $connection_limit = TRUE;
+      $severity = REQUIREMENT_WARNING;
+    }
+    if (!empty($connection_limit)) {
+      if (($results['max_connections'] == 214 && $results['open_files_limit'] == 1024) || ($results['max_connections'] + 1) * 4.8 < $results['open_files_limit']) {
+        $description .= ' ' . $t('The open files limit (%open_files_limit) on the MySQL server needs to be increased before max_connections can be increased.', array(
+          '%open_files_limit' => $results['open_files_limit'],
+        ));
+      }
+      elseif ($results['max_connections'] < $results['max_user_connections']) {
+        $description .= ' ' . $t('The max_connections value needs to be increased to at least %limit. The open files limit (%open_files_limit) might have been reached if the reported max_connections value (%value) is different from the value in your MySQL configuration file (<a href="@mycnf">how to find it</a>); if this is the case then you need to increase the open files limit on the MySQL sever before the max connections can be changed.', array(
+          '%limit' => max($results['max_user_connections'], ceil($results['max_usable_connections'] * 0.801)),
+          '%value' => $results['max_connections'],
+          '%open_files_limit' => $results['open_files_limit'],
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+        ));
+      }
+      elseif ($results['max_connections'] > $results['max_user_connections'] && ceil($results['max_usable_connections'] * 0.801) < $results['max_connections']) {
+        $description .= ' ' . $t('The max_user_connections value needs to be increased inside your MySQL configuration file (<a href="@mycnf">how to find it</a>), you can go up to %limit.', array(
+          '%limit' => $results['max_connections'],
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+        ));
+      }
+      else {
+        $description .= ' ' . $t('Please increase the max_connections and max_user_connections values inside your MySQL configuration file (<a href="@mycnf">how to find it</a>) to be at least %limit.', array(
+          '%limit' => ceil($results['max_usable_connections'] * 0.801),
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+        ));
+      }
+    }
+    if (!empty($description)) {
+      $requirements['apdqc_connection_limits'] = array(
+        'title'       => $t('APDQC - MySQL Connection limits'),
+        'severity'    => $severity,
+        'value'       => $t('The MySQL connection limit settings need to be adjusted.'),
+        'description' => $description,
+      );
+    }
+
     // Make sure the APDQCache is being used.
     $apdqcache_found = FALSE;
     foreach (variable_get('cache_backends', array()) as $include) {
@@ -754,6 +837,21 @@ function apdqc_requirements($phase) {
       );
     }
 
+    // Check cache table engine. Recommend InnoDB.
+    // Make apdqc_admin_change_table_engine() available.
+    module_load_include('admin.inc', 'apdqc');
+    $tables = apdqc_admin_change_table_engine();
+    if (!empty($tables)) {
+      $requirements['apdqc_cache_table_engine'] = array(
+        'title'       => $t('APDQC - Cache table engine'),
+        'severity'    => REQUIREMENT_ERROR,
+        'value'       => $t('One or more cache tables are not using InnoDB for the engine.'),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to change the cache tables to use InnoDB for the engine.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+        )),
+      );
+    }
+
     // Set mysql_db_type if needed.
     $results = db_query("SELECT SUBSTR(@@global.version_comment, 1, LOCATE(' ', @@global.version_comment) - 1) AS DBtype")->fetchAssoc();
     $mysql_db_type = reset($results);
@@ -789,8 +887,41 @@ function apdqc_requirements($phase) {
         )),
       );
     }
+
+    // Test the connection.
+    if (empty($requirements)) {
+      if (class_exists('APDQCache')) {
+        if (!function_exists('apdqc_query')) {
+          // Load the correct database backend.
+          $db_type = apdqc_fast_get_db_type();
+          // Async queries are only available in PHP 5.3+.
+          if ($db_type === 'mysql' && defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50300) {
+            require_once 'apdqc.mysql.inc';
+          }
+        }
+        // Check if the system module is in the system table. See if apdqc_query
+        // is working.
+        $result = apdqc_query(array('system'), array(), "SELECT * FROM " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('system') . '}') . " WHERE name = 'system' LIMIT 1", array('log' => FALSE));
+        if (!($result instanceof mysqli_result)) {
+          $requirements['apdqc_query_broken'] = array(
+            'title'       => $t('APDQC - Query Failure'),
+            'severity'    => REQUIREMENT_ERROR,
+            'value'       => $t('apdqc_query() is not returning valid data. Check your settings.php file and make sure the database portion is correct.'),
+          );
+        }
+      }
+      else {
+        // This should never show up, as it's covered above.
+        $requirements['apdqc_query_no_APDQCache_class'] = array(
+          'title'       => $t('APDQC - APDQCache Class not available'),
+          'severity'    => REQUIREMENT_ERROR,
+          'value'       => $t('Make sure the cache_backends array contains apdqc.cache.inc.'),
+        );
+      }
+    }
   }
 
+  // Report back that everything is ok.
   if (empty($requirements)) {
     module_load_include('admin.inc', 'apdqc');
     module_load_include('cache.inc', 'apdqc');
