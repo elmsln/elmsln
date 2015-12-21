@@ -35,8 +35,12 @@ menuitems() {
   [[ "$msg" ]] && echo "" && echo "$msg"; :
 }
 version=$(cat "$elmsln/VERSION.txt")
+config_version=$(cat "$elmsln/config/SYSTEM_VERSION.txt")
 courses=$(drush @online efq node course --count)
 sections=$(drush @online efq field_collection_item field_sections --count)
+if [[ $config_version != $version ]]; then
+  elmslnwarn "Config version different from code version! It is recommended that you select apply server level upgrades from the below list."
+fi
 elmslnecho "ELMSLN VERSION: $version"
 elmslnecho "Courses in CIS: $courses"
 elmslnecho "Sections in CIS: $sections"
