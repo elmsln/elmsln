@@ -73,10 +73,13 @@ cd $elmsln
 code_version=$(<VERSION.txt)
 system_version_file="${elmsln}/config/SYSTEM_VERSION.txt"
 upgrade_history="${elmsln}/config/logs/upgrade_history.txt"
-# make sure config files exist
+# make sure config file for version exists
+# if it doesn't this implies a much older deployment getting
+# onto versions now
 if [ ! -f ${system_version_file} ];
   then
-  cp "${elmsln}/VERSION.txt" $system_version_file
+  touch $system_version_file
+  echo "0.0.0" > $system_version_file
 fi
 system_version=$(<${system_version_file})
 if [ ! -f ${upgrade_history} ];
