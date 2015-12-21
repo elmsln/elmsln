@@ -36,7 +36,10 @@ function cis_helper_cron() {
     $sections = entity_load('field_collection_item', array_keys($result['field_collection_item']));
     foreach ($sections as $section) {
       // handle the logic of the operation to perform
-      _cis_helper_run_operation($section);
+      // make sure we have a HostEntity
+      if (isset($section->HostEntity()->status)) {
+        _cis_helper_run_operation($section);
+      }
     }
   }
 }
