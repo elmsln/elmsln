@@ -130,7 +130,6 @@ function mooc_nav_block_field_default_field_bases() {
         'content-outline' => 'Full outline below current page',
         'content-outline-active-current' => 'Outline current level of active item',
         'content-outline-active-below' => 'Outline below current level of active item',
-        'text' => 'Custom static text block',
       ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,
