@@ -9,6 +9,7 @@ dependencies[] = entity
 dependencies[] = entityreference
 dependencies[] = google_chart_tools_views
 dependencies[] = views
+dependencies[] = replicate_ui
 dependencies[] = views_data_export
 dependencies[] = views_field_calc
 ctools[] = views:views_default:3.0
