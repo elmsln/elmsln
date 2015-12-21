@@ -456,6 +456,7 @@ function _cis_connector_section_context($account = NULL) {
     }
     // check for global session override
     if (isset($_SESSION['cis_section_context'])) {
+      $section = $_SESSION['cis_section_context'];
       return $_SESSION['cis_section_context'];
     }
     // use current user if acount is not set
