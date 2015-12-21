@@ -37,14 +37,6 @@ function cis_types_node_info() {
       'title_label' => t('Name'),
       'help' => '',
     ),
-    'instructional_model' => array(
-      'name' => t('Instructional Model'),
-      'base' => 'node_content',
-      'description' => t('Store reusable instructional models for helping to develop instructional best practices for your college to follow.'),
-      'has_title' => '1',
-      'title_label' => t('Title'),
-      'help' => '',
-    ),
     'program' => array(
       'name' => t('Program'),
       'base' => 'node_content',

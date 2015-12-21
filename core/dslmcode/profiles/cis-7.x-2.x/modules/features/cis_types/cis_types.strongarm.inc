@@ -27,13 +27,6 @@ function cis_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'additional_settings__active_tab_instructional_model';
-  $strongarm->value = 'edit-workflow';
-  $export['additional_settings__active_tab_instructional_model'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_program';
   $strongarm->value = 'edit-workflow';
   $export['additional_settings__active_tab_program'] = $strongarm;
@@ -69,23 +62,9 @@ function cis_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'ant_instructional_model';
-  $strongarm->value = '0';
-  $export['ant_instructional_model'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'ant_pattern_course';
   $strongarm->value = '';
   $export['ant_pattern_course'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'ant_pattern_instructional_model';
-  $strongarm->value = '';
-  $export['ant_pattern_instructional_model'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -107,13 +86,6 @@ function cis_types_strongarm() {
   $strongarm->name = 'ant_php_course';
   $strongarm->value = 0;
   $export['ant_php_course'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'ant_php_instructional_model';
-  $strongarm->value = 0;
-  $export['ant_php_instructional_model'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -297,48 +269,6 @@ function cis_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'field_bundle_settings_node__instructional_model';
-  $strongarm->value = array(
-    'view_modes' => array(
-      'teaser' => array(
-        'custom_settings' => TRUE,
-      ),
-      'full' => array(
-        'custom_settings' => FALSE,
-      ),
-      'rss' => array(
-        'custom_settings' => FALSE,
-      ),
-      'search_index' => array(
-        'custom_settings' => FALSE,
-      ),
-      'search_result' => array(
-        'custom_settings' => FALSE,
-      ),
-      'diff_standard' => array(
-        'custom_settings' => FALSE,
-      ),
-      'token' => array(
-        'custom_settings' => FALSE,
-      ),
-    ),
-    'extra_fields' => array(
-      'form' => array(
-        'title' => array(
-          'weight' => '0',
-        ),
-        'path' => array(
-          'weight' => '1',
-        ),
-      ),
-      'display' => array(),
-    ),
-  );
-  $export['field_bundle_settings_node__instructional_model'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'field_bundle_settings_node__program';
   $strongarm->value = array(
     'view_modes' => array(
@@ -518,15 +448,6 @@ function cis_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'menu_options_instructional_model';
-  $strongarm->value = array(
-    0 => 'main-menu',
-  );
-  $export['menu_options_instructional_model'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'menu_options_program';
   $strongarm->value = array();
   $export['menu_options_program'] = $strongarm;
@@ -565,13 +486,6 @@ function cis_types_strongarm() {
   $strongarm->name = 'menu_parent_course';
   $strongarm->value = 'main-menu:0';
   $export['menu_parent_course'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'menu_parent_instructional_model';
-  $strongarm->value = 'main-menu:0';
-  $export['menu_parent_instructional_model'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -620,16 +534,6 @@ function cis_types_strongarm() {
     1 => 'revision',
   );
   $export['node_options_course'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'node_options_instructional_model';
-  $strongarm->value = array(
-    0 => 'status',
-    1 => 'revision',
-  );
-  $export['node_options_instructional_model'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -688,13 +592,6 @@ function cis_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'node_preview_instructional_model';
-  $strongarm->value = '1';
-  $export['node_preview_instructional_model'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'node_preview_program';
   $strongarm->value = '0';
   $export['node_preview_program'] = $strongarm;
@@ -733,13 +630,6 @@ function cis_types_strongarm() {
   $strongarm->name = 'node_submitted_course';
   $strongarm->value = 0;
   $export['node_submitted_course'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'node_submitted_instructional_model';
-  $strongarm->value = 1;
-  $export['node_submitted_instructional_model'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -817,13 +707,6 @@ function cis_types_strongarm() {
   $strongarm->name = 'save_continue_course';
   $strongarm->value = 'Save and add fields';
   $export['save_continue_course'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'save_continue_instructional_model';
-  $strongarm->value = 'Save and add fields';
-  $export['save_continue_instructional_model'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -912,13 +795,6 @@ function cis_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_comp_instructional_model';
-  $strongarm->value = 'each';
-  $export['unique_field_comp_instructional_model'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'unique_field_comp_service_instance';
   $strongarm->value = 'all';
   $export['unique_field_comp_service_instance'] = $strongarm;
@@ -929,13 +805,6 @@ function cis_types_strongarm() {
   $strongarm->name = 'unique_field_fields_course';
   $strongarm->value = array();
   $export['unique_field_fields_course'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_fields_instructional_model';
-  $strongarm->value = array();
-  $export['unique_field_fields_instructional_model'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -957,13 +826,6 @@ function cis_types_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_scope_instructional_model';
-  $strongarm->value = 'type';
-  $export['unique_field_scope_instructional_model'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'unique_field_scope_service_instance';
   $strongarm->value = 'type';
   $export['unique_field_scope_service_instance'] = $strongarm;
@@ -974,13 +836,6 @@ function cis_types_strongarm() {
   $strongarm->name = 'unique_field_show_matches_course';
   $strongarm->value = array();
   $export['unique_field_show_matches_course'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_show_matches_instructional_model';
-  $strongarm->value = array();
-  $export['unique_field_show_matches_instructional_model'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */

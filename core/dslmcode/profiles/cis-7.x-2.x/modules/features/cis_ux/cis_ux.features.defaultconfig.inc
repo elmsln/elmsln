@@ -25,7 +25,7 @@ function cis_ux_defaultconfig_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'site_403';
-  $strongarm->value = 'toboggan/denied';
+  $strongarm->value = '';
   $export['site_403'] = $strongarm;
 
   return $export;

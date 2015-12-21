@@ -261,7 +261,11 @@ function cis_types_field_default_field_instances() {
   // Exported field_instance: 'field_collection_item-field_offerings-field_year'
   $field_instances['field_collection_item-field_offerings-field_year'] = array(
     'bundle' => 'field_offerings',
-    'default_value' => NULL,
+    'default_value' => array(
+      0 => array(
+        'value' => 201516,
+      ),
+    ),
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -292,6 +296,19 @@ function cis_types_field_default_field_instances() {
     'label' => 'Year',
     'required' => 1,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -666,7 +683,7 @@ function cis_types_field_default_field_instances() {
         'year_range' => '2012:2018',
       ),
       'type' => 'date_select',
-      'weight' => 14,
+      'weight' => 13,
     ),
   );
 
@@ -988,76 +1005,6 @@ function cis_types_field_default_field_instances() {
   );
 
   // Exported field_instance:
-  // 'field_collection_item-field_sections-field_syllabus_text_based'
-  $field_instances['field_collection_item-field_sections-field_syllabus_text_based'] = array(
-    'bundle' => 'field_sections',
-    'default_value' => array(
-      0 => array(
-        'value' => '<h3>Grading</h3><p></p><h3>Calendar</h3><p></p><h3>Goals / Objectives</h3><p></p><h3>Materials / Tech requirements</h3><p></p><h3>Communication</h3><p></p><h3>Policy</h3><p></p>',
-        'format' => 'textbook_editor',
-      ),
-    ),
-    'deleted' => 0,
-    'description' => 'The text based syllabus allow for supporting a content area managed syllabus. This is for instructors who would rather enter and manage their syllabus in the system rather then via file.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 17,
-      ),
-      'full' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'token' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_syllabus_text_based',
-    'label' => 'Syllabus (text based)',
-    'required' => 0,
-    'settings' => array(
-      'better_formats' => array(
-        'allowed_formats' => array(
-          'plain_text' => 0,
-          'textbook_editor' => 'textbook_editor',
-        ),
-        'allowed_formats_toggle' => 0,
-        'default_order_toggle' => 0,
-        'default_order_wrapper' => array(
-          'formats' => array(
-            'plain_text' => array(
-              'weight' => 10,
-            ),
-            'textbook_editor' => array(
-              'weight' => -10,
-            ),
-          ),
-        ),
-      ),
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 5,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 16,
-    ),
-  );
-
-  // Exported field_instance:
   // 'field_collection_item-field_sections-field_teaching_assistants'
   $field_instances['field_collection_item-field_sections-field_teaching_assistants'] = array(
     'bundle' => 'field_sections',
@@ -1162,7 +1109,7 @@ function cis_types_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 17,
+      'weight' => 16,
     ),
   );
 
@@ -1277,6 +1224,19 @@ function cis_types_field_default_field_instances() {
     'label' => 'Color',
     'required' => 1,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -1314,6 +1274,19 @@ function cis_types_field_default_field_instances() {
     'label' => 'Coordinators',
     'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'behaviors' => array(
         'prepopulate' => array(
           'status' => 0,
@@ -1400,6 +1373,19 @@ function cis_types_field_default_field_instances() {
     'label' => 'Unit Head',
     'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'behaviors' => array(
         'prepopulate' => array(
           'status' => 0,
@@ -2991,7 +2977,12 @@ function cis_types_field_default_field_instances() {
   // Exported field_instance: 'node-course-field_university_bulletin'
   $field_instances['node-course-field_university_bulletin'] = array(
     'bundle' => 'course',
-    'default_value' => NULL,
+    'default_value' => array(
+      0 => array(
+        'title' => 'University Bulletin listing',
+        'url' => 'http://bulletins.psu.edu/undergrad/courses/',
+      ),
+    ),
     'deleted' => 0,
     'description' => 'Link to the course in the university bulletin',
     'display' => array(
@@ -3022,12 +3013,12 @@ function cis_types_field_default_field_instances() {
         'target' => 'default',
         'title' => '',
       ),
-      'custom_add_another' => '',
       'display' => array(
         'url_cutoff' => 80,
       ),
       'enable_tokens' => 0,
-      'title' => 'none',
+      'rel_remove' => 'default',
+      'title' => 'required',
       'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => 'University Bulletin listing',
@@ -3041,170 +3032,6 @@ function cis_types_field_default_field_instances() {
       'settings' => array(),
       'type' => 'link_field',
       'weight' => 42,
-    ),
-  );
-
-  // Exported field_instance: 'node-instructional_model-body'
-  $field_instances['node-instructional_model-body'] = array(
-    'bundle' => 'instructional_model',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(
-          'trim_length' => 600,
-        ),
-        'type' => 'text_summary_or_trimmed',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'body',
-    'label' => 'Body',
-    'required' => FALSE,
-    'settings' => array(
-      'display_summary' => TRUE,
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 20,
-        'summary_rows' => 5,
-      ),
-      'type' => 'text_textarea_with_summary',
-      'weight' => 2,
-    ),
-  );
-
-  // Exported field_instance: 'node-instructional_model-field_course'
-  $field_instances['node-instructional_model-field_course'] = array(
-    'bundle' => 'instructional_model',
-    'default_value' => NULL,
-    'default_value_function' => '',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => 1,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 1,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_course',
-    'label' => 'Representative Courses',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'status' => 0,
-        ),
-      ),
-      'nodeaccess_nodereference' => array(
-        'all' => array(
-          'view' => 0,
-        ),
-        'all_published' => 0,
-        'author' => array(
-          'delete' => 0,
-          'update' => 0,
-          'view' => 0,
-        ),
-        'author_published' => 0,
-        'priority' => 0,
-        'referenced' => array(
-          'delete' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'published' => 0,
-          'update' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-          'view' => array(
-            'delete' => 0,
-            'update' => 0,
-            'view' => 0,
-          ),
-        ),
-        'unused' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'node-instructional_model-field_xml_outline'
-  $field_instances['node-instructional_model-field_xml_outline'] = array(
-    'bundle' => 'instructional_model',
-    'deleted' => 0,
-    'description' => 'An XML structure that follows the conventions established by ELMS for structuring a content outline.  The easiest way to obtain this is to install the MOOC distribution, create some content in a book outline and then export it to it\'s XML packaging format.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 2,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_xml_outline',
-    'label' => 'XML Outline',
-    'required' => 1,
-    'settings' => array(
-      'description_field' => 0,
-      'file_directory' => 'instructional_outlines',
-      'file_extensions' => 'xml',
-      'max_filesize' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'file',
-      'settings' => array(
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'file_generic',
-      'weight' => 3,
     ),
   );
 
@@ -3277,6 +3104,19 @@ function cis_types_field_default_field_instances() {
     'label' => 'Abbreviation',
     'required' => 1,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'text_processing' => 0,
       'user_register_form' => FALSE,
     ),
@@ -4151,7 +3991,6 @@ Global will be available to all resources to reference',
   t('Access duration');
   t('Access string');
   t('Add offerings of this course to activate them for the semester and lead record of their occurance.');
-  t('An XML structure that follows the conventions established by ELMS for structuring a content outline.  The easiest way to obtain this is to install the MOOC distribution, create some content in a book outline and then export it to it\'s XML packaging format.');
   t('Any users that you\'d like to be able to coordinate semester setup and get data about this Academic Unit.');
   t('Author video');
   t('Banner');
@@ -4195,7 +4034,6 @@ Global will be available to all resources to reference',
   t('Promotional screenshots for course');
   t('Readings');
   t('Related courses');
-  t('Representative Courses');
   t('Resource type');
   t('Resources');
   t('Sample Lesson');
@@ -4211,7 +4049,6 @@ Global will be available to all resources to reference',
   t('Setup guide');
   t('Special Classifications');
   t('Syllabus');
-  t('Syllabus (text based)');
   t('TAs that have been allocated to this section');
   t('Teaching assistants');
   t('The URL that data and backend calls can be made against.  This can be the same as the Location but is recommended that an additional domain be used so that these web service connections can operate on a different IP and be fire-walled independently for added security.');
@@ -4219,7 +4056,6 @@ Global will be available to all resources to reference',
   t('The dates that this section will have access to the material listed in the Access section');
   t('The instructional design assigned to manage this course');
   t('The semester this offering is for');
-  t('The text based syllabus allow for supporting a content area managed syllabus. This is for instructors who would rather enter and manage their syllabus in the system rather then via file.');
   t('This helps give students a sense of how long a course has been running or if its brand new.');
   t('This is a longer description of what the course is about and info that will help someone decide if they should take it.');
   t('Topics covered text');
@@ -4234,7 +4070,6 @@ Global will be available to all resources to reference',
 System is internally delegated by different services
 Global will be available to all resources to reference');
   t('Who is listed as the instructor of record and in charge of the course.');
-  t('XML Outline');
   t('Year');
   t('machine name of this service. This is used as part of automation');
 

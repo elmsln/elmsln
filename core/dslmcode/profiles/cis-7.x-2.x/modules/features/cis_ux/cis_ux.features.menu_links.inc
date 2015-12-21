@@ -10,123 +10,112 @@
 function cis_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-toolkit_add-course-offering:cis-add-offering
-  $menu_links['menu-cis-toolkit_add-course-offering:cis-add-offering'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis-add-offering',
-    'router_path' => 'cis-add-offering',
-    'link_title' => 'Add course offering',
+  // Exported menu link: menu-cis-add_academic-area:node/add/academic-unit
+  $menu_links['menu-cis-add_academic-area:node/add/academic-unit'] = array(
+    'menu_name' => 'menu-cis-add',
+    'link_path' => 'node/add/academic-unit',
+    'router_path' => 'node/add/academic-unit',
+    'link_title' => 'Academic area',
     'options' => array(
-      'attributes' => array(
-        'title' => 'Setup an offering / semester for an existing course',
-      ),
-      'identifier' => 'menu-cis-toolkit_add-course-offering:cis-add-offering',
+      'attributes' => array(),
+      'identifier' => 'menu-cis-add_academic-area:node/add/academic-unit',
     ),
-    'module' => 'system',
+    'module' => 'menu',
     'hidden' => 0,
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -49,
-    'customized' => 1,
-    'parent_identifier' => 'menu-cis-toolkit_offerings:cis/offerings',
-  );
-  // Exported menu link: menu-cis-toolkit_bulk-ops:cis/courses/bulk_ops
-  $menu_links['menu-cis-toolkit_bulk-ops:cis/courses/bulk_ops'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/courses/bulk_ops',
-    'router_path' => 'cis/courses/bulk_ops',
-    'link_title' => 'Bulk Ops',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Course Bulk Operations',
-      ),
-      'identifier' => 'menu-cis-toolkit_bulk-ops:cis/courses/bulk_ops',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 1,
-    'expanded' => 1,
-    'weight' => -44,
+    'weight' => -47,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-toolkit_course-map:cis/courses/map
-  $menu_links['menu-cis-toolkit_course-map:cis/courses/map'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/courses/map',
-    'router_path' => 'cis/courses/map',
-    'link_title' => 'Course Map',
+  // Exported menu link: menu-cis-add_global-resource:node/add/resource
+  $menu_links['menu-cis-add_global-resource:node/add/resource'] = array(
+    'menu_name' => 'menu-cis-add',
+    'link_path' => 'node/add/resource',
+    'router_path' => 'node/add/resource',
+    'link_title' => 'Global Resource',
     'options' => array(
-      'attributes' => array(
-        'title' => 'Visual list of courses',
-      ),
-      'identifier' => 'menu-cis-toolkit_course-map:cis/courses/map',
+      'attributes' => array(),
+      'identifier' => 'menu-cis-add_global-resource:node/add/resource',
     ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -50,
-    'customized' => 1,
-    'parent_identifier' => 'menu-cis-toolkit_offerings:cis/offerings',
-  );
-  // Exported menu link: menu-cis-toolkit_course-map:cis/offerings/course-map
-  $menu_links['menu-cis-toolkit_course-map:cis/offerings/course-map'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/offerings/course-map',
-    'router_path' => 'cis/offerings/course-map',
-    'link_title' => 'Course Map',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Course Map',
-      ),
-      'identifier' => 'menu-cis-toolkit_course-map:cis/offerings/course-map',
-    ),
-    'module' => 'system',
+    'module' => 'menu',
     'hidden' => 0,
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
     'weight' => -48,
     'customized' => 1,
-    'parent_identifier' => 'menu-cis-toolkit_offerings:cis/offerings',
   );
-  // Exported menu link: menu-cis-toolkit_field-collection-admin:cis/admin/field-collections
-  $menu_links['menu-cis-toolkit_field-collection-admin:cis/admin/field-collections'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/admin/field-collections',
-    'router_path' => 'cis/admin/field-collections',
-    'link_title' => 'Field Collection admin',
+  // Exported menu link: menu-cis-add_program:node/add/program
+  $menu_links['menu-cis-add_program:node/add/program'] = array(
+    'menu_name' => 'menu-cis-add',
+    'link_path' => 'node/add/program',
+    'router_path' => 'node/add/program',
+    'link_title' => 'Program',
     'options' => array(
-      'identifier' => 'menu-cis-toolkit_field-collection-admin:cis/admin/field-collections',
+      'attributes' => array(),
+      'identifier' => 'menu-cis-add_program:node/add/program',
     ),
-    'module' => 'system',
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -46,
+    'customized' => 1,
+  );
+  // Exported menu link: menu-cis-toolkit_courses:courses/list
+  $menu_links['menu-cis-toolkit_courses:courses/list'] = array(
+    'menu_name' => 'menu-cis-toolkit',
+    'link_path' => 'courses/list',
+    'router_path' => 'courses',
+    'link_title' => 'Courses',
+    'options' => array(
+      'attributes' => array(),
+      'identifier' => 'menu-cis-toolkit_courses:courses/list',
+    ),
+    'module' => 'menu',
     'hidden' => 0,
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
     'weight' => -50,
     'customized' => 1,
-    'parent_identifier' => 'menu-cis-toolkit_bulk-ops:cis/courses/bulk_ops',
   );
-  // Exported menu link: menu-cis-toolkit_offerings:cis/offerings
-  $menu_links['menu-cis-toolkit_offerings:cis/offerings'] = array(
+  // Exported menu link: menu-cis-toolkit_look-up-instructor-sections:psu_get_course_list
+  $menu_links['menu-cis-toolkit_look-up-instructor-sections:psu_get_course_list'] = array(
     'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/offerings',
-    'router_path' => 'cis/offerings',
+    'link_path' => 'psu_get_course_list',
+    'router_path' => 'psu_get_course_list',
+    'link_title' => 'Look up instructor sections',
+    'options' => array(
+      'attributes' => array(),
+      'identifier' => 'menu-cis-toolkit_look-up-instructor-sections:psu_get_course_list',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -48,
+    'customized' => 1,
+  );
+  // Exported menu link: menu-cis-toolkit_offerings:cis/offerings/list
+  $menu_links['menu-cis-toolkit_offerings:cis/offerings/list'] = array(
+    'menu_name' => 'menu-cis-toolkit',
+    'link_path' => 'cis/offerings/list',
+    'router_path' => 'cis/offerings/list',
     'link_title' => 'Offerings',
     'options' => array(
-      'identifier' => 'menu-cis-toolkit_offerings:cis/offerings',
+      'identifier' => 'menu-cis-toolkit_offerings:cis/offerings/list',
     ),
     'module' => 'system',
-    'hidden' => 0,
+    'hidden' => -1,
     'external' => 0,
-    'has_children' => 1,
-    'expanded' => 1,
-    'weight' => -48,
-    'customized' => 1,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -1,
+    'customized' => 0,
   );
   // Exported menu link: menu-cis-toolkit_people:cis/admin/people
   $menu_links['menu-cis-toolkit_people:cis/admin/people'] = array(
@@ -145,8 +134,8 @@ function cis_ux_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -46,
-    'customized' => 1,
+    'weight' => 0,
+    'customized' => 0,
   );
   // Exported menu link: menu-cis-toolkit_resources:cis/resources
   $menu_links['menu-cis-toolkit_resources:cis/resources'] = array(
@@ -165,111 +154,7 @@ function cis_ux_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -45,
-    'customized' => 1,
-  );
-  // Exported menu link: menu-cis-toolkit_section-map:cis/offerings/section-map
-  $menu_links['menu-cis-toolkit_section-map:cis/offerings/section-map'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/offerings/section-map',
-    'router_path' => 'cis/offerings/section-map',
-    'link_title' => 'Section Map',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Section Map',
-      ),
-      'identifier' => 'menu-cis-toolkit_section-map:cis/offerings/section-map',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -47,
-    'customized' => 1,
-    'parent_identifier' => 'menu-cis-toolkit_offerings:cis/offerings',
-  );
-  // Exported menu link: menu-cis-toolkit_semester-map:cis/offerings/semester-map
-  $menu_links['menu-cis-toolkit_semester-map:cis/offerings/semester-map'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/offerings/semester-map',
-    'router_path' => 'cis/offerings/semester-map',
-    'link_title' => 'Semester Map',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Semester Map',
-      ),
-      'identifier' => 'menu-cis-toolkit_semester-map:cis/offerings/semester-map',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -46,
-    'customized' => 1,
-    'parent_identifier' => 'menu-cis-toolkit_offerings:cis/offerings',
-  );
-  // Exported menu link: menu-cis-toolkit_service-instances:cis/services/instances
-  $menu_links['menu-cis-toolkit_service-instances:cis/services/instances'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/services/instances',
-    'router_path' => 'cis/services/instances',
-    'link_title' => 'Service Instances',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'List of all services in the CIS',
-      ),
-      'identifier' => 'menu-cis-toolkit_service-instances:cis/services/instances',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => 1,
-    'customized' => 0,
-    'parent_identifier' => 'menu-cis-toolkit_services:cis/services',
-  );
-  // Exported menu link: menu-cis-toolkit_service-map:cis/services/map
-  $menu_links['menu-cis-toolkit_service-map:cis/services/map'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/services/map',
-    'router_path' => 'cis/services/map',
-    'link_title' => 'Service Map',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Service map',
-      ),
-      'identifier' => 'menu-cis-toolkit_service-map:cis/services/map',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
-    'parent_identifier' => 'menu-cis-toolkit_services:cis/services',
-  );
-  // Exported menu link: menu-cis-toolkit_services:cis/services
-  $menu_links['menu-cis-toolkit_services:cis/services'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis/services',
-    'router_path' => 'cis/services',
-    'link_title' => 'Services',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'List of all services in the CIS',
-      ),
-      'identifier' => 'menu-cis-toolkit_services:cis/services',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 1,
-    'expanded' => 1,
-    'weight' => -47,
+    'weight' => -49,
     'customized' => 1,
   );
   // Exported menu link: menu-cis-toolkit_setup-course-access:cis-quick-setup-access-id
@@ -285,50 +170,178 @@ function cis_ux_menu_default_menu_links() {
       'identifier' => 'menu-cis-toolkit_setup-course-access:cis-quick-setup-access-id',
     ),
     'module' => 'system',
-    'hidden' => 0,
+    'hidden' => 1,
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -49,
+    'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-toolkit_system-setup:cis-quick-setup
-  $menu_links['menu-cis-toolkit_system-setup:cis-quick-setup'] = array(
-    'menu_name' => 'menu-cis-toolkit',
-    'link_path' => 'cis-quick-setup',
-    'router_path' => 'cis-quick-setup',
-    'link_title' => 'System setup',
+  // Exported menu link: menu-course-tools-menu_admin:admin
+  $menu_links['menu-course-tools-menu_admin:admin'] = array(
+    'menu_name' => 'menu-course-tools-menu',
+    'link_path' => 'admin',
+    'router_path' => 'admin',
+    'link_title' => 'Admin',
     'options' => array(
-      'attributes' => array(
-        'title' => 'Setup a new course and plug it into the network of tools',
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
       ),
-      'identifier' => 'menu-cis-toolkit_system-setup:cis-quick-setup',
+      'identifier' => 'menu-course-tools-menu_admin:admin',
     ),
-    'module' => 'system',
+    'module' => 'menu',
     'hidden' => 0,
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
     'weight' => -50,
     'customized' => 1,
+    'parent_identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
   );
+  // Exported menu link: menu-course-tools-menu_administration-tools:<nolink>
+  $menu_links['menu-course-tools-menu_administration-tools:<nolink>'] = array(
+    'menu_name' => 'menu-course-tools-menu',
+    'link_path' => '<nolink>',
+    'router_path' => '<nolink>',
+    'link_title' => 'Administration Tools',
+    'options' => array(
+      'identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 1,
+    'expanded' => 1,
+    'weight' => -49,
+    'customized' => 1,
+  );
+  // Exported menu link: menu-course-tools-menu_performance:admin/config/development/performance
+  $menu_links['menu-course-tools-menu_performance:admin/config/development/performance'] = array(
+    'menu_name' => 'menu-course-tools-menu',
+    'link_path' => 'admin/config/development/performance',
+    'router_path' => 'admin/config/development/performance',
+    'link_title' => 'Performance',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Performance settings',
+      ),
+      'identifier' => 'menu-course-tools-menu_performance:admin/config/development/performance',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -48,
+    'customized' => 1,
+    'parent_identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
+  );
+  // Exported menu link: menu-course-tools-menu_sections-list:cis/section-list
+  $menu_links['menu-course-tools-menu_sections-list:cis/section-list'] = array(
+    'menu_name' => 'menu-course-tools-menu',
+    'link_path' => 'cis/section-list',
+    'router_path' => 'cis',
+    'link_title' => 'Sections List',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Listing of all sections in this area',
+      ),
+      'identifier' => 'menu-course-tools-menu_sections-list:cis/section-list',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -50,
+    'customized' => 1,
+    'parent_identifier' => 'menu-course-tools-menu_service-tools:<nolink>',
+  );
+  // Exported menu link: menu-course-tools-menu_service-tools:<nolink>
+  $menu_links['menu-course-tools-menu_service-tools:<nolink>'] = array(
+    'menu_name' => 'menu-course-tools-menu',
+    'link_path' => '<nolink>',
+    'router_path' => '<nolink>',
+    'link_title' => 'Service Tools',
+    'options' => array(
+      'attributes' => array(),
+      'identifier' => 'menu-course-tools-menu_service-tools:<nolink>',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 1,
+    'expanded' => 1,
+    'weight' => -50,
+    'customized' => 1,
+  );
+  // Exported menu link: menu-course-tools-menu_settings:admin/config/system/course-settings
+  $menu_links['menu-course-tools-menu_settings:admin/config/system/course-settings'] = array(
+    'menu_name' => 'menu-course-tools-menu',
+    'link_path' => 'admin/config/system/course-settings',
+    'router_path' => 'admin/config/system/course-settings',
+    'link_title' => 'Settings',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Course display configuration',
+      ),
+      'identifier' => 'menu-course-tools-menu_settings:admin/config/system/course-settings',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -49,
+    'customized' => 1,
+    'parent_identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
+  );
+  // Exported menu link: menu-course-tools-menu_users:cis/user-list
+  $menu_links['menu-course-tools-menu_users:cis/user-list'] = array(
+    'menu_name' => 'menu-course-tools-menu',
+    'link_path' => 'cis/user-list',
+    'router_path' => 'cis',
+    'link_title' => 'Users',
+    'options' => array(
+      'identifier' => 'menu-course-tools-menu_users:cis/user-list',
+    ),
+    'module' => 'system',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -48,
+    'customized' => 1,
+    'parent_identifier' => 'menu-course-tools-menu_service-tools:<nolink>',
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
-  t('Add course offering');
-  t('Bulk Ops');
-  t('Course Map');
-  t('Field Collection admin');
+  t('Academic area');
+  t('Admin');
+  t('Administration Tools');
+  t('Courses');
+  t('Global Resource');
+  t('Look up instructor sections');
   t('Offerings');
   t('People');
+  t('Performance');
+  t('Program');
   t('Resources');
-  t('Section Map');
-  t('Semester Map');
-  t('Service Instances');
-  t('Service Map');
-  t('Services');
+  t('Sections List');
+  t('Service Tools');
+  t('Settings');
   t('Setup course access');
-  t('System setup');
-
+  t('Users');
 
   return $menu_links;
 }
