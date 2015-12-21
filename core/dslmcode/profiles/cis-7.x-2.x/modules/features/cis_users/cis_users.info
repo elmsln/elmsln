@@ -30,6 +30,5 @@ features[field_instance][] = user-user-field_phone_number
 features[variable][] = field_bundle_settings_user__user
 features[variable][] = jammer_user_delete_hide_button
 features[variable][] = lti_tool_provider_user_attribute_mapping
-features[variable][] = nodeaccess_userreference
 features[variable][] = user_admin_role
 features[variable][] = user_cancel_method
