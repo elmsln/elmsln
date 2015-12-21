@@ -34,6 +34,10 @@ function cis_helper_cron() {
   // load the instances
   if (isset($result['field_collection_item'])) {
     $sections = entity_load('field_collection_item', array_keys($result['field_collection_item']));
+    if (drupal_is_cli()) {
+      // debug message if this gets backed up
+      drush_print(dt('Sections to process.. @count', array('@count' => count($sections))));
+    }
     foreach ($sections as $section) {
       // handle the logic of the operation to perform
       // make sure we have an offering and course
