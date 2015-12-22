@@ -24,10 +24,10 @@ timestamp(){
 # @todo make a efq call to pull a student account uid, then build requests off it
 # run crons
 drush @elmsln cron --y
-# ping node resource on all systems just to seed some base-line caches
-drush @elmsln hsr node --xmlrpcuid=1 --y
 # seed field collections as these have the sections in them
 drush @online hss field_collection_item --xmlrpcuid=1 --y
+# ping node resource on all systems just to seed some base-line caches
+drush @elmsln hsr node --xmlrpcuid=1 --y
 # @todo ping welcome_page on everything which will seed CIS calls
 # @todo need to spoof section during the request though or its just master
 
