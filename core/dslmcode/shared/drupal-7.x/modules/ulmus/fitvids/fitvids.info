@@ -6,9 +6,9 @@ configure = admin/config/media/fitvids
 scripts[] = fitvids.js
 stylesheets[all][] = fitvids.css
 
-; Information added by Drupal.org packaging script on 2014-02-25
-version = "7.x-1.15"
+; Information added by Drupal.org packaging script on 2014-12-05
+version = "7.x-1.17"
 core = "7.x"
 project = "fitvids"
-datestamp = "1393336706"
+datestamp = "1417817582"
 

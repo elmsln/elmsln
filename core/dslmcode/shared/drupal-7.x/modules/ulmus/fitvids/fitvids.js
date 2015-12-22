@@ -12,7 +12,7 @@
             // Default settings values
             var selectors = ['body'];
             var simplifymarkup = true;
-            var custom_domains = [];
+            var custom_domains = null;
             
             // Get settings for this behaviour
             if (typeof settings.fitvids.selectors !== 'undefined') {
@@ -21,7 +21,7 @@
             if (typeof settings.fitvids.simplifymarkup !== 'undefined') {
               simplifymarkup = settings.fitvids.simplifymarkup;
             }
-            if (typeof settings.fitvids.custom_domains !== 'undefined') {
+            if (settings.fitvids.custom_domains.length > 0) {
               custom_domains = settings.fitvids.custom_domains;
             }
                 
