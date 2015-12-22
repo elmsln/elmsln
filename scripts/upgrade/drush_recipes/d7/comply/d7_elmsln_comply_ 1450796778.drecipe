@@ -1,0 +1,29 @@
+{
+	"name": "ELMSLN ELMSMedia upgrade 1450796778",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "en",
+			"arguments": [
+				"text"
+			]
+		},
+		{
+			"command": "fr-all"
+		},
+		{
+			"command": "cc",
+			"arguments": [
+				"all"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1450796778",
+		"author": "elmsln",
+		"description": "update recipe for comply since that hasn't stabilized yet. this will stablize it."
+	}
+}
