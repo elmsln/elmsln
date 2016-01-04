@@ -642,7 +642,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // make sure it got data
       if (!empty($cis_section_item)) {
         $list = '';
-        if ($request == 'help') {
+        if ($request == 'help' && isset($cis_section_item['list'][0])) {
           foreach ($cis_section_item['list'][0]['field_resources'] as $reid) {
             $resource = _cis_connection_object($reid['id'], $reid['resource']);
             // if we have something called tech_support, inject it onto the help page
@@ -673,9 +673,11 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
         }
         else {
           // do it the normal way that everyone wants usually except Bill
-          $resource_page['list'][0]['body']['value'] .= $list;
-          // send the text with format for processing
-          $output = $resource_page['list'][0]['body'];
+          if (isset($resource_page['list'])) {
+            $resource_page['list'][0]['body']['value'] .= $list;
+            // send the text with format for processing
+            $output = $resource_page['list'][0]['body'];
+          }
         }
       }
     break;
