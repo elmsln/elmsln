@@ -368,6 +368,7 @@ function _cis_lmsless_theme_vars() {
       'network' => TRUE,
       'user' => TRUE,
       'help' => TRUE,
+      'resources' => TRUE,
       'syllabus' => TRUE
     );
     // if authority, remove the syllabus
@@ -380,6 +381,12 @@ function _cis_lmsless_theme_vars() {
       $vars['bar_elements']['help'] = FALSE;
     }
     $vars['help_link'] = url($help_link);
+    // support people wiping resources link via settings
+    $resources_link = variable_get('cis_resource_page', 'resources');
+    if (empty($resources_link)) {
+      $vars['bar_elements']['resources'] = FALSE;
+    }
+    $vars['resources_link'] = url($resources_link);
     // support people wiping syllabus link via settings
     $syllabus_link = variable_get('cis_syllabus_page', 'syllabus');
     if (empty($syllabus_link)) {
@@ -438,13 +445,14 @@ function cis_lmsless_theme() {
         'section' => 'master',
         'active' => array('title' => ''),
         'help_link' => url('course-help'),
+        'resources_link' => url('resources'),
         'syllabus_link' => url('syllabus'),
         'username' => t('Account'),
         'userpicture' => '<div class="icon-user-black etb-icons svg"></div>',
         'resources' => array(),
         'tech_support' => array(),
         'elmsln_main_menu' => '',
-        'bar_elements' => array('network' => TRUE, 'user' => TRUE, 'help' => TRUE, 'syllabus' => TRUE),
+        'bar_elements' => array('network' => TRUE, 'user' => TRUE, 'help' => TRUE, 'resources' => TRUE, 'syllabus' => TRUE),
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',

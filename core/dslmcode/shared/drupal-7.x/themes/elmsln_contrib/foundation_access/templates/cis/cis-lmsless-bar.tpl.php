@@ -38,8 +38,20 @@
             </a>
           </li>
           <?php endif; ?>
-          <?php if ($bar_elements['syllabus']) : ?>
+          <?php if ($bar_elements['resources']) : ?>
             <?php if ($bar_elements['help']) : ?>
+            <li>
+            <?php else : ?>
+            <li class="divider-left">
+            <?php endif; ?>
+            <a href="<?php print $resources_link;?>" class="etb-nav_item_service_btn etb-icon resources-icon middle-align-wrap">
+              <div class="icon-teacher-black etb-icons svg"></div>
+              <span class="visible-for-large-up"><?php print t('Resources'); ?></span>
+            </a>
+          </li>
+          <?php endif; ?>
+          <?php if ($bar_elements['syllabus']) : ?>
+            <?php if ($bar_elements['help'] || $bar_elements['resources']) : ?>
             <li>
             <?php else : ?>
             <li class="divider-left">

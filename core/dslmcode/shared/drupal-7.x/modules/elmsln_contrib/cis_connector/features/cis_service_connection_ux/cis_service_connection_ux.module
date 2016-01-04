@@ -69,6 +69,13 @@ function cis_service_connection_ux_form($form, $form_state) {
     '#type' => 'textfield',
     '#title' => t('Help button'),
   );
+  $form['site_information']['cis_resource_page'] = array(
+    '#default_value' => variable_get('cis_resource_page', 'resources'),
+    '#weight' => '3',
+    '#description' => t('Where the resources button points. Leave blank to hide the button'),
+    '#type' => 'textfield',
+    '#title' => t('Resources button'),
+  );
   $form['site_information']['cis_syllabus_page'] = array(
     '#default_value' => variable_get('cis_syllabus_page', 'syllabus'),
     '#weight' => '4',
