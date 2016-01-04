@@ -1,5 +1,6 @@
 ELMSLN 0.0.3, 2016-01-04
 ------------------------
+- fix bulleted list #422
 - Add support for Resources button across top #424
 - Permissions exported don't match in CIS #425
 - Help and resource pages throw notices when nothing there #426
