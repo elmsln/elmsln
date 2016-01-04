@@ -1,5 +1,5 @@
 /*
-  Textbook Style Guide 
+  Textbook Style Guide
 */
 
 /* Required list template */
@@ -83,7 +83,7 @@ div.textbook_box li{
   -webkit-border-radius: .3em;
   border-radius: .3em; /* future proofing */
   -khtml-border-radius: .3em; /* for old Konqueror browsers */
-  transition: all .3s ease-out;  
+  transition: all .3s ease-out;
 }
 
 div.textbook_box li:hover{
@@ -93,19 +93,20 @@ div.textbook_box li:hover{
 div.textbook_box li:before{
   content: counter(li);
   counter-increment: li;
-  position: absolute;  
-  left: -1.3em;
+  position: absolute;
+  left: -1rem;
   top: 50%;
-  margin-top: -1.3em;
-  height: 2em;
-  width: 2em;
-  line-height: 2em;
-  border: .3em solid #fff;
+  margin-top: -1.25rem;
+  height: 2rem;
+  width: 2rem;
+  line-height: 1.5rem;
+  border: .3rem solid #fff;
   text-align: center;
   font-weight: bold;
-  -moz-border-radius: 2em;
-  -webkit-border-radius: 2em;
-  border-radius: 2em; /* future proofing */
-  -khtml-border-radius: 2em; /* for old Konqueror browsers */
+  -moz-border-radius: 2rem;
+  -webkit-border-radius: 2rem;
+  border-radius: 2rem; /* future proofing */
+  -khtml-border-radius: 2rem; /* for old Konqueror browsers */
   transition: all .3s ease-out;
+  font-size: 1rem;
 }
