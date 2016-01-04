@@ -652,17 +652,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'create instructional_model content'.
-  $permissions['create instructional_model content'] = array(
-    'name' => 'create instructional_model content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'create program content'.
   $permissions['create program content'] = array(
     'name' => 'create program content',
@@ -727,17 +716,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'delete any instructional_model content'.
-  $permissions['delete any instructional_model content'] = array(
-    'name' => 'delete any instructional_model content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'delete any program content'.
   $permissions['delete any program content'] = array(
     'name' => 'delete any program content',
@@ -785,17 +763,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
   // Exported permission: 'delete own course content'.
   $permissions['delete own course content'] = array(
     'name' => 'delete own course content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'delete own instructional_model content'.
-  $permissions['delete own instructional_model content'] = array(
-    'name' => 'delete own instructional_model content',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
@@ -879,17 +846,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'edit any instructional_model content'.
-  $permissions['edit any instructional_model content'] = array(
-    'name' => 'edit any instructional_model content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'edit any program content'.
   $permissions['edit any program content'] = array(
     'name' => 'edit any program content',
@@ -937,17 +893,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
   // Exported permission: 'edit own course content'.
   $permissions['edit own course content'] = array(
     'name' => 'edit own course content',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'edit own instructional_model content'.
-  $permissions['edit own instructional_model content'] = array(
-    'name' => 'edit own instructional_model content',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',

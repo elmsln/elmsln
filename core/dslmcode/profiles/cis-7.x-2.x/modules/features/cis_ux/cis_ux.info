@@ -48,7 +48,6 @@ features[variable][] = pathauto_case
 features[variable][] = pathauto_ignore_words
 features[variable][] = pathauto_max_component_length
 features[variable][] = pathauto_max_length
-features[variable][] = pathauto_node_instructional_model_pattern
 features[variable][] = pathauto_node_pattern
 features[variable][] = pathauto_node_person_pattern
 features[variable][] = pathauto_punctuation_ampersand

@@ -23,7 +23,6 @@ features[node_export_features][] = af075e75-e82e-4b2c-b073-f665cf245b0d
 features[node_export_features][] = c26d4dfd-ca71-425a-a6e3-ecd247750c03
 features[variable][] = node_export_existing
 features[variable][] = node_export_reset_author_course
-features[variable][] = node_export_reset_author_instructional_model
 features[variable][] = node_export_reset_author_program
 features[variable][] = node_export_reset_author_resource
 features[variable][] = node_export_reset_author_service
