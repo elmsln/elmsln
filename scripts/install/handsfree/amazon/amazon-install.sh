@@ -33,7 +33,6 @@ setsebool -P httpd_can_sendmail on
 /etc/init.d/mysqld restart
 
 #install varnish
-rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-3.0.el6.rpm
 yum install varnish -y
 
 sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varnish
