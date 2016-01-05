@@ -61,6 +61,7 @@ echo "opcache.fast_shutdown=1" >> /etc/php.d/10-opcache.ini
 echo "opcache.interned_strings_buffer=8" >> /etc/php.d/10-opcache.ini
 echo "opcache.enable_cli=1" >> /etc/php.d/10-opcache.ini
 # remove default apc file that might exist
+yes | rm /etc/php-5.6.d/apc.ini
 yes | rm /etc/php.d/apc.ini
 
 /etc/init.d/httpd restart
