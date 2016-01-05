@@ -38,25 +38,34 @@ if [ -z $elmsln ]; then
   elmslnwarn "You must have a functioning config directory."
   exit 1
 fi
-# if this is an authority of instance, can check but its annoying
-if [ -z $1 ]; then
-  elmslnwarn "You must supply the type of tool this is, authority or instance?"
-  exit 1
-fi
-# need to know what domain
-if [ -z $2 ]; then
-  elmslnwarn "You must supply the domain to produce"
-  exit 1
-fi
-# need to know what distro to build
-if [ -z $3 ]; then
-  elmslnwarn "What distribtuion should this build? (instances ignore this)"
-  exit 1
-fi
 tooltype=$1
 domain=$2
-tool=$2
 dist=$3
+# if this is an authority of instance, can check but its annoying
+if [ -z "$tooltype" ]; then
+  elmslnwarn "You must supply the type of tool this is, authority or instance?"
+  read tooltype
+  if [ -z "$tooltype" ]; then
+    exit 1
+  fi
+fi
+# need to know what domain
+if [ -z "$domain" ]; then
+  elmslnwarn "You must supply the domain to produce"
+  read domain
+  if [ -z "$domain" ]; then
+    exit 1
+  fi
+fi
+tool=$domain
+# need to know what distro to build
+if [ -z "$dist" ]; then
+  elmslnwarn "What distribtuion should this build? (instances ignore this)"
+  read dist
+  if [ -z "$dist" ]; then
+    exit 1
+  fi
+fi
 # check that this domain exists as a stack, otherwise error out
 if [ ! -d "$elmsln/core/dslmcode/stacks/$domain" ]; then
   elmslnwarn "This domain must already exist if we are to correctly discover it."
