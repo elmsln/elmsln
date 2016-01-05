@@ -38,7 +38,7 @@
             </a>
           </li>
           <?php endif; ?>
-          <?php if ($bar_elements['resources']) : ?>
+          <?php if (isset($bar_elements['resources']) && $bar_elements['resources']) : ?>
             <?php if ($bar_elements['help']) : ?>
             <li>
             <?php else : ?>
