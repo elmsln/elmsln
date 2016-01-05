@@ -402,16 +402,17 @@ function _cis_connector_system_type($bucket = NULL) {
  */
 function _cis_connector_course_context() {
   // pull current menu object into a node if possible
-  if ($node = menu_get_object('node')) {
-    // we are in an authority system
+  if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
+    // we are in CIS
     if ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
       return $node->field_machine_name['und'][0]['value'];
     }
+    // we are in an authority system
     elseif ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
       return $node->field_course_machine_name['und'][0]['value'];
     }
   }
-  // fallback and usual use-case is base_path
+  // fallback and usual use-case is base_path from services
   return str_replace('/', '', base_path());
 }
 
