@@ -11,3 +11,15 @@ function cis_course_authority_install() {
   // run the sync whenever this installs
   _cis_course_authority_cis_sync();
 }
+
+
+/**
+ * Implements hook_update_N().
+ * Authority systems don't have resource, syllabus elements
+ * unless stated specifically by something post install.
+ */
+function cis_course_authority_update_7001(&$sandbox) {
+  // we don't need these on authority systems
+  variable_set('cis_resource_page', '');
+  variable_set('cis_syllabus_page', '');
+}

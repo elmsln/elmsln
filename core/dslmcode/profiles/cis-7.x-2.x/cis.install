@@ -22,8 +22,9 @@ function cis_install() {
   _elmsln_installer_post_install_cleanup();
   // especially for now, once you login, this is what you want to do
   variable_set('site_frontpage', 'courses');
-  // we don't need a help and syllabus link for most authority systems
+  // we don't need these on authority systems
   variable_set('cis_help_page', '');
+  variable_set('cis_resource_page', '');
   variable_set('cis_syllabus_page', '');
   // need to set this absolutely last bc of all the default permissions in here
   module_enable(array('cis_default_permissions'));
@@ -51,4 +52,15 @@ function cis_update_7002(&$sandbox) {
   features_revert('cis_displays');
   features_revert('cis_users');
   features_revert('cis_ux');
+}
+
+/**
+ * Implements hook_update_N().
+ * Authority systems don't have resource, syllabus elements
+ * unless stated specifically by something post install.
+ */
+function cis_update_7003(&$sandbox) {
+  // we don't need these on authority systems
+  variable_set('cis_resource_page', '');
+  variable_set('cis_syllabus_page', '');
 }

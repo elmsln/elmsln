@@ -15,8 +15,10 @@ function icor_install() {
   _elmsln_installer_admin_role();
   // standard clean up
   _elmsln_installer_post_install_cleanup();
-  // we don't need a help and syllabus link for most authority systems
+  // we don't need these on authority systems
   variable_set('cis_help_page', '');
+  variable_set('cis_resource_page', '');
   variable_set('cis_syllabus_page', '');
+  // force homepage to the object list
   variable_set('site_frontpage', 'icor-object-lists');
 }

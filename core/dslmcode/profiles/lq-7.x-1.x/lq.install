@@ -15,4 +15,8 @@ function lq_install() {
   _elmsln_installer_admin_role();
   // standard clean up
   _elmsln_installer_post_install_cleanup();
+  // we don't need these on authority systems
+  variable_set('cis_help_page', '');
+  variable_set('cis_resource_page', '');
+  variable_set('cis_syllabus_page', '');
 }
