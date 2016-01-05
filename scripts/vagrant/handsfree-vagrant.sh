@@ -39,5 +39,10 @@ echo 'fi' >> /etc/profile.d/chkon.sh
 
 # vagrant specific stuff
 drush @online dis seckit --y
-drush @online en vagrant_cis_dev cis_example_cis vagrant_bakery --y
-drush @online upwd admin --password=admin
+# enable bakery for single sign-on
+drush @network.ln en vagrant_bakery_slave --y
+drush @people dis vagrant_bakery_slave --y
+drush @people en vagrant_bakery --y
+drush @online en vagrant_cis_dev cis_example_cis --y
+# make sure user password is admin as a fallback
+drush @network.ln upwd admin --password=admin
