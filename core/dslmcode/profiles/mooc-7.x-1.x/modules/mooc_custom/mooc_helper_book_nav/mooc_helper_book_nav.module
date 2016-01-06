@@ -30,7 +30,7 @@ function mooc_helper_book_nav_block_info() {
   // provide block for rendering siblings in a line of the current page
   $blocks['book_sibling_nav'] = array(
     'info' => t('Book breadcrumb navigation'),
-    'cache' => DRUPAL_CACHE_PER_PAGE,
+    'cache' => DRUPAL_CACHE_PER_USER,
   );
 
   return $blocks;
