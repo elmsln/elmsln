@@ -72,12 +72,14 @@ pm.max_requests = 1500
 - you will want to monitor you memory useage over time and adjust the above settings in very small incremental changes. 
 
 - modify your .htaccess files to allow basic authorization
+
 ```
   # Basic authorization when using FCGI
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 ```
+
 - start php-fpm
-- 
+
 ```bash
 service php-fpm start
 chkconfig php-fpm on
