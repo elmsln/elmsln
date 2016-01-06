@@ -71,8 +71,21 @@ function mooc_helper_book_nav_block_view($delta = '') {
             ->execute()
             ->fetchAll();
           // associate the items that are siblings of the same parent
+          $nids = array();
+          $tmpary = array();
           foreach ($results as $item) {
-            $children[-1][] = (array)$item;
+            $tmpary[$item->mlid] = (array)$item;
+            $nids[str_replace('node/', '', $item->link_path)] = $item->mlid;
+          }
+          // node access check
+          $select = db_select('node', 'n');
+          $select->addField('n', 'nid');
+          $select->condition('n.status', 1);
+          $select->condition('n.nid', array_keys($nids), 'IN');
+          $select->addTag('node_access');
+          $nidslist = $select->execute()->fetchCol();
+          foreach ($nidslist as $nid) {
+            $children[-1][$nids[$nid]] = $tmpary[$nids[$nid]];
           }
           $tmp2 = $tmp;
           $bid = explode('-', $tmp2['menu_name']);
@@ -94,8 +107,21 @@ function mooc_helper_book_nav_block_view($delta = '') {
             ->execute()
             ->fetchAll();
           // associate the items that are siblings of the same parent
+          $nids = array();
+          $tmpary = array();
           foreach ($results as $item) {
-            $children[$tmp['plid']][] = (array)$item;
+            $tmpary[$item->mlid] = (array)$item;
+            $nids[str_replace('node/', '', $item->link_path)] = $item->mlid;
+          }
+          // node access check
+          $select = db_select('node', 'n');
+          $select->addField('n', 'nid');
+          $select->condition('n.status', 1);
+          $select->condition('n.nid', array_keys($nids), 'IN');
+          $select->addTag('node_access');
+          $nidslist = $select->execute()->fetchCol();
+          foreach ($nidslist as $nid) {
+            $children[$tmp['plid']][$nids[$nid]] = $tmpary[$nids[$nid]];
           }
           // load the parent of the current item
           $cache = _book_cache_get_associations($tmp);
