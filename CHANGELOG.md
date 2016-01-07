@@ -1,3 +1,17 @@
+ELMSLN 0.0.4, 2016-01-07
+------------------------
+- Drush aliases for -all don't work on authorities #447
+- EC2 installer doesn't need to pull from RHEL repo #432
+- Ensure resource icon doesn't show up on authority systems #433
+- Steps to Install php-fpm #436
+- breadcrumb levels need to do a menu tree check #434
+- "Vagrant" should be Varnish in performance docs #438
+- course-help CIS generated page is empty #443
+- Test Coverage Discussion #289
+- ECD keeps adding cis_system types #439
+- Breadcrumb items not sorted correctly #442
+- Vagrant Installation Error - PDOException: SQLSTATE[HY000] #435
+
 ELMSLN 0.0.3, 2016-01-04
 ------------------------
 - fix bulleted list #422
