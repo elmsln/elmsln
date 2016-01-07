@@ -40,6 +40,7 @@ function hook_cis_service_registry() {
       'instance' => FALSE,// if this is a per instance distro or single system
       'default_title' => 'Course Information System',// default title
       'ignore' => TRUE,// optional: if this should be ignored when aligning with the registry
+      'custom' => FALSE,// optional: only used if this is a custom property that's technically in the keychain for your own purposes but is to be ignored by critical sync systems like ECD
     ),
     // this example is from how MOOC would use this
     'mooc' => array(
