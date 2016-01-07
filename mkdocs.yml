@@ -9,7 +9,7 @@ pages:
   - Config Directory: config-is-empty-what-do-I-put-there.md
 - Information Architecture:
   - Index: ia/ia-index.md
-  - Roles: ia/User-roles.md
+  - Roles: ia/User-Roles.md
   - Sections: ia/Sections.md
 - Tools:
   - Service vs. Authority: systems/service-vs-auth.md
@@ -49,5 +49,3 @@ theme: readthedocs
 site_author: "elmsln"
 repo_name: ELMSLN
 repo_url: https://github.com/elmsln/elmsln
-include_search: true
-#use_directory_urls: false
