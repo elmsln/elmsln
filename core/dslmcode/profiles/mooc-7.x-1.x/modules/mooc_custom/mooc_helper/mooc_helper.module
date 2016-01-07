@@ -59,6 +59,7 @@ function mooc_helper_menu() {
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
   );
+  // @todo add a menu callback that redirects to the first page of the book outline
   return $items;
 }
 
