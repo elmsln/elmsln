@@ -7,6 +7,7 @@ function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
   // static cache assembled aliases as this can get tripped often
   static $pulledaliases = array();
   static $pulledauthorities = array();
+  static $config = array();
   // check for pervasive cache if static is empty
   if (empty($pulledaliases)) {
     // assumption here is that it lives where we expect
@@ -14,7 +15,6 @@ function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
     // support changes to that part of the install routine
     $cfg = file_get_contents('/var/www/elmsln/config/scripts/drush-create-site/config.cfg');
     $lines = explode("\n", $cfg);
-    $config = array();
     // read each line of the config file
     foreach ($lines as $line) {
       // make sure this line isn't a comment and has a = in it
@@ -105,4 +105,5 @@ function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
   }
   $aliases = $pulledaliases;
   $authorities = $pulledauthorities;
+  return $config;
 }
