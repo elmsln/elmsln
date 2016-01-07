@@ -31,6 +31,7 @@ pages:
   - General Questions: development/Developer-questions.md
   - Concept Development Process: development/Concept-Process.md
   - Release Cycle: development/Project-Release-Cycle.md
+  - Scale: scale.md
   - Vagrant: development/Vagrant-Step-by-Step-setup.md
   - Should I upgrade modules?: development/Should-I-update-Drupal-modules.md
   - Where can I add modules / themes?: development/Where-can-I-add-new-modules-themes.md
