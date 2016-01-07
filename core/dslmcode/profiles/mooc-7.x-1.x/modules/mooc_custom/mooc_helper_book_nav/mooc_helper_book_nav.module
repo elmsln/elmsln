@@ -43,6 +43,8 @@ function mooc_helper_book_nav_block_view($delta = '') {
   $block = array();
   // @todo utilize static and book_cache cache bin methods to optimize
   // this is a ton of processing currently
+  // cache granularity needs to be per role, per mlid
+  // this ensures that access rights are maintained
   switch ($delta) {
     case 'book_sibling_nav':
       $block['subject'] = '';
