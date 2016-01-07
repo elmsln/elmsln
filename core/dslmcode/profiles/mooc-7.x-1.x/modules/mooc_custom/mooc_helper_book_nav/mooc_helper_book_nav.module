@@ -87,7 +87,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
           $select->addTag('node_access');
           $nidslist = $select->execute()->fetchCol();
           // compare against what we are ALLOWED to show so order is maintained
-          foreach ($nids as $nid) {
+          foreach ($nids as $nid => $mid) {
             // this suggests an item was removed bc of access rights
             // the pulled list doesn't have an item from the original
             if (!in_array($nid, $nidslist)) {
@@ -132,7 +132,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
           $select->addTag('node_access');
           $nidslist = $select->execute()->fetchCol();
           // compare against what we are ALLOWED to show so order is maintained
-          foreach ($nids as $nid) {
+          foreach ($nids as $nid => $mid) {
             // this suggests an item was removed bc of access rights
             // the pulled list doesn't have an item from the original
             if (!in_array($nid, $nidslist)) {
