@@ -161,7 +161,7 @@ function _ecd_helper_sync_system_registry() {
   if ($registry = _cis_connector_build_registry()) {
     foreach ($registry as $distribution => $reg) {
       // ensure we have an address since it contains our machine name key
-      if (isset($reg['address']) && !empty($reg['address'])) {
+      if (!isset($reg['custom']) && isset($reg['address']) && !empty($reg['address'])) {
         $addr = explode('.', $reg['address']);
         $machine_name = $addr[0];
         // if we don't know about this address and it has a default title, build a node
