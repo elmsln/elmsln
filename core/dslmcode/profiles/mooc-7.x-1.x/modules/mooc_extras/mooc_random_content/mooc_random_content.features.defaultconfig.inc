@@ -26,7 +26,7 @@ function mooc_random_content_defaultconfig_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_elmsln_random_content';
-  $strongarm->value = 'edit-wysiwyg-template';
+  $strongarm->value = 'edit-addanother-display';
   $export['additional_settings__active_tab_elmsln_random_content'] = $strongarm;
 
   $strongarm = new stdClass();
