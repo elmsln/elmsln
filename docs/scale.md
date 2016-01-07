@@ -1,20 +1,39 @@
 ## Scale
-elmsln has been built for high scale environments through flexibility in network design.When systems talk to each other they do so pver restful web communications. By dong this, it means the different systems of elmsln can live anywhere as a result. deployments start off generally in one sever but through automated parcial migrations you can gain miltiple servers powering one network.
+ELMSLN continues to gain ground in the area of performance. It is being developed with high scale environments in mind, while retaining flexibility in its network design. Its systems talk to each other via web services using restful web communications. By dong this, it means that the different systems of elmsln can live anywhere as a result. 
 
-## PHP-FPM using mod_fastcgi for apache 2.2 and php 5.6
-- First remove all your current php modules
+Deployments start off generally in one sever but through automated partial migrations you can gain miltiple servers powering one network.
+
+## Performance
+ELMSLN's latest modification is the use of PHP-FPM and mod_fastcgi.
+
+## A quick guide to installing PHP-FPM using mod_fastcgi for apache 2.2 and php 5.6
+If you currently have php <= 5.5 installed you will want to upgrade to php 5.6. You will need the remi repo for this if you don't have it already. 
+
+
+
+If you want to upgrade to use php-fpm you will need to perform the steps below.
+
+- You will also want to find what php modules you have installed so you know what all you need to replace. Once you know you can use your package manager to remove and reinstall them sans mod_php.
+
+What we did for our RHEL based system.
+
+```bash
+yum list installed | grep php
+```
+
+Then we removed all of the php modules so we could start with a clean slate.
 
 ```bash
 yum remove php php-cli php-common php-devel php-gd php-mbstring php-mcrypt php-mysqlnd php-opcache php-pdo php-pear php-pecl-apcu php-pecl-igbinary php-pecl-jsonc php-pecl-jsonc-devel php-pecl-memcache php-pecl-memcached php-pecl-mongo php-pecl-msgpack php-pecl-sqlite php-pecl-ssh2 php-pecl-yaml php-pecl-zip php-pgsql php-process php-xml 
 ```
-- Re-install them with php5.6 using the remi repo
+Next we re-installed needed php modules using the remi-php56 repo. Notice that we installed php-fpm and not php this time around.
 
 ```bash
 yum install --enablerepo=remi-php56 php-fpm php-cli php-common php-devel php-gd php-mbstring php-mcrypt php-mysqlnd php-opcache php-pdo php-pear php-pecl-apcu php-pecl-igbinary php-pecl-jsonc php-pecl-jsonc-devel php-pecl-memcache php-pecl-memcached php-pecl-mongo php-pecl-msgpack php-pecl-sqlite php-pecl-ssh2 php-pecl-yaml php-pecl-zip php-pgsql php-process php-xml 
 ```
-- OPTIONAL - Remove /etc/httpd/conf.d/php.conf.rpmsave
 
-- install the repo for fastcgi and then install fastcgi
+
+RHEL based systems don't come with mod_fastcgi by default so we needed to install the repo from dag.wiers.com
 
 ```bash
 sudo rpm --import http://dag.wieers.com/rpm/packages/RPM-GPG-KEY.dag.txt
@@ -22,13 +41,13 @@ sudo rpm -ivh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-
 sudo yum install mod_fastcgi
 ```
 
-- create /usr/lib/cgi-bin
+In order for this to work you need to create /usr/lib/cgi-bin
 
 ``` bash
 mkdir -p /usr/lib/cgi-bin
 ```
 
-- Paste the following to the bottom of /etc/httpd/conf.d/fastcgi.conf
+This next bit of config allows php to run globally via the fastcgi module. Paste the following to the bottom of /etc/httpd/conf.d/fastcgi.conf
 
 ```bash
 <IfModule mod_fastcgi.c>
@@ -40,7 +59,9 @@ mkdir -p /usr/lib/cgi-bin
 </IfModule>
 ```
 
-- Change in /etc/httpd/conf.d/fastcgi.conf
+While you are editing /etc/httpd/conf.d/fastcgi.conf, you need to change the FastCgiWrapper to not wrap scripts calls in suexec. 
+
+Change 
 
 ``` bash
 # wrap all fastcgi script calls in suexec
@@ -54,12 +75,9 @@ to
 FastCgiWrapper Off
 ```
 
-- restart apache
-```bash
-service httpd restart
-```
-- edit /etc/php-fpm.d/www.conf
--- A good starting point for most people would be
+
+Next you need to edit /etc/php-fpm.d/www.conf
+A good starting point for most people would look something like this.
 
 ```bash
 pm.max_children = 20 
@@ -68,24 +86,29 @@ pm.min_spare_server = 3
 pm.max_spare_servers = 5
 pm.max_requests = 1500
 ```
+The above config says, start up 3 servers that each have 20 children. If needed add more servers up to 5. Each child can allow up to 1500 requests before needing to be respawned. As stated this is just a starting point and you will want to monitor you memory useage over time and adjust the above settings in very small incremental changes. 
 
-- you will want to monitor you memory useage over time and adjust the above settings in very small incremental changes. 
-
-- modify your .htaccess files to allow basic authorization
+You will need to modify your .htaccess files to allow basic authorization if you are using basic authorization via web services. 
 
 ```
   # Basic authorization when using FCGI
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 ```
 
-- start php-fpm
+
+Once you restart apache your new config is compiled.
+
+```bash
+service httpd restart
+```
+Finally you will need to start php-fpm and make sure that it stays on in case of a reboot.
 
 ```bash
 service php-fpm start
 chkconfig php-fpm on
 ```
 
-## Vagrant
-vagrant is a reverse proxie that can be employed for the delivery of static assets and annonymous cpurse trafdix. if you are planning to acale elmslm for annonymous traffix it ia recommended touse a reverse proxie to hit higher load.
+## Varnish
+Varnish is a reverse proxy that can be employed for the delivery of static assets and anonymous course traffic. If you are planning to scale elmslm for annonymous traffic it ia recommended to use a reverse proxy to hit higher load.
 
 ## Pound
