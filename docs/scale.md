@@ -1,5 +1,9 @@
 ## Scale
-elmsln has been built for high scale environments through flexibility in network design.When systems talk to each other they do so pver restful web communications. By dong this, it means the different systems of elmsln can live anywhere as a result. deployments start off generally in one sever but through automated parcial migrations you can gain miltiple servers powering one network.
+ELMSLN continues to gain ground in the area of performance. It is developed with high scale environments in mind while retaining flexibility in network design. It's systems talk to each other via web services using restful web communications. By dong this, it means that the different systems of elmsln can live anywhere as a result. 
+
+Deployments start off generally in one sever but through automated partial migrations you can gain miltiple servers powering one network.
+
+ELMSLN's latest modification is the use of PHP-FPM and mod_fastcgi.
 
 ## PHP-FPM using mod_fastcgi for apache 2.2 and php 5.6
 - First remove all your current php modules
