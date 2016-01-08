@@ -8,8 +8,8 @@
  * Implements hook_user_login().
  */
 function cle_require_profile_user_login(&$edit, $account) {
-  // ensure drush doesn't get stuck on this
-  if (!drupal_is_cli()) {
+  // ensure drush and services don't get stuck on this
+  if (!drupal_is_cli() && !_cis_connector_role_groupings(array('admin', 'staff', 'webservice'), $account)) {
     // first time access save when they first logged in to compare
     if (_cle_require_profile_filled_out($account)) {
       // test if they filled it out
@@ -28,7 +28,7 @@ function cle_require_profile_user_login(&$edit, $account) {
  */
 function cle_require_profile_user_update(&$edit, $account, $category) {
   // ensure drush doesn't get stuck on this
-  if (!drupal_is_cli()) {
+  if (!drupal_is_cli() && !_cis_connector_role_groupings(array('admin', 'staff', 'webservice'), $account)) {
     // see if they actually filled out the values needed
     if (_cle_require_profile_filled_out($account)) {
       _cle_require_profile_apply_required($account);
