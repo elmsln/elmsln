@@ -1378,6 +1378,7 @@ function _cis_connector_role_groups($type = NULL) {
     $roles = array(
       'admin' => array('administrator'),
       'staff' => array('administrator', 'staff'),
+      'webservice' => array('SERVICE ACCOUNT'),
       'teacher' => array('teaching assistant', 'instructor'),
       'learner' => array('student', 'past student'),
       'active learner' => array('student'),
