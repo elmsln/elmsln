@@ -307,6 +307,8 @@ function mooc_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_st
     '#required' => '1',
     '#options' => _mooc_helper_all_book_outlines('nid'),
   );
+  // @see _mooc_helper_book_homepage_redirect()
+  $form['site_information']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
 }
 
 /**
