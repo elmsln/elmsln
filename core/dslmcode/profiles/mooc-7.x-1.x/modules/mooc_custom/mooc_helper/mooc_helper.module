@@ -167,7 +167,7 @@ function _mooc_helper_book_homepage_redirect() {
     }
   }
   else {
-    // if there are results then just redirect to the homepage
+    // if there are no results then just redirect to the homepage
     drupal_goto('/', array(), 307);
   }
 }
