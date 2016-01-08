@@ -59,7 +59,12 @@ function mooc_helper_menu() {
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
   );
-  // @todo add a menu callback that redirects to the first page of the book outline
+  $items['mooc/book-homepage'] = array(
+    'title' => 'Instructional outline homepage',
+    'page callback' => '_mooc_helper_book_homepage_redirect',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
   return $items;
 }
 
@@ -119,6 +124,52 @@ function _mooc_helper_toc() {
     $tree = $tree['below'];
   }
   return menu_tree_output($tree);
+}
+
+/**
+ * Callback for mooc/book-homepage to redirect the user to the first
+ * page of the active section's book.
+ */
+function _mooc_helper_book_homepage_redirect() {
+  // get the section id of the current section
+  $current_section = _cis_connector_section_context();
+
+  // look up that node based on the section id
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'section')
+    ->fieldCondition('field_section_id', 'value', $current_section, '=');
+  $result = $query->execute();
+
+  if (isset($result['node'])) {
+    $section_nids = array_keys($result['node']);
+    // there should only be one result so target the first item
+    // in the array and load it into an entity wrapper
+    $section_wrapper = entity_metadata_wrapper('node', array_shift($section_nids));
+    // if the section points to a book then find the path
+    // of the book and redirect the user
+    try {
+      if (isset($section_wrapper->field_instructional_outlines)) {
+        // drill into the field_instructional_outlines to get the
+        // referenced book nid
+        $book_nid = $section_wrapper->field_instructional_outlines[0]->nid->value();
+        // use a temporary 307 redirect to the books homepage
+        drupal_goto('node/' . $book_nid, array(), 307);
+      }   
+    }
+    catch (EntityMetadataWrapperException $exc) {
+      watchdog(
+        'mooc_helper',
+        'EntityMetadataWrapper exception in %function() <pre>@trace</pre>',
+        array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
+        WATCHDOG_ERROR
+      );
+    }
+  }
+  else {
+    // if there are no results then just redirect to the homepage
+    drupal_goto('/', array(), 307);
+  }
 }
 
 /**
@@ -256,6 +307,8 @@ function mooc_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_st
     '#required' => '1',
     '#options' => _mooc_helper_all_book_outlines('nid'),
   );
+  // @see _mooc_helper_book_homepage_redirect()
+  $form['site_information']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
 }
 
 /**
