@@ -446,12 +446,8 @@ function _cis_connector_section_context($account = NULL) {
   $section = &drupal_static(__FUNCTION__);
   if (!isset($section)) {
     // bail early if we don't have the section module enabled
-    if (!module_exists('cis_section')) {
-      $section = FALSE;
-      return $section;
-    }
     // bail early if this is an administrative path
-    if (arg(0) == 'admin') {
+    if (!module_exists('cis_section') || arg(0) == 'admin') {
       $section = FALSE;
       return $section;
     }
