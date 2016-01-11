@@ -546,6 +546,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
   if ($section == 'master' && $request != 'other_services') {
     // return an empty array. this is what happened when there is a query for
     // a section that doesn't exist. this avoids it throwing an error
+    drupal_set_message(t('You are currently viewing the Master section.'), 'status', FALSE);
     return array();
   }
   // form the commonly used base query
