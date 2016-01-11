@@ -8,9 +8,8 @@
  * Implements hook_install().
  */
 function cis_service_restws_install() {
-  // Make sure that cis_restws runs before other authentication systems
-  // since the included code can quickly reject anonymous access to the
-  // webservices "data" addresses.
+  // Make sure that this runs before other modules so we can alter the
+  // restws response for other things to react to
   db_update('system')
   ->fields(array(
     'weight' => -100,
