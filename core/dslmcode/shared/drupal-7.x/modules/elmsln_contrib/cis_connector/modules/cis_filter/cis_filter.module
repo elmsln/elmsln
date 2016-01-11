@@ -355,19 +355,12 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
     // this is one of the more ridiculous capabilities of this system
     $target_found = FALSE;
     $section = _cis_connector_section_context();
-    // check for master since we need to hit the title of the master then
     // since they are variable based on the design of the system
     $query = array(
       'deep-load-refs' => $code['entity_type'],
       'type' => 'section',
+      'field_section_id' => $section,
     );
-    // check if this is a master section or not
-    if ($is_master = _cis_section_is_master($section)) {
-      $query['title'] = 'Master Section';
-    }
-    else {
-      $query['field_section_id'] = $section;
-    }
     // look for the section in question
     $response = _cis_connection_query($query, 'node', 'json', 'GET', $code['tool'], $instance, FALSE);
     if (isset($response['list'])) {
