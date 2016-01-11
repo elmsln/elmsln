@@ -32,7 +32,7 @@
   <hr class="pad-1" />
   <?php if (isset($section_title)) : ?>
   <h2><?php print t('Section'); ?></h2>
-  <div class="cis-admin-area user-nav-section">
+  <div class="user-nav-section">
     <?php print $user_section; ?>
   </div>
   <?php endif; ?>
