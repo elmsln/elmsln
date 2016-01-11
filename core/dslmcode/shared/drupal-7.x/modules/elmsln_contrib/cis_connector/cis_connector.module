@@ -885,7 +885,10 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
       else {
         return FALSE;
       }
-      cache_set($cid, $data->data, 'cache_cis_connector');
+      // only set cache record if told this is to be cached
+      if ($cached) {
+        cache_set($cid, $data->data, 'cache_cis_connector');
+      }
     }
   }
 
