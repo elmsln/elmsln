@@ -144,9 +144,12 @@ function _cis_lmsless_assemble_user() {
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       // account for systems without sections (like authorities)
-      if ($section && user_access('switch section context')) {
-        $tmptext = '<span>' . filter_xss($section) . '</span>';
-        $vars['user_section'] = $tmptext . '<span><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal" class="admin-alert">' . t('change') . '</a></span>';
+      if ($section) {
+        $vars['user_section'] = '<span>' . filter_xss($section) . '</span>';
+        // ensure they can see the section switcher link
+        if (user_access('switch section context')) {
+          $vars['user_section'] .= '<span><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal" class="admin-alert">' . t('change') . '</a></span>';
+        }
       }
       // render differently if the user is already masquerading
       if (isset($_SESSION['masquerading'])) {
