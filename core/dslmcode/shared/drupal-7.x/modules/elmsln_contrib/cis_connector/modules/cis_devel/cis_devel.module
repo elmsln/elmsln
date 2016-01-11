@@ -22,3 +22,15 @@ function cis_devel_cis_postrequest_alter(&$request) {
     dpm($request);
   }
 }
+
+/**
+ * Implements hook_cis_devel_cis_section_build_roster_alter().
+ */
+function cis_devel_cis_section_build_roster_alter(&$roster, $section) {
+  if (user_access('access devel information')) {
+    // @ignore production_code
+    dpm("Pulled roster for: $section");
+    // @ignore production_code
+    dpm($roster);
+  }
+}
