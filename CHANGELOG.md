@@ -1,3 +1,16 @@
+ELMSLN 0.0.5, 2016-01-11
+------------------------
+- CLE redirects webservice calls against it if sections et to master to NO_SECTION #455
+- Support debugging on roster syncs #461
+- Section hidden on profile page unless they have section switch access #463
+- Only cache responses when told to do so #462
+- Section switcher needs to remove groups instructor/tas aren't in #448
+- cis service connection transactional pages handling on master #445
+- Additional performance changes to test #213
+- add webservice role grouping #453
+- CLE profile require applies to webservices, and shouldn't #454
+- Issue Importing Book Outline (XML) #451
+
 ELMSLN 0.0.4, 2016-01-07
 ------------------------
 - Drush aliases for -all don't work on authorities #447
