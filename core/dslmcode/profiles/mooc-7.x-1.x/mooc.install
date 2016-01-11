@@ -71,3 +71,17 @@ function _mooc_default_content($type, $bid = NULL) {
   }
   return $node;
 }
+
+
+/**
+ * Implements hook_update_N().
+ * Enable og_access so instructors / TAs can only see the sections
+ * that they are part of. All other tools already did this so this is specific
+ * to the MOOC platform requiring this enhancement.
+ */
+function mooc_update_7001(&$sandbox) {
+  // enable og_access
+  module_enable(array('og_access'));
+  // rebuild permissions since there were groups before this
+  node_access_rebuild();
+}

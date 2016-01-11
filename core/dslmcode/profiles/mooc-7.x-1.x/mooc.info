@@ -139,6 +139,8 @@ dependencies[] = feeds_tamper
 dependencies[] = feeds_xpathparser
 ; MOOC
 dependencies[] = mooc_helper_book_nav
+; OG
+dependencies[] = og_access
 ; Other
 dependencies[] = autosave
 dependencies[] = book_copy
