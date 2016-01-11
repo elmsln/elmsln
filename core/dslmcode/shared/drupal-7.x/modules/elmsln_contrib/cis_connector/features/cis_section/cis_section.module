@@ -312,7 +312,10 @@ function cis_section_assemble_roster($sections, $activated = FALSE) {
     if (isset($dates['end']) && isset($dates['start'])) {
       if (($dates['start'] < REQUEST_TIME && $dates['end'] > REQUEST_TIME) || $activated) {
         // build the roster for this section
-        $roster[$section] = module_invoke_all('cis_section_build_roster', $section);
+        $tmproster = module_invoke_all('cis_section_build_roster', $section);
+        // allow for altering roster pull methods
+        drupal_alter('cis_section_build_roster', $tmproster, $section);
+        $roster[$section] = $tmproster;
       }
       // test for it being before or after date that this section should be active
       // this helps allow for logistical setup of a section prior to the semester

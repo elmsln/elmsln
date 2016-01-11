@@ -61,10 +61,9 @@ function hook_cis_section_deactivate() {
 /**
  * Implements hook_cis_section_build_roster().
  *
- * $section is a unique identifier for asking a roster
- * service for the students / instructors are associated.
+ * @param  string $section is a unique identifier for asking a roster
  *
- * Returned structured expected to be array
+ * @return array  keyed with userid => role
  * $roster[$member['user_id']] = $member['course_rights'];
  */
 function hook_cis_section_build_roster($section) {
@@ -75,6 +74,18 @@ function hook_cis_section_build_roster($section) {
     'name3' => 'instructor',
     'name4' => 'student',
   );
+}
+
+/**
+ * Implements hook_cis_section_build_roster_alter().
+ *
+ * Allow for modification of the roster after initial processing.
+ * This is how cis_devel is able to present roster results
+ * @param  array &$roster assembled roster for a section
+ * @param  string $section is a unique identifier for asking a roster
+ */
+function hook_cis_section_build_roster_alter(&$roster, $section) {
+
 }
 
 /**
