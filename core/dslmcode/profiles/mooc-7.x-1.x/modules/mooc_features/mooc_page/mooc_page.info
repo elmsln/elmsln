@@ -6,6 +6,7 @@ dependencies[] = ctools
 dependencies[] = ds
 dependencies[] = features
 dependencies[] = field_group
+dependencies[] = mooc_nav_block
 dependencies[] = mooc_ux_defaults
 dependencies[] = strongarm
 dependencies[] = text

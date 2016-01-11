@@ -8,7 +8,7 @@
  * Implements hook_field_group_info().
  */
 function mooc_page_field_group_info() {
-  $export = array();
+  $field_groups = array();
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -36,7 +36,11 @@ function mooc_page_field_group_info() {
       'formatter' => 'closed',
     ),
   );
-  $export['group_cis_tag_group|node|page|form'] = $field_group;
+  $field_groups['group_cis_tag_group|node|page|form'] = $field_group;
 
-  return $export;
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Tags');
+
+  return $field_groups;
 }
