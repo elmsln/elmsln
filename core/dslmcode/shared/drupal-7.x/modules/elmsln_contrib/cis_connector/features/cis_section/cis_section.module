@@ -681,7 +681,7 @@ function cis_section_url_outbound_alter(&$path, &$options, $original_path) {
       // verify that the link is going to a separate subdomain
       if ($current_domain['subdomain'] != $outgoing_domain['subdomain']) {
         $current_section = _cis_connector_section_context();
-        if (isset($current_section) && $current_section && $current_section != 'NO_SECTION') {
+        if (isset($current_section) && $current_section) {
           // append the section context query parameter to the outgoing url
           $options['query']['elmsln_active_course'] = $current_section;
         }

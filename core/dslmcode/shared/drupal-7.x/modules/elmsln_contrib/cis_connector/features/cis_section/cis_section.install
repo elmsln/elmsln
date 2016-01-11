@@ -34,3 +34,17 @@ function cis_section_update_7001(&$sandbox) {
     }
   }
 }
+
+/**
+ * Implements hook_update_N().
+ *
+ * Fix for section default value changing to FALSE
+ * instead of the NO_SECTION or 'default' values
+ * that were previously possible.
+ */
+function cis_section_update_7002(&$sandbox) {
+  $tmp = variable_get('cis_section_default', FALSE);
+  if ($tmp == 'default' || $tmp == 'NO_SECTION') {
+    variable_set('cis_section_default', FALSE);
+  }
+}
