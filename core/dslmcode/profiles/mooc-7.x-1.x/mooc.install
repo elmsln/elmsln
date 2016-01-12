@@ -72,7 +72,6 @@ function _mooc_default_content($type, $bid = NULL) {
   return $node;
 }
 
-
 /**
  * Implements hook_update_N().
  * Enable og_access so instructors / TAs can only see the sections
@@ -84,4 +83,14 @@ function mooc_update_7001(&$sandbox) {
   module_enable(array('og_access'));
   // rebuild permissions since there were groups before this
   node_access_rebuild();
+}
+
+/**
+ * Implements hook_update_N().
+ * Some blocks shifted from cis_service_connection over to mooc_helper
+ * which means that the related contexts need to be rebuild in cache
+ * or they'll just be empty.
+ */
+function mooc_update_7002(&$sandbox) {
+  context_invalidate_cache();
 }

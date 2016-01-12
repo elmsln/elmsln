@@ -31,8 +31,8 @@ function mooc_cis_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'cis_service_connection-active_outline' => array(
-          'module' => 'cis_service_connection',
+        'mooc_helper-active_outline' => array(
+          'module' => 'mooc_helper',
           'delta' => 'active_outline',
           'region' => 'sidebar_first',
           'weight' => '-9',
@@ -123,7 +123,7 @@ function mooc_cis_ux_context_default_contexts() {
   <h2>Logistics</h2>
   <p>You can see the welcome message from your instructor, get a copy of the welcome letter and syllabus.</p>
 </li>
-<li data-id="block-cis-service-connection-active-outline" data-button="Next" data-options="tipLocation:top">
+<li data-id="block-mooc-helper-active-outline" data-button="Next" data-options="tipLocation:top">
   <h2>Course Outline</h2>
   <p>This is your content outline and primary means of navigation through the course.</p>
 </li>
