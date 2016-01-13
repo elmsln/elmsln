@@ -1,9 +1,0 @@
-default:
- paths:
-  features: features # where tests are stored
-  bootstrap: %behat.paths.features%/bootstrap #where context is stored
- extensions:
-  Behat\MinkExtension\Extension:
-   goutte: ~ #driver for how to fill in form fields (headless browser emulator)
-   selenium2: ~ #runs a server -- need JS -- Need to see if we need this
-   # https://www.youtube.com/watch?v=9cYhnTojaHU good tutorial
