@@ -539,11 +539,15 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
     $section = _cis_connector_section_context();
   }
   // account for FAKE master sections that have been auto generated
-  if ($section == 'master' && $request != 'other_services') {
-    // return an empty array. this is what happened when there is a query for
-    // a section that doesn't exist. this avoids it throwing an error
-    drupal_set_message(t('You are currently viewing the Master section.'), 'status', FALSE);
-    return array();
+  if ($section == 'master') {
+    if ($request != 'other_services') {
+      // return an empty array. this is what happened when there is a query for
+      // a section that doesn't exist. this avoids it throwing an error
+      if (in_array($request, array('help', 'resources', 'welcome_page', 'welcome_letter', 'syllabus'))) {
+        drupal_set_message(t('This page is blank because you are currently viewing the Master section.'), 'status', FALSE);
+      }
+      return array();
+    }
   }
   // form the commonly used base query
   $base_query = array('field_access_string' => $section, 'archived' => 0);
