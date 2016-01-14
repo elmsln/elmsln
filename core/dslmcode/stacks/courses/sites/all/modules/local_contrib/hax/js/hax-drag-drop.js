@@ -31,8 +31,8 @@ Drupal.hax.getGUID = function() {
 Drupal.hax.applyCKEditor = function(obj) {
   obj.setAttribute('contenteditable', true);
   CKEDITOR.inline( obj, {
-    extraPlugins: 'sourcedialog',
     extraAllowedContent: 'a(documentation);abbr[title];code',
+    mathJaxLib : '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
     // Show toolbar on startup (optional).
     startupFocus: true
   } );
