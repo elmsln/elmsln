@@ -19,6 +19,15 @@ function hax_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'hax.pages.inc',
   );
+  $items['admin/config/content/hax'] = array(
+    'title' => 'HAX',
+    'description' => 'HAX authoring experience settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('hax_settings_form'),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer site configuration'),
+    'file' => 'hax.pages.inc',
+  );
   return $items;
 }
 
@@ -29,7 +38,6 @@ function hax_menu_alter(&$items) {
   // change the "node/edit" tab label to say advanced
   $items['node/%node/edit']['title'] = t('Advanced edit');
   $items['node/%node/edit']['weight'] = 1;
-
 }
 
 /**
@@ -269,3 +277,20 @@ function hax_hax_tools() {
   return $tools;
 }
 
+/**
+ * Imlements hook_hax_inline_editor().
+ */
+function wysiwyg_hax_inline_editor() {
+  // this adds automatic support for textbook_editor
+  // if it has been enabled.
+  // Check editor theme (and reset it if not/no longer available).
+  $profile = wysiwyg_get_profile(variable_get('hax_inline_editor','filtered_html'));
+
+  $theme = wysiwyg_get_editor_themes($profile, (isset($profile->settings['theme']) ? $profile->settings['theme'] : ''));
+
+  // Add plugin settings (first) for this text format.
+  wysiwyg_add_plugin_settings($profile);
+  // Add profile settings for this text format.
+  wysiwyg_add_editor_settings($profile, $theme);
+  return $profile;
+}
