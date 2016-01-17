@@ -100,7 +100,7 @@ function _mooc_nav_block_mooc_nav_block() {
  */
 function _mooc_nav_block_get_nav($node) {
   // allow pages to pass their styling down
-  if (isset($node) && $node->type == 'page') {
+  if (isset($node) && $node->type == 'page' && isset($node->book)) {
     // easiest case, this item says to display stuff
     if (!empty($node->field_mooc_nav_display) && $node->field_mooc_nav_display[LANGUAGE_NONE][0]['value'] != 'below') {
       $nav = array(
