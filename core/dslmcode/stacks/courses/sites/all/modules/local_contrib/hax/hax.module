@@ -284,13 +284,34 @@ function wysiwyg_hax_inline_editor() {
   // this adds automatic support for textbook_editor
   // if it has been enabled.
   // Check editor theme (and reset it if not/no longer available).
-  $profile = wysiwyg_get_profile(variable_get('hax_inline_editor','filtered_html'));
+  $format = variable_get('hax_inline_editor','filtered_html');
+  $profile = wysiwyg_get_profile($format);
+  // Fetch the profile associated to this text format.
+  if ($profile) {
+    // Initialize default settings, defaulting to 'none' editor.
+    $settings[$format] = array(
+      'editor' => 'none',
+      'status' => 1,
+      'toggle' => 1,
+    );
+    $loaded = TRUE;
+    if (isset($profile->settings['add_to_summaries']) && !$profile->settings['add_to_summaries']) {
+      $settings[$format]['skip_summary'] = 1;
+    }
+    $settings[$format]['editor'] = $profile->editor;
+    $settings[$format]['status'] = (int) wysiwyg_user_get_status($profile);
+    if (isset($profile->settings['show_toggle'])) {
+      $settings[$format]['toggle'] = (int) $profile->settings['show_toggle'];
+    }
+    // Check editor theme (and reset it if not/no longer available).
+    $theme = wysiwyg_get_editor_themes($profile, (isset($profile->settings['theme']) ? $profile->settings['theme'] : ''));
 
-  $theme = wysiwyg_get_editor_themes($profile, (isset($profile->settings['theme']) ? $profile->settings['theme'] : ''));
+    // Add plugin settings (first) for this text format.
+    wysiwyg_add_plugin_settings($profile);
+    // Add profile settings for this text format.
+    wysiwyg_add_editor_settings($profile, $theme);
+  }
+  drupal_add_js($settings, 'setting');
 
-  // Add plugin settings (first) for this text format.
-  wysiwyg_add_plugin_settings($profile);
-  // Add profile settings for this text format.
-  wysiwyg_add_editor_settings($profile, $theme);
-  return $profile;
+  return TRUE;
 }
