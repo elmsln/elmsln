@@ -54,7 +54,6 @@ features[variable][] = node_preview_cle_encyclopedia_entry
 features[variable][] = node_submitted_cle_encyclopedia_entry
 features[variable][] = save_continue_cle_encyclopedia_entry
 features[views_view][] = cle_encyclopedia
-features_exclude[dependencies][cis_service_connection_ux] = cis_service_connection_ux
 features_exclude[dependencies][cle_assignment] = cle_assignment
 features_exclude[dependencies][colorbox] = colorbox
 features_exclude[dependencies][ctools] = ctools

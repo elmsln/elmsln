@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -13,10 +13,10 @@
  * (1) http://ckeditor.com/builder
  *     Visit online builder to build CKEditor from scratch.
  *
- * (2) http://ckeditor.com/builder/4091756f0dd715ee09a038565be7ea5d
+ * (2) http://ckeditor.com/builder/a9dd2196095ad7762a593f4975a93883
  *     Visit online builder to build CKEditor, starting with the same setup as before.
  *
- * (3) http://ckeditor.com/builder/download/4091756f0dd715ee09a038565be7ea5d
+ * (3) http://ckeditor.com/builder/download/a9dd2196095ad7762a593f4975a93883
  *     Straight download link to the latest version of CKEditor (Optimized) with the same setup as before.
  *
  * NOTE:
@@ -25,7 +25,7 @@
  */
 
 var CKBUILDER_CONFIG = {
-	skin: 'moono',
+	skin: 'minimalist',
 	preset: 'full',
 	ignore: [
 		'.bender',
@@ -34,6 +34,7 @@ var CKBUILDER_CONFIG = {
 		'bender-out.log',
 		'dev',
 		'.DS_Store',
+		'.editorconfig',
 		'.gitattributes',
 		'.gitignore',
 		'gruntfile.js',
@@ -41,6 +42,7 @@ var CKBUILDER_CONFIG = {
 		'.jscsrc',
 		'.jshintignore',
 		'.jshintrc',
+		'less',
 		'.mailmap',
 		'node_modules',
 		'package.json',
@@ -53,6 +55,8 @@ var CKBUILDER_CONFIG = {
 		'basicstyles' : 1,
 		'bidi' : 1,
 		'blockquote' : 1,
+		'ccmssourcedialog' : 1,
+		'clipboard' : 1,
 		'codemirror' : 1,
 		'colorbutton' : 1,
 		'colordialog' : 1,
@@ -81,6 +85,7 @@ var CKBUILDER_CONFIG = {
 		'list' : 1,
 		'liststyle' : 1,
 		'magicline' : 1,
+		'mathjax' : 1,
 		'maximize' : 1,
 		'newpage' : 1,
 		'pagebreak' : 1,
@@ -97,15 +102,17 @@ var CKBUILDER_CONFIG = {
 		'showborders' : 1,
 		'smiley' : 1,
 		'sourcearea' : 1,
+		'sourcedialog' : 1,
 		'specialchar' : 1,
 		'stylescombo' : 1,
 		'tab' : 1,
 		'table' : 1,
 		'tabletools' : 1,
 		'templates' : 1,
+		'texzilla' : 1,
 		'toolbar' : 1,
 		'undo' : 1,
-		'widget' : 1,
+		'wordcount' : 1,
 		'wsc' : 1,
 		'wysiwygarea' : 1
 	},

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TeXZilla &mdash; CKEditor Sample</title>
+<meta charset="utf-8">
+<script src="../../../ckeditor.js"></script>
+<link href="../../../samples/sample.css" rel="stylesheet">
+<meta name="ckeditor-sample-name" content="TeXZilla plugin">
+<meta name="ckeditor-sample-group" content="Plugins">
+<meta name="ckeditor-sample-description" content="Create mathematical equations in TeX and display using MathML.">
+<meta name="ckeditor-sample-isnew" content="1">
+<script>
+CKEDITOR.disableAutoInline = true;
+</script>
+</head>
+<body>
+<h1 class="samples">
+  <a href="../../../samples/index.html">CKEditor Samples</a> &raquo; Mathematical Formulas
+</h1>
+
+<div class="description">
+  <p>
+  This sample shows the usage of the CKEditor mathematical plugin that uses MathML. You can now use it to create or modify equations using TeX.
+  </p>
+  <textarea id="editor1" cols="10" rows="10">
+    <p>When insert one equation with this plugin it will be render using your
+    browser MathML engine like the follow square root of 2:
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mn>2</mn></msqrt><annotation encoding="TeX">\sqrt{2}</annotation></semantics></math>.
+    Some metadata will be saved like the (La)TeX representation to enable a future edition.</p>
+    <p>The equations bellow was been copied from <a
+      href="http://www.mathjax.org/demos/mathml-samples/">MathJax - MathML
+      Samples</a>:</p>
+    <p>The Quadratic Formula:
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo>-</mo><mi>b</mi><mo>&plusmn;</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>-</mo><mn>4</mn><mi>a</mi><mi>c</mi></mrow></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="TeX">x = \frac{-b \pm \sqrt{b^2 - 4 a c}}{2 a}</annotation></semantics></math>
+    </p>
+
+    <p>Cauchy's Integral Formula:
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display='block'><semantics><mstyle><mi>f</mi><mrow><mo>(</mo><mi>a</mi><mo>)</mo></mrow><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mi>π<!-- π --></mi><mi>i</mi></mrow></mfrac><msub><mo>∮</mo><mrow><mi>γ</mi></mrow></msub><mfrac><mrow><mi>f</mi><mo>(</mo><mi>z</mi><mo>)</mo></mrow><mrow><mi>z</mi><mo>−</mo><mi>a</mi></mrow></mfrac><mi>d</mi><mi>z</mi></mstyle><annotation encoding="TeX">f(a) = \frac{1}{2 \pi i} \oint_{\gamma} \frac{f(z)}{z - a} d z</annotation></semantics></math>
+    </p>
+
+    <p>Double angle formula for Cosines:
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>cos</mi><mo stretchy="false">(</mo><mi>&alpha;</mi><mo>+</mo><mi>&beta;</mi><mo stretchy="false">)</mo><mo>=</mo><mi>cos</mi><mo stretchy="false">(</mo><mi>&alpha;</mi><mo stretchy="false">)</mo><mi>cos</mi><mo stretchy="false">(</mo><mi>&beta;</mi><mo stretchy="false">)</mo><mo>-</mo><mi>sin</mi><mo stretchy="false">(</mo><mi>&alpha;</mi><mo stretchy="false">)</mo><mi>sin</mi><mo stretchy="false">(</mo><mi>&beta;</mi><mo stretchy="false">)</mo></mrow><annotation encoding="TeX">\cos(\alpha + \beta) = \cos(\alpha) \cos(\beta) - \sin(\alpha) \sin(\beta)</annotation></semantics></math>
+    </p>
+
+    <p>Gauss' Divergence Theorem:
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display='block'><semantics><mrow><mrow><msub><mo>&#x222b;</mo><mrow><mi>D</mi></mrow></msub><mrow><mo>(</mo><mo>&#x2207;&#x22c5;</mo><mi>F</mi><mo>)</mo></mrow><mi>d</mi><mrow><mi>V</mi></mrow></mrow><mo>=</mo><mrow><msub><mo>&#x222b;</mo><mrow><mo>&#x2202;</mo><mi>D</mi></mrow></msub><mrow><mtext>&#x2009;</mtext><mi>F</mi><mo>&#x22c5;</mo><mi>n</mi></mrow><mi>d</mi><mi>S</mi></mrow></mrow><annotation encoding="TeX">\int_D (\nabla \cdot F) d V = \int_{\partial D} F \cdot n d S</annotation></semantics></math>
+    </p>
+
+    <p>Curl of a Vector Field:
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display='block'><semantics><mrow><mover accent='true'><mrow><mo>&#x2207;</mo></mrow><mrow><mo>&#x2192;</mo></mrow></mover><mo>&#x00d7;</mo><mover accent='true'><mrow><mi>F</mi></mrow><mrow><mo>&#x2192;</mo></mrow></mover><mo>=</mo><mrow><mo>(</mo><mfrac><mrow><mo>&#x2202;</mo><msub><mrow><mi>F</mi></mrow><mrow><mi>z</mi></mrow></msub></mrow><mrow><mo>&#x2202;</mo><mi>y</mi></mrow></mfrac><mo>&#x2212;</mo><mfrac><mrow><mo>&#x2202;</mo><msub><mrow><mi>F</mi></mrow><mrow><mi>y</mi></mrow></msub></mrow><mrow><mo>&#x2202;</mo><mi>z</mi></mrow></mfrac><mo>)</mo></mrow><mstyle mathvariant='bold' mathsize='normal'><mrow><mi>i</mi></mrow></mstyle><mo>+</mo><mrow><mo>(</mo><mfrac><mrow><mo>&#x2202;</mo><msub><mrow><mi>F</mi></mrow><mrow><mi>x</mi></mrow></msub></mrow><mrow><mo>&#x2202;</mo><mi>z</mi></mrow></mfrac><mo>&#x2212;</mo><mfrac><mrow><mo>&#x2202;</mo><msub><mrow><mi>F</mi></mrow><mrow><mi>z</mi></mrow></msub></mrow><mrow><mo>&#x2202;</mo><mi>x</mi></mrow></mfrac><mo>)</mo></mrow><mstyle mathvariant='bold' mathsize='normal'><mrow><mi>j</mi></mrow></mstyle><mo>+</mo><mrow><mo>(</mo><mfrac><mrow><mo>&#x2202;</mo><msub><mrow><mi>F</mi></mrow><mrow><mi>y</mi></mrow></msub></mrow><mrow><mo>&#x2202;</mo><mi>x</mi></mrow></mfrac><mo>&#x2212;</mo><mfrac><mrow><mo>&#x2202;</mo><msub><mrow><mi>F</mi></mrow><mrow><mi>x</mi></mrow></msub></mrow><mrow><mo>&#x2202;</mo><mi>y</mi></mrow></mfrac><mo>)</mo></mrow><mstyle mathvariant='bold' mathsize='normal'><mrow><mi>k</mi></mrow></mstyle></mrow><annotation encoding="TeX">\vec{\nabla} \times \vec{F} = \left( \frac{\partial F_z}{\partial y} - \frac{\partial F_y}{\partial z} \right) \vec{i} + \left( \frac{\partial F_x}{\partial z} - \frac{\partial F_z}{\partial x} \right) \vec{j} + \left( \frac{\partial F_y}{\partial x} - \frac{\partial F_x}{\partial y} \right) \vec{k}</annotation></semantics></math>
+    </p>
+
+    <p>Standard Deviation:
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display='block'><semantics><mrow><mi>&#x03c3;</mi><mo>=</mo><msqrt><mrow><mfrac><mrow><mn>1</mn></mrow><mrow><mi>N</mi></mrow></mfrac><mstyle displaystyle='true'><mrow><munderover><mrow><mo>&#x2211;</mo></mrow><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>N</mi></mrow></munderover><mrow><msup><mrow><mo stretchy='false'>(</mo><msub><mrow><mi>x</mi></mrow><mrow><mi>i</mi></mrow></msub><mo>&#x2212;</mo><mi>&#x03bc;</mi><mo stretchy='false'>)</mo></mrow><mrow><mn>2</mn></mrow></msup></mrow></mrow></mstyle></mrow></msqrt><mo>.</mo></mrow><annotation encoding="TeX">\sigma = \sqrt{\frac{1}{N} \sum_{i = 1}{N} (x_i - \mu)^2}</annotation></semantics></math>
+    </p>
+
+    <p>Definition of Christoffel Symbols:
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display='block'><semantics><mrow><msup><mrow><mo>(</mo><msub><mrow><mo>&#x2207;</mo></mrow><mrow><mi>X</mi></mrow></msub><mi>Y</mi><mo>)</mo></mrow><mrow><mi>k</mi></mrow></msup><mo>=</mo><msup><mrow><mi>X</mi></mrow><mrow><mi>i</mi></mrow></msup><msup><mrow><mo stretchy='false'>(</mo><msub><mrow><mo>&#x2207;</mo></mrow><mrow><mi>i</mi></mrow></msub><mi>Y</mi><mo stretchy='false'>)</mo></mrow><mrow><mi>k</mi></mrow></msup><mo>=</mo><msup><mrow><mi>X</mi></mrow><mrow><mi>i</mi></mrow></msup><mrow><mo>(</mo><mfrac><mrow><mo>&#x2202;</mo><msup><mrow><mi>Y</mi></mrow><mrow><mi>k</mi></mrow></msup></mrow><mrow><mo>&#x2202;</mo><msup><mrow><mi>x</mi></mrow><mrow><mi>i</mi></mrow></msup></mrow></mfrac><mo>+</mo><msubsup><mrow><mi>&#x0393;</mi></mrow><mrow><mi>i</mi><mi>m</mi></mrow><mrow><mi>k</mi></mrow></msubsup><msup><mrow><mi>Y</mi></mrow><mrow><mi>m</mi></mrow></msup><mo>)</mo></mrow></mrow><annotation encoding="TeX">(\nabla_X Y)^k = X^i (\nabla_i Y)^k = X^i \left( \frac{\partial Y^k}{\partial x^i} + \Tau_{i m}^k Y^m \right)</annotation></semantics></math>
+    </p>
+  </textarea>
+  <script>
+
+CKEDITOR.replace( 'editor1', {
+extraPlugins: 'texzilla',
+height: 350,
+allowedContent: true,
+toolbar : [ [ 'Source', 'texzilla' ] ]
+} );
+
+if ( CKEDITOR.env.ie && CKEDITOR.env.version == 8 )
+  document.getElementById( 'ie8-warning' ).className = 'warning';
+
+  </script>
+
+  <div id="footer">
+    <hr>
+    <p>
+    CKEditor - The text editor for the Internet - <a class="samples" href="http://ckeditor.com/">http://ckeditor.com</a>
+    </p>
+    <p id="copy">
+    Copyright &copy; 2003-2013, <a class="samples" href="http://cksource.com/">CKSource</a> - Frederico
+    Knabben. All rights reserved.
+    </p>
+  </div>
+  </body>
+  </html>

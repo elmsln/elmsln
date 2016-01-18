@@ -28,6 +28,17 @@ Drupal.hax.getGUID = function() {
 };
 
 // apply dropping properties to an object
+Drupal.hax.applyCKEditor = function(obj) {
+  obj.setAttribute('contenteditable', true);
+  CKEDITOR.inline( obj, {
+    extraAllowedContent: 'a(documentation);abbr[title];code',
+    mathJaxLib : '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
+    // Show toolbar on startup (optional).
+    startupFocus: true
+  } );
+};
+
+// apply dropping properties to an object
 Drupal.hax.applyDrop = function(obj) {
   obj.setAttribute('aria-dropeffect', 'none');
   obj.setAttribute('data-hax-processed', 'true');
@@ -462,6 +473,8 @@ Drupal.hax.applyHax = function() {
       len = Drupal.hax.dragitems.length,
       i = 0; i < len; i++) {
     Drupal.hax.applyDrag(Drupal.hax.dragitems[i]);
+    // all draggable items get ckeditor inline atm
+    Drupal.hax.applyCKEditor(Drupal.hax.dragitems[i]);
   }
 };
 

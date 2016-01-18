@@ -73,9 +73,23 @@ function mooc_helper_menu() {
  */
 function mooc_helper_block_info() {
   // block that renders the table of contents
-  $blocks['mooc_helper_toc'] = array(
-    'info' => t('Active outline Table of Contents'),
-    'cache' => DRUPAL_NO_CACHE
+  $blocks = array(
+    'mooc_helper_toc' => array(
+      'info' => t('Active outline Table of Contents'),
+      'cache' => DRUPAL_CACHE_PER_USER,
+    ),
+    'active_outline' => array(
+      'info' => t('Instructional outline'),
+      'cache' => DRUPAL_CACHE_PER_USER,
+    ),
+    'all_active_outline' => array(
+      'info' => t('Instructional outline (load all)'),
+      'cache' => DRUPAL_CACHE_PER_USER,
+    ),
+    'high_active_outline' => array(
+      'info' => t('Instructional outline (highest)'),
+      'cache' => DRUPAL_CACHE_PER_USER,
+    ),
   );
 
   return $blocks;
@@ -92,6 +106,15 @@ function mooc_helper_block_view($delta = '') {
       $block['subject'] = t('Table of Contents');
       $block['content'] = _mooc_helper_toc();
     break;
+    case 'active_outline':
+      $block = _mooc_helper_block_section_outline('default');
+    break;
+    case 'all_active_outline':
+      $block = _mooc_helper_block_section_outline('all');
+    break;
+    case 'high_active_outline':
+      $block = _mooc_helper_block_section_outline('high');
+    break;
   }
   return $block;
 }
@@ -102,7 +125,7 @@ function mooc_helper_block_view($delta = '') {
  */
 function _mooc_helper_toc() {
   $tree = array();
-  $node = _cis_service_connection_active_outline();
+  $node = _mooc_helper_active_outline();
   // exit early cause we found nothing
   if (!$node) {
     return FALSE;
@@ -124,6 +147,195 @@ function _mooc_helper_toc() {
     $tree = $tree['below'];
   }
   return menu_tree_output($tree);
+}
+
+/**
+ * Render a block based on section context
+ */
+function _mooc_helper_block_section_outline($type = 'default') {
+  // ensure this doesn't load when it doesn't have to
+  $block = &drupal_static(__FUNCTION__ . $type);
+  if (!isset($block)) {
+    $node = _mooc_helper_active_outline();
+    // exit early cause we found nothing
+    if (!$node) {
+      return FALSE;
+    }
+    // load the active outline
+    $active = menu_get_object();
+    // test for not being on a node as well as global setting overriding
+    // outline to use
+    if (!isset($active->book) || ($active->book['menu_name'] != $node->book['menu_name'])) {
+      $active = $node;
+    }
+    // only show the block if the user has view access for the top-level node.
+    if (entity_access('view', 'node', $active) && isset($active->book)) {
+      // load the tree of the book
+      if ($type == 'all') {
+        $tree = menu_tree_all_data($active->book['menu_name']);
+      }
+      elseif ($type == 'high') {
+        $tree = menu_tree_all_data($active->book['menu_name'], $active->book, 2);
+      }
+      else {
+        $tree = menu_tree_all_data($active->book['menu_name'], $active->book);
+      }
+      $data = array_shift($tree);
+      $output = _mooc_helper_section_outline_tree_output($data['below'], $type);
+      // There should only be one element at the top level.
+      $block['subject'] = '<none>';
+      $block['content'] = $output;
+      return $block;
+    }
+  }
+  else {
+    return $block;
+  }
+  return FALSE;
+}
+
+/**
+ * Fork of the menu_tree_output function to account for this specific type of
+ * outline that we are overriding. The outline and menu name are contextual
+ * based on the user and as such we can't just use normal drupal menu theme
+ * conventions. This operates in the exact same way but it has a better theme
+ * name suggestion that's generic.
+ */
+function _mooc_helper_section_outline_tree_output($tree, $type = 'default') {
+  $build = array();
+  $items = array();
+
+  // Pull out just the menu links we are going to render so that we
+  // get an accurate count for the first/last classes.
+  if (is_array($tree)) {
+    foreach ($tree as $data) {
+      if ($data['link']['access'] && !$data['link']['hidden']) {
+        $items[] = $data;
+      }
+    }
+  }
+  $router_item = menu_get_item();
+  $active_trails = menu_get_active_trail();
+  drupal_alter('menu_breadcrumb', $active_trails, $router_item);
+  $trail = array();
+  foreach ($active_trails as $active_trail) {
+    if (isset($active_trail['link_path'])) {
+      $trail[] = $active_trail['link_path'];
+    }
+  }
+  $num_items = count($items);
+  foreach ($items as $i => $data) {
+    $class = array();
+    if ($i == 0) {
+      $class[] = 'first';
+    }
+    if ($i == $num_items - 1) {
+      $class[] = 'last';
+    }
+    // Set a class for the <li>-tag. Since $data['below'] may contain local
+    // tasks, only set 'expanded' class if the link also has children within
+    // the current menu.
+    if ($data['link']['has_children'] && $data['below']) {
+      $class[] = 'expanded';
+    }
+    elseif ($data['link']['has_children']) {
+      $class[] = 'collapsed';
+    }
+    else {
+      $class[] = 'leaf';
+    }
+    // Set a class if the link is in the active trail.
+    if ($data['link']['in_active_trail'] || in_array($data['link']['link_path'], $trail)) {
+      $class[] = 'active-trail';
+      $data['link']['localized_options']['attributes']['class'][] = 'active-trail';
+    }
+    // Normally, l() compares the href of every link with $_GET['q'] and sets
+    // the active class accordingly. But local tasks do not appear in menu
+    // trees, so if the current path is a local task, and this link is its
+    // tab root, then we have to set the class manually.
+    if ($data['link']['href'] == $router_item['tab_root_href'] && $data['link']['href'] != $_GET['q']) {
+      $data['link']['localized_options']['attributes']['class'][] = 'active';
+    }
+    // FORKED
+    // Allow for generic overrides of the active class in the template name
+    if ($type == 'all') {
+      $element['#theme'] = 'menu_link__mooc_helper_all_active_outline';
+    }
+    elseif ($type == 'high') {
+      $element['#theme'] = 'menu_link__mooc_helper_high_active_outline';
+    }
+    else {
+      $element['#theme'] = 'menu_link__mooc_helper_active_outline';
+    }
+    $element['#attributes']['class'] = $class;
+    $element['#title'] = $data['link']['title'];
+    $element['#href'] = $data['link']['href'];
+    $element['#localized_options'] = !empty($data['link']['localized_options']) ? $data['link']['localized_options'] : array();
+    $element['#below'] = $data['below'] ? _mooc_helper_section_outline_tree_output($data['below'], $type) : $data['below'];
+    $element['#original_link'] = $data['link'];
+    // Index using the link's unique mlid.
+    $build[$data['link']['mlid']] = $element;
+  }
+  if ($build) {
+    // Make sure drupal_render() does not re-order the links.
+    $build['#sorted'] = TRUE;
+    // Allow for generic overrides of the active class in the template name
+    if ($type == 'all') {
+      $build['#theme_wrappers'][] = 'menu_tree__mooc_helper_all_active_outline';
+    }
+    elseif ($type == 'high') {
+      $build['#theme_wrappers'][] = 'menu_tree__mooc_helper_high_active_outline';
+    }
+    else {
+      $build['#theme_wrappers'][] = 'menu_tree__mooc_helper_active_outline';
+    }
+  }
+  return $build;
+}
+
+/**
+ * Return the active outline based on user context
+ * @return object the active outline node
+ */
+function _mooc_helper_active_outline() {
+  $node = &drupal_static(__FUNCTION__);
+  if (!isset($node)) {
+    $onid = FALSE;
+    $node = FALSE;
+    $section = _cis_connector_section_context();
+    $group = _cis_section_load_section_by_id($section);
+    // test that we've got a group from context
+    if (isset($group->nid)) {
+      if (isset($group->field_instructional_outlines['und'])) {
+        $onid = $group->field_instructional_outlines['und'][0]['target_id'];
+      }
+      else {
+        // edge case where section is set and doesn't have an outline defined
+        // this really is only possible during initial setup of a system
+        // it helps improve ux substantially so you aren't confused
+        // mooc is the only thing using this currently
+        $onid = variable_get('mooc_default_outline', '');
+        // edge case, default was never set
+        if ($onid == '') {
+          // load all books
+          $books = _mooc_helper_all_book_outlines('nid', 'created');
+          // make sure we at least have some books in here
+          if (is_array($books)) {
+            // move to 1st array position in iterator
+            reset($books);
+            // sort maintaining index which is the nid
+            asort($books);
+            // set default to first key in array
+            $onid = key($books);
+          }
+        }
+      }
+    }
+    if ($onid) {
+      $node = node_load($onid);
+    }
+  }
+  return $node;
 }
 
 /**
@@ -318,7 +530,7 @@ function mooc_helper_tokens($type, $tokens, array $data = array(), array $option
   $replacements = array();
   // tokens from section
   if ($type == 'elmsln_section') {
-    $outline_node = _cis_service_connection_active_outline();
+    $outline_node = _mooc_helper_active_outline();
     $section = _cis_connector_section_context();
     foreach ($tokens as $name => $original) {
       // elements we know about ahead of time
@@ -331,7 +543,7 @@ function mooc_helper_tokens($type, $tokens, array $data = array(), array $option
     }
   }
   if ($type == 'elmsln_section_data') {
-    $outline_node = _cis_service_connection_active_outline();
+    $outline_node = _mooc_helper_active_outline();
     $section = _cis_connector_section_context();
     foreach ($tokens as $name => $original) {
       // elements we know about ahead of time
@@ -358,7 +570,7 @@ function mooc_helper_tokens($type, $tokens, array $data = array(), array $option
  */
 function mooc_helper_token_info() {
   // provide feedback about the active outline nid token
-  $outline_node = _cis_service_connection_active_outline();
+  $outline_node = _mooc_helper_active_outline();
   $outline = 'empty';
   if (isset($outline_node->nid)) {
     $outline = $outline_node->nid;

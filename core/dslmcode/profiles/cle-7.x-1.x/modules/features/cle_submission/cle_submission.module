@@ -89,18 +89,13 @@ function cle_submission_page_build(&$page) {
  */
 function cle_submission_node_access($node, $op, $account) {
   // allow for privacy value on the assignment to dictate who can see this
-  if ($op == 'view' && $node->type == 'cle_submission' && $node->uid != $account->uid) {
+  if (!_cis_connector_role_groupings(array('teacher', 'staff', 'webservice'), $account) && $op == 'view' && $node->type == 'cle_submission' && $node->uid != $account->uid) {
     // see if this assignment is private
     $assignment = node_load($node->field_assignment['und'][0]['target_id']);
     // boolean for visibility
     if (!$assignment->field_visibility['und'][0]['value']) {
       // if it's a hidden assignment, the last check is admin member
-      if (_cis_connector_role_grouping('teacher', $account) || _cis_connector_role_grouping('staff', $account)) {
-        return NODE_ACCESS_ALLOW;
-      }
-      else {
-        return NODE_ACCESS_DENY;
-      }
+      return NODE_ACCESS_DENY;
     }
   }
   return NODE_ACCESS_IGNORE;

@@ -17,8 +17,8 @@
         if ($('#block-system-main-menu').length > 0) {
           text += $('#block-system-main-menu').html();
         }
-        if ($('#block-cis-service-connection-active-outline').length > 0) {
-          text += $('#block-cis-service-connection-active-outline').html();
+        if ($('#block-mooc-helper-active-outline').length > 0) {
+          text += $('#block-mooc-helper-active-outline').html();
         }
         Drupal.thumbnav.modal(title, text);
         // add click event for tinynav support it exists

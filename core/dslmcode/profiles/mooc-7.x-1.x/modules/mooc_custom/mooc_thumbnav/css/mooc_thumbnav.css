@@ -1,6 +1,6 @@
 /* hide these items when on a phone */
 @media screen and (max-width: 739px) {
-  #block-cis-service-connection-active-outline {
+  #block-mooc-helper-active-outline {
     display:none;
   }
   #section-header {

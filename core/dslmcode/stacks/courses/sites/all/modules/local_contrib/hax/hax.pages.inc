@@ -9,6 +9,8 @@
  */
 function hax_page_edit_form($form, $form_state) {
   $node = menu_get_object();
+  // allow projects to jump in and implement a wysiwyg for hax to use
+  module_invoke_all('hax_inline_editor');
   $form['hax_body'] = array(
     '#type' => 'textfield',
     '#title' => t('body'),
@@ -59,4 +61,23 @@ function hax_page_edit($node) {
   $output .= _hax_render_toolbar();
 
   return $output;
+}
+
+/**
+ * Implements hook_form().
+ */
+function hax_settings_form($form, $form_state) {
+  $filters = filter_formats();
+  $list = array();
+  foreach ($filters as $name => $filter) {
+    $list[$name] = $filter->name;
+  }
+  $form['hax_inline_editor'] = array(
+    '#type' => 'select',
+    '#title' => t('Inline WYSIWYG'),
+    '#description' => t('What editor format do you want to use for HAX inline edit mode?'),
+    '#options' => $list,
+    '#default_value' => variable_get('hax_inline_editor','filtered_html'),
+  );
+  return system_settings_form($form);
 }

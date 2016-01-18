@@ -44,8 +44,8 @@ function mooc_theme_aurora_context_default_contexts() {
           'region' => 'banner',
           'weight' => '-10',
         ),
-        'cis_service_connection-active_outline' => array(
-          'module' => 'cis_service_connection',
+        'mooc_helper-active_outline' => array(
+          'module' => 'mooc_helper',
           'delta' => 'active_outline',
           'region' => 'main_prefix',
           'weight' => '-10',
@@ -61,12 +61,6 @@ function mooc_theme_aurora_context_default_contexts() {
           'delta' => 'main',
           'region' => 'content',
           'weight' => '-9',
-        ),
-        'boxes-site_footer' => array(
-          'module' => 'boxes',
-          'delta' => 'site_footer',
-          'region' => 'footer',
-          'weight' => '-10',
         ),
       ),
     ),
