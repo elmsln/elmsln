@@ -15,7 +15,7 @@ function cis_lmsless_permission() {
       'title' => t('View LMSless bar'),
       'description' => t('Provides context as to what system you are in and quick links.'),
     ),
-    'view lmsless cis link' =>  array(
+    'view lmsless administration links' =>  array(
       'title' => t('View link to CIS space'),
       'description' => t('This shows the shortcut to the marketing space in CIS.'),
     ),
@@ -233,7 +233,7 @@ function _cis_lmsless_assemble_network() {
     // add in links to the Authority systems if permission exists
     // @ignore druplart_conditional_assignment
     $administrative = t('Administrative');
-    if (user_access('view lmsless cis link') && is_array($reg)) {
+    if (user_access('view lmsless administration links') && is_array($reg)) {
       foreach ($reg as $key => $value) {
         $addr = explode('.', $value['address']);
         if (isset($value['instance']) && !$value['instance'] && $addr[0] != $vars['active']['machine_name']) {

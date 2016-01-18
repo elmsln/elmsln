@@ -27,7 +27,7 @@ function cis_lmsless_install() {
     if (isset($role->rid)) {
     	db_merge('role_permission')->key(array(
         'rid' => $role->rid,
-        'permission' => 'view lmsless cis link',
+        'permission' => 'view lmsless administration links',
         ))->fields(array(
         'module' => 'cis_lmsless',
       ))->execute();
@@ -40,7 +40,43 @@ function cis_lmsless_install() {
     if (isset($role->rid)) {
       db_merge('role_permission')->key(array(
         'rid' => $role->rid,
-        'permission' => 'view lmsless cis link',
+        'permission' => 'view lmsless administration links',
+        ))->fields(array(
+        'module' => 'cis_lmsless',
+      ))->execute();
+    }
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ * 'view lmsless cis link' updated to change to
+ * 'view lmsless administration links' since there are far more administrative
+ * systems then when this permissions was initially created
+ */
+function cis_lmsless_update_7001(&$sandbox) {
+  // special case for CIS as it is typically an administrative system
+  // apply permission to teacher roles
+  $teachers = _cis_connector_role_groups('teacher');
+  foreach ($teachers as $name) {
+    $role = user_role_load_by_name($name);
+    if (isset($role->rid)) {
+      db_merge('role_permission')->key(array(
+        'rid' => $role->rid,
+        'permission' => 'view lmsless administration links',
+        ))->fields(array(
+        'module' => 'cis_lmsless',
+      ))->execute();
+    }
+  }
+  // apply these for staff roles
+  $staff = _cis_connector_role_groups('staff');
+  foreach ($staff as $name) {
+    $role = user_role_load_by_name($name);
+    if (isset($role->rid)) {
+      db_merge('role_permission')->key(array(
+        'rid' => $role->rid,
+        'permission' => 'view lmsless administration links',
         ))->fields(array(
         'module' => 'cis_lmsless',
       ))->execute();

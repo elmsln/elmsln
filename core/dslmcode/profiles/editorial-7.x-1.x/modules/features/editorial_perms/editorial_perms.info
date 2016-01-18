@@ -18,5 +18,5 @@ features[defaultconfig][] = user_default_permissions:switch section context
 features[defaultconfig][] = user_default_permissions:view cis shortcode
 features[defaultconfig][] = user_default_permissions:view iframe embed code
 features[defaultconfig][] = user_default_permissions:view lmsless bar
-features[defaultconfig][] = user_default_permissions:view lmsless cis link
+features[defaultconfig][] = user_default_permissions:view lmsless administration links
 features[features_api][] = api:2

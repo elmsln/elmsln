@@ -171,9 +171,9 @@ function editorial_perms_defaultconfig_user_default_permissions() {
     'module' => 'cis_lmsless',
   );
 
-  // Exported permission: 'view lmsless cis link'.
-  $permissions['view lmsless cis link'] = array(
-    'name' => 'view lmsless cis link',
+  // Exported permission: 'view lmsless administration links'.
+  $permissions['view lmsless administration links'] = array(
+    'name' => 'view lmsless administration links',
     'roles' => array(
       'administrator' => 'administrator',
     ),
