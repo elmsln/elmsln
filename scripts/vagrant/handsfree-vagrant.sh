@@ -38,11 +38,12 @@ echo 'fi' >> /etc/profile.d/chkon.sh
 
 
 # vagrant specific stuff
+# make sure user password is admin as a fallback
+drush @elmsln upwd admin --password=admin --y
+# seckit causes isses, especially locally
 drush @online dis seckit --y
 # enable bakery for single sign-on
-drush @network.ln en vagrant_bakery_slave --y
+drush @elmsln en vagrant_bakery_slave --y
 drush @people dis vagrant_bakery_slave --y
 drush @people en vagrant_bakery --y
 drush @online en vagrant_cis_dev cis_example_cis --y
-# make sure user password is admin as a fallback
-drush @network.ln upwd admin --password=admin
