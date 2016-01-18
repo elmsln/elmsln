@@ -27,8 +27,9 @@ function cle_require_profile_user_login(&$edit, $account) {
  * Implements hook_user_update().
  */
 function cle_require_profile_user_update(&$edit, $account, $category) {
+  global $user;
   // ensure drush doesn't get stuck on this
-  if (!drupal_is_cli() && !_cis_connector_role_groupings(array('admin', 'staff', 'webservice'), $account)) {
+  if (!drupal_is_cli() && $user->uid == $account->uid && !_cis_connector_role_groupings(array('admin', 'staff', 'webservice'), $account)) {
     // see if they actually filled out the values needed
     if (_cle_require_profile_filled_out($account)) {
       _cle_require_profile_apply_required($account);
