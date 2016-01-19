@@ -258,7 +258,10 @@ function cis_section_all_sections($active_only = FALSE) {
   // that are sections
   ->entityCondition('bundle', 'section')
   // that are published
-  ->propertyCondition('status', 1);
+  ->propertyCondition('status', 1)
+  // execute this as user 1 to avoid object conflicts
+  // especially since we use OG all over the place
+  ->addMetaData('account', user_load(1));
   // allow for filtering by active state
   if ($active_only) {
     $query->fieldCondition('field_cis_active', 'value', 1, '=');
