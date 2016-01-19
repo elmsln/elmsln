@@ -303,7 +303,8 @@ function _mooc_helper_active_outline() {
     $onid = FALSE;
     $node = FALSE;
     $section = _cis_connector_section_context();
-    $group = _cis_section_load_section_by_id($section);
+    $gid = _cis_section_load_section_by_id($section);
+    $group = node_load($gid);
     // test that we've got a group from context
     if (isset($group->nid)) {
       if (isset($group->field_instructional_outlines['und'])) {
