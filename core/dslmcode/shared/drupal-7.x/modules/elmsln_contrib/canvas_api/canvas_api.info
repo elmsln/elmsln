@@ -1,0 +1,3 @@
+name = Canvas API
+description = Provides integration with the Canvas LMS API
+core = 7.x

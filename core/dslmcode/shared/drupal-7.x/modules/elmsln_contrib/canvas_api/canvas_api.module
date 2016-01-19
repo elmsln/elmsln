@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * Implements hook_page_build().
+ */
+function canvas_api_page_build(&$page) {
+  // add the js function so we can resize page requests of the parent
+  drupal_add_js(drupal_get_path('module', 'canvas_api') . '/js/window_resize.js');
+}
