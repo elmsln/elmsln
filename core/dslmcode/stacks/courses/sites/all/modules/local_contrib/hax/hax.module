@@ -310,8 +310,7 @@ function wysiwyg_hax_inline_editor() {
     wysiwyg_add_plugin_settings($profile);
     // Add profile settings for this text format.
     wysiwyg_add_editor_settings($profile, $theme);
+    drupal_add_js($settings, 'setting');
   }
-  drupal_add_js($settings, 'setting');
-
   return TRUE;
 }
