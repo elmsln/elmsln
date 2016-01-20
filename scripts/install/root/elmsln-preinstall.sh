@@ -370,6 +370,10 @@ drush cc drush
 # travis can't do these kind of modifications so drop running them
 if [[ $HOME != '/home/travis' ]]; then
   bash /var/www/elmsln/scripts/install/root/elmsln-create-accounts.sh
+  # ensure that the ulmus user doesn't need a tty in order to run
+  # this ensures that #491 works correctly
+  echo '# ELMSLN users dont need tty' >> /etc/sudoers
+  echo 'Defaults:ulmus    !requiretty' >> /etc/sudoers
 fi
 # ubuntu restarts differently
 if [[ $os == '2' ]]; then
