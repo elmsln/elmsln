@@ -1,3 +1,7 @@
+.cke_contents {
+  border: 1px solid #ccc;
+}
+
 .r-header__icon {
   opacity: 0.5;
 }
