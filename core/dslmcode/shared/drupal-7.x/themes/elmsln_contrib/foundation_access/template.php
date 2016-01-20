@@ -107,10 +107,12 @@ function foundation_access_preprocess_page(&$variables) {
   $settings = _cis_connector_build_registry($variables['distro']);
   $home_text = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   $variables['home'] = l('<div class="' . $variables['distro'] . '-home elmsln-home-icon icon-' . $variables['distro'] . '-black etb-modal-icons"></div><span>' . $home_text . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($variables['distro'] . '-home-button', 'elmsln-home-button-link'))));
-  // clever
-  $keys = array_keys($variables['page']['header']);
-  $keyname = array_shift($keys);
-  $variables['page']['header'][$keyname]['#prefix'] = $variables['home'];
+  // ensure header has something in it in the first place
+  if (isset($variables['page']['header'])) {
+    $keys = array_keys($variables['page']['header']);
+    $keyname = array_shift($keys);
+    $variables['page']['header'][$keyname]['#prefix'] = $variables['home'];
+  }
   // make sure we have lmsless enabled so we don't WSOD
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
   // support for lmsless since we don't require it
