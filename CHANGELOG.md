@@ -1,3 +1,14 @@
+ELMSLN 0.0.6, 2016-01-20
+------------------------
+- new systems build inconsistently after 0.0.4 cron switch #491
+- foundation access iframe throws notices #490
+- roster not pulling on cron sync #489
+- Simple Canvas frame embed support #486
+- refactor cis_service_connection mooc elements into mooc_helper #452
+- Refactor view lmsless cis link permission #473
+- Course/MOOC - creating custom pages for top menus #481
+- "Locked" permissions / ELMSLN Core features to build / export #229
+
 ELMSLN 0.0.5, 2016-01-11
 ------------------------
 - CLE redirects webservice calls against it if sections et to master to NO_SECTION #455
