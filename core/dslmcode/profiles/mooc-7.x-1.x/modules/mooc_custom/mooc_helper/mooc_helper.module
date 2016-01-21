@@ -54,7 +54,7 @@ function mooc_helper_menu() {
   $items = array();
   // load a page with the active outline's table of contents displayed
   $items['mooc/book-toc'] = array(
-    'title' => 'Instructional outline',
+    'title' => 'Table of Contents',
     'page callback' => '_mooc_helper_toc',
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),

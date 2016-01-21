@@ -16,9 +16,10 @@ function mooc_install() {
   _elmsln_installer_admin_role();
   // standard clean up
   _elmsln_installer_post_install_cleanup();
-
   // Allow visitor account creation with administrative approval.
   variable_set('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
+  // set home page to the table of contents
+  variable_set('site_frontpage', 'mooc/book-toc');
   // drop the "book" content type as its confusing
   node_type_delete('book');
   // create basic content to drive system

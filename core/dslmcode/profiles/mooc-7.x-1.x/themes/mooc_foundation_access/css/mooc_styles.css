@@ -262,6 +262,10 @@ ul.book-navigation-wrapper {
   font-size: 1rem;
 }
 
+.etb-book li {
+  line-height: 2rem;
+}
+
 .book-sibling-nav-item .outline-nav-icon {
   opacity: .5;
   filter: alpha(opacity=50);
