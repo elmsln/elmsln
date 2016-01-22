@@ -47,3 +47,5 @@ drush @elmsln en vagrant_bakery_slave --y
 drush @people dis vagrant_bakery_slave --y
 drush @people en vagrant_bakery --y
 drush @online en vagrant_cis_dev cis_example_cis --y
+# restart apache to frag some caches because of the different settings that changed inside
+sudo /etc/init.d/httpd restart
