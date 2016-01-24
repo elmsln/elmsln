@@ -28,6 +28,7 @@ pages:
   - Blog: systems/service/blog.md
   - Innovate: systems/developer/innovate.md
 - Developer:
+  - Command line: development/command-line.md
   - General Questions: development/Developer-questions.md
   - Concept Development Process: development/Concept-Process.md
   - Release Cycle: development/Project-Release-Cycle.md
