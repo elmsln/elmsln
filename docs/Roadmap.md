@@ -2,13 +2,11 @@ These are some systems and functionalities on the long term roadmap with the Cor
 
 The Core Architecture: ELMSLN is a package deployment intended to run on its own server. There are also future plans for running "fractal networks" which span servers. The core architecture has been running relatively unmodified since Fall 2013 and is considered very stable. Status: **Production**
 
-0.0.0 - where we effectively are today; version-less as we push towards 0.1.x which has infrastructure implications to be added during core installation.
-
 0.1.x - infrastructure in place that is upgradable and will start to formally support upgrade paths (though we have informally since 2014). This means things work, courses can be produced with the idea that they will be sustainable and there is an upgrade procedure going forward for under the hood changes (we need a bash based upgrade hook). Also need to support fractal installs (multiple elmsln deployments supporting one overall structure). All authorities and services that are initially planned at least have place-holders. Need to support a hands-free, automated self-upgrading deployment mode. This effectively means you aren't modifying from what's provided.
 
 0.2.x - usability improvements, especially around CIS / system wide management. Improved documentation / tutorials via a demo site showcasing the capabilities of the system. Any and all improvements to all tools in the network. Focus on accessibility, usability and template-ability of remixables (anything being embedded in anything) as well as a lot of work towards HAX (our new authoring system). Usability and stability improvements as well. Major advancements in comply, studio and media distributions.
 
-0.3.x - Outline Designer 3.x enhancements; more rapid course creation with a viable end product from a single screen.
+0.3.x - Outline Designer 3.x enhancements; more rapid course creation with a viable end product from a single screen. User experience and additional overall network enhancements throughout.
 
 **Course content outline (mooc / courses)** - Instructional outline, pacing of the course and textbook replacement type of material.
 **Status**: Has been in Production for years, minor UX tweaks to get it to the goal line. **Release Candidate** phase.
