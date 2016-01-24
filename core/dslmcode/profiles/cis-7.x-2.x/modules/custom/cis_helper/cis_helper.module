@@ -1137,8 +1137,6 @@ function _cis_helper_generate_service_node($title, $machine_name, $distribution,
  */
 function cis_helper_httprl_spider_other_paths_alter(&$paths) {
   $paths[] = 'courses';
-  $paths[] = 'programs';
-  $paths[] = 'faculty';
 }
 
 /**
