@@ -6,11 +6,21 @@ a.node_is_hidden:link,
 a.node_is_hidden:active {
   text-decoration: line-through;
   /* Set opacity for good little browsers. */
-  opacity: 0.6; 
+  opacity: 0.7;
   /* Trigger hasLayout in IE so that opacity can be set on inline elements. */
   zoom: 1;
   /* Set opacity in IE 8 */
-  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
   /* Set opacity in dinosaur IE (<= 7) */
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
+}
+
+/* support for outline designer */
+table#book-outline .node_is_hidden * {
+  opacity: .8;
+}
+
+table#book-outline .node_is_hidden:hover * {
+  opacity: 1;
+  text-decoration: none;
 }
