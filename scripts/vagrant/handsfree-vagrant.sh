@@ -49,3 +49,5 @@ drush @people en vagrant_bakery --y
 drush @online en vagrant_cis_dev cis_example_cis --y
 # restart apache to frag some caches because of the different settings that changed inside
 sudo /etc/init.d/httpd restart
+# clear caches on all sites this seems to make bakery happy
+drush @elmsln cc all --y
