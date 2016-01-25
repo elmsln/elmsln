@@ -299,7 +299,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['path'] = 'cis/courses/bulk_ops';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Bulk Ops';
+  $handler->display->display_options['menu']['title'] = 'Bulk Operations';
   $handler->display->display_options['menu']['description'] = 'Course Bulk Operations';
   $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['name'] = 'menu-course-tools-menu';
@@ -1232,9 +1232,9 @@ function cis_displays_views_default_views() {
   $handler = $view->new_display('page', 'Page', 'page');
   $handler->display->display_options['path'] = 'cis/admin/field-collections';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Field Collection admin';
+  $handler->display->display_options['menu']['title'] = 'Administer Field Collection';
   $handler->display->display_options['menu']['weight'] = '30';
-  $handler->display->display_options['menu']['name'] = 'menu-course-tools-menu';
+  $handler->display->display_options['menu']['name'] = 'navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_field_collection_admin'] = $view;
@@ -1953,7 +1953,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_welcome_letter_editable']['suppress_description'] = 1;
   $handler->display->display_options['path'] = 'cis/offerings/welcome-letters';
   $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Welcome Letter';
+  $handler->display->display_options['menu']['title'] = 'Welcome Letters';
   $handler->display->display_options['menu']['weight'] = '3';
   $handler->display->display_options['menu']['name'] = 'menu-course-tools-menu';
   $handler->display->display_options['menu']['context'] = 0;
@@ -2001,7 +2001,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_syllabus_editable']['suppress_description'] = 1;
   $handler->display->display_options['path'] = 'cis/offerings/syllabi';
   $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Syllabus';
+  $handler->display->display_options['menu']['title'] = 'Syllabi';
   $handler->display->display_options['menu']['weight'] = '4';
   $handler->display->display_options['menu']['name'] = 'menu-course-tools-menu';
   $handler->display->display_options['menu']['context'] = 0;
@@ -2055,7 +2055,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_welcome_page_editable']['suppress_description'] = 1;
   $handler->display->display_options['path'] = 'cis/offerings/welcome-page';
   $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Welcome Page';
+  $handler->display->display_options['menu']['title'] = 'Welcome Pages';
   $handler->display->display_options['menu']['weight'] = '5';
   $handler->display->display_options['menu']['name'] = 'menu-course-tools-menu';
   $handler->display->display_options['menu']['context'] = 0;
@@ -2509,7 +2509,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
   $handler->display->display_options['path'] = 'cis/services';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Services';
+  $handler->display->display_options['menu']['title'] = 'Network Services';
   $handler->display->display_options['menu']['description'] = 'List of all services in the CIS';
   $handler->display->display_options['menu']['weight'] = '1';
   $handler->display->display_options['menu']['name'] = 'menu-course-tools-menu';
@@ -2881,7 +2881,7 @@ function cis_displays_views_default_views() {
   $handler = $view->new_display('page', 'Page', 'page');
   $handler->display->display_options['path'] = 'node/%/service-instances';
   $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Services';
+  $handler->display->display_options['menu']['title'] = 'Course Network';
   $handler->display->display_options['menu']['description'] = 'Short cuts to service instances used by this course';
   $handler->display->display_options['menu']['weight'] = '5';
   $handler->display->display_options['menu']['name'] = 'menu-cis-add';
