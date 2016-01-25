@@ -249,7 +249,7 @@ function cis_helper_menu() {
   );
   // quick setup form
   $items['cis-quick-setup'] = array(
-    'title' => 'Create course',
+    'title' => 'New course',
     'description' => 'Setup a new course and plug it into the network of tools',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_helper_quick_setup_page'),
@@ -258,22 +258,11 @@ function cis_helper_menu() {
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
     'menu_name' => 'menu-cis-add',
-  );
-  // quick setup form from a string
-  $items['cis-quick-setup-access-id'] = array(
-    'title' => 'Setup course access',
-    'description' => 'Setup access to a space based on having the unique string.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('cis_helper_quick_setup_access_id_page'),
-    'access arguments' => array('access cis setup form'),
-    'type' => MENU_NORMAL_ITEM,
-    'file' => 'cis_helper.pages.inc',
-    'file path' => $path,
-    'menu_name' => 'menu-cis-add',
+    'weight' => -10,
   );
   // add offering form
   $items['cis-add-offering'] = array(
-    'title' => 'Add course offering',
+    'title' => 'Course offering',
     'description' => 'Setup an offering / semester for an existing course',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_helper_add_offering_page'),
@@ -282,6 +271,7 @@ function cis_helper_menu() {
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
     'menu_name' => 'menu-cis-add',
+    'weight' => -9,
   );
   // quick setup form for planning lots of sections at once
   $items['cis/offerings/planning'] = array(
@@ -295,6 +285,17 @@ function cis_helper_menu() {
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
     'menu_name' => 'menu-course-tools-menu',
+  );
+  // quick setup form from a string, useful with LTI prepopulation
+  $items['cis-quick-setup-access-id'] = array(
+    'title' => 'Setup semester access',
+    'description' => 'Setup access to a space based on having the unique string.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_helper_quick_setup_access_id_page'),
+    'access arguments' => array('access cis setup form'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'cis_helper.pages.inc',
+    'file path' => $path,
   );
   return $items;
 }
