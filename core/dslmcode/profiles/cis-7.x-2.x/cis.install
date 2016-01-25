@@ -72,4 +72,8 @@ function cis_update_7003(&$sandbox) {
 function cis_update_7004(&$sandbox) {
   // try and place menu items corectly
   features_revert('cis_displays');
+  menu_cache_clear('navigation');
+  menu_cache_clear('menu-cis-toolkit');
+  menu_cache_clear('menu-cis-add');
+  menu_cache_clear('menu-course-tools-menu');
 }
