@@ -64,3 +64,12 @@ function cis_update_7003(&$sandbox) {
   variable_set('cis_resource_page', '');
   variable_set('cis_syllabus_page', '');
 }
+
+/**
+ * Implements hook_update_N().
+ * Better menu item placement
+ */
+function cis_update_7004(&$sandbox) {
+  // try and place menu items corectly
+  features_revert('cis_displays');
+}
