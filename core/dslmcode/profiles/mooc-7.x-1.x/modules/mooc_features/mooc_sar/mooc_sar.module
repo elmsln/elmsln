@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MOOC sar feature.
+ */
+
+include_once 'mooc_sar.features.inc';

@@ -1,0 +1,13 @@
+name = MOOC sar
+description = MOOC Search and Replace
+core = 7.x
+package = MOOC
+dependencies[] = book_sar
+features[features_api][] = api:2
+features[features_override_items][] = views_view.book_sar
+features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::hidden_nodes_hide_action
+features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::hidden_nodes_unhide_action
+features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::vbo_search_and_replace_action|settings|checkbox_columns
+features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::views_bulk_operations_modify_action
+features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::views_bulk_operations_move_to_book_action
+features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::views_bulk_operations_remove_from_book_action
