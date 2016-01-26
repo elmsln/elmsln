@@ -1,0 +1,26 @@
+{
+	"name": "ELMSLN Courses upgrade 1453828667",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "fr",
+			"arguments": [
+				"mooc_cis_ux"
+			]
+		},
+		{
+			"command": "en",
+			"arguments": [
+				"mooc_sar"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1453828667",
+		"author": "elmsln",
+		"description": "Enable Book Scanner"
+	}
+}
