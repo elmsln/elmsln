@@ -1,0 +1,42 @@
+<?php
+/**
+ * @file
+ * Book Search and Replace with an action to allow reverting bulk operations.
+ *
+ * Ported to book_sar from:
+ * http://blog.arvixe.com/drupal-7-custom-revert-revision-action-module/
+ */
+
+include_once 'book_sar.features.inc';
+
+/**
+ * Implements hook_action_info().
+ */
+function book_sar_action_info() {
+  $action = array(
+    '_book_sar_revert_to_last_revision' => array(
+      'label'        => t('Revert to Last Revision'),
+      'type'         => 'node',
+      'configurable' => FALSE,
+      'triggers'     => array('any'),
+      'behavior'     => array('view_property'),
+    ),
+  );
+  return $action;
+}
+
+/**
+ * Action function for book_sar_revert_to_last_revision.
+ */
+function _book_sar_revert_to_last_revision(&$entity, $context = array()) {
+  $revision_list = node_revision_list($entity);
+  unset($revision_list[$entity->vid]);
+  // ensure we have a revision to go back to
+  if (count($revision_list) > 0) {
+    $last_revision = max(array_keys($revision_list));
+    $entity = entity_revision_load('node', $last_revision);
+    $entity->revision = TRUE;
+    $entity->log = t('Reverted via bulk operation action.');
+    entity_save('node', $entity);
+  }
+}
