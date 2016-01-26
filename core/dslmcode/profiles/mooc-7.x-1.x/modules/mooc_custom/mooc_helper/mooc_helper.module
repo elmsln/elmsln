@@ -4,8 +4,6 @@
  * Code for the MOOC Helper feature.
  */
 
-include_once 'mooc_helper.features.inc';
-
 /**
  * Implements hook_preprocess().
  *

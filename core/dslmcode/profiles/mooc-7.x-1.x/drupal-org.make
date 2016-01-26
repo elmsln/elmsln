@@ -39,8 +39,6 @@ projects[job_scheduler][version] = "2.0-alpha3"
 projects[job_scheduler][subdir] = "contrib"
 projects[linkchecker][version] = "1.2"
 projects[linkchecker][subdir] = "contrib"
-projects[scanner][version] = "1.x-dev"
-projects[scanner][subdir] = "contrib"
 projects[tipsy][version] = "1.0-rc1"
 projects[tipsy][subdir] = "contrib"
 ; Outline Designer

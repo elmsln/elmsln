@@ -149,7 +149,6 @@ dependencies[] = footnotes
 dependencies[] = footnotes_wysiwyg
 dependencies[] = job_scheduler
 dependencies[] = linkchecker
-dependencies[] = scanner
 dependencies[] = tipsy
 ; Outline Designer
 dependencies[] = outline_designer
@@ -175,6 +174,7 @@ dependencies[] = mooc_ux_defaults
 dependencies[] = mooc_page
 dependencies[] = mooc_container_type
 dependencies[] = mooc_autosave
+dependencies[] = mooc_sar
 dependencies[] = mooc_perms
 dependencies[] = mooc_content_theming
 dependencies[] = mooc_nav_block

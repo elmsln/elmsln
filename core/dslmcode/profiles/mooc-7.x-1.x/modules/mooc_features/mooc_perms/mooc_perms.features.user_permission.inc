@@ -62,7 +62,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
   $permissions['access printer-friendly version'] = array(
     'name' => 'access printer-friendly version',
     'roles' => array(
-      'activation code holder' => 'activation code holder',
       'administrator' => 'administrator',
       'guest' => 'guest',
       'instructor' => 'instructor',
@@ -230,16 +229,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'masquerade',
-  );
-
-  // Exported permission: 'perform search and replace'.
-  $permissions['perform search and replace'] = array(
-    'name' => 'perform search and replace',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'scanner',
   );
 
   // Exported permission: 'revert revisions'.

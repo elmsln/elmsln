@@ -14,7 +14,6 @@ dependencies[] = hidden_nodes
 dependencies[] = masquerade
 dependencies[] = node
 dependencies[] = outline_designer
-dependencies[] = scanner
 dependencies[] = search
 dependencies[] = system
 dependencies[] = user

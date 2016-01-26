@@ -30,7 +30,6 @@ features[field_instance][] = node-section-field_instructional_outlines
 features[menu_links][] = menu-course-tools-menu_content-tools:<nolink>
 features[menu_links][] = menu-course-tools-menu_import-content-outline:import/feeds_node_helper_book_import
 features[menu_links][] = menu-course-tools-menu_outline-designer:admin/content/book
-features[menu_links][] = menu-course-tools-menu_search-and-replace:admin/content/scanner
 features[variable][] = hidden_nodes_types
 features[views_view][] = mooc_book_roots
 features_exclude[menu_custom][menu-cis-toolkit] = menu-cis-toolkit
