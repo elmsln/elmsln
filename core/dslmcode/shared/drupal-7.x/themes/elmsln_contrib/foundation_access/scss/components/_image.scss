@@ -126,6 +126,10 @@ $image--margin: 1em;
 	padding-bottom: $image--margin;
 	align-items: flex-start;
 
+	// make sure that it's children are separated
+	// from each other.
+	@include owl(.3em);
+
 	&__img {
 		display: block;
 		max-width: 100%;
@@ -136,6 +140,9 @@ $image--margin: 1em;
 	&__cite {
 		font-size: .8em;
 		color: gray;
+		// lets cancel out the owl margin
+		// so that it sits right beneath the image
+		margin-top: 0;
 	}
 
 	&__caption {

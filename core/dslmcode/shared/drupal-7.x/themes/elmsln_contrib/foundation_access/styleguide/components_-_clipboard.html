@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>Widgets ImageLightbox</title>
+    <title>Components - Clipboard</title>
 
     <!-- Styleguide CSS -->
     <link rel="stylesheet" href="./theme-build/css/vendors.css">
@@ -83,7 +83,7 @@
             
               
               
-                <li><a href="components_-_clipboard.html">Clipboard</a></li>
+                <li><a class="active" href="components_-_clipboard.html">Clipboard</a></li>
               
             
           
@@ -142,7 +142,7 @@
             
               
               
-                <li><a class="active" href="widgets_imagelightbox.html">ImageLightbox</a></li>
+                <li><a href="widgets_imagelightbox.html">ImageLightbox</a></li>
               
             
           
@@ -155,7 +155,7 @@
 
     <header class="cortana-header sb-slide">
       
-        <h1>ImageLightbox</h1>
+        <h1>Clipboard</h1>
       
       <div id="open-left" class="cortana-menu-btn">
         <span></span>
@@ -175,7 +175,7 @@
           <ul bs-scrollspy-list data-offset="-30">
             
               
-                <li><a href="#imagelightbox">Imagelightbox</a></li>
+                <li><a href="#1clipboard">Clipboard</a></li>
               
             
           </ul>
@@ -186,17 +186,27 @@
 
 
 
-<h1 id="imagelightbox">Imagelightbox</h1>
+<h1 id="1clipboard">Clipboard</h1>
 
-<p>This is a responsive lightbox for view images.  To use this plugin, you need to define an <code>a</code> tag 
-with an <code>href</code> attribute that points a larger version of the image as well as a <code>data-imagelightbox</code> 
-tag that initiates the lightbox.</p>
-</div><div class="codeExample"><div class="exampleOutput">
-<a data-imagelightbox href="https://unsplash.it/1200/600/"><img src="https://unsplash.it/1200/600"></a>
+<p>This component relies on the clipboardjs module to control its output.
+See clipboardjs<em>build</em>content().  We are then able to wrap it&#39;s output
+in the <code>clipboard</code> class.</p>
+</div><div class="codeExample"><div class="exampleOutput"><div class="clipboard__wrapper">
 
-</div><div class="codeBlock"><div class="highlight"><pre>
-<span class="nt">&lt;a</span> <span class="na">data-imagelightbox</span> <span class="na">href=</span><span class="s">"https://unsplash.it/1200/600/"</span><span class="nt">&gt;&lt;img</span> <span class="na">src=</span><span class="s">"https://unsplash.it/1200/600"</span><span class="nt">&gt;&lt;/a&gt;</span>
+  <div class="clipboard clipboard--button-only">
+    <div id="clipboardjs-56a7de313af40">[ciscode|rev=1|tool=elmsmedia|item=2071|entity_type=node|render_display=display_mode|display_mode=full]</div>
+    <button class="clipboardjs-button form-submit" data-clipboard-alert="tooltip" data-clipboard-alert-text="Copy was successful!" data-clipboard-target="#clipboardjs-56a7de313af40" onclick="return false;" name="op" value="Click to copy token" type="button">Click to copy token</button>
+  </div>
 
+</div>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"clipboard__wrapper"</span><span class="nt">&gt;</span>
+
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"clipboard clipboard--button-only"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"clipboardjs-56a7de313af40"</span><span class="nt">&gt;</span>[ciscode|rev=1|tool=elmsmedia|item=2071|entity_type=node|render_display=display_mode|display_mode=full]<span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">class=</span><span class="s">"clipboardjs-button form-submit"</span> <span class="na">data-clipboard-alert=</span><span class="s">"tooltip"</span> <span class="na">data-clipboard-alert-text=</span><span class="s">"Copy was successful!"</span> <span class="na">data-clipboard-target=</span><span class="s">"#clipboardjs-56a7de313af40"</span> <span class="na">onclick=</span><span class="s">"return false;"</span> <span class="na">name=</span><span class="s">"op"</span> <span class="na">value=</span><span class="s">"Click to copy token"</span> <span class="na">type=</span><span class="s">"button"</span><span class="nt">&gt;</span>Click to copy token<span class="nt">&lt;/button&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+
+<span class="nt">&lt;/div&gt;</span>
 </pre></div></div></div><div class="cortana-content">
         </div>
       </div>

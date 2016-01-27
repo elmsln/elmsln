@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Clipboard.js module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function clipboardjs_requirements($phase) {
+  $requirements = array();
+
+  // Check requirements during the runtime phase.
+  if ($phase == 'runtime') {
+    $t = get_t();
+
+    $library = libraries_detect('clipboard');
+    if ($library['installed']) {
+      $requirements['clipboard'] = array(
+        'title' => $t('%library', array('%library' => $library['name'])),
+        'value' => $t('Installed %version', array('%version' => $library['version'])),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+    else {
+      $requirements['clipboard'] = array(
+        'title' => $t('%library', array('%library' => $library['name'])),
+        'value' => $t('Not installed'),
+        'description' => $library['error message'],
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_enable().
+ */
+function clipboardjs_enable() {
+
+  // Check that library exists.
+  $library = libraries_detect('clipboard');
+  if (!$library['installed']) {
+    drupal_set_message($library['error message'] . ' ' . t('You can use the drush command "drush cbdl" to automatically install all required libraries.'), 'error');
+  }
+}

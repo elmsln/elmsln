@@ -8233,6 +8233,9 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
   -webkit-align-items: flex-start;
       -ms-flex-align: start;
           align-items: flex-start; }
+  .image > * + *, .mediavideo--thumbnail .mediavideo__poster > * + *, .mediavideo--thumbnail--right .mediavideo__poster > * + *,
+  .image--lightboxed > * + * {
+    margin-top: 0.3em; }
   .image__img,
   .image--lightboxed__img {
     display: block;
@@ -8244,7 +8247,8 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
   .image__cite,
   .image--lightboxed__cite {
     font-size: .8em;
-    color: gray; }
+    color: gray;
+    margin-top: 0; }
   .image__caption,
   .image--lightboxed__caption {
     font-size: 1em; }
@@ -8872,3 +8876,56 @@ The figure label component is used to present textbook like captions to media el
     line-height: 1rem !important; }
     .f-dropdown--classic li a:hover {
       background-color: #EEEEEE !important; }
+
+/*doc
+---
+title: Clipboard
+name: 1clipboard
+category:
+  - Components - Clipboard
+---
+
+This component relies on the clipboardjs module to control its output.
+See clipboardjs_build_content().  We are then able to wrap it's output
+in the `clipboard` class.
+
+```html_example
+<div class="clipboard__wrapper">
+
+  <div class="clipboard clipboard--button-only">
+    <div id="clipboardjs-56a7de313af40">[ciscode|rev=1|tool=elmsmedia|item=2071|entity_type=node|render_display=display_mode|display_mode=full]</div>
+    <button class="clipboardjs-button form-submit" data-clipboard-alert="tooltip" data-clipboard-alert-text="Copy was successful!" data-clipboard-target="#clipboardjs-56a7de313af40" onclick="return false;" name="op" value="Click to copy token" type="button">Click to copy token</button>
+  </div>
+
+</div>
+```
+*/
+.clipboard__wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  border: 2px dashed transparent; }
+  .clipboard__wrapper:hover {
+    border-color: #EEEEEE; }
+    .clipboard__wrapper:hover .clipboard--button-only {
+      opacity: 1; }
+
+.clipboard--button-only {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  transition: all .2s ease-in;
+  margin-top: -1px;
+  margin-right: -1px; }
+  .clipboard--button-only > div:first-of-type {
+    clip: rect(1px, 1px, 1px, 1px);
+    height: 1px;
+    overflow: hidden;
+    position: absolute !important;
+    width: 1px; }
+
+.clipboard .clipboardjs-button {
+  background-color: #EEEEEE;
+  color: black; }
