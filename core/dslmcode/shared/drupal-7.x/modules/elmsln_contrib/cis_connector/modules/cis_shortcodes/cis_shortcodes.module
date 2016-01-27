@@ -438,13 +438,15 @@ function cis_shortcodes_preprocess_view_mode_tab_display(&$variables) {
         'display_mode' => $name,
       );
       // clipboard settings.
-      $text = _cis_shortcodes_build_code($properties);
-      $alert_style = 'tooltip';
-      $alert_text = 'Successfully copied token to clipboard.';
-      $button_label = 'Copy token';
+      $clipboard_vars = array(
+        'text' => _cis_shortcodes_build_code($properties), 
+        'alert_style' => 'tooltip',
+        'alert_text' => 'Successfully copied token to clipboard.',
+        'button_label' => 'Copy token',
+      );
       
-      // Build the form or render element using the helper function:
-      $clipboard = clipboardjs_build_content($text, $alert_style, $alert_text, $button_label);
+      // Build the form or render element usin theme_clipboardjs
+      $clipboard = theme('clipboardjs', $clipboard_vars);
 
       $view_mode['view_mode']['#prefix'] = render($clipboard);
     }
