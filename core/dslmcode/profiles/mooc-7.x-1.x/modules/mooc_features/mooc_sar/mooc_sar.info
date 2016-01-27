@@ -6,6 +6,7 @@ dependencies[] = book_sar
 dependencies[] = cis_service_connection_ux
 dependencies[] = features
 dependencies[] = menu
+dependencies[] = views_autocomplete_filters
 features[features_api][] = api:2
 features[features_override_items][] = views_view.book_sar
 features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::hidden_nodes_hide_action
