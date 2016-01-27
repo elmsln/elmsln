@@ -1,0 +1,282 @@
+<?php
+/**
+ * @file
+ * ELMSLN API for high performance calls for smaller operations
+ *
+ * This is a fork of the js module for high performance, low bootstrap
+ * drupal requests.
+ *
+ * This lets you do advanced changes that really are just pinpricks
+ * in multiple systems across th'e network to keep them in sync.
+ * For example, if you need to let the user modify a form in one
+ * system but have it impact the databases of several in the course
+ * network, then ELMSLN API can do the hardwork, reducing your
+ * call structure to something lightweight.
+ *
+ * If you are looking to create a node in another system then you
+ * should use the RESTws backend baked into the _cis_connector_request
+ * call in cis_connector. That project is for fuller, object based
+ * request structure that have permission / full entity implications
+ * where this API is for kicking of non-entity based operations such
+ * as knowing that data updated in 1 system requires the caches to be
+ * cleared in another.
+ *
+ */
+
+/**
+ * Constants copied from menu.inc in order to drop dependency on that file.
+ */
+define('ELMSLN_MENU_NOT_FOUND', 2);
+define('ELMSLN_MENU_ACCESS_DENIED', 3);
+define('ELMSLN_MENU_SITE_OFFLINE', 4);
+define('ELMSLN_MENU_SITE_ONLINE', 5);
+
+/**
+ * Internal menu status code - Request method is not allowed.
+ */
+define('ELMSLN_MENU_METHOD_NOT_ALLOWED', 6);
+
+/**
+ * ELMSLN API request handler
+ * Loads the requested module and executes the requested callback.
+ *
+ * @return json response message to the request
+ */
+function elmsln_api_execute_request() {
+  // Provide a global ELMSLN variable that will be used through out the request.
+  global $_elmsln;
+  global $conf;
+  // ensure this is a basic authorization call
+  if (!elmsln_api_basic_auth()) {
+    return FALSE;
+  }
+  // Memcache requires an additional bootstrap phase to access variables.
+  // this sucks though because it will load every module
+  if (!empty($conf['cache_default_class']) && $conf['cache_default_class'] === 'MemCacheDrupal') {
+    drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES);
+  }
+
+  // Immediately clone the request method so it cannot be altered any further.
+  static $method;
+  if (!isset($method)) {
+    $method = $_SERVER['REQUEST_METHOD'];
+  }
+  // Extract any parameters matching the unique "elmsln" prefixed names from the
+  // referenced global request data and then unset it so it is not processed
+  // again.
+  $_elmsln['module'] = FALSE;
+  $_elmsln['callback'] = FALSE;
+  $global_method = '_' . strtoupper($method);
+  foreach ($_elmsln as $key => $value) {
+    if (isset($GLOBALS[$global_method]["elmsln_$key"])) {
+      $_elmsln[$key] = check_plain($GLOBALS[$global_method]["elmsln_$key"]);
+      unset($GLOBALS[$global_method]["elmsln_$key"]);
+    }
+  }
+
+  // Prevent Devel from hi-jacking the output.
+  $GLOBALS['devel_shutdown'] = FALSE;
+
+  // Retrieve arguments for the current request.
+  $_elmsln['args'] = explode('/', $_GET['q']);
+
+  // Remove the version argument.
+  if (!empty($_elmsln['args'][0]) && $_elmsln['args'][0] === 'v1') {
+    array_shift($_elmsln['args']);
+  }
+
+  // Load common functions used for all requests.
+  module_load_include('inc', 'elmsln_api', 'includes/common');
+
+  // Set the default request result to ELMSLN_MENU_NOT_FOUND. The responsibility
+  // of changing the results falls to the request handler.
+  $request_result = ELMSLN_MENU_NOT_FOUND;
+  // ensure we have been told to do something
+  if (!$_elmsln['module'] || !$_elmsln['callback']) {
+    return FALSE;
+  }
+  else {
+    // Only continue if a valid callback is found. Otherwise it will will return
+    // the ELMSLN_MENU_NOT_FOUND integer.
+    $info = elmsln_api_get_callback($_elmsln['module'], $_elmsln['callback']);
+    if (!$info) {
+      drupal_set_message(t('The requested callback "%callback" defined by the "%module" module could not be loaded. Please check your configuration and try again.', array(
+        '%callback' => $_elmsln['callback'],
+        '%module' => $_elmsln['module'],
+      )), 'error', FALSE);
+    }
+    // The very first thing that should be done is checking the callback's
+    // allowed methods.
+    elseif (!in_array($method, $info['methods'])) {
+      $request_result = ELMSLN_MENU_METHOD_NOT_ALLOWED;
+    }
+    else {
+      // Set the delivery callback found in the info.
+      elmsln_api_delivery_callback($info['delivery callback']);
+      module_load_include('inc', 'elmsln_api', 'includes/callback');
+      $request_result = elmsln_api_callback_execute($info);
+    }
+  }
+  // Get the delivery callback to be used.
+  $delivery_callback = elmsln_api_delivery_callback();
+
+  // Because a callback can specify a different delivery method, we don't need
+  // to load this include until it is absolutely necessary.
+  if ($delivery_callback === 'elmsln_api_deliver_json') {
+    module_load_include('inc', 'elmsln_api', 'includes/json');
+  }
+
+  // Deliver the results. The delivery callback is responsible for setting the
+  // appropriate headers, handling the result returned from the callback and
+  // exiting the script properly.
+  call_user_func_array($delivery_callback, array($request_result));
+}
+
+/**
+ * Provides callback information provided by modules.
+ *
+ * @param string $module
+ *   The module name the callback belongs to.
+ * @param string $callback
+ *   The callback name.
+ * @param bool $reset
+ *   For internal use only: Whether to force the stored list of hook
+ *   implementations to be regenerated (such as after enabling a new module,
+ *   before processing hook_enable).
+ *
+ * @return array|bool
+ *   If $module or $callback are provided the info array for the specified
+ *   callback is returned, FALSE if the specified callback is not defined.
+ *   If $module is provided, all the callbacks for the specified module is
+ *   returned, FALSE if specified module is not defined.
+ *   If no parameters are provided, all modules that provide callback
+ *   information is returned, FALSE if no callbacks are defined.
+ */
+function elmsln_api_get_callback($module = NULL, $callback = NULL, $reset = FALSE) {
+  global $_elmsln;
+  // Use the advanced drupal_static() pattern, since this has the potential to
+  // be called quite often on a single page request.
+  static $drupal_static_fast;
+  if (!isset($drupal_static_fast)) {
+    $drupal_static_fast['callbacks'] = &drupal_static(__FUNCTION__);
+  }
+  $callbacks = &$drupal_static_fast['callbacks'];
+
+  // Populate callbacks. Using cache if possible or rebuild if necessary.
+  if ($reset || !isset($callbacks)) {
+    $cid = 'elmsln:callbacks';
+    if (!$reset && ($cache = cache_get($cid)) && $cache->data) {
+      $callbacks = $cache->data;
+    }
+    else {
+      // If we get to this point, this is the first time this is being run
+      // after a cache clear. This single request may take longer, but Drupal
+      // must be fully bootstrapped to detect all hook implementations.
+      if ($_elmsln) {
+        drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+      }
+      $hook = 'elmsln_api_info';
+      foreach (module_implements($hook, FALSE, $reset) as $_module) {
+        $results = module_invoke($_module, $hook);
+        // Iterate over each module and retrieve the callback info.
+        foreach ($results as $_callback => $info) {
+          $callbacks[$_module][$_callback] = (array) $info;
+          // Provide default if module didn't provide them.
+          $callbacks[$_module][$_callback] += array(
+            'access arguments' => array(),
+            'access callback'  => FALSE,
+            'bootstrap' => DRUPAL_BOOTSTRAP_DATABASE,
+            // Provide a standard function name to use if none is provided.
+            'callback function' => $_module . '_elmsln_api_callback_' . $_callback,
+            'callback arguments' => array(),
+            'delivery callback' => 'elmsln_api_deliver_json',
+            'dependencies' => array(),
+            'includes' => array(),
+            'methods' => array('POST'),
+            'module' => $_module,
+            'process request' => TRUE,
+            'skip init' => TRUE,
+            'xss' => TRUE,
+          );
+          // Invokes hook_elmsln_api_info_alter(). Allow modules to alter the callback
+          // info before it's cached in the database.
+          drupal_alter('elmsln_api_info', $callbacks[$_module][$_callback]);
+        }
+      }
+      cache_set($cid, $callbacks);
+    }
+  }
+
+  // Return a specific callback for a module.
+  if (isset($module) && isset($callback)) {
+    return !empty($callbacks[$module][$callback]) ? $callbacks[$module][$callback] : FALSE;
+  }
+  // Return all callbacks for a module.
+  elseif (isset($module)) {
+    return !empty($callbacks[$module]) ? $callbacks[$module] : FALSE;
+  }
+  // Return all callbacks implemented by any module.
+  return !empty($callbacks) ? $callbacks : FALSE;
+}
+
+/**
+ * Test for Basic Auth headers and attempt to validate
+ * based on where we know the keychain to be if installed
+ * via the automatic installers.
+ * if we can't find it then we need a full bootstrap basically
+ * @return bool TRUE if basic auth validated, FALSE if not
+ */
+function elmsln_api_basic_auth() {
+  // see if we're getting basic authorization headers
+  // if not then see if we can pull them out of the address itself
+  // example taken from restws_basic_authorization but should work for
+  // all forms of basic authorization to allow it to play nice with
+  // front end users tapping into the SSO
+  if (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) && !isset($_SERVER['PHP_AUTH_USER']) && !isset($_SERVER['PHP_AUTH_PW'])) {
+    $authentication = base64_decode(substr($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 6));
+    list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', $authentication);
+  }
+  // if we see an account attemping basic authorization try and match it
+  // to those webservice user accounts in the cis_connector registry
+  if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+    $settingsfile = FALSE;
+    // load CIS connector so we can quickly load via low level bootstrap
+    drupal_load('module', 'cis_connector');
+    // see if we can skim a module off the filesystem structure
+    if ($cfg = _cis_connector_get_cfg()) {
+      $settingsmodule = $cfg['university'] . '_' . $cfg['host'] . '_settings';
+    }
+    // deeper config problem / permissions problem if these arent true
+    if (isset($settingsfile) && drupal_load('module', $settingsfile)) {
+      // try and pull install profile direct from the database
+      $distro = db_query('SELECT value FROM {variable} WHERE name = :name', array(':name' => 'install_profile'))->fetchField();
+      $distro = unserialize($distro);
+      $settings = _cis_connector_build_registry($distro);
+    }
+    else {
+      drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+      $distro = variable_get('install_profile', 'standard');
+      $settings = _cis_connector_build_registry($distro);
+    }
+    // if the username and password match we're golden
+    if (isset($settings['user']) && isset($settings['pass']) && $_SERVER['PHP_AUTH_USER'] == $settings['user'] && $_SERVER['PHP_AUTH_PW'] == $settings['pass']) {
+      // WE CAN DO... ANYTHING.
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_elmsln_api_info().
+ */
+function elmsln_api_elmsln_api_info() {
+  // Example of a more complex definition:
+  $callbacks['clear_cache_bin'] = array(
+    'callback arguments' => array(1),
+    'methods' => array('GET', 'POST'),
+    'file' => 'callbacks/v1/clear_cache_bin.inc',
+  );
+
+  return $callbacks;
+}
