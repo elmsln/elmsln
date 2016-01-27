@@ -1,0 +1,227 @@
+<?php
+/**
+ * @file
+ * Integrates the Clipboard.js library with Drupal.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function clipboardjs_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#clipboardjs':
+      $output = file_get_contents(drupal_get_path('module', 'clipboardjs') . '/README.md');
+      return nl2br($output);
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function clipboardjs_libraries_info() {
+  $libraries = array();
+
+  $libraries['clipboard'] = array(
+    'name' => 'Clipboard.js',
+    'vendor url' => 'https://zenorocha.github.io/clipboard.js',
+    'download url' => 'https://github.com/zenorocha/clipboard.js/archive/master.zip',
+    'version arguments' => array(
+      'file' => 'bower.json',
+      'pattern' => '@"version"\: "([0-9a-zA-Z\.-]+)"@',
+    ),
+    'path' => 'dist',
+    'files' => array(
+      'js' => array(
+        'clipboard.min.js',
+      ),
+    ),
+    'integration files' => array(
+      'clipboardjs' => array(
+        'js' => array('/js/clipboard.js'),
+      ),
+    ),
+    'callbacks' => array(
+      'pre-load' => array(
+        'clipboardjs_libraries_preload_callback',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Preload callback for clipboardjs_libraries_info().
+ * Load jquery.ui tooltip library before loading clipboard.
+ *
+ * @see clipboardjs_libraries_info()
+ */
+function clipboardjs_libraries_preload_callback() {
+  drupal_add_library('system', 'ui.tooltip');
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function clipboardjs_field_formatter_info() {
+  return array(
+    'text_clipboardjs' => array(
+      'label' => t('Clipboard.js'),
+      'description' => t('Allow users to copy to clipboard using Clipboard.js.'),
+      'field types' => array('text', 'text_long', 'text_with_summary'),
+      'settings' => array(
+        'alert_style' => 'tooltip',
+        'alert_text' => 'Copied!',
+        'button_label' => 'Copy to Clipboard',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function clipboardjs_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = array();
+
+  switch ($display['type']) {
+    case 'text_clipboardjs':
+      $element['alert_style'] = array(
+        '#title' => t('Alert Style'),
+        '#type' => 'radios',
+        '#options' => array('alert' => t('Alert'), 'tooltip' => t('Tooltip')),
+        '#default_value' => $settings['alert_style'],
+        '#required' => TRUE,
+      );
+      $element['alert_text'] = array(
+        '#title' => t('Alert Text'),
+        '#type' => 'textfield',
+        '#default_value' => $settings['alert_text'],
+        '#required' => TRUE,
+      );
+      $element['button_label'] = array(
+        '#title' => t('Button Label'),
+        '#type' => 'textfield',
+        '#default_value' => $settings['button_label'],
+        '#required' => TRUE,
+      );
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function clipboardjs_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+
+  $return = array();
+  switch ($display['type']) {
+    case 'text_clipboardjs':
+      $return = array(
+        'Alert Style: ' . $display['settings']['alert_style'],
+        'Alert Text: ' . $display['settings']['alert_text'],
+        'Button Label: ' . $display['settings']['button_label'],
+      );
+      break;
+  }
+
+  return implode('<br />', $return);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function clipboardjs_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, &$items, $display) {
+  $elements = array();
+
+  switch ($display['type']) {
+    case 'text_clipboardjs':
+
+      // Load clipboard.js library.
+      libraries_load('clipboard');
+
+      // Iterate over each text field and add clipboard.js.
+      foreach ($items as $delta => $item) {
+        $theme_variables = array(
+          'text' => _text_sanitize($instance, $langcode, $item, 'value'), 
+          'alert_style' => $display['settings']['alert_style'], 
+          'alert_text' => $display['settings']['alert_text'], 
+          'button_label' => $display['settings']['button_label'],
+        );
+        $elements[$delta] = theme('clipboardjs', $theme_variables);
+      }
+      break;
+  }
+
+  return $elements;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function clipboardjs_theme($existing, $type, $theme, $path) {
+  return array(
+    'clipboardjs' => array(
+      'variables' => array(
+        'text' => NULL, 
+        'alert_style' => 'tooltip', 
+        'alert_text' => 'Copy was successful!', 
+        'button_label' => 'Click to Copy',
+      ),
+    ),
+  );
+}
+
+/**
+ * Theme function for clipboardjs_theme
+ *
+ * @param string $variables['text']
+ *   Text to be copied.
+ *
+ * @param string $variables['alert_style']
+ *   Alert style, either 'alert' or 'tooltip'.
+ *
+ * @param string $variables['alert_text']
+ *   Text to display in alert or tooltip.
+ *
+ * @param string $variables['button_label']
+ *   The label of the button that triggers the copy.
+ *
+ * @return array
+ *   An renderable array.
+ */
+function theme_clipboardjs($variables) {
+  $element = array();
+  $uniqid = uniqid('clipboardjs-');
+
+  $element['text'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'id' => $uniqid,
+    ),
+  );
+
+  $element['text']['markup'] = array(
+    '#markup' => $variables['text'],
+  );
+
+  $element['button'] = array(
+    '#type' => 'button',
+    '#value' => check_plain($variables['button_label']),
+    '#attributes' => array(
+      'class' => array('clipboardjs-button'),
+      'data-clipboard-alert' => $variables['alert_style'],
+      'data-clipboard-alert-text' => $variables['alert_text'],
+      'data-clipboard-target' => '#' . $uniqid,
+      'onClick' => 'return false;',
+    ),
+  );
+
+  return $element;
+}

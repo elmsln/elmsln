@@ -6324,105 +6324,6 @@ th.hide-for-touch {
   th.show-for-print {
     display: table-cell !important; } }
 
-.r-header {
-  background: white;
-  padding: 1em 0;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  max-width: 90rem; }
-  .r-header__left {
-    width: 70%;
-    float: left;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-align-items: center;
-        -ms-flex-align: center;
-            align-items: center; }
-  .r-header__right {
-    width: 30%;
-    float: right;
-    text-align: right;
-    margin-left: auto;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-align-items: center;
-        -ms-flex-align: center;
-            align-items: center;
-    -webkit-justify-content: flex-end;
-        -ms-flex-pack: end;
-            justify-content: flex-end; }
-  .r-header__edit-icons {
-    margin: 0;
-    padding: 0;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-justify-content: flex-end;
-        -ms-flex-pack: end;
-            justify-content: flex-end; }
-    .r-header__edit-icons__list-item {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      float: right; }
-  .r-header__icon {
-    padding: 0 .5em;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    color: black;
-    -webkit-align-items: baseline;
-        -ms-flex-align: baseline;
-            align-items: baseline; }
-    .r-header__icon .icon {
-      height: 1.8em;
-      width: 2em; }
-  .r-header .book-navigation-header {
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-align-items: center;
-        -ms-flex-align: center;
-            align-items: center; }
-  .r-header ul.book-navigation-wrapper {
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-align-items: center;
-        -ms-flex-align: center;
-            align-items: center; }
-  .r-header .f-dropdown {
-    text-align: left;
-    margin: 0; }
-    .r-header .f-dropdown > ul {
-      margin: 0; }
-
-.is-sticky > .r-header {
-  padding: .5em 0;
-  border-bottom: 1px solid #EEEEEE;
-  width: 100% !important;
-  left: 0;
-  right: 0;
-}
-
-@media only screen and (min-width: 40.063em) {
-  #r-header__icon--advanced.open,
-  #r-header__icon--add.open {
-    -webkit-transform: translateX(-5%);
-        -ms-transform: translateX(-5%);
-            transform: translateX(-5%); } }
-
-.r-subheader {
-  background: #3E3E3E;
-  color: #EEEEEE;
-  padding: .5em 1rem;
-  font-size: .8em; }
-  .r-subheader > .row {
-    max-width: 90rem; }
-
 body, p, p a {
   font-family: "Droid Serif", "Georgia", serif;
   font-style: normal;
@@ -6924,9 +6825,6 @@ a.modal-img-link {
 
 .etb-nav-modal ul li {
   list-style: none; }
-
-.account-logout {
- }
 
 img.svg {
   width: 2rem;
@@ -7931,6 +7829,116 @@ p.txtbk-intro {
   h3 {
     font-size: 1.5rem; } }
 
+.r-header {
+  background: white;
+  padding: 1em 0;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  max-width: 90rem; }
+  .r-header__left {
+    width: 70%;
+    float: left;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-align-items: center;
+        -ms-flex-align: center;
+            align-items: center; }
+  .r-header__right {
+    width: 30%;
+    float: right;
+    text-align: right;
+    margin-left: auto;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-align-items: center;
+        -ms-flex-align: center;
+            align-items: center;
+    -webkit-justify-content: flex-end;
+        -ms-flex-pack: end;
+            justify-content: flex-end; }
+  .r-header__edit-icons {
+    margin: 0;
+    padding: 0;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-justify-content: flex-end;
+        -ms-flex-pack: end;
+            justify-content: flex-end; }
+    .r-header__edit-icons__list-item {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      float: right; }
+  .r-header__icon {
+    padding: 0 .5em;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    color: black;
+    -webkit-align-items: baseline;
+        -ms-flex-align: baseline;
+            align-items: baseline; }
+    .r-header__icon .icon {
+      height: 1.8em;
+      width: 2em; }
+  .r-header .book-navigation-header {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-align-items: center;
+        -ms-flex-align: center;
+            align-items: center; }
+  .r-header ul.book-navigation-wrapper {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-align-items: center;
+        -ms-flex-align: center;
+            align-items: center; }
+  .r-header .f-dropdown {
+    text-align: left;
+    margin: 0; }
+    .r-header .f-dropdown > ul {
+      margin: 0; }
+
+.is-sticky > .r-header {
+  padding: .5em 0;
+  border-bottom: 1px solid #EEEEEE;
+  width: 100% !important;
+  left: 0;
+  right: 0; }
+
+@media only screen and (min-width: 40.063em) {
+  #r-header__icon--advanced.open,
+  #r-header__icon--add.open {
+    -webkit-transform: translateX(-5%);
+        -ms-transform: translateX(-5%);
+            transform: translateX(-5%); } }
+
+.r-subheader {
+  background: #3E3E3E;
+  color: #EEEEEE;
+  padding: .5em 1rem;
+  font-size: .8em; }
+  .r-subheader > .row {
+    max-width: 90rem; }
+
+.r-local-header a.add-menu-drop {
+  margin: 0 0.3rem;
+  height: 2.8125rem;
+  padding: 0.5rem 1.5rem 0.5rem 2rem;
+  color: #fff;
+  background-color: #008CBA;
+  width: 7rem;
+  border-radius: 3px;
+  background-clip: padding-box; }
+  .r-local-header a.add-menu-drop:hover, .r-local-header a.add-menu-drop:focus {
+    background-color: #2b2b2b; }
+
 .icon--dropdown {
   -webkit-align-self: center;
       -ms-flex-item-align: center;
@@ -8225,6 +8233,9 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
   -webkit-align-items: flex-start;
       -ms-flex-align: start;
           align-items: flex-start; }
+  .image > * + *, .mediavideo--thumbnail .mediavideo__poster > * + *, .mediavideo--thumbnail--right .mediavideo__poster > * + *,
+  .image--lightboxed > * + * {
+    margin-top: 0.3em; }
   .image__img,
   .image--lightboxed__img {
     display: block;
@@ -8236,7 +8247,8 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
   .image__cite,
   .image--lightboxed__cite {
     font-size: .8em;
-    color: gray; }
+    color: gray;
+    margin-top: 0; }
   .image__caption,
   .image--lightboxed__caption {
     font-size: 1em; }
@@ -8865,14 +8877,55 @@ The figure label component is used to present textbook like captions to media el
     .f-dropdown--classic li a:hover {
       background-color: #EEEEEE !important; }
 
-.r-local-header a.add-menu-drop {
-  margin: 0 0.3rem;
-  height: 2.8125rem;
-  padding: 0.5rem 1.5rem 0.5rem 2rem;
-  width: 7rem;
-  color: #fff;
-  background-color: #008CBA;
-  border-radius: 3px;
-  background-clip: padding-box; }
-  .r-local-header a.add-menu-drop:hover, .r-local-header a.add-menu-drop:focus {
-    background-color: #2b2b2b; }
+/*doc
+---
+title: Clipboard
+name: 1clipboard
+category:
+  - Components - Clipboard
+---
+
+This component relies on the clipboardjs module to control its output.
+See clipboardjs_build_content().  We are then able to wrap it's output
+in the `clipboard` class.
+
+```html_example
+<div class="clipboard__wrapper">
+
+  <div class="clipboard clipboard--button-only">
+    <div id="clipboardjs-56a7de313af40">[ciscode|rev=1|tool=elmsmedia|item=2071|entity_type=node|render_display=display_mode|display_mode=full]</div>
+    <button class="clipboardjs-button form-submit" data-clipboard-alert="tooltip" data-clipboard-alert-text="Copy was successful!" data-clipboard-target="#clipboardjs-56a7de313af40" onclick="return false;" name="op" value="Click to copy token" type="button">Click to copy token</button>
+  </div>
+
+</div>
+```
+*/
+.clipboard__wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  border: 2px dashed transparent; }
+  .clipboard__wrapper:hover {
+    border-color: #EEEEEE; }
+    .clipboard__wrapper:hover .clipboard--button-only {
+      opacity: 1; }
+
+.clipboard--button-only {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  transition: all .2s ease-in;
+  margin-top: -1px;
+  margin-right: -1px; }
+  .clipboard--button-only > div:first-of-type {
+    clip: rect(1px, 1px, 1px, 1px);
+    height: 1px;
+    overflow: hidden;
+    position: absolute !important;
+    width: 1px; }
+
+.clipboard .clipboardjs-button {
+  background-color: #EEEEEE;
+  color: black; }

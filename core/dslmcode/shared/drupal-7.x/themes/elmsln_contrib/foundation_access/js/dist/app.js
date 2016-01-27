@@ -1,4 +1,12 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/**
+ * This file will be compiled into foundation_access/js/dist/app.js
+ *
+ * To make changes to this file you must runt `grunt`.  
+ * If you do not have grunt, please make edits directly 
+ * to foundation_access/js/tweaks.js
+ */
+
 var imageLightbox = require('./components/imageLightbox.js');
 var mediavideo = require('./components/mediavideo.js');
 
@@ -79,7 +87,7 @@ var mediavideo = require('./components/mediavideo.js');
       });
     }
   };
-    // Page Scrolling Progress Bar
+  // Page Scrolling Progress Bar
   Drupal.progressScroll = {
     attach: function (context, settings) {
       // don't use the top bar in the calculation

@@ -415,3 +415,40 @@ function _cis_shortcodes_build_code($properties) {
   }
   return '[ciscode|' . implode('|', $ary) . ']';
 }
+
+/**
+ * Add token copy to clipboard functionality to the view_mode_tab
+ * page when preview view modes.
+ */
+function cis_shortcodes_preprocess_view_mode_tab_display(&$variables) {
+  // view mode tabs only works for nodes so lets make sure that
+  // this is the case.
+  if (module_exists('clipboardjs') && module_exists('view_mode_tab') && isset($variables['node'])) {
+    // Load clipboard.js library.
+    libraries_load('clipboard');
+
+    foreach ($variables['view_modes'] as $name => &$view_mode) {
+      // token generation properties
+      $properties = array(
+        'rev' => CIS_SHORTCODES_API_REV,
+        'tool' => variable_get('install_profile', ''),
+        'item' => $variables['node']->nid,
+        'entity_type' => 'node',
+        'render_display' => 'display_mode',
+        'display_mode' => $name,
+      );
+      // clipboard settings.
+      $clipboard_vars = array(
+        'text' => _cis_shortcodes_build_code($properties), 
+        'alert_style' => 'tooltip',
+        'alert_text' => 'Successfully copied token to clipboard.',
+        'button_label' => 'Copy token',
+      );
+      
+      // Build the form or render element usin theme_clipboardjs
+      $clipboard = theme('clipboardjs', $clipboard_vars);
+
+      $view_mode['view_mode']['#prefix'] = render($clipboard);
+    }
+  }
+}

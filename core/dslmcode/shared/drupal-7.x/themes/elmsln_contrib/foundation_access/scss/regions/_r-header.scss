@@ -73,6 +73,8 @@
 	// need this to override the sticky navigation that sets 
 	// a calculated width that is stupid and dumb
 	width: 100% !important; 
+	left: 0;
+	right: 0;
 }
 
 // Possition the dropdown perfectly on the advanced

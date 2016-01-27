@@ -1,0 +1,91 @@
+diff --git a/clipboardjs.module b/clipboardjs.module
+index 2307bef..07c1c24 100644
+--- a/clipboardjs.module
++++ b/clipboardjs.module
+@@ -148,11 +148,13 @@ function clipboardjs_field_formatter_view($entity_type, $entity, $field, $instan
+ 
+       // Iterate over each text field and add clipboard.js.
+       foreach ($items as $delta => $item) {
+-        $text = _text_sanitize($instance, $langcode, $item, 'value');
+-        $alert_style = $display['settings']['alert_style'];
+-        $alert_text = $display['settings']['alert_text'];
+-        $button_label = $display['settings']['button_label'];
+-        $elements[$delta] = clipboardjs_build_content($text, $alert_style, $alert_text, $button_label);
++        $theme_variables = array(
++          'text' => _text_sanitize($instance, $langcode, $item, 'value'), 
++          'alert_style' => $display['settings']['alert_style'], 
++          'alert_text' => $display['settings']['alert_text'], 
++          'button_label' => $display['settings']['button_label'],
++        );
++        $elements[$delta] = theme('clipboardjs', $theme_variables);
+       }
+       break;
+   }
+@@ -161,24 +163,40 @@ function clipboardjs_field_formatter_view($entity_type, $entity, $field, $instan
+ }
+ 
+ /**
+- * Helper function for building a clipboard.js renderable array.
++ * Implements hook_theme().
++ */
++function clipboardjs_theme($existing, $type, $theme, $path) {
++  return array(
++    'clipboardjs' => array(
++      'variables' => array(
++        'text' => NULL, 
++        'alert_style' => 'tooltip', 
++        'alert_text' => 'Copy was successful!', 
++        'button_label' => 'Click to Copy',
++      ),
++    ),
++  );
++}
++
++/**
++ * Theme function for clipboardjs_theme
+  *
+- * @param string $text
++ * @param string $variables['text']
+  *   Text to be copied.
+  *
+- * @param string $alert_style
++ * @param string $variables['alert_style']
+  *   Alert style, either 'alert' or 'tooltip'.
+  *
+- * @param string $alert_text
++ * @param string $variables['alert_text']
+  *   Text to display in alert or tooltip.
+  *
+- * @param string $button_label
++ * @param string $variables['button_label']
+  *   The label of the button that triggers the copy.
+  *
+  * @return array
+  *   An renderable array.
+  */
+-function clipboardjs_build_content($text, $alert_style, $alert_text, $button_label) {
++function theme_clipboardjs($variables) {
+   $element = array();
+   $uniqid = uniqid('clipboardjs-');
+ 
+@@ -190,16 +208,16 @@ function clipboardjs_build_content($text, $alert_style, $alert_text, $button_lab
+   );
+ 
+   $element['text']['markup'] = array(
+-    '#markup' => $text
++    '#markup' => $variables['text'],
+   );
+ 
+   $element['button'] = array(
+     '#type' => 'button',
+-    '#value' => check_plain($button_label),
++    '#value' => check_plain($variables['button_label']),
+     '#attributes' => array(
+       'class' => array('clipboardjs-button'),
+-      'data-clipboard-alert' => $alert_style,
+-      'data-clipboard-alert-text' => $alert_text,
++      'data-clipboard-alert' => $variables['alert_style'],
++      'data-clipboard-alert-text' => $variables['alert_text'],
+       'data-clipboard-target' => '#' . $uniqid,
+       'onClick' => 'return false;',
+     ),

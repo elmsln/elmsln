@@ -1,0 +1,14 @@
+name = Clipboard.js
+description = Integrates the Clipboard.js library with Drupal
+core = 7.x
+package = User interface
+
+dependencies[] = jquery_update
+dependencies[] = libraries (>=2.x)
+
+; Information added by Drupal.org packaging script on 2015-10-27
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "clipboardjs"
+datestamp = "1445986759"
+
