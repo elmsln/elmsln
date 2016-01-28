@@ -72,130 +72,7 @@ function _cis_section_og_context_handler() {
  */
 function cis_section_cron() {
   // @todo ensure cis_section_authority isn't enabled or we need to sync differently
-  // the magic that keeps sections in sync with the cis
-  $query = array(
-    'type' => 'course',
-    'field_machine_name' => str_replace('/', '', base_path()),
-    'deep-load-refs' => 'field_collection_item', // special property that tells sections from course
-  );
-  // return a course
-  $return = _cis_connection_query($query, 'node', 'json', 'GET', 'cis', '', FALSE);
-  // look for 1 record
-  if (count($return['list']) == 1) {
-    $section_strings = array();
-    $section_times = array();
-    $course = $return['list'][0];
-    // loop through offerings
-    foreach ($course['field_offerings'] as $offering) {
-      // loop through sections if they exist
-      if (isset($offering['field_sections']['und']) && count($offering['field_sections']['und']) > 0) {
-        foreach ($offering['field_sections']['und'] as $section) {
-          // verify that this has the full object and has dates
-          if (isset($section['item_id']) && isset($section['field_access_dates']['und'])) {
-            // loop through access strings
-            // this is the magic that binds students to sections automatically
-            // and allows the entire network to work as an OG dark-net :)
-            if (isset($section['field_access_string']['und']) && count($section['field_access_string']['und']) > 0) {
-              foreach ($section['field_access_string']['und'] as $string) {
-                // ensure safe_value isn't null
-                if (!empty($string['safe_value'])) {
-                  $section_strings[$string['safe_value']] = $string['safe_value'];
-                  // store the start/end times of this so we know activation status
-                  $section_times[$string['safe_value']] = array(strtotime($section['field_access_dates']['und'][0]['value']));
-                  // end date not required
-                  if (isset($section['field_access_dates']['und'][0]['value2'])) {
-                    $section_times[$string['safe_value']][] = strtotime($section['field_access_dates']['und'][0]['value2']);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    // loop through section strings to make sure we have a matching section node
-    foreach ($section_strings as $section_id) {
-      // if we know about this, load and update appropriately
-      if ($nid = _cis_section_load_section_by_id($section_id)) {
-        // this case can be triggered if the dates get updated downstream in CIS
-        // or if we create something ahead of the semester
-        $section = node_load($nid);
-        // mark this relative to it being active
-        if ($section_times[$section_id][0] < REQUEST_TIME) {
-          // check for end date before assuming
-          if (isset($section_times[$section_id][1])) {
-            // make sure we're before end time
-            if ($section_times[$section_id][1] > REQUEST_TIME) {
-              $section_status = 1;
-            }
-            else {
-              $section_status = 0;
-            }
-          }
-          else {
-            $section_status = 1;
-          }
-        }
-        else {
-          $section_status = 0;
-        }
-        // see if the section status has changed
-        if ($section->field_cis_active['und'][0]['value'] != $section_status) {
-          $section->field_cis_active['und'][0]['value'] = $section_status;
-          node_save($section);
-        }
-      }
-      else {
-        $section = new stdClass();
-        $section->type = 'section';
-        node_object_prepare($section);
-        // currently both items are given the section id
-        $section->title = $section_id;
-        $section->field_section_id['und'][0]['value'] = $section_id;
-        // mark this relative to it being real
-        if ($section_times[$section_id][0] < REQUEST_TIME) {
-          // check for end date before assuming
-          if (isset($section_times[$section_id][1])) {
-            // make sure we're before end time
-            if ($section_times[$section_id][1] > REQUEST_TIME) {
-              $section_status = 1;
-            }
-            else {
-              $section_status = 0;
-            }
-          }
-          else {
-            $section_status = 1;
-          }
-        }
-        else {
-          $section_status = 0;
-        }
-        $section->field_cis_active['und'][0]['value'] = $section_status;
-        $section->language = LANGUAGE_NONE;
-        // default these to admin ownership for less chance of seeing it
-        $section->uid = 1;
-        // save section, cron job will then be able to check data source for roster
-        // if that functionality is enabled in local instance
-        node_save($section);
-      }
-    }
-  }
-  // test for if we should sync w/ our roster provider
-  $frequency = variable_get('cis_service_connection_sync_frequency', CIS_SERVICE_CONNECTION_SYNC_FREQUENCY);
-  $interval = 86400 * $frequency;
-  // always sync if this call just came from drush
-  // sync this course with LMS based on section data if time has passed
-  // sync if there's an argument asking to force sync
-  if (drupal_is_cli() || isset($_GET['force_roster_sync']) || (REQUEST_TIME - variable_get('cis_service_connection_last_sync', 0)) > $interval) {
-    // simple section pull based on those included locally
-    $sections = array_keys(cis_section_all_sections(TRUE));
-    // pull the roster together
-    $roster = cis_section_assemble_roster($sections);
-    // build the user accounts
-    watchdog('roster', 'Roster service synced with !roster sections', array('!roster' => count($roster)));
-    _cis_section_create_accounts($roster);
-  }
+  _cis_section_sync_roster();
 }
 
 /**
@@ -691,4 +568,148 @@ function cis_section_url_outbound_alter(&$path, &$options, $original_path) {
       }
     }
   }
+}
+
+/**
+ * Callback to sync this system with the CIS roster / sections
+ */
+function _cis_section_sync_roster() {
+  // the magic that keeps sections in sync with the cis
+  $query = array(
+    'type' => 'course',
+    'field_machine_name' => str_replace('/', '', base_path()),
+    'deep-load-refs' => 'field_collection_item', // special property that tells sections from course
+  );
+  // return a course
+  $return = _cis_connection_query($query, 'node', 'json', 'GET', 'cis', '', FALSE);
+  // look for 1 record
+  if (count($return['list']) == 1) {
+    $section_strings = array();
+    $section_times = array();
+    $course = $return['list'][0];
+    // loop through offerings
+    foreach ($course['field_offerings'] as $offering) {
+      // loop through sections if they exist
+      if (isset($offering['field_sections']['und']) && count($offering['field_sections']['und']) > 0) {
+        foreach ($offering['field_sections']['und'] as $section) {
+          // verify that this has the full object and has dates
+          if (isset($section['item_id']) && isset($section['field_access_dates']['und'])) {
+            // loop through access strings
+            // this is the magic that binds students to sections automatically
+            // and allows the entire network to work as an OG dark-net :)
+            if (isset($section['field_access_string']['und']) && count($section['field_access_string']['und']) > 0) {
+              foreach ($section['field_access_string']['und'] as $string) {
+                // ensure safe_value isn't null
+                if (!empty($string['safe_value'])) {
+                  $section_strings[$string['safe_value']] = $string['safe_value'];
+                  // store the start/end times of this so we know activation status
+                  $section_times[$string['safe_value']] = array(strtotime($section['field_access_dates']['und'][0]['value']));
+                  // end date not required
+                  if (isset($section['field_access_dates']['und'][0]['value2'])) {
+                    $section_times[$string['safe_value']][] = strtotime($section['field_access_dates']['und'][0]['value2']);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    // loop through section strings to make sure we have a matching section node
+    foreach ($section_strings as $section_id) {
+      // if we know about this, load and update appropriately
+      if ($nid = _cis_section_load_section_by_id($section_id)) {
+        // this case can be triggered if the dates get updated downstream in CIS
+        // or if we create something ahead of the semester
+        $section = node_load($nid);
+        // mark this relative to it being active
+        if ($section_times[$section_id][0] < REQUEST_TIME) {
+          // check for end date before assuming
+          if (isset($section_times[$section_id][1])) {
+            // make sure we're before end time
+            if ($section_times[$section_id][1] > REQUEST_TIME) {
+              $section_status = 1;
+            }
+            else {
+              $section_status = 0;
+            }
+          }
+          else {
+            $section_status = 1;
+          }
+        }
+        else {
+          $section_status = 0;
+        }
+        // see if the section status has changed
+        if ($section->field_cis_active['und'][0]['value'] != $section_status) {
+          $section->field_cis_active['und'][0]['value'] = $section_status;
+          node_save($section);
+        }
+      }
+      else {
+        $section = new stdClass();
+        $section->type = 'section';
+        node_object_prepare($section);
+        // currently both items are given the section id
+        $section->title = $section_id;
+        $section->field_section_id['und'][0]['value'] = $section_id;
+        // mark this relative to it being real
+        if ($section_times[$section_id][0] < REQUEST_TIME) {
+          // check for end date before assuming
+          if (isset($section_times[$section_id][1])) {
+            // make sure we're before end time
+            if ($section_times[$section_id][1] > REQUEST_TIME) {
+              $section_status = 1;
+            }
+            else {
+              $section_status = 0;
+            }
+          }
+          else {
+            $section_status = 1;
+          }
+        }
+        else {
+          $section_status = 0;
+        }
+        $section->field_cis_active['und'][0]['value'] = $section_status;
+        $section->language = LANGUAGE_NONE;
+        // default these to admin ownership for less chance of seeing it
+        $section->uid = 1;
+        // save section, cron job will then be able to check data source for roster
+        // if that functionality is enabled in local instance
+        node_save($section);
+      }
+    }
+  }
+  // test for if we should sync w/ our roster provider
+  $frequency = variable_get('cis_service_connection_sync_frequency', CIS_SERVICE_CONNECTION_SYNC_FREQUENCY);
+  $interval = 86400 * $frequency;
+  // always sync if this call just came from drush
+  // sync this course with LMS based on section data if time has passed
+  // sync if there's an argument asking to force sync
+  if (drupal_is_cli() || isset($_GET['force_roster_sync']) || (REQUEST_TIME - variable_get('cis_service_connection_last_sync', 0)) > $interval) {
+    // simple section pull based on those included locally
+    $sections = array_keys(cis_section_all_sections(TRUE));
+    // pull the roster together
+    $roster = cis_section_assemble_roster($sections);
+    // build the user accounts
+    watchdog('roster', 'Roster service synced with !roster sections', array('!roster' => count($roster)));
+    _cis_section_create_accounts($roster);
+  }
+}
+
+/**
+ * Implements hook_elmsln_api_info().
+ */
+function cis_section_elmsln_api_info() {
+  // Example of a more complex definition:
+  $callbacks['sync_roster'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL, // httprl call structure needs this
+    'file' => 'elmsln_api/callbacks/v1/sync_roster.inc',
+  );
+
+  return $callbacks;
 }
