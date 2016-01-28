@@ -7,6 +7,7 @@
  */
 function elmsln_api_elmsln_api_callback_clear_cache_bin() {
   global $_elmsln;
+  // @todo try and use elmsln instead
   // convert to cache bin name
   if (isset($_POST['bin'])) {
     $bin = $_POST['bin'];
