@@ -1696,8 +1696,10 @@ function _cis_connector_load_users_by_role($roles = array()) {
  * @return array sanitized config from the filesystem
  */
 function _cis_connector_get_cfg() {
-  $config = array();
-  if ($cfg = file_get_contents(ELMSLN_CFG_PATH)) {
+  // statically cache future calls
+  $config = &drupal_static(__FUNCTION__);
+  // build the whole thing
+  if (!isset($config) && $cfg = file_get_contents(ELMSLN_CFG_PATH)) {
     $lines = explode("\n", $cfg);
     // read each line of the config file
     foreach ($lines as $line) {
