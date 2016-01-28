@@ -3,22 +3,3 @@
  * @file
  * Install the ELMSLN API.
  */
-
-/**
- * Implements hook_install().
- */
-function elmsln_api_install() {
-  // Move elmsln.php to the root of Drupal.
-  $elmsln_dir = realpath(dirname(__FILE__));
-  $destination = DRUPAL_ROOT . DIRECTORY_SEPARATOR . 'elmsln.php';
-  $source = $elmsln_dir . DIRECTORY_SEPARATOR . 'elmsln.php';
-
-  if (!file_exists($destination) && file_exists($source)) {
-    if (!copy($source, $destination)) {
-      drupal_set_message(t('Can not copied elmsln.php to installation root folder.'), 'error');
-    }
-    else {
-      drupal_set_message(t('Copied elmsln.php to installation root folder successfully.'));
-    }
-  }
-}
