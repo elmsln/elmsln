@@ -5,8 +5,15 @@
  * @param  string $bin the cache bin to clear, usually cis_connector
  * @return bool if it was successfully cleared
  */
-function elmsln_api_elmsln_api_callback_clear_cache_bin($bin) {
+function elmsln_api_elmsln_api_callback_clear_cache_bin() {
+  global $_elmsln;
   // convert to cache bin name
+  if (isset($_POST['bin'])) {
+    $bin = $_POST['bin'];
+  }
+  else if (isset($_GET['bin'])) {
+    $bin = $_GET['bin'];
+  }
   $bin = 'cache_' . $bin;
   if (db_table_exists($bin)) {
     $db = db_delete($bin)->execute();
