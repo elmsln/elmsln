@@ -267,19 +267,6 @@ function elmsln_api_basic_auth() {
 }
 
 /**
- * Implements hook_elmsln_api_info().
- */
-function elmsln_api_elmsln_api_info() {
-  // Example of a more complex definition:
-  $callbacks['clear_cache_bin'] = array(
-    'methods' => array('GET', 'POST'),
-    'file' => 'callbacks/v1/clear_cache_bin.inc',
-  );
-
-  return $callbacks;
-}
-
-/**
  * ELMSLN API Request wrapper to streamline hitting elmsln.php
  * from any service pinging the right address based on loading
  * of the registry to do so.
@@ -298,7 +285,7 @@ function _elmsln_api_request($request) {
   drupal_load('module', 'cis_connector');
   // see if we can skim a module off the filesystem structure
   if ($cfg = _cis_connector_get_cfg()) {
-    $settingsmodule = $cfg['university'] . '_' . $cfg['host'] . '_settings';
+    $settingsfile = $cfg['university'] . '_' . $cfg['host'] . '_settings';
     drupal_load('module', $settingsfile);
     // look for settings for this bucket
     // @ignore druplart_conditional_assignment
@@ -318,3 +305,17 @@ function _elmsln_api_request($request) {
   }
   return FALSE;
 }
+
+/**
+ * Implements hook_elmsln_api_info().
+ */
+function elmsln_api_elmsln_api_info() {
+  // Example of a more complex definition:
+  $callbacks['clear_cache_bin'] = array(
+    'methods' => array('GET', 'POST'),
+    'file' => 'callbacks/v1/clear_cache_bin.inc',
+  );
+
+  return $callbacks;
+}
+
