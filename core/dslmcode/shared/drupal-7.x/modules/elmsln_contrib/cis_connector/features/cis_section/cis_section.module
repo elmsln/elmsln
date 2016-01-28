@@ -707,8 +707,7 @@ function cis_section_elmsln_api_info() {
   // Example of a more complex definition:
   $callbacks['sync_roster'] = array(
     'methods' => array('POST'),
-    'bootstrap' => DRUPAL_BOOTSTRAP_FULL, // httprl call structure needs this
-    'file' => 'elmsln_api/callbacks/v1/sync_roster.inc',
+    'file' => 'callbacks/v1/sync_roster.inc',
   );
 
   return $callbacks;
