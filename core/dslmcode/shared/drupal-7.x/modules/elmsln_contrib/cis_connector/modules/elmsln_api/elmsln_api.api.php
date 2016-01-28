@@ -83,3 +83,25 @@ function hook_elmsln_api_info() {
 function hook_elmsln_api_callback_filter_xss_alter(array &$allowed_tags = array()) {
   $allowed_tags[] = 'button';
 }
+
+/**
+ * Here's an example of how to use this API to call a built in core function
+ */
+function _clear_some_caches() {
+  // in this example we will do a remote cache clear of the cis_connector bin
+  // in the course sing100 which is running the mooc platform
+  // this is the equivalent of doing a curl POST against
+  // protocol://USERNAME:PASSWORD@data-courses.elmsln.local/sing100/elmsln.php?q=v1&elmsln_module=elmsln_api&elmsln_callback=clear_cache_bin&bin=cis_connector
+  $request = array(
+    'method' => 'POST',
+    'api' => '1',
+    'bucket' => 'mooc',
+    'path' => '/sing100/',
+    'data' => array(
+      'elmsln_module' => 'elmsln_api',
+      'elmsln_callback' => 'clear_cache_bin',
+      'bin' => 'cis_connector',
+    ),
+  );
+  _elmsln_api_request($request);
+}
