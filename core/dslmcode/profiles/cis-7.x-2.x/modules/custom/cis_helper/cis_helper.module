@@ -535,6 +535,23 @@ function cis_helper_entity_update($entity, $type) {
           // que request
           httprl_request($location, $options);
           drupal_set_message(t('The remote service `@service` has been syncronized to reflect your changes.', array('@service' => $service->title)), 'status');
+          // clear the cis_connector cache because this data may have
+          // changed which would be cached out in services
+          /*$request = array(
+            'method' => 'POST',
+            'api' => '1',
+            'bucket' => $service->field_distribution[LANGUAGE_NONE][0]['value'],
+            'path' => '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/',
+            'data' => array(
+              'elmsln_module' => 'elmsln_api',
+              'elmsln_callback' => 'clear_cache_bin',
+              'bin' => 'cis_connector',
+            ),
+          );
+          _elmsln_api_request($request);*/
+          // @todo replace the above cron method of forcing sections
+          // to do a roster sync in favor of an elmsln api call to do
+          // the same
         }
       }
       // Execute requests in the queue in a non-blocking manner (really fast)
