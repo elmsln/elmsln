@@ -78,7 +78,7 @@ function elmsln_api_execute_request() {
   $GLOBALS['devel_shutdown'] = FALSE;
 
   // Retrieve arguments for the current request.
-  $_elmsln['args'] = explode('/', $_GET['q']);
+  $_elmsln['args'] = explode('/', $_GET['api']);
 
   // Remove the version argument.
   if (!empty($_elmsln['args'][0]) && $_elmsln['args'][0] === 'v1') {
@@ -239,7 +239,6 @@ function elmsln_api_basic_auth() {
   // if we see an account attemping basic authorization try and match it
   // to those webservice user accounts in the cis_connector registry
   if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
-    $settingsfile = FALSE;
     // load CIS connector so we can quickly load via low level bootstrap
     drupal_load('module', 'cis_connector');
     // see if we can skim a module off the filesystem structure
@@ -273,10 +272,49 @@ function elmsln_api_basic_auth() {
 function elmsln_api_elmsln_api_info() {
   // Example of a more complex definition:
   $callbacks['clear_cache_bin'] = array(
-    'callback arguments' => array(1),
     'methods' => array('GET', 'POST'),
     'file' => 'callbacks/v1/clear_cache_bin.inc',
   );
 
   return $callbacks;
+}
+
+/**
+ * ELMSLN API Request wrapper to streamline hitting elmsln.php
+ * from any service pinging the right address based on loading
+ * of the registry to do so.
+ * @param  array  $request   An array with the following properties
+ *   @param  string method  GET or POST
+ *   @param  string module   module that has the functionality
+ *   @param  string callback callback to call in that module
+ *   @param  array  data     data to send
+ *   @param  string path     path to do the post against like /
+ *   @param  string bucket   which system to connect to
+ *   @param  string api      version of the api call to make
+ * @return mixed            response from the associated system
+ */
+function _elmsln_api_request($request) {
+  // load CIS connector so we can quickly load via low level bootstrap
+  drupal_load('module', 'cis_connector');
+  // see if we can skim a module off the filesystem structure
+  if ($cfg = _cis_connector_get_cfg()) {
+    $settingsmodule = $cfg['university'] . '_' . $cfg['host'] . '_settings';
+    drupal_load('module', $settingsfile);
+    // look for settings for this bucket
+    // @ignore druplart_conditional_assignment
+    if ($settings = _cis_connector_build_registry($request['bucket'])) {
+      $address = _cis_connector_format_address($settings, $request['path']);
+      // prepare the query to be shipped off
+      $request['data']['q'] = 'v' . $request['api'];
+      $options = array(
+        'method' => $request['method'],
+        'data' => http_build_query($request['data']),
+        'timeout' => 1,
+        'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+      );
+      $tmp = drupal_http_request($address . 'elmsln.php', $options);
+      return $tmp->data;
+    }
+  }
+  return FALSE;
 }
