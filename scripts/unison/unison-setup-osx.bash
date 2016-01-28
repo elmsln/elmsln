@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Assumes you have a symlink to the elmsln repo in your home directory on your local computer
-local_root="~/elmsln"
+local_root="$HOME/elmsln"
 remote_root="ssh://default//var/www/elmsln"
 
 # create ssh-config file
@@ -9,15 +9,20 @@ ssh_config="$local_root/.vagrant/ssh-config"
 vagrant ssh-config > "$ssh_config"
 
 # create unison profile
-profile="  
+profile="
+perms = 0
 root = $local_root
 root = $remote_root
-ignore = Name {.git,.vagrant,node_modules,config}
+path = core
+path = docs
+path = domains
+path = scripts
+path = config/shared
+ignore = Name {.git,.vagrant,node_modules}
 
 prefer = $local_root  
 repeat = 2  
 terse = true 
-perms = -1  
 sshargs = -F $ssh_config  
 "
 
