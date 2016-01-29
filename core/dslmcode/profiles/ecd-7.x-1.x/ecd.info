@@ -105,6 +105,7 @@ dependencies[] = views_bulk_operations
 dependencies[] = features
 dependencies[] = features_override
 ; ELMSLN Core
+dependencies[] = elmsln_api
 dependencies[] = cis_connector
 dependencies[] = cis_service_connection
 dependencies[] = cis_service_connection_ux
