@@ -1,3 +1,14 @@
+ELMSLN 0.0.7, 2016-01-29
+------------------------
+- Drop multi-core option on Vagrant install #493
+- elmsln.php #506
+- Drupal book-specific search and replace #507
+- Add a course #505
+- document leafy commandline processor #504
+- AJAX CORS Issue #499
+- Outline Designer: increase readability of 'hidden' items text #498
+- CIS links from cleaned up UX not what they should be #497
+
 ELMSLN 0.0.6, 2016-01-20
 ------------------------
 - new systems build inconsistently after 0.0.4 cron switch #491
