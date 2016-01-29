@@ -521,23 +521,8 @@ function cis_helper_entity_update($entity, $type) {
           // load the service and course entities
           $service = entity_load_single('node', $instance->field_services[LANGUAGE_NONE][0]['target_id']);
           $course = entity_load_single('node', $instance->field_course[LANGUAGE_NONE][0]['target_id']);
-          // create the location of this service instance cron
-          $location = $service->field_location[LANGUAGE_NONE][0]['url'] . '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
-          // add on the cron and cron_key values for a secure remote run
-          $data = array(
-            'cron_key' => (isset($instance->field_cron_key[LANGUAGE_NONE]) ? $instance->field_cron_key[LANGUAGE_NONE][0]['value'] : ''),
-          );
-          $location .= '/cron.php?' . http_build_query($data);
-          // call the cron via remote call
-          $options = array(
-            'blocking' => FALSE,
-          );
-          // que request
-          httprl_request($location, $options);
-          drupal_set_message(t('The remote service `@service` has been syncronized to reflect your changes.', array('@service' => $service->title)), 'status');
-          // clear the cis_connector cache because this data may have
-          // changed which would be cached out in services
-          /*$request = array(
+          // clear the cis_connector cache because this data may have changed
+          $request = array(
             'method' => 'POST',
             'api' => '1',
             'bucket' => $service->field_distribution[LANGUAGE_NONE][0]['value'],
@@ -548,14 +533,22 @@ function cis_helper_entity_update($entity, $type) {
               'bin' => 'cis_connector',
             ),
           );
-          _elmsln_api_request($request);*/
-          // @todo replace the above cron method of forcing sections
-          // to do a roster sync in favor of an elmsln api call to do
-          // the same
+          _elmsln_api_request($request);
+          // sync the service
+          $request = array(
+            'method' => 'POST',
+            'api' => '1',
+            'bucket' => $service->field_distribution[LANGUAGE_NONE][0]['value'],
+            'path' => '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/',
+            'data' => array(
+              'elmsln_module' => 'cis_section',
+              'elmsln_callback' => 'sync_roster',
+            ),
+          );
+          _elmsln_api_request($request);
+          drupal_set_message(t('The remote service `@service` has been syncronized to reflect your changes.', array('@service' => $service->title)), 'status');
         }
       }
-      // Execute requests in the queue in a non-blocking manner (really fast)
-      $request = httprl_send_request();
     }
   }
 }
