@@ -293,13 +293,7 @@ function mooc_ux_defaults_strongarm() {
       'change_type' => array(
         'unchecked' => TRUE,
       ),
-      'hidden_nodes' => array(
-        'unchecked' => TRUE,
-      ),
       'book_title_override' => array(
-        'unchecked' => TRUE,
-      ),
-      'book_copy' => array(
         'unchecked' => TRUE,
       ),
     ),

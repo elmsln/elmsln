@@ -1,0 +1,20 @@
+{
+	"name": "ELMSLN Courses upgrade 1454125067",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "fr",
+			"arguments": [
+				"mooc_ux_defaults"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1454125067",
+		"author": "elmsln",
+		"description": "Give instructors the hidden node permission"
+	}
+}
