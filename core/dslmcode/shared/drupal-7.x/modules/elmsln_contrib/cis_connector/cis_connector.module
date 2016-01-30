@@ -1637,8 +1637,8 @@ function _cis_connector_parent_domain($bucket = NULL) {
 
 /**
  * Helper function to break an elmsln url into
- * identifiable parts. 
- * 
+ * identifiable parts.
+ *
  * @param  string $url
  * @return array()
  *         - protocol
@@ -1647,27 +1647,25 @@ function _cis_connector_parent_domain($bucket = NULL) {
  *         - domain
  */
 function _cis_connector_url_get_properties($url) {
-  $function_id = drupal_hash_base64(__FUNCTION__ . $url);
-  $properties = &drupal_static($function_id);
-  
-  if (!isset($properties)) {
+  $properties = &drupal_static(__FUNCTION__);
+  if (!isset($properties[$url])) {
     // split the url at the protocol
     $url_array = preg_split('/(:\/\/)/', $url);
-    $properties['protocol'] = $url_array[0];
+    $properties[$url]['protocol'] = $url_array[0];
     // delete the protocol
     array_shift($url_array);
     // split the domain at the first backslash
     $url_array = preg_split('/\//', $url_array[0], 2);
-    if (isset($url_array[1])) {
-      $properties['path'] = $url_array[1];
-    }
+    $properties[$url]['path'] = $url_array[1];
     // split the url into subdomain and domain
     $url_array = preg_split('/\./', $url_array[0], 2);
-    $properties['subdomain'] = $url_array[0];
-    $properties['domain'] = $url_array[1];
+    $properties[$url]['subdomain'] = $url_array[0];
+    $properties[$url]['domain'] = $url_array[1];
+
+    drush_print_r('Processed the following url: ' . $url);
   }
 
-  return $properties;
+  return $properties[$url];
 }
 
 /**
