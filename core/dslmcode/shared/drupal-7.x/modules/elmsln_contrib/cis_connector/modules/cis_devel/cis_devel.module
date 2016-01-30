@@ -24,6 +24,26 @@ function cis_devel_cis_postrequest_alter(&$request) {
 }
 
 /**
+ * Implements hook_elmsln_api_prerequest_alter().
+ */
+function cis_devel_elmsln_api_prerequest_alter(&$request) {
+  if (user_access('access devel information')) {
+    // @ignore production_code
+    dpm($request);
+  }
+}
+
+/**
+ * Implements hook_elmsln_api_postrequest_alter().
+ */
+function cis_devel_elmsln_api_postrequest_alter(&$request) {
+  if (user_access('access devel information')) {
+    // @ignore production_code
+    dpm($request);
+  }
+}
+
+/**
  * Implements hook_cis_devel_cis_section_build_roster_alter().
  */
 function cis_devel_cis_section_build_roster_alter(&$roster, $section) {
