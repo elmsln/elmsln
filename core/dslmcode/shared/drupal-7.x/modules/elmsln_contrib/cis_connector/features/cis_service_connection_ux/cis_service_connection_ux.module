@@ -55,7 +55,14 @@ function cis_service_connection_ux_form($form, $form_state) {
     '#title' => t('Tool details'),
     '#weight' => '0',
   );
-  // synced name fields
+  // name fields
+  $form['site_information_name']['sync'] = array(
+    '#default_value' => 1,
+    '#weight' => '-1',
+    '#description' => t('Enjoy these settings are synced across other systems. Only disable this if you know why you are doing so.'),
+    '#type' => 'checkbox',
+    '#title' => t('Sync'),
+  );
   $form['site_information_name']['site_name'] = array(
     '#description' => t('A short name for the Course'),
     '#default_value' => variable_get('site_name', ''),
