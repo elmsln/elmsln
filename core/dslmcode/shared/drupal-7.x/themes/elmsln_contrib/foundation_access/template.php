@@ -41,21 +41,21 @@ function foundation_access_preprocess_html(&$variables) {
       // specialized additions for each wheel value
       switch ($current) {
         case 'primary':
-          $css .= ".etb-book h1,.etb-book h2 {color: $color !important;}";
+          $css .= ".etb-book h1,.etb-book h2 {color: $color;}";
         break;
         case 'secondary':
-          $css .= ".etb-book h3,.etb-book h4,.etb-book h5 {color: $color !important;}";
+          $css .= ".etb-book h3,.etb-book h4,.etb-book h5 {color: $color;}";
         break;
         case 'required':
-          $css .= "div.textbook_box_required li:hover:before{border-color: $color !important;} div.textbook_box_required li:before {color: $complement !important; background: $color !important;} div.textbook_box_required { border: 2px solid $color !important;} .textbook_box_required h3 {color: $color !important;}";
+          $css .= "div.textbook_box_required li:hover:before{border-color: $color;} div.textbook_box_required li:before {color: $complement; background: $color;} div.textbook_box_required { border: 2px solid $color;} .textbook_box_required h3 {color: $color;}";
         break;
         case 'optional':
-          $css .= "div.textbook_box_optional li:hover:before{border-color: $color !important;} div.textbook_box_optional li:before {color: $complement !important; background: $color !important;} div.textbook_box_optional { border: 2px solid $color !important;} .textbook_box_optional h3 {color: $color !important;}";
+          $css .= "div.textbook_box_optional li:hover:before{border-color: $color;} div.textbook_box_optional li:before {color: $complement; background: $color;} div.textbook_box_optional { border: 2px solid $color;} .textbook_box_optional h3 {color: $color;}";
         break;
       }
     }
   }
-  drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME));
+  drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 1000));
   drupal_add_css('//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME));
   // theme path shorthand should be handled here
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
