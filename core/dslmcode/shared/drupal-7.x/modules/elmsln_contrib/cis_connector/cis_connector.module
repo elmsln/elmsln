@@ -601,6 +601,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
                     'field_machine_name' => $tmp['field_machine_name']['und'][0]['value'],
                     'title' => $tmp['title'],
                     'field_location' => array('url' => $tmp['field_location']['und'][0]['url']),
+                    'field_distribution' => $tmp['field_distribution']['und'][0]['value'],
                   );
                 }
               }
