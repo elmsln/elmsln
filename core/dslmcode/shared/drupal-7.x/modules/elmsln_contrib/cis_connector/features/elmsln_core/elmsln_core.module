@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ELMSLN Core feature.
+ */
+
+include_once 'elmsln_core.features.inc';

@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * elmsln_core_perms.features.user_permission.inc
+ * elmsln_core.features.user_permission.inc
  */
 
 /**
  * Implements hook_user_default_permissions().
  */
-function elmsln_core_perms_user_default_permissions() {
+function elmsln_core_user_default_permissions() {
   $permissions = array();
 
   // Exported permission: 'access admin theme'.

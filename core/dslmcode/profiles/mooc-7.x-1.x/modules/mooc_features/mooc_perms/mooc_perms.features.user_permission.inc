@@ -209,17 +209,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
     'module' => 'admin_menu',
   );
 
-  // Exported permission: 'highlight highlight content'.
-  $permissions['highlight highlight content'] = array(
-    'name' => 'highlight highlight content',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'nodereference_highlight',
-  );
-
   // Exported permission: 'masquerade as user'.
   $permissions['masquerade as user'] = array(
     'name' => 'masquerade as user',
@@ -240,13 +229,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'node',
-  );
-
-  // Exported permission: 'search content'.
-  $permissions['search content'] = array(
-    'name' => 'search content',
-    'roles' => array(),
-    'module' => 'search',
   );
 
   // Exported permission: 'show format selection for node'.
