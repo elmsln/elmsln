@@ -1661,8 +1661,6 @@ function _cis_connector_url_get_properties($url) {
     $url_array = preg_split('/\./', $url_array[0], 2);
     $properties[$url]['subdomain'] = $url_array[0];
     $properties[$url]['domain'] = $url_array[1];
-
-    drush_print_r('Processed the following url: ' . $url);
   }
 
   return $properties[$url];
