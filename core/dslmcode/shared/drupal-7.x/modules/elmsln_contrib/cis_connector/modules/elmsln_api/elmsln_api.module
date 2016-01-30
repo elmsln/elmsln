@@ -389,16 +389,23 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
  * Implements hook_elmsln_api_info().
  */
 function elmsln_api_elmsln_api_info() {
-  // allow for remote cache bins to be cleared
+  // remote cache bin wipe
   $callbacks['clear_cache_bin'] = array(
     'methods' => array('GET', 'POST'),
     'file' => 'callbacks/v1/clear_cache_bin.inc',
   );
-  // allow for a remote vset
+  // remote vset
   $callbacks['vset'] = array(
     'methods' => array('POST'),
     'bootstrap' => DRUPAL_BOOTSTRAP_VARIABLES,
     'file' => 'callbacks/v1/vset.inc',
+  );
+
+  // remote entity update
+  $callbacks['entity_update'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
+    'file' => 'callbacks/v1/entity_update.inc',
   );
 
   return $callbacks;
