@@ -144,6 +144,24 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
   module_load_include('inc', 'system', 'system.admin');
   // load the current variables
   form_state_values_clean($form_state);
+  if ($form_state['values']['sync']) {
+    $requests = array(
+      array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'vset',
+        'name' => 'site_name',
+        'value' => $form_state['values']['site_name'],
+      ),
+      array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'vset',
+        'name' => 'site_slogan',
+        'value' => $form_state['values']['site_slogan'],
+      ),
+    );
+    // rebuild these requests for the active network
+    _elmsln_api_network_request($requests);
+  }
   // see if we have foundation access settings in here
   if (isset($form_state['groups']['foundation_access'])) {
     // load the current settings array we'd get on the theme settings page
