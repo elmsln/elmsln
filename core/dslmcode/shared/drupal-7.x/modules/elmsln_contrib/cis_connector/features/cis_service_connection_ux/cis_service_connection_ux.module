@@ -30,31 +30,50 @@ function cis_service_connection_ux_menu() {
  */
 function cis_service_connection_ux_form($form, $form_state) {
   $form = array();
+  $form['site_information_name'] = array(
+    '#tree' => '0',
+    '#type' => 'fieldset',
+    '#collapsed' => '1',
+    '#collapsible' => '1',
+    '#title' => t('Course Name'),
+    '#description' => t('Course name and title displayed in the top right.'),
+    '#weight' => '-2',
+  );
+  $form['site_information_links'] = array(
+    '#tree' => '0',
+    '#type' => 'fieldset',
+    '#collapsed' => '1',
+    '#collapsible' => '1',
+    '#title' => t('Links'),
+    '#weight' => '-1',
+  );
   $form['site_information'] = array(
     '#tree' => '0',
     '#type' => 'fieldset',
-    '#collapsed' => '0',
+    '#collapsed' => '1',
     '#collapsible' => '1',
-    '#title' => t('Details'),
+    '#title' => t('Tool details'),
     '#weight' => '0',
   );
-  $form['site_information']['site_name'] = array(
-    '#description' => t('A short name for the site'),
+  // synced name fields
+  $form['site_information_name']['site_name'] = array(
+    '#description' => t('A short name for the Course'),
     '#default_value' => variable_get('site_name', ''),
     '#weight' => '0',
     '#title' => t('Name'),
     '#type' => 'textfield',
     '#required' => '1',
   );
-  $form['site_information']['site_slogan'] = array(
+  $form['site_information_name']['site_slogan'] = array(
     '#default_value' => variable_get('site_slogan', ''),
     '#weight' => '1',
-    '#description' => t('Title of this site'),
+    '#description' => t('Title of the course'),
     '#type' => 'textfield',
     '#title' => t('Title'),
     '#required' => '1',
   );
-  $form['site_information']['site_frontpage'] = array(
+  // links
+  $form['site_information_links']['site_frontpage'] = array(
     '#default_value' => variable_get('site_frontpage', 'node'),
     '#weight' => '2',
     '#description' => t('Home page for this site'),
@@ -62,21 +81,21 @@ function cis_service_connection_ux_form($form, $form_state) {
     '#title' => t('Front page'),
     '#required' => '1',
   );
-  $form['site_information']['cis_help_page'] = array(
+  $form['site_information_links']['cis_help_page'] = array(
     '#default_value' => variable_get('cis_help_page', 'course-help'),
     '#weight' => '3',
     '#description' => t('Where the help button points. Leave blank to hide the button'),
     '#type' => 'textfield',
     '#title' => t('Help button'),
   );
-  $form['site_information']['cis_resource_page'] = array(
+  $form['site_information_links']['cis_resource_page'] = array(
     '#default_value' => variable_get('cis_resource_page', 'resources'),
     '#weight' => '3',
     '#description' => t('Where the resources button points. Leave blank to hide the button'),
     '#type' => 'textfield',
     '#title' => t('Resources button'),
   );
-  $form['site_information']['cis_syllabus_page'] = array(
+  $form['site_information_links']['cis_syllabus_page'] = array(
     '#default_value' => variable_get('cis_syllabus_page', 'syllabus'),
     '#weight' => '4',
     '#description' => t('Where the syllabus link points. Leave blank to hide the button'),

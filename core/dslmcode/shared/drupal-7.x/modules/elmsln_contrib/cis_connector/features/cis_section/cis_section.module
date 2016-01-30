@@ -486,10 +486,10 @@ function cis_section_form_cis_service_connection_ux_form_alter(&$form, &$form_st
   $form['section'] = array(
     '#tree' => '0',
     '#type' => 'fieldset',
-    '#collapsed' => '0',
+    '#collapsed' => '1',
     '#collapsible' => '1',
     '#title' => t('Default Section'),
-    '#weight' => '-1',
+    '#weight' => '-10',
   );
   $form['section']['cis_section_default'] = array(
     '#default_value' => variable_get('cis_section_default', CIS_NO_SECTION),
