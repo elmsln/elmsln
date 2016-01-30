@@ -273,9 +273,10 @@ function elmsln_api_basic_auth() {
  *   @param  string path     path to do the post against like /
  *   @param  string bucket   which system to connect to
  *   @param  string api      version of the api call to make
+ * @param  string $nonblocking if this is a non-blocking call
  * @return mixed            response from the associated system
  */
-function _elmsln_api_request($request) {
+function _elmsln_api_request($request, $nonblocking = FALSE) {
   // load CIS connector so we can quickly load via low level bootstrap
   drupal_load('module', 'cis_connector');
   // see if we can skim a module off the filesystem structure
@@ -287,6 +288,10 @@ function _elmsln_api_request($request) {
     if ($settings = _cis_connector_build_registry($request['bucket'])) {
       // prepare the query to be shipped off
       $request['data']['q'] = 'v' . $request['api'];
+      // leave a flag for debug purposes if it's nonblocking
+      if ($nonblocking) {
+        $request['_httprl'] = TRUE;
+      }
       // allow other projects to react to this if we have
       // a high enough bootstrap; nice thing is this will
       // just do nothing if we don't
@@ -299,15 +304,47 @@ function _elmsln_api_request($request) {
       );
       // form the address to call
       $address = _cis_connector_format_address($settings, $request['path']);
-      $tmp = drupal_http_request($address . 'elmsln.php', $options);
-      // allow other projects to react to this if we have
-      // a high enough bootstrap; nice thing is this will
-      // just do nothing if we don't
-      drupal_alter('elmsln_api_postrequest', $tmp);
-      return $tmp->data;
+      // allow for non-blocking calls which require httprl
+      // which requires a full bootstrap. This is why it is
+      // not the default option. The default for the variable
+      // is to wait for a response since low-level bootstraps
+      // SHOULD be very fast. In cases that kick off high-level
+      // bootstraps against many targets it might be more efficient
+      // to issue them all as non-blocking so there's only 1
+      // full bootstrap that's waited for.
+      if ($nonblocking) {
+        $options['blocking'] = FALSE;
+        httprl_request($address . 'elmsln.php', $options);
+        // this is non-blocking so can't really be modified but
+        // could still be useful fro debugging
+        return TRUE;
+      }
+      else {
+        $tmp = drupal_http_request($address . 'elmsln.php', $options);
+        // allow other projects to react to this if we have
+        // a high enough bootstrap; nice thing is this will
+        // just do nothing if we don't
+        drupal_alter('elmsln_api_postrequest', $tmp);
+        return $tmp->data;
+      }
     }
   }
   return FALSE;
+}
+
+/**
+ * Issue non blocking calls after queuing them up.
+ * This has no return because non-blocking assume completion.
+ * @param  array $requests requests that need issued
+ */
+function _elmsln_api_nonblocking_requests($requests) {
+  // loop through and queue the requests
+  foreach ($requests as $request) {
+    _elmsln_api_request($request, TRUE);
+  }
+  // send the requests off
+  $tmp = httprl_send_request();
+  return count($requests);
 }
 
 /**
@@ -315,22 +352,35 @@ function _elmsln_api_request($request) {
  * @param  array $requests an array of requests
  * @see  _elmsln_api_request()
  */
-function _elmsln_api_network_request($requests, $method = 'POST', $api = '1') {
+function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE) {
   if ($services = _cis_connector_transaction('other_services')) {
     foreach ($services as $service) {
       // make sure they don't match the existing one
       if ($service['field_distribution'] != variable_get('install_profile', 'standard')) {
         foreach ($requests as $data) {
           $request = array(
-            'method' => $method,
+            'method' => 'POST',
             'api' => $api,
             'bucket' => $service['field_distribution'],
             'path' => base_path(),
             'data' => $data,
           );
-          _elmsln_api_request($request);
+          // if we are blocking then ship off now
+          if (!$nonblocking) {
+            _elmsln_api_request($request);
+          }
+          else {
+            // queue these after formulation
+            $nonblock[] = $request;
+          }
         }
       }
+    }
+    // if we have nonblocking calls and a collection of them
+    // then kick this off to multi-process quickly and without
+    // looking back!
+    if ($nonblocking && isset($nonblock)) {
+      _elmsln_api_nonblocking_requests($nonblock);
     }
   }
 }

@@ -160,7 +160,7 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
       ),
     );
     // rebuild these requests for the active network
-    _elmsln_api_network_request($requests);
+    _elmsln_api_network_request($requests, '1', TRUE);
   }
   // see if we have foundation access settings in here
   if (isset($form_state['groups']['foundation_access'])) {
