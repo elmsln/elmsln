@@ -490,8 +490,8 @@ function cis_helper_entity_update($entity, $type) {
             ),
           );
           _elmsln_api_request($request);
-          // sync the service
-          $request = array(
+          // sync the service but do it non-blocking
+          $nonblock[] = array(
             'method' => 'POST',
             'api' => '1',
             'bucket' => $service->field_distribution[LANGUAGE_NONE][0]['value'],
@@ -501,10 +501,10 @@ function cis_helper_entity_update($entity, $type) {
               'elmsln_callback' => 'sync_roster',
             ),
           );
-          _elmsln_api_request($request);
           drupal_set_message(t('The remote service `@service` has been syncronized to reflect your changes.', array('@service' => $service->title)), 'status');
         }
       }
+      _elmsln_api_nonblocking_requests($nonblock);
     }
   }
 }
