@@ -6,6 +6,11 @@ pages:
 - Installation: INSTALL.md
 - End User Guide:
   - Adding a course: enduser/add-a-course.md
+  - Courses Outline:
+    - Editing Content: enduser/courses/edit.md
+    - Outline Designer: enduser/courses/outline-designer.md
+  - Media asset management:
+    - Interactive H5P content: enduser/media/h5p.md
 - Information Architecture:
   - Index: ia/ia-index.md
   - Roles: ia/User-Roles.md
