@@ -501,15 +501,7 @@ function mooc_helper_node_presave($node) {
  * Implements hook_form_FORM_ID_alter().
  */
 function mooc_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
-  $form['mooc'] = array(
-    '#tree' => '0',
-    '#type' => 'fieldset',
-    '#collapsed' => '0',
-    '#collapsible' => '1',
-    '#title' => t('Content settings'),
-    '#weight' => '-1',
-  );
-  $form['mooc']['mooc_default_outline'] = array(
+  $form['site_information']['mooc_default_outline'] = array(
     '#description' => t('This is the default content outline for new sections that register.'),
     '#default_value' => variable_get('mooc_default_outline', ''),
     '#weight' => '0',
@@ -519,7 +511,7 @@ function mooc_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_st
     '#options' => _mooc_helper_all_book_outlines('nid'),
   );
   // @see _mooc_helper_book_homepage_redirect()
-  $form['site_information']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
+  $form['site_information_links']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
 }
 
 /**
