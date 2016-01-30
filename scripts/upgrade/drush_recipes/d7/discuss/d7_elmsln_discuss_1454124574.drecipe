@@ -1,0 +1,20 @@
+{
+	"name": "ELMSLN Discuss upgrade 1454124574",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "fr",
+			"arguments": [
+				"discuss_thread"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1454124574",
+		"author": "elmsln",
+		"description": "Revert Discuss Thread"
+	}
+}
