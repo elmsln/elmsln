@@ -1,3 +1,18 @@
+ELMSLN 0.0.8, 2016-01-29
+------------------------
+- "Share" button not appearing on shareable content #524
+- Core permissions #471
+- No ability to create new blogs, journal entry, etc. #516
+- Remove drupal_hash_base64 in drupal_static function #515
+- Instructors should be able to hide content in outline designer #487
+- Comply should auto add people to master #494
+- No text editor in discussion threads/replies #517
+- Auto add certain roles to master section #513
+- Innovate tool coming back with Access Denied #518
+- Document how H5P works / is installed #520
+- Different Colors for H1 and H2 titles #488
+- Auto add certain roles to master section #513
+
 ELMSLN 0.0.7, 2016-01-29
 ------------------------
 - Drop multi-core option on Vagrant install #493
