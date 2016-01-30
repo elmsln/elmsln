@@ -116,6 +116,18 @@ function elmsln_core_user_default_permissions() {
     'module' => 'cis_service_connection',
   );
 
+  // Exported permission: 'use text format textbook_editor'.
+  $permissions['use text format textbook_editor'] = array(
+    'name' => 'use text format textbook_editor',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'filter',
+  );
+
   // Exported permission: 'view cis shortcode'.
   $permissions['view cis shortcode'] = array(
     'name' => 'view cis shortcode',
@@ -139,17 +151,6 @@ function elmsln_core_user_default_permissions() {
     'module' => 'entity_iframe',
   );
 
-  // Exported permission: 'view lmsless bar'.
-  $permissions['view lmsless bar'] = array(
-    'name' => 'view lmsless bar',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'anonymous user' => 'anonymous user',
-      'authenticated user' => 'authenticated user',
-    ),
-    'module' => 'cis_lmsless',
-  );
-
   // Exported permission: 'view lmsless administration links'.
   $permissions['view lmsless administration links'] = array(
     'name' => 'view lmsless administration links',
@@ -157,6 +158,17 @@ function elmsln_core_user_default_permissions() {
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
+    ),
+    'module' => 'cis_lmsless',
+  );
+
+  // Exported permission: 'view lmsless bar'.
+  $permissions['view lmsless bar'] = array(
+    'name' => 'view lmsless bar',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'anonymous user' => 'anonymous user',
+      'authenticated user' => 'authenticated user',
     ),
     'module' => 'cis_lmsless',
   );
