@@ -315,31 +315,6 @@ function cis_helper_permission() {
 }
 
 /**
- * Implements hook_draw_chart_alter().
- */
-function cis_helper_draw_chart_alter(&$settings) {
-  $dept_charts = array('historical-college-data-page-4', 'historical-college-data-page-6');
-  foreach ($dept_charts as $view_name) {
-    if (isset($settings['chart'][$view_name])) {
-      foreach ($settings['chart'][$view_name]['header'] as $record) {
-        $data = db_select('field_data_field_abbreviation', 'fdfa')
-        ->fields('fdfa', array('entity_id'))
-        ->condition('field_abbreviation_value', substr($record, 0, strpos($record, ' (')))
-        ->execute()
-        ->fetchObject();
-        if (isset($data->entity_id)) {
-          $dept = node_load($data->entity_id);
-          if (isset($dept->field_color[LANGUAGE_NONE][0]['jquery_colorpicker'])) {
-            $colors[] = $dept->field_color[LANGUAGE_NONE][0]['jquery_colorpicker'];
-          }
-        }
-      }
-      $settings['chart'][$view_name]['options']['colors'] = $colors;
-    }
-  }
-}
-
-/**
  * Implementation of hook_form_service_instance_node_form_alter().
  */
 function cis_helper_form_service_instance_node_form_alter(&$form, &$form_state, $form_id) {
@@ -408,25 +383,6 @@ function cis_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id
   if (arg(2) == 'offerings') {
     $form['cle_add_new']['#markup'] = l(t('Add new offering'), 'field-collection/field-offerings/add/node/' . arg(1), array('query' => array('destination' => 'node/' . arg(1) . '/offerings')));
     $form['cle_add_new']['#weight'] = 100;
-  }
-  // allow for select style output for fields in data table
-  if (strpos($form['#id'], 'historical-college-data-')) {
-    $form['location'] = array(
-      '#type' => 'select',
-      '#options' => cis_helper_get_data_values('location'),
-    );
-    $form['semester'] = array(
-      '#type' => 'select',
-      '#options' => cis_helper_get_data_values('semester'),
-    );
-    $form['year'] = array(
-      '#type' => 'select',
-      '#options' => cis_helper_get_data_values('year'),
-    );
-    $form['course'] = array(
-      '#type' => 'select',
-      '#options' => cis_helper_get_data_values('course'),
-    );
   }
 }
 
@@ -551,25 +507,6 @@ function cis_helper_entity_update($entity, $type) {
       }
     }
   }
-}
-
-/**
- * Helper to pull list of possible values from custom data tables.
- */
-function cis_helper_get_data_values($column) {
-  // pull from historical course data table
-  $result = db_select('historical_course_data', 'hcd')
-  ->fields('hcd', array($column))
-  ->orderBy($column)
-  ->distinct()
-  ->execute();
-  // build default null option for empty text
-  $options = array('' => '');
-  // biuld array
-  foreach ($result as $item) {
-    $options[$item->{$column}] = $item->{$column};
-  }
-  return $options;
 }
 
 /**
