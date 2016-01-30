@@ -520,6 +520,48 @@ function _cis_section_is_master($section_id = NULL) {
 }
 
 /**
+ * Implements hook_user_insert().
+ */
+function cis_section_user_insert(&$edit, $account, $category) {
+  // switch IDs over to role name
+  foreach ($account->roles as $key => $rid) {
+    if (is_numeric($rid)) {
+      $tmp = user_role_load($rid);
+      if (isset($tmp->name)) {
+        $account->roles[$key] = $tmp->name;
+      }
+    }
+  }
+  // add user to master section automatically if they are
+  // staff admin or teacher
+  if (_cis_connector_role_groupings(array('staff', 'teacher', 'guest'), $account)) {
+    $query = new EntityFieldQuery();
+    // pull all nodes
+    $query->entityCondition('entity_type', 'node')
+    // that are sections
+    ->entityCondition('bundle', 'section')
+    // where it looks like the old master format
+    ->fieldCondition('field_section_id', 'value', 'master')
+    // load all possible results in system, should only be 1 though
+    ->addMetaData('account', user_load(1));
+    // store result
+    $result = $query->execute();
+    // ensure we have results
+    if (isset($result['node'])) {
+      $nids = array_keys($result['node']);
+      $sections = entity_load('node', $nids);
+      $section = array_pop($sections);
+      $values = array(
+        'entity_type' => 'user',
+        'entity' => $account,
+      );
+      // add user to the group
+      og_group('node', $section, $values);
+    }
+  }
+}
+
+/**
  * Implements hook_url_inbound_alter().
  *
  * Sets the active section for a user based on a query parameter.

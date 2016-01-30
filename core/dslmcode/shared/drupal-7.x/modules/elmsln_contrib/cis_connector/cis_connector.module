@@ -1386,6 +1386,7 @@ function _cis_connector_role_groups($type = NULL) {
       'teacher' => array('teaching assistant', 'instructor'),
       'learner' => array('student', 'past student'),
       'active learner' => array('student'),
+      'guest' => array('guest'),
     );
     // allow other projects to define special situations where you would give a type access
     drupal_alter('cis_connector_role_groups', $roles);
