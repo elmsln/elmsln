@@ -1,3 +1,7 @@
+ELMSLN 0.0.9, 2016-01-30
+------------------------
+- Rerun 0.0.7 / 0.0.8 correctly this time
+
 ELMSLN 0.0.8, 2016-01-29
 ------------------------
 - "Share" button not appearing on shareable content #524
