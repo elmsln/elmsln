@@ -15,4 +15,6 @@ function ulmus_install() {
   _elmsln_installer_admin_role();
   // standard clean up
   _elmsln_installer_post_install_cleanup();
+  // point to homepage
+  variable_set('site_frontpage', 'ulmus/new-idea');
 }

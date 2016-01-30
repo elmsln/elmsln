@@ -1,8 +1,8 @@
 ; Packaging information for ulmus
-name = "ulmus"
+name = "Ulmus"
 description = "A new idea for powering flexible educational ecosystems."
 core = "7.x"
-elmslndefaulttitle = "ulmus"
+elmslndefaulttitle = "A new idea"
 elmslntype = "service"
 
 ; ----------
@@ -132,3 +132,7 @@ dependencies[] = cis_section
 ; END ELMSLN Core Dependencies
 ; ----------
 
+; ----------
+; Ulmus place holder Dependencies
+; ----------
+dependencies[] = ulmus_core
