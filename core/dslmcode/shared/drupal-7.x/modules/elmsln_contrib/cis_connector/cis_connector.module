@@ -1656,7 +1656,12 @@ function _cis_connector_url_get_properties($url) {
     array_shift($url_array);
     // split the domain at the first backslash
     $url_array = preg_split('/\//', $url_array[0], 2);
-    $properties[$url]['path'] = $url_array[1];
+    if (isset($url_array[1])) {
+      $properties[$url]['path'] = $url_array[1];
+    }
+    else {
+      $properties[$url]['path'] = '';
+    }
     // split the url into subdomain and domain
     $url_array = preg_split('/\./', $url_array[0], 2);
     $properties[$url]['subdomain'] = $url_array[0];
