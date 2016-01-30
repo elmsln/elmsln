@@ -285,16 +285,25 @@ function _elmsln_api_request($request) {
     // look for settings for this bucket
     // @ignore druplart_conditional_assignment
     if ($settings = _cis_connector_build_registry($request['bucket'])) {
-      $address = _cis_connector_format_address($settings, $request['path']);
       // prepare the query to be shipped off
       $request['data']['q'] = 'v' . $request['api'];
+      // allow other projects to react to this if we have
+      // a high enough bootstrap; nice thing is this will
+      // just do nothing if we don't
+      drupal_alter('elmsln_api_prerequest', $request);
       $options = array(
         'method' => $request['method'],
         'data' => http_build_query($request['data']),
         'timeout' => 1,
         'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
       );
+      // form the address to call
+      $address = _cis_connector_format_address($settings, $request['path']);
       $tmp = drupal_http_request($address . 'elmsln.php', $options);
+      // allow other projects to react to this if we have
+      // a high enough bootstrap; nice thing is this will
+      // just do nothing if we don't
+      drupal_alter('elmsln_api_postrequest', $tmp);
       return $tmp->data;
     }
   }
