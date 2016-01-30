@@ -78,12 +78,7 @@ function elmsln_api_execute_request() {
   $GLOBALS['devel_shutdown'] = FALSE;
 
   // Retrieve arguments for the current request.
-  $_elmsln['args'] = explode('/', $_GET['api']);
-
-  // Remove the version argument.
-  if (!empty($_elmsln['args'][0]) && $_elmsln['args'][0] === 'v1') {
-    array_shift($_elmsln['args']);
-  }
+  $_elmsln['args'] = $GLOBALS[$global_method];
 
   // Load common functions used for all requests.
   module_load_include('inc', 'elmsln_api', 'includes/common');
