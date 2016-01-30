@@ -305,10 +305,16 @@ function _elmsln_api_request($request) {
  * Implements hook_elmsln_api_info().
  */
 function elmsln_api_elmsln_api_info() {
-  // Example of a more complex definition:
+  // allow for remote cache bins to be cleared
   $callbacks['clear_cache_bin'] = array(
     'methods' => array('GET', 'POST'),
     'file' => 'callbacks/v1/clear_cache_bin.inc',
+  );
+  // allow for a remote vset
+  $callbacks['vset'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_VARIABLES,
+    'file' => 'callbacks/v1/vset.inc',
   );
 
   return $callbacks;
