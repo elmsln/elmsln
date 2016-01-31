@@ -333,6 +333,8 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'some';
   $handler->display->display_options['pager']['options']['items_per_page'] = '0';
   $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['style_plugin'] = 'default';
+  $handler->display->display_options['row_plugin'] = 'fields';
   /* Header: Global: Text area */
   $handler->display->display_options['header']['area']['id'] = 'area';
   $handler->display->display_options['header']['area']['table'] = 'views';
@@ -1234,7 +1236,6 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Administer Field Collection';
   $handler->display->display_options['menu']['weight'] = '30';
-  $handler->display->display_options['menu']['name'] = 'navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_field_collection_admin'] = $view;
@@ -2771,6 +2772,7 @@ function cis_displays_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Service Instances';
+  $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'edit any course content';
@@ -2779,6 +2781,12 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'none';
   $handler->display->display_options['style_plugin'] = 'table';
+  /* Header: Global: Autorefresh */
+  $handler->display->display_options['header']['autorefresh']['id'] = 'autorefresh';
+  $handler->display->display_options['header']['autorefresh']['table'] = 'views';
+  $handler->display->display_options['header']['autorefresh']['field'] = 'autorefresh';
+  $handler->display->display_options['header']['autorefresh']['interval'] = '10000';
+  $handler->display->display_options['header']['autorefresh']['display'] = 'page';
   /* Relationship: Entity Reference: Referenced Entity */
   $handler->display->display_options['relationships']['field_services_target_id']['id'] = 'field_services_target_id';
   $handler->display->display_options['relationships']['field_services_target_id']['table'] = 'field_data_field_services';
