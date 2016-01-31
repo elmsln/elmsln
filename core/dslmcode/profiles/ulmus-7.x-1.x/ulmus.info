@@ -1,8 +1,8 @@
 ; Packaging information for ulmus
-name = "Ulmus"
+name = "Innovate"
 description = "A new idea for powering flexible educational ecosystems."
 core = "7.x"
-elmslndefaulttitle = "A new idea"
+elmslndefaulttitle = "Innovate"
 elmslntype = "service"
 
 ; ----------
