@@ -417,6 +417,13 @@ function elmsln_api_elmsln_api_info() {
     'file' => 'callbacks/v1/entity_update.inc',
   );
 
+  // remote entity update
+  $callbacks['theme_settings'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_VARIABLES,
+    'file' => 'callbacks/v1/theme_settings.inc',
+  );
+
   return $callbacks;
 }
 

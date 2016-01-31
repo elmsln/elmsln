@@ -56,11 +56,16 @@ function cis_service_connection_ux_form($form, $form_state) {
     '#weight' => '0',
   );
   // name fields
-  $form['site_information_name']['sync'] = array(
-    '#default_value' => 1,
-    '#weight' => '-1',
-    '#description' => t('Enjoy these settings are synced across other systems. Only disable this if you know why you are doing so.'),
-    '#type' => 'checkbox',
+  $form['elmsln_api_sync'] = array(
+    '#default_value' => variable_get('elmsln_api_sync', 1),
+    '#weight' => '-1000',
+    '#description' => t('How should this system be kept in sync with its network?'),
+    '#options' => array(
+      0 => t("Don't sync"),
+      1 => t("Sync everything"),
+      2 => t("Sync everything but the banner"),
+    ),
+    '#type' => 'select',
     '#title' => t('Sync'),
   );
   $form['site_information_name']['site_name'] = array(
@@ -144,26 +149,6 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
   module_load_include('inc', 'system', 'system.admin');
   // load the current variables
   form_state_values_clean($form_state);
-  if ($form_state['values']['sync']) {
-    $requests = array(
-      array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'vset',
-        'name' => 'site_name',
-        'value' => $form_state['values']['site_name'],
-      ),
-      array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'vset',
-        'name' => 'site_slogan',
-        'value' => $form_state['values']['site_slogan'],
-      ),
-    );
-    // rebuild these requests for the active network
-    _elmsln_api_network_request($requests, '1', TRUE);
-    // figure out the NID in question, call home if title / slogan changed
-    //entity_update
-  }
   // see if we have foundation access settings in here
   if (isset($form_state['groups']['foundation_access'])) {
     // load the current settings array we'd get on the theme settings page
@@ -210,69 +195,53 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
     // set the variables for the theme
     variable_set('theme_' . variable_get('theme_default', '') . '_settings', $vars);
   }
-}
-
-/**
- * Implements hook_profiler_builder_modules_list_alter().
- */
-function cis_service_connection_ux_profiler_builder_modules_list_alter(&$list) {
-  // don't enable these developer toolsets
-  $disable = array(
-    'devel',
-    'mooc',
-    'cis',
-    'cle',
-  );
-  // loop through and disable projects listed above
-  foreach ($disable as $project) {
-    if (isset($list[$project])) {
-      unset($list[$project]);
+  // see if we should elmsln_api_sync things
+  if (!($form_state['values']['elmsln_api_sync'] === 0)) {
+    // load the settings
+    $vars = array(
+      'default_favicon',
+      'favicon_path',
+      'toggle_favicon',
+      'foundation_access_primary_color',
+      'foundation_access_secondary_color',
+      'foundation_access_required_color',
+      'foundation_access_optional_color',
+    );
+    // account for sync mode with option to not sync banner
+    if (variable_get('elmsln_api_sync', 1) == 1) {
+      $vars[] = 'default_logo';
+      $vars[] = 'logo_path';
+      $vars[] = 'toggle_logo';
     }
+    // get the theme variables
+    foreach ($vars as $var) {
+      $values[$var] = theme_get_setting($var, variable_get('theme_default', 'foundation_access'));
+      if ($var == 'logo_path') {
+        $values[$var] = file_create_url($values[$var]);
+      }
+    }
+    // prepare requests to kick off settings
+    $requests = array(
+       array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'theme_settings',
+        'values' => $values,
+      ),
+      array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'vset',
+        'name' => 'site_name',
+        'value' => $form_state['values']['site_name'],
+      ),
+      array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'vset',
+        'name' => 'site_slogan',
+        'value' => $form_state['values']['site_slogan'],
+      ),
+    );
+    // rebuild these requests for the active network
+    _elmsln_api_network_request($requests, '1', TRUE);
+    // @todo figure out the NID in question, call home if title / slogan changed
   }
-}
-/**
- * Implements hook_profiler_builder_ignore_alter().
- */
-function cis_service_connection_ux_profiler_builder_ignore_alter(&$ignore_list) {
-  // additional known things to ignore for variables
-  $ignore = array(
-    'color_chamfer_stylesheets',
-    'theme_chamfer_settings',
-    'color_chamfer_logo',
-    'color_chamfer_files',
-    'user_mail_cancel_confirm_body',
-    'user_mail_status_canceled_subject',
-    'user_mail_status_canceled_body',
-    'user_mail_cancel_confirm_body',
-    'user_mail_cancel_confirm_subject',
-    'user_mail_password_reset_body',
-    'user_mail_password_reset_subject',
-    'user_mail_register_admin_created_body',
-    'user_mail_register_admin_created_subject',
-    'user_mail_register_no_approval_required_body',
-    'user_mail_register_no_approval_required_subject',
-    'user_mail_register_pending_approval_body',
-    'user_mail_register_pending_approval_subject',
-    'user_mail_status_blocked_body',
-    'user_mail_status_blocked_subject',
-    'user_mail_status_activated_subject',
-    'user_mail_status_activated_body',
-    'user_mail_status_activated_notify',
-    'site_name',
-    'site_slogan',
-    'site_frontpage',
-    'outline_designer_page_icon',
-    'imce_custom_process',
-    'imce_custom_content',
-    'ckeditor_link_autocomplete_menus',
-    'ckeditor_link_autocomplete_node_types',
-    'ckeditor_link_autocomplete_vocabularies',
-    'ckeditor_link_type_name',
-    'ckeditor_link_type_selected',
-    'imce_profiles',
-    'cis_service_connection_last_sync',
-    'cis_service_instance_uuid',
-  );
-  // merge these items in to have them ignored
-  $ignore_list = array_merge($ignore_list, $ignore);
 }
