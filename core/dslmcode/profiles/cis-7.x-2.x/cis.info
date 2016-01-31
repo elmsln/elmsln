@@ -166,6 +166,7 @@ dependencies[] = options_element
 dependencies[] = editableviews
 dependencies[] = views_field_calc
 dependencies[] = views_fluid_grid
+dependencies[] = views_autorefresh
 ; Features
 dependencies[] = cis_displays
 dependencies[] = cis_types

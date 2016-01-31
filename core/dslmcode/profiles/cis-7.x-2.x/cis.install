@@ -77,3 +77,14 @@ function cis_update_7004(&$sandbox) {
   menu_cache_clear('menu-cis-add');
   menu_cache_clear('menu-course-tools-menu');
 }
+
+/**
+ * Implements hook_update_N().
+ * AJAX refresh cis_displays for self refreshing listing of
+ * services as they build.
+ */
+function cis_update_7005(&$sandbox) {
+  // enable module then revert dis_displays
+  module_enable(array('views_autorefresh'));
+  features_revert('cis_displays');
+}
