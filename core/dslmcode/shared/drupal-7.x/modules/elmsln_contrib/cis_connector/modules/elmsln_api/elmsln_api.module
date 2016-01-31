@@ -318,6 +318,7 @@ function _elmsln_api_request($request, $nonblocking = FALSE) {
       // full bootstrap that's waited for.
       if ($nonblocking) {
         $options['blocking'] = FALSE;
+        drupal_load('module', 'httprl');
         httprl_request($address . 'elmsln.php', $options);
         // this is non-blocking so can't really be modified but
         // could still be useful fro debugging
