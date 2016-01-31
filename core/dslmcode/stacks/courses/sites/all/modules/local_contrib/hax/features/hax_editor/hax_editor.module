@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the HAX Editor feature.
+ */
+
+include_once 'hax_editor.features.inc';

@@ -1,0 +1,15 @@
+name = HAX Editor
+description = A default HAX editor for in context
+core = 7.x
+package = HAX
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = filter
+dependencies[] = hax
+dependencies[] = strongarm
+dependencies[] = wysiwyg
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[filter][] = hax_editor
+features[variable][] = hax_inline_editor
+features[wysiwyg][] = hax_editor
