@@ -54,3 +54,69 @@ function cis_devel_cis_section_build_roster_alter(&$roster, $section) {
     dpm($roster);
   }
 }
+
+/**
+ * Implements hook_profiler_builder_modules_list_alter().
+ */
+function cis_devel_profiler_builder_modules_list_alter(&$list) {
+  // don't enable these developer toolsets
+  $disable = array(
+    'devel',
+    'cis_devel',
+    'views_ui',
+    'field_ui',
+    'context_ui',
+  );
+  // loop through and disable projects listed above
+  foreach ($disable as $project) {
+    if (isset($list[$project])) {
+      unset($list[$project]);
+    }
+  }
+}
+/**
+ * Implements hook_profiler_builder_ignore_alter().
+ */
+function cis_devel_profiler_builder_ignore_alter(&$ignore_list) {
+  // additional known things to ignore for variables
+  $ignore = array(
+    'color_chamfer_stylesheets',
+    'theme_chamfer_settings',
+    'color_chamfer_logo',
+    'color_chamfer_files',
+    'user_mail_cancel_confirm_body',
+    'user_mail_status_canceled_subject',
+    'user_mail_status_canceled_body',
+    'user_mail_cancel_confirm_body',
+    'user_mail_cancel_confirm_subject',
+    'user_mail_password_reset_body',
+    'user_mail_password_reset_subject',
+    'user_mail_register_admin_created_body',
+    'user_mail_register_admin_created_subject',
+    'user_mail_register_no_approval_required_body',
+    'user_mail_register_no_approval_required_subject',
+    'user_mail_register_pending_approval_body',
+    'user_mail_register_pending_approval_subject',
+    'user_mail_status_blocked_body',
+    'user_mail_status_blocked_subject',
+    'user_mail_status_activated_subject',
+    'user_mail_status_activated_body',
+    'user_mail_status_activated_notify',
+    'site_name',
+    'site_slogan',
+    'site_frontpage',
+    'outline_designer_page_icon',
+    'imce_custom_process',
+    'imce_custom_content',
+    'ckeditor_link_autocomplete_menus',
+    'ckeditor_link_autocomplete_node_types',
+    'ckeditor_link_autocomplete_vocabularies',
+    'ckeditor_link_type_name',
+    'ckeditor_link_type_selected',
+    'imce_profiles',
+    'cis_service_connection_last_sync',
+    'cis_service_instance_uuid',
+  );
+  // merge these items in to have them ignored
+  $ignore_list = array_merge($ignore_list, $ignore);
+}
