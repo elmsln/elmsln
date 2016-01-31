@@ -26,9 +26,9 @@ function foundation_access_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-cis-add' => array(
+        'menu-menu-elmsln-add' => array(
           'module' => 'menu',
-          'delta' => 'menu-cis-add',
+          'delta' => 'menu-elmsln-add',
           'region' => 'local_header',
           'weight' => '-10',
         ),
