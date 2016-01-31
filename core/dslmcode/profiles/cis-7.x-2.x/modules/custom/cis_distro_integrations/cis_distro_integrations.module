@@ -31,7 +31,7 @@ function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$c
 function cis_distro_integrations_cis_service_instance_innovate_job_file_alter(&$content, $course, $service, $service_instance) {
   global $user;
   // make the requestor an admin
-  $content .= 'drush urol administrator ' . $user->name;
+  $content .= 'drush urol administrator ' . $user->name . "\n";
 }
 
 /**
