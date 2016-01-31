@@ -277,6 +277,10 @@ function elmsln_api_basic_auth() {
  * @return mixed            response from the associated system
  */
 function _elmsln_api_request($request, $nonblocking = FALSE) {
+  // force use of normal calls if we are in developer mode
+  if ($nonblocking && module_exists('cis_devel')) {
+    $nonblocking = FALSE;
+  }
   // load CIS connector so we can quickly load via low level bootstrap
   drupal_load('module', 'cis_connector');
   // see if we can skim a module off the filesystem structure
@@ -353,6 +357,10 @@ function _elmsln_api_nonblocking_requests($requests) {
  * @see  _elmsln_api_request()
  */
 function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE) {
+  // force use of normal calls if we are in developer mode
+  if ($nonblocking && module_exists('cis_devel')) {
+    $nonblocking = FALSE;
+  }
   if ($services = _cis_connector_transaction('other_services')) {
     foreach ($services as $service) {
       // make sure they don't match the existing one
