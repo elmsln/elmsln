@@ -1,8 +1,26 @@
-ELMSLN 0.0.9, 2016-01-30
+ELMSLN 0.0.10, 2016-01-31 - DCNJ Sprint Weekend
+------------------------
+- elmsln api theme settings #538
+- System sync opt out #537
+- Innovate/Idea Success Label #534
+- Service Instance Auto-Reload #533
+- Idea vs Innovate Labeling #532
+- make sure httprl is installed prior to nonblocking bootstrap #531
+- When cis_devel is in place disable non-blocking calls #530
+- allow for httprl non-blocking elmsln api calls #528
+- Let's look at icon solutions #525
+- Instructor View #121
+- Need clipboard icon #509
+- Tool Selection and Strategy #514
+- Clean up menus across network #404
+- rewrites to take someone to the right place if a service doesn't exist #419
+- Editing course names after creation? #501
+
+ELMSLN 0.0.9, 2016-01-29 - DCNJ Sprint Weekend
 ------------------------
 - Rerun 0.0.7 / 0.0.8 correctly this time
 
-ELMSLN 0.0.8, 2016-01-29
+ELMSLN 0.0.8, 2016-01-29 - DCNJ Sprint Weekend
 ------------------------
 - "Share" button not appearing on shareable content #524
 - Core permissions #471
@@ -17,7 +35,7 @@ ELMSLN 0.0.8, 2016-01-29
 - Different Colors for H1 and H2 titles #488
 - Auto add certain roles to master section #513
 
-ELMSLN 0.0.7, 2016-01-29
+ELMSLN 0.0.7, 2016-01-29 - DCNJ Sprint Weekend
 ------------------------
 - Drop multi-core option on Vagrant install #493
 - elmsln.php #506
