@@ -19,7 +19,7 @@ timestamp(){
 start="$(timestamp)"
 RPM="$(which rpm)"
 # get the epel and remi repo listings so we can get additional packages like mcrypt
-yes | yum -y install git uuid curl && git clone https://github.com/bradallenfisher/php-fpm-apache-2.4-centos7.git && cd php-fpm-apache-2.4-centos7/install && chmod 700 prod.sh && ./prod.sh
+yes | yum -y install git uuid curl && git clone https://github.com/bradallenfisher/php-fpm-apache-2.4-centos7.git && cd php-fpm-apache-2.4-centos7 && chmod 700 install/prod.sh && ./install/prod.sh
 
 yes | yum groupinstall 'Development Tools'
 # using pecl to install uploadprogress
