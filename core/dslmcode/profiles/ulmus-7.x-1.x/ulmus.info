@@ -134,6 +134,6 @@ dependencies[] = cis_section
 ; ----------
 
 ; ----------
-; Ulmus place holder Dependencies
+; Innovate dependencies
 ; ----------
-dependencies[] = ulmus_core
+dependencies[] = ulmus_innovate

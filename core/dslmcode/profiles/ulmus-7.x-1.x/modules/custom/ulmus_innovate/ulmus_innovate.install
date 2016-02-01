@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function ulmus_innovate_install() {
+  // set the homepage to be the innovate welcome page
+  variable_set('site_frontpage', 'ulmus/new-idea');
+  // change the admin_menu to be visible by default
+  variable_set('admin_menu_dropdown_default', 0);
+}

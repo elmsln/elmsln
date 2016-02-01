@@ -2,28 +2,3 @@
 /**
  * Blank File that's just here to get d.o. to build so we can hit the make file
  */
-
-/**
- * Implements hook_menu().
- */
-function ulmus_core_menu() {
-  $items['ulmus/new-idea'] = array(
-    'title' => t('A new idea'),
-    'page callback' => '_ulmus_your_idea',
-    'access arguments' => array('access content'),
-    'type' => MENU_NORMAL_ITEM,
-  );
-
-  return $items;
-}
-
-/**
- * Callback for a description of what this is.
- * @return string
- */
-function _ulmus_your_idea() {
-  $output = '<p>' . t("We want you to Innovate!") . '</p>';
-  $output .= '<p>' . t("Innovate is for you to build a brand new tool in ELMSLN. We've all got great ideas, but we can't always bring them to life because of technology. Ulmus is an attempt by the ELMSLN project team to democratize great ideas so that anyone with Drupal site building basics could build a new application that changes the face of education. If you hit tilda (~) key you should see the Drupal admin menu.") . '</p>';
-  $output .= '<p>' . t("This profile is built on top of a meta distribution called Ulmus. All of the tools in ELMSLN use this as their base to build upon. This gives you the User experience of the system, the connotation of 'sections' and all the modules we require for things to correctly communicate with the rest of the rools in your copy of ELMSLN.") . '</p>';
-  return $output;
-}
