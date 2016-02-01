@@ -1,10 +1,14 @@
 <figure id="node-<?php print $node->nid; ?>" class="image <?php print $classes; ?>"<?php print $attributes; ?>>
   <?php if ($image_lightbox_url): ?>
-  <a data-imagelightbox href="<?php print $image_lightbox_url; ?>">
-    <?php print render($image); ?>
-  </a>
+    <div class="image__img">
+      <a data-imagelightbox href="<?php print $image_lightbox_url; ?>">
+        <?php print render($image); ?>
+      </a>
+    </div>
   <?php else: ?>
-    <?php print render($image); ?>
+    <div class="image__img">
+      <?php print render($image); ?>
+    </div>
   <?php endif; ?>
 
   <?php if ($image_cite): ?>
@@ -16,5 +20,4 @@
     <?php print render($image_caption); ?>
   </figcaption>
   <?php endif; ?>
-
 </figure>

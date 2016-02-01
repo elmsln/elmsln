@@ -11,7 +11,7 @@ This is an inline image that can be used in any rich text area.
 ```html_example
 <p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
 <figure class="image">
-  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600">
+  <div class="image__img"><img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600"></div>
   <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
 	<figcaption class="image__caption">
 		<p>This is the caption for the image.</p>
@@ -32,7 +32,7 @@ category:
 ```html_example
 <p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
 <figure class="image image--left">
-  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600">
+  <div class="image__img"><img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600"></div>
   <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
 	<figcaption class="image__caption">
 		<p>This is the caption for the image.</p>
@@ -53,7 +53,7 @@ category:
 ```html_example
 <p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
 <figure class="image image--right">
-  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/600/1200/">
+  <div class="image__img"><img alt="This is the images alt info." class="image__img" src="https://unsplash.it/600/1200/"></div>
   <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
 	<figcaption class="image__caption">
 		<p>This is the caption for the image.</p>
@@ -74,7 +74,7 @@ category:
 ```html_example
 <p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
 <figure class="image image--boxed">
-  <img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/800/">
+  <div class="image__img"><img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/800/"></div>
   <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
 	<figcaption class="image__caption">
 		<p>This is the caption for the image.</p>
@@ -97,7 +97,7 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
 ```html_example
 <p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
 <figure class="image image--left">
-  <a data-imagelightbox href="https://unsplash.it/1200/800/"><img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/800/"></a>
+  <div class="image__img"><a data-imagelightbox href="https://unsplash.it/1200/800/"><img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/800/"></a></div>
   <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
 	<figcaption class="image__caption">
 		<p>This is the caption for the image.</p>
@@ -134,7 +134,6 @@ $image--margin: 1em;
 		display: block;
 		max-width: 100%;
 		height: auto;
-		flex: auto;
 	}
 
 	&__cite {
@@ -220,18 +219,9 @@ $image--margin: 1em;
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/**
+ * Bugfix Need to prefix design components selectors. #547
+ */
+.node-elmsmedia-image .image {
+	display: block;
+}
