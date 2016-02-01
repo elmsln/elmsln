@@ -156,6 +156,7 @@ dependencies[] = views_timelinejs_extras
 dependencies[] = icor_interactive_player
 dependencies[] = icor_file_entities
 dependencies[] = icor_ux
+dependencies[] = icor_poll
 dependencies[] = icor_defaults
 
 ; Information added for Drupal.org usage stats while in dev

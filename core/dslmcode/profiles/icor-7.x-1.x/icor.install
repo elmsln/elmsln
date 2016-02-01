@@ -22,3 +22,11 @@ function icor_install() {
   // force homepage to the object list
   variable_set('site_frontpage', 'icor-object-lists');
 }
+
+/**
+ * Implements hook_update_N().
+ * Support for Poll module.
+ */
+function icor_update_7001(&$sandbox) {
+  module_enable(array('icor_poll'));
+}
