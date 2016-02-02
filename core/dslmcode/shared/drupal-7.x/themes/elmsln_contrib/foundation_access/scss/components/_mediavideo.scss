@@ -230,7 +230,6 @@ category:
 	}
 
 	.mediavideo__poster {
-		@extend .image;
 		// Margin has already been accounted for in the base element.
 		margin: 0;
 		position: relative;

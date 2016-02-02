@@ -8219,7 +8219,7 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
 /**
  * Styles
  */
-.image, .mediavideo--thumbnail .mediavideo__poster, .mediavideo--thumbnail--right .mediavideo__poster,
+.image,
 .image--lightboxed {
   border-bottom: 2px dashed lightgray;
   display: -webkit-flex;
@@ -8233,7 +8233,7 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
   -webkit-align-items: flex-start;
       -ms-flex-align: start;
           align-items: flex-start; }
-  .image > * + *, .mediavideo--thumbnail .mediavideo__poster > * + *, .mediavideo--thumbnail--right .mediavideo__poster > * + *,
+  .image > * + *,
   .image--lightboxed > * + * {
     margin-top: 0.3em; }
   .image__img,
@@ -8315,7 +8315,7 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
 /**
  * Bugfix Need to prefix design components selectors. #547
  */
-.node-elmsmedia-image .image, .node-elmsmedia-image .mediavideo--thumbnail .mediavideo__poster, .mediavideo--thumbnail .node-elmsmedia-image .mediavideo__poster, .node-elmsmedia-image .mediavideo--thumbnail--right .mediavideo__poster, .mediavideo--thumbnail--right .node-elmsmedia-image .mediavideo__poster {
+.node-elmsmedia-image .image {
   display: block; }
 
 /*doc
