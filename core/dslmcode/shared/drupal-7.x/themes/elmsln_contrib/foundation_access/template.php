@@ -84,10 +84,6 @@ function foundation_access_preprocess_html(&$variables) {
     $logo_classes[] = 'logo--' . $logo_option;
   }
   $variables['logo_classes'] = implode(' ', $logo_classes);
-  // support in-domain XSS exceptions
-  if (module_exists('cis_connector')) {
-    $variables['parent_origin'] = _cis_connector_parent_domain();
-  }
 }
 
 /**
