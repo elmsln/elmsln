@@ -28,7 +28,7 @@ pecl channel-update pecl.php.net
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
-/etc/init.d/mysqld restart
+service mysqld restart
 
 sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varnish
 sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
@@ -58,7 +58,7 @@ echo "opcache.enable_cli=1" >> /etc/php.d/opcache.ini
 # remove default apc file that might exist
 yes | rm /etc/php.d/apc.ini
 
-/etc/init.d/httpd restart
+service httpd restart
 # make an admin group
 groupadd admin
 groupadd elmsln
@@ -66,7 +66,7 @@ groupadd elmsln
 # kick off hands free deployment
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
 
-/etc/init.d/mysqld restart
+service mysqld restart
 
 cd $HOME
 source .bashrc
