@@ -1,0 +1,20 @@
+{
+	"name": "ELMSLN ELMSMedia upgrade 1454418122",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "fr",
+			"arguments": [
+				"elmsmedia_h5p"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1454418122",
+		"author": "btopro",
+		"description": "Update recipe for the media authority. Applies feature fix for #549"
+	}
+}
