@@ -152,7 +152,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   # close out function and file
   echo -e "  );\n\n  return \$items;\n}\n\n" >> $modulefile
   # add the function to include this in build outs automatically
-  echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n$options['en'][] = 'elmsln_bakery';\n}\n" >> $modulefile
+  echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n  \$options['en'][] = 'elmsln_bakery';\n}\n" >> $modulefile
 fi
 
 #test mysql login
