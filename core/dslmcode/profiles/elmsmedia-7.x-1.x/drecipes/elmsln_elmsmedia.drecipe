@@ -9,25 +9,18 @@
       "arguments": [
         "accessibility",
         "accessibility_wysiwyg",
-        "cis_service_restws",
-        "cis_service_roles",
-        "cis_section",
-        "cis_connector",
-        "elmsmedia_cis_ux",
         "og",
         "og_access",
         "og_context",
         "og_ui",
-        "textbook_editor",
-        "cis_unique_tag",
-        "cis_shortcodes"
+        "cis_section",
+        "cis_unique_tag"
       ]
     },
     {
-      "command": "vset",
+      "command": "en",
       "arguments": [
-        "site_frontpage",
-        "media-overview"
+        "cis_service_restws"
       ]
     }
   ],

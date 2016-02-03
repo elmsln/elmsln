@@ -142,6 +142,7 @@ dependencies[] = views_fluid_grid
 ; Features
 dependencies[] = elmsmedia_feature
 dependencies[] = elmsmedia_h5p
+dependencies[] = elmsmedia_cis_ux
 dependencies[] = elmsmedia_perms
 
 
