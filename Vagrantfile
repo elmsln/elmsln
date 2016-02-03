@@ -22,7 +22,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "virtualbox" do |v|
     host = RbConfig::CONFIG['host_os']
 
-    # Give VM 1/4 system memory & access to all cpu cores on the host
+    # Give VM 1/4 system memory or minimum 2 gigs
     if host =~ /darwin/
       # sysctl returns Bytes and we need to convert to MB
       mem = `sysctl -n hw.memsize`.to_i / 1024 / 1024 / 4
@@ -31,11 +31,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       mem = `grep 'MemTotal' /proc/meminfo | sed -e 's/MemTotal://' -e 's/ kB//'`.to_i / 1024 / 4
     elsif host =~ /mingw32/
       mem = `wmic os get TotalVisibleMemorySize | grep '^[0-9]'`.to_i / 1024 / 4
-      if mem < 1024
-        mem = 1024
+      if mem < 2048
+        mem = 2048
       end
     else # sorry weird Windows folks, I can't help you
-      mem = 1024
+      mem = 2048
     end
     # you can modify these manually if you want specific specs
     v.customize ["modifyvm", :id, "--memory", mem]
