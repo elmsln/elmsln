@@ -584,14 +584,30 @@ function cis_section_url_inbound_alter(&$path, $original_path, $path_language) {
   $query = drupal_get_query_parameters();
   if (isset($query['elmsln_active_course']) && $section_id = $query['elmsln_active_course']) {
     // get a list of allowed sections for this user
-    $sections = cis_section_all_sections();
+    $sections = array();
+    // select field section data
+    $query = new EntityFieldQuery();
+    // pull all nodes
+    $query->entityCondition('entity_type', 'node')
+    // that are sections
+    ->entityCondition('bundle', 'section')
+    // that are published
+    ->propertyCondition('status', 1);
+    $result = $query->execute();
+    // ensure we have results
+    if (isset($result['node'])) {
+      $nids = array_keys($result['node']);
+      $results = entity_load('node', $nids);
+      // convert to a readable array of options
+      foreach ($results as $val) {
+        $section = $val->field_section_id['und'][0]['safe_value'];
+        $sections[$section] = $val->title;
+      }
+    }
     // check if the proposed section is in the list of allowed sections
     if (in_array($section_id, $sections) || _cis_connector_role_grouping('staff')) {
       // set the active session
       $_SESSION['cis_section_context'] = $section_id;
-    }
-    else {
-      drupal_set_message(t('You currently do not have access to section @section_id', array('@section_id' => $section_id)), 'warning');
     }
     // Remove the active course query parameter and proceed to the url
     unset($query['elmsln_active_course']);
