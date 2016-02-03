@@ -559,7 +559,8 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   // create a file based on service name
   $filename = $space_name . '.' . $service->field_machine_name[LANGUAGE_NONE][0]['value'];
   // set title to name of course
-  $site_title = str_replace('&', 'and', $course->title);
+  $site_title = str_replace('&amp;', 'and', $course->title);
+  $site_title = preg_replace("/[^a-zA-Z0-9 ]+/", "", $site_title);
   // formulate the pattern of the file to what the job wants
   // site symlink to build
   $content = $space_name . "\n";
@@ -571,9 +572,13 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   $content .= str_replace('http://', '', str_replace('https://', '', $service->field_data_location[LANGUAGE_NONE][0]['url'])) . "\n";
   // title to set for the site name value
   $content .= $site_title . "\n";
-  // slogan value for the course
+  // slogan value for the course, make sure one is set
   $course_title = (isset($course->field_course_title[LANGUAGE_NONE]) ? $course->field_course_title[LANGUAGE_NONE][0]['value'] : $site_title);
-  $content .= str_replace('&', 'and', $course_title) . "\n";
+  // sanitize
+  $course_title = str_replace('&amp;', 'and', $course_title);
+  $course_title = preg_replace("/[^a-zA-Z0-9 ]+/", "", $course_title);
+  // add slogan
+  $content .= $course_title . "\n";
   // email / user requesting account
   $content .= $account->mail . "\n";
   // add distribution to create
