@@ -19,7 +19,7 @@ timestamp(){
 start="$(timestamp)"
 RPM="$(which rpm)"
 # get the epel and remi repo listings so we can get additional packages like mcrypt
-yes | yum -y install git uuid curl && git clone https://github.com/bradallenfisher/php-fpm-apache-2.4-centos7.git && cd php-fpm-apache-2.4-centos7 && chmod 700 install/prod.sh && ./install/prod.sh
+yes | yum -y install git uuid curl && git clone https://github.com/bradallenfisher/php56-fpm-centos7-mysql56.git && cd php56-fpm-centos7-mysql56 && chmod 700 install/prod.sh && ./install/prod.sh
 
 yes | yum groupinstall 'Development Tools'
 # using pecl to install uploadprogress
@@ -29,14 +29,6 @@ pecl channel-update pecl.php.net
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
 service mysqld restart
-
-sed -i 's/VARNISH_LISTEN_PORT=6081/VARNISH_LISTEN_PORT=80/g' /etc/sysconfig/varnish
-sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
-cat /dev/null > /etc/varnish/default.vcl
-cat /var/www/elmsln/scripts/server/varnish.txt > /etc/varnish/default.vcl
-
-service varnish start
-chkconfig varnish on
 
 # optimize apc
 echo "" >> /etc/php.d/apcu.ini
