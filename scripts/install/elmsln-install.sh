@@ -152,7 +152,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   # close out function and file
   echo -e "  );\n\n  return \$items;\n}\n\n" >> $modulefile
   # add the function to include this in build outs automatically
-  echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n}\n" >> $modulefile
+  echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n$options['en'][] = 'elmsln_bakery';\n}\n" >> $modulefile
 fi
 
 #test mysql login
@@ -306,7 +306,8 @@ if [ -f  $hooksdir/post-install.sh ]; then
   # invoke this hook cause we found a file matching the name we need
   bash $hooksdir/post-install.sh
 fi
-
+# enable bakery everywhere by default
+drush @elmsln en elmsln_bakery --y
 # run all the existing crons so that they hit the CIS data and get sing100 for example
 drush @elmsln cron --y
 

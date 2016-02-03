@@ -42,10 +42,7 @@ echo 'fi' >> /etc/profile.d/chkon.sh
 drush @elmsln upwd admin --password=admin --y
 # seckit causes isses, especially locally
 drush @online dis seckit --y
-# enable bakery for single sign-on
-drush @elmsln en vagrant_bakery_slave --y
-drush @people dis vagrant_bakery_slave --y
-drush @people en vagrant_bakery --y
+# specific stuff for aiding in development
 drush @online en vagrant_cis_dev cis_example_cis --y
 # restart apache to frag some caches because of the different settings that changed inside
 sudo /etc/init.d/httpd restart
