@@ -30,18 +30,15 @@ do
   pass="${pass}${char[$rand]}"
 done
 # make mysql secure so no one knows the password except this script
-cat <<EOF | mysql_secure_installation
-
-Y
-$pass
-$pass
-Y
-Y
-Y
-Y
-EOF
-elmslnwarn "You'll never see this again so if you care.."
-elmslnwarn "mysql root: $pass"
+mysql -e "UPDATE mysql.user SET Password = PASSWORD('$pass') WHERE User = 'root'"
+# Kill the anonymous users
+mysql -e "DROP USER ''@'localhost'"
+# Because our hostname varies we'll use some Bash magic here.
+mysql -e "DROP USER ''@'$(hostname)'"
+# Kill off the demo database
+mysql -e "DROP DATABASE test"
+# Make our changes take effect
+mysql -e "FLUSH PRIVILEGES"
 # generate a password for the elmslndbo account
 dbopass=''
 for i in `seq 1 30`
