@@ -20,15 +20,14 @@ start="$(timestamp)"
 RPM="$(which rpm)"
 # get the epel and remi repo listings so we can get additional packages like mcrypt
 yes | yum -y install git uuid curl && git clone https://github.com/bradallenfisher/php56-fpm-centos7-mysql56.git && cd php56-fpm-centos7-mysql56 && chmod 700 install/prod.sh && ./install/prod.sh
-
 yes | yum groupinstall 'Development Tools'
-# using pecl to install uploadprogress
-pecl channel-update pecl.php.net
-
+# remove brad's test file
+rm /etc/httpd/conf.sites.d/test.conf
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
-service mysqld restart
+service mysqld stop
+service mysqld start
 service httpd restart
 # make an admin group
 groupadd admin
