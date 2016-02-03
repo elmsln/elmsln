@@ -1,0 +1,59 @@
+<?php
+/**
+ * @file
+ * elmsln_bakery.install
+ */
+
+/**
+ * Implements hook_install().
+ */
+function elmsln_bakery_install() {
+  // load admin role
+  $role = user_role_load_by_name('administrator');
+  // need to drop bakery bypass for admin role which will be auto-set
+  user_role_revoke_permissions($role->rid, array('bypass bakery'));
+  // set the fields we support
+  $supported = array(
+    'name' => 'name',
+    'mail' => 'mail',
+    'status' => 'status',
+    'picture' => 'picture',
+    'language' => 0,
+    'signature' => 0,
+  );
+  variable_set('bakery_supported_fields', $supported);
+  // load the cfg file we can use to produce this at run-time
+  $cfg = _cis_connector_get_cfg();
+  // build the registry so we know our domains
+  $settings = _cis_connector_build_registry();
+  // set the domain which things can respond to
+  variable_set('bakery_domain', '.' . $cfg['address']);
+  // need to look at current site for it being the 'people' domain
+  if (variable_get('install_profile', 'standard') == 'cpr') {
+    $children = array();
+    // build out the children that this can respond to
+    foreach ($settings as $key => $system) {
+      // ensure custom usage of the registry doesn't bleed over into this
+      // as well as this not being the people distro which is the authority
+      if (!isset($system['custom']) && $key != 'cpr') {
+        $children[] = _cis_connector_format_address($system, '/', 'front');
+      }
+    }
+    variable_set('bakery_slaves', $children);
+    variable_set('bakery_is_master', 1);
+  }
+  else {
+    variable_set('bakery_is_master', 0);
+  }
+  // people distro is the master for this
+  $bakery_master = _cis_connector_format_address($settings['cpr'], '/', 'front');
+  variable_set('bakery_master', $bakery_master);
+  // generate a key from the UUID on disk which will always turn into the same thing
+  // but is completely random based on when this was installed and will never be duplicated
+  // anywhere in the universe. This ensures that we have secure communications but always
+  // formed off of something consistent to our deployments. Patterns are fun.
+  $bakery_key = drupal_base64_encode($cfg['elmsln_uuid']);
+  // encode again so it's longer
+  $bakery_key = drupal_base64_encode($bakery_key);
+  variable_set('bakery_key', $bakery_key);
+}

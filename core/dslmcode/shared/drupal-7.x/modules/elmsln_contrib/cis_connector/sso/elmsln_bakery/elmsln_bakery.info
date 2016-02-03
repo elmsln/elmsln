@@ -1,0 +1,11 @@
+name = ELMSLN SSO
+description = Single Sign-on for ELMSLN using Drupal Bakery module
+core = 7.x
+package = ELMSLN Integrations
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = bakery
+dependencies[] = cis_connector
+features[features_api][] = api:2
+features[user_permission][] = administer bakery
+features[user_permission][] = bypass bakery
