@@ -22,6 +22,18 @@ function cis_service_connection_ux_menu() {
     'access arguments' => array(array('teacher', 'staff')),
   );
 
+  $items['cis/course-settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Change settings for your course.',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_service_connection_ux_form'),
+    'access callback' => '_cis_connector_role_groupings',
+    'access arguments' => array(array('teacher', 'staff')),
+    'menu_name' => 'menu-course-tools-menu',
+    'weight' => -10,
+  );
+
   return $items;
 }
 

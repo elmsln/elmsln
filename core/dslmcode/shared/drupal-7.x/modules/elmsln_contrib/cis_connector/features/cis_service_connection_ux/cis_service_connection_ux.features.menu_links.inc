@@ -117,27 +117,6 @@ function cis_service_connection_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-course-tools-menu_settings:admin/config/system/course-settings
-  $menu_links['menu-course-tools-menu_settings:admin/config/system/course-settings'] = array(
-    'menu_name' => 'menu-course-tools-menu',
-    'link_path' => 'admin/config/system/course-settings',
-    'router_path' => 'admin/config/system/course-settings',
-    'link_title' => 'Settings',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Course display configuration',
-      ),
-      'identifier' => 'menu-course-tools-menu_settings:admin/config/system/course-settings',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -50,
-    'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
-  );
   // Exported menu link: menu-course-tools-menu_users:cis/user-list
   $menu_links['menu-course-tools-menu_users:cis/user-list'] = array(
     'menu_name' => 'menu-course-tools-menu',
@@ -164,7 +143,6 @@ function cis_service_connection_ux_menu_default_menu_links() {
   t('Performance');
   t('Sections List');
   t('Service Tools');
-  t('Settings');
   t('Users');
 
   return $menu_links;
