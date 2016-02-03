@@ -114,30 +114,12 @@ function cis_sample_content_node_export_features_default() {
           ),
         ),
       ),
-      \'field_course_readings\' => array(
-        \'und\' => array(
-          array(
-            \'value\' => "<ul>\\r\\n\\t<li>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</li>\\r\\n\\t<li>Lorem Ipsum has been the industry&#39;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</li>\\r\\n\\t<li>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</li>\\r\\n\\t<li>Lorem Ipsum has been the industry&#39;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</li>\\r\\n</ul>\\r\\n",
-            \'format\' => \'textbook_editor\',
-            \'safe_value\' => "<ul><li>Lorem Ipsum is simply dummy text of the printing and typesetting&nbsp;industry.</li>\\n\\t<li>Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the <span class=\\"number\\">1500</span>s, when an unknown printer took a galley of type and scrambled it to make a type specimen&nbsp;book.</li>\\n\\t<li>Lorem Ipsum is simply dummy text of the printing and typesetting&nbsp;industry.</li>\\n\\t<li>Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the <span class=\\"number\\">1500</span>s, when an unknown printer took a galley of type and scrambled it to make a type specimen&nbsp;book.</li>\\n</ul>",
-          ),
-        ),
-      ),
       \'field_course_title\' => array(
         \'und\' => array(
           array(
             \'value\' => \'Introduction to Singularity\',
             \'format\' => NULL,
             \'safe_value\' => \'Introduction to Singularity\',
-          ),
-        ),
-      ),
-      \'field_credits\' => array(
-        \'und\' => array(
-          array(
-            \'value\' => \'4\',
-            \'format\' => NULL,
-            \'safe_value\' => \'4\',
           ),
         ),
       ),
@@ -165,15 +147,6 @@ function cis_sample_content_node_export_features_default() {
       \'field_inst_setup_guide\' => array(),
       \'field_instructional_designer\' => array(),
       \'field_lead_instructor\' => array(),
-      \'field_long_description\' => array(
-        \'und\' => array(
-          array(
-            \'value\' => "<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#39;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularized in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>\\r\\n\\r\\n<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#39;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularized in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>\\r\\n",
-            \'format\' => \'textbook_editor\',
-            \'safe_value\' => "<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the <span class=\\"number\\">1500</span>s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularized in the <span class=\\"number\\">1960</span>s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem&nbsp;Ipsum.</p>\\n\\n<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the <span class=\\"number\\">1500</span>s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularized in the <span class=\\"number\\">1960</span>s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem&nbsp;Ipsum.</p>",
-          ),
-        ),
-      ),
       \'field_machine_name\' => array(
         \'und\' => array(
           array(
@@ -191,111 +164,9 @@ function cis_sample_content_node_export_features_default() {
         ),
       ),
       \'field_offerings\' => array(),
-      \'field_program_classification\' => array(
-        \'und\' => array(
-          array(
-            \'target_id\' => \'15\',
-          ),
-        ),
-      ),
       \'field_related_courses\' => array(),
-      \'field_sample_lesson\' => array(
-        \'und\' => array(
-          array(
-            \'fid\' => \'2\',
-            \'uid\' => \'1\',
-            \'filename\' => \'samplelesson.pdf\',
-            \'uri\' => \'public://sample_lessons/samplelesson.pdf\',
-            \'filemime\' => \'application/pdf\',
-            \'filesize\' => \'17111\',
-            \'status\' => \'1\',
-            \'timestamp\' => \'1433787045\',
-            \'uuid\' => \'1102346a-62d1-4b7d-81eb-341bf1a51d04\',
-            \'focus_rect\' => NULL,
-            \'crop_rect\' => NULL,
-            \'display\' => \'1\',
-            \'description\' => \'\',
-          ),
-        ),
-      ),
-      \'field_sample_syllabus\' => array(
-        \'und\' => array(
-          array(
-            \'fid\' => \'3\',
-            \'uid\' => \'1\',
-            \'filename\' => \'samplesyllabus.pdf\',
-            \'uri\' => \'public://sample_syllabus/samplesyllabus.pdf\',
-            \'filemime\' => \'application/pdf\',
-            \'filesize\' => \'17111\',
-            \'status\' => \'1\',
-            \'timestamp\' => \'1433787045\',
-            \'uuid\' => \'d3f642c9-6faf-4ba8-8202-ba42799c5596\',
-            \'focus_rect\' => NULL,
-            \'crop_rect\' => NULL,
-            \'display\' => \'1\',
-            \'description\' => \'\',
-          ),
-        ),
-      ),
-      \'field_screenshot\' => array(
-        \'und\' => array(
-          array(
-            \'fid\' => \'4\',
-            \'uid\' => \'1\',
-            \'filename\' => \'elmslndoodle.jpg\',
-            \'uri\' => \'public://course_screenshots/elmslndoodle.jpg\',
-            \'filemime\' => \'image/jpeg\',
-            \'filesize\' => \'177652\',
-            \'status\' => \'1\',
-            \'timestamp\' => \'1433787045\',
-            \'uuid\' => \'22e7e245-e787-4ca3-b782-632af3883acc\',
-            \'focus_rect\' => NULL,
-            \'crop_rect\' => NULL,
-            \'alt\' => \'ELMS Learning Network visual\',
-            \'title\' => \'ELMS Learning Network visual\',
-            \'width\' => \'598\',
-            \'height\' => \'401\',
-          ),
-          array(
-            \'fid\' => \'5\',
-            \'uid\' => \'1\',
-            \'filename\' => \'elms_logo_05.png\',
-            \'uri\' => \'public://course_screenshots/elms_logo_05.png\',
-            \'filemime\' => \'image/png\',
-            \'filesize\' => \'66765\',
-            \'status\' => \'1\',
-            \'timestamp\' => \'1433787045\',
-            \'uuid\' => \'589e7d0d-8224-4721-af07-9fa32ecabf26\',
-            \'focus_rect\' => NULL,
-            \'crop_rect\' => NULL,
-            \'alt\' => \'ELMS / Druplicon\',
-            \'title\' => \'ELMS / Druplicon\',
-            \'width\' => \'250\',
-            \'height\' => \'326\',
-          ),
-        ),
-      ),
-      \'field_special_classifications\' => array(
-        \'und\' => array(
-          array(
-            \'value\' => \'GQ\',
-          ),
-          array(
-            \'value\' => \'W\',
-          ),
-        ),
-      ),
       \'field_ta_documents\' => array(),
       \'field_ta_instructions\' => array(),
-      \'field_topics_covered_text\' => array(
-        \'und\' => array(
-          array(
-            \'value\' => "<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#39;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularized in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>\\r\\n",
-            \'format\' => \'textbook_editor\',
-            \'safe_value\' => \'<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the <span class="number">1500</span>s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularized in the <span class="number">1960</span>s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem&nbsp;Ipsum.</p>\',
-          ),
-        ),
-      ),
       \'field_university_bulletin\' => array(),
       \'name\' => \'admin\',
       \'picture\' => \'0\',
@@ -313,46 +184,6 @@ function cis_sample_content_node_export_features_default() {
           \'field_name\' => \'field_program_classification\',
           \'langcode\' => \'und\',
           \'uuid\' => \'56eac06f-594d-439b-9eff-4455c294a5db\',
-        ),
-        array(
-          \'type\' => \'file\',
-          \'id\' => \'2\',
-          \'delta\' => 0,
-          \'property\' => \'fid\',
-          \'module\' => \'file\',
-          \'field_name\' => \'field_sample_lesson\',
-          \'langcode\' => \'und\',
-          \'uuid\' => \'1102346a-62d1-4b7d-81eb-341bf1a51d04\',
-        ),
-        array(
-          \'type\' => \'file\',
-          \'id\' => \'3\',
-          \'delta\' => 0,
-          \'property\' => \'fid\',
-          \'module\' => \'file\',
-          \'field_name\' => \'field_sample_syllabus\',
-          \'langcode\' => \'und\',
-          \'uuid\' => \'d3f642c9-6faf-4ba8-8202-ba42799c5596\',
-        ),
-        array(
-          \'type\' => \'file\',
-          \'id\' => \'4\',
-          \'delta\' => 0,
-          \'property\' => \'fid\',
-          \'module\' => \'image\',
-          \'field_name\' => \'field_screenshot\',
-          \'langcode\' => \'und\',
-          \'uuid\' => \'22e7e245-e787-4ca3-b782-632af3883acc\',
-        ),
-        array(
-          \'type\' => \'file\',
-          \'id\' => \'5\',
-          \'delta\' => 1,
-          \'property\' => \'fid\',
-          \'module\' => \'image\',
-          \'field_name\' => \'field_screenshot\',
-          \'langcode\' => \'und\',
-          \'uuid\' => \'589e7d0d-8224-4721-af07-9fa32ecabf26\',
         ),
       ),
     ),
