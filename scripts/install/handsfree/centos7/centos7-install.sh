@@ -22,11 +22,11 @@ RPM="$(which rpm)"
 yes | yum -y install git uuid curl && git clone https://github.com/bradallenfisher/php56-fpm-centos7-mysql56.git && cd php56-fpm-centos7-mysql56 && chmod 700 install/prod.sh && ./install/prod.sh
 yes | yum groupinstall 'Development Tools'
 # remove brad's test file
-rm /etc/httpd/conf.sites.d/test.conf
+yes | rm /etc/httpd/conf.sites.d/test.conf
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
-# start mysql to ensure that it is running
-service mysqld restart
+# stop mysql, initial commands tee this up to ensure that it is running
+service mysql stop
 service httpd restart
 # make an admin group
 groupadd admin
@@ -35,7 +35,7 @@ groupadd elmsln
 # kick off hands free deployment
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 3 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
 
-service mysqld restart
+service mysql restart
 
 cd $HOME
 source .bashrc
