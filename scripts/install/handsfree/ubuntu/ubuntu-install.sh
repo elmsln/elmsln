@@ -42,6 +42,8 @@ service apache2 restart
 # make an admin group
 groupadd admin
 groupadd elmsln
+# get base mysql tables established
+mysql_install_db
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
 cd $HOME
