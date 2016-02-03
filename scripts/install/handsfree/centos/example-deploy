@@ -9,11 +9,12 @@
 # will work to give you a taste of what its about to do when your ready for
 # the real deal to be deployed somewhere.
 # get the epel and remi repo listings so we can get additional packages like mcrypt
+yes | yum -y install wget git
 wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 rpm -Uvh remi-release-6*.rpm
 wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 rpm -Uvh epel-release-6*.rpm
-yes | yum -y install wget git && git clone https://github.com/elmsln/elmsln.git /var/www/elmsln && bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh elmsln ln elmsln.dev http admin@elmsln.dev yes
+git clone https://github.com/elmsln/elmsln.git /var/www/elmsln && bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh elmsln ln elmsln.dev http admin@elmsln.dev yes
 cd $HOME && source .bashrc
 
 # for production usage:
