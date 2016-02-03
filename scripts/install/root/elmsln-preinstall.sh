@@ -140,7 +140,8 @@ elif [ $os == '3' ]; then
   elmslnecho "apcu.ini automatically set to ${apcuini}"
   phpini="/etc/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
-  mycnf="/etc/my.cnf"
+  # our install sets this up ahead of time
+  mycnf=""
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
@@ -303,7 +304,7 @@ if [[ -n "$phpini" ]]; then
   cat /var/www/elmsln/scripts/server/php.txt >> $phpini
 fi
 if [[ -n "$mycnf" ]]; then
-  cat /var/www/elmsln/scripts/server/my.txt >> $mycnf
+  cat /var/www/elmsln/scripts/server/my.txt > $mycnf
 fi
 
 if [[ -n "$domains" ]]; then
@@ -399,19 +400,16 @@ if [[ $HOME != '/home/travis' ]]; then
   echo '# ELMSLN users dont need tty' >> /etc/sudoers
   echo 'Defaults:ulmus    !requiretty' >> /etc/sudoers
 fi
-# ubuntu restarts differently
-if [[ $os == '2' ]]; then
+# systems restart differently
+if [[ $os == '1' ]]; then
+  /etc/init.d/httpd restart
+  /etc/init.d/mysqld restart
+elif [ $os == '2' ]; then
   service apache2 restart
   service mysql restart
 else
-  # Cent 6.x
-  if [[ $os == '1' ]]; then
-    /etc/init.d/httpd restart
-    /etc/init.d/mysqld restart
-  else
-    service httpd restart
-    service mysql restart
-  fi
+  service httpd restart
+  service mysql restart
 fi
 # source one last time before hooking crontab up
 source $HOME/.bashrc
