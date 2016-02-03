@@ -80,11 +80,12 @@ fi
 cat /etc/*-release
 elmslnecho "The above should list information about the system this is being installed on. We currently support semi-automated install routines for RHEL, CentOS and Ubuntu. Please verify the above and select one of the following options:"
 elmslnecho "1. RHEL 6.x / CentOS 6.x"
-elmslnecho "2. Ubuntu"
-elmslnecho "3. other / manual"
+elmslnecho "2. Ubuntu / Debian"
+elmslnecho "3. RHEL 7.x / CentOS 7.x"
+elmslnecho "4. other / manual"
 read os
 if [ $os == '1' ]; then
-  elmslnecho "treating this like a RHEL / CentOS install"
+  elmslnecho "treating this like a RHEL 6.x / CentOS 6.x install"
   wwwuser='apache'
   elmslnecho "www user automatically set to ${wwwuser}"
   # test for apcu which would mean we dont need to optimize apc
@@ -129,6 +130,24 @@ elif [ $os == '2' ]; then
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/apache2/conf-available/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
+elif [ $os == '3' ]; then
+  elmslnecho "treating this like a RHEL 7.x / CentOS 7.x install"
+  wwwuser='apache'
+  elmslnecho "www user automatically set to ${wwwuser}"
+  # file is low weighted when on the file system in Cen 7 land
+  apcini=""
+  apcuini="/etc/php.d/40-apcu.ini"
+  elmslnecho "apcu.ini automatically set to ${apcuini}"
+  phpini="/etc/php.ini"
+  elmslnecho "php.ini automatically set to ${phpini}"
+  mycnf="/etc/my.cnf"
+  elmslnecho "my.cnf automatically set to ${mycnf}"
+  crontab="/etc/crontab"
+  elmslnecho "crontab automatically set to ${crontab}"
+  domains="/etc/httpd/conf.sites.d/elmsln.conf"
+  elmslnecho "domains automatically set to ${domains}"
+  zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
+  elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
 else
   elmslnecho "need to ask you some more questions"
   # ask about apache
@@ -153,7 +172,7 @@ else
   elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf (empty to skip)"
   read zzz_performance
 
-  elmslnecho "Is this some flavor of linux like Ubuntu / Debian? (yes for travis, vagrant, etc)"
+  elmslnecho "Is this some flavor of linux like Ubuntu? (yes for travis, vagrant, etc)"
   read likeubuntu
   if [[ $likeubuntu == 'yes' ]]; then
     os='2'
@@ -323,6 +342,9 @@ fi
 if [ $os == '1' ]; then
   sed -i 's/80/8080/g' /etc/httpd/conf.d/elmsln.conf
 fi
+if [ $os == '3' ]; then
+  sed -i 's/80/8080/g' /etc/httpd/conf.d/elmsln.conf
+fi
 
 if [[ -n "$zzz_performance" ]]; then
   cp /var/www/elmsln/scripts/server/zzz_performance.conf $zzz_performance
@@ -380,8 +402,14 @@ if [[ $os == '2' ]]; then
   service apache2 restart
   service mysql restart
 else
-  /etc/init.d/httpd restart
-  /etc/init.d/mysqld restart
+  # Cent 6.x
+  if [[ $os == '1' ]]; then
+    /etc/init.d/httpd restart
+    /etc/init.d/mysqld restart
+  else
+    service httpd restart
+    service mysql restart
+  fi
 fi
 # source one last time before hooking crontab up
 source $HOME/.bashrc
