@@ -29,27 +29,6 @@ pecl channel-update pecl.php.net
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
 service mysqld restart
-
-# optimize apc
-echo "" >> /etc/php.d/apcu.ini
-echo "apc.rfc1867=1" >> /etc/php.d/apcu.ini
-echo "apc.rfc1867_prefix=upload_" >> /etc/php.d/apcu.ini
-echo "apc.rfc1867_name=APC_UPLOAD_PROGRESS" >> /etc/php.d/apcu.ini
-echo "apc.rfc1867_freq=0" >> /etc/php.d/apcu.ini
-echo "apc.rfc1867_ttl=3600" >> /etc/php.d/apcu.ini
-# optimize opcodecache for php 5.5
-echo "opcache.enable=1" >> /etc/php.d/opcache.ini
-echo "opcache.memory_consumption=256" >> /etc/php.d/opcache.ini
-echo "opcache.max_accelerated_files=100000" >> /etc/php.d/opcache.ini
-echo "opcache.max_wasted_percentage=10" >> /etc/php.d/opcache.ini
-echo "opcache.revalidate_freq=2" >> /etc/php.d/opcache.ini
-echo "opcache.validate_timestamps=1" >> /etc/php.d/opcache.ini
-echo "opcache.fast_shutdown=1" >> /etc/php.d/opcache.ini
-echo "opcache.interned_strings_buffer=8" >> /etc/php.d/opcache.ini
-echo "opcache.enable_cli=1" >> /etc/php.d/opcache.ini
-# remove default apc file that might exist
-yes | rm /etc/php.d/apc.ini
-
 service httpd restart
 # make an admin group
 groupadd admin
