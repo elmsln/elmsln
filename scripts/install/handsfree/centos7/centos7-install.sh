@@ -26,8 +26,7 @@ rm /etc/httpd/conf.sites.d/test.conf
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
-service mysqld stop
-service mysqld start
+service mysqld restart
 service httpd restart
 # make an admin group
 groupadd admin
