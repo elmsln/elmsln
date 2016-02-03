@@ -347,7 +347,12 @@ if [ $os == '3' ]; then
 fi
 
 if [[ -n "$zzz_performance" ]]; then
-  cp /var/www/elmsln/scripts/server/zzz_performance.conf $zzz_performance
+  # Cent 7.x comes with apache 2.4 by default
+  if [ $os == '3' ]; then
+    cp /var/www/elmsln/scripts/server/apache-2.4/zzz_performance.conf $zzz_performance
+  else
+    cp /var/www/elmsln/scripts/server/zzz_performance.conf $zzz_performance
+  fi
   # account for ubuntu being a little different here when it comes to apache
   if [ $os == '2' ]; then
     ln -s $zzz_performance /etc/apache2/sites-enabled/zzz_performance.conf
