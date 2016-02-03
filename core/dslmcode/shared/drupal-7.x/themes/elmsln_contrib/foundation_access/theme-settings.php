@@ -31,6 +31,8 @@ function foundation_access_form_system_theme_settings_alter(&$form, &$form_state
     '#title' => t('Primary Color'),
     '#description' => t('Primary color to apply throughout the system'),
     '#default_value' => theme_get_setting('foundation_access_primary_color'),
+    '#id' => 'foundation_access_primary_color',
+    '#suffix' => '<div>' . l(t('Clear'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#foundation_access_primary_color\').val(\'\'); jQuery(\'#foundation_access_primary_color\').parents(\'.color_picker\').css("backgroundColor", "#FFF"); return false'))) . '</div>',
   );
   $form['zurb_foundation']['foundation_access']['foundation_access_secondary_color'] = array(
     '#type' => $fieldtype,
@@ -39,6 +41,8 @@ function foundation_access_form_system_theme_settings_alter(&$form, &$form_state
     '#title' => t('Secondary Color'),
     '#description' => t('A Secondary color to apply throughout the system'),
     '#default_value' => theme_get_setting('foundation_access_secondary_color'),
+    '#id' => 'foundation_access_secondary_color',
+    '#suffix' => '<div>' . l(t('Clear'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#foundation_access_secondary_color\').val(\'\'); jQuery(\'#foundation_access_secondary_color\').parents(\'.color_picker\').css("backgroundColor", "#FFF"); return false'))) . '</div>',
   );
   $form['zurb_foundation']['foundation_access']['foundation_access_required_color'] = array(
     '#type' => $fieldtype,
@@ -47,6 +51,8 @@ function foundation_access_form_system_theme_settings_alter(&$form, &$form_state
     '#title' => t('Required Color'),
     '#description' => t('Tasks and lists that are required will pick up this color'),
     '#default_value' => theme_get_setting('foundation_access_required_color'),
+    '#id' => 'foundation_access_required_color',
+    '#suffix' => '<div>' . l(t('Clear'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#foundation_access_required_color\').val(\'\'); jQuery(\'#foundation_access_required_color\').parents(\'.color_picker\').css("backgroundColor", "#FFF"); return false'))) . '</div>',
   );
   $form['zurb_foundation']['foundation_access']['foundation_access_optional_color'] = array(
     '#type' => $fieldtype,
@@ -54,7 +60,8 @@ function foundation_access_form_system_theme_settings_alter(&$form, &$form_state
     '#maxlength' => 6,
     '#title' => t('Optional Color'),
     '#description' => t('Tasks and lists that are optional will pick up this color'),
-    '#default_value' => theme_get_setting('foundation_access_optional_color'),
+    '#id' => 'foundation_access_optional_color',
+    '#suffix' => '<div>' . l(t('Clear'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#foundation_access_optional_color\').val(\'\'); jQuery(\'#foundation_access_optional_color\').parents(\'.color_picker\').css("backgroundColor", "#FFF"); return false'))) . '</div>',
   );
   $form['zurb_foundation']['foundation_access']['foundation_access_logo_options'] = array(
     '#type' => 'radios',
