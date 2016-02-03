@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title></title>
+    <title>Components - Buttons</title>
 
     <!-- Styleguide CSS -->
     <link rel="stylesheet" href="./theme-build/css/vendors.css">
@@ -85,7 +85,7 @@
             
               
               
-                <li><a href="components_-_buttons.html">Buttons</a></li>
+                <li><a class="active" href="components_-_buttons.html">Buttons</a></li>
               
             
           
@@ -157,6 +157,8 @@
 
     <header class="cortana-header sb-slide">
       
+        <h1>Buttons</h1>
+      
       <div id="open-left" class="cortana-menu-btn">
         <span></span>
         <span></span>
@@ -174,6 +176,10 @@
         <nav id="cortana-inside-nav" class="cortana-inside-nav" bs-affix>
           <ul bs-scrollspy-list data-offset="-30">
             
+              
+                <li><a href="#1button">Buttons</a></li>
+              
+            
           </ul>
         </nav>
 
@@ -182,63 +188,12 @@
 
 
 
-<h1>ELMSLN UI Styleguide</h1>
-
-<p><img src="https://raw.githubusercontent.com/michael-collins/elmsln-logos/master/png-lowres-solid/lowres_square-color.png" alt="ELMSLN" title="ELMS Learning Network"></p>
-
-<h2>About</h2>
-
-<p>This is a living styleguide for the ELMSLN Drupal theme. Here is an <a href="http://yago.github.io/Cortana-example/index.html">example styleguide</a> for reference.</p>
-
-<p>This is a living styleguide that exists to:</p>
-
-<ul>
-<li>maintain best practices of responsive web design by building UI componenets modularly</li>
-<li>reduce the barier of entry for designers and themers to participate and contribute</li>
-<li>establish a defined language and naming convention for UI elements</li>
-<li>provide a baseline for user experience, accessiblity, and visual regression testing</li>
-<li>increase the velocity of adding functionality by allowing developers to easily reuse UI components</li>
-</ul>
-
-<h2>Usage</h2>
-
-<p>When creating a new component in Sass, you can define the component by adding a docblock to the bottom of your <code>.scss</code> file.</p>
-</div><div class="codeBlock"><div class="highlight"><pre>/*doc
----
-title: Component Name
-name: componentname
-category: Components - Component Name
----
-
-A breif explanation on how to use this componenet and in what context would be most appropriate to use.
-
-```html_example
-&lt;div class="componentname"&gt;Lorem ipsum Pariatur in ullamco pariatur proident in culpa consequat mollit pariatur occaecat in ea consectetur ad.&lt;/p&gt;
-&lt;/div&gt;
-```
-
-*/
-</pre></div></div><div class="cortana-content">
-<h2>Installation</h2>
-
-<p>To contribute to this styleguide you will need to install the front-end stack that supports generating the css and js from the theme as well
-as the styleguide itself.</p>
-
-<p>From inside of the <a href="https://github.com/elmsln/elmsln/tree/master/core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access">ELMSLN foundation_access theme</a>, 
-install Grunt, Hologram, and Bower globally</p>
-</div><div class="codeBlock"><div class="highlight"><pre>$ npm install -g grunt-cli grunt-hologram bower
-$ gem install bundler
-</pre></div></div><div class="cortana-content">
-<p>Install the dependencies</p>
-</div><div class="codeBlock"><div class="highlight"><pre>$ npm install
-$ bower install
-$ bundle install
-</pre></div></div><div class="cortana-content">
-<p>Run the Grunt Server</p>
-</div><div class="codeBlock"><div class="highlight"><pre>$ grunt styleguide
-</pre></div></div><div class="cortana-content">
-<p>By running <code>grunt styleguide</code> the browsersync plugin should open the styleguide automatically.  If it does not then visit this url <a href="http://localhost:3000/styleguide/index.html">http://localhost:3000/styleguide/index.html</a></p>
-
+<h1 id="1button">Buttons</h1>
+</div><div class="codeExample"><div class="exampleOutput"><a class="ev1-button"><i class="zmdi zmdi-copy"></i>Copy to clipboard</a>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"ev1-button"</span><span class="nt">&gt;&lt;i</span> <span class="na">class=</span><span class="s">"zmdi zmdi-copy"</span><span class="nt">&gt;&lt;/i&gt;</span>Copy to clipboard<span class="nt">&lt;/a&gt;</span>
+</pre></div></div></div><div class="cortana-content"></div><div class="codeExample"><div class="exampleOutput"><a class="ev1-button ev1-button--icon"><i class="zmdi zmdi-copy"></i>Copy to clipboard</a>
+</div><div class="codeBlock"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"ev1-button ev1-button--icon"</span><span class="nt">&gt;&lt;i</span> <span class="na">class=</span><span class="s">"zmdi zmdi-copy"</span><span class="nt">&gt;&lt;/i&gt;</span>Copy to clipboard<span class="nt">&lt;/a&gt;</span>
+</pre></div></div></div><div class="cortana-content">
         </div>
       </div>
     </div>

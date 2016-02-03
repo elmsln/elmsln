@@ -13,10 +13,11 @@ custom_markdown: ./styleguide-theme/CortanaMarkdownRenderer.rb
 
 # List all css to include for the styleguide render examples (path from styleguide directory)
 css_include:
+  - '../css/foundation.min.css'
+  - '../css/normalize.css'
+  - '../bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.css'
   - '../css/app.css'
   - '../css/tweaks.css'
-  - '../css/normalize.css'
-  - '../css/foundation.min.css'
 
 # List all js to include for the styleguide render examples (path from styleguide directory)
 js_include:

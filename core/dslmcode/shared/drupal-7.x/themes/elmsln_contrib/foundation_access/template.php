@@ -55,10 +55,13 @@ function foundation_access_preprocess_html(&$variables) {
       }
     }
   }
+  $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 1000));
   drupal_add_css('//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME));
+  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.css');
+
+
   // theme path shorthand should be handled here
-  $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
   foreach($variables['user']->roles as $role){
     $variables['classes_array'][] = 'role-' . drupal_html_class($role);
   }
@@ -293,6 +296,42 @@ function foundation_access_preprocess_node__inherit__svg(&$variables) {
   }
 }
 
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function foundation_access_theme_registry_alter(&$theme_registry) {
+  // Add a template file for clipboardjs
+  $theme_registry['clipboardjs']['template'] = 'clipboardjs';
+  $theme_registry['clipboardjs']['preprocess functions'][] = 'template_preprocess_clipboardjs';
+}
+
+function foundation_access_preprocess_clipboardjs(&$variables) {
+  $variables['content'] = array();
+  $uniqid = uniqid('clipboardjs-');
+
+  $variables['content']['text'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'id' => $uniqid,
+    ),
+  );
+
+  $variables['content']['text']['markup'] = array(
+    '#markup' => $variables['text'],
+  );
+
+  $variables['content']['button'] = array(
+    '#type' => 'button',
+    '#value' => check_plain($variables['button_label']),
+    '#attributes' => array(
+      'class' => array('clipboardjs-button', 'zmdi', 'zmdi-copy'),
+      'data-clipboard-alert' => $variables['alert_style'],
+      'data-clipboard-alert-text' => $variables['alert_text'],
+      'data-clipboard-target' => '#' . $uniqid,
+      'onClick' => 'return false;',
+    ),
+  );
+}
 
 /**
  * Implements template_menu_link.

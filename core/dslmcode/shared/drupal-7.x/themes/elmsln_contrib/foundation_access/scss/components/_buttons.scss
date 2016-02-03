@@ -1,0 +1,70 @@
+/*doc
+---
+title: Buttons
+name: 1button
+category:
+  - Components - Buttons
+---
+
+```html_example
+<a class="ev1-button"><i class="zmdi zmdi-copy"></i>Copy to clipboard</a>
+```
+
+```html_example
+<a class="ev1-button ev1-button--icon"><i class="zmdi zmdi-copy"></i>Copy to clipboard</a>
+```
+*/
+
+$ev1-button--color: white;
+$ev1-button--bg-color: $primary-color;
+
+@mixin ev1-button__icon {
+  text-indent: 0;
+  font-size: 1.4em;
+  position: absolute;
+  text-indent: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ev1-button {
+  background: $ev1-button--bg-color;
+  color: $ev1-button--color;
+  border: none;
+  display: inline-block;
+  outline: 0;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  transition: .3s;
+  cursor: pointer;
+  vertical-align: middle;
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  padding: .5em 1em;
+
+  i {
+    margin-right: .4em;
+  }
+
+  &:hover {
+    box-shadow: 0 5px 11px 0 rgba(0,0,0,0.18),0 4px 15px 0 rgba(0,0,0,0.15);
+    color: $ev1-button--color;
+  }
+
+  &--icon {
+    width: 3.5em;
+    height: 3.5em;
+    border-radius: 50%;
+    text-indent: -9999px;
+
+    i {
+      @include ev1-button__icon;
+    }
+  }
+}

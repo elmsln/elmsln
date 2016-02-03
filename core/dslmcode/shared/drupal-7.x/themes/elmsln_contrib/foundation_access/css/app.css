@@ -7250,7 +7250,7 @@ footer {
   overflow: hidden; }
 
 .sticky-wrapper.is-sticky {
-  z-index: 10000;
+  z-index: 100;
   position: absolute; }
 
 .row.full {
@@ -7831,11 +7831,16 @@ p.txtbk-intro {
 
 .r-header {
   background: white;
-  padding: 1em 0;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  max-width: 90rem; }
+  max-width: none;
+  padding: 1em 1em;
+  transition: padding .4s ease; }
+  @media screen and (min-width: 100em) {
+    .r-header {
+      padding-left: calc(50% - 45em);
+      padding-right: calc(50% - 45em); } }
   .r-header__left {
     width: 70%;
     float: left;
@@ -7874,17 +7879,16 @@ p.txtbk-intro {
       list-style: none;
       float: right; }
   .r-header__icon {
-    padding: 0 .5em;
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
     color: black;
     -webkit-align-items: baseline;
         -ms-flex-align: baseline;
-            align-items: baseline; }
-    .r-header__icon .icon {
-      height: 1.8em;
-      width: 2em; }
+            align-items: baseline;
+    padding: .5em .75em; }
+    .r-header__icon i {
+      font-size: 1.75em; }
   .r-header .book-navigation-header {
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -7905,12 +7909,20 @@ p.txtbk-intro {
     .r-header .f-dropdown > ul {
       margin: 0; }
 
-.is-sticky > .r-header {
-  padding: .5em 0;
-  border-bottom: 1px solid #EEEEEE;
-  width: 100% !important;
-  left: 0;
-  right: 0; }
+.etb-book .is-sticky {
+  margin-bottom: 5em; }
+  .etb-book .is-sticky ~ * {
+    padding-top: 5em; }
+  .etb-book .is-sticky > .r-header {
+    border-bottom: 1px solid #EEEEEE;
+    width: 100% !important;
+    left: 0;
+    right: 0;
+    padding: 0 1em; }
+    @media screen and (min-width: 100em) {
+      .etb-book .is-sticky > .r-header {
+        padding-left: calc(50% - 45em);
+        padding-right: calc(50% - 45em); } }
 
 @media only screen and (min-width: 40.063em) {
   #r-header__icon--advanced.open,
@@ -7953,6 +7965,62 @@ p.txtbk-intro {
     border-right-color: transparent;
     border-left-color: transparent;
     border-bottom-color: transparent; }
+
+/*doc
+---
+title: Buttons
+name: 1button
+category:
+  - Components - Buttons
+---
+
+```html_example
+<a class="ev1-button"><i class="zmdi zmdi-copy"></i>Copy to clipboard</a>
+```
+
+```html_example
+<a class="ev1-button ev1-button--icon"><i class="zmdi zmdi-copy"></i>Copy to clipboard</a>
+```
+*/
+.ev1-button, .clipboard--button-only .clipboardjs-button {
+  background: #008CBA;
+  color: white;
+  border: none;
+  display: inline-block;
+  outline: 0;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  transition: .3s;
+  cursor: pointer;
+  vertical-align: middle;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+  padding: .5em 1em; }
+  .ev1-button i, .clipboard--button-only .clipboardjs-button i {
+    margin-right: .4em; }
+  .ev1-button:hover, .clipboard--button-only .clipboardjs-button:hover {
+    box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+    color: white; }
+  .ev1-button--icon, .clipboard--button-only .clipboardjs-button {
+    width: 3.5em;
+    height: 3.5em;
+    border-radius: 50%;
+    text-indent: -9999px; }
+    .ev1-button--icon i, .clipboard--button-only .clipboardjs-button i {
+      text-indent: 0;
+      font-size: 1.4em;
+      position: absolute;
+      text-indent: 0;
+      top: 50%;
+      left: 50%;
+      -webkit-transform: translate(-50%, -50%);
+          -ms-transform: translate(-50%, -50%);
+              transform: translate(-50%, -50%); }
 
 /*doc
 ---
@@ -8880,45 +8948,19 @@ The figure label component is used to present textbook like captions to media el
     .f-dropdown--classic li a:hover {
       background-color: #EEEEEE !important; }
 
-/*doc
----
-title: Clipboard
-name: 1clipboard
-category:
-  - Components - Clipboard
----
-
-This component relies on the clipboardjs module to control its output.
-See clipboardjs_build_content().  We are then able to wrap it's output
-in the `clipboard` class.
-
-```html_example
-<div class="clipboard__wrapper">
-
-  <div class="clipboard clipboard--button-only">
-    <div id="clipboardjs-56a7de313af40">[ciscode|rev=1|tool=elmsmedia|item=2071|entity_type=node|render_display=display_mode|display_mode=full]</div>
-    <button class="clipboardjs-button form-submit" data-clipboard-alert="tooltip" data-clipboard-alert-text="Copy was successful!" data-clipboard-target="#clipboardjs-56a7de313af40" onclick="return false;" name="op" value="Click to copy token" type="button">Click to copy token</button>
-  </div>
-
-</div>
-```
-*/
 .clipboard__wrapper {
   position: relative;
   display: inline-block;
-  width: 100%;
-  border: 2px dashed transparent; }
-  .clipboard__wrapper:hover {
-    border-color: #EEEEEE; }
-    .clipboard__wrapper:hover .clipboard--button-only {
-      opacity: 1; }
+  width: 100%; }
+  .clipboard__wrapper:hover .clipboard--button-only {
+    opacity: 1; }
 
 .clipboard--button-only {
   opacity: 0;
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 100;
+  z-index: 50;
   transition: all .2s ease-in;
   margin-top: -1px;
   margin-right: -1px; }
@@ -8928,7 +8970,17 @@ in the `clipboard` class.
     overflow: hidden;
     position: absolute !important;
     width: 1px; }
+  .clipboard--button-only .clipboardjs-button:before, .clipboard--button-only .clipboardjs-button.imagelightbox__close:after {
+    text-indent: 0;
+    font-size: 1.4em;
+    position: absolute;
+    text-indent: 0;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%); }
 
 .clipboard .clipboardjs-button {
-  background-color: #EEEEEE;
-  color: black; }
+  background-color: #008CBA;
+  color: white; }

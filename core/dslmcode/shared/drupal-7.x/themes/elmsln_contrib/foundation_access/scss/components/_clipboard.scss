@@ -1,39 +1,13 @@
-/*doc
----
-title: Clipboard
-name: 1clipboard
-category:
-  - Components - Clipboard
----
-
-This component relies on the clipboardjs module to control its output.
-See clipboardjs_build_content().  We are then able to wrap it's output
-in the `clipboard` class.
-
-```html_example
-<div class="clipboard__wrapper">
-
-  <div class="clipboard clipboard--button-only">
-    <div id="clipboardjs-56a7de313af40">[ciscode|rev=1|tool=elmsmedia|item=2071|entity_type=node|render_display=display_mode|display_mode=full]</div>
-    <button class="clipboardjs-button form-submit" data-clipboard-alert="tooltip" data-clipboard-alert-text="Copy was successful!" data-clipboard-target="#clipboardjs-56a7de313af40" onclick="return false;" name="op" value="Click to copy token" type="button">Click to copy token</button>
-  </div>
-
-</div>
-```
-*/
-
 .clipboard {
   &__wrapper {
     position: relative;
     display: inline-block;
     width: 100%;
-    border: 2px dashed transparent;
 
     &:hover {
-      border-color: $smoke;
       .clipboard--button-only {
         opacity: 1;
-      } 
+      }
     }
   }
 
@@ -42,7 +16,7 @@ in the `clipboard` class.
     position: absolute;
     top: 0;
     right: 0;
-    z-index: 100;
+    z-index: 50;
     transition: all .2s ease-in;
     margin-top: -1px;
     margin-right: -1px;
@@ -50,10 +24,18 @@ in the `clipboard` class.
     > div:first-of-type {
       @include element-invisible;
     }
+
+    .clipboardjs-button {
+      @extend .ev1-button;
+      @extend .ev1-button--icon;
+      &:before {
+        @include ev1-button__icon;
+      }
+    }
   }
 
   .clipboardjs-button {
-    background-color: $smoke;
-    color: black;
+    background-color: $primary-color;
+    color: white;
   }
 }
