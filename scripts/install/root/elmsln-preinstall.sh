@@ -342,9 +342,6 @@ fi
 if [ $os == '1' ]; then
   sed -i 's/80/8080/g' /etc/httpd/conf.d/elmsln.conf
 fi
-if [ $os == '3' ]; then
-  sed -i 's/80/8080/g' /etc/httpd/conf.d/elmsln.conf
-fi
 
 if [[ -n "$zzz_performance" ]]; then
   # Cent 7.x comes with apache 2.4 by default
