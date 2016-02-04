@@ -21,8 +21,6 @@ RPM="$(which rpm)"
 # get the epel and remi repo listings so we can get additional packages like mcrypt
 yes | yum -y install git uuid curl && git clone https://github.com/bradallenfisher/php56-fpm-centos7-mysql56.git && cd php56-fpm-centos7-mysql56 && chmod 700 install/prod.sh && ./install/prod.sh
 yes | yum groupinstall 'Development Tools'
-# change the httpd ports to allow vagrant to play too
-sed -i 's/:80\b/:8080/g' /etc/httpd/conf.d/elmsln.conf
 # remove brad's test file
 yes | rm /etc/httpd/conf.sites.d/test.conf
 # set httpd_can_sendmail so drupal mails go out
