@@ -341,7 +341,7 @@ fi
 
 # if this is rhel prepared the domains for varnish.
 if [ $os == '1' ] || [ $os == '3' ]; then
-  sed -i 's/:80\b/:8080/g' /etc/httpd/conf.d/elmsln.conf
+  sed -i 's/:80\b/:8080/g' $domains
 fi
 
 if [[ -n "$zzz_performance" ]]; then
