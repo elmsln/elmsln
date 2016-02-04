@@ -5,20 +5,21 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
   # centos 6.5 - 32 bit, uncomment below if you have a 32 bit OS
   #config.vm.box = "chef/centos-6.5-i386"
-
-  # centos 6.5 - 64 bit - legacy as chef removed it
-  #config.vm.box = "chef/centos-6.5"
-  #
+  # centos 6.7 - 64 bit
   config.vm.box = "elmsln/centos-6.7"
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
   # private network port maping, host files point to elmsln domains
   config.vm.network "private_network", ip: "10.0.18.55"
   # forward the vm ports for database and apache to local ones
   config.vm.network "forwarded_port", guest: 80, host: 80
   config.vm.network "forwarded_port", guest: 3306, host: 3306
 
-  # automatically carve out 1/4 of the box resources for this VM
+  # automatically carve out 1/4 of RAM for this VM
   config.vm.provider "virtualbox" do |v|
     host = RbConfig::CONFIG['host_os']
 
