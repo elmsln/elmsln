@@ -1,0 +1,34 @@
+{
+    "name": "ELMS Program Hub for ELMSLN",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "command": "en",
+            "arguments": [
+                "accessibility",
+                "accessibility_wysiwyg",
+                "cis_service_lti",
+                "cis_section",
+                "cis_unique_tag",
+                "og",
+                "og_access",
+                "og_context",
+                "og_ui"
+            ]
+        },
+        {
+            "command": "en",
+            "arguments": [
+                "cis_service_restws"
+            ]
+        }
+    ],
+    "metadata": {
+        "type": "add-on",
+        "version": "1.0",
+        "author": "btopro",
+        "description": "Enables components needed to integrate with ELMSLN so they aren't required in the install profile"
+    }
+}
