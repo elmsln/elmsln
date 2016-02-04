@@ -302,37 +302,42 @@ function _mooc_helper_active_outline() {
     $node = FALSE;
     $section = _cis_connector_section_context();
     $gid = _cis_section_load_section_by_id($section);
-    $group = node_load($gid);
-    // test that we've got a group from context
-    if (isset($group->nid)) {
-      if (isset($group->field_instructional_outlines['und'])) {
-        $onid = $group->field_instructional_outlines['und'][0]['target_id'];
-      }
-      else {
-        // edge case where section is set and doesn't have an outline defined
-        // this really is only possible during initial setup of a system
-        // it helps improve ux substantially so you aren't confused
-        // mooc is the only thing using this currently
-        $onid = variable_get('mooc_default_outline', '');
-        // edge case, default was never set
-        if ($onid == '') {
-          // load all books
-          $books = _mooc_helper_all_book_outlines('nid', 'created');
-          // make sure we at least have some books in here
-          if (is_array($books)) {
-            // move to 1st array position in iterator
-            reset($books);
-            // sort maintaining index which is the nid
-            asort($books);
-            // set default to first key in array
-            $onid = key($books);
+
+    // make sure we have a group available
+    if ($gid) {
+      $group = node_load($gid);
+      // test that we've got a group from context
+      if (isset($group->nid)) {
+        if (isset($group->field_instructional_outlines['und'])) {
+          $onid = $group->field_instructional_outlines['und'][0]['target_id'];
+        }
+        else {
+          // edge case where section is set and doesn't have an outline defined
+          // this really is only possible during initial setup of a system
+          // it helps improve ux substantially so you aren't confused
+          // mooc is the only thing using this currently
+          $onid = variable_get('mooc_default_outline', '');
+          // edge case, default was never set
+          if ($onid == '') {
+            // load all books
+            $books = _mooc_helper_all_book_outlines('nid', 'created');
+            // make sure we at least have some books in here
+            if (is_array($books)) {
+              // move to 1st array position in iterator
+              reset($books);
+              // sort maintaining index which is the nid
+              asort($books);
+              // set default to first key in array
+              $onid = key($books);
+            }
           }
         }
       }
+      if ($onid) {
+        $node = node_load($onid);
+      }
     }
-    if ($onid) {
-      $node = node_load($onid);
-    }
+
   }
   return $node;
 }
