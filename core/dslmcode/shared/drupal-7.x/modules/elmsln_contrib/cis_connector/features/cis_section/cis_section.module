@@ -581,8 +581,8 @@ function cis_section_user_insert(&$edit, $account, $category) {
  * Sets the active section for a user based on a query parameter.
  */
 function cis_section_url_inbound_alter(&$path, $original_path, $path_language) {
-  $query = drupal_get_query_parameters();
-  if (isset($query['elmsln_active_course']) && $section_id = $query['elmsln_active_course']) {
+  $query_params = drupal_get_query_parameters();
+  if (isset($query_params['elmsln_active_course']) && $section_id = $query_params['elmsln_active_course']) {
     // get a list of allowed sections for this user
     $sections = array();
     // select field section data
@@ -610,8 +610,8 @@ function cis_section_url_inbound_alter(&$path, $original_path, $path_language) {
       $_SESSION['cis_section_context'] = $section_id;
     }
     // Remove the active course query parameter and proceed to the url
-    unset($query['elmsln_active_course']);
-    drupal_goto($path, array('query' => $query));
+    unset($query_params['elmsln_active_course']);
+    drupal_goto($path, array('query' => $query_params));
   }
 }
 
