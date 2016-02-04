@@ -118,7 +118,10 @@ function feeds_node_helper_export_views_default_views() {
   $handler->display->display_options['style_plugin'] = 'views_data_export_xml';
   $handler->display->display_options['style_options']['provide_file'] = 0;
   $handler->display->display_options['style_options']['parent_sort'] = 0;
-  $handler->display->display_options['style_options']['transform'] = 0;
+  $handler->display->display_options['style_options']['transform'] = 1;
+  $handler->display->display_options['style_options']['transform_type'] = 'underline';
+  $handler->display->display_options['style_options']['root_node'] = 'nodes';
+  $handler->display->display_options['style_options']['item_node'] = 'node';
   $handler->display->display_options['path'] = 'feeds_node_helper_export/%';
   $handler->display->display_options['displays'] = array(
     'default' => 0,
