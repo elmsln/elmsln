@@ -87,7 +87,12 @@ do
       else
         buildlist+=($stack)
         instances+=('TRUE')
-        ignorelist+=('FALSE')
+        # special case for program hub
+        if [[ $profile == 'eph' ]]; then
+          ignorelist+=('TRUE')
+        else
+          ignorelist+=('FALSE')
+        fi
       fi
     fi
     # find the default title
