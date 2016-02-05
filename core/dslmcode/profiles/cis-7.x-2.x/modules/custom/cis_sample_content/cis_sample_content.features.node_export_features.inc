@@ -165,6 +165,24 @@ function cis_sample_content_node_export_features_default() {
       ),
       \'field_offerings\' => array(),
       \'field_related_courses\' => array(),
+      \'field_sample_lesson\' => array(
+         \'und\' => array(
+           array(
+           ),
+         ),
+       ),
+       \'field_sample_syllabus\' => array(
+         \'und\' => array(
+           array(
+           ),
+         ),
+       ),
+       \'field_screenshot\' => array(
+         \'und\' => array(
+           array(
+           ),
+         ),
+       ),
       \'field_ta_documents\' => array(),
       \'field_ta_instructions\' => array(),
       \'field_university_bulletin\' => array(),
