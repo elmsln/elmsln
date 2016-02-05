@@ -67,7 +67,7 @@ do
   cd $elmsln/core/dslmcode/stacks
   cd "${stack}/profiles"
   # pull the name of the profile in this stack by ignoring core ones
-  profile=$(find . -maxdepth 1 -type l \( ! -iname "testing" ! -iname "minimal" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
+  profile=$(find . -maxdepth 1 -type l \( ! -iname "testing" ! -iname "minimal" ! -iname "README.txt" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
   # add distros to our list
   distros+=($profile)
   cd $profile
@@ -159,13 +159,6 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   # add the function to include this in build outs automatically
   echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n  \$options['en'][] = 'elmsln_bakery';\n}\n" >> $modulefile
 fi
-
-#test mysql login
-#mysql -u$dbsu -p$dbsupw -e exit
-#if [[ $? > 0 ]];then
-  #echo "mysql connection failed"
-  #exit 1
-#fi
 
 # make sure drush is happy before we begin drush calls
 drush cc drush
