@@ -1,9 +1,9 @@
 ; Packaging information for eph
-name = "ELMS Program Hub"
+name = "Program Hub"
 description = "A new idea for powering flexible educational ecosystems."
 core = "7.x"
-elmslndefaulttitle = "Program hub"
-elmslntype = "authority"
+elmslndefaulttitle = "Program Hub"
+elmslntype = "service"
 
 ; ----------
 ; START ELMSLN Core Dependencies
@@ -127,7 +127,7 @@ dependencies[] = cis_section
 ; ----------
 ; Authority Dependencies
 ; ----------
-dependencies[] = cis_course_authority
+;dependencies[] = cis_course_authority
 
 ; ----------
 ; END ELMSLN Core Dependencies
