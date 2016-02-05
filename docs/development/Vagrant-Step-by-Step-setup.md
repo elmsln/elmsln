@@ -27,6 +27,7 @@ This is a Vagrant profile for installing a fully functioning [ELMS Learning Netw
 10.0.18.55      people.elmsln.local
 10.0.18.55      innovate.elmsln.local
 10.0.18.55      grades.elmsln.local
+10.0.18.55      hub.elmsln.local
 
 # backend webservices addresses
 10.0.18.55      data-courses.elmsln.local
@@ -41,6 +42,7 @@ This is a Vagrant profile for installing a fully functioning [ELMS Learning Netw
 10.0.18.55      data-people.elmsln.local
 10.0.18.55      data-innovate.elmsln.local
 10.0.18.55      data-grades.elmsln.local
+10.0.18.55      data-hub.elmsln.local
 ```
 
 ###Spin up the vagrant instance
