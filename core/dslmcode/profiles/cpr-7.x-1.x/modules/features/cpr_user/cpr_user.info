@@ -5,6 +5,7 @@ package = CPR
 dependencies[] = elmsln_student_filter
 dependencies[] = features
 dependencies[] = field_group
+dependencies[] = imagefield_focus
 dependencies[] = image
 dependencies[] = list
 dependencies[] = options

@@ -137,4 +137,5 @@ dependencies[] = cis_course_authority
 ; ----------
 ; CPR Dependencies
 ; ----------
+dependencies[] = imagefield_focus
 dependencies[] = cpr_user
