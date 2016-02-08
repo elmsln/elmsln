@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Critique feature.
+ */
+
+include_once 'cle_critique.features.inc';
