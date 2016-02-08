@@ -91,7 +91,7 @@ prefix=$7
 ip=$(hostname -I)
 # if this is our default dev box domain name then kick this into the hosts file
 # so that it works when they do it on their own machine
-if [ $domain == 'elmsln.dev' ]; then
+if [ $domain == 'elmsln.dev' ||  $domain == 'elmsln.local' ]; then
   elmslnwarn "ELMSLN Development settings detected, we will author your server's /etc/hosts file for you"
   echo "# ELMSLN development" >> /etc/hosts
   for stack in "${stacklist[@]}"
