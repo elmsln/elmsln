@@ -1,5 +1,5 @@
 name = CLE Critique
-description = Adds ability for critiquing 
+description = Adds ability for critiquing
 core = 7.x
 package = CLE
 dependencies[] = cle_assignment_advanced
@@ -13,6 +13,7 @@ dependencies[] = options
 dependencies[] = rubric_feature
 dependencies[] = strongarm
 dependencies[] = text
+dependencies[] = uuid
 features[ctools][] = field_group:field_group:1
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2

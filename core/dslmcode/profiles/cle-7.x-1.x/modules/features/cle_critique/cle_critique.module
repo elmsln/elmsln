@@ -5,3 +5,91 @@
  */
 
 include_once 'cle_critique.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function cle_critique_menu() {
+  $items['cle/critique/%node'] = array(
+    'title' => 'Peer critique',
+    'page callback' => '_cle_critique_page',
+    'page arguments' => array(2),
+    'access arguments' => array('create cle_critique content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Critique interface
+ * @param  object $node the submission being critiqued
+ * @return html       Interface for allowing someone to critique someone.
+ */
+function _cle_critique_page($node = 'random') {
+  // present a select list if a node hasn't been passed in
+  if ($node == 'random') {
+  }
+  else {
+    // render their work
+    $rendered = render_entity('node', $node->nid);
+    // render the submission form
+    $rendered .= node_add('cle_critique');
+  }
+}
+
+/**
+ * Get a random submission node based on assignment
+ * @param  id $anid assignment node id
+ * @return object             student's submission node for critique
+ */
+function _cle_critique_random($anid) {
+  // @todo see if there's cle_critique's already here for the random
+  // submission that we potentially deliver. We can't query both
+  // at the same time so we have to check one with the other.
+
+  // find all the critiques on current submissions they have access to
+  // make sure these submissions are filtered out below
+  // select submissions
+  $query = new EntityFieldQuery();
+  // pull all nodes
+  $query->entityCondition('entity_type', 'node')
+  // that are sections
+  ->entityCondition('bundle', 'cle_submission')
+  // that are published
+  ->propertyCondition('status', 1)
+  // that are NOT by the currently logged in user
+  ->propertyCondition('uid', $GLOBALS['user']->uid, '<>')
+  // only allow for pulling the submissions the could have access to
+  ->fieldCondition('field_assignment', 'target_id', $anid)
+  // add a random query tag so we can randomize the response
+  ->addTag('random')
+  // only return 10 items, should be more then enough to find
+  // one that hasn't been critiqued
+  ->range(0, 10);
+  // store results
+  $result = $query->execute();
+  // ensure we have results
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    $results = entity_load('node', $nids);
+    // convert to a readable array of options
+    foreach ($results as $val) {
+      $section = $val->field_section_id['und'][0]['safe_value'];
+      $sections[$section] = $val->title;
+    }
+  }
+  // @todo, ensure we actually have an item
+  // if we don't at this point then we need to
+  // either tell them none exist (bail early above)
+  // or we need to grab one at random even though it already has a crit
+
+}
+
+/**
+ * Implementation of hook_query_TAG_alter().
+ */
+function cle_critique_query_random_alter($query){
+  $query->orderRandom();
+}
