@@ -30,12 +30,53 @@ function cle_critique_menu() {
 function _cle_critique_page($node = 'random') {
   // present a select list if a node hasn't been passed in
   if ($node == 'random') {
+    $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title');
+    $form = array();
+    // @todo list the critiques they've already done
+    $form['assignment'] = array(
+      '#title' => t('Assignment'),
+      '#options' => array_merge(array(0 => ''), $assignments),
+      '#type' => 'select',
+      '#required' => '1',
+      '#multiple' => '1',
+      '#chosen' => TRUE,
+    );
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+      '#submit' => array('_cle_critique_page_random_form_submit'),
+    );
+    $form['#validate'] = array('_cle_critique_page_random_form_validate');
+    return $form;
   }
   else {
     // render their work
     $rendered = render_entity('node', $node->nid);
     // render the submission form
     $rendered .= node_add('cle_critique');
+    return $rendered;
+  }
+}
+
+/**
+ * Implements hook_form_validate().
+ */
+function _cle_critique_page_random_form_validate($form, &$form_state) {
+  // ensure they select a value, we don't pick by default to force them to do so
+  if ($form_state['values']['assignment'] === 0) {
+    form_set_error('assignment', t('You must select an assignment to create a critique about.'));
+  }
+}
+
+/**
+ * Implementation of hook_form_submit().
+ */
+function _cle_critique_page_random_form_submit($form, $form_state) {
+  if (isset($form_state['values']['assignment']) && is_numeric($form_state['values']['assignment'])) {
+    $node = _cle_critique_random($form_state['values']['assignment']);
+    if (!is_null($node)) {
+      drupal_goto('cle/critique/' . $node->nid);
+    }
   }
 }
 
@@ -45,10 +86,6 @@ function _cle_critique_page($node = 'random') {
  * @return object             student's submission node for critique
  */
 function _cle_critique_random($anid) {
-  // @todo see if there's cle_critique's already here for the random
-  // submission that we potentially deliver. We can't query both
-  // at the same time so we have to check one with the other.
-
   // find all the critiques on current submissions they have access to
   // make sure these submissions are filtered out below
   // select submissions
@@ -65,26 +102,31 @@ function _cle_critique_random($anid) {
   ->fieldCondition('field_assignment', 'target_id', $anid)
   // add a random query tag so we can randomize the response
   ->addTag('random')
-  // only return 10 items, should be more then enough to find
-  // one that hasn't been critiqued
-  ->range(0, 10);
+  // only return 200 items in case this is a MOOC or something
+  ->range(0, 200);
   // store results
   $result = $query->execute();
   // ensure we have results
   if (isset($result['node'])) {
     $nids = array_keys($result['node']);
-    $results = entity_load('node', $nids);
-    // convert to a readable array of options
-    foreach ($results as $val) {
-      $section = $val->field_section_id['und'][0]['safe_value'];
-      $sections[$section] = $val->title;
+    // loop through and check if these exist as options
+    foreach ($nids as $nid) {
+      // see if anyone else has critiqued this already
+      $critiques = _cis_connector_assemble_entity_list('node', 'cle_critique', 'nid', 'nid', array('field_cle_crit_sub_ref' => array('target' => $nid)));
+      // if this wasn't set then we know we can return this submission
+      // for rendering on the critique viewer
+      if (!isset($critiques[$nid])) {
+        $submission = entity_load('node', $nid);
+        return $submission;
+      }
     }
+    // if we got here, it means all our random items were
+    // already selected
+    $submission = entity_load('node', array_pop($nids));
+    return $submission;
   }
-  // @todo, ensure we actually have an item
-  // if we don't at this point then we need to
-  // either tell them none exist (bail early above)
-  // or we need to grab one at random even though it already has a crit
-
+  // there aren't any that exists
+  return NULL;
 }
 
 /**
