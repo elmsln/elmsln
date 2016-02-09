@@ -35,10 +35,9 @@ function elmsln_bakery_deliver_html_page($page_callback_result) {
     if (drupal_is_cli() || arg(0) == 'httprl_async_function_callback' || strpos(request_uri(), 'files/advagg_css/css') != 0 || strpos(request_uri(), 'files/advagg_js/js') != 0) {
     }
     else {
-      // attempt to issue a bakery login with blank credentials
-      $form = array('#action' => current_path());
-      $form_state = array('values' => array('name' => 'BAKERY_DEFER_MASTER', 'pass' => 'BAKERY_DEFER_MASTER', 'op' => 'login'));
-      _bakery_login_submit($form, $form_state);
+      // redirect to the user page which will auto login if bakery is detected
+      // this also ensures a cleaner user experience if not logged in anywhere yet
+      drupal_goto('user');
     }
   }
   // allow for boost to take us to the right place
