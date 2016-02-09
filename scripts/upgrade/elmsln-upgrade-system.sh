@@ -24,7 +24,7 @@ timestamp(){
 
 # set the branch via passed in command
 if [ -z $1 ]; then
-  elmslnwarn "please select a branch you want to update (like master)"
+  elmslnwarn "please select a branch you want to update"
   read branch
   if [ -z $branch ]; then
     exit 1
