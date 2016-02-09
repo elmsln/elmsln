@@ -67,7 +67,7 @@ git commit -m "initial ELMSLN config"
 
 elmslnecho "Enter the git repo you want to keep config in sync with: (ex: {user}@{YOURPRIVATEREPO}:YOU/elmsln-config-YOURUNIT.git)"
 read gitrepo
-# ensure they type yes, this is a big deal command
+# ensure they type yes
 if [ "$gitrepo" != "" ]; then
   elmslnecho "attempting to push current structure to the repo listed"
   git remote add origin $gitrepo
