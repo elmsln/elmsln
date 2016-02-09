@@ -36,15 +36,10 @@ echo 'then' >> /etc/profile.d/chkon.sh
 echo '  sudo /sbin/service httpd restart' >> /etc/profile.d/chkon.sh
 echo 'fi' >> /etc/profile.d/chkon.sh
 
-
 # vagrant specific stuff
-# make sure user password is admin as a fallback
-drush @elmsln upwd admin --password=admin --y
 # seckit causes isses, especially locally
 drush @online dis seckit --y
 # specific stuff for aiding in development
 drush @online en vagrant_cis_dev cis_example_cis --y
 # restart apache to frag some caches because of the different settings that changed inside
 sudo /etc/init.d/httpd restart
-# clear caches on all sites this seems to make bakery happy
-drush @elmsln cc all --y
