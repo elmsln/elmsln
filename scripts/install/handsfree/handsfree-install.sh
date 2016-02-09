@@ -81,8 +81,6 @@ source .bashrc
 chown -R root:root /var/www/elmsln
 # setup user as admin
 bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh
-# install system and off we go
-bash /var/www/elmsln/scripts/install/elmsln-install.sh
 
 # give them a roadmap for mapping to this until proving a real domain
 cd /var/www/elmsln/core/dslmcode/stacks
@@ -91,6 +89,25 @@ domain=$5
 datadomain=$6
 prefix=$7
 ip=$(hostname -I)
+# if this is our default dev box domain name then kick this into the hosts file
+# so that it works when they do it on their own machine
+if [ $domain == 'elmsln.dev' ||  $domain == 'elmsln.local' ]; then
+  elmslnwarn "ELMSLN Development settings detected, we will author your server's /etc/hosts file for you"
+  echo "# ELMSLN development" >> /etc/hosts
+  for stack in "${stacklist[@]}"
+  do
+    echo "${ip}  ${stack}.${domain}" >> /etc/hosts
+  done
+  echo "" >> /etc/hosts
+  # loop again on webservices domains
+  for stack in "${stacklist[@]}"
+  do
+    echo "${ip}  ${prefix}${stack}.${datadomain}" >> /etc/hosts
+  done
+fi
+
+# install system and off we go
+bash /var/www/elmsln/scripts/install/elmsln-install.sh
 elmslnecho "If you are developing with this and don't have a valid domain yet you can copy the following into your local machine's /etc/hosts file:"
 elmslnecho "# ELMSLN development"
 # loop through and write each of these here

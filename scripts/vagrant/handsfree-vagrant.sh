@@ -15,7 +15,7 @@ cp /var/www/elmsln-config-vagrant/shared/drupal-7.x/settings/shared_settings.php
 
 # some minor clean up that we need to do via sudo
 # setup host file so httprl works for local cache rebuilding
-cat /var/www/elmsln/scripts/vagrant/hosts >> /etc/hosts
+#cat /var/www/elmsln/scripts/vagrant/hosts >> /etc/hosts
 # add in checks to ensure apache/mysql haven't stopped
 # when we SSH into the box. For the purposes of drupal
 # and vagrant, these services should NEVER be stopped
