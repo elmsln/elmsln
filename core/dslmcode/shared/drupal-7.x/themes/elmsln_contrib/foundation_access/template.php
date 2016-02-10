@@ -284,8 +284,8 @@ function foundation_access_preprocess_node__inherit__svg(&$variables) {
     if ($node_wrapper->field_svg_alttext->value()) {
       $variables['svg_aria_hidden'] = 'true';
       $variables['svg_alttext'] = $node_wrapper->field_svg_alttext->value();
-    } 
-  } 
+    }
+  }
   catch (EntityMetadataWrapperException $exc) {
     watchdog(
       'foundation_access',
@@ -364,7 +364,11 @@ function foundation_access_menu_link(&$variables) {
 }
 
 /**
+<<<<<<< HEAD
  * Implements menu_tree__menu_elmsln_settings.
+=======
+ * Implements menu_tree__menu_course_tools_menu.
+>>>>>>> origin/menu-refactor
  */
 function foundation_access_menu_tree__menu_elmsln_settings($variables) {
   return '<ul class="has-submenu">' . $variables['tree'] . '</ul>';
