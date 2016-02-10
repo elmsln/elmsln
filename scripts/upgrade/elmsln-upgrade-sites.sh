@@ -30,10 +30,10 @@ fi
 # to decrease risk of a WSOD when there are significant shifts
 # under the hood, we should run RRs prior to the rest of the routine
 elmslnecho "Rebuilding registies and caches for all systems"
-drush @elmsln rr --y
+drush @elmsln rr --v --y
 # run the safe upgrade of projects by taking the site offline then back on
 elmslnecho "Running update hooks"
-drush @elmsln cook dr_run_updates --y
+drush @elmsln cook dr_run_updates --v --y
 # run global upgrades from drup recipes
 drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --v --y
 
