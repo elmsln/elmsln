@@ -14,7 +14,6 @@ dependencies[] = jquery_update
 dependencies[] = masquerade
 dependencies[] = menu
 dependencies[] = strongarm
-features[context][] = foundation_access_ux-add
 features[context][] = foundation_access_ux-admin
 features[context][] = foundation_access_ux-global
 features[ctools][] = context:context:3

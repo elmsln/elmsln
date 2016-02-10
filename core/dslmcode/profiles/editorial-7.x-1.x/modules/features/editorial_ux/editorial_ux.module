@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Editorial UX feature.
- */
-
-include_once 'editorial_ux.features.inc';
