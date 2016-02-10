@@ -63,9 +63,9 @@ function foundation_access_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-course-tools-menu' => array(
+        'menu-menu-elmsln-settings' => array(
           'module' => 'menu',
-          'delta' => 'menu-course-tools-menu',
+          'delta' => 'menu-elmsln-settings',
           'region' => 'cis_lmsless_modal',
           'weight' => '-10',
         ),

@@ -364,7 +364,7 @@ function foundation_access_menu_link(&$variables) {
 }
 
 /**
- * Implements menu_tree__menu_course_tools_menu.
+ * Implements menu_tree__menu_elmsln_settings.
  */
 function foundation_access_menu_tree__menu_elmsln_settings($variables) {
   return '<ul class="has-submenu">' . $variables['tree'] . '</ul>';

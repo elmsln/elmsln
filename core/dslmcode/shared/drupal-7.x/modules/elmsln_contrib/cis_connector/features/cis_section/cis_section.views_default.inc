@@ -172,15 +172,13 @@ function cis_section_views_default_views() {
   $handler->display->display_options['filters']['field_cis_active_value']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    5 => 0,
-    3 => 0,
-    7 => 0,
-    8 => 0,
-    4 => 0,
-    9 => 0,
-    6 => 0,
-    10 => 0,
-    11 => 0,
+    6065076 => 0,
+    75987638 => 0,
+    135574917 => 0,
+    166149871 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    30037204 => 0,
   );
 
   /* Display: Page */
@@ -191,7 +189,7 @@ function cis_section_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Sections list';
   $handler->display->display_options['menu']['description'] = 'Listing of all sections in this area';
   $handler->display->display_options['menu']['weight'] = '100';
-  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-settings';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_section_list'] = $view;
@@ -263,13 +261,13 @@ function cis_section_views_default_views() {
   $handler->display->display_options['filters']['rid_1']['table'] = 'users_roles';
   $handler->display->display_options['filters']['rid_1']['field'] = 'rid';
   $handler->display->display_options['filters']['rid_1']['value'] = array(
-    5 => '5',
-    3 => '3',
-    7 => '7',
-    8 => '8',
-    4 => '4',
-    6 => '6',
-    9 => '9',
+    6065076 => 6065076,
+    75987638 => 75987638,
+    135574917 => 135574917,
+    166149871 => 166149871,
+    66784200 => 66784200,
+    67296478 => 67296478,
+    30037204 => 30037204,
   );
   $handler->display->display_options['filters']['rid_1']['exposed'] = TRUE;
   $handler->display->display_options['filters']['rid_1']['expose']['operator_id'] = 'rid_1_op';
@@ -279,15 +277,13 @@ function cis_section_views_default_views() {
   $handler->display->display_options['filters']['rid_1']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    5 => 0,
-    3 => 0,
-    7 => 0,
-    8 => 0,
-    4 => 0,
-    10 => 0,
-    6 => 0,
-    9 => 0,
-    11 => 0,
+    6065076 => 0,
+    75987638 => 0,
+    135574917 => 0,
+    166149871 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    30037204 => 0,
   );
   $handler->display->display_options['filters']['rid_1']['expose']['reduce'] = TRUE;
 
@@ -296,7 +292,7 @@ function cis_section_views_default_views() {
   $handler->display->display_options['path'] = 'cis/user-list';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Users';
-  $handler->display->display_options['menu']['name'] = 'menu-course-tools-menu';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-settings';
   $export['cis_user_list'] = $view;
 
   return $export;
