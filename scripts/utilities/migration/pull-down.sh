@@ -87,7 +87,7 @@ else
   pulldowntype=$5
 fi
 if [ -z "$6" ]; then
-  prompt="What alias group should we do this to? ($aliasgroup for everything or @courses-all for all courses for example)"
+  prompt="What alias group should we do this to? (@elmsln for everything or @courses-all for all courses for example)"
   read -rp "$prompt" aliasgroup
 else
   aliasgroup=$6
