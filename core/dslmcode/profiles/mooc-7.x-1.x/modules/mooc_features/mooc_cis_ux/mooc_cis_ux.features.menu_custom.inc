@@ -10,9 +10,9 @@
 function mooc_cis_ux_menu_default_menu_custom() {
   $menus = array();
 
-  // Exported menu: menu-course-tools-menu.
-  $menus['menu-course-tools-menu'] = array(
-    'menu_name' => 'menu-course-tools-menu',
+  // Exported menu: menu-elmsln-settings.
+  $menus['menu-elmsln-settings'] = array(
+    'menu_name' => 'menu-elmsln-settings',
     'title' => 'Course Tools Menu',
     'description' => '',
   );

@@ -26,9 +26,9 @@ function editorial_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-editorial-navigation' => array(
+        'menu-menu-elmsln-main-navigation' => array(
           'module' => 'menu',
-          'delta' => 'menu-editorial-navigation',
+          'delta' => 'menu-elmsln-main-navigation',
           'region' => 'header',
           'weight' => '-10',
         ),

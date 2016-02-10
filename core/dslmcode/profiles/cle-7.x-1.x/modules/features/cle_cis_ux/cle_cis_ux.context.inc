@@ -26,9 +26,9 @@ function cle_cis_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-cle-navigation' => array(
+        'menu-menu-elmsln-main-navigation' => array(
           'module' => 'menu',
-          'delta' => 'menu-cle-navigation',
+          'delta' => 'menu-elmsln-main-navigation',
           'region' => 'header',
           'weight' => '-10',
         ),

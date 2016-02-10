@@ -272,7 +272,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'My Gallery';
   $handler->display->display_options['menu']['description'] = 'All of my submissions for this course';
   $handler->display->display_options['menu']['weight'] = '9';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $handler->display->display_options['tab_options']['weight'] = '0';
@@ -333,7 +333,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Overview';
   $handler->display->display_options['menu']['description'] = 'Overview of your submissions';
   $handler->display->display_options['menu']['weight'] = '-1';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $handler->display->display_options['tab_options']['weight'] = '0';
@@ -387,7 +387,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Images';
   $handler->display->display_options['menu']['description'] = 'All my submissions as a gallery';
   $handler->display->display_options['menu']['weight'] = '1';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $handler->display->display_options['tab_options']['weight'] = '0';
@@ -435,7 +435,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Video';
   $handler->display->display_options['menu']['description'] = 'All my videos as a gallery';
   $handler->display->display_options['menu']['weight'] = '2';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -479,7 +479,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Files';
   $handler->display->display_options['menu']['description'] = 'All my files as a gallery';
   $handler->display->display_options['menu']['weight'] = '3';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -523,7 +523,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Links';
   $handler->display->display_options['menu']['description'] = 'All my links as a gallery';
   $handler->display->display_options['menu']['weight'] = '4';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -632,7 +632,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'My Gallery';
   $handler->display->display_options['menu']['description'] = 'All of my submissions for this course';
   $handler->display->display_options['menu']['weight'] = '9';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $handler->display->display_options['tab_options']['weight'] = '0';
@@ -893,7 +893,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Open Studio';
   $handler->display->display_options['menu']['description'] = 'Listing of all Open Submissions';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cle_submissions'] = $view;
@@ -1882,7 +1882,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'My Sketch Book';
   $handler->display->display_options['menu']['weight'] = '8';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -1919,7 +1919,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'My Draft Pages';
   $handler->display->display_options['menu']['description'] = 'A visual showcase of all your submitted draft pages';
   $handler->display->display_options['menu']['weight'] = '9';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -1955,7 +1955,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'My Final Pages';
   $handler->display->display_options['menu']['weight'] = '10';
-  $handler->display->display_options['menu']['name'] = 'menu-cle-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['sketch_book'] = $view;

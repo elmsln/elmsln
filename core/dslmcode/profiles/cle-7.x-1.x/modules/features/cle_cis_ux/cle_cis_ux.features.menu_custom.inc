@@ -10,9 +10,9 @@
 function cle_cis_ux_menu_default_menu_custom() {
   $menus = array();
 
-  // Exported menu: menu-cle-navigation.
-  $menus['menu-cle-navigation'] = array(
-    'menu_name' => 'menu-cle-navigation',
+  // Exported menu: menu-elmsln-main-navigation.
+  $menus['menu-elmsln-main-navigation'] = array(
+    'menu_name' => 'menu-elmsln-main-navigation',
     'title' => 'CLE navigation',
     'description' => '',
   );

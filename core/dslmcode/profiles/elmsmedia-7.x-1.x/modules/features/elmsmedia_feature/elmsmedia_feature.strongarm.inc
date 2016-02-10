@@ -542,7 +542,7 @@ function elmsmedia_feature_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'menu_options_svg';
   $strongarm->value = array(
-    0 => 'menu-cis-add',
+    0 => 'menu-elmsln-add',
     1 => 'main-menu',
   );
   $export['menu_options_svg'] = $strongarm;

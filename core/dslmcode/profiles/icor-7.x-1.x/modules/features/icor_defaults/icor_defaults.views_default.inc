@@ -177,7 +177,7 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Object list';
   $handler->display->display_options['menu']['description'] = 'listing of allmavailable instructional objects';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'menu-icor-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $handler->display->display_options['menu']['context'] = 0;
 
   /* Display: Entity Reference View Widget */

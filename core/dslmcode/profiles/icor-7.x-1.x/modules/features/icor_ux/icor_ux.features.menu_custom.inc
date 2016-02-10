@@ -10,9 +10,9 @@
 function icor_ux_menu_default_menu_custom() {
   $menus = array();
 
-  // Exported menu: menu-icor-navigation.
-  $menus['menu-icor-navigation'] = array(
-    'menu_name' => 'menu-icor-navigation',
+  // Exported menu: menu-elmsln-main-navigation.
+  $menus['menu-elmsln-main-navigation'] = array(
+    'menu_name' => 'menu-elmsln-main-navigation',
     'title' => 'ICOR navigation',
     'description' => '',
   );

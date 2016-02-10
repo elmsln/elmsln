@@ -10,9 +10,9 @@
 function icor_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_assembled-timeline:node/add/timeline
-  $menu_links['menu-cis-add_assembled-timeline:node/add/timeline'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_assembled-timeline:node/add/timeline
+  $menu_links['menu-elmsln-add_assembled-timeline:node/add/timeline'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/timeline',
     'router_path' => 'node/add/timeline',
     'link_title' => 'Assembled timeline',
@@ -23,7 +23,7 @@ function icor_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_assembled-timeline:node/add/timeline',
+      'identifier' => 'menu-elmsln-add_assembled-timeline:node/add/timeline',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -33,9 +33,9 @@ function icor_ux_menu_default_menu_links() {
     'weight' => -49,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_file:file/add
-  $menu_links['menu-cis-add_file:file/add'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_file:file/add
+  $menu_links['menu-elmsln-add_file:file/add'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'file/add',
     'router_path' => 'file/add',
     'link_title' => 'File',
@@ -46,7 +46,7 @@ function icor_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_file:file/add',
+      'identifier' => 'menu-elmsln-add_file:file/add',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -56,9 +56,9 @@ function icor_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_timeline-item:node/add/timeline-date
-  $menu_links['menu-cis-add_timeline-item:node/add/timeline-date'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_timeline-item:node/add/timeline-date
+  $menu_links['menu-elmsln-add_timeline-item:node/add/timeline-date'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/timeline-date',
     'router_path' => 'node/add/timeline-date',
     'link_title' => 'Timeline item',
@@ -69,7 +69,7 @@ function icor_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_timeline-item:node/add/timeline-date',
+      'identifier' => 'menu-elmsln-add_timeline-item:node/add/timeline-date',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -79,9 +79,9 @@ function icor_ux_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_zip-file:file/add/upload/archive
-  $menu_links['menu-cis-add_zip-file:file/add/upload/archive'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_zip-file:file/add/upload/archive
+  $menu_links['menu-elmsln-add_zip-file:file/add/upload/archive'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'file/add/upload/archive',
     'router_path' => 'file/add/upload/archive',
     'link_title' => 'Zip file',
@@ -92,7 +92,7 @@ function icor_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_zip-file:file/add/upload/archive',
+      'identifier' => 'menu-elmsln-add_zip-file:file/add/upload/archive',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -102,9 +102,9 @@ function icor_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-icor-navigation_object-listing:icor-object-lists
-  $menu_links['menu-icor-navigation_object-listing:icor-object-lists'] = array(
-    'menu_name' => 'menu-icor-navigation',
+  // Exported menu link: menu-elmsln-main-navigation_object-listing:icor-object-lists
+  $menu_links['menu-elmsln-main-navigation_object-listing:icor-object-lists'] = array(
+    'menu_name' => 'menu-elmsln-main-navigation',
     'link_path' => 'icor-object-lists',
     'router_path' => 'icor-object-lists',
     'link_title' => 'Object listing',
@@ -115,7 +115,7 @@ function icor_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-icor-navigation_object-listing:icor-object-lists',
+      'identifier' => 'menu-elmsln-main-navigation_object-listing:icor-object-lists',
     ),
     'module' => 'menu',
     'hidden' => 0,

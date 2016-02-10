@@ -9,4 +9,4 @@ dependencies[] = menu
 features[context][] = editorial_ux
 features[ctools][] = context:context:3
 features[features_api][] = api:2
-features[menu_custom][] = menu-editorial-navigation
+features[menu_custom][] = menu-elmsln-main-navigation

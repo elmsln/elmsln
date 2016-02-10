@@ -10,9 +10,9 @@
 function editorial_ux_menu_default_menu_custom() {
   $menus = array();
 
-  // Exported menu: menu-editorial-navigation.
-  $menus['menu-editorial-navigation'] = array(
-    'menu_name' => 'menu-editorial-navigation',
+  // Exported menu: menu-elmsln-main-navigation.
+  $menus['menu-elmsln-main-navigation'] = array(
+    'menu_name' => 'menu-elmsln-main-navigation',
     'title' => 'Editorial Navigation',
     'description' => '',
   );

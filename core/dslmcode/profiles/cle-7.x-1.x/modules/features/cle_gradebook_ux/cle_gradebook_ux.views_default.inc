@@ -190,7 +190,7 @@ function cle_gradebook_ux_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Gradebook';
   $handler->display->display_options['menu']['description'] = 'gradebook';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-settings';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
@@ -201,7 +201,7 @@ function cle_gradebook_ux_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Bulk update';
   $handler->display->display_options['menu']['description'] = 'Bulk gradebook display and assessment';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-settings';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cle_gradebook'] = $view;

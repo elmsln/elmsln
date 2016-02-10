@@ -10,9 +10,9 @@
 function editorial_story_seeds_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_story-seeds:node/add/editorial-story-seeds
-  $menu_links['menu-cis-add_story-seeds:node/add/editorial-story-seeds'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_story-seeds:node/add/editorial-story-seeds
+  $menu_links['menu-elmsln-add_story-seeds:node/add/editorial-story-seeds'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/editorial-story-seeds',
     'router_path' => 'node/add/editorial-story-seeds',
     'link_title' => 'Story Seeds',
@@ -23,7 +23,7 @@ function editorial_story_seeds_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_story-seeds:node/add/editorial-story-seeds',
+      'identifier' => 'menu-elmsln-add_story-seeds:node/add/editorial-story-seeds',
     ),
     'module' => 'menu',
     'hidden' => 1,

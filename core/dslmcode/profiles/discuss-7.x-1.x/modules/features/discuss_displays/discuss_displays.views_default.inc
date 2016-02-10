@@ -131,7 +131,7 @@ function discuss_displays_views_default_views() {
   $handler->display->display_options['path'] = 'discuss/my/posts';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'My Posts';
-  $handler->display->display_options['menu']['name'] = 'menu-discuss-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
   $export['discuss_my_posts'] = $view;
 
   return $export;

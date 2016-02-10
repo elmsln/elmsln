@@ -291,7 +291,7 @@ function mooc_random_content_views_default_views() {
   $handler->display->display_options['path'] = 'random-content';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Random content list';
-  $handler->display->display_options['menu']['name'] = 'menu-course-tools-menu';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-settings';
   $export['elmsln_random_content_list'] = $view;
 
   return $export;

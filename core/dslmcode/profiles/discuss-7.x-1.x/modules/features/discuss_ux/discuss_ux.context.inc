@@ -26,9 +26,9 @@ function discuss_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-discuss-navigation' => array(
+        'menu-menu-elmsln-main-navigation' => array(
           'module' => 'menu',
-          'delta' => 'menu-discuss-navigation',
+          'delta' => 'menu-elmsln-main-navigation',
           'region' => 'header',
           'weight' => '-10',
         ),

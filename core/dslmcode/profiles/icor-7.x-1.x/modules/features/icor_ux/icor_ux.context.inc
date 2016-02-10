@@ -26,9 +26,9 @@ function icor_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-icor-navigation' => array(
+        'menu-menu-elmsln-main-navigation' => array(
           'module' => 'menu',
-          'delta' => 'menu-icor-navigation',
+          'delta' => 'menu-elmsln-main-navigation',
           'region' => 'header',
           'weight' => '-10',
         ),

@@ -10,9 +10,9 @@
 function ecd_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_course-access-request:eform/submit/course-access-request
-  $menu_links['menu-cis-add_course-access-request:eform/submit/course-access-request'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_course-access-request:eform/submit/course-access-request
+  $menu_links['menu-elmsln-add_course-access-request:eform/submit/course-access-request'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'eform/submit/course-access-request',
     'router_path' => 'eform/submit/%',
     'link_title' => 'Course access request',
@@ -23,7 +23,7 @@ function ecd_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_course-access-request:eform/submit/course-access-request',
+      'identifier' => 'menu-elmsln-add_course-access-request:eform/submit/course-access-request',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -33,9 +33,9 @@ function ecd_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_system-access-request:eform/submit/system-access-request
-  $menu_links['menu-cis-add_system-access-request:eform/submit/system-access-request'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_system-access-request:eform/submit/system-access-request
+  $menu_links['menu-elmsln-add_system-access-request:eform/submit/system-access-request'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'eform/submit/system-access-request',
     'router_path' => 'eform/submit/%',
     'link_title' => 'System access request',
@@ -46,7 +46,7 @@ function ecd_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_system-access-request:eform/submit/system-access-request',
+      'identifier' => 'menu-elmsln-add_system-access-request:eform/submit/system-access-request',
     ),
     'module' => 'menu',
     'hidden' => 0,
