@@ -12,4 +12,4 @@ dependencies[] = inbox_event
 features[context][] = inbox-home
 features[ctools][] = context:context:3
 features[features_api][] = api:2
-features[menu_links][] = menu-cis-add_calendar-event:node/add/inbox-event
+features[menu_links][] = menu-elmsln-add_calendar-event:node/add/inbox-event

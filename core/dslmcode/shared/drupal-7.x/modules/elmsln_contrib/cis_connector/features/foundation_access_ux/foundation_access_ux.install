@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Foundation Access install.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function foundation_access_ux_install() {
+  // placeholder
+}
+
+/**
+ * Placeholder to trigger the 7001 update having to be applied
+ */
+function foundation_access_ux_update_7000(&$sandbox) {
+  // placeholder
+}
+
+
+/**
+ * Massive menu refactor under the hood to simplify development
+ * across the distributions by standardizing on three menus
+ * that all use the same name. This consolidates 15 or so menus
+ * down into 3 for a sense of the scope of this.
+ */
+function foundation_access_ux_update_7001(&$sandbox) {
+  // this holds all the menu that we just completely shifted around
+  features_revert('cis_service_connection_ux');
+  // self revert so those blocks get in position
+  features_revert('foundation_access_ux');
+  // revert CIS UX feature for menu link placement
+  // revert all the distributions that have known menu links
+  // that we need to ensure are aware of these new menu locations
+  // cis 2.x; 1.x doesn't run this module
+  features_revert('cis_ux');
+  // elmsmedia
+  features_revert('elmsmedia_cis_ux');
+  // comply
+  features_revert('ecd_ux');
+  // interact
+  features_revert('icor_ux');
+  // kill menu caches associated with these so they all show up
+  menu_cache_clear('menu-elmsln-navigation');
+  menu_cache_clear('menu-elmsln-add');
+  menu_cache_clear('menu-elmsln-settings');
+}

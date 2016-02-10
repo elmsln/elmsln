@@ -398,7 +398,7 @@ function _cis_lmsless_theme_vars() {
     $vars['syllabus_link'] = url($syllabus_link);
     // account for standard cross system menu
     if (_cis_connector_role_groupings(array('staff','teacher'))) {
-      $course_tools = menu_tree('menu-course-tools-menu');
+      $course_tools = menu_tree('menu-elmsln-settings');
       $vars['elmsln_main_menu'] = render($course_tools);
     }
     // allow other projects to alter these values

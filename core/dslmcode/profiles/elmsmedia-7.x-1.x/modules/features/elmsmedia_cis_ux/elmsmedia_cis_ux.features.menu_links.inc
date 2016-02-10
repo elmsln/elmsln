@@ -10,9 +10,9 @@
 function elmsmedia_cis_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_audio:node/add/audio
-  $menu_links['menu-cis-add_audio:node/add/audio'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_audio:node/add/audio
+  $menu_links['menu-elmsln-add_audio:node/add/audio'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/audio',
     'router_path' => 'node/add/audio',
     'link_title' => 'Audio',
@@ -23,7 +23,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_audio:node/add/audio',
+      'identifier' => 'menu-elmsln-add_audio:node/add/audio',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',
@@ -34,9 +34,9 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_document:node/add/document
-  $menu_links['menu-cis-add_document:node/add/document'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_document:node/add/document
+  $menu_links['menu-elmsln-add_document:node/add/document'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/document',
     'router_path' => 'node/add/document',
     'link_title' => 'Document',
@@ -47,7 +47,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_document:node/add/document',
+      'identifier' => 'menu-elmsln-add_document:node/add/document',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',
@@ -58,9 +58,9 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_external-video:node/add/external-video
-  $menu_links['menu-cis-add_external-video:node/add/external-video'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_external-video:node/add/external-video
+  $menu_links['menu-elmsln-add_external-video:node/add/external-video'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/external-video',
     'router_path' => 'node/add/external-video',
     'link_title' => 'External Video',
@@ -71,7 +71,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_external-video:node/add/external-video',
+      'identifier' => 'menu-elmsln-add_external-video:node/add/external-video',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',
@@ -82,9 +82,9 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_image:node/add/elmsmedia-image
-  $menu_links['menu-cis-add_image:node/add/elmsmedia-image'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_image:node/add/elmsmedia-image
+  $menu_links['menu-elmsln-add_image:node/add/elmsmedia-image'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/elmsmedia-image',
     'router_path' => 'node/add/elmsmedia-image',
     'link_title' => 'Image',
@@ -95,7 +95,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_image:node/add/elmsmedia-image',
+      'identifier' => 'menu-elmsln-add_image:node/add/elmsmedia-image',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',
@@ -106,9 +106,9 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_svg:node/add/svg
-  $menu_links['menu-cis-add_svg:node/add/svg'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_svg:node/add/svg
+  $menu_links['menu-elmsln-add_svg:node/add/svg'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/svg',
     'router_path' => 'node/add/svg',
     'link_title' => 'SVG',
@@ -119,7 +119,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_svg:node/add/svg',
+      'identifier' => 'menu-elmsln-add_svg:node/add/svg',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -129,9 +129,9 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-cis-add_video:node/add/video
-  $menu_links['menu-cis-add_video:node/add/video'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_video:node/add/video
+  $menu_links['menu-elmsln-add_video:node/add/video'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/video',
     'router_path' => 'node/add/video',
     'link_title' => 'Video',
@@ -142,7 +142,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_video:node/add/video',
+      'identifier' => 'menu-elmsln-add_video:node/add/video',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',
@@ -153,9 +153,9 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsmedia-navigation_asset-overview:media-overview
-  $menu_links['menu-elmsmedia-navigation_asset-overview:media-overview'] = array(
-    'menu_name' => 'menu-elmsmedia-navigation',
+  // Exported menu link: menu-elmsln-navigation_asset-overview:media-overview
+  $menu_links['menu-elmsln-navigation_asset-overview:media-overview'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'media-overview',
     'router_path' => 'media-overview',
     'link_title' => 'Asset overview',
@@ -166,7 +166,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-elmsmedia-navigation_asset-overview:media-overview',
+      'identifier' => 'menu-elmsln-navigation_asset-overview:media-overview',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',
@@ -177,9 +177,9 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsmedia-navigation_course-list:courses
-  $menu_links['menu-elmsmedia-navigation_course-list:courses'] = array(
-    'menu_name' => 'menu-elmsmedia-navigation',
+  // Exported menu link: menu-elmsln-navigation_course-list:courses
+  $menu_links['menu-elmsln-navigation_course-list:courses'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'courses',
     'router_path' => 'courses',
     'link_title' => 'Course list',
@@ -190,7 +190,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-elmsmedia-navigation_course-list:courses',
+      'identifier' => 'menu-elmsln-navigation_course-list:courses',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',

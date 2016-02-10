@@ -30,7 +30,7 @@ function cis_service_connection_ux_menu() {
     'page arguments' => array('cis_service_connection_ux_form'),
     'access callback' => '_cis_connector_role_groupings',
     'access arguments' => array(array('teacher', 'staff')),
-    'menu_name' => 'menu-course-tools-menu',
+    'menu_name' => 'menu-elmsln-settings',
     'weight' => -10,
   );
 

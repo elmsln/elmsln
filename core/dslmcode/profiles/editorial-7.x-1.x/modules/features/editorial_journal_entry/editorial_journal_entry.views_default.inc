@@ -62,7 +62,7 @@ function editorial_journal_entry_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'My Journal';
   $handler->display->display_options['menu']['description'] = 'Your personal class journal for completing exercises';
   $handler->display->display_options['menu']['weight'] = '-10';
-  $handler->display->display_options['menu']['name'] = 'menu-editorial-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['editorial_exercise_list'] = $view;
@@ -162,7 +162,7 @@ function editorial_journal_entry_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'My Journal';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'menu-editorial-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['editorial_journal_entries'] = $view;
