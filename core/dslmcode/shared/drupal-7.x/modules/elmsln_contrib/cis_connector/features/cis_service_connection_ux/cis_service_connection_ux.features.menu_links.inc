@@ -57,27 +57,6 @@ function cis_service_connection_ux_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
-  // Exported menu link: menu-course-tools-menu_performance:admin/config/development/performance
-  $menu_links['menu-course-tools-menu_performance:admin/config/development/performance'] = array(
-    'menu_name' => 'menu-course-tools-menu',
-    'link_path' => 'admin/config/development/performance',
-    'router_path' => 'admin/config/development/performance',
-    'link_title' => 'Performance',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Performance settings',
-      ),
-      'identifier' => 'menu-course-tools-menu_performance:admin/config/development/performance',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -49,
-    'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_administration-tools:<nolink>',
-  );
   // Exported menu link: menu-course-tools-menu_sections-list:cis/section-list
   $menu_links['menu-course-tools-menu_sections-list:cis/section-list'] = array(
     'menu_name' => 'menu-course-tools-menu',
@@ -140,7 +119,6 @@ function cis_service_connection_ux_menu_default_menu_links() {
   // Included for use with string extractors like potx.
   t('Admin');
   t('Administration Tools');
-  t('Performance');
   t('Sections List');
   t('Service Tools');
   t('Users');
