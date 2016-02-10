@@ -9,7 +9,7 @@
  * Implements hook_menu().
  */
 function cis_lmsless_nav_menu() {
-  $items['admin/config/cis-lmsless-nav'] = array(
+  $items['admin/config/user-interface/cis-lmsless-nav'] = array(
     'title' => 'CIS LMS-less Navigation',
     'access arguments' => array('administer cis lms-less nav'),
     'page callback' => 'drupal_get_form',
@@ -17,7 +17,7 @@ function cis_lmsless_nav_menu() {
     'file' => 'cis_lmsless_nav_parent_form.inc',
     'type' => MENU_LOCAL_TASK,
   );
-  $items['admin/config/cis-lmsless-nav/add-link'] = array(
+  $items['admin/config/user-interface/cis-lmsless-nav/add-link'] = array(
     'title' => 'CIS LMS-less Navigation add link',
     'access arguments' => array('administer cis lms-less nav'),
     'page callback' => 'drupal_get_form',
@@ -25,14 +25,14 @@ function cis_lmsless_nav_menu() {
     'file' => 'cis_lmsless_nav.admin.inc',
     'type' => MENU_LOCAL_TASK,
   );
-  $items['admin/config/cis-lmsless-nav/edit-link/%'] = array(
+  $items['admin/config/user-interface/cis-lmsless-nav/edit-link/%'] = array(
     'title' => 'CIS LMS-less Navigation edit link',
     'access arguments' => array('administer cis lms-less nav'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_lmsless_nav_admin_edit_link_form', 5),
     'file' => 'cis_lmsless_nav.admin.inc',
   );
-  $items['admin/config/cis-lmsless-nav/delete-link/%'] = array(
+  $items['admin/config/user-interface/cis-lmsless-nav/delete-link/%'] = array(
     'title' => 'CIS LMS-less Navigation delete link',
     'access arguments' => array('administer cis lms-less nav'),
     'page callback' => 'drupal_get_form',

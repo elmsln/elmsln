@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Define callbacks for hook_menu admin/config/elmsln/cis-lmsless-nav
+ * Define callbacks for hook_menu admin/config/user-interface/cis-lmsless-nav
  */
 
 function cis_lmsless_nav_parent_form($form_state) {
@@ -12,66 +12,73 @@ function cis_lmsless_nav_parent_form($form_state) {
 
   // fetch the current links from the variable
   $result = variable_get('cis_lmsless_nav_links', array());
-  foreach ($result as $item_key => $item) {
 
-    // Create a form entry for this item.
+  // for each link in the array create form elements
+  if (!empty($result)) {
+    foreach ($result as $item_key => $item) {
+      // Create a form entry for this item.
+      //
+      // Each entry will be an array using the the unique id for that item as
+      // the array key, and an array of table row data as the value.
+      $form['links'][$item_key] = array(
+        'title' => array(
+          '#markup' => $item['title'],
+        ),
+        'path' => array(
+          '#markup' => $item['path'],
+        ),
+        'group' => array(
+          '#markup' => $item['group'],
+        ),
+        'machine_name' => array(
+          '#markup' => $item['machine_name'],
+        ),
+        'icon_library' => array(
+          '#markup' => $item['icon_library'],
+        ),
+        'edit' => array(
+          '#markup' => l('edit', 'admin/config/user-interface/cis-lmsless-nav/edit-link/' . $item_key),
+        ),
+        'delete' => array(
+          '#markup' => l('delete', 'admin/config/user-interface/cis-lmsless-nav/delete-link/' . $item_key),
+        ),
+        'id' => array(
+          '#type' => 'hidden',
+          '#default_value' => $item_key,
+        ),
+        // The 'weight' field will be manipulated as we move the items around in
+        // the table using the tabledrag activity.  We use the 'weight' element
+        // defined in Drupal's Form API.
+        'weight' => array(
+          '#type' => 'weight',
+          '#title' => t('Weight'),
+          '#default_value' => $item_key,
+          '#delta' => 10,
+          '#title_display' => 'invisible',
+        ),
+        // We'll use a hidden form element to pass the current 'depth' of each
+        // item within our parent/child tree structure to the theme function.
+        // This will be used to calculate the initial amount of indentation to
+        // add before displaying any child item rows.
+        'depth' => array(
+          '#type' => 'hidden',
+          '#value' => 0,
+        ),
+      );
+    }
+
+    // Now we add our submit button, for submitting the form results.
     //
-    // Each entry will be an array using the the unique id for that item as
-    // the array key, and an array of table row data as the value.
-    $form['links'][$item_key] = array(
-      'title' => array(
-        '#markup' => $item['title'],
-      ),
-      'path' => array(
-        '#markup' => $item['path'],
-      ),
-      'group' => array(
-        '#markup' => $item['group'],
-      ),
-      'machine_name' => array(
-        '#markup' => $item['machine_name'],
-      ),
-      'icon_library' => array(
-        '#markup' => $item['icon_library'],
-      ),
-      'edit' => array(
-        '#markup' => l('edit', 'admin/config/elmsln/cis-lmsless-nav/edit-link/' . $item_key),
-      ),
-      'delete' => array(
-        '#markup' => l('delete', 'admin/config/elmsln/cis-lmsless-nav/delete-link/' . $item_key),
-      ),
-      'id' => array(
-        '#type' => 'hidden',
-        '#default_value' => $item_key,
-      ),
-      // The 'weight' field will be manipulated as we move the items around in
-      // the table using the tabledrag activity.  We use the 'weight' element
-      // defined in Drupal's Form API.
-      'weight' => array(
-        '#type' => 'weight',
-        '#title' => t('Weight'),
-        '#default_value' => $item_key,
-        '#delta' => 10,
-        '#title_display' => 'invisible',
-      ),
-      // We'll use a hidden form element to pass the current 'depth' of each
-      // item within our parent/child tree structure to the theme function.
-      // This will be used to calculate the initial amount of indentation to
-      // add before displaying any child item rows.
-      'depth' => array(
-        '#type' => 'hidden',
-        '#value' => 0,
-      ),
-    );
-  }
+    // The 'actions' wrapper used here isn't strictly necessary for tabledrag,
+    // but is included as a Form API recommended practice.
+    $form['actions'] = array('#type' => 'actions');
+    $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save Changes'));
 
-  // Now we add our submit button, for submitting the form results.
-  //
-  // The 'actions' wrapper used here isn't strictly necessary for tabledrag,
-  // but is included as a Form API recommended practice.
-  $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save Changes'));
-  return $form;
+    return $form;
+  }
+  else {
+    return $form;
+  }
 }
 
 function theme_cis_lmsless_nav_parent_form($variables) {
@@ -123,7 +130,7 @@ function theme_cis_lmsless_nav_parent_form($variables) {
   $header = array(t('title'), t('path'), t('group'), t('machine_name'), t('icon_library'), t('edit'), t('delete'), t('weight'));
   $table_id = 'example-items-table';
   // add link to add new links
-  $output = l('Add new link', 'admin/config/elmsln/cis-lmsless-nav/add-link');
+  $output = l('Add new link', 'admin/config/user-interface/cis-lmsless-nav/add-link');
   // We can render our tabledrag table for output.
   $output .= theme('table', array(
     'header' => $header,

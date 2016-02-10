@@ -5,7 +5,7 @@
  */
 
 /**
- * drupal_get_form callback for hook_menu 'admin/config/elmsln/cis-lmsless-nav/add-link'
+ * drupal_get_form callback for hook_menu 'admin/config/user-interface/cis-lmsless-nav/add-link'
  */
 function cis_lmsless_nav_admin_add_link_form($form, &$form_state) {
   // get the default form elements for the link
@@ -21,7 +21,7 @@ function cis_lmsless_nav_admin_add_link_form($form, &$form_state) {
 }
 
 /**
- * drupal_get_form callback for hook_menu 'admin/config/elmsln/cis-lmsless-nav/edit-link'
+ * drupal_get_form callback for hook_menu 'admin/config/user-interface/cis-lmsless-nav/edit-link'
  */
 function cis_lmsless_nav_admin_edit_link_form($form, &$form_state, $link_key) {
   // load the existing links array
@@ -59,7 +59,7 @@ function cis_lmsless_nav_admin_edit_link_form($form, &$form_state, $link_key) {
 }
 
 /**
- * Page Callback for hook_menu 'admin/config/elmsln/cis-lmsless-nav/delete-link/%'
+ * Page Callback for hook_menu 'admin/config/user-interface/cis-lmsless-nav/delete-link/%'
  */
 function cis_lmsless_nav_admin_delete_link_form($form, &$form_state, $link_key) {
   // load the existing links array
@@ -93,7 +93,7 @@ function cis_lmsless_nav_admin_delete_link_form($form, &$form_state, $link_key) 
  * Submit handler for cis_lmsless_nav_admin_add_link_form()
  */
 function cis_lmsless_nav_admin_add_link_form_submit($form, &$form_state) {
-  $form_state['redirect'] = 'admin/config/elmsln/cis-lmsless-nav';
+  $form_state['redirect'] = 'admin/config/user-interface/cis-lmsless-nav';
   // add the new link to the variable array
   _cis_lmsless_nav_update_links_variable($form, $form_state);
 }
@@ -103,21 +103,21 @@ function cis_lmsless_nav_admin_add_link_form_submit($form, &$form_state) {
  */
 function cis_lmsless_nav_admin_edit_link_form_submit($form, &$form_state) {
   if (isset($form_state['triggering_element']['#value']) && $form_state['triggering_element']['#value'] == 'Save') {
-    $form_state['redirect'] = 'admin/config/elmsln/cis-lmsless-nav';
+    $form_state['redirect'] = 'admin/config/user-interface/cis-lmsless-nav';
     // update the existing link in the variable array
     _cis_lmsless_nav_update_links_variable($form, $form_state, 'update');
   }
   if (isset($form_state['triggering_element']['#value']) && $form_state['triggering_element']['#value'] == 'Delete') {
-    $form_state['redirect'] = 'admin/config/elmsln/cis-lmsless-nav/delete-link/' . $form_state['link_key'];
+    $form_state['redirect'] = 'admin/config/user-interface/cis-lmsless-nav/delete-link/' . $form_state['link_key'];
   }
 }
 
 function cis_lmsless_nav_admin_delete_link_form_submit($form, &$form_state) {
   if (isset($form_state['triggering_element']['#value']) && $form_state['triggering_element']['#value'] == 'Cancel') {
-    $form_state['redirect'] = 'admin/config/elmsln/cis-lmsless-nav/edit-link/' . $form_state['link_key'];
+    $form_state['redirect'] = 'admin/config/user-interface/cis-lmsless-nav/edit-link/' . $form_state['link_key'];
   }
   if (isset($form_state['triggering_element']['#value']) && $form_state['triggering_element']['#value'] == 'Delete') {
-    $form_state['redirect'] = 'admin/config/elmsln/cis-lmsless-nav';
+    $form_state['redirect'] = 'admin/config/user-interface/cis-lmsless-nav';
     _cis_lmsless_nav_update_links_variable($form, $form_state, 'delete');
   }
 }
@@ -160,14 +160,6 @@ function _cis_lmsless_nav_admin_form_elements() {
       'visible' => array(
         ':input[name="machine_name"]' => array('empty' => FALSE),
       ),
-    ),
-  );
-  $form['cis_lmsless_nav_links']['weight'] = array(
-    'weight' => array(
-      '#type' => 'weight',
-      '#title' => t('Weight'),
-      '#default_value' => 0,
-      '#delta' => 10,
     ),
   );
 
