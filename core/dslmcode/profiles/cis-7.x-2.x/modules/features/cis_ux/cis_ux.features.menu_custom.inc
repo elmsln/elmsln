@@ -10,9 +10,9 @@
 function cis_ux_menu_default_menu_custom() {
   $menus = array();
 
-  // Exported menu: menu-cis-toolkit.
-  $menus['menu-cis-toolkit'] = array(
-    'menu_name' => 'menu-cis-toolkit',
+  // Exported menu: menu-elmsln-main-navigation.
+  $menus['menu-elmsln-main-navigation'] = array(
+    'menu_name' => 'menu-elmsln-main-navigation',
     'title' => 'CIS Toolkit',
     'description' => 'Links for using CIS',
   );

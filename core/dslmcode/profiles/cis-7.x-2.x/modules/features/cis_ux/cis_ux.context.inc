@@ -26,9 +26,9 @@ function cis_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-cis-toolkit' => array(
+        'menu-menu-elmsln-main-navigation' => array(
           'module' => 'menu',
-          'delta' => 'menu-cis-toolkit',
+          'delta' => 'menu-elmsln-main-navigation',
           'region' => 'header',
           'weight' => '-10',
         ),

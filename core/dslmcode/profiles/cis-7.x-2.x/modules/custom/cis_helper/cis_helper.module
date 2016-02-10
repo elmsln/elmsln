@@ -257,7 +257,7 @@ function cis_helper_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
-    'menu_name' => 'menu-cis-add',
+    'menu_name' => 'menu-elmsln-add',
     'weight' => -10,
   );
   // add offering form
@@ -270,7 +270,7 @@ function cis_helper_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
-    'menu_name' => 'menu-cis-add',
+    'menu_name' => 'menu-elmsln-add',
     'weight' => -9,
   );
   // quick setup form for planning lots of sections at once
@@ -284,7 +284,7 @@ function cis_helper_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
-    'menu_name' => 'menu-course-tools-menu',
+    'menu_name' => 'menu-elmsln-settings',
   );
   // quick setup form from a string, useful with LTI prepopulation
   $items['cis-quick-setup-access-id'] = array(
