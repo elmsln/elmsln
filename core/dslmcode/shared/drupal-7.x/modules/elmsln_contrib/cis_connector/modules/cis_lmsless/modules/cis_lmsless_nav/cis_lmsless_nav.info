@@ -2,3 +2,4 @@ name = CIS LMS-less Navigation
 description = This module allows you to add custom navigation items in the LMS-less navbar
 core = 7.x
 dependencies[] = cis_lmsless
+configure = 'admin/config/elmsln/cis-lmsless-nav'

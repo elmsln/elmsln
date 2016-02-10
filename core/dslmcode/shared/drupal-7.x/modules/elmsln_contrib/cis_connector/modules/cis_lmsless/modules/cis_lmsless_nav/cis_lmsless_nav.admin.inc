@@ -5,100 +5,6 @@
  */
 
 /**
- * CIS LMS-less admin configuration form.
- */
-function cis_lmsless_nav_admin_form($form, &$form_state) {
-  $form['table'] = array(
-    '#type' => 'markup',
-    '#markup' => _cis_lmsless_nav_admin_form_table($form, $form_state),
-  );
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => 'Submit',
-  );
-
-  return $form;
-}
-
-function _cis_lmsless_nav_admin_form_table(&$form, &$form_state) {
-  $links = variable_get('cis_lmsless_nav_links', NULL);
-
-    if (!is_null($links) && !empty($links)) {
-      $output = '';
-      drupal_add_tabledrag('cis-lmsless-nav-admin-form-table', 'order', 'sibling', 'cis_lmsless_nav_weight', NULL, NULL, FALSE);
-      $table = array();
-      $header = array(
-        array('data' => t('title')),
-        array('data' => t('path')),
-        array('data' => t('group')),
-        array('data' => t('machine_name')),
-        array('data' => t('icon_library')),
-        array('data' => t('edit')),
-        array('data' => t('delete')),
-        array('data' => t('weight')),
-      );
-      $rows = array();
-
-      foreach ($links as $link_key => $link_array) {
-        // Add row weights
-        $form[$link_key]['weight'] = array(
-          '#type' => 'weight',
-          '#title' => t('Weight'),
-          '#default_value' => $link_key,
-          '#attributes' => array(
-            'class' => array('cis_lmsless_nav_weight'),
-          ),
-          '#delta' => 10,
-          '#title_display' => 'invisible'
-        );
-
-        $rows[$link_key]['data'][] = theme('indentation', array('size' => 0)) . $link_array['title'];
-        $rows[$link_key]['data'][] = $link_array['path'];
-        $rows[$link_key]['data'][] = $link_array['group'];
-        $rows[$link_key]['data'][] = $link_array['machine_name'];
-        $rows[$link_key]['data'][] = $link_array['icon_library'];
-        $rows[$link_key]['data'][] = l('edit', 'admin/config/elmsln/cis-lmsless-nav/edit-link/' . $link_key);
-        $rows[$link_key]['data'][] = l('delete', 'admin/config/elmsln/cis-lmsless-nav/delete-link/' . $link_key);
-        $rows[$link_key]['data'][] = drupal_render_children($form[$link_key]['weight']);
-        $rows[$link_key]['class'] = array('draggable');
-      }
-
-      $output .= l('Add new link', 'admin/config/elmsln/cis-lmsless-nav/add-link');
-      $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'cis-lmsless-nav-admin-form-table')));
-      return render($output);
-    }
-    else {
-      $output = t('There are no links currently set. ') . l('Add new link', 'admin/config/elmsln/cis-lmsless-nav/add-link');
-      return $output;
-    }
-}
-
-/**
- * Implements hook_form().
- */
-function cis_lmsless_nav_admin_config_page_form($node, &$form_state) {
-  $links = variable_get('cis_lmsless_nav_links', NULL);
-
-  foreach ($links as $key => $link) {
-    $form[$key]['weight'] = array(
-      '#type' => 'weight',
-      '#title' => t('Weight'),
-      '#default_value' => $key,
-      '#attributes' => array(
-        'class' => array('weight'),
-      ),
-    );
-  }
-
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => 'Submit',
-  );
-
-  return $form;
-}
-
-/**
  * drupal_get_form callback for hook_menu 'admin/config/elmsln/cis-lmsless-nav/add-link'
  */
 function cis_lmsless_nav_admin_add_link_form($form, &$form_state) {
@@ -256,6 +162,14 @@ function _cis_lmsless_nav_admin_form_elements() {
       ),
     ),
   );
+  $form['cis_lmsless_nav_links']['weight'] = array(
+    'weight' => array(
+      '#type' => 'weight',
+      '#title' => t('Weight'),
+      '#default_value' => 0,
+      '#delta' => 10,
+    ),
+  );
 
   return $form;
 }
@@ -287,6 +201,7 @@ function _cis_lmsless_nav_update_links_variable($form, $form_state, $action = 'c
       'group' => $form_state['values']['group'],
       'machine_name' => '',
       'icon_library' => '',
+      'weight' => $form_state['values']['group'],
     );
     // if the user has added an icon then add that to the link array
     if (isset($form_state['values']['machine_name']) && $form_state['values']['machine_name'] != '') {
@@ -307,11 +222,4 @@ function _cis_lmsless_nav_update_links_variable($form, $form_state, $action = 'c
 
   // set the variable
   variable_set('cis_lmsless_nav_links', $cis_lmsless_nav_links);
-}
-
-function _cis_lmsless_nav_array_unshift_assoc(&$arr, $key, $val) {
-    $arr = array_reverse($arr, true);
-    $arr[$key] = $val;
-    $arr = array_reverse($arr, true);
-    return count($arr);
 }

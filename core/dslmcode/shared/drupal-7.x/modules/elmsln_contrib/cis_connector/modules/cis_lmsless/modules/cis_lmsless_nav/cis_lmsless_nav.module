@@ -9,37 +9,35 @@
  * Implements hook_menu().
  */
 function cis_lmsless_nav_menu() {
-  $items['admin/config/elmsln/cis-lmsless-nav'] = array(
-    'title' => 'CIS LMS-less Nav Administer',
+  $items['admin/config/cis-lmsless-nav'] = array(
+    'title' => 'CIS LMS-less Navigation',
     'access arguments' => array('administer cis lms-less nav'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('cis_lmsless_nav_admin_form'),
-    'file' => 'cis_lmsless_nav.admin.inc',
-    'context' => MENU_NORMAL_ITEM,
+    'page arguments' => array('cis_lmsless_nav_parent_form'),
+    'file' => 'cis_lmsless_nav_parent_form.inc',
+    'type' => MENU_LOCAL_TASK,
   );
-  $items['admin/config/elmsln/cis-lmsless-nav/add-link'] = array(
-    'title' => 'CIS LMS-less Nav add link',
+  $items['admin/config/cis-lmsless-nav/add-link'] = array(
+    'title' => 'CIS LMS-less Navigation add link',
     'access arguments' => array('administer cis lms-less nav'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_lmsless_nav_admin_add_link_form'),
     'file' => 'cis_lmsless_nav.admin.inc',
-    'context' => MENU_CALLBACK,
+    'type' => MENU_LOCAL_TASK,
   );
-  $items['admin/config/elmsln/cis-lmsless-nav/edit-link/%'] = array(
-    'title' => 'CIS LMS-less Nav edit link',
+  $items['admin/config/cis-lmsless-nav/edit-link/%'] = array(
+    'title' => 'CIS LMS-less Navigation edit link',
     'access arguments' => array('administer cis lms-less nav'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_lmsless_nav_admin_edit_link_form', 5),
     'file' => 'cis_lmsless_nav.admin.inc',
-    'context' => MENU_CALLBACK,
   );
-  $items['admin/config/elmsln/cis-lmsless-nav/delete-link/%'] = array(
-    'title' => 'CIS LMS-less Nav delete link',
+  $items['admin/config/cis-lmsless-nav/delete-link/%'] = array(
+    'title' => 'CIS LMS-less Navigation delete link',
     'access arguments' => array('administer cis lms-less nav'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_lmsless_nav_admin_delete_link_form', 5),
     'file' => 'cis_lmsless_nav.admin.inc',
-    'context' => MENU_CALLBACK,
   );
 
   return $items;
@@ -53,6 +51,15 @@ function digitalmeasures_permission() {
     'administer cis lms-less nav' =>  array(
       'title' => t('Administer LMS-less Navigation'),
       'description' => t('Add custom menu links to the LMS-less navigation.'),
+    ),
+  );
+}
+
+function cis_lmsless_nav_theme() {
+  return array(
+    'cis_lmsless_nav_parent_form' => array(
+      'render element' => 'form',
+      'file' => 'cis_lmsless_nav_parent_form.inc',
     ),
   );
 }
