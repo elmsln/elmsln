@@ -781,7 +781,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Courses';
   $handler->display->display_options['menu']['weight'] = '-50';
-  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_courses'] = $view;
@@ -2358,7 +2358,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Resources';
   $handler->display->display_options['menu']['description'] = 'List of all resources in the system';
   $handler->display->display_options['menu']['weight'] = '-49';
-  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['cis_resources'] = $view;

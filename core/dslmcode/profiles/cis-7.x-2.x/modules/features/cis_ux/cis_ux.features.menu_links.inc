@@ -64,15 +64,15 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -46,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-main-navigation_courses:courses/list
-  $menu_links['menu-elmsln-main-navigation_courses:courses/list'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_courses:courses/list
+  $menu_links['menu-elmsln-navigation_courses:courses/list'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'courses/list',
     'router_path' => 'courses',
     'link_title' => 'Courses',
     'options' => array(
       'attributes' => array(),
-      'identifier' => 'menu-elmsln-main-navigation_courses:courses/list',
+      'identifier' => 'menu-elmsln-navigation_courses:courses/list',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -82,14 +82,14 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-main-navigation_offerings:cis/offerings/list
-  $menu_links['menu-elmsln-main-navigation_offerings:cis/offerings/list'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_offerings:cis/offerings/list
+  $menu_links['menu-elmsln-navigation_offerings:cis/offerings/list'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cis/offerings/list',
     'router_path' => 'cis/offerings/list',
     'link_title' => 'Offerings',
     'options' => array(
-      'identifier' => 'menu-elmsln-main-navigation_offerings:cis/offerings/list',
+      'identifier' => 'menu-elmsln-navigation_offerings:cis/offerings/list',
     ),
     'module' => 'system',
     'hidden' => -1,
@@ -99,9 +99,9 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -1,
     'customized' => 0,
   );
-  // Exported menu link: menu-elmsln-main-navigation_people:cis/admin/people
-  $menu_links['menu-elmsln-main-navigation_people:cis/admin/people'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_people:cis/admin/people
+  $menu_links['menu-elmsln-navigation_people:cis/admin/people'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cis/admin/people',
     'router_path' => 'cis/admin/people',
     'link_title' => 'People',
@@ -109,7 +109,7 @@ function cis_ux_menu_default_menu_links() {
       'attributes' => array(
         'title' => 'view all people in the system',
       ),
-      'identifier' => 'menu-elmsln-main-navigation_people:cis/admin/people',
+      'identifier' => 'menu-elmsln-navigation_people:cis/admin/people',
     ),
     'module' => 'system',
     'hidden' => 0,
@@ -119,9 +119,9 @@ function cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 0,
   );
-  // Exported menu link: menu-elmsln-main-navigation_resources:cis/resources
-  $menu_links['menu-elmsln-main-navigation_resources:cis/resources'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_resources:cis/resources
+  $menu_links['menu-elmsln-navigation_resources:cis/resources'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cis/resources',
     'router_path' => 'cis/resources',
     'link_title' => 'Resources',
@@ -129,7 +129,7 @@ function cis_ux_menu_default_menu_links() {
       'attributes' => array(
         'title' => 'List of all resources in the system',
       ),
-      'identifier' => 'menu-elmsln-main-navigation_resources:cis/resources',
+      'identifier' => 'menu-elmsln-navigation_resources:cis/resources',
     ),
     'module' => 'system',
     'hidden' => 0,
@@ -139,9 +139,9 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -49,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-main-navigation_setup-course-access:cis-quick-setup-access-id
-  $menu_links['menu-elmsln-main-navigation_setup-course-access:cis-quick-setup-access-id'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_setup-course-access:cis-quick-setup-access-id
+  $menu_links['menu-elmsln-navigation_setup-course-access:cis-quick-setup-access-id'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cis-quick-setup-access-id',
     'router_path' => 'cis-quick-setup-access-id',
     'link_title' => 'Setup course access',
@@ -149,7 +149,7 @@ function cis_ux_menu_default_menu_links() {
       'attributes' => array(
         'title' => 'Setup access to a space based on having the unique string.',
       ),
-      'identifier' => 'menu-elmsln-main-navigation_setup-course-access:cis-quick-setup-access-id',
+      'identifier' => 'menu-elmsln-navigation_setup-course-access:cis-quick-setup-access-id',
     ),
     'module' => 'system',
     'hidden' => 1,

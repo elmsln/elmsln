@@ -102,9 +102,9 @@ function icor_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-main-navigation_object-listing:icor-object-lists
-  $menu_links['menu-elmsln-main-navigation_object-listing:icor-object-lists'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_object-listing:icor-object-lists
+  $menu_links['menu-elmsln-navigation_object-listing:icor-object-lists'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'icor-object-lists',
     'router_path' => 'icor-object-lists',
     'link_title' => 'Object listing',
@@ -115,7 +115,7 @@ function icor_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-elmsln-main-navigation_object-listing:icor-object-lists',
+      'identifier' => 'menu-elmsln-navigation_object-listing:icor-object-lists',
     ),
     'module' => 'menu',
     'hidden' => 0,

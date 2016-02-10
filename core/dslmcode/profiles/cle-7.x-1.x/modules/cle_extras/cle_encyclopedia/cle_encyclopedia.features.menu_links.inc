@@ -33,14 +33,14 @@ function cle_encyclopedia_menu_default_menu_links() {
     'weight' => -49,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-main-navigation_encyclopedia:cle/encyclopedia
-  $menu_links['menu-elmsln-main-navigation_encyclopedia:cle/encyclopedia'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_encyclopedia:cle/encyclopedia
+  $menu_links['menu-elmsln-navigation_encyclopedia:cle/encyclopedia'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cle/encyclopedia',
     'router_path' => 'cle/encyclopedia',
     'link_title' => 'Encyclopedia',
     'options' => array(
-      'identifier' => 'menu-elmsln-main-navigation_encyclopedia:cle/encyclopedia',
+      'identifier' => 'menu-elmsln-navigation_encyclopedia:cle/encyclopedia',
     ),
     'module' => 'system',
     'hidden' => 0,

@@ -73,7 +73,7 @@ function cis_update_7004(&$sandbox) {
   // try and place menu items corectly
   features_revert('cis_displays');
   menu_cache_clear('navigation');
-  menu_cache_clear('menu-elmsln-main-navigation');
+  menu_cache_clear('menu-elmsln-navigation');
   menu_cache_clear('menu-elmsln-add');
   menu_cache_clear('menu-elmsln-settings');
 }

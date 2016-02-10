@@ -20,7 +20,7 @@ function discuss_displays_features_override_default_overrides() {
     'field' => 'field_harmony_category_tid',
   );
   $overrides["views_view.harmony_thread_listing.display|default|display_options|sorts|updated"]["DELETED"] = TRUE;
-  $overrides["views_view.harmony_thread_listing.display|page_1|display_options|menu|name"] = 'menu-elmsln-main-navigation';
+  $overrides["views_view.harmony_thread_listing.display|page_1|display_options|menu|name"] = 'menu-elmsln-navigation';
   $overrides["views_view.harmony_thread_listing.display|page_1|display_options|menu|title"] = 'All Discussion boards';
   $overrides["views_view.harmony_thread_listing.display|page_1|display_options|title"] = 'Discussion Boards';
 

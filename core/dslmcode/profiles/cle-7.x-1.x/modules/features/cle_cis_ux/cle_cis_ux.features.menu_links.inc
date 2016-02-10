@@ -10,9 +10,9 @@
 function cle_cis_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-elmsln-main-navigation_assignments-list:cle/assignments
-  $menu_links['menu-elmsln-main-navigation_assignments-list:cle/assignments'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_assignments-list:cle/assignments
+  $menu_links['menu-elmsln-navigation_assignments-list:cle/assignments'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cle/assignments',
     'router_path' => 'cle/assignments',
     'link_title' => 'Assignments list',
@@ -20,7 +20,7 @@ function cle_cis_ux_menu_default_menu_links() {
       'attributes' => array(
         'title' => 'Listing of assignments for this section',
       ),
-      'identifier' => 'menu-elmsln-main-navigation_assignments-list:cle/assignments',
+      'identifier' => 'menu-elmsln-navigation_assignments-list:cle/assignments',
     ),
     'module' => 'system',
     'hidden' => 0,
@@ -30,9 +30,9 @@ function cle_cis_ux_menu_default_menu_links() {
     'weight' => -49,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-main-navigation_my-draft-pages:cle/draft-pages
-  $menu_links['menu-elmsln-main-navigation_my-draft-pages:cle/draft-pages'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_my-draft-pages:cle/draft-pages
+  $menu_links['menu-elmsln-navigation_my-draft-pages:cle/draft-pages'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cle/draft-pages',
     'router_path' => 'cle/draft-pages',
     'link_title' => 'My Draft Pages',
@@ -40,7 +40,7 @@ function cle_cis_ux_menu_default_menu_links() {
       'attributes' => array(
         'title' => 'A visual showcase of all your submitted draft pages',
       ),
-      'identifier' => 'menu-elmsln-main-navigation_my-draft-pages:cle/draft-pages',
+      'identifier' => 'menu-elmsln-navigation_my-draft-pages:cle/draft-pages',
     ),
     'module' => 'system',
     'hidden' => 0,
@@ -50,14 +50,14 @@ function cle_cis_ux_menu_default_menu_links() {
     'weight' => -46,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-main-navigation_my-final-pages:cle/final-pages
-  $menu_links['menu-elmsln-main-navigation_my-final-pages:cle/final-pages'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_my-final-pages:cle/final-pages
+  $menu_links['menu-elmsln-navigation_my-final-pages:cle/final-pages'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cle/final-pages',
     'router_path' => 'cle/final-pages',
     'link_title' => 'My Final Pages',
     'options' => array(
-      'identifier' => 'menu-elmsln-main-navigation_my-final-pages:cle/final-pages',
+      'identifier' => 'menu-elmsln-navigation_my-final-pages:cle/final-pages',
     ),
     'module' => 'system',
     'hidden' => 0,
@@ -67,14 +67,14 @@ function cle_cis_ux_menu_default_menu_links() {
     'weight' => -45,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-main-navigation_my-sketch-book:cle/sketch-book
-  $menu_links['menu-elmsln-main-navigation_my-sketch-book:cle/sketch-book'] = array(
-    'menu_name' => 'menu-elmsln-main-navigation',
+  // Exported menu link: menu-elmsln-navigation_my-sketch-book:cle/sketch-book
+  $menu_links['menu-elmsln-navigation_my-sketch-book:cle/sketch-book'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cle/sketch-book',
     'router_path' => 'cle/sketch-book',
     'link_title' => 'My Sketch Book',
     'options' => array(
-      'identifier' => 'menu-elmsln-main-navigation_my-sketch-book:cle/sketch-book',
+      'identifier' => 'menu-elmsln-navigation_my-sketch-book:cle/sketch-book',
     ),
     'module' => 'system',
     'hidden' => 0,

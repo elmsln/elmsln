@@ -9,5 +9,4 @@ dependencies[] = menu
 features[context][] = discuss_ux
 features[ctools][] = context:context:3
 features[features_api][] = api:2
-features[menu_custom][] = menu-elmsln-main-navigation
 features[menu_links][] = menu-elmsln-add_create-new-thread:thread/add

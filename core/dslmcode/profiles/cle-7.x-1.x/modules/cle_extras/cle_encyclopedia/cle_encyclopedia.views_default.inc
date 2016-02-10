@@ -79,7 +79,7 @@ function cle_encyclopedia_views_default_views() {
   $handler->display->display_options['path'] = 'cle/encyclopedia';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Encyclopedia';
-  $handler->display->display_options['menu']['name'] = 'menu-elmsln-main-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
 
   /* Display: Attachment */
   $handler = $view->new_display('attachment', 'Attachment', 'attachment_1');

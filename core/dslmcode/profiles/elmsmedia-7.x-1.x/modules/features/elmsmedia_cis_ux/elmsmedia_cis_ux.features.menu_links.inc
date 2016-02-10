@@ -153,9 +153,9 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsmedia-navigation_asset-overview:media-overview
-  $menu_links['menu-elmsmedia-navigation_asset-overview:media-overview'] = array(
-    'menu_name' => 'menu-elmsmedia-navigation',
+  // Exported menu link: menu-elmsln-navigation_asset-overview:media-overview
+  $menu_links['menu-elmsln-navigation_asset-overview:media-overview'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'media-overview',
     'router_path' => 'media-overview',
     'link_title' => 'Asset overview',
@@ -166,7 +166,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-elmsmedia-navigation_asset-overview:media-overview',
+      'identifier' => 'menu-elmsln-navigation_asset-overview:media-overview',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',
@@ -177,9 +177,9 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsmedia-navigation_course-list:courses
-  $menu_links['menu-elmsmedia-navigation_course-list:courses'] = array(
-    'menu_name' => 'menu-elmsmedia-navigation',
+  // Exported menu link: menu-elmsln-navigation_course-list:courses
+  $menu_links['menu-elmsln-navigation_course-list:courses'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'courses',
     'router_path' => 'courses',
     'link_title' => 'Course list',
@@ -190,7 +190,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-elmsmedia-navigation_course-list:courses',
+      'identifier' => 'menu-elmsln-navigation_course-list:courses',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',

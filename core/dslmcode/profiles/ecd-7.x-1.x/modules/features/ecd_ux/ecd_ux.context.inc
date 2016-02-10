@@ -26,9 +26,9 @@ function ecd_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-comply-navigation' => array(
+        'menu-menu-elmsln-navigation' => array(
           'module' => 'menu',
-          'delta' => 'menu-comply-navigation',
+          'delta' => 'menu-elmsln-navigation',
           'region' => 'header',
           'weight' => '-10',
         ),

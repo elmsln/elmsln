@@ -26,9 +26,9 @@ function elmsmedia_cis_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-elmsmedia-navigation' => array(
+        'menu-menu-elmsln-navigation' => array(
           'module' => 'menu',
-          'delta' => 'menu-elmsmedia-navigation',
+          'delta' => 'menu-elmsln-navigation',
           'region' => 'header',
           'weight' => '-10',
         ),

@@ -56,9 +56,9 @@ function ecd_ux_menu_default_menu_links() {
     'weight' => 49,
     'customized' => 1,
   );
-  // Exported menu link: menu-comply-navigation_asset-compliance:asset-compliance
-  $menu_links['menu-comply-navigation_asset-compliance:asset-compliance'] = array(
-    'menu_name' => 'menu-comply-navigation',
+  // Exported menu link: menu-elmsln-navigation_asset-compliance:asset-compliance
+  $menu_links['menu-elmsln-navigation_asset-compliance:asset-compliance'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'asset-compliance',
     'router_path' => 'asset-compliance',
     'link_title' => 'Asset Compliance',
@@ -69,7 +69,7 @@ function ecd_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-comply-navigation_asset-compliance:asset-compliance',
+      'identifier' => 'menu-elmsln-navigation_asset-compliance:asset-compliance',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -79,9 +79,9 @@ function ecd_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-comply-navigation_course-list:courses
-  $menu_links['menu-comply-navigation_course-list:courses'] = array(
-    'menu_name' => 'menu-comply-navigation',
+  // Exported menu link: menu-elmsln-navigation_course-list:courses
+  $menu_links['menu-elmsln-navigation_course-list:courses'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'courses',
     'router_path' => 'courses',
     'link_title' => 'Course list',
@@ -92,7 +92,7 @@ function ecd_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-comply-navigation_course-list:courses',
+      'identifier' => 'menu-elmsln-navigation_course-list:courses',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -102,9 +102,9 @@ function ecd_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-comply-navigation_system-access-requests:admin/structure/entityform_types/manage/system_access_request/submissions
-  $menu_links['menu-comply-navigation_system-access-requests:admin/structure/entityform_types/manage/system_access_request/submissions'] = array(
-    'menu_name' => 'menu-comply-navigation',
+  // Exported menu link: menu-elmsln-navigation_system-access-requests:admin/structure/entityform_types/manage/system_access_request/submissions
+  $menu_links['menu-elmsln-navigation_system-access-requests:admin/structure/entityform_types/manage/system_access_request/submissions'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'admin/structure/entityform_types/manage/system_access_request/submissions',
     'router_path' => 'admin/structure/entityform_types/manage/%/submissions',
     'link_title' => 'System access requests',
@@ -115,7 +115,7 @@ function ecd_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-comply-navigation_system-access-requests:admin/structure/entityform_types/manage/system_access_request/submissions',
+      'identifier' => 'menu-elmsln-navigation_system-access-requests:admin/structure/entityform_types/manage/system_access_request/submissions',
     ),
     'module' => 'menu',
     'hidden' => 0,
