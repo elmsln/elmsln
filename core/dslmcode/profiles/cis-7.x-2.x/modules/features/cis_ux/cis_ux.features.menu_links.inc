@@ -82,43 +82,6 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-navigation_offerings:cis/offerings/list
-  $menu_links['menu-elmsln-navigation_offerings:cis/offerings/list'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'cis/offerings/list',
-    'router_path' => 'cis/offerings/list',
-    'link_title' => 'Offerings',
-    'options' => array(
-      'identifier' => 'menu-elmsln-navigation_offerings:cis/offerings/list',
-    ),
-    'module' => 'system',
-    'hidden' => -1,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -1,
-    'customized' => 0,
-  );
-  // Exported menu link: menu-elmsln-navigation_people:cis/admin/people
-  $menu_links['menu-elmsln-navigation_people:cis/admin/people'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'cis/admin/people',
-    'router_path' => 'cis/admin/people',
-    'link_title' => 'People',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'view all people in the system',
-      ),
-      'identifier' => 'menu-elmsln-navigation_people:cis/admin/people',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
-  );
   // Exported menu link: menu-elmsln-navigation_resources:cis/resources
   $menu_links['menu-elmsln-navigation_resources:cis/resources'] = array(
     'menu_name' => 'menu-elmsln-navigation',
@@ -165,9 +128,6 @@ function cis_ux_menu_default_menu_links() {
   t('Academic area');
   t('Courses');
   t('Global Resource');
-  t('Offerings');
-  t('People');
-  t('Performance');
   t('Program');
   t('Resources');
   t('Setup course access');
