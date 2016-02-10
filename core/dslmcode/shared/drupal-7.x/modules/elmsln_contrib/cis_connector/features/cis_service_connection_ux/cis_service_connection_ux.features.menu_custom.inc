@@ -20,13 +20,13 @@ function cis_service_connection_ux_menu_default_menu_custom() {
   $menus['menu-elmsln-settings'] = array(
     'menu_name' => 'menu-elmsln-settings',
     'title' => 'Settings menu',
-    'description' => 'Modify settings with your course network or this tool.',
+    'description' => 'Modify settings with your course network or this tool',
   );
   // Exported menu: menu-elmsln-navigation.
   $menus['menu-elmsln-navigation'] = array(
     'menu_name' => 'menu-elmsln-navigation',
     'title' => 'Navigation menu',
-    'description' => 'Navigational links for using this tool.',
+    'description' => 'Navigational links for using this tool',
   );
   // Translatables
   // Included for use with string extractors like potx.
@@ -34,7 +34,7 @@ function cis_service_connection_ux_menu_default_menu_custom() {
   t('Settings menu');
   t('Navigation menu');
   t('Menu that has content users can add to the system');
-
-
+  t('Modify settings with your course network or this tool');
+  t('Navigational links for using this tool');
   return $menus;
 }
