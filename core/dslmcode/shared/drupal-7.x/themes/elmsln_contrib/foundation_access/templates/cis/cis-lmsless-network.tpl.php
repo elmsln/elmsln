@@ -22,9 +22,16 @@
     <hr/>
     <h2><?php print t('@title', array('@title' => $title)); ?></h2>
     <?php foreach ($items as $service) : ?>
-    <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
-      <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
-      <span class=""><?php print $service['title']; ?></span>
-    </a>
+      <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
+        <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
+          <div class="etb-modal-icons etb-modal-material-icons"><i class="zmdi zmdi-<?php print $service['machine_name']; ?>"></i></div>
+          <span class=""><?php print $service['title']; ?></span>
+        </a>
+      <?php else: ?>
+        <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row">
+          <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
+          <span class=""><?php print $service['title']; ?></span>
+        </a>
+      <?php endif; ?>
     <?php endforeach ?>
   <?php endforeach ?>

@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Add custom menu items to LMS-less bar
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function cis_lmsless_nav_menu() {
+  $items['admin/config/elmsln/cis-lmsless-nav'] = array(
+    'title' => 'CIS LMS-less Nav Administer',
+    'access arguments' => array('administer cis lms-less nav'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_lmsless_nav_admin_form'),
+    'file' => 'cis_lmsless_nav.admin.inc',
+    'context' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/elmsln/cis-lmsless-nav/add-link'] = array(
+    'title' => 'CIS LMS-less Nav add link',
+    'access arguments' => array('administer cis lms-less nav'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_lmsless_nav_admin_add_link_form'),
+    'file' => 'cis_lmsless_nav.admin.inc',
+    'context' => MENU_CALLBACK,
+  );
+  $items['admin/config/elmsln/cis-lmsless-nav/edit-link/%'] = array(
+    'title' => 'CIS LMS-less Nav edit link',
+    'access arguments' => array('administer cis lms-less nav'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_lmsless_nav_admin_edit_link_form', 5),
+    'file' => 'cis_lmsless_nav.admin.inc',
+    'context' => MENU_CALLBACK,
+  );
+  $items['admin/config/elmsln/cis-lmsless-nav/delete-link/%'] = array(
+    'title' => 'CIS LMS-less Nav delete link',
+    'access arguments' => array('administer cis lms-less nav'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_lmsless_nav_admin_delete_link_form', 5),
+    'file' => 'cis_lmsless_nav.admin.inc',
+    'context' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function digitalmeasures_permission() {
+  return array(
+    'administer cis lms-less nav' =>  array(
+      'title' => t('Administer LMS-less Navigation'),
+      'description' => t('Add custom menu links to the LMS-less navigation.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_cis_lmsless_theme_vars_alter()
+ */
+function cis_lmsless_nav_cis_lmsless_theme_vars_alter(&$vars) {
+	$cis_lmsless_nav_links = variable_get('cis_lmsless_nav_links', NULL);
+
+	if ($cis_lmsless_nav_links) {
+		foreach ($cis_lmsless_nav_links as $link) {
+			// make sure we are not overriding a current link
+			if (!isset($vars['services'][$link['group']][$link['title']])) {
+				$vars['services'][$link['group']][$link['title']] = array(
+					'title' => t($link['title']),
+					'url' => $link['path'],
+					'machine_name' => $link['machine_name'],
+					'icon_library' => $link['icon_library'],
+				);
+			}
+		}
+	}
+}

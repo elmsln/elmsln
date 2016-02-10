@@ -7951,6 +7951,15 @@ p.txtbk-intro {
   .r-local-header a.add-menu-drop:hover, .r-local-header a.add-menu-drop:focus {
     background-color: #2b2b2b; }
 
+#block-cis-lmsless-cis-lmsless-network-nav-modal .etb-modal-icons {
+  margin-top: -2px; }
+
+#block-cis-lmsless-cis-lmsless-network-nav-modal .etb-modal-material-icons {
+  color: black;
+  font-size: 30px;
+  text-align: center;
+  padding: 0; }
+
 .icon--dropdown {
   -webkit-align-self: center;
       -ms-flex-item-align: center;
