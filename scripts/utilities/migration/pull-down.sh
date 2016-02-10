@@ -255,7 +255,7 @@ for i in $(find $dbs*/*/*.sql -type f); do
   # ignore default DBs as they are meaningless
   if [ ${arr[0]} != 'default' ]; then
     drush $drushalias sql-query --file=$i --y
-    # if this is a dev instnace of any kind then sanitize the data
+    # if this is a dev instance of any kind then sanitize the data
     if [ $pulldowntype != '1' ]; then
       drush $drushalias sqlsan --y
     fi
