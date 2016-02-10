@@ -1,0 +1,13 @@
+name = Inbox Perms
+description = Inbox default permissions
+core = 7.x
+package = Inbox
+dependencies[] = features
+dependencies[] = node
+features[features_api][] = api:2
+features[user_permission][] = access content
+features[user_permission][] = create inbox_event content
+features[user_permission][] = delete any inbox_event content
+features[user_permission][] = delete own inbox_event content
+features[user_permission][] = edit any inbox_event content
+features[user_permission][] = edit own inbox_event content

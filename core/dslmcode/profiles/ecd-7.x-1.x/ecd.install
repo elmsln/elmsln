@@ -19,4 +19,6 @@ function ecd_install() {
   variable_set('cis_help_page', '');
   variable_set('cis_resource_page', '');
   variable_set('cis_syllabus_page', '');
+  // set homepage
+  variable_set('site_frontpage', 'courses');
 }

@@ -144,3 +144,4 @@ dependencies[] = inbox_helper
 dependencies[] = inbox_calendar
 dependencies[] = inbox_event
 dependencies[] = inbox_ux
+dependencies[] = inbox_perms
