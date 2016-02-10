@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the File (Field) Paths module.
+ */
+
+/**
+ * Massive menu refactor under the hood to simplify development
+ * across the distributions by standardizing on three menus
+ * that all use the same name. This consolidates 15 or so menus
+ * down into 3 for a sense of the scope of this.
+ */
+function foundation_access_ux_update_7001() {
+  menu_cache_clear('menu-elmsln-navigation');
+  menu_cache_clear('menu-elmsln-add');
+  menu_cache_clear('menu-elmsln-settings');
+  // this holds all the menu that we just completely shifted around
+  // which FA-UX uses
+  features_revert('cis_service_connection_ux');
+  // self revert
+  features_revert('foundation_access_ux');
+}
