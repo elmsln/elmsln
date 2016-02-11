@@ -1299,7 +1299,7 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
       if (is_array($field_value) && count($field_value) >= 2) {
         // simple value = evaluation
         if (count($field_value) == 2) {
-        $query->fieldCondition($field_name, $field_value[0], $field_value[1], '=');
+          $query->fieldCondition($field_name, $field_value[0], $field_value[1], '=');
         }
         // allow for more complex comparisons like in an array of values
         elseif (count($field_value) == 3) {
