@@ -11,11 +11,11 @@
 function cis_lmsless_nav_menu() {
   $items['admin/config/user-interface/cis-lmsless-nav'] = array(
     'title' => 'CIS LMS-less Navigation',
+    'description' => t('Add custom menu links to the LMS-less navigation'),
     'access arguments' => array('administer cis lms-less nav'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_lmsless_nav_parent_form'),
     'file' => 'cis_lmsless_nav_parent_form.inc',
-    'type' => MENU_LOCAL_TASK,
   );
   $items['admin/config/user-interface/cis-lmsless-nav/add-link'] = array(
     'title' => 'CIS LMS-less Navigation add link',
@@ -23,7 +23,6 @@ function cis_lmsless_nav_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_lmsless_nav_admin_add_link_form'),
     'file' => 'cis_lmsless_nav.admin.inc',
-    'type' => MENU_LOCAL_TASK,
   );
   $items['admin/config/user-interface/cis-lmsless-nav/edit-link/%'] = array(
     'title' => 'CIS LMS-less Navigation edit link',
