@@ -274,4 +274,6 @@ fi
 
 # clean up tmp directory
 sudo rm -rf $dbs
+# run permission clean up
+bash /var/www/elmsln/scripts/utilities/harden-security.sh
 elmslnecho 'Your site should now be available local to this machine. All communications between sites in the network have been rewritten to talk to each other. Enjoy!'
