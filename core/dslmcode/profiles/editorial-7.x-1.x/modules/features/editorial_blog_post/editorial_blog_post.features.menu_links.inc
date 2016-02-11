@@ -10,14 +10,14 @@
 function editorial_blog_post_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_public-blog-post:node/add/editorial-blog-post
-  $menu_links['menu-cis-add_public-blog-post:node/add/editorial-blog-post'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_public-blog-post:node/add/editorial-blog-post
+  $menu_links['menu-elmsln-add_public-blog-post:node/add/editorial-blog-post'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/editorial-blog-post',
     'router_path' => 'node/add/editorial-blog-post',
     'link_title' => 'Public Blog post',
     'options' => array(
-      'identifier' => 'menu-cis-add_public-blog-post:node/add/editorial-blog-post',
+      'identifier' => 'menu-elmsln-add_public-blog-post:node/add/editorial-blog-post',
       'menu_token_link_path' => 'node/add/editorial-blog-post?og_group_ref=[current-user:og-user-node:0:nid]',
       'menu_token_data' => array(),
       'menu_token_options' => array(

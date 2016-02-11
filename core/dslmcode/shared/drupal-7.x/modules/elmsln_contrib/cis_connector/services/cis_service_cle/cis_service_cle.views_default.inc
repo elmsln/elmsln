@@ -119,7 +119,7 @@ function cis_service_cle_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Assignments';
   $handler->display->display_options['menu']['description'] = 'assignment list from studio';
   $handler->display->display_options['menu']['weight'] = '100';
-  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-settings';
   $handler->display->display_options['menu']['context'] = 0;
   $export['cis_cle_assignments'] = $view;
 

@@ -10,9 +10,9 @@
 function inbox_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_calendar-event:node/add/inbox-event
-  $menu_links['menu-cis-add_calendar-event:node/add/inbox-event'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_calendar-event:node/add/inbox-event
+  $menu_links['menu-elmsln-add_calendar-event:node/add/inbox-event'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/inbox-event',
     'router_path' => 'node/add/inbox-event',
     'link_title' => 'Calendar event',
@@ -23,7 +23,7 @@ function inbox_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_calendar-event:node/add/inbox-event',
+      'identifier' => 'menu-elmsln-add_calendar-event:node/add/inbox-event',
     ),
     'module' => 'menu',
     'hidden' => 0,

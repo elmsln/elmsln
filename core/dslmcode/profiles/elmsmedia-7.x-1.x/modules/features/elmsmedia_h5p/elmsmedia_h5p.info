@@ -31,4 +31,4 @@ features[defaultconfig][] = user_default_permissions:update h5p libraries
 features[features_api][] = api:2
 features[field_instance][] = node-h5p_content-field_cis_course_ref
 features[field_instance][] = node-h5p_content-field_tagging
-features[menu_links][] = menu-cis-add_interactive-content:node/add/h5p-content
+features[menu_links][] = menu-elmsln-add_interactive-content:node/add/h5p-content

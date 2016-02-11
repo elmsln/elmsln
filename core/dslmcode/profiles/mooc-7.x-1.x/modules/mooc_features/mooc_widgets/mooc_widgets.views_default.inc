@@ -75,7 +75,7 @@ function mooc_widgets_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'Content Widgets';
   $handler->display->display_options['menu']['description'] = 'List of available widgets';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'menu-cis-toolkit';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-settings';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['mooc_widgets'] = $view;

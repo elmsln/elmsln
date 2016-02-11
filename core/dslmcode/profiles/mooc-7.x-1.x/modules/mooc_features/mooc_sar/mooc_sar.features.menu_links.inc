@@ -10,14 +10,14 @@
 function mooc_sar_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-course-tools-menu_search-and-replace:admin/content/book/sar
-  $menu_links['menu-course-tools-menu_search-and-replace:admin/content/book/sar'] = array(
-    'menu_name' => 'menu-course-tools-menu',
+  // Exported menu link: menu-elmsln-settings_search-and-replace:admin/content/book/sar
+  $menu_links['menu-elmsln-settings_search-and-replace:admin/content/book/sar'] = array(
+    'menu_name' => 'menu-elmsln-settings',
     'link_path' => 'admin/content/book/sar',
     'router_path' => 'admin/content/book/sar',
     'link_title' => 'Search and Replace',
     'options' => array(
-      'identifier' => 'menu-course-tools-menu_search-and-replace:admin/content/book/sar',
+      'identifier' => 'menu-elmsln-settings_search-and-replace:admin/content/book/sar',
       'fa_icon' => 'page',
       'attributes' => array(),
       'item_attributes' => array(
@@ -33,7 +33,7 @@ function mooc_sar_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -49,
     'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_content-tools:<nolink>',
+    'parent_identifier' => 'menu-elmsln-settings_content-tools:<nolink>',
   );
 
   // Translatables

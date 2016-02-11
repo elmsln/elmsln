@@ -284,8 +284,8 @@ function foundation_access_preprocess_node__inherit__svg(&$variables) {
     if ($node_wrapper->field_svg_alttext->value()) {
       $variables['svg_aria_hidden'] = 'true';
       $variables['svg_alttext'] = $node_wrapper->field_svg_alttext->value();
-    } 
-  } 
+    }
+  }
   catch (EntityMetadataWrapperException $exc) {
     watchdog(
       'foundation_access',
@@ -364,17 +364,28 @@ function foundation_access_menu_link(&$variables) {
 }
 
 /**
- * Implements menu_tree__menu_cis_add.
+<<<<<<< HEAD
+ * Implements menu_tree__menu_elmsln_settings.
+=======
+ * Implements menu_tree__menu_course_tools_menu.
+>>>>>>> origin/menu-refactor
  */
-function foundation_access_menu_tree__menu_cis_add($variables) {
-  return '<ul id="add-menu-drop" data-dropdown-content class="f-dropdown" role="menu" aria-hidden="false" tabindex="-1" class="menu">' . $variables['tree'] . '</ul>';
+function foundation_access_menu_tree__menu_elmsln_settings($variables) {
+  return '<ul class="has-submenu">' . $variables['tree'] . '</ul>';
 }
 
 /**
- * Implements menu_tree__menu_course_tools_menu.
+ * Implements menu_tree__menu_elmsln_navigation.
  */
-function foundation_access_menu_tree__menu_course_tools_menu($variables) {
-  return '<ul class="has-submenu">' . $variables['tree'] . '</ul>';
+function foundation_access_menu_tree__menu_elmsln_navigation($variables) {
+  return '<ul class="header-menu-options">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements menu_tree__menu_elmsln_add.
+ */
+function foundation_access_menu_tree__menu_elmsln_add($variables) {
+  return '<ul id="add-menu-drop" data-dropdown-content class="f-dropdown" role="menu" aria-hidden="false" tabindex="-1" class="menu">' . $variables['tree'] . '</ul>';
 }
 
 /**

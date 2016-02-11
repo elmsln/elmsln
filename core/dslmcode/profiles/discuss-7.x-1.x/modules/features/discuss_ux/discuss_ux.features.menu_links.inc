@@ -10,9 +10,9 @@
 function discuss_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_create-new-thread:thread/add
-  $menu_links['menu-cis-add_create-new-thread:thread/add'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_create-new-thread:thread/add
+  $menu_links['menu-elmsln-add_create-new-thread:thread/add'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'thread/add',
     'router_path' => 'thread/add',
     'link_title' => 'Create new thread',
@@ -23,7 +23,7 @@ function discuss_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_create-new-thread:thread/add',
+      'identifier' => 'menu-elmsln-add_create-new-thread:thread/add',
     ),
     'module' => 'system',
     'hidden' => 0,
