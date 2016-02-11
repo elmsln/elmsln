@@ -65,7 +65,7 @@ function cis_shortcodes_block_view($delta = '') {
 
         // see if we have some share fields to render
         if (isset($field)) {
-          $block['content'] = drupal_render($field['cis_shortcodes']);
+          $block['content'] = render($field['cis_shortcodes']);
         }
         else {
           $block['content'] = '';

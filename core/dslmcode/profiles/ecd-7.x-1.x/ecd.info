@@ -147,3 +147,4 @@ dependencies[] = ecd_entityforms
 dependencies[] = ecd_types
 dependencies[] = ecd_ux
 dependencies[] = ecd_helper
+dependencies[] = ecd_perms

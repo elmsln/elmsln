@@ -7,8 +7,6 @@
         {
             "command": "en",
             "arguments": [
-                "accessibility",
-                "accessibility_wysiwyg",
                 "cis_service_restws",
                 "cis_service_lti",
                 "cis_unique_tag"
