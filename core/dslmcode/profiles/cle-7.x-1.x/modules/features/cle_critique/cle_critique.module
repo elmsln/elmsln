@@ -10,10 +10,19 @@ include_once 'cle_critique.features.inc';
  * Implements hook_menu().
  */
 function cle_critique_menu() {
+  $items['cle/critique'] = array(
+    'title' => 'Peer critique',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_cle_critique_page'),
+    'access arguments' => array('create cle_critique content'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'menu-elmsln-navigation',
+    'weight' => 10,
+  );
   $items['cle/critique/%node'] = array(
     'title' => 'Peer critique',
-    'page callback' => '_cle_critique_page',
-    'page arguments' => array(2),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_cle_critique_page'),
     'access arguments' => array('create cle_critique content'),
     'type' => MENU_NORMAL_ITEM,
   );
@@ -27,10 +36,11 @@ function cle_critique_menu() {
  * @param  object $node the submission being critiqued
  * @return html       Interface for allowing someone to critique someone.
  */
-function _cle_critique_page($node = 'random') {
+function _cle_critique_page($assignmentnode = NULL) {
   // present a select list if a node hasn't been passed in
-  if ($node == 'random') {
-    $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title');
+  $arg = arg(2);
+  if (empty($arg)) {
+    $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array(), array(), array('field_cle_order' => 'value'));
     $form = array();
     // @todo list the critiques they've already done
     $form['assignment'] = array(
@@ -38,7 +48,7 @@ function _cle_critique_page($node = 'random') {
       '#options' => array_merge(array(0 => ''), $assignments),
       '#type' => 'select',
       '#required' => '1',
-      '#multiple' => '1',
+      '#multiple' => '0',
       '#chosen' => TRUE,
     );
     $form['actions']['submit'] = array(
@@ -50,11 +60,26 @@ function _cle_critique_page($node = 'random') {
     return $form;
   }
   else {
+    global $user;
+    module_load_include('inc', 'node', 'node.pages');
     // render their work
-    $rendered = render_entity('node', $node->nid);
-    // render the submission form
-    $rendered .= node_add('cle_critique');
-    return $rendered;
+    // @todo make a custom view mode for the critique viewer
+    $node = _cle_critique_random(arg(2));
+    if (!is_null($node)) {
+      // render the student submission for later
+      $rendersubmission = node_view($node, 'full');
+      // prepopulate the critique node
+      $critnode = (object) array('uid' => $user->uid, 'name' => (isset($user->name) ? $user->name : ''), 'type' => 'cle_critique', 'language' => LANGUAGE_NONE, 'field_cle_crit_sub_ref' => array('und' => array($node->nid)));
+      // @todo need to look and see if this is blind or doubleblind
+      drupal_set_title(t('Critique @name', array('@name' => $node->title)), PASS_THROUGH);
+      $form = drupal_get_form('cle_critique_node_form', $critnode);
+
+      $form['work-to-critique'] = array(
+        '#markup' => render($rendersubmission),
+        '#weight' => -100,
+      );
+      return $form;
+    }
   }
 }
 
@@ -73,10 +98,8 @@ function _cle_critique_page_random_form_validate($form, &$form_state) {
  */
 function _cle_critique_page_random_form_submit($form, $form_state) {
   if (isset($form_state['values']['assignment']) && is_numeric($form_state['values']['assignment'])) {
-    $node = _cle_critique_random($form_state['values']['assignment']);
-    if (!is_null($node)) {
-      drupal_goto('cle/critique/' . $node->nid);
-    }
+    $gid = _cis_section_load_section_by_id(_cis_connector_section_context());
+    drupal_goto('cle/critique/' . $form_state['values']['assignment'], array('query' => array('field_cle_crit_sub_ref' => $form_state['values']['assignment'], 'og_group_ref' => $gid)));
   }
 }
 
@@ -112,17 +135,17 @@ function _cle_critique_random($anid) {
     // loop through and check if these exist as options
     foreach ($nids as $nid) {
       // see if anyone else has critiqued this already
-      $critiques = _cis_connector_assemble_entity_list('node', 'cle_critique', 'nid', 'nid', array('field_cle_crit_sub_ref' => array('target' => $nid)));
+      $critiques = _cis_connector_assemble_entity_list('node', 'cle_critique', 'nid', 'nid', array('field_cle_crit_sub_ref' => array('target_id', $nid, '=')));
       // if this wasn't set then we know we can return this submission
       // for rendering on the critique viewer
       if (!isset($critiques[$nid])) {
-        $submission = entity_load('node', $nid);
+        $submission = node_load($nid);
         return $submission;
       }
     }
-    // if we got here, it means all our random items were
-    // already selected
-    $submission = entity_load('node', array_pop($nids));
+    // if we got here, it means all our random items were already selected
+    $nid = array_pop($nids);
+    $submission = node_load($nid);
     return $submission;
   }
   // there aren't any that exists
@@ -135,3 +158,5 @@ function _cle_critique_random($anid) {
 function cle_critique_query_random_alter($query){
   $query->orderRandom();
 }
+
+
