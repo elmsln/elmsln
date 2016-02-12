@@ -26,11 +26,11 @@ if [ -z $1 ]; then
   exit 1
 fi
 if [ -z $2 ]; then
-  elmslnwarn "please select a branch you want to update on (master)"
+  elmslnwarn "please select a branch you want to update on"
   exit 1
 fi
 if [ -z $3 ]; then
-  elmslnwarn "select branch you want config directory to update on (master)"
+  elmslnwarn "select branch you want config directory to update"
   exit 1
 fi
 

@@ -11,7 +11,7 @@ define('CIS_SHORTCODES_API_REV', 1);
 function cis_shortcodes_permission() {
   return array(
     'view cis shortcode' =>  array(
-      'title' => t('View CIS Shortcode'),
+      'title' => t('View CIS shortcode'),
       'description' => t('View shortcodes provided on entity displays'),
     ),
   );
@@ -22,7 +22,7 @@ function cis_shortcodes_permission() {
  */
 function cis_shortcodes_block_info() {
   $blocks['cis_shortcodes_block'] = array(
-    'info' => t('CIS Shortcodes'),
+    'info' => t('CIS shortcodes'),
     'cache' => DRUPAL_CACHE_PER_PAGE,
   );
 
@@ -65,7 +65,7 @@ function cis_shortcodes_block_view($delta = '') {
 
         // see if we have some share fields to render
         if (isset($field)) {
-          $block['content'] = drupal_render($field['cis_shortcodes']);
+          $block['content'] = render($field['cis_shortcodes']);
         }
         else {
           $block['content'] = '';
@@ -88,7 +88,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     '#type' => 'fieldset',
     '#collapsed' => FALSE,
     '#collapsible' => TRUE,
-    '#title' => t('Short Codes to embed'),
+    '#title' => t('Short Codes for embedding'),
     '#weight' => -10,
   );
   $properties = array(
@@ -99,7 +99,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     'text' => t('Submit @name', array('@name' => arg(0))),
     'modal' => 0,
   );
-  $link_text = t('Direct link');
+  $link_text = t('Link');
   $title = '';
   switch ($type) {
     case 'node':
@@ -119,7 +119,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     break;
   }
   // buid the direct link
-  $field['cis_shortcodes']['cis_shortcodes_direct_link'] = array(
+  $direct['cis_shortcodes_direct_link'] = array(
     '#title' => $link_text,
     '#attributes' => array('class' => array('cis_shortcodes_embed')),
     '#value' => _cis_shortcodes_build_code($properties),
@@ -127,130 +127,145 @@ function _cis_shortcode_render_codes($entity, $type) {
     '#weight' => 0,
   );
   // _link should bail early
-  if ($type == '_link') {
-    return $field;
-  }
-  // load info so we know how all entities operate
-  $all_types = entity_get_info();
-  // load up the primary type we care about
-  $type_info = $all_types[$type];
-  // pull the bundle
-  if (isset($entity->{$type_info['bundle keys']['bundle']})) {
-    $bundle = $entity->{$type_info['bundle keys']['bundle']};
-  }
-  // special support for taxonomy_term since core doesn't follow its own
-  // conventions on this one... bleh
-  elseif ($type == 'taxonomy_term') {
-    $bundle = $entity->vocabulary_machine_name;
-  }
-  else {
-    return $field;
-  }
-  // build properties array for rendering
-  $properties = array(
-    'rev' => CIS_SHORTCODES_API_REV,
-    'tool' => variable_get('install_profile', ''),
-    'item' => $entity->{$type_info['entity keys']['id']},
-    'entity_type' => $type,
-    'render' => 'display_mode',
-    'display_mode' => 'default',
-  );
-  // assume the default view mode since this is basically a remote rendering engine
-  $view_modes = field_view_mode_settings($type, $bundle);
-  $field['cis_shortcodes']['rendered_default'] = array(
-    '#title' => t('Render using default template'),
-    '#attributes' => array('class' => array('cis_shortcodes_embed')),
-    '#value' => _cis_shortcodes_build_code($properties),
-    '#type' => 'textfield',
-    '#weight' => 0,
-  );
-  // loop through the other potential view modes for this item
-  foreach ($view_modes as $mode => $mode_settings) {
-    if ($mode_settings['custom_settings']) {
-      $properties['display_mode'] = $mode;
-      $field['cis_shortcodes']['rendered_' . $mode] = array(
-        '#title' => t('Render using template: @mode', array('@mode' => $mode)),
-        '#attributes' => array('class' => array('cis_shortcodes_embed')),
-        '#value' => _cis_shortcodes_build_code($properties),
-        '#type' => 'textfield',
-        '#weight' => 1,
-      );
+  if ($type != '_link') {
+    // load info so we know how all entities operate
+    $all_types = entity_get_info();
+    // load up the primary type we care about
+    $type_info = $all_types[$type];
+    // pull the bundle
+    if (isset($entity->{$type_info['bundle keys']['bundle']})) {
+      $bundle = $entity->{$type_info['bundle keys']['bundle']};
     }
-  }
-
-  // tee back up for direct link rendering
-  $properties = array(
-    'rev' => CIS_SHORTCODES_API_REV,
-    'tool' => variable_get('install_profile', ''),
-    'item' => $entity->{$type_info['entity keys']['id']},
-    'entity_type' => $type,
-  );
-  // support for entity iframe direct link
-  if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
-    $field['cis_shortcodes']['cis_shortcodes_embed'] = array(
-      '#title' => t('Shortcode direct iframe'),
+    // special support for taxonomy_term since core doesn't follow its own
+    // conventions on this one... bleh
+    elseif ($type == 'taxonomy_term') {
+      $bundle = $entity->vocabulary_machine_name;
+    }
+    else {
+      $field['direct'] = $direct;
+      return $field;
+    }
+    // build properties array for rendering
+    $properties = array(
+      'rev' => CIS_SHORTCODES_API_REV,
+      'tool' => variable_get('install_profile', ''),
+      'item' => $entity->{$type_info['entity keys']['id']},
+      'entity_type' => $type,
+      'render' => 'display_mode',
+      'display_mode' => 'default',
+    );
+    // assume the default view mode since this is basically a remote rendering engine
+    $view_modes = field_view_mode_settings($type, $bundle);
+    $display_modes['rendered_default'] = array(
+      '#title' => t('Default'),
       '#attributes' => array('class' => array('cis_shortcodes_embed')),
       '#value' => _cis_shortcodes_build_code($properties),
       '#type' => 'textfield',
-      '#pre_render' => array('_cis_shortcodes_add_js'),
-      '#weight' => 1,
+      '#weight' => 0,
     );
-  }
-  // switch to link render styles
-  $properties['render'] = 'link';
-  if (isset($type_info['bundle keys']['bundle']) && !empty($bundle)) {
-    $field_list = field_info_instances($type, $bundle);
-  }
-  else if (isset($type_info['entity keys']['bundle']) && !empty($entity->{$type_info['entity keys']['bundle']})){
-    $field_list = field_info_instances($type, $entity->{$type_info['entity keys']['bundle']});
-  }
-  else {
-    // skip this, we don't have info about this type
-    $field_list = array();
-  }
-  // loop through the field_list and see what we can direct link to
-  foreach ($field_list as $fname => $fproperties) {
-    // check for things with uri's, if first item is, all are
-    if (isset($entity->{$fname})) {
-      if (isset($entity->{$fname}['und'][0]['uri'])) {
-        foreach ($entity->{$fname}['und'] as $item_key => $item) {
-          $properties['field'] = $fname;
-          if ($type == 'node') {
-            $properties['text'] = t('Download @title', array('@title' => $title));
-          }
-          else {
-            $properties['text'] = t('Download');
-          }
-          $properties['delta'] = $item_key;
-          $field['cis_shortcodes']['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
-            '#title' => t('@field field: direct link', array('@field' => $fproperties['label'])),
-            '#attributes' => array('class' => array('cis_shortcodes_embed')),
-            '#value' => _cis_shortcodes_build_code($properties),
-            '#type' => 'textfield',
-            '#weight' => 3,
-          );
-          // special case for uri's that are images
-          if (isset($item['filemime']) && strpos($item['filemime'], 'image') === 0) {
-            $properties['item_type'] = 'image';
-            // support custom title and alt text in the code
-            if (!empty($item['title'])) {
-              $properties['text'] = $title;
+    // loop through the other potential view modes for this item
+    foreach ($view_modes as $mode => $mode_settings) {
+      if ($mode_settings['custom_settings']) {
+        $properties['display_mode'] = $mode;
+        $display_modes['rendered_' . $mode] = array(
+          '#title' => t('@mode', array('@mode' => $mode)),
+          '#attributes' => array('class' => array('cis_shortcodes_embed')),
+          '#value' => _cis_shortcodes_build_code($properties),
+          '#type' => 'textfield',
+          '#weight' => 1,
+        );
+      }
+    }
+
+    // tee back up for direct link rendering
+    $properties = array(
+      'rev' => CIS_SHORTCODES_API_REV,
+      'tool' => variable_get('install_profile', ''),
+      'item' => $entity->{$type_info['entity keys']['id']},
+      'entity_type' => $type,
+    );
+    // support for entity iframe direct link
+    if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
+      $direct['cis_shortcodes_embed'] = array(
+        '#title' => t('iframe'),
+        '#attributes' => array('class' => array('cis_shortcodes_embed')),
+        '#value' => _cis_shortcodes_build_code($properties),
+        '#type' => 'textfield',
+        '#pre_render' => array('_cis_shortcodes_add_js'),
+        '#weight' => 1,
+      );
+    }
+    // switch to link render styles
+    $properties['render'] = 'link';
+    if (isset($type_info['bundle keys']['bundle']) && !empty($bundle)) {
+      $field_list = field_info_instances($type, $bundle);
+    }
+    else if (isset($type_info['entity keys']['bundle']) && !empty($entity->{$type_info['entity keys']['bundle']})){
+      $field_list = field_info_instances($type, $entity->{$type_info['entity keys']['bundle']});
+    }
+    else {
+      // skip this, we don't have info about this type
+      $field_list = array();
+    }
+    // loop through the field_list and see what we can direct link to
+    foreach ($field_list as $fname => $fproperties) {
+      // check for things with uri's, if first item is, all are
+      if (isset($entity->{$fname})) {
+        if (isset($entity->{$fname}['und'][0]['uri'])) {
+          foreach ($entity->{$fname}['und'] as $item_key => $item) {
+            $properties['field'] = $fname;
+            if ($type == 'node') {
+              $properties['text'] = t('Download @title', array('@title' => $title));
             }
             else {
-              $properties['text'] = $title;
+              $properties['text'] = t('Download');
             }
-            if (!empty($item['alt'])) {
-              $properties['alt'] = $item['alt'];
-            }
-            else {
-              $properties['alt'] =  $title;
-            }
-            // use image as it was uploaded for defaults
-            $properties['width'] = $item['width'];
-            $properties['height'] = $item['height'];
             $properties['delta'] = $item_key;
-            $field['cis_shortcodes']['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
-              '#title' => t('@field field: Render image', array('@field' => $fproperties['label'])),
+            $entityfields['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
+              '#title' => t('@field direct link', array('@field' => $fproperties['label'])),
+              '#attributes' => array('class' => array('cis_shortcodes_embed')),
+              '#value' => _cis_shortcodes_build_code($properties),
+              '#type' => 'textfield',
+              '#weight' => 3,
+            );
+            // special case for uri's that are images
+            if (isset($item['filemime']) && strpos($item['filemime'], 'image') === 0) {
+              $properties['item_type'] = 'image';
+              // support custom title and alt text in the code
+              if (!empty($item['title'])) {
+                $properties['text'] = $title;
+              }
+              else {
+                $properties['text'] = $title;
+              }
+              if (!empty($item['alt'])) {
+                $properties['alt'] = $item['alt'];
+              }
+              else {
+                $properties['alt'] =  $title;
+              }
+              // use image as it was uploaded for defaults
+              $properties['width'] = $item['width'];
+              $properties['height'] = $item['height'];
+              $properties['delta'] = $item_key;
+              $entityfields['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
+                '#title' => t('Render @field as image', array('@field' => $fproperties['label'])),
+                '#attributes' => array('class' => array('cis_shortcodes_embed')),
+                '#value' => _cis_shortcodes_build_code($properties),
+                '#type' => 'textfield',
+                '#weight' => 3,
+              );
+            }
+          }
+        }
+        // allow for embed generated direct to any field in this object
+        elseif (isset($entity->{$fname}['und'][0]['value'])) {
+          foreach ($entity->{$fname}['und'] as $item_key => $item) {
+            $properties['field'] = $fname;
+            $properties['render'] = 'value';
+            $properties['delta'] = $item_key;
+            $entityfields['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
+              '#title' => t('@field', array('@field' => $fproperties['label'])),
               '#attributes' => array('class' => array('cis_shortcodes_embed')),
               '#value' => _cis_shortcodes_build_code($properties),
               '#type' => 'textfield',
@@ -259,135 +274,160 @@ function _cis_shortcode_render_codes($entity, $type) {
           }
         }
       }
-      // allow for embed generated direct to any field in this object
-      elseif (isset($entity->{$fname}['und'][0]['value'])) {
-        foreach ($entity->{$fname}['und'] as $item_key => $item) {
-          $properties['field'] = $fname;
-          $properties['render'] = 'value';
-          $properties['delta'] = $item_key;
-          $field['cis_shortcodes']['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
-            '#title' => t('@field field: value embed', array('@field' => $fproperties['label'])),
-            '#attributes' => array('class' => array('cis_shortcodes_embed')),
-            '#value' => _cis_shortcodes_build_code($properties),
-            '#type' => 'textfield',
-            '#weight' => 3,
-          );
-        }
+    }
+    // special case for the unique tag capability
+    if (isset($entity->field_cis_tag) && isset($entity->field_cis_tag['und'])) {
+      // reset property array
+      $properties = array(
+        'rev' => CIS_SHORTCODES_API_REV,
+        'tool' => variable_get('install_profile', ''),
+        'item' => $entity->{$type_info['entity keys']['id']},
+      );
+      // only append type for non-node entities
+      if ($type != 'node') {
+        $properties['entity_type'] = $type;
       }
-    }
-  }
-  // special case for the unique tag capability
-  if (isset($entity->field_cis_tag) && isset($entity->field_cis_tag['und'])) {
-    // reset property array
-    $properties = array(
-      'rev' => CIS_SHORTCODES_API_REV,
-      'tool' => variable_get('install_profile', ''),
-      'item' => $entity->{$type_info['entity keys']['id']},
-    );
-    // only append type for non-node entities
-    if ($type != 'node') {
-      $properties['entity_type'] = $type;
-    }
-    $properties['item'] = $entity->field_cis_tag['und'][0]['value'];
-    $properties['item_type'] = 'tag';
-    if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
-      $field['cis_shortcodes']['cis_shortcodes_tag_iframe'] = array(
-        '#title' => t('Shortcode tagged iframe'),
+      $properties['item'] = $entity->field_cis_tag['und'][0]['value'];
+      $properties['item_type'] = 'tag';
+      if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
+        $tagged['cis_shortcodes_tag_iframe'] = array(
+          '#title' => t('Tagged iframe'),
+          '#attributes' => array('class' => array('cis_shortcodes_embed')),
+          '#value' => _cis_shortcodes_build_code($properties),
+          '#type' => 'textfield',
+          '#weight' => 2,
+        );
+      }
+      $properties['render'] = 'link';
+      $tagged['cis_shortcodes_tag_link'] = array(
+        '#title' => t('Tagged link'),
         '#attributes' => array('class' => array('cis_shortcodes_embed')),
         '#value' => _cis_shortcodes_build_code($properties),
         '#type' => 'textfield',
-        '#weight' => 2,
+        '#weight' => 4,
       );
     }
-    $properties['render'] = 'link';
-    $field['cis_shortcodes']['cis_shortcodes_tag_link'] = array(
-      '#title' => t('Shortcode tagged link'),
-      '#attributes' => array('class' => array('cis_shortcodes_embed')),
-      '#value' => _cis_shortcodes_build_code($properties),
-      '#type' => 'textfield',
-      '#weight' => 4,
-    );
-  }
-  // advanced student submission capability code, this is the most intense
-  // as it will do multiple webserivce look ups to see if the user
-  // has submitted the work already
-  // load all fields for the current entity type
-  $entity_fields = field_info_instances();
-  // loop through all the field identified as being for this entity type
-  foreach ($entity_fields as $entity_fields_type => $fields) {
-  foreach ($fields as $et_bundle => $etype) {
-    // loop through the names of the fields and their settings
-    foreach ($etype as $name => $bun) {
-      // fully load the field info off of the name
-      $tmp = field_info_field($name);
-      // ignore section as it's specific to elmsln's architecture
-      // but see if we have any entityreferences on any fields
-      // that actually reference the current item AND that the
-      if ($et_bundle != 'section' && (($tmp['type'] == 'entityreference' && (isset($tmp['settings']['handler_settings']['target_bundles'][$bundle]) || $tmp['settings']['target_type'] == $bundle)) || ($tmp['type'] == 'taxonomy_term_reference' && isset($tmp['bundles'][$entity_fields_type])))) {
-        // this is intense
-        // create a stub, this looks stupid cause it kind of is
-        $stub = entity_create_stub_entity($entity_fields_type, array(0, 1, 2));
-        // ignore stubing on entityform as it causes issues
-        if ($entity_fields_type != 'entityform' && $all_types[$entity_fields_type]['uri callback'] != 'entity_class_uri') {
-          $uri = call_user_func($all_types[$entity_fields_type]['uri callback'], $stub);
-          // ensure we have a path uri, if not, we default to the type
-          // often times they will be the same, but it's possible to not be
-          if (isset($uri['path'])) {
-            $path = explode('/', $uri['path']);
-            $end_point = $path[0];
+    // advanced student submission capability code, this is the most intense
+    // as it will do multiple webserivce look ups to see if the user
+    // has submitted the work already
+    // load all fields for the current entity type
+    $entity_fields = field_info_instances();
+    // loop through all the field identified as being for this entity type
+    foreach ($entity_fields as $entity_fields_type => $fields) {
+      foreach ($fields as $et_bundle => $etype) {
+        // loop through the names of the fields and their settings
+        foreach ($etype as $name => $bun) {
+          // fully load the field info off of the name
+          $tmp = field_info_field($name);
+          // ignore section as it's specific to elmsln's architecture
+          // but see if we have any entityreferences on any fields
+          // that actually reference the current item AND that the
+          if ($et_bundle != 'section' && (($tmp['type'] == 'entityreference' && (isset($tmp['settings']['handler_settings']['target_bundles'][$bundle]) || $tmp['settings']['target_type'] == $bundle)) || ($tmp['type'] == 'taxonomy_term_reference' && isset($tmp['bundles'][$entity_fields_type])))) {
+            // this is intense
+            // create a stub, this looks stupid cause it kind of is
+            $stub = entity_create_stub_entity($entity_fields_type, array(0, 1, 2));
+            // ignore stubing on entityform as it causes issues
+            if ($entity_fields_type != 'entityform' && $all_types[$entity_fields_type]['uri callback'] != 'entity_class_uri') {
+              $uri = call_user_func($all_types[$entity_fields_type]['uri callback'], $stub);
+              // ensure we have a path uri, if not, we default to the type
+              // often times they will be the same, but it's possible to not be
+              if (isset($uri['path'])) {
+                $path = explode('/', $uri['path']);
+                $end_point = $path[0];
+              }
+              else {
+                $end_point = $entity_fields_type;
+              }
+              $properties = array(
+                'rev' => CIS_SHORTCODES_API_REV,
+                'tool' => variable_get('install_profile', ''),
+                'render' => 'submit',
+                // the thing to check for if we've submitted in reference to
+                'item' => $entity->{$type_info['entity keys']['id']},
+                'entity_type' => $type,
+                'entity_bundle' => $bundle,
+                'entity_key' => $type_info['entity keys']['id'],
+                // the thing we want them to actually submit
+                'submit_type' => $entity_fields_type,
+                'submit_bundle' => $et_bundle,
+                'submit_reference' => $tmp['field_name'],
+                'submit_endpoint' => $end_point,
+                'submitted_text' => t('View submission'),
+              );
+              // query needs to know the field to look up for restws callback
+              switch ($entity_fields_type) {
+                case 'node':
+                  $properties['author_field'] = 'author';
+                break;
+                case 'harmony_thread':
+                  $properties['author_field'] = 'uid';
+                break;
+              }
+              // see if we have a tagged item, this allows for generic lookups
+              if (isset($entity->field_cis_tag['und'][0]['value'])) {
+                unset($properties['item']);
+                $properties['entity_unique_field'] = 'field_cis_tag';
+                $properties['field_cis_tag'] = $entity->field_cis_tag['und'][0]['value'];
+              }
+              elseif ($type == 'taxonomy_term') {
+                unset($properties['item']);
+                $properties['entity_unique_field'] = 'name';
+                $properties['name'] = $entity->name;
+              }
+              // we did it!
+              $advanced['cis_shortcodes_submit_widget'] = array(
+                '#title' => t('@title - Submit widget', array('@title' => $title)),
+                '#attributes' => array('class' => array('cis_shortcodes_embed')),
+                '#value' => _cis_shortcodes_build_code($properties),
+                '#type' => 'textfield',
+                '#weight' => 0,
+              );
+            }
           }
-          else {
-            $end_point = $entity_fields_type;
-          }
-          $properties = array(
-            'rev' => CIS_SHORTCODES_API_REV,
-            'tool' => variable_get('install_profile', ''),
-            'render' => 'submit',
-            // the thing to check for if we've submitted in reference to
-            'item' => $entity->{$type_info['entity keys']['id']},
-            'entity_type' => $type,
-            'entity_bundle' => $bundle,
-            'entity_key' => $type_info['entity keys']['id'],
-            // the thing we want them to actually submit
-            'submit_type' => $entity_fields_type,
-            'submit_bundle' => $et_bundle,
-            'submit_reference' => $tmp['field_name'],
-            'submit_endpoint' => $end_point,
-            'submitted_text' => t('View submission'),
-          );
-          // query needs to know the field to look up for restws callback
-          switch ($entity_fields_type) {
-            case 'node':
-              $properties['author_field'] = 'author';
-            break;
-            case 'harmony_thread':
-              $properties['author_field'] = 'uid';
-            break;
-          }
-          // see if we have a tagged item, this allows for generic lookups
-          if (isset($entity->field_cis_tag['und'][0]['value'])) {
-            unset($properties['item']);
-            $properties['entity_unique_field'] = 'field_cis_tag';
-            $properties['field_cis_tag'] = $entity->field_cis_tag['und'][0]['value'];
-          }
-          elseif ($type == 'taxonomy_term') {
-            unset($properties['item']);
-            $properties['entity_unique_field'] = 'name';
-            $properties['name'] = $entity->name;
-          }
-          // we did it!
-          $field['cis_shortcodes']['cis_shortcodes_submit_widget'] = array(
-            '#title' => t('@title - Submit widget', array('@title' => $title)),
-            '#attributes' => array('class' => array('cis_shortcodes_embed')),
-            '#value' => _cis_shortcodes_build_code($properties),
-            '#type' => 'textfield',
-            '#weight' => 0,
-          );
         }
       }
     }
   }
-}
+  // check on the groupings
+  $groupings = array(
+    'direct',
+    'display_modes',
+    'entityfields',
+    'tagged',
+    'advanced',
+  );
+  $labels = array(
+    t('Direct links'),
+    t('Render item'),
+    t('Fields'),
+    t('Tagged'),
+    t('Advanced'),
+  );
+  $descriptions = array(
+    t('Simple links and iframes to this page.'),
+    t('Builds the item\'s body content and renders it directly where it\'s rendered.'),
+    t('Builds just the field in question and renders it directly where it\'s rendered.'),
+    t('Discovers this resource through generic lookup. By embedding per tag you are given more flexibility later on when you want to reference a version of this item that may be specific to the section of the user viewing the page.'),
+    t('Advanced items that provide dedicated capabilities.'),
+  );
+  // loop through the groupings and see if we have any shortcodes for each
+  foreach ($groupings as $key => $group) {
+    // looks weird but this is valid
+    if (isset($$group) && !empty($$group)) {
+      // add the groups in
+      $field['cis_shortcodes'][$group] = array(
+        '#type' => 'fieldset',
+        '#collapsed' => TRUE,
+        '#collapsible' => TRUE,
+        '#title' => $labels[$key],
+        '#description' => $descriptions[$key],
+        '#weight' => $key,
+      );
+      // merges anything founda bove into this fieldset
+      $field['cis_shortcodes'][$group] += $$group;
+    }
+  }
+
   return $field;
 }
 
@@ -439,12 +479,12 @@ function cis_shortcodes_preprocess_view_mode_tab_display(&$variables) {
       );
       // clipboard settings.
       $clipboard_vars = array(
-        'text' => _cis_shortcodes_build_code($properties), 
+        'text' => _cis_shortcodes_build_code($properties),
         'alert_style' => 'tooltip',
         'alert_text' => 'Successfully copied token to clipboard.',
         'button_label' => 'Copy token',
       );
-      
+
       // Build the form or render element usin theme_clipboardjs
       $clipboard = theme('clipboardjs', $clipboard_vars);
 

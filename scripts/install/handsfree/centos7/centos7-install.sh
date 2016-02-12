@@ -19,7 +19,7 @@ timestamp(){
 start="$(timestamp)"
 RPM="$(which rpm)"
 # get the epel and remi repo listings so we can get additional packages like mcrypt
-yes | yum -y install git uuid curl && git clone https://github.com/elmsln/php56-fpm-centos7-mysql56.git && cd php56-fpm-centos7-mysql56 && chmod 700 install/prod.sh && ./install/prod.sh
+yes | yum -y install git uuid curl nano vim && git clone https://github.com/elmsln/php56-fpm-centos7-mysql56.git && cd php56-fpm-centos7-mysql56 && chmod 700 install/prod.sh && ./install/prod.sh
 yes | yum groupinstall 'Development Tools'
 # remove brad's test file
 yes | rm /etc/httpd/conf.sites.d/test.conf

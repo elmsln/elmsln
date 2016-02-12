@@ -15,4 +15,4 @@ features[features_overrides][] = views_view.book_sar.display|default|display_opt
 features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::views_bulk_operations_modify_action
 features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::views_bulk_operations_move_to_book_action
 features[features_overrides][] = views_view.book_sar.display|default|display_options|fields|views_bulk_operations|vbo_operations|action::views_bulk_operations_remove_from_book_action
-features[menu_links][] = menu-course-tools-menu_search-and-replace:admin/content/book/sar
+features[menu_links][] = menu-elmsln-settings_search-and-replace:admin/content/book/sar

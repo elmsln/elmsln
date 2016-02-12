@@ -3,6 +3,15 @@
  * @file
  * Modifications to the default build routine for new service instances.
  */
+
+/**
+ * Implements hook_cis_service_instance_TOOL_options_alter().
+ */
+function cis_si_cleanup_cis_service_instance_courses_options_alter(&$options, $course, $service) {
+  // mooc should have some accessibility tests to play with OOTB
+  $options['en'][] = 'textbook_wcag20aa';
+}
+
 /**
  * Implements hook_cis_service_instance_options_alter().
  *

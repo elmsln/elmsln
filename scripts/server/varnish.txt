@@ -78,7 +78,7 @@ set req.backend = default;
   if (req.http.Cookie) {
     set req.http.Cookie = ";" + req.http.Cookie;
     set req.http.Cookie = regsuball(req.http.Cookie, "; +", ";");
-    set req.http.Cookie = regsuball(req.http.Cookie, ";(S{1,2}ESS[a-z0-9]+|NO_CACHE)=", "; \1=");
+    set req.http.Cookie = regsuball(req.http.Cookie, ";(S{1,2}ESS[a-z0-9]+|NO_CACHE|CHOCOLATECHIP|OATMEAL)=", "; \1=");
     set req.http.Cookie = regsuball(req.http.Cookie, ";[^ ][^;]*", "");
     set req.http.Cookie = regsuball(req.http.Cookie, "^[; ]+|[; ]+$", "");
 

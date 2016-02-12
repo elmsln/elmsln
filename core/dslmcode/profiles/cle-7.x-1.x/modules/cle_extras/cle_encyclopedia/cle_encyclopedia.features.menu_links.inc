@@ -10,9 +10,9 @@
 function cle_encyclopedia_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_encyclopedia-entry:node/add/cle-encyclopedia-entry
-  $menu_links['menu-cis-add_encyclopedia-entry:node/add/cle-encyclopedia-entry'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_encyclopedia-entry:node/add/cle-encyclopedia-entry
+  $menu_links['menu-elmsln-add_encyclopedia-entry:node/add/cle-encyclopedia-entry'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/cle-encyclopedia-entry',
     'router_path' => 'node/add/cle-encyclopedia-entry',
     'link_title' => 'Encyclopedia entry',
@@ -23,7 +23,7 @@ function cle_encyclopedia_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_encyclopedia-entry:node/add/cle-encyclopedia-entry',
+      'identifier' => 'menu-elmsln-add_encyclopedia-entry:node/add/cle-encyclopedia-entry',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -33,14 +33,14 @@ function cle_encyclopedia_menu_default_menu_links() {
     'weight' => -49,
     'customized' => 1,
   );
-  // Exported menu link: menu-cle-navigation_encyclopedia:cle/encyclopedia
-  $menu_links['menu-cle-navigation_encyclopedia:cle/encyclopedia'] = array(
-    'menu_name' => 'menu-cle-navigation',
+  // Exported menu link: menu-elmsln-navigation_encyclopedia:cle/encyclopedia
+  $menu_links['menu-elmsln-navigation_encyclopedia:cle/encyclopedia'] = array(
+    'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'cle/encyclopedia',
     'router_path' => 'cle/encyclopedia',
     'link_title' => 'Encyclopedia',
     'options' => array(
-      'identifier' => 'menu-cle-navigation_encyclopedia:cle/encyclopedia',
+      'identifier' => 'menu-elmsln-navigation_encyclopedia:cle/encyclopedia',
     ),
     'module' => 'system',
     'hidden' => 0,

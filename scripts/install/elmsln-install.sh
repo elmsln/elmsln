@@ -306,11 +306,14 @@ if [ -f  $hooksdir/post-install.sh ]; then
   # invoke this hook cause we found a file matching the name we need
   bash $hooksdir/post-install.sh
 fi
+# make sure user password is admin as a fallback
+drush @elmsln upwd admin --password=admin --y
 # enable bakery everywhere by default
 drush @elmsln en elmsln_bakery --y
 # run all the existing crons so that they hit the CIS data and get sing100 for example
 drush @elmsln cron --y
-
+# clear caches on all sites this seems to make bakery happy
+drush @elmsln cc all --y
 
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
@@ -333,7 +336,7 @@ elmslnecho "║ You may want to open this up and review it but it is your     �
 elmslnecho "║ connection keychain for how all the webservices talk.         ║"
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
-elmslnecho "║ Use this link to get started with the CIS:                    ║"
+elmslnecho "║ Use this link to get started:                                 ║"
 elmslnecho "║   $protocol://$site_domain                                     "
 elmslnecho "║                                                               ║"
 elmslnecho "║Welcome to the Singularity, edtech.. don't compete, eliminate  ║"

@@ -20,7 +20,7 @@ timestamp(){
 }
 
 if [ -z $1 ]; then
-  elmslnwarn "please select a branch you want to update (like master)"
+  elmslnwarn "please select a branch you want to update"
   exit 1
 fi
 

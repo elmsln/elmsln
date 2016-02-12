@@ -12,7 +12,9 @@ https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos7/e
 ### Ubuntu 14.x / Debian 8.x
 https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu/example-deploy
 
-Hands free has some arguments passed into it to get going but these are for installation against a fresh copy of a server.
+Hands free has some arguments passed into it to get going but these are for installation against a fresh copy of a server. If you install with the default options provided in those (with addresses of elmsln.dev) you'll want to make sure you modify your local `/etc/hosts` file to reflect these fake addresses.
+
+See the Vagrant installation documentation on how to do this - http://docs.elmsln.org/en/latest/development/Vagrant-Step-by-Step-setup/ though in the installer you'll see a big ELMSLN ascii art message that should tell you what to place there based on your server.
 
 ## Manual but mostly automated installation
 copy and paste the following offset command prompt items

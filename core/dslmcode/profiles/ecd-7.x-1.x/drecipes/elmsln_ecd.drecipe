@@ -7,12 +7,7 @@
     {
       "command": "en",
       "arguments": [
-        "accessibility",
-        "accessibility_wysiwyg",
-        "cis_service_restws",
-        "cis_service_roles",
-        "cis_connector",
-        "textbook_editor"
+        "cis_service_restws"
       ]
     }
   ],

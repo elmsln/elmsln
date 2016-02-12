@@ -10,14 +10,14 @@
 function mooc_cis_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-course-tools-menu_content-tools:<nolink>
-  $menu_links['menu-course-tools-menu_content-tools:<nolink>'] = array(
-    'menu_name' => 'menu-course-tools-menu',
+  // Exported menu link: menu-elmsln-settings_content-tools:<nolink>
+  $menu_links['menu-elmsln-settings_content-tools:<nolink>'] = array(
+    'menu_name' => 'menu-elmsln-settings',
     'link_path' => '<nolink>',
     'router_path' => '<nolink>',
     'link_title' => 'Content Tools',
     'options' => array(
-      'identifier' => 'menu-course-tools-menu_content-tools:<nolink>',
+      'identifier' => 'menu-elmsln-settings_content-tools:<nolink>',
       'fa_icon' => 'page',
       'attributes' => array(),
       'item_attributes' => array(
@@ -34,9 +34,9 @@ function mooc_cis_ux_menu_default_menu_links() {
     'weight' => -49,
     'customized' => 1,
   );
-  // Exported menu link: menu-course-tools-menu_import-content-outline:import/feeds_node_helper_book_import
-  $menu_links['menu-course-tools-menu_import-content-outline:import/feeds_node_helper_book_import'] = array(
-    'menu_name' => 'menu-course-tools-menu',
+  // Exported menu link: menu-elmsln-settings_import-content-outline:import/feeds_node_helper_book_import
+  $menu_links['menu-elmsln-settings_import-content-outline:import/feeds_node_helper_book_import'] = array(
+    'menu_name' => 'menu-elmsln-settings',
     'link_path' => 'import/feeds_node_helper_book_import',
     'router_path' => 'import/%',
     'link_title' => 'Import content outline',
@@ -47,7 +47,7 @@ function mooc_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-course-tools-menu_import-content-outline:import/feeds_node_helper_book_import',
+      'identifier' => 'menu-elmsln-settings_import-content-outline:import/feeds_node_helper_book_import',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',
@@ -57,11 +57,11 @@ function mooc_cis_ux_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -48,
     'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_content-tools:<nolink>',
+    'parent_identifier' => 'menu-elmsln-settings_content-tools:<nolink>',
   );
-  // Exported menu link: menu-course-tools-menu_outline-designer:admin/content/book
-  $menu_links['menu-course-tools-menu_outline-designer:admin/content/book'] = array(
-    'menu_name' => 'menu-course-tools-menu',
+  // Exported menu link: menu-elmsln-settings_outline-designer:admin/content/book
+  $menu_links['menu-elmsln-settings_outline-designer:admin/content/book'] = array(
+    'menu_name' => 'menu-elmsln-settings',
     'link_path' => 'admin/content/book',
     'router_path' => 'admin/content/book',
     'link_title' => 'Outline Designer',
@@ -72,7 +72,7 @@ function mooc_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-course-tools-menu_outline-designer:admin/content/book',
+      'identifier' => 'menu-elmsln-settings_outline-designer:admin/content/book',
       'fa_icon' => 'page',
     ),
     'module' => 'menu',
@@ -82,7 +82,7 @@ function mooc_cis_ux_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -50,
     'customized' => 1,
-    'parent_identifier' => 'menu-course-tools-menu_content-tools:<nolink>',
+    'parent_identifier' => 'menu-elmsln-settings_content-tools:<nolink>',
   );
 
   // Translatables

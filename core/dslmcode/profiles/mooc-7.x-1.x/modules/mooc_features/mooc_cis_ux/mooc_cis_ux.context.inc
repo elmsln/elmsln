@@ -72,9 +72,9 @@ function mooc_cis_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'menu-menu-course-tools-menu' => array(
+        'menu-menu-elmsln-settings' => array(
           'module' => 'menu',
-          'delta' => 'menu-course-tools-menu',
+          'delta' => 'menu-elmsln-settings',
           'region' => 'regions_admin_left',
           'weight' => '-10',
         ),

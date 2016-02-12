@@ -5,11 +5,11 @@ ELMSLN Vagrant Instructions
 This is a Vagrant profile for installing a fully functioning [ELMS Learning Network](https://github.com/elmsln/elmsln) in a single command!  This instance is purely for development purposes but you can follow the [installation instructions](https://github.com/elmsln/elmsln/blob/master/INSTALL.txt) and bash scripts to install this on any real server!
 
 ###How to use this to bring up ELMSLN
-1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (ensure you are on the latest version 4.0.8+)
+1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (ensure you are on the latest version 5.0.14+)
 2. Install [Vagrant](http://www.vagrantup.com/downloads.html) (you'll need Vagrant 1.7+)
 3. Install [git](http://git-scm.com/downloads) (recommended)
 4. Download or Clone (`git clone https://github.com/elmsln/elmsln.git`) this project
-5. Add this line to your /etc/hosts (or [windows equivalent](http://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/)) so you can access it "over the web":
+5. Add this code to your /etc/hosts (or [windows equivalent](http://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/)) so you can access it "over the web":
 ```
 ###ELMSLN development
 
@@ -60,8 +60,14 @@ To connect to the console of your instance: `vagrant ssh`
 ###Why use this
 This project is based on the [Vagrant Project](http://drupal.org/project/vagrant) on Drupal.org, but includes a number of tweaks.  It has been optimized and heavily tested for use with ELMS Learning Network.  It's what we use in daily testing and development and the drop dead easiest way to get up and running with such a complex system.
 
-###Other projects of interest / that this is based on
-*  If your having issues with Vagrant in general, try installing this plugin https://github.com/dotless-de/vagrant-vbguest
+###Helpful Vagrant Plugins
+* **VBGuest**  
+   When handling a system through virtualization (a guest on a host), there are tools to simplify the process by allowing for things such as clipboard handoffs and file sharing. Within Virtualbox these tools are called VirtualBox Guest Tools. For them to work properly, they must match to the version of the Linux kernel that is installed in the guest operating system. If you upgrade/update your vagrant instance you're likely to have updated your Linux kernel. This is one of the most common reasons that sharing files into your VM is not working properly. You could manually update the VirtualBox Guest Tools, or you could have a robot do it for you. VBGuest is a script to automatically update your VirtualBox Guest Tools. To install vagrant vbguest, use `vagrant plugin install vagrant-vbguest` There is _not_ an activator in the elmsln Vagrantfile. More information about usage can be found in the [Vagrant Vagrant VBGuest Documentation](https://github.com/dotless-de/vagrant-vbguest)
+* **Vagrant Cachier**  
+   Vagrant Cachier is great if you are regularly rebuilding your virtual machine. The plugin identifies calls to code repositories and caches a local copy of the files that are downloaded. Then, on subsequent calls to the repository, the plugin checks the local cache before requesting the file from the remote repository. This reduces the data downloaded and, therefore, the time it takes to complete a VM setup. To install vagrant cachier, use `vagrant plugin install vagrant-cachier` There is a cache bucket activator in the [elmsln Vagrantfile](https://github.com/elmsln/elmsln/blob/master/Vagrantfile#L13). More information about usage can be found in the [Vagrant Cachier Documentation](http://fgrehm.viewdocs.io/vagrant-cachier/)
+
+###Other projects of interest
+(some that have provided inspiration for the work here)
 *  [https://github.com/msonnabaum/drupalcon-training-chef-repo](https://github.com/msonnabaum/drupalcon-training-chef-repo)
 *  [http://drupal.org/sandbox/mbutcher/1356522](http://drupal.org/sandbox/mbutcher/1356522)
 *  [http://drupal.org/project/drush-vagrant](http://drupal.org/project/drush-vagrant)

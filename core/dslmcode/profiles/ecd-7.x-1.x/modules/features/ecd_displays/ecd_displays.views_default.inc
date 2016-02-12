@@ -391,7 +391,7 @@ function ecd_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Bulk Update Courses';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'menu-comply-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['ecd_bulk_update'] = $view;
@@ -541,7 +541,7 @@ function ecd_displays_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Course Compliance';
   $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['name'] = 'menu-comply-navigation';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['ecd_quality_overview'] = $view;

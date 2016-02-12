@@ -13,9 +13,6 @@ cp -R /var/www/elmsln-config-vagrant/shared/drupal-7.x/modules/vagrant /var/www/
 rm /var/www/elmsln/config/shared/drupal-7.x/settings/shared_settings.php
 cp /var/www/elmsln-config-vagrant/shared/drupal-7.x/settings/shared_settings.php /var/www/elmsln/config/shared/drupal-7.x/settings/shared_settings.php
 
-# some minor clean up that we need to do via sudo
-# setup host file so httprl works for local cache rebuilding
-cat /var/www/elmsln/scripts/vagrant/hosts >> /etc/hosts
 # add in checks to ensure apache/mysql haven't stopped
 # when we SSH into the box. For the purposes of drupal
 # and vagrant, these services should NEVER be stopped
@@ -36,15 +33,10 @@ echo 'then' >> /etc/profile.d/chkon.sh
 echo '  sudo /sbin/service httpd restart' >> /etc/profile.d/chkon.sh
 echo 'fi' >> /etc/profile.d/chkon.sh
 
-
 # vagrant specific stuff
-# make sure user password is admin as a fallback
-drush @elmsln upwd admin --password=admin --y
 # seckit causes isses, especially locally
 drush @online dis seckit --y
 # specific stuff for aiding in development
 drush @online en vagrant_cis_dev cis_example_cis --y
 # restart apache to frag some caches because of the different settings that changed inside
 sudo /etc/init.d/httpd restart
-# clear caches on all sites this seems to make bakery happy
-drush @elmsln cc all --y

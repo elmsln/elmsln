@@ -1,9 +1,9 @@
 ; Packaging information for assessment
-name = "assessment"
-description = "A new idea for powering flexible educational ecosystems."
+name = "Assessment"
+description = "Assessment reporting and recording engine."
 core = "7.x"
 exclusive = "1"
-elmslndefaulttitle = "assessment"
+elmslndefaulttitle = "Assessment"
 elmslntype = "authority"
 
 ; ----------

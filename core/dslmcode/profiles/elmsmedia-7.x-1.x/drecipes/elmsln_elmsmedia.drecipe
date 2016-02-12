@@ -7,12 +7,8 @@
     {
       "command": "en",
       "arguments": [
-        "accessibility",
-        "accessibility_wysiwyg",
-        "og",
         "og_access",
         "og_context",
-        "og_ui",
         "cis_section",
         "cis_unique_tag"
       ]

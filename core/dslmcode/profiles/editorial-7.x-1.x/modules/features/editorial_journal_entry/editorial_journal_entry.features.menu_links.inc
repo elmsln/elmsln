@@ -10,9 +10,9 @@
 function editorial_journal_entry_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-cis-add_private-journal-entry:node/add/editorial-journal-entry
-  $menu_links['menu-cis-add_private-journal-entry:node/add/editorial-journal-entry'] = array(
-    'menu_name' => 'menu-cis-add',
+  // Exported menu link: menu-elmsln-add_private-journal-entry:node/add/editorial-journal-entry
+  $menu_links['menu-elmsln-add_private-journal-entry:node/add/editorial-journal-entry'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/editorial-journal-entry',
     'router_path' => 'node/add/editorial-journal-entry',
     'link_title' => 'Private Journal Entry',
@@ -23,7 +23,7 @@ function editorial_journal_entry_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-cis-add_private-journal-entry:node/add/editorial-journal-entry',
+      'identifier' => 'menu-elmsln-add_private-journal-entry:node/add/editorial-journal-entry',
     ),
     'module' => 'menu',
     'hidden' => 0,
