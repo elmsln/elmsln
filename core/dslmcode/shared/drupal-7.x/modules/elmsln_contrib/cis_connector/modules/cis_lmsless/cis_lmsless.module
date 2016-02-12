@@ -58,8 +58,6 @@ function cis_lmsless_block_view($delta = '') {
   return $block;
 }
 
-
-
 /**
  * Implements hook_page_build().
  */
@@ -71,6 +69,14 @@ function cis_lmsless_page_build(&$page) {
       '#markup' => _cis_lmsless_assemble(),
     );
   }
+}
+
+/**
+ * Implements hook_admin_paths_alter().
+ */
+function cis_lmsless_admin_paths_alter(&$paths) {
+  // Do not treat user pages (i.e. edit) as needing administrative theme.
+  $paths['user/*'] = FALSE;
 }
 
 /**
