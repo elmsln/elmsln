@@ -139,7 +139,6 @@ dependencies[] = entity_iframe_mode
 dependencies[] = entityreference_dynamicselect_widget
 ; ICOR
 dependencies[] = icor_helper
-dependencies[] = icor_smart_builder
 ; Other
 dependencies[] = file_entity
 dependencies[] = dynamic_select
@@ -157,8 +156,5 @@ dependencies[] = icor_file_entities
 dependencies[] = icor_ux
 dependencies[] = icor_poll
 dependencies[] = icor_defaults
-
-; Information added for Drupal.org usage stats while in dev
-version = "7.x-1.x-dev"
-project = "icor"
-datestamp = "1398114533"
+dependencies[] = icor_jmol
+dependencies[] = icor_perms

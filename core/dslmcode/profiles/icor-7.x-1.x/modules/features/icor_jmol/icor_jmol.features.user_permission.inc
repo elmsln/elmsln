@@ -15,6 +15,9 @@ function icor_jmol_user_default_permissions() {
     'name' => 'create jmol content',
     'roles' => array(
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
   );
@@ -24,6 +27,7 @@ function icor_jmol_user_default_permissions() {
     'name' => 'delete any jmol content',
     'roles' => array(
       'administrator' => 'administrator',
+      'staff' => 'staff',
     ),
     'module' => 'node',
   );
@@ -33,6 +37,9 @@ function icor_jmol_user_default_permissions() {
     'name' => 'delete own jmol content',
     'roles' => array(
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
   );
@@ -42,6 +49,7 @@ function icor_jmol_user_default_permissions() {
     'name' => 'edit any jmol content',
     'roles' => array(
       'administrator' => 'administrator',
+      'staff' => 'staff',
     ),
     'module' => 'node',
   );
@@ -51,6 +59,9 @@ function icor_jmol_user_default_permissions() {
     'name' => 'edit own jmol content',
     'roles' => array(
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
   );
