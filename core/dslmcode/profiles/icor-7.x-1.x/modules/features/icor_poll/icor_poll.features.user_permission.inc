@@ -29,6 +29,7 @@ function icor_poll_user_default_permissions() {
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
   );
@@ -50,6 +51,7 @@ function icor_poll_user_default_permissions() {
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
   );
@@ -71,6 +73,7 @@ function icor_poll_user_default_permissions() {
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
   );

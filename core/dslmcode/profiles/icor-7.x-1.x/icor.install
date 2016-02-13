@@ -30,3 +30,16 @@ function icor_install() {
 function icor_update_7001(&$sandbox) {
   module_enable(array('icor_poll'));
 }
+
+/**
+ * Implements hook_update_N().
+ * Setting permissions and making this usable.
+ */
+function icor_update_7002(&$sandbox) {
+  // full revert since we're working towards stabilizing this tool
+  features_revert_module('icor_jmol');
+  features_revert_module('icor_interactive_player');
+  features_revert_module('icor_poll');
+  features_revert_module('icor_file_entities');
+  module_enable(array('icor_perms'));
+}
