@@ -21,4 +21,15 @@ function elmsmedia_install() {
   variable_set('cis_help_page', '');
   variable_set('cis_resource_page', '');
   variable_set('cis_syllabus_page', '');
+  // we need to revert this at the end for whatever reason
+  features_revert_module('elmsmedia_cis_ux');
+}
+
+
+/**
+ * Implements hook_update_N().
+ * Revert UX to make the links show up
+ */
+function elmsmedia_update_7001(&$sandbox) {
+  features_revert_module('elmsmedia_cis_ux');
 }
