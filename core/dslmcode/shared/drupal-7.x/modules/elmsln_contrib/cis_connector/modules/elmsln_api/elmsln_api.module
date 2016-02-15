@@ -320,6 +320,7 @@ function _elmsln_api_request($request, $nonblocking = FALSE) {
         $options['blocking'] = FALSE;
         drupal_load('module', 'httprl');
         httprl_request($address . 'elmsln.php', $options);
+        $tmp = httprl_send_request();
         // this is non-blocking so can't really be modified but
         // could still be useful fro debugging
         return TRUE;
@@ -347,8 +348,6 @@ function _elmsln_api_nonblocking_requests($requests) {
   foreach ($requests as $request) {
     _elmsln_api_request($request, TRUE);
   }
-  // send the requests off
-  $tmp = httprl_send_request();
   return count($requests);
 }
 
