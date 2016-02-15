@@ -47,9 +47,12 @@
       $active = '';
     }
     $pre = '';
+    if (isset($outline_count) && $outline_count && isset($item['_count'])) {
+      $pre .= $item['_count'] . '. ';
+    }
     // check for icon, we only render these at lowest level
     if (isset($item['_icon'])) {
-      $pre = $item['_count'] . '. ' . ' <div class="book-menu-item-' . $item['mlid'] . ' icon-' . $item['_icon'] . '-black outline-nav-icon"></div>';
+      $pre .= '<div class="book-menu-item-' . $item['mlid'] . ' icon-' . $item['_icon'] . '-black outline-nav-icon"></div>';
     }
     $link_title = check_plain($item['link_title']);
     $link = '<li class="' . $active . '">' . l($pre . $link_title,
