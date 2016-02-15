@@ -388,6 +388,20 @@ function foundation_access_menu_tree__menu_elmsln_add($variables) {
   return '<ul id="add-menu-drop" data-dropdown-content class="f-dropdown" role="menu" aria-hidden="false" tabindex="-1" class="menu">' . $variables['tree'] . '</ul>';
 }
 
+function foundation_access_preprocess_book_sibling_nav(&$variables) {
+  // Outline Labeling theme setting
+  $variables['outline_labeling'] = theme_get_setting('mooc_foundation_access_outline_labeling');
+  // Outline Label theme setting
+  if ($labeling = $variables['outline_labeling']) {
+    if ($labeling == 'auto_both' || $labeling == 'auto_text') {
+      $variables['outline_label'] = theme_get_setting('mooc_foundation_access_outline_label');
+    }
+    else {
+      $variables['outline_label'] = '';
+    }
+  }
+}
+
 /**
  * Helper to generate a menu link in a consistent way at the bottom.
  */

@@ -18,18 +18,19 @@
     $ptitle = t('Pages on the same level as @name', array('@name' => $parent_title));
   }
   // support for count on the lowest level parent
-  if (isset($parent['_count'])) {
-    $parent_count = $parent['_count'] . '. ';
+  if ($outline_labeling == 'auto_both' || $outline_labeling == 'auto_num') {
+    if (isset($parent['_count'])) {
+      $parent_count = $parent['_count'] . '. ';
+    }
   }
   // support for icon on lowest level parent
   if (isset($parent['_icon'])) {
     $parent_icon = '<div class="book-sibling-parent-icon book-menu-item-' . $parent['mlid'] . ' icon-' . $parent['_icon'] . '-black outline-nav-icon"></div>';
   }
-
 ?>
 <li class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
   <a href="#" title="<?php print $ptitle ?>" class="<?php print $parent['_class'] ?>" data-dropdown="book-sibling-children-<?php print $parent['mlid'] ?>" aria-controls="middle-section-buttons" aria-expanded="false">
-    <div class="book-sibling-parent-text"><?php print $parent_count; ?><?php print $parent_title ?></div>
+    <div class="book-sibling-parent-text"><?php print $parent_count; ?> <?php print $outline_label; ?> <?php print $parent_title ?></div>
     <?php if ($parent_icon !== ''): ?><?php print $parent_icon ?><?php endif; ?>
     <div class="book-sibling-parent-arrow icon--dropdown off-canvas-toolbar-item-icon"></div>
   </a>
