@@ -361,6 +361,9 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
   if ($nonblocking && module_exists('cis_devel')) {
     $nonblocking = FALSE;
   }
+  if ($nonblocking) {
+    drupal_load('module', 'httprl');
+  }
   // load CIS connector so we can quickly load via low level bootstrap
   drupal_load('module', 'cis_connector');
   // see if we can skim a module off the filesystem structure
@@ -413,9 +416,8 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
           'data' => http_build_query($request['data']),
           'timeout' => 1,
           'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+          'blocking' => FALSE,
         );
-        $options['blocking'] = FALSE;
-        drupal_load('module', 'httprl');
         httprl_request($addresses, $options);
         $tmp = httprl_send_request();
       }
