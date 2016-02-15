@@ -54,7 +54,7 @@ function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
     // loop through known stacks
     foreach ($stacks as $stack) {
       // step through sites directory assuming it isn't the 'default'
-      if ($stack != 'default') {
+      if ($stack != 'default' && is_dir("$root$stack/sites/$stack")) {
         try {
           $stackdir = new DirectoryIterator("$root$stack/sites/$stack");
           while ($stackdir->valid()) {
@@ -71,20 +71,22 @@ function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
                 );
 
                 // step through sites directory
-                $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
-                while ($site->valid()) {
-                  // Look for directories containing a 'settings.php' file
-                  if ($site->isDir() && !$site->isDot() && !$site->isLink()) {
-                    if (file_exists($site->getPathname() . '/settings.php')) {
-                      // Add site alias
-                      $basename = $site->getBasename();
-                      $pulledaliases["$stack.$basename"] = array(
-                        'root' => $root . $stack,
-                        'uri' => "$stack.$address.$basename",
-                      );
+                if (is_dir("$root$stack/sites/$stack/$group")) {
+                  $site = new DirectoryIterator("$root$stack/sites/$stack/$group");
+                  while ($site->valid()) {
+                    // Look for directories containing a 'settings.php' file
+                    if ($site->isDir() && !$site->isDot() && !$site->isLink()) {
+                      if (file_exists($site->getPathname() . '/settings.php')) {
+                        // Add site alias
+                        $basename = $site->getBasename();
+                        $pulledaliases["$stack.$basename"] = array(
+                          'root' => $root . $stack,
+                          'uri' => "$stack.$address.$basename",
+                        );
+                      }
                     }
+                    $site->next();
                   }
-                  $site->next();
                 }
               }
               // account for stacks that function more like CIS
