@@ -18,7 +18,7 @@
     $ptitle = t('Pages on the same level as @name', array('@name' => $parent_title));
   }
   // support for count on the lowest level parent
-  if ($outline_labeling == 'auto_both' || $outline_labeling == 'auto_num') {
+  if (isset($outline_count) && $outline_count) {
     if (isset($parent['_count'])) {
       $parent_count = $parent['_count'] . '. ';
     }
