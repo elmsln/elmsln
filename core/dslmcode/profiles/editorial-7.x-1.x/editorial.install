@@ -17,4 +17,7 @@ function editorial_install() {
   _elmsln_installer_post_install_cleanup();
   // set front page to the my posts view
   variable_set('site_frontpage', 'editorial/blog-posts/my');
+  // these need reverted after build
+  features_revert_module('editorial_journal_entry');
+  features_revert_module('editorial_story_seeds');
 }
