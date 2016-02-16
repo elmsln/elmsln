@@ -30,7 +30,7 @@
 ?>
 <li class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
   <a href="#" title="<?php print $ptitle ?>" class="<?php print $parent['_class'] ?>" data-dropdown="book-sibling-children-<?php print $parent['mlid'] ?>" aria-controls="middle-section-buttons" aria-expanded="false">
-    <div class="book-sibling-parent-text"><?php print $parent_count; ?> <?php print $outline_label; ?> <?php print $parent_title ?></div>
+    <div class="book-sibling-parent-text"><?php print $outline_label; ?> <?php print $parent_count; ?> <?php print $parent_title ?></div>
     <?php if ($parent_icon !== ''): ?><?php print $parent_icon ?><?php endif; ?>
     <div class="book-sibling-parent-arrow icon--dropdown off-canvas-toolbar-item-icon"></div>
   </a>
