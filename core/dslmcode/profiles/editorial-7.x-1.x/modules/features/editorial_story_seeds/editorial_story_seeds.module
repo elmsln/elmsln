@@ -26,7 +26,7 @@ function editorial_story_seeds_form_editorial_story_seeds_node_form_alter(&$form
   // this only happens when this form is actually loaded onto the display of
   // a journal entry.
   $node = menu_get_object();
-  if ($node->type == 'editorial_journal_entry') {
+  if (isset($node->type) && $node->type == 'editorial_journal_entry') {
     drupal_add_css(drupal_get_path('module', 'editorial_story_seeds') . '/css/editorial_story_seeds.css');
     unset($form['field_seed']['und']['add_more']['#ajax']);
   }
