@@ -2,7 +2,7 @@ ELMSLN Vagrant Instructions
 ==============
 [Watch how to use this!](https://www.youtube.com/watch?v=ZeuDKzs6sj0&list=PLJQupiji7J5fygec37Wd-gAbpMj8c5A_C)
 ###What is this
-This is a Vagrant profile for installing a fully functioning [ELMS Learning Network](https://github.com/elmsln/elmsln) in a single command!  This instance is purely for development purposes but you can follow the [installation instructions](https://github.com/elmsln/elmsln/blob/master/INSTALL.txt) and bash scripts to install this on any real server!
+This is a Vagrant profile for installing a fully functioning [ELMS Learning Network](https://github.com/elmsln/elmsln) in a single command!  This instance is for development purposes but you can follow the [installation instructions](http://docs.elmsln.org/en/latest/INSTALL/) to install this on any real server!
 
 ###How to use this to bring up ELMSLN
 1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (ensure you are on the latest version 5.0.14+)
