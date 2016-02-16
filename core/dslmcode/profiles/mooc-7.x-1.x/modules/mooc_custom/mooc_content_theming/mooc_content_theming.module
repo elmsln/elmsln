@@ -111,7 +111,7 @@ function mooc_content_theming_foundation_access_colors_alter(&$color, $current) 
     if (!empty($node->{'field_fa_' . $current . '_color'})) {
       $color = $node->{'field_fa_' . $current . '_color'}[LANGUAGE_NONE][0]['jquery_colorpicker'];
     }
-    else {
+    elseif (isset($node->book)) {
       // spider back up through parents til we find a match
       $plid = $node->book['plid'];
       while ($plid != 0) {
