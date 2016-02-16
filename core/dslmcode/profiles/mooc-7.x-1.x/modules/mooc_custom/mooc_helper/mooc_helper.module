@@ -126,6 +126,11 @@ function _mooc_helper_toc() {
   $node = _mooc_helper_active_outline();
   // exit early cause we found nothing
   if (!$node) {
+    // account for a failed home-page call, in this event redirect
+    // to something that we know won't bust the theme at least
+    if (current_path() == 'mooc/book-toc') {
+      drupal_goto('welcome_page');
+    }
     return FALSE;
   }
   // load the active outline
@@ -371,7 +376,7 @@ function _mooc_helper_book_homepage_redirect() {
         $book_nid = $section_wrapper->field_instructional_outlines[0]->nid->value();
         // use a temporary 307 redirect to the books homepage
         drupal_goto('node/' . $book_nid, array(), 307);
-      }   
+      }
     }
     catch (EntityMetadataWrapperException $exc) {
       watchdog(
