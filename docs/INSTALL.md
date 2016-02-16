@@ -4,13 +4,13 @@
 There are some handsfree install routines (copy and paste) that you can try. This is the preferred method of installing ELMS Learning Network as it'll get you up and running with the least steps possible.
 
 ### CentOS 6.x / RHEL 6.x
-[https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos/example-deploy](Example Deployment)
-### AWS managed image
-[https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/amazon/example-deploy](Example Deployment)
+[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos/example-deploy)
 ### CentOS 7.x
-[https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos7/example-deploy](Example Deployment)
+[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos7/example-deploy)
+### AWS managed image
+[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/amazon/example-deploy)
 ### Ubuntu 14.x / Debian 8.x
-[https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu/example-deploy](Example Deployment)
+[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu/example-deploy)
 
 Hands free has some arguments passed into it to get going but these are for installation against a fresh copy of a server. If you install with the default options provided in those (with addresses of elmsln.dev) you'll want to make sure you modify your local `/etc/hosts` file to reflect these fake addresses.
 
