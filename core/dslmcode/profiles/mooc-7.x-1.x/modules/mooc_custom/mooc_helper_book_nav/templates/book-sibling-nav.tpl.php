@@ -27,6 +27,10 @@
   if (isset($parent['_icon'])) {
     $parent_icon = '<div class="book-sibling-parent-icon book-menu-item-' . $parent['mlid'] . ' icon-' . $parent['_icon'] . '-black outline-nav-icon"></div>';
   }
+  // make sure this isset
+  if (!isset($outline_label)) {
+    $outline_label = '';
+  }
 ?>
 <li class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
   <a href="#" title="<?php print $ptitle ?>" class="<?php print $parent['_class'] ?>" data-dropdown="book-sibling-children-<?php print $parent['mlid'] ?>" aria-controls="middle-section-buttons" aria-expanded="false">
