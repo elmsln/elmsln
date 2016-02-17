@@ -614,6 +614,8 @@ function outline_designer_book_process_add_content($title, $type, $parent_nid) {
   }
   $node->book['menu_name'] = $parent->book['menu_name'];
   $node->book['module'] = $parent->book['module'];
+  // leave a trace that outline designer processed this
+  $node->_outline_designer = TRUE;
   // Allow other modules to alter the new book node.
   drupal_alter('new_book_object', $node);
   if (node_access('create', $node->type)) {
@@ -644,6 +646,8 @@ function outline_designer_book_process_rename($nid, $newtitle, $var3) {
     $oldtitle = $node->title;
     $node->title = $newtitle;
     $node->revision = 1;
+    // leave a trace that outline designer processed this
+    $node->_outline_designer = TRUE;
     node_save($node);
     drupal_set_message(t("Content renamed from %title to %newtitle", array('%title' => $oldtitle, '%newtitle' => $newtitle)));
     return drupal_json_encode($node->title);

@@ -69,22 +69,29 @@ function book_title_override_node_load($nodes, $types) {
  */
 function book_title_override_node_insert($node) {
   $change = FALSE;
-  // verify we have a changed title
-  if (!empty($node->book_title_override_override) && isset($node->book['link_title'])) {
-    $node->book['link_title'] = $node->book_title_override_title;
-    $change = TRUE;
-  }
-  // test for tokens when title isn't overridden
-  if (isset($node->book) && module_exists('menu_token') && $node->title != token_replace($node->title, array('node' => $node))) {
-    // support token replacements if they exist
-    $node->book['options']['menu_token_link_path'] = 'node/' . $node->nid;
-    $node->book['options']['menu_token_options'] = array('clear' => 0);
-    $node->book['options']['alter'] = TRUE;
-    $change = TRUE;
-  }
-  // commit the menu link alteration if we have a change to make
-  if ($change) {
-    menu_link_save($node->book);
+  // account for meta property in outline designer that
+  // the node was saved via the title entry only so we don't
+  // have enough details to make this evaluation. In this scenario
+  // we punt to outline designer to take priority since the user
+  // updated the title of the item or created a new item in title only.
+  if (!isset($node->_outline_designer)) {
+    // verify we have a changed title
+    if (!empty($node->book_title_override_override) && isset($node->book['link_title'])) {
+      $node->book['link_title'] = $node->book_title_override_title;
+      $change = TRUE;
+    }
+    // test for tokens when title isn't overridden
+    if (isset($node->book) && module_exists('menu_token') && $node->title != token_replace($node->title, array('node' => $node))) {
+      // support token replacements if they exist
+      $node->book['options']['menu_token_link_path'] = 'node/' . $node->nid;
+      $node->book['options']['menu_token_options'] = array('clear' => 0);
+      $node->book['options']['alter'] = TRUE;
+      $change = TRUE;
+    }
+    // commit the menu link alteration if we have a change to make
+    if ($change) {
+      menu_link_save($node->book);
+    }
   }
 }
 
