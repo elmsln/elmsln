@@ -90,4 +90,10 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
     'label' => t('Media SVG Stretch'),
     'custom settings' => FALSE,
   );
+
+  // Figure Label
+  $entity_info['node']['view modes']['figurelabel'] = array(
+    'label' => t('Figure Label'),
+    'custom settings' => FALSE,
+  );
 }

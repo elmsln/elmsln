@@ -8928,8 +8928,11 @@ The figure label component is used to present textbook like captions to media el
 .figurelabel {
   display: block;
   overflow: hidden;
-  font-size: .75em;
   margin-bottom: 1em; }
+  .figurelabel * {
+    font-size: 16px;
+    font-size: .75rem;
+    line-height: 150%; }
   .figurelabel > * {
     padding: .8em 1em;
     border: 1px solid #F2F2F2; }
@@ -8940,6 +8943,10 @@ The figure label component is used to present textbook like captions to media el
     float: left;
     border: 1px solid #F2F2F2;
     border-radius: .1em; }
+    .figurelabel__desc > *:first-of-type {
+      margin-top: 0; }
+    .figurelabel__desc > *:last-of-type {
+      margin-bottom: 0; }
 
 .f-dropdown.content:focus {
   outline-style: none; }
