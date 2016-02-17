@@ -1,4 +1,10 @@
 /* CSS Document */
+i.zmdi {
+	font-size: 1.75rem;
+	padding:1.5rem;
+	margin: 0 auto;
+}
+
 ol.cle-assignment-listing-multi-submission {
 	margin: 0;
 	padding: 0;
