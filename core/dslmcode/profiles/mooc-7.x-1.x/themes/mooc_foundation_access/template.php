@@ -34,9 +34,9 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   if ($node && !empty($node->book) && (user_access('add content to books') || user_access('administer book outlines')) && node_access('create', $child_type) && $node->status == 1 && isset($node->book['depth']) && $node->book['depth'] < MENU_MAX_DEPTH) {
     $variables['tabs_extras'][200][] = '<hr><strong>' . t('Operations') . '</strong>';
     $variables['tabs_extras'][200][] = l(t('Add child page'), 'node/add/' . str_replace('_', '-', $child_type), array('query' => array('parent' => $node->book['mlid'])));
-    $variables['tabs_extras'][200][] = l(t('Duplicate outline'), 'node/' . $node->nid . '/outline/copy');
+    $variables['tabs_extras'][200][] = l(t('Duplicate outline'), 'node/' . $node->nid . '/outline/copy', array('query' => array('destination' => 'node/' . $node->nid)));
     $variables['tabs_extras'][200][] = l(t('Edit child outline'), 'node/' . $node->book['nid'] . '/outline/children');
-    $variables['tabs_extras'][200][] = l(t('Edit course outline'), 'admin/content/book/' . $node->book['nid']);
+    $variables['tabs_extras'][200][] = l(t('Edit course outline'), 'admin/content/book/' . $node->book['bid']);
 
   }
   if (user_access('access contextual links') && arg(0) == 'node' && arg(2) == 'edit') {
