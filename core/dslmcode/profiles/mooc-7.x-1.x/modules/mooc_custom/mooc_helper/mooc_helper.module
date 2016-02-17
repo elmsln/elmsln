@@ -547,7 +547,7 @@ function mooc_helper_node_delete($node) {
  * Implements hook_form_FORM_ID_alter().
  */
 function mooc_helper_form_page_node_form_alter(&$form, &$form_state, $form_id) {
-  if ($_GET['parent'] == 'new' && empty($form['nid']['#value'])) {
+  if (isset($_GET['parent']) && $_GET['parent'] == 'new' && empty($form['nid']['#value'])) {
     $form['book']['bid']['#default_value'] = 'new';
   }
 }
