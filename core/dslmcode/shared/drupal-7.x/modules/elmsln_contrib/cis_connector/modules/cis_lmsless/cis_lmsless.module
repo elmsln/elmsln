@@ -135,7 +135,7 @@ function _cis_lmsless_assemble_user() {
         'height' => '220',
         'alt' => t('Picture of @name', array('@name' => $vars['username'])),
         'attributes' => array(
-          'class' => 'cis-lmsless-avatar-big',
+          'class' => 'cis-lmsless-avatar-big ferpa-protect',
         )
       );
       $vars['userpicturebig'] = theme_image_style($image);
@@ -165,6 +165,8 @@ function _cis_lmsless_assemble_user() {
       else {
         $vars['masquerade'] = '<a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal" class="admin-alert">' . t('impersonate account') . '</a>';
       }
+      // support for the FERPA filter block
+      $vars['ferpa_flter'] = '<a href="#" data-reveal-id="block-cis-service-connection-ferpa-filter-nav-modal" class="admin-alert">' . t('Privacy settings') . '</a>';
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
       unset($tmproles[1]);
@@ -367,7 +369,7 @@ function _cis_lmsless_theme_vars() {
         'height' => '26',
         'alt' => t('Picture of @name', array('@name' => $vars['username'])),
         'attributes' => array(
-          'class' => 'cis-lmsless-avatar etb-icons',
+          'class' => 'cis-lmsless-avatar etb-icons ferpa-protect',
         )
       );
       $vars['userpicture'] = theme_image_style($image);
@@ -425,8 +427,9 @@ function cis_lmsless_theme() {
         'tour' => url('guided_tour'),
         'username' => t('Account'),
         'userlink' => '',
-        'userpicturebig' => '<div class="icon-user-black etb-icons svg"></div>',
+        'userpicturebig' => '<div class="ferpa-protect icon-user-black etb-icons svg"></div>',
         'masquerade' => '',
+        'ferpa_flter' => '',
         'user_roles' => '',
         'user_section' => '',
         ),
@@ -457,7 +460,7 @@ function cis_lmsless_theme() {
         'resources_link' => url('resources'),
         'syllabus_link' => url('syllabus'),
         'username' => t('Account'),
-        'userpicture' => '<div class="icon-user-black etb-icons svg"></div>',
+        'userpicture' => '<div class="ferpa-protect icon-user-black etb-icons svg"></div>',
         'resources' => array(),
         'tech_support' => array(),
         'elmsln_main_menu' => '',

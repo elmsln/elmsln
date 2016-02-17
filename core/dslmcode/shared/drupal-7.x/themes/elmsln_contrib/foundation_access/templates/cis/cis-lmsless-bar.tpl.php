@@ -23,7 +23,7 @@
           </li>
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
-          <li>
+          <li class="ferpa-protect">
             <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap" data-reveal-id="block-cis-lmsless-cis-lmsless-user-nav-modal">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="visible-for-large-up"><?php print $username; ?></span>
