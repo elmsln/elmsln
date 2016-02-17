@@ -128,7 +128,7 @@ function cis_service_connection_ux_form($form, $form_state) {
   );
   // load up the system theme admin form to modify it here
   module_load_include('inc', 'system', 'system.admin');
-  $tmp = drupal_get_form('system_theme_settings', variable_get('theme_default', ''));
+  $tmp = drupal_get_form('system_theme_settings', variable_get('theme_default', 'foundation_access'));
   // see if we have foundation access settings we can dump in here too
   if (isset($tmp['zurb_foundation']['foundation_access'])) {
     // format and append the collapse
@@ -160,7 +160,6 @@ function cis_service_connection_ux_form($form, $form_state) {
 function cis_service_connection_ux_form_validate($form, &$form_state) {
   // Handle file uploads.
   $validators = array('file_validate_is_image' => array());
-
   // Check for a new uploaded logo.
   $file = file_save_upload('logo_upload', $validators);
   if (isset($file)) {
@@ -239,15 +238,16 @@ function _cis_service_connection_ux_validate_path($path) {
  */
 function cis_service_connection_ux_form_submit($form, &$form_state) {
   module_load_include('inc', 'system', 'system.admin');
-  // load the current variables
+  // Exclude unnecessary elements before saving.
   form_state_values_clean($form_state);
+  $values = $form_state['values'];
   // see if we have foundation access settings in here
   if (isset($form_state['groups']['foundation_access'])) {
     // load the current settings array we'd get on the theme settings page
     $vars = variable_get('theme_' . variable_get('theme_default', '') . '_settings', array());
     foreach ($form_state['values'] as $key => $val) {
       // if the name of the variable includes FA, overwrite the current one
-      if (strpos($key, 'foundation_access') !== FALSE) {
+      if (strpos($key, 'foundation_access') !== FALSE || in_array($key, array('default_favicon', 'favicon_path', 'favicon_upload', 'default_logo', 'logo_path', 'logo_upload'))) {
         $vars[$key] = $val;
         // unset so we don't get these stored in the database as stand alones
         unset($form_state['values'][$key]);
@@ -255,16 +255,16 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
     }
     // If the user uploaded a new logo or favicon, save it to a permanent location
     // and use it in place of the default theme-provided file.
-    // @todo get logo / favicon working
-    /*
-    if (isset($vars['logo_upload']) && $file = $vars['logo_upload']) {
+    if (!empty($values['logo_upload']) && $values['logo_upload']) {
+      $file = $values['logo_upload'];
       unset($vars['logo_upload']);
       $filename = file_unmanaged_copy($file->uri);
       $vars['default_logo'] = 0;
       $vars['logo_path'] = $filename;
       $vars['toggle_logo'] = 1;
     }
-    if (isset($vars['favicon_upload']) && $file = $vars['favicon_upload']) {
+    if (!empty($values['favicon_upload']) && $values['favicon_upload']) {
+      $file = $values['favicon_upload'];
       unset($vars['favicon_upload']);
       $filename = file_unmanaged_copy($file->uri);
       $vars['default_favicon'] = 0;
@@ -275,15 +275,15 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
     // If the user entered a path relative to the system files directory for
     // a logo or favicon, store a public:// URI so the theme system can handle it.
     if (!empty($vars['logo_path'])) {
-      $vars['logo_path'] = _system_theme_settings_validate_path($vars['logo_path']);
+      $vars['logo_path'] = _cis_service_connection_ux_validate_path($vars['logo_path']);
     }
     if (!empty($vars['favicon_path'])) {
-      $vars['favicon_path'] = _system_theme_settings_validate_path($vars['favicon_path']);
+      $vars['favicon_path'] = _cis_service_connection_ux_validate_path($vars['favicon_path']);
     }
 
     if (empty($vars['default_favicon']) && !empty($vars['favicon_path'])) {
       $vars['favicon_mimetype'] = file_get_mimetype($vars['favicon_path']);
-    }*/
+    }
     // set the variables for the theme
     variable_set('theme_' . variable_get('theme_default', '') . '_settings', $vars);
   }
@@ -305,6 +305,7 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
       $vars[] = 'logo_path';
       $vars[] = 'toggle_logo';
     }
+    $values = array();
     // get the theme variables
     foreach ($vars as $var) {
       $values[$var] = theme_get_setting($var, variable_get('theme_default', 'foundation_access'));
