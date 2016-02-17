@@ -8,10 +8,10 @@
       $('#block-cis-service-connection-ferpa-filter-nav-modal input[type=checkbox]').click(function(){
         if (this.checked) {
           // look for anything that's marked ferpa and change the class to enforce our privacy blur
-          $('.ferpa-protect').addClass('ferpa-privacy-blur');
+          $('.ferpa-protect,#colorbox').addClass('ferpa-privacy-blur');
         }
         else {
-          $('.ferpa-protect').removeClass('ferpa-privacy-blur');
+          $('.ferpa-protect,#colorbox').removeClass('ferpa-privacy-blur');
         }
       });
     }
