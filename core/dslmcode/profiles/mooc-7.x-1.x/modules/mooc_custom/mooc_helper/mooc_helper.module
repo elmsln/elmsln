@@ -124,32 +124,29 @@ function mooc_helper_block_view($delta = '') {
 function _mooc_helper_toc() {
   $tree = array();
   $node = _mooc_helper_active_outline();
-  // exit early cause we found nothing
-  if (!$node) {
-    // account for a failed home-page call, in this event redirect
-    // to something that we know won't bust the theme at least
-    if (current_path() == 'mooc/book-toc') {
-      drupal_goto('welcome_page');
-    }
-    return FALSE;
-  }
   // load the active outline
   $active = menu_get_object();
   // test for not being on a node as well as global setting overriding
   // outline to use
-  if (!isset($active->book) || ($active->book['menu_name'] != $node->book['menu_name'])) {
+  if (!isset($active->book) || (isset($node->book) && $active->book['menu_name'] != $node->book['menu_name'])) {
     $active = $node;
   }
   // only show the block if the user has view access for the top-level node.
-  if (entity_access('view', 'node', $active) && isset($active->book)) {
+  if (isset($active->book) && entity_access('view', 'node', $active)) {
     // load everything the tree below as well as the active trail
     $tree = _mooc_helper_menu_tree_all_data($active->book['menu_name'], $active->book);
     // dump the highest book node, we don't need this "page"
     $tree = array_pop($tree);
-    // ensure we only render what's below us
-    $tree = $tree['below'];
+    // ensure we have something to render below us
+    if (empty($tree['below'])) {
+      return t('This content outline is empty, why not start with adding some content <a href="@url">add a page of content</a>', array('@url' => url('node/add/page', array('query' => array('parent' => $tree['link']['mlid'], 'destination' => $_GET['q'])))));
+    }
+    else {
+      $tree = $tree['below'];
+      return menu_tree_output($tree);
+    }
   }
-  return menu_tree_output($tree);
+  return t('<a href="@url">Create a new course outline to get started!</a>', array('@url' => url('node/add/page', array('query' => array('parent' => 'new', 'destination' => $_GET['q'])))));
 }
 
 /**
@@ -340,6 +337,34 @@ function _mooc_helper_active_outline() {
       }
       if ($onid) {
         $node = node_load($onid);
+        // edge case of edge cases, item was set but doesn't exist
+        if (!$node) {
+          // load all books
+          $books = _mooc_helper_all_book_outlines('nid', 'created');
+          // make sure we at least have some books in here
+          if (is_array($books)) {
+            // move to 1st array position in iterator
+            reset($books);
+            // sort maintaining index which is the nid
+            asort($books);
+            // set default to first key in array
+            $onid = key($books);
+            // set the group's item to this so we don't see it again
+            if (is_numeric($onid)) {
+              $group->field_instructional_outlines['und'][0]['target_id'] = $onid;
+              node_save($group);
+            }
+            // now load
+            $node = node_load($onid);
+          }
+        }
+      }
+    }
+    else {
+      $onid = variable_get('mooc_default_outline', '');
+      // try to load the default outline set syste wide without a group context
+      if (is_numeric($onid)) {
+        $node = node_load($onid);
       }
     }
 
@@ -508,17 +533,45 @@ function mooc_helper_node_presave($node) {
 }
 
 /**
+ * Implements hook_node_delete().
+ */
+function mooc_helper_node_delete($node) {
+  // make sure we aren't deleting a book root used elsewhere
+  if ($node->nid == variable_get('mooc_default_outline', '')) {
+    // reset the default outline to nothing since the default was removed
+    variable_set('mooc_default_outline', '');
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function mooc_helper_form_page_node_form_alter(&$form, &$form_state, $form_id) {
+  if ($_GET['parent'] == 'new' && empty($form['nid']['#value'])) {
+    $form['book']['bid']['#default_value'] = 'new';
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function mooc_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
+  $options = _mooc_helper_all_book_outlines('nid');
+  $require = TRUE;
+  // don't brick other things if we don't have any options to set
+  // edge casy but possible as you clean out books and create other ones
+  // now that we support those kinds of things
+  if (empty($options)) {
+    $require = FALSE;
+  }
   $form['site_information']['mooc_default_outline'] = array(
     '#description' => t('This is the default content outline for new sections that register.'),
     '#default_value' => variable_get('mooc_default_outline', ''),
     '#weight' => '0',
     '#title' => t('Default content outline'),
     '#type' => 'select',
-    '#required' => '1',
-    '#options' => _mooc_helper_all_book_outlines('nid'),
+    '#required' => $require,
+    '#options' => $options,
   );
   // @see _mooc_helper_book_homepage_redirect()
   $form['site_information_links']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
