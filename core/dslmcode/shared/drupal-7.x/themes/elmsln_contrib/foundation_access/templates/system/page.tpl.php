@@ -43,8 +43,8 @@
                   </a></li>
                 <?php endif; ?>
                 <!-- end Edit Icon -->
+                <li class="r-header__edit-icons__list-item">
                 <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-                  <li class="r-header__edit-icons__list-item">
                     <a href="#" title="<?php print t('More')?>" class="r-header__icon" data-dropdown="r-header__icon--advanced" aria-controls="r-header__icon--advanced" aria-expanded="false">
                       <i class="zmdi zmdi-more-vert"></i>
                     </a>
@@ -64,8 +64,12 @@
                      <?php endforeach; ?>
                     <?php endif; ?>
                     </ul>
-                  </li>
+                <?php else: ?>
+                  <a href="#" title="<?php print t('No additional options')?>" class="r-header__icon fa-action-disabled">
+                      <i class="zmdi zmdi-more-vert"></i>
+                    </a>
                 <?php endif; ?>
+                </li>
               </ul>
             </div>
           </div>

@@ -32,6 +32,9 @@
 .r-header__icon-secondary:hover {
   opacity: 0.8;
 }
+.r-header__icon.fa-action-disabled {
+  opacity: 0.1;
+}
 
 #block-mooc-nav-block-mooc-nav-nav {
   border:1px solid #cccccc;
