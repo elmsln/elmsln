@@ -1,3 +1,20 @@
+.ferpa-privacy-blur {
+  filter: blur(4px);
+  /* Webkit */
+  -webkit-filter: blur(4px);
+  /* Opera */
+  -o-filter: blur(4px);
+}
+
+.ferpa-privacy-blur:hover {
+  filter: blur(3px);
+  /* Webkit */
+  -webkit-filter: blur(3px);
+  /* Opera */
+  -o-filter: blur(3px);
+  border: 1px solid #FF0000;
+}
+
 .cke_contents {
   border: 1px solid #ccc !important;
   padding: .5rem !important;

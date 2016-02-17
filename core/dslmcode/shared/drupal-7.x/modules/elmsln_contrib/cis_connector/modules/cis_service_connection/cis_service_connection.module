@@ -136,6 +136,10 @@ function cis_service_connection_block_info() {
       'info' => t('CIS managed footer'),
       'cache' => DRUPAL_CACHE_GLOBAL,
     ),
+    'ferpa_filter' => array(
+      'info' => t('FERPA blur filter'),
+      'cache' => DRUPAL_CACHE_GLOBAL,
+    ),
   );
   return $blocks;
 }
@@ -160,8 +164,27 @@ function cis_service_connection_block_view($delta = '') {
       $block['subject'] = '<none>';
       $block['content'] = cis_service_connection_get_footer_language();
     break;
+    case 'ferpa_filter':
+      $block['subject'] = '<none>';
+      $block['content'] = _cis_service_connection_ferpa_filter();
+    break;
   }
   return $block;
+}
+
+/**
+ * Provides the javascript integration for a simple block
+ * @return [type] [description]
+ */
+function _cis_service_connection_ferpa_filter() {
+  drupal_add_js(drupal_get_path('module', 'cis_service_connection') .'/js/ferpa_filter.js');
+  $form = array();
+  $form['ferpa_filter'] = array(
+    '#type' => 'checkbox',
+    '#description' => t('This will provide a blur across all user specific content.'),
+    '#title' => t('Enable FERPA protection'),
+  );
+  return render($form);
 }
 
 /**
