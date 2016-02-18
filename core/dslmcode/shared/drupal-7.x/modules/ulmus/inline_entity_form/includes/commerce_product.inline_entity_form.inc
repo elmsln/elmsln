@@ -160,7 +160,7 @@ class CommerceProductInlineEntityFormController extends EntityInlineEntityFormCo
     );
     $entity_form['product_details'] = array(
       '#type' => 'fieldset',
-      '#title' => $this->getSetting('multi_edit') ? $product->title . ' (' . $product->sku . ')' : t('Details'),
+      '#title' => t('Details'),
       '#attributes' => array('class' => array('ief-product-details', 'ief-entity-fieldset')),
     );
 
