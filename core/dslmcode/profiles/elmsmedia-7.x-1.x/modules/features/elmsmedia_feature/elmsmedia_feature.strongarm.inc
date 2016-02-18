@@ -246,6 +246,33 @@ function elmsmedia_feature_strongarm() {
       'revision' => array(
         'custom_settings' => FALSE,
       ),
+      'mediasvg' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch' => array(
+        'custom_settings' => FALSE,
+      ),
+      'figurelabel' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
@@ -322,6 +349,33 @@ function elmsmedia_feature_strongarm() {
         'custom_settings' => FALSE,
       ),
       'revision' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch' => array(
+        'custom_settings' => FALSE,
+      ),
+      'figurelabel' => array(
         'custom_settings' => FALSE,
       ),
     ),
@@ -417,7 +471,7 @@ function elmsmedia_feature_strongarm() {
         'custom_settings' => FALSE,
       ),
       'mediasvg' => array(
-        'custom_settings' => FALSE,
+        'custom_settings' => TRUE,
       ),
       'mediasvg__left' => array(
         'custom_settings' => FALSE,
@@ -444,6 +498,9 @@ function elmsmedia_feature_strongarm() {
         'custom_settings' => FALSE,
       ),
       'mediasvg__right__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'figurelabel' => array(
         'custom_settings' => FALSE,
       ),
     ),
@@ -1408,6 +1465,13 @@ function elmsmedia_feature_strongarm() {
     'revision' => 1,
   );
   $export['view_mode_tab_settings__figure_label'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__figurelabel_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__figurelabel_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */

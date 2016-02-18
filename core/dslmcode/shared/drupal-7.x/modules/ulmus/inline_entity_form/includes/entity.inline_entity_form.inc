@@ -141,10 +141,10 @@ class EntityInlineEntityFormController {
    */
   public function defaultSettings() {
     $defaults = array();
+    $defaults['allow_new'] = TRUE;
     $defaults['allow_existing'] = FALSE;
     $defaults['match_operator'] = 'CONTAINS';
     $defaults['delete_references'] = FALSE;
-    $defaults['multi_edit'] = FALSE;
     $labels = $this->defaultLabels();
     $defaults['override_labels'] = FALSE;
     $defaults['label_singular'] = $labels['singular'];
@@ -169,6 +169,11 @@ class EntityInlineEntityFormController {
     $states_prefix = 'instance[widget][settings][type_settings]';
 
     $form = array();
+    $form['allow_new'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Allow users to add new @label.', array('@label' => $labels['plural'])),
+      '#default_value' => $this->settings['allow_new'],
+    );
     $form['allow_existing'] = array(
       '#type' => 'checkbox',
       '#title' => t('Allow users to add existing @label.', array('@label' => $labels['plural'])),
@@ -194,13 +199,6 @@ class EntityInlineEntityFormController {
       $form['allow_existing']['#access'] = FALSE;
       $form['match_operator']['#access'] = FALSE;
     }
-
-    $form['multi_edit'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Multi-edit?'),
-      '#default_value' => $this->settings['multi_edit'],
-      '#description' => t('Automatically show the edit forms for all objects.'),
-    );
 
     $form['delete_references'] = array(
       '#type' => 'checkbox',

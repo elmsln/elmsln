@@ -73,7 +73,10 @@ function hook_inline_entity_form_settings_alter(&$settings, $field, $instance) {
  *     FALSE, theme_inline_entity_form_entity_table() will sanitize the data for
  *     output using check_plain().
  *   - formatter: for 'field' type table fields, the machine-name of the display
- *     formatter to use to render the field data.
+ *     formatter to use to render the field data. If this is used, then further
+ *     keys will be set in the array passed to field_view_field() as the
+ *     $display parameter. This allows any of the settings defined in the field
+ *     formatter's hook_field_formatter_info() to be used.
  *   - weight: the sort order of the column in the IEF table.
  *   - render_callback: for 'callback' type table fields, a function name that
  *     returns a renderable array.

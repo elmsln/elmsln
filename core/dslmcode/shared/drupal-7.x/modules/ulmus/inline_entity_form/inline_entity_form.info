@@ -11,9 +11,9 @@ files[] = includes/taxonomy_term.inline_entity_form.inc
 files[] = includes/commerce_product.inline_entity_form.inc
 files[] = includes/commerce_line_item.inline_entity_form.inc
 
-; Information added by Drupal.org packaging script on 2014-10-05
-version = "7.x-1.5+6-dev"
+; Information added by Drupal.org packaging script on 2015-06-17
+version = "7.x-1.6"
 core = "7.x"
 project = "inline_entity_form"
-datestamp = "1412528388"
+datestamp = "1434553381"
 
