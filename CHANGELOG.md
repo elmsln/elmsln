@@ -1,3 +1,45 @@
+ELMSLN 0.1.0, 2016-02-18 - Birthday present
+------------------------
+- Package Poll support into ICOR #540
+- Odd formatting on bulleted lists (in A&A 121) #544
+- H5Ps in Media - support for tagging and associating with a course #549
+- shift location of admin/config/system/course-settings #551
+- drop user progress from icor #555
+- Centos7 clean up #556
+- Sanitize course name / title #557
+- some browsers block document.domain setting in iframes #558
+- Hide Dont have access to message #559
+- Our VM min spec is 2 gigs #563
+- field_cis_active WD exception #564
+- entityCacheLoad warning on MOOC admin pages #566
+- Support for adding external applications to course network #573
+- Cent7 #577
+- add support for vagrant-cachier #579
+- travis mad at hub #580
+- Image style warning in people distro #583
+- imagefield_focus included twice #584
+- node_export throws warnings in travis #585
+- Kill off passwords printing on drush SI calls #586
+- upgrade drupal core to 7.42 #590
+- Assessment engine info file clean up #592
+- Document steps after one-line installers #594
+- ICOR JMOL conflict #604
+- Comply / ECD and Inbox need permissions set #605
+- pull-down.sh needs to clean up permissions #615
+- Review and enhance Roadmap in docs #618
+- ICOR permissions #625
+- Media Add menu doesn't show options #627
+- Default permissions for Blog / Journal #630
+- Auto generated aliases need to verify directories exist #633
+- Theme breaks if not course outline is present #634
+- Book nav auto labeling settings not working. #635
+- Course Outline Renaming Issue - Not all Changes Saving #637
+- banners that are cross system set don't validate on save #641
+- Enable image upload from settings page #642
+- MOOC extra options UX tweaking #645
+- enable outline_child_pages in all mooc sites #646
+- Discussion Board Text Entry #647
+
 ELMSLN 0.0.10, 2016-01-31 - DCNJ Sprint Weekend
 ------------------------
 - elmsln api theme settings #538
