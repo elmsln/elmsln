@@ -1,0 +1,20 @@
+{
+	"name": "ELMSLN Courses upgrade 1455769226",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "en",
+			"arguments": [
+				"outline_child_pages"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1455769226",
+		"author": "elmsln",
+		"description": "Enable outline_child_pages in MOOC"
+	}
+}
