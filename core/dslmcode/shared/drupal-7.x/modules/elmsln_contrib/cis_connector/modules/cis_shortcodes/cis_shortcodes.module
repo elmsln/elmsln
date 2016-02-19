@@ -474,7 +474,7 @@ function cis_shortcodes_preprocess_view_mode_tab_display(&$variables) {
         'tool' => variable_get('install_profile', ''),
         'item' => $variables['node']->nid,
         'entity_type' => 'node',
-        'render_display' => 'display_mode',
+        'render' => 'display_mode',
         'display_mode' => $name,
       );
       // clipboard settings.
