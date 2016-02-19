@@ -67,6 +67,7 @@ scripts[] = libraries/imagelightbox/imagelightbox.js
 ; scripts[] = bower_components/angular-resource/angular-resource.min.js
 
 ; Our themes custom scripts compiled by Browserify
+scripts[] = bower_components/Materialize/dist/js/materialize.js
 scripts[] = js/dist/app.js
 scripts[] = js/tweaks.js
 scripts[] = js/material.js
