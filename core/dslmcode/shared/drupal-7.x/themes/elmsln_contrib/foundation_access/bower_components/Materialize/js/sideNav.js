@@ -23,19 +23,20 @@
         $('body').append(dragTarget);
 
         if (options.edge == 'left') {
-          menu_id.css('transform', 'translateX(-100%)');
+          menu_id.css('left', -1 * (options.menuWidth + 10));
           dragTarget.css({'left': 0}); // Add Touch Area
         }
         else {
           menu_id.addClass('right-aligned') // Change text-alignment to right
-            .css('transform', 'translateX(100%)');
+            .css('right', -1 * (options.menuWidth + 10))
+            .css('left', '');
           dragTarget.css({'right': 0}); // Add Touch Area
         }
 
         // If fixed sidenav, bring menu out
         if (menu_id.hasClass('fixed')) {
             if (window.innerWidth > 992) {
-              menu_id.css('transform', 'translateX(0)');
+              menu_id.css('left', 0);
             }
           }
 
@@ -44,22 +45,19 @@
           $(window).resize( function() {
             if (window.innerWidth > 992) {
               // Close menu if window is resized bigger than 992 and user has fixed sidenav
-              if ($('#sidenav-overlay').length != 0 && menuOut) {
+              if ($('#sidenav-overlay').css('opacity') !== 0 && menuOut) {
                 removeMenu(true);
               }
               else {
-                // menu_id.removeAttr('style');
-                menu_id.css('transform', 'translateX(0%)');
-                // menu_id.css('width', options.menuWidth);
+                menu_id.removeAttr('style');
+                menu_id.css('width', options.menuWidth);
               }
             }
             else if (menuOut === false){
-              if (options.edge === 'left') {
-                menu_id.css('transform', 'translateX(-100%)');
-              } else {
-                menu_id.css('transform', 'translateX(100%)');
-              }
-
+              if (options.edge === 'left')
+                menu_id.css('left', -1 * (options.menuWidth + 10));
+              else
+                menu_id.css('right', -1 * (options.menuWidth + 10));
             }
 
           });
@@ -75,14 +73,11 @@
         function removeMenu(restoreNav) {
           panning = false;
           menuOut = false;
-          // Reenable scrolling
-          $('body').css({
-            overflow: '',
-            width: ''
-          });
 
-          $('#sidenav-overlay').velocity({opacity: 0}, {duration: 200,
-              queue: false, easing: 'easeOutQuad',
+          // Reenable scrolling
+          $('body').css('overflow', '');
+
+          $('#sidenav-overlay').velocity({opacity: 0}, {duration: 200, queue: false, easing: 'easeOutQuad',
             complete: function() {
               $(this).remove();
             } });
@@ -90,7 +85,7 @@
             // Reset phantom div
             dragTarget.css({width: '', right: '', left: '0'});
             menu_id.velocity(
-              {'translateX': '-100%'},
+              {left: -1 * (options.menuWidth + 10)},
               { duration: 200,
                 queue: false,
                 easing: 'easeOutCubic',
@@ -108,7 +103,7 @@
             // Reset phantom div
             dragTarget.css({width: '', right: '0', left: ''});
             menu_id.velocity(
-              {'translateX': '100%'},
+              {right: -1 * (options.menuWidth + 10)},
               { duration: 200,
                 queue: false,
                 easing: 'easeOutCubic',
@@ -145,10 +140,7 @@
             var velocityX = e.gesture.velocityX;
 
             // Disable Scrolling
-            var $body = $('body');
-            var oldWidth = $body.innerWidth();
-            $body.css('overflow', 'hidden');
-            $body.width(oldWidth);
+            $('body').css('overflow', 'hidden');
 
             // If overlay does not exist, create one and if it is clicked, close menu
             if ($('#sidenav-overlay').length === 0) {
@@ -170,7 +162,8 @@
               if (x < (options.menuWidth / 2)) { menuOut = false; }
               // Right Direction
               else if (x >= (options.menuWidth / 2)) { menuOut = true; }
-              menu_id.css('transform', 'translateX(' + (x - options.menuWidth) + 'px)');
+
+              menu_id.css('left', (x - options.menuWidth));
             }
             else {
               // Left Direction
@@ -181,24 +174,26 @@
               else if (x >= (window.innerWidth - options.menuWidth / 2)) {
                menuOut = false;
              }
-              var rightPos = (x - options.menuWidth / 2);
-              if (rightPos < 0) {
+              var rightPos = -1 *(x - options.menuWidth / 2);
+              if (rightPos > 0) {
                 rightPos = 0;
               }
 
-              menu_id.css('transform', 'translateX(' + rightPos + 'px)');
+              menu_id.css('right', rightPos);
             }
+
+
 
 
             // Percentage overlay
             var overlayPerc;
             if (options.edge === 'left') {
               overlayPerc = x / options.menuWidth;
-              $('#sidenav-overlay').velocity({opacity: overlayPerc }, {duration: 10, queue: false, easing: 'easeOutQuad'});
+              $('#sidenav-overlay').velocity({opacity: overlayPerc }, {duration: 50, queue: false, easing: 'easeOutQuad'});
             }
             else {
               overlayPerc = Math.abs((x - window.innerWidth) / options.menuWidth);
-              $('#sidenav-overlay').velocity({opacity: overlayPerc }, {duration: 10, queue: false, easing: 'easeOutQuad'});
+              $('#sidenav-overlay').velocity({opacity: overlayPerc }, {duration: 50, queue: false, easing: 'easeOutQuad'});
             }
           }
 
@@ -206,36 +201,19 @@
 
           if (e.gesture.pointerType == "touch") {
             var velocityX = e.gesture.velocityX;
-            var x = e.gesture.center.x;
-            var leftPos = x - options.menuWidth;
-            var rightPos = x - options.menuWidth / 2;
-            if (leftPos > 0 ) {
-              leftPos = 0;
-            }
-            if (rightPos < 0) {
-              rightPos = 0;
-            }
             panning = false;
-
             if (options.edge === 'left') {
               // If velocityX <= 0.3 then the user is flinging the menu closed so ignore menuOut
               if ((menuOut && velocityX <= 0.3) || velocityX < -0.5) {
-                if (leftPos != 0) {
-                  menu_id.velocity({'translateX': [0, leftPos]}, {duration: 300, queue: false, easing: 'easeOutQuad'});
-                }
-
-                // menu_id.css({'translateX': 0});
+                menu_id.velocity({left: 0}, {duration: 300, queue: false, easing: 'easeOutQuad'});
                 $('#sidenav-overlay').velocity({opacity: 1 }, {duration: 50, queue: false, easing: 'easeOutQuad'});
                 dragTarget.css({width: '50%', right: 0, left: ''});
               }
               else if (!menuOut || velocityX > 0.3) {
                 // Enable Scrolling
-                $('body').css({
-                  overflow: '',
-                  width: ''
-                });
+                $('body').css('overflow', '');
                 // Slide menu closed
-                menu_id.velocity({'translateX': [-1 * options.menuWidth - 10, leftPos]}, {duration: 200, queue: false, easing: 'easeOutQuad'});
+                menu_id.velocity({left: -1 * (options.menuWidth + 10)}, {duration: 200, queue: false, easing: 'easeOutQuad'});
                 $('#sidenav-overlay').velocity({opacity: 0 }, {duration: 200, queue: false, easing: 'easeOutQuad',
                   complete: function () {
                     $(this).remove();
@@ -245,19 +223,15 @@
             }
             else {
               if ((menuOut && velocityX >= -0.3) || velocityX > 0.5) {
-                menu_id.velocity({'translateX': [0, rightPos]}, {duration: 300, queue: false, easing: 'easeOutQuad'});
+                menu_id.velocity({right: 0}, {duration: 300, queue: false, easing: 'easeOutQuad'});
                 $('#sidenav-overlay').velocity({opacity: 1 }, {duration: 50, queue: false, easing: 'easeOutQuad'});
                 dragTarget.css({width: '50%', right: '', left: 0});
               }
               else if (!menuOut || velocityX < -0.3) {
                 // Enable Scrolling
-                $('body').css({
-                  overflow: '',
-                  width: ''
-                });
-
+                $('body').css('overflow', '');
                 // Slide menu closed
-                menu_id.velocity({'translateX': [options.menuWidth + 10, rightPos]}, {duration: 200, queue: false, easing: 'easeOutQuad'});
+                menu_id.velocity({right: -1 * (options.menuWidth + 10)}, {duration: 200, queue: false, easing: 'easeOutQuad'});
                 $('#sidenav-overlay').velocity({opacity: 0 }, {duration: 200, queue: false, easing: 'easeOutQuad',
                   complete: function () {
                     $(this).remove();
@@ -278,21 +252,18 @@
             else {
 
               // Disable Scrolling
-              var $body = $('body');
-              var oldWidth = $body.innerWidth();
-              $body.css('overflow', 'hidden');
-              $body.width(oldWidth);
-
+              $('body').css('overflow', 'hidden');
               // Push current drag target on top of DOM tree
               $('body').append(dragTarget);
-
+              
               if (options.edge === 'left') {
                 dragTarget.css({width: '50%', right: 0, left: ''});
-                menu_id.velocity({'translateX': [0, -1 * options.menuWidth]}, {duration: 300, queue: false, easing: 'easeOutQuad'});
+                menu_id.velocity({left: 0}, {duration: 300, queue: false, easing: 'easeOutQuad'});
               }
               else {
                 dragTarget.css({width: '50%', right: '', left: 0});
-                menu_id.velocity({'translateX': [0, options.menuWidth]}, {duration: 300, queue: false, easing: 'easeOutQuad'});
+                menu_id.velocity({right: 0}, {duration: 300, queue: false, easing: 'easeOutQuad'});
+                menu_id.css('left','');
               }
 
               var overlay = $('<div id="sidenav-overlay"></div>');

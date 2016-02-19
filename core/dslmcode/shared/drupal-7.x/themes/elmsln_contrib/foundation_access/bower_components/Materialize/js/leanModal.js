@@ -9,10 +9,7 @@
   $.fn.extend({
     openModal: function(options) {
 
-      var $body = $('body');
-      var oldWidth = $body.innerWidth();
-      $body.css('overflow', 'hidden');
-      $body.width(oldWidth);
+      $('body').css('overflow', 'hidden');
 
       var defaults = {
         opacity: 0.5,
@@ -23,20 +20,14 @@
         dismissible: true,
         starting_top: '4%'
       },
-      $modal = $(this);
-
-      if ($modal.hasClass('open')) {
-        return;
-      }
-
-      overlayID = _generateID();
-      $overlay = $('<div class="lean-overlay"></div>');
+      overlayID = _generateID(),
+      $modal = $(this),
+      $overlay = $('<div class="lean-overlay"></div>'),
       lStack = (++_stack);
 
       // Store a reference of the overlay
       $overlay.attr('id', overlayID).css('z-index', 1000 + lStack * 2);
       $modal.data('overlay-id', overlayID).css('z-index', 1000 + lStack * 2 + 1);
-      $modal.addClass('open');
 
       $("body").append($overlay);
 
@@ -112,15 +103,11 @@
       $modal = $(this),
       overlayID = $modal.data('overlay-id'),
       $overlay = $('#' + overlayID);
-      $modal.removeClass('open');
 
       options = $.extend(defaults, options);
 
-      // Enable scrolling
-      $('body').css({
-        overflow: '',
-        width: ''
-      });
+      // Disable scrolling
+      $('body').css('overflow', '');
 
       $modal.find('.modal-close').off('click.close');
       $(document).off('keyup.leanModal' + overlayID);

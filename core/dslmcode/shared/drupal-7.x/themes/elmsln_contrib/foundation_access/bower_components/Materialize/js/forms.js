@@ -92,20 +92,6 @@
       }
     };
 
-    // Radio and Checkbox focus class
-    var radio_checkbox = 'input[type=radio], input[type=checkbox]';
-    $(document).on('keyup.radio', radio_checkbox, function(e) {
-      // TAB, check if tabbing to radio or checkbox.
-      if (e.which === 9) {
-        $(this).addClass('tabbed');
-        var $this = $(this);
-        $this.one('blur', function(e) {
-          
-          $(this).removeClass('tabbed');
-        });
-        return;
-      }
-    });
 
     // Textarea Auto Resize
     var hiddenDiv = $('.hiddendiv').first();
@@ -317,7 +303,6 @@
       var appendOptionWithIcon = function(select, option, type) {
         // Add disabled attr if disabled
         var disabledClass = (option.is(':disabled')) ? 'disabled ' : '';
-        var optgroupClass = (type === 'optgroup-option') ? 'optgroup-option ' : '';
 
         // add icons
         var icon_url = option.data('icon');
@@ -330,7 +315,7 @@
           if (type === 'multiple') {
             options.append($('<li class="' + disabledClass + '"><img src="' + icon_url + '"' + classString + '><span><input type="checkbox"' + disabledClass + '/><label></label>' + option.html() + '</span></li>'));
           } else {
-            options.append($('<li class="' + disabledClass + optgroupClass + '"><img src="' + icon_url + '"' + classString + '><span>' + option.html() + '</span></li>'));
+            options.append($('<li class="' + disabledClass + '"><img src="' + icon_url + '"' + classString + '><span>' + option.html() + '</span></li>'));
           }
           return true;
         }
@@ -339,7 +324,7 @@
         if (type === 'multiple') {
           options.append($('<li class="' + disabledClass + '"><span><input type="checkbox"' + disabledClass + '/><label></label>' + option.html() + '</span></li>'));
         } else {
-          options.append($('<li class="' + disabledClass + optgroupClass + '"><span>' + option.html() + '</span></li>'));
+          options.append($('<li class="' + disabledClass + '"><span>' + option.html() + '</span></li>'));
         }
       };
 
@@ -360,7 +345,7 @@
             options.append($('<li class="optgroup"><span>' + $(this).attr('label') + '</span></li>'));
 
             selectOptions.each(function() {
-              appendOptionWithIcon($select, $(this), 'optgroup-option');
+              appendOptionWithIcon($select, $(this));
             });
           }
         });
@@ -469,7 +454,7 @@
       }
 
       // Make option as selected and scroll to selected position
-      var activateOption = function(collection, newOption) {
+      activateOption = function(collection, newOption) {
         if (newOption) {
           collection.find('li.selected').removeClass('selected');
           var option = $(newOption);

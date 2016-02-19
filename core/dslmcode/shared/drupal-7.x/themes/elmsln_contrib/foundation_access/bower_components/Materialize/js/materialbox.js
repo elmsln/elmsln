@@ -62,7 +62,7 @@
         var count = 0;
         while (ancestor !== null && !$(ancestor).is(document)) {
           var curr = $(ancestor);
-          if (curr.css('overflow') !== 'visible') {
+          if (curr.css('overflow') === 'hidden') {
             curr.css('overflow', 'visible');
             if (ancestorsChanged === undefined) {
               ancestorsChanged = curr;
@@ -89,10 +89,10 @@
             returnToOriginal();
           });
           // Animate Overlay
-          // Put before in origin image to preserve z-index layering.
-          origin.before(overlay);
-          overlay.velocity({opacity: 1},
-                           {duration: inDuration, queue: false, easing: 'easeOutQuad'} );
+          $('body').append(overlay);
+          overlay.velocity({opacity: 1}, {duration: inDuration, queue: false, easing: 'easeOutQuad'}
+            );
+
 
         // Add and animate caption if it exists
         if (origin.data('caption') !== "") {
@@ -102,6 +102,8 @@
           $photo_caption.css({ "display": "inline" });
           $photo_caption.velocity({opacity: 1}, {duration: inDuration, queue: false, easing: 'easeOutQuad'});
         }
+
+
 
         // Resize Image
         var ratio = 0;
@@ -167,7 +169,7 @@
 
       // Return on scroll
       $(window).scroll(function() {
-        if (overlayActive) {
+        if (overlayActive ) {
           returnToOriginal();
         }
       });
@@ -252,9 +254,7 @@
               $(this).remove();
 
               // Remove overflow overrides on ancestors
-              if (ancestorsChanged) {
-                ancestorsChanged.css('overflow', '');
-              }
+              ancestorsChanged.css('overflow', '');
             }
           });
 
