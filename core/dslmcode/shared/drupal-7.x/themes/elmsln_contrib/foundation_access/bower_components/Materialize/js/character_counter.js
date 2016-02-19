@@ -2,6 +2,7 @@
 
   $.fn.characterCounter = function(){
     return this.each(function(){
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       var $input = $(this);
       var $counterElement = $input.parent().find('span[class="character-counter"]');
 
@@ -18,6 +19,17 @@
         $input.on('blur', removeCounterElement);
 
         addCounterElement($input);
+=======
+
+      var itHasLengthAttribute = $(this).attr('length') !== undefined;
+
+      if(itHasLengthAttribute){
+        $(this).on('input', updateCounter);
+        $(this).on('focus', updateCounter);
+        $(this).on('blur', removeCounterElement);
+
+        addCounterElement($(this));
+>>>>>>> Starting point for Materialize.
       }
 
     });
@@ -34,6 +46,7 @@
     addInputStyle(isValidLength, $(this));
   }
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   function addCounterElement($input) {
     var $counterElement = $input.parent().find('span[class="character-counter"]');
 
@@ -42,6 +55,10 @@
     }
 
     $counterElement = $('<span/>')
+=======
+  function addCounterElement($input){
+    var $counterElement = $('<span/>')
+>>>>>>> Starting point for Materialize.
                         .addClass('character-counter')
                         .css('float','right')
                         .css('font-size','12px')

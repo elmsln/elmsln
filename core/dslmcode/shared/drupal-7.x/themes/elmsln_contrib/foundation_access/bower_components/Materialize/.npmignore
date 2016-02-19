@@ -1,3 +1,4 @@
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 images/
 .sass-cache/
 .grunt/
@@ -6,3 +7,6 @@ prepros.cfg
 Thumbs.db
 .projectile
 **/*.log
+=======
+images/
+>>>>>>> Starting point for Materialize.

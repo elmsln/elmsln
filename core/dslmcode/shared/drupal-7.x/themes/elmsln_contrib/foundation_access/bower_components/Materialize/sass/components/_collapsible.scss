@@ -38,8 +38,12 @@
 }
 
 // sideNav collapsible styling
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 .side-nav,
 .side-nav.fixed {
+=======
+.side-nav {
+>>>>>>> Starting point for Materialize.
 
   .collapsible {
     border: none;
@@ -53,9 +57,14 @@
     border: none;
     line-height: inherit;
     height: inherit;
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     padding: 0 $sidenav-padding-right;
 
     &:hover { background-color: rgba(0,0,0,.05); }
+=======
+    margin: 0 1rem;
+
+>>>>>>> Starting point for Materialize.
     i { line-height: inherit; }
   }
 
@@ -63,10 +72,14 @@
     border: 0;
     background-color: $collapsible-header-color;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     li a {
       padding: 0 (7.5px + $sidenav-padding-right)
                0 (15px + $sidenav-padding-right);
     }
+=======
+    li a { margin: 0 1rem 0 2rem; }
+>>>>>>> Starting point for Materialize.
   }
 
 }

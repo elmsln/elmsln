@@ -1,3 +1,4 @@
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 /* ==========================================================================
    Materialize variables
    ========================================================================== */
@@ -33,6 +34,9 @@
 /* 1. Colors
    ========================================================================== */
 
+=======
+/*** Colors ***/
+>>>>>>> Starting point for Materialize.
 $primary-color: color("materialize-red", "lighten-2") !default;
 $primary-color-light: lighten($primary-color, 15%) !default;
 $primary-color-dark: darken($primary-color, 15%) !default;
@@ -42,6 +46,7 @@ $success-color: color("green", "base") !default;
 $error-color: color("red", "base") !default;
 $link-color: color("light-blue", "darken-1") !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 2. Badges
    ========================================================================== */
@@ -89,19 +94,42 @@ $button-floating-radius: 50% !default;
 /* 4. Cards
    ========================================================================== */
 
+=======
+/*** Badges ***/
+$badge-bg-color: $secondary-color !default;
+
+/*** Buttons ***/
+$button-bg-color-disabled: #DFDFDF !default;
+$button-color: $secondary-color !default;
+$button-color-disabled: #9F9F9F !default;
+$button-color-flat: #343434 !default;
+$button-color-raised: #fff !default;
+$button-floating-size: 37px !default;
+$button-height: 36px !default;
+$button-font-size-shared: 1.3rem !default;
+$button-large-icon-font-size: 1.6rem !default;
+$button-line-height: 36px !default;
+
+/*** Cards ***/
+>>>>>>> Starting point for Materialize.
 $card-padding: 20px !default;
 $card-bg-color: #fff !default;
 $card-link-color: color("orange", "accent-2") !default;
 $card-link-color-light: lighten($card-link-color, 20%) !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 5. Collapsible
    ========================================================================== */
 
+=======
+/*** Collapsible ***/
+>>>>>>> Starting point for Materialize.
 $collapsible-height: 3rem !default;
 $collapsible-header-color: #fff !default;
 $collapsible-border-color: #ddd !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 6. Chips
    ========================================================================== */
@@ -112,6 +140,12 @@ $chip-bg-color: #e4e4e4 !default;
 /* 7. Date Picker
    ========================================================================== */
 
+=======
+/*** Chips ***/
+$chip-bg-color: #e4e4e4 !default;
+
+/*** Date Picker ***/
+>>>>>>> Starting point for Materialize.
 $datepicker-weekday-bg: darken($secondary_color, 7%) !default;
 $datepicker-date-bg: $secondary_color !default;
 $datepicker-year: rgba(255, 255, 255, .4) !default;
@@ -119,15 +153,20 @@ $datepicker-focus: rgba(0,0,0, .05) !default;
 $datepicker-selected: $secondary-color !default;
 $datepicker-selected-outfocus: desaturate(lighten($secondary-color, 35%), 15%) !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 8. Dropdown
    ========================================================================== */
 
+=======
+/*** Dropdown ***/
+>>>>>>> Starting point for Materialize.
 $dropdown-bg-color: #fff !default;
 $dropdown-hover-bg-color: #eee !default;
 $dropdown-color: $secondary-color !default;
 $dropdown-item-height: 50px !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 9. Fonts
    ========================================================================== */
@@ -156,10 +195,27 @@ $input-disabled-solid-color: #BDBDBD !default;
 $input-disabled-border: 1px dotted $input-disabled-color !default;
 $input-invalid-border: 1px solid $input-error-color !default;
 $placeholder-text-color: lighten($input-border-color, 20%) !default;
+=======
+/*** Fonts ***/
+$roboto-font-path: "../font/roboto/" !default;
+$icons-font-path: "../font/material-design-icons/" !default;
+
+/*** Forms ***/
+// Text Inputs + Textarea
+$input-border-color: color("grey", "base") !default;
+$input-bg-color: #fff !default;
+$input-error-color: $error-color !default;
+$input-success-color: $success-color !default;
+$input-focus-color: $secondary-color !default;
+$label-font-size: .8rem !default;
+$input-disabled-color: rgba(0,0,0, .26) !default;
+$input-disabled-solid-color: #BDBDBD !default;
+>>>>>>> Starting point for Materialize.
 
 // Radio Buttons
 $radio-fill-color: $secondary-color !default;
 $radio-empty-color: #5a5a5a !default;
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 $radio-border: 2px solid $radio-fill-color !default;
 
 // Range
@@ -174,18 +230,26 @@ $select-focus: 1px solid lighten($secondary-color, 47%) !default;
 $select-padding: 5px !default;
 $select-radius: 2px !default;
 $select-disabled-color: rgba(0,0,0,.3) !default;
+=======
+>>>>>>> Starting point for Materialize.
 
 // Switches
 $switch-bg-color: $secondary-color !default;
 $switch-checked-lever-bg: desaturate(lighten($secondary-color, 25%), 25%) !default;
 $switch-unchecked-bg: #F1F1F1 !default;
 $switch-unchecked-lever-bg: #818181 !default;
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 $switch-radius: 15px !default;
 
 
 /* 11. Global
    ========================================================================== */
 
+=======
+
+
+/*** Global ***/
+>>>>>>> Starting point for Materialize.
 // Media Query Ranges
 $small-screen-up: 601px !default;
 $medium-screen-up: 993px !default;
@@ -200,24 +264,33 @@ $small-and-down: "only screen and (max-width : #{$small-screen})" !default;
 $medium-and-down: "only screen and (max-width : #{$medium-screen})" !default;
 $medium-only: "only screen and (min-width : #{$small-screen-up}) and (max-width : #{$medium-screen})" !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 12. Grid
    ========================================================================== */
 
+=======
+// Grid Variables
+>>>>>>> Starting point for Materialize.
 $num-cols: 12 !default;
 $gutter-width: 1.5rem !default;
 $element-top-margin: $gutter-width/3 !default;
 $element-bottom-margin: ($gutter-width*2)/3 !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 13. Navigation Bar
    ========================================================================== */
 
+=======
+/*** Navbar ***/
+>>>>>>> Starting point for Materialize.
 $navbar-height: 64px !default;
 $navbar-height-mobile: 56px !default;
 $navbar-font-color: #fff !default;
 $navbar-brand-font-size: 2.1rem !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 14. Side Navigation
    ========================================================================== */
@@ -231,10 +304,19 @@ $sidenav-item-height: 64px !default;
 /* 15. Photo Slider
    ========================================================================== */
 
+=======
+/*** SideNav ***/
+$sidenav-bg-color: #fff !default;
+$sidenav-padding-right: 15px !default;
+$sidenav-item-height: 64px !default;
+
+/*** Photo Slider ***/
+>>>>>>> Starting point for Materialize.
 $slider-bg-color: color('grey', 'base') !default;
 $slider-bg-color-light: color('grey', 'lighten-2') !default;
 $slider-indicator-color: color('green', 'base') !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 16. Spinners | Loaders
    ========================================================================== */
@@ -245,10 +327,17 @@ $spinner-default-color: $secondary-color !default;
 /* 17. Tabs
    ========================================================================== */
 
+=======
+/*** Spinners | Loaders ***/
+$spinner-default-color: $secondary-color !default;
+
+/*** Tabs ***/
+>>>>>>> Starting point for Materialize.
 $tabs-underline-color: $primary-color-light !default;
 $tabs-text-color: $primary-color !default;
 $tabs-bg-color: #fff !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 18. Tables
    ========================================================================== */
@@ -260,14 +349,25 @@ $table-striped-color: #f2f2f2 !default;
 /* 19. Toasts
    ========================================================================== */
 
+=======
+/*** Tables ***/
+$table-border-color: #d0d0d0 !default;
+$table-striped-color: #f2f2f2 !default;
+
+/*** Toasts ***/
+>>>>>>> Starting point for Materialize.
 $toast-height: 48px !default;
 $toast-color: #323232 !default;
 $toast-text-color: #fff !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 20. Typography
    ========================================================================== */
 
+=======
+/*** Typography ***/
+>>>>>>> Starting point for Materialize.
 $off-black: rgba(0, 0, 0, 0.87) !default;
 // Header Styles
 $h1-fontsize: 4.2rem !default;
@@ -277,6 +377,7 @@ $h4-fontsize: 2.28rem !default;
 $h5-fontsize: 1.64rem !default;
 $h6-fontsize: 1rem !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 21. Footer
    ========================================================================== */
@@ -287,14 +388,24 @@ $footer-bg-color: $primary-color !default;
 /* 22. Flow Text
    ========================================================================== */
 
+=======
+// Footer
+$footer-bg-color: $primary-color !default;
+
+// Flowtext
+>>>>>>> Starting point for Materialize.
 $range : $large-screen - $small-screen !default;
 $intervals: 20 !default;
 $interval-size: $range / $intervals !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 23. Collections
    ========================================================================== */
 
+=======
+/*** Collections ***/
+>>>>>>> Starting point for Materialize.
 $collection-border-color: #e0e0e0 !default;
 $collection-bg-color: #fff !default;
 $collection-active-bg-color: $secondary-color !default;
@@ -302,8 +413,12 @@ $collection-active-color: lighten($secondary-color, 55%) !default;
 $collection-hover-bg-color: #ddd !default;
 $collection-link-color: $secondary-color !default;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 /* 24. Progress Bar
    ========================================================================== */
 
+=======
+/* Progress Bar */
+>>>>>>> Starting point for Materialize.
 $progress-bar-color: $secondary-color !default;

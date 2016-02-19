@@ -16,6 +16,7 @@
   "main": [
     "bin/materialize.css",
     "bin/materialize.js",
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     "fonts/roboto/Roboto-Bold.ttf",
     "fonts/roboto/Roboto-Bold.woff",
     "fonts/roboto/Roboto-Bold.woff2",
@@ -31,6 +32,29 @@
     "fonts/roboto/Roboto-Thin.ttf",
     "fonts/roboto/Roboto-Thin.woff",
     "fonts/roboto/Roboto-Thin.woff2"
+=======
+    "font/material-design-icons/Material-Design-Icons.eot",
+    "font/material-design-icons/Material-Design-Icons.svg",
+    "font/material-design-icons/Material-Design-Icons.ttf",
+    "font/material-design-icons/Material-Design-Icons.woff",
+    "font/material-design-icons/Material-Design-Icons.woff2",
+    "font/roboto/Roboto-Bold.ttf",
+    "font/roboto/Roboto-Bold.woff",
+    "font/roboto/Roboto-Bold.woff2",
+    "font/roboto/Roboto-Light.ttf",
+    "font/roboto/Roboto-Light.woff",
+    "font/roboto/Roboto-Light.woff2",
+    "font/roboto/Roboto-Medium.ttf",
+    "font/roboto/Roboto-Medium.woff",
+    "font/roboto/Roboto-Medium.woff2",
+    "font/roboto/Roboto-Regular.ttf",
+    "font/roboto/Roboto-Regular.woff",
+    "font/roboto/Roboto-Regular.woff2",
+    "font/roboto/Roboto-Thin.ttf",
+    "font/roboto/Roboto-Thin.woff",
+    "font/roboto/Roboto-Thin.woff2",
+    "sass/*"
+>>>>>>> Starting point for Materialize.
   ],
   "ignore": [
     "jade/",
@@ -58,6 +82,7 @@
   },
   "devDependencies": {},
   "homepage": "https://github.com/Dogfalo/materialize",
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   "version": "0.97.6",
   "_release": "0.97.6",
   "_resolution": {
@@ -68,4 +93,17 @@
   "_source": "https://github.com/Dogfalo/materialize.git",
   "_target": "~0.97.5",
   "_originalSource": "materialize"
+=======
+  "version": "0.97.5",
+  "_release": "0.97.5",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.97.5",
+    "commit": "dc69e030f1c3b4b0da5fbf0e29edac5d09e1829b"
+  },
+  "_source": "git://github.com/Dogfalo/materialize.git",
+  "_target": "~0.97.5",
+  "_originalSource": "materialize",
+  "_direct": true
+>>>>>>> Starting point for Materialize.
 }

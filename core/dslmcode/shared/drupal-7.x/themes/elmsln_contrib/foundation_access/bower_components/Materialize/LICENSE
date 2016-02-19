@@ -1,6 +1,10 @@
 The MIT License (MIT)
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 Copyright (c) 2014-2016 Materialize
+=======
+Copyright (c) 2014-2015 Materialize
+>>>>>>> Starting point for Materialize.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

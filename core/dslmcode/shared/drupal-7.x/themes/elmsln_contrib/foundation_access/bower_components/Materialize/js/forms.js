@@ -92,6 +92,7 @@
       }
     };
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     // Radio and Checkbox focus class
     var radio_checkbox = 'input[type=radio], input[type=checkbox]';
     $(document).on('keyup.radio', radio_checkbox, function(e) {
@@ -106,6 +107,8 @@
         return;
       }
     });
+=======
+>>>>>>> Starting point for Materialize.
 
     // Textarea Auto Resize
     var hiddenDiv = $('.hiddendiv').first();
@@ -317,7 +320,10 @@
       var appendOptionWithIcon = function(select, option, type) {
         // Add disabled attr if disabled
         var disabledClass = (option.is(':disabled')) ? 'disabled ' : '';
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         var optgroupClass = (type === 'optgroup-option') ? 'optgroup-option ' : '';
+=======
+>>>>>>> Starting point for Materialize.
 
         // add icons
         var icon_url = option.data('icon');
@@ -330,7 +336,11 @@
           if (type === 'multiple') {
             options.append($('<li class="' + disabledClass + '"><img src="' + icon_url + '"' + classString + '><span><input type="checkbox"' + disabledClass + '/><label></label>' + option.html() + '</span></li>'));
           } else {
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
             options.append($('<li class="' + disabledClass + optgroupClass + '"><img src="' + icon_url + '"' + classString + '><span>' + option.html() + '</span></li>'));
+=======
+            options.append($('<li class="' + disabledClass + '"><img src="' + icon_url + '"' + classString + '><span>' + option.html() + '</span></li>'));
+>>>>>>> Starting point for Materialize.
           }
           return true;
         }
@@ -339,7 +349,11 @@
         if (type === 'multiple') {
           options.append($('<li class="' + disabledClass + '"><span><input type="checkbox"' + disabledClass + '/><label></label>' + option.html() + '</span></li>'));
         } else {
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           options.append($('<li class="' + disabledClass + optgroupClass + '"><span>' + option.html() + '</span></li>'));
+=======
+          options.append($('<li class="' + disabledClass + '"><span>' + option.html() + '</span></li>'));
+>>>>>>> Starting point for Materialize.
         }
       };
 
@@ -360,7 +374,11 @@
             options.append($('<li class="optgroup"><span>' + $(this).attr('label') + '</span></li>'));
 
             selectOptions.each(function() {
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               appendOptionWithIcon($select, $(this), 'optgroup-option');
+=======
+              appendOptionWithIcon($select, $(this));
+>>>>>>> Starting point for Materialize.
             });
           }
         });
@@ -469,7 +487,11 @@
       }
 
       // Make option as selected and scroll to selected position
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       var activateOption = function(collection, newOption) {
+=======
+      activateOption = function(collection, newOption) {
+>>>>>>> Starting point for Materialize.
         if (newOption) {
           collection.find('li.selected').removeClass('selected');
           var option = $(newOption);

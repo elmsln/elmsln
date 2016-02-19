@@ -9,10 +9,14 @@
   $.fn.extend({
     openModal: function(options) {
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       var $body = $('body');
       var oldWidth = $body.innerWidth();
       $body.css('overflow', 'hidden');
       $body.width(oldWidth);
+=======
+      $('body').css('overflow', 'hidden');
+>>>>>>> Starting point for Materialize.
 
       var defaults = {
         opacity: 0.5,
@@ -23,6 +27,7 @@
         dismissible: true,
         starting_top: '4%'
       },
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       $modal = $(this);
 
       if ($modal.hasClass('open')) {
@@ -31,12 +36,20 @@
 
       overlayID = _generateID();
       $overlay = $('<div class="lean-overlay"></div>');
+=======
+      overlayID = _generateID(),
+      $modal = $(this),
+      $overlay = $('<div class="lean-overlay"></div>'),
+>>>>>>> Starting point for Materialize.
       lStack = (++_stack);
 
       // Store a reference of the overlay
       $overlay.attr('id', overlayID).css('z-index', 1000 + lStack * 2);
       $modal.data('overlay-id', overlayID).css('z-index', 1000 + lStack * 2 + 1);
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       $modal.addClass('open');
+=======
+>>>>>>> Starting point for Materialize.
 
       $("body").append($overlay);
 
@@ -112,6 +125,7 @@
       $modal = $(this),
       overlayID = $modal.data('overlay-id'),
       $overlay = $('#' + overlayID);
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       $modal.removeClass('open');
 
       options = $.extend(defaults, options);
@@ -121,6 +135,13 @@
         overflow: '',
         width: ''
       });
+=======
+
+      options = $.extend(defaults, options);
+
+      // Disable scrolling
+      $('body').css('overflow', '');
+>>>>>>> Starting point for Materialize.
 
       $modal.find('.modal-close').off('click.close');
       $(document).off('keyup.leanModal' + overlayID);

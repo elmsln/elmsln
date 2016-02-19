@@ -120,7 +120,11 @@ describe("Select Plugin", function () {
   });
 
   describe("Optgroup Select", function () {
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     var browserSelect, optInput, optDropdown, optionInOptgroup, optionAfterOptGroup;
+=======
+    var browserSelect, optInput, optDropdown;
+>>>>>>> Starting point for Materialize.
 
     beforeEach(function() {
       browserSelect = $('select.optgroup');
@@ -156,6 +160,7 @@ describe("Select Plugin", function () {
       }, 400);
     });
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     it("should have options inside optgroup indented", function() {
       optionInOptgroup = browserSelect.parent().find('li.optgroup + li');
       optionAfterOptGroup = browserSelect.parent().find('ul li:last-child');
@@ -164,6 +169,8 @@ describe("Select Plugin", function () {
       expect(optionAfterOptGroup).not.toHaveClass('optgroup-option', 'Should not have optgroup-option class');
     });
 
+=======
+>>>>>>> Starting point for Materialize.
     it("should not do anything when optgroup li clicked", function(done) {
       optInput = browserSelect.parent().find('input.select-dropdown');
       optDropdown = browserSelect.parent().find('ul.select-dropdown');

@@ -43,6 +43,11 @@
       bottom: 0;
       left: 0;
       right: 0;
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
+=======
+      z-index: 1;
+      background-color: inherit;
+>>>>>>> Starting point for Materialize.
     }
   }
 
@@ -88,6 +93,10 @@
     padding: $card-padding;
     border-radius: 0 0 2px 2px;
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
+=======
+
+>>>>>>> Starting point for Materialize.
     p {
       margin: 0;
       color: inherit;
@@ -98,11 +107,16 @@
   }
 
   .card-action {
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     position: relative;
     background-color: inherit;
     border-top: 1px solid rgba(160,160,160,.2);
     padding: $card-padding;
     z-index: 2;
+=======
+    border-top: 1px solid rgba(160,160,160,.2);
+    padding: $card-padding;
+>>>>>>> Starting point for Materialize.
 
     a:not(.btn):not(.btn-large):not(.btn-floating) {
       color: $card-link-color;
@@ -112,11 +126,14 @@
 
       &:hover { color: $card-link-color-light; }
     }
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
     & + .card-reveal {
       z-index: 1;
       padding-bottom: 64px;
     }
+=======
+>>>>>>> Starting point for Materialize.
   }
 
   .card-reveal {
@@ -127,12 +144,20 @@
     overflow-y: auto;
     top: 100%;
     height: 100%;
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     z-index: 3;
+=======
+    z-index: 1;
+>>>>>>> Starting point for Materialize.
     display: none;
 
     .card-title {
       cursor: pointer;
       display: block;
     }
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
+=======
+
+>>>>>>> Starting point for Materialize.
   }
 }

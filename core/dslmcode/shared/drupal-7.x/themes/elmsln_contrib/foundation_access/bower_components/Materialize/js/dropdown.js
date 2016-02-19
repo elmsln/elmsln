@@ -79,8 +79,12 @@
       var offsetLeft = origin.offset().left;
       var offsetTop = origin.offset().top - $(window).scrollTop();
       var currAlignment = options.alignment;
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       var gutterSpacing = 0;
       var leftPosition = 0;
+=======
+      var activatesLeft, gutterSpacing;
+>>>>>>> Starting point for Materialize.
 
       // Below Origin
       var verticalOffset = 0;
@@ -88,6 +92,7 @@
         verticalOffset = originHeight;
       }
 
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       // Check for scrolling positioned container.
       var scrollOffset = 0;
       var wrapper = origin.parent();
@@ -96,6 +101,8 @@
       }
 
 
+=======
+>>>>>>> Starting point for Materialize.
       if (offsetLeft + activates.innerWidth() > $(window).width()) {
         // Dropdown goes past screen on right, force right alignment
         currAlignment = 'right';
@@ -133,7 +140,11 @@
       // Position dropdown
       activates.css({
         position: 'absolute',
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         top: origin.position().top + verticalOffset + scrollOffset,
+=======
+        top: origin.position().top + verticalOffset,
+>>>>>>> Starting point for Materialize.
         left: leftPosition
       });
 
@@ -234,4 +245,8 @@
   $(document).ready(function(){
     $('.dropdown-button').dropdown();
   });
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 }( jQuery ));
+=======
+}( jQuery ));
+>>>>>>> Starting point for Materialize.

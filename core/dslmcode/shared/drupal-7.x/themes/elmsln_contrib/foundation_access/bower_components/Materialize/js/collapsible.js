@@ -1,4 +1,8 @@
+<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 (function ($) {
+=======
+  (function ($) {
+>>>>>>> Starting point for Materialize.
   $.fn.collapsible = function(options) {
     var defaults = {
         accordion: undefined
