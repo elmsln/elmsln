@@ -59,6 +59,8 @@ function foundation_access_preprocess_html(&$variables) {
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 1000));
   drupal_add_css('//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME));
   drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.css');
+  drupal_add_css('https://fonts.googleapis.com/icon?family=Material+Icons', array('type' => 'external'));
+
 
 
   // theme path shorthand should be handled here
