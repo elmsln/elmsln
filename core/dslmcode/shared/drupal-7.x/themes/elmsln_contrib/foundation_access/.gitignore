@@ -5,4 +5,5 @@ node_modules
 .bin
 bower_components/*
 !bower_components/material-design-iconic-font
+!bower_components/Materialize
 sftp-config.json
