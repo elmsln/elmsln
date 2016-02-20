@@ -42,12 +42,6 @@ function foundation_access_ux_context_default_contexts() {
           'region' => 'cis_lmsless_modal',
           'weight' => '-9',
         ),
-        'cis_service_connection-ferpa_filter' => array(
-          'module' => 'cis_service_connection',
-          'delta' => 'ferpa_filter',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-8',
-        ),
       ),
     ),
   );
