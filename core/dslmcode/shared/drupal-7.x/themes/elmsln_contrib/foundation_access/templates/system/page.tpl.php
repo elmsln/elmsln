@@ -22,7 +22,7 @@
             <div class="r-header__left">
               <?php print render($page['header']); ?>
             </div>
-            <div class="r-header__right">
+            <div class="r-header__right" ng-controller="FaHeaderOptionsCtrl as ctrl" ng-cloak ng-app="Fa">
               <ul class="r-header__edit-icons">
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>
@@ -48,33 +48,58 @@
                     <i class="zmdi zmdi-tune"></i>
                   </a></li>
                 <?php endif; ?>
+
+                  <md-button class="md-icon-button r-header__icon" href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>">
+                    <i class="zmdi zmdi-edit"></i>
+                  </md-button>
+                </li>
+                <?php endif; ?>
+
+                <!-- Outline -->
+                <li class="r-header__edit-icons__list-item">
+                  <md-menu md-position-mode="target-right target">
+                    <md-button aria-label="Course outline options menu" class="md-icon-button r-header__icon" ng-click="ctrl.openMenu($mdOpenMenu, $event)">
+                     <i class="zmdi zmdi-collection-text"></i>
+                    </md-button>
+                   <md-menu-content width="4">
+                     <md-menu-item>
+                       <md-button href="#">Add child page</md-button>
+                     </md-menu-item>
+                     <md-menu-item>
+                       <md-button href="#">Edit child outline</md-button>
+                     </md-menu-item>
+                     <md-menu-item>
+                       <md-button href="#">Edit course outline</md-button>
+                     </md-menu-item>
+                     <md-menu-item>
+                       <md-button href="#">Duplicate outline</md-button>
+                     </md-menu-item>
+                    </md-menu-content>
+                   </md-menu>
+                </li>
                 <!-- end Edit Icon -->
                 <li class="r-header__edit-icons__list-item">
-                <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-                    <a href="#" title="<?php print t('More')?>" class="r-header__icon" data-dropdown="r-header__icon--advanced" aria-controls="r-header__icon--advanced" aria-expanded="false">
-                      <i class="zmdi zmdi-more-vert"></i>
-                    </a>
-                    <ul id="r-header__icon--advanced" data-dropdown-content class="f-dropdown f-dropdown--classic content" aria-hidden="true" tabindex="-1">
-                    <?php if (!empty($tabs)): ?>
-                        <?php print render($tabs); ?>
-                      <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
-                    <?php endif; ?>
-                    <?php if ($action_links): ?>
-                        <?php print render($action_links); ?>
-                    <?php endif; ?>
-                    <?php if (isset($tabs_extras)): ksort($tabs_extras); ?>
-                     <?php foreach ($tabs_extras as $group) : ?>
-                      <?php foreach ($group as $button) : ?>
-                        <li><?php print $button; ?></li>
-                      <?php endforeach; ?>
-                     <?php endforeach; ?>
-                    <?php endif; ?>
-                    </ul>
-                <?php else: ?>
-                  <a href="#" title="<?php print t('No additional options')?>" class="r-header__icon fa-action-disabled">
-                      <i class="zmdi zmdi-more-vert"></i>
-                    </a>
-                <?php endif; ?>
+                  <md-menu md-position-mode="target-right target">
+                    <md-button aria-label="Extra options menu" class="md-icon-button r-header__icon" ng-click="ctrl.openMenu($mdOpenMenu, $event)">
+                     <i class="zmdi zmdi-more-vert"></i>
+                    </md-button>
+                   <md-menu-content width="4">
+                     <md-menu-item>
+                       <md-button href="#">View</md-button>
+                     </md-menu-item>
+                     <md-menu-item>
+                       <md-button href="#">Edit</md-button>
+                     </md-menu-item>
+                     <md-menu-divider></md-menu-divider>
+                     <md-menu-item>
+                       <md-button href="#">Print</md-button>
+                     </md-menu-item>
+                     <md-menu-divider></md-menu-divider>
+                     <md-menu-item>
+                       <md-button href="#">Accessibility</md-button>
+                     </md-menu-item>
+                    </md-menu-content>
+                   </md-menu>
                 </li>
               </ul>
             </div>
@@ -167,3 +192,5 @@
 </div>
 <?php endif; ?>
 <!-- /Accessibility Modal -->
+
+
