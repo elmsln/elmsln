@@ -1,6 +1,7 @@
 {
   "name": "foundation-libsass-template",
   "dependencies": {
+    "angular-material": "~1.0.5",
     "foundation": "zurb/bower-foundation",
     "material-design-iconic-font": "~2.2.0",
     "Materialize": "materialize#~0.97.5"

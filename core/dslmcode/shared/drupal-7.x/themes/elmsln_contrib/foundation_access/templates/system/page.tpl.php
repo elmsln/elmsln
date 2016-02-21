@@ -22,7 +22,7 @@
             <div class="r-header__left">
               <?php print render($page['header']); ?>
             </div>
-            <div class="r-header__right">
+            <div class="r-header__right" ng-controller="FaHeaderOptionsCtrl as ctrl" ng-cloak ng-app="Fa">
               <ul class="r-header__edit-icons">
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>
@@ -167,3 +167,5 @@
 </div>
 <?php endif; ?>
 <!-- /Accessibility Modal -->
+
+
