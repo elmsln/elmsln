@@ -9,6 +9,7 @@
 
 var imageLightbox = require('./components/imageLightbox.js');
 var mediavideo = require('./components/mediavideo.js');
+var angular = require('./components/angular.js');
 
 (function ($) {
   // Accessibility To Do:
@@ -51,6 +52,7 @@ var mediavideo = require('./components/mediavideo.js');
       attach: function (context, settings) {
         imageLightbox();
         mediavideo();
+        angular();
       }
     };
   }
@@ -58,6 +60,7 @@ var mediavideo = require('./components/mediavideo.js');
     $(document).ready(function() {
       imageLightbox();
       mediavideo();
+      angular();
     });
   }
 
@@ -195,7 +198,19 @@ var mediavideo = require('./components/mediavideo.js');
 
 })(jQuery);
 
-},{"./components/imageLightbox.js":2,"./components/mediavideo.js":3}],2:[function(require,module,exports){
+},{"./components/angular.js":2,"./components/imageLightbox.js":3,"./components/mediavideo.js":4}],2:[function(require,module,exports){
+module.exports = function() {
+  angular
+    .module('Fa',['ngMaterial', 'ngMessages'])
+    .controller('FaHeaderOptionsCtrl', function DemoCtrl($mdDialog) {
+      var originatorEv;
+      this.openMenu = function($mdOpenMenu, ev) {
+        originatorEv = ev;
+        $mdOpenMenu(ev);
+      };
+    });
+};
+},{}],3:[function(require,module,exports){
 module.exports = function() {
   (function ($) {
     'use strict';
@@ -224,7 +239,7 @@ module.exports = function() {
   })(jQuery);
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 module.exports = function() {
   (function ($) {
 	  'use strict';

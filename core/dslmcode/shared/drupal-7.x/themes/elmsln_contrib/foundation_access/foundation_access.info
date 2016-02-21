@@ -40,7 +40,6 @@ stylesheets[all][] = css/foundation.min.css
 stylesheets[all][] = css/app.css
 stylesheets[all][] = css/tweaks.css
 
-
 stylesheets[print][] = css/print.css
 ; Foundation JavaScript.
 
@@ -61,14 +60,13 @@ scripts[] = js/jquery.sticky.js
 scripts[] = libraries/imagelightbox/imagelightbox.js
 
 ; Angular Material
-; scripts[] = bower_components/angular/angular.min.js
-; scripts[] = bower_components/angular-animate/angular-animate.min.js
-; scripts[] = bower_components/angular-aria/angular-aria.min.js
-; scripts[] = bower_components/angular-messages/angular-messages.min.js
-; scripts[] = bower_components/angular-resource/angular-resource.min.js
+scripts[] = bower_components/angular/angular.min.js
+scripts[] = bower_components/angular-animate/angular-animate.min.js
+scripts[] = bower_components/angular-aria/angular-aria.min.js
+scripts[] = bower_components/angular-messages/angular-messages.min.js
+scripts[] = bower_components/angular-material/angular-material.min.js
 
 ; Our themes custom scripts compiled by Browserify
-scripts[] = bower_components/Materialize/dist/js/materialize.js
 scripts[] = js/dist/app.js
 scripts[] = js/tweaks.js
 scripts[] = js/material.js
