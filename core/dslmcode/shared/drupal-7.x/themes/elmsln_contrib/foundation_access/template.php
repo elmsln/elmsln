@@ -61,8 +61,6 @@ function foundation_access_preprocess_html(&$variables) {
   drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.css');
   drupal_add_css('https://fonts.googleapis.com/icon?family=Material+Icons', array('type' => 'external'));
 
-
-
   // theme path shorthand should be handled here
   foreach($variables['user']->roles as $role){
     $variables['classes_array'][] = 'role-' . drupal_html_class($role);
