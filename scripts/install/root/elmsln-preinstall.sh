@@ -312,11 +312,11 @@ if [[ -n "$domains" ]]; then
   # @todo replace this part with the ability to split each domain off into its own conf file
   cp /var/www/elmsln/scripts/server/domains/* "$domains"
   # replace servicedomain partial with what was entered above
-  sed -e "s/SERVICEYOURUNIT.edu/${serviceaddress}/g" $domains/*.conf
+  sed -i "s/SERVICEYOURUNIT.edu/${serviceaddress}/g" ${domains}*.conf
   # replace domain partial with what was entered above
-  sed -e "s/YOURUNIT.edu/${address}/g" $domains/*.conf
+  sed -i "s/YOURUNIT.edu/${address}/g" ${domains}*.conf
   # replace servicedomain prefix if available with what was entered above
-  sed -e "s/DATA./${serviceprefix}/g" $domains/*.conf
+  sed -i "s/DATA./${serviceprefix}/g" ${domains}*.conf
   ls $domains
   elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
   # attempt to author the https domain if they picked it, let's hope everyone does
@@ -333,16 +333,12 @@ if [[ -n "$domains" ]]; then
     git clone https://github.com/letsencrypt/letsencrypt
     # automatically create domains
     bash letsencrypt/letsencrypt-auto --apache --email $admin --agree-tos
-    # auto set things to operate for apache
-    if [ $os == '2' ]; then
-      ln -s $domains/* /etc/apache2/sites-enabled/
-    fi
   else
     elmslnwarn "You really should use https and invest in certs... seriously do it!"
   fi
     # account for ubuntu being a little different here when it comes to apache
   if [ $os == '2' ]; then
-    ln -s $domains /etc/apache2/sites-enabled/elmsln.conf
+    ln -s ${domains}*.conf /etc/apache2/sites-enabled/
   fi
 fi
 
