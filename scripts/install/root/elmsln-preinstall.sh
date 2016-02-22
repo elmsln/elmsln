@@ -103,7 +103,7 @@ if [ $os == '1' ]; then
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
-  domains="/etc/httpd/conf.d/elmsln.conf"
+  domains="/etc/httpd/conf.d/"
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
@@ -126,7 +126,7 @@ elif [ $os == '2' ]; then
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
-  domains="/etc/apache2/sites-available/elmsln.conf"
+  domains="/etc/apache2/sites-available/"
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/apache2/conf-available/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
@@ -145,7 +145,7 @@ elif [ $os == '3' ]; then
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
-  domains="/etc/httpd/conf.sites.d/elmsln.conf"
+  domains="/etc/httpd/conf.sites.d/"
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
@@ -167,7 +167,7 @@ else
   elmslnecho "where is crontab? ex: /etc/crontab (empty to skip)"
   read crontab
 
-  elmslnecho "where should elmsln apache conf elmsln.conf files live? ex: /etc/httpd/conf.d/elmsln.conf (empty to skip)"
+  elmslnecho "where should elmsln apache conf elmsln.conf files live? ex: /etc/httpd/conf.d/ (empty to skip)"
   read domains
 
   elmslnecho "where should elmsln apache performance tweaks live? ex: /etc/httpd/conf.d/zzz_performance.conf (empty to skip)"
@@ -310,25 +310,32 @@ fi
 if [[ -n "$domains" ]]; then
   # try to automatically author the domains file(s)
   # @todo replace this part with the ability to split each domain off into its own conf file
-  cp /var/www/elmsln/scripts/server/domains.txt "$domains"
+  cp /var/www/elmsln/scripts/server/domains/* "$domains"
   # replace servicedomain partial with what was entered above
-  sed -e "s/SERVICEYOURUNIT.edu/${serviceaddress}/g" $domains > "${domains}.tmp" && mv "${domains}.tmp" $domains
+  sed -e "s/SERVICEYOURUNIT.edu/${serviceaddress}/g" $domains/*.conf
   # replace domain partial with what was entered above
-  sed -e "s/YOURUNIT.edu/${address}/g" $domains > "${domains}.tmp" && mv "${domains}.tmp" $domains
+  sed -e "s/YOURUNIT.edu/${address}/g" $domains/*.conf
   # replace servicedomain prefix if available with what was entered above
-  sed -e "s/DATA./${serviceprefix}/g" $domains > "${domains}.tmp" && mv "${domains}.tmp" $domains
-  cat $domains
+  sed -e "s/DATA./${serviceprefix}/g" $domains/*.conf
+  ls $domains
   elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
   # attempt to author the https domain if they picked it, let's hope everyone does
   if [[ $protocol == 'https' ]]; then
-    sec=${domains/.conf/_secure.conf}
-    cp $domains $sec
-    # replace referencese to port :80 w/ 443
-    sed -e 's/<VirtualHost *:80>/<VirtualHost *:443>/g' $sec > "${sec}.tmp" && mv "${sec}.tmp" $sec
-    elmslnecho "${sec} was automatically generated since you said you are using https. please verify this file."
-      # account for ubuntu being a little different here when it comes to apache
+    # systems restart differently
+    if [[ $os == '1' ]]; then
+      /etc/init.d/httpd restart
+    elif [ $os == '2' ]; then
+      service apache2 restart
+    else
+      service httpd restart
+    fi
+    cd $HOME
+    git clone https://github.com/letsencrypt/letsencrypt
+    # automatically create domains
+    bash letsencrypt/letsencrypt-auto --apache --email $admin --agree-tos
+    # auto set things to operate for apache
     if [ $os == '2' ]; then
-      ln -s $sec /etc/apache2/sites-enabled/elmsln.conf
+      ln -s $domains/* /etc/apache2/sites-enabled/
     fi
   else
     elmslnwarn "You really should use https and invest in certs... seriously do it!"
@@ -341,7 +348,7 @@ fi
 
 # if this is rhel prepared the domains for varnish.
 if [ $os == '1' ] || [ $os == '3' ]; then
-  sed -i 's/:80\b/:8080/g' $domains
+  sed -i 's/:80\b/:8080/g' $domains/*
 fi
 
 if [[ -n "$zzz_performance" ]]; then
