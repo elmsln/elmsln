@@ -21,21 +21,20 @@ function cle_critique_field_group_info() {
   $field_group->parent_name = 'group_details';
   $field_group->data = array(
     'label' => 'Critique',
-    'weight' => '18',
+    'weight' => '21',
     'children' => array(
       0 => 'field_cle_crit_type',
       1 => 'field_cle_crit_criteria',
       2 => 'field_cle_crit_outline',
     ),
-    'format_type' => 'tab',
+    'format_type' => 'htab',
     'format_settings' => array(
-      'label' => 'Critique',
-      'instance_settings' => array(
-        'required_fields' => 0,
-        'classes' => 'group-cle-critique field-group-tab',
-        'description' => '',
-      ),
       'formatter' => 'closed',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => '',
+        'required_fields' => 1,
+      ),
     ),
   );
   $field_groups['group_cle_critique|node|cle_assignment|form'] = $field_group;

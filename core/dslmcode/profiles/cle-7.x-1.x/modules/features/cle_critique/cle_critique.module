@@ -45,7 +45,7 @@ function _cle_critique_page($arg) {
     // @todo list the critiques they've already done
     $form['assignment'] = array(
       '#title' => t('Assignment'),
-      '#options' => array_merge(array(0 => ''), $assignments),
+      '#options' => array(0 => '') + $assignments,
       '#type' => 'select',
       '#required' => '1',
       '#multiple' => '0',
@@ -76,8 +76,10 @@ function _cle_critique_page($arg) {
         'type' => 'cle_critique',
         'language' => LANGUAGE_NONE,
         'field_cle_crit_sub_ref' => array('und' => array(0 => array('target_id' => $node->nid))),
-        'field_cle_crit_feedback' => array('und' => array(0 => $assignmentnode->field_cle_crit_outline['und'][0])),
       );
+      if (isset($assignmentnode->field_cle_crit_outline)) {
+        $critnode->field_cle_crit_feedback = array('und' => array(0 => $assignmentnode->field_cle_crit_outline['und'][0]));
+      }
       // @todo need to look and see if this is blind or doubleblind
       drupal_set_title(t('Critique @name', array('@name' => $node->title)), PASS_THROUGH);
       $form = drupal_get_form('cle_critique_node_form', $critnode);

@@ -66,7 +66,7 @@ function cle_assignment_advanced_views_default_views() {
   $handler->display->display_options['sorts']['field_sub_number_value']['id'] = 'field_sub_number_value';
   $handler->display->display_options['sorts']['field_sub_number_value']['table'] = 'field_data_field_sub_number';
   $handler->display->display_options['sorts']['field_sub_number_value']['field'] = 'field_sub_number_value';
-  /* Contextual filter: Content: Section (og_group_ref) */
+  /* Contextual filter: Content: Groups audience (og_group_ref) */
   $handler->display->display_options['arguments']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
