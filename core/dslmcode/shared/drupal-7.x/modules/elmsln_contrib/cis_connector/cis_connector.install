@@ -37,78 +37,78 @@ function cis_connector_requirements($phase) {
     else {
       $requirements['elmsln_network']['description'] = $t('To fix this either enable a module implementing hook_cis_service_registry (if you installed via ELMSLN auto setup it will be in /var/www/elmsln/config/shared/drupal-7.x/modules/_elmsln_scripted/) or roll your own (not recommended) by implementing the function: ') . l('hook_cis_service_registry', 'https://api.elmsln.org/api/drupal/sites%21all%21modules%21elmsln_contrib%21cis_connector%21cis_connector.api.php/function/hook_cis_service_registry/cis7');
     }
-  }
-   // report on version running
-  $code_version = '/var/www/elmsln/VERSION.txt';
-  if (file_exists($code_version)) {
-    $code = preg_replace('/\s+/', ' ', file_get_contents($code_version));
-  }
-  $config_version = '/var/www/elmsln/config/SYSTEM_VERSION.txt';
-  if (file_exists($config_version)) {
-    $config = preg_replace('/\s+/', ' ', file_get_contents($config_version));
-  }
-  // make sure we have a code version or there's a big issue
-  if (!isset($code)) {
-    $requirements['elmsln_version'] = array(
-      'title' => $t('ELMSLN version'),
-      'value' => 'NO VERSION',
-      'severity' => REQUIREMENT_WARNING,
-      'description' => $t('There is not a reported version of the code base, that\'s kind of a big deal.'),
-      'weight' => -99,
-    );
-  }
-  elseif (!isset($config)) {
-    $requirements['elmsln_version'] = array(
-      'title' => $t('ELMSLN version'),
-      'value' => 'NO VERSION',
-      'severity' => REQUIREMENT_WARNING,
-      'description' => $t('There is not a reported version of the configuration. This can be fixed by logging into the server and typing `leafy` then applying server level updates.'),
-      'weight' => -99,
-    );
-  }
-  else {
-    $requirements['elmsln_version'] = array(
-      'title' => $t('ELMSLN version'),
-      'value' => $code,
-      'weight' => -99,
-    );
-    // see if the versions are equal
-    if (version_compare($code, $config, '==')) {
-      $requirements['elmsln_version']['severity'] = REQUIREMENT_OK;
-      $requirements['elmsln_version']['description'] = $t('Code and configuration match.');
+    // report on version running
+    $code_version = '/var/www/elmsln/VERSION.txt';
+    if (file_exists($code_version)) {
+      $code = preg_replace('/\s+/', ' ', file_get_contents($code_version));
     }
-    elseif (version_compare($code, $config, '>')) {
-      $requirements['elmsln_version']['severity'] = REQUIREMENT_WARNING;
-      $requirements['elmsln_version']['description'] = $t('Code: @code<br/>Configuration: @config<br/>Your code base is newer then the configuration that\'s been applied to the server. To fix this, log into your server and type `leafy`. Then select the option of applying server / bash level upgrades. You don\'t HAVE to apply these but we just want you to know you are out of sync with the changes that we recommend for the platform and are reflected in newer deployments.', array('@code' => $code, '@config' => $config));
+    $config_version = '/var/www/elmsln/config/SYSTEM_VERSION.txt';
+    if (file_exists($config_version)) {
+      $config = preg_replace('/\s+/', ' ', file_get_contents($config_version));
     }
-    else {
-      $requirements['elmsln_version']['severity'] = REQUIREMENT_WARNING;
-      $requirements['elmsln_version']['description'] = $t('Code: @code<br/>Configuration: @config<br/>Your code is behind the version of your configuration; this shouldn\'t be possible unless maybe you migrated one deployment into another potentially leading to the mismatch.', array('@code' => $code, '@config' => $config));
-    }
-  }
-  // read off the git repo if there's a module to do so.
-  if (module_exists('gitphp')) {
-    libraries_load('gitphp');
-    $repo = Git::open('/var/www/elmsln');
-    if ($repo->test_git()) {
-      $commit = $repo->run('rev-parse HEAD');
-      $commit_url = "https://github.com/elmsln/elmsln/commit/$commit";
-      $requirements['elmsln_commit'] = array(
-        'title' => $t('ELMSLN commit'),
-        'value' => $commit,
-        'severity' => REQUIREMENT_INFO,
-        'description' => $t('Use this to help reporting issues to the community. Here\'s a <a href="@url">link to the exact commit</a> which can be useful for referencing.', array('@url' => $commit_url)),
-        'weight' => -1000,
-      );
-    }
-    else {
-      $requirements['elmsln_commit'] = array(
-        'title' => $t('ELMSLN commit'),
-        'value' => $commit,
+    // make sure we have a code version or there's a big issue
+    if (!isset($code)) {
+      $requirements['elmsln_version'] = array(
+        'title' => $t('ELMSLN version'),
+        'value' => 'NO VERSION',
         'severity' => REQUIREMENT_WARNING,
-        'description' => $t('You are not running ELMSLN in version control. This is heavily discouraged as we will not be able to help you in the community issue queues effectively.'),
-        'weight' => -1000,
+        'description' => $t('There is not a reported version of the code base, that\'s kind of a big deal.'),
+        'weight' => -99,
       );
+    }
+    elseif (!isset($config)) {
+      $requirements['elmsln_version'] = array(
+        'title' => $t('ELMSLN version'),
+        'value' => 'NO VERSION',
+        'severity' => REQUIREMENT_WARNING,
+        'description' => $t('There is not a reported version of the configuration. This can be fixed by logging into the server and typing `leafy` then applying server level updates.'),
+        'weight' => -99,
+      );
+    }
+    else {
+      $requirements['elmsln_version'] = array(
+        'title' => $t('ELMSLN version'),
+        'value' => $code,
+        'weight' => -99,
+      );
+      // see if the versions are equal
+      if (version_compare($code, $config, '==')) {
+        $requirements['elmsln_version']['severity'] = REQUIREMENT_OK;
+        $requirements['elmsln_version']['description'] = $t('Code and configuration match.');
+      }
+      elseif (version_compare($code, $config, '>')) {
+        $requirements['elmsln_version']['severity'] = REQUIREMENT_WARNING;
+        $requirements['elmsln_version']['description'] = $t('Code: @code<br/>Configuration: @config<br/>Your code base is newer then the configuration that\'s been applied to the server. To fix this, log into your server and type `leafy`. Then select the option of applying server / bash level upgrades. You don\'t HAVE to apply these but we just want you to know you are out of sync with the changes that we recommend for the platform and are reflected in newer deployments.', array('@code' => $code, '@config' => $config));
+      }
+      else {
+        $requirements['elmsln_version']['severity'] = REQUIREMENT_WARNING;
+        $requirements['elmsln_version']['description'] = $t('Code: @code<br/>Configuration: @config<br/>Your code is behind the version of your configuration; this shouldn\'t be possible unless maybe you migrated one deployment into another potentially leading to the mismatch.', array('@code' => $code, '@config' => $config));
+      }
+    }
+    // read off the git repo if there's a module to do so.
+    if (module_exists('gitphp')) {
+      libraries_load('gitphp');
+      $repo = Git::open('/var/www/elmsln');
+      if ($repo->test_git()) {
+        $commit = $repo->run('rev-parse HEAD');
+        $commit_url = "https://github.com/elmsln/elmsln/commit/$commit";
+        $requirements['elmsln_commit'] = array(
+          'title' => $t('ELMSLN commit'),
+          'value' => $commit,
+          'severity' => REQUIREMENT_INFO,
+          'description' => $t('Use this to help reporting issues to the community. Here\'s a <a href="@url">link to the exact commit</a> which can be useful for referencing.', array('@url' => $commit_url)),
+          'weight' => -1000,
+        );
+      }
+      else {
+        $requirements['elmsln_commit'] = array(
+          'title' => $t('ELMSLN commit'),
+          'value' => $commit,
+          'severity' => REQUIREMENT_WARNING,
+          'description' => $t('You are not running ELMSLN in version control. This is heavily discouraged as we will not be able to help you in the community issue queues effectively.'),
+          'weight' => -1000,
+        );
+      }
     }
   }
   return $requirements;
