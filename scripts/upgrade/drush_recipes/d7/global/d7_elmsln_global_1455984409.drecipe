@@ -5,6 +5,12 @@
   "core": "7",
   "recipe": [
     {
+      "command": "en",
+      "arguments": [
+        "adminimal_admin_menu"
+      ]
+    },
+    {
       "command": "fr",
       "arguments": [
         "elmsln_core"
