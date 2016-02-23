@@ -13,7 +13,8 @@
     {
       "command": "fr",
       "arguments": [
-        "elmsln_core"
+        "elmsln_core",
+        "foundation_access_ux"
       ]
     }
   ],
