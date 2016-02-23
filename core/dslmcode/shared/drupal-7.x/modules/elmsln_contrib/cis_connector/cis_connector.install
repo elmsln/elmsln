@@ -25,6 +25,7 @@ function cis_connector_requirements($phase) {
       'title' => $t('ELMSLN connection status'),
       'value' => $settings ? $t('Connection keychain detected!')  : $t('No connection keychain detected'),
       'severity' => ($settings ? REQUIREMENT_OK : REQUIREMENT_WARNING),
+      'weight' => -99,
     );
     if ($settings) {
       $requirements['elmsln_network']['description'] = $t('The following tools can be accessed: !names',
@@ -39,11 +40,11 @@ function cis_connector_requirements($phase) {
     // report on version running
     $code_version = '/var/www/elmsln/VERSION.txt';
     if (file_exists($code_version)) {
-      $code = file_get_contents($code_version);
+      $code = preg_replace('/\s+/', ' ', file_get_contents($code_version));
     }
     $config_version = '/var/www/elmsln/config/SYSTEM_VERSION.txt';
     if (file_exists($config_version)) {
-      $config = file_get_contents($config_version);
+      $config = preg_replace('/\s+/', ' ', file_get_contents($config_version));
     }
     // make sure we have a code version or there's a big issue
     if (!isset($code)) {
@@ -52,6 +53,7 @@ function cis_connector_requirements($phase) {
         'value' => 'NO VERSION',
         'severity' => REQUIREMENT_WARNING,
         'description' => $t('There is not a reported version of the code base, that\'s kind of a big deal.'),
+        'weight' => -99,
       );
     }
     elseif (!isset($config)) {
@@ -60,12 +62,14 @@ function cis_connector_requirements($phase) {
         'value' => 'NO VERSION',
         'severity' => REQUIREMENT_WARNING,
         'description' => $t('There is not a reported version of the configuration. This can be fixed by logging into the server and typing `leafy` then applying server level updates.'),
+        'weight' => -99,
       );
     }
     else {
       $requirements['elmsln_version'] = array(
         'title' => $t('ELMSLN version'),
         'value' => $code,
+        'weight' => -99,
       );
       // see if the versions are equal
       if (version_compare($code, $config, '==')) {
@@ -79,6 +83,31 @@ function cis_connector_requirements($phase) {
       else {
         $requirements['elmsln_version']['severity'] = REQUIREMENT_WARNING;
         $requirements['elmsln_version']['description'] = $t('Code: @code<br/>Configuration: @config<br/>Your code is behind the version of your configuration; this shouldn\'t be possible unless maybe you migrated one deployment into another potentially leading to the mismatch.', array('@code' => $code, '@config' => $config));
+      }
+    }
+    // read off the git repo if there's a module to do so.
+    if (module_exists('gitphp')) {
+      libraries_load('gitphp');
+      $repo = Git::open('/var/www/elmsln');
+      if ($repo->test_git()) {
+        $commit = $repo->run('rev-parse HEAD');
+        $commit_url = "https://github.com/elmsln/elmsln/commit/$commit";
+        $requirements['elmsln_commit'] = array(
+          'title' => $t('ELMSLN commit'),
+          'value' => $commit,
+          'severity' => REQUIREMENT_INFO,
+          'description' => $t('Use this to help reporting issues to the community. Here\'s a <a href="@url">link to the exact commit</a> which can be useful for referencing.', array('@url' => $commit_url)),
+          'weight' => -1000,
+        );
+      }
+      else {
+        $requirements['elmsln_commit'] = array(
+          'title' => $t('ELMSLN commit'),
+          'value' => $commit,
+          'severity' => REQUIREMENT_WARNING,
+          'description' => $t('You are not running ELMSLN in version control. This is heavily discouraged as we will not be able to help you in the community issue queues effectively.'),
+          'weight' => -1000,
+        );
       }
     }
   }
