@@ -1,0 +1,440 @@
+/* Import the Open Sans webfont from Google CDN */
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Open Sans Light'), local('OpenSans-Light'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/DXI1ORHCpsQm3Vp6mXoaTRsxEYwM7FgeyaSgU71cLG0.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/uYKcPVoh6c5R0NpdEY5A-Q.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/MTP_ySUJH_bn48VBG8sNShsxEYwM7FgeyaSgU71cLG0.woff) format('woff');
+}
+
+
+/* Blink Animation */
+
+@keyframes blink {
+  0% {
+    background-color: #f69231;
+    color: #fff;
+  }
+  50% {
+    background-color: #d94f13;
+    color: #fff;
+  }
+  100% {
+    background-color: #f69231;
+    color: #fff;
+  }
+}
+
+@-moz-keyframes blink {
+  0% {
+    background-color: #f69231;
+    color: #fff;
+  }
+  50% {
+    background-color: #d94f13;
+    color: #fff;
+  }
+  100% {
+    background-color: #f69231;
+    color: #fff;
+  }
+}
+
+@-webkit-keyframes blink {
+  0% {
+    background-color: #f69231;
+    color: #fff;
+  }
+  50% {
+    background-color: #d94f13;
+    color: #fff;
+  }
+  100% {
+    background-color: #f69231;
+    color: #fff;
+  }
+}
+
+@-o-keyframes blink {
+  0% {
+    background-color: #f69231;
+    color: #fff;
+  }
+  50% {
+    background-color: #d94f13;
+    color: #fff;
+  }
+  100% {
+    background-color: #f69231;
+    color: #fff;
+  }
+}
+
+body.admin-menu.adminimal-menu #admin-menu *::-moz-focus-inner {
+  border: 0;
+}
+
+body.admin-menu.adminimal-menu {
+  margin-top: 0px !important;
+}
+
+body.admin-menu.adminimal-menu:before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 29px;
+  top: 0;
+  left: 0;
+}
+
+body.adminimal-menu div#admin-menu {
+  background: #333;
+  background: none repeat scroll 0 0 #202020;
+  border-bottom: 1px solid #111111;
+  font-family: Open Sans, "Segoe UI", "Helvetica", sans-serif;
+}
+
+body.adminimal-menu div#admin-menu li.admin-menu-toolbar-home-menu {
+  background: transparent;
+}
+
+body.adminimal-menu div#admin-menu ul.dropdown span.admin-menu-home-icon {
+  background: url("images/home.svg") no-repeat scroll 0 0 transparent;
+  display: block;
+  margin: 5px 0 0;
+  padding: 0;
+  width: 15px;
+}
+
+body.adminimal-menu div#admin-menu a,
+body.adminimal-menu div#admin-menu span {
+  border: none !important;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+body.adminimal-menu div#admin-menu a:hover {
+  background-color: #0074bd;
+  color: #fff;
+}
+
+body.adminimal-menu #admin-menu .dropdown li li {
+  background-color: #1f1f1f;
+}
+
+body.adminimal-menu #admin-menu .dropdown li li.expandable ul {
+  margin-top: -28px;
+}
+
+body.adminimal-menu #admin-menu .dropdown li li > li.admin-menu-toolbar-category {
+  background: #fff !important;
+}
+
+body.adminimal-menu #admin-menu .dropdown li li li:hover,
+body.adminimal-menu #admin-menu .dropdown li:hover {
+  background: #0074bd !important;
+}
+
+body.adminimal-menu #admin-menu .dropdown a {
+  border-right: none;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-toolbar-category a {
+  line-height: 20px;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-toolbar-category a:focus {
+  background: #0074BD;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li {
+  opacity: 1;
+}
+
+body.adminimal-menu #admin-menu .dropdown li li:hover,
+body.adminimal-menu #admin-menu .dropdown li li.iehover {
+  background-color: #333;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li a {
+  border: none;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable {
+  background: url("images/square.png") no-repeat scroll 145px 11px #1f1f1f;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable a {
+  background: transparent;
+  padding-right: 25px;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable:hover {
+  background: url("images/square.png") no-repeat scroll 145px -83px #0074bd !important;
+}
+
+
+/* Shortcuts bar */
+
+body.adminimal-menu div.toolbar-shortcuts {
+  float: left;
+}
+
+body.adminimal-menu div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu {
+  margin: 0;
+  padding: 0;
+}
+
+body.adminimal-menu div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li {
+  float: left;
+  list-style: none outside none;
+  padding: 0;
+  margin: 0;
+}
+
+body.adminimal-menu div.shortcut-toolbar div#toolbar a#edit-shortcuts {
+  float: right;
+  line-height: 18px;
+  padding: 5px 10px;
+  text-decoration: none;
+}
+
+body.adminimal-menu div.shortcut-toolbar div#toolbar a#edit-shortcuts:hover {
+  text-decoration: none;
+}
+
+body.adminimal-menu div.shortcut-toolbar div#toolbar a#edit-shortcuts:focus {
+  background: #0074BD;
+}
+
+body.adminimal-menu #admin-menu .dropdown li ul {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.adminimal-menu #admin-menu .dropdown li ul {
+  border-top: 3px solid #0074BD;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-toolbar-category.expandable .dropdown li ul,
+body.adminimal-menu #admin-menu .dropdown.admin-menu-search-results li ul {
+  border-top: none;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action a {
+  border: none !important;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action:first-child a {
+  background: #444;
+  padding: 5px 10px;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action:first-child a:hover,
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action:first-child a:focus {
+  background: #b73939;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action.admin-menu-users {
+  border-left: 1px solid #000;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action.admin-menu-users a:hover {
+  background: #0074BD;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action.admin-menu-account a {
+  background: #4d8f46 !important;
+  border: medium none;
+  padding: 5px 10px;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action.admin-menu-account a:hover {
+  background: #277d1e !important;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper div#toolbar div.toolbar-shortcuts ul li a {
+  background: url("images/shortcut.png") no-repeat scroll 7px 7px transparent;
+  border-radius: 0 0 0 0;
+  display: block;
+  margin-right: 0;
+  padding: 5px 10px;
+  text-indent: 16px;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper div#toolbar div.toolbar-shortcuts ul li a:hover {
+  background-color: #0074bd;
+  background-position: 7px -78px;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-search input {
+  background: none no-repeat scroll right center #444;
+  border: medium none;
+  border-radius: 0 0 0 0;
+  color: #999999;
+  font-size: 12px;
+  margin: 0 !important;
+  outline: medium none;
+  padding: 5px 22px 3px 8px;
+  width: 110px;
+  height: 20px;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-search input:focus,
+#admin-menu .admin-menu-search input:hover,
+#admin-menu .admin-menu-search input:active {
+  background: none no-repeat scroll right center #888;
+  color: #eee;
+}
+
+body.adminimal-menu li.admin-menu-search:hover {
+  background: transparent !important;
+}
+
+body.adminimal-menu div#admin-menu li.highlight {
+  background-color: #ef6114;
+  animation: blink 1s ease both infinite;
+  -moz-animation: blink 1s ease both infinite;
+  -webkit-animation: blink 1s ease both infinite;
+  -o-animation: blink 1s ease both infinite;
+  color: #fff !important;
+}
+
+body.adminimal-menu #admin-menu li.highlight > a,
+body.adminimal-menu #admin-menu li.highlight > li {
+  border-color: #ef6114;
+  color: #fff !important;
+  animation: blink 1s ease both infinite;
+  -moz-animation: blink 1s ease both infinite;
+  -webkit-animation: blink 1s ease both infinite;
+  -o-animation: blink 1s ease both infinite;
+}
+
+
+/* Newline render mode */
+
+body.adminimal-menu.admin-menu.menu-render-newline div#admin-menu div#admin-menu-wrapper div.shortcut-toolbar {
+  clear: both;
+  border-top: 1px solid #000;
+}
+
+body.adminimal-menu.admin-menu.menu-render-newline {
+  margin-top: 56px !important;
+}
+
+body.adminimal-menu.admin-menu.menu-render-newline #overlay-container,
+body.adminimal-menu.admin-menu.newline .overlay-modal-background,
+body.adminimal-menu.admin-menu.newline .overlay-element,
+body.adminimal-menu.admin-menu.newline #overlay {
+  padding-top: 30px !important;
+}
+
+
+/* Collapsed render mode */
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu {
+  position: absolute;
+}
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li {
+  float: none;
+  display: none;
+  border: none;
+}
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li.label {
+  display: block;
+  cursor: default;
+}
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li.label a:hover {
+  background: url("images/shortcut.png") no-repeat scroll 7px 7px #202020 !important;
+  color: #EEEEEE !important;
+}
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu:hover li {
+  display: block;
+  background: #202020;
+}
+
+
+/* Dropdown render mode */
+
+body.adminimal-menu.admin-menu.menu-render-dropdown .toolbar-shortcuts select#shortcut-menu {
+  -webkit-appearance: none;
+  background: url("images/shortcut.png") no-repeat scroll 7px 7px #222222;
+  border: medium none;
+  color: #EEEEEE;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  font-size: 12px;
+  padding: 5px 4px 4px 24px;
+}
+
+body.adminimal-menu.admin-menu.menu-render-dropdown .toolbar-shortcuts select#shortcut-menu option:hover {
+  cursor: pointer;
+}
+
+body.adminimal-menu.admin-menu.menu-render-dropdown .toolbar-shortcuts select#shortcut-menu option:first-child {
+  display: none;
+}
+
+body.adminimal-menu #admin-menu .dropdown .admin-menu-tab {
+  background: #444;
+  padding-bottom: 2px;
+}
+
+
+/* Environment indicator 2.x */
+
+body.adminimal-menu #admin-menu #environment-indicator {
+  text-shadow: none;
+}
+
+body.adminimal-menu #admin-menu #environment-indicator .environment-indicator-name {
+  background-image: none;
+  border-left: 1px solid #323232;
+  border-radius: 0;
+  font-size: 12px;
+  line-height: 18px;
+  padding: 5px 10px;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper div#toolbar div.toolbar-shortcuts ul,
+body.adminimal-menu #admin-menu #admin-menu-wrapper div#toolbar div.toolbar-shortcuts ul li {
+  margin: 0;
+  padding: 0;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-search input {
+  background: none no-repeat scroll right center #444;
+  border: medium none;
+  -webkit-border-radius: 0 0 0 0;
+  -moz-border-radius: 0 0 0 0;
+  border-radius: 0 0 0 0;
+  color: #999999;
+  font-size: 12px;
+  margin: 0 !important;
+  outline: medium none;
+  padding: 5px 22px 3px 8px;
+  width: 110px;
+  line-height: 20px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  height: 28px;
+  box-sizing: border-box;
+}

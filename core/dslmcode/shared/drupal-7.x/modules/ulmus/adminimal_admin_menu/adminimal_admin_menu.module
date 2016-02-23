@@ -1,0 +1,232 @@
+<?php
+
+/**
+ * @file
+ * Themes Administration menu like Adminimal theme.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function adminimal_admin_menu_menu() {
+  $items = array();
+  $items['admin/config/administration/adminimal_menu'] = array(
+    'title' => 'Adminimal menu',
+    'description' => 'Adjust adminimal menu settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('adminimal_admin_menu_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'adminimal_menu_settings.inc',
+  );
+
+  return $items;
+
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function adminimal_admin_menu_page_build(&$page) {
+  if (!_adminimal_admin_menu_access()) {
+    return;
+  }
+  $path = drupal_get_path('module', 'adminimal_admin_menu');
+	$load_slicknav = variable_get('adminimal_admin_menu_slicknav', TRUE );
+	$load_jQuery = variable_get('adminimal_admin_menu_jquery', TRUE );
+
+  // Attach the CSS and JavaScript assets.
+  drupal_add_css($path . '/adminimal_admin_menu.css');
+
+	// Support for the Environment Indicator module.
+  if (module_exists('environment_indicator')) {
+  $environment_info = environment_indicator_get_active();
+	  drupal_add_css('
+      div.slicknav_menu a.slicknav_btn:after {
+      	content: "' . $environment_info['name']. '";
+      	margin-left: 1em;
+      	color: ' . $environment_info['text_color'] . ';
+      	font-size: 12px;
+      	background-color: ' . $environment_info['color'] . ';
+				padding: 2px 5px;
+			}
+			#admin-menu-wrapper {background: #222 !important;}
+			',
+      array(
+        'group' => CSS_DEFAULT,
+        'type' => 'inline',
+        'preprocess' => FALSE,
+        'weight' => '100',
+      ));
+	}
+
+	// Check if both slicknav and custom jQuery must be loaded.
+	if ($load_slicknav and $load_jQuery) {
+	  drupal_add_js($path . '/js/jquery.min.js', array( 'type' => 'file', 'scope' => 'header', 'weight' => 888 ));
+		drupal_add_js($path . '/js/slicknav/jquery-no-conflict.slicknav.js', array( 'type' => 'file', 'scope' => 'header', 'weight' => 888 ));
+		drupal_add_css($path . '/js/slicknav/slicknav.css');
+	}
+	elseif ($load_slicknav and !$load_jQuery) {
+		drupal_add_js($path . '/js/slicknav/jquery.slicknav.js', array( 'type' => 'file', 'scope' => 'header', 'weight' => 888 ));
+		drupal_add_css($path . '/js/slicknav/slicknav.css');
+	}
+
+	drupal_add_js($path . '/js/adminimal_admin_menu.js', array( 'type' => 'file', 'scope' => 'header', 'weight' => 888 ));
+
+  if (!isset($page['page_bottom']['admin_menu'])) {
+    return;
+  }
+  $attached = &$page['page_bottom']['admin_menu']['#attached'];
+  $options = array('every_page' => TRUE);
+
+  // @todo Stop-gap fix until cached rendering is resolved.
+  // @see http://drupal.org/node/1567622
+  if (module_exists('shortcut')) {
+    $attached['css'][drupal_get_path('module', 'shortcut') . '/shortcut.css'] = $options;
+  }
+
+  $settings = array();
+  // Add current path to support menu item highlighting.
+  // @todo Compile real active trail here?
+  $args = explode('/', $_GET['q']);
+  if ($args[0] == 'admin' && !empty($args[1])) {
+    $settings['activeTrail'] = url($args[0] . '/' . $args[1]);
+  }
+  elseif (drupal_is_front_page()) {
+    $settings['activeTrail'] = url('<front>');
+  }
+
+  $attached['js'][] = array(
+    'data' => array('admin_menu' => array('toolbar' => $settings)),
+    'type' => 'setting',
+  );
+
+}
+
+/**
+ * Implements hook_admin_menu_output_build().
+ */
+function adminimal_admin_menu_admin_menu_output_build(&$content) {
+
+  if (variable_get('adminimal_admin_menu_render', 'collapsed') != 'hidden') {
+    // Add shortcuts bar.
+    $content['shortcut'] = array(
+      '#access' => module_exists('shortcut'),
+      '#weight' => 200,
+      '#prefix' => '<div class="shortcut-toolbar">',
+      '#suffix' => '</div>',
+    );
+    $content['shortcut']['shortcuts'] = array(
+      // Shortcut module's CSS relies on Toolbar module's markup.
+      // @see http://drupal.org/node/1217038
+      '#prefix' => '<div id="toolbar">',
+      '#suffix' => '</div>',
+      // @todo Links may contain .active-trail classes.
+      '#pre_render' => array('shortcut_toolbar_pre_render'),
+    );
+  }
+
+}
+
+/**
+ * Implements hook_admin_menu_output_alter().
+ */
+function adminimal_admin_menu_admin_menu_output_alter(&$content) {
+  // Add a class to top-level items for styling.
+  foreach (element_children($content['menu']) as $link) {
+    $content['menu'][$link]['#attributes']['class'][] = 'admin-menu-toolbar-category';
+  }
+
+  // Alter icon.
+  unset($content['icon']['icon']['#theme']);
+  $content['icon']['icon']['#title'] = '<span class="admin-menu-home-icon">&nbsp;</span>';
+  $content['icon']['icon']['#attributes']['class'][] = 'admin-menu-toolbar-home-menu';
+  $page['#attributes']['class'][] = 'adminimal-menu';
+
+  // Hide the menu.
+  if (variable_get('adminimal_admin_menu_render', 'collapsed') == 'exclusive') {
+    unset($content['icon']['icon']);
+    unset($content['search']);
+    foreach ($content['menu'] as $key => $link) {
+      // Move local tasks on 'admin' into icon menu.
+      unset($content['menu'][$key]);
+    }
+  }
+
+	// Create the responsive menu.
+	if (variable_get('adminimal_admin_menu_slicknav', 'TRUE')) {
+	  // Prepare the responsive menu and Join the Icon menu with the administration menu.
+	  $responsivemenu = array_merge($content['icon'], $content['menu']);
+	
+	  // Give it ID to target it later with js and css.
+	  $responsivemenu['#wrapper_attributes']['id'] = 'admin-menu-menu-responsive';
+	
+	  // Move the icon menu to the top.
+	  $responsivemenu['icon']['#weight'] = '-100';
+	
+	  // Change the link title to Administration.
+	  $responsivemenu['admin/index']['#title'] = t('Administration');
+	
+	  // Bind the responsive menu the the content varable so it can be rendered.
+	  $content['responsive-menu'] = $responsivemenu;
+	
+	  // Create the responsive shortucts.
+	  $content['responsive']['shortcuts'] = array(
+	    '#prefix' => '<div id="admin-menu-shortcuts-responsive">',
+	    '#suffix' => '</div>',
+	    '#pre_render' => array('shortcut_toolbar_pre_render'),
+	  );
+	}
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function adminimal_admin_menu_preprocess_html(&$vars) {
+  if (!_adminimal_admin_menu_access()) {
+    return;
+  }
+  // Add the "adminimal" class to the body for better css selection.
+  $vars['classes_array'][] = 'adminimal-menu';
+
+  // Add frontend and backend classes to the body.
+  if (path_is_admin(current_path())) {
+    $vars['classes_array'][] = 'adminimal-backend';
+  }
+  else {
+    $vars['classes_array'][] = 'adminimal-frontend';
+  }
+
+  // Add the shortcut render mode class.
+  $vars['classes_array'][] = 'menu-render-' . variable_get('adminimal_admin_menu_render', 'collapsed');
+
+  // Fix the viewport, correcting the mobile device zoom.
+  /** @todo - Mybre remove this and let the theme manage the view pont.
+   *  But i was suprised that only few "responsive" drupal themes were fixing
+   *  the viewport.
+   */
+  $viewport = array(
+   '#tag' => 'meta',
+   '#attributes' => array(
+     'name' => 'viewport',
+     'content' => 'width=device-width, initial-scale=1, maximum-scale=1',
+   ),
+  );
+  drupal_add_html_head($viewport, 'viewport');
+
+}
+
+/**
+ * Check if the user has access to use the admin menu.
+ * @return  boolean Result of access checks.
+ */
+function _adminimal_admin_menu_access() {
+  if (!user_access('access administration menu') || admin_menu_suppress(FALSE)) {
+    return FALSE;
+  }
+
+  // Performance: Skip this entirely for AJAX requests.
+  if (strpos($_GET['q'], 'js/') === 0) {
+    return FALSE;
+  }
+  return TRUE;
+}
