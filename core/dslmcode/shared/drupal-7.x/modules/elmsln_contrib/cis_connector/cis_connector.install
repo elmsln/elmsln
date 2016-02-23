@@ -41,11 +41,11 @@ function cis_connector_requirements($phase) {
    // report on version running
   $code_version = '/var/www/elmsln/VERSION.txt';
   if (file_exists($code_version)) {
-    $code = file_get_contents($code_version);
+    $code = preg_replace('/\s+/', ' ', file_get_contents($code_version));
   }
   $config_version = '/var/www/elmsln/config/SYSTEM_VERSION.txt';
   if (file_exists($config_version)) {
-    $config = file_get_contents($config_version);
+    $config = preg_replace('/\s+/', ' ', file_get_contents($config_version));
   }
   // make sure we have a code version or there's a big issue
   if (!isset($code)) {
