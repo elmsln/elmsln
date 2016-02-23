@@ -88,6 +88,14 @@ function _cle_critique_page($arg) {
       );
       return $form;
     }
+    else {
+      drupal_set_message(t('Currently no one else has submitted work for you to critique. Stop back soon once some other members of the class have made submissions!'), 'status');
+      $form['too-fast'] = array(
+        '#markup' => '<strong>¯\(o_o)/¯</strong></br>' . t('Currently no one else has submitted work for you to critique. Stop back soon once some other members of the class have made submissions!'),
+        '#weight' => -100,
+      );
+      return $form;
+    }
   }
 }
 
