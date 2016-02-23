@@ -2,7 +2,6 @@ name = CLE Assignment
 description = Assignment type, fields and displays
 core = 7.x
 package = CLE
-dependencies[] = cle_assignment_advanced
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = editableviews
