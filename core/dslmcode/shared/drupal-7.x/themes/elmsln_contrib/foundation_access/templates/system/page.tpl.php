@@ -38,7 +38,7 @@
                   </a></li>
                 <?php endif; ?>
                 <?php if (isset($speedreader) || isset($mespeak)) : ?>
-                  <li class="r-header__edit-icons__list-item"><a href="#" title="Speed Reader" class="r-header__icon" data-reveal-id="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false">
+                  <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Accessibility options')?>" class="r-header__icon" data-reveal-id="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false">
                     <i class="zmdi zmdi-tune"></i>
                   </a></li>
                 <?php endif; ?>
