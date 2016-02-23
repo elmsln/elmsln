@@ -57,6 +57,14 @@ You can log into this with `user: admin | password: admin`
 
 To connect to the console of your instance: `vagrant ssh`
 
+###Create a new course
+1. Click Add, then select New Course
+2. Create the name of the course. Ex: Art100
+3. Choose which services to access under course network
+4. Finish by clicking Create course
+5. Wait while the services are installed
+6. Once it says service is available, you can click Access service
+
 ###Why use this
 This project is based on the [Vagrant Project](http://drupal.org/project/vagrant) on Drupal.org, but includes a number of tweaks.  It has been optimized and heavily tested for use with ELMS Learning Network.  It's what we use in daily testing and development and the drop dead easiest way to get up and running with such a complex system.
 
