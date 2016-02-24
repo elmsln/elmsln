@@ -15,7 +15,9 @@
       "command": "fr",
       "arguments": [
         "elmsln_core",
-        "foundation_access_ux"
+        "foundation_access_ux",
+        "textbook_editor",
+        "mooc_textbook"
       ]
     }
   ],
