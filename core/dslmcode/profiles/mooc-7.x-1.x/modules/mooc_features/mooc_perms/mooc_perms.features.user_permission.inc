@@ -10,38 +10,6 @@
 function mooc_perms_defaultconfig_user_default_permissions() {
   $permissions = array();
 
-  // Exported permission: 'access admin theme'.
-  $permissions['access admin theme'] = array(
-    'name' => 'access admin theme',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'admin_theme',
-  );
-
-  // Exported permission: 'access administration menu'.
-  $permissions['access administration menu'] = array(
-    'name' => 'access administration menu',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'admin_menu',
-  );
-
-  // Exported permission: 'access ckeditor link'.
-  $permissions['access ckeditor link'] = array(
-    'name' => 'access ckeditor link',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'ckeditor_link',
-  );
-
   // Exported permission: 'access content'.
   $permissions['access content'] = array(
     'name' => 'access content',
@@ -72,16 +40,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
     'module' => 'book',
   );
 
-  // Exported permission: 'access user profiles'.
-  $permissions['access user profiles'] = array(
-    'name' => 'access user profiles',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'user',
-  );
-
   // Exported permission: 'add content to books'.
   $permissions['add content to books'] = array(
     'name' => 'add content to books',
@@ -93,16 +51,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
     'module' => 'book',
   );
 
-  // Exported permission: 'administer blocks'.
-  $permissions['administer blocks'] = array(
-    'name' => 'administer blocks',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'block',
-  );
-
   // Exported permission: 'administer book outlines'.
   $permissions['administer book outlines'] = array(
     'name' => 'administer book outlines',
@@ -112,27 +60,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'book',
-  );
-
-  // Exported permission: 'administer themes'.
-  $permissions['administer themes'] = array(
-    'name' => 'administer themes',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'system',
-  );
-
-  // Exported permission: 'bypass node access'.
-  $permissions['bypass node access'] = array(
-    'name' => 'bypass node access',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
   );
 
   // Exported permission: 'create new books'.
@@ -199,49 +126,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'flush caches'.
-  $permissions['flush caches'] = array(
-    'name' => 'flush caches',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'admin_menu',
-  );
-
-  // Exported permission: 'masquerade as user'.
-  $permissions['masquerade as user'] = array(
-    'name' => 'masquerade as user',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'masquerade',
-  );
-
-  // Exported permission: 'revert revisions'.
-  $permissions['revert revisions'] = array(
-    'name' => 'revert revisions',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'show format selection for node'.
-  $permissions['show format selection for node'] = array(
-    'name' => 'show format selection for node',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'better_formats',
-  );
-
   // Exported permission: 'use outline designer'.
   $permissions['use outline designer'] = array(
     'name' => 'use outline designer',
@@ -251,17 +135,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'outline_designer',
-  );
-
-  // Exported permission: 'use text format textbook_editor'.
-  $permissions['use text format textbook_editor'] = array(
-    'name' => 'use text format textbook_editor',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'filter',
   );
 
   // Exported permission: 'view accessibility tests'.
@@ -285,28 +158,6 @@ function mooc_perms_defaultconfig_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'hidden_nodes',
-  );
-
-  // Exported permission: 'view revisions'.
-  $permissions['view revisions'] = array(
-    'name' => 'view revisions',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'view the administration theme'.
-  $permissions['view the administration theme'] = array(
-    'name' => 'view the administration theme',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'system',
   );
 
   return $permissions;
