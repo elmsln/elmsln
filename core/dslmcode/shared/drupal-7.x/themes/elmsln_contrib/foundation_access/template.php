@@ -1,26 +1,6 @@
 <?php
 
 /**
- * Implements hook_menu_link_alter().
- *
- * Allow Foundation Access to affect the menu links table
- * so that we can allow other projects to store an icon
- * representation of what we're working on or status information
- * about it.
- *
- */
-function foundation_access_menu_link_alter(&$item) {
-  // this allows other projects to influence the icon seletion for menu items
-  $icon = 'page';
-  // #href proprety expected for use in the FA menu item icon
-  $item['#href'] = $item['link_path'];
-  // support for the primary theme used with MOOC platform
-  drupal_alter('foundation_access_menu_item_icon', $icon, $item);
-  // store the calculated icon here
-  $item['options']['fa_icon'] = $icon;
-}
-
-/**
  * Adds CSS classes based on user roles
  * Implements template_preprocess_html().
  *
