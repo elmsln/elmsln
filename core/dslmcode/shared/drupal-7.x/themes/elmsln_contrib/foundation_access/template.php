@@ -148,9 +148,15 @@ function foundation_access_preprocess_page(&$variables) {
     $url_options = array(
       'absolute' => TRUE,
     );
+    // check for setting section context
     $current_section = _cis_connector_section_context();
     if (isset($current_section) && $current_section) {
-      $url_options['query']['elmsln_active_course'] = $current_section;
+      $url_options['query']['elmsln_active_section'] = $current_section;
+    }
+    // check for setting course context
+    $current_course = _cis_connector_course_context();
+    if (isset($current_course) && $current_course) {
+      $url_options['query']['elmsln_active_course'] = $current_course;
     }
     $current_page = url(current_path(), $url_options);
 

@@ -584,7 +584,7 @@ function cis_section_user_insert(&$edit, $account, $category) {
  */
 function cis_section_url_inbound_alter(&$path, $original_path, $path_language) {
   $query_params = drupal_get_query_parameters();
-  if (isset($query_params['elmsln_active_course']) && $section_id = $query_params['elmsln_active_course']) {
+  if (isset($query_params['elmsln_active_section']) && $section_id = $query_params['elmsln_active_section']) {
     // get a list of allowed sections for this user
     $sections = array();
     // select field section data
@@ -613,6 +613,7 @@ function cis_section_url_inbound_alter(&$path, $original_path, $path_language) {
     }
     // Remove the active course query parameter and proceed to the url
     unset($query_params['elmsln_active_course']);
+    unset($query_params['elmsln_active_section']);
     drupal_goto($path, array('query' => $query_params));
   }
 }
@@ -637,7 +638,12 @@ function cis_section_url_outbound_alter(&$path, &$options, $original_path) {
         $current_section = _cis_connector_section_context();
         if (isset($current_section) && $current_section) {
           // append the section context query parameter to the outgoing url
-          $options['query']['elmsln_active_course'] = $current_section;
+          $options['query']['elmsln_active_section'] = $current_section;
+        }
+        $current_course = _cis_connector_course_context();
+        if (isset($current_course) && $current_course) {
+          // append the section context query parameter to the outgoing url
+          $options['query']['elmsln_active_course'] = $current_course;
         }
       }
     }

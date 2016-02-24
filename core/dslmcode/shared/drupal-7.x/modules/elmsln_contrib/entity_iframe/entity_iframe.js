@@ -4,8 +4,8 @@
 (function ($) {
   Drupal.behaviors.entity_iframe = {
     attach: function(context) {
-      $('textarea.entity_iframe_embed,input.entity_iframe_embed,input.cis_shortcodes_embed').focus(function() { $(this).select() });
-      $('textarea.entity_iframe_embed,input.entity_iframe_embed,input.cis_shortcodes_embed').mouseup(function(e){
+      $('textarea.entity_iframe_embed,input.entity_iframe_embed').focus(function() { $(this).select() });
+      $('textarea.entity_iframe_embed,input.entity_iframe_embed').mouseup(function(e){
         e.preventDefault();
       });
     }
