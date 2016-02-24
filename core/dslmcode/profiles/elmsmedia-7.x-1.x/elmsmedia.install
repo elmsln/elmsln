@@ -27,9 +27,16 @@ function elmsmedia_install() {
 
 
 /**
- * Implements hook_update_N().
  * Revert UX to make the links show up
  */
 function elmsmedia_update_7001(&$sandbox) {
   features_revert_module('elmsmedia_cis_ux');
+}
+
+/**
+ * Enable clipboardjs so we can copy complex shortcodes from the
+ * display modes tab
+ */
+function elmsmedia_update_7002(&$sandbox) {
+  module_enable(array('clipboardjs'));
 }

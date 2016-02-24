@@ -137,6 +137,7 @@ dependencies[] = h5p
 dependencies[] = elmsmedia_helper
 dependencies[] = imagefield_focus
 dependencies[] = mediaelement
+dependencies[] = clipboardjs
 ; Views
 dependencies[] = views_fluid_grid
 ; Features
