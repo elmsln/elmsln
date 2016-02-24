@@ -194,6 +194,17 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#pre_render' => array('_cis_shortcodes_add_js'),
         '#weight' => 1,
       );
+      // add in the entity iframe items if they make sense
+      $direct_frames = _entity_iframe_render_codes($entity, $type, 'block');
+      if (isset($direct_frames['entity_iframe']['entity_iframe_embed'])) {
+        $direct['entity_iframe_embed'] = $direct_frames['entity_iframe']['entity_iframe_embed'];
+        $direct['entity_iframe_embed']['#weight'] = 10;
+      }
+      if (isset($direct_frames['entity_iframe']['direct_link'])) {
+        $direct['direct_link'] = $direct_frames['entity_iframe']['direct_link'];
+        $direct['direct_link']['#weight'] = 11;
+        $direct['direct_link']['#title'] = t('Direct link');
+      }
     }
     // switch to link render styles
     $properties['render'] = 'link';
