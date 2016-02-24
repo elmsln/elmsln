@@ -1,3 +1,8 @@
+#etb-course-nav span.course-title,
+#etb-course-nav span.course-abrv {
+  justify-content: flex-end;
+}
+
 .ferpa-privacy-blur {
   filter: blur(4px);
   /* Webkit */
