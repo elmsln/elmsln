@@ -13,7 +13,7 @@ function cle_critique_menu() {
   $items['cle/critique'] = array(
     'title' => 'Peer critique',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_cle_critique_page'),
+    'page arguments' => array('_cle_critique_page_random_form'),
     'access callback' => 'node_access',
     'access arguments' => array('create', 'cle_critique'),
     'type' => MENU_NORMAL_ITEM,
@@ -23,7 +23,7 @@ function cle_critique_menu() {
   $items['cle/critique/%node'] = array(
     'title' => 'Peer critique',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_cle_critique_page'),
+    'page arguments' => array('_cle_critique_page_random_form'),
     'access callback' => 'node_access',
     'access arguments' => array('create', 'cle_critique'),
     'type' => MENU_NORMAL_ITEM,
@@ -40,7 +40,7 @@ function cle_critique_menu() {
  * @param  object $node the submission being critiqued
  * @return html       Interface for allowing someone to critique someone.
  */
-function _cle_critique_page($arg) {
+function _cle_critique_page_random_form($arg, &$form_state) {
   // present a select list if a node hasn't been passed in
   $arg = arg(2);
   if (empty($arg)) {
@@ -64,7 +64,6 @@ function _cle_critique_page($arg) {
     return $form;
   }
   else {
-    global $user;
     module_load_include('inc', 'node', 'node.pages');
     // render their work
     $node = _cle_critique_random($arg);
@@ -74,9 +73,9 @@ function _cle_critique_page($arg) {
       $assignmentnode = node_load($arg);
       // prepopulate the critique node
       $critnode = (object) array(
-        'uid' => $user->uid,
+        'uid' => $GLOBALS['user']->uid,
         'nid' => NULL,
-        'name' => (isset($user->name) ? $user->name : ''),
+        'name' => (isset($GLOBALS['user']->name) ? $GLOBALS['user']->name : ''),
         'type' => 'cle_critique',
         'language' => LANGUAGE_NONE,
         'field_cle_crit_sub_ref' => array('und' => array(0 => array('target_id' => $node->nid))),
@@ -99,7 +98,6 @@ function _cle_critique_page($arg) {
       $form = drupal_get_form('cle_critique_node_form', $critnode);
       // hide stuff we don't need to show them but need populated
       $form['field_cle_crit_sub_ref']['#attributes']['class'] = array('cle-hide-item');
-      //$form['title']['#disabled'] = TRUE;
       if (isset($assignmentnode->field_cle_crit_criteria['und'][0])) {
         $form['field_cle_crit_feedback']['#prefix'] = check_markup($assignmentnode->field_cle_crit_criteria['und'][0]['value'], $assignmentnode->field_cle_crit_criteria['und'][0]['format']);
       }
