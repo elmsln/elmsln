@@ -1,29 +1,18 @@
-![ELMSLN](https://raw.githubusercontent.com/michael-collins/elmsln-logos/master/png-lowres-solid/lowres_square-color.png "ELMS Learning Network")
+![ELMSLN](https://raw.githubusercontent.com/elmsln/elmsln/master/docs/assets/snowflake-with-text.png "ELMS Learning Network")
 
 ELMSLN
 ==============
-
 ELMS Learning Network (ELMSLN) is an open source educational technology platform for building and sustaining innovation in course technologies. It accomplishes this by taking a Suite of Tools approach to learning design, allowing several systems to make up the different aspects of a course learning environment.  Each course effectively forms a network of technologies (hence the name) which can then be better tailored to each individual course's needs.
 
 Learn more about ELMSLN @ [elmsln.org](http://elmsln.org/)
 
 Version | PHP | Includes | Code Status 
 ------------- | ------  | --- | -------------------------- | -----------
-[master](https://travis-ci.org/elmsln/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln)
-
-[![Join the chat at https://gitter.im/elmsln/elmsln](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/elmsln/elmsln?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-[Read the Docs](http://docs.elmsln.org/)
+[0.1.0](https://travis-ci.org/elmsln/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln)
 
 Issues
 ==============
-If you notice an issue or have a question please file it in our [issue queue](https://github.com/elmsln/elmsln/issues).
-
-Styleguide
-==============
-View the living [ELMSLN UI Styleguide](https://cdn.rawgit.com/elmsln/elmsln/master/core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access/styleguide/index.html)
-
-To make it even easier to contribute design elements to ELMSLN we have created a starting point on [codepen.io](http://codepen.io/heyMP/pen/KdyKgK). To add your own components, fork the [ELMSLN Component Starter](http://codepen.io/heyMP/pen/KdyKgK) pen, make your new componenet directly in codepen, [create a new issue](https://github.com/elmsln/elmsln/issues/new) that points to your new pen and we'll get that into our styleguide.
+If you notice an issue or have a question please file it in our [issue queue]((https://github.com/elmsln/elmsln/issues).
 
 Documentation
 ==============
