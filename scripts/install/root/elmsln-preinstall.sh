@@ -332,7 +332,7 @@ if [[ -n "$domains" ]]; then
     cd $HOME
     git clone https://github.com/letsencrypt/letsencrypt
     # automatically create domains
-    bash letsencrypt/letsencrypt-auto --apache --email $admin --agree-tos
+    bash letsencrypt/letsencrypt-auto --apache --email $admin --agree-tos --redirect --non-interactive
   else
     elmslnwarn "You really should use https and invest in certs... seriously do it!"
   fi
