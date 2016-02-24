@@ -7,7 +7,7 @@
 /**
  * Implements hook_user_default_permissions().
  */
-function mooc_perms_defaultconfig_user_default_permissions() {
+function mooc_perms_user_default_permissions() {
   $permissions = array();
 
   // Exported permission: 'access content'.
@@ -30,6 +30,7 @@ function mooc_perms_defaultconfig_user_default_permissions() {
   $permissions['access printer-friendly version'] = array(
     'name' => 'access printer-friendly version',
     'roles' => array(
+      'activation code holder' => 'activation code holder',
       'administrator' => 'administrator',
       'guest' => 'guest',
       'instructor' => 'instructor',
@@ -60,6 +61,17 @@ function mooc_perms_defaultconfig_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'book',
+  );
+
+  // Exported permission: 'copy books'.
+  $permissions['copy books'] = array(
+    'name' => 'copy books',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'book_copy',
   );
 
   // Exported permission: 'create new books'.
@@ -126,6 +138,17 @@ function mooc_perms_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'outline own pages'.
+  $permissions['outline own pages'] = array(
+    'name' => 'outline own pages',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'outline_child_pages',
+  );
+
   // Exported permission: 'use outline designer'.
   $permissions['use outline designer'] = array(
     'name' => 'use outline designer',
@@ -144,6 +167,7 @@ function mooc_perms_defaultconfig_user_default_permissions() {
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'accessibility',
   );
