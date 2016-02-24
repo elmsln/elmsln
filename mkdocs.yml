@@ -13,6 +13,7 @@ pages:
     - Interactive H5P content: enduser/media/h5p.md
 - Information Architecture:
   - Index: ia/ia-index.md
+  - System: ia/System.md
   - Roles: ia/User-Roles.md
   - Sections: ia/Sections.md
   - Tools:
