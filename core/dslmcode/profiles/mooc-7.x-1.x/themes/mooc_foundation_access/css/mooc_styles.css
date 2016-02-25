@@ -360,6 +360,44 @@ ul.book-navigation-wrapper {
             order: 2;
   }
 }
+
+@media all and (max-width: 720px) {
+  #block-mooc-helper-mooc-helper-toc-nav-modal {
+    font-size: .75rem;
+  }
+  .reveal-modal.etb-nav-modal, .reveal-modal.open.etb-nav-modal {
+    width: 100%;
+    right:0;
+    padding-right: .1rem;
+  }
+  #block-mooc-helper-mooc-helper-toc-nav-modal {
+    margin: 1.25rem auto;
+    width: 95%;
+    height: 95%
+  }
+  #block-mooc-helper-mooc-helper-toc-nav-modal ul {
+    margin-left: 0rem;
+  }
+  #block-mooc-helper-mooc-helper-toc-nav-modal ul li ul {
+    margin-left: 1rem;
+  }
+  #block-mooc-helper-mooc-helper-toc-nav-modal li {
+    min-width: 400px;
+  }
+  #block-mooc-helper-mooc-helper-toc-nav-modal a {
+    height: inherit;
+  }
+  .outline-nav-icon {
+    margin-right: .1rem;
+  }
+  #block-mooc-helper-mooc-helper-toc-nav-modal a.close-reveal-modal {
+    height: 1rem;
+  }
+  .reveal-modal {
+    padding: .1rem;
+  }
+}
+
 @media all and (min-width: 720px) {
   .book-sibling-parent-1 a.active {
     border-color: transparent;
