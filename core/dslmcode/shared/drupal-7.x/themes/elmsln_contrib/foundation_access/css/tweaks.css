@@ -1,3 +1,17 @@
+.form-actions.form-wrapper {
+  position: fixed;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid #CCCCCC;
+  width: 100%;
+  left: 0;
+  padding: 20px 40px 8px;
+  margin: 0;
+  z-index: 999;
+  padding: 20px 40px 20px;
+  box-shadow: -20px 2px 40px rgba(0,0,0,0.2);
+}
+
 #etb-course-nav span.course-title,
 #etb-course-nav span.course-abrv {
   justify-content: flex-end;
