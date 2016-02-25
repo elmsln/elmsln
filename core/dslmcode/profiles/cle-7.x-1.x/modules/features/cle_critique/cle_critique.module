@@ -94,8 +94,11 @@ function _cle_critique_page_random_form($arg, &$form_state) {
         $critnode->field_cle_crit_feedback = array('und' => array(0 => $assignmentnode->field_cle_crit_outline['und'][0]));
       }
       drupal_set_title(t('Critique @name', array('@name' => $node->title)), PASS_THROUGH);
+      node_object_prepare($critnode);
       // render the form with our defaults passed in
       $form = drupal_get_form('cle_critique_node_form', $critnode);
+      $form_state['node'] = $critnode;
+      $form['#node'] = $critnode;
       // hide stuff we don't need to show them but need populated
       $form['field_cle_crit_sub_ref']['#attributes']['class'] = array('cle-hide-item');
       if (isset($assignmentnode->field_cle_crit_criteria['und'][0])) {
