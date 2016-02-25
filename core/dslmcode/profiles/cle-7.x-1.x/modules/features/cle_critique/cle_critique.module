@@ -34,16 +34,17 @@ function cle_critique_menu() {
   return $items;
 }
 
-
 /**
  * Critique interface
- * @param  object $node the submission being critiqued
- * @return html       Interface for allowing someone to critique someone.
+ * @param  string $arg         string for the argument
+ * @param  array &$form_state  form state so its passed through
+ * @return array               form render array
  */
 function _cle_critique_page_random_form($arg, &$form_state) {
   // present a select list if a node hasn't been passed in
   $arg = arg(2);
   if (empty($arg)) {
+    // pull in the list of assignments
     $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array('field_cle_crit_type' => array('value', 'none', '<>')), array(), array('field_cle_order' => 'value'));
     $form = array();
     // @todo list the critiques they've already done
@@ -64,12 +65,15 @@ function _cle_critique_page_random_form($arg, &$form_state) {
     return $form;
   }
   else {
+    // load up the node form pages
     module_load_include('inc', 'node', 'node.pages');
+    drupal_add_css(drupal_get_path('module', 'cle_critique') .'/css/cle_critique.css');
     // render their work
-    $node = _cle_critique_random($arg);
-    if (!is_null($node)) {
+    $submission = _cle_critique_random($arg);
+    if (!is_null($submission)) {
       // render the student submission for later
-      $rendersubmission = node_view($node, 'critique');
+      $rendersubmission = node_view($submission, 'critique');
+      // load up the assignment node
       $assignmentnode = node_load($arg);
       // prepopulate the critique node
       $critnode = (object) array(
@@ -78,9 +82,9 @@ function _cle_critique_page_random_form($arg, &$form_state) {
         'name' => (isset($GLOBALS['user']->name) ? $GLOBALS['user']->name : ''),
         'type' => 'cle_critique',
         'language' => LANGUAGE_NONE,
-        'field_cle_crit_sub_ref' => array('und' => array(0 => array('target_id' => $node->nid))),
+        'field_cle_crit_sub_ref' => array('und' => array(0 => array('target_id' => $submission->nid))),
       );
-      // set a title
+      // set a title based on which type of critique
       switch ($assignmentnode->field_cle_crit_type['und'][0]['value']) {
         case 'blind':
         case 'open':
@@ -90,24 +94,35 @@ function _cle_critique_page_random_form($arg, &$form_state) {
           $critnode->title = t('Critique by a classmate');
         break;
       }
+      // set the default feedback if there is an outline to guide the student
       if (isset($assignmentnode->field_cle_crit_outline['und'][0])) {
         $critnode->field_cle_crit_feedback = array('und' => array(0 => $assignmentnode->field_cle_crit_outline['und'][0]));
       }
-      drupal_set_title(t('Critique @name', array('@name' => $node->title)), PASS_THROUGH);
+      // set the page title
+      drupal_set_title(t('Critique @name', array('@name' => $submission->title)), PASS_THROUGH);
+      // prep the node object filling out other defaults
       node_object_prepare($critnode);
       // render the form with our defaults passed in
       $form = drupal_get_form('cle_critique_node_form', $critnode);
+      $form['work-to-critique'] = array(
+        '#markup' => '<div class="zf-2col-bricks"><div class="row"><div class="group-above-left medium-6 columns">' . render($rendersubmission) . '</div><div class="group-above-right medium-6 columns">',
+        '#weight' => -100,
+      );
+      // need to emulate what node_form does by setting both of these
       $form_state['node'] = $critnode;
       $form['#node'] = $critnode;
       // hide stuff we don't need to show them but need populated
       $form['field_cle_crit_sub_ref']['#attributes']['class'] = array('cle-hide-item');
+      // render text to help them understand what to do
       if (isset($assignmentnode->field_cle_crit_criteria['und'][0])) {
-        $form['field_cle_crit_feedback']['#prefix'] = check_markup($assignmentnode->field_cle_crit_criteria['und'][0]['value'], $assignmentnode->field_cle_crit_criteria['und'][0]['format']);
+        $form['#prefix'] = check_markup($assignmentnode->field_cle_crit_criteria['und'][0]['value'], $assignmentnode->field_cle_crit_criteria['und'][0]['format']);
       }
-      $form['work-to-critique'] = array(
-        '#markup' => render($rendersubmission),
-        '#weight' => -100,
-      );
+      $form['#suffix'] = '</div></div></div>';
+      // disable the token for submitting this form
+      // we are a walled garden and drupal is getting ticked that we are
+      // prepopulating values that aren't actually in the
+      // default values since we do it dynamically
+      $form['#token'] = FALSE;
       return $form;
     }
     else {
@@ -196,5 +211,3 @@ function _cle_critique_random($anid) {
 function cle_critique_query_random_alter($query){
   $query->orderRandom();
 }
-
-
