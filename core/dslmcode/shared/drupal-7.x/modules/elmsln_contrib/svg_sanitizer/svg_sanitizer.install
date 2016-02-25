@@ -9,6 +9,7 @@
  */
 function svg_sanitizer_install() {
   variable_set('svg_sanitizer_allowedattrs', array('viewBox'));
+  variable_set('svg_sanitizer_allowedtags', array(''));
 }
 
 /**
@@ -16,6 +17,7 @@ function svg_sanitizer_install() {
  */
 function svg_sanitizer_uninstall() {
   variable_del('svg_sanitizer_allowedattrs');
+  variable_del('svg_sanitizer_allowedtags');
 }
 
 /**
