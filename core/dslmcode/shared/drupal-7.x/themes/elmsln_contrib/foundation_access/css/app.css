@@ -8617,7 +8617,7 @@ category:
     width: 100%;
     height: 100%; }
   .mediavideo__poster {
-    margin-top: 2rem;
+    margin-top: 0;
     position: absolute;
     top: 0;
     left: 0;
