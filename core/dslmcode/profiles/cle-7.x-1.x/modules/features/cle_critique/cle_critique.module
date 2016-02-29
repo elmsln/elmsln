@@ -211,3 +211,29 @@ function _cle_critique_random($anid) {
 function cle_critique_query_random_alter($query){
   $query->orderRandom();
 }
+
+/**
+ * Implements hook_cis_shortcode_render_alter().
+ */
+function cle_critique_cis_shortcode_render_alter(&$field, $entity, $type) {
+  // cle_assignment special submission type for critiques
+  if ($type == 'node' && $entity->type == 'cle_assignment') {
+    $properties = array(
+      'rev' => CIS_SHORTCODES_API_REV,
+      'tool' => variable_get('install_profile', ''),
+      'render' => 'submit',
+      'link' => 'cle/critique/' . $entity->nid . '?entity_iframe=true',
+      'text' => t('Submit Critique'),
+      'modal' => 1,
+    );
+    // buid the direct link
+    $field['cis_shortcodes']['advanced']['cis_shortcodes_cle_critique'] = array(
+      '#title' => t('Submit critique'),
+      '#attributes' => array('class' => array('cis_shortcodes_embed')),
+      '#value' => _cis_shortcodes_build_code($properties),
+      '#type' => 'textfield',
+      '#weight' => 0,
+    );
+  }
+}
+

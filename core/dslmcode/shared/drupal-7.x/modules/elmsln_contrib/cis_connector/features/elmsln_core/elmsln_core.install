@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * ELMSLN Core install.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function elsmln_core_install() {
+  // placeholder
+}
+
+/**
+ * Enable entity iframe suite whichw we automatically generate
+ * the secure tokens to use now based on a hash.
+ */
+function elsmln_core_update_7000(&$sandbox) {
+  module_enable(array('entity_iframe_mode', 'entity_iframe_provider', 'entity_iframe_consumer'));
+}

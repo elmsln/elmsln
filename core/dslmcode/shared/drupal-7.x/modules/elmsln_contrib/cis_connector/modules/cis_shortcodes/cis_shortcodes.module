@@ -438,7 +438,8 @@ function _cis_shortcode_render_codes($entity, $type) {
       $field['cis_shortcodes'][$group] += $$group;
     }
   }
-
+  // allow for other things to allow for shortcode rendering
+  drupal_alter('cis_shortcode_render', $field, $entity, $type);
   return $field;
 }
 

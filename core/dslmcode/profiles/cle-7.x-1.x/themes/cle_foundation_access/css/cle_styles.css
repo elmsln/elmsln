@@ -5,6 +5,10 @@
 	margin: 0 auto;
 }
 
+.node-cle_critique-form .horizontal-tabs {
+	display: none;
+}
+
 ol.cle-assignment-listing-multi-submission {
 	margin: 0;
 	padding: 0;
