@@ -79,33 +79,38 @@ function mooc_helper_book_nav_block_view($delta = '') {
             $tmpary[$item->mlid] = (array)$item;
             $nids[str_replace('node/', '', $item->link_path)] = $item->mlid;
           }
-          // node access check
-          $select = db_select('node', 'n');
-          $select->addField('n', 'nid');
-          $select->condition('n.status', 1);
-          $select->condition('n.nid', array_keys($nids), 'IN');
-          $select->addTag('node_access');
-          $nidslist = $select->execute()->fetchCol();
-          // compare against what we are ALLOWED to show so order is maintained
-          foreach ($nids as $nid => $mid) {
-            // this suggests an item was removed bc of access rights
-            // the pulled list doesn't have an item from the original
-            if (!in_array($nid, $nidslist)) {
-              unset($tmpary[$nids[$nid]]);
+          // ensure we have nids, there is a possibility of corruption in
+          // the menu_links table where an item that once had children no longer does
+          // but that isn't reflected in the items as updated. It's rare but possible
+          if (!empty($nids)) {
+            // node access check
+            $select = db_select('node', 'n');
+            $select->addField('n', 'nid');
+            $select->condition('n.status', 1);
+            $select->condition('n.nid', array_keys($nids), 'IN');
+            $select->addTag('node_access');
+            $nidslist = $select->execute()->fetchCol();
+            // compare against what we are ALLOWED to show so order is maintained
+            foreach ($nids as $nid => $mid) {
+              // this suggests an item was removed bc of access rights
+              // the pulled list doesn't have an item from the original
+              if (!in_array($nid, $nidslist)) {
+                unset($tmpary[$nids[$nid]]);
+              }
             }
+            $children[-1] = $tmpary;
+            foreach ($nidslist as $nid) {
+              $children[-1][$nids[$nid]] = $tmpary[$nids[$nid]];
+            }
+            $tmp2 = $tmp;
+            $bid = explode('-', $tmp2['menu_name']);
+            $tmp2['bid'] = $bid[2];
+            $tmp2['mlid'] = -1;
+            $tmp2['link_path'] = '';
+            $tmp2['link_title'] = t('...');
+            $tmp2['_class'] = 'book-parent-tree';
+            $parents[-1] = $tmp2;
           }
-          $children[-1] = $tmpary;
-          foreach ($nidslist as $nid) {
-            $children[-1][$nids[$nid]] = $tmpary[$nids[$nid]];
-          }
-          $tmp2 = $tmp;
-          $bid = explode('-', $tmp2['menu_name']);
-          $tmp2['bid'] = $bid[2];
-          $tmp2['mlid'] = -1;
-          $tmp2['link_path'] = '';
-          $tmp2['link_title'] = t('...');
-          $tmp2['_class'] = 'book-parent-tree';
-          $parents[-1] = $tmp2;
         }
 
         // keep tapping parents up the tree til we hit the end
