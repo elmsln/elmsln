@@ -1,0 +1,13 @@
+<?php
+/**
+ * @file
+ * Code for the Editorial distribution.
+ */
+
+/**
+ * Implementation of hook_form_BASE_FORM_ID_alter().
+ */
+function editorial_helper_form_node_form_alter(&$form, &$form_state, $form_id) {
+  // make items show up in horizontal tab, less realestate taken
+  $form['additional_settings']['#type'] = 'horizontal_tabs';
+}

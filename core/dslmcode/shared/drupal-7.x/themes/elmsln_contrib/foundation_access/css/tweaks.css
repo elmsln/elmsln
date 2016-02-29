@@ -1,3 +1,16 @@
+.filter-guidelines,
+.filter-help,
+.filter-wrapper {
+  display:none;
+}
+
+.horizontal-tabs ul.horizontal-tabs-list a {
+  font-size: .75rem;
+}
+.horizontal-tabs ul.horizontal-tabs-list .summary {
+  display:none;
+}
+
 #etb-course-nav span.course-title,
 #etb-course-nav span.course-abrv {
   justify-content: flex-end;

@@ -66,10 +66,7 @@ ol.cle-assignment-listing-multi-submission li {
 	}
 }
 
-.filter-guidelines,
-.filter-help,
- .filter-wrapper,
- .cle-hide-item {
+.cle-hide-item {
 	display:none;
 }
 
