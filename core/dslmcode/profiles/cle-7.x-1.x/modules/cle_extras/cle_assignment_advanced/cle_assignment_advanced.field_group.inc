@@ -22,7 +22,10 @@ function cle_assignment_advanced_field_group_info() {
   $field_group->data = array(
     'label' => 'Advanced submission settings',
     'weight' => '10',
-    'children' => array(),
+    'children' => array(
+      0 => 'field_cis_tag',
+      1 => 'field_cle_order',
+    ),
     'format_type' => 'fieldset',
     'format_settings' => array(
       'formatter' => 'collapsible',
@@ -82,6 +85,7 @@ function cle_assignment_advanced_field_group_info() {
       1 => 'group_logistics',
       2 => 'group_permissions',
       3 => 'group_requirements',
+      4 => 'group_cle_critique',
     ),
     'format_type' => 'htabs',
     'format_settings' => array(

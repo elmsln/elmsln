@@ -5,3 +5,23 @@
  */
 
 include_once 'foundation_access_ux.features.inc';
+
+/**
+ * Implements hook_node_presave().
+ *
+ * Allow Foundation Access to affect the menu links table
+ * so that we can allow other projects to store an icon
+ * representation of what we're working on or status information
+ * about it.
+ *
+ */
+function foundation_access_ux_node_presave($node) {
+  $icon = '';
+  // only apply this for things in books
+  if (isset($node->book) && !empty($node->book)) {
+    // support for the primary theme used with MOOC platform
+    drupal_alter('foundation_access_ux_menu_item_icon', $icon, $node);
+    // store the calculated icon here
+    $node->book['options']['fa_icon'] = $icon;
+  }
+}

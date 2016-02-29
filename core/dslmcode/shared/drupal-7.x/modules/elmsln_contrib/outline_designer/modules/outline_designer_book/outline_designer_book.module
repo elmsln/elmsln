@@ -17,21 +17,8 @@ function outline_designer_book_help($path, $arg) {
 }
 
 /**
- * Implements hook_init().
+ * Figure out what operations are not allowed based on the matrix.
  */
-function outline_designer_book_init() {
-  if (arg(0) == 'admin' && arg(1) == 'content' && arg(2) == 'book' && (arg(3) == '' || arg(3) == 'list') ) {
-    drupal_add_css(drupal_get_path('module', 'outline_designer') . '/css/outline_designer.css');
-    $js = '
-  function od_add_book(){
-    window.location="' . base_path() . '?q=node/add/' . variable_get('book_child_type', 'book') . '";
-  }
-  (function ($) {$(document).ready(function(){$(".sticky-table").before(' . "'" . '<div style="width:120px;" class="context-menu context-menu-theme-' . variable_get('outline_designer_theme', 'vista') . '"><div title="" class="context-menu-item"><div style="background-image: url(' . base_path() . drupal_get_path('module', 'outline_designer') . '/images/add_content.png);" class="context-menu-item-inner" onclick="od_add_book();">' . t('add book') . '</div></div></div>' . "');
-  });})(jQuery);";
-    drupal_add_js($js, 'inline');
-  }
-}
-
 function _outline_designer_book_get_unavailable($nid, $ajax_path) {
   global $user;
   // Select only those that the book module say can be outlined
@@ -178,6 +165,70 @@ function outline_designer_book_menu() {
     'access arguments' => array('administer site configuration'),
   );
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function outline_designer_book_menu_alter(&$items) {
+  // Override the book admin page with a custom version that includes book copy links.
+  $items['admin/content/book']['page callback'] = 'outline_designer_book_admin_overview';
+}
+
+/**
+ * Menu callback.  Overrides the book_admin_overview at admin/content/book.
+ *
+ * @see book_copy_menu_alter()
+ */
+function outline_designer_book_admin_overview() {
+  $has = array(
+    'copy' => FALSE,
+    'delete' => FALSE,
+    'export' => FALSE,
+  );
+  $paths = array(
+    'copy' => 'admin/content/book/copy',
+    'delete' => 'admin/content/book/delete',
+    'export' => 'feeds_node_helper_export',
+  );
+  $headers = array(t('View'), t('Outline'));
+  // form simple add button
+  drupal_add_css(drupal_get_path('module', 'outline_designer') .'/css/outline_designer.css');
+  $add_button = l('<div style="width:120px;" class="context-menu context-menu-theme-'. variable_get('outline_designer_theme', 'vista') .'"><div title="" class="context-menu-item"><div style="background-repeat:no-repeat;background-image: url('. base_path() . drupal_get_path('module', 'outline_designer') .'/images/add_content.png);" class="context-menu-item-inner">'. t('add book') . '</div></div></div>', 'node/add/'. variable_get('book_child_type', 'book'), array('html' => TRUE, 'query' => array('destination' => 'admin/content/book', 'parent' => 'new')));
+  // support for copy button
+  if (module_exists('book_copy') && user_access('copy books')) {
+    $has['copy'] = TRUE;
+  }
+  // support for delete button
+  if (module_exists('book_delete') && user_access('bypass node access')) {
+    $has['delete'] = TRUE;
+  }
+  // export for export button
+  if (module_exists('feeds_node_helper_export') && user_access('bypass node access')) {
+    $has['export'] = TRUE;
+  }
+  // form headers based on what's allowed
+  foreach ($has as $key => $item) {
+    if ($item) {
+      $headers[] = ucwords(t($key));
+    }
+  }
+  // loop through books
+  foreach (book_get_books() as $book) {
+    $ary = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), "admin/content/book/". $book['nid']));
+    foreach ($has as $key => $item) {
+      if ($item) {
+        $ary[] = l(t('@key book', array('@key' => $key)), $paths[$key] . '/' . $book['nid']);
+      }
+    }
+    $rows[] = $ary;
+  }
+  // If no books were found, let the user know.
+  if (empty($rows)) {
+    $rows[] = array(array('data' => t('No books available.'), 'colspan' => 3));
+  }
+  $output = theme('table', array('header' => $headers, 'rows' => $rows));
+  return $add_button . $output;
 }
 
 /**

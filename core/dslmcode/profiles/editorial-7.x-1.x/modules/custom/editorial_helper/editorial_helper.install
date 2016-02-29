@@ -1,0 +1,19 @@
+<?php
+/**
+ * @file
+ * Installation routine for Editorial helper.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function editorial_helper_install() {
+  // Make sure that the editorial_helper runs late.
+  db_update('system')
+  ->fields(array(
+    'weight' => 1000,
+  ))
+  ->condition('name', 'editorial_helper')
+  ->condition('type', 'module')
+  ->execute();
+}

@@ -63,6 +63,15 @@ function elmsln_core_user_default_permissions() {
     'module' => 'entity_iframe',
   );
 
+  // Exported permission: 'administer masquerade'.
+  $permissions['administer masquerade'] = array(
+    'name' => 'administer masquerade',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'masquerade',
+  );
+
   // Exported permission: 'administer site configuration'.
   $permissions['administer site configuration'] = array(
     'name' => 'administer site configuration',
@@ -70,6 +79,36 @@ function elmsln_core_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'system',
+  );
+
+  // Exported permission: 'bypass node access'.
+  $permissions['bypass node access'] = array(
+    'name' => 'bypass node access',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete revisions'.
+  $permissions['delete revisions'] = array(
+    'name' => 'delete revisions',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'flush caches'.
+  $permissions['flush caches'] = array(
+    'name' => 'flush caches',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'admin_menu',
   );
 
   // Exported permission: 'masquerade as admin'.
@@ -101,6 +140,28 @@ function elmsln_core_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'masquerade',
+  );
+
+  // Exported permission: 'revert revisions'.
+  $permissions['revert revisions'] = array(
+    'name' => 'revert revisions',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'show format selection for node'.
+  $permissions['show format selection for node'] = array(
+    'name' => 'show format selection for node',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'better_formats',
   );
 
   // Exported permission: 'switch section context'.
@@ -171,6 +232,28 @@ function elmsln_core_user_default_permissions() {
       'authenticated user' => 'authenticated user',
     ),
     'module' => 'cis_lmsless',
+  );
+
+  // Exported permission: 'view revisions'.
+  $permissions['view revisions'] = array(
+    'name' => 'view revisions',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'view the administration theme'.
+  $permissions['view the administration theme'] = array(
+    'name' => 'view the administration theme',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'system',
   );
 
   return $permissions;

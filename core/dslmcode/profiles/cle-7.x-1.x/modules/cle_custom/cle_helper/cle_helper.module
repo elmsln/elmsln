@@ -26,6 +26,8 @@ function cle_helper_form_node_form_alter(&$form, &$form_state, $form_id) {
     $form['og_group_ref']['und'][0]['default']['#title'] = t('Your Section');
     $form['og_group_ref']['und'][0]['default']['#description'] = t('Associate your submission with your course section.');
   }
+  // make items show up in horizontal tab, less realestate taken
+  $form['additional_settings']['#type'] = 'horizontal_tabs';
 }
 
 /**

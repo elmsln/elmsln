@@ -19,4 +19,7 @@ function cle_install() {
 
   // set homepage
   variable_set('site_frontpage', 'cle');
+  // last ditch revert
+  features_revert_module('cle_critique');
+  features_revert_module('cle_submission');
 }

@@ -550,6 +550,8 @@ function mooc_helper_form_page_node_form_alter(&$form, &$form_state, $form_id) {
   if (isset($_GET['parent']) && $_GET['parent'] == 'new' && empty($form['nid']['#value'])) {
     $form['book']['bid']['#default_value'] = 'new';
   }
+  // make items show up in horizontal tab, less realestate taken
+  $form['additional_settings']['#type'] = 'horizontal_tabs';
 }
 
 /**

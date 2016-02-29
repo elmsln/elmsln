@@ -1,0 +1,30 @@
+{
+  "name": "ELMSLN global upgrade 1456252672",
+  "drush_recipes_api": "1.0",
+  "weight": "0",
+  "core": "7",
+  "recipe": [
+    {
+      "command": "en",
+      "arguments": [
+        "adminimal_admin_menu",
+        "gitphp"
+      ]
+    },
+    {
+      "command": "fr",
+      "arguments": [
+        "elmsln_core",
+        "foundation_access_ux",
+        "textbook_editor",
+        "mooc_textbook"
+      ]
+    }
+  ],
+  "metadata": {
+    "type": "upgrade",
+    "description": "Improved admin UX with adminimal in elmsln core",
+    "version": "1456252672",
+    "author": "btopro"
+  }
+}

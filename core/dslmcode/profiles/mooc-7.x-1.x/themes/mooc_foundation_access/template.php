@@ -39,7 +39,8 @@ function mooc_foundation_access_preprocess_page(&$variables) {
     $variables['tabs_extras'][200][] = l(t('Edit course outline'), 'admin/content/book/' . $node->book['bid']);
 
   }
-  if (user_access('access contextual links') && arg(0) == 'node' && arg(2) == 'edit') {
+  // support hiding the accessibility check UI which is poorly located
+  if (user_access('view accessibility tests')) {
     $variables['tabs_extras'][0][] = '<li class="cis_accessibility_check"></li>';
   }
   // remove the prefix that provides a link to the home page

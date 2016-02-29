@@ -35,7 +35,7 @@ function mooc_textbook_filter_default_formats_alter(&$data) {
       'settings' => array(),
       'status' => 1,
       'weight' => -42,
-    );
+    ); /* WAS: '' */
   }
 }
 
@@ -46,7 +46,6 @@ function mooc_textbook_wysiwyg_default_profiles_alter(&$data) {
   if (isset($data['textbook_editor'])) {
     $data['textbook_editor']['settings']['buttons']['drupal'] = array(
       'rendered_entity' => 1,
-      'token_insert_wysiwyg' => 1,
     ); /* WAS: '' */
     $data['textbook_editor']['settings']['buttons']['footnotes'] = array(
       'footnotes' => 1,

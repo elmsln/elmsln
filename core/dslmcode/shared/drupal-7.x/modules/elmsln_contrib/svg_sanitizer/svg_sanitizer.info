@@ -5,10 +5,3 @@ package = "Media"
 dependencies[] = libraries
 configure = admin/config/media/svg-sanitizer
 files[]= svg_sanitizer.inc
-
-; Information added by Drupal.org packaging script on 2015-11-19
-version = "7.x-1.2"
-core = "7.x"
-project = "svg_sanitizer"
-datestamp = "1447963744"
-

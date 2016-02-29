@@ -27,7 +27,7 @@ function display_inherit_field_display_alter(&$display, $context) {
   // Find out if their is in fact an inheritance stack greater than one value
   // and that the current viewmode has custom settings and if it doesn't,
   // loop back through the viewmode inheritance stack to attempt to find one.
-  if (isset($viewmode_inheritance_stack[1]) && !$viewmode_settings[$current_viewmode]['custom_settings']) {
+  if (isset($viewmode_inheritance_stack[1]) && isset($viewmode_settings[$current_viewmode]) && !$viewmode_settings[$current_viewmode]['custom_settings']) {
     foreach ($viewmode_inheritance_stack as $key => $stack_name) {
       // If the inherited viewmode has custom settings then we can use that as the new viewmode
       if (isset($viewmode_settings[$stack_name]) && $viewmode_settings[$stack_name]['custom_settings']) {

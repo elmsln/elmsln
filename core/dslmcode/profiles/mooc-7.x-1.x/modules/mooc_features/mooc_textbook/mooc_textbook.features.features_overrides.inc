@@ -30,10 +30,10 @@ function mooc_textbook_features_override_default_overrides() {
     'status' => 1,
     'weight' => -42,
   );
+
   // Exported overrides for: wysiwyg
   $overrides["wysiwyg.textbook_editor.settings|buttons|drupal"] = array(
     'rendered_entity' => 1,
-    'token_insert_wysiwyg' => 1,
   );
   $overrides["wysiwyg.textbook_editor.settings|buttons|footnotes"] = array(
     'footnotes' => 1,

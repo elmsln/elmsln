@@ -22,3 +22,26 @@ class SvgSanitizerAttributes implements enshrined\svgSanitize\data\AttributeInte
     return $allowed;
   }
 }
+
+/**
+ * Class SvgSanitizerTags
+ *
+ * Add custom attributes to the list of allowed attributes.
+ */
+class SvgSanitizerTags implements enshrined\svgSanitize\data\TagInterface {
+  /**
+   * Returns an array of attributes
+   *
+   * @return array
+   */
+  public static function getTags() {
+    $allowed = enshrined\svgSanitize\data\AllowedTags::getTags();
+    $custom_tags = variable_get('svg_sanitizer_allowedtags', NULL);
+
+    foreach ($custom_tags as $tag) {
+      array_push($allowed, $tag);
+    }
+
+    return $allowed;
+  }
+}

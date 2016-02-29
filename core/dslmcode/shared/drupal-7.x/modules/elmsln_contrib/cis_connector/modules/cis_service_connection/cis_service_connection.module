@@ -291,6 +291,11 @@ function cis_service_connection_block_section_context_changer_form() {
         '#type' => 'submit',
         '#value' => t('Reset'),
       );
+      $form['elmsln_share_section'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Share'),
+        '#value' => url(current_path(), array('absolute' => TRUE, 'query' => array('elmsln_active_section' => $_SESSION['cis_section_context']))),
+      );
     }
   }
   return $form;

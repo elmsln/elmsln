@@ -127,9 +127,15 @@ function svg_sanitizer_field_formatter_view($entity_type, $entity, $field, $inst
 function _svg_sanitizer_sanitize($svg) {
   // instantiate the sanitizer class
   $sanitizer = new enshrined\svgSanitize\Sanitizer();
+
+  // get newly defined tags
+  $tags = new SvgSanitizerTags();
+  $sanitizer->setAllowedTags($tags);
+
   // get newly defined attributes
   $attributes = new SvgSanitizerAttributes();
   $sanitizer->setAllowedAttrs($attributes);
+
   // run the svg through the sanitizer
   $clean_svg = $sanitizer->sanitize($svg);
 

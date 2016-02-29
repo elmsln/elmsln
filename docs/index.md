@@ -1,4 +1,4 @@
-![ELMSLN](https://raw.githubusercontent.com/michael-collins/elmsln-logos/master/png-lowres-solid/lowres_square-color.png "ELMS Learning Network")
+![ELMSLN](https://raw.githubusercontent.com/elmsln/elmsln/master/docs/assets/snowflake-with-text.png "ELMS Learning Network")
 
 ELMSLN
 ==============
@@ -8,7 +8,7 @@ Learn more about ELMSLN @ [elmsln.org](http://elmsln.org/)
 
 Version | PHP | Includes | Code Status 
 ------------- | ------  | --- | -------------------------- | -----------
-[master](https://travis-ci.org/elmsln/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln)
+[0.1.0](https://travis-ci.org/elmsln/elmsln)  | 5.3.0+ | Drupal 7.x, Piwik 2.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln)
 
 Issues
 ==============

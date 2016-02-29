@@ -1,0 +1,5 @@
+name = Editorial Helper
+description = Helper functions and glue code for the Editorial code base
+core = 7.x
+package = Editorial
+dependencies[] = cis_connector

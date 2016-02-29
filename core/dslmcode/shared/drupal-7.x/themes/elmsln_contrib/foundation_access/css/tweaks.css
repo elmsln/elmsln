@@ -1,3 +1,21 @@
+.filter-guidelines,
+.filter-help,
+.filter-wrapper {
+  display:none;
+}
+
+.horizontal-tabs ul.horizontal-tabs-list a {
+  font-size: .75rem;
+}
+.horizontal-tabs ul.horizontal-tabs-list .summary {
+  display:none;
+}
+
+#etb-course-nav span.course-title,
+#etb-course-nav span.course-abrv {
+  justify-content: flex-end;
+}
+
 .ferpa-privacy-blur {
   filter: blur(4px);
   /* Webkit */
@@ -217,4 +235,20 @@ ul.off-canvas-list .left-submenu li.back {
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex;
+}
+
+@media all and (min-width: 720px) {
+  .form-actions.form-wrapper {
+    position: fixed;
+    bottom: 0;
+    background: #fff;
+    border-top: 1px solid #CCCCCC;
+    width: 100%;
+    left: 0;
+    padding: 20px 40px 8px;
+    margin: 0;
+    z-index: 999;
+    padding: 20px 40px 20px;
+    box-shadow: -20px 2px 40px rgba(0,0,0,0.2);
+  }
 }

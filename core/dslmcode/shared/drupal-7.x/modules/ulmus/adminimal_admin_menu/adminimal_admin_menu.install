@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * @file
+ * Performs installation functions.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function adminimal_admin_menu_enable() {
+
+  // Check if core "toolbar" module is enabled.
+  if (module_exists('toolbar')) {
+
+    // Disable the core "toolbar" module to avoid double menu rendering.
+    module_disable(array('toolbar'), FALSE);
+
+    // Display message to the administrator that the module is disabled.
+    drupal_set_message(t('<strong>Administration menu Adminimal Theme</strong> module successfully enabled!<br />The core "Toolbar" module was automatically disabled to avoid double menu rendering. Disabling the Adminimal menu module will automatically re-enable the core toolbar module, so you have nothing to worry about.'), 'status');
+
+    // Let the database know that the module was disabled.
+    variable_set('adminimal_admin_menu_core-toolbar-disabled', TRUE);
+
+  }
+
+  // Check if Admin Toolbar theme is enabled.
+  if (module_exists('admin_menu_toolbar')) {
+
+    // Disable the admin menu toolbar theme to avoid style issues.
+    module_disable(array('admin_menu_toolbar'), FALSE);
+
+    // Display message to the administrator that the module is disabled.
+    drupal_set_message(t('<strong>Administration menu Adminimal Theme</strong> module successfully enabled!<br />Your old Administration menu Toolbar theme was automatically disabled to avoid styling issues. Disabling the Adminimal menu module will automatically re-enable your old toolbar theme, so you have nothing to worry about.'), 'status');
+
+    // Let the database know that the module was disabled.
+    variable_set('adminimal_admin_menu_toolbar-disabled', TRUE);
+
+  }
+}
+
+/**
+ * Implements hook_disable().
+ */
+function adminimal_admin_menu_disable() {
+
+  // Check if core "Toolbar" module was disabled by adminimal menu.
+  if (variable_get('adminimal_admin_menu_core-toolbar-disabled', FALSE)) {
+
+    // If true, re-enable the "Administration menu Toolbar style" module.
+    module_enable(array('toolbar'), FALSE);
+
+    // Display message to the administrator that the module is disabled.
+    drupal_set_message(t('<strong>Administration menu Adminimal Theme</strong> module successfully disabled!<br />The core "Toolbar" module  was automatically re-enabled.'), 'status');
+
+  }
+
+  // Check if "Administration menu Toolbar style" was disabled by this module.
+  if (variable_get('adminimal_admin_menu_toolbar-disabled', FALSE)) {
+
+    // If true, re-enable the "Administration menu Toolbar style" module.
+    module_enable(array('admin_menu_toolbar'), FALSE);
+
+    // Display message to the administrator that the module is disabled.
+    drupal_set_message(t('<strong>Administration menu Adminimal Theme</strong> module successfully disabled!<br />The old Toolbar theme was automatically re-enabled.'), 'status');
+
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function adminimal_admin_menu_uninstall() {
+
+  // Clean up the module variables from database after uninstall.
+  variable_del('adminimal_admin_menu_toolbar-disabled');
+  variable_del('adminimal_admin_menu_core-toolbar-disabled');
+  variable_del('adminimal_admin_menu_render');
+
+}
+
+/**
+ * Clean up some files that are no longer needed.
+ */
+function adminimal_admin_menu_update_7100() {
+
+  // Include the update file.
+  include 'updates/update_7100.php';
+
+}
