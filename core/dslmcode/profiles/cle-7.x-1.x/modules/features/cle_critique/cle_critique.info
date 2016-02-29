@@ -21,7 +21,6 @@ features[field_base][] = field_cle_crit_feedback
 features[field_base][] = field_cle_crit_outline
 features[field_base][] = field_cle_crit_sub_ref
 features[field_base][] = field_cle_crit_type
-features[field_base][] = og_group_ref
 features[field_group][] = group_cle_critique|node|cle_assignment|form
 features[field_instance][] = node-cle_assignment-field_cle_crit_criteria
 features[field_instance][] = node-cle_assignment-field_cle_crit_outline
