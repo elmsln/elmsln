@@ -177,6 +177,7 @@ dependencies[] = cle_assignment
 dependencies[] = cle_section_assigmement
 dependencies[] = cle_submission
 dependencies[] = cle_submission_assessment
+dependencies[] = cle_critique
 dependencies[] = cle_gradebook
 dependencies[] = cle_gradebook_ux
 dependencies[] = cle_perms
