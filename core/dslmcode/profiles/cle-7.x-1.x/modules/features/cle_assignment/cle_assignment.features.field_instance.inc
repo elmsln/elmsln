@@ -126,7 +126,7 @@ function cle_assignment_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 1,
+      'weight' => 7,
     ),
   );
 
@@ -187,7 +187,7 @@ function cle_assignment_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 14,
+      'weight' => 17,
     ),
   );
 
@@ -225,7 +225,7 @@ function cle_assignment_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 13,
+      'weight' => 16,
     ),
   );
 
@@ -277,7 +277,7 @@ function cle_assignment_field_default_field_instances() {
       'module' => 'jquery_colorpicker',
       'settings' => array(),
       'type' => 'jquery_colorpicker',
-      'weight' => 12,
+      'weight' => 13,
     ),
   );
 
@@ -364,7 +364,7 @@ function cle_assignment_field_default_field_instances() {
         'year_range' => '-0:+1',
       ),
       'type' => 'date_select',
-      'weight' => 4,
+      'weight' => 11,
     ),
   );
 
@@ -527,7 +527,7 @@ Page',
         'sort_options' => 1,
       ),
       'type' => 'select_or_other',
-      'weight' => 10,
+      'weight' => 14,
     ),
   );
 
@@ -626,7 +626,7 @@ Drawing Exercise',
         'sort_options' => 1,
       ),
       'type' => 'select_or_other',
-      'weight' => 11,
+      'weight' => 15,
     ),
   );
 
@@ -719,7 +719,7 @@ Drawing Exercise',
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 3,
+      'weight' => 10,
     ),
   );
 

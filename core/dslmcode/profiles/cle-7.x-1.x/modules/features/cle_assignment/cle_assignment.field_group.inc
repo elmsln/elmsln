@@ -8,7 +8,67 @@
  * Implements hook_field_group_info().
  */
 function cle_assignment_field_group_info() {
-  $export = array();
+  $field_groups = array();
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_cle_extras|node|cle_assignment|form';
+  $field_group->group_name = 'group_cle_extras';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'cle_assignment';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Extras',
+    'weight' => '5',
+    'children' => array(
+      0 => 'field_cis_tag',
+      1 => 'field_cle_order',
+      2 => 'field_color',
+      3 => 'field_number',
+      4 => 'field_sub_number',
+      5 => 'og_group_ref',
+    ),
+    'format_type' => 'tab',
+    'format_settings' => array(
+      'formatter' => 'closed',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => '',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $field_groups['group_cle_extras|node|cle_assignment|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_cle_requirements|node|cle_assignment|form';
+  $field_group->group_name = 'group_cle_requirements';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'cle_assignment';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Requirements',
+    'weight' => '1',
+    'children' => array(
+      0 => 'body',
+      1 => 'field_media_requirements',
+    ),
+    'format_type' => 'tab',
+    'format_settings' => array(
+      'formatter' => 'closed',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-cle-requirements field-group-tab',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $field_groups['group_cle_requirements|node|cle_assignment|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -37,34 +97,7 @@ function cle_assignment_field_group_info() {
       ),
     ),
   );
-  $export['group_details|node|cle_assignment|gradebook_viewer'] = $field_group;
-
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
-  $field_group->identifier = 'group_due_date|node|cle_assignment|form';
-  $field_group->group_name = 'group_due_date';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'cle_assignment';
-  $field_group->mode = 'form';
-  $field_group->parent_name = 'group_details';
-  $field_group->data = array(
-    'label' => 'Due Date',
-    'weight' => '19',
-    'children' => array(
-      0 => 'field_due_date',
-    ),
-    'format_type' => 'tab',
-    'format_settings' => array(
-      'formatter' => 'closed',
-      'instance_settings' => array(
-        'description' => '',
-        'classes' => 'group-due-date field-group-tab',
-        'required_fields' => 1,
-      ),
-    ),
-  );
-  $export['group_due_date|node|cle_assignment|form'] = $field_group;
+  $field_groups['group_details|node|cle_assignment|gradebook_viewer'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -74,28 +107,33 @@ function cle_assignment_field_group_info() {
   $field_group->entity_type = 'node';
   $field_group->bundle = 'cle_assignment';
   $field_group->mode = 'form';
-  $field_group->parent_name = 'group_details';
+  $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Logistics',
-    'weight' => '20',
+    'weight' => '3',
     'children' => array(
-      0 => 'field_color',
-      1 => 'field_number',
-      2 => 'field_sub_number',
-      3 => 'field_submission_type',
+      0 => 'field_due_date',
+      1 => 'field_submission_type',
+      2 => 'field_visibility',
     ),
-    'format_type' => 'htab',
+    'format_type' => 'tab',
     'format_settings' => array(
       'formatter' => 'closed',
       'instance_settings' => array(
         'description' => '',
-        'classes' => 'group-logistics field-group-tab',
+        'classes' => '',
         'required_fields' => 1,
-        'id' => '',
       ),
     ),
   );
-  $export['group_logistics|node|cle_assignment|form'] = $field_group;
+  $field_groups['group_logistics|node|cle_assignment|form'] = $field_group;
 
-  return $export;
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Details');
+  t('Extras');
+  t('Logistics');
+  t('Requirements');
+
+  return $field_groups;
 }

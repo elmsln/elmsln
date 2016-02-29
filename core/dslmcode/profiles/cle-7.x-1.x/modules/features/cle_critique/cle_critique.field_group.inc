@@ -18,16 +18,16 @@ function cle_critique_field_group_info() {
   $field_group->entity_type = 'node';
   $field_group->bundle = 'cle_assignment';
   $field_group->mode = 'form';
-  $field_group->parent_name = 'group_details';
+  $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Critique',
-    'weight' => '21',
+    'weight' => '4',
     'children' => array(
-      0 => 'field_cle_crit_type',
-      1 => 'field_cle_crit_criteria',
-      2 => 'field_cle_crit_outline',
+      0 => 'field_cle_crit_criteria',
+      1 => 'field_cle_crit_outline',
+      2 => 'field_cle_crit_type',
     ),
-    'format_type' => 'htab',
+    'format_type' => 'tab',
     'format_settings' => array(
       'formatter' => 'closed',
       'instance_settings' => array(

@@ -22,7 +22,10 @@ function cle_submission_field_group_info() {
   $field_group->data = array(
     'label' => 'Admin',
     'weight' => '5',
-    'children' => array(),
+    'children' => array(
+      0 => 'field_energy',
+      1 => 'og_group_ref',
+    ),
     'format_type' => 'tab',
     'format_settings' => array(
       'label' => 'Admin',
@@ -237,7 +240,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Media',
-    'weight' => '4',
+    'weight' => '3',
     'children' => array(
       0 => 'group_files',
       1 => 'group_images',

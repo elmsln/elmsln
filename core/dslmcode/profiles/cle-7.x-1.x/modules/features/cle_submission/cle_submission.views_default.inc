@@ -89,7 +89,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
   $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
   $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
-  /* Field: Content: Section */
+  /* Field: Content: Groups audience */
   $handler->display->display_options['fields']['og_group_ref']['id'] = 'og_group_ref';
   $handler->display->display_options['fields']['og_group_ref']['table'] = 'og_membership';
   $handler->display->display_options['fields']['og_group_ref']['field'] = 'og_group_ref';
