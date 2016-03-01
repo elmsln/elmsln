@@ -270,7 +270,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
       'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 5,
+        'rows' => 20,
       ),
       'type' => 'text_textarea',
       'weight' => 2,
