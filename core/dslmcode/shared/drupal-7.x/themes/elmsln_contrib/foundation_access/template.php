@@ -157,8 +157,8 @@ function foundation_access_preprocess_page(&$variables) {
   }
   // attempt to find an edit path for the current page
   if (isset($variables['tabs']) && is_array($variables['tabs']['#primary'])) {
+    $edit_path = arg(0) . '/' . arg(1) . '/edit';
     foreach ($variables['tabs']['#primary'] as $key => $tab) {
-      $edit_path = arg(0) . '/' . arg(1) . '/edit';
       if (isset($tab['#link']['href']) && $tab['#link']['href'] == $edit_path) {
         $variables['edit_path'] = base_path() . $edit_path;
         // hide the edit tab cause our on canvas pencil does this
