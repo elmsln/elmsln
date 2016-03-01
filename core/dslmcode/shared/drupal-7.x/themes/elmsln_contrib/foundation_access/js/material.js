@@ -5,7 +5,7 @@
 Drupal.behaviors.foundation_access_waves = {
   attach: function (context, settings) {
     // MOOC
-    $(".mooc-helper-toc").addClass("waves-effect waves-button waves-float waves-classic");
+    $(".mooc-helper-toc").addClass("waves-effect waves-button waves-classic");
     $("#block-mooc-helper-mooc-helper-toc-nav-modal a").addClass("waves-effect waves-button waves-classic");
     $(".book-sibling-nav-container li").addClass("waves-effect waves-button waves-classic");
     // GENERIC
@@ -18,7 +18,7 @@ Drupal.behaviors.foundation_access_waves = {
     $(".top-bar.etb-nav ul.left li.apps").addClass("waves-effect waves-classic");
     $("#block-cis-lmsless-cis-lmsless-network-nav-modal a").addClass("waves-effect waves-button waves-classic");
     // INPAGE WIDGET
-    //$(".cis-filter-activity-item").addClass("waves-effect waves-button waves-float waves-classic");
+    //$(".cis-filter-activity-item").addClass("waves-effect waves-button waves-classic");
     // IN PAGE MENU
     $(".header-menu-options li").addClass("waves-effect waves-classic");
     $(".elmsln-home-button-link").addClass("waves-effect waves-button waves-classic");
