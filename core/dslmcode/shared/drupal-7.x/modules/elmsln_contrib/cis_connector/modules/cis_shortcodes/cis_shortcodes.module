@@ -287,7 +287,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       }
     }
     // special case for the unique tag capability
-    if (isset($entity->field_cis_tag) && isset($entity->field_cis_tag['und'])) {
+    if (isset($entity->field_cis_tag) && !empty($entity->field_cis_tag['und'])) {
       // reset property array
       $properties = array(
         'rev' => CIS_SHORTCODES_API_REV,
