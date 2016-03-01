@@ -90,6 +90,9 @@
 
 #backtotop {
   background: url(../img/backtotop.png) no-repeat center center;
+  right:0px;
+  bottom: 0px;
+  z-index: 1000;
 }
 
 @media (-webkit-min-device-pixel-ratio: 2),
