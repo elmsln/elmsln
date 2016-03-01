@@ -8,7 +8,7 @@ function ulmus_install() {
   // load the installer inlcude file
   module_load_include('inc', 'cis_connector', 'includes/elmsln.install');
   // do some initial clean up from the install
-  _elmsln_installer_preflight();
+  _elmsln_installer_preflight(TRUE);
   // to standard theme routine
   _elmsln_installer_theme('SUB_foundation_access');
   // establish admin role
