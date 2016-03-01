@@ -223,12 +223,12 @@ function cle_critique_cis_shortcode_render_alter(&$field, $entity, $type) {
       'tool' => variable_get('install_profile', ''),
       'render' => 'submit',
       'link' => 'cle/critique/' . $entity->nid . '?entity_iframe=true',
-      'text' => t('Submit Critique'),
+      'text' => t('Submit critique'),
       'modal' => 1,
     );
     // buid the direct link
     $field['cis_shortcodes']['advanced']['cis_shortcodes_cle_critique'] = array(
-      '#title' => t('Submit critique'),
+      '#title' => t('@title - Submit critique', array('@title' => $entity->title)),
       '#attributes' => array('class' => array('cis_shortcodes_embed')),
       '#value' => _cis_shortcodes_build_code($properties),
       '#type' => 'textfield',
