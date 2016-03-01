@@ -8,9 +8,9 @@
  */
 
 /**
- * Implements hook_init().
+ * Implements hook_page_build().
  */
-function admin_menu_dropdown_init() {
+function admin_menu_dropdown_page_build(&$page) {
   if (!user_access('access administration menu') || admin_menu_suppress(FALSE)) {
     return;
   }
@@ -20,8 +20,8 @@ function admin_menu_dropdown_init() {
   );
   drupal_add_js(array('admin_menu_dropdown' => $settings), array('type' => 'setting'));
   $path = drupal_get_path('module', 'admin_menu_dropdown');
-  drupal_add_js($path . '/admin_menu_dropdown.js', array('every_page' => TRUE, 'defer' => TRUE));
-  drupal_add_css($path . '/admin_menu_dropdown.css', array('every_page' => TRUE));
+  drupal_add_js($path . '/admin_menu_dropdown.js', array('every_page' => TRUE, 'weight' => -999));
+  drupal_add_css($path . '/admin_menu_dropdown.css', array('every_page' => TRUE, 'weight' => -998));
 }
 
 /**
