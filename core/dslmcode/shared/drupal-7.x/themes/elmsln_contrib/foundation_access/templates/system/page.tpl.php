@@ -27,9 +27,15 @@
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>
                 <li class="r-header__edit-icons__list-item">
+                  <?php if (arg(2) == 'edit'): ?>
+                  <a href="#" onclick="document.getElementById('edit-submit').click();" title="<?php print t('Save')?>" class="r-header__icon">
+                    <i class="zmdi zmdi-save"></i>
+                  </a>
+                <?php else: ?>
                   <a href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>" class="r-header__icon">
                     <i class="zmdi zmdi-edit"></i>
                   </a>
+                <?php endif; ?>
                 </li>
                 <?php endif; ?>
                 <?php if (!empty($cis_shortcodes)) : ?>
