@@ -88,7 +88,8 @@ function _cis_shortcode_render_codes($entity, $type) {
     '#type' => 'fieldset',
     '#collapsed' => FALSE,
     '#collapsible' => TRUE,
-    '#title' => t('Short Codes for embedding'),
+    '#title' => t('Share'),
+    '#description' => t('Use these short codes to share and embed this content elsewhere.'),
     '#weight' => -10,
     '#attributes' => array(
       'class' => array(
