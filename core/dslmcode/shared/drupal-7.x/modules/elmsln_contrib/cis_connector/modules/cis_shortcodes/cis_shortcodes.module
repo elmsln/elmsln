@@ -90,6 +90,11 @@ function _cis_shortcode_render_codes($entity, $type) {
     '#collapsible' => TRUE,
     '#title' => t('Short Codes for embedding'),
     '#weight' => -10,
+    '#attributes' => array(
+      'class' => array(
+        'form-wrapper',
+      ),
+    ),
   );
   $properties = array(
     'rev' => CIS_SHORTCODES_API_REV,
@@ -203,7 +208,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       if (isset($direct_frames['entity_iframe']['direct_link'])) {
         $direct['direct_link'] = $direct_frames['entity_iframe']['direct_link'];
         $direct['direct_link']['#weight'] = 11;
-        $direct['direct_link']['#title'] = t('Direct link');
+        $direct['direct_link']['#title'] = t('Direct link - no theme');
       }
     }
     // switch to link render styles
@@ -301,7 +306,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       $properties['item'] = $entity->field_cis_tag['und'][0]['value'];
       $properties['item_type'] = 'tag';
       if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
-        $tagged['cis_shortcodes_tag_iframe'] = array(
+        $advanced['cis_shortcodes_tag_iframe'] = array(
           '#title' => t('Tagged iframe'),
           '#attributes' => array('class' => array('cis_shortcodes_embed')),
           '#value' => _cis_shortcodes_build_code($properties),
@@ -310,7 +315,7 @@ function _cis_shortcode_render_codes($entity, $type) {
         );
       }
       $properties['render'] = 'link';
-      $tagged['cis_shortcodes_tag_link'] = array(
+      $advanced['cis_shortcodes_tag_link'] = array(
         '#title' => t('Tagged link'),
         '#attributes' => array('class' => array('cis_shortcodes_embed')),
         '#value' => _cis_shortcodes_build_code($properties),
@@ -404,15 +409,13 @@ function _cis_shortcode_render_codes($entity, $type) {
     'direct',
     'display_modes',
     'entityfields',
-    'tagged',
     'advanced',
   );
   $labels = array(
-    t('Direct links'),
-    t('Render item'),
-    t('Fields'),
-    t('Tagged'),
-    t('Advanced'),
+    t('Common'),
+    t('Render as HTML'),
+    t('Individual fields'),
+    t('Advanced widgets'),
   );
   $descriptions = array(
     t('Simple links and iframes to this page.'),
@@ -430,6 +433,13 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#type' => 'fieldset',
         '#collapsed' => TRUE,
         '#collapsible' => TRUE,
+        '#attributes' => array(
+          'class' => array(
+            'collapsible',
+            'form-wrapper',
+            'collapsed'
+          ),
+        ),
         '#title' => $labels[$key],
         '#description' => $descriptions[$key],
         '#weight' => $key,
