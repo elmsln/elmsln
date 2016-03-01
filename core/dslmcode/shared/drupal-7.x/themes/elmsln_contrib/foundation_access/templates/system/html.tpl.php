@@ -78,6 +78,6 @@
       $(document).foundation();
     })(jQuery, Drupal, this, this.document);
   </script>
-  <noscript><link href="<?php print $theme_path; ?>icons/faccess-icons/output/icons.fallback.css" rel="stylesheet"></noscript>
+  <noscript><link href="<?php print $theme_path; ?>/icons/faccess-icons/output/icons.fallback.css" rel="stylesheet"></noscript>
   </body>
 </html>
