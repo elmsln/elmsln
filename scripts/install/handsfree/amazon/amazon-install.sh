@@ -30,6 +30,7 @@ pecl channel-update pecl.php.net
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
+# todo pass some stuff in here... cause it's weird for amazon.
 service mysqld restart
 
 #install varnish
