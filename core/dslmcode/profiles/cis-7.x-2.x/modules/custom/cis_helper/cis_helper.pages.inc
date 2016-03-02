@@ -526,6 +526,10 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
   if (user_access('cis setup admin options')) {
     $options['xml_manifest_import'] = t('Upload..');
   }
+  // support for gitbook
+  if (module_exists('gitphp')) {
+    $options['git_book_import'] = t('Git outline import');
+  }
   $form['details'] = array(
     '#description' => t('What systems would you like to make up your course network?'),
     '#collapsed' => '0',
@@ -564,6 +568,15 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
           0 => 10485760,
         ),
       ),
+    );
+  }
+  // add git_book field for import if it exists
+  if (module_exists('gitphp')) {
+    $form['details']['git_book_import'] = array(
+      '#title' => t('GIT repository'),
+      '#type' => 'textfield',
+      '#description' => t('Enter a .git repo URL'),
+      '#required' => '0',
     );
   }
   // list of services
@@ -685,6 +698,9 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
     $xml_manifest_import = file_load($form_state['values']['xml_manifest_import']);
     // save file
     file_save($xml_manifest_import);
+  }
+  elseif (user_access('cis setup admin options') && $instructional_outline == 'git_book_import' && $form_state['values']['git_book_import'] != '') {
+    $repo = $form_state['values']['git_book_import'];
   }
   // load the services node id items into a list
   $services = entity_load('node', $form_state['values']['services']);
@@ -959,6 +975,9 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
       // repurpose the general data field
       if (user_access('cis setup admin options') && isset($xml_manifest_import->uri)) {
         $instance->field_service_data[LANGUAGE_NONE][0]['value'] = drupal_realpath($xml_manifest_import->uri);
+      }
+      elseif (isset($repo)) {
+        $instance->field_service_data[LANGUAGE_NONE][0]['value'] = $repo;
       }
       else {
         $instance->field_service_data[LANGUAGE_NONE][0]['value'] = getcwd() . '/' . $instructional_outline;

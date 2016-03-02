@@ -5,11 +5,19 @@
 (function ($) {
   $(document).ready(function(){
     $('#edit-instructional-outline').change(function(){
-      if ($(this).val() == 'xml_manifest_import') {
-        $('#edit-xml-manifest-import-ajax-wrapper').removeClass('hide_form_field');
-      }
-      else {
-        $('#edit-xml-manifest-import-ajax-wrapper').addClass('hide_form_field');
+      switch ($(this).val()) {
+        case 'xml_manifest_import':
+          $('#edit-xml-manifest-import-ajax-wrapper').removeClass('hide_form_field');
+          $('.form-item-git-book-import').addClass('hide_form_field');
+        break;
+        case 'git_book_import':
+          $('#edit-xml-manifest-import-ajax-wrapper').addClass('hide_form_field');
+          $('.form-item-git-book-import').removeClass('hide_form_field');
+        break;
+        default:
+          $('#edit-xml-manifest-import-ajax-wrapper').addClass('hide_form_field');
+          $('.form-item-git-book-import').addClass('hide_form_field');
+        break;
       }
     });
     $('#edit-course').change(function(){

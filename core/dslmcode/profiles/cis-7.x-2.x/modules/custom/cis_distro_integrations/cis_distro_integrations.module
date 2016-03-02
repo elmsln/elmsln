@@ -19,9 +19,19 @@ function cis_distro_integrations_cis_service_instance_courses_options_alter(&$op
 function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$content, $course, $service, $service_instance) {
   // only apply default content import for course based service
   if ($service->field_machine_name[LANGUAGE_NONE][0]['value'] == CIS_HELPER_COURSE_SERVICE && !empty($service_instance->field_service_data[LANGUAGE_NONE][0]['value'])) {
-    // allow for on creation population of material
-    $content .= 'drush feeds-import feeds_node_helper_book_import --file=' . $service_instance->field_service_data[LANGUAGE_NONE][0]['value'] . "\n";
-    $content .= 'drush uuid-recreate' . "\n";
+    $path = $service_instance->field_service_data[LANGUAGE_NONE][0]['value'];
+    // see if we have a .git url
+    if (valid_url($path) && strpos($path, '.git') !== FALSE) {
+      $content .= 'drush en gitphp,git_book,git_book_rtd' . "\n";
+      $content .= 'drush cc drush' . "\n";
+      $content .= 'drush git-book-create ' . $path . "\n";
+    }
+    else {
+      // allow for on creation population of materials which are local to the file system
+      $content .= 'drush feeds-import feeds_node_helper_book_import --file=' . $path . "\n";
+      // since this imports a book of content that has UUIDs we need to forcibly rebuild
+      $content .= 'drush uuid-recreate' . "\n";
+    }
   }
 }
 
