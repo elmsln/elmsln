@@ -29,7 +29,7 @@ function mooc_install() {
     _mooc_default_content('section', $root->nid);
   }
   else {
-    // if this is created via drush we don't need default contnet
+    // if this is created via drush we don't need default content
     // this provides usability to those testing it out
     // without interfering with more complex setups
     // we also make the assumption that node 2 will be
