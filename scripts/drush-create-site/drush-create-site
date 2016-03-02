@@ -307,6 +307,9 @@ do
       vset)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
+      git-book-create)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
       feeds-import)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       background='FALSE'
