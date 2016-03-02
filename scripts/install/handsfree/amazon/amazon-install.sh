@@ -85,6 +85,10 @@ service mysqld restart
 ## very smart of ami to have the php-fpm fallback already in place so you can just kill mod_php
 rm /etc/httpd/conf.modules.d/10-php.conf -rf
 
+#Turn on php-fpm service
+chkconfig php-fpm on
+service php-fpm start
+
 cd $HOME
 source .bashrc
 end="$(timestamp)"
