@@ -20,7 +20,7 @@ start="$(timestamp)"
 # make sure we're up to date
 yes | yum update
 # using yum to install the main packages
-yes | yum -y install curl uuid patch git nano gcc make mysql mysql-server httpd
+yes | yum -y install curl uuid patch git nano gcc make mysql55-server httpd24
 # amazon packages on 56
 yes | yum -y install php56 php56-common php56-opcache php56-fpm php56-pecl-apcu php56-cli php56-pdo php56-mysqlnd php56-gd php56-mbstring php56-mcrypt php56-xml php56-devel php56-pecl-ssh2 --skip-broken
 
@@ -30,6 +30,7 @@ pecl channel-update pecl.php.net
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 # start mysql to ensure that it is running
+# todo pass some stuff in here... cause it's weird for amazon.
 service mysqld restart
 
 #install varnish
@@ -63,20 +64,30 @@ echo "opcache.enable_cli=1" >> /etc/php.d/10-opcache.ini
 # remove default apc file that might exist
 
 yes | rm /etc/php-5.6.d/apc.ini
-
 yes | rm /etc/php.d/apc.ini
 
+# Make sure apache knows what you are tyring to do with host files.
+echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
+
+chkconfig httpd on
 service httpd restart
 # make an admin group
 groupadd admin
 groupadd elmsln
-# establish default mysql tables
-mysql_install_db
+
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
-bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 1 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
+bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 3 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
 
+chkconfig mysqld on
 service mysqld restart
+
+## very smart of ami to have the php-fpm fallback already in place so you can just kill mod_php
+rm /etc/httpd/conf.modules.d/10-php.conf -rf
+
+#Turn on php-fpm service
+chkconfig php-fpm on
+service php-fpm start
 
 cd $HOME
 source .bashrc

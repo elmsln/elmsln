@@ -145,6 +145,7 @@ elif [ $os == '3' ]; then
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
+  mkdir -p /etc/httpd/conf.sites.d
   domains="/etc/httpd/conf.sites.d/"
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
