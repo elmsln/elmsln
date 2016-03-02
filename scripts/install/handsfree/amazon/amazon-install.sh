@@ -64,9 +64,12 @@ echo "opcache.enable_cli=1" >> /etc/php.d/10-opcache.ini
 # remove default apc file that might exist
 
 yes | rm /etc/php-5.6.d/apc.ini
-
 yes | rm /etc/php.d/apc.ini
 
+# Make sure apache knows what you are tyring to do with host files.
+echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
+
+chkconfig httpd on
 service httpd restart
 # make an admin group
 groupadd admin
@@ -76,6 +79,7 @@ groupadd elmsln
 # kick off hands free deployment
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 3 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
 
+chkconfig mysqld on
 service mysqld restart
 
 ## very smart of ami to have the php-fpm fallback already in place so you can just kill mod_php
