@@ -61,8 +61,6 @@ function book_copy_module_implements_alter(&$implementations, $hook) {
  * Implements hook_menu_alter().
  */
 function book_copy_menu_alter(&$items) {
-  // Override the book admin page with a custom version that includes book copy links.
-  $items['admin/content/book']['page callback'] = 'book_copy_book_admin_overview';
   // replicate the outline tab so we can have sub-tabs
   $items['node/%node/outline/outline'] = $items['node/%node/outline'];
   $items['node/%node/outline/outline']['type'] = MENU_DEFAULT_LOCAL_TASK;
@@ -100,65 +98,6 @@ function book_copy_node_copy_access($node) {
   }
   // this access routine only authorizes these two use-cases at the moment
   return FALSE;
-}
-
-/**
- * Menu callback.  Overrides the book_admin_overview at admin/content/book.
- *
- * @see book_copy_menu_alter()
- */
-function book_copy_book_admin_overview() {
-  // support for book_delete since it conflicts on this UI call
-  // Users must have access to delete all book nodes in order to safely delete a book.
-  if (module_exists('book_delete') && user_access('bypass node access')) {
-    $rows = array();
-    // account for having access to delete but not copy, tho that'd be weird
-    if (user_access('copy books')) {
-      $headers = array(t('Book'), t('Edit'), t('Copy'), t('Delete'));
-    }
-    else {
-      $headers = array(t('Book'), t('Edit'), t('Delete'));
-    }
-    // loop through books
-    foreach (book_get_books() as $book) {
-      $ary = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), "admin/content/book/". $book['nid']));
-      // stupid but need to check agin
-      if (user_access('copy books')) {
-        $ary[] = l(t('copy book'), 'admin/content/book/copy/' . $book['nid']);
-        $ary[] = l(t('delete book'), 'admin/content/book/delete/'. $book['nid']);
-      }
-      else {
-        $ary[] = l(t('delete book'), 'admin/content/book/delete/'. $book['nid']);
-      }
-      $rows[] = $ary;
-    }
-
-    // If no books were found, let the user know.
-    if (empty($rows)) {
-      $rows[] = array(array('data' => t('No books available.'), 'colspan' => 3));
-    }
-
-    return theme('table', array('header' => $headers, 'rows' => $rows));
-  }
-  // same as above in reverse, account for people not having access to delete
-  elseif (user_access('copy books')) {
-    $rows = array();
-    $headers = array(t('Book'), t('Edit'), t('Copy'));
-    foreach (book_get_books() as $book) {
-      $rows[] = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), 'admin/content/book/' . $book['nid']), l(t('copy book'), 'admin/content/book/copy/' . $book['nid']));
-    }
-  
-    // If no books were found, let the user know.
-    if (empty($rows)) {
-      $rows[] = array(array('data' => t('No books available.'), 'colspan' => 3));
-    }
-    return theme('table', array('header' => $headers, 'rows' => $rows));
-  }
-  else {
-    // The user may not have access to either above iteration, Show them the generic book admin page.
-    include_once('./' . drupal_get_path('module', 'book') . '/book.admin.inc');
-    return book_admin_overview();
-  }
 }
 
 /**
