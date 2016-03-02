@@ -95,6 +95,23 @@ function cle_submission_flag_default_flags() {
 function cle_submission_image_default_styles() {
   $styles = array();
 
+  // Exported image style: cle_micro.
+  $styles['cle_micro'] = array(
+    'label' => 'cle_micro',
+    'effects' => array(
+      1 => array(
+        'name' => 'smartcrop_scale_and_crop',
+        'data' => array(
+          'width' => 60,
+          'height' => 60,
+          'upscale' => 0,
+          '#imageinfo_cache_effect_callback' => 'smartcrop_scale_effect',
+        ),
+        'weight' => 1,
+      ),
+    ),
+  );
+
   // Exported image style: cle_square.
   $styles['cle_square'] = array(
     'effects' => array(

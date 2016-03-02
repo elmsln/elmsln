@@ -12,27 +12,40 @@ function cle_submission_og_features_default_permissions() {
 
   // Exported og permission: 'node:section:create cle_submission content'
   $permissions['node:section:create cle_submission content'] = array(
-    'roles' => array(),
+    'roles' => array(
+      'administrator member' => 'administrator member',
+      'member' => 'member',
+    ),
   );
 
   // Exported og permission: 'node:section:delete any cle_submission content'
   $permissions['node:section:delete any cle_submission content'] = array(
-    'roles' => array(),
+    'roles' => array(
+      'administrator member' => 'administrator member',
+    ),
   );
 
   // Exported og permission: 'node:section:delete own cle_submission content'
   $permissions['node:section:delete own cle_submission content'] = array(
-    'roles' => array(),
+    'roles' => array(
+      'administrator member' => 'administrator member',
+      'member' => 'member',
+    ),
   );
 
   // Exported og permission: 'node:section:update any cle_submission content'
   $permissions['node:section:update any cle_submission content'] = array(
-    'roles' => array(),
+    'roles' => array(
+      'administrator member' => 'administrator member',
+    ),
   );
 
   // Exported og permission: 'node:section:update own cle_submission content'
   $permissions['node:section:update own cle_submission content'] = array(
-    'roles' => array(),
+    'roles' => array(
+      'administrator member' => 'administrator member',
+      'member' => 'member',
+    ),
   );
 
   return $permissions;

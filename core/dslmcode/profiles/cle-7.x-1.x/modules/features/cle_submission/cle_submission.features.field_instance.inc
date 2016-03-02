@@ -235,7 +235,7 @@ function cle_submission_field_default_field_instances() {
       'module' => 'radioactivity',
       'settings' => array(),
       'type' => 'radioactivity_basic_widget',
-      'weight' => 10,
+      'weight' => 11,
     ),
   );
 
@@ -277,7 +277,7 @@ function cle_submission_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'file',
+      'module' => 'multiupload_filefield_widget',
       'settings' => array(
         'filefield_sources' => array(
           'filefield_sources' => array(),
@@ -295,7 +295,7 @@ function cle_submission_field_default_field_instances() {
         ),
         'progress_indicator' => 'throbber',
       ),
-      'type' => 'file_generic',
+      'type' => 'file_mfw',
       'weight' => 5,
     ),
   );
@@ -488,7 +488,7 @@ function cle_submission_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 4,
+      'weight' => 9,
     ),
   );
 
@@ -550,17 +550,26 @@ function cle_submission_field_default_field_instances() {
   $field_instances['node-cle_submission-og_group_ref'] = array(
     'bundle' => 'cle_submission',
     'default_value' => NULL,
+    'default_value_function' => 'entityreference_prepopulate_field_default_value',
     'deleted' => 0,
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'og_ui',
+        'label' => 'inline',
         'settings' => array(),
-        'type' => 'og_list_default',
-        'weight' => 14,
+        'type' => 'hidden',
+        'weight' => 11,
       ),
       'gradebook_viewer' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 27,
+      ),
+      'teaser' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -569,8 +578,8 @@ function cle_submission_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'og_group_ref',
-    'label' => 'Groups audience',
-    'required' => FALSE,
+    'label' => 'Section',
+    'required' => 1,
     'settings' => array(
       'behaviors' => array(
         'og_widget' => array(
@@ -581,6 +590,14 @@ function cle_submission_field_default_field_instances() {
             'widget_type' => 'options_select',
           ),
           'status' => TRUE,
+        ),
+        'prepopulate' => array(
+          'action' => 'hide',
+          'action_on_edit' => 1,
+          'fallback' => 'none',
+          'og_context' => 1,
+          'skip_perm' => 0,
+          'status' => 1,
         ),
       ),
       'user_register_form' => FALSE,
@@ -598,10 +615,11 @@ function cle_submission_field_default_field_instances() {
       ),
     ),
     'widget' => array(
+      'active' => 0,
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 11,
+      'weight' => 10,
     ),
   );
 
@@ -613,9 +631,9 @@ function cle_submission_field_default_field_instances() {
   t('Current workflow state of this submission on its way to being graded and viewed by the student.');
   t('Energy');
   t('Files');
-  t('Groups audience');
   t('Images');
   t('Links');
+  t('Section');
   t('State');
   t('Video');
 
