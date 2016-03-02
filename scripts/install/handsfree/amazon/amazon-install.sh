@@ -78,6 +78,9 @@ bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 3 $1 $2 $3 $
 
 service mysqld restart
 
+## very smart of ami to have the php-fpm fallback already in place so you can just kill mod_php
+rm /etc/httpd/conf.modules.d/10-php.conf -rf
+
 cd $HOME
 source .bashrc
 end="$(timestamp)"
