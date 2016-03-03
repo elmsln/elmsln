@@ -211,7 +211,6 @@ function _cis_lmsless_nav_update_links_variable($form, $form_state, $action = 'c
       $cis_lmsless_nav_links[] = $new_link;
     }
   }
-
   // set the variable
-  variable_set('cis_lmsless_nav_links', $cis_lmsless_nav_links);
+  _cis_lmsless_set_nav($cis_lmsless_nav_links);
 }

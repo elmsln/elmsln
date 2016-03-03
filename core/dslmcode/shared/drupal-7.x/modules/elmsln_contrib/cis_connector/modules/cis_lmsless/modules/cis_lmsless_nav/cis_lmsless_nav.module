@@ -83,3 +83,24 @@ function cis_lmsless_nav_cis_lmsless_theme_vars_alter(&$vars) {
 		}
 	}
 }
+
+/**
+ * Helper function to set nav values network wide
+ * @param  array $values an array of nav link values
+ */
+function _cis_lmsless_set_nav($values) {
+  // save local
+  variable_set('cis_lmsless_nav_links', $values);
+  // now remote
+  $requests = array(
+    array(
+      'elmsln_module' => 'elmsln_api',
+      'elmsln_callback' => 'vset',
+      'name' => 'cis_lmsless_nav_links',
+      'value' => $values,
+    ),
+  );
+  // rebuild these requests for the active network
+  _elmsln_api_network_request($requests, '1', TRUE);
+  drupal_set_message(t('Links have been successfully updated.'), 'status', FALSE);
+}

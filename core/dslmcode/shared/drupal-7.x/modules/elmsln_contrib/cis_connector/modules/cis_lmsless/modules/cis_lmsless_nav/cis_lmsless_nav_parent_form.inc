@@ -81,6 +81,9 @@ function cis_lmsless_nav_parent_form($form_state) {
   }
 }
 
+/**
+ * Style the LMSless icon table form.
+ */
 function theme_cis_lmsless_nav_parent_form($variables) {
   $form = $variables['form'];
 
@@ -145,6 +148,12 @@ function theme_cis_lmsless_nav_parent_form($variables) {
   return $output;
 }
 
+/**
+ * [cis_lmsless_nav_parent_form_submit description]
+ * @param  [type] $form        [description]
+ * @param  [type] &$form_state [description]
+ * @return [type]              [description]
+ */
 function cis_lmsless_nav_parent_form_submit($form, &$form_state) {
   $origin_links = variable_get('cis_lmsless_nav_links', array());
   $sort_array = array_keys($form_state['input']['links']);
@@ -155,7 +164,6 @@ function cis_lmsless_nav_parent_form_submit($form, &$form_state) {
       $new_array[] = $origin_links[$id];
     }
   }
-
-  variable_set('cis_lmsless_nav_links', $new_array);
-  drupal_set_message(t('Links have been successfully updated.'), 'status', FALSE);
+  // save this locally and network wide
+  _cis_lmsless_set_nav($new_array);
 }
