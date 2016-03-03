@@ -1,13 +1,13 @@
 #ELMSLN - Installation Guide
 
 ## Hands free install
-There are some handsfree install routines (copy and paste) that you can try. This is the preferred method of installing ELMS Learning Network as it'll get you up and running with the least steps possible.
+There are some handsfree install routines (copy and paste) that you can try. This is the preferred method of installing ELMS Learning Network as it'll get you up and running with the least steps possible. You can watch @bradallenfisher [install via this method on ELMSLN](https://drupal.psu.edu/blog/post/elmsln-aws-ec2).
 
 ### CentOS 6.x / RHEL 6.x
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos/example-deploy)
 ### CentOS 7.x
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos7/example-deploy)
-### AWS managed image
+### AWS EC2 AMI
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/amazon/example-deploy)
 ### Ubuntu 14.x / Debian 8.x
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu/example-deploy)
