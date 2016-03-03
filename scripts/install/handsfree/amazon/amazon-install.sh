@@ -61,16 +61,11 @@ echo "opcache.validate_timestamps=1" >> /etc/php.d/10-opcache.ini
 echo "opcache.fast_shutdown=1" >> /etc/php.d/10-opcache.ini
 echo "opcache.interned_strings_buffer=8" >> /etc/php.d/10-opcache.ini
 echo "opcache.enable_cli=1" >> /etc/php.d/10-opcache.ini
-# remove default apc file that might exist
-
-yes | rm /etc/php-5.6.d/apc.ini
-yes | rm /etc/php.d/apc.ini
 
 # Make sure apache knows what you are tyring to do with host files.
 echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
 
-chkconfig httpd on
-service httpd restart
+
 # make an admin group
 groupadd admin
 groupadd elmsln
@@ -84,6 +79,10 @@ service mysqld restart
 
 ## very smart of ami to have the php-fpm fallback already in place so you can just kill mod_php
 rm /etc/httpd/conf.modules.d/10-php.conf -rf
+
+#This needs to happen again after you remove mod_php
+chkconfig httpd on
+service httpd restart
 
 #Turn on php-fpm service
 chkconfig php-fpm on
