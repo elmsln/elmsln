@@ -111,9 +111,9 @@ function foundation_access_ux_context_default_contexts() {
           'region' => 'footer',
           'weight' => '-10',
         ),
-        'menu-menu-elmsln-navigation' => array(
-          'module' => 'menu',
-          'delta' => 'menu-elmsln-navigation',
+        'cis_service_connection_ux-elmsln_navigation_l1' => array(
+          'module' => 'cis_service_connection_ux',
+          'delta' => 'elmsln_navigation_l1',
           'region' => 'header',
           'weight' => '-10',
         ),
@@ -121,6 +121,18 @@ function foundation_access_ux_context_default_contexts() {
           'module' => 'menu',
           'delta' => 'menu-elmsln-add',
           'region' => 'local_header',
+          'weight' => '-10',
+        ),
+        'cis_service_connection_ux-elmsln_navigation_l2' => array(
+          'module' => 'cis_service_connection_ux',
+          'delta' => 'elmsln_navigation_l2',
+          'region' => 'local_header',
+          'weight' => '-9',
+        ),
+        'cis_service_connection_ux-elmsln_navigation_l3' => array(
+          'module' => 'cis_service_connection_ux',
+          'delta' => 'elmsln_navigation_l3',
+          'region' => 'local_subheader',
           'weight' => '-10',
         ),
       ),

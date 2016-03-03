@@ -48,3 +48,17 @@ function foundation_access_ux_update_7001(&$sandbox) {
   menu_cache_clear('menu-elmsln-add');
   menu_cache_clear('menu-elmsln-settings');
 }
+
+/**
+ * Navigation menu split out into 3 potential levels of navigation
+ * based on hierarchy of the items. each only spit onto its own level
+ */
+function foundation_access_ux_update_7002(&$sandbox) {
+  // revert to get the new block placements
+  $modules = array(
+    'foundation_access_ux' => array('context'),
+  );
+  features_revert($modules);
+  // kill menu caches associated with this so the new items show up
+  menu_cache_clear('menu-elmsln-navigation');
+}

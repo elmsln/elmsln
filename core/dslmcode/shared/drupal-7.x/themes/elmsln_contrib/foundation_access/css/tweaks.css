@@ -123,26 +123,51 @@ ul.header-menu-options {
   margin: 0;
   font-size: 1rem;
 }
+ul.header-menu-options li a {
+  padding: .5rem .5rem;
+  margin: 0;
+}
 ul.header-menu-options li {
   float:left;
   margin: 0;
   list-style: none;
   display: inline-flex;
+}
+ul.header-menu-options li {
   border-bottom: 1px solid #333333;
 }
-ul.header-menu-options li a {
-  padding: .5rem .5rem;
-  margin: 0;
-}
 ul.header-menu-options li.active-trail {
-  background-color: #eeeeee;
   border-left: 1px solid #333333;
   border-right: 1px solid #333333;
   border-top: 1px solid #333333;
   border-bottom: transparent;
 }
-ul.header-menu-options li:hover {
+
+.r-header ul.header-menu-options li.active-trail {
   background-color: #eeeeee;
+}
+.r-header ul.header-menu-options li:hover {
+  background-color: #eeeeee;
+}
+
+.r-local-header ul.header-menu-options{
+  font-size: .9rem;
+}
+.r-local-header ul.header-menu-options li.active-trail {
+  background-color: #eeeeff;
+}
+.r-local-header ul.header-menu-options li:hover {
+  background-color: #eeeeff;
+}
+
+.r-local-subheader ul.header-menu-options{
+  font-size: .8rem;
+}
+.r-local-subheader ul.header-menu-options li.active-trail {
+  background-color: #ddddff;
+}
+.r-local-subheader ul.header-menu-options li:hover {
+  background-color: #ddddff;
 }
 
 .cis-admin-area {
