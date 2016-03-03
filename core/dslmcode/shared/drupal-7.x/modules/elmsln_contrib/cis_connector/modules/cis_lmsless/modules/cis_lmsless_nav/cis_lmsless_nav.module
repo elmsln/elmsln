@@ -45,7 +45,7 @@ function cis_lmsless_nav_menu() {
 /**
  * Implements hook_permission().
  */
-function digitalmeasures_permission() {
+function cis_lmsless_nav_permission() {
   return array(
     'administer cis lms-less nav' =>  array(
       'title' => t('Administer LMS-less Navigation'),
