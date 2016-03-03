@@ -1,0 +1,20 @@
+{
+  "name": "ELMSLN global upgrade 1456987499",
+  "drush_recipes_api": "1.0",
+  "weight": "0",
+  "core": "7",
+  "recipe": [
+    {
+      "command": "en",
+      "arguments": [
+        "cis_lmsless_nav"
+      ]
+    }
+  ],
+  "metadata": {
+    "type": "upgrade",
+    "description": "Custom LMSless icon nav support.",
+    "version": "1456987499",
+    "author": "btopro"
+  }
+}

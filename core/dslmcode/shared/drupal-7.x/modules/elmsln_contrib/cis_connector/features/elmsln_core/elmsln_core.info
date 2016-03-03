@@ -7,6 +7,7 @@ dependencies[] = admin_theme
 dependencies[] = adminimal_admin_menu
 dependencies[] = better_formats
 dependencies[] = cis_lmsless
+dependencies[] = cis_lmsless_nav
 dependencies[] = cis_service_connection
 dependencies[] = cis_shortcodes
 dependencies[] = ckeditor_link
