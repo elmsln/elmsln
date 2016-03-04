@@ -40,7 +40,7 @@ function mooc_foundation_access_preprocess_page(&$variables) {
 
   }
   // support hiding the accessibility check UI which is poorly located
-  if (user_access('view accessibility tests')) {
+  if ($node && user_access('view accessibility tests')) {
     $variables['tabs_extras'][0][] = '<li class="cis_accessibility_check"></li>';
   }
   // remove the prefix that provides a link to the home page
