@@ -356,7 +356,7 @@ function _elmsln_api_nonblocking_requests($requests) {
  * @param  array $requests an array of requests
  * @see  _elmsln_api_request()
  */
-function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE) {
+function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE, $path = '') {
   // force use of normal calls if we are in developer mode
   if ($nonblocking && module_exists('cis_devel')) {
     $nonblocking = FALSE;
@@ -373,6 +373,9 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
   }
   // build whole registry since we're calling multiple things
   $settings = _cis_connector_build_registry();
+  if ($path == '') {
+    $path = base_path();
+  }
   // ensure we have other course services in this network
   if ($services = _cis_connector_transaction('other_services')) {
     // do it per request so we can group the spidering
@@ -388,7 +391,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
             'method' => 'POST',
             'api' => $api,
             'bucket' => $service['field_distribution'],
-            'path' => base_path(),
+            'path' => $path,
             'data' => $data,
           );
           // if we are blocking then ship off now
