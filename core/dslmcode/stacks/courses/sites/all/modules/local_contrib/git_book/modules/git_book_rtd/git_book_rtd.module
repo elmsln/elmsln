@@ -5,6 +5,88 @@
  */
 
 /**
+ * Implements hook_node_insert().
+ */
+function git_book_rtd_node_insert($node) {
+  // if we see a new git book is about to be inserted
+  if (isset($node->book) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
+    $book = node_load($node->book['bid']);
+    if ($book->type == 'git_book') {
+      libraries_load('gitphp');
+      $repo_url = $book->field_git_repo[LANGUAGE_NONE][0]['value'];
+      // create an acceptable machine name
+      $tmp = explode('/', str_replace('.git', '', $repo_url));
+      $path = drupal_realpath('private://') . '/' . array_pop($tmp) . '/';
+      // Open repo if its on the file system so we have a repo already
+      if (is_dir($path)) {
+        // create a nice title for a tile, only do this on insert
+        // as update could be an issue since it might change the title for the file
+        $title = preg_replace('/[^a-zA-Z0-9]/', '', $node->title) . '.md';
+        // overwrite contents if we are able to
+        try {
+          // @todo fix the path to match the potential folder structure in place
+          // which requires walking up through parents to build the correct path
+          file_put_contents($path . 'docs/' . $title, $node->body[LANGUAGE_NONE][0]['value']);
+          $repo = Git::open($path);
+          $repo->add('.');
+          if (empty($node->log)) {
+            $node->log = t('New node @title created in CMS by user @name', array('@title' => $node->title, '@name' => $GLOBALS['user']->name));
+          }
+          $repo->commit($node->log);
+          // @todo make this configurable
+          $repo->push('origin', 'master');
+        }
+        catch (Exception $e) {
+
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function git_book_rtd_node_update($node) {
+  // if we're in a book and the boot root's type is a repo, we want to track changes
+  if (isset($node->book)) {
+    $book = node_load($node->book['bid']);
+    if ($book->type == 'git_book') {
+      libraries_load('gitphp');
+      $repo_url = $book->field_git_repo[LANGUAGE_NONE][0]['value'];
+      // create an acceptable machine name
+      $tmp = explode('/', str_replace('.git', '', $repo_url));
+      $path = drupal_realpath('private://') . '/' . array_pop($tmp) . '/';
+      // Open repo if its on the file system
+      if (is_dir($path)) {
+        // create a nice title for a tile
+        // @todo look into $node->original for what the title used to be
+        // this would help with doing a commit against a file name that has changed
+        // if in-fact it has changed in some way since originally being created
+        $title = preg_replace('/[^a-zA-Z0-9]/', '', $node->title) . '.md';
+        // overwrite contents if we are able to
+        try {
+          // @todo fix the path to match the potential folder structure in place
+          // which requires walking up through parents to build the correct path
+          file_put_contents($path . 'docs/' . $title, $node->body[LANGUAGE_NONE][0]['value']);
+          $repo = Git::open($path);
+          $repo->add('.');
+          if (empty($node->log)) {
+            $node->log = t('Updated node @nid updated in CMS by user @name', array('@nid' => $node->nid, '@name' => $GLOBALS['user']->name));
+          }
+          $repo->commit($node->log);
+          // @todo make this configurable
+          $repo->push('origin', 'master');
+        }
+        catch (Exception $e) {
+
+        }
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_git_book_parse().
  */
 function git_book_rtd_git_book_parse($repo, $path, $node) {

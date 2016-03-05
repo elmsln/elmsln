@@ -6,6 +6,8 @@
 
 include_once 'git_book.features.inc';
 
+define('GIT_BOOK_STANDARD_LOG', 'Created by gitPHP import.');
+
 /**
  * Implements hook_node_presave().
  */
@@ -78,6 +80,7 @@ function _git_book_make_node($title, $content, $parent, $weight) {
   $node->uid = $GLOBALS['user']->uid;
   // set values we pull in for the outline
   $node->title = $title;
+  $node->log = t(GIT_BOOK_STANDARD_LOG);
   $node->book['bid'] = $parent->book['bid'];
   $node->book['plid'] = $parent->book['mlid'];
   $node->book['weight'] = $weight;
