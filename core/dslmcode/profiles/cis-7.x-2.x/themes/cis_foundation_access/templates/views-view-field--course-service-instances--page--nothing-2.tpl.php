@@ -71,6 +71,11 @@
         break;
       }
     }
+    elseif (file_exists($filepath . '.processed')) {
+      // job just about finished
+      $text = t('Almost there..');
+      $color = '#AAFFAA';
+    }
     elseif (file_exists($filepath)) {
       // job hasn't started yet
       $text = t('Waiting for server');
