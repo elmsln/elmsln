@@ -88,3 +88,11 @@ function cis_update_7005(&$sandbox) {
   module_enable(array('views_autorefresh'));
   features_revert('cis_displays');
 }
+
+/**
+ * Implements hook_update_N().
+ * revert cis displays so we have the better courses page
+ */
+function cis_update_7006(&$sandbox) {
+  features_revert('cis_displays');
+}
