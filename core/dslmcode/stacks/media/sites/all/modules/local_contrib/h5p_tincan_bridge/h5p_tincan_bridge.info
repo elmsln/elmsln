@@ -1,0 +1,12 @@
+name = H5P Tincan Bridge
+description = Allows H5P contents implementing xAPI to communicate with tincan module api through ajax.
+package = Tin Can API
+dependencies[] = h5p
+dependencies[] = tincanapi
+core = 7.x
+; Information added by Drupal.org packaging script on 2016-01-12
+version = "7.x-1.1"
+core = "7.x"
+project = "h5p_tincan_bridge"
+datestamp = "1452589741"
+
