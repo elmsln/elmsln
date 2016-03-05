@@ -15,6 +15,18 @@ function discuss_install() {
   _elmsln_installer_admin_role();
   // standard clean up
   _elmsln_installer_post_install_cleanup();
+  // rebuild harmoney access records
+  harmony_access_rebuild();
   // front-page for discuss is the forum path
   variable_set('site_frontpage', 'forum');
+}
+
+/**
+ * Enable discuss helper module and rebuild access permissions.
+ */
+function discuss_update_7001(&$sandbox) {
+  // enable og_access
+  module_enable(array('discuss_helper'));
+  node_access_rebuild();
+  harmony_access_rebuild();
 }

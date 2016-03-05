@@ -1,0 +1,5 @@
+name = Discuss Helper
+description = Helper functions and glue code for the Discuss code base
+core = 7.x
+package = Discuss
+dependencies[] = cis_connector

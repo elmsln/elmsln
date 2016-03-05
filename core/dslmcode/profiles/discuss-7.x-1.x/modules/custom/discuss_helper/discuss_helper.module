@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * Code for the Discuss Helper glue code.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function discuss_helper_init() {
+
+}
