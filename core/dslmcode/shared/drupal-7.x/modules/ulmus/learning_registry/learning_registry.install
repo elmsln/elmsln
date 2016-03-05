@@ -1,0 +1,152 @@
+<?php
+/**
+ * @file
+ * Installation file for the learning_registry module.
+ *
+ * This installation file sets up the database for the learning_registry module.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function learning_registry_enable() {
+  // Set module weight lower than workflow or pathauto. This query lifted from
+  // http://drupal.org/node/110238#comment-3567274
+  $workflow_weight = db_query("SELECT weight FROM {system} WHERE type = :type AND name = :name", array(':type' => 'module', ':name' => 'workflow'))->fetchField();
+  $pathauto_weight = db_query("SELECT weight FROM {system} WHERE type = :type AND name = :name", array(':type' => 'module', ':name' => 'pathauto'))->fetchField();
+
+  if ($pathauto_weight > $workflow_weight) {
+    $weight = $pathauto_weight;
+  }
+  else {
+    $weight = $workflow_weight;
+  }
+
+  db_update('system')
+  ->fields(array(
+    'weight' => $weight + 1,
+  ))
+  ->condition('type', 'module')
+  ->condition('name', 'learning_registry')
+  ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function learning_registry_uninstall() {
+  $result = db_select('variable', 'v')
+  ->fields('v', array('name'))
+  ->condition('name', 'learning_registry_%', 'like')
+  ->execute();
+  foreach ($result as $var) {
+    variable_del($var->name);
+  }
+}
+
+/**
+ * Implements hook_schema().
+ *
+ * @returns $schema
+ *   An array providing the DB schema definition required by the schema API.
+ */
+function learning_registry_schema() {
+  $schema['learning_registry'] = array(
+    'description' => 'Tracks which Drupal nodes have been published to the registry.',
+    'fields' => array(
+      'nid' => array(
+        'description' => 'The primary identifier for a node.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'published' => array(
+        'description' => 'The original date of publication to the LR node.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'updated' => array(
+        'description' => 'The most recent update to the LR node.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'queued' => array(
+        'description' => 'Flag to determine if node is queued for processing.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'docid' => array(
+        'description' => 'The doc ID returned on successful submission to the Learning Registry.',
+        'type' => 'varchar',
+        'length' => 1024,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'indexes' => array(
+      'changed' => array('updated'),
+    ),
+    'primary key' => array('nid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_requirements().
+ *
+ * @returns $requirements
+ *   An array requirements met or not met.
+ */
+function learning_registry_requirements($phase) {
+  $t = get_t();
+
+  $requirements = array();
+
+  $requirements['phpdom'] = array(
+    'title' => $t('PHP document object model'),
+  );
+  $requirements['oauth'] = array(
+    'title' => $t('Oauth Library'),
+  );
+  $requirements['mcrypt'] = array(
+    'title' => $t('mcrypt'),
+  );
+
+  if (class_exists('DOMDocument')) {
+    $requirements['phpdom']['value'] = $t('Installed');
+    $requirements['phpdom']['severity'] = REQUIREMENT_OK;
+  }
+  else {
+    $requirements['phpdom']['value'] = $t('Not installed');
+    $requirements['phpdom']['description'] = $t('External links filter requires PHP <a href="http://php.net/manual/en/book.dom.php">Document Object Model</a>.');
+    $requirements['phpdom']['severity'] = REQUIREMENT_ERROR;
+  }
+
+  // Check for OAuth extension.
+  if (class_exists('OAuth')) {
+    $requirements['oauth']['value'] = $t('Installed');
+    $requirements['oauth']['severity'] = REQUIREMENT_OK;
+  }
+  else {
+    $requirements['oauth']['value'] = $t('Not installed');
+    $requirements['oauth']['description'] = $t('Learning Registry authentication requires OAuth Library');
+    $requirements['oauth']['severity'] = REQUIREMENT_ERROR;
+  }
+
+  // Check for mcrypt extension.
+  if (function_exists('mcrypt_encrypt')) {
+    $requirements['mcrypt']['value'] = $t('Installed');
+    $requirements['mcrypt']['severity'] = REQUIREMENT_OK;
+  }
+  else {
+    $requirements['mcrypt']['value'] = $t('Not installed');
+    $requirements['mcrypt']['description'] = $t('Learning Registry authentication requires mcrypt Library');
+    $requirements['mcrypt']['severity'] = REQUIREMENT_ERROR;
+  }
+
+  return $requirements;
+}

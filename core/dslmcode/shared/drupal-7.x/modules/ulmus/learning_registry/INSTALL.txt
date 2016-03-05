@@ -1,0 +1,32 @@
+1.) Download, untar and enable the Learning Registry module.
+
+2.) Configure via the Site Configuration admin menu item.
+
+3.) Configuration items:
+  a.) Learning Registry node URL: for a development node, try 
+    http://sandbox.learningregistry.org.
+
+  b.) Submitter: Your name, organization or company.
+
+  c.) Terms of Service URL: URL of Terms of Service document for items
+    submitted to the registry. Use a Creative Commons license if you don't
+    have a web site with a TOS: http://creativecommons.org/choose/
+
+  d.) Immediate or Queued Publishing: Immediate publishes instantly and 
+    queued publishes during cron.
+
+  e.) Publish URL Type: node ID publishes node/123 and node alias publishes 
+    node/the-article-title.
+
+  f.) Publish metadata for these content types: Check off content types for 
+    automatic Learning Registry publishing.
+
+4.) Verify configuration by publishing an item. Do this for an enabled content
+    type using Create Content. After the item is published, use the "View node
+    on registry." link to view the metadata in the registry.
+
+5.) Batch publish of items items to the registry is available via 
+  "Content -> List" menu and under the "Update Options" drop down.
+
+6.) View items in the registry via the Content Management -> Learning Registry
+  menu. Try searching on tags = "science".

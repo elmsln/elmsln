@@ -1,0 +1,369 @@
+<?php
+/**
+ * @file
+ * A module to publish drupal node metadata to a Learning Registry node.
+ *
+ * This module takes the specified node content and publishes it to a
+ * Learning Registry node.
+ */
+
+/**
+ * LEARNING_REGISTRY_QUEUE_IMMEDIATE - Content types enabled for publishing in
+ * the Learning Registry will publish immediately.
+ *
+ * LEARNING_REGISTRY_QUEUE_QUEUED - Content types enabled for publishing in the
+ * Learning Registry will be queued and published when cron runs.
+ */
+
+define('LEARNING_REGISTRY_QUEUE_IMMEDIATE', 0);
+define('LEARNING_REGISTRY_QUEUE_QUEUED', 1);
+
+/**
+ * LEARNING_REGISTRY_URL_NODE_ID - Publish the URL in the LR using the node ID.
+ *
+ * LEARNING_REGISTRY_URL_ALIAS - Publish the URL in the LR using the path alias.
+ */
+
+define('LEARNING_REGISTRY_URL_NODE_ID', 0);
+define('LEARNING_REGISTRY_URL_ALIAS', 1);
+
+/**
+ *  The following constants are defaults set in the JSON metadata envelope sent
+ *  to the Learning Registry.
+ */
+
+define('LEARNING_REGISTRY_DOC_TYPE', 'resource_data');
+define('LEARNING_REGISTRY_DOC_VERSION', '0.49.0');
+define('LEARNING_REGISTRY_SUBMITTER_TYPE', 'organization');
+define('LEARNING_REGISTRY_PUBLISH_TAXONOMY_TAGS', 'true');
+
+/**
+ * The following constants represent modes of publishing to the Learning Registry.
+ */
+
+define('LEARNING_REGISTRY_MODE_PUBLISH', 0);
+define('LEARNING_REGISTRY_MODE_UPDATE', 1);
+define('LEARNING_REGISTRY_MODE_DELETE', 2);
+
+/**
+ * Implements hook_help().
+ */
+function learning_registry_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case 'admin/help#learning_registry':
+      $output = '<p>' .
+        t('Pushes Drupal node data to the specified Learning Registry node.') .
+        '<p>';
+      break;
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function learning_registry_permission() {
+  return array(
+    'administer learning_registry' => array(
+      'title' => t('administer learning_registry'),
+      'description' => t('Change the admin settings for the learning registry connection.'),
+    ),
+    'access learning_registry' => array(
+      'title' => t('access learning_registry'),
+      'description' => t('Be able to access the learning registry integration page.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function learning_registry_menu() {
+  $items['admin/config/services/learning_registry'] = array(
+    'title' => 'Learning Registry settings',
+    'description' => 'Settings for publishing and receiving metadata to a Learning Registry node.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('learning_registry_admin_settings'),
+    'access arguments' => array('administer learning_registry'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'learning_registry.admin.inc',
+  );
+
+  $items['admin/config/services/learning_registry/settings'] = array(
+    'title' => 'Learning Registry settings',
+    'description' => 'Settings for publishing and receiving metadata to a Learning Registry node.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('learning_registry_admin_settings'),
+    'access arguments' => array('administer learning_registry'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'file' => 'learning_registry.admin.inc',
+  );
+
+  $items['admin/content/learning_registry'] = array(
+    'title' => 'Learning Registry',
+    'description' => 'Search metadata in the Learning Registry.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('learning_registry_content_form'),
+    'access arguments' => array('access learning_registry'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'learning_registry.content.inc',
+  );
+
+  $items['admin/config/services/learning_registry/oauth'] = array(
+    'title' => 'Learning Registry OAuth settings',
+    'description' => 'Settings for OAuth for the Learning Registry.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('learning_registry_admin__oauth_settings'),
+    'access arguments' => array('administer learning_registry'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'learning_registry.admin.inc',
+    'weight' => 10,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function learning_registry_node_insert($node) {
+  module_load_include('inc', 'learning_registry', 'learning_registry.learning_registry');
+  $nodes_to_publish = variable_get('learning_registry_node_types', array());
+  if (isset($nodes_to_publish[$node->type]) && $nodes_to_publish[$node->type] != FALSE && $node->nid) {
+    $oauth_consumer = learning_registry_oauth_verify();
+    if ($oauth_consumer) {
+      if ($node->status == 1) {
+			if (variable_get('learning_registry_queuing', LEARNING_REGISTRY_QUEUE_IMMEDIATE) == LEARNING_REGISTRY_QUEUE_QUEUED) {
+			 _learning_registry_queue_node($node->nid);
+		   }
+		   else {	
+			 _learning_registry_publish($node);
+		   }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function learning_registry_node_update($node) {
+  module_load_include('inc', 'learning_registry', 'learning_registry.learning_registry');
+  $nid = $node->nid;
+  $docid = learning_registry_get_docid($nid);
+  if($docid){
+	_learning_registry_publish($node, FALSE, LEARNING_REGISTRY_MODE_UPDATE, $docid);
+  };		
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function learning_registry_node_delete($node) {
+  module_load_include('inc', 'learning_registry', 'learning_registry.learning_registry');
+  learning_registry_delete_from_lr($node);
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Reads unprocessed nodes from learning_registry table and
+ * attempts to push them to the Learning Registry.
+ */
+function learning_registry_cron() {
+  module_load_include('inc', 'learning_registry', 'learning_registry.learning_registry');
+  // Pull node IDs of records queued for processing.
+  $records = db_query('SELECT nid FROM {learning_registry} WHERE queued = :queued LIMIT 0, 50', array(':queued' => 1));
+
+  foreach ($records as $record) {
+    $node = node_load($record->nid, NULL, TRUE);
+    _learning_registry_publish($node, TRUE);
+  }
+}
+
+/**
+ * Implements hook_node_operations().
+ *
+ * Allows for publishing using the bulk operations content page.
+ */
+function learning_registry_node_operations() {
+  $operations = array(
+    'process_orders' => array(
+      'label' => t('Publish to Learning Registry'),
+      'callback' => '_learning_registry_bulk_operations_publish',
+    ),
+	'delete_orders' => array(
+      'label' => t('Delete from Learning Registry'),
+      'callback' => '_learning_registry_bulk_operations_delete',
+    ),
+  );
+  return $operations;
+}
+
+/**
+ * Publish callback function for learning_registry_node_operations().
+ *
+ * @param array $nids
+ *   An array of node ids.
+ */
+ 
+function _learning_registry_bulk_operations_publish($nids) {
+  module_load_include('inc', 'learning_registry', 'learning_registry.learning_registry');
+  $success = 0;
+  $failure = 0;
+  $oauth_consumer = learning_registry_oauth_verify();
+  foreach ($nids as $nid) {
+    // Load the node.
+    $node = node_load($nid);
+    // Send it to the Learning Registry.
+    $result = _learning_registry_publish($node, TRUE);
+
+    // If successful, update the count.
+    if ($result) {
+      $success++;
+    }
+	else{
+	  $failure++;
+	}
+  }
+
+  if (variable_get('learning_registry_queuing', LEARNING_REGISTRY_QUEUE_IMMEDIATE) == LEARNING_REGISTRY_QUEUE_QUEUED) {
+    drupal_set_message(t('@success nodes queued to the registry.  @failure nodes failed.', array('@success' => $success, '@failure' => $failure)));
+  }
+  else {
+    drupal_set_message(t('@success nodes published to the registry.  @failure nodes failed.', array('@success' => $success, '@failure' => $failure)));
+  }
+}
+
+/**
+ * Delete callback function for learning_registry_node_operations().
+ *
+ * @param array $nids
+ *   An array of node ids.
+ */
+function _learning_registry_bulk_operations_delete($nids) {
+  module_load_include('inc', 'learning_registry', 'learning_registry.learning_registry');
+  $success = 0;
+  $failure = 0;
+  $oauth_consumer = learning_registry_oauth_verify();
+  foreach ($nids as $nid) {
+    // Load the node.
+    $node = node_load($nid);
+    // Send it to the Learning Registry.
+    $result = learning_registry_delete_from_lr($node);
+    // If successful, update the count.
+    if ($result) {
+      $success++;
+    }
+	else{
+	  $failure++;
+	}
+  }
+    drupal_set_message(t('@success nodes deleted from registry.  @failure nodes failed.', array('@success' => $success, '@failure' => $failure)));
+}
+
+/**
+ * Fetches term names attached to the node.
+ *
+ * @param object $node
+ *   A fully qualified node object as defined by node_load.
+ *
+ * @return array
+ *   An array of the term names
+ */
+function learning_registry_extract_keywords($node) {
+  $keys = array();
+  foreach (field_info_instances('node', $node->type) as $instance) {
+    $field_name = $instance['field_name'];
+    $field = field_info_field($field_name);
+    if ($field['module'] == 'taxonomy' && $field['storage']['type'] == 'field_sql_storage') {
+      // If a field value is not set in the node object when node_save() is
+      // called, the old value from $node->original is used.
+      if (isset($node->{$field_name})) {
+        $items = $node->{$field_name};
+      }
+      elseif (isset($node->original->{$field_name})) {
+        $items = $node->original->{$field_name};
+      }
+      else {
+        continue;
+      }
+      foreach (field_available_languages('node', $field) as $langcode) {
+        if (!empty($items[$langcode])) {
+          foreach ($items[$langcode] as $item) {
+            if (isset($item['name'])) {
+              $keys[] = $item['name'];
+            }
+            else {
+              $term = taxonomy_term_load($item['tid']);
+              $keys[] = $term->name;
+            }
+          }
+        }
+      }
+    }
+  }
+  return $keys;
+}
+
+/**
+ * Verifies the OAuth connection.
+ *
+ * @return OAuth
+ *   Returns the OAuth consumer if it authenticates.
+ */
+function learning_registry_oauth_verify() {
+  module_load_include('inc', 'learning_registry', 'learning_registry.admin');
+  $consumer = learning_registry_admin_var_get('learning_registry_oauth_consumer', array());
+  $token = learning_registry_admin_var_get('learning_registry_oauth_token', array());
+  $test_url = variable_get('learning_registry_node_url', NULL);
+  static $oauth_consumer;
+
+  if ($oauth_consumer) {
+    return $oauth_consumer;
+  }
+
+  if (isset($test_url)) {
+    $oauth_consumer = new OAuth($consumer['key'], $consumer['secret']);
+    $oauth_consumer->setToken($token['key'], $token['secret']);
+    $oauth_consumer->disableSSLChecks();
+    try {
+      $oauth_consumer->fetch($test_url . '/auth/oauth_verify', array(), OAUTH_HTTP_METHOD_POST, array('Content-Type' => 'application/json'));
+      $result = $oauth_consumer->getLastResponse();
+    } catch (OAuthException $e) {
+      watchdog('learning_registry', $e->getMessage(), WATCHDOG_ERROR);
+    }
+  }
+  return $oauth_consumer;
+}
+
+
+function learning_registry_delete_from_lr($node){
+  $nid = $node->nid;
+  $docid = learning_registry_get_docid($nid);
+  if($docid){
+	_learning_registry_publish($node, FALSE, LEARNING_REGISTRY_MODE_DELETE, $docid);
+	return true;
+  };
+  return false;
+}
+
+
+/*
+* Check if the node in the LR
+* @param $nid - ID of the drupal node;
+* @return docid or FALSE
+*/
+
+function learning_registry_get_docid($nid){
+  $q = db_select('learning_registry','l');
+		$q->condition('l.nid',$nid,'=');
+		$q->fields('l',array('docid'));
+		$result = $q->execute();
+		$record = $result->fetchAssoc();
+		$docid = (isset($record['docid'])) ? $record['docid'] : false;
+  return $docid;
+}
+
+
