@@ -197,10 +197,20 @@ function cis_filter_preprocess_cis_filter_render__value(&$vars) {
   // this currently supports simple field values and markup rendered
   // fields.
   // request the object via webservice
-  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance);
+  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, TRUE, 'deep-load-refs=file,node');
   // see if this text value is a complex one to filter
   if (isset($response[$code['field']]) && is_array($response[$code['field']])) {
-    $vars['content'] = check_markup($response[$code['field']]['value'], $response[$code['field']]['format']);
+    if (isset($response[$code['field']]['value'])) {
+      $vars['content'] = check_markup($response[$code['field']]['value'], $response[$code['field']]['format']);
+    }
+    // test if this value is a file field
+    else if (isset($response[$code['field']]['file'])) {
+      $attributes = array();
+      if (isset($code['target'])) {
+        $attributes = array('attributes' => array('target' => $code['target']));
+      }
+      $vars['content'] = l(t($code['text']), _cis_connector_real_address($response[$code['field']]['file']['url']), $attributes);
+    }
   }
   else {
     $vars['content'] = filter_xss($response[$code['field']]);
@@ -274,7 +284,12 @@ function cis_filter_preprocess_cis_filter_render__link(&$vars) {
       $link = "<img src=\"$path\" $width $height alt=\"$alt\" title=\"$title\" />";
     }
     elseif (isset($code['text'])) {
-      $link = l(t('@t', array('@t' => $code['text'])), $path);
+      // check for target
+      $attributes = array();
+      if (isset($code['target'])) {
+        $attributes = array('attributes' => array('target' => $code['target']));
+      }
+      $link = l(t('@t', array('@t' => $code['text'])), $path, $attributes);
     }
     else {
       // we have nothing to do because something was wrong

@@ -237,6 +237,7 @@ function _cis_shortcode_render_codes($entity, $type) {
             else {
               $properties['text'] = t('Download');
             }
+            $properties['target'] = '_blank';
             $properties['delta'] = $item_key;
             $entityfields['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
               '#title' => t('@field direct link', array('@field' => $fproperties['label'])),
