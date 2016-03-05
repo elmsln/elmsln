@@ -95,4 +95,5 @@ function cis_update_7005(&$sandbox) {
  */
 function cis_update_7006(&$sandbox) {
   features_revert('cis_displays');
+  features_revert('cis_types');
 }
