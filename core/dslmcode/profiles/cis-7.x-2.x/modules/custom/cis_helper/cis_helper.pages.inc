@@ -4,6 +4,20 @@
  * User page callbacks for the cis_helper module.
  */
 
+function cis_helper_sync_network_roster($node) {
+  // @todo pass in a token of some kind
+  // issue this against all remote things to tell them to sync up
+  $requests = array(
+    array(
+      'elmsln_module' => 'cis_section',
+      'elmsln_callback' => 'sync_roster',
+    ),
+  );
+  _elmsln_api_network_request($requests, '1', TRUE, '/' . $node->field_machine_name['und'][0]['value'] . '/');
+  drupal_set_message(t('Course roster has been synced across all services.'), 'status', FALSE);
+  drupal_goto('node/' . $node->nid);
+}
+
 /**
  * Callback for setting up an offering for existing courses.
  */

@@ -236,6 +236,19 @@ function theme_cis_helper_checkbox_table($variables) {
 function cis_helper_menu() {
   $items = array();
   $path = drupal_get_path('module', 'cis_helper');
+  // sync
+  $items['node/%node/sync-roster'] = array(
+    'title' => 'Sync Roster',
+    'description' => 'Sync the roster for this course',
+    'page callback' => 'cis_helper_sync_network_roster',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'cis_helper.pages.inc',
+    'file path' => $path,
+  );
   // admin settings for CIS
   $items['admin/config/system/cis'] = array(
     'title' => 'CIS',
