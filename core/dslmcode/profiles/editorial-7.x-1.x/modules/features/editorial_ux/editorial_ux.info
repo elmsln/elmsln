@@ -1,0 +1,9 @@
+name = Editorial UX
+description = User experience components for editorial distribution
+core = 7.x
+package = Editorial
+dependencies[] = cis_service_connection_ux
+dependencies[] = features
+dependencies[] = menu
+features[features_api][] = api:2
+features[menu_links][] = menu-elmsln-settings_blog-settings:<nolink>

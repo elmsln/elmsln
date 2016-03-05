@@ -33,10 +33,35 @@ function editorial_journal_entry_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
+  // Exported menu link: menu-elmsln-settings_configure-journal-exercises:admin/structure/taxonomy/editorial_exercise
+  $menu_links['menu-elmsln-settings_configure-journal-exercises:admin/structure/taxonomy/editorial_exercise'] = array(
+    'menu_name' => 'menu-elmsln-settings',
+    'link_path' => 'admin/structure/taxonomy/editorial_exercise',
+    'router_path' => 'admin/structure/taxonomy/%',
+    'link_title' => 'Configure journal exercises',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'identifier' => 'menu-elmsln-settings_configure-journal-exercises:admin/structure/taxonomy/editorial_exercise',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -50,
+    'customized' => 1,
+    'parent_identifier' => 'menu-elmsln-settings_blog-settings:<nolink>',
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
+  t('Configure journal exercises');
   t('Private Journal Entry');
-
 
   return $menu_links;
 }

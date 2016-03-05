@@ -130,10 +130,10 @@ dependencies[] = cis_section
 ; ----------
 dependencies[] = elmsln_student_filter
 dependencies[] = editorial_helper
+dependencies[] = editorial_ux
 dependencies[] = editorial_blog_post
 dependencies[] = editorial_journal_entry
 dependencies[] = editorial_story_seeds
 dependencies[] = editorial_section_journal
 dependencies[] = editorial_displays
 dependencies[] = editorial_perms
-

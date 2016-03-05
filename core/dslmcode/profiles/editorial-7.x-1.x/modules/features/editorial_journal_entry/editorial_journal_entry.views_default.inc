@@ -107,18 +107,20 @@ function editorial_journal_entry_views_default_views() {
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* Field: Content: Body */
-  $handler->display->display_options['fields']['body']['id'] = 'body';
-  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
-  $handler->display->display_options['fields']['body']['field'] = 'body';
-  $handler->display->display_options['fields']['body']['label'] = '';
-  $handler->display->display_options['fields']['body']['alter']['more_link'] = TRUE;
-  $handler->display->display_options['fields']['body']['alter']['trim'] = TRUE;
-  $handler->display->display_options['fields']['body']['alter']['html'] = TRUE;
-  $handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['body']['settings'] = array(
+  /* Field: Content: Journal Entry */
+  $handler->display->display_options['fields']['field_journal_entry']['id'] = 'field_journal_entry';
+  $handler->display->display_options['fields']['field_journal_entry']['table'] = 'field_data_field_journal_entry';
+  $handler->display->display_options['fields']['field_journal_entry']['field'] = 'field_journal_entry';
+  $handler->display->display_options['fields']['field_journal_entry']['label'] = '';
+  $handler->display->display_options['fields']['field_journal_entry']['element_type'] = '0';
+  $handler->display->display_options['fields']['field_journal_entry']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_journal_entry']['element_wrapper_type'] = '0';
+  $handler->display->display_options['fields']['field_journal_entry']['element_default_classes'] = FALSE;
+  $handler->display->display_options['fields']['field_journal_entry']['type'] = 'text_trimmed';
+  $handler->display->display_options['fields']['field_journal_entry']['settings'] = array(
     'trim_length' => '600',
   );
+  $handler->display->display_options['fields']['field_journal_entry']['field_api_classes'] = TRUE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
