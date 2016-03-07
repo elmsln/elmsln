@@ -1,0 +1,11 @@
+name = Git Book Markdown
+description = A well configured version of Epic Editor for markdown support.
+core = 7.x
+package = Git
+dependencies[] = features
+dependencies[] = filter
+dependencies[] = markdown
+dependencies[] = wysiwyg
+features[features_api][] = api:2
+features[filter][] = git_book_markdown
+features[wysiwyg][] = git_book_markdown

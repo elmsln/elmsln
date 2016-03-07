@@ -213,7 +213,7 @@ function git_book_get_parsers() {
  */
 function _git_book_make_node($title, $content, $parent, $weight) {
   $node = new stdClass();
-  $node->type = 'page';
+  $node->type = variable_get('book_child_type', 'book');
   node_object_prepare($node);
   $node->language = LANGUAGE_NONE;
   $node->status = 1;
@@ -227,6 +227,9 @@ function _git_book_make_node($title, $content, $parent, $weight) {
   $node->book['plid'] = $parent->book['mlid'];
   $node->book['weight'] = $weight;
   $node->body[LANGUAGE_NONE][0]['value'] = $content;
+  // allow other projects to modify prior to save specific to our
+  // function generating the node in the first place
+  drupal_alter('git_book_make_node', $node);
 
   // build out via submit then save
   if($node = node_submit($node)) {

@@ -19,7 +19,7 @@ Drupal.wysiwyg.editor.attach.epiceditor = function (context, params, settings) {
     defaultContent: defaultContent
   };
   settings.theme = {
-    preview: '/themes/preview/preview-dark.css',
+    preview: '/themes/preview/' + settings.preview_theme + '.css',
     editor: '/themes/editor/' + settings.theme + '.css'
   };
   var editor = new EpicEditor(settings).load();

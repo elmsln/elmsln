@@ -1,0 +1,38 @@
+<?php
+/**
+ * @file
+ * Slight modifications to our markdown editor integration.
+ */
+
+
+/**
+ * Implements hook_wysiwyg_editor_settings_alter().
+ * Support for WYSIWYG editor epiceditor
+ */
+function git_book_markdown_wysiwyg_editor_settings_alter(&$settings, $context) {
+  if ($context['editor']['name'] == 'epiceditor') {
+    $settings['theme'] = 'epic-light';
+    $settings['preview_theme'] = 'github';
+    $settings['useNativeFullscreen'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_git_book_make_node_alter().
+ */
+function git_book_markdown_git_book_make_node_alter(&$node) {
+  $node->body[LANGUAGE_NONE][0]['format'] = 'git_book_markdown';
+}
+
+/**
+ * Implements hook_node_prepare().
+ */
+function git_book_markdown_node_prepare($node) {
+  if (isset($node->book)) {
+    $book = node_load($node->book['bid']);
+    if ($book->type == 'git_book') {
+      // hijack default input format to be markdown
+      $node->body[LANGUAGE_NONE][0]['format'] = 'git_book_markdown';
+    }
+  }
+}

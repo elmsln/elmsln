@@ -72,9 +72,7 @@ function wysiwyg_epiceditor_version($editor) {
  *   theme name.
  */
 function wysiwyg_epiceditor_themes($editor, $profile) {
-  return array('epic-dark', 'epic-light');
-  // @todo Use the preview themes somewhere.
-  //return array('preview-dark', 'github');
+  return array('epic-light', 'epic-dark');
 }
 
 /**
@@ -106,7 +104,7 @@ function wysiwyg_epiceditor_settings($editor, $config, $theme) {
     'basePath' => base_path() . $editor['library path'],
     'clientSideStorage' => FALSE,
     'theme' => $theme,
-    //'preview_theme' => '',
+    'preview_theme' => 'github',
   );
   return $settings;
 }
