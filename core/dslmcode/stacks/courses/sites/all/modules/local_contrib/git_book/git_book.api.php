@@ -11,7 +11,7 @@ function hook_git_book_parser() {
   // all functions below are handed $path, $node variables
   // $path is the path on the file system to the repo
   // $node is the git_book mapped to this repo
-  $parser = array(
+  $parser['rtd'] = array(
     // name to present in lists
     'name'   => t('Read the Docs'),
     // callback for initialization, this allows you to run functionality when a repo is
