@@ -10,47 +10,261 @@
 function git_book_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-git_book-body'
-  $field_instances['node-git_book-body'] = array(
+  // Exported field_instance: 'node-git_book-field_git_branch'
+  $field_instances['node-git_book-field_git_branch'] = array(
     'bundle' => 'git_book',
-    'default_value' => NULL,
+    'default_value' => array(
+      0 => array(
+        'value' => 'master',
+      ),
+    ),
     'deleted' => 0,
-    'description' => '',
+    'description' => 'What branch or Tag should this repo work against with? Once the repo is on the server you can select from the branches or tags that come across.',
     'display' => array(
       'default' => array(
-        'label' => 'hidden',
+        'label' => 'above',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 0,
+        'weight' => 2,
       ),
       'teaser' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(
-          'trim_length' => 600,
-        ),
-        'type' => 'text_summary_or_trimmed',
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
         'weight' => 0,
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'body',
-    'label' => 'Body',
-    'required' => FALSE,
+    'field_name' => 'field_git_branch',
+    'label' => 'Branch/Tag',
+    'required' => 1,
     'settings' => array(
-      'display_summary' => TRUE,
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 2,
+    ),
+  );
+
+  // Exported field_instance: 'node-git_book-field_git_commit'
+  $field_instances['node-git_book-field_git_commit'] = array(
+    'bundle' => 'git_book',
+    'default_value' => array(
+      0 => array(
+        'value' => 1,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'Should changes automatically be committed back to the repo (locally)',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 4,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_git_commit',
+    'label' => 'Commit',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance: 'node-git_book-field_git_description'
+  $field_instances['node-git_book-field_git_description'] = array(
+    'bundle' => 'git_book',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'A description of this gitbook',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 5,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_git_description',
+    'label' => 'Description',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
       'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
+      'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 20,
-        'summary_rows' => 5,
+        'rows' => 5,
       ),
-      'type' => 'text_textarea_with_summary',
+      'type' => 'text_textarea',
       'weight' => 2,
+    ),
+  );
+
+  // Exported field_instance: 'node-git_book-field_git_push'
+  $field_instances['node-git_book-field_git_push'] = array(
+    'bundle' => 'git_book',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'If checked this will attempt to push back to the origin on each change.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 3,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_git_push',
+    'label' => 'Push',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 4,
     ),
   );
 
@@ -126,9 +340,16 @@ function git_book_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Body');
+  t('A description of this gitbook');
+  t('Branch/Tag');
+  t('Commit');
+  t('Description');
   t('Git repo that you want associated to this book.');
+  t('If checked this will attempt to push back to the origin on each change.');
+  t('Push');
   t('Repo');
+  t('Should changes automatically be committed back to the repo (locally)');
+  t('What branch or Tag should this repo work against with? Once the repo is on the server you can select from the branches or tags that come across.');
 
   return $field_instances;
 }
