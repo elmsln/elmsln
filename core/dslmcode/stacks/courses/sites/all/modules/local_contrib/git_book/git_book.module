@@ -6,7 +6,7 @@
 
 include_once 'git_book.features.inc';
 
-define('GIT_BOOK_STANDARD_LOG', 'Created by gitPHP import.');
+define('GIT_BOOK_STANDARD_LOG', 'Change issued by gitPHP sync');
 
 /**
  * Implements hook_node_presave().
@@ -27,23 +27,158 @@ function git_book_node_insert($node) {
     // invoke the library and bring in the content
     libraries_load('gitphp');
     $repo_url = $node->field_git_repo[LANGUAGE_NONE][0]['value'];
-    // create an acceptable machine name
-    $tmp = explode('/', str_replace('.git', '', $repo_url));
-    $path = drupal_realpath('private://') . '/' . array_pop($tmp) . '/';
-    // Create a new repo or open existing
-    if (is_dir($path)) {
-      $repo = Git::open($path);
+    if ($repo_url == 'new') {
+      // build a path for this since its brand new and not hooked
+      // up to anything currently
+      $path = drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($node->title));
+      $repo = Git::create($path);
+      $parsers = git_book_get_parsers();
+      // allow other parsers to initialize the new git repo
+      if (!empty($parsers) && isset($node->field_git_parser[LANGUAGE_NONE][0]['value']) && isset($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]) && isset($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]['init'])) {
+        call_user_func($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]['init'], $path, $node);
+      }
     }
     else {
-      $repo = Git::create($path, $repo_url, true);
+      // create an acceptable machine name
+      $path = drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($node->title));
+      // Create a new repo or open existing
+      if (is_dir($path)) {
+        $repo = Git::open($path);
+      }
+      else {
+        $repo = Git::create($path, $repo_url, true);
+      }
+      $parsers = git_book_get_parsers();
+      if (isset($node->field_git_parser[LANGUAGE_NONE][0]['value']) && isset($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]) && isset($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]['path'])) {
+        // call anything that wants to parse this and turn it into nodes
+        $gitcontent = call_user_func($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]['parser'], $path, $node);
+        // tell them nothing else got created
+        if (empty($gitcontent)) {
+          drupal_set_message(t('No structure was able to be parsed. Are you sure you have a way of importing this type of git repo?'), 'warning');
+        }
+      }
     }
-    // call anything that wants to parse this and turn it into nodes
-    $gitcontent = module_invoke_all('git_book_parse', $repo, $path, $node);
-    // incase anyone wants to do their build operations AFTER parsing
-    drupal_alter('git_book_parse', $gitcontent);
-    // tell them nothing else got created
-    if (empty($gitcontent)) {
-      drupal_set_message(t('No structure was able to be parsed. Are you sure you have a way of importing this type of git repo?'), 'warning');
+  }
+  // if we see a new git book page is about to be inserted
+  elseif (isset($node->book) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
+    $book = node_load($node->book['bid']);
+    if ($book->type == 'git_book') {
+      libraries_load('gitphp');
+      $gitpath = drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($book->title));
+      // Open repo if its on the file system so we have a repo already
+      if (is_dir($gitpath)) {
+        try {
+          // load parsers
+          $parsers = git_book_get_parsers();
+          if (!empty($parsers) && isset($book->field_git_parser[LANGUAGE_NONE][0]['value']) && isset($parsers[$book->field_git_parser[LANGUAGE_NONE][0]['value']]) && isset($parsers[$book->field_git_parser[LANGUAGE_NONE][0]['value']]['path'])) {
+            // call this function which will modify the title accordingly
+            $path = call_user_func($parsers[$book->field_git_parser[LANGUAGE_NONE][0]['value']]['path'], $gitpath, $node);
+            @drupal_mkdir($path, NULL, TRUE);
+            // write to this path the current node body contents
+            $content = '';
+            if (isset($node->body[LANGUAGE_NONE]) && !empty($node->body[LANGUAGE_NONE])) {
+              $content = $node->body[LANGUAGE_NONE][0]['value'];
+            }
+            file_put_contents($path . $node->title . '.md', $content);
+            // check if we want to auto commit on save
+            if ($book->field_git_commit[LANGUAGE_NONE][0]['value']) {
+              // open the path
+              $repo = Git::open($gitpath);
+              // switch branch if needed
+              $branch = 'master';
+              if (isset($book->field_git_branch[LANGUAGE_NONE][0]['value'])) {
+                $branch = $book->field_git_branch[LANGUAGE_NONE][0]['value'];
+              }
+              $repo->checkout($branch);
+              // add all changes for this commit which basically just means this file
+              // unless someone is screwing with the file system but then you got bigger
+              // issues now don't you.
+              $repo->add('.');
+              // use the log as the commit message, set our own if its there
+              if (empty($node->log)) {
+                $node->log = t('Updated node @nid updated in CMS by user @name', array('@nid' => $node->nid, '@name' => $GLOBALS['user']->name));
+              }
+              $repo->commit($node->log);
+              // auto push this back if we have the setting set for it
+              if ($book->field_git_push[LANGUAGE_NONE][0]['value']) {
+                $repo->push('origin', $branch);
+              }
+            }
+          }
+        }
+        catch (Exception $e) {
+
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function git_book_node_update($node) {
+  // if we're in a book and the boot root's type is a repo, we want to track changes
+  // also very difficult to produce but ensure we didn't just have another
+  // repo function update which would trigger this
+  if ($node->type != 'git_book' && isset($node->book) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
+    $book = node_load($node->book['bid']);
+    // make sure the root book is a git_book for this node and that
+    // it is currently set to auto commit
+    if ($book->type == 'git_book' && $book->field_git_commit[LANGUAGE_NONE][0]['value']) {
+      libraries_load('gitphp');
+      // create an acceptable machine name
+      $path = drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($book->title));
+      // Open repo if its on the file system
+      if (is_dir($path)) {
+        try {
+          // load parsers
+          $parsers = git_book_get_parsers();
+          if (!empty($parsers) && isset($book->field_git_parser[LANGUAGE_NONE][0]['value']) && isset($parsers[$book->field_git_parser[LANGUAGE_NONE][0]['value']]) && isset($parsers[$book->field_git_parser[LANGUAGE_NONE][0]['value']]['path'])) {
+            // call this function which will modify the title accordingly
+            $path = call_user_func($parsers[$book->field_git_parser[LANGUAGE_NONE][0]['value']]['path'], $path, $node);
+            @drupal_mkdir($path, NULL, TRUE);
+            // write to this path the current node body contents
+            $content = '';
+            if (isset($node->body[LANGUAGE_NONE]) && !empty($node->body[LANGUAGE_NONE])) {
+              $content = $node->body[LANGUAGE_NONE][0]['value'];
+            }
+            file_put_contents($path . $node->title . '.md', $content);
+            // if old doesn't = new that means title changed
+            // since this is tied to filename we can delete
+            // the old file and know git will realize
+            // the file contents moved from 1 location to another
+            // with the changes in question.
+            if (isset($node->original) && $node->original->title != $node->title) {
+              @unlink($path . $node->original->title . '.md');
+            }
+            // open the path
+            $repo = Git::open($path);
+            // switch to the appropriate branch
+            $branch = 'master';
+            if (isset($book->field_git_branch[LANGUAGE_NONE][0]['value'])) {
+              $branch = $book->field_git_branch[LANGUAGE_NONE][0]['value'];
+            }
+            $repo->checkout($branch);
+            // add all changes for this commit which basically just means this file
+            // unless someone is screwing with the file system but then you got bigger
+            // issues now don't you.
+            $repo->add('.');
+            // use the log as the commit message, set our own if its there
+            if (empty($node->log)) {
+              $node->log = t('Updated node @nid updated in CMS by user @name', array('@nid' => $node->nid, '@name' => $GLOBALS['user']->name));
+            }
+            $repo->commit($node->log);
+            // auto push this back if we have the setting set for it
+            if ($book->field_git_push[LANGUAGE_NONE][0]['value']) {
+              $repo->push('origin', $branch);
+            }
+          }
+        }
+        catch (Exception $e) {
+
+        }
+      }
     }
   }
 }
@@ -54,15 +189,22 @@ function git_book_node_insert($node) {
 function git_book_node_delete($node) {
   // make sure we clean out this git repo
   if ($node->type == 'git_book') {
-    $repo_url = $node->field_git_repo[LANGUAGE_NONE][0]['value'];
-    // create an acceptable machine name
-    $tmp = explode('/', str_replace('.git', '', $repo_url));
-    $path = drupal_realpath('private://') . '/' . array_pop($tmp) . '/';
+    $path = drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($node->title));
     // kill the git directory
     if (is_dir($path)) {
       _git_book_delete_folder($path);
     }
   }
+}
+
+/**
+ * Return a list of parsers
+ * @return array array of parsers with callbacks
+ */
+function git_book_get_parsers() {
+  $parsers = module_invoke_all('git_book_parser');
+  drupal_alter('git_book_parser', $parsers);
+  return $parsers;
 }
 
 /**
@@ -91,6 +233,34 @@ function _git_book_make_node($title, $content, $parent, $weight) {
     node_save($node);
   }
   return $node;
+}
+
+/**
+ * Build the book outline as a nested array
+ * @param  int $bid book node id
+ * @return array      array representing the book
+ */
+function _git_book_tree($bid) {
+  $tree = menu_tree_all_data(book_menu_name($bid));
+  $tree = array_pop($tree);
+  $pages = array();
+  _git_book_tree_recurse($tree['below'], $pages, '');
+  return $pages;
+}
+
+/**
+ * Recursive function to build book as a tree outline
+ * @see  _git_book_tree [<description>]
+ */
+function _git_book_tree_recurse($tree, &$parent, $path) {
+  foreach ($tree as $data) {
+    if ($data['below']) {
+      _git_book_tree_recurse($data['below'], $parent[$data['link']['title']], $path . $data['link']['title'] . '/');
+    }
+    else {
+      $parent[$data['link']['title']] = $path . $data['link']['title'] . '.md';
+    }
+  }
 }
 
 /**

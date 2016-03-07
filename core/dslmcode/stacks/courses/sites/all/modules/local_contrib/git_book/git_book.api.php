@@ -5,30 +5,30 @@
  */
 
 /**
- * Implements hook_git_book_parse().
- * Example taken from git_book_rtd
- * @param  object $repo Git.php object
- * @param  string $path filepath
- * @param  object $node git_book node that was created
- * @return array        structure of what we parsed
+ * Implements hook_git_book_parser().
  */
-function hook_git_book_parse($repo, $path, $node) {
-  $ymlstructure = $path . '/mkdocs.yml';
-  if (file_exists($ymlstructure)) {
-    $mkdocs = yaml_parse_file($ymlstructure);
-    if (isset($mkdocs['pages']) && is_array($mkdocs['pages'])) {
-      // recursively parse and create nodes
-      _git_book_rtd_parse($mkdocs['pages'], $path .'/docs/', $node);
-      return $mkdocs['pages'];
-    }
-  }
+function hook_git_book_parser() {
+  // all functions below are handed $path, $node variables
+  // $path is the path on the file system to the repo
+  // $node is the git_book mapped to this repo
+  $parser = array(
+    // name to present in lists
+    'name'   => t('Read the Docs'),
+    // callback for initialization, this allows you to run functionality when a repo is
+    // created from the system itself
+    'init'   => '_git_book_rtd_make_yml',
+    // callback to parse the repo, this will have access to:
+    'parser' => 'git_book_rtd_git_book_parse',
+    // callback to construct the path / title of repo items, this will have access to:
+    'path'   => 'git_book_rtd_construct_path',
+  );
+  return $parser;
 }
 
 /**
  * Implements hook_git_book_parse_alter().
- * @param  array &$gitcontent what was parsed and created from the repo
  */
-function hook_git_book_parse_alter(&$gitcontent) {
-  // do some manipulation after the git tree has been parsed
+function hook_git_book_parser_alter(&$parsers) {
+  // modify the way a core parser works
 }
 
