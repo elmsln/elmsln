@@ -21,7 +21,7 @@ function git_book_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Advanced git settings',
-    'weight' => '3',
+    'weight' => '4',
     'children' => array(
       0 => 'field_git_branch',
       1 => 'field_git_push',

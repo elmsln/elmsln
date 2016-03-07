@@ -208,6 +208,77 @@ function git_book_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
+      'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance: 'node-git_book-field_git_parser'
+  $field_instances['node-git_book-field_git_parser'] = array(
+    'bundle' => 'git_book',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'How is this repo structured so we can import all the items into the correct book structure?',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 6,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_git_parser',
+    'label' => 'Repo structure',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
       'weight' => 2,
     ),
   );
@@ -345,9 +416,11 @@ function git_book_field_default_field_instances() {
   t('Commit');
   t('Description');
   t('Git repo that you want associated to this book.');
+  t('How is this repo structured so we can import all the items into the correct book structure?');
   t('If checked this will attempt to push back to the origin on each change.');
   t('Push');
   t('Repo');
+  t('Repo structure');
   t('Should changes automatically be committed back to the repo (locally)');
   t('What branch or Tag should this repo work against with? Once the repo is on the server you can select from the branches or tags that come across.');
 
