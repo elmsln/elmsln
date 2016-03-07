@@ -30,7 +30,7 @@ function git_book_markdown_git_book_make_node_alter(&$node) {
 function git_book_markdown_node_prepare($node) {
   if (isset($node->book)) {
     $book = node_load($node->book['bid']);
-    if ($book->type == 'git_book') {
+    if ($book && $book->type == 'git_book') {
       // hijack default input format to be markdown
       $node->body[LANGUAGE_NONE][0]['format'] = 'git_book_markdown';
     }
