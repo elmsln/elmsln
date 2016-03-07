@@ -9,6 +9,7 @@ CKEDITOR.editorConfig = function( config ) {
   config.removePlugins = 'scayt';
   // hitting control, they'll be able to use browser native spellchecker
   config.browserContextMenuOnCtrl = true;
+  config.mathJaxLib = '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML';
   // activate codemirror as UI won't allow it
   config.extraPlugins = 'codemirror';
   // add codemirror settings
