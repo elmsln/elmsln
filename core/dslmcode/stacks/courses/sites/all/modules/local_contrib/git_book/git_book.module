@@ -32,6 +32,11 @@ function git_book_node_insert($node) {
       // up to anything currently
       $path = drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($node->title));
       $repo = Git::create($path);
+      $branch = 'master';
+      if (isset($node->field_git_branch[LANGUAGE_NONE][0]['value'])) {
+        $branch = $node->field_git_branch[LANGUAGE_NONE][0]['value'];
+      }
+      $repo->checkout($branch);
       $parsers = git_book_get_parsers();
       // allow other parsers to initialize the new git repo
       if (!empty($parsers) && isset($node->field_git_parser[LANGUAGE_NONE][0]['value']) && isset($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]) && isset($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]['init'])) {
@@ -48,6 +53,11 @@ function git_book_node_insert($node) {
       else {
         $repo = Git::create($path, $repo_url, true);
       }
+      $branch = 'master';
+      if (isset($node->field_git_branch[LANGUAGE_NONE][0]['value'])) {
+        $branch = $node->field_git_branch[LANGUAGE_NONE][0]['value'];
+      }
+      $repo->checkout($branch);
       $parsers = git_book_get_parsers();
       if (isset($node->field_git_parser[LANGUAGE_NONE][0]['value']) && isset($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]) && isset($parsers[$node->field_git_parser[LANGUAGE_NONE][0]['value']]['path'])) {
         // call anything that wants to parse this and turn it into nodes
