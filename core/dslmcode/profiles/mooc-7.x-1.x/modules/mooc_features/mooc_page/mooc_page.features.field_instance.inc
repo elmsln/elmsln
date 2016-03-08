@@ -60,13 +60,17 @@ function mooc_page_field_default_field_instances() {
       ),
       'better_formats' => array(
         'allowed_formats' => array(
+          'git_book_markdown' => 0,
           'plain_text' => 0,
-          'textbook_editor' => 'textbook_editor',
+          'textbook_editor' => 0,
         ),
-        'allowed_formats_toggle' => 1,
+        'allowed_formats_toggle' => 0,
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
+            'git_book_markdown' => array(
+              'weight' => 0,
+            ),
             'plain_text' => array(
               'weight' => 10,
             ),
@@ -84,7 +88,7 @@ function mooc_page_field_default_field_instances() {
       'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 50,
+        'rows' => 30,
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',

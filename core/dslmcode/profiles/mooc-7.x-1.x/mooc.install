@@ -95,3 +95,10 @@ function mooc_update_7001(&$sandbox) {
 function mooc_update_7002(&$sandbox) {
   context_invalidate_cache();
 }
+
+/**
+ * Revert mooc page so it can support input formats other then just textbook
+ */
+function mooc_update_7003(&$sandbox) {
+  features_revert_module('mooc_page');
+}
