@@ -32,6 +32,16 @@ function elmsln_core_user_default_permissions() {
     'module' => 'elmsln_core',
   );
 
+  // Exported permission: 'administer cis lms-less nav'.
+  $permissions['administer cis lms-less nav'] = array(
+    'name' => 'administer cis lms-less nav',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'cis_lmsless_nav',
+  );
+
   // Exported permission: 'access administration menu'.
   $permissions['access administration menu'] = array(
     'name' => 'access administration menu',
