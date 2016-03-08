@@ -254,7 +254,7 @@ function _cis_lmsless_assemble_network() {
       }
 
       // service creation stuff inline
-      if (!empty($course_context)) {
+      if (!empty($course_context) && _cis_connector_role_grouping('staff')) {
         $vars['service_option_link'] = _cis_connector_format_address($reg['cis'],  '/' . $course_context, 'front') . '/service-instances';
       }
     }
