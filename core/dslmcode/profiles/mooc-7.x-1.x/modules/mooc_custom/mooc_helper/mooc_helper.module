@@ -512,6 +512,9 @@ function mooc_helper_node_prepare($node) {
     $current_section = _cis_connector_section_context();
     drupal_set_message(t('This page is not part of the section you are currently working on. You can still modify this page but the change will not be visible to students in section `@section`. Click the Outline button to navigate to a page in the active outline or switch sections by clicking on your profile name.', array('@section' => $current_section)), 'warning');
   }
+  elseif (!isset($node->nid)) {
+    drupal_add_js(drupal_get_path('module', 'mooc_helper') . '/field-focus.js');
+  }
 }
 
 /**
