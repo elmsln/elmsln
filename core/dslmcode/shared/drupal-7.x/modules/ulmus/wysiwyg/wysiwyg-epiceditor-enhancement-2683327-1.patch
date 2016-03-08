@@ -1,0 +1,37 @@
+diff --git a/editors/epiceditor.inc b/editors/epiceditor.inc
+index 4d3ecb0..6a006ff 100644
+--- a/editors/epiceditor.inc
++++ b/editors/epiceditor.inc
+@@ -72,9 +72,7 @@ function wysiwyg_epiceditor_version($editor) {
+  *   theme name.
+  */
+ function wysiwyg_epiceditor_themes($editor, $profile) {
+-  return array('epic-dark', 'epic-light');
+-  // @todo Use the preview themes somewhere.
+-  //return array('preview-dark', 'github');
++  return array('epic-light', 'epic-dark');
+ }
+ 
+ /**
+@@ -106,7 +104,7 @@ function wysiwyg_epiceditor_settings($editor, $config, $theme) {
+     'basePath' => base_path() . $editor['library path'],
+     'clientSideStorage' => FALSE,
+     'theme' => $theme,
+-    //'preview_theme' => '',
++    'preview_theme' => 'github',
+   );
+   return $settings;
+ }
+diff --git a/editors/js/epiceditor.js b/editors/js/epiceditor.js
+index 3f2c43d..d9504ba 100644
+--- a/editors/js/epiceditor.js
++++ b/editors/js/epiceditor.js
+@@ -19,7 +19,7 @@ Drupal.wysiwyg.editor.attach.epiceditor = function (context, params, settings) {
+     defaultContent: defaultContent
+   };
+   settings.theme = {
+-    preview: '/themes/preview/preview-dark.css',
++    preview: '/themes/preview/' + settings.preview_theme + '.css',
+     editor: '/themes/editor/' + settings.theme + '.css'
+   };
+   var editor = new EpicEditor(settings).load();
