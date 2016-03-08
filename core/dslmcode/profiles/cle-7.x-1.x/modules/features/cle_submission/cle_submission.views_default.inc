@@ -1700,6 +1700,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
   $handler->display->display_options['pager']['type'] = 'none';
   $handler->display->display_options['style_plugin'] = 'masonry_views_grid';
   $handler->display->display_options['style_options']['masonry_animated'] = TRUE;
@@ -1779,6 +1780,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['field_submission_type_value']['expose']['label'] = 'Submission type';
   $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator'] = 'field_submission_type_value_op';
   $handler->display->display_options['filters']['field_submission_type_value']['expose']['identifier'] = 'field_submission_type_value';
+  $handler->display->display_options['filters']['field_submission_type_value']['expose']['remember'] = TRUE;
   $handler->display->display_options['filters']['field_submission_type_value']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,

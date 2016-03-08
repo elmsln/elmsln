@@ -73,6 +73,13 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
+      'critique' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 1,
+      ),
       'default' => array(
         'label' => 'hidden',
         'module' => 'text',
@@ -148,6 +155,15 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
+      'critique' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 0,
+      ),
       'default' => array(
         'label' => 'inline',
         'module' => 'entityreference',
@@ -207,6 +223,12 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
+      'critique' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 16,
+      ),
       'default' => array(
         'label' => 'hidden',
         'settings' => array(),
@@ -245,6 +267,15 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
+      'critique' => array(
+        'label' => 'hidden',
+        'module' => 'file_entity',
+        'settings' => array(
+          'text' => 'Download [file:name]',
+        ),
+        'type' => 'file_download_link',
+        'weight' => 5,
+      ),
       'default' => array(
         'label' => 'hidden',
         'module' => 'file_entity',
@@ -306,6 +337,22 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
+      'critique' => array(
+        'label' => 'hidden',
+        'module' => 'colorbox',
+        'settings' => array(
+          'colorbox_caption' => 'auto',
+          'colorbox_caption_custom' => '',
+          'colorbox_gallery' => 'field_page',
+          'colorbox_gallery_custom' => '',
+          'colorbox_image_style' => '',
+          'colorbox_multivalue_index' => NULL,
+          'colorbox_node_style' => 'cle_submission',
+          'colorbox_node_style_first' => 'cle_submission',
+        ),
+        'type' => 'colorbox',
+        'weight' => 2,
+      ),
       'default' => array(
         'label' => 'hidden',
         'module' => 'colorbox',
@@ -399,6 +446,13 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
+      'critique' => array(
+        'label' => 'hidden',
+        'module' => 'link',
+        'settings' => array(),
+        'type' => 'link_default',
+        'weight' => 4,
+      ),
       'default' => array(
         'label' => 'hidden',
         'module' => 'link',
@@ -460,6 +514,12 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => 'Current workflow state of this submission on its way to being graded and viewed by the student.',
     'display' => array(
+      'critique' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 15,
+      ),
       'default' => array(
         'label' => 'hidden',
         'settings' => array(),
@@ -499,6 +559,17 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
+      'critique' => array(
+        'label' => 'hidden',
+        'module' => 'video_embed_field',
+        'settings' => array(
+          'description' => 1,
+          'description_position' => 'bottom',
+          'video_style' => 'cle_default',
+        ),
+        'type' => 'video_embed_field',
+        'weight' => 3,
+      ),
       'default' => array(
         'label' => 'hidden',
         'module' => 'video_embed_field',
@@ -554,6 +625,12 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
+      'critique' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 14,
+      ),
       'default' => array(
         'label' => 'inline',
         'settings' => array(),

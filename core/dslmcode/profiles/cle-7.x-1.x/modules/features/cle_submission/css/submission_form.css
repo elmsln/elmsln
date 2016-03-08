@@ -1,5 +1,6 @@
 /* CSS Document */
-
-.cle_hidden {
-	display:none !important;
+.cle_hidden,
+.role-student .horizontal-tabs,
+.role-past-student .horizontal-tabs {
+  display:none !important;
 }

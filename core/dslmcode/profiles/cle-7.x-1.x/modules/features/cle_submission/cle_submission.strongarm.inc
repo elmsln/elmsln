@@ -96,6 +96,9 @@ function cle_submission_strongarm() {
       'gradebook_viewer' => array(
         'custom_settings' => TRUE,
       ),
+      'critique' => array(
+        'custom_settings' => TRUE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
