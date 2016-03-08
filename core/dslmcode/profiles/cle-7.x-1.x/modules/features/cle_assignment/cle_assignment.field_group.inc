@@ -28,7 +28,6 @@ function cle_assignment_field_group_info() {
       2 => 'field_color',
       3 => 'field_number',
       4 => 'field_sub_number',
-      5 => 'og_group_ref',
     ),
     'format_type' => 'tab',
     'format_settings' => array(
@@ -115,6 +114,7 @@ function cle_assignment_field_group_info() {
       0 => 'field_due_date',
       1 => 'field_submission_type',
       2 => 'field_visibility',
+      3 => 'field_cle_sub_type',
     ),
     'format_type' => 'tab',
     'format_settings' => array(

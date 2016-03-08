@@ -241,8 +241,9 @@ function cle_assignment_views_default_views() {
     'nid' => 'nid',
     'field_color' => 'field_color',
     'field_number' => 'field_number',
-    'field_sub_number' => 'field_sub_number',
+    'field_sub_number' => 'field_number',
     'title' => 'title',
+    'field_cle_sub_type' => 'field_cle_sub_type',
     'field_due_date' => 'field_due_date',
     'nothing' => 'nothing',
   );
@@ -263,10 +264,10 @@ function cle_assignment_views_default_views() {
       'empty_column' => 0,
     ),
     'field_number' => array(
-      'sortable' => 0,
+      'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
-      'separator' => '',
+      'separator' => '.',
       'empty_column' => 0,
     ),
     'field_sub_number' => array(
@@ -277,14 +278,21 @@ function cle_assignment_views_default_views() {
       'empty_column' => 0,
     ),
     'title' => array(
-      'sortable' => 0,
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_cle_sub_type' => array(
+      'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_due_date' => array(
-      'sortable' => 0,
+      'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
@@ -296,6 +304,8 @@ function cle_assignment_views_default_views() {
       'empty_column' => 0,
     ),
   );
+  $handler->display->display_options['style_options']['sticky'] = TRUE;
+  $handler->display->display_options['style_options']['caption'] = 'Listing of studio assignments';
   /* Relationship: Entity Reference: Referenced Entity */
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['id'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['table'] = 'field_data_field_cle_assignments';
@@ -322,13 +332,14 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['field_number']['table'] = 'field_data_field_number';
   $handler->display->display_options['fields']['field_number']['field'] = 'field_number';
   $handler->display->display_options['fields']['field_number']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['fields']['field_number']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_number']['element_label_colon'] = FALSE;
   /* Field: Content: Sub-number */
   $handler->display->display_options['fields']['field_sub_number']['id'] = 'field_sub_number';
   $handler->display->display_options['fields']['field_sub_number']['table'] = 'field_data_field_sub_number';
   $handler->display->display_options['fields']['field_sub_number']['field'] = 'field_sub_number';
   $handler->display->display_options['fields']['field_sub_number']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['fields']['field_sub_number']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_sub_number']['label'] = '';
+  $handler->display->display_options['fields']['field_sub_number']['element_label_colon'] = FALSE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -336,12 +347,17 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['title']['relationship'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: Submission type */
+  $handler->display->display_options['fields']['field_cle_sub_type']['id'] = 'field_cle_sub_type';
+  $handler->display->display_options['fields']['field_cle_sub_type']['table'] = 'field_data_field_cle_sub_type';
+  $handler->display->display_options['fields']['field_cle_sub_type']['field'] = 'field_cle_sub_type';
+  $handler->display->display_options['fields']['field_cle_sub_type']['relationship'] = 'field_cle_assignments_target_id';
+  $handler->display->display_options['fields']['field_cle_sub_type']['label'] = 'Type';
   /* Field: Content: Due Date */
   $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_due_date']['settings'] = array(
     'format_type' => 'short',

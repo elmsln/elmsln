@@ -141,6 +141,29 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'list_text',
   );
 
+  // Exported field_base: 'field_cle_sub_type'
+  $field_bases['field_cle_sub_type'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_cle_sub_type',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'max_length' => 255,
+    ),
+    'translatable' => 0,
+    'type' => 'text',
+  );
+
   // Exported field_base: 'field_color'
   $field_bases['field_color'] = array(
     'active' => 1,
@@ -264,34 +287,6 @@ function cle_assignment_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'text',
-  );
-
-  // Exported field_base: 'field_submission_type'
-  $field_bases['field_submission_type'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_submission_type',
-    'indexes' => array(
-      'value' => array(
-        0 => 'value',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'list',
-    'settings' => array(
-      'allowed_values' => array(
-        'exercise' => 'Activities',
-        'draft' => 'Draft Pages',
-        'final' => 'Final Pages',
-      ),
-      'allowed_values_function' => '',
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'list_text',
   );
 
   // Exported field_base: 'field_visibility'
