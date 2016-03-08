@@ -1,4 +1,0 @@
-name = "Thumbnav"
-description = "Add mobile gesture navigation support to Drupal"
-core = 7.x
-package = "User Interface"
