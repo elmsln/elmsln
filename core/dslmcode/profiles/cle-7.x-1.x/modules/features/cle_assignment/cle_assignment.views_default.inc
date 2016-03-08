@@ -167,7 +167,7 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['sorts']['field_sub_number_value']['id'] = 'field_sub_number_value';
   $handler->display->display_options['sorts']['field_sub_number_value']['table'] = 'field_data_field_sub_number';
   $handler->display->display_options['sorts']['field_sub_number_value']['field'] = 'field_sub_number_value';
-  /* Contextual filter: Content: Groups audience (og_group_ref) */
+  /* Contextual filter: Content: Section (og_group_ref) */
   $handler->display->display_options['arguments']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -395,9 +395,9 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['path'] = 'cle/assignments';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Assignments list';
+  $handler->display->display_options['menu']['title'] = 'Assignments';
   $handler->display->display_options['menu']['description'] = 'Listing of assignments for this section';
-  $handler->display->display_options['menu']['weight'] = '-10';
+  $handler->display->display_options['menu']['weight'] = '-9';
   $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;

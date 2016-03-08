@@ -10,17 +10,15 @@ include_once 'cle_critique.features.inc';
  * Implements hook_menu().
  */
 function cle_critique_menu() {
-  $items['cle/critique'] = array(
-    'title' => 'Peer critique',
+  $items['cle/critique/critique-peer'] = array(
+    'title' => 'Critique peer',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_cle_critique_page_random_form'),
     'access callback' => 'node_access',
     'access arguments' => array('create', 'cle_critique'),
-    'type' => MENU_NORMAL_ITEM,
-    'menu_name' => 'menu-elmsln-navigation',
-    'weight' => 10,
+    'type' => MENU_LOCAL_ACTION,
   );
-  $items['cle/critique/%node'] = array(
+  $items['cle/critique/critique-peer/%node'] = array(
     'title' => 'Peer critique',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_cle_critique_page_random_form'),
@@ -42,7 +40,7 @@ function cle_critique_menu() {
  */
 function _cle_critique_page_random_form($arg, &$form_state) {
   // present a select list if a node hasn't been passed in
-  $arg = arg(2);
+  $arg = arg(3);
   if (empty($arg)) {
     // pull in the list of assignments
     $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array('field_cle_crit_type' => array('value', 'none', '<>')), array(), array('field_cle_order' => 'value'));
@@ -152,7 +150,7 @@ function _cle_critique_page_random_form_validate($form, &$form_state) {
 function _cle_critique_page_random_form_submit($form, $form_state) {
   if (isset($form_state['values']['assignment']) && is_numeric($form_state['values']['assignment'])) {
     $gid = _cis_section_load_section_by_id(_cis_connector_section_context());
-    drupal_goto('cle/critique/' . $form_state['values']['assignment'], array('query' => array('og_group_ref' => $gid)));
+    drupal_goto('cle/critique/critique-peer/' . $form_state['values']['assignment'], array('query' => array('og_group_ref' => $gid)));
   }
 }
 
@@ -222,7 +220,7 @@ function cle_critique_cis_shortcode_render_alter(&$field, $entity, $type) {
       'rev' => CIS_SHORTCODES_API_REV,
       'tool' => variable_get('install_profile', ''),
       'render' => 'submit',
-      'link' => 'cle/critique/' . $entity->nid . '?entity_iframe=true',
+      'link' => 'cle/critique/critique-peer/' . $entity->nid . '?entity_iframe=true',
       'text' => t('Submit critique'),
       'modal' => 1,
     );

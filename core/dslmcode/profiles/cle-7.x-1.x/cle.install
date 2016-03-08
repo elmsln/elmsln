@@ -18,8 +18,23 @@ function cle_install() {
   _elmsln_installer_post_install_cleanup();
 
   // set homepage
-  variable_set('site_frontpage', 'cle');
+  variable_set('site_frontpage', 'cle/open-studio');
   // last ditch revert
+  features_revert_module('cle_critique');
+  features_revert_module('cle_submission');
+}
+
+/**
+ * Enhance studio defaults
+ */
+function cle_update_7000(&$sandbox) {
+  // update as homepage path has moved for breadcrumb hierarchy
+  if (variable_set('site_frontpage', 'cle') == 'cle') {
+    variable_set('site_frontpage', 'cle/open-studio');
+  }
+  // revert features, first of its kind for studio, ever in 8 years
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_cis_ux');
   features_revert_module('cle_critique');
   features_revert_module('cle_submission');
 }

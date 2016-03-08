@@ -1,7 +1,5 @@
 <?php
 /**
  * @file
- * Code for the CLE CIS UX feature.
+ * Drupal needs this blank file.
  */
-
-include_once 'cle_cis_ux.features.inc';

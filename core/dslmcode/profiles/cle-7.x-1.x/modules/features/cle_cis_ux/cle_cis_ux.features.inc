@@ -1,5 +1,3 @@
 <?php
-/**
- * @file
- * cle_cis_ux.features.inc
- */
+
+// This file is deprecated and can be removed.
