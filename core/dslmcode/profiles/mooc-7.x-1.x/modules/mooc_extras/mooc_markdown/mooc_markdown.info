@@ -1,0 +1,10 @@
+name = MOOC Markdown
+description = Adds markdown support for MOOC distro.
+core = 7.x
+package = MOOC Extras
+dependencies[] = features
+dependencies[] = filter
+dependencies[] = git_book_markdown
+dependencies[] = markdown
+features[features_api][] = api:2
+features[user_permission][] = use text format git_book_markdown

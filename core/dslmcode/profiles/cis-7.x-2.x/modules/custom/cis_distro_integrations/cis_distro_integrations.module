@@ -22,7 +22,7 @@ function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$c
     $path = $service_instance->field_service_data[LANGUAGE_NONE][0]['value'];
     // see if we have a .git url
     if (valid_url($path) && strpos($path, '.git') !== FALSE) {
-      $content .= 'drush en gitphp,git_book,git_book_rtd' . "\n";
+      $content .= 'drush en git_book,git_book_rtd,mooc_markdown' . "\n";
       $content .= 'drush cc drush' . "\n";
       $content .= 'drush git-book-create ' . $path . "\n";
     }
