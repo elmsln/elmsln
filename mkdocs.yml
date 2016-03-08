@@ -53,6 +53,7 @@ pages:
     - MOOC:
       - Optional: development/upgrades/Course-UX-upgrade-for-0.1.0.md
   - Debug : development/debug.md
+  - General Infrastructure : development/General-Infrastructure.md
 theme: readthedocs
 site_author: "elmsln"
 repo_name: ELMSLN
