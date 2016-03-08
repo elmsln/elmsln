@@ -29,7 +29,7 @@ function cle_install() {
  */
 function cle_update_7000(&$sandbox) {
   // update as homepage path has moved for breadcrumb hierarchy
-  if (variable_set('site_frontpage', 'cle') == 'cle') {
+  if (variable_get('site_frontpage', 'cle') == 'cle') {
     variable_set('site_frontpage', 'cle/open-studio');
   }
   // revert features, first of its kind for studio, ever in 8 years
