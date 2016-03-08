@@ -24,7 +24,8 @@ function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$c
     if (valid_url($path) && strpos($path, '.git') !== FALSE) {
       $content .= 'drush en git_book,git_book_rtd,mooc_markdown' . "\n";
       $content .= 'drush cc drush' . "\n";
-      $content .= 'drush git-book-create ' . $path . "\n";
+      // @todo support other formats in the future
+      $content .= 'drush git-book-create ' . $path . " rtd master\n";
     }
     else {
       // allow for on creation population of materials which are local to the file system

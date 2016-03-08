@@ -16,10 +16,12 @@ function git_book_drush_command() {
     'aliases' => array('gbc'),
     'description' => dt('Create a git book'),
     'examples' => array(
-      'drush git-book-create https://github.com/elmsln/elmsln.git' => 'Import and process the git repo as if the node was created via the front-end.',
+      'drush git-book-create https://github.com/elmsln/elmsln.git rtd master' => 'Import and process the git repo as if the node was created via the front-end.',
     ),
     'arguments' => array(
       'repo_url' => 'git repo url to import',
+      'parser' => 'parser machine name to use',
+      'branch' => 'branch to checkout'
     ),
   );
 
@@ -29,7 +31,7 @@ function git_book_drush_command() {
 /**
  * Callback for command git-book-create.
  */
-function drush_git_book_create($repo_url) {
+function drush_git_book_create($repo_url, $parser, $branch) {
   $node = new stdClass();
   $node->type = 'git_book';
   node_object_prepare($node);
@@ -44,6 +46,8 @@ function drush_git_book_create($repo_url) {
   $node->title = $title;
   // set the git repo
   $node->field_git_repo[LANGUAGE_NONE][0]['value'] = $repo_url;
+  $node->field_git_parser[LANGUAGE_NONE][0]['value'] = $parser;
+  $node->field_git_branch[LANGUAGE_NONE][0]['value'] = $branch;
   // save which will kick off processing of the node
   node_save($node);
   drush_print(dt('git book @repo_url successfully imported as @title', array('@repo_url' => $repo_url, '@title' => $title)));
