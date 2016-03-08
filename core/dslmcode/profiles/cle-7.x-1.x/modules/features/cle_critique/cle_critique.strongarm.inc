@@ -117,6 +117,9 @@ function cle_critique_strongarm() {
       'revision' => array(
         'custom_settings' => FALSE,
       ),
+      'critique' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(

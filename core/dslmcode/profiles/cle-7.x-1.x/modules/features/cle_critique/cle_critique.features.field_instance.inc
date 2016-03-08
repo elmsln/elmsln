@@ -223,7 +223,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'hidden',
+        'label' => 'above',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
@@ -290,7 +290,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
         'module' => 'entityreference',
         'settings' => array(
           'links' => 0,
-          'view_mode' => 'default',
+          'view_mode' => 'critique',
         ),
         'type' => 'entityreference_entity_view',
         'weight' => 0,

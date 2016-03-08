@@ -235,3 +235,16 @@ function cle_critique_cis_shortcode_render_alter(&$field, $entity, $type) {
   }
 }
 
+/**
+ * Implements hook_node_view().
+ */
+function cle_critique_node_view($node, $view_mode, $langcode) {
+  if ($node->type == 'cle_critique') {
+    $submission = node_load($node->field_cle_crit_sub_ref['und'][0]['target_id']);
+    $assignment = node_load($submission->field_assignment['und'][0]['target_id']);
+    // support for doubleblind
+    if ($assignment->field_cle_crit_type['und'][0]['value'] == 'doubleblind') {
+      drupal_set_title('Critique by classmate');
+    }
+  }
+}
