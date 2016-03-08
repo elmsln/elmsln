@@ -21,6 +21,17 @@ function elmsln_core_user_default_permissions() {
     'module' => 'admin_theme',
   );
 
+  // Exported permission: 'access elmsln administration areas'.
+  $permissions['access elmsln administration areas'] = array(
+    'name' => 'access elmsln administration areas',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'elmsln_core',
+  );
+
   // Exported permission: 'access administration menu'.
   $permissions['access administration menu'] = array(
     'name' => 'access administration menu',

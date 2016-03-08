@@ -28,6 +28,7 @@ features[features_api][] = api:2
 features[user_permission][] = access admin theme
 features[user_permission][] = access administration menu
 features[user_permission][] = access administration pages
+features[user_permission][] = access elmsln administration areas
 features[user_permission][] = access ckeditor link
 features[user_permission][] = access iframe version
 features[user_permission][] = administer masquerade

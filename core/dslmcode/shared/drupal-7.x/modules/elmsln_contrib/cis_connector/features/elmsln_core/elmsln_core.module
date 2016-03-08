@@ -5,3 +5,15 @@
  */
 
 include_once 'elmsln_core.features.inc';
+
+/**
+ * Implements hook_permission().
+ */
+function elmsln_core_permission() {
+  return array(
+    'access elmsln administration areas' =>  array(
+      'title' => t('Administer ELMSLN configuration'),
+      'description' => t('Grants access to administrative areas of ELMSLN like network configuration and settings pages.'),
+    ),
+  );
+}
