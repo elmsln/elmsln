@@ -16,8 +16,8 @@ function cis_lmsless_permission() {
       'description' => t('Provides context as to what system you are in and quick links.'),
     ),
     'view lmsless administration links' =>  array(
-      'title' => t('View link to CIS space'),
-      'description' => t('This shows the shortcut to the marketing space in CIS.'),
+      'title' => t('View links to administrative tools'),
+      'description' => t('Show the links to other administrative tools in network flyout.'),
     ),
   );
 }
