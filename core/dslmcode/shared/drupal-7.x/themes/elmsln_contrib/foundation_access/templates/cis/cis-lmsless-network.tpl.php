@@ -14,6 +14,7 @@
   <div id="eco-services-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
     <ul class="button-group">
       <li><?php print l(t('Add services'), $service_option_link); ?></li>
+      <li><?php print l(t('Edit this list'), 'admin/config/user-interface/cis-lmsless-nav'); ?></li>
     </ul>
   </div>
   <?php endif; ?>
