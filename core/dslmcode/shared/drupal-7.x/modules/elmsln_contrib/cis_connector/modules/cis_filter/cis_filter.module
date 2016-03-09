@@ -589,7 +589,7 @@ function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL
     }
     // create a UUID for this frame id so it knows where to send the data back to
     $id = uniqid();
-    $classes = 'cis_filter_modal_frame entity_iframe_tool_' . $tool;
+    $classes = 'entity_iframe entity_iframe_no_resize cis_filter_modal_frame entity_iframe_tool_' . $tool;
     $link = _cis_connector_format_address($settings, $instance, 'front') . $a1 . '/' . $a2;
     if (isset($a3) && $a3 != 'auto-refresh-on-close') {
       $tmp = explode('?', $a3);

@@ -33,7 +33,7 @@
           var frameheight = parts[1];
         }
       }
-      $('#' + iframeid).animate({
+      $('#' + iframeid + ':not(.entity_iframe_no_resize)').animate({
         height: frameheight,
       }, 300);
     });
