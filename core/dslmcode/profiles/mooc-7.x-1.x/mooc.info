@@ -167,6 +167,7 @@ dependencies[] = token_insert_entity
 dependencies[] = token_insert
 dependencies[] = token_insert_wysiwyg
 ; Features
+dependencies[] = cis_tokens
 dependencies[] = feeds_node_helper_export
 dependencies[] = feeds_node_helper_import
 dependencies[] = mooc_cis_ux
