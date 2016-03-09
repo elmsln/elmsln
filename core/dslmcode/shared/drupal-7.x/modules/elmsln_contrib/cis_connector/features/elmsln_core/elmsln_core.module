@@ -17,3 +17,23 @@ function elmsln_core_permission() {
     ),
   );
 }
+
+/**
+ * Implements hook_node_prepare().
+ */
+function elmsln_core_node_prepare($node) {
+  if (!isset($node->nid)) {
+    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/field-focus.js');
+  }
+}
+
+/**
+ * Implements hook_preprocess().
+ *
+ * Add a class to match our view-modes
+ */
+function elmsln_core_preprocess(&$variables, $hook) {
+  if ($hook == 'node') {
+    $variables['classes_array'][] = $hook . '-view-mode-' . $variables['view_mode'];
+  }
+}
