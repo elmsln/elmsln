@@ -41,3 +41,21 @@ function cle_assignment_page_build(&$page) {
     );
   }
 }
+
+/**
+ * Implements hook_node_insert().
+ */
+function cle_assignment_node_insert($node) {
+  // make sure there's an outline associated to this
+  // but only if we have at least 1 to do so with
+  if ($node->type == 'cle_assignment') {
+    // add this assignment to the master section assignment list automatically
+    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER)) {
+      // this case can be triggered if the dates get updated downstream in CIS
+      // or if we create something ahead of the semester
+      $section = node_load($gid);
+      $section->field_cle_assignments['und'][] = array('target_id' => $node->nid);
+      node_save($section);
+    }
+  }
+}
