@@ -1,3 +1,8 @@
+a.add-menu-drop {
+  float: left;
+  margin: 0 2rem;
+}
+
 .filter-guidelines,
 .filter-help {
   display:none;
