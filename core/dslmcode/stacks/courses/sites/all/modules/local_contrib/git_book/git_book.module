@@ -153,7 +153,7 @@ function git_book_node_update($node) {
             if (isset($node->body[LANGUAGE_NONE]) && !empty($node->body[LANGUAGE_NONE])) {
               $content = $node->body[LANGUAGE_NONE][0]['value'];
             }
-            file_put_contents($path . $node->title . '.md', $content);
+            @file_put_contents($path . $node->title . '.md', $content);
             // if old doesn't = new that means title changed
             // since this is tied to filename we can delete
             // the old file and know git will realize

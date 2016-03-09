@@ -29,7 +29,7 @@ function _git_book_rtd_make_yml($path, $node, $pages = array()) {
     'repo_name' => $node->title,
     'pages' => $pages,
   );
-  yaml_emit_file($path . '/mkdocs.yml', $mkdocs);
+  @yaml_emit_file($path . '/mkdocs.yml', $mkdocs);
 }
 
 /**
