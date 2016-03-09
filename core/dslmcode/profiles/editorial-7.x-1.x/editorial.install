@@ -18,6 +18,7 @@ function editorial_install() {
   // set front page to the my posts view
   variable_set('site_frontpage', 'editorial/blog-posts/my');
   // these need reverted after build
+  features_revert_module('editorial_blog_post');
   features_revert_module('editorial_story_seeds');
   features_revert_module('editorial_journal_entry');
 }
@@ -30,3 +31,13 @@ function editorial_update_7001(&$sandbox) {
   module_enable(array('editorial_ux'));
   features_revert_module('editorial_journal_entry');
 }
+
+/**
+ * Clean up some menu item placements and better UX defaults for
+ * node entry forms for everyone.
+ */
+function editorial_update_7002(&$sandbox) {
+  features_revert_module('editorial_blog_post');
+  features_revert_module('editorial_ux');
+}
+
