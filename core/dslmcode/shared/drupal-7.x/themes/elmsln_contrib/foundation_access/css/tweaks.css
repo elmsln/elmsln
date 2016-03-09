@@ -1,6 +1,6 @@
 a.add-menu-drop {
   float: left;
-  margin: 0 2rem;
+  margin-right: 2rem !important;
 }
 
 .filter-guidelines,
