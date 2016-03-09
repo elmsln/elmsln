@@ -8,6 +8,6 @@ dependencies[] = features
 dependencies[] = masquerade
 dependencies[] = menu
 features[features_api][] = api:2
-features[menu_links][] = menu-elmsln-settings_create-assignment:node/add/cle-assignment
+features[menu_links][] = menu-elmsln-add_create-assignment:node/add/cle-assignment
 features[menu_links][] = menu-elmsln-settings_create-submission:node/add/cle-submission
 features[menu_links][] = menu-elmsln-settings_studio:<nolink>

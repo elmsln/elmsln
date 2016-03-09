@@ -10,12 +10,12 @@
 function cle_cis_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-elmsln-settings_create-assignment:node/add/cle-assignment
-  $menu_links['menu-elmsln-settings_create-assignment:node/add/cle-assignment'] = array(
-    'menu_name' => 'menu-elmsln-settings',
+  // Exported menu link: menu-elmsln-add_create-assignment:node/add/cle-assignment
+  $menu_links['menu-elmsln-add_create-assignment:node/add/cle-assignment'] = array(
+    'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/cle-assignment',
     'router_path' => 'node/add/cle-assignment',
-    'link_title' => 'Create assignment',
+    'link_title' => 'Assignment',
     'options' => array(
       'attributes' => array(),
       'item_attributes' => array(
@@ -23,7 +23,7 @@ function cle_cis_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-elmsln-settings_create-assignment:node/add/cle-assignment',
+      'identifier' => 'menu-elmsln-add_create-assignment:node/add/cle-assignment',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -32,7 +32,6 @@ function cle_cis_ux_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -49,
     'customized' => 1,
-    'parent_identifier' => 'menu-elmsln-settings_studio:<nolink>',
   );
   // Exported menu link: menu-elmsln-settings_create-submission:node/add/cle-submission
   $menu_links['menu-elmsln-settings_create-submission:node/add/cle-submission'] = array(
