@@ -23,6 +23,10 @@ function entity_iframe_mode_url_outbound_alter(&$path, &$options, $original) {
   $mode = _entity_iframe_mode_enabled();
   if ($mode && strpos($path, 'sites/all') !== 0) {
     $options['query']['entity_iframe'] = $mode;
+    // flag for when this is a series of actions to keep running in the frame
+    if (isset($_GET['modal'])) {
+      $options['query']['modal'] = $mode;
+    }
   }
 }
 

@@ -44,6 +44,10 @@ function foundation_access_preprocess_html(&$variables) {
   foreach($variables['user']->roles as $role){
     $variables['classes_array'][] = 'role-' . drupal_html_class($role);
   }
+  // support for class to render in a modal
+  if (isset($_GET['modal'])) {
+    $variables['classes_array'][] = 'modal-rendered';
+  }
   // add page level variables into scope for the html tpl file
   $variables['site_name'] = check_plain(variable_get('site_name', 'ELMSLN'));
   $variables['logo'] = theme_get_setting('logo');

@@ -589,7 +589,7 @@ function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL
     }
     // create a UUID for this frame id so it knows where to send the data back to
     $id = uniqid();
-    $classes = 'entity_iframe cis_filter_modal_frame entity_iframe_tool_' . $tool;
+    $classes = 'cis_filter_modal_frame entity_iframe_tool_' . $tool;
     $link = _cis_connector_format_address($settings, $instance, 'front') . $a1 . '/' . $a2;
     if (isset($a3) && $a3 != 'auto-refresh-on-close') {
       $tmp = explode('?', $a3);
@@ -615,7 +615,15 @@ function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL
         $link .= '/' . $a4;
       }
     }
-    $contents = '<iframe id="' . $id . '" class="' . $classes . '" src="' . $link . '" width="100%" height="85%"></iframe>';
+    // keep this in scope of being iframe and modal interaction modes
+    if (strpos($link, '?')) {
+      $link .= '&';
+    }
+    else {
+      $link .= '?';
+    }
+    $link .= 'entity_iframe=1&modal=1';
+    $contents = '<div class="modal-iframe-container"><iframe id="' . $id . '" class="' . $classes . '" src="' . $link . '" width="100%" height="80%"></iframe></div>';
   }
   return ctools_modal_render('Submission', $contents) ;
 }

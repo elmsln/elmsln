@@ -148,3 +148,10 @@ function cle_helper_get_group_content_ids_alter(&$ids) {
     }
   }
 }
+
+/**
+ * Implements hook_page_build().
+ */
+function cle_helper_page_build(&$page) {
+  drupal_add_css(drupal_get_path('module', 'cle_helper') . '/css/cle_helper.css');
+}
