@@ -58,7 +58,7 @@ function _textbook_magellan() {
   $content = '';
   $items = array();
   // only do this for nodes for now
-  if ($node && !empty($node->body['und'])) {
+  if ($node && !empty($node->body['und']) && isset($node->body['und'][0]['value'])) {
     // pull in the body after filtering so we don't have to
     $body = check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
     // target the magellan template style

@@ -131,7 +131,7 @@ function git_book_node_update($node) {
   // if we're in a book and the boot root's type is a repo, we want to track changes
   // also very difficult to produce but ensure we didn't just have another
   // repo function update which would trigger this
-  if ($node->type != 'git_book' && isset($node->book) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
+  if ($node->type != 'git_book' && isset($node->book)  && isset($node->log) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
     $book = node_load($node->book['bid']);
     // make sure the root book is a git_book for this node and that
     // it is currently set to auto commit

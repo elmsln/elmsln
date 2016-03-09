@@ -28,7 +28,7 @@ function git_book_markdown_git_book_make_node_alter(&$node) {
  * Implements hook_node_prepare().
  */
 function git_book_markdown_node_prepare($node) {
-  if (isset($node->book) && arg(1) == 'add') {
+  if (isset($node->book) && (arg(1) == 'add' || empty($node->body))) {
     $book = node_load($node->book['bid']);
     if ($book && $book->type == 'git_book') {
       // hijack default input format to be markdown
