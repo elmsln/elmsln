@@ -11,12 +11,13 @@ include_once 'cle_critique.features.inc';
  */
 function cle_critique_menu() {
   $items['cle/critique/critique-peer'] = array(
-    'title' => 'Critique peer',
+    'title' => 'Give Feedback',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_cle_critique_page_random_form'),
     'access callback' => 'node_access',
     'access arguments' => array('create', 'cle_critique'),
-    'type' => MENU_LOCAL_ACTION,
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => -8,
   );
   $items['cle/critique/critique-peer/%node'] = array(
     'title' => 'Peer critique',
