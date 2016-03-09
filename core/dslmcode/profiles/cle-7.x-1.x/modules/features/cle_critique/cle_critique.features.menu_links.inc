@@ -30,7 +30,7 @@ function cle_critique_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -8,
+    'weight' => 0,
     'customized' => 1,
     'parent_identifier' => 'menu-elmsln-navigation_critique:cle/critique',
   );
