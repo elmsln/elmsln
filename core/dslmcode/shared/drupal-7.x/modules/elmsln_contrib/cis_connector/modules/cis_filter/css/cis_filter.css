@@ -2,17 +2,17 @@
   float: none;
   margin: 2rem auto;
   padding: 1.25rem .25rem 0rem 7rem;
-  height: 5em;
-  font-size: 1.25rem;
-  line-height: 1.75em;
+  font-size: 1rem;
+  line-height: 4.75em;
+  border: 1px solid rgba(0, 0, 0, 0.52);
 }
 
 .elmsln-action-finished {
-  background-color: #aaffaa;
+  background-color: #bbffbb;
 }
 
 .elmsln-action-unfinished {
-  background-color: #ffaaaa;
+  background-color: #ffbbbb;
 }
 
 .elmsln-action-required {
@@ -21,4 +21,20 @@
 
 .cis_filter_modal_frame {
   border:none;
+}
+
+.cis-filter-activity-item ul.submit-widget-links {
+  margin: 0;
+  padding: .5rem;
+  font-size: 1rem;
+}
+.cis-filter-activity-item ul.submit-widget-links li{
+  display: inline-block;
+  padding: .1rem 1rem;
+  margin: 0 .5rem;
+}
+.cis-filter-activity-item ul.submit-widget-links li:hover{
+  -webkit-box-shadow: 0px 1px 1.5px 1px rgba(0, 0, 0, 0.52);
+  box-shadow: 0px 1px 1.5px 1px rgba(0, 0, 0, 0.52);
+  background-color: #eeeeee;
 }

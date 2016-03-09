@@ -370,7 +370,7 @@ function _cis_shortcode_render_codes($entity, $type) {
                 'submit_bundle' => $et_bundle,
                 'submit_reference' => $tmp['field_name'],
                 'submit_endpoint' => $end_point,
-                'submitted_text' => t('View submission'),
+                'submitted_text' => t('View'),
               );
               // query needs to know the field to look up for restws callback
               switch ($entity_fields_type) {

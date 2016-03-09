@@ -22,9 +22,10 @@ Drupal.behaviors.foundation_access_waves = {
     // IN PAGE MENU
     $(".header-menu-options li").addClass("waves-effect waves-classic");
     $(".elmsln-home-button-link").addClass("waves-effect waves-button waves-classic");
+    // submit widget
+    $(".cis-filter-activity-item ul.submit-widget-links li").addClass("waves-effect waves-button waves-classic waves-float");
   }
 };
-
 })(jQuery);
 
 /*!
