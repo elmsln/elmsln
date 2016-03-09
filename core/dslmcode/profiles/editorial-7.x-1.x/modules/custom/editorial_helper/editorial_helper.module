@@ -11,3 +11,20 @@ function editorial_helper_form_node_form_alter(&$form, &$form_state, $form_id) {
   // make items show up in horizontal tab, less realestate taken
   $form['additional_settings']['#type'] = 'horizontal_tabs';
 }
+
+/**
+ * Implements hook_entity_insert().
+ */
+function editorial_helper_entity_insert($entity, $type) {
+  if ($type == 'taxonomy_term' && $entity->vocabulary_machine_name == 'editorial_exercise') {
+    // add this term to the master section assignment list automatically
+    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER)) {
+      // this case can be triggered if the dates get updated downstream in CIS
+      // or if we create something ahead of the semester
+      $section = node_load($gid);
+      $section->field_editorial_exercises['und'][] = array('tid' => $entity->tid);
+      node_save($section);
+    }
+  }
+}
+
