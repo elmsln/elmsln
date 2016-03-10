@@ -26,7 +26,8 @@ Brad Fisher - SysOps developer
 Community Contributors Credit
 ---------------------
 While not core maintainers, these developers have been invaluable in getting ELMSLN's core development kickstarted.
+Melissa Hicks - Instructional designer, ELMS/LN Evangelist
 Rick Humphries - Early Adopter, issue contributor
 Mark Milutinovic - Student developer, testing and core bug fixes
 Dann Bohn - DevOps contributor
-
+Katrina Wehr - Instructional designer, issue contributor
