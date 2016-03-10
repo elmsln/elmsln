@@ -7,12 +7,12 @@ This is a Vagrant profile for installing a fully functioning [ELMS Learning Netw
 ###How to use this to bring up ELMSLN
 1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (ensure you are on the latest version 5.0.14+)
 2. Install [Vagrant](http://www.vagrantup.com/downloads.html) (you'll need Vagrant 1.7+)
-3. Install [git](http://git-scm.com/downloads) (recommended)
-4. Download or Clone (`git clone https://github.com/elmsln/elmsln.git`) this project
+3. Install [git](http://git-scm.com/downloads)
+4. Navigate to the folder you want elmsln in, and clone the repository using the command (`git clone https://github.com/elmsln/elmsln.git`)
+![clone elmsln](https://cloud.githubusercontent.com/assets/16597608/13260179/60875b1e-da28-11e5-865f-89e6586f370a.PNG)
 5. Add this code to your /etc/hosts (or [windows equivalent](http://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/)) so you can access it "over the web":
 ```
 ###ELMSLN development
-
 # front facing addresses
 10.0.18.55      courses.elmsln.local
 10.0.18.55      media.elmsln.local
@@ -54,6 +54,8 @@ vagrant up
 Now you'll be able to jump into any of the domains that ELMSLN starts to establish for use!  Go to http://online.elmsln.local/ after installation completes (grab a coffee, it takes awhile the first time to finish).  If it all worked you should see a new Drupal site running the Course Information System (CIS) distribution.
 
 You can log into this with `user: admin | password: admin`
+
+![log in](https://cloud.githubusercontent.com/assets/16597608/13260446/767d8ae6-da29-11e5-8346-393a09c54cf6.PNG)
 
 To connect to the console of your instance: `vagrant ssh`
 
