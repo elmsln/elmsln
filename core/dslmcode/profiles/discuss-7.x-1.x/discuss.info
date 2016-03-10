@@ -158,6 +158,8 @@ dependencies[] = taxonomy_display
 dependencies[] = search_api
 ; Views
 dependencies[] = views_load_more
+; Discuss core
+dependencies[] = discuss_helper
 ; Features
 dependencies[] = harmony_atjs
 dependencies[] = harmony_core

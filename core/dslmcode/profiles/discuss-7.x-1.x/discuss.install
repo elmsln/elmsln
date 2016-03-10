@@ -25,8 +25,19 @@ function discuss_install() {
  * Enable discuss helper module and rebuild access permissions.
  */
 function discuss_update_7001(&$sandbox) {
-  // enable og_access
   module_enable(array('discuss_helper'));
+  node_access_rebuild();
+  harmony_access_rebuild();
+}
+
+/**
+ * Update the OG fields in harmony so we can start having discussions
+ * locked down per group or postings that only appear per group.
+ */
+function discuss_update_7002(&$sandbox) {
+  // there's a window where this didn't get enabled potentially
+  module_enable(array('discuss_helper'));
+  features_revert_module('discuss_harmony_fields');
   node_access_rebuild();
   harmony_access_rebuild();
 }
