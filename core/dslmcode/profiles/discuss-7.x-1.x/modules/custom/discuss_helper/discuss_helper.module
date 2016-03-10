@@ -5,8 +5,18 @@
  */
 
 /**
- * Implements hook_init().
+ * Implements hook_entity_insert().
  */
-function discuss_helper_init() {
-
+function discuss_helper_entity_insert($entity, $type) {
+  if ($type == 'harmony_thread' && $entity->type == 'harmony_thread') {
+    // add this term to the master section assignment list automatically
+    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER)) {
+      // this case can be triggered if the dates get updated downstream in CIS
+      // or if we create something ahead of the semester
+      $section = node_load($gid);
+      $section->field_harmony_threads['und'][] = array('target_id' => $entity->thread_id);
+      node_save($section);
+    }
+  }
 }
+
