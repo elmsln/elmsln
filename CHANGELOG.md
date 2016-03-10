@@ -1,3 +1,124 @@
+ELMSLN 0.2.0, 2016-03-10 - Tipping point
+------------------------
+- SSL Terminator #178
+- Content Outline Icons Not Uniform Size on Mobile Device #184
+- Active/Sync this Now Button #186
+- Link to specific course section. #192
+- Icons in ToC appear when they shouldn't #197
+- More icons #198
+- Missing icons #214
+- Outline designer -- Book title override conflict #223
+- Figure Label design component #308
+- Side by Side critique interface #317
+- create a flow chart of system hierarchy #347
+- account / role granting needs a recipe #365
+- Notifications #367
+- Clean up current edit form #378
+- Network fly out overrides #407
+- MOOC Navigation "block" / callout #408
+- rewrites to take someone to the right place if a service doesn't exist #419
+- section name displays centered if really long #430
+- Vagrant Installation Error - PDOException: SQLSTATE[HY000] #435
+- Opening document links in new window (Media Shortcodes) #450
+- Support debugging on roster syncs #461
+- Re-export cis_sample_content #466
+- Course Outline Button not Accessible in Profile Edit Tab #467
+- Update Behat bash Script Settings #469
+- On updating, instructional significance icons missing in ToC [Courses] #476
+- Mobile clean up #483
+- Notifications for editing a book not in their section #512
+- Innovate tool coming back with Access Denied #518
+- Submit shortcode doesn't display pop up properly #521
+- language for innovate #535
+- Document Setting up ELMSLN in vagrant up to making a course network #541
+- Document Innovate #542
+- Odd formatting on bulleted lists (in A&A 121) #544
+- randomly select student to critique #548
+- H5Ps in Media - support for tagging and associating with a course #549
+- shift location of admin/config/system/course-settings #551
+- Centos7 clean up #556
+- Sanitize course name / title #557
+- Hide Dont have access to message #559
+- Prevent WHITE HEADINGS ON WHITE TEXT #560
+- Clipboardjs not enabled by default in media system. #565
+- entityCacheLoad warning on MOOC admin pages #566
+- Add path to feeds_node_helper_export/% some where #570
+- META: Move big picture stuff to roadmap in docs #572
+- Support for adding external applications to course network #573
+- How to create a new course (breif video) #574
+- add support for vagrant-cachier #579
+- Image style warning in people distro #583
+- imagefield_focus included twice #584
+- node_export throws warnings in travis #585
+- Kill off passwords printing on drush SI calls #586
+- Assessment engine info file clean up #592
+- Generate an ELMSLN icon font #593
+- AWS handsfree php-fpm #599
+- entity iframe codes scraped into shortcode area #603
+- ICOR JMOL conflict #604
+- Comply / ECD and Inbox need permissions set #605
+- Shortcode Collapsed fieldsets #607
+- Allow custom groupings in Course network structure #609
+- Sync Custom tools across course network #610
+- pull-down.sh needs to clean up permissions #615
+- tooltip #623
+- Review Angular Foundation #624
+- ICOR permissions #625
+- Media Add menu doesn't show options #627
+- Document how to install H5P libraries #628
+- Book nav auto labeling settings not working. #635
+- Course Outline Renaming Issue - Not all Changes Saving #637
+- How to highlight text in WYSIWYG editor #638
+- banners that are cross system set don't validate on save #641
+- enable outline_child_pages in all mooc sites #646
+- Outline Child pages permission #651
+- media display tabs notice #653
+- Scaling issue for images via shortcodes #655
+- Copy to clipboard shortcodes not working #656
+- Unable to see image attribution #659
+- materialize / adminimal admin menu #660
+- support for letsencrypt #661
+- convert domains to use individual conf files #662
+- CIS status page to report git version #664
+- Icon in FA icon alter doesn't reflect til second save #672
+- jQuery 1.11 regression in accessibility module #673
+- upgrade to drupal core 7.43 #674
+- Visability settings for online.elmsln.local type urls #676
+- Document how to install H5P #677
+- Render 2nd/3rd level Navigation menu hierarchies in Local sub-header #678
+- cis_tokens not on by default #679
+- PDO #686
+- OG admin page complains about LTI consumer not being labeled #687
+- CLE feedback #688
+- Courses/CIS Sync if Course Section has special characters #689
+- Page delivery optimizations #690
+- git php integration into CIS #692
+- elmsln api missing in studio #696
+- document how to install via 1-liners #699
+- questions: general infrastructure & deploying contrib modules #700
+- If not in same outline the breadcrumb nav still loads #703
+- Accessibility test dropdown will cause empty menus on non-node paths #704
+- Missing icons #708
+- need initial state support for discuss #709
+- need initial state for studio #710
+- need initial state for blog #711
+- add markdown filter support if gitbook method used #712
+- when creating new items focus cursor on title field #714
+- commit epiceditor integration changes back to wysiwyg API #716
+- add shortcut under network flyout #717
+- Update cis lmsless permission label #718
+- Add ELMSLN core permission for admin area #719
+- Studio assignment type should be select or other field #721
+- MOOC page type should accept any input format #722
+- All new assignments should default to master section #723
+- Move Assignment add to Add+ menu #724
+- change submit widget (after submission) to provide more links: #725
+- scroll / resize window on save in Submit widget #727
+- Markdown format selected for everything if git_book_markdown enabled #728
+- add support for iframes NOT resizing #729
+- Editorial: Automatically associate exercises to master #731
+- Editorial form UX clean up #730
+
 ELMSLN 0.1.0, 2016-02-18 - Birthday present
 ------------------------
 - Package Poll support into ICOR #540
