@@ -70,8 +70,15 @@ function _mooc_nav_block_mooc_nav_block() {
         $config['max_depth'] = 9;
       break;
       case 'content-outline-active-current':
-        $config['min_depth'] = $node->book['depth'];
-        $config['max_depth'] = $node->book['depth'];
+        if ($nav['display'] == 'here-below' && $node->book['mlid'] == $nav['parent']) {
+          $config['conditions'] = array('plid' => $node->book['mlid']);
+          $config['min_depth'] = $node->book['depth']+1;
+          $config['max_depth'] = $node->book['depth']+1;
+        }
+        else {
+          $config['min_depth'] = $node->book['depth'];
+          $config['max_depth'] = $node->book['depth'];
+        }
       break;
       case 'content-outline-active-below':
         $config['min_depth'] = $node->book['depth']+1;
