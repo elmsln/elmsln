@@ -2,9 +2,14 @@
 #region-header-first .region-header-first-inner {
   width: 0px;
   height: 0px;
-  border-top: 11px solid #fafafa; 
+  border-top: 11px solid #fafafa;
   border-right: 21px solid transparent;
   margin-left:9px;
   margin-top:-2px;
   background:transparent;
+}
+
+/* ckeditor support */
+body.ckeditor_custom_class {
+  background: #FFFFFF !important;
 }
