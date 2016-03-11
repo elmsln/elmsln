@@ -105,3 +105,32 @@ function _clear_some_caches() {
   );
   _elmsln_api_request($request);
 }
+
+/**
+ * How to use these callbacks via javascript
+ */
+// to add elmsln api's capabilities to your pages, add this to the page callback
+_elmsln_api_ajax_api();
+
+// now on the javascript side, you can tap into the API as follows:
+// this example will hit sing100 in the MOOC distribution
+// and clear the CIS connector cache bin.
+// When finished, it will return the response to a function called
+// `genericcallback` which will have the data response of the call.
+// At this point you can parse this message as JSON and do with it
+// what your integration needs.
+/*
+
+var data = {
+  path : '/sing100/',
+  elmsln_module : 'elmsln_api',
+  elmsln_callback : 'clear_cache_bin',
+  bin : 'cis_connector'
+};
+var request = Drupal.elmslnAPI.request(1, 'mooc', data, 'genericcallback');
+function genericcallback(response) {
+  console.log(jQuery.parseJSON(response));
+}
+
+
+*/

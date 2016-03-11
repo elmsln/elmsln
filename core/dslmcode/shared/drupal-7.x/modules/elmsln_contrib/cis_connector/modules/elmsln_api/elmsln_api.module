@@ -37,6 +37,65 @@ define('ELMSLN_MENU_SITE_ONLINE', 5);
 define('ELMSLN_MENU_METHOD_NOT_ALLOWED', 6);
 
 /**
+ * Implements hook_menu().
+ */
+function elmsln_api_menu() {
+  $items['elmsln_api'] = array(
+    'title' => 'ELMSLN API Bridge',
+    'page callback' => '_elmsln_api_bridge',
+    'page arguments' => array(1, 2, 3),
+    'access callback' => 'cis_connector_role_access',
+    'access arguments' => array(array('administrator', 'instructor', 'staff')),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Callback to include dependencies for the backend invocation.
+ */
+function _elmsln_api_ajax_api() {
+  // pass variables so we have the tokens needed
+  $js_variables = array(
+    'elmsln_api' => array(
+      'token' => drupal_get_token(),
+      'ajaxPath' => base_path() . 'elmsln_api',
+    ),
+  );
+  drupal_add_js($js_variables, "setting");
+  drupal_add_js(drupal_get_path('module', 'elmsln_api') . '/js/elmsln_api.js');
+}
+
+/**
+ * Callback for menu path elmsln_api.
+ * This is a wrapper around elmsln_api_request so
+ * that it can be securely used locally
+ */
+function _elmsln_api_bridge($token, $api, $bucket) {
+  // validate token
+  if (drupal_valid_token($token)) {
+    // pull in the posted data
+    $data = $_POST;
+    $path = $data['path'];
+    // path doesn't belong here but need to encapsulate because of / in path
+    unset($data['path']);
+    // prepare request to kick off on the backend
+    $request = array(
+      'method' => 'POST',
+      'api' => $api,
+      'bucket' => $bucket,
+      'path' => $path,
+      'data' => $data,
+    );
+    // issue call
+    $response = _elmsln_api_request($request);
+    // decode and output the response as json; even if it failed which should
+    // give us FALSE encoded as a bool appropriately
+    echo drupal_json_output($response);
+  }
+  exit;
+}
+/**
  * ELMSLN API request handler
  * Loads the requested module and executes the requested callback.
  *
