@@ -130,6 +130,8 @@ function _elmsln_installer_post_install_cleanup() {
   if (function_exists('strongarm_init')) {
     strongarm_init();
   }
+  // ensure we don't send update notify emails by default at least
+  variable_del('update_notify_emails');
   // revert all features
   features_revert();
   // rebuild the menu
