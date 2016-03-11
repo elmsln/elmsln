@@ -1,6 +1,6 @@
 Add a Course
 ==============
-ELMS Learning Network is built on the concept that a course is a network. This is both in how we communicate the concept as well as what's actually going on from a technical side. To add a course, go to the [CIS](http://online.elmsln.local). CIS is your controlling brain for all courses networks in elmsln.
+ELMS Learning Network is built on the concept that a course is a network. This is both in how we communicate the concept as well as what's actually going on from a technical side. To add a course, go to the [CIS](http://online.elmsln.local). CIS is your controlling brain for all courses networks in elmsln. 
 
 ### Add a new course
 Log in and click Add+ -> New Course
