@@ -21,19 +21,15 @@ a.add-menu-drop {
 }
 
 .ferpa-privacy-blur {
-  filter: blur(4px);
+  filter: blur(6px);
   /* Webkit */
-  -webkit-filter: blur(4px);
+  -webkit-filter: blur(6px);
   /* Opera */
-  -o-filter: blur(4px);
+  -o-filter: blur(6px);
+  opacity: .4;
 }
 
 .ferpa-privacy-blur:hover {
-  filter: blur(3px);
-  /* Webkit */
-  -webkit-filter: blur(3px);
-  /* Opera */
-  -o-filter: blur(3px);
   border: 1px solid #FF0000;
 }
 
