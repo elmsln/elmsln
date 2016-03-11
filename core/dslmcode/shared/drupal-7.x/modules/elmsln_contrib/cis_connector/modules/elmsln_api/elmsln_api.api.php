@@ -109,8 +109,9 @@ function _clear_some_caches() {
 /**
  * How to use these callbacks via javascript
  */
+
 // to add elmsln api's capabilities to your pages, add this to the page callback
-_elmsln_api_ajax_api();
+//_elmsln_api_ajax_api();
 
 // now on the javascript side, you can tap into the API as follows:
 // this example will hit sing100 in the MOOC distribution
