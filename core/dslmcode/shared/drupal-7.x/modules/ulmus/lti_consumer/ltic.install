@@ -1,0 +1,330 @@
+<?php
+
+/*
+ * @file install
+ */
+
+/**
+ * Implements hook_schema().
+ *
+ * @ingroup entity_example
+ */
+function ltic_schema() {
+  $schema = array();
+
+//Resource table
+  $schema['ltic_resource'] = array(
+    'description' => 'A resource to attach to a context item.',
+    'fields' => array(
+      'ltic_resource_id' => array(
+        'description' => 'Primary key of the resource entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      // If we allow multiple bundles, then the schema must handle that;
+      // We'll put it in the 'bundle_type' field to avoid confusion with the
+      // entity type.
+      'bundle_type' => array(
+        'description' => 'The bundle type',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      // Additional properties are just things that are common to all
+      // entities and don't require field storage.
+      'ltic_resource_link_title' => array(
+        'description' => 'Title of resource link',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'ltic_resource_link_description' => array(
+        'description' => 'Description for resource link',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp of the entity creation time.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('ltic_resource_id'),
+  );
+
+//Context table
+  $schema['ltic_context'] = array(
+    'description' => 'A context.',
+    'fields' => array(
+      'ltic_context_id' => array(
+        'description' => 'Primary key of the context entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      // If we allow multiple bundles, then the schema must handle that;
+      // We'll put it in the 'bundle_type' field to avoid confusion with the
+      // entity type.
+      'bundle_type' => array(
+        'description' => 'The bundle type',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      // Additional properties are just things that are common to all
+      // entities and don't require field storage.
+      'ltic_context_id_ref' => array(
+        'description' => 'ID Context ID',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'ltic_context_title' => array(
+        'description' => 'Title of context',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'ltic_context_label' => array(
+        'description' => 'Label of context',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'ltic_lis_course_section_sourcedid' => array(
+        'description' => 'Course Section ID',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp of the entity creation time.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('ltic_context_id'),
+  );
+
+  $schema['ltic_result'] = array(
+    'description' => 'A resouce result.',
+    'fields' => array(
+      'ltic_result_id' => array(
+        'description' => 'Primary key of the context entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'bundle_type' => array(
+        'description' => 'The bundle type',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      // Additional properties are just things that are common to all
+      // entities and don't require field storage.
+      'ltic_context_id_ref' => array(
+        'description' => 'ID Context ref ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'ltic_resource_id_ref' => array(
+        'description' => 'ID Resource Ref',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'ltic_user_id' => array(
+        'description' => 'IUsers ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'ltic_result' => array(
+        'description' => 'Title of context',
+        'type' => 'float',
+        'size' => 'small',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp of the entity creation time.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('ltic_result_id'),
+  );
+
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function ltic_install() {
+
+  $fields['field_ltic_resource_ref'] = array(
+    'field' => array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'target_type' => 'ltic_resource',
+        'handler' => 'base',
+        'handler_settings' => array(
+          'target_bundles' => array(
+            'first_example_bundle' => 'first_example_bundle',
+          ),
+          'sort' => array(
+            'type' => 'none',
+          ),
+          'behaviors' => array(
+            'views-select-list' => array(
+              'status' => 0,
+            ),
+          ),
+        ),
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_field_ltic_resource_ref' => array(
+                'target_id' => 'field_ltic_resource_ref_target_id',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_field_ltic_resource_ref' => array(
+                'target_id' => 'field_ltic_resource_ref_target_id',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(
+        'ltic_resource' => array(
+          'table' => 'ltic_resource',
+          'columns' => array(
+            'target_id' => 'ltic_resource_id',
+          ),
+        ),
+      ),
+      'indexes' => array(
+        'target_id' => array(
+          0 => 'target_id',
+        ),
+      ),
+      'id' => '10',
+      'field_name' => 'field_ltic_resource_ref',
+      'type' => 'entityreference',
+      'module' => 'entityreference',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '-1',
+      'deleted' => '0',
+      'columns' => array(
+        'target_id' => array(
+          'description' => 'The id of the target entity.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+      ),
+      'bundles' => array(
+        'ltic_context' => array(
+          0 => 'first_example_bundle',
+        ),
+      ),
+    ),
+    'instance' => array(
+      'label' => 'Resource Reference',
+      'widget' => array(
+        'weight' => '1',
+        'type' => 'options_select',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'entityreference_label',
+          'settings' => array(
+            'link' => FALSE,
+          ),
+          'module' => 'entityreference',
+          'weight' => 0,
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => NULL,
+      'id' => '13',
+      'field_id' => '10',
+      'field_name' => 'field_ltic_resource_ref',
+      'entity_type' => 'ltic_context',
+      'bundle' => 'first_example_bundle',
+      'deleted' => '0',
+    ),
+  );
+  field_create_field($fields['field_ltic_resource_ref']['field']);
+  field_create_instance($fields['field_ltic_resource_ref']['instance']);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ltic_uninstall() {
+  $vars = [
+    'ltic_tool_description',
+    'ltic_tool_launch_url',
+    'ltic_tool_consumer_key',
+    'ltic_tool_consumer_secret',
+    'ltic_tool_custom_param',
+    'ltic_tool_supress_email',
+    'ltic_tool_supress_ui_details',
+    'ltic_tool_launch_path',
+    'ltic_global_role_array',
+    'ltic_tool_locale',
+    'ltic_tool_supress_all',
+    'ltic_user_attribute_mapping',  
+    'ltic_tool_consumer_instance_guid',
+    'ltic_tool_consumer_instance_description',
+    'ltic_tool_consumer_instance_name',
+    'ltic_tool_consumer_info_version',
+    'ltic_tool_consumer_info_product_family_code',
+    'ltic_ltiversion',
+  ];
+  foreach ($vars as $var) {
+    variable_del($var);
+  }
+
+  $fields = [
+    'field_ltic_resource_ref',
+  ];
+
+  foreach ($fields as $field) {
+    field_delete_field($field);
+  }
+}

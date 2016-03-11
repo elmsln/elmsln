@@ -1,0 +1,726 @@
+<?php
+
+/**
+ * @file
+ * Module file.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function ltic_menu() {
+  $items[variable_get('ltic_tool_launch_path', 'ltic/test')] = [
+    'page callback' => 'ltic_set_frame',
+    'access arguments' => ['access content'],
+    'access callback'=>'ltic_launch_page_access',
+  ];
+
+  $items['admin/config/ltic'] = [
+    'menu_name' => 'management',
+    'title' => 'LTI Consumer Config',
+    'description' => 'Settings for LTI consumer module ',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['ltic_config_form'],
+    'file' => 'ltic.conf.inc',
+    'access arguments' => ['administer ltic module'],
+  ];
+  $items['admin/config/ltic/consumer_settings'] = [
+    'menu_name' => 'management',
+    'title' => 'LTI Consumer Config',
+    'description' => 'Settings for LTI consumer module ',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['ltic_config_form'],
+    'file' => 'ltic.conf.inc',
+    'access arguments' => ['administer ltic module'],
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  ];
+  $items['admin/config/ltic/global-roles'] = [
+    'menu_name' => 'management',
+    'title' => 'Global Roles',
+    'description' => 'Configure LTI context to global role mapping.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['ltic_global_roles'],
+    'access arguments' => ['administer ltic module'],
+    'file' => 'ltic.conf.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  ];
+  $items['admin/config/ltic/user-attributes'] = [
+    'title' => 'User Attributes',
+    'description' => 'Configure LTI context to user attribute mapping.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ltic_user_attributes'),
+    'access arguments' => ['administer ltic module'],
+    'file' => 'ltic.conf.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 12,
+  ];
+
+  /**
+   * Resource settings
+   */
+//  $items['ltic/ltic_resource'] = [
+//    'title' => 'Resource Entity',
+//    'page callback' => 'ltic_resource_info_page',
+//    'file' => 'ltic.admin.inc',
+//    'access arguments' => ['administer site configuration'],
+//      // 'access arguments' => array('view any entity_example_basic entity'),
+//  ];
+
+  $items['admin/structure/ltic_resource/manage'] = array(
+    'title' => 'LTI Resources',
+    'page callback' => 'ltic_resource_list_entities',
+    'file' => 'ltic.admin.inc',
+    'access arguments' => ['access ltic entities'],
+  );
+
+  // 'Edit' tab for an individual entity page.
+  $items['ltic/ltic_resource/basic/%ltic_resource/edit'] = [
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['ltic_resource_basic_form', 3],
+    'access arguments' => ['access ltic entities'],
+    'file' => 'ltic.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  ];
+
+  // Add ltic_resource entities.
+  $items['admin/structure/ltic_resource/manage/add'] = [
+    'title' => 'Add a LTI Resource ',
+    'page callback' => 'ltic_resource_basic_add',
+    'access arguments' => ['access ltic entities'],
+    'file' => 'ltic.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+  ];
+
+
+  //View
+  $items['ltic/ltic_resource/basic/%ltic_resource/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  //View Item
+  $items['ltic/ltic_resource/basic/%ltic_resource'] = [
+    'title callback' => 'ltic_resource_basic_title',
+    'title arguments' => [3],
+    'page callback' => 'ltic_resource_view',
+    'file' => 'ltic.admin.inc',
+    'page arguments' => [3],
+    'access arguments' => ['access ltic entities'],
+      //'type' => MENU_LOCAL_TASK,
+  ];
+
+  // List of all entity_example_basic entities.
+  $items['admin/structure/ltic_resource/manage/list'] = array(
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  /**
+   * Context settings
+   */
+//  $items['ltic/ltic_context'] = [
+//    'title' => 'Context Entity',
+//    'page callback' => 'ltic_context_info_page',
+//    'file' => 'ltic.admin.inc',
+//    'access arguments' => ['administer site configuration'],
+//      // 'access arguments' => array('view any entity_example_basic entity'),
+//  ];
+  $items['admin/structure/ltic_context/manage'] = [
+    'title' => 'LTI Contexts',
+    'page callback' => 'ltic_context_list_entities',
+    'file' => 'ltic.admin.inc',
+    'access arguments' => ['access ltic entities'],
+  ];
+
+  // 'Edit' tab for an individual entity page.
+  $items['ltic/ltic_context/basic/%ltic_context/edit'] = [
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['ltic_context_basic_form', 3],
+    'access arguments' => ['access ltic entities'],
+    'file' => 'ltic.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  ];
+  // Add example entities.
+  $items['admin/structure/ltic_context/manage/add'] = [
+    'title' => 'Add a LTI Context',
+    'page callback' => 'ltic_context_basic_add',
+    'access arguments' => ['access ltic entities'],
+    'file' => 'ltic.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+  ];
+
+  //View
+  $items['ltic/ltic_context/basic/%ltic_context/view'] = [
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  ];
+
+  //View Item
+  $items['ltic/ltic_context/basic/%ltic_context'] = [
+    'title callback' => 'ltic_context_basic_title',
+    'title arguments' => [3],
+    'page callback' => 'ltic_context_view',
+    'file' => 'ltic.admin.inc',
+    'page arguments' => [3],
+    'access arguments' => ['access ltic entities'],
+  ];
+
+  // List of all entity_context entities.
+  $items['admin/structure/ltic_context/manage/list'] = [
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  ];
+
+  /**
+   * For Outcomes
+   */
+  $items[variable_get('ltic_outcomes_launch_path', 'ltic_outcomes')] = [
+    'title' => 'LTI Api',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'ltic_api_outcomes',
+    'access arguments' => ['access content'],
+  ];
+
+  /**
+   * Set launch path
+   */
+  $items[variable_get('ltic_outcomes_launch_path', 'ltic_outcomes') . '/lp'] = [
+    'title' => 'LTI Profile',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'ltic_tc_profile',
+    'access arguments' => ['access content'],
+  ];
+
+  return $items;
+}
+
+/**
+ * Menu callback
+ */
+function ltic_launch_page_access(){
+  return user_is_logged_in();
+}
+
+/**
+ * Implements hook_permission().
+ */
+function ltic_permission() {
+  $permissions = array(
+    'administer ltic module' => array(
+      'title' => t('Administer LTI Consumer module'),
+      'description' => t('Perform administration tasks for the LTI Consumer module.'),
+    ),
+    'access ltic entities' => array(
+      'title' => t('Access LTI Consumer entities'),
+      'description' => t('Read/View access for LTI Consumer Entities.'),
+    ),
+  );
+  return $permissions;
+}
+
+function ltic_api_outcomes() {
+  $auth = new ConsAuthCheck();
+  if ($auth->verifyMessage()) {
+    new Outcomes();
+  }
+}
+
+function ltic_tc_profile() {
+  global $base_url;
+  $op = [
+    '@context' => [
+      'http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile',
+//      [
+//        'tcp' => ''
+//      ]
+    ],
+    '@type' => 'ToolConsumerProfile',
+    //   ,
+    // '@id' => 'gbrrvrrt',
+    'lti_version' => variable_get('ltic_ltiversion', "LTI-1p0"),
+    'guid' => 'testvaluedrupal',
+    'product_instance' => [
+      'guid' => variable_get('ltic_tool_consumer_instance_guid', 'drupal.lti.module'),
+      'product_info' => [
+        'product_name' => [
+          'default_value' => 'Drupal LTI Consumer',
+          'key' => 'product.name',
+        ],
+        'product_version' => variable_get('ltic_tool_consumer_info_version', "0.1"),
+//        'description' => [
+//          'default_value' => 'Drupal LTI Consumer is a module built for Drupal 7',
+//          'key' => 'product.version',
+//        ],
+//        'technical_description' => [
+//          'default_value' => 'This is a generic drupal LTI Consumer module to be modified and tested with intended system',
+//          'key' => 'product.technicalDescription',
+//        ],
+        'product_family' => [
+          'code' => variable_get('ltic_tool_consumer_info_product_family_code', 'ltic_drupal7'),
+          'vendor' => [
+            'code' => 'examplesite.com',
+            'vendor_name' => [
+              'default_value' => 'drupal LMS corp',
+              'key' => 'product.vendor.name'
+            ],
+//            'description' => [
+//              'default_value' => 'a vendor description',
+//              'key' => 'product.vendor.description'
+//            ],
+//            'website' => 'www.example.com',
+            'timestamp' => date('c'),
+//            'contact' => [
+//              'email' => $email[0],
+//            ],
+          ],
+        ],
+      ],
+      'service_owner' => [
+        '@id' => $base_url,
+        'timestamp' => date('c'),
+        'service_owner_name' => [
+          'default_value' => variable_get('ltic_tool_consumer_instance_name', 'LTI Module Drupal 7'),
+          'key' => 'service_owner.name',
+        ],
+        'description' => [
+          'default_value' => variable_get('ltic_tool_consumer_instance_description', 'A generic LTI Module Drupal 7'),
+          'key' => 'service_owner.description',
+        ],
+        'support' => [
+          'email' => variable_get('site_mail', ''),
+        ],
+      ],
+//      'service_provider' => [
+//        '@id' => 'http://service.provider.com',
+//        'guid' => 'aurl.com',
+//        'timestamp' => date('c'),
+//        'service_provider_name' => [
+//          'default_value' => 'service provider name',
+//          'key' => 'service_provider.name'
+//        ],
+//        'description' => [
+//          'default_value' => 'service providerdescription',
+//          'key' => 'service_provider.description'
+//        ],
+//        'support' => [
+//          'email' => $email[0],
+//        ],
+//      ],
+    ],
+    'capability_offered' => [
+      'basic-lti-launch-request',
+      'User.id',
+      'User.username',
+      'CourseSection.sourcedId',
+      'Person.sourcedId',
+      'Person.email.primary',
+      'Person.name.given',
+      'Person.name.family',
+      'Person.name.full', //this will need to be addressed
+      'Membership.role'
+    ],
+    'service_offered' => [
+    ],
+  ];
+  drupal_json_output($op);
+}
+
+/**
+ * Implements hook_services_resources().
+ */
+function ltic_services_resources() {
+  $entity_resource = [
+    'entity' => [
+      'operations' => [
+        'read' => [
+          'callback' => 'ltic_test_call',
+        ],
+      ],
+    ],
+  ];
+  return $entity_resource;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function ltic_entity_info() {
+  return[
+    'ltic_resource' => [
+      'label' => t('LTI Consumer Resource'),
+      'base table' => 'ltic_resource',
+      'entity keys' => [
+        'id' => 'ltic_resource_id',
+        'bundle' => 'bundle_type',
+        'label' => 'ltic_resource_link_title',
+      ],
+      'controller class' => 'LtiResourceBasicController',
+      'bundle keys' => [
+        'bundle' => 'bundle_type',
+      ],
+      'uri callback' => 'entity_ltic_resource_basic_uri',
+      'static cache' => TRUE,
+      'fieldable' => TRUE,
+      'access callback' => 'ltic_resource_access',
+      'bundles' => [
+        'first_example_bundle' => [
+          'label' => 'First example bundle',
+          // 'admin' key is used by the Field UI to provide field and
+          // display UI pages.
+          'admin' => array(
+            'path' => 'admin/structure/ltic_resource/manage',
+            'access arguments' => ['administer site configuration'],
+          //'access arguments' => array('administer entity_example_basic entities'),
+          ),
+        ],
+      ],
+    ],
+    'ltic_context' => [
+      'label' => t('LTI Consumer Context'),
+      'base table' => 'ltic_context',
+      'entity keys' => [
+        'id' => 'ltic_context_id',
+        'bundle' => 'bundle_type',
+      ],
+      'controller class' => 'LtiContextBasicController',
+      'bundle keys' => [
+        'bundle' => 'bundle_type',
+      ],
+      'static cache' => TRUE,
+      'fieldable' => TRUE,
+      'bundles' => [
+        'first_example_bundle' => [
+          'label' => 'First example bundle',
+          // 'admin' key is used by the Field UI to provide field and
+          // display UI pages.
+          'admin' => array(
+            'path' => 'admin/structure/ltic_context/manage',
+            'access arguments' => ['administer site configuration'],
+          //'access arguments' => array('administer entity_example_basic entities'),
+          ),
+        ],
+      ],
+    ],
+    'ltic_result' => [
+      'label' => t('LTI Results'),
+      'base table' => 'ltic_result',
+      'entity keys' => [
+        'id' => 'ltic_result_id',
+      ],
+      'controller class' => 'LticResultBasicController',
+      'bundle keys' => [
+        'bundle' => 'bundle_type',
+      ],
+      'static cache' => TRUE,
+    ],
+  ];
+}
+
+function ltic_resource_access($op, $entity_type, $entity = NULL, $account = NULL) {
+  return true;
+}
+
+/**
+ * Uri callback
+ */
+function entity_ltic_resource_basic_uri($basic) {
+  return array(
+    'path' => 'ltic/ltic_resource/basic/' . $basic->basic_id,
+  );
+}
+
+/**
+ * Uri callback
+ */
+function entity_ltic_context_basic_uri($basic) {
+  return array(
+    'path' => 'ltic/ltic_context/basic/' . $basic->basic_id,
+  );
+}
+
+/**
+ * Load a single ltic resource
+ */
+function ltic_resource_load($id, $reset = FALSE) {
+  $basic = ltic_resource_load_multiple([$id], [], $reset);
+
+  return $basic ? reset($basic) : FALSE;
+}
+
+/**
+ * Load multiple ltic resources.
+ */
+function ltic_resource_load_multiple($ids = FALSE, $conditions = [], $reset = FALSE) {
+  return entity_load('ltic_resource', $ids, $conditions, $reset);
+}
+
+/**
+ * Resource save
+ */
+function ltic_resource_save($entity) {
+  return entity_get_controller('ltic_resource')->save($entity);
+}
+
+/**
+ * Load a single ltic context
+ */
+function ltic_context_load($id, $reset = FALSE) {
+  $basic = ltic_context_load_multiple([$id], [], $reset);
+  return $basic ? reset($basic) : FALSE;
+}
+
+/**
+ * Load multiple ltic contexts.
+ */
+function ltic_context_load_multiple($ids = FALSE, $conditions = [], $reset = FALSE) {
+  return entity_load('ltic_context', $ids, $conditions, $reset);
+}
+
+/**
+ * Context save
+ */
+function ltic_context_save($entity) {
+  return entity_get_controller('ltic_context')->save($entity);
+}
+
+/**
+ * Resource save
+ */
+function ltic_result_save($entity) {
+  return entity_get_controller('ltic_result')->save($entity);
+}
+
+/**
+ * Load a single ltic context
+ */
+function ltic_result_load($id, $reset = FALSE) {
+  $basic = ltic_result_load_multiple([$id], [], $reset);
+  return $basic ? reset($basic) : FALSE;
+}
+
+function ltic_result_delete($entity) {
+  entity_get_controller('ltic_result')->delete($entity);
+}
+
+/**
+ * Load multiple ltic contexts.
+ */
+function ltic_result_load_multiple($ids = FALSE, $conditions = [], $reset = FALSE) {
+  return entity_load('ltic_result', $ids, $conditions, $reset);
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ *
+ * This exposes the "extra fields" (usually properties that can be configured
+ * as if they were fields) of the entity as pseudo-fields
+ * so that they get handled by the Entity and Field core functionality.
+ * Node titles get treated in a similar manner.
+ */
+function ltic_field_extra_fields() {
+  $form_elements['item_description'] = array(
+    'label' => t('Item Description'),
+    'description' => t('Item Description (an extra form field)'),
+    'weight' => -5,
+  );
+  $display_elements['created'] = array(
+    'label' => t('Creation date'),
+    'description' => t('Creation date (an extra display field)'),
+    'weight' => 0,
+  );
+  $display_elements['item_description'] = array(
+    'label' => t('Item Description'),
+    'description' => t('Just like title, but trying to point out that it is a separate property'),
+    'weight' => 0,
+  );
+
+  // Since we have only one bundle type, we'll just provide the extra_fields
+  // for it here.
+  $extra_fields = [];
+  $extra_fields['ltic_resource_basic']['first_example_bundle']['form'] = $form_elements;
+  $extra_fields['ltic_resource_basic']['first_example_bundle']['display'] = $display_elements;
+
+  $extra_fields['ltic_context_basic']['first_example_bundle']['form'] = $form_elements;
+  $extra_fields['ltic_context_basic']['first_example_bundle']['display'] = $display_elements;
+
+  return $extra_fields;
+}
+
+/**
+ * Retrieve the field labels and types from the user entity.
+ *
+ * Return as an array suitable for a select list.
+ *
+ * @param string $filter
+ *   The string which represent the type of field to retrieve.
+ *
+ * @return array
+ *   An array containing all the retrieved fields.
+ *   The label is not display safe.
+ */
+function _ltic_retrieve_user_field_types($filter = 'TEXT') {
+  // load entity:bundle pair to use
+  $key_pair = explode(':', variable_get('ltic_user_attribute_entity_type', 'user:user'));
+  // load field info about this entity:bundle
+  $fields = field_info_instances($key_pair[0], $key_pair[1]);
+  $result = array('none' => 'None');
+  foreach ($fields as $field) {
+    if (strcasecmp($field['widget']['module'], $filter) == 0) {
+      $result[$field['field_name']] = $field['label'] . ' (' . $field['field_name'] . ')';
+    }
+  }
+  return $result;
+}
+
+/**
+ * Get the LTI variables relating to the user.
+ *
+ * @return array
+ *   An array containing the variable names.
+ */
+function ltic_user_mapping_lis_details() {
+  return array(
+    'lis_person_name_given',
+    'lis_person_name_family',
+    'lis_person_name_full',
+  );
+}
+
+/**
+ * List all bundles available for mapping profile fields to
+ *
+ * @return array
+ *   A list of all available entitys and bundles
+ */
+function _ltic_user_attribute_bundles() {
+  // user is core with matching bundle
+  $options = array('user:user' => t('Core: User entity'));
+  // support for profile2 if enabled
+  if (module_exists('profile2')) {
+    // load listed bundles
+    $bundles = field_info_bundles('profile2');
+    // append options per bundle
+    foreach ($bundles as $bundle => $data) {
+      $options['profile2:' . $bundle] = 'Profile2: ' . $data['label'];
+    }
+  }
+  return $options;
+}
+
+//Add a new block that only displays on the lti path page and shows links to resources
+
+/**
+ * Implements hook_block_info().
+ */
+function ltic_block_info() {
+  $blocks['course_modules'] = [
+    'info' => t('Course Modules'),
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => variable_get('ltic_tool_launch_path', 'ltic/test'),
+  ];
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function ltic_block_configure($delta = '') {
+  $form = array();
+  if ($delta == 'course_modules') {
+    $form['block_example_string'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Block contents'),
+      '#size' => 60,
+      '#description' => t('This text will appear in the example block.'),
+      '#default_value' => variable_get('block_example_string', t('Some example content.')),
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function ltic_block_save($delta = '', $edit = array()) {
+  
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function ltic_block_view($delta = '') {
+  switch ($delta) {
+    case 'course_modules':
+      //drupal_add_js(drupal_get_path('module', 'ltic') . '/js/ltic_formhandle.js');
+      $block['subject'] = t('Course List');
+      $block['content'] = ltic_menu_contents();
+      break;
+  }
+  return $block;
+}
+
+function ltic_menu_contents() {
+  $course_ids = array_keys(entity_load('ltic_context'));
+  $buttons = [];
+  foreach ($course_ids as $course_id) {
+    $course_ob = new BuildContext($course_id);
+    $resources = $course_ob->getResources();
+    foreach ($resources as $resource_id) {
+      $ltc_res = new LTICResult($resource_id, $course_id);
+      $ltc_res->initalise();
+      $buttons[] = ['resource' => $resource_id, 'context' => $course_id];
+    }
+  }
+  $markup = '';
+  foreach ($buttons as $key => $button) {
+    $markup.='<br><p>' . ltic_context_load($button['context'])->ltic_context_title . ', ' . ltic_resource_load($button['resource'])->ltic_resource_link_title . '</p>';
+    $markup.=ltic_build_auth_code($button, $key);
+  }
+
+  $result = array(
+    '#markup' => '<p>' . $markup . '</p>',
+  );
+  return $result;
+}
+
+function ltic_build_auth_code($ids, $key) {
+  $auth_det = new AuthDetails($ids);
+  ($ids['resource']);
+
+  $ltc_res = new LTICResult($ids['resource'], $ids['context']);
+  $auth_det->setParameter('lis_outcome_service_url', url(variable_get('ltic_outcomes_launch_path', 'ltic_outcomes'), ['absolute' => TRUE]));
+  $auth_det->setParameter('lis_result_sourcedid', $ltc_res->check());
+  $auth_det->build();
+  $launch_data_text = '';
+  foreach ($auth_det->getLD() as $k => $v) {
+    $launch_data_text.="<input type='hidden' name= '$k' value='$v'/> ";
+  }
+  return <<<TEXT
+            <form id='ltiLaunchForm_$key' name='ltiLaunchForm_$key' method='POST' action='{$auth_det->getLaunchUrl()}' target="basicltiLaunchFrame">
+              $launch_data_text
+              <input type='hidden' name='oauth_signature' value='{$auth_det->getSignature()}'>
+              <button type='submit'>Launch</button>
+          </form>
+TEXT;
+}
+
+function ltic_set_frame() {
+  $rtntext = <<<TEXT
+    <html>
+      <head></head>
+      <!-- <body onload="document.ltiLaunchForm.submit();"> -->
+      <body>
+      <iframe id="basicltiLaunchFrame" name="basicltiLaunchFrame" width="100%" height="900" scrolling="auto" frameborder="1" transparency >
+        <!--this holds the content-->
+      </iframe>
+      <body>
+  </html>
+TEXT;
+  return array('#markup' => $rtntext);
+}
+

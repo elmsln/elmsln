@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * Implements hook_lti_mentored_users_alter(&$mentored_users).
+ */
+function ltic_test_lti_mentored_users_alter(&$mentored_users){
+  global $user;
+  if($user->uid == 1124){
+    $mentored_users[]=1123;
+  }
+}
+
+/**
+ * Implements hook_lti_lis_person_sourcedid_alter(&$lis_source_ID).
+ */
+function ltic_test_lti_lis_person_sourcedid_alter(&$lis_source_ID){
+  global $user;
+  $lis_source_ID = 'school.edu:'.$user->uid;
+}
