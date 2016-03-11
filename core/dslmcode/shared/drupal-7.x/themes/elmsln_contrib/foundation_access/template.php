@@ -107,6 +107,9 @@ function foundation_access_preprocess_page(&$variables) {
     if (!empty($block['content'])) {
       $variables['cis_shortcodes'] = $block['content'];
     }
+    else {
+      $variables['cis_shortcodes'] = '';
+    }
   }
   else {
     $variables['cis_shortcodes'] = '';
