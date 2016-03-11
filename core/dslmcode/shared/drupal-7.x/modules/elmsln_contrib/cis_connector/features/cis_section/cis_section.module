@@ -784,10 +784,11 @@ function _cis_section_sync_roster() {
  * Implements hook_elmsln_api_info().
  */
 function cis_section_elmsln_api_info() {
-  // Example of a more complex definition:
+  // sync rosters for this item
   $callbacks['sync_roster'] = array(
     'methods' => array('POST'),
     'file' => 'callbacks/v1/sync_roster.inc',
+    'bootstrap' => DRUPAL_BOOTSRAP_FULL,
   );
 
   return $callbacks;
