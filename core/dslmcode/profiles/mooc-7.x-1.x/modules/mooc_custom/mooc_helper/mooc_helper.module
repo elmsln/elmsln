@@ -663,3 +663,17 @@ function mooc_helper_token_info() {
     'tokens' => $tokens,
   );
 }
+
+/**
+ * Implements hook_elmsln_api_info().
+ */
+function mooc_helper_elmsln_api_info() {
+  // Example of a more complex definition:
+  $callbacks['all_outlines'] = array(
+    'methods' => array('POST'),
+    'file' => 'callbacks/v1/all_outlines.inc',
+    'dependencies' => array('book'),
+  );
+
+  return $callbacks;
+}
