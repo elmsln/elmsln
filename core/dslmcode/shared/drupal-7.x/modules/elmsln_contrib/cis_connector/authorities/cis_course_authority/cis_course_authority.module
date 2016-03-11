@@ -65,5 +65,14 @@ function _cis_course_authority_cis_sync($cached = FALSE) {
         }
       }
     }
+    // now sync the sections to go along with it if they are enabled
+    if (module_exists('cis_section')) {
+      // load up courses now that we should have them all added locally
+      $courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_course_machine_name', 'nid');
+      // loop through each course and query to sync the section rosters
+      foreach ($courses as $machine_name => $nid) {
+        _cis_section_sync_roster($machine_name, $nid);
+      }
+    }
   }
 }
