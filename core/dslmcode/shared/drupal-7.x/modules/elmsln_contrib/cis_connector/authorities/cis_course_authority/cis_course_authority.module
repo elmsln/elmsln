@@ -11,7 +11,9 @@ include_once 'cis_course_authority.features.inc';
  */
 function cis_course_authority_cron() {
   // sync with the CIS to ensure our local course nodes mirror the remote
-  _cis_course_authority_cis_sync();
+  // @todo comment this in once we do a lot more testing and decide this is
+  // how we want the data related in some example authorities
+  //_cis_course_authority_cis_sync();
 }
 
 /**
