@@ -1,0 +1,528 @@
+<?php
+
+/**
+ * Class FeaturesBuilderCoverageTest.
+ */
+class FeaturesBuilderCoverageTest extends DrupalWebTestCase {
+
+  protected $manifest;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Builder Coverage',
+      'description' => 'Tests the manifest produced by the default builders.',
+      'group' => 'Features Builder',
+    );
+  }
+
+  function setUp($modules = array()) {
+    // General/common modules.
+    $modules[] = 'features_builder';
+    $modules[] = 'features_builder_default';
+    $modules[] = 'strongarm';
+
+    // Additional modules utilized by the builders.
+    $modules[] = 'auto_nodetitle';
+    $modules[] = 'context';
+    $modules[] = 'eck';
+    $modules[] = 'feeds';
+    $modules[] = 'feeds_tamper';
+    $modules[] = 'field_group';
+    $modules[] = 'fieldable_panels_panes';
+    $modules[] = 'panels';
+    $modules[] = 'views';
+
+    parent::setUp($modules);
+
+    variable_set('features_builder_prefix_label', __CLASS__);
+    variable_set('features_builder_prefix_name', strtolower(__CLASS__));
+
+    // Create admin user.
+    $perms = array('administer content types');
+    $admin = $this->drupalCreateUser($perms);
+    $this->drupalLogin($admin);
+
+    $this->prepContextBuilder();
+    $this->prepEckBuilder();
+    $this->prepFeedsBuilder();
+    $this->prepFppBuilder();
+    $this->prepNodeBuilder();
+
+    $this->getManifest(TRUE);
+  }
+
+  /**
+   * Test the output of the build process.
+   */
+  function testBuilders() {
+    $this->checkDuplicates();
+
+    $this->checkContextBuilder();
+    $this->checkEckBuilder();
+    $this->checkFeedsBuilder();
+    $this->checkFppBuilder();
+    $this->checkNodeBuilder();
+  }
+
+  /**
+   * Checks the manifest for duplicated components.
+   */
+  function checkDuplicates() {
+    $included = array();
+
+    // Drill into feature, component type, and components in order to count how
+    // many times each component appears in the manifest.
+    foreach ($this->getManifest() as $feature => $types) {
+      // Remove dependencies and features_exclude types.
+      foreach (array('dependencies', 'features_exclude') as $type) {
+        if (isset($types[$type])) {
+          unset($types[$type]);
+        }
+      }
+      foreach ($types as $type => $components) {
+        foreach (array_keys($components) as $component) {
+          $name = "$type:$component";
+          if (!isset($included[$name])) {
+            $included[$name] = 0;
+          }
+          $included[$name]++;
+        }
+      }
+    }
+
+    ksort($included);
+
+    foreach ($included as $component => $count) {
+      $params['%component'] = $component;
+      $this->assertEqual($count, 1, t('Component %component appears in the manifest 1 time.', $params));
+    }
+  }
+
+  /**
+   * Setup tasks for ContextFeaturesBuilder.
+   */
+  function prepContextBuilder() {
+    $context = new stdClass();
+    $context->name = 'context_1';
+    context_save($context);
+    $context = new stdClass();
+    $context->name = 'context_2';
+    context_save($context);
+  }
+
+  /**
+   * Checks the result of ContextFeaturesBuilder.
+   */
+  function checkContextBuilder() {
+    $this->assertFeature('context');
+    $this->assertFeatureContains('context', 'context', 'context_1');
+    $this->assertFeatureContains('context', 'context', 'context_2');
+  }
+
+  /**
+   * Setup tasks for EckFeaturesBuilder.
+   */
+  function prepEckBuilder() {
+    $empType = "fb_test_employee";
+
+    $entity_type = new EntityType();
+    $entity_type->name = $empType;
+    $entity_type->label = "Employee";
+    $entity_type->addProperty('name', 'Name', 'text');
+    $entity_type->save();
+
+    $bundle = new Bundle();
+    $bundle->entity_type = $empType;
+    $bundle->name = 'standard';
+    $bundle->save();
+
+    $bundle = new Bundle();
+    $bundle->entity_type = $empType;
+    $bundle->name = 'extended';
+    $bundle->save();
+
+    $field = array(
+      'field_name' => 'eck_salary',
+      'type' => 'number_float',
+    );
+    field_create_field($field);
+    $instance = array(
+      'field_name' => 'eck_salary',
+      'entity_type' => $empType,
+      'bundle' => 'extended',
+    );
+    field_create_instance($instance);
+  }
+
+  /**
+   * Checks the result of EckFeaturesBuilder.
+   */
+  function checkEckBuilder() {
+    $empType = "fb_test_employee";
+    $empFeature = 'eck_' . $empType;
+
+    $this->assertFeature('fields');
+    $this->assertFeatureContains('fields', 'field_base', 'eck_salary');
+
+    $this->assertFeature($empFeature);
+    $this->assertFeatureContains($empFeature, 'eck_entity_type', "$empType");
+    $this->assertFeatureContains($empFeature, 'eck_bundle', "{$empType}_standard");
+    $this->assertFeatureContains($empFeature, 'eck_bundle', "{$empType}_extended");
+    $this->assertFeatureNotContains($empFeature, 'eck_bundle', "{$empType}_{$empType}");
+    $this->assertFeatureContains($empFeature, 'field_instance', "{$empType}-extended-eck_salary");
+    $this->assertFeatureNotContains($empFeature, 'field_instance', "{$empType}-standard-eck_salary");
+    $this->assertFeatureNotContains($empFeature, 'field_instance', "{$empType}-{$empType}-eck_salary");
+    $this->assertFeatureContains($empFeature, 'dependencies', 'eck');
+    $this->assertFeatureContains($empFeature, 'dependencies', 'featuresbuildercoveragetest_fields');
+  }
+
+  /**
+   * Setup tasks for FeedsFeaturesBuilder.
+   */
+  function prepFeedsBuilder() {
+    $importer = new stdClass();
+    $importer->disabled = FALSE; /* Edit this to true to make a default feeds_importer disabled initially */
+    $importer->api_version = 1;
+    $importer->id = 'features_builder_news';
+    $importer->config = array(
+      'name' => 'Features Builder News',
+      'description' => '',
+      'fetcher' => array(
+        'plugin_key' => 'FeedsHTTPFetcher',
+        'config' => array(
+          'auto_detect_feeds' => FALSE,
+          'use_pubsubhubbub' => FALSE,
+          'designated_hub' => '',
+          'request_timeout' => NULL,
+          'auto_scheme' => 'http',
+          'accept_invalid_cert' => FALSE,
+        ),
+      ),
+      'parser' => array(
+        'plugin_key' => 'FeedsSyndicationParser',
+        'config' => array(),
+      ),
+      'processor' => array(
+        'plugin_key' => 'FeedsNodeProcessor',
+        'config' => array(
+          'expire' => '-1',
+          'author' => 0,
+          'authorize' => 0,
+          'mappings' => array(
+            0 => array(
+              'source' => 'title',
+              'target' => 'title',
+              'unique' => FALSE,
+            ),
+            1 => array(
+              'source' => 'description',
+              'target' => 'body',
+              'unique' => FALSE,
+            ),
+            2 => array(
+              'source' => 'timestamp',
+              'target' => 'created',
+              'unique' => FALSE,
+            ),
+          ),
+          'update_existing' => '0',
+          'update_non_existent' => 'skip',
+          'input_format' => 'plain_text',
+          'skip_hash_check' => 0,
+          'bundle' => 'article',
+        ),
+      ),
+      'content_type' => '',
+      'update' => 0,
+      'import_period' => '-1',
+      'expire_period' => 3600,
+      'import_on_create' => 1,
+      'process_in_background' => 0,
+    );
+    $save = feeds_importer($importer->id);
+    $save->setConfig($importer->config);
+    foreach (array('fetcher', 'parser', 'processor') as $type) {
+      $save->setPlugin($importer->config[$type]['plugin_key']);
+      $save->$type->setConfig($importer->config[$type]['config']);
+    }
+    $save->save();
+
+    $feeds_tamper = new stdClass();
+    $feeds_tamper->disabled = FALSE; /* Edit this to true to make a default feeds_tamper disabled initially */
+    $feeds_tamper->api_version = 2;
+    $feeds_tamper->id = 'features_builder_news-timestamp-strtotime';
+    $feeds_tamper->importer = 'features_builder_news';
+    $feeds_tamper->source = 'timestamp';
+    $feeds_tamper->plugin_id = 'strtotime';
+    $feeds_tamper->settings = array();
+    $feeds_tamper->weight = 0;
+    $feeds_tamper->description = 'String to Unix timestamp';
+    $feeds_tamper->export_type = NULL;
+    feeds_tamper_save_instance($feeds_tamper);
+  }
+
+  /**
+   * Checks the result of FeedsFeaturesBuilder.
+   */
+  function checkFeedsBuilder() {
+    $this->assertFeature('feeds');
+    $this->assertFeatureContains('feeds', 'feeds_importer', 'features_builder_news');
+    $this->assertFeatureContains('feeds', 'feeds_tamper', 'features_builder_news-timestamp-strtotime');
+    $this->assertFeatureContains('feeds', 'dependencies', 'feeds');
+    $this->assertFeatureContains('feeds', 'dependencies', 'feeds_tamper');
+  }
+
+  /**
+   * Setup tasks for FieldablePanelsPanesFeaturesBuilder.
+   */
+  function prepFppBuilder() {
+    ctools_include('export');
+
+    $fieldable_panels_pane_type = new stdClass();
+    $fieldable_panels_pane_type->disabled = FALSE; /* Edit this to true to make a default fieldable_panels_pane_type disabled initially */
+    $fieldable_panels_pane_type->api_version = 1;
+    $fieldable_panels_pane_type->name = 'fb_pane';
+    $fieldable_panels_pane_type->title = 'Features Builder Pane';
+    $fieldable_panels_pane_type->description = '';
+    $fieldable_panels_pane_type->export_type = NULL;
+    ctools_export_crud_save('fieldable_panels_pane_type', $fieldable_panels_pane_type);
+
+    $fieldable_panels_pane_type = new stdClass();
+    $fieldable_panels_pane_type->disabled = FALSE; /* Edit this to true to make a default fieldable_panels_pane_type disabled initially */
+    $fieldable_panels_pane_type->api_version = 1;
+    $fieldable_panels_pane_type->name = 'fb_pane_2';
+    $fieldable_panels_pane_type->title = 'Features Builder Pane - 2';
+    $fieldable_panels_pane_type->description = '';
+    $fieldable_panels_pane_type->export_type = NULL;
+    ctools_export_crud_save('fieldable_panels_pane_type', $fieldable_panels_pane_type);
+
+    $field = array(
+      'field_name' => 'fpp_text',
+      'type' => 'number_float',
+    );
+    field_create_field($field);
+    $instance = array(
+      'field_name' => 'fpp_text',
+      'entity_type' => 'fieldable_panels_pane',
+      'bundle' => 'fb_pane_2',
+    );
+    field_create_instance($instance);
+  }
+
+  /**
+   * Checks the result of FieldablePanelsPanesFeaturesBuilder.
+   */
+  function checkFppBuilder() {
+    $this->assertFeature('fields');
+    $this->assertFeatureContains('fields', 'field_base', 'fpp_text');
+
+    $this->assertFeature('fieldable_panels_panes');
+    $this->assertFeatureContains('fieldable_panels_panes', 'fieldable_panels_pane_type', 'fb_pane');
+    $this->assertFeatureContains('fieldable_panels_panes', 'fieldable_panels_pane_type', 'fb_pane_2');
+    $this->assertFeatureNotContains('fieldable_panels_panes', 'field_base', 'fpp_text');
+    $this->assertFeatureContains('fieldable_panels_panes', 'field_instance', 'fieldable_panels_pane-fb_pane_2-fpp_text');
+    $this->assertFeatureNotContains('fieldable_panels_panes', 'field_instance', 'fieldable_panels_pane-fb_pane-fpp_text');
+    $this->assertFeatureContains('fieldable_panels_panes', 'dependencies', 'featuresbuildercoveragetest_fields');
+    $this->assertFeatureContains('fieldable_panels_panes', 'dependencies', 'fieldable_panels_panes');
+  }
+
+  /**
+   * Setup tasks for NodeFeaturesBuilder.
+   */
+  function prepNodeBuilder() {
+    $this->drupalPost('admin/structure/types/manage/article', array(), 'Save content type');
+    $this->drupalPost('admin/structure/types/manage/page', array(), 'Save content type');
+    $this->createFieldGroup('default', 'node', 'article', 'node_article');
+  }
+
+  /**
+   * Checks the result of NodeFeaturesBuilder.
+   */
+  function checkNodeBuilder() {
+    $this->assertFeature('fields');
+    $this->assertFeature('node_article');
+    $this->assertFeature('node_page');
+    $this->assertNoFeature('node_image');
+
+    $this->assertFeatureContains('node_article', 'node', 'article');
+    $this->assertFeatureContains('node_article', 'field_instance', 'node-article-body');
+    $this->assertFeatureContains('node_article', 'field_instance', 'node-article-field_image');
+    $this->assertFeatureContains('node_article', 'field_instance', 'node-article-field_tags');
+    $this->assertFeatureNotContains('node_article', 'field_base', 'body');
+    $this->assertFeatureNotContains('node_article', 'field_base', 'field_image');
+    $this->assertFeatureNotContains('node_article', 'field_base', 'field_tags');
+    $this->assertFeatureContains('node_article', 'dependencies', 'featuresbuildercoveragetest_fields');
+    $this->assertFeatureContains('node_article', 'variable', 'menu_options_article');
+    $this->assertFeatureContains('node_article', 'variable', 'menu_parent_article');
+    $this->assertFeatureContains('node_article', 'variable', 'node_options_article');
+    $this->assertFeatureContains('node_article', 'variable', 'node_preview_article');
+    $this->assertFeatureContains('node_article', 'variable', 'node_submitted_article');
+    $this->assertFeatureContains('node_article', 'variable', 'ant_article');
+    $this->assertFeatureContains('node_article', 'variable', 'ant_pattern_article');
+    $this->assertFeatureContains('node_article', 'variable', 'ant_php_article');
+    $this->assertFeatureContains('node_article', 'dependencies', 'auto_nodetitle');
+    $this->assertFeatureContains('node_article', 'field_group', 'group_node_article|node|article|default');
+    $this->assertFeatureContains('node_article', 'dependencies', 'field_group');
+
+    $this->assertFeatureContains('node_page', 'node', 'page');
+    $this->assertFeatureContains('node_page', 'field_instance', 'node-page-body');
+    $this->assertFeatureNotContains('node_page', 'field_instance', 'node-page-field_image');
+    $this->assertFeatureNotContains('node_page', 'field_instance', 'node-page-field_tags');
+    $this->assertFeatureNotContains('node_page', 'field_base', 'body');
+    $this->assertFeatureContains('node_page', 'dependencies', 'featuresbuildercoveragetest_fields');
+    $this->assertFeatureContains('node_page', 'variable', 'menu_options_page');
+    $this->assertFeatureContains('node_page', 'variable', 'menu_parent_page');
+    $this->assertFeatureContains('node_page', 'variable', 'node_options_page');
+    $this->assertFeatureContains('node_page', 'variable', 'node_preview_page');
+    $this->assertFeatureContains('node_page', 'variable', 'node_submitted_page');
+    $this->assertFeatureContains('node_page', 'variable', 'ant_page');
+    $this->assertFeatureContains('node_page', 'variable', 'ant_pattern_page');
+    $this->assertFeatureContains('node_page', 'variable', 'ant_php_page');
+    $this->assertFeatureContains('node_page', 'dependencies', 'auto_nodetitle');
+    $this->assertFeatureNotContainsType('node_page', 'field_group');
+    $this->assertFeatureNotContains('node_page', 'dependencies', 'field_group');
+  }
+
+  /**
+   * Obtain manifest data from the builders.
+   *
+   * @param bool $reset
+   *   Trigger a re-run of the manifest collection.
+   *
+   * @return array
+   *   The manifest data as computed by the installed builders.
+   */
+  function getManifest($reset = FALSE) {
+    if ($reset) {
+      $this->resetAll();
+    }
+
+    if ($this->manifest === NULL || $reset) {
+      module_load_include('inc', 'features_builder', 'features_builder.build');
+      $manifest = features_builder_get_manifest();
+      $dependencies = features_builder_build_get_dependencies($manifest);
+      $manifest = features_builder_build_order_manifest($manifest, $dependencies);
+      $this->manifest = features_builder_build_set_dependencies($manifest, $dependencies);
+    }
+
+    return $this->manifest;
+  }
+
+  /**
+   * Create a field_group element.
+   *
+   * @param string $mode
+   *   The "mode" of the field_group.
+   * @param string $entity_type
+   *   The entity type.
+   * @param $bundle
+   *   The entity bundle.
+   * @param string $name
+   *   The name of the field_group. The resulting field_group will have its name
+   *   as this value prefixed with "group_".
+   * @param array $data
+   *   Data to be inserted in the field_group object, optional. If provided,
+   *   this must contain a 'children' element consisting of an array.
+   *
+   * @return \stdClass
+   *   field_group object.
+   */
+  function createFieldGroup($mode, $entity_type, $bundle, $name, $data = array()) {
+    $name = "group_$name";
+    $identifier = "$name|$entity_type|$bundle|$mode";
+
+    if (!isset($data['children'])) {
+      $data['children'] = array();
+    }
+
+    $field_group = new stdClass;
+    $field_group->disabled = FALSE;
+    $field_group->api_version = 1;
+    $field_group->identifier = $identifier;
+    $field_group->group_name = $name;
+    $field_group->entity_type = $entity_type;
+    $field_group->bundle = $bundle;
+    $field_group->mode = $mode;
+    $field_group->parent_name = '';
+    $field_group->children = $data['children'];
+    $field_group->data = $data;
+    drupal_write_record('field_group', $field_group);
+    ctools_export_crud_enable('field_group', $field_group->identifier);
+
+    return $field_group;
+  }
+
+  /**
+   * Assert a feature exists.
+   *
+   * @param string $feature
+   */
+  function assertFeature($feature) {
+    $manifest = $this->getManifest();
+    $this->assert(isset($manifest[$feature]), t('Feature %feature exists.', array('%feature' => $feature)));
+  }
+
+  /**
+   * Assert a feature does not exist.
+   *
+   * @param string $feature
+   */
+  function assertNoFeature($feature) {
+    $manifest = $this->getManifest();
+    $this->assert(!isset($manifest[$feature]), t('No feature %feature exists.', array('%feature' => $feature)));
+  }
+
+  /**
+   * Assert a component exists in a feature.
+   *
+   * @param string $feature
+   *   The feature to analyze.
+   * @param string $component_type
+   *   The type of component being analyzed.
+   * @param string $component
+   *   The name of the component being analyzed.
+   */
+  function assertFeatureContains($feature, $component_type, $component) {
+    $manifest = $this->getManifest();
+    $params['%feature'] = $feature;
+    $params['%type'] = $component_type;
+    $params['%component'] = $component;
+    $message = t('Feature %feature contains %type component %component.', $params);
+    $this->assert(!empty($manifest[$feature][$component_type][$component]), $message);
+  }
+
+  /**
+   * Assert a component does not exist in a feature.
+   *
+   * @param string $feature
+   *   The feature to analyze.
+   * @param string $component_type
+   *   The type of component being analyzed.
+   * @param string $component
+   *   The name of the component being analyzed.
+   */
+  function assertFeatureNotContains($feature, $component_type, $component) {
+    $manifest = $this->getManifest();
+    $params['%feature'] = $feature;
+    $params['%type'] = $component_type;
+    $params['%component'] = $component;
+    $message = t('Feature %feature does not contain %type component %component.', $params);
+    $this->assert(empty($manifest[$feature][$component_type][$component]), $message);
+  }
+
+  /**
+   * Assert no components of a specified type exists in a feature.
+   *
+   * @param string $feature
+   *   The feature to analyze.
+   * @param string $component_type
+   *   The type of component being analyzed.
+   */
+  function assertFeatureNotContainsType($feature, $component_type) {
+    $manifest = $this->getManifest();
+    $params['%feature'] = $feature;
+    $params['%type'] = $component_type;
+    $message = t('Feature %feature does not contain %type components.', $params);
+    $this->assert(empty($manifest[$feature][$component_type]), $message);
+  }
+}
