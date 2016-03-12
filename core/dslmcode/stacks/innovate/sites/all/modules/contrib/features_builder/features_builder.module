@@ -1,0 +1,326 @@
+<?php
+
+/**
+ * @file
+ * Features Builder module code.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function features_builder_menu() {
+
+  $items['admin/structure/features/build'] = array(
+    'title' => 'Build',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('features_builder_admin_build_form'),
+    'access arguments' => array('administer features'),
+    'weight' => 1,
+    'file' => 'features_builder.admin.inc'
+  );
+
+  $items['admin/structure/features/build/build'] = array(
+    'title' => 'Build',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'access arguments' => array('administer features'),
+    'file' => 'features_builder.admin.inc'
+  );
+
+  $items['admin/structure/features/build/builders'] = array(
+    'title' => 'Builders',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'features_builder_admin_build',
+    'access arguments' => array('administer features'),
+    'file' => 'features_builder.admin.inc'
+  );
+
+  $items['admin/structure/features/build/config'] = array(
+    'title' => 'Configuration',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('features_builder_config_form'),
+    'access arguments' => array('administer features'),
+    'weight' => 10,
+    'file' => 'features_builder.admin.inc'
+  );
+
+  $items['admin/structure/features/build/exportables'] = array(
+    'title' => 'Exportables',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'features_builder_exportable_listing',
+    'access arguments' => array('administer features'),
+    'file' => 'features_builder.admin.inc'
+  );
+
+  $items['admin/structure/features/build/%features_builder/%'] = array(
+    'title' => 'Components',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'features_builder_admin_builder',
+    'page arguments' => array(4, 5),
+    'access arguments' => array('administer features'),
+    'weight' => 1,
+    'file' => 'features_builder.admin.inc'
+  );
+
+  return $items;
+}
+
+/**
+ * Builds an array of all exportables exposed to Features.
+ * 
+ * @param string $component
+ *   (optional) Indicate which type of component to return. Defaults to all.
+ * 
+ * @return array
+ *   An array of available exportables. If $component is not specified, this
+ *   will return an array of arrays, keyed by component.
+ */
+function features_builder_get_exportables($component = NULL) {
+  // Cache per request.
+  $ignored = drupal_static(__FUNCTION__);
+  $exportables = &drupal_static(__FUNCTION__);
+
+  if ($exportables === NULL) {
+    $exportables = array();
+    $components = features_get_components();
+    foreach (array_keys($components) as $component_type) {
+      $exportables[$component_type] = features_invoke($component_type, 'features_export_options');
+      // Sometimes we get back a NULL value, just set to empty array.
+      if (!is_array($exportables[$component_type])) {
+        $exportables[$component_type] = array();
+      }
+      ksort($exportables[$component_type]);
+    }
+    ksort($exportables);
+
+    // Parse config for ignored components.
+    if ($ignored === NULL) {
+      $ignored = array();
+      $config = variable_get('features_builder_ignore');
+      $config = explode("\n", $config);
+      $config = array_map('trim', $config);
+      foreach ($config as $line) {
+        $line = explode("|", $line);
+        if (count($line) > 1) {
+          $ignored[trim($line[0])][] = trim($line[1]);
+        }
+      }
+    }
+
+    // Ensure ignored components aren't listed.
+    foreach ($exportables as $type => $components) {
+      if (!empty($ignored[$type])) {
+      $exportables[$type] = array_diff_key($exportables[$type], array_flip($ignored[$type]));
+      }
+    }
+  }
+
+  if ($component) {
+    return (!empty($exportables[$component])) ? $exportables[$component] : array();
+  }
+
+  return $exportables;
+}
+
+/**
+ * An array of builders that service an exportable.
+ * 
+ * @return array
+ *   A multidimensional array keyed by component and exportable name. Each 
+ *   element is an array of names for features created by a Features Builder.
+ */
+function features_builder_get_included_exportables() {
+  $included = &drupal_static(__FUNCTION__);
+
+  if ($included === NULL) {
+    $included = array();
+    foreach (features_builder_get_builders() as $builder_name => $builder) {
+      $features = $builder['class']::listFeatures();
+      foreach ($features as $feature_name => $label) {
+        $builder_class = features_builder_get_class($builder_name, $feature_name);
+        foreach ($builder_class->components() as $component => $components) {
+          foreach ($components as $component_name => $component_info) {
+            $included[$component][$component_name][] = $feature_name;
+          }
+        }
+      }
+    }
+  }
+
+  return $included;
+}
+
+/**
+ * Provides a list of exportables organized by usage.
+ * 
+ * @return array
+ *   An array keyed by states as defined in 
+ *   features_builder_exportable_count_states(). Each element is a 
+ *   multidimensional array keyed by component then exportable name.
+ */
+function features_builder_get_exportables_counts() {
+
+  $items = &drupal_static(__FUNCTION__);
+
+  if ($items === NULL) {
+    $exportables = features_builder_get_exportables();
+    $included = features_builder_get_included_exportables();
+
+    $items = array_fill_keys(array_keys(features_builder_exportable_count_states()), array());
+
+    // Iterate over exportables, determine how many builders provide it.
+    foreach ($exportables as $component => $components) {
+      foreach ($components as $exportable => $label) {
+        if (empty($included[$component][$exportable])) {
+          // Contained by no builders.
+          $items['not_included'][$component][$exportable] = $label;
+        }
+        elseif (count($included[$component][$exportable]) > 1) {
+          // Contained by more than one builder.
+          $items['duplicated'][$component][$exportable] = $label;
+        }
+        else {
+          // Contained by exactly one builder.
+          $items['included'][$component][$exportable] = $label;
+        }
+      }
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * States for an exportable count.
+ * 
+ * Exportables will be either included in one feature, duplicated in multiple
+ * features, or not included in a feature.
+ */
+function features_builder_exportable_count_states() {
+  $states = array(
+    'included' => t('Included'),
+    'duplicated' => t('Duplicated'),
+    'not_included' => t('Not Included'),
+  );
+  return $states;
+}
+
+/**
+ * Get a list of all builders available.
+ * 
+ * @return array
+ *   An array of builder definitions as compiled by invoking 
+ *   hook_features_builders_info() and hook_features_builders_info_alter().
+ */
+function features_builder_get_builders() {
+  // @todo: persistently cache?
+  $builders = &drupal_static(__FUNCTION__);
+
+  if ($builders === NULL) {
+    features_builder_load_includes();
+    $builders = module_invoke_all('features_builders_info');
+    $default = array(
+      'weight' => 0,
+    );
+    foreach ($builders as $name => &$builder) {
+      $builder['name'] = $name;
+      $builder += $default;
+    }
+    drupal_alter('features_builders_info', $builders);
+  }
+
+  return $builders;
+}
+
+/**
+ * Load modulename.features_builders.inc files for all enabled modules.
+ */
+function features_builder_load_includes() {
+  $modules = module_list();
+  foreach ($modules as $module) {
+    module_load_include('inc', $module, "$module.features_builders");
+  }
+}
+
+/**
+ * Load a builder definition.
+ *
+ * @param string $name
+ * @return array
+ */
+function features_builder_load($name) {
+  $builders = features_builder_get_builders();
+  if (array_key_exists($name, $builders)) {
+    return $builders[$name];
+  }
+}
+
+/**
+ * Instantiate the Feature Builder class for the builder.
+ * 
+ * @param string $name
+ *   The name of the builder, as defined in hook_features_builder_info().
+ * @param string $feature
+ *   The name feature on which the builder is operating.
+ * 
+ * @return FeaturesBuilderInterface
+ *   An instantiated instance of a class that extends FeaturesBuilderBase.
+ */
+function features_builder_get_class($name, $feature) {
+  $builder = features_builder_load($name);
+  $class = $builder['class'];
+  return new $class($feature);
+}
+
+/**
+ * Gets the features provided by installed builders.
+ * 
+ * @return array
+ *   An array of builder names keyed by the feature's machine name.
+ */
+function features_builder_get_features() {
+  $features = array();
+  $builders = features_builder_get_builders();
+  foreach ($builders as $builder => $info) {
+    foreach (array_keys($info['class']::listFeatures()) as $feature) {
+      $features[$feature] = $builder;
+    }
+  }
+  return $features;
+}
+
+/**
+ * Batch declaration for the build process.
+ */
+function features_builder_prep_batch($options = array()) {
+
+  $batch = array(
+    'title' => t('Building features.'),
+    'operations' => array(),
+    'file' => drupal_get_path('module', 'features_builder') . '/features_builder.batch.inc',
+    'finished' => 'features_builder_batch_finalize',
+  );
+
+  module_load_include('inc', 'features_builder', 'features_builder.build');
+  $manifest = features_builder_get_manifest();
+  $dependencies = features_builder_build_get_dependencies($manifest);
+  $manifest = features_builder_build_order_manifest($manifest, $dependencies);
+  $manifest = features_builder_build_set_dependencies($manifest, $dependencies);
+
+  $batch['operations'][] = array('features_builder_build_batch', array($manifest, $options));
+
+  return $batch;
+}
+
+/**
+ * Implements hook_help().
+ */
+function features_builder_help($path) {
+  switch ($path) {
+    case 'admin/help#features_builder':
+      $output = file_get_contents(drupal_get_path('module', 'features_builder') .'/README.txt');
+      return module_exists('markdown') ? filter_xss_admin(_filter_markdown($output, NULL)) : '<pre>'. check_plain($output) .'</pre>';
+      break;
+  }
+}

@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ * Features Builder installation hooks.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function features_builder_install() {
+  $label_prefix = variable_get('site_name');
+  $name_prefix = preg_replace('@[^a-z0-9_]+@', '_', strtolower($label_prefix));
+  variable_set('features_builder_prefix_label', $label_prefix);
+  variable_set('features_builder_prefix_name', $name_prefix);
+  variable_set('features_builder_base_dir', 'sites/all/modules/features/build');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function features_builder_uninstsall() {
+  variable_del('features_builder_prefix_label');
+  variable_del('features_builder_prefix_name');
+  variable_del('features_builder_base_dir');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function features_builder_requirements($phase) {
+  $t = get_t();
+  $requirements = array();
+
+  if ($phase == 'runtime' && !count(features_builder_get_builders())) {
+    $requirements['features_builder_no_builders'] = array(
+      'title' => $t('Features Builder'),
+      'value' => $t('No Builders Installed'),
+      'description' => $t('Enable the Features Builder Default module to use the default builders included with Features Builder.'),
+      'severity' => REQUIREMENT_WARNING,
+    );
+  }
+
+  return $requirements;
+
+}
