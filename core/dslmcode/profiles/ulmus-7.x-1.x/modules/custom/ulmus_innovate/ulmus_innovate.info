@@ -5,3 +5,4 @@ dependencies[] = views_ui
 dependencies[] = context_ui
 dependencies[] = field_ui
 dependencies[] = profiler_builder
+dependencies[] = features_builder
