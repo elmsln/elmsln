@@ -10849,7 +10849,13 @@ This is an inline image that can be used in any rich text area.
 ```html_example
 <p>Lorem ipsum Adipisicing laborum sint mollit qui irure eiusmod aute ad proident aliqua amet dolor dolore culpa est amet cillum ex aute cupidatat officia ullamco culpa sunt velit ullamco labore Duis magna id dolor qui tempor ea dolore in commodo velit nostrud ex laboris nulla nisi aliquip ut elit Duis Duis laborum irure sit reprehenderit consequat ut ut pariatur non dolor in sint dolor labore et laborum nisi fugiat dolor cupidatat aute reprehenderit sed fugiat dolor ex eu deserunt irure sed qui elit aliquip sint aliqua et amet enim aliquip enim do elit dolor elit incididunt sed pariatur eu dolore qui consequat amet minim irure Excepteur dolore anim anim laborum dolor quis nulla officia non eiusmod non tempor culpa id voluptate consequat nostrud dolor Excepteur veniam esse laboris eu Ut consectetur dolor aute magna est ex nulla nisi non cupidatat aliqua amet irure dolore Duis amet ad anim pariatur occaecat exercitation officia ullamco eu nulla commodo et est incididunt mollit pariatur exercitation veniam eu labore fugiat cupidatat nostrud deserunt eu.</p>
 <figure class="image">
-  <div class="image__img"><img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600"></div>
+  <div class="image__img">
+  	<div class="row">
+  		<div class="columns small-12 medium-6 large-4">
+  			<img alt="This is the images alt info." class="image__img" src="https://unsplash.it/1200/600">
+  		</div>
+  	</div>
+  </div>
   <cite class="image__cite">Here is the citation or photo credit for the image.</cite>
 	<figcaption class="image__caption">
 		<p>This is the caption for the image.</p>
@@ -11738,3 +11744,110 @@ category:
         display: -webkit-flex;
         display: -ms-flexbox;
         display: flex; }
+      }
+
+.cis--tab-panel__wrapper.tabs-content > .content {
+  padding: 1rem;
+  margin-top: -1px; }
+
+.cis--tab-panel__wrapper.tabs-content {
+  margin: 0; }
+
+.cis--tab-panel__wrapper.tabs-content.vertical > .content {
+  padding: 1rem; }
+
+.button > i {
+  color: #fff; }
+
+.cis--element {
+  border-radius: 10px;
+  margin: 0.2rem 0; }
+  .cis--element__menu {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem; }
+
+.cis--course-item {
+  margin: 1rem 0 0 0; }
+  .cis--course-item i {
+    font-size: 1.5rem;
+    color: #7f7f7f; }
+  .cis--course-item i:hover {
+    color: #000; }
+  .cis--course-item__header {
+    border-color: #ebebeb;
+    border-style: solid;
+    border-width: 1px 1px 0 1px;
+    border-radius: 6px 6px  0 0; }
+  .cis--course-item__menu {
+    text-align: right;
+    padding-top: 1rem; }
+    .cis--course-item__menu i {
+      font-size: 1.5rem;
+      color: #333; }
+    .cis--course-item__menu .icon-bar {
+      background: transparent; }
+    .cis--course-item__menu .icon-bar > * {
+      padding: 0.5rem; }
+    .cis--course-item__menu .icon-bar > a:hover {
+      background: #f5f5f5;
+      border-radius: 12px; }
+    .cis--course-item__menu .icon-bar > a:hover i {
+      color: #000; }
+  .cis--course-item__titles {
+    padding: 1rem; }
+  .cis--course-item__vertical-tabs-wrapper {
+    background: #f5f5f5;
+    padding: 1rem;
+    border-color: #ebebeb;
+    border-style: solid;
+    border-width: 1px 1px 1px 1px;
+    border-radius: 0px 0px 6px 6px; }
+  .cis--course-item h2 {
+    font-size: 1.5rem; }
+  .cis--course-item h3 {
+    font-size: 1rem; }
+
+.tabs.cis--tabs__horizontal {
+  padding-left: 1rem;
+  border-color: #ebebeb;
+  border-style: solid;
+  border-width: 0 1px 0 1px;
+  margin-left: 0; }
+  .tabs.cis--tabs__horizontal dd > a, .tabs.cis--tabs__horizontal .tab-title > a {
+    background-color: transparent;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 1px 1px 1px 1px; }
+
+.tabs.cis--tabs__horizontal dd.active a, .tabs.cis--tabs__horizontal .tab-title.active a {
+  border-style: solid;
+  background-color: #f5f5f5;
+  border-left: 1px #ebebeb solid;
+  border-top: 1px #ebebeb solid;
+  border-right: 1px #ebebeb solid;
+  border-bottom: 1px #f5f5f5 solid; }
+
+.tabs.cis--tabs__vertical dd > a, .tabs.cis--tabs__vertical .tab-title > a {
+  background-color: #f5f5f5;
+  border-left: 1px #f5f5f5 solid;
+  border-top: 1px #f5f5f5 solid;
+  border-right: 0 #999999 solid;
+  border-bottom: 1px #f5f5f5 solid; }
+
+.tabs.cis--tabs__vertical dd.active a, .tabs.cis--tabs__vertical .tab-title.active a {
+  background-color: #f5f5f5;
+  margin-left: 1px;
+  width: 100%;
+  border-left: 1px #999999 solid;
+  border-top: 1px #999999 solid;
+  border-right: 1px #f5f5f5 solid;
+  border-bottom: 1px #999999 solid; }
+
+.tabs.vertical.cis--tabs__vertical {
+  padding: 1rem 0;
+  border-style: solid;
+  border-color: #999999;
+  background-color: #f5f5f5;
+  border-width: 0 1px 0 0; }
