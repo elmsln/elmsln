@@ -1,0 +1,4 @@
+name = CIS Dashboard
+description = Dashboard manager for the CIS system.
+core = 7.x
+package = CIS

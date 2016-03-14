@@ -11744,6 +11744,7 @@ category:
         display: -webkit-flex;
         display: -ms-flexbox;
         display: flex; }
+      }
 
 .cis--tab-panel__wrapper.tabs-content > .content {
   padding: 1rem;
