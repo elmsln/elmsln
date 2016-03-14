@@ -7375,6 +7375,9 @@ footer {
   background-color: #9BD9FF;
   color: #002135; }
 
+.etb-book .content-element-region {
+  padding-top: 2rem; }
+
 .etb-book .alert-box {
   background-color: #009bd3;
   margin: 0 0 2rem 0;
@@ -8319,7 +8322,8 @@ This is an example of how to use the [imagelightbox widget](widgets_imagelightbo
   .image--lightboxed__cite {
     font-size: .8em;
     color: gray;
-    margin-top: 0; }
+    margin-top: 0;
+    word-break: break-word; }
   .image__caption,
   .image--lightboxed__caption {
     font-size: 1em; }

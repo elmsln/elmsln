@@ -142,6 +142,7 @@ $image--margin: 1em;
 		// lets cancel out the owl margin
 		// so that it sits right beneath the image
 		margin-top: 0;
+		word-break: break-word;
 	}
 
 	&__caption {
@@ -190,7 +191,7 @@ $image--margin: 1em;
 		float: right;
 		// Mimic line height so it lines up with text
 		margin-top: .5em;
-	}	
+	}
 
 	.image__img {
 		max-height: 40em;
