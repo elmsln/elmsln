@@ -11,6 +11,7 @@
     $cis_lmsless['active']['title'] = '';
   }
 ?>
+
     <div id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
       <div class="inner-wrap">
         <!-- progress bar -->
@@ -22,63 +23,53 @@
             <div class="r-header__left">
               <?php print render($page['header']); ?>
             </div>
-            <div class="r-header__right" ng-controller="FaHeaderOptionsCtrl as ctrl" ng-cloak ng-app="Fa">
+            <div class="r-header__right">
               <ul class="r-header__edit-icons">
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>
                 <li class="r-header__edit-icons__list-item">
-                  <md-button class="md-icon-button r-header__icon" href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>">
+                  <a href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>" class="r-header__icon">
                     <i class="zmdi zmdi-edit"></i>
-                  </md-button>
+                  </a>
                 </li>
                 <?php endif; ?>
-
-                <!-- Outline -->
-                <li class="r-header__edit-icons__list-item">
-                  <md-menu md-position-mode="target-right target">
-                    <md-button aria-label="Course outline options menu" class="md-icon-button r-header__icon" ng-click="ctrl.openMenu($mdOpenMenu, $event)">
-                     <i class="zmdi zmdi-collection-text"></i>
-                    </md-button>
-                   <md-menu-content width="4">
-                     <md-menu-item>
-                       <md-button href="#">Add child page</md-button>
-                     </md-menu-item>
-                     <md-menu-item>
-                       <md-button href="#">Edit child outline</md-button>
-                     </md-menu-item>
-                     <md-menu-item>
-                       <md-button href="#">Edit course outline</md-button>
-                     </md-menu-item>
-                     <md-menu-item>
-                       <md-button href="#">Duplicate outline</md-button>
-                     </md-menu-item>
-                    </md-menu-content>
-                   </md-menu>
-                </li>
-
+                <?php if (!empty($cis_shortcodes)) : ?>
+                  <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Share')?>" class="r-header__icon" data-reveal-id="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="cis-shortcodes-drop" aria-expanded="false">
+                    <i class="zmdi zmdi-arrow-split"></i>
+                  </a></li>
+                <?php endif; ?>
+                <?php if (isset($speedreader) || isset($mespeak)) : ?>
+                  <li class="r-header__edit-icons__list-item"><a href="#" title="Speed Reader" class="r-header__icon" data-reveal-id="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false">
+                    <i class="zmdi zmdi-tune"></i>
+                  </a></li>
+                <?php endif; ?>
                 <!-- end Edit Icon -->
                 <li class="r-header__edit-icons__list-item">
-                  <md-menu md-position-mode="target-right target">
-                    <md-button aria-label="Extra options menu" class="md-icon-button r-header__icon" ng-click="ctrl.openMenu($mdOpenMenu, $event)">
-                     <i class="zmdi zmdi-more-vert"></i>
-                    </md-button>
-                   <md-menu-content width="4">
-                     <md-menu-item>
-                       <md-button href="#">View</md-button>
-                     </md-menu-item>
-                     <md-menu-item>
-                       <md-button href="#">Edit</md-button>
-                     </md-menu-item>
-                     <md-menu-divider></md-menu-divider>
-                     <md-menu-item>
-                       <md-button href="#">Print</md-button>
-                     </md-menu-item>
-                     <md-menu-divider></md-menu-divider>
-                     <md-menu-item>
-                       <md-button href="#">Accessibility</md-button>
-                     </md-menu-item>
-                    </md-menu-content>
-                   </md-menu>
+                <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
+                    <a href="#" title="<?php print t('More')?>" class="r-header__icon" data-dropdown="r-header__icon--advanced" aria-controls="r-header__icon--advanced" aria-expanded="false">
+                      <i class="zmdi zmdi-more-vert"></i>
+                    </a>
+                    <ul id="r-header__icon--advanced" data-dropdown-content class="f-dropdown f-dropdown--classic content" aria-hidden="true" tabindex="-1">
+                    <?php if (!empty($tabs)): ?>
+                        <?php print render($tabs); ?>
+                      <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
+                    <?php endif; ?>
+                    <?php if ($action_links): ?>
+                        <?php print render($action_links); ?>
+                    <?php endif; ?>
+                    <?php if (isset($tabs_extras)): ksort($tabs_extras); ?>
+                     <?php foreach ($tabs_extras as $group) : ?>
+                      <?php foreach ($group as $button) : ?>
+                        <li><?php print $button; ?></li>
+                      <?php endforeach; ?>
+                     <?php endforeach; ?>
+                    <?php endif; ?>
+                    </ul>
+                <?php else: ?>
+                  <a href="#" title="<?php print t('No additional options')?>" class="r-header__icon fa-action-disabled">
+                      <i class="zmdi zmdi-more-vert"></i>
+                    </a>
+                <?php endif; ?>
                 </li>
               </ul>
             </div>
@@ -176,5 +167,3 @@
 </div>
 <?php endif; ?>
 <!-- /Accessibility Modal -->
-
-
