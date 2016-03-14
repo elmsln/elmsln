@@ -191,6 +191,8 @@ var angular = require('./components/angular.js');
         wrapper.focus();
       }
     });
+
+    $(window).foundation();
   });
 
 })(jQuery);

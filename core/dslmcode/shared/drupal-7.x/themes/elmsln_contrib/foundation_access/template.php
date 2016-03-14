@@ -596,6 +596,13 @@ function foundation_access_breadcrumb($variables) {
 }
 
 /**
+ * Implements hook_preprocess().
+ */
+function foundation_access_preprocess_cis_dashbord(&$variables, $hook) {
+  $variables['theme_hook_suggestions'][] = 'cis_dashboard';
+}
+
+/**
  * Helper function for return a whitelist of allowed tags that can be
  * present in an SVG file.
  */
