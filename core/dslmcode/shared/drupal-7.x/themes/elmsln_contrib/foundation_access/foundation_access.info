@@ -64,7 +64,7 @@ scripts[] = bower_components/angular/angular.min.js
 scripts[] = bower_components/angular-animate/angular-animate.min.js
 scripts[] = bower_components/angular-aria/angular-aria.min.js
 scripts[] = bower_components/angular-messages/angular-messages.min.js
-scripts[] = bower_components/angular-material/angular-material.min.js
+scripts[] = bower_components/angular-resource/angular-resource.min.js
 
 ; Our themes custom scripts compiled by Browserify
 scripts[] = js/dist/app.js
