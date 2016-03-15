@@ -1,6 +1,0 @@
-{
- "name": "ExampleCommand",
- "version": "0.1.0",
- "description": "Piwik Platform showcase: how to create a console command.",
- "theme": false
-}

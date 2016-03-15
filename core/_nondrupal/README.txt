@@ -1,5 +1,1 @@
-Piwik has been modified from its original form in the following ways:
-config is a symlink to ../../../config/_nondrupal/piwik/config
-tmp  is a symlink to ../../../config/_nondrupal/piwik/tmp
-
-This keeps security settings abstracted from the core package
+This is here so that things can be added that aren't Drupal. At one time this was piwik but it also allows us to nicely add headless apps into the whole package while having some place for it to live.
