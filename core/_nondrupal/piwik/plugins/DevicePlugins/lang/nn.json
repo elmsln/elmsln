@@ -1,6 +1,0 @@
-{
-    "DevicePlugins": {
-        "PluginDetectionDoesNotWorkInIE": "Merk: Registrering av innstikk virkar ikkje i Internet Explorer. Denne rapporten er berre basert på andre nettlesarar enn IE.",
-        "WidgetPlugins": "Liste over innstikk"
-    }
-}

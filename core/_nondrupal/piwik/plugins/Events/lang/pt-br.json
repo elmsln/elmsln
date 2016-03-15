@@ -1,9 +1,0 @@
-{
-    "Events": {
-        "Event": "Evento",
-        "EventCategory": "Categoria do Evento",
-        "EventName": "Nome do Evento",
-        "Events": "Eventos",
-        "EventValue": "Valor do Evento"
-    }
-}

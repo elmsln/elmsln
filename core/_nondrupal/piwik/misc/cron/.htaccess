@@ -1,5 +1,0 @@
-# Allow direct web access to Web cron
-<Files "archive.php">
-	Order Allow,Deny
-	Allow from all
-</Files>
