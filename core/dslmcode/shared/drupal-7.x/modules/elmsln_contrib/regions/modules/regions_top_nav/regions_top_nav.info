@@ -1,6 +1,0 @@
-name = "Regions - Top navigation"
-project = "regions_top_nav"
-package = "Regions"
-description = "Provides a top navigational branding region."
-core = "7.x"
-dependencies[] = "regions"

@@ -1,6 +1,0 @@
-name = "Me Speak"
-description = "Integration with mespeak and drupal for spoken text areas."
-core = 7.x
-package = "User Interface"
-dependencies[] = libraries
-configure = admin/config/user-interface/mespeak
