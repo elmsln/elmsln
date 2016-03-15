@@ -143,16 +143,6 @@ NameVirtualHost *:80
     allow from all
 </Directory>
 
-# piwik analytics domain
-<VirtualHost *:80>
-    DocumentRoot /var/www/elmsln/domains/analytics
-    ServerName analytics.YOURUNIT.edu
-</VirtualHost>
-<Directory /var/www/elmsln/domains/analytics>
-    AllowOverride None
-    Order allow,deny
-    allow from all
-</Directory>
 # CDN module / static domain support
 <VirtualHost *:80>
     DocumentRoot /var/www/elmsln/domains
