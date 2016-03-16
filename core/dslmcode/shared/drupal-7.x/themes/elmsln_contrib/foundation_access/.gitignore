@@ -3,7 +3,6 @@ robots.txt
 .sass-cache
 node_modules
 .bin
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 bower_components/jquery
 bower_components/jquery-placeholder
 bower_components/north
@@ -12,9 +11,7 @@ bower_components/modernizr
 bower_components/modular-scale
 bower_components/foundation
 bower_components/fastclick
-=======
 bower_components/*
 !bower_components/material-design-iconic-font
 !bower_components/Materialize
->>>>>>> Starting point for Materialize.
 sftp-config.json
