@@ -51,7 +51,10 @@ elmslnecho "Rebuilding registies and caches for all systems"
 drush @elmsln rr --v --y
 # run the safe upgrade of projects by taking the site offline then back on
 elmslnecho "Running update hooks"
+# run database updates
 drush @elmsln cook dr_run_updates --v --y
+# make sure core is happy everywhere
+drush @elmsln en elmsln_core --y
 # run global upgrades from drup recipes
 drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --replay-from=${replay} --v --y
 
