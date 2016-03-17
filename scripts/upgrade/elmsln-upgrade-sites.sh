@@ -27,6 +27,24 @@ if [ -z $elmsln ]; then
   exit 1
 fi
 
+# tee up the replay from value accounting for it not existing previously
+# in this case we just set a really old date here
+replay_file="${elmsln}/config/REPLAY.txt"
+if [ ! -f ${replay_file} ];
+  then
+  touch $replay_file
+  echo "1413916953" > $replay_file
+fi
+# find last stamp
+replay1=$(<${elmsln}/config/REPLAY.txt)
+# cue up 1 day so we dont get tripped by timezone
+replay2=86400
+# subtract 1 day
+replay=$((${replay1} - ${replay2}))
+# set the timestamp so that next time we use this as the weather mark
+# this takes awhile to run so lets reduce risks even though the replay
+# from value will still be the previous time this script ran
+echo $(timestamp) > ${elmsln}/config/REPLAY.txt
 # to decrease risk of a WSOD when there are significant shifts
 # under the hood, we should run RRs prior to the rest of the routine
 elmslnecho "Rebuilding registies and caches for all systems"
@@ -35,7 +53,7 @@ drush @elmsln rr --v --y
 elmslnecho "Running update hooks"
 drush @elmsln cook dr_run_updates --v --y
 # run global upgrades from drup recipes
-drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --v --y
+drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --replay-from=${replay} --v --y
 
 # load the stacks in question
 cd /var/www/elmsln/core/dslmcode/stacks
@@ -44,7 +62,7 @@ for stack in "${stacklist[@]}"
 do
   elmslnecho "Applying specific upgrades against $stack"
   # run stack specific upgrades if they exist
-  drush @${stack}-all drup d7_elmsln_${stack} ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack} --v --y
+  drush @${stack}-all drup d7_elmsln_${stack} ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack} --replay-from=${replay} --v --y
 done
 
 # trigger crons to run now that these sites are all back and happy
