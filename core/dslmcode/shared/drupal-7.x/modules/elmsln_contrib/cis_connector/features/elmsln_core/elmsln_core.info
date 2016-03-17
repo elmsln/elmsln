@@ -21,6 +21,7 @@ dependencies[] = filter
 dependencies[] = gitphp
 dependencies[] = masquerade
 dependencies[] = node
+dependencies[] = elmsln_api
 dependencies[] = strongarm
 dependencies[] = system
 features[ctools][] = strongarm:strongarm:1
