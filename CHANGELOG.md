@@ -1,3 +1,18 @@
+ELMSLN 0.2.1, 2016-03-17 - leprechaun
+This fixed a critical upgrade path issue that would cause sites to be out of sync with how we intend them to be at a base level. Things like base-line permissions, menu links, and many other issues resolved in 0.2.0 would not be reflected (potentially) for those using ELMSLN before major versions.
+Breaking changes (though should only affect patient 0, aka btopro):
+- remove all but core themes #706
+- Remove piwik from core #746
+Major changes:
+- DR drup command needs a loop hole closed #523
+Additional changes:
+- add few forums to master #733
+- Disable new-release notification for authorities during install #735
+- Make sure discuss_helper is enabled OOTB #738
+- Add OG field support to discuss #740
+- ELMSLN js api #742
+- Review features_builder as part of innovate #745
+
 ELMSLN 0.2.0, 2016-03-10 - Tipping point
 ------------------------
 - SSL Terminator #178
