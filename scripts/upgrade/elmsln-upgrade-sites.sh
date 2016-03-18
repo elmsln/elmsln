@@ -48,15 +48,17 @@ echo $(timestamp) > ${elmsln}/config/REPLAY.txt
 # to decrease risk of a WSOD when there are significant shifts
 # under the hood, we should run RRs prior to the rest of the routine
 elmslnecho "Rebuilding registies and caches for all systems"
-drush @elmsln rr --v --y
+# set concurrency so these scripts can run in parallel execution
+concurrent=2
+drush @elmsln rr -concurrency=${concurrent} --strict=0 --v --y
 # run the safe upgrade of projects by taking the site offline then back on
 elmslnecho "Running update hooks"
 # run database updates
-drush @elmsln cook dr_run_updates --v --y
+drush @elmsln cook dr_run_updates --concurrency=${concurrent} --strict=0 --v --y
 # make sure core is happy everywhere
-drush @elmsln en elmsln_core --y
+drush @elmsln en elmsln_core --concurrency=${concurrent} --strict=0 --v --y
 # run global upgrades from drup recipes
-drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --replay-from=${replay} --v --y
+drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --replay-from=${replay} --concurrency=${concurrent} --strict=0 --v --y
 
 # load the stacks in question
 cd /var/www/elmsln/core/dslmcode/stacks
@@ -65,12 +67,12 @@ for stack in "${stacklist[@]}"
 do
   elmslnecho "Applying specific upgrades against $stack"
   # run stack specific upgrades if they exist
-  drush @${stack}-all drup d7_elmsln_${stack} ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack} --replay-from=${replay} --v --y
+  drush @${stack}-all drup d7_elmsln_${stack} ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack} --replay-from=${replay} --concurrency=${concurrent} --strict=0 --v --y
 done
 
 # trigger crons to run now that these sites are all back and happy
 elmslnecho "Run crons as clean up"
-drush @elmsln cron --v --y
+drush @elmsln cron --concurrency=${concurrent} --strict=0 --v --y
 # now loop through and prime the caches on everything
 elmslnecho "Seeding caches of all entities"
-drush @elmsln ecl --y
+drush @elmsln ecl --concurrency=${concurrent} --strict=0 --v --y
