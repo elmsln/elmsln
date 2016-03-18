@@ -3,6 +3,7 @@ Creating Tokens
 
 ###First Step: Install tokens module
 1. Select modules, and find cis_tokens
+![token module](https://cloud.githubusercontent.com/assets/16597608/13885133/669275d8-ed07-11e5-9666-6c47c9ddfabb.png)
 2. Make sure that cis_tokens is selected. If not select and install module
 
 ###Background info for navigating section offerings
