@@ -2,11 +2,17 @@ Creating Tokens
 ===============
 
 ###Background info for navigating section offerings
+Before we begin implementing tokens, you need to move away from the master section
 1. Go to the course pages
 2. Move away from the master section by clicking the admin tab on the top left of the screen
 3. Find the section chooser, and select a different section.
 4. Make sure that you click the switch section button to change the display
 ![token module](https://cloud.githubusercontent.com/assets/16597608/13932524/bfeeca7c-ef7e-11e5-8563-4fecf085e1b7.png)
+
+###What are tokens?
+Tokens are often used when something such as a date is used throughout the site.
+If someone plans on making changes, and does not want to do it individually they will use tokens.
+Tokens allow you to make the change once and it will be implemented throughout.
 
 ###Now we are ready to establish a set of tokens
 1. Click admin and settings, scroll down until you see the collapsed-state field set for course tokens. Open it.
