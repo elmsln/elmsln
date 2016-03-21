@@ -1,37 +1,22 @@
 Creating Tokens
 ===============
 
-###First Step: Install tokens module
-1. Select modules, and find cis_tokens
-![token module](https://cloud.githubusercontent.com/assets/16597608/13885133/669275d8-ed07-11e5-9666-6c47c9ddfabb.png)
-2. Make sure that cis_tokens is selected. If not select and install module
-
 ###Background info for navigating section offerings
 1. Go to the course pages
 2. Move away from the master section by clicking the admin tab on the top left of the screen
 3. Find the section chooser, and select a different section.
 4. Make sure that you click the switch section button to change the display
-
-###Fork a duplicate outline
-1. Navigate to an offering that uses this outline.
-2. Open the admin tab and select Outline designer
-3. Choose copy book to duplicate the book outline
-4. Give it a title, such as “Tokens Practice”
-5. Click copy.
-
-###Create an offering for your new outline
-1. Select Add+ then click course offering
-2. Add your new course offering
-3. Navigate to the offerings page for that course. You should see the offering that you just created.
-4. This course will not show up in the sections list yet.  To view it in the sections list, you need to upload a syllabus for that course.
-5. Upload a PDF file as the syllabus.  (It does not actually have to be the syllabus, it just needs to be used so we can access the section in the course pages sections list. 
-6. So go back on courses to check the sections list, and now you should see it.
-7. Go to that section. DO NOT change the currently-used course outline!
-8. To change the association between this offering and the outline version being used, click the admin tab, and select section’s list.
-9. Click the edit link on the right to edit the association of the outline.
-10. Under instructional outlines, choose the outline you would like, then pick save
+![token module](https://cloud.githubusercontent.com/assets/16597608/13932524/bfeeca7c-ef7e-11e5-8563-4fecf085e1b7.png)
 
 ###Now we are ready to establish a set of tokens
 1. Click admin and settings, scroll down until you see the collapsed-state field set for course tokens. Open it.
+![token module](https://cloud.githubusercontent.com/assets/16597608/13933548/184ca7b6-ef84-11e5-9fa9-251e1e0cf5a6.png)
 2. Right now there are meaningless placeholding tokens. They are not tied to anything, have no value, and should be rewritten into a real token.
 3. The first part (module_1) is the token name. The pipe (|) demarcates the token name from its value. The last part, (Module 1) is the token value.
+4. Create your token using that format. For example: Assignment_1_due_date|4/1. Make sure to hit save configuration
+  ![token module](https://cloud.githubusercontent.com/assets/16597608/13933785/45b8a136-ef85-11e5-9dc1-0aae8ee73983.png)
+5. In the course outline for that section, you can edit the page and now include the token.
+    To include the token you must include [elmsln_section:token_name].
+ ![token module](https://cloud.githubusercontent.com/assets/16597608/13933924/d93cea8e-ef85-11e5-8065-751e750409a8.png)
+6. Now when you view the page you can see that the token is used and the date is printed.
+ ![token module](https://cloud.githubusercontent.com/assets/16597608/13934017/4ba816b6-ef86-11e5-9857-03b631e525d0.png)
