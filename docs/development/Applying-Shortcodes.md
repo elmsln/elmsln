@@ -2,7 +2,8 @@ Creating Tokens
 ===============
 
 ###Background info for navigating section offerings
-Before we begin implementing tokens, you need to move away from the master section
+Before we begin implementing tokens, you need to move away from the master section.
+
 1. Go to the course pages
 2. Move away from the master section by clicking the admin tab on the top left of the screen
 3. Find the section chooser, and select a different section.
