@@ -1,0 +1,12 @@
+diff --git a/lti_tool_provider.module b/lti_tool_provider.module
+index e847912..ee94455 100644
+--- a/lti_tool_provider.module
++++ b/lti_tool_provider.module
+@@ -586,6 +586,7 @@ function lti_tool_provider_entity_info() {
+       'module' => 'lti_tool_provider_consumer',
+       'bundles' => array(
+         'lti_tool_provider_consumer' => array(
++          'label' => t('LTI Tool Provider Consumer'),
+           'admin' => array(
+             'path' => 'admin/config/lti-tool-provider/lti-tool-provider-consumers',
+             'access arguments' => array('administer lti_tool_provider module'),
