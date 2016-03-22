@@ -72,12 +72,19 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
       switch ($name) {
         case 'section_context':
           $replacements[$original] = _cis_connector_section_context();
-          $replacements[$original] = '<span data-cis-token="' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $replacements[$original] . '</span>';
+          if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
+            $replacements[$original] = '<span data-cis-token="' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $replacements[$original] . '</span>';
+          }
         break;
         default:
           // see if one of our global tokens is matched
           if (isset($section_tokens[$name])) {
-            $replacements[$original] = '<span data-cis-token="' . t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
+            if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
+              $replacements[$original] = '<span data-cis-token="' . t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
+            }
+            else {
+              $replacements[$original] = $section_tokens[$name];
+            }
           }
         break;
       }
