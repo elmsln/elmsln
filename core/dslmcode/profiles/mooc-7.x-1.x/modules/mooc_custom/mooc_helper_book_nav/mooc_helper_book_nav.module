@@ -5,6 +5,18 @@
  */
 
 /**
+ * Implements hook_page_build().
+ */
+function mooc_helper_book_nav_page_build(&$page) {
+  // add navigation via keyboard
+  if ($node = menu_get_object('node')) {
+    if (arg(2) == NULL && !empty($node->book)) {
+      drupal_add_js(drupal_get_path('module', 'mooc_helper_book_nav') . '/js/mooc_helper_book_nav.js');
+    }
+  }
+}
+
+/**
  * Implements hook_node_view().
  */
 function mooc_helper_book_nav_node_view($node, $view_mode, $langcode) {
