@@ -77,6 +77,63 @@ This project is based on the [Vagrant Project](http://drupal.org/project/vagrant
    When handling a system through virtualization (a guest on a host), there are tools to simplify the process by allowing for things such as clipboard handoffs and file sharing. Within Virtualbox these tools are called VirtualBox Guest Tools. For them to work properly, they must match to the version of the Linux kernel that is installed in the guest operating system. If you upgrade/update your vagrant instance you're likely to have updated your Linux kernel. This is one of the most common reasons that sharing files into your VM is not working properly. You could manually update the VirtualBox Guest Tools, or you could have a robot do it for you. VBGuest is a script to automatically update your VirtualBox Guest Tools. To install vagrant vbguest, use `vagrant plugin install vagrant-vbguest` There is _not_ an activator in the elmsln Vagrantfile. More information about usage can be found in the [Vagrant Vagrant VBGuest Documentation](https://github.com/dotless-de/vagrant-vbguest)
 * **Vagrant Cachier**  
    Vagrant Cachier is great if you are regularly rebuilding your virtual machine. The plugin identifies calls to code repositories and caches a local copy of the files that are downloaded. Then, on subsequent calls to the repository, the plugin checks the local cache before requesting the file from the remote repository. This reduces the data downloaded and, therefore, the time it takes to complete a VM setup. To install vagrant cachier, use `vagrant plugin install vagrant-cachier` There is a cache bucket activator in the [elmsln Vagrantfile](https://github.com/elmsln/elmsln/blob/master/Vagrantfile#L13). More information about usage can be found in the [Vagrant Cachier Documentation](http://fgrehm.viewdocs.io/vagrant-cachier/)
+* **Vagrant unison**  
+`vagrant plugin install vagrant-unison` can be used to enable a powerful rsync style method between your local machine and the virtual machine.
+* Unisoned folder support via `unison` over `ssh` -> will work with any vagrant provider, eg Virtualbox or AWS.
+
+###Usage
+
+1. You must already have [Unison](http://www.cis.upenn.edu/~bcpierce/unison/) installed and in your path.
+     * On Mac you can install this with Homebrew:  `brew install unison`
+     * On Unix (Ubuntu) install using `sudo apt-get install unison`
+     * On Windows, download [2.40.102](http://alan.petitepomme.net/unison/assets/Unison-2.40.102.zip), unzip, rename `Unison-2.40.102 Text.exe` to `unison.exe` and copy to somewhere in your path.
+1. Install using standard Vagrant 1.1+ plugin installation methods. 
+```
+$ vagrant plugin install vagrant-unison
+```
+1. After installing, edit your Vagrantfile and add a configuration directive similar to the below:
+```
+Vagrant.configure("2") do |config|
+  config.vm.box = "dummy"
+
+  config.sync.host_folder = "src/"  #relative to the folder your Vagrantfile is in
+  config.sync.guest_folder = "src/" #relative to the vagrant home folder -> /home/vagrant
+
+end
+```
+1. Start up your starting your vagrant box as normal (eg: `vagrant up`)
+
+###Start syncing Folders
+
+Run `vagrant sync` to start watching the local_folder for changes, and syncing these to your vagrang VM.
+
+Under the covers this uses your system installation of [Unison](http://www.cis.upenn.edu/~bcpierce/unison/), 
+which must be installed in your path.
+
+###Development
+
+To work on the `vagrant-unison` plugin, clone this repository out, and use
+[Bundler](http://gembundler.com) to get the dependencies:
+
+```
+$ bundle
+```
+
+Once you have the dependencies, verify the unit tests pass with `rake`:
+
+```
+$ bundle exec rake
+```
+
+If those pass, you're ready to start developing the plugin. You can test
+the plugin without installing it into your Vagrant environment by just
+creating a `Vagrantfile` in the top level of this directory (it is gitignored)
+that uses it, and uses bundler to execute Vagrant:
+
+```
+$ bundle exec vagrant up 
+$ bundle exec vagrant sync
+```
 
 ###Other projects of interest
 (some that have provided inspiration for the work here)
