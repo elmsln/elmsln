@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "opendyslexic";
+  src: url("//cdn.jsdelivr.net/open-dyslexic/2.1.0/eot/OpenDyslexic-Regular.eot");
+  src: url("//cdn.jsdelivr.net/open-dyslexic/2.1.0/woff/OpenDyslexic-Regular.woff") format("woff"),
+       url("//cdn.jsdelivr.net/open-dyslexic/2.1.0/ttf/OpenDyslexic-Regular.ttf") format("truetype"),
+       url("//cdn.jsdelivr.net/open-dyslexic/2.1.0/svg/OpenDyslexic-Regular.svg") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body,p,div,html,h1,h2,h3,h4,h5,h6,blockquote,table,tr,td,strong,em,a,span {
+  font-family: "opendyslexic" !important;
+}
