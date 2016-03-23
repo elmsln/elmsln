@@ -23,7 +23,7 @@
     }
     if (Drupal.settings.a11y.factor == 1) {
       $("body").css({'zoom': '', '-moz-transform': '', '-moz-transform-origin': ''});
-      $.removeCookie('a11y_factor');
+      $.cookie('a11y_factor', Drupal.settings.a11y.factor);
     }
     else {
       $("body").css({'zoom': Drupal.settings.a11y.factor, '-moz-transform': Drupal.settings.a11y.factor, '-moz-transform-origin': Drupal.settings.a11y.factor});
