@@ -1,3 +1,11 @@
+.a11y-invert .etb-modal-icons,
+.a11y-invert .etb-icons {
+  background-color: #FFFF00 !important;
+}
+.a11y-invert .f-dropdown--classic li a {
+  color: #FFFFFF !important;
+}
+
 a.add-menu-drop {
   float: left;
   margin-right: 2rem !important;

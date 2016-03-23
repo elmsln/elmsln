@@ -1,0 +1,9 @@
+body * {
+  color: #FFFFFF !important;
+  background-color: #000000 !important;
+  border-color: #FFFFFF !important;
+}
+
+a, a * ,li,li a,li *,i {
+  color: #FFFF00 !important;
+}

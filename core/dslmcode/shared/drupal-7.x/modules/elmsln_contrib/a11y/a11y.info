@@ -1,0 +1,3 @@
+name = A11y
+description = Provides accessibility enhancements useful for any website
+core = 7.x

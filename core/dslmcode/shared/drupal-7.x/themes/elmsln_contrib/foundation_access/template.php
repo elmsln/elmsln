@@ -77,6 +77,9 @@ function foundation_access_preprocess_html(&$variables) {
  */
 function foundation_access_preprocess_page(&$variables) {
   $menu_item = menu_get_item();
+  if (module_exists('a11y')) {
+    $variables['a11y'] = a11y_a11y_block();
+  }
   // sniff out if this is a view
   if ($menu_item['page_callback'] == 'views_page') {
     // try and auto append exposed filters to our local_subheader region

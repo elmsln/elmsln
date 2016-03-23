@@ -8,10 +8,6 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   if (module_exists('speedreader')) {
     $variables['speedreader'] = TRUE;
   }
-  // mespeak is enabled
-  if (module_exists('mespeak')) {
-    $variables['mespeak'] = TRUE;
-  }
   // drop some tabs that don't seem to go away on their own
   if (isset($variables['tabs']['#primary']) && !empty($variables['tabs']['#primary'])) {
     foreach ($variables['tabs']['#primary'] as $key => $value) {
