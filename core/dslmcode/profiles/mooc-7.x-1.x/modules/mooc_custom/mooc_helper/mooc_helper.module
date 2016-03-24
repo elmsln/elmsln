@@ -690,3 +690,13 @@ function mooc_helper_admin_paths() {
   );
   return $paths;
 }
+
+/**
+ * Implements hook_fa_a11y().
+ * Provides speedreader clickable link for accessibility menu.
+ */
+function mooc_helper_fa_a11y() {
+  if (module_exists('speedreader')) {
+    return array(1 => '<a href="#" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">' . t('Speed reader') . '</a>');
+  }
+}

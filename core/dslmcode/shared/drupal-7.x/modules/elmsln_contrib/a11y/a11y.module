@@ -155,3 +155,11 @@ function a11y_apply_a11y() {
   }
   drupal_add_js($js_variables, 'setting');
 }
+
+/**
+ * Implements hook_fa_a11y().
+ * Returns the accessibility block to foundation access.
+ */
+function a11y_fa_a11y() {
+  return array(0 => a11y_a11y_block());
+}
