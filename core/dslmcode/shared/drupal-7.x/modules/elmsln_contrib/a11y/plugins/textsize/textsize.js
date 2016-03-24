@@ -8,7 +8,7 @@
   });
   //textsize functionality
   Drupal.a11y.textsize = function(scale){
-    if(scale == 1 && Drupal.settings.a11y.factor != 2) {
+    if(scale == 1 && Drupal.settings.a11y.factor < 2) {
       Drupal.settings.a11y.factor = Drupal.settings.a11y.factor + 0.25;
     }
     else if(scale == -1 && Drupal.settings.a11y.factor != 1) {
@@ -16,6 +16,9 @@
     }
     else if(scale == 0) {
       Drupal.settings.a11y.factor = 1;
+    }
+    else if (Drupal.settings.a11y.factor > 2) {
+      Drupal.settings.a11y.factor = 2;
     }
     // account for initial page load, stupid IE thing
     if (Drupal.settings.a11y.factor == null && scale == -2) {
