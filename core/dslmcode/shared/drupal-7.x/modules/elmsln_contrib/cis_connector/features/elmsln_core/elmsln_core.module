@@ -39,6 +39,26 @@ function elmsln_core_preprocess(&$variables, $hook) {
 }
 
 /**
+ * Implements hook_page_build().
+ */
+function elmsln_core_page_build(&$page) {
+  // enable jquery cookie for all pages since we store a bunch of stuff local to the user account
+  drupal_add_library('system', 'jquery.cookie');
+  // get the configuration so we can set domain from here to enable
+  // secure and policy compliant access to sub-domain cookies on
+  // the client side. This clears up MULTIPLE issues at once and is
+  // awesome!
+  $cfg = _cis_connector_get_cfg();
+  // pass variables to js
+  $js_variables = array(
+    'elmslnCore' => array(
+      'domain' => '.' . $cfg['address'],
+    ),
+  );
+  drupal_add_js($js_variables, 'setting');
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
