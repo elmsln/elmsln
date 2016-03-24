@@ -11,9 +11,7 @@ include_once 'cis_course_authority.features.inc';
  */
 function cis_course_authority_cron() {
   // sync with the CIS to ensure our local course nodes mirror the remote
-  // @todo comment this in once we do a lot more testing and decide this is
-  // how we want the data related in some example authorities
-  //_cis_course_authority_cis_sync();
+  _cis_course_authority_cis_sync();
 }
 
 /**
@@ -68,13 +66,18 @@ function _cis_course_authority_cis_sync($cached = FALSE) {
       }
     }
     // now sync the sections to go along with it if they are enabled
-    if (module_exists('cis_section')) {
+    // @todo get the relationships down correctly for course to section
+    // before we enable this. Most likely Course is a piece of content
+    // that can be owned by a section; which means if you have access to
+    // the section then you'll have access to the course though we could
+    // also want to go the other direction, maybe even using subgroups
+    /*if (module_exists('cis_section')) {
       // load up courses now that we should have them all added locally
       $courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_course_machine_name', 'nid');
       // loop through each course and query to sync the section rosters
       foreach ($courses as $machine_name => $nid) {
         _cis_section_sync_roster($machine_name, $nid);
       }
-    }
+    }*/
   }
 }
