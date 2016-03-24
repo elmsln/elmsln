@@ -43,7 +43,7 @@
                     <i class="zmdi zmdi-arrow-split"></i>
                   </a></li>
                 <?php endif; ?>
-                <?php if (isset($speedreader) || isset($a11y)) : ?>
+                <?php if (!empty($a11y)) : ?>
                   <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Accessibility options')?>" class="r-header__icon" data-reveal-id="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false">
                     <i class="zmdi zmdi-tune"></i>
                   </a></li>
@@ -159,15 +159,10 @@
 <!-- generic container for other off canvas modals -->
 <?php print render($page['cis_lmsless_modal']); ?>
 <!-- Accessibility Modal -->
-<?php if (isset($speedreader) || isset($a11y)) : ?>
+<?php if (!empty($a11y)) : ?>
 <div id="page-accessibility-menu" class="reveal-modal" data-reveal aria-labelledby="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog">
   <h2 id="Accessibility"><?php print t('Accessibility') ?></h2>
-  <?php if (isset($a11y)) : ?>
-    <?php print $a11y; ?>
-  <?php endif; ?>
-  <?php if (isset($speedreader)) : ?>
-  <a href="#" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><?php print t('Speed reader'); ?></a>
-  <?php endif; ?>
+  <?php print $a11y; ?>
   <a class="close-reveal-modal">&#215;</a>
 </div>
 <?php endif; ?>

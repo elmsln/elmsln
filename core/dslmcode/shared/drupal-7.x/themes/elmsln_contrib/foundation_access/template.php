@@ -77,9 +77,10 @@ function foundation_access_preprocess_html(&$variables) {
  */
 function foundation_access_preprocess_page(&$variables) {
   $menu_item = menu_get_item();
-  if (module_exists('a11y')) {
-    $variables['a11y'] = a11y_a11y_block();
-  }
+  // allow modules to supply accessibility enhancements to the menu
+  $a11y = module_invoke_all('fa_a11y');
+  drupal_alter('fa_a11y', $a11y);
+  $variables['a11y'] = implode('', $a11y);
   // sniff out if this is a view
   if ($menu_item['page_callback'] == 'views_page') {
     // try and auto append exposed filters to our local_subheader region
