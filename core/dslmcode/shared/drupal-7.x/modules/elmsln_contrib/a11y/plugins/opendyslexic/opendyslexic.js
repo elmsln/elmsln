@@ -18,6 +18,6 @@
       $("#a11y_opendyslexic_styles").remove();
       $("body").removeClass('a11y-opendyslexic');
     }
-    $.cookie('a11y_opendyslexic', opendyslexic);
+    $.cookie('a11y_opendyslexic', opendyslexic, { path: '/', domain: Drupal.settings.a11y.domain });
   };
 })(jQuery);

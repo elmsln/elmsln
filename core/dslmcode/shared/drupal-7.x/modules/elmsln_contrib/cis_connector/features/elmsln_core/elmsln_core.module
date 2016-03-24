@@ -37,3 +37,12 @@ function elmsln_core_preprocess(&$variables, $hook) {
     $variables['classes_array'][] = $hook . '-view-mode-' . $variables['view_mode'];
   }
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
+  // inject the correct value here
+  $cfg = _cis_connector_get_cfg();
+  $form['a11y_domain']['#default_value'] = '.' . $cfg['address'];
+}

@@ -100,8 +100,16 @@ function a11y_menu() {
  * Admin settings form.
  */
 function a11y_admin_settings($form, &$form_state) {
+  // domain default state
+  $form['a11y_domain'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Cookie domain'),
+    '#default_value' => variable_get('a11y_domain', ''),
+    '#description' => t('Define the scope of the accessibility settings. This way you can keep UX patterns the same across subdomains for example.'),
+    '#required' => FALSE,
+  );
   // opendyslexic default state
-  $form['opendyslexic'] = array(
+  $form['a11y_opendyslexic'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow open dyslexic font'),
     '#default_value' => variable_get('a11y_opendyslexic', 1),
@@ -109,7 +117,7 @@ function a11y_admin_settings($form, &$form_state) {
     '#required' => FALSE,
   );
   // contrast default state
-  $form['contrast'] = array(
+  $form['a11y_contrast'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow contrast'),
     '#default_value' => variable_get('a11y_contrast', 1),
@@ -117,7 +125,7 @@ function a11y_admin_settings($form, &$form_state) {
     '#required' => FALSE,
   );
   // textsize default state
-  $form['textsize'] = array(
+  $form['a11y_textsize'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow Text resize'),
     '#default_value' => variable_get('a11y_textsize', 1),
@@ -137,6 +145,7 @@ function a11y_apply_a11y() {
   $js_variables = array(
     'a11y' => array(
       'path' => base_path() . drupal_get_path('module', 'a11y') . '/',
+      'domain' => variable_get('a11y_domain', ''),
       'factor' => 1,
     ),
   );

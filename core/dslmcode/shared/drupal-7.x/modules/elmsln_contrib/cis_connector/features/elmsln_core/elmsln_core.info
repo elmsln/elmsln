@@ -24,6 +24,7 @@ dependencies[] = node
 dependencies[] = elmsln_api
 dependencies[] = strongarm
 dependencies[] = system
+dependencies[] = a11y
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[user_permission][] = access admin theme

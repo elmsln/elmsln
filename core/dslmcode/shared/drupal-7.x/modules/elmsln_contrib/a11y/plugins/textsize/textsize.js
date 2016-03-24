@@ -20,17 +20,16 @@
     else if (Drupal.settings.a11y.factor > 2) {
       Drupal.settings.a11y.factor = 2;
     }
-    // account for initial page load, stupid IE thing
+    // account for initial page load
     if (Drupal.settings.a11y.factor == null && scale == -2) {
       Drupal.settings.a11y.factor = 1;
     }
     if (Drupal.settings.a11y.factor == 1) {
       $("body").css({'zoom': '', '-moz-transform': '', '-moz-transform-origin': ''});
-      $.cookie('a11y_factor', Drupal.settings.a11y.factor);
     }
     else {
       $("body").css({'zoom': Drupal.settings.a11y.factor, '-moz-transform': Drupal.settings.a11y.factor, '-moz-transform-origin': Drupal.settings.a11y.factor});
-      $.cookie('a11y_factor', Drupal.settings.a11y.factor);
     }
+    $.cookie('a11y_factor', Drupal.settings.a11y.factor, { path: '/', domain: Drupal.settings.a11y.domain });
   };
 })(jQuery);

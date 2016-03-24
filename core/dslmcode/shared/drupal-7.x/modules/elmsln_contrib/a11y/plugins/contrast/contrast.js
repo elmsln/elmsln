@@ -25,7 +25,7 @@
       $("body").removeClass('a11y-contrast');
       $("#a11y_contrast_styles").remove();
     }
-    $.cookie('a11y_contrast', contrast);
+    $.cookie('a11y_contrast', contrast, { path: '/', domain: Drupal.settings.a11y.domain });
   };
   // invert functionality
   Drupal.a11y.invert = function(invert){
@@ -37,6 +37,6 @@
       $("body").removeClass('a11y-invert');
       $("#a11y_invert_styles").remove();
     }
-    $.cookie('a11y_invert', invert);
+    $.cookie('a11y_invert', invert, { path: '/', domain: Drupal.settings.a11y.domain });
   };
 })(jQuery);
