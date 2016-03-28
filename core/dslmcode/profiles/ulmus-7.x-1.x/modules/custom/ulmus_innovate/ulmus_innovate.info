@@ -6,3 +6,4 @@ dependencies[] = context_ui
 dependencies[] = field_ui
 dependencies[] = profiler_builder
 dependencies[] = features_builder
+dependencies[] = features_builder_default
