@@ -27,10 +27,11 @@ base theme = zurb_foundation
 ; CSS3 media queries: http://www.w3.org/TR/css3-mediaqueries/
 
 ; For CSS users, load the app.css file:
+stylesheets[all][] = icons/faccess-icons/output/icons.data.svg.css
 stylesheets[all][] = css/app.css
 stylesheets[all][] = css/tweaks.css
-stylesheets[all][] = icons/faccess-icons/output/icons.data.svg.css
 stylesheets[all][] = css/material.css
+stylesheets[all][] = css/fonts.css
 
 ; Block loading of foundation.min.css from the base theme. This file should either
 ; not exist or be blank in your subtheme. See https://drupal.org/node/263967
