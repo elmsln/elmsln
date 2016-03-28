@@ -29,6 +29,19 @@ function cpr_user_field_default_field_instances() {
     'label' => 'Accessibility Preference',
     'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'user_register_form' => 0,
     ),
     'widget' => array(
@@ -38,7 +51,7 @@ function cpr_user_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_buttons',
-      'weight' => 3,
+      'weight' => 6,
     ),
   );
 
@@ -94,7 +107,76 @@ function cpr_user_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 7,
+      'weight' => 14,
+    ),
+  );
+
+  // Exported field_instance: 'user-user-field_display_name'
+  $field_instances['user-user-field_display_name'] = array(
+    'bundle' => 'user',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'How you\'d like your name to be presented to you and your classmates throughout your courses.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 10,
+      ),
+    ),
+    'entity_type' => 'user',
+    'field_name' => 'field_display_name',
+    'label' => 'Display name',
+    'required' => 1,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'student_format' => 'student_format',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'student_format' => array(
+              'weight' => 0,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => 1,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 9,
     ),
   );
 
@@ -150,7 +232,7 @@ function cpr_user_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 5,
+      'weight' => 10,
     ),
   );
 
@@ -206,7 +288,7 @@ function cpr_user_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 6,
+      'weight' => 11,
     ),
   );
 
@@ -233,6 +315,19 @@ function cpr_user_field_default_field_instances() {
     'label' => 'Media Preference',
     'required' => 1,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'user_register_form' => 1,
     ),
     'widget' => array(
@@ -242,7 +337,7 @@ function cpr_user_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 4,
+      'weight' => 7,
     ),
   );
 
@@ -289,7 +384,7 @@ function cpr_user_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 4,
+      'weight' => 13,
     ),
   );
 
@@ -297,7 +392,9 @@ function cpr_user_field_default_field_instances() {
   // Included for use with string extractors like potx.
   t('Accessibility Preference');
   t('Bio');
+  t('Display name');
   t('First name');
+  t('How you\'d like your name to be presented to you and your classmates throughout your courses.');
   t('Last name');
   t('Media Preference');
   t('Photo');

@@ -1,3 +1,10 @@
+.confirm-parent, .password-parent {
+  width: inherit;
+}
+.password-strength {
+  width: inherit;
+}
+
 .a11y-invert .etb-modal-icons,
 .a11y-invert .etb-icons {
   background-color: #FFFF00 !important;

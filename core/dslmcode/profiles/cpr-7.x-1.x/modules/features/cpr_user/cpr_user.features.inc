@@ -5,6 +5,18 @@
  */
 
 /**
+ * Implements hook_ctools_plugin_api().
+ */
+function cpr_user_ctools_plugin_api($module = NULL, $api = NULL) {
+  if ($module == "ds" && $api == "ds") {
+    return array("version" => "1");
+  }
+  if ($module == "field_group" && $api == "field_group") {
+    return array("version" => "1");
+  }
+}
+
+/**
  * Implements hook_image_default_styles().
  */
 function cpr_user_image_default_styles() {
