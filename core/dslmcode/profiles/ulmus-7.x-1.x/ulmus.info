@@ -137,4 +137,3 @@ dependencies[] = cis_section
 ; Innovate dependencies
 ; ----------
 dependencies[] = ulmus_innovate
-dependencies[] = features_builder_default
