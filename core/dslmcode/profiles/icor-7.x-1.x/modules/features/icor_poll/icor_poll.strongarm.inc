@@ -75,16 +75,16 @@ function icor_poll_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '0',
+          'weight' => '1',
         ),
         'path' => array(
           'weight' => '4',
         ),
         'choice_wrapper' => array(
-          'weight' => '2',
+          'weight' => '3',
         ),
         'settings' => array(
-          'weight' => '3',
+          'weight' => '2',
         ),
       ),
       'display' => array(),
