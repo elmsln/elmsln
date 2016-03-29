@@ -35,7 +35,7 @@ function icor_interactive_player_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '0',
+          'weight' => '1',
         ),
         'path' => array(
           'weight' => '4',
@@ -85,7 +85,7 @@ function icor_interactive_player_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'node_preview_icor_interactive_player';
-  $strongarm->value = '1';
+  $strongarm->value = '0';
   $export['node_preview_icor_interactive_player'] = $strongarm;
 
   $strongarm = new stdClass();
