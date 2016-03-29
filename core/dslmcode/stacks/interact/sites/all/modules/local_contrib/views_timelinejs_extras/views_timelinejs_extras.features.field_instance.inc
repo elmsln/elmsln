@@ -67,7 +67,7 @@ function views_timelinejs_extras_field_default_field_instances() {
         'view' => 'timeline_content_type:dynamic_select_1',
       ),
       'type' => 'entityreference_dynamicselect_widget',
-      'weight' => -3,
+      'weight' => 2,
     ),
   );
 

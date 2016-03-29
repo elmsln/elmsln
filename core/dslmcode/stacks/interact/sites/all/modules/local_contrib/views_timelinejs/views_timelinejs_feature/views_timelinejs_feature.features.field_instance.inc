@@ -54,7 +54,7 @@ function views_timelinejs_feature_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 32,
+      'weight' => 4,
     ),
   );
 
@@ -100,7 +100,7 @@ function views_timelinejs_feature_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 37,
+      'weight' => 6,
     ),
   );
 
@@ -146,7 +146,7 @@ function views_timelinejs_feature_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 36,
+      'weight' => 5,
     ),
   );
 
@@ -205,7 +205,7 @@ function views_timelinejs_feature_field_default_field_instances() {
         'year_range' => '0001:9999',
       ),
       'type' => 'date_text',
-      'weight' => 33,
+      'weight' => 1,
     ),
   );
 
@@ -261,7 +261,7 @@ function views_timelinejs_feature_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 35,
+      'weight' => 3,
     ),
   );
 
@@ -297,6 +297,7 @@ function views_timelinejs_feature_field_default_field_instances() {
     'label' => 'Media Link',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
         'configurable_title' => 0,
@@ -309,6 +310,7 @@ function views_timelinejs_feature_field_default_field_instances() {
       ),
       'enable_tokens' => 1,
       'title' => 'none',
+      'title_label_use_field_label' => FALSE,
       'title_maxlength' => 128,
       'title_value' => '',
       'url' => 0,
@@ -320,7 +322,7 @@ function views_timelinejs_feature_field_default_field_instances() {
       'module' => 'link',
       'settings' => array(),
       'type' => 'link_field',
-      'weight' => 34,
+      'weight' => 2,
     ),
   );
 
