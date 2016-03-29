@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ELMSMedia image feature.
+ */
+
+include_once 'elmsmedia_image.features.inc';

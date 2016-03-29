@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ELMSMedia external video feature.
+ */
+
+include_once 'elmsmedia_external_video.features.inc';

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ELMSMedia SVG feature.
+ */
+
+include_once 'elmsmedia_svg.features.inc';

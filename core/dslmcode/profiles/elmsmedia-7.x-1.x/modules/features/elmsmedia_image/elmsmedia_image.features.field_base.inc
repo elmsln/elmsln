@@ -1,24 +1,22 @@
 <?php
 /**
  * @file
- * elmsmedia_feature.features.field_base.inc
+ * elmsmedia_image.features.field_base.inc
  */
 
 /**
  * Implements hook_field_default_field_bases().
  */
-function elmsmedia_feature_field_default_field_bases() {
+function elmsmedia_image_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'body'
-  $field_bases['body'] = array(
+  // Exported field_base: 'field_citation'
+  $field_bases['field_citation'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
-    'entity_types' => array(
-      0 => 'node',
-    ),
-    'field_name' => 'body',
+    'entity_types' => array(),
+    'field_name' => 'field_citation',
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -29,18 +27,19 @@ function elmsmedia_feature_field_default_field_bases() {
     'settings' => array(
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
+      'max_length' => 255,
     ),
     'translatable' => 0,
-    'type' => 'text_with_summary',
+    'type' => 'text',
   );
 
-  // Exported field_base: 'field_cis_course_ref'
-  $field_bases['field_cis_course_ref'] = array(
+  // Exported field_base: 'field_figurelabel_ref'
+  $field_bases['field_figurelabel_ref'] = array(
     'active' => 1,
-    'cardinality' => 1,
+    'cardinality' => -1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_cis_course_ref',
+    'field_name' => 'field_figurelabel_ref',
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
@@ -55,16 +54,14 @@ function elmsmedia_feature_field_default_field_bases() {
       'handler_settings' => array(
         'behaviors' => array(
           'views-select-list' => array(
-            'status' => 1,
+            'status' => 0,
           ),
         ),
         'sort' => array(
-          'direction' => 'ASC',
-          'property' => 'title',
-          'type' => 'property',
+          'type' => 'none',
         ),
         'target_bundles' => array(
-          'cis_course' => 'cis_course',
+          'figurelabel' => 'figurelabel',
         ),
       ),
       'target_type' => 'node',
@@ -73,32 +70,50 @@ function elmsmedia_feature_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_tagging'
-  $field_bases['field_tagging'] = array(
+  // Exported field_base: 'field_image'
+  $field_bases['field_image'] = array(
     'active' => 1,
-    'cardinality' => -1,
+    'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_tagging',
+    'field_name' => 'field_image',
     'indexes' => array(
-      'tid' => array(
-        0 => 'tid',
+      'fid' => array(
+        0 => 'fid',
       ),
     ),
     'locked' => 0,
-    'module' => 'taxonomy',
+    'module' => 'image',
     'settings' => array(
-      'allowed_values' => array(
-        0 => array(
-          'vocabulary' => 'elmsmedia_tag',
-          'parent' => 0,
-        ),
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'default_image' => 0,
+      'uri_scheme' => 'public',
+    ),
+    'translatable' => 0,
+    'type' => 'image',
+  );
+
+  // Exported field_base: 'field_image_caption'
+  $field_bases['field_image_caption'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_image_caption',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
       ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
     ),
     'translatable' => 0,
-    'type' => 'taxonomy_term_reference',
+    'type' => 'text_long',
   );
 
   return $field_bases;
