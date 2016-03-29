@@ -14,7 +14,7 @@ function icor_jmol_field_default_field_instances() {
   $field_instances['node-jmol-field_cis_course_ref'] = array(
     'bundle' => 'jmol',
     'default_value' => NULL,
-    'default_value_function' => '',
+    'default_value_function' => 'entityreference_prepopulate_field_default_value',
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -42,9 +42,30 @@ function icor_jmol_field_default_field_instances() {
     'label' => 'Course',
     'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'behaviors' => array(
         'prepopulate' => array(
-          'status' => 0,
+          'action' => 'none',
+          'action_on_edit' => 0,
+          'fallback' => 'none',
+          'providers' => array(
+            'og_context' => FALSE,
+            'url' => 1,
+          ),
+          'skip_perm' => 0,
+          'status' => 1,
         ),
       ),
       'user_register_form' => FALSE,
@@ -53,10 +74,10 @@ function icor_jmol_field_default_field_instances() {
       'active' => 1,
       'module' => 'options',
       'settings' => array(
-        'apply_chosen' => '',
+        'apply_chosen' => 1,
       ),
       'type' => 'options_select',
-      'weight' => 32,
+      'weight' => 0,
     ),
   );
 
@@ -120,7 +141,7 @@ function icor_jmol_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 33,
+      'weight' => 2,
     ),
   );
 
