@@ -23,3 +23,12 @@ function cis_course_authority_update_7001(&$sandbox) {
   variable_set('cis_resource_page', '');
   variable_set('cis_syllabus_page', '');
 }
+
+/**
+ * Implements hook_update_N().
+ * Self revert and enable DS to pick up those settings for course form
+ */
+function cis_course_authority_update_7002(&$sandbox) {
+  module_enable(array('ds'));
+  features_revert_module('cis_course_authority');
+}

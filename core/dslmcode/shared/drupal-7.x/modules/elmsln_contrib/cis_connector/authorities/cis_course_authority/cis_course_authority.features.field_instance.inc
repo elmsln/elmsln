@@ -23,6 +23,12 @@ function cis_course_authority_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 1,
       ),
+      'entityreference_view_widget' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'teaser' => array(
         'label' => 'above',
         'settings' => array(),
@@ -46,7 +52,7 @@ function cis_course_authority_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 32,
+      'weight' => 2,
     ),
   );
 
@@ -58,6 +64,12 @@ function cis_course_authority_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'entityreference_view_widget' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -86,7 +98,7 @@ function cis_course_authority_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 31,
+      'weight' => 1,
     ),
   );
 
