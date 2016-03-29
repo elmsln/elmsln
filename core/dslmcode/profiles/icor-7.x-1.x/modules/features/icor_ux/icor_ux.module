@@ -5,3 +5,16 @@
  */
 
 include_once 'icor_ux.features.inc';
+
+
+/**
+ * Implements hook_admin_paths().
+ */
+function icor_ux_admin_paths() {
+  $paths = array(
+    'file/*' => FALSE,
+    'file/add' => FALSE,
+    'file/add/upload/archive' => FALSE,
+  );
+  return $paths;
+}
