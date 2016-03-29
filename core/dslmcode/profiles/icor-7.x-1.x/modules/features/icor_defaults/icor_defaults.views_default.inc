@@ -133,7 +133,7 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'icor_interactive_player' => 'icor_interactive_player',
-    'h5p_content' => 'h5p_content',
+    'jmol' => 'jmol',
     'poll' => 'poll',
     'timeline' => 'timeline',
     'timeline_date' => 'timeline_date',

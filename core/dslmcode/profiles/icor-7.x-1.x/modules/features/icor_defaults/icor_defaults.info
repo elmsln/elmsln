@@ -2,6 +2,7 @@ name = ICOR defaults
 description = Some settings that help develop meaningful defaults
 core = 7.x
 package = ICOR
+dependencies[] = entity
 dependencies[] = entityreference_view_widget
 dependencies[] = eva
 dependencies[] = features
