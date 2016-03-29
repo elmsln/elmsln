@@ -80,7 +80,7 @@ function icor_ux_field_default_field_instances() {
         'apply_chosen' => 1,
       ),
       'type' => 'options_select',
-      'weight' => 1,
+      'weight' => 0,
     ),
   );
 
@@ -160,7 +160,7 @@ function icor_ux_field_default_field_instances() {
         'apply_chosen' => 1,
       ),
       'type' => 'options_select',
-      'weight' => 1,
+      'weight' => 0,
     ),
   );
 

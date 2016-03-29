@@ -102,35 +102,11 @@ function icor_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-navigation_object-listing:icor-object-lists
-  $menu_links['menu-elmsln-navigation_object-listing:icor-object-lists'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'icor-object-lists',
-    'router_path' => 'icor-object-lists',
-    'link_title' => 'Object listing',
-    'options' => array(
-      'attributes' => array(),
-      'item_attributes' => array(
-        'id' => '',
-        'class' => '',
-        'style' => '',
-      ),
-      'identifier' => 'menu-elmsln-navigation_object-listing:icor-object-lists',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => 0,
-    'customized' => 1,
-  );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Assembled timeline');
   t('File');
-  t('Object listing');
   t('Timeline item');
   t('Zip file');
 
