@@ -1,5 +1,19 @@
 <?php
+/**
+ * @file A11y accessibiliy toolkit module to help people.
+ */
 
+/**
+ * Implements hook_permission().
+ */
+function a11y_permission() {
+  return array(
+    'view a11y simulations' =>  array(
+      'title' => t('View A11y simulations'),
+      'description' => t('User can see the different simulators that the a11y module provides. These are intended to help people understand different accessibility concerns and should not be enabled for general site users unless the intention is teaching about the different conditions.'),
+    ),
+  );
+}
 
 /**
  * Implements hook_block_info().
@@ -76,6 +90,26 @@ function a11y_a11y_block() {
       <img alt="' . t('Reset text size') . '" title="' . t('Reset text size') . '" src="' . $icon_path . 'text-reset.png" />
     </a></div>';
   }
+  // add in the simulations if they are allowed to see them
+  if (user_access('view a11y simulations')) {
+    $sim = array(
+      '#type' => 'fieldset',
+      '#title' => t('Simulators'),
+      '#description' => t('Simulate different accessibility conditions. This is useful to see how your site would possibly be viewed by people with different conditions.'),
+      '#collapsed' => TRUE,
+      '#collapsible' => TRUE,
+    );
+    if (variable_get('a11y_sim_dyslexia', 1)) {
+      $sim['dyslexia'] = array(
+        '#type' => 'checkbox',
+        '#id' => 'a11y_sim_dyslexia_checkbox',
+        '#title' => t('Dyslexia'),
+        '#default_value' => 0,
+        '#description' => t('This will simulate how a dyslexic might view your material.'),
+      );
+    }
+    $output .= drupal_render($sim);
+  }
   return $output;
 }
 
@@ -100,8 +134,29 @@ function a11y_menu() {
  * Admin settings form.
  */
 function a11y_admin_settings($form, &$form_state) {
+  $form['sim'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Simulators'),
+    '#description' => t('Allow for simulating different accessibility issues. This is useful to see how your site would possibly be viewed by people with different conditions. This is a mode intended for developers and site builders as the modes produce accessibility issues by design to help you empathize.'),
+    '#collapsed' => TRUE,
+    '#collapsible' => TRUE,
+  );
+  $form['sim']['a11y_sim_dyslexia'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow dyslexia simulator'),
+    '#default_value' => variable_get('a11y_sim_dyslexia', 1),
+    '#description' => t('This produces an effect to content that attempts to simulate the affects of dyslexia'),
+    '#required' => FALSE,
+  );
+  $form['config'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Button configuration'),
+    '#description' => t('Which accessibility options appear in the block.'),
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+  );
   // domain default state
-  $form['a11y_domain'] = array(
+  $form['config']['a11y_domain'] = array(
     '#type' => 'textfield',
     '#title' => t('Cookie domain'),
     '#default_value' => variable_get('a11y_domain', ''),
@@ -109,7 +164,7 @@ function a11y_admin_settings($form, &$form_state) {
     '#required' => FALSE,
   );
   // opendyslexic default state
-  $form['a11y_opendyslexic'] = array(
+  $form['config']['a11y_opendyslexic'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow open dyslexic font'),
     '#default_value' => variable_get('a11y_opendyslexic', 1),
@@ -117,7 +172,7 @@ function a11y_admin_settings($form, &$form_state) {
     '#required' => FALSE,
   );
   // contrast default state
-  $form['a11y_contrast'] = array(
+  $form['config']['a11y_contrast'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow contrast'),
     '#default_value' => variable_get('a11y_contrast', 1),
@@ -125,7 +180,7 @@ function a11y_admin_settings($form, &$form_state) {
     '#required' => FALSE,
   );
   // textsize default state
-  $form['a11y_textsize'] = array(
+  $form['config']['a11y_textsize'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow Text resize'),
     '#default_value' => variable_get('a11y_textsize', 1),
@@ -150,6 +205,7 @@ function a11y_apply_a11y() {
     ),
   );
   $plugin_path = drupal_get_path('module', 'a11y') . '/plugins/';
+  $sim_path = drupal_get_path('module', 'a11y') . '/simulations/';
   if (variable_get('a11y_opendyslexic', 1)) {
     $js_variables['a11y']['opendyslexic'] = 1;
     drupal_add_js($plugin_path . 'opendyslexic/opendyslexic.js');
@@ -161,6 +217,10 @@ function a11y_apply_a11y() {
   if (variable_get('a11y_textsize', 1)) {
     $js_variables['a11y']['textsize'] = 1;
     drupal_add_js($plugin_path . 'textsize/textsize.js');
+  }
+  if (variable_get('a11y_sim_dyslexia', 1)) {
+    $js_variables['a11y']['sim']['dyslexia'] = 1;
+    drupal_add_js($sim_path . 'dyslexia/dyslexia.js');
   }
   drupal_add_js($js_variables, 'setting');
 }
