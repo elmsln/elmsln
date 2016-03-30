@@ -1,5 +1,5 @@
-name = "ELMS media helper"
-description = "ELMS Media enhancements to media integration"
+name = 'ELMSMedia helper'
+description = 'ELMSMedia distribution glue code'
 core = 7.x
 dependencies[] = mediaelement
 files[] = elmsmedia_helper.module
