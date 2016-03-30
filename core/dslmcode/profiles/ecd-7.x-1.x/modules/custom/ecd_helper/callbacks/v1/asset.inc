@@ -65,17 +65,24 @@ function ecd_helper_elmsln_api_callback_asset() {
       if ($value['type'] != 'link') {
         $etids = array_keys($result['node']);
         $nid = array_pop($etids);
-        // load all the entities in the array
-        $node = node_load($nid);
-        // update title incase it changed
-        $node->title = $value['title'];
-        // unset these because we need a human to verify it
-        $node->field_accessibility_verified['und'][0]['value'] = 0;
-        $node->field_quality_verified['und'][0]['value'] = 0;
-        $node->field_copyright_verified['und'][0]['value'] = 0;
-        // save node
-        node_save($node);
-        $message = t('Updated existing asset record');
+        // our remote item got deleted; let's keep in sync
+        if ($value['operation'] == 'delete') {
+          node_delete($nid);
+          $message = t('Deleted associated asset record');
+        }
+        else {
+          // load all the entities in the array
+          $node = node_load($nid);
+          // update title incase it changed
+          $node->title = $value['title'];
+          // unset these because we need a human to verify it
+          $node->field_accessibility_verified['und'][0]['value'] = 0;
+          $node->field_quality_verified['und'][0]['value'] = 0;
+          $node->field_copyright_verified['und'][0]['value'] = 0;
+          // save node
+          node_save($node);
+          $message = t('Updated existing asset record');
+        }
       }
       else {
         $node = array();

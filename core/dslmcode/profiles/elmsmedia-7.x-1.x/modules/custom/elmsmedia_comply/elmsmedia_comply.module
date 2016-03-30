@@ -8,13 +8,29 @@
  * Implements hook_node_insert().
  */
 function elmsmedia_comply_node_insert($node) {
-  elmsmedia_comply_node_update($node);
+  _comply_update($node, 'create');
 }
 
 /**
  * Implements hook_node_update().
  */
 function elmsmedia_comply_node_update($node) {
+  _comply_update($node, 'create');
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function elmsmedia_comply_node_delete($node) {
+  _comply_update($node, 'delete');
+}
+
+/**
+ * Push an update compliance
+ * @param  object $node node being worked on
+ * @param  string $op   operation to commit
+ */
+function _comply_update($node, $op) {
   // ensure this isn't a type we don't want to call comply about
   if (!in_array($node->type, array('section', 'cis_course'))) {
     // load associated course if there is one for this
@@ -36,9 +52,10 @@ function elmsmedia_comply_node_update($node) {
         'elmsln_callback' => 'asset',
         'title' => $node->title,
         'course' => $course,
-        'url' => url('node/' . $node->nid, array('absolute' => TRUE)),
+        'url' => url('node/' . $node->nid, array('alias' => TRUE, 'absolute' => TRUE)),
         'uuid' => $node->uuid,
         'type' => 'media',
+        'operation' => $op,
       ),
     );
     _elmsln_api_request($request);
