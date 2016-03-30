@@ -152,6 +152,7 @@ dependencies[] = elmsmedia_h5p
 dependencies[] = elmsmedia_image
 dependencies[] = elmsmedia_svg
 dependencies[] = elmsmedia_video
+dependencies[] = elmsmedia_view_mode_tabs
 dependencies[] = elmsmedia_perms
 
 

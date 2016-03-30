@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ELMSMedia View mode tabs feature.
+ */
+
+include_once 'elmsmedia_view_mode_tabs.features.inc';
