@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @file
+ * Allows H5P contents implementing xAPI to communicate with tincan module api through ajax.
+ */
+
+define('H5P_TINCAN_BRIDGE__RELAY_URL', 'ajax/tincanapi/relay');
+
+/**
+ * Implements hook_init().
+ */
+function h5p_tincan_bridge_init() {
+  drupal_add_js(array('h5pTincanBridge' => array('token' => drupal_get_token(), 'relayUrl' => base_path() . H5P_TINCAN_BRIDGE__RELAY_URL)), 'setting');
+  drupal_add_js(drupal_get_path('module', 'h5p_tincan_bridge') . '/h5p_tincan_bridge.js');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function h5p_tincan_bridge_menu() {
+  return array(
+    H5P_TINCAN_BRIDGE__RELAY_URL => array(
+      'title' => 'H5P tincan bridge',
+      'description' => 'AJAX callback to track H5P Tin Can API events.',
+      'type' => MENU_CALLBACK,
+      'page callback' => 'h5p_tincan_bridge_view',
+      'access arguments' => array('access content'),
+    )
+  );
+}
+
+/**
+ * Menu callback for JavaScript event relay.
+ */
+function h5p_tincan_bridge_view() {
+  if (isset($_POST['token']) && drupal_get_token() == $_POST['token'] && isset($_POST['statement'])) {
+
+    global $base_url;
+
+    $data = json_decode($_POST['statement'], TRUE);
+    $nid = $data['object']['definition']['extensions']['http://h5p.org/x-api/h5p-local-content-id'];
+
+    //Regularize object id with node syntax
+    $data['object']['id'] = $base_url . '/node/' . $nid;
+
+    h5p_tincan_bridge_tincanapi_add_og_context(node_load($nid), $data);
+
+    $hook = 'tincanapi_ajax_data_alter';
+    foreach (module_implements($hook) as $module) {
+      $function = $module . '_' . $hook;
+      $function('h5p_tincan_bridge', $data, $_POST);
+    }
+
+    tincanapi_send("statements", "POST", $data);
+  }
+}
+
+/**
+ * Add og context to h5p statement (extracted from tincanapi)
+ */
+function h5p_tincan_bridge_tincanapi_add_og_context($node, &$data) {
+  global $base_url;
+  if (isset($node->og_group_ref)) {
+    $og_group_values = field_get_items('node', $node, 'og_group_ref');
+    $group_nid = $og_group_values[0]['target_id'];
+
+    $group_node = node_load($group_nid);
+    if ($group_node) {
+      $group = array(
+        'objectType' => 'Activity',
+      ) + tincanapi_get_object('node', $group_node);
+
+      $data['context']['contextActivities']['grouping'] = $group;
+    }
+  }
+}
