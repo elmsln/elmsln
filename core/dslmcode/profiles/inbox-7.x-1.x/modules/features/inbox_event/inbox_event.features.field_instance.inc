@@ -13,6 +13,7 @@ function inbox_event_field_default_field_instances() {
   // Exported field_instance: 'node-inbox_event-field_inbox_date'
   $field_instances['node-inbox_event-field_inbox_date'] = array(
     'bundle' => 'inbox_event',
+    'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -72,8 +73,8 @@ function inbox_event_field_default_field_instances() {
         'text_parts' => array(),
         'year_range' => '-0:+1',
       ),
-      'type' => 'date_popup',
-      'weight' => 2,
+      'type' => 'date_select',
+      'weight' => 1,
     ),
   );
 
@@ -144,7 +145,7 @@ function inbox_event_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 1,
+      'weight' => 3,
     ),
   );
 
@@ -230,7 +231,7 @@ function inbox_event_field_default_field_instances() {
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 3,
+      'weight' => 2,
     ),
   );
 
