@@ -1,0 +1,360 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function tag_scanner_menu() {
+	$items['admin/content/tag-scanner'] = array(
+		'title' => 'Tag scanner',
+		'page callback' => 'tag_scanner_page_callback',
+		'access arguments' => array('access tag scanner'),
+		'type' => MENU_NORMAL_ITEM,
+		);
+
+	$items['admin/content/tag-scanner/export'] = array(
+		'title' => 'Tag scanner Export',
+		'page callback' => 'tag_scanner_export_page_callback',
+		'access arguments' => array('access tag scanner'),
+		'type' => MENU_CALLBACK,
+		);
+
+	return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function tag_scanner_permission() {
+	return array(
+		'access tag scanner' =>  array(
+			'title' => t('Access tag scanner'),
+			'description' => t('Perform an tag scan on all nodes and export that information.'),
+			),
+		);
+}
+
+function tag_scanner_page_callback() {
+	$output = '';
+
+	// get search options
+	$search_options_form = drupal_get_form('tag_scanner_search_options');
+	$output .= render($search_options_form);
+
+
+	if (isset($_SESSION['tag_scanner_settings'])) {
+		// get results
+		$table = _tag_scanner_scan_init();
+		if ($table && !empty($table)) {
+			$output .= 'Results ' . count($table['rows']) . ' tags found. ' . l('Download Table', 'admin/content/tag-scanner/export');
+			$output .= theme('table', $table);
+			return $output;
+		}
+		else {
+			$output .= 'No tags found';
+			return $output;
+		}
+	}
+	else {
+		$output .= t('Enter in search criteria in the above settings fieldset.');
+		return $output;
+	}
+}
+
+function tag_scanner_export_page_callback($fields = 'body') {
+	$table = _tag_scanner_scan_init();
+
+	if ($table && !empty($table)) {
+		// move the rows up one level
+		$table = array_merge($table, $table['rows']);
+		unset($table['rows']);
+		_tag_scanner_convert_to_csv($table, 'tag_scanner_export.csv', ',');
+	}
+	else {
+		return 'No tags found.';
+	}
+}
+
+/**
+ * drupal_get_form callback for Search Options
+ */
+function tag_scanner_search_options($form, &$form_state) {
+	// get the list of possible search options
+	$field_map = field_info_field_map();
+	// get user settings
+	if (isset($_SESSION['tag_scanner_settings'])) {
+		$settings = unserialize($_SESSION['tag_scanner_settings']);
+	}
+	else {
+		$settings = NULL;
+	}
+
+	$form['tag'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Tag'),
+		'#size' => 60,
+		'#required' => TRUE,
+		'#description' => t('Enter the tag that should be search on.'),
+		'#default_value' => $settings['tag'],
+		);
+	$form['options'] = array(
+		'#type' => 'fieldset',
+		'#title' => t('Search options'),
+		'#collapsible' => TRUE,
+		'#collapsed' => TRUE,
+		);
+
+	// get a list of all available bundles and fields
+	if ($field_map && !empty($field_map)) {
+		foreach ($field_map as $field_name => $field) {
+			if (isset($field['bundles'])) {
+				foreach ($field['bundles'] as $entity_type => $bundles) {
+					// Create an entity list
+					$form['options']['entities']['#type'] = 'radios';
+					$form['options']['entities']['#title'] = 'Entity';
+					$form['options']['entities']['#options'][$entity_type] = $entity_type;
+					$form['options']['entities']['#default_value'] = ($settings ? $settings['entities'] : NULL);
+					foreach ($bundles as $bundle) {
+						$form['options']['bundles']['#tree'] = TRUE;
+						$form['options']['bundles'][$entity_type]['#type'] = 'checkboxes';
+						$form['options']['bundles'][$entity_type]['#title'] = $entity_type .' bundles';
+						$form['options']['bundles'][$entity_type]['#options'][$bundle] = $bundle;
+						$form['options']['bundles'][$entity_type]['#default_value'] = ($settings ? $settings['bundles'][$entity_type] : array());
+						$form['options']['bundles'][$entity_type]['#states'] = array(
+							'visible' => array(
+								':input[name="entities"]' => array('value' => $entity_type),
+								),
+							);
+						// create a field list
+						$form['options']['fields']['#tree'] = TRUE;
+						$form['options']['fields'][$entity_type][$bundle]['#type'] = 'checkboxes';
+						$form['options']['fields'][$entity_type][$bundle]['#title'] = $bundle .' fields';
+						$form['options']['fields'][$entity_type][$bundle]['#options'][$field_name] = $field_name;
+						$form['options']['fields'][$entity_type][$bundle]['#default_value'] = ($settings ? $settings['fields'][$entity_type][$bundle] : array());
+						$form['options']['fields'][$entity_type][$bundle]['#states'] = array(
+							'visible' => array(
+								':input[name="entities"]' => array('value' => $entity_type),
+								':input[name="bundles['.$entity_type.']['.$bundle.']"]' => array('checked' => TRUE),
+								),
+							);
+					}
+				}
+			}
+		}
+	}
+
+	$form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => t('Update Settings'),
+		);
+
+	return $form;
+}
+
+/**
+ * @todo find out how to properly save values from an unknown
+ *       amount of options.
+ */
+function tag_scanner_search_options_submit($form, &$form_state) {
+	$settings['tag'] = $form_state['values']['tag'];
+	$settings['entities'] = $form_state['values']['entities'];
+	$settings['bundles'] = $form_state['values']['bundles'];
+	$settings['fields'] = $form_state['values']['fields'];
+
+	$_SESSION['tag_scanner_settings'] = serialize($settings);
+}
+
+function _tag_scanner_scan_init() {
+	if (isset($_SESSION['tag_scanner_settings'])) {
+		$settings = unserialize($_SESSION['tag_scanner_settings']);
+		return _tag_scanner_scan_tags($settings['tag'], $settings['entities'], $settings);
+	}
+	else {
+		return false;
+	}
+}
+
+/**
+ * Helper function to search fields for a specified tag and return
+ * an table of results.
+ * @param  [string] $tag      Tag that you want to search on
+ * @param  [string] $entity   entity that you would like to search on
+ * @param  [array]  $settings
+ *         				   - [bundles]
+ *         				   - [fields]
+ * @return [array]  An array, prepared to be run through theme_field()
+ */
+function _tag_scanner_scan_tags($tag, $entity_type, $settings) {
+	$query = new EntityFieldQuery();
+	$query->entityCondition('entity_type', $entity_type);
+	if (isset($settings['bundles'][$entity_type])) {
+		foreach ($settings['bundles'][$entity_type] as $bundle_type => $value) {
+	  	// Add each selected bundle to the query
+			if ($value != "0" || $value != FALSE) {
+				$query->entityCondition('bundle', $bundle_type);
+			}
+	  	// Add each selected field to the query
+			if (isset($settings['fields'][$entity_type][$bundle_type])) {
+				foreach ($settings['fields'][$entity_type][$bundle_type] as $field_name => $value) {
+					if ($value != "0" || $value != FALSE) {
+						$query->fieldCondition($field_name, 'value', 'NULL', '!=');
+					}
+				}
+			}
+		}
+	}
+	try {
+		$result = $query->execute();
+	} 
+	catch (Exception $exc) {
+		watchdog(
+			'tag_scanner',
+			'EntityFieldQuery exception in %function() <pre>@trace</pre>',
+			array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
+			WATCHDOG_ERROR
+			);
+	}
+
+	if (isset($result[$entity_type])) {
+		$tags_list = array();
+
+		foreach ($result[$entity_type] as $entity_id => $entity) {
+			$entity_wrapper = entity_metadata_wrapper($entity_type, $entity_id);
+			$bundle_type = $entity->type;
+
+			foreach ($settings['fields'][$entity_type][$bundle_type] as $field) {
+				if ($field != "0" || $field != FALSE) {
+					if (isset($entity_wrapper->$field->value)) {
+						$html = $entity_wrapper->$field->value->value();
+						$tags = _tag_scanner_get_tags_from_html($html, $tag);
+						foreach ($tags as $key => $value) {
+							$value = array('#tag' => $tag) + $value;
+							$value = array('#entity_id' => $entity_wrapper->getIdentifier()) + $value;
+							$value = array('#entity_title' => $entity_wrapper->title->value()) + $value;
+							$value = array('#bundle' => $bundle_type) + $value;
+							$value = array('#entity' => $entity_type) + $value;
+
+							drupal_alter('tag_scanner_tag_list', $value, $entity_wrapper, $bundle, $field);
+							$tags_list[] = $value;
+						}
+					}
+				}
+			}
+		}
+
+		// remove any pure duplicates
+		$tags_list = _tag_scanner_array_unique_recursive($tags_list);
+
+		// add an identifiable key to the table
+		foreach ($tags_list as $key => $value) {
+			$tags_list[$key] = array('#item_id' => $key) + $value;
+		}
+
+	  // put the table together
+		$table = array();
+	  // find all attritubute types
+		$attribute_types = array();
+		foreach ($tags_list as $element) {
+			$attributes = array_keys($element);
+			if (!empty($attributes)) {
+				foreach ($attributes as $attribute) {
+					if (!in_array($attribute, $attribute_types)) {
+						$attribute_types[] = $attribute;
+					}
+				}
+			}
+		}
+
+	  // now that we have the full list of attribute types
+	  // we can start putting together the rows. Need to make
+	  // sure the all rows have the same number of attributes and
+	  // in the same order.
+		$rows = array();
+		foreach ($tags_list as $element_key => $element) {
+			foreach ($attribute_types as $attribute) {
+				if (isset($element[$attribute])) {
+					$attribute_value = $element[$attribute];
+				}
+				else {
+					$attribute_value = '';
+				}
+				$rows[$element_key][$attribute] = $attribute_value;
+			}
+		}
+
+		$table = array(
+			'header' => $attribute_types,
+			'rows' => $rows,
+			);
+
+		return $table;
+	}
+
+	return false;
+}
+
+
+/**
+ * Helper function to find all tags in html
+ * @param  string $html       Block of html to search through
+ * @param  string $tag_name   Name of the tag you would like to search on
+ * @return array              List of tags and their attributes
+ */
+function _tag_scanner_get_tags_from_html($html, $tag_name) {
+	$tags = array();
+	// set up a new DOMDocument
+	$dom = new DOMDocument();
+	// use the @ symbol to supress invalid html warnings
+	@$dom->loadHTML($html);
+	$elements = $dom->getElementsByTagName($tag_name);
+
+	// loop through each tag
+	for ($i = 0; $i < $elements->length; $i++) {
+		$element = $elements->item($i);
+		$attr_length = $element->attributes->length;
+
+		// gather a list of attributes for this tag
+		$attributes = array();
+		foreach ($element->attributes as $key => $value) {
+			$attributes[$value->name] = $value->value;
+		}
+		$tags[] = $attributes;
+	}
+
+	return $tags;
+}
+
+function _tag_scanner_convert_to_csv($input_array, $output_file_name, $delimiter) {
+	/** open raw memory as file, no need for temp files, be careful not to run out of memory thought */
+	$f = fopen('php://memory', 'w');
+	/** loop through array  */
+	foreach ($input_array as $line) {
+		/** default php csv handler **/
+		fputcsv($f, $line, $delimiter);
+	}
+	/** rewrind the "file" with the csv lines **/
+	fseek($f, 0);
+	/** modify header to be downloadable csv file **/
+	header('Content-Type: application/csv');
+	header('Content-Disposition: attachement; filename="' . $output_file_name . '";');
+	/** Send file to browser for download */
+	fpassthru($f);
+}
+
+/**
+ * Helper function to remove unique multidimensional arrays
+ * @param  [type] $array [description]
+ * @return [type]        [description]
+ */
+function _tag_scanner_array_unique_recursive($array) {
+  $result = array_map("unserialize", array_unique(array_map("serialize", $array)));
+
+  foreach ($result as $key => $value)
+  {
+    if ( is_array($value) )
+    {
+      $result[$key] = _tag_scanner_array_unique_recursive($value);
+    }
+  }
+
+  return $result;
+}

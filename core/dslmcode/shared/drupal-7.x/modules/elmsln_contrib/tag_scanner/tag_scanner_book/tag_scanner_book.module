@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Impliments hook_tag_scanner_tag_list_alter
+ */
+function tag_scanner_book_tag_scanner_tag_list_alter(&$value, $entity_wrapper, $bundle, $field) {
+	if (isset($entity_wrapper->book)) {
+		$value = array('#bid' => $entity_wrapper->book->value()->book['bid']) + $value;
+		$value = array('#book_title' => $entity_wrapper->book->value()->book['title']) + $value;
+	}
+}

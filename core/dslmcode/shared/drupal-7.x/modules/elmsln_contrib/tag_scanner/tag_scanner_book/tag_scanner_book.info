@@ -1,0 +1,10 @@
+name = Tag Scanner Book
+description = Adds extra book information to the output of Tag Scanner module.
+core = 7.x
+dependencies[] = tag_scanner
+; Information added by Drupal.org packaging script on 2016-03-30
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "tag_scanner"
+datestamp = "1459361340"
+

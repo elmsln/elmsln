@@ -1,0 +1,10 @@
+name = Tag Scanner
+description = Seek out all specified tags within the wysiwyg and return there attributes.
+core = 7.x
+dependencies[] = entity
+; Information added by Drupal.org packaging script on 2016-03-30
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "tag_scanner"
+datestamp = "1459361340"
+
