@@ -31,6 +31,7 @@ features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
 features[field_base][] = body
 features[field_base][] = field_cis_course_ref
+features[field_base][] = field_poster
 features[field_base][] = field_tagging
 features[image][] = image
 features[image][] = image_lightboxed
