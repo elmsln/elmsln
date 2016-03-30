@@ -314,6 +314,61 @@ function ecd_types_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-cis_system-field_machine_name'
+  $field_instances['node-cis_system-field_machine_name'] = array(
+    'bundle' => 'cis_system',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_machine_name',
+    'label' => 'Machine Name',
+    'required' => 1,
+    'settings' => array(
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'field_hidden',
+      'settings' => array(),
+      'type' => 'field_hidden',
+      'weight' => 31,
+    ),
+  );
+
   // Exported field_instance: 'node-ecd_asset-field_accessibility_verified'
   $field_instances['node-ecd_asset-field_accessibility_verified'] = array(
     'bundle' => 'ecd_asset',
@@ -578,120 +633,6 @@ function ecd_types_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-ecd_asset-field_student_count'
-  $field_instances['node-ecd_asset-field_student_count'] = array(
-    'bundle' => 'ecd_asset',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'number',
-        'settings' => array(
-          'decimal_separator' => '.',
-          'prefix_suffix' => TRUE,
-          'scale' => 0,
-          'thousand_separator' => ' ',
-        ),
-        'type' => 'number_integer',
-        'weight' => 7,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_student_count',
-    'label' => 'Student Count',
-    'required' => 0,
-    'settings' => array(
-      'authcache' => array(
-        'clients' => array(
-          'authcache_ajax' => array(
-            'status' => 1,
-            'weight' => 0,
-          ),
-        ),
-        'fallback' => 'cancel',
-        'lifespan' => 3600,
-        'perpage' => 0,
-        'peruser' => 1,
-        'status' => 0,
-      ),
-      'max' => '',
-      'min' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'number',
-      'settings' => array(),
-      'type' => 'number',
-      'weight' => 8,
-    ),
-  );
-
-  // Exported field_instance: 'node-cis_system-field_machine_name'
-  $field_instances['node-cis_system-field_machine_name'] = array(
-    'bundle' => 'cis_system',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_machine_name',
-    'label' => 'Machine Name',
-    'required' => 1,
-    'settings' => array(
-      'better_formats' => array(
-        'allowed_formats' => array(
-          'plain_text' => 'plain_text',
-          'textbook_editor' => 'textbook_editor',
-        ),
-        'allowed_formats_toggle' => 0,
-        'default_order_toggle' => 0,
-        'default_order_wrapper' => array(
-          'formats' => array(
-            'plain_text' => array(
-              'weight' => 10,
-            ),
-            'textbook_editor' => array(
-              'weight' => -10,
-            ),
-          ),
-        ),
-      ),
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'field_hidden',
-      'settings' => array(),
-      'type' => 'field_hidden',
-      'weight' => 31,
-    ),
-  );
-
   // Translatables
   // Included for use with string extractors like potx.
   t('Accessibility audit');
@@ -710,7 +651,6 @@ function ecd_types_field_default_field_instances() {
   t('Source');
   t('Status of the accessibility audit as marked by people. The cis_system can send a completed audit into needs review if it detects potentially inaccessible content has been created (for example).');
   t('Status of the copyright audit as marked by people. The cis_system can send a completed audit into needs review if it detects new content has been created (for example).');
-  t('Student Count');
   t('UUID in ELMSLN that this is associated with');
   t('What course is this asset associated to. All assets must be associated with a course');
   t('Where did this come from? Usually a cis_system address though it could be external.');

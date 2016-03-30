@@ -8,7 +8,7 @@
  * Implements hook_field_group_info().
  */
 function ecd_types_field_group_info() {
-  $export = array();
+  $field_groups = array();
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -37,7 +37,7 @@ function ecd_types_field_group_info() {
       ),
     ),
   );
-  $export['group_audits|node|cis_course|form'] = $field_group;
+  $field_groups['group_audits|node|cis_course|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -50,7 +50,7 @@ function ecd_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Logistics',
-    'weight' => '2',
+    'weight' => '1',
     'children' => array(
       0 => 'field_course',
       1 => 'field_resource_uuid_bind',
@@ -67,7 +67,7 @@ function ecd_types_field_group_info() {
       ),
     ),
   );
-  $export['group_logistics|node|ecd_asset|form'] = $field_group;
+  $field_groups['group_logistics|node|ecd_asset|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -80,7 +80,7 @@ function ecd_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Verification',
-    'weight' => '3',
+    'weight' => '2',
     'children' => array(
       0 => 'field_accessibility_verified',
       1 => 'field_copyright_verified',
@@ -96,7 +96,13 @@ function ecd_types_field_group_info() {
       ),
     ),
   );
-  $export['group_verification|node|ecd_asset|form'] = $field_group;
+  $field_groups['group_verification|node|ecd_asset|form'] = $field_group;
 
-  return $export;
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Audits');
+  t('Logistics');
+  t('Verification');
+
+  return $field_groups;
 }
