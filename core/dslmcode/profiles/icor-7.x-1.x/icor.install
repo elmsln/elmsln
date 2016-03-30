@@ -19,6 +19,8 @@ function icor_install() {
   variable_set('cis_help_page', '');
   variable_set('cis_resource_page', '');
   variable_set('cis_syllabus_page', '');
+  features_revert_module('icor_jmol');
+  features_revert_module('icor_poll');
   // force homepage to the object list
   variable_set('site_frontpage', 'icor-object-lists');
 }
