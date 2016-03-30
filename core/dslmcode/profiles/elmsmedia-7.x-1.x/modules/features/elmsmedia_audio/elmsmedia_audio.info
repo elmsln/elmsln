@@ -1,4 +1,4 @@
-name = ELMSMedia audio
+name = ELMSMedia Audio
 description = Audio content type
 core = 7.x
 package = ELMSMedia
