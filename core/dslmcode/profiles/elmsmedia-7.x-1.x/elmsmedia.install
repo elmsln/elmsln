@@ -40,3 +40,21 @@ function elmsmedia_update_7001(&$sandbox) {
 function elmsmedia_update_7002(&$sandbox) {
   module_enable(array('clipboardjs'));
 }
+
+/**
+ * enable all our new features split off from the refactor
+ */
+function elmsmedia_update_7003(&$sandbox) {
+  module_enable(array(
+    'elmsmedia_audio',
+    'elmsmedia_document',
+    'elmsmedia_external_video',
+    'elmsmedia_figure_label',
+    'elmsmedia_h5p',
+    'elmsmedia_image',
+    'elmsmedia_perms',
+    'elmsmedia_svg',
+    'elmsmedia_video',
+    'elmsmedia_view_mode_tabs'
+  ));
+}
