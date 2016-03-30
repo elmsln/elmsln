@@ -142,8 +142,16 @@ dependencies[] = clipboardjs
 dependencies[] = views_fluid_grid
 ; Features
 dependencies[] = elmsmedia_feature
-dependencies[] = elmsmedia_h5p
 dependencies[] = elmsmedia_cis_ux
+dependencies[] = elmsmedia_figure_label
+dependencies[] = elmsmedia_audio
+dependencies[] = elmsmedia_document
+dependencies[] = elmsmedia_external_video
+dependencies[] = elmsmedia_feature
+dependencies[] = elmsmedia_h5p
+dependencies[] = elmsmedia_image
+dependencies[] = elmsmedia_svg
+dependencies[] = elmsmedia_video
 dependencies[] = elmsmedia_perms
 
 

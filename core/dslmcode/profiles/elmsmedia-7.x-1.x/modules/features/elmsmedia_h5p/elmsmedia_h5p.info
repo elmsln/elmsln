@@ -37,7 +37,6 @@ features[ds_layout_settings][] = node|h5p_content|form
 features[features_api][] = api:2
 features[field_instance][] = node-h5p_content-field_cis_course_ref
 features[field_instance][] = node-h5p_content-field_tagging
-features[menu_links][] = menu-elmsln-add_h5p:node/add/h5p-content
 features[variable][] = addanother_button_h5p_content
 features[variable][] = addanother_message_h5p_content
 features[variable][] = addanother_tab_edit_h5p_content
