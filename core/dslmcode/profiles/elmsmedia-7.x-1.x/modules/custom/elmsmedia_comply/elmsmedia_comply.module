@@ -1,0 +1,47 @@
+<?php
+/**
+ * @file
+ * Media integration improvements for ELMS Media distro.
+ */
+
+/**
+ * Implements hook_node_insert().
+ */
+function elmsmedia_comply_node_insert($node) {
+  elmsmedia_helper_node_update($node);
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function elmsmedia_comply_node_update($node) {
+  // ensure this isn't a type we don't want to call comply about
+  if (!in_array($node->type, array('section', 'cis_course'))) {
+    // load associated course if there is one for this
+    $course = '';
+    if (isset($node->field_cis_course_ref[LANGUAGE_NONE][0]['target_id'])) {
+      // load the course node
+      $tmp = node_load($node->field_cis_course_ref[LANGUAGE_NONE][0]['target_id']);
+      // convert to machine name
+      $course = $tmp->field_course_machine_name[LANGUAGE_NONE][0]['value'];
+    }
+    // ship this data over to compliance
+    $request = array(
+      'method' => 'POST',
+      'api' => '1',
+      'bucket' => 'ecd',
+      'path' => '/',
+      'data' => array(
+        'elmsln_module' => 'ecd_helper',
+        'elmsln_callback' => 'asset',
+        'bin' => 'cis_connector',
+        'title' => $node->title,
+        'course' => $course,
+        'url' => url('node/' . $node->nid, array('absolute' => TRUE)),
+        'uuid' => $node->uuid,
+        'type' => 'media',
+      ),
+    );
+    _elmsln_api_request($request);
+  }
+}

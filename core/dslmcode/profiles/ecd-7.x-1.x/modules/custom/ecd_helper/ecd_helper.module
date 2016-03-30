@@ -186,3 +186,25 @@ function _ecd_helper_sync_system_registry() {
     }
   }
 }
+
+/**
+ * Implements hook_admin_paths().
+ */
+function ecd_helper_admin_paths() {
+  $paths = array(
+    'admin/structure/entityform_types/manage/*/submissions*' => FALSE,
+  );
+  return $paths;
+}
+
+/**
+ * Implements hook_elmsln_api_info().
+ */
+function ecd_helper_elmsln_api_info() {
+  // asset for this item
+  $callbacks['asset'] = array(
+    'methods' => array('POST'),
+    'file' => 'callbacks/v1/asset.inc',
+  );
+  return $callbacks;
+}

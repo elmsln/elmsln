@@ -9,4 +9,7 @@ features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
 features[views_view][] = ecd_asset_audit
 features[views_view][] = ecd_bulk_update
+features[views_view][] = ecd_documentation
 features[views_view][] = ecd_quality_overview
+features[views_view][] = ecd_systems
+features[views_view][] = eva_systems

@@ -21,11 +21,12 @@ function ecd_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Audits',
-    'weight' => '2',
+    'weight' => '4',
     'children' => array(
-      0 => 'field_copyright_audit',
-      1 => 'field_accessibility_audit',
-      2 => 'field_quality_audit',
+      0 => 'field_accessibility_audit',
+      1 => 'field_copyright_audit',
+      2 => 'field_last_quality_date',
+      3 => 'field_quality_audit',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -38,6 +39,34 @@ function ecd_types_field_group_info() {
     ),
   );
   $field_groups['group_audits|node|cis_course|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_logistics|node|ecd_asset|default';
+  $field_group->group_name = 'group_logistics';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'ecd_asset';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Logistics',
+    'weight' => '6',
+    'children' => array(
+      0 => 'field_source',
+      1 => 'field_asset_type',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-logistics field-group-fieldset',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $field_groups['group_logistics|node|ecd_asset|default'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -55,7 +84,6 @@ function ecd_types_field_group_info() {
       0 => 'field_course',
       1 => 'field_resource_uuid_bind',
       2 => 'field_source',
-      3 => 'field_student_count',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -72,6 +100,35 @@ function ecd_types_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_verification|node|ecd_asset|default';
+  $field_group->group_name = 'group_verification';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'ecd_asset';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Verification',
+    'weight' => '8',
+    'children' => array(
+      0 => 'field_accessibility_verified',
+      1 => 'field_copyright_verified',
+      2 => 'field_quality_verified',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-verification field-group-fieldset',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $field_groups['group_verification|node|ecd_asset|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_verification|node|ecd_asset|form';
   $field_group->group_name = 'group_verification';
   $field_group->entity_type = 'node';
@@ -80,11 +137,12 @@ function ecd_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Verification',
-    'weight' => '2',
+    'weight' => '3',
     'children' => array(
       0 => 'field_accessibility_verified',
       1 => 'field_copyright_verified',
       2 => 'field_quality_verified',
+      3 => 'field_ecd_needs_review',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

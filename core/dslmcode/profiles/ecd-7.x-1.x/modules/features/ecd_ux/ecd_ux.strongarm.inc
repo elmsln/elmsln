@@ -17,6 +17,7 @@ function ecd_ux_strongarm() {
   $strongarm->value = array(
     'ecd_asset' => 'ecd_asset',
     'cis_course' => 'cis_course',
+    'ecd_documentation' => 'ecd_documentation',
     'cis_system' => 'cis_system',
   );
   $export['jammer_author_options'] = $strongarm;
@@ -35,6 +36,7 @@ function ecd_ux_strongarm() {
   $strongarm->value = array(
     'ecd_asset' => 'ecd_asset',
     'cis_course' => 'cis_course',
+    'ecd_documentation' => 'ecd_documentation',
     'cis_system' => 'cis_system',
   );
   $export['jammer_comment_settings'] = $strongarm;
@@ -53,6 +55,7 @@ function ecd_ux_strongarm() {
   $strongarm->value = array(
     'ecd_asset' => 'ecd_asset',
     'cis_course' => 'cis_course',
+    'ecd_documentation' => 'ecd_documentation',
     'cis_system' => 'cis_system',
   );
   $export['jammer_menu_options'] = $strongarm;
@@ -78,6 +81,7 @@ function ecd_ux_strongarm() {
   $strongarm->value = array(
     'ecd_asset' => 'ecd_asset',
     'cis_course' => 'cis_course',
+    'ecd_documentation' => 'ecd_documentation',
     'cis_system' => 'cis_system',
   );
   $export['jammer_path_options'] = $strongarm;
@@ -89,6 +93,7 @@ function ecd_ux_strongarm() {
   $strongarm->value = array(
     'ecd_asset' => 'ecd_asset',
     'cis_course' => 'cis_course',
+    'ecd_documentation' => 'ecd_documentation',
     'cis_system' => 'cis_system',
   );
   $export['jammer_preview_button_unset_node_types'] = $strongarm;
@@ -100,6 +105,7 @@ function ecd_ux_strongarm() {
   $strongarm->value = array(
     'ecd_asset' => 'ecd_asset',
     'cis_course' => 'cis_course',
+    'ecd_documentation' => 'ecd_documentation',
     'cis_system' => 'cis_system',
   );
   $export['jammer_revision_information'] = $strongarm;
@@ -111,6 +117,7 @@ function ecd_ux_strongarm() {
   $strongarm->value = array(
     'ecd_asset' => 'ecd_asset',
     'cis_course' => 'cis_course',
+    'ecd_documentation' => 'ecd_documentation',
     'cis_system' => 'cis_system',
   );
   $export['jammer_revision_log_textarea_unset_node_types'] = $strongarm;
@@ -129,6 +136,7 @@ function ecd_ux_strongarm() {
   $strongarm->value = array(
     'ecd_asset' => 'ecd_asset',
     'cis_course' => 'cis_course',
+    'ecd_documentation' => 'ecd_documentation',
     'cis_system' => 'cis_system',
   );
   $export['jammer_teaser_controls_unset_node_types'] = $strongarm;
