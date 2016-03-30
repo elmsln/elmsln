@@ -8,7 +8,7 @@
  * Implements hook_node_insert().
  */
 function elmsmedia_comply_node_insert($node) {
-  elmsmedia_helper_node_update($node);
+  elmsmedia_comply_node_update($node);
 }
 
 /**
@@ -34,7 +34,6 @@ function elmsmedia_comply_node_update($node) {
       'data' => array(
         'elmsln_module' => 'ecd_helper',
         'elmsln_callback' => 'asset',
-        'bin' => 'cis_connector',
         'title' => $node->title,
         'course' => $course,
         'url' => url('node/' . $node->nid, array('absolute' => TRUE)),

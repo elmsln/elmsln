@@ -21,17 +21,26 @@ function ecd_helper_elmsln_api_callback_asset() {
     $result = $query->execute();
     // looks like we need to make a new one if this is empty
     if (empty($result)) {
+      $node = new stdClass();
+      $node->type = 'ecd_asset';
+      node_object_prepare($node);
+      $node->language = LANGUAGE_NONE;
+      $node->uid = 1;
+      $node->status = 1;
+      $node->promote = 0;
+      $node->revision = 0;
       // calculate the course uuid
       $query = new EntityFieldQuery;
       $query->entityCondition('entity_type', 'node');
       $query->entityCondition('bundle', 'cis_course');
       $query->fieldCondition('field_course_machine_name', 'value', $value['course'], '=');
+      $result = $query->execute();
       $etids = array_keys($result['node']);
       $nid = array_pop($etids);
       // load all the entities in the array
       $course = node_load($nid);
       if (isset($course->uuid)) {
-        $node->field_course['und'][0]['target_id'] = $course->uuid;
+        $node->field_course['und'][0]['target_id'] = $course->nid;
       }
       // set title to match what came from the remote
       $node->title = $value['title'];
