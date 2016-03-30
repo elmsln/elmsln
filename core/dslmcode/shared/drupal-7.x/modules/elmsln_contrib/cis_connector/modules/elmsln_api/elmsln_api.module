@@ -488,6 +488,90 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
 }
 
 /**
+ * Issue a call against all authorities in the network
+ * @param  array $requests an array of requests
+ * @see  _elmsln_api_request()
+ */
+function _elmsln_api_authority_request($requests, $api = '1', $nonblocking = FALSE) {
+  // force use of normal calls if we are in developer mode
+  if ($nonblocking && module_exists('cis_devel')) {
+    $nonblocking = FALSE;
+  }
+  if ($nonblocking) {
+    drupal_load('module', 'httprl');
+  }
+  // load CIS connector so we can quickly load via low level bootstrap
+  drupal_load('module', 'cis_connector');
+  // see if we can skim a module off the filesystem structure
+  if ($cfg = _cis_connector_get_cfg()) {
+    $settingsfile = $cfg['university'] . '_' . $cfg['host'] . '_settings';
+    drupal_load('module', $settingsfile);
+  }
+  // build whole registry since we're calling multiple things
+  $settings = _cis_connector_build_registry();
+  $path = '/';
+  // sniff out all other authorities
+  $services = array();
+  foreach ($settings as $key => $service) {
+    if (isset($service['instance']) && $service['instance']) {
+    }
+    else {
+      $services[$key] = $service;
+    }
+  }
+  // ensure we have other course services in this network
+  if (!empty($services)) {
+    // do it per request so we can group the spidering
+    foreach ($requests as $data) {
+      // build an array for spidering each request
+      $nonblock = array();
+      $addresses = array();
+      // loop through each service
+      foreach ($services as $service) {
+        // make sure they don't match the existing one
+        if ($service['field_distribution'] != variable_get('install_profile', 'standard')) {
+          $request = array(
+            'method' => 'POST',
+            'api' => $api,
+            'bucket' => $service['field_distribution'],
+            'path' => $path,
+            'data' => $data,
+          );
+          // if we are blocking then ship off now
+          if (!$nonblocking) {
+            _elmsln_api_request($request);
+          }
+          else {
+            // queue these after formulation, the addresses are the most importantant
+            $nonblock[] = $request;
+            // form the address to call for each service
+            $addresses[] = _cis_connector_format_address($settings[$request['bucket']], $request['path']) . 'elmsln.php';
+          }
+        }
+      }
+      // if we have nonblocking calls and a collection of them
+      // then kick this off to multi-process quickly and without
+      // looking back!
+      if ($nonblocking && isset($nonblock)) {
+        // prepare the query to be shipped off
+        $request['data']['q'] = 'v' . $request['api'];
+        // leave a flag for debug purposes if it's nonblocking
+        $request['_httprl'] = TRUE;
+        $options = array(
+          'method' => $request['method'],
+          'data' => http_build_query($request['data']),
+          'timeout' => 1,
+          'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+          'blocking' => FALSE,
+        );
+        httprl_request($addresses, $options);
+        $tmp = httprl_send_request();
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_elmsln_api_info().
  */
 function elmsln_api_elmsln_api_info() {
