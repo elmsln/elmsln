@@ -69,6 +69,65 @@ function _elmsln_ecd_request($node, $op) {
       ),
     );
     _elmsln_api_request($request);
+    // special case for content to deep search
+    if (!isset($node->content)) {
+      $view = node_view($node);
+      $html = render($view);
+    }
+    else {
+      $html = $node->content;
+    }
+    $tags = _elmsln_ecd_scan_for_tags($html, array('a', 'video', 'object', 'img', 'iframe'));
+    foreach ($tags as $tag) {
+      if (isset($tag['src']) && _elmsln_ecd_validate_url($tag['src'])) {
+        $link = $tag['src'];
+      }
+      elseif (isset($tag['href']) && _elmsln_ecd_validate_url($tag['href'])) {
+        $link = $tag['href'];
+      }
+      if (!empty($link)) {
+        if (isset($tag['title'])) {
+          $title = $tag['title'];
+        }
+        elseif (isset($tag['alt'])) {
+          $title = $tag['alt'];
+        }
+        else {
+          $title = t('Link');
+        }
+        $request = array(
+          'method' => 'POST',
+          'api' => '1',
+          'bucket' => 'ecd',
+          'path' => '/',
+          'data' => array(
+            'elmsln_module' => 'ecd_helper',
+            'elmsln_callback' => 'asset',
+            'title' => $title,
+            'course' => $course,
+            'url' => $link,
+            'uuid' => $link,
+            'type' => 'link',
+            'operation' => $op,
+          ),
+        );
+        _elmsln_api_request($request);
+      }
+    }
+  }
+}
+
+/**
+ * Validate a url
+ * @param  string $url  address
+ * @return boolean      if this is valid or not
+ */
+function _elmsln_ecd_validate_url($url) {
+  if (filter_var($url, FILTER_VALIDATE_URL)) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
   }
 }
 
@@ -80,4 +139,34 @@ function _elmsln_ecd_ignored_types() {
   $ignore = array('section', 'cis_course', 'course');
   drupal_alter('ecd_ignored_types', $ignore);
   return $ignore;
+}
+
+/**
+ * Scan for tags in html content.
+ * @param  string $html       html
+ * @param  array  $tag_names  array of tags to search for
+ * @return array              tags found
+ */
+function _elmsln_ecd_scan_for_tags($html, $tag_names) {
+  $tags = array();
+  // set up a new DOMDocument
+  $dom = new DOMDocument();
+  // use the @ symbol to supress invalid html warnings
+  @$dom->loadHTML($html);
+  foreach ($tag_names as $tag_name) {
+    $elements = $dom->getElementsByTagName($tag_name);
+    // loop through each tag
+    for ($i = 0; $i < $elements->length; $i++) {
+      $element = $elements->item($i);
+      $attr_length = $element->attributes->length;
+
+      // gather a list of attributes for this tag
+      $attributes = array();
+      foreach ($element->attributes as $key => $value) {
+        $attributes[$value->name] = $value->value;
+      }
+      $tags[] = $attributes;
+    }
+  }
+  return $tags;
 }
