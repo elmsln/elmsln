@@ -1,5 +1,0 @@
-name = 'ELMSMedia Comply integration'
-description = 'Integration with the ELMS compliance distribution (comply).'
-core = 7.x
-dependencies[] = elmsln_api
-files[] = elmsmedia_comply.module

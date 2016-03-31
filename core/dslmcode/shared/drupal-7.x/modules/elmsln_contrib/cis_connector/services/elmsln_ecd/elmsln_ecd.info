@@ -1,0 +1,5 @@
+name = 'ELMSLN: Comply integration'
+description = 'Integration with the ELMS Compliance Distribution (ecd)'
+core = 7.x
+dependencies[] = elmsln_api
+files[] = elmsln_ecd.module

@@ -1,28 +1,29 @@
 <?php
 /**
  * @file
- * Media integration improvements for ELMS Media distro.
+ * ELMS Compliance distribution integration.
  */
+define('ELMSLN_ECD_DEFAULT_TYPE', 'media');
 
 /**
  * Implements hook_node_insert().
  */
-function elmsmedia_comply_node_insert($node) {
-  _comply_update($node, 'create');
+function elmsln_ecd_node_insert($node) {
+  _elmsln_ecd_request($node, 'create');
 }
 
 /**
  * Implements hook_node_update().
  */
-function elmsmedia_comply_node_update($node) {
-  _comply_update($node, 'create');
+function elmsln_ecd_node_update($node) {
+  _elmsln_ecd_request($node, 'create');
 }
 
 /**
  * Implements hook_node_delete().
  */
-function elmsmedia_comply_node_delete($node) {
-  _comply_update($node, 'delete');
+function elmsln_ecd_node_delete($node) {
+  _elmsln_ecd_request($node, 'delete');
 }
 
 /**
@@ -30,16 +31,25 @@ function elmsmedia_comply_node_delete($node) {
  * @param  object $node node being worked on
  * @param  string $op   operation to commit
  */
-function _comply_update($node, $op) {
+function _elmsln_ecd_request($node, $op) {
+  $ignored_types = _elmsln_ecd_ignored_types();
+  $type = ELMSLN_ECD_DEFAULT_TYPE;
+  // allow other projects to modify from the media type
+  // content and link are valid options
+  drupal_alter('ecd_asset_type', $type, $node);
   // ensure this isn't a type we don't want to call comply about
-  if (!in_array($node->type, array('section', 'cis_course'))) {
+  if (!in_array($node->type, $ignored_types)) {
     // load associated course if there is one for this
-    $course = '';
     if (isset($node->field_cis_course_ref[LANGUAGE_NONE][0]['target_id'])) {
       // load the course node
       $tmp = node_load($node->field_cis_course_ref[LANGUAGE_NONE][0]['target_id']);
       // convert to machine name
       $course = $tmp->field_course_machine_name[LANGUAGE_NONE][0]['value'];
+    }
+    else {
+      // fallback case for services as well as producing empty
+      // if no course would be established which is also not bad
+      $course = str_replace('/', '', base_path());
     }
     // ship this data over to compliance
     $request = array(
@@ -54,10 +64,20 @@ function _comply_update($node, $op) {
         'course' => $course,
         'url' => url('node/' . $node->nid, array('alias' => TRUE, 'absolute' => TRUE)),
         'uuid' => $node->uuid,
-        'type' => 'media',
+        'type' => $type,
         'operation' => $op,
       ),
     );
     _elmsln_api_request($request);
   }
+}
+
+/**
+ * Ignored types not to ship off to comply.
+ */
+function _elmsln_ecd_ignored_types() {
+  // known to ignore everywhere
+  $ignore = array('section', 'cis_course', 'course');
+  drupal_alter('ecd_ignored_types', $ignore);
+  return $ignore;
 }
