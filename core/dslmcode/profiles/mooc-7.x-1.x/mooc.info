@@ -147,6 +147,7 @@ dependencies[] = og_access
 dependencies[] = autosave
 dependencies[] = book_copy
 dependencies[] = book_delete
+dependencies[] = elmsln_ecd
 dependencies[] = footnotes
 dependencies[] = footnotes_wysiwyg
 dependencies[] = job_scheduler

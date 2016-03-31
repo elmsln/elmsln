@@ -139,6 +139,7 @@ dependencies[] = entity_iframe_mode
 dependencies[] = entityreference_dynamicselect_widget
 ; ICOR
 dependencies[] = icor_helper
+dependencies[] = elmsln_ecd
 ; Other
 dependencies[] = file_entity
 dependencies[] = dynamic_select

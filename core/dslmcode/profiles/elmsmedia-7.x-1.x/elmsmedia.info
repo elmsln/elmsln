@@ -135,6 +135,7 @@ dependencies[] = video_embed_field
 ; Other
 dependencies[] = h5p
 dependencies[] = elmsmedia_helper
+dependencies[] = elmsln_ecd
 dependencies[] = imagefield_focus
 dependencies[] = mediaelement
 dependencies[] = clipboardjs
