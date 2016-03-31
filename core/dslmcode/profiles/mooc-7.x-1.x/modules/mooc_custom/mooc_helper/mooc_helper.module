@@ -700,3 +700,10 @@ function mooc_helper_fa_a11y() {
     return array(1 => '<a href="#" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">' . t('Speed reader') . '</a>');
   }
 }
+
+/**
+ * Implement hook_ecd_asset_type_alter().
+ */
+function mooc_helper_ecd_asset_type_alter(&$type, $node) {
+  $type = 'content';
+}

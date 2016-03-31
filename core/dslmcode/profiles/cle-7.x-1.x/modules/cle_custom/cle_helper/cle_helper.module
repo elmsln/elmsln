@@ -155,3 +155,21 @@ function cle_helper_get_group_content_ids_alter(&$ids) {
 function cle_helper_page_build(&$page) {
   drupal_add_css(drupal_get_path('module', 'cle_helper') . '/css/cle_helper.css');
 }
+
+/**
+ * Implement hook_ecd_ignored_types_alter().
+ */
+function cle_helper_ecd_ignored_types_alter(&$ignore) {
+  // don't send details about the cle_submission type
+  // as we don't audit the accessibility of student submissions
+  $ignore[] = 'cle_submission';
+  $ignore[] = 'cle_critique';
+}
+
+/**
+ * Implement hook_ecd_asset_type_alter().
+ */
+function cle_helper_ecd_asset_type_alter(&$type, $node) {
+  // anything coming from here is content
+  $type = 'content';
+}
