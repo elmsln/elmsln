@@ -177,3 +177,24 @@ function _elmsln_ecd_scan_for_tags($html, $tag_names) {
   }
   return $tags;
 }
+
+/**
+ * Bulk send data about all the types that are not being
+ * told to be ignored by this system.
+ */
+function _elmsln_ecd_bulk_send() {
+  $ignore = _elmsln_ecd_ignored_types();
+  $query = new EntityFieldQuery;
+  $query->entityCondition('entity_type', 'node');
+  $query->entityCondition('bundle', $ignore, 'NOT IN');
+  $query->propertyCondition('status', 1);
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    foreach ($nids as $nid) {
+      $node = node_load($nid);
+      _elmsln_ecd_request($node, 'create');
+    }
+    return count($nids);
+  }
+}
