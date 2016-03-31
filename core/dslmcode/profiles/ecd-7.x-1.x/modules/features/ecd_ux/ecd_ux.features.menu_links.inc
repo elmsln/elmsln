@@ -104,26 +104,6 @@ function ecd_ux_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-elmsln-navigation_systems:ecd-systems',
   );
-  // Exported menu link: menu-elmsln-navigation_assets:assets
-  $menu_links['menu-elmsln-navigation_assets:assets'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'assets',
-    'router_path' => 'assets',
-    'link_title' => 'Assets',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'All system assets on record',
-      ),
-      'identifier' => 'menu-elmsln-navigation_assets:assets',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 1,
-    'expanded' => 0,
-    'weight' => -10,
-    'customized' => 0,
-  );
   // Exported menu link: menu-elmsln-navigation_bulk-update:courses/bulk-update
   $menu_links['menu-elmsln-navigation_bulk-update:courses/bulk-update'] = array(
     'menu_name' => 'menu-elmsln-navigation',
@@ -213,35 +193,16 @@ function ecd_ux_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-elmsln-navigation_assets:assets',
   );
-  // Exported menu link: menu-elmsln-navigation_systems:ecd-systems
-  $menu_links['menu-elmsln-navigation_systems:ecd-systems'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'ecd-systems',
-    'router_path' => 'ecd-systems',
-    'link_title' => 'Systems',
-    'options' => array(
-      'identifier' => 'menu-elmsln-navigation_systems:ecd-systems',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 1,
-    'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
-  );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Access requests');
-  t('Assets');
   t('Bulk Update');
   t('Compliance');
   t('Course access request');
   t('Courses');
   t('Documentation');
   t('System access request');
-  t('Systems');
 
   return $menu_links;
 }

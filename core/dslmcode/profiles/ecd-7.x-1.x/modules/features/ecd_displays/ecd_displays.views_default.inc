@@ -96,6 +96,10 @@ function ecd_displays_views_default_views() {
     'link' => 1,
   );
   $handler->display->display_options['fields']['field_course']['delta_offset'] = '0';
+  /* Field: Content: Type */
+  $handler->display->display_options['fields']['field_asset_type']['id'] = 'field_asset_type';
+  $handler->display->display_options['fields']['field_asset_type']['table'] = 'field_data_field_asset_type';
+  $handler->display->display_options['fields']['field_asset_type']['field'] = 'field_asset_type';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -147,6 +151,7 @@ function ecd_displays_views_default_views() {
   $handler->display->display_options['fields']['field_source']['table'] = 'field_data_field_source';
   $handler->display->display_options['fields']['field_source']['field'] = 'field_source';
   $handler->display->display_options['fields']['field_source']['click_sort_column'] = 'url';
+  $handler->display->display_options['fields']['field_source']['type'] = 'link_short';
   /* Field: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
@@ -328,10 +333,236 @@ function ecd_displays_views_default_views() {
       'value' => array(),
     ),
   );
+  /* Filter criterion: Content: Type (field_asset_type) */
+  $handler->display->display_options['filters']['field_asset_type_value']['id'] = 'field_asset_type_value';
+  $handler->display->display_options['filters']['field_asset_type_value']['table'] = 'field_data_field_asset_type';
+  $handler->display->display_options['filters']['field_asset_type_value']['field'] = 'field_asset_type_value';
+  $handler->display->display_options['filters']['field_asset_type_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['operator_id'] = 'field_asset_type_value_op';
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['label'] = 'Type';
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['operator'] = 'field_asset_type_value_op';
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['identifier'] = 'field_asset_type_value';
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
+  );
 
   /* Display: Overview */
   $handler = $view->new_display('page', 'Overview', 'page_1');
   $handler->display->display_options['defaults']['arguments'] = FALSE;
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'ecd_asset' => 'ecd_asset',
+  );
+  $handler->display->display_options['filters']['type']['group'] = 1;
+  /* Filter criterion: Content: Accessibility verified (field_accessibility_verified) */
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['id'] = 'field_accessibility_verified_value';
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['table'] = 'field_data_field_accessibility_verified';
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['field'] = 'field_accessibility_verified_value';
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['group'] = 1;
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['expose']['operator_id'] = 'field_accessibility_verified_value_op';
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['expose']['label'] = 'Accessibility verified (field_accessibility_verified)';
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['expose']['operator'] = 'field_accessibility_verified_value_op';
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['expose']['identifier'] = 'field_accessibility_verified_value';
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['group_info']['label'] = 'Accessibility';
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['group_info']['identifier'] = 'field_accessibility_verified_value';
+  $handler->display->display_options['filters']['field_accessibility_verified_value']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Not Verified',
+      'operator' => 'or',
+      'value' => array(
+        0 => '0',
+      ),
+    ),
+    2 => array(
+      'title' => 'Verified',
+      'operator' => 'or',
+      'value' => array(
+        1 => '1',
+      ),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => 'or',
+      'value' => array(),
+    ),
+  );
+  /* Filter criterion: Content: Copyright verified (field_copyright_verified) */
+  $handler->display->display_options['filters']['field_copyright_verified_value']['id'] = 'field_copyright_verified_value';
+  $handler->display->display_options['filters']['field_copyright_verified_value']['table'] = 'field_data_field_copyright_verified';
+  $handler->display->display_options['filters']['field_copyright_verified_value']['field'] = 'field_copyright_verified_value';
+  $handler->display->display_options['filters']['field_copyright_verified_value']['group'] = 1;
+  $handler->display->display_options['filters']['field_copyright_verified_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_copyright_verified_value']['expose']['operator_id'] = 'field_copyright_verified_value_op';
+  $handler->display->display_options['filters']['field_copyright_verified_value']['expose']['label'] = 'Copyright verified (field_copyright_verified)';
+  $handler->display->display_options['filters']['field_copyright_verified_value']['expose']['operator'] = 'field_copyright_verified_value_op';
+  $handler->display->display_options['filters']['field_copyright_verified_value']['expose']['identifier'] = 'field_copyright_verified_value';
+  $handler->display->display_options['filters']['field_copyright_verified_value']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['field_copyright_verified_value']['group_info']['label'] = 'Copyright';
+  $handler->display->display_options['filters']['field_copyright_verified_value']['group_info']['identifier'] = 'field_copyright_verified_value';
+  $handler->display->display_options['filters']['field_copyright_verified_value']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Not Verified',
+      'operator' => 'or',
+      'value' => array(
+        0 => '0',
+      ),
+    ),
+    2 => array(
+      'title' => 'Verified',
+      'operator' => 'or',
+      'value' => array(
+        1 => '1',
+      ),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => 'or',
+      'value' => array(),
+    ),
+  );
+  /* Filter criterion: Content: Quality verified (field_quality_verified) */
+  $handler->display->display_options['filters']['field_quality_verified_value']['id'] = 'field_quality_verified_value';
+  $handler->display->display_options['filters']['field_quality_verified_value']['table'] = 'field_data_field_quality_verified';
+  $handler->display->display_options['filters']['field_quality_verified_value']['field'] = 'field_quality_verified_value';
+  $handler->display->display_options['filters']['field_quality_verified_value']['group'] = 1;
+  $handler->display->display_options['filters']['field_quality_verified_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_quality_verified_value']['expose']['operator_id'] = 'field_quality_verified_value_op';
+  $handler->display->display_options['filters']['field_quality_verified_value']['expose']['label'] = 'Quality verified (field_quality_verified)';
+  $handler->display->display_options['filters']['field_quality_verified_value']['expose']['operator'] = 'field_quality_verified_value_op';
+  $handler->display->display_options['filters']['field_quality_verified_value']['expose']['identifier'] = 'field_quality_verified_value';
+  $handler->display->display_options['filters']['field_quality_verified_value']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['field_quality_verified_value']['group_info']['label'] = 'Quality';
+  $handler->display->display_options['filters']['field_quality_verified_value']['group_info']['identifier'] = 'field_quality_verified_value';
+  $handler->display->display_options['filters']['field_quality_verified_value']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Not Verified',
+      'operator' => 'or',
+      'value' => array(
+        0 => '0',
+      ),
+    ),
+    2 => array(
+      'title' => 'Verified',
+      'operator' => 'or',
+      'value' => array(
+        1 => '1',
+      ),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => 'or',
+      'value' => array(),
+    ),
+  );
+  /* Filter criterion: Content: Needs review (field_ecd_needs_review) */
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['id'] = 'field_ecd_needs_review_value';
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['table'] = 'field_data_field_ecd_needs_review';
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['field'] = 'field_ecd_needs_review_value';
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['group'] = 1;
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['expose']['operator_id'] = 'field_ecd_needs_review_value_op';
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['expose']['label'] = 'Needs review';
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['expose']['operator'] = 'field_ecd_needs_review_value_op';
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['expose']['identifier'] = 'field_ecd_needs_review_value';
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
+  );
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['group_info']['label'] = 'Needs review';
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['group_info']['identifier'] = 'field_ecd_needs_review_value';
+  $handler->display->display_options['filters']['field_ecd_needs_review_value']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Yes',
+      'operator' => 'or',
+      'value' => array(
+        1 => '1',
+      ),
+    ),
+    2 => array(
+      'title' => '',
+      'operator' => 'or',
+      'value' => array(),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => 'or',
+      'value' => array(),
+    ),
+  );
+  /* Filter criterion: Content: Type (field_asset_type) */
+  $handler->display->display_options['filters']['field_asset_type_value']['id'] = 'field_asset_type_value';
+  $handler->display->display_options['filters']['field_asset_type_value']['table'] = 'field_data_field_asset_type';
+  $handler->display->display_options['filters']['field_asset_type_value']['field'] = 'field_asset_type_value';
+  $handler->display->display_options['filters']['field_asset_type_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['operator_id'] = 'field_asset_type_value_op';
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['label'] = 'Type';
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['operator'] = 'field_asset_type_value_op';
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['identifier'] = 'field_asset_type_value';
+  $handler->display->display_options['filters']['field_asset_type_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
+  );
+  /* Filter criterion: Content: Course (field_course) */
+  $handler->display->display_options['filters']['field_course_target_id']['id'] = 'field_course_target_id';
+  $handler->display->display_options['filters']['field_course_target_id']['table'] = 'field_data_field_course';
+  $handler->display->display_options['filters']['field_course_target_id']['field'] = 'field_course_target_id';
+  $handler->display->display_options['filters']['field_course_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_course_target_id']['expose']['operator_id'] = 'field_course_target_id_op';
+  $handler->display->display_options['filters']['field_course_target_id']['expose']['label'] = 'Course';
+  $handler->display->display_options['filters']['field_course_target_id']['expose']['operator'] = 'field_course_target_id_op';
+  $handler->display->display_options['filters']['field_course_target_id']['expose']['identifier'] = 'field_course_target_id';
+  $handler->display->display_options['filters']['field_course_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
+  );
   $handler->display->display_options['path'] = 'assets';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Assets';
