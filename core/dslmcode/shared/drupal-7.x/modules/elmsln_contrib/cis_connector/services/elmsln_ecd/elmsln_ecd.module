@@ -9,6 +9,7 @@ define('ELMSLN_ECD_DEFAULT_TYPE', 'media');
  * Implements hook_node_insert().
  */
 function elmsln_ecd_node_insert($node) {
+  // this will generate a new entry
   _elmsln_ecd_request($node, 'create');
 }
 
@@ -16,6 +17,10 @@ function elmsln_ecd_node_insert($node) {
  * Implements hook_node_update().
  */
 function elmsln_ecd_node_update($node) {
+  // this will generate if it was missed somehow but
+  // also will update just the parts needed if we decide
+  // it has to. The decision tree is why we don't use straight
+  // up REST to accomplish this task
   _elmsln_ecd_request($node, 'create');
 }
 
@@ -23,6 +28,7 @@ function elmsln_ecd_node_update($node) {
  * Implements hook_node_delete().
  */
 function elmsln_ecd_node_delete($node) {
+  // remote wipe this item as it got deleted
   _elmsln_ecd_request($node, 'delete');
 }
 
@@ -77,15 +83,22 @@ function _elmsln_ecd_request($node, $op) {
     else {
       $html = $node->content;
     }
+    // pull tags out of the rendered node content
     $tags = _elmsln_ecd_scan_for_tags($html, array('a', 'video', 'object', 'img', 'iframe'));
+    // loop through the tag responses found
     foreach ($tags as $tag) {
-      if (isset($tag['src']) && _elmsln_ecd_validate_url($tag['src'])) {
+      $link = NULL;
+      // src would be on video, iframes, images, objects, etc
+      if (isset($tag['src']) && _cis_connector_validate_url($tag['src'])) {
         $link = $tag['src'];
       }
-      elseif (isset($tag['href']) && _elmsln_ecd_validate_url($tag['href'])) {
+      // links and internally included resources
+      elseif (isset($tag['href']) && _cis_connector_validate_url($tag['href'])) {
         $link = $tag['href'];
       }
+      // if we found a link we need to try shipping it off
       if (!empty($link)) {
+        // try to assemble a title from title and/or alt text
         if (isset($tag['title'])) {
           $title = $tag['title'];
         }
@@ -93,8 +106,14 @@ function _elmsln_ecd_request($node, $op) {
           $title = $tag['alt'];
         }
         else {
-          $title = t('Link');
+          $title = t('Linked content');
         }
+        // produce the asset notification remotely of type link
+        // links are special in that the UUID is actually the full
+        // link itself. This ensures that links used multiple times
+        // are not showing up multiple times. We also don't wipe the
+        // verification settings for links as they will need checked
+        // on a different interval
         $request = array(
           'method' => 'POST',
           'api' => '1',
@@ -114,20 +133,6 @@ function _elmsln_ecd_request($node, $op) {
         _elmsln_api_request($request);
       }
     }
-  }
-}
-
-/**
- * Validate a url
- * @param  string $url  address
- * @return boolean      if this is valid or not
- */
-function _elmsln_ecd_validate_url($url) {
-  if (filter_var($url, FILTER_VALIDATE_URL)) {
-    return TRUE;
-  }
-  else {
-    return FALSE;
   }
 }
 
@@ -153,13 +158,15 @@ function _elmsln_ecd_scan_for_tags($html, $tag_names) {
   $dom = new DOMDocument();
   // use the @ symbol to supress invalid html warnings
   @$dom->loadHTML($html);
+  // loop through the tags requested and pull together what
+  // exists in the content. This lets us pull out all links
+  // in one pass through.
   foreach ($tag_names as $tag_name) {
     $elements = $dom->getElementsByTagName($tag_name);
     // loop through each tag
     for ($i = 0; $i < $elements->length; $i++) {
       $element = $elements->item($i);
       $attr_length = $element->attributes->length;
-
       // gather a list of attributes for this tag
       $attributes = array();
       foreach ($element->attributes as $key => $value) {

@@ -1637,15 +1637,10 @@ function _cis_connector_parent_domain($bucket = NULL) {
 }
 
 /**
- * Helper function to break an elmsln url into
- * identifiable parts.
+ * Helper function to break an elmsln url into identifiable parts.
  *
- * @param  string $url
- * @return array()
- *         - protocol
- *         - path
- *         - subdomain
- *         - domain
+ * @param  string  $url  the URL to parse
+ * @return array         protocol, path, subdomain, domain
  */
 function _cis_connector_url_get_properties($url) {
   $properties = &drupal_static(__FUNCTION__);
@@ -1670,6 +1665,20 @@ function _cis_connector_url_get_properties($url) {
   }
 
   return $properties[$url];
+}
+
+/**
+ * Validate a url
+ * @param  string $url  address
+ * @return boolean      if this is valid or not
+ */
+function _cis_connector_validate_url($url) {
+  if (filter_var($url, FILTER_VALIDATE_URL)) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
 }
 
 /**

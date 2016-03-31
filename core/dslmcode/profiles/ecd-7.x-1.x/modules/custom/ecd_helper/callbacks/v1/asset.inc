@@ -21,6 +21,7 @@ function ecd_helper_elmsln_api_callback_asset() {
     $result = $query->execute();
     // looks like we need to make a new one if this is empty
     if (empty($result)) {
+      // create a new asset
       $node = new stdClass();
       $node->type = 'ecd_asset';
       node_object_prepare($node);
@@ -29,7 +30,7 @@ function ecd_helper_elmsln_api_callback_asset() {
       $node->status = 1;
       $node->promote = 0;
       $node->revision = 0;
-      // calculate the course uuid
+      // calculate the course nid based on past items
       $query = new EntityFieldQuery;
       $query->entityCondition('entity_type', 'node');
       $query->entityCondition('bundle', 'cis_course');
@@ -39,7 +40,7 @@ function ecd_helper_elmsln_api_callback_asset() {
       $nid = array_pop($etids);
       // load all the entities in the array
       $course = node_load($nid);
-      if (isset($course->uuid)) {
+      if (isset($course->nid)) {
         $node->field_course['und'][0]['target_id'] = $course->nid;
       }
       // set title to match what came from the remote
@@ -75,7 +76,8 @@ function ecd_helper_elmsln_api_callback_asset() {
           $node = node_load($nid);
           // update title incase it changed
           $node->title = $value['title'];
-          // unset these because we need a human to verify it
+          // unset these because we need a human to verify them based
+          // on the item being updated
           $node->field_accessibility_verified['und'][0]['value'] = 0;
           $node->field_quality_verified['und'][0]['value'] = 0;
           $node->field_copyright_verified['und'][0]['value'] = 0;
