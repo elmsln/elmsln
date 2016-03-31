@@ -58,3 +58,11 @@ function elmsmedia_update_7003(&$sandbox) {
     'elmsmedia_view_mode_tabs'
   ));
 }
+
+/**
+ * Enable talking to the comply system but don't bulk send as
+ * people will need to do that manually if they desire.
+ */
+function elmsmedia_update_7004(&$sandbox) {
+  module_enable(array('elmsln_ecd'));
+}

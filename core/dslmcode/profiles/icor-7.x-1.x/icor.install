@@ -59,3 +59,11 @@ function icor_update_7003(&$sandbox) {
   features_revert_module('icor_ux');
   features_revert_module('icor_defaults');
 }
+
+/**
+ * Enable talking to the comply system but don't bulk send as
+ * people will need to do that manually if they desire.
+ */
+function icor_update_7004(&$sandbox) {
+  module_enable(array('elmsln_ecd'));
+}

@@ -38,3 +38,11 @@ function cle_update_7000(&$sandbox) {
   features_revert_module('cle_critique');
   features_revert_module('cle_submission');
 }
+
+/**
+ * Enable talking to the comply system but don't bulk send as
+ * people will need to do that manually if they desire.
+ */
+function cle_update_7001(&$sandbox) {
+  module_enable(array('elmsln_ecd'));
+}
