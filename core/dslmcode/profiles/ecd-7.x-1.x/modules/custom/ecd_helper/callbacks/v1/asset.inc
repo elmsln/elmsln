@@ -62,9 +62,9 @@ function ecd_helper_elmsln_api_callback_asset() {
       // unset content and media being updated but NOT links
       // we assume that links state was validated on a different
       // timetable / process
+      $etids = array_keys($result['node']);
+      $nid = array_pop($etids);
       if ($value['type'] != 'link') {
-        $etids = array_keys($result['node']);
-        $nid = array_pop($etids);
         // our remote item got deleted; let's keep in sync
         if ($value['operation'] == 'delete') {
           node_delete($nid);
@@ -85,7 +85,10 @@ function ecd_helper_elmsln_api_callback_asset() {
         }
       }
       else {
-        $node = array();
+        $node = node_load($nid);
+        // update title incase it changed
+        $node->title = $value['title'];
+        node_save($node);
         $message = t('Link, no update.');
       }
     }
