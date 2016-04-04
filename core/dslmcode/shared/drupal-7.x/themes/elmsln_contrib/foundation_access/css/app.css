@@ -6325,23 +6325,23 @@ th.hide-for-touch {
     display: table-cell !important; } }
 
 body, p, p a {
-  font-family: "Georgia", serif;
+  font-family: "Droid Serif", "Georgia", serif;
   font-style: normal;
   font-weight: 400; }
 
 h5, p strong {
-  font-family: "Georgia", serif;
+  font-family: "Droid Serif", "Georgia", serif;
   font-style: normal;
   font-weight: 700; }
 
 p i, p.txtbk-pullquote, p.testimonial-title, .etb-nav_item_search input, .admin-status-bar span a {
-  font-family: "Georgia", serif;
+  font-family: "Droid Serif", "Georgia", serif;
   font-style: normal;
   font-weight: 400;
   font-style: italic; }
 
 h6, p strong i, p i strong, span.dropcap {
-  font-family: "Georgia", serif;
+  font-family: "Droid Serif", "Georgia", serif;
   font-style: normal;
   font-weight: 700;
   font-style: italic; }
@@ -6350,18 +6350,18 @@ h3, h4, #etb-course-nav span.course-title, .alert-box, #etb-tool-nav .tab-bar sp
 a.etb-nav_item_service_btn span,
 a.etb-modal-icon span,
 a.modal-img-link span, .etb-nav-modal h2, #admin-menu .dropdown li li a, .admin-status-bar span.course-section-label, .admin-status-bar span.user-role-label, .admin-status-bar span.current-user-id-label {
-  font-family: "Helvetica Neue", "Helvetica", sans-serif;
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
   font-style: normal;
   font-weight: 300; }
 
 h2, a, p.txtbk-intro, p.txtbk-intro a, .section-id, .accordion .accordion-navigation > a,
 .accordion dd > a, .sub-tier-1 h2, .sub-tier-1 h3, footer p, .admin-status-bar span.course-section, .admin-status-bar span.user-role, .admin-status-bar span.current-user-id {
-  font-family: "Helvetica Neue", "Helvetica", sans-serif;
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
   font-style: normal;
   font-weight: 600; }
 
 h1, .image-media h3, h4.testimonial-name, #etb-course-nav span.course-abrv, .etb-nav-modal h1 {
-  font-family: "Helvetica Neue", "Helvetica", sans-serif;
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
   font-style: normal;
   font-weight: 700; }
 
@@ -7374,6 +7374,9 @@ footer {
 .etb-book mark {
   background-color: #9BD9FF;
   color: #002135; }
+
+.etb-book .content-element-region-wrapper {
+  max-width: 68rem; }
 
 .etb-book .content-element-region {
   padding-top: 2rem; }
@@ -9002,3 +9005,35 @@ The figure label component is used to present textbook like captions to media el
 .clipboard .clipboardjs-button {
   background-color: #008CBA;
   color: white; }
+
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {
+  padding: .5em;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  font-size: .75rem;
+  background-color: #F5F5F5;
+  padding: 0;
+  float: none;
+  margin-bottom: 2em; }
+  @media screen and (min-width: 80rem) {
+    #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {
+      position: absolute;
+      right: 100%;
+      width: calc(50vw - 52%);
+      max-width: 30em; } }
+  #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav h3 {
+    font-size: 1.2em;
+    padding: .5em; }
+  #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul {
+    margin: 0;
+    padding: 0; }
+    #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li {
+      margin: 0;
+      padding: 0 .5em; }
+      #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li:hover {
+        background-color: transparent; }
+      #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex; }

@@ -1,0 +1,43 @@
+#block-mooc-nav-block-mooc-nav-nav {
+	&.block-mooc-nav-block-mooc-nav {
+		padding: .5em;
+		margin: 0;
+		border: none;
+		border-radius: 0;
+		font-size: .75rem;
+		background-color: #F5F5F5;
+		padding: 0;
+		float: none;
+		margin-bottom: 2em;
+
+		@media screen and (min-width: 80rem) {
+			position: absolute;
+			right: 100%;
+			width: calc(50vw - 52%);
+			max-width: 30em;
+		}
+
+		h3 {
+			font-size: 1.2em;
+			padding: .5em;
+		}
+
+		ul {
+			margin: 0;
+			padding: 0;
+
+			li {
+				margin: 0;
+				padding: 0 .5em;
+
+				&:hover {
+					background-color: transparent;
+				}
+
+				a {
+					display: flex;
+				}
+			}
+		}
+	}
+}

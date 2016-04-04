@@ -81,8 +81,24 @@ function _mooc_nav_block_mooc_nav_block() {
         }
       break;
       case 'content-outline-active-below':
-        $config['min_depth'] = $node->book['depth']+1;
-        $config['max_depth'] = $node->book['depth']+1;
+        if ($nav['display'] == 'here-below' && $node->book['mlid'] == $nav['parent']) {
+          $config['min_depth'] = $node->book['depth']+1;
+          $config['max_depth'] = $node->book['depth']+1;
+        }
+        elseif ($nav['display'] == 'here') {
+          // Don't display if it's not the parent page.
+          if ($node->book['mlid'] == $nav['parent']) {
+            $config['min_depth'] = $node->book['depth']+1;
+            $config['max_depth'] = $node->book['depth']+1;
+          }
+          else {
+            return;
+          }
+        }
+        else {
+          $config['min_depth'] = $node->book['depth'];
+          $config['max_depth'] = $node->book['depth'];
+        }
       break;
     }
     // menu tree as needed
