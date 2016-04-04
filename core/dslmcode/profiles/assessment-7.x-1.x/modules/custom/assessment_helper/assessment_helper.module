@@ -1,0 +1,17 @@
+<?php
+/**
+ * @file
+ * Assessment integration improvements.
+ */
+
+/**
+ * Implements hook_elmsln_api_info().
+ */
+function assessment_helper_elmsln_api_info() {
+  // grade for this item
+  $callbacks['grade'] = array(
+    'methods' => array('POST'),
+    'file' => 'callbacks/v1/grade.inc',
+  );
+  return $callbacks;
+}

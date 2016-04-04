@@ -138,4 +138,4 @@ dependencies[] = cis_course_authority
 ; Assessment Dependencies
 ; ----------
 dependencies[] = assessment_gradebook
-
+dependencies[] = assessment_helper
