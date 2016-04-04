@@ -2,10 +2,10 @@
 * Provide the HTML to create the modal dialog.
 */
 (function ($) {
-  Drupal.theme.prototype.cle_gradebook_modal = function () {
+  Drupal.theme.prototype.assessment_gradebook_modal = function () {
     var html = '<div id="ctools-modal" class="popups-box">';
-    html += '  <div class="ctools-modal-content ctools-modal-cle-gradebook-modal-content">';
-    html += '    <span class="popups-close"><a class="close ctools-modal-cle-gradebook-close" href="#">' + Drupal.CTools.Modal.currentSettings.closeImage + '</a></span>';
+    html += '  <div class="ctools-modal-content ctools-modal-assessment-gradebook-modal-content">';
+    html += '    <span class="popups-close"><a class="close ctools-modal-assessment-gradebook-close" href="#">' + Drupal.CTools.Modal.currentSettings.closeImage + '</a></span>';
     html += '    <div><div id="modal-content" class="expand reveal-modal-open modal-content popups-body"></div></div>';
     html += '  </div>';
     html += '</div>';
@@ -14,7 +14,7 @@
   // ability to disable background scrolling on modal open
   Drupal.behaviors.gradebookBodyScrollDisable = {
   attach: function (context, settings) {
-    $('.ctools-modal-cle-gradebook-close').on("click", function () {
+    $('.ctools-modal-assessment-gradebook-close').on("click", function () {
       $("body").removeClass("scroll-disabled")
     });
   }
@@ -41,20 +41,19 @@
         };
         // kick off the ajax request to update the values with those selected
         $.ajax({
-          url: Drupal.settings.basePath + 'cle/gradebook/ajax/' + Drupal.settings.cleGradebookToken + '/' + $('#modal-content input[name=aid]').attr('value') + '/' + $('#modal-content input[name=submission]').attr('value'),
+          url: Drupal.settings.basePath + 'gradebook/ajax/' + Drupal.settings.assessmentGradebookToken + '/' + $('#modal-content input[name=aid]').attr('value') + '/' + $('#modal-content input[name=submission]').attr('value'),
           type: 'POST',
           data: data,
         })
         .done(function(data) {
           var returned = jQuery.parseJSON(data);
           // update the grid where we have a match from the data returned
-          sublight = '.cle-submission-' + $('#modal-content input[name=submission]').attr('value');
+          sublight = '.assessment-submission-' + $('#modal-content input[name=submission]').attr('value');
           $(sublight).attr('src', $(sublight).attr('src').replace($('#modal-content input[name=assessment_state_value]').val(), returned.state));
           // close window
-          $('.ctools-modal-cle-gradebook-close').click();
+          $('.ctools-modal-assessment-gradebook-close').click();
         })
         .fail(function(data) {
-          console.log(data);
           alert(Drupal.t('Save failed'));
         });
         return false;
@@ -63,7 +62,7 @@
   };
   // bind these events only once
   $(document).ready(function(){
-    $('.ctools-modal-cle-gradebook-modal.disable-scroll').on("click", function () {
+    $('.ctools-modal-assessment-gradebook-modal.disable-scroll').on("click", function () {
       $("body").addClass("scroll-disabled");
     });
     // @todo need to disable escape closing colorbox or both events firing
