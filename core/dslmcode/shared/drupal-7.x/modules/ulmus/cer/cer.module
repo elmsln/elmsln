@@ -1,0 +1,418 @@
+<?php
+
+/**
+ * Implements hook_entity_info().
+ */
+function cer_entity_info() {
+  $info = array(
+    'cer' => array(
+      'label' => t('CER Preset'),
+      'entity class' => 'CerPreset',
+      'controller class' => 'CerPresetController',
+      'base table' => 'cer_preset',
+      'label callback' => 'entity_class_label',
+      'module' => 'cer',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'pid',
+        'name' => 'identifier', // This is the automatically generated export key.
+        'label' => 'identifier',  // The identifier will be the default label.
+      ),
+      'admin ui' => array(
+        'path' => 'admin/config/content/cer',
+        'file' => 'cer.admin.inc',
+        'controller class' => 'CerUIController',
+      ),
+      'exportable' => TRUE,
+      'features controller class' => 'CerPresetFeaturesController',
+      'access callback' => 'cer_access',
+    ),
+  );
+
+  if (variable_get('cer_enable_field_ui', FALSE)) {
+    $info['cer']['bundles']['cer']['admin']['path'] = $info['cer']['admin ui']['path'];
+  }
+
+  return $info;
+}
+
+/**
+ * Access callback for Entity UI.
+ */
+function cer_access($op, $preset = NULL, $account = NULL) {
+  return user_access('administer cer settings', $account);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cer_menu() {
+  $info = cer_entity_info();
+  $prefix = $info['cer']['admin ui']['path'];
+
+  return array(
+    "{$prefix}/update" => array(
+      'title' => 'Bulk Update',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('cer_bulk_update_form'),
+      'access arguments' => array('administer cer settings'),
+      'file' => 'cer.admin.inc',
+      'type' => MENU_LOCAL_TASK,
+    ),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function cer_permission() {
+  return array(
+    'administer cer settings' => array(
+      'title' => t('Administer corresponding references'),
+    )
+  );
+}
+
+/**
+ * Implements hook_field_delete_instance().
+ */
+function cer_field_delete_instance(array $instance) {
+  // Delete every CER preset which refers to the deleted field instance.
+  $filter = $instance['entity_type'] . ':' . $instance['bundle'] . ':' . $instance['field_name'];
+
+  $baseQuery = new EntityFieldQuery();
+  $baseQuery->entityCondition('entity_type', 'cer');
+  $baseQuery->fieldCondition('cer_enabled', 'value', TRUE);
+
+  $query = clone $baseQuery;
+  $query->fieldCondition('cer_left', 'path', $filter, 'CONTAINS');
+  $result = $query->execute();
+  if (isset($result['cer'])) {
+    foreach (entity_load('cer', array_keys($result['cer'])) as $preset) {
+      $preset->delete();
+    }
+  }
+
+  $query = clone $baseQuery;
+  $query->fieldCondition('cer_right', 'path', $filter, 'CONTAINS');
+  $result = $query->execute();
+  if (isset($result['cer'])) {
+    foreach (entity_load('cer', array_keys($result['cer'])) as $preset) {
+      $preset->delete();
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function cer_node_insert(StdClass $node) {
+  // Write access grants *before* doing CER stuff in order to prevent a race condition.
+  // This tricky bug can easily rear its ugly head if you have an Entity Reference field,
+  // referencing nodes, and a node access module enabled.
+  //
+  // Entity Reference's bundled selection handlers will use either EntityFieldQuery or 
+  // Views, both of which are affected by node access grants (and rightfully so). 
+  // However, when creating a node, core invokes hook_node_save() *before* it writes the 
+  // grants to the database, which can cause EntityFieldQuery (or Views, unless 
+  // configured to disable SQL rewriting) to return no results if the user isn't the 
+  // superuser. Since CER asks the field backend to validate the reference, this can
+  // cause the reference to not be validated, and the cross-reference to fail.
+  //
+  // Really, this is a core issue and not a CER issue. Core should be invoking
+  // hook_node_save() AFTER it writes access info. But we can work around it by writing
+  // the access info, doing our own processing, and then clearing the access info
+  // so node_save() can write it cleanly. And that's what this does.
+  //
+  // Hear that, core devs? Fix it fix it fix it!
+  //
+  node_access_acquire_grants($node);
+  cer_processing_entity('insert', $node, 'node');
+  db_delete('node_access')->condition('nid', $node->nid)->execute();
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function cer_entity_insert($entity, $type) {
+  if (! function_exists("cer_{$type}_insert")) {
+    cer_processing_entity('insert', $entity, $type);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function cer_entity_update($entity, $type) {
+  if (! function_exists("cer_{$type}_update")) {
+    cer_processing_entity('update', $entity, $type);
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function cer_entity_delete($entity, $type) {
+  if (! function_exists("cer_{$type}_delete")) {
+    cer_processing_entity('delete', $entity, $type);
+  }
+}
+
+/**
+ * Process a entity's corresponding entity references.
+ *
+ * @param string $op 
+ *  The operation being performed on the entity (insert, update, or delete).
+ *
+ * @param object $entity
+ *  The entity object (optionally wrapped), or its ID.
+ *
+ * @param string $entity_type
+ *  The entity type. If $entity is wrapped, this can be NULL since the entity
+ *  type is known by the wrapper.
+ *
+ * @param array $context
+ *  Either the Batch API context (since this is the callback function used
+ *  during bulk update) or NULL if we're not in a batch job.
+ */
+function cer_processing_entity($op, $entity, $entity_type = NULL, array &$context = NULL) {
+  // Don't do anything if the MAINTENANCE_MODE flag is set. This isn't the same thing
+  // as user-facing maintenance mode, but rather is set when running, say, update.php
+  // or another relatively low-level operation. This was added to prevent CER from
+  // running while updating from 1.x or 2.x, since classes may not yet be registered
+  // yet and we don't want to cause fatal errors during update.
+  if (defined('MAINTENANCE_MODE')) {
+    return;
+  }
+
+  // Don't process anything that hasn't got the cer data structure: this provides an
+  // opportunity for other modules to opt their entities out of CER processing.
+  if ($entity instanceof EntityStructureWrapper) {
+    try {
+      // If there is no such a property an exception will be thrown.
+      $entity->getPropertyInfo('cer');
+    }
+    catch (EntityMetadataWrapperException $e) {
+      return;
+    }
+  }
+
+  if ($entity instanceof EntityDrupalWrapper) {
+    // Under certain circumstances, the cer struct may not be known to Entity
+    // API. So check for that before doing any actual processing. If it's not
+    // known yet, rebuild the property info cache and re-instantiate the
+    // wrapper with all the latest property definitions.
+    try {
+      $entity->getPropertyInfo('cer');
+    }
+    catch (EntityMetadataWrapperException $e) {
+      entity_property_info_cache_clear();
+      $entity = new EntityDrupalWrapper($entity->type(), $entity->value());
+    }
+
+    $finder = new CerPresetFinder($entity);
+
+    foreach ($finder->execute() as $preset) {
+      $handler = new CerPresetHandler($preset, $entity);
+      $handler->$op();
+    }
+
+    if ($context) {
+      if (! isset($context['results']['count'])) {
+        $context['results']['count'] = 0;
+      }
+      $context['results']['count']++;
+    }
+  }
+  elseif ($entity_type) {
+    if (is_numeric($entity)) {
+      $entity = entity_object_load($entity, $entity_type);
+    }
+
+    if (is_object($entity) && empty($entity->cer_processed)) {
+      cer_processing_entity($op, new EntityDrupalWrapper($entity_type, $entity), NULL, $context);
+    }
+  }
+}
+
+/**
+ * Batch 'finished' callback.
+ */
+function cer_batch_update_existing_finished($success, $results, $operations) {
+  if ($success) {
+    $message = format_plural($results['count'], '1 entity processed.', '@count entities processed.');
+
+    if (isset($results['errors'])) {
+      $type = 'warning';
+      foreach ($results['errors'] as $e) {
+        drupal_set_message($e->getMessage(), 'error');
+      }
+    }
+    else {
+      $type = 'status';
+    }
+    drupal_set_message($message, $type);
+  }
+  else {
+    // An error occurred. $operations contains the operations that remained unprocessed.
+    $error_operation = reset($operations);
+    $message = 'An error occurred while processing ' . $error_operation[0] . ' with arguments:' . print_r($error_operation[0], TRUE);
+    drupal_set_message($message, 'error');
+  }
+}
+
+/**
+ * Implements hook_hook_info().
+ *
+ * @see cer.api.php for info about what these hooks do.
+ */
+function cer_hook_info() {
+  return array(
+    'cer_fields' => array(
+      'group' => 'cer',
+    ),
+    'cer_fields_alter' => array(
+      'group' => 'cer',
+    ),
+    // This is not used except when rebuilding legacy presets. It's here to
+    // ensure that MODULE.cer.inc is auto-loaded when loading legacy presets
+    // from code. (@see cer_update_7005())
+    'cer_default_presets' => array(
+      'group' => 'cer',
+    ),
+  );
+}
+
+/**
+ * Returns options for the cer_weight field.
+ */
+function cer_weight_options() {
+  $options = array();
+
+  for ($i = -50; $i <= 50; $i++) {
+    $options[$i] = $i;
+  }
+
+  return $options;
+}
+
+/**
+ * Implements hook_features_ignore().
+ */
+function cer_features_ignore($component) {
+  $ignores = array();
+  if ($component == 'cer') {
+    $ignores['wrapper'] = 0;
+  }
+  return $ignores;
+}
+
+/**
+ * Implements hook_features_override_ignore().
+ */
+function cer_features_override_ignore($component) {
+  return cer_features_ignore($component);
+}
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function cer_entity_property_info() {
+  $properties = array();
+
+  foreach (entity_get_info() as $entity_type => $entity_info) {
+    // Expose a 'cer' struct on every entity type so that we can get special
+    // entity-specific information during processing. This stuff is wrapped in
+    // a struct to avoid namespace collisions, which can be disastrous.
+    //
+    // @see Issue #2223467
+    //
+    $properties[$entity_type]['properties']['cer'] = array(
+      'label' => t('CER'),
+      'description' => t('Information about the entity, used internally by CER.'),
+      'type' => 'struct',
+      'getter callback' => 'cer_get_cer_struct',
+      'computed' => TRUE,
+      'property info' => array(
+        // lineage is a chain string, in the format used by {cer}.a and {cer}.b.
+        // e.g., node:article:field_related_pages.
+        'lineage' => array(
+          'label' => t('Context'),
+          'description' => t("The entity's lineage, represented as a string."),
+          'type' => 'text',
+          'getter callback' => 'cer_get_entity_lineage',
+          'computed' => TRUE,
+        ),
+        // The depth of the entity. The default callback will just return 1, since most
+        // entities don't live inside other entities (field collections are the main
+        // exception).
+        'depth' => array(
+          'label' => t('Depth'),
+          'description' => t("How deeply the entity is embedded."),
+          'type' => 'integer',
+          'getter callback' => 'cer_get_entity_depth',
+          'computed' => TRUE,
+        ),
+        // The default callback returns the original entity because, as with the depth
+        // property, most entities don't live inside other entities.
+        'owner' => array(
+          'label' => t('Owner'),
+          'description' => t('The top-level entity under which this one is embedded.'),
+          'type' => 'entity',
+          'getter callback' => 'cer_get_entity_owner',
+          'computed' => TRUE,
+        ),
+        // A wrapper around $entity->original that returns the current entity if there is
+        // no original version available (i.e., during bulk update).
+        'original' => array(
+          'label' => t('Original'),
+          'description' => t('The original entity (before update), or the current entity if an update has not occurred.'),
+          'type' => 'entity',
+          'getter callback' => 'cer_get_entity_original',
+          'computed' => TRUE,
+        ),
+      ),
+    );
+  }
+
+  return $properties;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function cer_entity_property_info_alter(array &$info) {
+  // Add a 'chain' property to the cer_left and cer_right fields so we can
+  // easily get the field's value represented as a CerFieldChain.
+  $info['cer']['bundles']['cer']['properties']['cer_left']['property info'] =
+  $info['cer']['bundles']['cer']['properties']['cer_right']['property info'] = array(
+    'chain' => array(
+      'label' => t('Chain'),
+      'description' => t('A CER field chain to the field instance.'),
+      'type' => 'struct',
+      'getter callback' => 'cer_unpack_field_chain',
+      'computed' => TRUE,
+    ),
+  );
+
+  // Field collections are special. Because they live inside other entities (to
+  // potentially infinite levels of recursion), their CER property callbacks must be 
+  // able to recurse upwards through the chain of embedding.
+  if (module_exists('field_collection')) {
+    $struct = &$info['field_collection_item']['properties']['cer']['property info'];
+
+    $struct['lineage']['getter callback'] = 'cer_get_field_collection_lineage';
+    $struct['lineage']['raw getter callback'] = 'cer_get_field_collection_lineage_array';
+    $struct['depth']['getter callback'] = 'cer_get_field_collection_depth';
+    $struct['owner']['getter callback'] = 'cer_get_field_collection_owner';
+  }
+}
+
+// Include property callback functions
+module_load_include('inc', 'cer', 'cer.properties');
+
+if (module_exists('field_collection')) {
+  module_load_include('inc', 'cer', 'cer.properties.field_collection');
+}

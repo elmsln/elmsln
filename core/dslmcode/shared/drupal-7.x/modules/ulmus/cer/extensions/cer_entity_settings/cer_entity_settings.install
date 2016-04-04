@@ -1,0 +1,110 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function cer_entity_settings_install() {
+  $fields = array();
+
+  $fields[] = array(
+    'active' => 1,
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'cer_settings',
+    'foreign keys' => array(
+      'cer_preset' => array(
+        'columns' => array(
+          'target_id' => 'pid',
+        ),
+        'table' => 'cer_preset',
+      ),
+    ),
+    'indexes' => array(
+      'target_id' => array(
+        0 => 'target_id',
+      ),
+    ),
+    'locked' => TRUE,
+    'module' => 'entityreference',
+    'settings' => array(
+      // This field uses a simple custom selection handler that selects CER
+      // presets which apply to the given entity.
+      'handler' => 'cer',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 0,
+          ),
+        ),
+      ),
+      'target_type' => 'cer',
+    ),
+    'translatable' => 0,
+    'type' => 'entityreference',
+  );
+
+  $fields[] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'cer_store_settings',
+    'foreign keys' => array(),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => TRUE,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        0 => 0,
+        1 => 1,
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_boolean',
+  );
+
+  array_walk($fields, 'field_create_field');
+
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'cer')->execute();
+  if (isset($result['cer'])) {
+    foreach (entity_load('cer', array_keys($result['cer'])) as $preset) {
+      cer_entity_settings_cer_update($preset);
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cer_entity_settings_uninstall() {
+  field_delete_field('cer_settings');
+  field_delete_field('cer_store_settings');
+}
+
+/**
+ * Implements hook_update_dependencies().
+ */
+function cer_entity_settings_update_dependencies() {
+  return array(
+    'cer_entity_settings' => array(
+      7001 => array(
+        'cer' => 7005,
+      ),
+    ),
+  );
+}
+
+/**
+ * Drops the cer_entity_settings database table.
+ */
+function cer_entity_settings_update_7001() {
+  db_drop_table('cer_entity_settings');
+  cer_entity_settings_install();
+}

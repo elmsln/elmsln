@@ -1,0 +1,17 @@
+<p>CER's purpose is to keep reference fields synchronized with each other.
+For example, if you have a node (&quot;Alice&quot;) with a user reference field,
+and a user (&quot;Bob&quot;) with a node reference field, and you make Alice 
+reference Bob, CER will automatically give Bob a back-reference to Alice. If 
+Alice subsequently dereferences Bob, Bob will automatically deference Alice. 
+Or, if Alice is deleted, Bob will lose his reference to Alice. CER does all
+this transparently.</p>
+
+<p>CER is a powerful module. It lets you create relationships between different
+&quot;reference-type&quot; fields. A <dfn>reference-type</dfn> field is, simply,
+any kind of field that references another entity. Out of the box, CER supports 
+Entity  Reference, Node Reference, User Reference, and core Taxonomy Term 
+Reference fields. It also includes a pair of add-on modules supporting Profile2
+and Commerce Product Reference fields. CER also has an object-oriented plugin 
+API that you can leverage if you need to support other types of reference 
+fields or alter CER's behavior. (More information about CER's API 
+can be found in cer.api.php.)</p>

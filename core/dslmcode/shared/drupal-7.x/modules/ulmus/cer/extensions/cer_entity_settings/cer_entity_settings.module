@@ -1,0 +1,209 @@
+<?php
+
+/**
+ * Implements hook_views_api().
+ */
+function cer_entity_settings_views_api() {
+  return array('api' => 3);
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
+function cer_entity_settings_query_cer_presets_alter(QueryAlterableInterface $query) {
+  $entity = $query->getMetaData('entity');
+
+  $instance = field_info_instance($entity->type(), 'cer_settings', $entity->getBundle());
+  if ($instance) {
+    $IDs = array();
+
+    foreach ($entity->cer_settings as $preset) {
+      $IDs[] = $preset->getIdentifier();
+    }
+
+    // If no presets were selected, guarantee an empty result set by selecting
+    // the non-existent preset ID 0.
+    if (empty($IDs)) {
+      $IDs[] = 0;
+    }
+    $query->getMetaData('entity_field_query')->entityCondition('entity_id', $IDs, 'IN');
+
+    if (! $entity->cer_store_settings->value()) {
+      $queue = &drupal_static('cer_entity_settings_exit', array());
+      $queue[ $entity->type() ][ $entity->getIdentifier() ] = $entity;
+    }
+  }
+}
+
+/**
+ * Implements hook_exit().
+ */
+function cer_entity_settings_exit() {
+  $queue = drupal_static(__FUNCTION__, array());
+
+  foreach ($queue as $entity_type => $entities) {
+    foreach ($entities as $entity) {
+      // Clear out the stored settings.
+      $entity->cer_settings->set(NULL);
+
+      $entity = $entity->value();
+      $entity->cer_processed = TRUE;
+      entity_save($entity_type, $entity);
+    }
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function cer_entity_settings_cron($field = NULL) {
+  // Delete defunct instances of the given field. An instance is considered
+  // defunct if there are no presets which refer the entity type and bundle
+  // on which it's instantiated.
+  if (isset($field)) {
+    $view = views_get_view('cer_endpoint_in_use');
+
+    $field = field_info_field($field);
+
+    // Loop through every instance of the field, executing the view for each one.
+    foreach ($field['bundles'] as $entity_type => $bundles) {
+      foreach ($bundles as $bundle) {
+        $view->set_exposed_input(array(
+          'left' => "{$entity_type}:{$bundle}:",
+          'right' => "{$entity_type}:{$bundle}:",
+        ));
+        $view->execute();
+
+        if (empty($view->result)) {
+          $instance = field_info_instance($entity_type, $field['field_name'], $bundle);
+
+          if ($instance) {
+            // Do NOT delete the field if this is the last instance of it. We
+            // clean up our own fields during uninstall.
+            field_delete_instance($instance, FALSE);
+          }
+        }
+      }
+    }
+  }
+  else {
+    call_user_func(__FUNCTION__, 'cer_settings');
+    call_user_func(__FUNCTION__, 'cer_store_settings');
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function cer_entity_settings_ctools_plugin_directory($owner, $plugin_type) {
+  return "plugins/{$owner}/{$plugin_type}";
+}
+
+/**
+ * Implements hook_cer_insert().
+ */
+function cer_entity_settings_cer_insert(CerPreset $preset) {
+  cer_entity_settings_cer_update($preset);
+}
+
+/**
+ * Implements hook_cer_update().
+ */
+function cer_entity_settings_cer_update(CerPreset $preset) {
+  _cer_entity_settings_create_instance($preset->wrapper->cer_left->chain->value());
+  _cer_entity_settings_create_instance($preset->wrapper->cer_right->chain->value());
+}
+
+/**
+ * Instantiates the cer_settings and cer_store_settings fields at the head of
+ * the given chain, if they aren't already there.
+ */
+function _cer_entity_settings_create_instance(FieldChain $chain) {
+  $field = $chain->current();
+
+  $instance = field_info_instance($field->entityType, 'cer_settings', $field->bundle);
+  if (empty($instance)) {
+    $instance = array(
+      'bundle' => $field->bundle,
+      'default_value' => NULL,
+      'deleted' => 0,
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'entityreference',
+          'settings' => array(
+            'link' => FALSE,
+          ),
+          'type' => 'entityreference_label',
+          'weight' => 1,
+        ),
+      ),
+      'entity_type' => $field->entityType,
+      'field_name' => 'cer_settings',
+      'label' => t('Synchronize this @entity_type with...', array(
+        '@entity_type' => $field->entityTypeLabel,
+      )),
+      'required' => 0,
+      'settings' => array(
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(
+          'match_operator' => 'CONTAINS',
+          'path' => '',
+          'size' => 60,
+        ),
+        'type' => 'options_buttons',
+        'weight' => 1,
+      ),
+    );
+    field_create_instance($instance);
+  }
+
+  $instance = field_info_instance($field->entityType, 'cer_store_settings', $field->bundle);
+  if (empty($instance)) {
+    $instance = array(
+      'bundle' => $field->bundle,
+      'default_value' => array(
+        0 => array(
+          'value' => 1,
+        ),
+      ),
+      'deleted' => 0,
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 2,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => $field->entityType,
+      'field_name' => 'cer_store_settings',
+      'label' => t('Remember these settings'),
+      'required' => 0,
+      'settings' => array(
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(
+          'display_label' => 1,
+        ),
+        'type' => 'options_onoff',
+        'weight' => 2,
+      ),
+    );
+    field_create_instance($instance);
+  }
+}

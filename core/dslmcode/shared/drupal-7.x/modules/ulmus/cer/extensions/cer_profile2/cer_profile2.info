@@ -1,0 +1,13 @@
+name = "CER Profile2"
+core = "7.x"
+description = "Allows CER to relate user references to Profile2 fields."
+dependencies[] = cer
+dependencies[] = profile2
+
+files[] = profile2.inc
+; Information added by Drupal.org packaging script on 2016-02-12
+version = "7.x-3.0-alpha7+25-dev"
+core = "7.x"
+project = "cer"
+datestamp = "1455299962"
+

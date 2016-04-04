@@ -1,0 +1,38 @@
+name = Corresponding Entity References
+description = Syncs the entity references between entity types which have an entityreference to each other.
+core = 7.x
+package = Fields
+configure = admin/config/content/cer
+
+dependencies[] = ctools
+dependencies[] = list
+dependencies[] = entity
+dependencies[] = field_object
+dependencies[] = elements
+
+files[] = includes/CerEndPointIterator.inc
+files[] = includes/CerEntityContainerInterface.inc
+files[] = includes/CerField.inc
+files[] = includes/CerFieldChain.inc
+files[] = includes/CerFieldChainHandler.inc
+files[] = includes/CerFieldHandler.inc
+files[] = includes/CerPreset.inc
+files[] = includes/CerPresetController.inc
+files[] = includes/CerPresetFeaturesController.inc
+files[] = includes/CerPresetFinder.inc
+files[] = includes/CerPresetHandler.inc
+files[] = includes/CerUIController.inc
+files[] = includes/fields/entity_reference.inc
+files[] = includes/fields/field_collection.inc
+files[] = includes/fields/node_reference.inc
+files[] = includes/fields/taxonomy_term_reference.inc
+files[] = includes/fields/user_reference.inc
+
+files[] = tests/CerBasicTestCase.test
+
+; Information added by Drupal.org packaging script on 2016-02-12
+version = "7.x-3.0-alpha7+25-dev"
+core = "7.x"
+project = "cer"
+datestamp = "1455299962"
+

@@ -1,0 +1,14 @@
+name = "CER Commerce"
+core = "7.x"
+description = "Provides a CER plugin for Commerce's Product Reference fields."
+dependencies[] = cer
+dependencies[] = commerce_product_reference
+
+files[] = commerce_product_reference.inc
+
+; Information added by Drupal.org packaging script on 2016-02-12
+version = "7.x-3.0-alpha7+25-dev"
+core = "7.x"
+project = "cer"
+datestamp = "1455299962"
+

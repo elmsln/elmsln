@@ -1,0 +1,49 @@
+<p>When you install CER, it won’t do anything at all until you create at least
+one <dfn>preset</dfn>. A preset is a relationship between two reference field
+instances, which are referred to as the left and right fields, respectively.
+When a change occurs in the left field, the right field will react &mdash; and
+vice-versa.</p>
+
+<p>An example: suppose you have a user reference field called Author, and it 
+lives on Page nodes. You also have a node reference field called My Pages, and 
+it lives on users. You can set up a preset that looks like this:</p>
+
+<p>Node: Page: Author &lt;--&gt; User: My Pages</p>
+
+<p>In this case, Author is the left field and My Pages is the right field. When
+the Author field is changed on a Page node, the referenced user(s) will be
+given a back-reference to that node.</p>
+
+<p>By default, presets are <dfn>bidirectional</dfn>. This means that a change 
+on either side of the preset will affect the other side. The previous example 
+is bidirectional: you can change Author or My Pages, and the other side 
+will react accordingly.</p>
+
+<p>It's possible to make a preset <dfn>one-directional</dfn>, which means that 
+the right side will react when the left side changes, but NOT the other way 
+around. In a one-directional preset, changes to the right field will have no 
+effect on the left field.</p>
+
+<p>A one-directional version of the above example would look like this:</p>
+
+<p>Node: Page: Author —&gt; User: My Pages</p>
+
+<p>So what this means is that, in a bidirectional preset, it really doesn't 
+matter which field is the left one and which is the right one. They’ll affect 
+each other equally. But in a one-directional preset, it <em>does</em> matter 
+which side you're on. CER allows you to &quot;invert&quot; (flip) a 
+one-directional preset.</p>
+
+<p>Internally, CER treats all reference-type fields the same way, which allows 
+you to put a different kind of field on either side of a preset. You don't 
+have to necessarily relate a node reference field to another node reference 
+field. You could relate a node reference field to a user reference field. The 
+only restriction is that each side of the preset must be able to reference the 
+other side. So, to again use our example, Author needs to be able to reference 
+users, and My Pages needs to be able to reference nodes (of the Page type). 
+CER won't let you create relationships between fields that can’t actually 
+relate.</p>
+
+<p>CER presets are entities built on top of Entity API, and they can be 
+imported and exported just like any other exportable entity type, including
+support for Features.</p>

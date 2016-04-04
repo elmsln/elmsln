@@ -1,0 +1,151 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function field_object_theme() {
+  return array(
+    'field_object_label' => array(
+      'variables' => array(
+        'field' => array(),
+        'instance' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_info().
+ */
+function field_object_field_info() {
+  return array(
+    'field_object' => array(
+      'label' => t('Field Reference'),
+      'description' => t('Refers to a field instance.'),
+      'settings' => array(),
+      'instance_settings' => array(
+        'function' => NULL,
+      ),
+      'default_widget' => 'options_select',
+      'default_formatter' => 'field_object_label',
+      'no_ui' => TRUE,
+      'property_type' => 'text',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info_alter().
+ */
+function field_object_field_widget_info_alter(array &$info) {
+  $info['options_select']['field types'][] = 'field_config_reference';
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function field_object_field_formatter_info() {
+  return array(
+    'field_object_label' => array(
+      'label' => t('Label'),
+      'description' => t("The field instance's label."),
+      'field types' => array('field_object'),
+      'settings' => array(),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function field_object_field_is_empty(array $item, array $field) {
+  return empty($item['path']);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function field_object_field_formatter_view($entity_type, $entity, array $field, array $instance, $language, array $items, array $display) {
+  $element = array();
+
+  foreach ($items as $delta => $item) {
+    $label = array();
+
+    foreach (_field_object_expand_path($item['path']) as $field) {
+      $label[] = theme('field_object_label', $field);
+    }
+
+    $element[$delta]['#markup'] = implode(' » ', $label);
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_options_list().
+ */
+function field_object_options_list(array $field, array $instance, $entity_type, $entity) {
+  return _field_object_build_hierarchy($field, $instance, $entity_type, $entity)->options();
+}
+
+/**
+ * Renders a human-readable label for a field instance, including the entity
+ * type and (if applicable) bundle that hosts it.
+ */
+function theme_field_object_label(array $variables) {
+  $instance = $variables['instance'];
+
+  $output = '';
+
+  if ($instance['entity_type'] != 'field_collection_item') {
+    $entity_type = entity_get_info($instance['entity_type']);
+    $output = $entity_type['label'] . ' » ';
+
+    if ($entity_type['entity keys']['bundle']) {
+      $output .= $entity_type['bundles'][ $instance['bundle'] ]['label'] . ' » ';
+    }
+  }
+
+  return $output . $instance['label'];
+}
+
+/**
+ * Helper function. Builds a FieldHierarchy object for the widget builder.
+ */
+function _field_object_build_hierarchy(array $field, array $instance, $entity_type, $entity) {
+  $hierarchy = new FieldHierarchy();
+
+  // The instance should define a function which returns an array of FieldChain
+  // objects to be added to the hierarchy.
+  $function = $instance['settings']['function'];
+
+  if ($function && is_callable($function)) {
+    $arguments = func_get_args();
+    $chains = (array) call_user_func_array($function, $arguments);
+
+    array_walk($chains, array($hierarchy, 'addChain'));
+  }
+
+  return $hierarchy;
+}
+
+/**
+ * Helper function. Expands a field reference's path value into an array
+ * of field and instance definitions.
+ */
+function _field_object_expand_path($path) {
+  $output = array();
+
+  foreach (explode('::', $path) as $instance) {
+    list ($entity_type, $bundle, $field) = explode(':', $instance);
+
+    $output[] = array(
+      'field' =>
+        field_info_field($field),
+      'instance' =>
+        field_info_instance($entity_type, $field, $bundle),
+    );
+  }
+
+  return $output;
+}

@@ -38,6 +38,8 @@ class AssessmentItemUIController extends EntityDefaultUIController {
       'page arguments' => array($this->entityType),
       'access callback' => 'entity_access',
       'access arguments' => array('create', $this->entityType),
+      'file' => 'assessment_item.admin.inc',
+      'file path' =>  drupal_get_path('module', 'assessment_item') . '/includes/',
     );
 
     $items[$this->path . '/add/%'] = array(
@@ -47,6 +49,8 @@ class AssessmentItemUIController extends EntityDefaultUIController {
       'page arguments' => array($this->entityType, $this->id_count + 1),
       'access callback' => 'entity_access',
       'access arguments' => array('create', $this->entityType),
+      'file' => 'assessment_item.admin.inc',
+      'file path' =>  drupal_get_path('module', 'assessment_item') . '/includes/',
     );
 
     $items['assessment_item/' . $wildcard] = array(

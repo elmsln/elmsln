@@ -1,0 +1,134 @@
+<?php
+
+class CerBasicTestCase extends DrupalWebTestCase {
+
+  /**
+   * A user account under which the tests will be conducted.
+   *
+   * @var StdClass
+   */
+  protected $author;
+
+  /**
+   * A node that references $this->author.
+   *
+   * @var StdClass
+   */
+  protected $node;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Basic',
+      'description' => "Tests CER's basic CRUD functionality.",
+      'group' => 'CER',
+    );
+  }
+
+  public function setUp() {
+    // Turns out you have to enable your own module in the friggin' test, if
+    // you want your own classes to be available. Lawsy me and other such
+    // utterances...SimpleTest is teh suck.
+    parent::setUp('entity', 'ctools', 'entityreference', 'field_object', 'cer');
+
+    $field = array(
+      'type' => 'entityreference',
+      'cardinality' => 1,
+      'field_name' => 'field_author',
+      'settings' => array(
+        'target_type' => 'user',
+      ),
+    );
+    field_create_field($field);
+
+    $instance = array(
+      'field_name' => $field['field_name'],
+      'entity_type' => 'node',
+      'bundle' => 'page',
+    );
+    field_create_instance($instance);
+
+    $field = array(
+      'type' => 'entityreference',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'field_name' => 'field_pages',
+      'settings' => array(
+        'target_type' => 'node',
+      ),
+      'handler_settings' => array(
+        'target_bundles' => array('page'),
+      ),
+    );
+    field_create_field($field);
+
+    $instance = array(
+      'field_name' => $field['field_name'],
+      'entity_type' => 'user',
+      'bundle' => 'user',
+    );
+    field_create_instance($instance);
+
+    /** @var CerPreset $preset */
+    $preset = entity_create('cer', array());
+    $preset->wrapper->cer_left->set('node:page:field_author');
+    $preset->wrapper->cer_right->set('user:user:field_pages');
+    $preset->wrapper->cer_bidirectional->set(TRUE);
+    $preset->wrapper->cer_enabled->set(TRUE);
+    $preset->save();
+
+    $this->author = $this->drupalCreateUser();
+
+    $this->node = $this->drupalCreateNode(array(
+      'field_author' => array(
+        LANGUAGE_NONE => array(
+          array('target_id' => $this->author->uid),
+        ),
+      ),
+    ));
+  }
+
+  public function testCreate() {
+    $author = $this->reload('user', $this->author);
+    $this->assertEqual(1, $author->field_pages->count());
+    $this->assertEqual($this->node->nid, $author->field_pages[0]->nid->value());
+  }
+
+  public function testUpdateDereference() {
+    // Dereference the node from the user.
+    $this->author->field_pages = array();
+    user_save($this->author);
+
+    // Reload $this->node from the database so we get the latest field values.
+    $this->assertNull($this->reload('node', $this->node)->field_author->value());
+  }
+
+  public function testUpdateChangeTarget() {
+    $target = $this->drupalCreateUser();
+
+    $this->node->field_author[LANGUAGE_NONE][0]['target_id'] = $target->uid;
+    node_save($this->node);
+
+    // The original author should no longer reference the node.
+    $this->assertEqual(0, $this->reload('user', $this->author)->field_pages->count());
+
+    /** @var EntityDrupalWrapper $target */
+    $target = $this->reload('user', $target);
+    $this->assertEqual(1, $target->field_pages->count());
+    $this->assertEqual($this->node->nid, $target->field_pages[0]->nid->value());
+  }
+
+  public function testDelete() {
+    node_delete($this->node->nid);
+    $this->assertEqual(0, $this->reload('user', $this->author)->field_pages->count());
+  }
+
+  /**
+   * @return EntityDrupalWrapper
+   */
+  protected function reload($entity_type, $entity) {
+    list ($id) = entity_extract_IDs($entity_type, $entity);
+    $entities = entity_load($entity_type, array($id), NULL, TRUE);
+
+    return entity_metadata_wrapper($entity_type, $entities[$id]);
+  }
+
+}
