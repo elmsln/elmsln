@@ -79,18 +79,18 @@ function _assessment_gradebook_ajax_save($token, $aid, $sid) {
         'status' => 1,
         'label' => t('Assessment by @name', array('@name' => $GLOBALS['user']->name))
       );
-      $assessment = entity_create('assessment_entity', $vals);
+      $assessment = entity_create('assessment_item', $vals);
       $assessment->field_assessment_status['und'][0]['value'] = $state;
       $assessment->field_assessment_associated_submission['und'][0]['target_id'] = $sid;
       $assessment->field_assessment_point_value['und'][0]['value'] = $points;
-      entity_save('assessment_entity', $assessment);
+      entity_save('assessment_item', $assessment);
     }
     else {
       // update an existing item
-      $assessment = entity_load_single('assessment_entity', $aid);
+      $assessment = entity_load_single('assessment_item', $aid);
       $assessment->field_assessment_status['und'][0]['value'] = $state;
       $assessment->field_assessment_point_value['und'][0]['value'] = $points;
-      entity_save('assessment_entity', $assessment);
+      entity_save('assessment_item', $assessment);
     }
     // @todo support for $flag
 
@@ -141,7 +141,7 @@ function assessment_gradebook_block_view($delta = '') {
 /**
  * Implementation of hook_form_FORM_ID_alter().
  */
-function assessment_gradebook_form_assessment_entity_edit_submission_evaluation_form_alter(&$form, &$form_state, $form_id) {
+function assessment_gradebook_form_assessment_item_edit_submission_evaluation_form_alter(&$form, &$form_state, $form_id) {
  // populate assessment label
   $form['label']['#default_value'] = t('Assessment by @name', array('@name' => $GLOBALS['user']->name));
   $form['label']['#attributes']['class'][] = 'element-invisible';
@@ -162,10 +162,10 @@ function _assessment_gradebook_submission_evaluation_callback() {
     //drupal_get_form('assessment_gradebook_submission_evaluation');
     $form = array();
     $aid = FALSE;
-    $type = 'assessment_entity';
+    $type = 'assessment_item';
     $bundle = 'submission_evaluation';
     // see if this user has assessments for this entity
-    $id = _cis_connector_assemble_entity_list($type, $bundle, 'assessment_entity_id', 'assessment_entity_id', array('field_assessment_associated_submission' => array('target_id', $nid, '=')));
+    $id = _cis_connector_assemble_entity_list($type, $bundle, 'assessment_item_id', 'assessment_item_id', array('field_assessment_associated_submission' => array('target_id', $nid, '=')));
     // make sure we have 1 assessment and no more for
     if (count($id) !== 0) {
       $aid = array_pop($id);

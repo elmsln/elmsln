@@ -1,7 +1,7 @@
 name = "Gradebook"
 core = "7.x"
 description = "Traditional gradebook grid display"
-dependencies[] = assessment_entity
+dependencies[] = assessment_item
 dependencies[] = cis_section
 dependencies[] = cis_connector
 dependencies[] = ctools

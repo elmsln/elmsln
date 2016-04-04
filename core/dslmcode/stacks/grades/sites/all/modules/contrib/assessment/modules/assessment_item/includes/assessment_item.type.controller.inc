@@ -2,15 +2,15 @@
 
 /**
  * @file
- * Assessment Entity controller class.
+ * Assessment Item controller class.
  */
 
 /**
- * The Controller for Assessment Entity entities.
+ * The Controller for Assessment Item entities.
  */
-class AssessmentEntityTypeController extends EntityAPIControllerExportable {
+class AssessmentItemTypeController extends EntityAPIControllerExportable {
   /**
-   * Create a Assessment Entity type.
+   * Create a Assessment Item type.
    *
    * @param array $values
    *   An array containing the possible values.
@@ -19,7 +19,7 @@ class AssessmentEntityTypeController extends EntityAPIControllerExportable {
    *   A type object with all default fields initialized.
    */
   public function create(array $values = array()) {
-    // Add values that are specific to our Assessment Entity.
+    // Add values that are specific to our Assessment Item.
     $values += array(
       'id' => '',
     );

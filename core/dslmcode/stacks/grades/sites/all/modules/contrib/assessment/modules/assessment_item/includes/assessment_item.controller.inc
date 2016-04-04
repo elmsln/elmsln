@@ -2,15 +2,15 @@
 
 /**
  * @file
- * Assessment Entity controller class.
+ * Assessment Item controller class.
  */
 
 /**
- * The Controller for Assessment Entity entities.
+ * The Controller for Assessment Item entities.
  */
-class AssessmentEntityController extends EntityAPIController {
+class AssessmentItemController extends EntityAPIController {
   /**
-   * Create a Assessment Entity.
+   * Create a Assessment Item.
    *
    * @param array $values
    *   An array containing the possible values.
@@ -21,7 +21,7 @@ class AssessmentEntityController extends EntityAPIController {
   public function create(array $values = array()) {
     // Add values that are specific to our entity.
     $values += array(
-      'assessment_entity_id' => '',
+      'assessment_item_id' => '',
       'is_new' => TRUE,
       'label' => '',
     );

@@ -2,18 +2,18 @@
 
 /**
  * @file
- * Assessment Entity class.
+ * Assessment Item class.
  */
 
 /**
- * The class used for assessment_entity entities.
+ * The class used for assessment_item entities.
  */
-class AssessmentEntity extends Entity {
+class AssessmentItem extends Entity {
   /**
    * Class constructor.
    */
   public function __construct($values = array()) {
-    parent::__construct($values, 'assessment_entity');
+    parent::__construct($values, 'assessment_item');
   }
 
   /**
@@ -27,14 +27,14 @@ class AssessmentEntity extends Entity {
    * Defines the default entity URI.
    */
   protected function defaultUri() {
-    return array('path' => 'assessment_entity/' . $this->assessment_entity_id);
+    return array('path' => 'assessment_item/' . $this->assessment_item_id);
   }
 }
 
 /**
- * The class used for Assessment Entity type entities.
+ * The class used for Assessment Item type entities.
  */
-class AssessmentEntityType extends Entity {
+class AssessmentItemType extends Entity {
   public $type;
   public $label;
 
@@ -42,6 +42,6 @@ class AssessmentEntityType extends Entity {
    * Class constructor.
    */
   public function __construct($values = array()) {
-    parent::__construct($values, 'assessment_entity_type');
+    parent::__construct($values, 'assessment_item_type');
   }
 }

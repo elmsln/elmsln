@@ -1,0 +1,11 @@
+name = Assessment Item
+description = Implementation of entity Assessment Item
+core = 7.x
+
+dependencies[] = entity
+
+files[] = includes/assessment_item.class.inc
+files[] = includes/assessment_item.controller.inc
+files[] = includes/assessment_item.type.controller.inc
+files[] = includes/assessment_item.admin.inc
+files[] = includes/assessment_item_type.admin.inc

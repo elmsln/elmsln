@@ -2,7 +2,7 @@
 
 /**
  * @file
- * A basic template for Assessment Entity entities
+ * A basic template for Assessment Item entities
  *
  * Available variables:
  * - $content: An array of comment items. Use render($content) to print them all, or
@@ -17,7 +17,7 @@
  *   preprocess functions. By default the following classes are available, where
  *   the parts enclosed by {} are replaced by the appropriate values:
  *   - entity-profile
- *   - assessment_entity-{TYPE}
+ *   - assessment_item-{TYPE}
  *
  * Other variables:
  * - $classes_array: Array of html class attribute values. It is flattened

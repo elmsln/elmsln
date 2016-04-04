@@ -1,0 +1,321 @@
+<?php
+
+/**
+ * @file
+ * Implementation of Entity Assessment Item.
+ */
+
+/**
+ * Implements hook_entity_info().
+ */
+function assessment_item_entity_info() {
+  $return['assessment_item'] = array(
+    'label' => t('Assessment Item'),
+    // The entity class and controller class extend the default entity classes.
+    'entity class' => 'AssessmentItem',
+    'controller class' => 'AssessmentItemController',
+    'base table' => 'assessment_item',
+    'fieldable' => TRUE,
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'assessment_item_id',
+      'bundle' => 'type',
+    ),
+    // Bundles are defined by the types below.
+    'bundles' => array(),
+    'bundle keys' => array('bundle' => 'type'),
+    'label callback' => 'assessment_item_label',
+    'uri callback' => 'entity_class_uri',
+    'access callback' => 'assessment_item_access',
+    'module' => 'assessment_item',
+    // The information below is used by the Controller;
+    // which extends the EntityDefaultUIController.
+    'admin ui' => array(
+      'path' => 'admin/content/assessment_item',
+      'file' => 'includes/assessment_item.admin.inc',
+      'controller class' => 'AssessmentItemUIController',
+      'menu wildcard' => '%assessment_item',
+    ),
+  );
+  // The entity that holds information about the entity types.
+  $return['assessment_item_type'] = array(
+    'label' => t('Assessment Item Type'),
+    'entity class' => 'AssessmentItemType',
+    'controller class' => 'AssessmentItemTypeController',
+    'base table' => 'assessment_item_type',
+    'fieldable' => FALSE,
+    'bundle of' => 'assessment_item',
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'id',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'access callback' => 'assessment_item_type_access',
+    'module' => 'assessment_item',
+    // Enable the entity API's admin UI.
+    'admin ui' => array(
+      'path' => 'admin/structure/assessment_item_types',
+      'file' => 'includes/assessment_item_type.admin.inc',
+      'controller class' => 'AssessmentItemTypeUIController',
+    ),
+  );
+
+  return $return;
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function assessment_item_entity_info_alter(&$entity_info) {
+  foreach (assessment_item_get_types() as $type => $info) {
+    $entity_info['assessment_item']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        'path' => 'admin/structure/assessment_item_types/manage/%assessment_item_type',
+        'real path' => 'admin/structure/assessment_item_types/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer Assessment Item types'),
+      ),
+    );
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function assessment_item_permission() {
+  // We set up permisssions to manage entity types, manage all entities and the
+  // permissions for each individual entity.
+  $permissions = array(
+    'administer Assessment Item types' => array(
+      'title' => t('Administer Assessment Item types'),
+      'description' => t('Create and delete fields for Assessment Item types, and set their permissions.'),
+    ),
+    'administer Assessment Item' => array(
+      'title' => t('Administer Assessment Item'),
+      'description' => t('Edit and delete all Assessment Item'),
+    ),
+  );
+
+  // Generate permissions.
+  foreach (assessment_item_get_types() as $type) {
+    $type_name = check_plain($type->type);
+    $permissions += array(
+      "edit any $type_name Assessment Item" => array(
+        'title' => t('%type_name: Edit any Assessment Item', array('%type_name' => $type->label)),
+      ),
+      "view any $type_name Assessment Item" => array(
+        'title' => t('%type_name: View any Assessment Item', array('%type_name' => $type->label)),
+      ),
+    );
+  }
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function assessment_item_theme() {
+  return array(
+    'assessment_item' => array(
+      'render element' => 'elements',
+      'template' => 'assessment_item',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function assessment_item_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Add action link 'admin/structure/assessment_item/add'
+  // on 'admin/structure/assessment_item'.
+  if ($root_path == 'admin/content/assessment_item') {
+    $item = menu_get_item('admin/content/assessment_item/add');
+    if ($item['access']) {
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+      );
+    }
+  }
+}
+
+/**
+ * Determines whether the given user has access to a Assessment Item.
+ *
+ * @param string $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'
+ *   or just 'edit' (being the same as 'create' or 'update').
+ *
+ * @param object $entity
+ *   Optionally a Assessment Item or a Assessment Item type to check access for.
+ *   If nothing is given, access for all Assessment Item is determined.
+ *
+ * @param object $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ *
+ * @return bool
+ *   Whether access is allowed or not.
+ */
+function assessment_item_access($op, $entity = NULL, $account = NULL) {
+  if (user_access('administer Assessment Item', $account)) {
+    return TRUE;
+  }
+
+  if (isset($entity) && $type_name = $entity->type) {
+    $op = ($op == 'view') ? 'view' : 'edit';
+    if (user_access("$op any $type_name Assessment Item", $account)) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Entity label callback.
+ */
+function assessment_item_label($entity, $entity_type) {
+  return empty($entity) ? t('New Assessment Item') : $entity->label;
+}
+
+/**
+ * Access callback for the entity API.
+ */
+function assessment_item_type_access($op, $type = NULL, $account = NULL) {
+  return user_access('administer Assessment Item types', $account);
+}
+
+/**
+ * Gets an array of all Assessment Item types, keyed by the type name.
+ *
+ * @param string $type_name
+ *   If set, the type with the given name is returned.
+ *
+ * @return array
+ *   Depending whether $type isset, an array of Assessment Item types
+ *   or a single one.
+ */
+function assessment_item_get_types($type_name = NULL) {
+  // entity_load will get the Entity controller for our Assessment Item entity
+  // and call the load function of that object.
+  // We are loading entities by name here.
+  $types = entity_load_multiple_by_name('assessment_item_type', isset($type_name) ? array($type_name) : FALSE);
+
+  return isset($type_name) ? reset($types) : $types;
+}
+
+/**
+ * Menu argument loader; Load a Assessment Item type by string.
+ *
+ * @param string $type
+ *   The machine-readable name of a Assessment Item type to load.
+ *
+ * @return mixed
+ *   A Assessment Item type array or FALSE if $type does not exist.
+ */
+function assessment_item_type_load($type) {
+  return assessment_item_get_types($type);
+}
+
+/**
+ * Fetch a Assessment Item object.
+ *
+ * @param int $assessment_item_id
+ *   Integer specifying the assessment_item id.
+ *
+ * @return object
+ *   A fully-loaded object or FALSE if it cannot be loaded.
+ *
+ * @see entity_load_single()
+ */
+function assessment_item_load($assessment_item_id) {
+  return entity_load_single('assessment_item', $assessment_item_id);
+}
+
+/**
+ * Load multiple Assessment Item based on certain conditions.
+ *
+ * @param array $assessment_item_ids
+ *   An array of Assessment Item IDs.
+ *
+ * @param array $conditions
+ *   An array of conditions to match against the assessment_item table.
+ *
+ * @param bool $reset
+ *   A boolean indicating that the internal cache should be reset.
+ *
+ * @return array
+ *   An array of objects, indexed by assessment_item_id.
+ *
+ * @see entity_load()
+ * @see assessment_item_load()
+ */
+function assessment_item_load_multiple($assessment_item_ids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('assessment_item', $assessment_item_ids, $conditions, $reset);
+}
+
+/**
+ * Deletes a Assessment Item.
+ */
+function assessment_item_delete(AssessmentItem $assessment_item) {
+  $assessment_item->delete();
+}
+
+/**
+ * Delete multiple Assessment Item.
+ *
+ * @param array $assessment_item_ids
+ *   An array of Assessment Item IDs.
+ */
+function assessment_item_delete_multiple(array $assessment_item_ids) {
+  return entity_delete_multiple('assessment_item', $assessment_item_ids);
+}
+
+/**
+ * Create a Assessment Item object.
+ */
+function assessment_item_create($values = array()) {
+  return entity_create('assessment_item', $values);
+}
+
+/**
+ * Saves a Assessment Item to the database.
+ *
+ * @param string $assessment_item
+ *   The Assessment Item object.
+ */
+function assessment_item_save($assessment_item) {
+  return entity_save('assessment_item', $assessment_item);
+}
+
+/**
+ * Saves a Assessment Item type to the db.
+ */
+function assessment_item_type_save($type) {
+  return entity_save('assessment_item_type', $type);
+}
+
+/**
+ * Deletes a Assessment Item type from the db.
+ */
+function assessment_item_type_delete(AssessmentItemType $type) {
+  $type->delete();
+}
+
+/**
+ * Menu title callback for showing individual entities.
+ */
+function assessment_item_page_title(AssessmentItem $assessment_item) {
+  return $assessment_item->label;
+}
+
+/**
+ * Sets up content to show an individual Assessment Item.
+ */
+function assessment_item_page_view($assessment_item, $view_mode = 'full') {
+  return entity_view('assessment_item_type', array($assessment_item), $view_mode);
+}

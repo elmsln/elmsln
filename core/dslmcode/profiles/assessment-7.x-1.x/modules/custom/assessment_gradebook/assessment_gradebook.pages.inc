@@ -1,9 +1,9 @@
 <?php
 /**
- * @file CLE Gradebook module to provide the grid
+ * @file ASSESSMENT Gradebook module to provide the grid
  */
 
-define('CLE_GRADEBOOK_USERNAME_FIELD', 'username');
+define('ASSESSMENT_GRADEBOOK_USERNAME_FIELD', 'username');
 
 /**
  * Callback for gradebook display.
@@ -21,7 +21,7 @@ function assessment_gradebook_grid_form($form, &$form_state) {
   $query = drupal_get_query_parameters();
   // establish defaults when they don't exist
   if (!isset($query['orderby'])) {
-    $query['orderby'] = CLE_GRADEBOOK_USERNAME_FIELD;
+    $query['orderby'] = ASSESSMENT_GRADEBOOK_USERNAME_FIELD;
   }
   if (!isset($query['sections'])) {
     // get groupid from section if we have it
@@ -75,12 +75,12 @@ function assessment_gradebook_grid_form($form, &$form_state) {
   // pull assignments you should use
   $alist = array();
   foreach ($snodes as $snode) {
-    foreach ($snode->field_cle_assignments['und'] as $atmp) {
+    foreach ($snode->field_assessment_assignments['und'] as $atmp) {
       $alist[$atmp['target_id']] = $atmp['target_id'];
     }
   }
   // pull together the assignments
-  $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array(), array('nid' => array($alist, 'IN')), array('field' => array('field_number' => 'value')));
+  $assignments = _cis_connector_assemble_entity_list('node', 'assessment_assignment', 'nid', 'title', array(), array('nid' => array($alist, 'IN')), array('field' => array('field_number' => 'value')));
   $form['filters']['assignments'] = array(
     '#title' => t('Assignment'),
     '#options' => array('-all-' => t('All')) + $assignments,
@@ -105,8 +105,8 @@ function assessment_gradebook_grid_form($form, &$form_state) {
 
   // assessment status filter
   // @todo make this like the old system, just move dots around
-  $field = field_info_field('field_cle_status');
-  $form['filters']['field_cle_status'] = array(
+  $field = field_info_field('field_assessment_status');
+  $form['filters']['field_assessment_status'] = array(
     '#required' => '0',
     '#multiple' => '1',
     '#chosen' => TRUE,
@@ -158,7 +158,7 @@ function assessment_gradebook_grid_form($form, &$form_state) {
   }
 
   // setup the header for the table
-  $header = array(CLE_GRADEBOOK_USERNAME_FIELD => l(t('Name'), $path, array('query' => array('orderby' => CLE_GRADEBOOK_USERNAME_FIELD))));
+  $header = array(ASSESSMENT_GRADEBOOK_USERNAME_FIELD => l(t('Name'), $path, array('query' => array('orderby' => ASSESSMENT_GRADEBOOK_USERNAME_FIELD))));
   foreach ($assignments as $key => $name) {
     $header[$key] = l($name, $path, array('query' => array('orderby' => $key)));
   }
@@ -174,17 +174,17 @@ function assessment_gradebook_grid_form($form, &$form_state) {
   // loop through users and pull their assignments
   foreach ($students as $uid => $user) {
     // pull together the submissions
-    $submissions = _cis_connector_assemble_entity_list('node', 'cle_submission', array('field_assignment', 'target_id'), 'nid', $field_conditions, array('uid' => $uid));
-    $row = array(CLE_GRADEBOOK_USERNAME_FIELD => $user);
+    $submissions = _cis_connector_assemble_entity_list('node', 'assessment_submission', array('field_assignment', 'target_id'), 'nid', $field_conditions, array('uid' => $uid));
+    $row = array(ASSESSMENT_GRADEBOOK_USERNAME_FIELD => $user);
     // set a record per result
     foreach ($assignments as $key => $name) {
       // if we have an assignment nid key match, load result there
       if (isset($submissions[$key])) {
         // check for matching assessments
-        $id = _cis_connector_assemble_entity_list('assessment_entity', 'submission_evaluation', 'assessment_entity_id', 'assessment_entity_id', array('field_cle_associated_submission' => array('target_id', $submissions[$key], '=')));
+        $id = _cis_connector_assemble_entity_list('assessment_item', 'submission_evaluation', 'assessment_item_id', 'assessment_item_id', array('field_assessment_associated_submission' => array('target_id', $submissions[$key], '=')));
         // make sure we have an assessment entity first
         if (!empty($id)) {
-          $assessment = entity_load_single('assessment_entity', array_pop($id));
+          $assessment = entity_load_single('assessment_item', array_pop($id));
         }
         else {
           $assessment = NULL;
@@ -192,7 +192,7 @@ function assessment_gradebook_grid_form($form, &$form_state) {
         // now pull in the status from the submission
         $submission = entity_load_single('node', $submissions[$key]);
         $status_image = _assessment_gradebook_assessment_status($submission, $assessment, 'image');
-        $row[$key] = ctools_modal_text_button($status_image, 'cle/gradebook/render/nojs/' . $submissions[$key] . '/' . $uid,_assessment_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-cle-gradebook-modal disable-scroll');
+        $row[$key] = ctools_modal_text_button($status_image, 'gradebook/render/nojs/' . $submissions[$key] . '/' . $uid,_assessment_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-assessment-gradebook-modal disable-scroll');
       }
       else {
         $row[$key] = _assessment_gradebook_assessment_status(NULL, NULL, 'image');
