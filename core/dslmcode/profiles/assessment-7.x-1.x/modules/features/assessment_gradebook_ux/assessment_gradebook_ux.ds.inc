@@ -155,7 +155,9 @@ function assessment_gradebook_ux_ds_view_modes_info() {
   $ds_view_mode->view_mode = 'gradebook_viewer';
   $ds_view_mode->label = 'Gradebook Viewer';
   $ds_view_mode->entities = array(
+    'assessment_item' => 'assessment_item',
     'node' => 'node',
+    'user' => 'user',
   );
   $export['gradebook_viewer'] = $ds_view_mode;
 
