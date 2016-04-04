@@ -465,6 +465,8 @@ function cis_helper_entity_update($entity, $type) {
     foreach ($settings as $bucket => $setting) {
       // sniff out authority systems
       if ($bucket != 'cis' && isset($setting['instance']) && $setting['instance'] == FALSE) {
+        // @todo this isn't setting it unless it already exists because set_data
+        // is for setting data after a look up. IT WON'T do it initially
         // set data about this course in authority systems
         _cis_connection_set_data($query, $data, 'nid', 'node', $bucket, '', TRUE, '', array('blocking' => FALSE));
       }

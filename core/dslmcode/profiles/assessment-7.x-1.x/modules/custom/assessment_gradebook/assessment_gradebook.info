@@ -1,0 +1,8 @@
+name = "Gradebook"
+core = "7.x"
+package = Assessment
+description = "Traditional gradebook grid display"
+dependencies[] = assessment_item
+dependencies[] = cis_section
+dependencies[] = cis_connector
+dependencies[] = ctools

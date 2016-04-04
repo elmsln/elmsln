@@ -1,0 +1,323 @@
+<?php
+
+/**
+ * @file
+ * Test Conditional Fields functionality and UI.
+ */
+
+class ConditionalFieldsTestCase extends DrupalWebTestCase {
+  protected $dependee_on_value;
+  protected $dependee_off_value;
+  protected $dependents;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Conditional Fields',
+      'description' => 'Test Conditional Fields functionality.',
+      'group' => 'Conditional Fields',
+    );
+  }
+
+  public function setUp() {
+    // Load all core modules that define field types.
+    parent::setUp('conditional_fields_test', 'list', 'text', 'number', 'taxonomy', 'image');
+
+    // Create and log in user.
+    $web_user = $this->drupalCreateUser(array('create conditional_fields_test content', 'edit any conditional_fields_test content'));
+    $this->drupalLogin($web_user);
+
+    // Create a vocabulary and two terms to test the term reference field.
+    $vocabulary = new stdClass();
+    $vocabulary->name = $this->randomName();
+    $vocabulary->machine_name = drupal_strtolower($this->randomName());
+    taxonomy_vocabulary_save($vocabulary);
+    $term = new stdClass();
+    $term->name = 'Foo';
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+    $term = new stdClass();
+    $term->name = 'Bar';
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+
+    // Create dependee.
+    $this->dependee_on_value = $this->randomString();
+    $this->dependee_off_value = $this->randomString();
+    $dependee = array(
+      'field_name' => 'dependee',
+      'type' => 'list_text',
+      'settings' => array(
+        'allowed_values' => array($this->dependee_on_value => t('Dependent fields are visible'), $this->dependee_off_value => t('Dependent fields are invisible')),
+      ),
+    );
+    field_create_field($dependee);
+    $dependee_instance = array(
+      'field_name' => 'dependee',
+      'entity_type' => 'node',
+      'bundle' => 'conditional_fields_test',
+      'label' => 'dependee_label',
+    );
+    field_create_instance($dependee_instance);
+    // Reload the instance because we need the instance id.
+    $dependee_instance = field_info_instance('node', 'dependee', 'conditional_fields_test');
+
+    // Prepare one field for each widget type/field type combination.
+    foreach (field_info_widget_types() as $widget_type => $widget_info) {
+      // TODO: test files and images.
+      if ($widget_type == 'file_generic' || $widget_type == 'image_image') {
+        continue;
+      }
+      foreach ($widget_info['field types'] as $field_type) {
+        $field_name = 'dependent_' . drupal_strtolower($this->randomName());
+        $dependent = array(
+          'field_name' => $field_name,
+          'type' => $field_type,
+          'cardinality' => 1,
+        );
+
+        // Some fields need allowed values to function properly.
+        if ($widget_info['module'] == 'options') {
+          $dependent['settings']['allowed_values'] = array('Foo', 'Bar');
+        }
+        if ($field_type == 'taxonomy_term_reference') {
+          $dependent['settings']['allowed_values'] = array(
+            array(
+              'vocabulary' => $vocabulary->machine_name,
+              'parent' => '0',
+            ),
+          );
+        }
+
+        $dependent_instance = array(
+          'field_name' => $field_name,
+          'entity_type' => 'node',
+          'bundle' => 'conditional_fields_test',
+          'widget' => array(
+            'type' => $widget_type,
+            'settings' => array('display_label' => 1), // Used by boolean on/off checkbox.
+          ),
+          'required' => TRUE,
+          'label' => $widget_type . '_' . $field_type . '_label',
+        );
+
+        // Radios spit an error if submitted with no value.
+        if ($widget_type == 'options_buttons' && $widget_info['module'] == 'list') {
+          // This is the "Bar" option.
+          $dependent_instance['default_value'] = 1;
+        }
+
+        $this->dependents[] = array(
+          'field_type' => $field_type,
+          'widget_type' => $widget_type,
+          'widget' => $widget_info,
+          'field' => $dependent,
+          'instance' => $dependent_instance,
+        );
+
+        // Create a multiple value version of most fields.
+        if ($widget_type == 'options_onoff') {
+          continue;
+        }
+        $dependent['cardinality'] = -1;
+        $dependent['field_name'] = $dependent_instance['field_name'] = $field_name . '_multiple';
+        $dependent_instance['label'] .= '_multiple';
+        $this->dependents[] = array(
+          'field_type' => $field_type,
+          'widget_type' => $widget_type,
+          'widget' => $widget_info,
+          'field' => $dependent,
+          'instance' => $dependent_instance,
+        );
+      }
+    }
+
+    // Create fields and dependencies.
+    $dependency_options = array(
+      'value_form' => $this->dependee_on_value,
+      'value' => array(array('value' => $this->dependee_on_value)),
+    );
+    foreach ($this->dependents as $dependent) {
+      field_create_field($dependent['field']);
+      field_create_instance($dependent['instance']);
+      $dependent_instance = field_info_instance('node', $dependent['field']['field_name'], 'conditional_fields_test');
+      conditional_fields_dependency_insert($dependee_instance['id'], $dependent_instance['id'], $dependency_options);
+    }
+  }
+
+  /**
+   * Tests field dependencies on a node.
+   */
+  public function testNodeDependencies() {
+    // Try to submit a node with triggered dependencies.
+    // The submit should fail because the dependent fields are required.
+    $langcode = LANGUAGE_NONE;
+    $edit = array(
+      "dependee[$langcode]" => $this->dependee_on_value,
+    );
+    $this->drupalPost('node/add/conditional-fields-test', $edit, t('Save'));
+
+    foreach ($this->dependents as $dependent) {
+      // Skip fields that always have a default value.
+      if (($dependent['widget_type'] == 'options_buttons' && $dependent['field']['cardinality'] == 1) || (in_array($dependent['widget_type'], array('options_select', 'options_buttons')) && $dependent['field_type'] == 'taxonomy_term_reference')) {
+        continue;
+      }
+      // Multiple value textfields are dumb and can't find their own name.
+      if ($dependent['field']['cardinality'] == -1 && in_array($dependent['widget_type'], array('number', 'text_textfield', 'text_textarea', 'text_textarea_with_summary'))) {
+        $name = '';
+      }
+      else {
+        $name = $dependent['widget_type'] . '_' . $dependent['field_type'] . '_label';
+        $name .= $dependent['field']['cardinality'] == -1 ? '_multiple' : '';
+      }
+      $this->assertRaw(t('!name field is required.', array('!name' => $name)), 'Triggered ' . ($dependent['field']['cardinality'] == -1 ? 'multiple' : 'single') . ' value required ' . $dependent['field_type'] . ' dependent with widget ' . $dependent['widget_type'] . ' and no value fails validation');
+    }
+
+    // Fill the dependents with values and save the node.
+    $edit = array(
+      "dependee[$langcode]" => $this->dependee_on_value,
+    );
+    foreach ($this->dependents as $dependent) {
+      // Text fields have structure field_name[langcode][delta][value].
+      if (in_array($dependent['widget_type'], array('number', 'text_textfield', 'text_textarea', 'text_textarea_with_summary'))) {
+        $edit[$dependent['field']['field_name'] . "[$langcode][0][value]"] = '1';
+      }
+      elseif ($dependent['widget_type'] == 'options_select') {
+        if ($dependent['field']['cardinality'] == 1) {
+          // Single value select fields have structure field_name[langcode].
+          $edit[$dependent['field']['field_name'] . "[$langcode]"] = '1';
+        }
+        else {
+          // Multiple value select fields have structure field_name[langcode][].
+          $edit[$dependent['field']['field_name'] . "[$langcode][]"] = '1';
+        }
+      }
+      elseif (in_array($dependent['widget_type'], array('options_buttons', 'options_onoff', 'taxonomy_autocomplete'))) {
+        if ($dependent['field']['cardinality'] == 1 || $dependent['widget_type'] == 'taxonomy_autocomplete') {
+          // Radios and autocomplete fields have structure field_name[langcode].
+          $edit[$dependent['field']['field_name'] . "[$langcode]"] = '1';
+        }
+        else {
+          // Checkboxes have structure field_name[langcode][delta].
+          $edit[$dependent['field']['field_name'] . "[$langcode][1]"] = '1';
+        }
+      }
+      elseif (in_array($dependent['widget_type'], array('file_generic', 'image_image'))) {
+        // TODO.
+        // $edit[$dependent['field']['field_name'] . "[$langcode][0][fid]"] = '1';
+      }
+    }
+    $this->drupalPost('node/add/conditional-fields-test', $edit, t('Save'));
+    $this->assertRaw(t('@type %title has been created.', array('@type' => 'Conditional Fields Test Node Type', '%title' => '')), 'Node was created with triggered dependencies.');
+    // Verify that the fields are visible on node view.
+    foreach ($this->dependents as $dependent) {
+      $this->assertText($dependent['instance']['label'] . ':', 'Triggered ' . ($dependent['field']['cardinality'] == -1 ? 'multiple' : 'single') . ' value ' . $dependent['field_type'] . ' dependent with widget ' . $dependent['widget_type'] . ' is visible on node view');
+    }
+
+    // Untrigger the dependency and verify that node is updated.
+    $edit = array(
+      "dependee[$langcode]" => $this->dependee_off_value,
+    );
+    $this->drupalPost('node/1/edit', $edit, t('Save'));
+    $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Conditional Fields Test Node Type', '%title' => '')), 'Node was updated with untriggered dependencies.');
+    // Verify that fields are invisible on node view.
+    foreach ($this->dependents as $dependent) {
+      $this->assertNoText($dependent['instance']['label'] . ':', 'Triggered ' . ($dependent['field']['cardinality'] == -1 ? 'multiple' : 'single') . ' value ' . $dependent['field_type'] . ' dependent with widget ' . $dependent['widget_type'] . ' is invisible on node view');
+    }
+  }
+}
+
+class ConditionalFieldsUITestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Conditional Fields UI',
+      'description' => 'Test Conditional Fields UI.',
+      'group' => 'Conditional Fields',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('conditional_fields_test', 'list', 'text');
+
+    // Create and log in user.
+    $web_user = $this->drupalCreateUser(array('access administration pages', 'administer content types', 'administer dependencies'));
+    $this->drupalLogin($web_user);
+
+    // Create a field that will be used as a dependee.
+    $dependee = array(
+      'field_name' => 'dependee',
+      'type' => 'list_text',
+      'settings' => array(
+        'allowed_values' => array('on' => t('Dependent is visible'), 'off' => t('Dependent is invisible')),
+      ),
+    );
+    field_create_field($dependee);
+    $instance = array(
+      'field_name' => 'dependee',
+      'entity_type' => 'node',
+      'bundle' => 'conditional_fields_test',
+      'label' => t('Label of the dependee field'),
+    );
+    field_create_instance($instance);
+
+    // Create a field that will be used as a dependent.
+    $dependent = array(
+      'field_name' => 'dependent',
+      'type' => 'text',
+    );
+    field_create_field($dependent);
+    $instance = array(
+      'field_name' => 'dependent',
+      'entity_type' => 'node',
+      'bundle' => 'conditional_fields_test',
+      'label' => t('Label of the dependent field'),
+    );
+    field_create_instance($instance);
+  }
+
+  /**
+   * Ensures that the administration pages are viewable.
+   */
+  public function testDependenciesOverview() {
+    $dependee = field_read_instance('node', 'dependee', 'conditional_fields_test');
+    $this->drupalGet('admin/structure');
+    $this->clickLink(t('Field dependencies'));
+    $this->clickLink(t('Node'));
+    $this->drupalGet('admin/structure/types/manage/conditional-fields-test');
+    $this->clickLink(t('Manage dependencies'));
+    $this->assertFieldByName('dependee', $dependee['id'], 'The dependee selection field is in the content type dependencies page.');
+    $this->assertFieldByName('dependent', $dependee['id'], 'The dependent selection field is in the content type dependencies page.');
+  }
+
+  /**
+   * Tests adding, editing and deleting a dependency.
+   */
+  public function testDependencyOperations() {
+    // Add dependency.
+    $dependee = field_read_instance('node', 'dependee', 'conditional_fields_test');
+    $dependent = field_read_instance('node', 'dependent', 'conditional_fields_test');
+    $edit = array(
+      'dependee' => $dependee['id'],
+      'dependent' => $dependent['id'],
+    );
+    $this->drupalPost('admin/structure/types/manage/conditional-fields-test/dependencies', $edit, t('Add dependency'), array(), array(), 'conditional-fields-dependency-add-form-node-conditional-fields-test');
+
+    // Edit dependency.
+    $edit = array(
+      'values_set' => CONDITIONAL_FIELDS_DEPENDENCY_VALUES_AND,
+      'values' => 'on',
+    );
+    $this->drupalPost(NULL, $edit, t('Save settings'), array('query' => array('destination' => 'admin/structure/types/manage/conditional-fields-test/dependencies')));
+    $this->assertRaw(t('%dependent_name is !state when %dependee_name has all the values: @values.', array(
+      '%dependent_name' => t('Label of the dependent field'),
+      '!state' => 'visible',
+      '%dependee_name' => t('Label of the dependee field'),
+      '@values' => 'on',
+    )), 'The dependency was updated correctly.');
+
+    // Delete dependency.
+    $this->clickLink(t('delete'));
+    $this->drupalPost(NULL, array(), t('Delete dependency'), array('query' => array('destination' => 'admin/structure/types/manage/conditional-fields-test/dependencies')));
+    $this->assertText(t('The dependency has been deleted.'));
+  }
+}

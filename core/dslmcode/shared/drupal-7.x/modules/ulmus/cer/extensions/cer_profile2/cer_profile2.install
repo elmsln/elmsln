@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * Implements hook_disable().
+ */
+function cer_profile2_disable() {
+  foreach (entity_load('cer', FALSE) as $preset) {
+    if (_cer_profile2_is_profile2_preset($preset)) {
+      $preset->wrapper->cer_enabled->set(FALSE);
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cer_profile2_uninstall() {
+  foreach (entity_load('cer', FALSE) as $preset) {
+    if (_cer_profile2_is_profile2_preset($preset)) {
+      entity_delete('cer', $preset->pid);
+    }
+  }
+}

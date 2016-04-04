@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the CLE Gradebook UX feature.
- */
-
-include_once 'cle_gradebook_ux.features.inc';

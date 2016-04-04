@@ -1,0 +1,303 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Conditional Fields module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function conditional_fields_schema() {
+  $schema['conditional_fields'] = array(
+    'description' => 'Stores dependencies between fields.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'The primary identifier for a dependency.',
+      ),
+      'dependee' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'The id of the dependee field instance.',
+      ),
+      'dependent' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'The id of the dependent field instance.',
+      ),
+      'options' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+        'description' => 'Serialized data containing the options for the dependency.',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+
+/**
+ * Table schema used for initial upgrade to Drupal 7. Do not edit this function.
+ */
+function conditional_fields_schema_7000() {
+  return array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'The primary identifier for a dependency.',
+      ),
+      'dependee' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'The id of the dependee field instance.',
+      ),
+      'dependent' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'The id of the dependent field instance.',
+      ),
+      'options' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+        'description' => 'Serialized data containing the options for the dependency.',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+}
+
+/**
+ * Implements hook_last_removed().
+ */
+function conditional_fields_last_removed() {
+  return 6002;
+}
+
+/**
+ * Upgrade from Drupal 6 to Drupal 7.
+ */
+function conditional_fields_update_7000() {
+  // Parachute for users who installed version 7.x-3.x-dev before 2011-Aug-10.
+  try {
+    $old_dependencies = db_select('conditional_fields', 'cf')->fields('cf', array('control_field_name', 'field_name', 'type', 'trigger_values'))->execute();
+  }
+  catch (Exception $e) {
+    // If the columns are not found, table doesn't need updating.
+    if ($e->errorInfo[0] == '42S22') {
+      return 'Conditional Fields schema was already up to date.';
+    }
+    else {
+      throw $e;
+    }
+  }
+
+  // We can only migrate dependencies after fields definitions have been
+  // migrated to Drupal 7 using the Content Migrate module.
+  if (!module_exists('content_migrate')) {
+    throw new DrupalUpdateException('Before upgrading Conditional Fields from Drupal 6 you must upgrade your fields definitions using the Content Migrate module. Follow the CCK migration to Drupal 7 documentation at http://drupal.org/node/1144136 and then run update.php again, leaving the Content Migrate module activated. After the update, you can safely disable the Content Migrate module. Warning: if you don\'t migrate your fields before rerunning this update you might lose all your defined dependencies!');
+  }
+
+  // Update permission to new name.
+  db_update('role_permission')
+    ->fields(array('permission' => 'administer dependencies'))
+    ->condition('permission', 'administer conditional fields')
+    ->execute();
+
+  $dependencies = array();
+  $node_types = node_type_get_names();
+  $administrator_roles = user_roles(FALSE, 'administer dependencies');
+
+  $default_options = array(
+    'selector'              => '',
+    'selector_custom'       => 0,
+    'state'                 => 'visible',
+    'condition'             => 'value',
+    'values_set'            => 1, // CONDITIONAL_FIELDS_DEPENDENCY_VALUES_SET_SINGLE
+    'value'                 => array(),
+    'value_form'            => array(),
+    'values'                => array(),
+    'effect'                => 'show',
+    'effect_options'        => NULL,
+    'element_view'          => array(
+      1 => 1, // CONDITIONAL_FIELDS_ELEMENT_VIEW_EVALUATE
+      2 => 2, // CONDITIONAL_FIELDS_ELEMENT_VIEW_HIDE_ORPHAN
+      5 => 0, // CONDITIONAL_FIELDS_ELEMENT_VIEW_HIDE_ORPHAN_IF_UNTRIGGERED
+      3 => 0, // CONDITIONAL_FIELDS_ELEMENT_VIEW_HIGHLIGHT
+      4 => 0, // CONDITIONAL_FIELDS_ELEMENT_VIEW_DESCRIBE
+    ),
+    'element_view_per_role' => 0,
+    'element_view_roles'    => array(),
+    'element_edit'          => array(
+      1 => 1, // CONDITIONAL_FIELDS_ELEMENT_EDIT_HIDE_ORPHAN
+      2 => 0, // CONDITIONAL_FIELDS_ELEMENT_EDIT_HIDE_ORPHAN_IF_UNTRIGGERED
+      3 => 0, // CONDITIONAL_FIELDS_ELEMENT_EDIT_RESET_DEFAULTS_IF_UNTRIGGERED
+    ),
+    'element_edit_per_role' => 0,
+    'element_edit_roles'    => array(),
+  );
+
+  // Convert old dependencies to new format.
+  foreach ($old_dependencies as $old_dependency) {
+    $options = array();
+
+    if (!isset($node_types[$old_dependency->type])) {
+      continue;
+    }
+
+    $type = $old_dependency->type;
+
+    $dependee = field_read_instance('node', $old_dependency->control_field_name, $type, array('include_inactive' => TRUE));
+    $dependent = field_read_instance('node', $old_dependency->field_name, $type, array('include_inactive' => TRUE));
+
+    if (!$dependee || !$dependent) {
+      continue;
+    }
+
+    $options['values_set'] = 2; // CONDITIONAL_FIELDS_DEPENDENCY_VALUES_SET_AND
+    $options['values'] = array_keys(unserialize($old_dependency->trigger_values));
+
+    // Use Javascript.
+    switch (variable_get('c_fields_js_' . $type, 1)) {
+      case 0: // C_FIELDS_JS_NO
+        $options['state'] = 'unchanged';
+        break;
+      case 2: // C_FIELDS_JS_DISABLE
+        $options['state'] = '!disabled';
+        break;
+    }
+
+    // JS Animation.
+    $js_animation = variable_get('c_fields_animation_' . $type, 0);
+    switch ($js_animation) {
+      case 1: // C_FIELDS_ANIMATION_FADE
+        $options['effect'] = 'fade';
+        break;
+      case 2: // C_FIELDS_ANIMATION_SLIDE
+        $options['effect'] = 'slide';
+        break;
+    }
+
+    // JS Animation speed.
+    if ($js_animation != 0) {
+      switch (variable_get('c_fields_anim_speed_' . $type, 'normal')) {
+        case 'slow':
+          $speed = 600;
+          break;
+        case 'normal':
+          $speed = 400;
+          break;
+        case 'fast':
+          $speed = 200;
+          break;
+      }
+      $options['effect_options'] = array('speed' => $speed);
+    }
+
+    // Orphaned on view.
+    switch (variable_get('c_fields_view_' . $type, 1)) {
+      case 1: // C_FIELDS_ORPHANED_SHOW_TRIGGERED
+        $options['element_view'][2] = 0; // CONDITIONAL_FIELDS_ELEMENT_VIEW_HIDE_ORPHAN
+        $options['element_view'][5] = 5; // CONDITIONAL_FIELDS_ELEMENT_VIEW_HIDE_ORPHAN_IF_UNTRIGGERED
+        break;
+      case 2: // C_FIELDS_ORPHANED_SHOW_ALL
+        $options['element_view'][2] = 0;
+        break;
+    }
+
+    // Orphaned on edit.
+    switch (variable_get('c_fields_edit_' . $type, 1)) {
+      case 1: // C_FIELDS_ORPHANED_SHOW_TRIGGERED
+        $options['element_edit'][1] = 0; // CONDITIONAL_FIELDS_ELEMENT_EDIT_HIDE_ORPHAN
+        $options['element_edit'][2] = 2; // CONDITIONAL_FIELDS_ELEMENT_EDIT_HIDE_ORPHAN_IF_UNTRIGGERED
+        break;
+      case 2: // C_FIELDS_ORPHANED_SHOW_ALL
+        $options['element_edit'][2] = 0;
+        break;
+    }
+
+    // Reset if untriggered.
+    if (variable_get('c_fields_reset_default_' . $type, 1)) {
+      $options['element_edit'][3] = 3; // CONDITIONAL_FIELDS_ELEMENT_EDIT_RESET_DEFAULTS_IF_UNTRIGGERED
+    }
+
+    // Show all values to administrators.
+    if (variable_get('c_fields_show_all_' . $type, 0) && !empty($administrator_roles)) {
+      $options['element_view_per_role'] = 1;
+
+      foreach ($administrator_roles as $rid => $role) {
+        $options['element_view_roles'][$rid] = array();
+      }
+    }
+
+    $options += $default_options;
+
+    $dependencies[] = array(
+      'dependee'  => $dependee['id'],
+      'dependent' => $dependent['id'],
+      'options'   => serialize($options),
+    );
+  }
+
+  // Delete the old table.
+  db_drop_table('conditional_fields');
+
+  // Create new table.
+  $schema = conditional_fields_schema_7000();
+  db_create_table('conditional_fields', $schema);
+
+  // Insert the new settings.
+  if (!empty($dependencies)) {
+    $query = db_insert('conditional_fields')->fields(array('dependee', 'dependent', 'options'));
+    foreach ($dependencies as $record) {
+      $query->values($record);
+    }
+    $query->execute();
+  }
+
+  // Delete obsolete variables, then clear the variables cache.
+  db_delete('variable')
+    ->condition('name', 'c_fields_%', 'LIKE')
+    ->execute();
+
+  cache_clear_all('variables', 'cache_bootstrap');
+
+  return 'Conditional Fields successfully upated dependencies to Drupal 7.';
+}
+
+/**
+ * Set 'selector' option to empty string if 'selector_custom' was unchecked and
+ * remove 'selector_custom' option.
+ */
+function conditional_fields_update_7001() {
+  $dependencies = db_select('conditional_fields', 'cf')->fields('cf', array('id', 'options'))->execute();
+
+  foreach ($dependencies as $dependency) {
+    $options = unserialize($dependency->options);
+
+    if ($options['selector_custom'] == 0) {
+      $options['selector'] = '';
+    }
+
+    unset($options['selector_custom']);
+
+    db_update('conditional_fields')
+      ->fields(array(
+        'options' => serialize($options),
+      ))
+      ->condition('id', $dependency->id)
+      ->execute();
+  }
+}
+
+/**
+ * Updated dependency id menu arguments to argument loader function.
+ */
+function conditional_fields_update_7002() {
+  // Do nothing; it's here just to let Drupal rebuild the menu cache.
+}

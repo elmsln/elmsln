@@ -1,0 +1,55 @@
+<?php
+
+define('CER_PROFILE2_PATTERN', '/^user:user:profile_/');
+
+/**
+ * Returns if either side of a preset refers to a profile2.
+ *
+ * @param \CerPreset $preset
+ *  The preset to test.
+ *
+ * @return bool
+ */
+function _cer_profile2_is_profile2_preset(CerPreset $preset) {
+  return preg_match(CER_PROFILE2_PATTERN, $preset->wrapper->cer_left->value()) || preg_match(CER_PROFILE2_PATTERN, $preset->wrapper->cer_right->value());
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function cer_profile2_entity_property_info_alter(array &$info) {
+  $struct = &$info['profile2']['properties']['cer']['property info'];
+
+  $struct['lineage']['getter callback'] = 'cer_profile2_get_profile2_lineage';
+  $struct['depth']['getter callback'] = 'cer_profile2_get_profile2_depth';
+  $struct['owner']['getter callback'] = 'cer_profile2_get_profile2_owner';
+}
+
+/**
+ * Entity API getter callback. Returns the lineage of a Profile2 entity.
+ *
+ * @return string
+ */
+function cer_profile2_get_profile2_lineage(array $data, array $options, $property, $data_type, array $info) {
+  return 'user:user:profile_' . $data[1]->type . ':profile2:' . $data[1]->type . ':';
+}
+
+/**
+ * Entity API getter callback. Returns the depth of a Profile2. This is always
+ * 1, since the profile is embedded directly under the user account as far
+ * as CER is concerned.
+ *
+ * @return integer
+ */
+function cer_profile2_get_profile2_depth(array $data, array $options, $property, $data_type, array $info) {
+  return 1;
+}
+
+/**
+ * Entity API getter callback. Returns the user account which owns a Profile2.
+ *
+ * @return EntityDrupalWrapper.
+ */
+function cer_profile2_get_profile2_owner(array $data, array $options, $property, $data_type, array $info) {
+  return new EntityDrupalWrapper('user', $data[1]->user());
+}

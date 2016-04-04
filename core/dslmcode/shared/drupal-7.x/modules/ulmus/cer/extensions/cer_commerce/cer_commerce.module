@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implements hook_cer_insert().
+ */
+function cer_commerce_cer_insert(CerPreset $preset) {
+  // Prevents a race condition when deleting Commerce products which are referred to
+  // by Product Reference fields managed by CER.
+  if ($preset->wrapper->cer_right->chain->value()->end() instanceof CerCommerceProductReferenceField) {
+    $preset->wrapper->cer_bidirectional->set(FALSE);
+    $preset->save();
+
+    drupal_set_message(t('In order to prevent a race condition, bidirectionality has been disabled for this preset.'), 'warning');
+  }
+}

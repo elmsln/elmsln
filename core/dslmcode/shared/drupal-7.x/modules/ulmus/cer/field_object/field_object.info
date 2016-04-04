@@ -1,0 +1,17 @@
+name = "Field Object"
+description = "Provides a field type that can refer to field instances."
+
+core = "7.x"
+
+dependencies[] = options
+
+files[] = includes/FieldChain.inc
+files[] = includes/FieldHierarchy.inc
+files[] = includes/FieldInstance.inc
+
+; Information added by Drupal.org packaging script on 2016-02-12
+version = "7.x-3.0-alpha7+25-dev"
+core = "7.x"
+project = "cer"
+datestamp = "1455299962"
+

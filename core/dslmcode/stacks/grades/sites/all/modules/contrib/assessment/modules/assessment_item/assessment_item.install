@@ -1,0 +1,92 @@
+<?php
+
+/**
+ * @file
+ * assessment_item install schema.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function assessment_item_schema() {
+  $schema = array();
+
+  $schema['assessment_item'] = array(
+    'description' => 'The base table for Assessment Item entities.',
+    'fields' => array(
+      'assessment_item_id' => array(
+        'description' => 'Primary Key: Identifier for a Assessment Item.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The type of this Assessment Item.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'description' => 'The name of the Assessment Item - a human-readable identifier.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the Assessment Item was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the Assessment Item was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ) + entity_exportable_schema_fields(),
+    'primary key' => array('assessment_item_id'),
+    'indexes' => array(
+      'type' => array('type'),
+    ),
+  );
+
+  $schema['assessment_item_type'] = array(
+    'description' => 'Stores information about defined Assessment Item types.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique Assessment Item type identifier.',
+      ),
+      'type' => array(
+        'description' => 'The machine-readable name of this Assessment Item type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this Assessment Item type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'The weight of this Assessment Item type in relation to others.',
+      ),
+    ) + entity_exportable_schema_fields(),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'type' => array('type'),
+    ),
+  );
+
+  return $schema;
+}

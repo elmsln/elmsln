@@ -1,0 +1,94 @@
+<?php
+
+/**
+ * @file
+ * Provides an option to hide CER fields on inline entity forms. Spun off
+ * from Issue #2240371.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function cer_ief_form_field_ui_field_edit_form_alter(array &$form, array &$form_state) {
+  // Add options to hide corresponding entity reference fields on inline entity forms.
+  $instance = $form['#instance'];
+  if ($instance['widget']['type'] == 'inline_entity_form') {
+    // Build a filter to fetch matching CER presets for this field instance.
+    $entity_type = $instance['entity_type'];
+    $bundle = $instance['bundle'];
+    $field_name = $instance['field_name'];
+    $filter = "{$entity_type}:{$bundle}:{$field_name}";
+
+    if ($presets = _cer_filter_presets($filter)) {
+      // There are available CER configurations for this IEF instance.
+      // Add option to hide field(s) on referenced entities.
+      $ief_settings = &$form['instance']['widget']['settings']['type_settings'];
+      $ief_settings['hide_cer_fields'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Hide corresponding entity reference field(s) on form.'),
+        '#default_value' => !empty($instance['widget']['settings']['type_settings']['hide_cer_fields']),
+      );
+      // @todo Add checkbox for each corresponding field?
+      // foreach ($presets as $preset) etc.
+    }
+  }
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ *
+ * @todo This could be cached into an array and only rebuilt when a contextual
+ * field instance is updated or CER pattern added/removed.
+ */
+function cer_ief_field_widget_form_alter(array &$element, array &$form_state, array $context) {
+  // Only concerns fields within Inline Entity Forms.
+  if (isset($context['form']['#ief_id'])) {
+    // Get the form ID.
+    $ief_id = $context['form']['#ief_id'];
+
+    // Get instance information for the IEF field.
+    $ief_field_instance = $form_state['inline_entity_form'][$ief_id]['instance'];
+
+    // Check if "hide" is enabled on the IEF that is holding this field.
+    $hide_cer_fields = !empty($ief_field_instance['widget']['settings']['type_settings']['hide_cer_fields']);
+
+    if ($hide_cer_fields) {
+      // Get available CER chains. We use an ordinary static as this will be called for
+      // each field that belongs to an IEF with 'hide' enabled -- could be a lot.
+      static $plugins;
+
+      if (! isset($plugins)) {
+        // Load available CER field keys into a map. The actual plugin info isn't needed.
+        // We use drupal_map_assoc() so we can do isset() checks for plugins instead
+        // of calling in_array().
+        $plugins = drupal_map_assoc(array_keys(CerField::getPluginInfo()));
+      }
+
+      // Set up filter chains for the affected entities. The left chain is for the entity
+      // that has the IEF field on it, and the right chain is for the entity *in* the IEF.
+      $left_chain = $ief_field_instance['entity_type'] . ':' . $ief_field_instance['bundle'] . ':' . $ief_field_instance['field_name'];
+      $right_chain = $context['instance']['entity_type'] . ':' . $context['instance']['bundle'] . ':' . $context['instance']['field_name'];
+      // Ensure that both fields are CER fields. If they're not, bail out.
+      if (! isset($plugins[$left_chain], $plugins[$right_chain])) {
+        return;
+      }
+
+      // If a preset from parent to IEF exists, prevent access to the field.
+      foreach (_cer_filter_presets($left_chain) as $preset) {
+        // Check if the preset's right hand points to the instance found in the IEF.
+        if (strpos($preset->right, $right_chain) === 0) {
+          $match = TRUE;
+        }
+        elseif ($preset->bidirectional && strpos($preset->left, $right_chain) === 0) {
+          $match = TRUE;
+        }
+
+        // Matching chain found. Prevent access to this field and return.
+        if (isset($match)) {
+          $element['#access'] = FALSE;
+          return;
+        }
+      }
+    }
+  }
+}
