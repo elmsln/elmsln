@@ -19,15 +19,15 @@ function assessment_gradebook_menu() {
   );
   $items['gradebook/render/%ctools_js/%/%'] = array(
       'title' => 'Submission Viewer',
-      'page arguments' => array(3, 4, 5),
+      'page arguments' => array(2, 3, 4),
       'page callback' => '_assessment_gradebook_modal_page',
-      'access arguments' => array(4),
+      'access arguments' => array(3),
       'access callback' => '_assessment_gradebook_access_modal',
       'type' => MENU_NORMAL_ITEM,
   );
   $items['gradebook/ajax/%/%/%'] = array(
       'title' => 'AJAX Save assessment state',
-      'page arguments' => array(3, 4, 5),
+      'page arguments' => array(2, 3, 4),
       'page callback' => '_assessment_gradebook_ajax_save',
       'access arguments' => array('access gradebook'),
       'type' => MENU_NORMAL_ITEM,
@@ -52,9 +52,9 @@ function assessment_gradebook_permission() {
 /**
  * Callback for gradebook/ajax/%
  */
-function _assessment_gradebook_ajax_save($token, $aid, $sid) {
+function _assessment_gradebook_ajax_save($token, $aid, $assessmentid) {
   // ensure we have a valid script token
-  if (drupal_valid_token($token) && isset($aid) && isset($sid)) {
+  if (drupal_valid_token($token) && isset($aid) && isset($assessmentid)) {
     $flag = FALSE;
     $state = 'assessment_started';
     $points = NULL;
@@ -64,40 +64,31 @@ function _assessment_gradebook_ajax_save($token, $aid, $sid) {
     // special case, we are kicking this back to the student
     // at this point, state of the assessment is either kept alone
     // or set to started
-    $backtostudent = FALSE;
-    if ($state == 'submission_needs_work') {
-      $submission = node_load($sid);
-      $submission->field_submission_state['und'][0]['value'] = $state;
-      node_save($submission);
-      $backtostudent = TRUE;
-      $state = 'assessment_started';
-    }
     // save new assessment item
-    if ($aid == 'new') {
+    if ($assessmentid == 'new') {
       $vals = array(
-        'type' => 'submission_evaluation',
+        'type' => 'graded_item',
         'status' => 1,
         'label' => t('Assessment by @name', array('@name' => $GLOBALS['user']->name))
       );
       $assessment = entity_create('assessment_item', $vals);
       $assessment->field_assessment_status['und'][0]['value'] = $state;
-      $assessment->field_assessment_associated_submission['und'][0]['target_id'] = $sid;
-      $assessment->field_assessment_point_value['und'][0]['value'] = $points;
+      $assessment->field_grades_point_value['und'][0]['value'] = $points;
+      $assessment->field_assignment_ref['und'][0]['target_id'] = $aid;
       entity_save('assessment_item', $assessment);
     }
     else {
       // update an existing item
-      $assessment = entity_load_single('assessment_item', $aid);
+      $assessment = entity_load_single('assessment_item', $assessmentid);
       $assessment->field_assessment_status['und'][0]['value'] = $state;
-      $assessment->field_assessment_point_value['und'][0]['value'] = $points;
+      $assessment->field_grades_point_value['und'][0]['value'] = $points;
       entity_save('assessment_item', $assessment);
     }
-    // @todo support for $flag
 
     // structure return data
     $return = array(
       'state' => $assessment->field_assessment_status['und'][0]['value'],
-      'points' => $assessment->field_points['und'][0]['value'],
+      'points' => $assessment->field_grades_point_value['und'][0]['value'],
     );
     // edge case for backtostudent state to reflect on dashboard
     if ($backtostudent) {
@@ -171,7 +162,7 @@ function _assessment_gradebook_submission_evaluation_callback() {
       $aid = array_pop($id);
       $entity = entity_load_single($type, $aid);
       $default_state = $entity->field_assessment_status['und'][0]['value'];
-      $default_points = $entity->field_assessment_point_value['und'][0]['value'];
+      $default_points = $entity->field_grades_point_value['und'][0]['value'];
     }
     else {
       $default_state = '';
@@ -268,14 +259,16 @@ function _assessment_gradebook_access_modal($nid) {
  * A modal static page callback.
  * @param $js
  *   boolean CTools determination whether the user's browser is javascript enabled.
- * @param $nid
- *   string The node ID of passed as an argument from the hook_menu() path
+ * @param $aid
+ *   int     assessment id
+ * @param $uid
+ *  int      user id of the student's work
  * @return
- *   string The contents of the node, that will fill the modal window.
+ *   string  The contents of the node, that will fill the modal window.
  */
-function _assessment_gradebook_modal_page($js = NULL, $nid = NULL, $uid = NULL) {
-  if ($nid == NULL) {
-    return t('No node id was sent.');
+function _assessment_gradebook_modal_page($js = NULL, $aid = NULL, $uid = NULL) {
+  if ($aid == NULL) {
+    return t('No assessment id was sent.');
   }
   if ($uid == NULL) {
     return t('No author id was sent.');
@@ -285,15 +278,15 @@ function _assessment_gradebook_modal_page($js = NULL, $nid = NULL, $uid = NULL) 
     ctools_include('modal');
     ctools_include('ajax');
   }
-  // Load the node object
-  $node = node_load($nid);
+  // Load the assessment object
+  $assessment = entity_load_single('assessment_item', $aid);
   // ensure uid matches as a failsafe
-  if ($node->uid != $uid) {
-    return t('Author must match node requested');
+  if ($assessment->field_grades_student['und'][0]['target_id'] != $uid) {
+    return t('Author must match assessment requested');
   }
 
-  $contents = render(node_view($node, 'gradebook_viewer'));
-  return ctools_modal_render($node->title, $contents) ;
+  $contents = render(entity_view('assessment_item', array($aid => $assessment), 'gradebook_viewer'));
+  return ctools_modal_render($assessment->label, $contents);
 }
 
 /**

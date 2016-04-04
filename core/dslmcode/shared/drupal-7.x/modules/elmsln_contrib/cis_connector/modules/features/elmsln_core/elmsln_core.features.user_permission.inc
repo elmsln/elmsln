@@ -21,27 +21,6 @@ function elmsln_core_user_default_permissions() {
     'module' => 'admin_theme',
   );
 
-  // Exported permission: 'access elmsln administration areas'.
-  $permissions['access elmsln administration areas'] = array(
-    'name' => 'access elmsln administration areas',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'elmsln_core',
-  );
-
-  // Exported permission: 'administer cis lms-less nav'.
-  $permissions['administer cis lms-less nav'] = array(
-    'name' => 'administer cis lms-less nav',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'cis_lmsless_nav',
-  );
-
   // Exported permission: 'access administration menu'.
   $permissions['access administration menu'] = array(
     'name' => 'access administration menu',
@@ -73,6 +52,17 @@ function elmsln_core_user_default_permissions() {
     'module' => 'ckeditor_link',
   );
 
+  // Exported permission: 'access elmsln administration areas'.
+  $permissions['access elmsln administration areas'] = array(
+    'name' => 'access elmsln administration areas',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'elmsln_core',
+  );
+
   // Exported permission: 'access iframe version'.
   $permissions['access iframe version'] = array(
     'name' => 'access iframe version',
@@ -82,6 +72,16 @@ function elmsln_core_user_default_permissions() {
       'authenticated user' => 'authenticated user',
     ),
     'module' => 'entity_iframe',
+  );
+
+  // Exported permission: 'administer cis lms-less nav'.
+  $permissions['administer cis lms-less nav'] = array(
+    'name' => 'administer cis lms-less nav',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'cis_lmsless_nav',
   );
 
   // Exported permission: 'administer masquerade'.
@@ -208,6 +208,17 @@ function elmsln_core_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'filter',
+  );
+
+  // Exported permission: 'view a11y simulations'.
+  $permissions['view a11y simulations'] = array(
+    'name' => 'view a11y simulations',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'a11y',
   );
 
   // Exported permission: 'view cis shortcode'.

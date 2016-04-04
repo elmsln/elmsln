@@ -1,0 +1,26 @@
+<?php
+/**
+ * @file
+ * assessment_gradebook_ux.features.user_permission.inc
+ */
+
+/**
+ * Implements hook_user_default_permissions().
+ */
+function assessment_gradebook_ux_user_default_permissions() {
+  $permissions = array();
+
+  // Exported permission: 'access gradebook'.
+  $permissions['access gradebook'] = array(
+    'name' => 'access gradebook',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'assessment_gradebook',
+  );
+
+  return $permissions;
+}

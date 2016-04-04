@@ -75,7 +75,7 @@ function assessment_gradebook_grid_form($form, &$form_state) {
   // pull assignments you should use
   $alist = array();
   foreach ($snodes as $snode) {
-    foreach ($snode->field_assessment_assignments['und'] as $atmp) {
+    foreach ($snode->field_grades_assignments_ref['und'] as $atmp) {
       $alist[$atmp['target_id']] = $atmp['target_id'];
     }
   }
@@ -89,20 +89,6 @@ function assessment_gradebook_grid_form($form, &$form_state) {
     '#chosen' => TRUE,
     '#multiple' => '1',
   );
-  // submission status filter
-  // @todo make this like the old system, just move dots around
-  $field = field_info_field('field_submission_state');
-  $form['filters']['field_submission_state'] = array(
-    '#required' => '0',
-    '#multiple' => '1',
-    '#chosen' => TRUE,
-    '#key_type_toggled' => '1',
-    '#type' => 'select',
-    '#options' => $field['settings']['allowed_values'],
-    '#multiple_toggle' => '1',
-    '#title' => t('Submission Status'),
-  );
-
   // assessment status filter
   // @todo make this like the old system, just move dots around
   $field = field_info_field('field_assessment_status');
@@ -163,36 +149,22 @@ function assessment_gradebook_grid_form($form, &$form_state) {
     $header[$key] = l($name, $path, array('query' => array('orderby' => $key)));
   }
   // @todo account for assessment status and if it has been assessed or not
-
-  // field condition match for the state of the submission as marked by student
-  if (isset($query['field_submission_state'])) {
-    $field_conditions = array('field_submission_state' => array('value', array_keys($query['field_submission_state']), 'IN'));
-  }
-  else {
-    $field_conditions = array();
-  }
+  $field_conditions = array();
   // loop through users and pull their assignments
   foreach ($students as $uid => $user) {
     // pull together the submissions
-    $submissions = _cis_connector_assemble_entity_list('node', 'assessment_submission', array('field_assignment', 'target_id'), 'nid', $field_conditions, array('uid' => $uid));
+    $field_conditions['field_grades_student'] = array('target_id', $uid);
+    $assessments = _cis_connector_assemble_entity_list('assessment_item', 'graded_item', array('field_assignment_ref', 'target_id'), 'assessment_item_id', $field_conditions);
     $row = array(ASSESSMENT_GRADEBOOK_USERNAME_FIELD => $user);
     // set a record per result
-    foreach ($assignments as $key => $name) {
+    foreach ($assignments as $key => $aid) {
       // if we have an assignment nid key match, load result there
-      if (isset($submissions[$key])) {
-        // check for matching assessments
-        $id = _cis_connector_assemble_entity_list('assessment_item', 'submission_evaluation', 'assessment_item_id', 'assessment_item_id', array('field_assessment_associated_submission' => array('target_id', $submissions[$key], '=')));
-        // make sure we have an assessment entity first
-        if (!empty($id)) {
-          $assessment = entity_load_single('assessment_item', array_pop($id));
-        }
-        else {
-          $assessment = NULL;
-        }
-        // now pull in the status from the submission
-        $submission = entity_load_single('node', $submissions[$key]);
+      if (isset($assessments[$key])) {
+        $assessment = entity_load_single('assessment_item', $aid);
+        // remote load $submission
+        $submission = array();
         $status_image = _assessment_gradebook_assessment_status($submission, $assessment, 'image');
-        $row[$key] = ctools_modal_text_button($status_image, 'gradebook/render/nojs/' . $submissions[$key] . '/' . $uid,_assessment_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-assessment-gradebook-modal disable-scroll');
+        $row[$key] = ctools_modal_text_button($status_image, 'gradebook/render/nojs/' . $assessments[$key] . '/' . $uid, _assessment_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-assessment-gradebook-modal disable-scroll');
       }
       else {
         $row[$key] = _assessment_gradebook_assessment_status(NULL, NULL, 'image');

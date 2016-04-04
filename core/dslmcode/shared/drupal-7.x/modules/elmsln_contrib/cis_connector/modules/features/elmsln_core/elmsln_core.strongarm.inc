@@ -36,6 +36,8 @@ function elmsln_core_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'masquerade_admin_roles';
   $strongarm->value = array(
+    67296478 => '67296478',
+    75987638 => '75987638',
     166149871 => '166149871',
     30037204 => '30037204',
     76550217 => '76550217',
@@ -44,9 +46,6 @@ function elmsln_core_strongarm() {
     6065076 => 0,
     135574917 => 0,
     66784200 => 0,
-    67296478 => 0,
-    75987638 => 0,
-    90720314 => 0,
   );
   $export['masquerade_admin_roles'] = $strongarm;
 

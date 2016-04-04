@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Assessment UX feature.
+ */
+
+include_once 'assessment_ux.features.inc';
