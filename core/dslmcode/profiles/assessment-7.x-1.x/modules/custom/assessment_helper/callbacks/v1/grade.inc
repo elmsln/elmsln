@@ -15,7 +15,7 @@ function assessment_helper_elmsln_api_callback_grade() {
       isset($value['type'])) {
     // see if we should create a new one
     $query = new EntityFieldQuery;
-    $query->entityCondition('entity_type', 'node');
+    $query->entityCondition('entity_type', 'assessment_entity');
     $query->entityCondition('bundle', 'ecd_asset');
     $query->fieldCondition('field_resource_uuid_bind', 'value', $value['uuid'], '=');
     $result = $query->execute();
