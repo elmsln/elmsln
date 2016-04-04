@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the CLE Submission Assessment feature.
- */
-
-include_once 'cle_submission_assessment.features.inc';

@@ -9,10 +9,10 @@ define('CLE_GRADEBOOK_USERNAME_FIELD', 'username');
  * Callback for gradebook display.
  * @return string rendered output
  */
-function cle_gradebook_grid_form($form, &$form_state) {
+function assessment_gradebook_grid_form($form, &$form_state) {
   $form['#method'] = 'GET';
   // attach our modal window
-  _cle_gradebook_attach_modal();
+  _assessment_gradebook_attach_modal();
   // @todo cache the batsnot out of this thing since it's a heavy query
   // @todo need to submit to itself so we can process this
   // load current path and params from url
@@ -55,7 +55,7 @@ function cle_gradebook_grid_form($form, &$form_state) {
     $form['actions']['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Submit'),
-      '#submit' => array('cle_gradebook_grid_form_submit'),
+      '#submit' => array('assessment_gradebook_grid_form_submit'),
     );
     return $form;
   }
@@ -191,11 +191,11 @@ function cle_gradebook_grid_form($form, &$form_state) {
         }
         // now pull in the status from the submission
         $submission = entity_load_single('node', $submissions[$key]);
-        $status_image = _cle_gradebook_assessment_status($submission, $assessment, 'image');
-        $row[$key] = ctools_modal_text_button($status_image, 'cle/gradebook/render/nojs/' . $submissions[$key] . '/' . $uid,_cle_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-cle-gradebook-modal disable-scroll');
+        $status_image = _assessment_gradebook_assessment_status($submission, $assessment, 'image');
+        $row[$key] = ctools_modal_text_button($status_image, 'cle/gradebook/render/nojs/' . $submissions[$key] . '/' . $uid,_assessment_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-cle-gradebook-modal disable-scroll');
       }
       else {
-        $row[$key] = _cle_gradebook_assessment_status(NULL, NULL, 'image');
+        $row[$key] = _assessment_gradebook_assessment_status(NULL, NULL, 'image');
       }
     }
     $rows[] = array('data' => $row);
@@ -222,7 +222,7 @@ function cle_gradebook_grid_form($form, &$form_state) {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
-  $indicators = _cle_gradebook_get_status_indicators();
+  $indicators = _assessment_gradebook_get_status_indicators();
   foreach ($indicators as &$button) {
     $button['icon'] = "<img src=\"" . base_path() . $button['icon'] . "\" title=\"" . $button['title'] . "\" alt=\"" . $button['title'] . "\" width=\"16px\" height=\"16px\">";
   }
@@ -242,7 +242,7 @@ function cle_gradebook_grid_form($form, &$form_state) {
   $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
-    '#submit' => array('cle_gradebook_grid_form_submit'),
+    '#submit' => array('assessment_gradebook_grid_form_submit'),
   );
   // append the grid to the form
   $form['grid'] = array(

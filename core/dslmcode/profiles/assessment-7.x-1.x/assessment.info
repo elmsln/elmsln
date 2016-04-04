@@ -121,9 +121,9 @@ dependencies[] = elmsln_advagg
 ; ----------
 ; Service Dependencies
 ; ----------
-;dependencies[] = og
-;dependencies[] = og_ui
-;dependencies[] = cis_section
+dependencies[] = og
+dependencies[] = og_ui
+dependencies[] = cis_section
 
 ; ----------
 ; Authority Dependencies
@@ -133,4 +133,9 @@ dependencies[] = cis_course_authority
 ; ----------
 ; END ELMSLN Core Dependencies
 ; ----------
+
+; ----------
+; Assessment Dependencies
+; ----------
+dependencies[] = assessment_gradebook
 
