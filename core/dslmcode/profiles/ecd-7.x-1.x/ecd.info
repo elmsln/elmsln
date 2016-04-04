@@ -142,9 +142,9 @@ dependencies[] = imagefield_focus
 dependencies[] = editableviews
 dependencies[] = eva
 ; Features
-dependencies[] = ecd_displays
 dependencies[] = ecd_entityforms
 dependencies[] = ecd_types
-dependencies[] = ecd_ux
+dependencies[] = ecd_displays
 dependencies[] = ecd_helper
+dependencies[] = ecd_ux
 dependencies[] = ecd_perms
