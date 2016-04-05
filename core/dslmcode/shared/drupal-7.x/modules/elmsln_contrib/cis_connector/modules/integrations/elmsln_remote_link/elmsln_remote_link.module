@@ -105,8 +105,9 @@ function elmsln_remote_link_field_formatter_view($entity_type, $entity, $field, 
               $output = $response['rendered'];
           }
           else {
-            // lets throw this in an iframe
-            $output = '<iframe width="100%" height="100%" src="' . $item['url'] . '"></iframe>';
+            // lets throw this in an iframe and direct link as quickies
+            $output = l(t('Access remote link'), $item['url'], array('attributes' => array('target' => '_blank')));
+            $output .= '<iframe width="100%" height="300px" src="' . $item['url'] . '"></iframe>';
           }
           $element[$delta] = array(
             '#markup' => $output,
