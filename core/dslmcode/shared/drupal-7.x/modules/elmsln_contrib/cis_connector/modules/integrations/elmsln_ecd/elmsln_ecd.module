@@ -98,6 +98,7 @@ function _elmsln_ecd_request($node, $op) {
       }
       // if we found a link we need to try shipping it off
       if (!empty($link)) {
+        $title = '';
         // try to assemble a title from title and/or alt text
         if (isset($tag['title'])) {
           $title = $tag['title'];
@@ -105,7 +106,8 @@ function _elmsln_ecd_request($node, $op) {
         elseif (isset($tag['alt'])) {
           $title = $tag['alt'];
         }
-        else {
+        // see if that pulled anything
+        if (empty($title)) {
           $title = t('Linked content');
         }
         // produce the asset notification remotely of type link
