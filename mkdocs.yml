@@ -33,6 +33,9 @@ pages:
     - Blog: systems/service/blog.md
     - Innovate: systems/developer/innovate.md
 - Developer:
+  - Process:
+    - Concept Development Process: development/Concept-Process.md
+    - Release Cycle: development/Project-Release-Cycle.md
   - General Questions:
     - Questions: development/Developer-questions.md
     - Should I upgrade modules?: development/Should-I-update-Drupal-modules.md
@@ -45,11 +48,8 @@ pages:
   - Command line:
     - Command line: development/command-line.md
     - Drush examples: development/Drush-Targeting-Usage.md
-    - Upgrades:
     - How do I run upgrades?: development/upgrades/How-do-I-run-upgrades.md
-    - MOOC Optional: development/upgrades/Course-UX-upgrade-for-0.1.0.md
-  - Concept Development Process: development/Concept-Process.md
-  - Release Cycle: development/Project-Release-Cycle.md
+    - Legacy MOOC upgrade: development/upgrades/Course-UX-upgrade-for-0.1.0.md
   - General Infrastructure:
     - Infrastructure: development/General-Infrastructure.md
     - Scale: development/scale.md
@@ -60,6 +60,7 @@ pages:
   - Debug:
     - General debugging: development/debug.md
     - Reversing commits: development/Reverse-Commit-And-Push.md
+    - Features Builder: development/Features-Builder.md
 theme: readthedocs
 site_author: "elmsln"
 repo_name: ELMSLN
