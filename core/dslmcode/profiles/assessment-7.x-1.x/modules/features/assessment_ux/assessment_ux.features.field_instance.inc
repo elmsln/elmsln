@@ -437,17 +437,21 @@ function assessment_ux_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'link',
-        'settings' => array(),
-        'type' => 'link_default',
+        'label' => 'hidden',
+        'module' => 'elmsln_remote_link',
+        'settings' => array(
+          'display_mode' => 'gradebook_viewer',
+        ),
+        'type' => 'elmsln_remote_render',
         'weight' => 2,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
-        'module' => 'link',
-        'settings' => array(),
-        'type' => 'link_default',
+        'module' => 'elmsln_remote_link',
+        'settings' => array(
+          'display_mode' => 'gradebook_viewer',
+        ),
+        'type' => 'elmsln_remote_render',
         'weight' => 2,
       ),
     ),

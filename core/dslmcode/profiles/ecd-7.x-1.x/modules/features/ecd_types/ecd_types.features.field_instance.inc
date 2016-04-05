@@ -713,9 +713,11 @@ function ecd_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'inline',
-        'module' => 'link',
-        'settings' => array(),
-        'type' => 'link_default',
+        'module' => 'elmsln_remote_link',
+        'settings' => array(
+          'display_mode' => 'iframe',
+        ),
+        'type' => 'elmsln_remote_render',
         'weight' => 6,
       ),
       'teaser' => array(

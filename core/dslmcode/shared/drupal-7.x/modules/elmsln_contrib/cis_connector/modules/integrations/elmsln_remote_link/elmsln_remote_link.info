@@ -1,0 +1,6 @@
+name = 'ELMSLN: Remote link'
+description = 'Provides a field formatter for links to render their referenced content locally.'
+core = 7.x
+dependencies[] = elmsln_api
+dependencies[] = cis_connector
+files[] = elmsln_remote_link.module

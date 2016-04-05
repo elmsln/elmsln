@@ -96,8 +96,8 @@ function ecd_types_ds_layout_settings_info() {
       ),
       'left' => array(
         4 => 'field_asset_type',
-        5 => 'field_source',
-        6 => 'group_logistics',
+        5 => 'group_logistics',
+        6 => 'field_source',
       ),
     ),
     'fields' => array(
@@ -106,8 +106,8 @@ function ecd_types_ds_layout_settings_info() {
       'field_copyright_verified' => 'right',
       'field_quality_verified' => 'right',
       'field_asset_type' => 'left',
-      'field_source' => 'left',
       'group_logistics' => 'left',
+      'field_source' => 'left',
       'field_ecd_needs_review' => 'right',
       'group_verification' => 'right',
     ),

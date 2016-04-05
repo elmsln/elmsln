@@ -1,0 +1,119 @@
+<?php
+/**
+ * @file
+ * ELMSLN Remote link_field formatter.
+ */
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function elmsln_remote_link_field_formatter_info() {
+  return array(
+    'elmsln_remote_render' => array(
+      'label' => t('Remote render'),
+      'description' => t('Renders a link by turning it into a web service query.'),
+      'field types' => array('link_field'),
+      'settings' => array(
+        'display_mode' => 'default',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function elmsln_remote_link_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $summary = '';
+  if ($display['type'] == 'elmsln_remote_render') {
+    $summary = t('Render mode: @display', array('@display' => $settings['display_mode']));
+  }
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function elmsln_remote_link_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  if ($display['type'] == 'elmsln_remote_render') {
+    // @todo may want to allow more then this but hard coded these will work for now
+    $options = array(
+      'default' => t('Default'),
+      'iframe' => t('Iframe'),
+      'gradebook_viewer' => t('Gradebook viewer'),
+    );
+    // the display mode to render this item as
+    $element['display_mode'] = array(
+      '#title' => t('Display mode'),
+      '#type' => 'select',
+      '#default_value' => $settings['display_mode'],
+      '#options' => $options,
+      '#required' => TRUE,
+    );
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function elmsln_remote_link_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  $settings = $display['settings'];
+  switch ($display['type']) {
+    case 'elmsln_remote_render':
+      // run through the items and ensure there's a url
+      foreach ($items as $delta => $item) {
+        if (!empty($item['url'])) {
+          // break the url down into its parts
+          $parts = _cis_connector_url_get_properties($item['url']);
+          // explode the parts
+          $parts['path'] = explode('/', $parts['path']);
+          // see if this is a service or authority calling home
+          if (count($parts['path']) == 3) {
+            $instance = '/' . $parts['path'][0] . '/';
+            $etype = $parts['path'][1];
+            $id = $parts['path'][2];
+          }
+          else {
+            $instance = '/';
+            $etype = $parts['path'][0];
+            $id = $parts['path'][1];
+          }
+          // reform the address to look for a match for where it came from
+          $registry = _cis_connector_build_registry();
+          $addr = $parts['subdomain'] . '.' . $parts['domain'];
+          // search the registry or the address to match an item in there
+          foreach ($registry as $key => $registry_item) {
+            // if the addresses match then we have something we know about
+            if ($registry_item['address'] == $addr) {
+              $tool = $key;
+              $remote = $registry_item;
+            }
+          }
+          // get response from loading the object if its inside our network
+          // of what we know about
+          if (isset($tool)) {
+            $response = _cis_connection_object($id, $etype, 'json', 'GET', NULL, $tool, $instance, TRUE, 'display_mode=' . $settings['display_mode']);
+              // @todo might want to preg_match this badboy
+              $response['rendered'] = str_replace('/services/', '/', str_replace($remote['service_address'], $remote['address'], $response['rendered']));
+              // rendered property will have the assessed output
+              $output = $response['rendered'];
+          }
+          else {
+            // lets throw this in an iframe
+            $output = '<iframe width="100%" height="100%" src="' . $item['url'] . '"></iframe>';
+          }
+          $element[$delta] = array(
+            '#markup' => $output,
+          );
+        }
+      }
+    break;
+  }
+  return $element;
+}

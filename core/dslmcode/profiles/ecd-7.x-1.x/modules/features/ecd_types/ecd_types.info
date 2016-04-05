@@ -5,6 +5,7 @@ dependencies[] = cis_course_authority
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = ds
+dependencies[] = elmsln_remote_link
 dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = field_group
