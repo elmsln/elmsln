@@ -274,12 +274,16 @@ function _httprl_spider_batches_finished($success, $results, $operations) {
 function httprl_spider_batch_load_cache($entity_type, $entity_info, &$context) {
   if (!isset($context['sandbox']['progress'])) {
     // Make some assumptions like entity ids must be a positive integer.
-    $context['message'] = dt("Begin requesting $entity_type");
+    $context['message'] = dt("Begin requesting @entity_type", array('@entity_type' => $entity_type));
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['current_id'] = -1;
     $context['sandbox']['entity_count'] = _httprl_spider_get_entity_count($entity_type);
   }
-  $context['message'] = dt("Requesting {$entity_type} {$context['sandbox']['progress']} of {$context['sandbox']['entity_count']}");
+  $context['message'] = dt("Requesting @entity_type @progress of @count", array(
+    '@entity_type' => $entity_type,
+    '@progress' => $context['sandbox']['progress'],
+    '@count' => $context['sandbox']['entity_count'],
+  ));
   _httprl_spider_load_cache($entity_type, $entity_info, $context);
 }
 
@@ -339,7 +343,7 @@ function httprl_spider_batch_load_other_paths(&$context) {
     $context['sandbox']['entity_count'] = count(_httprl_spider_get_other_paths());
   }
   $other = count(_httprl_spider_get_other_paths());
-  $context['message'] = dt("Requesting $other other paths");
+  $context['message'] = dt("Requesting @other other paths", array('@other' => $other));
   _httprl_spider_load_other_paths($context);
 }
 
