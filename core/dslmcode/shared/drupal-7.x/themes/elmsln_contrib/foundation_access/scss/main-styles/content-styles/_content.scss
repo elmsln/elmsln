@@ -41,6 +41,11 @@
 	.row {
 		@extend transform();
 	}
+
+	.content-element-region-wrapper {
+		max-width: 68rem;
+	}
+
 	.content-element-region {
 		//border: 1px solid #efefef;
 		// background: rgba(255,255,255,1);
@@ -48,6 +53,7 @@
 		padding-top: 2rem;
 		//@include border-radius (3px);
 		//@include box-shadow();
+		//
 	}
 	.alert-box {
 		background-color: $messages-alerts-color;

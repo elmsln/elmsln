@@ -79,7 +79,7 @@
               </ul>
             </div>
           </div>
-          <div class="row">
+          <div class="row content-element-region-wrapper">
             <div class="content-element-region small-12 medium-12 large-12 columns">
               <div class="row">
                 <div class="small-12 medium-12 large-push-1 large-10 columns" role="content">
