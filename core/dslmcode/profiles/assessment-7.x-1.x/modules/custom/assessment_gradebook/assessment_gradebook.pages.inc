@@ -160,14 +160,12 @@ function assessment_gradebook_grid_form($form, &$form_state) {
     foreach ($assignments as $key => $aid) {
       // if we have an assignment nid key match, load result there
       if (isset($assessments[$key])) {
-        $assessment = entity_load_single('assessment_item', $aid);
-        // remote load $submission
-        $submission = array();
-        $status_image = _assessment_gradebook_assessment_status($submission, $assessment, 'image');
-        $row[$key] = ctools_modal_text_button($status_image, 'gradebook/render/nojs/' . $assessments[$key] . '/' . $uid, _assessment_gradebook_assessment_status($submission, $assessment, 'alt'), 'ctools-modal-assessment-gradebook-modal disable-scroll');
+        $assessment = entity_load_single('assessment_item', $assessments[$key]);
+        $status_image = _assessment_gradebook_assessment_status($assessment, 'image');
+        $row[$key] = ctools_modal_text_button($status_image, 'gradebook/render/nojs/' . $assessments[$key] . '/' . $uid, _assessment_gradebook_assessment_status($assessment, 'alt'), 'ctools-modal-assessment-gradebook-modal disable-scroll');
       }
       else {
-        $row[$key] = _assessment_gradebook_assessment_status(NULL, NULL, 'image');
+        $row[$key] = _assessment_gradebook_assessment_status(NULL, 'image');
       }
     }
     $rows[] = array('data' => $row);

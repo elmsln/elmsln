@@ -170,7 +170,7 @@ function _assessment_gradebook_submission_evaluation_callback() {
     }
     // edge case, work has been marked as pushed back to student
     // this status overrides the assessment state
-    if ($submission->field_submission_state['und'][0]['value'] == 'submission_needs_work') {
+    if ($submission->field_assessment_status['und'][0]['value'] == 'submission_needs_work') {
       $default_state = 'submission_needs_work';
     }
 
@@ -345,26 +345,26 @@ function assessment_gradebook_grid_form_submit($form, &$form_state) {
  * Helper function to convert an assessment's status into an image
  * @return string path to an image to load
  */
-function _assessment_gradebook_assessment_status($submission, $assessment, $format = 'alt') {
+function _assessment_gradebook_assessment_status($assessment, $format = 'alt') {
   $indicators = _assessment_gradebook_get_status_indicators();
   // check that we have an assessment and that submission hasn't been returned
   // to the student to do additional work. After they'd set it back to ready
   // then the indicator light would switch to the assessment state.
-  if (!empty($assessment) && $submission->field_submission_state['und'][0]['value'] != 'submission_needs_work') {
+  if (!empty($assessment) && $assessment->field_assessment_status['und'][0]['value'] != 'submission_needs_work') {
     $status = $assessment->field_assessment_status['und'][0]['value'];
-  }
-  else if (!empty($submission)) {
-    $status = $submission->field_submission_state['und'][0]['value'];
+    $student = user_load($assessment->field_grades_student['und'][0]['target_id']);
+    $name = $student->name;
   }
   else {
     $status = 'submission_unsubmitted';
+    $name = '';
   }
   // convert status into image / text statements
   switch($status) {
     default:
-      $text = t('@user\'s @name status: @status', array('@user' => $submission->name, '@name' => $submission->title, '@status' => $indicators[$status]['title']));
-      $nid = $submission->nid;
-      $class = "indicator-light assessment-submission-${nid}";
+      $text = t('@user\'s @name status: @status', array('@user' => $name, '@name' => $assessment->label, '@status' => $indicators[$status]['title']));
+      $aid = $assessment->assessment_item_id;
+      $class = "indicator-light assessment-submission-${aid}";
     break;
     case 'submission_unsubmitted':
       $text = t('status: @status', array('@status' => $indicators[$status]['title']));
