@@ -78,6 +78,17 @@ function a11y_a11y_block() {
     );
     $output .= drupal_render($invert);
   }
+  if (variable_get('a11y_animation', 1)) {
+    // animation default state
+    $animation = array(
+      '#type' => 'checkbox',
+      '#id' => 'a11y_animation_checkbox',
+      '#title' => t('Disable interface animations'),
+      '#default_value' => 0,
+      '#description' => t('This can help those with trouble processing rapid screen movements.'),
+    );
+    $output .= drupal_render($animation);
+  }
   if (variable_get('a11y_textsize', 1)) {
     $icon_path = base_path() . drupal_get_path('module', 'a11y') . '/plugins/icons/';
     $output .= '<div class="a11y-textsize-controls"><a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
@@ -187,6 +198,14 @@ function a11y_admin_settings($form, &$form_state) {
     '#description' => t('Allow the user to adjust the text size of your content.'),
     '#required' => FALSE,
   );
+  // animation default state
+  $form['config']['a11y_animation'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow disabling animation'),
+    '#default_value' => variable_get('a11y_animation', 1),
+    '#description' => t('Allow the user to disable css/js animations on your site.'),
+    '#required' => FALSE,
+  );
   return system_settings_form($form);
 }
 
@@ -213,6 +232,10 @@ function a11y_apply_a11y() {
   if (variable_get('a11y_contrast', 1)) {
     $js_variables['a11y']['contrast'] = 1;
     drupal_add_js($plugin_path . 'contrast/contrast.js');
+  }
+  if (variable_get('a11y_animation', 1)) {
+    $js_variables['a11y']['animation'] = 1;
+    drupal_add_js($plugin_path . 'animation/animation.js');
   }
   if (variable_get('a11y_textsize', 1)) {
     $js_variables['a11y']['textsize'] = 1;
