@@ -160,7 +160,7 @@ function cle_submission_views_default_views() {
     6 => 0,
     10 => 0,
   );
-  /* Filter criterion: Content: Submission type (field_submission_type) */
+  /* Filter criterion: Broken/missing handler */
   $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
   $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
   $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
@@ -757,7 +757,7 @@ function cle_submission_views_default_views() {
     30037204 => 0,
     76550217 => 0,
   );
-  /* Filter criterion: Content: Submission type (field_submission_type) */
+  /* Filter criterion: Broken/missing handler */
   $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
   $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
   $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
@@ -1724,6 +1724,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
   $handler->display->display_options['fields']['field_images']['field'] = 'field_images';
   $handler->display->display_options['fields']['field_images']['label'] = '';
+  $handler->display->display_options['fields']['field_images']['element_class'] = 'ferpa-protect';
   $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
   $handler->display->display_options['fields']['field_images']['type'] = 'colorbox';
@@ -1764,34 +1765,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'cle_submission' => 'cle_submission',
-  );
-  /* Filter criterion: Content: Submission type (field_submission_type) */
-  $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
-  $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
-  $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
-  $handler->display->display_options['filters']['field_submission_type_value']['relationship'] = 'field_assignment_target_id';
-  $handler->display->display_options['filters']['field_submission_type_value']['value'] = array(
-    'exercise' => 'exercise',
-    'draft' => 'draft',
-    'final' => 'final',
-  );
-  $handler->display->display_options['filters']['field_submission_type_value']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator_id'] = 'field_submission_type_value_op';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['label'] = 'Submission type';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator'] = 'field_submission_type_value_op';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['identifier'] = 'field_submission_type_value';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['remember'] = TRUE;
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    6065076 => 0,
-    135574917 => 0,
-    66784200 => 0,
-    67296478 => 0,
-    75987638 => 0,
-    166149871 => 0,
-    30037204 => 0,
-    76550217 => 0,
   );
 
   /* Display: My Submissions */

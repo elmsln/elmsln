@@ -42,6 +42,42 @@ function cle_submission_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_ferpacontent|node|cle_submission|full';
+  $field_group->group_name = 'group_ferpacontent';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'cle_submission';
+  $field_group->mode = 'full';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Ferpa elements',
+    'weight' => '0',
+    'children' => array(
+      0 => 'body',
+      1 => 'field_files',
+      2 => 'field_images',
+      3 => 'field_links',
+      4 => 'field_video',
+    ),
+    'format_type' => 'div',
+    'format_settings' => array(
+      'label' => 'Ferpa elements',
+      'instance_settings' => array(
+        'id' => '',
+        'classes' => 'group-ferpacontent field-group-div ferpa-protect',
+        'description' => '',
+        'show_label' => '0',
+        'label_element' => 'h3',
+        'effect' => 'none',
+        'speed' => 'none',
+      ),
+      'formatter' => 'open',
+    ),
+  );
+  $field_groups['group_ferpacontent|node|cle_submission|full'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_files|node|cle_submission|default';
   $field_group->group_name = 'group_files';
   $field_group->entity_type = 'node';
@@ -316,6 +352,7 @@ function cle_submission_field_group_info() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Admin');
+  t('Ferpa elements');
   t('Files');
   t('Images');
   t('Links');

@@ -117,7 +117,7 @@ function cle_submission_strongarm() {
             'visible' => FALSE,
           ),
           'full' => array(
-            'weight' => '8',
+            'weight' => '4',
             'visible' => TRUE,
           ),
         ),
@@ -131,7 +131,7 @@ function cle_submission_strongarm() {
             'visible' => FALSE,
           ),
           'full' => array(
-            'weight' => '7',
+            'weight' => '3',
             'visible' => TRUE,
           ),
         ),

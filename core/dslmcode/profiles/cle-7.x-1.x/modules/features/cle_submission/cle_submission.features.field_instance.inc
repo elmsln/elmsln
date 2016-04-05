@@ -92,7 +92,7 @@ function cle_submission_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 0,
+        'weight' => 1,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -187,7 +187,7 @@ function cle_submission_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 5,
+        'weight' => 1,
       ),
       'gradebook_viewer' => array(
         'label' => 'inline',
@@ -255,7 +255,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 19,
+        'weight' => 15,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -314,7 +314,7 @@ function cle_submission_field_default_field_instances() {
           'text' => 'Download [file:name]',
         ),
         'type' => 'file_download_link',
-        'weight' => 3,
+        'weight' => 5,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -414,7 +414,7 @@ function cle_submission_field_default_field_instances() {
           'colorbox_node_style_first' => 'cle_submission',
         ),
         'type' => 'colorbox',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -512,7 +512,7 @@ function cle_submission_field_default_field_instances() {
         'module' => 'link',
         'settings' => array(),
         'type' => 'link_default',
-        'weight' => 1,
+        'weight' => 2,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -584,7 +584,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 18,
+        'weight' => 14,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -712,7 +712,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 17,
+        'weight' => 13,
       ),
       'gradebook_viewer' => array(
         'label' => 'inline',
