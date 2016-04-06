@@ -26,7 +26,7 @@ elmslnwarn(){
 
 # see which site produced this so we can mirror it
 if [ -z $1 ]; then
-  elmslnwarn "You must supply a project name"
+  elmslnwarn "You must supply a site name"
   exit 1
 fi
 # ensure we have a project name for this innovation
@@ -52,23 +52,23 @@ major=$4
 
 # go back to home directory
 cd ~
+# clear out previously created wild wests and start over
+rm -rf wildwest
 # clone the repo local so we can issue a PR
-git clone https://github.com/elmsln/innovations.git
-cd innovations
-# hard reset in case they made other stuff not yet accepted
-git fetch --all
-git reset --hard origin/master
-git checkout -b "${username}-${projctname}"
+git clone git@github.com:ELMSLNInnovationBot/wildwest.git wildwest
+cd wildwest
+# make a new branch for this repo
+git checkout -b "${username}-${projectname}"
 # run commands to pull files down here
-mkdir -p innovators/${username}/
-cp -R {elmsln}/core/dslmcode/profiles/ulmus-${major}-1.x innovators/${username}/${major}/${projectname}
+mkdir -p innovators/${username}/${major}/${projectname}/modules/features/
+cp -R ${elmsln}/core/dslmcode/profiles/ulmus-${major}-1.x/* innovators/${username}/${major}/${projectname}/
 cd innovators/${username}/${major}/${projectname}
 # step into the files and bulk target and replace the previous name spaces with the new ones
 renames=('.travis.yml' 'drupal-org.make' 'local.make.example' 'drecipes/elmsln_ulmus.drecipe' 'ulmus.info' 'ulmus.install' 'ulmus.profile' 'themes/SUB_foundation_access/SUB_foundation_access.info' 'themes/SUB_foundation_access/css/SUB_styles.css' 'themes/SUB_foundation_access/template.php')
 for rename in "${renames[@]}"
   do
-  sed -i '' "s/ulmus/$projectname/g" $rename
-  sed -i '' "s/SUB/$projectname/g" $rename
+  sed -i '' "s/ulmus/${projectname}/g" $rename
+  sed -i '' "s/SUB/${projectname}/g" $rename
 done
 # move everything around
 mv ulmus.info $projectname.info
@@ -79,19 +79,29 @@ mv themes/SUB_foundation_access/css/SUB_styles.css "themes/SUB_foundation_access
 mv themes/SUB_foundation_access/SUB_foundation_access.info "themes/SUB_foundation_access/${projectname}_foundation_access.info"
 mv themes/SUB_foundation_access "themes/${projectname}"
 
-# ensure these are enabled through they should be
+# ensure these are enabled even though they should be
 drush @innovate.${sitename} en profiler_builder features_builder --y
-# build in this directory
+# make the directory
+mkdir -p ${elmsln}/domains/innovate/${sitename}/sites/all/modules/_my_modules/innovate/features_builder/${username}/${projectname}
+# vset things to something we can target
+drush @innovate.${sitename} vset features_builder_base_dir "sites/all/modules/_my_modules/innovate/features_builder/${username}/${projectname}"
+drush @innovate.${sitename} vset features_builder_prefix_label ${projectname}
+drush @innovate.${sitename} vset features_builder_prefix_name ${projectname}
+# build this directory
 drush @innovate.${sitename} fb --y
+# now enable all these features produced in the event that they aren't
+drush @innovate.${sitename} en ${projectname}_* --y
 # @todo copy these over since we should be able to find them
-# cp -R $elmsln/domains/${sitename}/sites/all/modules/build/* modules/features/
-# @todo finisht his DDT statement so we can store that
-drush @none ddt @innovate.${sitename}
+cp -R ${elmsln}/domains/innovate/${sitename}/sites/all/modules/_my_modules/innovate/features_builder/${username}/${projectname}/* modules/features/
+# rip an example DDT command to a file just to do it
+drush @none ddt @innovate.${sitename} --test-run > ${username}-${projectname}.recipe 2>&1
 # back out to the top git repo
-cd ~/innovations
-git add -a
+cd ~/wildwest
+git add -A
 # git commit credit the author so others can see who these innovators are
-git commit -m "A new innovation called ${projectname} is knocking" --author="${username}"
-# push to the repo branch we made
-git push origin "${username}-${projctname}"
-git request-pull https://github.com/elmsln/innovations.git "${username}-${projctname}":master
+git commit -m "A new innovation called ${projectname} is knocking"
+# push to the repo branch we made in the wildwest
+git push origin "${username}-${projectname}"
+# now issue a PR against the trusted repo
+hub pull-request -f -m "A new innovation called ${projectname} is knocking" "${username}-${projectname}" -b elmsln/innovations:master
+elmslnecho "Innovation pushed to github!"
