@@ -77,8 +77,8 @@ if [ ! -d "$elmsln/core/dslmcode/profiles/${distro}-${version}" ]; then
   renames=('.travis.yml' 'drupal-org.make' 'local.make.example' 'drecipes/elmsln_ulmus.drecipe' 'ulmus.info' 'ulmus.install' 'ulmus.profile' 'themes/SUB_foundation_access/SUB_foundation_access.info' 'themes/SUB_foundation_access/css/SUB_styles.css' 'themes/SUB_foundation_access/template.php')
   for rename in "${renames[@]}"
     do
-    sed -i '' "s/ulmus/$distro/g" $rename
-    sed -i '' "s/SUB/$distro/g" $rename
+    sed -i "s/ulmus/$distro/g" $rename
+    sed -i "s/SUB/$distro/g" $rename
   done
   mv ulmus.info $distro.info
   mv ulmus.profile $distro.profile
@@ -90,15 +90,15 @@ if [ ! -d "$elmsln/core/dslmcode/profiles/${distro}-${version}" ]; then
   # add into the file the correct depdendencies for these
   if [ $tooltype == 'authority' ];
     then
-    sed -i '' "s/\;dependencies\[\] = cis_course_authority/dependencies\[\] = cis_course_authority/g" ${distro}.info
+    sed -i "s/\;dependencies\[\] = cis_course_authority/dependencies\[\] = cis_course_authority/g" ${distro}.info
   fi
   # service don't change anything abnormal
   if [ $tooltype == 'service' ];
     then
-    sed -i '' "s/elmslntype = \"authority\"/elmslntype = \"service\"/g" ${distro}.info
-    sed -i '' "s/\;dependencies\[\] = og/dependencies\[\] = og/g" ${distro}.info
-    sed -i '' "s/\;dependencies\[\] = og_ui/dependencies\[\] = og_ui/g" ${distro}.info
-    sed -i '' "s/\;dependencies\[\] = cis_section/dependencies\[\] = cis_section/g" ${distro}.info
+    sed -i "s/elmslntype = \"authority\"/elmslntype = \"service\"/g" ${distro}.info
+    sed -i "s/\;dependencies\[\] = og/dependencies\[\] = og/g" ${distro}.info
+    sed -i "s/\;dependencies\[\] = og_ui/dependencies\[\] = og_ui/g" ${distro}.info
+    sed -i "s/\;dependencies\[\] = cis_section/dependencies\[\] = cis_section/g" ${distro}.info
   fi
 fi
 
