@@ -13,8 +13,30 @@ function ulmus_innovate_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
   );
+  $items['ulmus/submit-idea'] = array(
+    'title' => t('Submit your idea to Innovate!'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_ulmus_submit_your_idea'),
+    'access arguments' => array('submit innovative idea'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'menu-elmsln-settings',
+    'weight' => -10,
+  );
 
   return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function ulmus_innovate_permission() {
+  return array(
+    'submit innovative idea' =>  array(
+      'title' => t('Submit idea to Innovate'),
+      'description' => t('This allows for bundling the current site\'s configuration and submitting it to the ELMSLN Distributed Innovations repository for review.'),
+      'restrict access' => TRUE,
+    ),
+  );
 }
 
 /**
@@ -25,3 +47,66 @@ function _ulmus_your_idea() {
   $output = '<p>' . t("While most online learning technology provides an answer, this space is designed as a question. How can your pedagogy be realized and extended? Think of this space as a blank slate. You can build, experiment, and test your ideas, with much of the heavy lifting done by the ELMS Learning Network platform.") . '</p><p>' . t("It doesn't matter if you aren't an expert, there are tons of Drupal 7 tutorials on the internet that revolve around site building. The key areas where you can really craft anything revolve around 'Views' or the display and output of content, and content types or the organization of data. Using these two concepts, the ELMSLN core development team has been able to build all that you see in the rest of the system.") . '</p><p>' . t("When you are ready, access the administrative menu at the top. It can be hidden with the Tilde (~) key. As a general rule of thumb, do your best to avoid duplication of content and capabilities provided by other parts of ELMS Learning Network. If you want to show us your work once you've finished, <a href='https://github.com/elmsln/elmsln/issues/new'>open a new issue in the Github issue queue</a>. Happy making!") . '</p>';
   return $output;
 }
+
+/**
+ * Page callback for ulmus/submit-idea
+ */
+function _ulmus_submit_your_idea($form, &$form_state) {
+  $form['author'] = array(
+    '#type' => 'textfield',
+    '#title' => t('User name'),
+    '#size' => 12,
+    '#maxlength' => 12,
+    '#description' => t('Possibly a github user name if you have one or other popular screenname.'),
+    '#required' => TRUE,
+  );
+  $form['project'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name this innovation'),
+    '#size' => 12,
+    '#maxlength' => 12,
+    '#description' => t('Something short and sweet so people might know what this is.'),
+    '#required' => TRUE,
+  );
+  $form['statement'] = array(
+    '#type' => 'markup',
+    '#markup' => t('I understand that this is going to turn my current site into a creation that will be submitted to a public repository. The code in this repo is governed under <a href="https://opensource.org/licenses/GPL-3.0" target="_blank">GPL 3</a> as ELMSLN is being used to self-author its own code / configuration. Submission does not gaurentee that this will be accepted into the project as a whole but it doesn\'t hurt. I also will not abuse or flood the innovation system because I want to make the world a better, more open place.'),
+  );
+  $form['accept'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('I accept these terms'),
+    '#default_value' => FALSE,
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#submit' => array('_ulmus_submit_your_idea_submit'),
+  );
+  return $form;
+}
+
+/**
+ * Submit callback for ulmus/submit-idea
+ */
+function _ulmus_submit_your_idea_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  // the symlink that this will run out of is actually our site to target
+  $site = str_replace('/', '', base_path());
+  // clean up and machine name these values that they input
+  $project = check_plain(preg_replace("/[^a-z_0-9]+/", "", drupal_strtolower($values['project'])));
+  $author = check_plain(preg_replace("/[^a-z_0-9]+/", "", drupal_strtolower($values['author'])));
+  // hardcoded for now
+  $version = '7.x';
+  // ensure that user already exists in all targets before adding role to nothing
+  $commands[] = array(
+    'target' => array('@innovate.' . $site),
+    'args' => array('elmsln-trigger-innovate', $site, $project, $author, $version),
+  );
+  // ensure our task runner was able to write to the file
+  // this doesn't ensure its processed but at least puts it in position
+  if ($uuid = _cis_connector_drush_task_runner($commands)) {
+    drupal_set_message(t('Your innovation is now processing! Look for it to show up in the <a href="https://github.com/elmsln/innovations/pulls">innovation pull request queue</a> in a few minutes.'), 'status');
+  }
+}
+
