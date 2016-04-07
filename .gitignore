@@ -3,7 +3,7 @@ _notes
 _notes/
 .DS_Store
 config/*
-config/
+config
 .git
 .vagrant
 sftp-config.json
