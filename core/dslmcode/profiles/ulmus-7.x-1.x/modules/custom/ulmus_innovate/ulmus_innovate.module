@@ -55,16 +55,16 @@ function _ulmus_submit_your_idea($form, &$form_state) {
   $form['author'] = array(
     '#type' => 'textfield',
     '#title' => t('User name'),
-    '#size' => 12,
-    '#maxlength' => 12,
+    '#size' => 15,
+    '#maxlength' => 15,
     '#description' => t('Possibly a github user name if you have one or other popular screenname.'),
     '#required' => TRUE,
   );
   $form['project'] = array(
     '#type' => 'textfield',
     '#title' => t('Name this innovation'),
-    '#size' => 12,
-    '#maxlength' => 12,
+    '#size' => 20,
+    '#maxlength' => 20,
     '#description' => t('Something short and sweet so people might know what this is.'),
     '#required' => TRUE,
   );
