@@ -399,6 +399,8 @@ drush cc drush
 # travis can't do these kind of modifications so drop running them
 if [[ $HOME != '/home/travis' ]]; then
   bash /var/www/elmsln/scripts/install/root/elmsln-create-accounts.sh
+  # apply ssh settings for innovate contributions
+  bash /var/www/elmsln/scripts/utilities/ssh/apply-ssh.sh
   # ensure that the ulmus user doesn't need a tty in order to run
   # this ensures that #491 works correctly
   echo '# ELMSLN users dont need tty' >> /etc/sudoers
