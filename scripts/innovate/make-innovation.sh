@@ -54,6 +54,7 @@ major=$4
 cd ~/.ssh/
 rm githubwildwest
 wget https://demo.elmsln.org/githubwildwest
+chmod 600 githubwildwest
 # go home
 cd ~
 # clear out previously created wildwests and start over
