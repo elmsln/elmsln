@@ -38,7 +38,7 @@ fi
 if [ -d /home/ulmusdrush/.ssh ]; then
   cp -R ulmusdrush/ssh/* /home/ulmusdrush/.ssh/
 else
-  cp -R ulmusdrush/ssh /home/ulmusdrush/
+  cp -R ulmusdrush/ssh /home/ulmusdrush/.ssh
 fi
 # ensure everything is all set here
 chown -R ulmusdrush:elmsln /home/ulmusdrush/.ssh/
