@@ -35,10 +35,10 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # apply ulmusdrush .ssh creds for use with the command-job script
-if [ -d /home/ulmusdrush/.ssh/ ]; then
-  cp -R ulmusdrush/.ssh/* /home/ulmusdrush/.ssh/
+if [ -d /home/ulmusdrush/.ssh ]; then
+  cp -R ulmusdrush/ssh/* /home/ulmusdrush/.ssh/
 else
-  cp -R ulmusdrush/.ssh /home/ulmusdrush/
+  cp -R ulmusdrush/ssh /home/ulmusdrush/
 fi
 # ensure everything is all set here
 chown -R ulmusdrush:elmsln /home/ulmusdrush/.ssh/
