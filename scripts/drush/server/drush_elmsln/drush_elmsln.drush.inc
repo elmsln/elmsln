@@ -15,6 +15,8 @@ function drush_elmsln_drush_help($section) {
       return dt('ELMSLN send data back to base');
     case 'drush:elmsln-add-stack-instance-container':
       return dt('ELMSLN create a new stub within the instance stacks to be able to support new tools without getting into git VC hell (potential).');
+    case 'drush:elmsln-trigger-innovate':
+      return dt('Trigger the innovate script to fire');
   }
 }
 
@@ -35,6 +37,17 @@ function drush_elmsln_drush_command() {
     'callback' => 'drush_elmsln_add_stack_instance_container',
     'description' => dt('Add a new stack to the config instances area. This will figure out what needs to be added and provide defaults that make sense.'),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
+  );
+  $items['elmsln-trigger-innovate'] = array(
+    'callback' => 'drush_elmsln_trigger_innovate',
+    'description' => dt('Trigger the innovate script to run'),
+    'arguments' => array(
+      'site' => dt('Site to run this against in the script'),
+      'project' => dt('Project machine name for this innovation'),
+      'author' => dt('The username of the author of this'),
+      'version' => dt('Drupal major project version like 7.x'),
+    ),
+    'bootstrap' => DRUSH_BOOTSTRAP_MAX,
   );
   return $items;
 }
@@ -103,4 +116,15 @@ function drush_elmsln_call_home($type = NULL) {
     drush_print('future functionality');
     break;
   }
+}
+
+/**
+ * Trigger the innovation script to fire.
+ * @param  string $site    site to target
+ * @param  string $project machine name of a project
+ * @param  string $author  username
+ * @param  string $version 7.x
+ */
+function drush_elmsln_trigger_innovate($site, $project, $author, $version) {
+  exec("bash /var/www/elmsln/scripts/innovate/make-innovation.sh $site $project $author $version");
 }
