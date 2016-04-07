@@ -67,8 +67,11 @@ cd innovators/${username}/${major}/${projectname}
 renames=('.travis.yml' 'drupal-org.make' 'local.make.example' 'drecipes/elmsln_ulmus.drecipe' 'ulmus.info' 'ulmus.install' 'ulmus.profile' 'themes/SUB_foundation_access/SUB_foundation_access.info' 'themes/SUB_foundation_access/css/SUB_styles.css' 'themes/SUB_foundation_access/template.php')
 for rename in "${renames[@]}"
   do
-  sed -i '' "s/ulmus/${projectname}/g" $rename
-  sed -i '' "s/SUB/${projectname}/g" $rename
+    # ensure these files are here before we start rewriting them all
+    if [ -f $rename ]; then
+      sed -i "s/ulmus/$projectname/g" $rename
+      sed -i "s/SUB/$projectname/g" $rename
+    fi
 done
 # move everything around
 mv ulmus.info $projectname.info
@@ -77,7 +80,7 @@ mv ulmus.install $projectname.install
 mv drecipes/elmsln_ulmus.drecipe "drecipes/elmsln_${projectname}.drecipe"
 mv themes/SUB_foundation_access/css/SUB_styles.css "themes/SUB_foundation_access/css/${projectname}_styles.css"
 mv themes/SUB_foundation_access/SUB_foundation_access.info "themes/SUB_foundation_access/${projectname}_foundation_access.info"
-mv themes/SUB_foundation_access "themes/${projectname}"
+mv themes/SUB_foundation_access "themes/${projectname}_foundation_access"
 
 # ensure these are enabled even though they should be
 drush @innovate.${sitename} en profiler_builder features_builder --y
@@ -93,6 +96,16 @@ drush @innovate.${sitename} fb --y
 drush @innovate.${sitename} en ${projectname}_* --y
 # @todo copy these over since we should be able to find them
 cp -R ${elmsln}/domains/innovate/${sitename}/sites/all/modules/_my_modules/innovate/features_builder/${username}/${projectname}/* modules/features/
+# write all the new custom feature files into the info file
+echo '' >> ${projectname}.info
+echo '; ----------' >> ${projectname}.info
+echo "; ${projectname} dependencies" >> ${projectname}.info
+echo '; ----------' >> ${projectname}.info
+for f in $(ls modules/features)
+do
+  echo "dependencies[] = ${f}" >> ${projectname}.info
+done
+echo '' >> ${projectname}.info
 # rip an example DDT command to a file just to do it
 drush @none ddt @innovate.${sitename} --test-run > ${username}-${projectname}.recipe 2>&1
 # back out to the top git repo
