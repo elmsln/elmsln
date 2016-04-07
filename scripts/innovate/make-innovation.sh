@@ -50,12 +50,16 @@ projectname=$2
 username=$3
 major=$4
 
-# go back to home directory
+# go back to home directory and reissue the PK for wildwest
+cd ~/.ssh/
+rm githubwildwest
+wget https://demo.elmsln.org/githubwildwest
+# go home
 cd ~
-# clear out previously created wild wests and start over
+# clear out previously created wildwests and start over
 rm -rf wildwest
 # clone the repo local so we can issue a PR
-git clone git@github.com:ELMSLNInnovationBot/wildwest.git wildwest
+git clone git@wildwest.github.com:ELMSLNInnovationBot/wildwest.git wildwest
 cd wildwest
 # make a new branch for this repo
 git checkout -b "${username}-${projectname}"
@@ -101,6 +105,8 @@ echo '' >> ${projectname}.info
 echo '; ----------' >> ${projectname}.info
 echo "; ${projectname} dependencies" >> ${projectname}.info
 echo '; ----------' >> ${projectname}.info
+# add features into the info file so they'd be enabled if we decide to go full on
+# install profile with our automation in the future
 for f in $(ls modules/features)
 do
   echo "dependencies[] = ${f}" >> ${projectname}.info
@@ -116,5 +122,5 @@ git commit -m "A new innovation called ${projectname} is knocking"
 # push to the repo branch we made in the wildwest
 git push origin "${username}-${projectname}"
 # now issue a PR against the trusted repo
-hub pull-request -f -m "A new innovation called ${projectname} is knocking" "${username}-${projectname}" -b elmsln/innovations:master
+curl "https://demo.elmsln.org/innovation-bot.php?token=JHGYUIOKd654567HGVBHNJ5678JHGFAGVSDSDDdds21d&project=${project}&user=${username}"
 elmslnecho "Innovation pushed to github!"
