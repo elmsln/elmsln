@@ -123,5 +123,5 @@ git commit -m "A new innovation called ${projectname} is knocking"
 # push to the repo branch we made in the wildwest
 git push origin "${username}-${projectname}"
 # now issue a PR against the trusted repo
-curl "https://demo.elmsln.org/innovation-bot.php?token=JHGYUIOKd654567HGVBHNJ5678JHGFAGVSDSDDdds21d&project=${project}&user=${username}"
+curl "https://demo.elmsln.org/innovation-bot.php?token=JHGYUIOKd654567HGVBHNJ5678JHGFAGVSDSDDdds21d&project=${projectname}&user=${username}"
 elmslnecho "Innovation pushed to github!"
