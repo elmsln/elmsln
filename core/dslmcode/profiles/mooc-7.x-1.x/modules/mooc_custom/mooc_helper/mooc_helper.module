@@ -402,7 +402,10 @@ function _mooc_helper_book_homepage_redirect() {
     }
   }
   else {
-    // if there are no results then just redirect to the homepage
+    // if there are no results then remove the section context and
+    // just redirect to the userpage
+    unset($_SESSION['cis_section_context']);
+    watchdog('mooc_helper', 'The %current_section context was unset for this user to prevent redirect loop.', array('%current_selection' => $current_section), WATCHDOG_NOTICE, 'link');
     drupal_goto('/', array(), 307);
   }
 }
