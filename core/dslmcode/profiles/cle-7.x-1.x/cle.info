@@ -129,8 +129,6 @@ dependencies[] = cis_section
 ; ----------
 ; CLE Dependencies
 ; ----------
-; Assessment entity
-dependencies[] = assessment_entity
 ; CLE
 dependencies[] = cle_require_profile
 dependencies[] = cle_helper
@@ -177,7 +175,6 @@ dependencies[] = cle_cis_ux
 dependencies[] = cle_assignment
 dependencies[] = cle_section_assigmement
 dependencies[] = cle_submission
-dependencies[] = cle_submission_assessment
 dependencies[] = cle_critique
 dependencies[] = cle_perms
 dependencies[] = elmsln_student_filter
