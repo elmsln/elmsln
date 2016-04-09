@@ -80,30 +80,6 @@ function ecd_ux_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-elmsln-navigation_courses:courses',
   );
-  // Exported menu link: menu-elmsln-navigation_access-requests:admin/structure/entityform_types/manage/system_access_request/submissions
-  $menu_links['menu-elmsln-navigation_access-requests:admin/structure/entityform_types/manage/system_access_request/submissions'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'admin/structure/entityform_types/manage/system_access_request/submissions',
-    'router_path' => 'admin/structure/entityform_types/manage/%/submissions',
-    'link_title' => 'Access requests',
-    'options' => array(
-      'identifier' => 'menu-elmsln-navigation_access-requests:admin/structure/entityform_types/manage/system_access_request/submissions',
-      'attributes' => array(),
-      'item_attributes' => array(
-        'id' => '',
-        'class' => '',
-        'style' => '',
-      ),
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -50,
-    'customized' => 1,
-    'parent_identifier' => 'menu-elmsln-navigation_systems:ecd-systems',
-  );
   // Exported menu link: menu-elmsln-navigation_bulk-update:courses/bulk-update
   $menu_links['menu-elmsln-navigation_bulk-update:courses/bulk-update'] = array(
     'menu_name' => 'menu-elmsln-navigation',
@@ -175,24 +151,6 @@ function ecd_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-navigation_documentation:asset/documentation
-  $menu_links['menu-elmsln-navigation_documentation:asset/documentation'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'asset/documentation',
-    'router_path' => 'asset/documentation',
-    'link_title' => 'Documentation',
-    'options' => array(
-      'identifier' => 'menu-elmsln-navigation_documentation:asset/documentation',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -50,
-    'customized' => 1,
-    'parent_identifier' => 'menu-elmsln-navigation_assets:assets',
-  );
 
   // Translatables
   // Included for use with string extractors like potx.
@@ -201,7 +159,6 @@ function ecd_ux_menu_default_menu_links() {
   t('Compliance');
   t('Course access request');
   t('Courses');
-  t('Documentation');
   t('System access request');
 
   return $menu_links;
