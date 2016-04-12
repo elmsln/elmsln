@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Assessment Evaluation feature.
+ */
+
+include_once 'assessment_evaluation.features.inc';

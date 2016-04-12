@@ -142,6 +142,7 @@ dependencies[] = assessment_assignment
 dependencies[] = assessment_gradebook
 dependencies[] = assessment_gradebook_ux
 dependencies[] = assessment_ux
+dependencies[] = assessment_evaluation
 dependencies[] = assessment_helper
 dependencies[] = assessment_perms
 

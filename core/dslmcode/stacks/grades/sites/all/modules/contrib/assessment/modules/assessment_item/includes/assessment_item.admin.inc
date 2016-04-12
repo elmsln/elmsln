@@ -76,11 +76,50 @@ function assessment_item_form($form, &$form_state, $assessment_item, $op = 'edit
   // Add the default field elements.
   $form['label'] = array(
     '#type' => 'textfield',
-    '#title' => t('Assessment Item Label'),
+    '#title' => t('Label'),
     '#default_value' => isset($assessment_item->label) ? $assessment_item->label : '',
     '#maxlength' => 255,
     '#required' => TRUE,
-    '#weight' => -5,
+    '#weight' => -10,
+  );
+  $form['url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL'),
+    '#default_value' => isset($assessment_item->url) ? $assessment_item->url : '',
+    '#maxlength' => 255,
+    '#required' => TRUE,
+    '#weight' => -10,
+  );
+  // assemble the status's we allow
+  $options = array();
+  $indicators = _assessment_gradebook_get_status_indicators();
+  foreach ($indicators as $key => $indicator) {
+    $options[$key] = $indicator['title'];
+  }
+  $form['status'] = array(
+    '#type' => 'select',
+    '#title' => t('Status'),
+    '#options' => $options,
+    '#default_value' => isset($assessment_item->status) ? $assessment_item->status : 'submission_unsubmitted',
+    '#maxlength' => 255,
+    '#required' => TRUE,
+    '#weight' => -10,
+  );
+  $form['remote_uuid'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Remote UUID'),
+    '#default_value' => isset($assessment_item->remote_uuid) ? $assessment_item->remote_uuid : '',
+    '#maxlength' => 255,
+    '#required' => TRUE,
+    '#weight' => -10,
+  );
+  $form['student'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Student uid'),
+    '#default_value' => isset($assessment_item->student) ? $assessment_item->student : '',
+    '#maxlength' => 255,
+    '#required' => TRUE,
+    '#weight' => -10,
   );
 
   // Add the field related form elements.

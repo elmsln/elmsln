@@ -22,10 +22,7 @@ function assessment_ux_field_group_info() {
   $field_group->data = array(
     'label' => 'Debug',
     'weight' => '7',
-    'children' => array(
-      0 => 'field_remote_item_uuid',
-      1 => 'field_grades_instructor',
-    ),
+    'children' => array(),
     'format_type' => 'htab',
     'format_settings' => array(
       'formatter' => 'closed',
@@ -79,11 +76,11 @@ function assessment_ux_field_group_info() {
     'weight' => '0',
     'children' => array(
       0 => 'group_grade_debug',
-      1 => 'group_gradesdetails',
+      1 => 'group_gradesassessment',
       2 => 'group_gradesassignment',
-      3 => 'group_gradessubmission',
+      3 => 'group_gradesdetails',
       4 => 'group_gradesstudent',
-      5 => 'group_gradesassessment',
+      5 => 'group_gradessubmission',
     ),
     'format_type' => 'htabs',
     'format_settings' => array(
@@ -140,8 +137,7 @@ function assessment_ux_field_group_info() {
     'label' => 'Assessment',
     'weight' => '3',
     'children' => array(
-      0 => 'field_grades_point_value',
-      1 => 'field_assessment_status',
+      0 => 'field_evaluation_ref',
     ),
     'format_type' => 'htab',
     'format_settings' => array(
@@ -304,9 +300,7 @@ function assessment_ux_field_group_info() {
   $field_group->data = array(
     'label' => 'Student',
     'weight' => '4',
-    'children' => array(
-      0 => 'field_grades_student',
-    ),
+    'children' => array(),
     'format_type' => 'htab',
     'format_settings' => array(
       'formatter' => 'closed',
@@ -358,9 +352,7 @@ function assessment_ux_field_group_info() {
   $field_group->data = array(
     'label' => 'Submission',
     'weight' => '2',
-    'children' => array(
-      0 => 'field_remote_submission',
-    ),
+    'children' => array(),
     'format_type' => 'htab',
     'format_settings' => array(
       'formatter' => 'closed',

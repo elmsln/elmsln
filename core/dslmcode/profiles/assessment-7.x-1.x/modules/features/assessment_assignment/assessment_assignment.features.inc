@@ -17,6 +17,14 @@ function assessment_assignment_default_cer() {
     "cer_weight" : { "und" : [ { "value" : "0" } ] },
     "identifier" : "node:assessment_assignment:field_grades_course_ref*node:cis_course:field_grades_assignments_ref"
   }');
+  $items['node:assessment_assignment:og_group_ref*node:section:field_grades_assignments_ref'] = entity_import('cer', '{
+    "cer_bidirectional" : { "und" : [ { "value" : "1" } ] },
+    "cer_enabled" : { "und" : [ { "value" : "1" } ] },
+    "cer_left" : { "und" : [ { "path" : "node:assessment_assignment:og_group_ref" } ] },
+    "cer_right" : { "und" : [ { "path" : "node:section:field_grades_assignments_ref" } ] },
+    "cer_weight" : { "und" : [ { "value" : "0" } ] },
+    "identifier" : "node:assessment_assignment:og_group_ref*node:section:field_grades_assignments_ref"
+  }');
   return $items;
 }
 

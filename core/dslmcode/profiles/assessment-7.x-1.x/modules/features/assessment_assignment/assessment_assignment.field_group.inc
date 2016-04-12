@@ -21,11 +21,11 @@ function assessment_assignment_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Evidence',
-    'weight' => '2',
+    'weight' => '1',
     'children' => array(
-      0 => 'field_evidence',
-      1 => 'field_xapi_statements',
-      2 => 'field_elmsln_system',
+      0 => 'field_elmsln_system',
+      1 => 'field_evidence',
+      2 => 'field_xapi_statements',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -53,10 +53,10 @@ function assessment_assignment_field_group_info() {
     'label' => 'Logistics',
     'weight' => '3',
     'children' => array(
-      0 => 'og_group_ref',
-      1 => 'field_number',
-      2 => 'field_color',
-      3 => 'field_grades_course_ref',
+      0 => 'field_color',
+      1 => 'field_grades_course_ref',
+      2 => 'field_number',
+      3 => 'og_group_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

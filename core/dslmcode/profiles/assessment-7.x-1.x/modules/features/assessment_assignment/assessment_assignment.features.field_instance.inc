@@ -78,7 +78,7 @@ function assessment_assignment_field_default_field_instances() {
         'rows' => 10,
       ),
       'type' => 'text_textarea',
-      'weight' => 1,
+      'weight' => 2,
     ),
   );
 
@@ -128,7 +128,7 @@ function assessment_assignment_field_default_field_instances() {
       'module' => 'jquery_colorpicker',
       'settings' => array(),
       'type' => 'jquery_colorpicker',
-      'weight' => 14,
+      'weight' => 16,
     ),
   );
 
@@ -305,7 +305,7 @@ There is no data based evidence (example: in class attendence / physical project
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 11,
+      'weight' => 14,
     ),
   );
 
@@ -550,7 +550,7 @@ There is no data based evidence (example: in class attendence / physical project
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 12,
+      'weight' => 15,
     ),
   );
 

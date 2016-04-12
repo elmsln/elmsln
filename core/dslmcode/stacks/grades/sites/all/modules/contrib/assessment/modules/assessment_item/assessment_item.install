@@ -34,6 +34,33 @@ function assessment_item_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'url' => array(
+        'description' => 'The url that the submission was made on.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'Status of this assessment item',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'remote_uuid' => array(
+        'type' => 'char',
+        'length' => 36,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The Remote Universally Unique Identifier.',
+      ),
+      'student' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "User's {users}.uid.",
+      ),
       'created' => array(
         'description' => 'The Unix timestamp when the Assessment Item was created.',
         'type' => 'int',

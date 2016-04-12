@@ -60,7 +60,10 @@ function assessment_gradebook_grid_form($form, &$form_state) {
     return $form;
   }
   else {
-    $field_conditions = array('og_user_node' => array('target_id', $query['sections'], 'IN'));
+    $field_conditions = array(
+      'og_user_node' => array('target_id', $query['sections'], 'IN'),
+      '__role' => _cis_connector_role_groups('learner'),
+    );
   }
   // pull together the users
   $students = _cis_connector_assemble_entity_list('user', 'user', 'uid', 'name', $field_conditions);
@@ -74,13 +77,20 @@ function assessment_gradebook_grid_form($form, &$form_state) {
   );
   // pull assignments you should use
   $alist = array();
+  $assignments = array();
+  // loop through the available section nodes
   foreach ($snodes as $snode) {
-    foreach ($snode->field_grades_assignments_ref['und'] as $atmp) {
-      $alist[$atmp['target_id']] = $atmp['target_id'];
+    // ensure we have assignments associated to it
+    if (isset($snode->field_grades_assignments_ref['und'])) {
+      foreach ($snode->field_grades_assignments_ref['und'] as $atmp) {
+        $alist[$atmp['target_id']] = $atmp['target_id'];
+      }
     }
   }
   // pull together the assignments
-  $assignments = _cis_connector_assemble_entity_list('node', 'assessment_assignment', 'nid', 'title', array(), array('nid' => array($alist, 'IN')), array('field' => array('field_number' => 'value')));
+  if (!empty($alist)) {
+    $assignments = _cis_connector_assemble_entity_list('node', 'assessment_assignment', 'nid', 'title', array(), array('nid' => array($alist, 'IN')), array('field' => array('field_number' => 'value')));
+  }
   $form['filters']['assignments'] = array(
     '#title' => t('Assignment'),
     '#options' => array('-all-' => t('All')) + $assignments,
@@ -90,17 +100,21 @@ function assessment_gradebook_grid_form($form, &$form_state) {
     '#multiple' => '1',
   );
   // assessment status filter
-  // @todo make this like the old system, just move dots around
-  $field = field_info_field('field_assessment_status');
-  $form['filters']['field_assessment_status'] = array(
+  $status = array();
+  $indicators = _assessment_gradebook_get_status_indicators();
+  foreach ($indicators as $key => $indicator) {
+    $status[$key] = $indicator['title'];
+  }
+  $form['filters']['status'] = array(
     '#required' => '0',
     '#multiple' => '1',
     '#chosen' => TRUE,
     '#key_type_toggled' => '1',
     '#type' => 'select',
-    '#options' => $field['settings']['allowed_values'],
+    '#options' => $status,
     '#multiple_toggle' => '1',
     '#title' => t('Assessment status'),
+    '#post_render' => array('_apply_assessment_status_field'),
   );
 
   // establish defaults for all form items at this point based on query
@@ -153,8 +167,8 @@ function assessment_gradebook_grid_form($form, &$form_state) {
   // loop through users and pull their assignments
   foreach ($students as $uid => $user) {
     // pull together the submissions
-    $field_conditions['field_grades_student'] = array('target_id', $uid);
-    $assessments = _cis_connector_assemble_entity_list('assessment_item', 'graded_item', array('field_assignment_ref', 'target_id'), 'assessment_item_id', $field_conditions);
+    $property_conditions['student'] = array($uid);
+    $assessments = _cis_connector_assemble_entity_list('assessment_item', 'graded_item', array('field_assignment_ref', 'target_id'), 'assessment_item_id', $field_conditions, $property_conditions);
     $row = array(ASSESSMENT_GRADEBOOK_USERNAME_FIELD => $user);
     // set a record per result
     foreach ($assignments as $key => $aid) {

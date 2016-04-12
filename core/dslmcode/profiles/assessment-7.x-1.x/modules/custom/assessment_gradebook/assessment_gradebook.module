@@ -72,23 +72,20 @@ function _assessment_gradebook_ajax_save($token, $aid, $assessmentid) {
         'label' => t('Assessment by @name', array('@name' => $GLOBALS['user']->name))
       );
       $assessment = entity_create('assessment_item', $vals);
-      $assessment->field_assessment_status['und'][0]['value'] = $state;
-      $assessment->field_grades_point_value['und'][0]['value'] = $points;
+      $assessment->status = $state;
       $assessment->field_assignment_ref['und'][0]['target_id'] = $aid;
       entity_save('assessment_item', $assessment);
     }
     else {
       // update an existing item
       $assessment = entity_load_single('assessment_item', $assessmentid);
-      $assessment->field_assessment_status['und'][0]['value'] = $state;
-      $assessment->field_grades_point_value['und'][0]['value'] = $points;
+      $assessment->status = $state;
       entity_save('assessment_item', $assessment);
     }
 
     // structure return data
     $return = array(
-      'state' => $assessment->field_assessment_status['und'][0]['value'],
-      'points' => $assessment->field_grades_point_value['und'][0]['value'],
+      'state' => $assessment->status,
     );
     // edge case for backtostudent state to reflect on dashboard
     if ($backtostudent) {
@@ -161,8 +158,7 @@ function _assessment_gradebook_submission_evaluation_callback() {
     if (count($id) !== 0) {
       $aid = array_pop($id);
       $entity = entity_load_single($type, $aid);
-      $default_state = $entity->field_assessment_status['und'][0]['value'];
-      $default_points = $entity->field_grades_point_value['und'][0]['value'];
+      $default_state = $entity->status;
     }
     else {
       $default_state = '';
@@ -170,7 +166,7 @@ function _assessment_gradebook_submission_evaluation_callback() {
     }
     // edge case, work has been marked as pushed back to student
     // this status overrides the assessment state
-    if ($submission->field_assessment_status['und'][0]['value'] == 'submission_needs_work') {
+    if ($submission->status == 'submission_needs_work') {
       $default_state = 'submission_needs_work';
     }
 
@@ -350,9 +346,9 @@ function _assessment_gradebook_assessment_status($assessment, $format = 'alt') {
   // check that we have an assessment and that submission hasn't been returned
   // to the student to do additional work. After they'd set it back to ready
   // then the indicator light would switch to the assessment state.
-  if (!empty($assessment) && $assessment->field_assessment_status['und'][0]['value'] != 'submission_needs_work') {
-    $status = $assessment->field_assessment_status['und'][0]['value'];
-    $student = user_load($assessment->field_grades_student['und'][0]['target_id']);
+  if (!empty($assessment) && $assessment->status != 'submission_needs_work') {
+    $status = $assessment->status;
+    $student = user_load($assessment->student);
     $name = $student->name;
   }
   else {
@@ -390,9 +386,6 @@ function assessment_gradebook_gradebook_status_indicators() {
     'submission_unsubmitted' => array(
       'title' => t('Submission unsubmitted'),
     ),
-    'submission_in_progress' => array(
-      'title' => t('Submission in progress'),
-    ),
     'submission_ready' => array(
       'title' => t('Submission ready'),
     ),
@@ -403,13 +396,13 @@ function assessment_gradebook_gradebook_status_indicators() {
       'title' => t('Assessment started'),
     ),
     'assessment_complete' => array(
-      'title' => t('Assessment complete'),
+      'title' => t('Assessment completed by instructor'),
     ),
     'assessment_available' => array(
-      'title' => t('Assessment available'),
+      'title' => t('Assessment available to student'),
     ),
     'assessment_viewed' => array(
-      'title' => t('Assessment viewed'),
+      'title' => t('Assessment viewed by student'),
     ),
   );
   // add in the icon keys
@@ -431,4 +424,22 @@ function _assessment_gradebook_get_status_indicators() {
     drupal_alter('gradebook_status_indicators', $indicators);
   }
   return $indicators;
+}
+
+/**
+ * Callback to apply status indicator lights to a field.
+ * @param  string $render   the field in question
+ * @param  array $children  original render array
+ * @return string           html of the field
+ */
+function _apply_assessment_status_field($render, $children) {
+  $indicators = _assessment_gradebook_get_status_indicators();
+  // loop through the indicators
+  foreach ($indicators as $key => $status) {
+    $text = t('status: @status', array('@status' => $status['title']));
+    $img = "<img src=\"" . base_path() . $status['icon'] . "\" title=\"$text\" alt=\"$text\" width=\"16px\" height=\"16px\" class=\"indicator-light assessment-submission-$key\">";
+    // replace the title with the title and status light
+    $render = str_replace($status['title'], $img . $status['title'], $render);
+  }
+  return $render;
 }

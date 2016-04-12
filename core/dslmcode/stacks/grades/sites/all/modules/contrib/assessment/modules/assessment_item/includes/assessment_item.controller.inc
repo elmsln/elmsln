@@ -24,6 +24,10 @@ class AssessmentItemController extends EntityAPIController {
       'assessment_item_id' => '',
       'is_new' => TRUE,
       'label' => '',
+      'url' => '',
+      'status' => '',
+      'remote_uuid' => '',
+      'student' => 0,
     );
 
     $entity = parent::create($values);
