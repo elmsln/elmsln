@@ -1280,6 +1280,13 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   if ($entity_type != 'user') {
     $query->entityCondition('bundle', $bundle);
   }
+  else {
+    // special clause for roles as EFQs don't do user role relation
+    if (isset($field_conditions['__role'])) {
+      $roles = $field_conditions['__role'];
+      unset($field_conditions['__role']);
+    }
+  }
   // allow for property conditions
   if (!empty($property_conditions)) {
     // only allowed relationship is simple value field name / value pair
@@ -1353,6 +1360,15 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
     $etids = array_keys($result[$entity_type]);
     // load all the entities in the array
     $elist = entity_load($entity_type, $etids);
+    // special case for user role filtering
+    if (isset($roles)) {
+      foreach($elist as $key => $entity) {
+        // check that this entity has this role associated
+        if (empty(array_intersect_key(array_flip($roles), array_flip($entity->roles)))) {
+          unset($elist[$key]);
+        }
+      }
+    }
     // load entities and build array of id -> title
     foreach ($elist as $entity) {
       // allow for field value as key
