@@ -122,13 +122,19 @@ function cis_section_entity_presave($entity, $type) {
  *
  * This is essentially a list of the current user's groups
  *
- * @param $active_only
+ * @param boolean $active_only
  *   (optional) Whether or not to return only the active sections
  *   this user is a part of.
+ * @param  boolean $strict
+ *   (optional) Whether to enforce node permissions when selecting
+ *   groups. As this function implies EVERYTHING, we default to false
+ *   on strict permissions interpretation. Strict allows for showing
+ *   all the sections that are active, that lower permissioned roles
+ *   actually have access to.
  * @return $sections
  *   array of section key paired as key => name
  */
-function cis_section_all_sections($active_only = FALSE) {
+function cis_section_all_sections($active_only = FALSE, $strict = FALSE) {
   $sections = array();
   // select field section data
   $query = new EntityFieldQuery();
@@ -137,10 +143,12 @@ function cis_section_all_sections($active_only = FALSE) {
   // that are sections
   ->entityCondition('bundle', 'section')
   // that are published
-  ->propertyCondition('status', 1)
+  ->propertyCondition('status', 1);
   // execute this as user 1 to avoid object conflicts
   // especially since we use OG all over the place
-  ->addMetaData('account', user_load(1));
+  if (!$strict) {
+    $query->addMetaData('account', user_load(1));
+  }
   // allow for filtering by active state
   if ($active_only) {
     $query->fieldCondition('field_cis_active', 'value', 1, '=');
