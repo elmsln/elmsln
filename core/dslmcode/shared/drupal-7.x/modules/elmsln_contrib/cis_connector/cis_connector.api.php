@@ -6,6 +6,11 @@
  * This demonstrates some ways you can implement the CIS connect
  * API using real use cases from the original site instance at
  * penn state.
+ *
+ * _cis_connector_assemble_entity_list allows for a quick way of pulling together
+ * a well structured entityfieldquery without having to write it every time.
+ * There's a special array position for __role which allows filtering user
+ * entities by role.
  */
 
 /**
