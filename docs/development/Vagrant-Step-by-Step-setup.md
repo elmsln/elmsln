@@ -80,6 +80,7 @@ This project is based on the [Vagrant Project](http://drupal.org/project/vagrant
 * **Vagrant unison**  
 `vagrant plugin install vagrant-unison` can be used to enable a powerful rsync style method between your local machine and the virtual machine.
 * Unisoned folder support via `unison` over `ssh` -> will work with any vagrant provider, eg Virtualbox or AWS.
+Here’s a video by [@hey__mp talking about how and why it works in ELMSLN](https://www.youtube.com/watch?v=TygjTGeJtAY)
 
 ###Usage
 
