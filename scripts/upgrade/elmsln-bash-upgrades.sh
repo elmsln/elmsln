@@ -66,6 +66,19 @@ vercomp () {
   done
   return 0
 }
+# apply to current user
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/$HOME/.composer/vendor/bin
+elmslnecho 'Update drush for current user'
+bash /var/www/elmsln/scripts/utilities/refresh-drush-config.sh
+# apply to root
+elmslnecho 'Update drush for root'
+su -c 'HOME=/root/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/.composer/vendor/bin bash /var/www/elmsln/scripts/utilities/refresh-drush-config.sh' root
+# apply to ulmusdrush
+elmslnecho 'Update drush for ulmusdrush'
+su -c 'HOME=/home/ulmusdrush/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmusdrush/.composer/vendor/bin bash /var/www/elmsln/scripts/utilities/refresh-drush-config.sh' ulmusdrush
+# apply to ulmus
+elmslnecho 'Update drush for ulmus'
+su -c 'HOME=/home/ulmus/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ulmus/.composer/vendor/bin bash /var/www/elmsln/scripts/utilities/refresh-drush-config.sh' ulmus
 
 # variables for finding versions and doing comparisons
 source_dir="${elmsln}/scripts/upgrade/system"
