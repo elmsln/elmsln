@@ -63,6 +63,8 @@ if [ ! -d "$configsdir/stacks/$domain" ]; then
   mkdir -p "$configsdir/stacks/$domain/sites/default/files"
   cp "$elmsln/core/dslmcode/cores/drupal-7/sites/default/default.settings.php" "$configsdir/stacks/$domain/sites/default/default.settings.php"
   mkdir "$configsdir/stacks/$domain/sites/$domain"
+  # write empty file so this can get picked up by version control
+  touch "$configsdir/stacks/$domain/sites/$domain/README.txt"
   # get favicon in place
   cp "$elmsln/scripts/server/assets/favicon.ico" "$configsdir/stacks/$domain/favicon.ico"
   cp "$elmsln/core/dslmcode/cores/drupal-7/.htaccess" "$configsdir/stacks/$domain/.htaccess"
