@@ -99,7 +99,7 @@ if [ ! -d "$elmsln/core/dslmcode/profiles/${distro}-${version}" ]; then
     sed -i '' "s/elmslntype = \"service\"/elmslntype = \"authority\"/g" ${distro}.info
   fi
   # rewrite to disable this
-  sed -i '' "s/dependencies\[\] = ulmus_innovate/\;dependencies\[\] = ulmus_innovate/g" ${distro}.info
+  sed -i '' "s/dependencies\[\] = ${distro}_innovate/\;dependencies\[\] = ulmus_innovate/g" ${distro}.info
 fi
 
 # remove git in this new place and create a new repo w/ the correct name conventions
