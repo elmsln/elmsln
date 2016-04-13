@@ -15,6 +15,7 @@ dependencies[] = ckeditor_link
 dependencies[] = ctools
 dependencies[] = ds
 dependencies[] = ds_forms
+dependencies[] = uuid
 dependencies[] = elmsln_api
 dependencies[] = entity_iframe
 dependencies[] = entity_iframe_consumer
