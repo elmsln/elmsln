@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the LOR Resource type feature.
+ */
+
+include_once 'lor_resource_type.features.inc';

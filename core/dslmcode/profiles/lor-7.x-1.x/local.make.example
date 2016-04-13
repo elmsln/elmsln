@@ -1,0 +1,32 @@
+; lor make file for local development
+core = "7.x"
+api = "2"
+
+projects[drupal][version] = "7.x"
+; include the d.o. profile base
+includes[] = "drupal-org-core.make"
+includes[] = "drupal-org.make"
+
+projects[textbook][version] = "4.x-dev"
+projects[textbook][subdir] = "contrib"
+projects[accessibility][version] = "1.x-dev"
+projects[accessibility][subdir] = "contrib"
+projects[accessibility][patch][] = "https://www.drupal.org/files/issues/accessibility-2221601-2-features-fix.patch"
+
+; +++++ Libraries +++++
+
+; ckeditor 4.4.6 + codemirror and table resize
+libraries[ckeditor][download][type] = "get"
+libraries[ckeditor][download][url] = "https://github.com/psudug/ckeditor4textbook/archive/4.x.zip"
+libraries[ckeditor][directory_name] = "ckeditor"
+libraries[ckeditor][destination] = "libraries"
+
+
+; lor
+libraries[lor][type] = "profile"
+libraries[lor][destination] = "../../profiles"
+libraries[lor][download][type] = "git"
+libraries[lor][download][branch] = "7.x-1.x"
+libraries[lor][directory_name] = "lor"
+libraries[lor][download][url] = "https://github.com/drupalprojects/lor.git"
+
