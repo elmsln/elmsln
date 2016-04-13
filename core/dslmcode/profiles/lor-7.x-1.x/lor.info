@@ -136,5 +136,7 @@ dependencies[] = cis_course_authority
 ; ----------
 ; lor dependencies
 ; ----------
+dependencies[] = content_taxonomy
+dependencies[] = creative_commons
 dependencies[] = lor_resource_type
 dependencies[] = lor_displays
