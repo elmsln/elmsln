@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the field_example module.
+ */
+/**
+ * Implements hook_field_schema().
+ */
+function creative_commons_field_schema($field){
+  $columns = array(
+    'licence' => array(
+      'type' => 'int',
+      'not null' => FALSE
+    )
+  );
+  $indexes = array(
+    'licence' => array(
+      'licence'
+    )
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes
+  );
+}
