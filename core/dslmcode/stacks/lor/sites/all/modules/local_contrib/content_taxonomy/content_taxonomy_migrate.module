@@ -1,0 +1,64 @@
+<?php
+
+function content_taxonomy_migrate_content_migrate_field_alter(&$field_value, $instance_value) {
+  if ($field_value['type'] == 'content_taxonomy') {
+    $field_value['type'] = 'taxonomy_term_reference';
+    $field_value['module'] = 'taxonomy';
+    
+    // transform field settings
+    $old_settings = $field_value['settings'];
+    $vocabulary = taxonomy_vocabulary_load($old_settings['vid']);
+    $field_value['settings'] = array();
+    $field_value['settings']['allowed_values'] = array();
+    $field_value['settings']['allowed_values'][0]['vocabulary'] = $vocabulary->machine_name;
+    $field_value['settings']['allowed_values'][0]['parent'] = $old_settings['parent'];
+  }
+}
+  
+function content_taxonomy_migrate_content_migrate_instance_alter(&$instance_value, $field_value) {
+  if ($instance_value['widget_type'] == "content_taxonomy_autocomplete") {
+    $instance_value['widget_type'] = 'taxonomy_autocomplete';
+    $instance_value['widget']['type'] = 'taxonomy_autocomplete';
+    $instance_value['widget']['module'] = 'taxonomy';
+  }
+  else if ($instance_value['widget_type'] == "content_taxonomy_options" || $instance_value['widget_type'] == "content_taxonomy_tree") {
+    $instance_value['widget_type'] = 'options_buttons';
+    $instance_value['widget']['type'] = 'options_buttons';
+    $instance_value['widget']['module'] = 'options';
+  }
+  else if ($instance_value['widget_type'] == "content_taxonomy_select" || $instance_value['widget_type'] == 'content_taxonomy_hs') {
+    $instance_value['widget_type'] = 'options_select';
+    $instance_value['widget']['type'] = 'options_select';
+    $instance_value['widget']['module'] = 'options';
+  }
+  
+  // fix formatter
+  foreach ($instance_value['display'] as $context => $settings) {
+    if ($instance_value['display'][$context]['type'] == 'default') {
+      $instance_value['display'][$context]['type'] = 'taxonomy_term_reference_plain';
+    }
+    else if ($instance_value['display'][$context]['type'] == 'link') {
+      $instance_value['display'][$context]['type'] = 'taxonomy_term_reference_link';
+    }
+  }
+}
+
+function content_taxonomy_migrate_content_migrate_data_record_alter(&$record, $field) {
+  // fill the taxonomy_index
+  if ($field['type'] == 'taxonomy_term_reference') {
+    if (variable_get('taxonomy_maintain_index_table', TRUE) && $field['storage']['type'] == 'field_sql_storage' && $record['entity_type'] == 'node') {
+      if (isset($record[$field['field_name'] . "_tid"]) && $record[$field['field_name'] . "_tid"]) {
+        $entity = node_load($record['entity_id']);
+        db_delete('taxonomy_index')->condition('nid', $entity->nid)->condition('tid', $record[$field['field_name'] . "_tid"])->execute();
+        $query = db_insert('taxonomy_index')->fields(array('nid', 'tid', 'sticky', 'created', ));
+        $query->values(array(
+          'nid' => $entity->nid,
+          'tid' => $record[$field['field_name'] . "_tid"],
+          'sticky' => $entity->sticky,
+          'created' => $entity->created,
+        ));
+        $query->execute();
+      }
+    }
+  }
+}
