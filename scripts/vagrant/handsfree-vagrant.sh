@@ -1,7 +1,14 @@
 #!/bin/bash
 # hands free installer for vagrant environment based on cloud deployment 1liners
 yes | yum -y install git
+if [ -z $1 ]; then
+  branch='master'
+else
+  branch=$1
+fi
 git clone https://github.com/elmsln/elmsln.git /var/www/elmsln
+cd /var/www/elmsln
+git checkout $branch
 bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh elmsln ln elmsln.local http admin@elmsln.local yes
 cd $HOME && source .bashrc
 

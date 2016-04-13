@@ -47,6 +47,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # run script as root
   config.vm.provision "shell",
+    args: "master",
     path: "scripts/vagrant/handsfree-vagrant.sh"
 
   # run as the vagrant user
