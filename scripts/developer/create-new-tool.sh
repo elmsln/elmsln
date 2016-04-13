@@ -81,9 +81,9 @@ if [ ! -d "$elmsln/core/dslmcode/profiles/${distro}-${version}" ]; then
   renames=('.travis.yml' 'drupal-org.make' 'local.make.example' 'drecipes/elmsln_ulmus.drecipe' 'ulmus.info' 'ulmus.install' 'ulmus.profile' 'themes/SUB_foundation_access/SUB_foundation_access.info' 'themes/SUB_foundation_access/css/SUB_styles.css' 'themes/SUB_foundation_access/template.php')
   for rename in "${renames[@]}"
     do
-    sed -i "s/ulmus/$distro/g" $rename
-    sed -i "s/SUB/$distro/g" $rename
-    sed -i "s/Innovate/$distro/g" $rename
+    sed -i '' "s/ulmus/$distro/g" $rename
+    sed -i '' "s/SUB/$distro/g" $rename
+    sed -i '' "s/Innovate/$distro/g" $rename
   done
   mv ulmus.info $distro.info
   mv ulmus.profile $distro.profile
@@ -95,11 +95,11 @@ if [ ! -d "$elmsln/core/dslmcode/profiles/${distro}-${version}" ]; then
   # add into the file the correct depdendencies for these
   if [ $tooltype == 'authority' ];
     then
-    sed -i "s/\;dependencies\[\] = cis_course_authority/dependencies\[\] = cis_course_authority/g" ${distro}.info
-    sed -i "s/elmslntype = \"service\"/elmslntype = \"authority\"/g" ${distro}.info
+    sed -i '' "s/\;dependencies\[\] = cis_course_authority/dependencies\[\] = cis_course_authority/g" ${distro}.info
+    sed -i '' "s/elmslntype = \"service\"/elmslntype = \"authority\"/g" ${distro}.info
   fi
   # rewrite to disable this
-  sed -i "s/dependencies\[\] = ulmus_innovate/\;dependencies\[\] = ulmus_innovate/g" ${distro}.info
+  sed -i '' "s/dependencies\[\] = ulmus_innovate/\;dependencies\[\] = ulmus_innovate/g" ${distro}.info
 fi
 
 # remove git in this new place and create a new repo w/ the correct name conventions
