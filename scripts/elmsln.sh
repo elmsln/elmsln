@@ -26,6 +26,14 @@ items=("oops, didn't want to be here" 'show me the sites drush knows about' 'upg
 locations=('' '' 'upgrade/elmsln-upgrade-system.sh' 'upgrade/elmsln-upgrade-sites.sh' '' 'utilities/backup-config.sh' 'utilities/harden-security.sh' 'utilities/refresh-drush-config.sh' 'install/users/elmsln-admin-user.sh' 'upgrade/elmsln-bash-upgrades.sh' 'utilities/add-domain-support.sh' 'drush-create-site/rm-site.sh')
 commands=('' 'drush sa' 'bash' 'bash' 'drush @elmsln sql-dump --result-file --y' 'sudo bash' 'sudo bash' 'bash' 'bash' 'sudo bash' 'sudo bash' 'sudo bash')
 
+# allow for dropping into developer mode if a flag isset
+if [[ ! -z $1 && $1 == 'dev' ]]; then
+  elmslnecho 'DEVELOPER MODE'
+  items+=('Create new tool')
+  locations+=('developer/create-new-tool.sh')
+  commands+=('bash')
+fi
+
 # render the menu options
 menuitems() {
   elmslnecho "Hi I'm Leafy, what would you like me to do for you: "

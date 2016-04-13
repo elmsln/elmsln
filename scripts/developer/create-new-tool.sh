@@ -31,27 +31,31 @@ elmslnwarn(){
 # test for an argument as to what user to write as
 if [ -z $1 ]; then
   elmslnwarn "You must supply a domain to produce"
-  exit 1
+  read domain
+else
+  domain=$1
 fi
 # test for an argument as to what user to write as
 if [ -z $2 ]; then
   elmslnwarn "You must supply a distro to create like inbox"
-  exit 1
+  read distro
+else
+  distro=$2
 fi
 # test for an argument as to what user to write as
 if [ -z $3 ]; then
   elmslnwarn "You must supply the version such as 7.x-1.x."
-  exit 1
+  read version
+else
+  version=$3
 fi
 # test for an argument as to what user to write as
 if [ -z $4 ]; then
   elmslnwarn "You must supply the type of tool this is, authority or service?"
-  exit 1
+  read tooltype
+else
+  tooltype=$4
 fi
-domain=$1
-distro=$2
-version=$3
-tooltype=$4
 
 # check that the config doesn't already exist in the example directory
 if [ ! -d "$configsdir/stacks/$domain" ]; then
@@ -79,6 +83,7 @@ if [ ! -d "$elmsln/core/dslmcode/profiles/${distro}-${version}" ]; then
     do
     sed -i "s/ulmus/$distro/g" $rename
     sed -i "s/SUB/$distro/g" $rename
+    sed -i "s/Innovate/$distro/g" $rename
   done
   mv ulmus.info $distro.info
   mv ulmus.profile $distro.profile
@@ -91,25 +96,20 @@ if [ ! -d "$elmsln/core/dslmcode/profiles/${distro}-${version}" ]; then
   if [ $tooltype == 'authority' ];
     then
     sed -i "s/\;dependencies\[\] = cis_course_authority/dependencies\[\] = cis_course_authority/g" ${distro}.info
+    sed -i "s/elmslntype = \"service\"/elmslntype = \"authority\"/g" ${distro}.info
   fi
-  # service don't change anything abnormal
-  if [ $tooltype == 'service' ];
-    then
-    sed -i "s/elmslntype = \"authority\"/elmslntype = \"service\"/g" ${distro}.info
-    sed -i "s/\;dependencies\[\] = og/dependencies\[\] = og/g" ${distro}.info
-    sed -i "s/\;dependencies\[\] = og_ui/dependencies\[\] = og_ui/g" ${distro}.info
-    sed -i "s/\;dependencies\[\] = cis_section/dependencies\[\] = cis_section/g" ${distro}.info
-  fi
+  # rewrite to disable this
+  sed -i "s/dependencies\[\] = ulmus_innovate/\;dependencies\[\] = ulmus_innovate/g" ${distro}.info
 fi
 
 # remove git in this new place and create a new repo w/ the correct name conventions
 rm -rf .git
-git init
-git checkout -b $version
-git add -A
-git commit -m "initial commit of $distro"
 elmslnecho "issue this for d.o work:"
+elmslnecho "git init"
 elmslnecho "git remote add origin YOU@git.drupal.org:project/$distro.git"
+elmslnecho "git checkout -b $version"
+elmslnecho "git add -A"
+elmslnecho "git commit -m 'initial commit of $distro'"
 elmslnecho "git push origin $version"
 
 # check that it doesn't already exist
