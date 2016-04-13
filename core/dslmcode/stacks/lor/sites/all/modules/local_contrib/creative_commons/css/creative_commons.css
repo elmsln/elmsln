@@ -1,0 +1,13 @@
+@CHARSET "UTF-8";
+
+#block-creative-commons-creative-commons a{
+  float: left;
+}
+
+#block-creative-commons-creative-commons a.cc-large{
+  height: 31px;
+}
+
+#block-creative-commons-creative-commons p{
+  margin-left: 105px;
+}
