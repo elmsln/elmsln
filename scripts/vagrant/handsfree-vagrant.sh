@@ -1,18 +1,30 @@
 #!/bin/bash
 # hands free installer for vagrant environment based on cloud deployment 1liners
 yes | yum -y install git
+
 if [ -z $1 ]; then
+  repo='https://github.com/elmsln/elmsln.git'
+else
+  repo=$1
+fi
+if [ -z $2 ]; then
   branch='master'
 else
-  branch=$1
+  branch=$2
 fi
-git clone https://github.com/elmsln/elmsln.git /var/www/elmsln
+if [ -z $3 ]; then
+  configrepo='https://github.com/elmsln/elmsln-config-vagrant.git'
+else
+  configrepo=$3
+fi
+git clone $repo /var/www/elmsln
 cd /var/www/elmsln
 git checkout $branch
+cd $HOME
 bash /var/www/elmsln/scripts/install/handsfree/centos/centos-install.sh elmsln ln elmsln.local http admin@elmsln.local yes
 cd $HOME && source .bashrc
 
-git clone https://github.com/elmsln/elmsln-config-vagrant.git /var/www/elmsln-config-vagrant
+git clone $configrepo /var/www/elmsln-config-vagrant
 
 # vagrant specific stuff downloaded from vagrant config directory
 cp -R /var/www/elmsln-config-vagrant/scripts/hooks/* /var/www/elmsln/config/scripts/hooks
