@@ -1,0 +1,5 @@
+simplify.admin:
+  title: Simplify
+  description: 'Configure interface simplification (hidden fields) globally.'
+  route_name: simplify.admin
+  parent: system.admin_config_ui

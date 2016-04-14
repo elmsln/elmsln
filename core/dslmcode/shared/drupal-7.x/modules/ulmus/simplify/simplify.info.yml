@@ -1,0 +1,11 @@
+name: Simplify
+type: module
+description: 'Simplifies the user interface by hiding particular fields.'
+package: User interface
+# core: 8.x
+configure: simplify.admin
+# Information added by Drupal.org packaging script on 2015-12-17
+version: '8.x-1.0'
+core: '8.x'
+project: 'simplify'
+datestamp: 1450359247

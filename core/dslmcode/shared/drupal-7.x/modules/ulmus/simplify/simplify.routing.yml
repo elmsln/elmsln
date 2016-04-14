@@ -1,0 +1,7 @@
+simplify.admin:
+  path: '/admin/config/user-interface/simplify'
+  defaults:
+    _form: 'Drupal\simplify\Form\SimplifyAdminForm'
+    _title: 'Simplify'
+  requirements:
+    _permission: 'administer simplify'

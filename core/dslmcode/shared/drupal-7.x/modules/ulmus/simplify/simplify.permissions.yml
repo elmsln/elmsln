@@ -1,0 +1,6 @@
+administer simplify:
+  title: 'Administer simplify'
+  description: 'Administer Simplify module.'
+view hidden fields:
+  title: 'View hidden fields'
+  description: 'Users with this permission will not be affected by Simplify module.'

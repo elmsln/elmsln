@@ -1,0 +1,606 @@
+<?php
+
+use Drupal\Core\Render\Element;
+use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\Entity\Role;
+
+/**
+ * Implements hook_form_FORM_ID_alter() for node_type_form.
+ *
+ * @see simplify_form_node_type_form_submit()
+ */
+function simplify_form_node_type_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $type = $form['type'];
+
+  // Nodes
+  $form['simplify'] = array(
+    '#type' => 'details',
+    '#title' => t('Simplify'),
+    '#description' => t("These fields will be hidden from <em>@type</em> node forms. Disabled checkboxes indicate fields that have been hidden globally on the <a href=\"@global\">Simplify administration page</a>.", array('@type' => $form['name']['#default_value'], '@global' => \Drupal::url('simplify.admin'))),
+    '#access' => \Drupal::currentUser()->hasPermission('administer simplify'),
+    '#group' => 'additional_settings',
+  );
+  $form['simplify']['simplify_nodes'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Simplify the following options'),
+    '#options' => simplify_get_fields('nodes'),
+    '#default_value' => _simplify_get_config_value('simplify_nodes', array(), 'simplify.content_type.' . $type['#default_value']),
+    '#after_build' => array('_simplify_disable_globally_hidden_checkboxes'),
+  );
+
+  // Add custom submit function
+  $form['actions']['submit']['#submit'][] = 'simplify_form_node_type_edit_form_submit';
+}
+
+/**
+ * Form submission handler for node_type_form().
+ *
+ * @see simplify_form_node_type_form_alter()
+ */
+function simplify_form_node_type_edit_form_submit($form, FormStateInterface $form_state) {
+  $content_type = $form_state->getValue('type');
+
+  // Get nodes fields
+  $fields = $form_state->getValue('simplify_nodes');
+  $fields = array_keys(array_filter($fields));
+
+  // Values aren't saved to a variable by default, so do it manually
+  \Drupal::configFactory()->getEditable('simplify.content_type.' . $content_type)
+  ->set('simplify_nodes', $fields)->save();
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for node_type_form.
+ *
+ * @see simplify_form_node_type_form_submit()
+ */
+function simplify_form_comment_type_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $type = $form['id'];
+
+  // Comments
+  $form['comment']['simplify'] = array(
+      '#type' => 'details',
+      '#title' => t('Simplify'),
+      '#description' => t("These fields will be hidden from <em>@type</em> comment forms. Disabled checkboxes indicate fields that have been hidden globally on the <a href=\"@global\">Simplify administration page</a>.", array('@type' => $form['label']['#default_value'], '@global' => \Drupal::url('simplify.admin'))),
+      '#access' => \Drupal::currentUser()->hasPermission('administer simplify'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+  );
+  $form['comment']['simplify']['simplify_comments'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Simplify the following options'),
+      '#options' => simplify_get_fields('comments'),
+      '#default_value' => _simplify_get_config_value('simplify_comments', array(), 'simplify.comment_type.' . $type['#default_value']),
+      '#after_build' => array('_simplify_disable_globally_hidden_checkboxes'),
+  );
+
+  // Add custom submit function
+  $form['actions']['submit']['#submit'][] = 'simplify_form_comment_type_edit_form_submit';
+}
+
+/**
+ * Form submission handler for comment_type_edit_form().
+ *
+ * @see simplify_form_comment_type_edit_form_alter()
+ */
+function simplify_form_comment_type_edit_form_submit($form, FormStateInterface $form_state) {
+  $content_type = $form_state->getValue('id');
+
+  // Get comments fields
+  $fields = $form_state->getValue('simplify_comments');
+  $fields = array_keys(array_filter($fields));
+
+  // Values aren't saved to a variable by default, so do it manually
+  \Drupal::configFactory()->getEditable('simplify.comment_type.' . $content_type)
+  ->set('simplify_comments', $fields)->save();
+
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for taxonomy_form_vocabulary.
+ */
+function simplify_form_taxonomy_vocabulary_form_alter(&$form, FormStateInterface $form_state) {
+  $vocabulary = $form['vid'];
+  $simplify_config = \Drupal::config('simplify.global');
+
+  // Taxonomy
+  $form['simplify'] = array(
+    '#type' => 'details',
+    '#title' => t('Simplify'),
+    '#description' => t("These fields will be hidden from <em>@vocabulary</em> taxonomy term forms. Disabled checkboxes indicate fields that have been hidden globally on the <a href=\"@global\">Simplify administration page</a>.", array('@vocabulary' => $form['name']['#default_value'], '@global' => \Drupal::url('simplify.admin'))),
+    '#access' => \Drupal::currentUser()->hasPermission('administer simplify'),
+    '#group' => 'additional_settings',
+  );
+  $form['simplify']['simplify_taxonomies'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Simplify the following options'),
+    '#options' => simplify_get_fields('taxonomy'),
+    '#default_value' => _simplify_get_config_value('simplify_taxonomies', array(), 'simplify.vocabulary.' . $vocabulary['#default_value']),
+    '#after_build' => array('_simplify_disable_globally_hidden_checkboxes'),
+  );
+
+  // Add custom submit function
+  $form['actions']['submit']['#submit'][] = 'simplify_taxonomy_vocabulary_form_submit';
+}
+
+/**
+ * Form submission handler for taxonomy_vocabulary_form().
+ *
+ * @see simplify_form_taxonomy_vocabulary_form_alter()
+ */
+function simplify_taxonomy_vocabulary_form_submit($form, FormStateInterface $form_state) {
+  $vocabulary = $form_state->getValue('vid');
+
+  // Get fields
+  $fields = $form_state->getValue('simplify_taxonomies');
+  $fields = array_keys(array_filter($fields));
+
+  // Values aren't saved to a variable by default, so do it manually
+  \Drupal::configFactory()->getEditable('simplify.vocabulary.' . $vocabulary)
+  ->set('simplify_taxonomies', $fields)->save();
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for block_content_type_edit_form.
+ *
+ * Simplify settings "per block-type"  for blocks.
+ */
+function simplify_form_block_content_type_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+  // Blocks
+  $form['simplify'] = array(
+      '#type' => 'details',
+      '#title' => t('Simplify'),
+      '#description' => t("These fields will be hidden from <em>@type</em> block forms. Disabled checkboxes indicate fields that have been hidden globally on the <a href=\"@global\">Simplify administration page</a>.", array('@type' => $form['label']['#default_value'], '@global' => \Drupal::url('simplify.admin'))),
+      '#access' => \Drupal::currentUser()->hasPermission('administer simplify'),
+      '#group' => 'additional_settings',
+  );
+  $form['simplify']['simplify_blocks'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Simplify the following options'),
+      '#options' => simplify_get_fields('blocks'),
+      '#default_value' => _simplify_get_config_value('simplify_blocks', array(), 'simplify.block_type.' . $form['id']['#default_value']),
+      '#after_build' => array('_simplify_disable_globally_hidden_checkboxes'),
+  );
+
+  // Add custom submit function
+  $form['actions']['submit']['#submit'][] = 'simplify_form_block_content_type_edit_form_submit';
+}
+
+/**
+ * Form submission handler for block_content_type_edit_form().
+ *
+ * Save simplify settings "per block-type"  for blocks.
+ */
+function simplify_form_block_content_type_edit_form_submit($form, FormStateInterface $form_state) {
+  $block_type = $form_state->getValue('id');
+
+  // Get nodes fields
+  $fields = $form_state->getValue('simplify_blocks');
+  $fields = array_keys(array_filter($fields));
+
+  // Values aren't saved to a variable by default, so do it manually
+  \Drupal::configFactory()->getEditable('simplify.block_type.' . $block_type)
+  ->set('simplify_blocks', $fields)->save();
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for node_form.
+ *
+ * Overrides the node creation form to hide elements depending on settings.
+ */
+function simplify_form_node_form_alter(&$form, FormStateInterface $form_state) {
+  $simplify_config = \Drupal::config('simplify.global');
+
+  // @todo This must be handled in a #process handler.
+  $node = $form_state->getFormObject()->getEntity();
+  $node_type = $node->type->entity;
+
+  // Get array of fields to hide.
+  $global_fields = _simplify_get_config_value('simplify_nodes_global');
+  $type_fields = _simplify_get_config_value('simplify_nodes', array(), 'simplify.content_type.' . $node_type->get('type'));
+  $fields = array_merge($global_fields, $type_fields);
+
+  // Hide fields
+  simplify_hide_fields($fields, $form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for user_form.
+ *
+ * Simplifies the "user edition form" to hide elements depending on settings.
+ */
+function simplify_form_user_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Get array of fields to hide
+  $fields = _simplify_get_config_value('simplify_users_global');
+  // Hide fields
+  simplify_hide_fields($fields, $form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for user_register_form.
+ *
+ * Simplifies the "user registration form" to hide elements depending on
+ * settings.
+ */
+function simplify_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Get array of fields to hide
+  $fields = _simplify_get_config_value('simplify_users_global');
+  // Hide fields
+  simplify_hide_fields($fields, $form);
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for comment_form.
+ *
+ * Simplifies the "comment" form on a node to hide elements depending on
+ * settings.
+ */
+function simplify_form_comment_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $simplify_config = \Drupal::config('simplify.global');
+
+  // @todo This must be handled in a #process handler.
+  $comment = $form_state->getFormObject()->getEntity();
+
+  // Get array of fields to hide.
+  $global_fields = _simplify_get_config_value('simplify_comments_global');
+  $type_fields = _simplify_get_config_value('simplify_comments', array(), 'simplify.comment_type.' . $comment->getTypeId());
+  $fields = array_merge($global_fields, $type_fields);
+
+  // Hide fields
+  simplify_hide_fields($fields, $form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for taxonomy_term_tags_form.
+ *
+ * Simplifies the taxonomy "edit term" page.
+ */
+function simplify_form_taxonomy_term_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $vid = $form['vid']['#value'];
+
+  // Get array of fields to hide
+  $global_fields = _simplify_get_config_value('simplify_taxonomies_global');
+  $vocabulary_fields = _simplify_get_config_value('simplify_taxonomies', array(), 'simplify.vocabulary.' . $vid);
+  $fields = array_merge($global_fields, $vocabulary_fields);
+
+  // Hide fields
+  simplify_hide_fields($fields, $form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for block_add_block_form.
+ *
+ * Overrides the "create new block" form ti be simplified.
+ */
+function simplify_form_block_content_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $simplify_config = \Drupal::config('simplify.global');
+
+  // @todo This must be handled in a #process handler.
+  $block = $form_state->getFormObject()->getEntity();
+  $block_type = $block->type->entity;
+
+  // Get array of fields to hide.
+  $global_fields = _simplify_get_config_value('simplify_blocks_global');
+  $type_fields = _simplify_get_config_value('simplify_blocks', array(), 'simplify.block_type.' . $block_type->id());
+  $fields = array_merge($global_fields, $type_fields);
+
+  // Hide fields
+  simplify_hide_fields($fields, $form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for block_form.
+ *
+ * Overrides the block "configure" page
+ */
+function simplify_form_block_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Get array of fields to hide
+  $fields = _simplify_get_config_value('simplify_blocks_global');
+  // Hide fields
+  simplify_hide_fields($fields, $form);
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Empty implementation. This allows to trick hook_module_implements_alter() in
+ * order to run the various hook_form_FORM_ID_alter() last.
+ */
+function simplify_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ *
+ * Make sure that our form alter is called AFTER the same hook provided in xxx
+ */
+function simplify_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'form_alter') {
+    // Move my_module_form_alter() to the end of the list. module_implements()
+    // iterates through $implementations with a foreach loop which PHP iterates
+    // in the order that the items were added, so to move an item to the end of
+    // the array, we remove it and then add it.
+    $group = $implementations['simplify'];
+    unset($implementations['simplify']);
+    $implementations['simplify'] = $group;
+  }
+}
+
+/* ---------------------------------------------------------------------------*\
+ *                    SIMPLIFICATION METHODS                                  *
+ * ---------------------------------------------------------------------------*/
+
+/**
+ * Get an array of fields (by type) that can be hidden.
+ *
+ * @param string $type
+ *   The category type of fields to build.
+ *
+ * @return array
+ *   An array of cehckbox option fields.
+ */
+function simplify_get_fields($type) {
+  $fields = array();
+
+  switch ($type) {
+    // Nodes.
+    case 'nodes':
+      // Drupal core:
+      $fields['author'] = t('Authoring information');
+      $fields['format'] = t('Text format selection');
+      $fields['options'] = t('Promotion options');
+      $fields['revision_information'] = t('Revision information');
+      if (\Drupal::moduleHandler()->moduleExists('book')) {
+        $fields['book'] = t('Book outline');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('comment')) {
+        $fields['comment'] = t('Comment settings');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('menu_ui')) {
+        $fields['menu'] = t('Menu settings');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('path')) {
+        $fields['path_settings'] = t('URL path settings');
+      }
+      // Third-party modules:
+      if (\Drupal::moduleHandler()->moduleExists('domain')) {
+        $fields['domain'] = t('Domain access');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('entity_translation') && entity_translation_enabled('node')) {
+        $fields['entity_translation'] = t('Entity translation');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('metatag')) {
+        $fields['metatags'] = t('Meta tags');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('node_noindex')) {
+        $fields['node_noindex'] = t('Node noindex');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('redirect')) {
+        $fields['redirect'] = t('URL redirects');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('xmlsitemap_node')) {
+        $fields['xmlsitemap'] = t('XML sitemap');
+      }
+      break;
+
+      // Users.
+    case 'users':
+      // Drupal core:
+      $fields['format'] = t('Text format selection');
+      $fields['status'] = t('Status (blocked/active)');
+      $fields['timezone'] = t('Locale settings');
+      if (\Drupal::moduleHandler()->moduleExists('contact')) {
+        $fields['contact'] = t('Contact settings');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('overlay')) {
+        $fields['overlay_control'] = t('Administrative overlay');
+      }
+      // Third-party modules:
+      if (\Drupal::moduleHandler()->moduleExists('metatag')) {
+        $fields['metatags'] = t('Meta tags');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('redirect')) {
+        $fields['redirect'] = t('URL redirects');
+      }
+      break;
+
+      // Comments.
+    case 'comments':
+      // Drupal core:
+      $fields['format'] = t('Text format selection');
+      break;
+
+      // Taxonomy.
+    case 'taxonomy':
+      // Drupal core:
+      $fields['format'] = t('Text format selection');
+      $fields['relations'] = t('Relations');
+      if (\Drupal::moduleHandler()->moduleExists('path')) {
+        $fields['path'] = t('URL alias');
+      }
+      // Third-party modules:
+      if (\Drupal::moduleHandler()->moduleExists('metatag')) {
+        $fields['metatags'] = t('Meta tags');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('redirect')) {
+        $fields['redirect'] = t('URL redirects');
+      }
+      if (\Drupal::moduleHandler()->moduleExists('xmlsitemap_taxonomy')) {
+        $fields['xmlsitemap'] = t('XML sitemap');
+      }
+      break;
+
+      // Blocks.
+    case 'blocks':
+      // Drupal core:
+      $fields['format'] = t('Text format selection');
+      $fields['revision_information'] = t('Revision information');
+      break;
+
+      // Profiles.
+    case 'profiles':
+      $fields['format'] = t('Text format selection');
+      break;
+  }
+
+  // Allow other modules to alter the array of fields that can be hidden
+  \Drupal::moduleHandler()->alter('simplify_get_fields', $fields, $type);
+
+  return $fields;
+}
+
+/**
+ * Hide fields from all users without the 'View hidden fields' permission.
+ *
+ * @param array $fields
+ *   The array of fields to simplify within the given form.
+ * @param array $form
+ *   The form in which to simplify the given fields.
+ */
+function simplify_hide_fields($fields, &$form) {
+
+  // Check if current user can view the hidden fields.
+  $user_can_view_hidden = \Drupal::currentUser()->hasPermission('view hidden fields');
+  // Check if even admin users must be simplified.
+  $hide_to_admin = _simplify_get_config_value('simplify_admin', 0);
+
+  // Depending on previous settings, simplify the $fields in the $form.
+  if (!empty($fields) && (!$user_can_view_hidden || (_is_user_admin() && $hide_to_admin))) {
+    foreach ($fields as $field) {
+      simplify_hide_field($field, $form);
+    }
+  }
+}
+
+/**
+ * Hide a given field in a form.
+ *
+ * @param string $field
+ *   The key for the field to simplify within a given form.
+ * @param array $form
+ *   The form in which to simplify the given fields.
+ */
+function simplify_hide_field($field, &$form) {
+  switch ($field) {
+
+    // Entity translation.
+    case 'entity_translation':
+      $form['translation']['#access'] = FALSE;
+    break;
+
+    // Text format selection.
+    case 'format':
+      simplify_hide_text_format_elements($form);
+    break;
+
+    // Status.
+    case 'status':
+      $form['account']['status']['#access'] = FALSE;
+    break;
+
+    default:
+      $form[$field]['#access'] = FALSE;
+
+  }
+
+  // Allow other modules to alter the way fields are hidden.
+  \Drupal::moduleHandler()->alter('simplify_hide_field', $form, $field);
+}
+
+/**
+ * Recurse through the provided form and hide any text_format elements.
+ *
+ * @param array $form
+ *   The form in which to interate to hide the text_format elements.
+ */
+function simplify_hide_text_format_elements(&$form) {
+  foreach (Element::children($form) as $key) {
+    if (!isset($form[$key]['#type']) || $form[$key]['#type'] == 'container') {
+      simplify_hide_text_format_elements($form[$key]);
+    }
+    elseif ($form[$key]['#type'] == 'text_format') {
+      $form[$key]['#after_build'][] = 'simplify_hide_text_format_element';
+    }
+  }
+}
+
+/**
+ * Hide a given text_format element.
+ *
+ * @param array element
+ *   The element to hide.
+ *
+ * @return array
+ *   The hidden element.
+ */
+function simplify_hide_text_format_element($element) {
+  if (!empty($element['format'])) {
+    $element['format']['#access'] = FALSE;
+  }
+  return $element;
+}
+
+/* ---------------------------------------------------------------------------*\
+ *                            HELPER METHODS                                  *
+ * ---------------------------------------------------------------------------*/
+
+/**
+ * Disable checkboxes to indicate fields have been hidden globally.
+ */
+function _simplify_disable_globally_hidden_checkboxes($element, &$form_state) {
+  $simplify_config = \Drupal::config('simplify.global');
+
+  // Get globally hidden fields.
+  $global_fields = _simplify_get_config_value($element['#name'] . '_global');
+
+  // Disable any globally hidden fields.
+  foreach (Element::children($element) as $field) {
+    if (in_array($field, $global_fields) && $global_fields[$field]) {
+      $element[$field]['#checked'] = TRUE;
+      $element[$field]['#attributes']['disabled'] = 'disabled';
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Gets an array representing the configuration form values or empty array
+ * is empty or not applicable.
+ *
+ * @param string $config_type
+ *   The configuration name to be retrieved.
+ * @param object $default
+ *   A default value.
+ *
+ * @return array
+ *   An array representing the configuration or empty array if the
+ *   configuration is not applicable.
+ */
+function _simplify_get_config_value($config_key, $default = array(), $config_name = 'simplify.global') {
+  $simplify_config = \Drupal::config($config_name);
+
+  $value = $simplify_config->get($config_key);
+  return !empty($value) ? $value : $default;
+}
+
+/**
+ * Checks if this user is a super admin, ie as the admin role or is user1.
+ *
+ * @return boolean
+ *   TRUE is super admin or user1, FALSE otherwise.
+ */
+function _is_user_admin() {
+  $user = \Drupal::currentUser();
+  if ($user->id() == 1) {
+    return TRUE;
+  }
+  foreach ($user->getRoles(TRUE) as $rid) {
+    if (Role::load($rid)->isAdmin()) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
