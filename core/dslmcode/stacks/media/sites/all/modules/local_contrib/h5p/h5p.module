@@ -1476,6 +1476,8 @@ function h5p_embed($node) {
   $styles = array_merge($styles, $core->getAssetsUrls($files['styles']));
 
   $lang = $language->language;
+  // allow for appending output to this page
+  drupal_alter('embedded_h5p', $node);
   include('library/embed.php');
 }
 
