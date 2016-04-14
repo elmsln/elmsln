@@ -1,8 +1,8 @@
 diff --git a/h5p.module b/h5p.module
-index 90a5ba5..8d447c3 100644
+index 54fe6fc..b677aab 100644
 --- a/h5p.module
 +++ b/h5p.module
-@@ -1399,6 +1399,8 @@ function h5p_embed($node) {
+@@ -1476,6 +1476,8 @@ function h5p_embed($node) {
    $styles = array_merge($styles, $core->getAssetsUrls($files['styles']));
  
    $lang = $language->language;

@@ -55,28 +55,32 @@ ns.LibrarySelector = function (libraries, defaultLibrary, defaultParams) {
   this.$tutorialUrl = ns.$('<a class="h5p-tutorial-url" target="_blank">' + ns.t('core', 'tutorialAvailable') + '</a>').hide();
 
   this.$selector = ns.$('<select name="h5peditor-library" title="' + ns.t('core', 'selectLibrary') + '">' + options + '</select>').change(function () {
-    var library;
-    var changeLibrary = true;
+    // Use timeout to avoid bug in Chrome >44, when confirm is used inside change event.
+    // Ref. https://code.google.com/p/chromium/issues/detail?id=525629
+    setTimeout(function () {
+      var library;
+      var changeLibrary = true;
 
-    if (!firstTime) {
-      changeLibrary = confirm(H5PEditor.t('core', 'confirmChangeLibrary'));
-    }
+      if (!firstTime) {
+        changeLibrary = confirm(H5PEditor.t('core', 'confirmChangeLibrary'));
+      }
 
-    if (changeLibrary) {
-      library = that.$selector.val();
-      that.loadSemantics(library);
-      that.currentLibrary = library;
-    }
-    else {
-      that.$selector.val(that.currentLibrary);
-    }
+      if (changeLibrary) {
+        library = that.$selector.val();
+        that.loadSemantics(library);
+        that.currentLibrary = library;
+      }
+      else {
+        that.$selector.val(that.currentLibrary);
+      }
 
-    if (library !== '-') {
-      firstTime = false;
-    }
+      if (library !== '-') {
+        firstTime = false;
+      }
 
-    var tutorialUrl = ns.$(this).find(':selected').data('tutorial-url');
-    that.$tutorialUrl.attr('href', tutorialUrl).toggle(tutorialUrl !== undefined && tutorialUrl !== null && tutorialUrl.length !== 0);
+      var tutorialUrl = that.$selector.find(':selected').data('tutorial-url');
+      that.$tutorialUrl.attr('href', tutorialUrl).toggle(tutorialUrl !== undefined && tutorialUrl !== null && tutorialUrl.length !== 0);
+    }, 0);
   });
 };
 

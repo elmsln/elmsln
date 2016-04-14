@@ -11,6 +11,9 @@ var ns = H5PEditor;
  * @returns {ns.Group}
  */
 ns.Group = function (parent, field, params, setValue) {
+  // Support for events
+  H5P.EventDispatcher.call(this);
+
   if (field.label === undefined) {
     field.label = field.name;
   }
@@ -52,6 +55,10 @@ ns.Group = function (parent, field, params, setValue) {
     }
   }
 };
+
+// Extends the event dispatcher
+ns.Group.prototype = Object.create(H5P.EventDispatcher.prototype);
+ns.Group.prototype.constructor = ns.Group;
 
 /**
  * Append group to its wrapper.
@@ -100,6 +107,7 @@ ns.Group.prototype.appendTo = function ($wrapper) {
   });
 
   if (this.field.fields.length === 1) {
+    $content.addClass('h5peditor-single');
     this.children = [];
     var field = this.field.fields[0];
     var widget = field.widget === undefined ? field.type : field.widget;
@@ -143,6 +151,7 @@ ns.Group.prototype.toggle = function () {
  */
 ns.Group.prototype.expand = function () {
   this.$group.addClass('expanded');
+  this.trigger('expanded');
 };
 
 /**
@@ -158,8 +167,9 @@ ns.Group.prototype.collapse = function () {
   }
   if (valid) {
     this.$group.removeClass('expanded');
+    this.trigger('collapsed');
   }
-}
+};
 
 /**
  * Find summary to display in group header.
@@ -208,14 +218,23 @@ ns.Group.prototype.findSummary = function () {
  * @returns {undefined}
  */
 ns.Group.prototype.setSummary = function (summary) {
-  if (summary !== undefined) {
-    summary = this.field.label + ': ' + (summary.length > 48 ? summary.substr(0, 45) + '...' : summary);
-  }
-  else {
-    summary = this.field.label;
+  var summaryText;
+
+  // Parse html
+  var summaryTextNode = ns.$.parseHTML(summary);
+
+  if (summaryTextNode !== null) {
+    summaryText = summaryTextNode[0].nodeValue;
   }
 
-  this.$group.children('.title').html(summary);
+  if (summaryText !== undefined) {
+    summaryText = this.field.label + ': ' + (summaryText.length > 48 ? summaryText.substr(0, 45) + '...' : summaryText);
+  }
+  else {
+    summaryText = this.field.label;
+  }
+
+  this.$group.children('.title').html(summaryText);
 };
 
 /**

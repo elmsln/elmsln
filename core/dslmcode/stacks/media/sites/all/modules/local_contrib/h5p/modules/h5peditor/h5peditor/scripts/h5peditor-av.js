@@ -52,13 +52,15 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
       self.$addDialog.addClass('h5p-open');
     });
     this.$addDialog = this.$add.next();
+    var $url = this.$addDialog.find('.h5p-file-url');
     this.$addDialog.find('.h5p-cancel').click(function () {
+      self.updateIndex = undefined;
+      $url.val('');
       self.$addDialog.removeClass('h5p-open');
     });
     this.$addDialog.find('.h5p-file-upload').click(function () {
       self.uploadFile();
     });
-    var $url = this.$addDialog.find('.h5p-file-url');
     this.$addDialog.find('.h5p-insert').click(function () {
       self.useUrl($url.val().trim());
       self.$addDialog.removeClass('h5p-open');
@@ -99,7 +101,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
 
     if (that.updateIndex !== undefined) {
       this.$add.parent().children(':eq(' + index + ')').find('.h5p-type').attr('title', file.mime).text(file.mime.split('/')[1]);
-      self.updateIndex = undefined;
+      this.updateIndex = undefined;
       return;
     }
 
@@ -298,7 +300,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
    * @returns {String}
    */
   C.createAdd = function () {
-    return '<div role="button" tabindex="1" class="h5p-add-file" title="' + H5PEditor.t('core', 'addFile') + '"></div><div class="h5p-add-dialog"><div class="h5p-dialog-box"><button class="h5p-file-upload">Select file to upload</button></div><div class="h5p-or"><span>or</span></div><div class="h5p-dialog-box"><input type="text" placeholder="type in file url" class="h5p-file-url h5peditor-text"/></div><div class="h5p-buttons"><button class="h5p-insert">Insert</button><button class="h5p-cancel">Cancel</button></div></div>';
+    return '<div role="button" tabindex="1" class="h5p-add-file" title="' + H5PEditor.t('core', 'addFile') + '"></div><div class="h5p-add-dialog"><div class="h5p-dialog-box"><button class="h5p-file-upload">Select file to upload</button></div><div class="h5p-or"><span>or</span></div><div class="h5p-dialog-box"><input type="text" placeholder="Type in file url (YouTube is supported for videos)" class="h5p-file-url h5peditor-text"/></div><div class="h5p-buttons"><button class="h5p-insert">Insert</button><button class="h5p-cancel">Cancel</button></div></div>';
   };
 
   /**

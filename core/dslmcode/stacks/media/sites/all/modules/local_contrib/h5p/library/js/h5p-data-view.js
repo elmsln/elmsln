@@ -50,14 +50,13 @@ var H5PDataView = (function ($) {
     self.limit = 20;
     self.offset = 0;
     self.filterOn = [];
+    self.facets = {};
 
     self.loadData();
   }
 
   /**
    * Load data from source URL.
-   *
-   * @public
    */
   H5PDataView.prototype.loadData = function () {
     var self = this;
@@ -83,6 +82,15 @@ var H5PDataView = (function ($) {
 
       filtering = true;
       url += '&filters[' + i + ']=' + encodeURIComponent(self.filterOn[i]);
+    }
+
+    // Add facets
+    for (var col in self.facets) {
+      if (!self.facets.hasOwnProperty(col)) {
+        continue;
+      }
+
+      url += '&facets[' + col + ']=' + self.facets[col].id;
     }
 
     // Fire ajax request
@@ -114,7 +122,6 @@ var H5PDataView = (function ($) {
   /**
    * Display the given message to the user.
    *
-   * @public
    * @param {jQuery} $message wrapper with message
    */
   H5PDataView.prototype.setMessage = function ($message) {
@@ -131,7 +138,6 @@ var H5PDataView = (function ($) {
   /**
    * Update table data.
    *
-   * @public
    * @param {Array} rows
    */
   H5PDataView.prototype.updateTable = function (rows) {
@@ -144,6 +150,12 @@ var H5PDataView = (function ($) {
       // Add filters
       self.addFilters();
 
+      // Add facets
+      self.$facets = $('<div/>', {
+        'class': 'h5p-facet-wrapper',
+        appendTo: self.$container
+      });
+
       // Create new table
       self.table = new H5PUtils.Table(self.classes, self.headers);
       self.table.setHeaders(self.headers, function (order) {
@@ -154,14 +166,122 @@ var H5PDataView = (function ($) {
       self.table.appendTo(self.$container);
     }
 
+    // Process cell data before updating table
+    for (var i = 0; i < self.headers.length; i++) {
+      if (self.headers[i].facet === true) {
+        // Process rows for col, expect object or array
+        for (var j = 0; j < rows.length; j++) {
+          rows[j][i] = self.createFacets(rows[j][i], i);
+        }
+      }
+    }
+
     // Add/update rows
-    self.table.setRows(rows);
+    var $tbody = self.table.setRows(rows);
+
+    // Add event handlers for facets
+    $('.h5p-facet', $tbody).click(function () {
+      var $facet = $(this);
+      self.filterByFacet($facet.data('col'), $facet.data('id'), $facet.text());
+    }).keypress(function (event) {
+      if (event.which === 32) {
+        var $facet = $(this);
+        self.filterByFacet($facet.data('col'), $facet.data('id'), $facet.text());
+      }
+    });
+  };
+
+  /**
+   * Create button for adding facet to filter.
+   *
+   * @param (object|Array) input
+   * @param number col ID of column
+   */
+  H5PDataView.prototype.createFacets = function (input, col) {
+    var self = this;
+    var facets = '';
+
+    if (input instanceof Array) {
+      // Facet can be filtered on multiple values at the same time
+      for (var i = 0; i < input.length; i++) {
+        if (facets !== '') {
+          facets += ', ';
+        }
+        facets += '<span class="h5p-facet" role="button" tabindex="0" data-id="' + input[i].id + '" data-col="' + col + '">' + input[i].title + '</span>';
+      }
+    }
+    else {
+      // Single value facet filtering
+      facets += '<span class="h5p-facet" role="button" tabindex="0" data-id="' + input.id + '" data-col="' + col + '">' + input.title + '</span>';
+    }
+
+    return facets === '' ? '—' : facets;
+  };
+
+  /**
+   * Adds a filter based on the given facet.
+   *
+   * @param number col ID of column we're filtering
+   * @param number id ID to filter on
+   * @param string text Human readable label for the filter
+   */
+  H5PDataView.prototype.filterByFacet = function (col, id, text) {
+    var self = this;
+
+    if (self.facets[col] !== undefined) {
+      if (self.facets[col].id === id) {
+        return; // Don't use the same filter again
+      }
+
+      // Remove current filter for this col
+      self.facets[col].$tag.remove();
+    }
+
+    // Add to UI
+    self.facets[col] = {
+      id: id,
+      '$tag': $('<span/>', {
+        'class': 'h5p-facet-tag',
+        text: text,
+        appendTo: self.$facets,
+      })
+    };
+
+    /**
+     * Callback for removing filter.
+     *
+     * @private
+     */
+    var remove = function () {
+      self.facets[col].$tag.remove();
+      delete self.facets[col];
+      self.loadData();
+    };
+
+    // Remove button
+    $('<span/>', {
+      role: 'button',
+      tabindex: 0,
+      appendTo: self.facets[col].$tag,
+      text: self.l10n.remove,
+      title: self.l10n.remove,
+      on: {
+        click: remove,
+        keypress: function (event) {
+          if (event.which === 32) {
+            remove();
+          }
+        }
+      }
+    });
+
+    // Load data with new filter
+    self.loadData();
   };
 
   /**
    * Update pagination widget.
    *
-   * @public
    * @param {Number} num size of data collection
    */
   H5PDataView.prototype.updatePagination = function (num) {
@@ -187,8 +307,6 @@ var H5PDataView = (function ($) {
 
   /**
    * Add filters.
-   *
-   * @public
    */
   H5PDataView.prototype.addFilters = function () {
     var self = this;
@@ -203,8 +321,7 @@ var H5PDataView = (function ($) {
 
   /**
    * Add text filter for given col num.
-
-   * @public
+   *
    * @param {Number} col
    */
   H5PDataView.prototype.addTextFilter = function (col) {

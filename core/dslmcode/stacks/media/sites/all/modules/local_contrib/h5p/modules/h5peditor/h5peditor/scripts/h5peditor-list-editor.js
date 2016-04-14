@@ -126,6 +126,9 @@ H5PEditor.ListEditor = (function ($) {
           return; // Only allow left mouse button
         }
 
+        // Prevent wysiwyg becoming unresponsive
+        H5PEditor.Html.removeWysiwyg();
+
         // Start tracking mouse
         H5P.$body
           .attr('unselectable', 'on')
@@ -168,6 +171,12 @@ H5PEditor.ListEditor = (function ($) {
         return false;
       };
 
+      // List item title bar
+      var $titleBar = $('<div/>', {
+        'class': 'list-item-title-bar',
+        appendTo: $item
+      });
+
       // Append order button
       $('<div/>', {
         'class' : 'order',
@@ -176,7 +185,7 @@ H5PEditor.ListEditor = (function ($) {
         on: {
           mousedown: down
         }
-      }).appendTo($item);
+      }).appendTo($titleBar);
 
       // Append remove button
       $('<div/>', {
@@ -191,15 +200,39 @@ H5PEditor.ListEditor = (function ($) {
             }
           }
         }
-      }).appendTo($item);
-
-      // Append content wrapper
-      var $content = $('<div/>', {
-        'class' : 'content'
-      }).appendTo($item);
+      }).appendTo($titleBar);
 
       // Append new field item to content wrapper
-      item.appendTo($content);
+      if (item instanceof H5PEditor.Group) {
+        // Append to item
+        item.appendTo($item);
+        $item.addClass('listgroup');
+
+        // Move label
+        $item.children('.field').children('.title').appendTo($titleBar).addClass('h5peditor-label');
+
+        // Handle expand and collapse
+        item.on('expanded', function () {
+          $item.addClass('expanded').removeClass('collapsed');
+        });
+        item.on('collapsed', function () {
+          $item.removeClass('expanded').addClass('collapsed');
+        });
+      }
+      else {
+        // Append content wrapper
+        var $content = $('<div/>', {
+          'class' : 'content'
+        }).appendTo($item);
+
+        // Append field
+        item.appendTo($content);
+
+        if (item.field.label !== 0) {
+          // Try to find and move the label to the title bar
+          $content.children('.field').find('.h5peditor-label:first').appendTo($titleBar);
+        }
+      }
 
       // Append item to list
       $item.appendTo($list);

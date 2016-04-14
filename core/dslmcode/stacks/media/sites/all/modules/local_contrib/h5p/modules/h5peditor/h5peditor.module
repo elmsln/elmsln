@@ -140,6 +140,7 @@ function h5peditor_h5p_content_node_form_after_build($form) {
 
   // TODO: If we're going to preprocess the assets one day, remember to skip ckeditor.
 
+  $content_validator = _h5p_get_instance('contentvalidator');
   $file_path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath();
   $settings = array(
     'h5peditor' => array(
@@ -152,8 +153,9 @@ function h5peditor_h5p_content_node_form_after_build($form) {
       'ajaxPath' => url('h5peditor/' . (isset($node->nid) ? $node->nid : 0) . '/'),
       'modulePath' => $h5peditor_module_path,
       'libraryPath' => _h5p_get_h5p_path() . '/libraries/',
-      'copyrightSemantics' => H5PContentValidator::getCopyrightSemantics(),
+      'copyrightSemantics' => $content_validator->getCopyrightSemantics(),
       'assets' => $assets,
+      'uploadToken' => H5PCore::createToken('editorupload')
     ),
   );
 
@@ -278,12 +280,22 @@ function h5peditor_library_callback($machine_name, $major_version, $minor_versio
   drupal_add_http_header('Cache-Control', 'no-cache');
   drupal_add_http_header('Content-type', 'application/json');
   print $editor->getLibraryData($machine_name, $major_version, $minor_version, $language->language, '', _h5p_get_h5p_path());
+
+  // Log library loaded
+  new H5PEvent('library', NULL, NULL, NULL,
+    $machine_name,
+    $major_version . '.' . $minor_version
+  );
 }
 
 /**
  * Callback for file uploads.
  */
 function h5peditor_files_callback() {
+  if (!H5PCore::validToken('editorupload', filter_input(INPUT_POST, 'token', FILTER_SANITIZE_STRING))) {
+    return H5PCore::ajaxError(t('Invalid security token. Please reload the editor.'));
+  }
+
   $files_directory = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath();
   if (isset($_POST['contentId']) && $_POST['contentId']) {
     $files_directory .= '/' . variable_get('h5p_default_path', 'h5p') . '/content/' . $_POST['contentId'];

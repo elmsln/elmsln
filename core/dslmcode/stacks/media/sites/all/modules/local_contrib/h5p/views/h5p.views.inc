@@ -32,7 +32,6 @@ function h5p_views_data() {
       'numeric' => TRUE,
       'validate type' => 'nid',
     ),
-
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
     ),
@@ -88,13 +87,51 @@ function h5p_views_data() {
     ),
   );
 
+  $data['h5p_libraries']['table']['group'] = t('H5P');
+
+  // Content type
+  $data['h5p_libraries']['title'] = array(
+    'title' => t('H5P: Content type'),
+    'help' => t('The H5P content type'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+  );
+
+  // h5p_nodes h5p_libraries relationship
+  $data['h5p_nodes']['h5p_libraries'] = array(
+    'relationship' => array(
+      'title' => t('H5P library properties'),
+      'label'  => t('H5P library properties'),
+      'help' => t('Will return h5p library data for the node.'),
+      'handler' => 'views_handler_relationship',
+      'base'   => 'h5p_libraries',
+      'field'  => 'main_library_id',  // i.e h5p_nodes.main_library_id
+      'base field' => 'library_id', // i.e h5p_libraries.library_id
+    ),
+  );
+
+  $data['h5p_libraries']['table']['join'] = array(
+    'h5p_nodes' => array(
+      'left_field' => 'main_library_id', // i.e h5p_nodes.main_library_id
+      'field' => 'library_id', // i.e h5p_libraries.library_id
+    ),
+  );
+
   // ----------------------------------------------------------------
   // h5p_points table -- basic table information.
 
   // Define the base group of this table. Fields that don't
   // have a group defined will go into this field by default.
   $data['h5p_points']['table']['group'] = t('H5P');
-  
+
   // explain how we join
   $data['h5p_points']['table']['join'] = array(
     // Directly links to h5p_nodes table.
@@ -103,7 +140,7 @@ function h5p_views_data() {
       'field' => 'content_id',
     ),
   );
-  
+
   // ----------------------------------------------------------------
   // points table -- fields
 
@@ -121,7 +158,7 @@ function h5p_views_data() {
       'numeric' => TRUE,
       'validate type' => 'nid',
     ),
-    
+
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
     ),
@@ -151,7 +188,7 @@ function h5p_views_data() {
       'base field' => 'content_id',
     ),
   );
-  
+
   // uid field
   $data['h5p_points']['uid'] = array(
     'title' => t('User'),
@@ -163,7 +200,7 @@ function h5p_views_data() {
       'label' => t('user'),
     ),
   );
-  
+
   // User - H5P points relationship
   $data['users']['h5p_uid_points'] = array(
     'relationship' => array(
@@ -180,7 +217,7 @@ function h5p_views_data() {
       'base field' => 'uid',
     ),
   );
-  
+
   $data['h5p_points']['started'] = array(
     'title' => t('Start time'),
     'help' => t('Timestamp for when the user began this activity.'),
@@ -220,7 +257,7 @@ function h5p_views_data() {
     ),
     'sort' => array('handler' => 'views_handler_sort'),
   );
-  
+
   $data['h5p_points']['max_points'] = array(
     'title' => t('Max points awarded'),
     'help' => t('The maximum amoount of points the user could achieve'),
@@ -233,7 +270,7 @@ function h5p_views_data() {
       'numeric' => TRUE,
     ),
     'sort' => array('handler' => 'views_handler_sort'),
-  );  
+  );
 
   return $data;
 }

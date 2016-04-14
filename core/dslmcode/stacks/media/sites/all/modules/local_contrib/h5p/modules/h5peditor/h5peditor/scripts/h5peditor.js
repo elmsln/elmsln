@@ -449,7 +449,7 @@ ns.createText = function (value, maxLength, placeholder) {
  * @returns {String}
  */
 ns.createLabel = function (field, content) {
-  var html = '<label class="h5peditor-label">';
+  var html = '<label class="h5peditor-label-wrapper">';
 
   if (field.label !== 0) {
     html += '<span class="h5peditor-label">' + (field.label === undefined ? field.name : field.label) + '</span>';

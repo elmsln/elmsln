@@ -33,5 +33,10 @@ H5PEditor.language.core = {
   listLabel: 'List',
   uploadError: 'File Upload Error',
   fileToLarge: 'The file you are trying to upload might be too large.',
-  noSemantics: 'Error, could not load the content type form.'
+  noSemantics: 'Error, could not load the content type form.',
+  editImage: 'Edit image',
+  saveLabel: 'Save',
+  cancelLabel: 'Cancel',
+  resetToOriginalLabel: 'Reset to original',
+  loadingImageEditor: 'Loading image editor, please wait...'
 };

@@ -1,0 +1,10 @@
+{
+    "name": "h5p/h5p-php-library",
+    "license": "GPL-3.0",
+    "autoload": {
+        "files": [
+        	"h5p-development.class.php",
+        	"h5p.classes.php"
+        ]
+    }
+}

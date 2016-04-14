@@ -132,7 +132,6 @@ H5P.init = function (target) {
         });
         dialog.open();
       }
-      // If previousState is false we don't have a previous state
     });
 
     // Create new instance.
@@ -140,7 +139,7 @@ H5P.init = function (target) {
 
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1 && H5P.canHasFullScreen) {
-      H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="1" class="h5p-enable-fullscreen" title="' + H5P.t('fullscreen') + '"></div></div>').prependTo($container).children().click(function () {
+      H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="0" class="h5p-enable-fullscreen" title="' + H5P.t('fullscreen') + '"></div></div>').prependTo($container).children().click(function () {
         H5P.fullScreen($container, instance);
       });
     }
@@ -149,7 +148,7 @@ H5P.init = function (target) {
     var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
     if (!(contentData.disable & H5P.DISABLE_DOWNLOAD)) {
       // Add export button
-      H5P.jQuery('<li class="h5p-button h5p-export" role="button" tabindex="1" title="' + H5P.t('downloadDescription') + '">' + H5P.t('download') + '</li>').appendTo($actions).click(function () {
+      H5P.jQuery('<li class="h5p-button h5p-export" role="button" tabindex="0" title="' + H5P.t('downloadDescription') + '">' + H5P.t('download') + '</li>').appendTo($actions).click(function () {
         window.location.href = contentData.exportUrl;
       });
     }
@@ -158,7 +157,7 @@ H5P.init = function (target) {
 
       if (copyright) {
         // Add copyright dialog button
-        H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
+        H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="0" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
           // Open dialog with copyright information
           var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyright, $container);
           dialog.open();
@@ -167,7 +166,7 @@ H5P.init = function (target) {
     }
     if (!(contentData.disable & H5P.DISABLE_EMBED)) {
       // Add embed button
-      H5P.jQuery('<li class="h5p-button h5p-embed" role="button" tabindex="1" title="' + H5P.t('embedDescription') + '">' + H5P.t('embed') + '</li>').appendTo($actions).click(function () {
+      H5P.jQuery('<li class="h5p-button h5p-embed" role="button" tabindex="0" title="' + H5P.t('embedDescription') + '">' + H5P.t('embed') + '</li>').appendTo($actions).click(function () {
         H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
           width: $element.width(),
           height: $element.height()
@@ -280,6 +279,9 @@ H5P.init = function (target) {
           // Initial setup/handshake is done
           parentIsFriendly = true;
 
+          // Make iframe responsive
+          document.body.style.height = 'auto';
+
           // Hide scrollbars for correct size
           document.body.style.overflow = 'hidden';
 
@@ -290,7 +292,7 @@ H5P.init = function (target) {
         // When resize has been prepared tell parent window to resize
         H5P.communicator.on('resizePrepared', function (data) {
           H5P.communicator.send('resize', {
-            height: document.body.scrollHeight
+            scrollHeight: document.body.scrollHeight
           });
         });
 
@@ -308,7 +310,10 @@ H5P.init = function (target) {
           resizeDelay = setTimeout(function () {
             // Only resize if the iframe can be resized
             if (parentIsFriendly) {
-              H5P.communicator.send('prepareResize');
+              H5P.communicator.send('prepareResize', {
+                scrollHeight: document.body.scrollHeight,
+                clientHeight: document.body.clientHeight
+              });
             }
             else {
               H5P.communicator.send('hello');
@@ -370,7 +375,8 @@ H5P.getHeadTags = function (contentId) {
     return tags;
   };
 
-  return createStyleTags(H5PIntegration.core.styles) +
+  return '<base target="_parent">' +
+         createStyleTags(H5PIntegration.core.styles) +
          createStyleTags(H5PIntegration.contents['cid-' + contentId].styles) +
          createScriptTags(H5PIntegration.core.scripts) +
          createScriptTags(H5PIntegration.contents['cid-' + contentId].scripts) +
@@ -539,8 +545,16 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     }
 
     before('h5p-semi-fullscreen');
-    var $disable = H5P.jQuery('<div role="button" tabindex="1" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
-    var keyup, disableSemiFullscreen = function () {
+    var $disable = H5P.jQuery('<div role="button" tabindex="0" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
+    var keyup, disableSemiFullscreen = H5P.exitFullScreen = function () {
+      if (prevViewportContent) {
+        // Use content from the previous viewport tag
+        h5pViewport.content = prevViewportContent;
+      }
+      else {
+        // Remove viewport tag
+        head.removeChild(h5pViewport);
+      }
       $disable.remove();
       $body.unbind('keyup', keyup);
       done('h5p-semi-fullscreen');
@@ -552,6 +566,30 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     };
     $disable.click(disableSemiFullscreen);
     $body.keyup(keyup);
+
+    // Disable zoom
+    var prevViewportContent, h5pViewport;
+    var metaTags = document.getElementsByTagName('meta');
+    for (var i = 0; i < metaTags.length; i++) {
+      if (metaTags[i].name === 'viewport') {
+        // Use the existing viewport tag
+        h5pViewport = metaTags[i];
+        prevViewportContent = h5pViewport.content;
+        break;
+      }
+    }
+    if (!prevViewportContent) {
+      // Create a new viewport tag
+      h5pViewport = document.createElement('meta');
+      h5pViewport.name = 'viewport';
+    }
+    h5pViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
+    if (!prevViewportContent) {
+      // Insert the new viewport tag
+      var head = document.getElementsByTagName('head')[0];
+      head.appendChild(h5pViewport);
+    }
+
     entered();
   }
   else {
@@ -849,7 +887,7 @@ H5P.Dialog = function (name, title, content, $element) {
                               <div class="h5p-inner">\
                                 <h2>' + title + '</h2>\
                                 <div class="h5p-scroll-content">' + content + '</div>\
-                                <div class="h5p-close" role="button" tabindex="1" title="' + H5P.t('close') + '">\
+                                <div class="h5p-close" role="button" tabindex="0" title="' + H5P.t('close') + '">\
                               </div>\
                             </div>')
     .insertAfter($element)
@@ -1451,7 +1489,7 @@ H5P.libraryFromString = function (library) {
  *   The full path to the library.
  */
 H5P.getLibraryPath = function (library) {
-  return H5PIntegration.url + '/libraries/' + library;
+  return (H5PIntegration.libraryUrl !== undefined ? H5PIntegration.libraryUrl + '/' : H5PIntegration.url + '/libraries/') + library;
 };
 
 /**
@@ -1572,14 +1610,14 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     };
 
     // Post the results
-    // TODO: Should we use a variable with the complete path?
-    H5P.jQuery.post(H5PIntegration.ajaxPath + 'setFinished', {
+    H5P.jQuery.post(H5PIntegration.ajax.setFinished, {
       contentId: contentId,
       score: score,
       maxScore: maxScore,
       opened: toUnix(H5P.opened[contentId]),
       finished: toUnix(new Date()),
-      time: time
+      time: time,
+      token: H5PIntegration.tokens.result
     });
   }
 };
@@ -1723,7 +1761,8 @@ H5P.createTitle = function (rawTitle, maxLength) {
       options.data = {
         data: (data === null ? 0 : data),
         preload: (preload ? 1 : 0),
-        invalidate: (invalidate ? 1 : 0)
+        invalidate: (invalidate ? 1 : 0),
+        token: H5PIntegration.tokens.contentUserData
       };
     }
     else {
@@ -1735,7 +1774,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
       };
       options.success = function (response) {
         if (!response.success) {
-          done(response.error);
+          done(response.message);
           return;
         }
 
@@ -1768,9 +1807,10 @@ H5P.createTitle = function (rawTitle, maxLength) {
       subContentId = 0; // Default
     }
 
-    var content = H5PIntegration.contents['cid-' + contentId];
+    H5PIntegration.contents = H5PIntegration.contents || {};
+    var content = H5PIntegration.contents['cid-' + contentId] || {};
     var preloadedData = content.contentUserData;
-    if (preloadedData && preloadedData[subContentId] && preloadedData[subContentId][dataId] !== undefined) {
+    if (preloadedData && preloadedData[subContentId] && preloadedData[subContentId][dataId]) {
       if (preloadedData[subContentId][dataId] === 'RESET') {
         done(undefined, null);
         return;
@@ -1856,6 +1896,9 @@ H5P.createTitle = function (rawTitle, maxLength) {
     }
 
     var content = H5PIntegration.contents['cid-' + contentId];
+    if (content === undefined) {
+      content = H5PIntegration.contents['cid-' + contentId] = {};
+    }
     if (!content.contentUserData) {
       content.contentUserData = {};
     }
@@ -1912,20 +1955,35 @@ H5P.createTitle = function (rawTitle, maxLength) {
     }
 
     if (H5PIntegration.saveFreq !== false) {
+      // When was the last state stored
+      var lastStoredOn = 0;
       // Store the current state of the H5P when leaving the page.
-      H5P.$window.on('beforeunload', function () {
-        for (var i = 0; i < H5P.instances.length; i++) {
-          var instance = H5P.instances[i];
-          if (instance.getCurrentState instanceof Function ||
-              typeof instance.getCurrentState === 'function') {
-            var state = instance.getCurrentState();
-            if (state !== undefined) {
-              // Async is not used to prevent the request from being cancelled.
-              H5P.setUserData(instance.contentId, 'state', state, {deleteOnChange: true, async: false});
+      var storeCurrentState = function () {
+        // Make sure at least 250 ms has passed since last save
+        var currentTime = new Date().getTime();
+        if (currentTime - lastStoredOn > 250) {
+          lastStoredOn = currentTime;
+          for (var i = 0; i < H5P.instances.length; i++) {
+            var instance = H5P.instances[i];
+            if (instance.getCurrentState instanceof Function ||
+                typeof instance.getCurrentState === 'function') {
+              var state = instance.getCurrentState();
+              if (state !== undefined) {
+                // Async is not used to prevent the request from being cancelled.
+                H5P.setUserData(instance.contentId, 'state', state, {deleteOnChange: true, async: false});
+              }
             }
           }
         }
+      };
+      // iPad does not support beforeunload, therefore using unload
+      H5P.$window.one('beforeunload unload', function () {
+        // Only want to do this once
+        H5P.$window.off('pagehide beforeunload unload');
+        storeCurrentState();
       });
+      // pagehide is used on iPad when tabs are switched
+      H5P.$window.on('pagehide', storeCurrentState);
     }
 
     /**

@@ -139,8 +139,8 @@ H5P.EventDispatcher = (function () {
       }
 
       var once = function (event) {
-        self.off(event, once);
-        listener.apply(this, event);
+        self.off(event.type, once);
+        listener.call(this, event);
       };
 
       self.on(type, once, thisArg);

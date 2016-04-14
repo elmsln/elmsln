@@ -10,15 +10,34 @@
  * Implements hook_disable
  */
 function h5p_disable() {
-  drupal_set_message("The H5P Community is working hard every day to improve H5P. Would you like to drop them a one-liner about how they may improve H5P or why you disabled the module? <a href=\"https://h5p.org/drupal-module-disabled\">https://h5p.org/drupal-module-disabled</a>");
+  // Show link to h5p.org form
+  drupal_set_message('H5P has now been disabled. Answer the short survey below and get a chance to win a US$500 Amazon Gift Card.</br><iframe src="http://h5p.org/uninstall-form" width="100%" height="360px" style="border: 0;"></iframe>');
+
+  // Alternative text for drush uninstalls
+  drupal_set_message("Leaving because the H5P plugin isn’t working for you? Please share your feedback so we can improve. <a href=\"https://h5p.org/drupal-module-disabled\">https://h5p.org/drupal-module-disabled</a>");
 }
 
 /**
  * Implements hook_uninstall().
  */
 function h5p_uninstall() {
+  global $language;
+
   // Clean out file dirs.
   $h5p_path = file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . '/' . variable_get('h5p_default_path', 'h5p');
+
+  // Load core
+  require_once('library/h5p.classes.php');
+  require_once('library/h5p-development.class.php');
+  require_once('library/h5p-file-storage.interface.php');
+  require_once('library/h5p-default-storage.class.php');
+  require_once('h5p.classes.inc');
+
+  $interface = new H5PDrupal();
+  $core = new H5PCore($interface, $h5p_path, base_path(), $language->language, (variable_get('h5p_export', '1') ? TRUE : FALSE), H5PDevelopment::MODE_NONE);
+
+  // Notify about uninstall
+  $core->fetchLibrariesMetadata();
 
   // Remove these regardless of their content.
   foreach (array('temp', 'libraries', 'content', 'exports') as $directory) {
@@ -89,7 +108,7 @@ function h5p_enable() {
 
 function _h5p_inform_h5p_org_communication() {
   if (variable_get('h5p_allow_communication_with_h5p_org', TRUE)) {
-    drupal_set_message(t('The H5P module fetches updates from H5P.org on cron. Currently tutorials are being updated. In the future you will be notified about library updates and more. Goto <a href="@url">the H5P settings page</a> if you want to disable this option.', array('@url' => url('admin/config/system/h5p'))));
+    drupal_set_message(t('By default, H5P is set up to automatically fetch information regarding Content Type updates from H5P.org. When doing so, H5P will also contribute anonymous usage data to aid the development of H5P. This behaviour can be altered through the <a href="@url">Settings</a> page.', array('@url' => url('admin/config/system/h5p'))));
   }
 }
 
@@ -433,6 +452,7 @@ function h5p_schema() {
         'description' => 'The data type identifier',
         'type' => 'varchar',
         'length' => 127,
+        'not null' => TRUE,
       ),
       'timestamp' => array(
         'description' => 'What the time is',
@@ -462,6 +482,97 @@ function h5p_schema() {
       ),
     ),
     'primary key' => array('user_id', 'content_main_id', 'sub_content_id', 'data_id'),
+  );
+
+  $schema['h5p_events'] = array(
+    'description' => 'Keeps track of what happens in the H5P system',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The unique event identifier',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'user_id' => array(
+        'description' => 'User id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'created_at' => array(
+        'description' => 'Time of the event',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'type' => array(
+        'description' => 'Type of event',
+        'type' => 'varchar',
+        'length' => 63,
+        'not null' => TRUE
+      ),
+      'sub_type' => array(
+        'description' => 'Sub type of event',
+        'type' => 'varchar',
+        'length' => 63,
+        'not null' => TRUE
+      ),
+      'content_id' => array(
+        'description' => 'Content id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'content_title' => array(
+        'description' => 'Content title',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'library_name' => array(
+        'description' => 'Library name',
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE
+      ),
+      'library_version' => array(
+        'description' => 'Version of library',
+        'type' => 'varchar',
+        'length' => 31,
+        'not null' => TRUE
+      )
+    ),
+    'primary key' => array('id')
+  );
+
+  $schema['h5p_counters'] = array(
+    'description' => 'Global counters for the H5P system',
+    'fields' => array(
+      'type' => array(
+        'description' => 'Type of counter',
+        'type' => 'varchar',
+        'length' => 63,
+        'not null' => TRUE
+      ),
+      'library_name' => array(
+        'description' => 'Library',
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE
+      ),
+      'library_version' => array(
+        'description' => 'Version of library',
+        'type' => 'varchar',
+        'length' => 31,
+        'not null' => TRUE
+      ),
+      'num' => array(
+        'description' => 'Number value of counter',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+    ),
+    'primary key' => array('type', 'library_name', 'library_version')
   );
 
   return $schema;
@@ -909,6 +1020,103 @@ function h5p_update_7109() {
   }
 }
 
+/**
+ * Adds the H5P events and counters tables.
+ */
+function h5p_update_7110() {
+  db_create_table('h5p_events', array(
+    'description' => 'Keeps track of what happens in the H5P system',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The unique event identifier',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'user_id' => array(
+        'description' => 'User id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'created_at' => array(
+        'description' => 'Time of the event',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'type' => array(
+        'description' => 'Type of event',
+        'type' => 'varchar',
+        'length' => 63,
+        'not null' => TRUE
+      ),
+      'sub_type' => array(
+        'description' => 'Sub type of event',
+        'type' => 'varchar',
+        'length' => 63,
+        'not null' => TRUE
+      ),
+      'content_id' => array(
+        'description' => 'Content id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'content_title' => array(
+        'description' => 'Content title',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'library_name' => array(
+        'description' => 'Library name',
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE
+      ),
+      'library_version' => array(
+        'description' => 'Version of library',
+        'type' => 'varchar',
+        'length' => 31,
+        'not null' => TRUE
+      )
+    ),
+    'primary key' => array('id')
+  ));
+
+  db_create_table('h5p_counters', array(
+    'description' => 'Global counters for the H5P system',
+    'fields' => array(
+      'type' => array(
+        'description' => 'Type of counter',
+        'type' => 'varchar',
+        'length' => 63,
+        'not null' => TRUE
+      ),
+      'library_name' => array(
+        'description' => 'Library',
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE
+      ),
+      'library_version' => array(
+        'description' => 'Version of library',
+        'type' => 'varchar',
+        'length' => 31,
+        'not null' => TRUE
+      ),
+      'num' => array(
+        'description' => 'Number value of counter',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+    ),
+    'primary key' => array('type', 'library_name', 'library_version')
+  ));
+
+  _h5p_inform_h5p_org_communication();
+}
 
 /**
  * Check if any library installed is unsupported by core
