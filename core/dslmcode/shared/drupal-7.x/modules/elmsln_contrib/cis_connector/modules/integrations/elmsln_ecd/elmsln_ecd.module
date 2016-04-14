@@ -75,64 +75,68 @@ function _elmsln_ecd_request($node, $op) {
       ),
     );
     _elmsln_api_request($request);
-    // special case for content to deep search
-    if (!isset($node->content)) {
-      $view = node_view($node);
-      $html = render($view);
-    }
-    else {
-      $html = $node->content;
-    }
-    // pull tags out of the rendered node content
-    $tags = _elmsln_ecd_scan_for_tags($html, array('a', 'video', 'object', 'img', 'iframe'));
-    // loop through the tag responses found
-    foreach ($tags as $tag) {
-      $link = NULL;
-      // src would be on video, iframes, images, objects, etc
-      if (isset($tag['src']) && _cis_connector_validate_url($tag['src'])) {
-        $link = $tag['src'];
+    // only deep scan content, media is highly specialized and doesn't need
+    // to be scanned deeply as it's already a singular asset
+    if ($type == 'content') {
+      // special case for content to deep search
+      if (!isset($node->content)) {
+        $view = node_view($node);
+        $html = render($view);
       }
-      // links and internally included resources
-      elseif (isset($tag['href']) && _cis_connector_validate_url($tag['href'])) {
-        $link = $tag['href'];
+      else {
+        $html = $node->content;
       }
-      // if we found a link we need to try shipping it off
-      if (!empty($link)) {
-        $title = '';
-        // try to assemble a title from title and/or alt text
-        if (isset($tag['title'])) {
-          $title = $tag['title'];
+      // pull tags out of the rendered node content
+      $tags = _elmsln_ecd_scan_for_tags($html, array('a', 'video', 'object', 'img', 'iframe'));
+      // loop through the tag responses found
+      foreach ($tags as $tag) {
+        $link = NULL;
+        // src would be on video, iframes, images, objects, etc
+        if (isset($tag['src']) && _cis_connector_validate_url($tag['src'])) {
+          $link = $tag['src'];
         }
-        elseif (isset($tag['alt'])) {
-          $title = $tag['alt'];
+        // links and internally included resources
+        elseif (isset($tag['href']) && _cis_connector_validate_url($tag['href'])) {
+          $link = $tag['href'];
         }
-        // see if that pulled anything
-        if (empty($title)) {
-          $title = t('Linked content');
+        // if we found a link we need to try shipping it off
+        if (!empty($link)) {
+          $title = '';
+          // try to assemble a title from title and/or alt text
+          if (isset($tag['title'])) {
+            $title = $tag['title'];
+          }
+          elseif (isset($tag['alt'])) {
+            $title = $tag['alt'];
+          }
+          // see if that pulled anything
+          if (empty($title)) {
+            $title = t('Linked content');
+          }
+          // produce the asset notification remotely of type link
+          // links are special in that the UUID is actually the full
+          // link itself. This ensures that links used multiple times
+          // are not showing up multiple times. We also don't wipe the
+          // verification settings for links as they will need checked
+          // on a different interval
+          $request = array(
+            'method' => 'POST',
+            'api' => '1',
+            'bucket' => 'ecd',
+            'path' => '/',
+            'data' => array(
+              'elmsln_module' => 'ecd_helper',
+              'elmsln_callback' => 'asset',
+              'title' => $title,
+              'course' => $course,
+              'url' => $link,
+              'uuid' => $link,
+              'type' => 'link',
+              'operation' => $op,
+            ),
+          );
+          _elmsln_api_request($request);
         }
-        // produce the asset notification remotely of type link
-        // links are special in that the UUID is actually the full
-        // link itself. This ensures that links used multiple times
-        // are not showing up multiple times. We also don't wipe the
-        // verification settings for links as they will need checked
-        // on a different interval
-        $request = array(
-          'method' => 'POST',
-          'api' => '1',
-          'bucket' => 'ecd',
-          'path' => '/',
-          'data' => array(
-            'elmsln_module' => 'ecd_helper',
-            'elmsln_callback' => 'asset',
-            'title' => $title,
-            'course' => $course,
-            'url' => $link,
-            'uuid' => $link,
-            'type' => 'link',
-            'operation' => $op,
-          ),
-        );
-        _elmsln_api_request($request);
       }
     }
   }
