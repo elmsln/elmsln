@@ -16,4 +16,4 @@
     $frame.change(toggle);
     toggle();
   });
-})(jQuery);
+})(H5P.jQuery);

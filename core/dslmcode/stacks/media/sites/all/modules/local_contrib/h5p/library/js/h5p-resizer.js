@@ -46,17 +46,14 @@
    * @param {Function} respond Send a response to the iframe
    */
   actionHandlers.prepareResize = function (iframe, data, respond) {
-    responseData = {};
+    // Do not resize unless page and scrolling differs
+    if (iframe.clientHeight !== data.scrollHeight ||
+        data.scrollHeight !== data.clientHeight) {
 
-    // Create spaceholder and insert after iframe.
-    var spaceholder = document.createElement('div');
-    spaceholder.style.height = (iframe.clientHeight - 1) + 'px';
-    iframe.parentNode.insertBefore(spaceholder, iframe.nextSibling);
-
-    // Reset iframe height, in case content has shrinked.
-    iframe.style.height = '1px';
-
-    respond('resizePrepared');
+      // Reset iframe height, in case content has shrinked.
+      iframe.style.height = data.clientHeight + 'px';
+      respond('resizePrepared');
+    }
   };
 
   /**
@@ -68,14 +65,13 @@
    * @param {Function} respond Send a response to the iframe
    */
   actionHandlers.resize = function (iframe, data, respond) {
-    // Resize iframe so all content is visible.
-    iframe.style.height = data.height + 'px';
-    iframe.parentNode.removeChild(iframe.nextSibling);
+    // Resize iframe so all content is visible. Use scrollHeight to make sure we get everything
+    iframe.style.height = data.scrollHeight + 'px';
   };
 
   /**
    * Keyup event handler. Exits full screen on escape.
-   * 
+   *
    * @param {Event} event
    */
   var escape = function (event) {

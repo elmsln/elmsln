@@ -1,0 +1,47 @@
+.h5peditor .h5p-editing-image-button {
+  line-height: 1.5;
+  margin-right: 0.5em;
+  margin-bottom: 0.5em;
+  padding-right: 1em;
+}
+
+.h5peditor .h5p-editing-image-button:before {
+  font-family: "H5P";
+  content: "\e900";
+  color: #666;
+  padding-right: 0.25em;
+  vertical-align: middle;
+  font-size: 1.5em;
+  line-height: 0.9;
+}
+
+.h5peditor .ui-dialog .h5p-editing-image-button,
+.h5peditor .ui-dialog .h5p-copyright-button {
+  padding-left: 0.5em;
+}
+
+.h5peditor .h5p-editing-image-button.loading:before {
+  content: "\e901";
+}
+
+.h5peditor .h5p-editing-image-button.hidden {
+  display: none;
+}
+
+.h5peditor .field.image .file {
+  display: inline-block;
+  float: none;
+}
+
+.h5peditor .h5p-editor-image-buttons .h5p-editor-image-buttons {
+  display: block;
+}
+
+.h5peditor .h5p-editor-image-buttons .h5p-copyright-button {
+  float: none;
+  display: inline-block;
+}
+
+body.h5p-editor-image-popup {
+  position: relative;
+}

@@ -25,15 +25,21 @@ a {
     margin-top: 0.4em;
   }
 
+  .tree > .field:first-child {
+    margin-top: 0;
+  }
+
   .field {
-    margin: 16px 0;
+    margin: 8px 0;
     font-size: 16px;
     padding: 0;
-    &:first-child {
-      margin-top: 0;
-    }
+    min-width: inherit;
     &:last-child {
       margin-bottom: 0;
+    }
+
+    .h5peditor-widget-wrapper button {
+      margin-top: 4px;
     }
 
     &.boolean .h5peditor-label {
@@ -44,9 +50,13 @@ a {
     }
 
     .library {
-      border: 1px solid #666;
+      border: 1px solid #ccc;
       padding: 8px;
     }
+  }
+  .h5peditor-single > .field.library {
+    border: 0;
+    padding: 0;
   }
 
   .errors p,
@@ -58,7 +68,6 @@ a {
     resize: vertical;
   }
   textarea, .h5peditor-text, .ckeditor {
-    width: 90%;
     padding: 4px 8px;
     font-size: 16px;
     border: 1px solid #a0a0a0;
@@ -66,9 +75,27 @@ a {
     outline: none;
     min-height: 20px;
     @include border-radius(3px);
+    word-wrap: break-word;
+  }
+  .h5peditor-text, textarea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  /* Placeholders - need to be on separate lines. If not, the browsers will invlaidate them */
+  ::-webkit-input-placeholder {
+    color: #bbb;
+  }
+  :-moz-placeholder {
+    color: #bbb;
+  }
+  ::-moz-placeholder {
+    color: #bbb;
+  }
+  :-ms-input-placeholder {
+    color: #bbb;
   }
   .h5peditor-ckeditor-placeholder {
-    color: #888;
+    color: #bbb;
   }
   select {
     padding: 2px;
@@ -82,147 +109,181 @@ a {
     background-color: #fff;
     border-color: #53a0ff;
   }
+  .list-item-title-bar {
+    height: 2.3125em;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ccc;
+    overflow: hidden;
+
+    .remove, .order {
+      cursor: pointer;
+      width: 1.25em;
+      line-height: 1.125em;
+      float: right;
+      font-size: 1.75em;
+      overflow: hidden;
+
+      &:hover {
+        opacity: 1;
+        text-decoration: none;
+      }
+    }
+
+    .remove:after {
+      font-family: $i;
+      content: "\e890";
+      color: #666;
+      display: inline-block;
+      line-height: 1.375em;
+    }
+
+    .remove:hover:after {
+      color: #c33f62;
+    }
+
+    .order {
+      float: left;
+      width: 0.6875em;
+      text-indent: -0.0625em;
+      cursor: move;
+      cursor: grab;
+      cursor: -moz-grab;
+      cursor: -webkit-grab;
+
+      &:after {
+        font-family: $i;
+        content: "\e600";
+        color: #ccc;
+        display: inline-block;
+        line-height: 1.375em;
+      }
+
+      &:hover:after {
+        color: #027AC6;
+      }
+    }
+
+    & > .h5peditor-label {
+      padding: 0.0625em 0 0;
+      margin: 0 1.5em;
+      white-space: nowrap;
+      line-height: 2.25em;
+      font-weight: normal;
+      text-overflow: ellipsis;
+    }
+  }
+  .moving .order {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
   .h5p-ul {
     padding: 0;
     margin: 0;
     list-style: none;
 
     .h5p-li {
-      padding: 0 8px;
-      margin: 8px 0;
+      padding: 0;
+      margin: 0;
       list-style: none;
       background: #fff;
       border: 1px solid #ccc;
+      border-top: 0;
 
-      & > .content {
-        margin: 0 24px;
-      }
-      & > .remove, & > .order {
-        cursor: pointer;
-        width: 14px;
-        height: 14px;
-        margin: 10px 4px 0 0;
-        float: right;
-        font-size: 1.75em;
-        line-height: 1em;
-        text-indent: -0.35em;
-
-        &:hover {
-          opacity: 1;
-          text-decoration: none;
-        }
-      }
-
-      & > .remove:after {
-          font-family: $i;
-          content: "\e890";
-          color: #666;
-        }
-
-      & > .remove:hover:after {
-          color: #c33f62;
-        }
-
-      & > .order {
-        float: left;
-
-        &:after {
-          font-family: $i;
-          content: "\e88d";
-          color: #666;
-
-        }
-
-        &:hover:after {
-          color: #027AC6;
-        }
-      }
       &:hover {
         text-decoration: none;
       }
+      &:first-child,
+      &.moving {
+        border-top: 1px solid #ccc;
+      }
+      &.collapsed .list-item-title-bar {
+        border-bottom: 0;
+      }
+
+      & > .group {
+        border: 0;
+        margin: 0;
+        background-color: transparent;
+        box-shadow: none;
+      }
     }
   }
-  .content > .field {
-    margin: 8px 0 20px 0;
+  /*.listgroup > .group {
+    .field {
+      margin-right: 8px;
+      &.list {
+        margin-right: 0;
+      }
+    }
+    .h5p-li {
+      border-right: 0;
+    }
+  }*/
+  .listgroup > .list-item-title-bar > .h5peditor-label {
+    cursor: pointer;
+  }
+  .listgroup > .list-item-title-bar > .h5peditor-label:before,
+  .group > .title:before  {
+    content: "";
+    display: inline-block;
+    vertical-align: middle;
+    width: 13px;
+    height: 13px;
+    margin: 0 6px 2px 2px;
+    background: inline-image("expand.png") no-repeat;
+    opacity: 0.8;
+  }
+  .listgroup.expanded > .list-item-title-bar > .h5peditor-label:before,
+  .expanded > .title:before {
+    background-image: inline-image("collapse.png");
+  }
+  .listgroup > .list-item-title-bar > .h5peditor-label:hover:before,
+  .listgroup > .list-item-title-bar > .h5peditor-label:focus:before,
+  .group > .title:hover:before,
+  .group > .title:focus:before {
+    opacity: 1;
+  }
+  .listgroup > .list-item-title-bar > .h5peditor-label:active:before,
+  .group > .title:active:before {
+    opacity: 0.5;
+  }
+  .content {
+    background: #fff;
+    margin: 0;
+    padding: 8px;
+    .field:first-child {
+      margin-top: 0;
+    }
+    .field:last-child {
+      margin-bottom: 0;
+    }
   }
   .group {
-    margin: 16px 0;
-    border: 1px solid #676767;
-    background: #d5e9ff;
-    @include border-radius(0);
-
-    @include box-shadow(0 0 4px #a7a7a7);
+    margin: -1px 0 0;
+    border: 1px solid #ccc;
 
     & > .title {
       cursor: pointer;
-      padding: 4px 8px;
+      padding: 6px 8px 5px;
       overflow: hidden;
       background: #f4f4f4;
-      overflow: hidden;
       outline: none;
 
       &:first-letter {
         text-transform: uppercase;
       }
-      &:before {
-        content: "";
-        display: inline-block;
-        vertical-align: middle;
-        width: 13px;
-        height: 13px;
-        margin: 0 6px 2px 2px;
-        background: inline-image("expand.png") no-repeat;
-        opacity: 0.8;
-      }
-      &:hover:before,
-      &:focus:before {
-        opacity: 1;
-      }
-      &:active:before {
-        opacity: 0.5;
-      }
     }
     & > .content {
       display: none;
     }
-    .h5p-li {
-      background: #fff;
-      &:hover {
-        background: #fff;
-      }
-      .group {
-        background: #fff;
-        .h5p-li {
-          background: #fff;
-          &:hover {
-            background: #fff;
-          }
-          .group {
-            background: #feedff;
-          }
-        }
-        .group {
-          background: #feedff;
-        }
-      }
-    }
-    .group {
-      background: #ebfffa;
-    }
   }
   .expanded {
     & > .title {
-      border-bottom: 1px solid #676767;
-
-      &:before {
-        background-image: inline-image("collapse.png");
-      }
+      border-bottom: 1px solid #ccc;
     }
     & > .content {
-      padding: 4px 8px;
       display: block;
-      background: #fff;
-      margin: 0;
     }
   }
   input[type="button"], button {
@@ -432,6 +493,7 @@ a {
       @include text-shadow(rgba(black, 0.4) 0 0 4px, rgba(black, 0.4) 0 0 4px, rgba(black, 0.4) 0 0 4px);
     }
     img {
+      max-width: 100%;
       vertical-align: bottom;
     }
   }
@@ -472,25 +534,25 @@ a {
     vertical-align: bottom;
   }
   .common {
-    margin-top: 1em;
-    background: #fff;
+    margin-top: 8px;
     border: 1px solid #ccc;
 
     & > .h5peditor-label {
       font-size: 1em;
       font-weight: normal;
-      padding: 0.5em 0.75em 0.4em;
+      padding: 6px 8px 5px;
       background: #ddd;
       cursor: pointer;
+      border-bottom: 1px solid #ccc;
 
       & > .icon {
         display: inline-block;
-        width: 20px;
-        height: 13px;
         background: inline-image("collapse.png") no-repeat left center;
         opacity: 0.8;
-        vertical-align: top;
-        margin-top: 4px;
+        vertical-align: middle;
+        width: 13px;
+        height: 13px;
+        margin: 0 6px 2px 2px;
       }
       &:hover > .icon {
         opacity: 1;
@@ -509,8 +571,12 @@ a {
     }
 
     &.collapsed {
-      & > .h5peditor-label > .icon {
-        background-image: inline-image("expand.png");
+      & > .h5peditor-label {
+        border-bottom: 0;
+
+        & > .icon {
+          background-image: inline-image("expand.png");
+        }
       }
       & > .fields {
         display: none;
@@ -537,18 +603,28 @@ a {
     padding: 0.875em 0 1em 3.25em;
     font-style: italic;
   }
-  .h5p-copyright-button {
+
+  a.h5p-copyright-button {
     background: linear-gradient(to bottom,#fff 0,#f2f2f2 100%);
     border: 1px solid #ccc;
     border-radius: 0.25em;
     font-size: 0.875em;
     color: #333;
     cursor: pointer;
+    line-height: 2em;
+
+    &:before {
+      padding-left: 0.25em;
+    }
+  }
+
+  .h5p-copyright-button {
     float: left;
     display: block;
     clear: both;
-    line-height: 2em;
     padding-right: 1em;
+    line-height: 1.5;
+    margin-bottom: 0.5em;
 
     &:before {
       font-family: $i;
@@ -557,8 +633,7 @@ a {
       padding-right: 0.25em;
       vertical-align: middle;
       font-size: 1.5em;
-      vertical-align: middle;
-      padding-left: 0.25em;
+      line-height: 0.9;
     }
     &:hover {
       text-decoration: none;
@@ -569,7 +644,6 @@ a {
   .h5p-editor-dialog {
     position: absolute;
     z-index: 1;
-    width: 90%;
     background: #fff;
     padding: 10px 10px 0;
     margin: 5.5em 0 1em;
@@ -633,7 +707,6 @@ a {
   display: block;
   font-weight: bold;
   font-size: 16px;
-  overflow: hidden;
   padding-top: 4px;
 }
 

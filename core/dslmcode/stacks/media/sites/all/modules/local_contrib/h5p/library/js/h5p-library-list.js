@@ -50,11 +50,11 @@ var H5PLibraryList = H5PLibraryList || {};
           text: library.numLibraryDependencies,
           class: 'h5p-admin-center'
         },
-        '<div class="h5p-admin-buttons-wrapper">\
-          <button class="h5p-admin-upgrade-library"></button>\
-          <button class="h5p-admin-view-library" title="' + t.viewLibrary + '"></button>\
-          <button class="h5p-admin-delete-library"></button>\
-        </div>'
+        '<div class="h5p-admin-buttons-wrapper">' +
+            '<button class="h5p-admin-upgrade-library"></button>' +
+            (library.detailsUrl ? '<button class="h5p-admin-view-library" title="' + t.viewLibrary + '"></button>' : '') +
+            (library.deleteUrl ? '<button class="h5p-admin-delete-library"></button>' : '') +
+            '</div>'
       ]);
 
       H5PLibraryList.addRestricted($('.h5p-admin-restricted', $libraryRow), library.restrictedUrl, library.restricted);
@@ -78,7 +78,12 @@ var H5PLibraryList = H5PLibraryList || {};
       });
 
       var $deleteButton = $('.h5p-admin-delete-library', $libraryRow);
-      if (libraries.notCached !== undefined || hasContent || (library.numContentDependencies !== '' && library.numContentDependencies !== 0) || (library.numLibraryDependencies !== '' && library.numLibraryDependencies !== 0)) {
+      if (libraries.notCached !== undefined ||
+          hasContent ||
+          (library.numContentDependencies !== '' &&
+           library.numContentDependencies !== 0) ||
+          (library.numLibraryDependencies !== '' &&
+           library.numLibraryDependencies !== 0)) {
         // Disabled delete if content.
         $deleteButton.attr('disabled', true);
       }

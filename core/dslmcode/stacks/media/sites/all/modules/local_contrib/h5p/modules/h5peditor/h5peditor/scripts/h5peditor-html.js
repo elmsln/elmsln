@@ -174,7 +174,7 @@ ns.Html.prototype.createToolbar = function () {
      * @param {Array} values
      * @returns {string}
      */
-    var getColors = function (values) {
+    var getColors = function (values) {
       var colors = '';
       for (var i = 0; i < values.length; i++) {
         var val = values[i];
@@ -314,8 +314,12 @@ ns.Html.prototype.appendTo = function ($wrapper) {
   }
 
   this.$item.children('.ckeditor').focus(function () {
+
+    // Blur is not fired on destroy. Therefore we need to keep track of it!
+    var blurFired = false;
+
     // Remove placeholder
-    that.$item.find('.h5peditor-ckeditor-placeholder').remove();
+    that.$placeholder = that.$item.find('.h5peditor-ckeditor-placeholder').detach();
 
     if (ns.Html.first) {
       CKEDITOR.basePath = ns.basePath + '/ckeditor/';
@@ -327,17 +331,41 @@ ns.Html.prototype.appendTo = function ($wrapper) {
     // Remove existing CK instance.
     ns.Html.removeWysiwyg();
 
-    H5P.jQuery(this).trigger('blur'); // Why do we do this? - FRL, 20120723.
-
     ns.Html.current = that;
+    ckConfig.width = this.offsetWidth - 8; // Avoid miscalculations
     that.ckeditor = CKEDITOR.replace(this, ckConfig);
 
-    that.ckeditor.on('blur', function () {
+    that.ckeditor.on('focus', function () {
+      blurFired = false;
+    });
+
+    that.ckeditor.once('destroy', function () {
+
+      // In some cases, the blur event is not fired. Need to be sure it is, so that
+      // validation and saving is done
+      if (!blurFired) {
+        blur();
+      }
+
+      // Display placeholder if:
+      // -- The value held by the field is empty AND
+      // -- The value shown in the UI is empty AND
+      // -- A placeholder is defined
+      var value = that.ckeditor !== undefined ? that.ckeditor.getData() : that.$input.html();
+      if (that.$placeholder.length !== 0 && (value === undefined || value.length === 0) && (that.value === undefined || that.value.length === 0)) {
+        that.$placeholder.appendTo(that.$item.find('.ckeditor'));
+      }
+    });
+
+    var blur = function () {
+      blurFired = true;
       // Do not validate if the field has been hidden.
       if (that.$item.is(':visible')) {
         that.validate();
       }
-    });
+    };
+
+    that.ckeditor.on('blur', blur);
 
     // Add events to ckeditor. It is beeing done here since we know it exists
     // at this point... Use case from commit message: "Make the default
@@ -367,12 +395,10 @@ ns.Html.prototype.appendTo = function ($wrapper) {
  * Create HTML for the HTML field.
  */
 ns.Html.prototype.createHtml = function () {
-  var html = '<label class="h5peditor-label">';
-
+  var html = '';
   if (this.field.label !== undefined) {
-    html += '<span class="h5peditor-label">' + this.field.label + '</span>';
+    html += '<label class="h5peditor-label">' + this.field.label + '</label>';
   }
-  html += '</label>';
 
   html += '<div class="ckeditor" tabindex="0" contenteditable="true">';
 
@@ -399,6 +425,9 @@ ns.Html.prototype.validate = function () {
 
   // Get contents from editor
   var value = this.ckeditor !== undefined ? this.ckeditor.getData() : this.$input.html();
+
+  // Remove placeholder text if any:
+  value = value.replace(/<span class="h5peditor-ckeditor-placeholder">.*<\/span>/, '');
 
   var $value = ns.$('<div>' + value + '</div>');
   var textValue = $value.text();

@@ -303,6 +303,8 @@ var H5PUtils = H5PUtils || {};
 
       $tbody.replaceWith($newTbody);
       $tbody = $newTbody;
+
+      return $tbody;
     };
 
     /**

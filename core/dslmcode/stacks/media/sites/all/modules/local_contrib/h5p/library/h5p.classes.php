@@ -130,18 +130,19 @@ interface H5PFrameworkInterface {
   public function getAdminUrl();
 
   /**
-   * Get id to an existing library
+   * Get id to an existing library.
+   * If version number is not specified, the newest version will be returned.
    *
    * @param string $machineName
    *   The librarys machine name
    * @param int $majorVersion
-   *   The librarys major version
+   *   Optional major version number for library
    * @param int $minorVersion
-   *   The librarys minor version
+   *   Optional minor version number for library
    * @return int
    *   The id of the specified library or FALSE
    */
-  public function getLibraryId($machineName, $majorVersion, $minorVersion);
+  public function getLibraryId($machineName, $majorVersion = NULL, $minorVersion = NULL);
 
   /**
    * Get file extension whitelist
@@ -536,6 +537,43 @@ interface H5PFrameworkInterface {
    * @return boolean
    */
   public function isContentSlugAvailable($slug);
+
+  /**
+   * Generates statistics from the event log per library
+   *
+   * @param string $type Type of event to generate stats for
+   * @return array Number values indexed by library name and version
+   */
+  public function getLibraryStats($type);
+
+  /**
+   * Aggregate the current number of H5P authors
+   * @return int
+   */
+  public function getNumAuthors();
+
+  /**
+   * Stores hash keys for cached assets, aggregated JavaScripts and
+   * stylesheets, and connects it to libraries so that we know which cache file
+   * to delete when a library is updated.
+   *
+   * @param string $key
+   *  Hash key for the given libraries
+   * @param array $libraries
+   *  List of dependencies(libraries) used to create the key
+   */
+  public function saveCachedAssets($key, $libraries);
+
+  /**
+   * Locate hash keys for given library and delete them.
+   * Used when cache file are deleted.
+   *
+   * @param int $library_id
+   *  Library identifier
+   * @return array
+   *  List of hash keys removed
+   */
+  public function deleteCachedAssets($library_id);
 }
 
 /**
@@ -640,17 +678,7 @@ class H5PValidator {
    *  TRUE if the .h5p file is valid
    */
   public function isValidPackage($skipContent = FALSE, $upgradeOnly = FALSE) {
-    // Check that directories are writable
-    if (!H5PCore::dirReady($this->h5pC->path . DIRECTORY_SEPARATOR . 'content')) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the content directory.'));
-      return FALSE;
-    }
-    if (!H5PCore::dirReady($this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries')) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the libraries directory.'));
-      return FALSE;
-    }
-
-    // Make sure Zip is present.
+    // Check dependencies, make sure Zip is present
     if (!class_exists('ZipArchive')) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Your PHP version does not support ZipArchive.'));
       return FALSE;
@@ -659,13 +687,6 @@ class H5PValidator {
     // Create a temporary dir to extract package in.
     $tmpDir = $this->h5pF->getUploadedH5pFolderPath();
     $tmpPath = $this->h5pF->getUploadedH5pPath();
-
-    if (!H5PCore::dirReady($tmpDir)) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the temporary directory.'));
-      return FALSE;
-    }
-
-    $valid = TRUE;
 
     // Extract and then remove the package file.
     $zip = new ZipArchive;
@@ -689,6 +710,7 @@ class H5PValidator {
     unlink($tmpPath);
 
     // Process content and libraries
+    $valid = TRUE;
     $libraries = array();
     $files = scandir($tmpDir);
     $mainH5pData;
@@ -798,12 +820,12 @@ class H5PValidator {
     }
     if ($valid) {
       if ($upgradeOnly) {
-        // When upgrading, we opnly add allready installed libraries,
-        // and new dependent libraries
+        // When upgrading, we only add the already installed libraries, and
+        // the new dependent libraries
         $upgrades = array();
         foreach ($libraries as $libString => &$library) {
           // Is this library already installed?
-          if ($this->h5pC->getLibraryId($library, $libString) !== FALSE) {
+          if ($this->h5pF->getLibraryId($library['machineName']) !== FALSE) {
             $upgrades[$libString] = $library;
           }
         }
@@ -1304,10 +1326,13 @@ class H5PStorage {
       $contentId = $this->h5pC->saveContent($content, $contentMainId);
       $this->contentId = $contentId;
 
-      // Move the content folder
-      $contents_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content';
-      $destination_path = $contents_path . DIRECTORY_SEPARATOR . $contentId;
-      $this->h5pC->copyFileTree($current_path, $destination_path);
+      try {
+        // Save content folder contents
+        $this->h5pC->fs->saveContent($current_path, $contentId);
+      }
+      catch (Exception $e) {
+        $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+      }
 
       // Remove temp content folder
       H5PCore::deleteFileTree($basePath);
@@ -1355,13 +1380,16 @@ class H5PStorage {
       // Save library meta data
       $this->h5pF->saveLibraryData($library, $new);
 
-      // Make sure destination dir is free
-      $libraries_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries';
-      $destination_path = $libraries_path . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
-      H5PCore::deleteFileTree($destination_path);
+      // Save library folder
+      $this->h5pC->fs->saveLibrary($library);
 
-      // Move library folder
-      $this->h5pC->copyFileTree($library['uploadDirectory'], $destination_path);
+      // Remove cachedassets that uses this library
+      if ($this->h5pC->aggregateAssets && isset($library['libraryId'])) {
+        $removedKeys = $this->h5pF->deleteCachedAssets($library['libraryId']);
+        $this->h5pC->fs->deleteCachedAssets($removedKeys);
+      }
+
+      // Remove tmp folder
       H5PCore::deleteFileTree($library['uploadDirectory']);
 
       if ($new) {
@@ -1420,26 +1448,10 @@ class H5PStorage {
    * @param int $contentId
    *  The content id
    */
-  public function deletePackage($contentId) {
-    H5PCore::deleteFileTree($this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId);
-    $this->h5pF->deleteContentData($contentId);
-    // TODO: Delete export?
-  }
-
-  /**
-   * Update an H5P package
-   *
-   * @param int $contentId
-   *  The content id
-   * @param int $contentMainId
-   *  The content main id (used by frameworks supporting revisioning)
-   * @return boolean
-   *  TRUE if one or more libraries were updated
-   *  FALSE otherwise
-   */
-  public function updatePackage($contentId, $contentMainId = NULL, $options = array()) {
-    $this->deletePackage($contentId);
-    return $this->savePackage($contentId, $contentMainId, FALSE, $options);
+  public function deletePackage($content) {
+    $this->h5pC->fs->deleteContent($content['id']);
+    $this->h5pC->fs->deleteExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p');
+    $this->h5pF->deleteContentData($content['id']);
   }
 
   /**
@@ -1456,10 +1468,7 @@ class H5PStorage {
    *  The main id of the new content (used in frameworks that support revisioning)
    */
   public function copyPackage($contentId, $copyFromId, $contentMainId = NULL) {
-    $source_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $copyFromId;
-    $destination_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
-    $this->h5pC->copyFileTree($source_path, $destination_path);
-
+    $this->h5pC->fs->cloneContent($copyFromId, $contentId);
     $this->h5pF->copyLibraryUsage($contentId, $copyFromId, $contentMainId);
   }
 }
@@ -1493,25 +1502,26 @@ Class H5PExport {
    * @return string
    */
   public function createExportFile($content) {
-    $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
-    $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['slug'] . '-' . $content['id'] . '.h5p';
 
-    // Make sure the exports dir is ready
-    if (!H5PCore::dirReady($h5pDir . 'exports')) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the exports directory.'));
+    // Get path to temporary folder, where export will be contained
+    $tmpPath = $this->h5pC->fs->getTmpPath();
+    mkdir($tmpPath, 0777, true);
+
+    try {
+      // Create content folder and populate with files
+      $this->h5pC->fs->exportContent($content['id'], "{$tmpPath}/content");
+    }
+    catch (Exception $e) {
+      $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+      H5PCore::deleteFileTree($tmpPath);
       return FALSE;
     }
 
-    // Create content folder
-    if ($this->h5pC->copyFileTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $content['id'], $tempPath . DIRECTORY_SEPARATOR . 'content') === FALSE) {
-      return FALSE;
-    }
-    file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json', $content['params']);
+    // Update content.json with content from database
+    file_put_contents("{$tmpPath}/content/content.json", $content['params']);
 
-
-    // Make embedTypes into an array
-    $embedTypes = explode(', ', $content['embedType']); // Won't content always be embedded in one way?
+    // Make embedType into an array
+    $embedTypes = explode(', ', $content['embedType']);
 
     // Build h5p.json
     $h5pJson = array (
@@ -1525,16 +1535,22 @@ Class H5PExport {
     foreach ($content['dependencies'] as $dependency) {
       $library = $dependency['library'];
 
-      // Copy library to h5p
-      $source = $h5pDir . (isset($library['path']) ? $library['path'] : 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE));
-      $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
-      $this->h5pC->copyFileTree($source, $destination);
+      try {
+        // Export required libraries
+        $this->h5pC->fs->exportLibrary($library, $tmpPath);
+      }
+      catch (Exception $e) {
+        $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+        H5PCore::deleteFileTree($tmpPath);
+        return FALSE;
+      }
 
       // Do not add editor dependencies to h5p json.
       if ($dependency['type'] === 'editor') {
         continue;
       }
 
+      // Add to h5p.json dependencies
       $h5pJson[$dependency['type'] . 'Dependencies'][] = array(
         'machineName' => $library['machineName'],
         'majorVersion' => $library['majorVersion'],
@@ -1544,15 +1560,18 @@ Class H5PExport {
 
     // Save h5p.json
     $results = print_r(json_encode($h5pJson), true);
-    file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'h5p.json', $results);
+    file_put_contents("{$tmpPath}/h5p.json", $results);
 
     // Get a complete file list from our tmp dir
     $files = array();
-    self::populateFileList($tempPath, $files);
+    self::populateFileList($tmpPath, $files);
+
+    // Get path to temporary export target file
+    $tmpFile = $this->h5pC->fs->getTmpPath();
 
     // Create new zip instance.
     $zip = new ZipArchive();
-    $zip->open($zipPath, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+    $zip->open($tmpFile, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
 
     // Add all the files from the tmp dir.
     foreach ($files as $file) {
@@ -1561,9 +1580,19 @@ Class H5PExport {
       $zip->addFile($file->absolutePath, $file->relativePath);
     }
 
-    // Close zip and remove temp dir
+    // Close zip and remove tmp dir
     $zip->close();
-    H5PCore::deleteFileTree($tempPath);
+    H5PCore::deleteFileTree($tmpPath);
+
+    try {
+      // Save export
+      $this->h5pC->fs->saveExport($tmpFile, $content['slug'] . '-' . $content['id'] . '.h5p');
+    }
+    catch (Exception $e) {
+      $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+    }
+
+    unlink($tmpFile);
   }
 
   /**
@@ -1578,16 +1607,19 @@ Class H5PExport {
    */
   private static function populateFileList($dir, &$files, $relative = '') {
     $strip = strlen($dir) + 1;
-    foreach (glob($dir . DIRECTORY_SEPARATOR . '*') as $file) {
-      $rel = $relative . substr($file, $strip);
-      if (is_dir($file)) {
-        self::populateFileList($file, $files, $rel . '/');
-      }
-      else {
-        $files[] = (object) array(
-          'absolutePath' => $file,
-          'relativePath' => $rel
-        );
+    $contents = glob($dir . DIRECTORY_SEPARATOR . '*');
+    if (!empty($contents)) {
+      foreach ($contents as $file) {
+        $rel = $relative . substr($file, $strip);
+        if (is_dir($file)) {
+          self::populateFileList($file, $files, $rel . '/');
+        }
+        else {
+          $files[] = (object) array(
+            'absolutePath' => $file,
+            'relativePath' => $rel
+          );
+        }
       }
     }
   }
@@ -1598,11 +1630,7 @@ Class H5PExport {
    * @param array $content object
    */
   public function deleteExport($content) {
-    $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . ($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p';
-    if (file_exists($zipPath)) {
-      unlink($zipPath);
-    }
+    $this->h5pC->fs->deleteExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p');
   }
 
   /**
@@ -1650,10 +1678,10 @@ class H5PCore {
     'js/h5p-utils.js',
   );
 
-  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
+  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
-  public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $path, $development_mode, $h5pD, $disableFileCheck;
+  public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $development_mode, $h5pD, $disableFileCheck;
   const SECONDS_IN_WEEK = 604800;
 
   private $exportEnabled;
@@ -1679,7 +1707,8 @@ class H5PCore {
    *
    * @param object $H5PFramework
    *  The frameworks implementation of the H5PFrameworkInterface
-   * @param string $path H5P file storage directory.
+   * @param string|\H5PFileStorage $path H5P file storage directory or class.
+   * @param string $url To file storage directory.
    * @param string $language code. Defaults to english.
    * @param boolean $export enabled?
    * @param int $development_mode mode.
@@ -1687,15 +1716,20 @@ class H5PCore {
   public function __construct($H5PFramework, $path, $url, $language = 'en', $export = FALSE, $development_mode = H5PDevelopment::MODE_NONE) {
     $this->h5pF = $H5PFramework;
 
-    $this->h5pF = $H5PFramework;
-    $this->path = $path;
+    $this->fs = ($path instanceof \H5PFileStorage ? $path : new \H5PDefaultStorage($path));
+
     $this->url = $url;
     $this->exportEnabled = $export;
     $this->development_mode = $development_mode;
 
+    $this->aggregateAssets = FALSE; // Off by default.. for now
+
     if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
       $this->h5pD = new H5PDevelopment($this->h5pF, $path . '/', $language);
     }
+
+    $this->detectSiteType();
+    $this->fullPluginPath = preg_replace('/\/[^\/]+[\/]?$/', '' , dirname(__FILE__));
   }
 
   /**
@@ -1791,10 +1825,7 @@ class H5PCore {
         $content['slug'] = $this->generateContentSlug($content);
 
         // Remove old export file
-        $oldExport = $this->path . '/exports/' . $content['id'] . '.h5p';
-        if (file_exists($oldExport)) {
-          unlink($oldExport);
-        }
+        $this->fs->deleteExport($content['id'] . '.h5p');
       }
 
       if ($this->exportEnabled) {
@@ -1925,10 +1956,28 @@ class H5PCore {
    * @return array files.
    */
   public function getDependenciesFiles($dependencies, $prefix = '') {
+    // Build files list for assets
     $files = array(
       'scripts' => array(),
       'styles' => array()
     );
+
+    // Avoid caching empty files
+    if (empty($dependencies)) {
+      return $files;
+    }
+
+    if ($this->aggregateAssets) {
+      // Get aggregated files for assets
+      $key = self::getDependenciesHash($dependencies);
+
+      $files = $this->fs->getCachedAssets($key);
+      if ($files) {
+        return $files; // Using cached assets
+      }
+    }
+
+    // Using content dependencies
     foreach ($dependencies as $dependency) {
       if (isset($dependency['path']) === FALSE) {
         $dependency['path'] = 'libraries/' . H5PCore::libraryToString($dependency, TRUE);
@@ -1939,7 +1988,32 @@ class H5PCore {
       $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts'], $prefix);
       $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles'], $prefix);
     }
+
+    if ($this->aggregateAssets) {
+      // Aggregate and store assets
+      $this->fs->cacheAssets($files, $key);
+
+      // Keep track of which libraries have been cached in case they are updated
+      $this->h5pF->saveCachedAssets($key, $dependencies);
+    }
+
     return $files;
+  }
+
+  private static function getDependenciesHash(&$dependencies) {
+    // Build hash of dependencies
+    $toHash = array();
+
+    // Use unique identifier for each library version
+    foreach ($dependencies as $dep) {
+      $toHash[] = "{$dep['machineName']}-{$dep['majorVersion']}.{$dep['minorVersion']}.{$dep['patchVersion']}";
+    }
+
+    // Sort in case the same dependencies comes in a different order
+    sort($toHash);
+
+    // Calculate hash sum
+    return hash('sha1', implode('', $toHash));
   }
 
   /**
@@ -2092,39 +2166,6 @@ class H5PCore {
       (is_dir("$dir/$file")) ? self::deleteFileTree("$dir/$file") : unlink("$dir/$file");
     }
     return rmdir($dir);
-  }
-
-  /**
-   * Recursive function for copying directories.
-   *
-   * @param string $source
-   *  Path to the directory we'll be copying
-   * @return boolean
-   *  Indicates if the directory existed.
-   */
-  public function copyFileTree($source, $destination) {
-    if (!H5PCore::dirReady($destination)) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy file tree.'));
-      return FALSE;
-    }
-
-    $dir = opendir($source);
-    if ($dir === FALSE) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy file tree.'));
-      return FALSE;
-    }
-
-    while (false !== ($file = readdir($dir))) {
-        if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
-            if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
-              $this->copyFileTree($source . DIRECTORY_SEPARATOR . $file, $destination . DIRECTORY_SEPARATOR . $file);
-            }
-            else {
-              copy($source . DIRECTORY_SEPARATOR . $file,$destination . DIRECTORY_SEPARATOR . $file);
-            }
-        }
-    }
-    closedir($dir);
   }
 
   /**
@@ -2367,30 +2408,128 @@ class H5PCore {
   }
 
   /**
+   * Detects if the site was accessed from localhost,
+   * through a local network or from the internet.
+   */
+  public function detectSiteType() {
+    $type = $this->h5pF->getOption('site_type', 'local');
+
+    // Determine remote/visitor origin
+    if ($type === 'network' ||
+        ($type === 'local' && !preg_match('/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i', $_SERVER['REMOTE_ADDR']))) {
+      if (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
+        // Internet
+        $this->h5pF->setOption('site_type', 'internet');
+      }
+      elseif ($type === 'local') {
+        // Local network
+        $this->h5pF->setOption('site_type', 'network');
+      }
+    }
+  }
+
+  /**
+   * Get a list of installed libraries, different minor versions will
+   * return separate entries.
+   *
+   * @return array
+   *  A distinct array of installed libraries
+   */
+  public function getLibrariesInstalled() {
+    $librariesInstalled = array();
+    $libs = $this->h5pF->loadLibraries();
+
+    foreach($libs as $libName => $library) {
+      foreach($library as $libVersion) {
+        $librariesInstalled[$libName.' '.$libVersion->major_version.'.'.$libVersion->minor_version] = $libVersion->patch_version;
+      }
+    }
+
+    return $librariesInstalled;
+  }
+
+  /**
+   * Easy way to combine smiliar data sets.
+   *
+   * @param array $inputs Multiple arrays with data
+   * @return array
+   */
+  public function combineArrayValues($inputs) {
+    $results = array();
+    foreach ($inputs as $index => $values) {
+      foreach ($values as $key => $value) {
+        $results[$key][$index] = $value;
+      }
+    }
+    return $results;
+  }
+
+  /**
    * Fetch a list of libraries' metadata from h5p.org.
    * Save URL tutorial to database. Each platform implementation
    * is responsible for invoking this, eg using cron
    */
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
-    $platformInfo = $this->h5pF->getPlatformInfo();
-    $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
-    $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
-    // Adding random string to GET to be sure nothing is cached
-    $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
-    $json = $this->h5pF->fetchExternalData('http://h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
-    if ($json !== NULL) {
-      $json = json_decode($json);
-      if (isset($json->libraries)) {
-        foreach ($json->libraries as $machineName => $libInfo) {
-          $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
-        }
+    // Gather data
+    $uuid = $this->h5pF->getOption('site_uuid', '');
+    $platform = $this->h5pF->getPlatformInfo();
+    $data = array(
+      'api_version' => 2,
+      'uuid' => $uuid,
+      'platform_name' => $platform['name'],
+      'platform_version' => $platform['version'],
+      'h5p_version' => $platform['h5pVersion'],
+      'disabled' => $fetchingDisabled ? 1 : 0,
+      'local_id' => hash('crc32', $this->fullPluginPath),
+      'type' => $this->h5pF->getOption('site_type', 'local'),
+      'num_authors' => $this->h5pF->getNumAuthors(),
+      'libraries' => json_encode($this->combineArrayValues(array(
+        'patch' => $this->getLibrariesInstalled(),
+        'content' => $this->h5pF->getLibraryContentCount(),
+        'loaded' => $this->h5pF->getLibraryStats('library'),
+        'created' => $this->h5pF->getLibraryStats('content create'),
+        'createdUpload' => $this->h5pF->getLibraryStats('content create upload'),
+        'deleted' => $this->h5pF->getLibraryStats('content delete'),
+        'resultViews' => $this->h5pF->getLibraryStats('results content'),
+        'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
+      )))
+    );
+
+    // Send request
+    $protocol = (extension_loaded('openssl') ? 'https' : 'http');
+    $result = $this->h5pF->fetchExternalData("{$protocol}://h5p.org/libraries-metadata.json", $data);
+    if (empty($result)) {
+      return;
+    }
+
+    // Process results
+    $json = json_decode($result);
+    if (empty($json)) {
+      return;
+    }
+
+    // Handle libraries metadata
+    if (isset($json->libraries)) {
+      foreach ($json->libraries as $machineName => $libInfo) {
+        $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
       }
-      if($platformInfo['uuid'] === '' && isset($json->uuid)) {
-        $this->h5pF->setOption('site_uuid', $json->uuid);
-      }
+    }
+
+    // Handle new uuid
+    if ($uuid === '' && isset($json->uuid)) {
+      $this->h5pF->setOption('site_uuid', $json->uuid);
+    }
+
+    // Handle lastest version of H5P
+    if (!empty($json->latest)) {
+      $this->h5pF->setOption('update_available', $json->latest->releasedAt);
+      $this->h5pF->setOption('update_available_path', $json->latest->path);
     }
   }
 
+  /**
+   *
+   */
   public function getGlobalDisable() {
     $disable = self::DISABLE_NONE;
 
@@ -2499,33 +2638,88 @@ class H5PCore {
   }
 
   /**
-   * Recursive function that makes sure the specified directory exists and
-   * is writable.
+   * Makes it easier to print response when AJAX request succeeds.
    *
-   * @param string $path
-   * @return bool
+   * @param mixed $data
+   * @since 1.6.0
    */
-  public static function dirReady($path) {
-    if (!file_exists($path)) {
-      $parent = preg_replace("/\/[^\/]+\/?$/", '', $path);
-      if (!H5PCore::dirReady($parent)) {
-        return FALSE;
-      }
+  public static function ajaxSuccess($data = NULL) {
+    $response = array(
+      'success' => TRUE
+    );
+    if ($data !== NULL) {
+      $response['data'] = $data;
+    }
+    self::printJson($response);
+  }
 
-      mkdir($path, 0777, true);
+  /**
+   * Makes it easier to print response when AJAX request fails.
+   * Will exit after printing error.
+   *
+   * @param string $message
+   * @since 1.6.0
+   */
+  public static function ajaxError($message = NULL) {
+    $response = array(
+      'success' => FALSE
+    );
+    if ($message !== NULL) {
+      $response['message'] = $message;
+    }
+    self::printJson($response);
+  }
+
+  /**
+   * Print JSON headers with UTF-8 charset and json encode response data.
+   * Makes it easier to respond using JSON.
+   *
+   * @param mixed $data
+   */
+  private static function printJson($data) {
+    header('Cache-Control: no-cache');
+    header('Content-type: application/json; charset=utf-8');
+    print json_encode($data);
+  }
+
+  /**
+   * Get a new H5P security token for the given action.
+   *
+   * @param string $action
+   * @return string token
+   */
+  public static function createToken($action) {
+    if (!isset($_SESSION['h5p_token'])) {
+      // Create an unique key which is used to create action tokens for this session.
+      $_SESSION['h5p_token'] = uniqid();
     }
 
-    if (!is_dir($path)) {
-      trigger_error('Path is not a directory ' . $path, E_USER_WARNING);
-      return FALSE;
-    }
+    // Timefactor
+    $time_factor = self::getTimeFactor();
 
-    if (!is_writable($path)) {
-      trigger_error('Unable to write to ' . $path . ' – check directory permissions –', E_USER_WARNING);
-      return FALSE;
-    }
+    // Create and return token
+    return substr(hash('md5', $action . $time_factor . $_SESSION['h5p_token']), -16, 13);
+  }
 
-    return TRUE;
+  /**
+   * Create a time based number which is unique for each 12 hour.
+   * @return int
+   */
+  private static function getTimeFactor() {
+    return ceil(time() / (86400 / 2));
+  }
+
+  /**
+   * Verify if the given token is valid for the given action.
+   *
+   * @param string $action
+   * @param string $token
+   * @return boolean valid token
+   */
+  public static function validToken($action, $token) {
+    $time_factor = self::getTimeFactor();
+    return $token === substr(hash('md5', $action . $time_factor . $_SESSION['h5p_token']), -16, 13) || // Under 12 hours
+           $token === substr(hash('md5', $action . ($time_factor - 1) . $_SESSION['h5p_token']), -16, 13); // Between 12-24 hours
   }
 }
 
@@ -2623,6 +2817,12 @@ class H5PContentValidator {
         }
         if (isset($semantics->font->background) && $semantics->font->background) {
           $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+        }
+        if (isset($semantics->font->spacing) && $semantics->font->spacing) {
+          $stylePatterns[] = '/^letter-spacing: *[0-9.]+(em|px|%) *;?$/i';
+        }
+        if (isset($semantics->font->height) && $semantics->font->height) {
+          $stylePatterns[] = '/^line-height: *[0-9.]+(em|px|%|) *;?$/i';
         }
       }
 
@@ -2823,6 +3023,12 @@ class H5PContentValidator {
 
   // Validate a filelike object, such as video, image, audio and file.
   private function _validateFilelike(&$file, $semantics, $typevalidkeys = array()) {
+    // Do not allow to use files from other content folders.
+    $matches = array();
+    if (preg_match('/^(\.\.\/){1,2}(\d+|editor)\/(.+)$/', $file->path, $matches)) {
+      $file->path = $matches[3];
+    }
+
     // Make sure path and mime does not have any special chars
     $file->path = htmlspecialchars($file->path, ENT_QUOTES, 'UTF-8', FALSE);
     if (isset($file->mime)) {
@@ -2861,7 +3067,7 @@ class H5PContentValidator {
     }
 
     if (isset($file->copyright)) {
-      $this->validateGroup($file->copyright, H5PContentValidator::getCopyrightSemantics());
+      $this->validateGroup($file->copyright, $this->getCopyrightSemantics());
     }
   }
 
@@ -2876,7 +3082,7 @@ class H5PContentValidator {
    * Validate given image data
    */
   public function validateImage(&$image, $semantics) {
-    $this->_validateFilelike($image, $semantics, array('width', 'height'));
+    $this->_validateFilelike($image, $semantics, array('width', 'height', 'originalImage'));
   }
 
   /**
@@ -3364,40 +3570,40 @@ class H5PContentValidator {
     return $uri;
   }
 
-  public static function getCopyrightSemantics() {
+  public function getCopyrightSemantics() {
     static $semantics;
 
     if ($semantics === NULL) {
       $semantics = (object) array(
         'name' => 'copyright',
         'type' => 'group',
-        'label' => 'Copyright information',
+        'label' => $this->h5pF->t('Copyright information'),
         'fields' => array(
           (object) array(
             'name' => 'title',
             'type' => 'text',
-            'label' => 'Title',
+            'label' => $this->h5pF->t('Title'),
             'placeholder' => 'La Gioconda',
             'optional' => TRUE
           ),
           (object) array(
             'name' => 'author',
             'type' => 'text',
-            'label' => 'Author',
+            'label' => $this->h5pF->t('Author'),
             'placeholder' => 'Leonardo da Vinci',
             'optional' => TRUE
           ),
           (object) array(
             'name' => 'year',
             'type' => 'text',
-            'label' => 'Year(s)',
+            'label' => $this->h5pF->t('Year(s)'),
             'placeholder' => '1503 - 1517',
             'optional' => TRUE
           ),
           (object) array(
             'name' => 'source',
             'type' => 'text',
-            'label' => 'Source',
+            'label' => $this->h5pF->t('Source'),
             'placeholder' => 'http://en.wikipedia.org/wiki/Mona_Lisa',
             'optional' => true,
             'regexp' => (object) array(
@@ -3408,56 +3614,56 @@ class H5PContentValidator {
           (object) array(
             'name' => 'license',
             'type' => 'select',
-            'label' => 'License',
+            'label' => $this->h5pF->t('License'),
             'default' => 'U',
             'options' => array(
               (object) array(
                 'value' => 'U',
-                'label' => 'Undisclosed'
+                'label' => $this->h5pF->t('Undisclosed')
               ),
               (object) array(
                 'value' => 'CC BY',
-                'label' => 'Attribution'
+                'label' => $this->h5pF->t('Attribution')
               ),
               (object) array(
                 'value' => 'CC BY-SA',
-                'label' => 'Attribution-ShareAlike'
+                'label' => $this->h5pF->t('Attribution-ShareAlike')
               ),
               (object) array(
                 'value' => 'CC BY-ND',
-                'label' => 'Attribution-NoDerivs'
+                'label' => $this->h5pF->t('Attribution-NoDerivs')
               ),
               (object) array(
                 'value' => 'CC BY-NC',
-                'label' => 'Attribution-NonCommercial'
+                'label' => $this->h5pF->t('Attribution-NonCommercial')
               ),
               (object) array(
                 'value' => 'CC BY-NC-SA',
-                'label' => 'Attribution-NonCommercial-ShareAlike'
+                'label' => $this->h5pF->t('Attribution-NonCommercial-ShareAlike')
               ),
               (object) array(
                 'value' => 'CC BY-NC-ND',
-                'label' => 'Attribution-NonCommercial-NoDerivs'
+                'label' => $this->h5pF->t('Attribution-NonCommercial-NoDerivs')
               ),
               (object) array(
                 'value' => 'GNU GPL',
-                'label' => 'General Public License'
+                'label' => $this->h5pF->t('General Public License')
               ),
               (object) array(
                 'value' => 'PD',
-                'label' => 'Public Domain'
+                'label' => $this->h5pF->t('Public Domain')
               ),
               (object) array(
                 'value' => 'ODC PDDL',
-                'label' => 'Public Domain Dedication and Licence'
+                'label' => $this->h5pF->t('Public Domain Dedication and Licence')
               ),
               (object) array(
                 'value' => 'CC PDM',
-                'label' => 'Public Domain Mark'
+                'label' => $this->h5pF->t('Public Domain Mark')
               ),
               (object) array(
                 'value' => 'C',
-                'label' => 'Copyright'
+                'label' => $this->h5pF->t('Copyright')
               )
             )
           )

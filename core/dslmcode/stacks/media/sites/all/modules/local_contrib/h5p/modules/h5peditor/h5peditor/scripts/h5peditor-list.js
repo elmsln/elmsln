@@ -56,6 +56,9 @@ H5PEditor.List = (function ($) {
       var i;
       if (parameters !== undefined && parameters.length) {
         for (i = 0; i < parameters.length; i++) {
+          if (parameters[i] === null) {
+            parameters[i] = undefined;
+          }
           addItem(i);
         }
       }
@@ -72,6 +75,22 @@ H5PEditor.List = (function ($) {
     };
 
     /**
+     * Make sure list is created when setting a parameter.
+     *
+     * @private
+     * @param {number} index
+     * @param {*} value
+     */
+    var setParameters = function (index, value) {
+      if (parameters === undefined) {
+        // Create new parameters for list
+        parameters = [];
+        setValue(field, parameters);
+      }
+      parameters[index] = value;
+    };
+
+    /**
      * Add item to list.
      *
      * @private
@@ -82,24 +101,18 @@ H5PEditor.List = (function ($) {
       var childField = field.field;
       var widget = H5PEditor.getWidgetName(childField);
 
-      if (parameters === undefined) {
-        // Create new parameters for list
-        parameters = [];
-        setValue(field, parameters);
-      }
-
-      if (parameters[index] === undefined && childField['default'] !== undefined) {
+      if ((parameters === undefined || parameters[index] === undefined) && childField['default'] !== undefined) {
         // Use default value
-        parameters[index] = childField['default'];
+        setParameters(index, childField['default']);
       }
       if (paramsOverride !== undefined) {
         // Use override params
-        parameters[index] = paramsOverride;
+        setParameters(index, paramsOverride);
       }
 
-      var child = children[index] = new H5PEditor.widgets[widget](self, childField, parameters[index], function (myChildField, value) {
+      var child = children[index] = new H5PEditor.widgets[widget](self, childField, parameters === undefined ? undefined : parameters[index], function (myChildField, value) {
         var i = findIndex(child);
-        parameters[i === undefined ? index : i] = value;
+        setParameters(i === undefined ? index : i, value);
       });
 
       if (!passReadyCallbacks) {
@@ -167,12 +180,14 @@ H5PEditor.List = (function ($) {
       children[index].remove();
       children.splice(index, 1);
 
-      // Clean up parameters
-      parameters.splice(index, 1);
-      if (!parameters.length) {
-        // Create new parameters for list
-        parameters = undefined;
-        setValue(field);
+      if (parameters !== undefined) {
+        // Clean up parameters
+        parameters.splice(index, 1);
+        if (!parameters.length) {
+          // Create new parameters for list
+          parameters = undefined;
+          setValue(field);
+        }
       }
     };
 
@@ -183,6 +198,10 @@ H5PEditor.List = (function ($) {
      * @public
      */
     self.removeAllItems = function () {
+      if (parameters === undefined) {
+        return;
+      }
+
       // Remove child fields
       for (var i = 0; i < children.length; i++) {
         children[i].remove();
@@ -208,8 +227,10 @@ H5PEditor.List = (function ($) {
       children.splice(newIndex, 0, child[0]);
 
       // Update parameters
-      var params = parameters.splice(currentIndex, 1);
-      parameters.splice(newIndex, 0, params[0]);
+      if (parameters) {
+        var params = parameters.splice(currentIndex, 1);
+        parameters.splice(newIndex, 0, params[0]);
+      }
     };
 
     /**

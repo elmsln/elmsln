@@ -47,7 +47,7 @@ function h5p_menu() {
     'title' => 'H5P Library Details',
     'title callback' => '_h5p_library_details_title',
     'title arguments' => array(4),
-    'description' => 'Get detailed info on a library',
+    'description' => 'Get detailed info on a library',
     'page callback' => 'h5p_library_details',
     'page arguments' => array(4),
     'access arguments' => array('administer site configuration'),
@@ -102,9 +102,16 @@ function h5p_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  // TODO: Should we stick to url conventions? http://moz.com/blog/11-best-practices-for-urls
-  // If we want to hint on return type we should call this //h5p/set-finished.json
+  /**
+   * @deprecated since 02/16. Use set-finished.json instead
+   */
   $items['h5p-ajax/setFinished'] = array(
+    'page callback' => 'h5p_set_finished',
+    'access callback' => 'h5p_access_set_finished',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['h5p-ajax/set-finished.json'] = array(
     'page callback' => 'h5p_set_finished',
     'access callback' => 'h5p_access_set_finished',
     'type' => MENU_LOCAL_TASK,
@@ -127,6 +134,18 @@ function h5p_menu() {
  */
 function h5p_cron() {
   h5p_fetch_libraries_metadata();
+  remove_old_log_events();
+}
+
+/**
+ * Remove any log messages older than the set limit.
+ */
+function remove_old_log_events() {
+  $older_than = (time() - H5PEventBase::$log_time);
+
+  db_delete('h5p_events')
+    ->condition('created_at', $older_than, '<')
+    ->execute();
 }
 
 function h5p_fetch_libraries_metadata($fetchingDisabled = FALSE) {
@@ -393,18 +412,46 @@ function h5p_validate($node, &$form) {
 function h5p_insert($node) {
   if (isset($_SESSION['h5p_upload'])) {
     $h5p_core = _h5p_get_instance('storage');
-    $h5p_core->savePackage(h5p_get_content_id($node), $node->nid , FALSE, array('disable' => $node->disable));
+    $h5p_core->savePackage(h5p_get_content_id($node), $node->nid , FALSE, array(
+      'disable' => $node->disable,
+      'title' => $node->title
+    ));
   }
   else {
+    if (!isset($node->main_library['name'])) {
+      $lib = db_query(
+          "SELECT machine_name,
+                  major_version,
+                  minor_version
+             FROM {h5p_libraries}
+            WHERE library_id = :id",
+          array(
+            ':id' => $node->main_library_id
+          ))->fetchObject();
+      $lib = array(
+        'libraryId' => $node->main_library_id,
+        'machineName' => $lib->machine_name,
+        'majorVersion' => $lib->major_version,
+        'minorVersion' => $lib->minor_version
+      );
+    }
+    else {
+      $lib = array(
+        'libraryId' => $node->main_library_id,
+        'machineName' => (isset($node->main_library['name']) ? $node->main_library['name'] : ''),
+        'majorVersion' => (isset($node->main_library['majorVersion']) ? $node->main_library['majorVersion'] : ''),
+        'minorVersion' => (isset($node->main_library['minorVersion']) ? $node->main_library['minorVersion'] : '')
+      );
+    }
     $core = _h5p_get_instance('core');
     $core->saveContent(array(
       'id' => h5p_get_content_id($node),
+      'title' => $node->title,
       'params' => $node->json_content,
       'embed_type' => $node->embed_type,
       'disable' => $node->disable,
-      'library' => array(
-        'libraryId' => $node->main_library_id
-      )
+      'library' => $lib,
+      'h5p_library' => $node->h5p_library
     ), $node->nid);
   }
 }
@@ -431,7 +478,11 @@ function h5p_update($node) {
     if (isset($_SESSION['h5p_upload'])) {
       // Replace old package
       $h5p_storage = _h5p_get_instance('storage');
-      $h5p_storage->updatePackage(h5p_get_content_id($node), $node->nid, array('disable' => $node->disable));
+      $h5p_storage->savePackage(array(
+        'id' => h5p_get_content_id($node),
+        'title' => $node->title,
+        'disable' => $node->disable),
+        $node->nid, FALSE);
     }
     else {
       h5p_insert($node);
@@ -461,6 +512,14 @@ function h5p_delete($node) {
       ->condition('content_main_id', $content['id'])
       ->execute();
   }
+
+  // Log content delete
+  new H5PEvent('content', 'delete',
+    $node->nid,
+    $node->title,
+    $node->main_library['name'],
+    $node->main_library['majorVersion'] . '.' . $node->main_library['minorVersion']
+  );
 }
 
 /**
@@ -622,6 +681,10 @@ function h5p_access_set_finished() {
  * @return {boolean}
  */
 function h5p_content_access($id, $op = 'view') {
+  if ($id === '0') {
+    // No content. Check if access to H5P content type.
+    return node_access($op, 'h5p_content');
+  }
   if (variable_get('h5p_revisioning', 1)) {
     // We got vid, but we need nid. Let's ask DB
     $id = (int) db_query('SELECT nid FROM {node_revision} WHERE vid = :vid', array(':vid' => $id))->fetchField();
@@ -671,7 +734,10 @@ function h5p_set_started($content_id) {
  */
 function h5p_set_finished() {
   global $user;
-  $result = array('success' => FALSE);
+
+  if (!H5PCore::validToken('result', filter_input(INPUT_POST, 'token'))) {
+    return H5PCore::ajaxError(t('Invalid security token.'));
+  }
 
   if ($user->uid && $_POST['contentId'] !== NULL && $_POST['score'] !== NULL && $_POST['maxScore'] !== NULL) {
     db_update('h5p_points')
@@ -683,10 +749,10 @@ function h5p_set_finished() {
       ->condition('content_id', $_POST['contentId'])
       ->condition('uid', $user->uid)
       ->execute();
-    $result['success'] = TRUE;
+    return H5PCore::ajaxSuccess();
   }
 
-  echo json_encode($result);
+  H5PCore::ajaxError();
 }
 
 /**
@@ -731,7 +797,12 @@ function h5p_get_core_settings() {
     'postUserStatistics' =>  $user->uid > 0,
     'ajaxPath' => url('h5p-ajax') . '/',
     'ajax' => array(
+      'setFinished' => url('h5p-ajax/set-finished.json'),
       'contentUserData' => str_replace('%3A', ':', url('h5p-ajax/content-user-data/:contentId/:dataType/:subContentId'))
+    ),
+    'tokens' => array(
+      'result' => H5PCore::createToken('result'),
+      'contentUserData' => H5PCore::createToken('contentuserdata')
     ),
     'saveFreq' => variable_get('h5p_save_content_state', 0) ? variable_get('h5p_save_content_frequency', 30) : FALSE,
     'l10n' => array(
@@ -1255,6 +1326,10 @@ function h5p_content_user_data($content_id, $data_id, $sub_content_id) {
   $preload = filter_input(INPUT_POST, 'preload');
   $invalidate = filter_input(INPUT_POST, 'invalidate');
   if ($data !== NULL && $preload !== NULL && $invalidate !== NULL) {
+    if (!H5PCore::validToken('contentuserdata', filter_input(INPUT_POST, 'token'))) {
+      return H5PCore::ajaxError(t('Invalid security token.'));
+    }
+
     if ($data === '0') {
       // Remove data
       db_delete('h5p_content_user_data')
@@ -1314,6 +1389,8 @@ function h5p_content_user_data($content_id, $data_id, $sub_content_id) {
           ->execute();
       }
     }
+
+    return H5PCore::ajaxSuccess();
   }
   else {
     // Fetch data
@@ -1399,8 +1476,6 @@ function h5p_embed($node) {
   $styles = array_merge($styles, $core->getAssetsUrls($files['styles']));
 
   $lang = $language->language;
-  // allow for appending output to this page
-  drupal_alter('embedded_h5p', $node);
   include('library/embed.php');
 }
 
@@ -1432,4 +1507,22 @@ function _h5p_dependencies_to_library_list($dependencies) {
     );
   }
   return $library_list;
+}
+
+/**
+ * Implements
+ */
+function h5p_views_pre_view($view, $display_id, $args) {
+  if ($view->name === 'node_results' && $display_id === 'page' && $view->base_field === 'nid') {
+    $node = node_load($view->args[0]);
+    if ($node) {
+      // Log view of results page
+      new H5PEvent('results', 'content',
+        $node->nid,
+        $node->title,
+        $node->main_library['name'],
+        $node->main_library['majorVersion'] . '.' . $node->main_library['minorVersion']
+      );
+    }
+  }
 }

@@ -10,3 +10,5 @@ the H5PFrameworkInterface(in h5p.classes.php) and also do the following:
 See existing implementations for details. For instance the Drupal h5p module located on drupal.org/project/h5p
 
 We will make available documentations and tutorials for creating platform integrations in the future
+
+The H5P PHP library is GPL licensed due to GPL code being used for purifying HTML provided by authors.
