@@ -61,6 +61,7 @@ pages:
     - General debugging: development/debug.md
     - Reversing commits: development/Reverse-Commit-And-Push.md
     - Features Builder: development/Features-Builder.md
+    - Tool Builder: development/Tool-Builder.md
 theme: readthedocs
 site_author: "elmsln"
 repo_name: ELMSLN
