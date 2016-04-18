@@ -2,15 +2,14 @@
 /**
  * This file will be compiled into foundation_access/js/dist/app.js
  *
- * To make changes to this file you must runt `grunt`.  
- * If you do not have grunt, please make edits directly 
+ * To make changes to this file you must runt `grunt`.
+ * If you do not have grunt, please make edits directly
  * to foundation_access/js/tweaks.js
  */
 
 var imageLightbox = require('./components/imageLightbox.js');
 var mediavideo = require('./components/mediavideo.js');
 var angular = require('./components/angular.js');
-
 (function ($) {
   // Accessibility To Do:
   //
@@ -234,7 +233,14 @@ module.exports = function() {
 	 */
 	.controller('cisDashboard', ['$scope', 'CoursesService', function($scope, CoursesService) {
 	  $scope.courses = CoursesService.query();
-	  console.log($scope.courses);
+    // simple selector to make this item be 'active'
+    $scope.select = function(item) {
+      $scope.selected = item;
+    };
+    // test to see if something is 'active'
+    $scope.isActive = function(item) {
+      return $scope.selected === item;
+    };
 	}])
 	;
 };
