@@ -30,17 +30,12 @@
 
               if (windowScroll > (elementOffset + offset)) {
                 if (value.done !== true) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                   if (typeof(callback) === 'function') {
                     callback.call(this);
                   } else if (typeof(callback) === 'string') {
                     var callbackFunc = new Function(callback);
                     callbackFunc();
                   }
-=======
-                  var callbackFunc = new Function(callback);
-                  callbackFunc();
->>>>>>> Starting point for Materialize.
                   value.done = true;
                 }
               }
@@ -50,8 +45,4 @@
     }, 100);
   };
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 })(jQuery);
-=======
-})(jQuery);
->>>>>>> Starting point for Materialize.

@@ -62,11 +62,7 @@
         var count = 0;
         while (ancestor !== null && !$(ancestor).is(document)) {
           var curr = $(ancestor);
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           if (curr.css('overflow') !== 'visible') {
-=======
-          if (curr.css('overflow') === 'hidden') {
->>>>>>> Starting point for Materialize.
             curr.css('overflow', 'visible');
             if (ancestorsChanged === undefined) {
               ancestorsChanged = curr;
@@ -93,17 +89,10 @@
             returnToOriginal();
           });
           // Animate Overlay
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           // Put before in origin image to preserve z-index layering.
           origin.before(overlay);
           overlay.velocity({opacity: 1},
                            {duration: inDuration, queue: false, easing: 'easeOutQuad'} );
-=======
-          $('body').append(overlay);
-          overlay.velocity({opacity: 1}, {duration: inDuration, queue: false, easing: 'easeOutQuad'}
-            );
-
->>>>>>> Starting point for Materialize.
 
         // Add and animate caption if it exists
         if (origin.data('caption') !== "") {
@@ -114,11 +103,6 @@
           $photo_caption.velocity({opacity: 1}, {duration: inDuration, queue: false, easing: 'easeOutQuad'});
         }
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
-=======
-
-
->>>>>>> Starting point for Materialize.
         // Resize Image
         var ratio = 0;
         var widthPercent = originalWidth / windowWidth;
@@ -183,11 +167,7 @@
 
       // Return on scroll
       $(window).scroll(function() {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         if (overlayActive) {
-=======
-        if (overlayActive ) {
->>>>>>> Starting point for Materialize.
           returnToOriginal();
         }
       });
@@ -272,13 +252,9 @@
               $(this).remove();
 
               // Remove overflow overrides on ancestors
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               if (ancestorsChanged) {
                 ancestorsChanged.css('overflow', '');
               }
-=======
-              ancestorsChanged.css('overflow', '');
->>>>>>> Starting point for Materialize.
             }
           });
 

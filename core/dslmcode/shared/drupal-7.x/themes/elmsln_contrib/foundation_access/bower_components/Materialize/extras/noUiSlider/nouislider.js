@@ -1,9 +1,5 @@
 /*!
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
  * Materialize v0.97.6 (http://materializecss.com)
-=======
- * Materialize v0.97.5 (http://materializecss.com)
->>>>>>> Starting point for Materialize.
  * Copyright 2014-2015 Materialize
  * MIT License (https://raw.githubusercontent.com/Dogfalo/materialize/master/LICENSE)
  */

@@ -3,11 +3,7 @@
 Package.describe({
   name: 'materialize:materialize',  // http://atmospherejs.com/materialize/materialize
   summary: 'Materialize (official): A modern responsive front-end framework based on Material Design',
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   version: '0.97.6',
-=======
-  version: '0.97.5',
->>>>>>> Starting point for Materialize.
   git: 'https://github.com/Dogfalo/materialize.git'
 });
 
@@ -18,7 +14,6 @@ Package.onUse(function (api) {
   api.imply('jquery', 'client');
 
   var assets = [
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     'dist/fonts/roboto/Roboto-Bold.ttf',
     'dist/fonts/roboto/Roboto-Bold.woff',
     'dist/fonts/roboto/Roboto-Bold.woff2',
@@ -34,28 +29,6 @@ Package.onUse(function (api) {
     'dist/fonts/roboto/Roboto-Thin.ttf',
     'dist/fonts/roboto/Roboto-Thin.woff',
     'dist/fonts/roboto/Roboto-Thin.woff2',
-=======
-    'dist/font/material-design-icons/Material-Design-Icons.eot',
-    'dist/font/material-design-icons/Material-Design-Icons.svg',
-    'dist/font/material-design-icons/Material-Design-Icons.ttf',
-    'dist/font/material-design-icons/Material-Design-Icons.woff',
-    'dist/font/material-design-icons/Material-Design-Icons.woff2',
-    'dist/font/roboto/Roboto-Bold.ttf',
-    'dist/font/roboto/Roboto-Bold.woff',
-    'dist/font/roboto/Roboto-Bold.woff2',
-    'dist/font/roboto/Roboto-Light.ttf',
-    'dist/font/roboto/Roboto-Light.woff',
-    'dist/font/roboto/Roboto-Light.woff2',
-    'dist/font/roboto/Roboto-Medium.ttf',
-    'dist/font/roboto/Roboto-Medium.woff',
-    'dist/font/roboto/Roboto-Medium.woff2',
-    'dist/font/roboto/Roboto-Regular.ttf',
-    'dist/font/roboto/Roboto-Regular.woff',
-    'dist/font/roboto/Roboto-Regular.woff2',
-    'dist/font/roboto/Roboto-Thin.ttf',
-    'dist/font/roboto/Roboto-Thin.woff',
-    'dist/font/roboto/Roboto-Thin.woff2',
->>>>>>> Starting point for Materialize.
   ];
 
   addAssets(api, assets);

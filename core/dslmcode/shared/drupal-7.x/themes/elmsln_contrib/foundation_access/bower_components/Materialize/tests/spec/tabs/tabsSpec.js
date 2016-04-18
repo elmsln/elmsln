@@ -25,11 +25,7 @@ describe("Tabs Plugin", function () {
 
       var indicator = normalTabs.find('.indicator');
       expect(indicator).toExist('Indicator should be generated');
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       // expect(Math.abs(indicator.offset().left - activeTab.offset().left)).toBeLessThan(1, 'Indicator should be at active tab by default.');
-=======
-      expect(indicator.offset().left).toEqual(activeTab.offset().left, 'Indicator should be at active tab by default.');
->>>>>>> Starting point for Materialize.
     });
 
     it("should switch to clicked tab", function (done) {
@@ -42,11 +38,7 @@ describe("Tabs Plugin", function () {
       var indicator = normalTabs.find('.indicator');
 
       expect(indicator).toExist('Indicator should be generated');
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       // expect(Math.abs(indicator.offset().left - activeTab.offset().left)).toBeLessThan(1, 'Indicator should be at active tab by default.');
-=======
-      expect(indicator.offset().left).toEqual(activeTab.offset().left, 'Indicator should be at active tab by default.');
->>>>>>> Starting point for Materialize.
 
       disabledTab.click();
 

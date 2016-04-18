@@ -176,11 +176,7 @@
 			elements.push($(element));
 			$(element).data("scrollSpy:id", i);
 			// Smooth scroll to section
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 		  $('a[href="#' + $(element).attr('id') + '"]').click(function(e) {
-=======
-		  $('a[href=#' + $(element).attr('id') + ']').click(function(e) {
->>>>>>> Starting point for Materialize.
 		    e.preventDefault();
 		    var offset = $(this.hash).offset().top + 1;
 
@@ -222,11 +218,7 @@
 			var $this = $(this);
 
 			if (visible[0]) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 				$('a[href="#' + visible[0].attr('id') + '"]').removeClass('active');
-=======
-				$('a[href=#' + visible[0].attr('id') + ']').removeClass('active');
->>>>>>> Starting point for Materialize.
 				if ($this.data('scrollSpy:id') < visible[0].data('scrollSpy:id')) {
 					visible.unshift($(this));
 				}
@@ -239,11 +231,7 @@
 			}
 
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 			$('a[href="#' + visible[0].attr('id') + '"]').addClass('active');
-=======
-			$('a[href=#' + visible[0].attr('id') + ']').addClass('active');
->>>>>>> Starting point for Materialize.
 		});
 		selector.on('scrollSpy:exit', function() {
 			visible = $.grep(visible, function(value) {
@@ -251,21 +239,13 @@
 	    });
 
 			if (visible[0]) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 				$('a[href="#' + visible[0].attr('id') + '"]').removeClass('active');
-=======
-				$('a[href=#' + visible[0].attr('id') + ']').removeClass('active');
->>>>>>> Starting point for Materialize.
 				var $this = $(this);
 				visible = $.grep(visible, function(value) {
 	        return value.attr('id') != $this.attr('id');
 	      });
 	      if (visible[0]) { // Check if empty
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 					$('a[href="#' + visible[0].attr('id') + '"]').addClass('active');
-=======
-					$('a[href=#' + visible[0].attr('id') + ']').addClass('active');
->>>>>>> Starting point for Materialize.
 	      }
 			}
 		});
@@ -301,8 +281,4 @@
 		return $.scrollSpy($(this), options);
 	};
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 })(jQuery);
-=======
-})(jQuery);
->>>>>>> Starting point for Materialize.

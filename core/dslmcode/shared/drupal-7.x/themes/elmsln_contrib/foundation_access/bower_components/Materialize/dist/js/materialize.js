@@ -1,9 +1,5 @@
 /*!
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
  * Materialize v0.97.6 (http://materializecss.com)
-=======
- * Materialize v0.97.5 (http://materializecss.com)
->>>>>>> Starting point for Materialize.
  * Copyright 2014-2015 Materialize
  * MIT License (https://raw.githubusercontent.com/Dogfalo/materialize/master/LICENSE)
  */
@@ -12,21 +8,13 @@ if (typeof(jQuery) === 'undefined') {
   var jQuery;
   // Check if require is a defined function.
   if (typeof(require) === 'function') {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     jQuery = $ = require('jquery');
-=======
-    jQuery = $ = require('jQuery');
->>>>>>> Starting point for Materialize.
   // Else use the dollar sign alias.
   } else {
     jQuery = $;
   }
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 }
 ;/*
-=======
-};/*
->>>>>>> Starting point for Materialize.
  * jQuery Easing v1.3 - http://gsgd.co.uk/sandbox/jquery/easing/
  *
  * Uses the built in easing capabilities added In jQuery 1.1
@@ -322,11 +310,7 @@ if ($) {
 } else {
   Vel = Velocity;
 }
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 ;(function ($) {
-=======
-;  (function ($) {
->>>>>>> Starting point for Materialize.
   $.fn.collapsible = function(options) {
     var defaults = {
         accordion: undefined
@@ -543,12 +527,8 @@ if ($) {
       var offsetLeft = origin.offset().left;
       var offsetTop = origin.offset().top - $(window).scrollTop();
       var currAlignment = options.alignment;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       var gutterSpacing = 0;
       var leftPosition = 0;
-=======
-      var activatesLeft, gutterSpacing;
->>>>>>> Starting point for Materialize.
 
       // Below Origin
       var verticalOffset = 0;
@@ -556,7 +536,6 @@ if ($) {
         verticalOffset = originHeight;
       }
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       // Check for scrolling positioned container.
       var scrollOffset = 0;
       var wrapper = origin.parent();
@@ -565,8 +544,6 @@ if ($) {
       }
 
 
-=======
->>>>>>> Starting point for Materialize.
       if (offsetLeft + activates.innerWidth() > $(window).width()) {
         // Dropdown goes past screen on right, force right alignment
         currAlignment = 'right';
@@ -604,11 +581,7 @@ if ($) {
       // Position dropdown
       activates.css({
         position: 'absolute',
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         top: origin.position().top + verticalOffset + scrollOffset,
-=======
-        top: origin.position().top + verticalOffset,
->>>>>>> Starting point for Materialize.
         left: leftPosition
       });
 
@@ -709,12 +682,8 @@ if ($) {
   $(document).ready(function(){
     $('.dropdown-button').dropdown();
   });
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 }( jQuery ));
 ;(function($) {
-=======
-}( jQuery ));;(function($) {
->>>>>>> Starting point for Materialize.
     var _stack = 0,
     _lastID = 0,
     _generateID = function() {
@@ -725,14 +694,10 @@ if ($) {
   $.fn.extend({
     openModal: function(options) {
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       var $body = $('body');
       var oldWidth = $body.innerWidth();
       $body.css('overflow', 'hidden');
       $body.width(oldWidth);
-=======
-      $('body').css('overflow', 'hidden');
->>>>>>> Starting point for Materialize.
 
       var defaults = {
         opacity: 0.5,
@@ -743,7 +708,6 @@ if ($) {
         dismissible: true,
         starting_top: '4%'
       },
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       $modal = $(this);
 
       if ($modal.hasClass('open')) {
@@ -752,20 +716,12 @@ if ($) {
 
       overlayID = _generateID();
       $overlay = $('<div class="lean-overlay"></div>');
-=======
-      overlayID = _generateID(),
-      $modal = $(this),
-      $overlay = $('<div class="lean-overlay"></div>'),
->>>>>>> Starting point for Materialize.
       lStack = (++_stack);
 
       // Store a reference of the overlay
       $overlay.attr('id', overlayID).css('z-index', 1000 + lStack * 2);
       $modal.data('overlay-id', overlayID).css('z-index', 1000 + lStack * 2 + 1);
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       $modal.addClass('open');
-=======
->>>>>>> Starting point for Materialize.
 
       $("body").append($overlay);
 
@@ -841,7 +797,6 @@ if ($) {
       $modal = $(this),
       overlayID = $modal.data('overlay-id'),
       $overlay = $('#' + overlayID);
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       $modal.removeClass('open');
 
       options = $.extend(defaults, options);
@@ -851,13 +806,6 @@ if ($) {
         overflow: '',
         width: ''
       });
-=======
-
-      options = $.extend(defaults, options);
-
-      // Disable scrolling
-      $('body').css('overflow', '');
->>>>>>> Starting point for Materialize.
 
       $modal.find('.modal-close').off('click.close');
       $(document).off('keyup.leanModal' + overlayID);
@@ -990,11 +938,7 @@ if ($) {
         var count = 0;
         while (ancestor !== null && !$(ancestor).is(document)) {
           var curr = $(ancestor);
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           if (curr.css('overflow') !== 'visible') {
-=======
-          if (curr.css('overflow') === 'hidden') {
->>>>>>> Starting point for Materialize.
             curr.css('overflow', 'visible');
             if (ancestorsChanged === undefined) {
               ancestorsChanged = curr;
@@ -1021,17 +965,10 @@ if ($) {
             returnToOriginal();
           });
           // Animate Overlay
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           // Put before in origin image to preserve z-index layering.
           origin.before(overlay);
           overlay.velocity({opacity: 1},
                            {duration: inDuration, queue: false, easing: 'easeOutQuad'} );
-=======
-          $('body').append(overlay);
-          overlay.velocity({opacity: 1}, {duration: inDuration, queue: false, easing: 'easeOutQuad'}
-            );
-
->>>>>>> Starting point for Materialize.
 
         // Add and animate caption if it exists
         if (origin.data('caption') !== "") {
@@ -1042,11 +979,6 @@ if ($) {
           $photo_caption.velocity({opacity: 1}, {duration: inDuration, queue: false, easing: 'easeOutQuad'});
         }
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
-=======
-
-
->>>>>>> Starting point for Materialize.
         // Resize Image
         var ratio = 0;
         var widthPercent = originalWidth / windowWidth;
@@ -1111,11 +1043,7 @@ if ($) {
 
       // Return on scroll
       $(window).scroll(function() {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         if (overlayActive) {
-=======
-        if (overlayActive ) {
->>>>>>> Starting point for Materialize.
           returnToOriginal();
         }
       });
@@ -1200,13 +1128,9 @@ if ($) {
               $(this).remove();
 
               // Remove overflow overrides on ancestors
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               if (ancestorsChanged) {
                 ancestorsChanged.css('overflow', '');
               }
-=======
-              ancestorsChanged.css('overflow', '');
->>>>>>> Starting point for Materialize.
             }
           });
 
@@ -1290,11 +1214,7 @@ $(document).ready(function(){
       $this.width('100%');
       var $active, $content, $links = $this.find('li.tab a'),
           $tabs_width = $this.width(),
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           $tab_width = Math.max($tabs_width, $this[0].scrollWidth) / $links.length,
-=======
-          $tab_width = $this.find('li').first().outerWidth(),
->>>>>>> Starting point for Materialize.
           $index = 0;
 
       // If the location.hash matches one of the links, use that as the active tab.
@@ -1314,13 +1234,9 @@ $(document).ready(function(){
         $index = 0;
       }
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       if ($active[0] !== undefined) {
         $content = $($active[0].hash);
       }
-=======
-      $content = $($active[0].hash);
->>>>>>> Starting point for Materialize.
 
       // append indicator then set indicator width to tab width
       $this.append('<div class="indicator"></div>');
@@ -1331,11 +1247,7 @@ $(document).ready(function(){
       }
       $(window).resize(function () {
         $tabs_width = $this.width();
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         $tab_width = Math.max($tabs_width, $this[0].scrollWidth) / $links.length;
-=======
-        $tab_width = $this.find('li').first().outerWidth();
->>>>>>> Starting point for Materialize.
         if ($index < 0) {
           $index = 0;
         }
@@ -1359,7 +1271,6 @@ $(document).ready(function(){
         }
 
         $tabs_width = $this.width();
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         $tab_width = Math.max($tabs_width, $this[0].scrollWidth) / $links.length;
 
         // Make the old tab inactive.
@@ -1367,13 +1278,6 @@ $(document).ready(function(){
         if ($content !== undefined) {
           $content.hide();
         }
-=======
-        $tab_width = $this.find('li').first().outerWidth();
-
-        // Make the old tab inactive.
-        $active.removeClass('active');
-        $content.hide();
->>>>>>> Starting point for Materialize.
 
         // Update the variables with the new link and content
         $active = $(this);
@@ -1390,13 +1294,9 @@ $(document).ready(function(){
         // Change url to current tab
         // window.location.hash = $active.attr('href');
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         if ($content !== undefined) {
           $content.show();
         }
-=======
-        $content.show();
->>>>>>> Starting point for Materialize.
 
         // Update indicator
         if (($index - $prev_index) >= 0) {
@@ -2137,32 +2037,19 @@ $(document).ready(function(){
         $('body').append(dragTarget);
 
         if (options.edge == 'left') {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           menu_id.css('transform', 'translateX(-100%)');
-=======
-          menu_id.css('left', -1 * (options.menuWidth + 10));
->>>>>>> Starting point for Materialize.
           dragTarget.css({'left': 0}); // Add Touch Area
         }
         else {
           menu_id.addClass('right-aligned') // Change text-alignment to right
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
             .css('transform', 'translateX(100%)');
-=======
-            .css('right', -1 * (options.menuWidth + 10))
-            .css('left', '');
->>>>>>> Starting point for Materialize.
           dragTarget.css({'right': 0}); // Add Touch Area
         }
 
         // If fixed sidenav, bring menu out
         if (menu_id.hasClass('fixed')) {
             if (window.innerWidth > 992) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               menu_id.css('transform', 'translateX(0)');
-=======
-              menu_id.css('left', 0);
->>>>>>> Starting point for Materialize.
             }
           }
 
@@ -2171,7 +2058,6 @@ $(document).ready(function(){
           $(window).resize( function() {
             if (window.innerWidth > 992) {
               // Close menu if window is resized bigger than 992 and user has fixed sidenav
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               if ($('#sidenav-overlay').length != 0 && menuOut) {
                 removeMenu(true);
               }
@@ -2188,21 +2074,6 @@ $(document).ready(function(){
                 menu_id.css('transform', 'translateX(100%)');
               }
 
-=======
-              if ($('#sidenav-overlay').css('opacity') !== 0 && menuOut) {
-                removeMenu(true);
-              }
-              else {
-                menu_id.removeAttr('style');
-                menu_id.css('width', options.menuWidth);
-              }
-            }
-            else if (menuOut === false){
-              if (options.edge === 'left')
-                menu_id.css('left', -1 * (options.menuWidth + 10));
-              else
-                menu_id.css('right', -1 * (options.menuWidth + 10));
->>>>>>> Starting point for Materialize.
             }
 
           });
@@ -2218,7 +2089,6 @@ $(document).ready(function(){
         function removeMenu(restoreNav) {
           panning = false;
           menuOut = false;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           // Reenable scrolling
           $('body').css({
             overflow: '',
@@ -2227,13 +2097,6 @@ $(document).ready(function(){
 
           $('#sidenav-overlay').velocity({opacity: 0}, {duration: 200,
               queue: false, easing: 'easeOutQuad',
-=======
-
-          // Reenable scrolling
-          $('body').css('overflow', '');
-
-          $('#sidenav-overlay').velocity({opacity: 0}, {duration: 200, queue: false, easing: 'easeOutQuad',
->>>>>>> Starting point for Materialize.
             complete: function() {
               $(this).remove();
             } });
@@ -2241,11 +2104,7 @@ $(document).ready(function(){
             // Reset phantom div
             dragTarget.css({width: '', right: '', left: '0'});
             menu_id.velocity(
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               {'translateX': '-100%'},
-=======
-              {left: -1 * (options.menuWidth + 10)},
->>>>>>> Starting point for Materialize.
               { duration: 200,
                 queue: false,
                 easing: 'easeOutCubic',
@@ -2263,11 +2122,7 @@ $(document).ready(function(){
             // Reset phantom div
             dragTarget.css({width: '', right: '0', left: ''});
             menu_id.velocity(
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               {'translateX': '100%'},
-=======
-              {right: -1 * (options.menuWidth + 10)},
->>>>>>> Starting point for Materialize.
               { duration: 200,
                 queue: false,
                 easing: 'easeOutCubic',
@@ -2304,14 +2159,10 @@ $(document).ready(function(){
             var velocityX = e.gesture.velocityX;
 
             // Disable Scrolling
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
             var $body = $('body');
             var oldWidth = $body.innerWidth();
             $body.css('overflow', 'hidden');
             $body.width(oldWidth);
-=======
-            $('body').css('overflow', 'hidden');
->>>>>>> Starting point for Materialize.
 
             // If overlay does not exist, create one and if it is clicked, close menu
             if ($('#sidenav-overlay').length === 0) {
@@ -2333,12 +2184,7 @@ $(document).ready(function(){
               if (x < (options.menuWidth / 2)) { menuOut = false; }
               // Right Direction
               else if (x >= (options.menuWidth / 2)) { menuOut = true; }
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               menu_id.css('transform', 'translateX(' + (x - options.menuWidth) + 'px)');
-=======
-
-              menu_id.css('left', (x - options.menuWidth));
->>>>>>> Starting point for Materialize.
             }
             else {
               // Left Direction
@@ -2349,7 +2195,6 @@ $(document).ready(function(){
               else if (x >= (window.innerWidth - options.menuWidth / 2)) {
                menuOut = false;
              }
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               var rightPos = (x - options.menuWidth / 2);
               if (rightPos < 0) {
                 rightPos = 0;
@@ -2359,36 +2204,15 @@ $(document).ready(function(){
             }
 
 
-=======
-              var rightPos = -1 *(x - options.menuWidth / 2);
-              if (rightPos > 0) {
-                rightPos = 0;
-              }
-
-              menu_id.css('right', rightPos);
-            }
-
-
-
-
->>>>>>> Starting point for Materialize.
             // Percentage overlay
             var overlayPerc;
             if (options.edge === 'left') {
               overlayPerc = x / options.menuWidth;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               $('#sidenav-overlay').velocity({opacity: overlayPerc }, {duration: 10, queue: false, easing: 'easeOutQuad'});
             }
             else {
               overlayPerc = Math.abs((x - window.innerWidth) / options.menuWidth);
               $('#sidenav-overlay').velocity({opacity: overlayPerc }, {duration: 10, queue: false, easing: 'easeOutQuad'});
-=======
-              $('#sidenav-overlay').velocity({opacity: overlayPerc }, {duration: 50, queue: false, easing: 'easeOutQuad'});
-            }
-            else {
-              overlayPerc = Math.abs((x - window.innerWidth) / options.menuWidth);
-              $('#sidenav-overlay').velocity({opacity: overlayPerc }, {duration: 50, queue: false, easing: 'easeOutQuad'});
->>>>>>> Starting point for Materialize.
             }
           }
 
@@ -2396,7 +2220,6 @@ $(document).ready(function(){
 
           if (e.gesture.pointerType == "touch") {
             var velocityX = e.gesture.velocityX;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
             var x = e.gesture.center.x;
             var leftPos = x - options.menuWidth;
             var rightPos = x - options.menuWidth / 2;
@@ -2416,30 +2239,17 @@ $(document).ready(function(){
                 }
 
                 // menu_id.css({'translateX': 0});
-=======
-            panning = false;
-            if (options.edge === 'left') {
-              // If velocityX <= 0.3 then the user is flinging the menu closed so ignore menuOut
-              if ((menuOut && velocityX <= 0.3) || velocityX < -0.5) {
-                menu_id.velocity({left: 0}, {duration: 300, queue: false, easing: 'easeOutQuad'});
->>>>>>> Starting point for Materialize.
                 $('#sidenav-overlay').velocity({opacity: 1 }, {duration: 50, queue: false, easing: 'easeOutQuad'});
                 dragTarget.css({width: '50%', right: 0, left: ''});
               }
               else if (!menuOut || velocityX > 0.3) {
                 // Enable Scrolling
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                 $('body').css({
                   overflow: '',
                   width: ''
                 });
                 // Slide menu closed
                 menu_id.velocity({'translateX': [-1 * options.menuWidth - 10, leftPos]}, {duration: 200, queue: false, easing: 'easeOutQuad'});
-=======
-                $('body').css('overflow', '');
-                // Slide menu closed
-                menu_id.velocity({left: -1 * (options.menuWidth + 10)}, {duration: 200, queue: false, easing: 'easeOutQuad'});
->>>>>>> Starting point for Materialize.
                 $('#sidenav-overlay').velocity({opacity: 0 }, {duration: 200, queue: false, easing: 'easeOutQuad',
                   complete: function () {
                     $(this).remove();
@@ -2449,17 +2259,12 @@ $(document).ready(function(){
             }
             else {
               if ((menuOut && velocityX >= -0.3) || velocityX > 0.5) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                 menu_id.velocity({'translateX': [0, rightPos]}, {duration: 300, queue: false, easing: 'easeOutQuad'});
-=======
-                menu_id.velocity({right: 0}, {duration: 300, queue: false, easing: 'easeOutQuad'});
->>>>>>> Starting point for Materialize.
                 $('#sidenav-overlay').velocity({opacity: 1 }, {duration: 50, queue: false, easing: 'easeOutQuad'});
                 dragTarget.css({width: '50%', right: '', left: 0});
               }
               else if (!menuOut || velocityX < -0.3) {
                 // Enable Scrolling
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                 $('body').css({
                   overflow: '',
                   width: ''
@@ -2467,11 +2272,6 @@ $(document).ready(function(){
 
                 // Slide menu closed
                 menu_id.velocity({'translateX': [options.menuWidth + 10, rightPos]}, {duration: 200, queue: false, easing: 'easeOutQuad'});
-=======
-                $('body').css('overflow', '');
-                // Slide menu closed
-                menu_id.velocity({right: -1 * (options.menuWidth + 10)}, {duration: 200, queue: false, easing: 'easeOutQuad'});
->>>>>>> Starting point for Materialize.
                 $('#sidenav-overlay').velocity({opacity: 0 }, {duration: 200, queue: false, easing: 'easeOutQuad',
                   complete: function () {
                     $(this).remove();
@@ -2492,7 +2292,6 @@ $(document).ready(function(){
             else {
 
               // Disable Scrolling
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               var $body = $('body');
               var oldWidth = $body.innerWidth();
               $body.css('overflow', 'hidden');
@@ -2508,20 +2307,6 @@ $(document).ready(function(){
               else {
                 dragTarget.css({width: '50%', right: '', left: 0});
                 menu_id.velocity({'translateX': [0, options.menuWidth]}, {duration: 300, queue: false, easing: 'easeOutQuad'});
-=======
-              $('body').css('overflow', 'hidden');
-              // Push current drag target on top of DOM tree
-              $('body').append(dragTarget);
-              
-              if (options.edge === 'left') {
-                dragTarget.css({width: '50%', right: 0, left: ''});
-                menu_id.velocity({left: 0}, {duration: 300, queue: false, easing: 'easeOutQuad'});
-              }
-              else {
-                dragTarget.css({width: '50%', right: '', left: 0});
-                menu_id.velocity({right: 0}, {duration: 300, queue: false, easing: 'easeOutQuad'});
-                menu_id.css('left','');
->>>>>>> Starting point for Materialize.
               }
 
               var overlay = $('<div id="sidenav-overlay"></div>');
@@ -2749,11 +2534,7 @@ $(document).ready(function(){
 			elements.push($(element));
 			$(element).data("scrollSpy:id", i);
 			// Smooth scroll to section
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 		  $('a[href="#' + $(element).attr('id') + '"]').click(function(e) {
-=======
-		  $('a[href=#' + $(element).attr('id') + ']').click(function(e) {
->>>>>>> Starting point for Materialize.
 		    e.preventDefault();
 		    var offset = $(this.hash).offset().top + 1;
 
@@ -2795,11 +2576,7 @@ $(document).ready(function(){
 			var $this = $(this);
 
 			if (visible[0]) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 				$('a[href="#' + visible[0].attr('id') + '"]').removeClass('active');
-=======
-				$('a[href=#' + visible[0].attr('id') + ']').removeClass('active');
->>>>>>> Starting point for Materialize.
 				if ($this.data('scrollSpy:id') < visible[0].data('scrollSpy:id')) {
 					visible.unshift($(this));
 				}
@@ -2812,11 +2589,7 @@ $(document).ready(function(){
 			}
 
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 			$('a[href="#' + visible[0].attr('id') + '"]').addClass('active');
-=======
-			$('a[href=#' + visible[0].attr('id') + ']').addClass('active');
->>>>>>> Starting point for Materialize.
 		});
 		selector.on('scrollSpy:exit', function() {
 			visible = $.grep(visible, function(value) {
@@ -2824,21 +2597,13 @@ $(document).ready(function(){
 	    });
 
 			if (visible[0]) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 				$('a[href="#' + visible[0].attr('id') + '"]').removeClass('active');
-=======
-				$('a[href=#' + visible[0].attr('id') + ']').removeClass('active');
->>>>>>> Starting point for Materialize.
 				var $this = $(this);
 				visible = $.grep(visible, function(value) {
 	        return value.attr('id') != $this.attr('id');
 	      });
 	      if (visible[0]) { // Check if empty
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 					$('a[href="#' + visible[0].attr('id') + '"]').addClass('active');
-=======
-					$('a[href=#' + visible[0].attr('id') + ']').addClass('active');
->>>>>>> Starting point for Materialize.
 	      }
 			}
 		});
@@ -2874,12 +2639,8 @@ $(document).ready(function(){
 		return $.scrollSpy($(this), options);
 	};
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 })(jQuery);
 ;(function ($) {
-=======
-})(jQuery);;(function ($) {
->>>>>>> Starting point for Materialize.
   $(document).ready(function() {
 
     // Function to update labels of text fields
@@ -2973,7 +2734,6 @@ $(document).ready(function(){
       }
     };
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     // Radio and Checkbox focus class
     var radio_checkbox = 'input[type=radio], input[type=checkbox]';
     $(document).on('keyup.radio', radio_checkbox, function(e) {
@@ -2988,8 +2748,6 @@ $(document).ready(function(){
         return;
       }
     });
-=======
->>>>>>> Starting point for Materialize.
 
     // Textarea Auto Resize
     var hiddenDiv = $('.hiddendiv').first();
@@ -3201,10 +2959,7 @@ $(document).ready(function(){
       var appendOptionWithIcon = function(select, option, type) {
         // Add disabled attr if disabled
         var disabledClass = (option.is(':disabled')) ? 'disabled ' : '';
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         var optgroupClass = (type === 'optgroup-option') ? 'optgroup-option ' : '';
-=======
->>>>>>> Starting point for Materialize.
 
         // add icons
         var icon_url = option.data('icon');
@@ -3217,11 +2972,7 @@ $(document).ready(function(){
           if (type === 'multiple') {
             options.append($('<li class="' + disabledClass + '"><img src="' + icon_url + '"' + classString + '><span><input type="checkbox"' + disabledClass + '/><label></label>' + option.html() + '</span></li>'));
           } else {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
             options.append($('<li class="' + disabledClass + optgroupClass + '"><img src="' + icon_url + '"' + classString + '><span>' + option.html() + '</span></li>'));
-=======
-            options.append($('<li class="' + disabledClass + '"><img src="' + icon_url + '"' + classString + '><span>' + option.html() + '</span></li>'));
->>>>>>> Starting point for Materialize.
           }
           return true;
         }
@@ -3230,11 +2981,7 @@ $(document).ready(function(){
         if (type === 'multiple') {
           options.append($('<li class="' + disabledClass + '"><span><input type="checkbox"' + disabledClass + '/><label></label>' + option.html() + '</span></li>'));
         } else {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           options.append($('<li class="' + disabledClass + optgroupClass + '"><span>' + option.html() + '</span></li>'));
-=======
-          options.append($('<li class="' + disabledClass + '"><span>' + option.html() + '</span></li>'));
->>>>>>> Starting point for Materialize.
         }
       };
 
@@ -3255,11 +3002,7 @@ $(document).ready(function(){
             options.append($('<li class="optgroup"><span>' + $(this).attr('label') + '</span></li>'));
 
             selectOptions.each(function() {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
               appendOptionWithIcon($select, $(this), 'optgroup-option');
-=======
-              appendOptionWithIcon($select, $(this));
->>>>>>> Starting point for Materialize.
             });
           }
         });
@@ -3368,11 +3111,7 @@ $(document).ready(function(){
       }
 
       // Make option as selected and scroll to selected position
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       var activateOption = function(collection, newOption) {
-=======
-      activateOption = function(collection, newOption) {
->>>>>>> Starting point for Materialize.
         if (newOption) {
           collection.find('li.selected').removeClass('selected');
           var option = $(newOption);
@@ -3722,11 +3461,7 @@ $(document).ready(function(){
             panning = false;
             curr_index = $slider.find('.active').index();
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
             if (!swipeRight && !swipeLeft || $slides.length <=1) {
-=======
-            if (!swipeRight && !swipeLeft) {
->>>>>>> Starting point for Materialize.
               // Return to original spot
               $curr_slide.velocity({ translateX: 0
                   }, {duration: 300, queue: false, easing: 'easeOutQuad'});
@@ -3821,12 +3556,8 @@ $(document).ready(function(){
         $.error( 'Method ' +  methodOrOptions + ' does not exist on jQuery.tooltip' );
       }
     }; // Plugin end
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 }( jQuery ));
 ;(function ($) {
-=======
-}( jQuery ));;(function ($) {
->>>>>>> Starting point for Materialize.
   $(document).ready(function() {
 
     $(document).on('click.card', '.card', function (e) {
@@ -3863,7 +3594,6 @@ $(document).ready(function(){
 
   });
 }( jQuery ));;(function ($) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   $.fn.pushpin = function (options) {
 
     var defaults = {
@@ -3919,68 +3649,6 @@ $(document).ready(function(){
     });
 
   };
-=======
-  $(document).ready(function() {
-
-    $.fn.pushpin = function (options) {
-
-      var defaults = {
-        top: 0,
-        bottom: Infinity,
-        offset: 0
-      }
-      options = $.extend(defaults, options);
-
-      $index = 0;
-      return this.each(function() {
-        var $uniqueId = Materialize.guid(),
-            $this = $(this),
-            $original_offset = $(this).offset().top;
-
-        function removePinClasses(object) {
-          object.removeClass('pin-top');
-          object.removeClass('pinned');
-          object.removeClass('pin-bottom');
-        }
-
-        function updateElements(objects, scrolled) {
-          objects.each(function () {
-            // Add position fixed (because its between top and bottom)
-            if (options.top <= scrolled && options.bottom >= scrolled && !$(this).hasClass('pinned')) {
-              removePinClasses($(this));
-              $(this).css('top', options.offset);
-              $(this).addClass('pinned');
-            }
-
-            // Add pin-top (when scrolled position is above top)
-            if (scrolled < options.top && !$(this).hasClass('pin-top')) {
-              removePinClasses($(this));
-              $(this).css('top', 0);
-              $(this).addClass('pin-top');
-            }
-
-            // Add pin-bottom (when scrolled position is below bottom)
-            if (scrolled > options.bottom && !$(this).hasClass('pin-bottom')) {
-              removePinClasses($(this));
-              $(this).addClass('pin-bottom');
-              $(this).css('top', options.bottom - $original_offset);
-            }
-          });
-        }
-
-        updateElements($this, $(window).scrollTop());
-        $(window).on('scroll.' + $uniqueId, function () {
-          var $scrolled = $(window).scrollTop() + options.offset;
-          updateElements($this, $scrolled);
-        });
-
-      });
-
-    };
-
-
-  });
->>>>>>> Starting point for Materialize.
 }( jQuery ));;(function ($) {
   $(document).ready(function() {
 
@@ -4258,17 +3926,12 @@ $(document).ready(function(){
 
               if (windowScroll > (elementOffset + offset)) {
                 if (value.done !== true) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                   if (typeof(callback) === 'function') {
                     callback.call(this);
                   } else if (typeof(callback) === 'string') {
                     var callbackFunc = new Function(callback);
                     callbackFunc();
                   }
-=======
-                  var callbackFunc = new Function(callback);
-                  callbackFunc();
->>>>>>> Starting point for Materialize.
                   value.done = true;
                 }
               }
@@ -4278,12 +3941,8 @@ $(document).ready(function(){
     }, 100);
   };
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 })(jQuery);
 ;/*!
-=======
-})(jQuery);;/*!
->>>>>>> Starting point for Materialize.
  * pickadate.js v3.5.0, 2014/04/13
  * By Amsul, http://amsul.ca
  * Hosted on http://amsul.github.io/pickadate.js
@@ -4531,11 +4190,7 @@ function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
 
                     // Pass focus to the root element’s jQuery object.
                     // * Workaround for iOS8 to bring the picker’s root into view.
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                     P.$root.eq(0).focus()
-=======
-                    P.$root[0].focus()
->>>>>>> Starting point for Materialize.
 
                     // Bind the document events.
                     $document.on( 'click.' + STATE.id + ' focusin.' + STATE.id, function( event ) {
@@ -4617,11 +4272,7 @@ function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
                     // ....ah yes! It would’ve been incomplete without a crazy workaround for IE :|
                     // The focus is triggered *after* the close has completed - causing it
                     // to open again. So unbind and rebind the event at the next tick.
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                     P.$root.off( 'focus.toOpen' ).eq(0).focus()
-=======
-                    P.$root.off( 'focus.toOpen' )[0].focus()
->>>>>>> Starting point for Materialize.
                     setTimeout( function() {
                         P.$root.on( 'focus.toOpen', handleFocusToOpenEvent )
                     }, 0 )
@@ -4907,11 +4558,7 @@ function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
                 // On focus/click, focus onto the root to open it up.
                 on( 'focus.' + STATE.id + ' click.' + STATE.id, function( event ) {
                     event.preventDefault()
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                     P.$root.eq(0).focus()
-=======
-                    P.$root[0].focus()
->>>>>>> Starting point for Materialize.
                 }).
 
                 // Handle keyboard event based on the picker being opened or not.
@@ -4969,11 +4616,7 @@ function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
 
                             // Re-focus onto the root so that users can click away
                             // from elements focused within the picker.
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                             P.$root.eq(0).focus()
-=======
-                            P.$root[0].focus()
->>>>>>> Starting point for Materialize.
                         }
                     }
                 }
@@ -5006,11 +4649,7 @@ function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
 
                 // If it’s disabled or nothing inside is actively focused, re-focus the element.
                 if ( targetDisabled || activeElement && !$.contains( P.$root[0], activeElement ) ) {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
                     P.$root.eq(0).focus()
-=======
-                    P.$root[0].focus()
->>>>>>> Starting point for Materialize.
                 }
 
                 // If something is superficially changed, update the `highlight` based on the `nav`.
@@ -6860,7 +6499,6 @@ Picker.extend( 'pickadate', DatePicker )
 
   $.fn.characterCounter = function(){
     return this.each(function(){
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       var $input = $(this);
       var $counterElement = $input.parent().find('span[class="character-counter"]');
 
@@ -6877,17 +6515,6 @@ Picker.extend( 'pickadate', DatePicker )
         $input.on('blur', removeCounterElement);
 
         addCounterElement($input);
-=======
-
-      var itHasLengthAttribute = $(this).attr('length') !== undefined;
-
-      if(itHasLengthAttribute){
-        $(this).on('input', updateCounter);
-        $(this).on('focus', updateCounter);
-        $(this).on('blur', removeCounterElement);
-
-        addCounterElement($(this));
->>>>>>> Starting point for Materialize.
       }
 
     });
@@ -6904,7 +6531,6 @@ Picker.extend( 'pickadate', DatePicker )
     addInputStyle(isValidLength, $(this));
   }
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   function addCounterElement($input) {
     var $counterElement = $input.parent().find('span[class="character-counter"]');
 
@@ -6913,10 +6539,6 @@ Picker.extend( 'pickadate', DatePicker )
     }
 
     $counterElement = $('<span/>')
-=======
-  function addCounterElement($input){
-    var $counterElement = $('<span/>')
->>>>>>> Starting point for Materialize.
                         .addClass('character-counter')
                         .css('float','right')
                         .css('font-size','12px')

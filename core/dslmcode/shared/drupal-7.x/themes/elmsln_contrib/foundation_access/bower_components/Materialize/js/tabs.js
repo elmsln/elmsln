@@ -12,11 +12,7 @@
       $this.width('100%');
       var $active, $content, $links = $this.find('li.tab a'),
           $tabs_width = $this.width(),
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
           $tab_width = Math.max($tabs_width, $this[0].scrollWidth) / $links.length,
-=======
-          $tab_width = $this.find('li').first().outerWidth(),
->>>>>>> Starting point for Materialize.
           $index = 0;
 
       // If the location.hash matches one of the links, use that as the active tab.
@@ -36,13 +32,9 @@
         $index = 0;
       }
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       if ($active[0] !== undefined) {
         $content = $($active[0].hash);
       }
-=======
-      $content = $($active[0].hash);
->>>>>>> Starting point for Materialize.
 
       // append indicator then set indicator width to tab width
       $this.append('<div class="indicator"></div>');
@@ -53,11 +45,7 @@
       }
       $(window).resize(function () {
         $tabs_width = $this.width();
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         $tab_width = Math.max($tabs_width, $this[0].scrollWidth) / $links.length;
-=======
-        $tab_width = $this.find('li').first().outerWidth();
->>>>>>> Starting point for Materialize.
         if ($index < 0) {
           $index = 0;
         }
@@ -81,7 +69,6 @@
         }
 
         $tabs_width = $this.width();
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         $tab_width = Math.max($tabs_width, $this[0].scrollWidth) / $links.length;
 
         // Make the old tab inactive.
@@ -89,13 +76,6 @@
         if ($content !== undefined) {
           $content.hide();
         }
-=======
-        $tab_width = $this.find('li').first().outerWidth();
-
-        // Make the old tab inactive.
-        $active.removeClass('active');
-        $content.hide();
->>>>>>> Starting point for Materialize.
 
         // Update the variables with the new link and content
         $active = $(this);
@@ -112,13 +92,9 @@
         // Change url to current tab
         // window.location.hash = $active.attr('href');
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
         if ($content !== undefined) {
           $content.show();
         }
-=======
-        $content.show();
->>>>>>> Starting point for Materialize.
 
         // Update indicator
         if (($index - $prev_index) >= 0) {

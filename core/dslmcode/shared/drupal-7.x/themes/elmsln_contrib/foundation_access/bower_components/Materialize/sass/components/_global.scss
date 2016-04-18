@@ -18,15 +18,11 @@ main {
 }
 
 ul {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   &.browser-default {
     list-style-type: initial;
   }
 
   list-style-type: none;
-=======
-	list-style-type: none;
->>>>>>> Starting point for Materialize.
 }
 
 a {
@@ -383,11 +379,7 @@ table {
     }
 
     > tr > td {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       border-radius: 0;
-=======
-      border-radius: 0px;
->>>>>>> Starting point for Materialize.
     }
   }
 
@@ -401,10 +393,6 @@ table {
   &.centered {
     thead tr th, tbody tr td {
       text-align: center;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
-=======
-
->>>>>>> Starting point for Materialize.
     }
   }
 
@@ -432,13 +420,10 @@ td, th{
     display: block;
     position: relative;
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     td:empty:before {
       content: '\00a0';
     }
 
-=======
->>>>>>> Starting point for Materialize.
     th,
     td {
       margin: 0;
@@ -664,10 +649,6 @@ nav ul a span.badge {
     overflow: hidden;
   .determinate {
     position: absolute;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
-=======
-    background-color: inherit;
->>>>>>> Starting point for Materialize.
     top: 0;
     left: 0;
     bottom: 0;

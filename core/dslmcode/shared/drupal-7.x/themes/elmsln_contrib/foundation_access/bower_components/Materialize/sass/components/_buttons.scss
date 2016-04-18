@@ -1,5 +1,4 @@
 // shared styles
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 .btn,
 .btn-flat {
   border: $button-border;
@@ -9,23 +8,11 @@
   line-height: $button-height;
   outline: 0;
   padding: $button-padding;
-=======
-.btn, .btn-flat {
-  border: none;
-  border-radius: 2px;
-  display: inline-block;
-  height: $button-height;
-  line-height: $button-line-height;
-  // margin-bottom: 15px;
-  outline: 0;
-  padding: 0 2rem;
->>>>>>> Starting point for Materialize.
   text-transform: uppercase;
   vertical-align: middle;
   // Gets rid of tap active state
   -webkit-tap-highlight-color: transparent;
 }
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
 // Disabled shared style
 .btn.disabled,
@@ -39,20 +26,11 @@
   color: $button-disabled-color !important;
   cursor: default;
 
-=======
-// Disabled shared style
-.btn.disabled, .btn-floating.disabled, .btn-large.disabled, .btn:disabled, .btn-large:disabled, .btn-floating:disabled {
-  background-color: $button-bg-color-disabled !important;
-  box-shadow: none;
-  color: $button-color-disabled !important;
-  cursor: default;
->>>>>>> Starting point for Materialize.
   * {
     pointer-events: none;
   }
 
   &:hover {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     background-color: $button-disabled-background !important;
     color: $button-disabled-color !important;
   }
@@ -65,31 +43,15 @@
 .btn-flat {
   i {
     font-size: $button-font-size;
-=======
-    background-color: $button-bg-color-disabled;
-    color: $button-color-disabled;
-  }
-}
-// Shared icon styles
-.btn, .btn-floating, .btn-large, .btn-flat {
-  i {
-    font-size: $button-font-size-shared;
->>>>>>> Starting point for Materialize.
     line-height: inherit;
   }
 }
 
 // Raised Button
 .btn {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   text-decoration: none;
   color: $button-raised-color;
   background-color: $button-raised-background;
-=======
-  text-decoration:none;
-  color: $button-color-raised;
-  background-color: $button-color;
->>>>>>> Starting point for Materialize.
   text-align: center;
   letter-spacing: .5px;
   @extend .z-depth-1;
@@ -97,11 +59,7 @@
   cursor: pointer;
 
   &:hover {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     background-color: $button-raised-background-hover;
-=======
-    background-color: lighten($button-color, 5%);
->>>>>>> Starting point for Materialize.
     @extend .z-depth-1-half;
   }
 }
@@ -109,11 +67,7 @@
 // Floating button
 .btn-floating {
   display: inline-block;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   color: $button-floating-color;
-=======
-  color: $button-color-raised;
->>>>>>> Starting point for Materialize.
   position: relative;
   overflow: hidden;
   z-index: 1;
@@ -121,13 +75,8 @@
   height: $button-floating-size;
   line-height: $button-floating-size;
   padding: 0;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   background-color: $button-floating-background;
   border-radius: $button-floating-radius;
-=======
-  background-color: $button-color;
-  border-radius: 50%;
->>>>>>> Starting point for Materialize.
   @extend .z-depth-1;
   transition: .3s;
   cursor: pointer;
@@ -137,17 +86,12 @@
     width: inherit;
     display: inline-block;
     text-align: center;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     color: $button-floating-color;
-=======
-    color: $button-color-raised;
->>>>>>> Starting point for Materialize.
     font-size: $button-large-icon-font-size;
     line-height: $button-floating-size;
   }
 
   &:hover {
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
     background-color: $button-floating-background-hover;
     @extend .z-depth-1-half;
   }
@@ -168,26 +112,6 @@
 // button fix
 button.btn-floating {
   border: $button-border;
-=======
-    background-color: $button-color;
-    @extend .z-depth-1-half;
-  }
-  &:before {
-    border-radius: 0;
-  }
-  &.btn-large {
-    width: $button-floating-size * 1.5;
-    height: $button-floating-size * 1.5;
-    i{
-      line-height: $button-floating-size * 1.5;
-    }
-  }
-
-}
-// button fix
-button.btn-floating {
-  border: none;
->>>>>>> Starting point for Materialize.
 }
 
 // Fixed Action Button
@@ -197,26 +121,17 @@ button.btn-floating {
      visibility: visible;
     }
   }
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
   &.horizontal {
     padding: 0 0 0 15px;
 
-=======
-  &.horizontal {
-    padding: 0 0 0 15px;
->>>>>>> Starting point for Materialize.
     ul {
       text-align: right;
       right: 64px;
       top: 50%;
       transform: translateY(-50%);
       height: 100%;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
       left: auto;
-=======
-      left: initial;
->>>>>>> Starting point for Materialize.
       width: 500px; /*width 100% only goes to width of button container */
 
       li {
@@ -225,10 +140,7 @@ button.btn-floating {
       }
     }
   }
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 
-=======
->>>>>>> Starting point for Materialize.
   position: fixed;
   right: 23px;
   bottom: 23px;
@@ -259,19 +171,11 @@ button.btn-floating {
 .btn-flat {
   box-shadow: none;
   background-color: transparent;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   color: $button-flat-color;
   cursor: pointer;
 
   &.disabled {
     color: $button-flat-disabled-color;
-=======
-  color: $button-color-flat;
-  cursor: pointer;
-
-  &.disabled {
-    color: lighten(#999, 10%);
->>>>>>> Starting point for Materialize.
     cursor: default;
   }
 }
@@ -279,13 +183,8 @@ button.btn-floating {
 // Large button
 .btn-large {
   @extend .btn;
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
   height: $button-large-height;
   line-height: $button-large-height;
-=======
-  height: $button-height * 1.5;
-  line-height: 56px;
->>>>>>> Starting point for Materialize.
 
   i {
     font-size: $button-large-icon-font-size;

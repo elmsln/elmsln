@@ -223,11 +223,7 @@
             panning = false;
             curr_index = $slider.find('.active').index();
 
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
             if (!swipeRight && !swipeLeft || $slides.length <=1) {
-=======
-            if (!swipeRight && !swipeLeft) {
->>>>>>> Starting point for Materialize.
               // Return to original spot
               $curr_slide.velocity({ translateX: 0
                   }, {duration: 300, queue: false, easing: 'easeOutQuad'});
@@ -322,8 +318,4 @@
         $.error( 'Method ' +  methodOrOptions + ' does not exist on jQuery.tooltip' );
       }
     }; // Plugin end
-<<<<<<< e65c74aae289a769861e434ed793b68185dc8ac0
 }( jQuery ));
-=======
-}( jQuery ));
->>>>>>> Starting point for Materialize.
