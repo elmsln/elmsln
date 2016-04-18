@@ -33,7 +33,14 @@ module.exports = function() {
 	 */
 	.controller('cisDashboard', ['$scope', 'CoursesService', function($scope, CoursesService) {
 	  $scope.courses = CoursesService.query();
-	  console.log($scope.courses);
+    // simple selector to make this item be 'active'
+    $scope.select = function(item) {
+      $scope.selected = item;
+    };
+    // test to see if something is 'active'
+    $scope.isActive = function(item) {
+      return $scope.selected === item;
+    };
 	}])
 	;
 };
