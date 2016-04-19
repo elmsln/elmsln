@@ -488,11 +488,15 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
 }
 
 /**
- * Issue a call against all authorities in the network
- * @param  array $requests an array of requests
+ * Issue a call against all authorities in the network by
+ * looping through and rewriting all incoming requests to
+ * by set against the different detected authorities at any
+ * given time.
+ * @param  array $requests         an array of requests
+ * @param  array $ignored_buckets  list of authorities to ignore
  * @see  _elmsln_api_request()
  */
-function _elmsln_api_authority_request($requests, $api = '1', $nonblocking = FALSE) {
+function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored_buckets = array()) {
   // force use of normal calls if we are in developer mode
   if ($nonblocking && module_exists('cis_devel')) {
     $nonblocking = FALSE;
@@ -509,44 +513,36 @@ function _elmsln_api_authority_request($requests, $api = '1', $nonblocking = FAL
   }
   // build whole registry since we're calling multiple things
   $settings = _cis_connector_build_registry();
-  $path = '/';
   // sniff out all other authorities
-  $services = array();
-  foreach ($settings as $key => $service) {
-    if (isset($service['instance']) && $service['instance']) {
+  $authorities = array();
+  foreach ($settings as $bucket => $service) {
+    if ($bucket == variable_get('install_profile', 'standard') || (isset($service['instance']) && $service['instance']) || in_array($bucket, $ignored_buckets)) {
     }
     else {
-      $services[$key] = $service;
+      $authorities[$bucket] = $service;
     }
   }
-  // ensure we have other course services in this network
-  if (!empty($services)) {
+  // ensure we have other course authorities in this network
+  if (!empty($authorities)) {
     // do it per request so we can group the spidering
-    foreach ($requests as $data) {
+    foreach ($requests as $request) {
       // build an array for spidering each request
       $nonblock = array();
       $addresses = array();
-      // loop through each service
-      foreach ($services as $service) {
+      // loop through each authority
+      foreach ($authorities as $bucket => $authority) {
         // make sure they don't match the existing one
-        if ($service['field_distribution'] != variable_get('install_profile', 'standard')) {
-          $request = array(
-            'method' => 'POST',
-            'api' => $api,
-            'bucket' => $service['field_distribution'],
-            'path' => $path,
-            'data' => $data,
-          );
-          // if we are blocking then ship off now
-          if (!$nonblocking) {
-            _elmsln_api_request($request);
-          }
-          else {
-            // queue these after formulation, the addresses are the most importantant
-            $nonblock[] = $request;
-            // form the address to call for each service
-            $addresses[] = _cis_connector_format_address($settings[$request['bucket']], $request['path']) . 'elmsln.php';
-          }
+        $request['bucket'] = $bucket;
+        $request['path'] = '/';
+        // if we are blocking then ship off now
+        if (!$nonblocking) {
+          _elmsln_api_request($request);
+        }
+        else {
+          // queue these after formulation, the addresses are the most importantant
+          $nonblock[] = $request;
+          // form the address to call for each authority
+          $addresses[] = _cis_connector_format_address($settings[$request['bucket']], $request['path']) . 'elmsln.php';
         }
       }
       // if we have nonblocking calls and a collection of them
@@ -592,6 +588,13 @@ function elmsln_api_elmsln_api_info() {
     'methods' => array('POST'),
     'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
     'file' => 'callbacks/v1/entity_update.inc',
+  );
+
+  // remote entity sync
+  $callbacks['entity_sync'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
+    'file' => 'callbacks/v1/entity_sync.inc',
   );
 
   // remote entity update
