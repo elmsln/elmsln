@@ -30,19 +30,23 @@ and Vimeo.
 
 ```html_example
 <figure class="mediavideo mediavideo--poster">
-	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://www.youtube.com/embed/CKZLuYOnPCk?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe></div>
-  <aside class="mediavideo__poster">
-		<img src="../img/unsplash.jpg">
-		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
-  </aside>
+	<div class="mediavideo__video-wrapper">
+		<iframe data-mediavideo-src="https://www.youtube.com/embed/CKZLuYOnPCk?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+	  <aside class="mediavideo__poster">
+			<img src="../img/unsplash.jpg">
+			<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+	  </aside>
+	</div>
 </figure>
 
 <figure class="mediavideo mediavideo--poster">
-	<div class="mediavideo__video-wrapper"><iframe data-mediavideo-src="https://player.vimeo.com/video/111237065?title=0&byline=0&portrait=0" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/104641191">Jeffrey Zeldman: 20 years of Web Design and Community</a> from <a href="https://vimeo.com/lyndavimeo">lynda.com</a> on <a href="https://vimeo.com">Vimeo</a>.</p></div>
-  <aside class="mediavideo__poster">
-		<img src="../img/unsplash.jpg">
-		<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
-  </aside>
+	<div class="mediavideo__video-wrapper">
+		<iframe data-mediavideo-src="https://player.vimeo.com/video/111237065?title=0&byline=0&portrait=0" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/104641191">Jeffrey Zeldman: 20 years of Web Design and Community</a> from <a href="https://vimeo.com/lyndavimeo">lynda.com</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+	  <aside class="mediavideo__poster">
+			<img src="../img/unsplash.jpg">
+			<a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+	  </aside>
+  </div>
 </figure>
 ```
 */
