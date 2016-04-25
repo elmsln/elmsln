@@ -8,6 +8,5 @@ config
 .vagrant
 sftp-config.json
 .validate_pre_commit
-core/dslmcode/stacks/online/profiles/cis
 .idea
 .unison*
