@@ -1,9 +1,0 @@
-name = Views Field Calc
-description = This is similar to Views Calc except it calculates based off fields instead of mysql queries.
-core = 7.x
-package = Views
-dependencies[] = views
-
-files[] = views_field_calc.views.inc
-files[] = views_field_calc.theme.inc
-files[] = views_field_calc_table.inc

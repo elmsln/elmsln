@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the CIS Nodequeue feature.
- */
-
-include_once 'cis_nodequeue.features.inc';

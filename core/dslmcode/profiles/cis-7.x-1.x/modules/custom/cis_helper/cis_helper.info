@@ -1,6 +1,0 @@
-; $Id: cis_helper.info
-name = "CIS Module"
-description = "Tweaks for the course information system"
-core = 7.x
-package = CIS
-dependencies[] = httprl
