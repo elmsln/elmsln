@@ -770,7 +770,8 @@ function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
         $section->field_cis_active['und'][0]['value'] = $section_status;
         // authority systems have an additional field for relating sections and courses
         if (module_exists('cis_course_authority')) {
-          $section->field_course['und'][0]['value'] = $course_nid;
+          $section->field_section_course_ref['und'][0]['target_id'] = $course_nid;
+          // @todo we need to make sure the course reference this section
         }
         $section->language = LANGUAGE_NONE;
         // default these to admin ownership for less chance of seeing it
