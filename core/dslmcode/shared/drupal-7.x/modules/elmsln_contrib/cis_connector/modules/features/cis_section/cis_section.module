@@ -680,9 +680,9 @@ function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
   if (count($return['list']) == 1) {
     $section_strings = array();
     $section_times = array();
-    $course = $return['list'][0];
+    $remote_course = $return['list'][0];
     // loop through offerings
-    foreach ($course['field_offerings'] as $offering) {
+    foreach ($remote_course['field_offerings'] as $offering) {
       // loop through sections if they exist
       if (isset($offering['field_sections']['und']) && count($offering['field_sections']['und']) > 0) {
         foreach ($offering['field_sections']['und'] as $section) {
@@ -771,7 +771,6 @@ function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
         // authority systems have an additional field for relating sections and courses
         if (module_exists('cis_course_authority')) {
           $section->field_section_course_ref['und'][0]['target_id'] = $course_nid;
-          // @todo we need to make sure the course reference this section
         }
         $section->language = LANGUAGE_NONE;
         // default these to admin ownership for less chance of seeing it
@@ -779,6 +778,12 @@ function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
         // save section, cron job will then be able to check data source for roster
         // if that functionality is enabled in local instance
         node_save($section);
+        // need to make sure the course references this section
+        if (module_exists('cis_course_authority')) {
+          $course = node_load($course_nid);
+          $course->field_course_sections_ref['und'][] = array('target_id' => $section->nid);
+          node_save($course);
+        }
       }
     }
   }

@@ -22,7 +22,7 @@ function _cis_course_authority_cis_sync($cached = FALSE) {
   // call home for a list of courses
   $remote_courses = _cis_connection_service_instance_query('cis', 'node', array('type' => 'course'), $cached);
   $local_courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_cis_course_uuid', 'nid');
-  $local_sections = _cis_connector_assemble_entity_list('node', 'section', array('field_section_course_ref', 'target_id'), 'nid');
+  $local_sections = _cis_connector_assemble_entity_list('node', 'section', array('field_section_course_ref', 'target_id'), 'nid', array('field_section_id' => array('value', 'master_', 'STARTS_WITH')), array(), array(), FALSE);
   // loop through the remote courses we pulled if we got any
   if (!empty($remote_courses)) {
     foreach ($remote_courses as $remote_course) {
@@ -85,11 +85,9 @@ function _cis_course_authority_cis_sync($cached = FALSE) {
           $section->uid = 1;
           node_save($section);
         }
-        // see if a course was created at the same time so we can hook up the reverse reference for master
-        if ($new) {
-          $course->field_course_sections_ref['und'][0]['target_id'] = $section->nid;
-          node_save($course);
-        }
+        // save course to associate this section if needed
+        $course->field_course_sections_ref['und'][] = array('target_id' => $section->nid);
+        node_save($course);
       }
     }
     // now sync the sections to go along with it if they are enabled

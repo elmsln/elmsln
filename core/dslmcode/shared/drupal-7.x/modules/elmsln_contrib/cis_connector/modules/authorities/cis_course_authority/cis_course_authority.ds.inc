@@ -27,16 +27,18 @@ function cis_course_authority_ds_layout_settings_info() {
         2 => 'field_cis_course_uuid',
       ),
       'footer' => array(
-        3 => 'path',
+        3 => 'field_course_sections_ref',
+        4 => 'path',
       ),
       'hidden' => array(
-        4 => '_add_existing_field',
+        5 => '_add_existing_field',
       ),
     ),
     'fields' => array(
       'title' => 'left',
       'field_course_machine_name' => 'right',
       'field_cis_course_uuid' => 'right',
+      'field_course_sections_ref' => 'footer',
       'path' => 'footer',
       '_add_existing_field' => 'hidden',
     ),
