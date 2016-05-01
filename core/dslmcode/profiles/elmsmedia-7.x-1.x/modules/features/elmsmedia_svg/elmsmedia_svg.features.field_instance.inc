@@ -36,6 +36,12 @@ function elmsmedia_svg_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 2,
       ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
     ),
     'entity_type' => 'node',
     'field_name' => 'field_cis_course_ref',
@@ -69,7 +75,7 @@ function elmsmedia_svg_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 35,
+      'weight' => 0,
     ),
   );
 
@@ -99,6 +105,12 @@ function elmsmedia_svg_field_default_field_instances() {
         ),
         'type' => 'entityreference_entity_view',
         'weight' => 3,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
     ),
     'entity_type' => 'node',
@@ -142,7 +154,7 @@ function elmsmedia_svg_field_default_field_instances() {
         ),
       ),
       'type' => 'inline_entity_form',
-      'weight' => 37,
+      'weight' => 4,
     ),
   );
 
@@ -204,7 +216,7 @@ function elmsmedia_svg_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 32,
+      'weight' => 2,
     ),
   );
 
@@ -282,7 +294,93 @@ function elmsmedia_svg_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 33,
+      'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance: 'node-svg-og_group_ref'
+  $field_instances['node-svg-og_group_ref'] = array(
+    'bundle' => 'svg',
+    'default_value' => NULL,
+    'default_value_function' => 'entityreference_prepopulate_field_default_value',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'og_ui',
+        'settings' => array(),
+        'type' => 'og_list_default',
+        'weight' => 4,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'og_group_ref',
+    'label' => 'Section',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'behaviors' => array(
+        'og_widget' => array(
+          'access_override' => 0,
+          'admin' => array(
+            'widget_type' => 'entityreference_autocomplete',
+          ),
+          'default' => array(
+            'widget_type' => 'options_select',
+          ),
+          'status' => TRUE,
+        ),
+        'prepopulate' => array(
+          'action' => 'none',
+          'action_on_edit' => 0,
+          'fallback' => 'none',
+          'providers' => array(
+            'og_context' => 0,
+            'url' => 1,
+          ),
+          'skip_perm' => 0,
+          'status' => 1,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'view modes' => array(
+      'full' => array(
+        'custom settings' => FALSE,
+        'label' => 'Full',
+        'type' => 'og_list_default',
+      ),
+      'teaser' => array(
+        'custom settings' => FALSE,
+        'label' => 'Teaser',
+        'type' => 'og_list_default',
+      ),
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'og',
+      'settings' => array(),
+      'type' => 'og_complex',
+      'weight' => 5,
     ),
   );
 
@@ -292,6 +390,7 @@ function elmsmedia_svg_field_default_field_instances() {
   t('Course');
   t('Figure Label');
   t('SVG');
+  t('Section');
   t('Use this text area if the included SVG needs alternative text description.  If text is included in this field, the SVG will be hidden from screen readers and text will be read from this field.');
 
   return $field_instances;

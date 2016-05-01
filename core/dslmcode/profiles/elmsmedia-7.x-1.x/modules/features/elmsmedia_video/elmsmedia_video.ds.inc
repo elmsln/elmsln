@@ -28,13 +28,16 @@ function elmsmedia_video_ds_layout_settings_info() {
         3 => 'field_poster',
       ),
       'right' => array(
-        4 => 'field_tagging',
-        5 => 'field_caption',
-        6 => 'field_transcript',
+        4 => 'field_caption',
+        5 => 'field_transcript',
+        6 => 'field_tagging',
+      ),
+      'footer' => array(
+        7 => 'og_group_ref',
       ),
       'hidden' => array(
-        7 => 'path',
-        8 => '_add_existing_field',
+        8 => 'path',
+        9 => '_add_existing_field',
       ),
     ),
     'fields' => array(
@@ -42,9 +45,10 @@ function elmsmedia_video_ds_layout_settings_info() {
       'title' => 'left',
       'field_video' => 'left',
       'field_poster' => 'left',
-      'field_tagging' => 'right',
       'field_caption' => 'right',
       'field_transcript' => 'right',
+      'field_tagging' => 'right',
+      'og_group_ref' => 'footer',
       'path' => 'hidden',
       '_add_existing_field' => 'hidden',
     ),

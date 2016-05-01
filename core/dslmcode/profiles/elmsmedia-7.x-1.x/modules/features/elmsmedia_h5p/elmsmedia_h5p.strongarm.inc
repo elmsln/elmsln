@@ -87,7 +87,7 @@ function elmsmedia_h5p_strongarm() {
           'weight' => '1',
         ),
         'path' => array(
-          'weight' => '6',
+          'weight' => '7',
         ),
       ),
       'display' => array(),

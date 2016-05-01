@@ -41,6 +41,12 @@ function elmsmedia_image_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 2,
       ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
     ),
     'entity_type' => 'node',
     'fences_wrapper' => 'div',
@@ -57,7 +63,7 @@ function elmsmedia_image_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 36,
+      'weight' => 0,
     ),
   );
 
@@ -109,6 +115,12 @@ function elmsmedia_image_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 4,
       ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
     ),
     'entity_type' => 'node',
     'field_name' => 'field_citation',
@@ -156,7 +168,7 @@ function elmsmedia_image_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 37,
+      'weight' => 5,
     ),
   );
 
@@ -192,6 +204,12 @@ function elmsmedia_image_field_default_field_instances() {
         ),
         'type' => 'entityreference_entity_view',
         'weight' => 5,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
     ),
     'entity_type' => 'node',
@@ -235,7 +253,7 @@ function elmsmedia_image_field_default_field_instances() {
         ),
       ),
       'type' => 'inline_entity_form',
-      'weight' => 39,
+      'weight' => 6,
     ),
   );
 
@@ -305,6 +323,12 @@ function elmsmedia_image_field_default_field_instances() {
         'type' => 'image',
         'weight' => 1,
       ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
     ),
     'entity_type' => 'node',
     'field_name' => 'field_image',
@@ -332,7 +356,7 @@ function elmsmedia_image_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 31,
+      'weight' => 2,
     ),
   );
 
@@ -384,6 +408,12 @@ function elmsmedia_image_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 6,
       ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
     ),
     'entity_type' => 'node',
     'field_name' => 'field_image_caption',
@@ -431,7 +461,7 @@ function elmsmedia_image_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 38,
+      'weight' => 3,
     ),
   );
 
@@ -462,6 +492,12 @@ function elmsmedia_image_field_default_field_instances() {
         'type' => 'taxonomy_term_reference_link',
         'weight' => 1,
       ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
     ),
     'entity_type' => 'node',
     'fences_wrapper' => 'div',
@@ -479,7 +515,93 @@ function elmsmedia_image_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'taxonomy_autocomplete',
-      'weight' => 34,
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'node-elmsmedia_image-og_group_ref'
+  $field_instances['node-elmsmedia_image-og_group_ref'] = array(
+    'bundle' => 'elmsmedia_image',
+    'default_value' => NULL,
+    'default_value_function' => 'entityreference_prepopulate_field_default_value',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'og_ui',
+        'settings' => array(),
+        'type' => 'og_list_default',
+        'weight' => 6,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'og_group_ref',
+    'label' => 'Section',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'behaviors' => array(
+        'og_widget' => array(
+          'access_override' => 0,
+          'admin' => array(
+            'widget_type' => 'entityreference_autocomplete',
+          ),
+          'default' => array(
+            'widget_type' => 'options_select',
+          ),
+          'status' => TRUE,
+        ),
+        'prepopulate' => array(
+          'action' => 'none',
+          'action_on_edit' => 0,
+          'fallback' => 'none',
+          'providers' => array(
+            'og_context' => 0,
+            'url' => 1,
+          ),
+          'skip_perm' => 0,
+          'status' => 1,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'view modes' => array(
+      'full' => array(
+        'custom settings' => FALSE,
+        'label' => 'Full',
+        'type' => 'og_list_default',
+      ),
+      'teaser' => array(
+        'custom settings' => FALSE,
+        'label' => 'Teaser',
+        'type' => 'og_list_default',
+      ),
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'og',
+      'settings' => array(),
+      'type' => 'og_complex',
+      'weight' => 7,
     ),
   );
 
@@ -490,6 +612,7 @@ function elmsmedia_image_field_default_field_instances() {
   t('Course');
   t('Figure Label');
   t('Image');
+  t('Section');
   t('Tagging');
 
   return $field_instances;
