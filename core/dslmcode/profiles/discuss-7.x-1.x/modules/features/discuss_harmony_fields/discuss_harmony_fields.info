@@ -9,7 +9,6 @@ dependencies[] = og_ui
 dependencies[] = text
 features[features_api][] = api:2
 features[field_base][] = field_cis_tag
-features[field_base][] = og_group_ref
 features[field_instance][] = harmony_post-harmony_post-og_group_ref
 features[field_instance][] = harmony_thread-harmony_thread-field_cis_tag
 features[field_instance][] = harmony_thread-harmony_thread-og_group_ref

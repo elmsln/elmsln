@@ -17,7 +17,6 @@ features[ds_layout_settings][] = node|inbox_event|form
 features[features_api][] = api:2
 features[field_base][] = field_inbox_date
 features[field_base][] = field_inbox_details
-features[field_base][] = og_group_ref
 features[field_instance][] = node-inbox_event-field_inbox_date
 features[field_instance][] = node-inbox_event-field_inbox_details
 features[field_instance][] = node-inbox_event-og_group_ref

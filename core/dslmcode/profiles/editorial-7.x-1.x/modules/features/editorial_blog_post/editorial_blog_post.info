@@ -20,7 +20,6 @@ features[defaultconfig][] = user_default_permissions:edit any editorial_blog_pos
 features[defaultconfig][] = user_default_permissions:edit own editorial_blog_post content
 features[features_api][] = api:2
 features[field_base][] = field_editorial_blog_body
-features[field_base][] = og_group_ref
 features[field_instance][] = node-editorial_blog_post-field_editorial_blog_body
 features[field_instance][] = node-editorial_blog_post-og_group_ref
 features[menu_links][] = menu-elmsln-add_public-blog-post:node/add/editorial-blog-post
