@@ -1,3 +1,7 @@
+.alert-box.success a {
+  color:#FFFF00;
+}
+
 .confirm-parent, .password-parent {
   width: inherit;
 }
