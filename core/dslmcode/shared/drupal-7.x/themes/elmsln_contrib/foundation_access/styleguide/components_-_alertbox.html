@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>Widgets ImageLightbox</title>
+    <title>Components - AlertBox</title>
 
     <!-- Styleguide CSS -->
     <link rel="stylesheet" href="./theme-build/css/vendors.css">
@@ -88,7 +88,7 @@
             
               
               
-                <li><a href="components_-_alertbox.html">AlertBox</a></li>
+                <li><a class="active" href="components_-_alertbox.html">AlertBox</a></li>
               
             
           
@@ -156,7 +156,7 @@
             
               
               
-                <li><a class="active" href="widgets_imagelightbox.html">ImageLightbox</a></li>
+                <li><a href="widgets_imagelightbox.html">ImageLightbox</a></li>
               
             
           
@@ -169,7 +169,7 @@
 
     <header class="cortana-header sb-slide">
       
-        <h1>ImageLightbox</h1>
+        <h1>AlertBox</h1>
       
       <div id="open-left" class="cortana-menu-btn">
         <span></span>
@@ -189,7 +189,7 @@
           <ul bs-scrollspy-list data-offset="-30">
             
               
-                <li><a href="#imagelightbox">Imagelightbox</a></li>
+                <li><a href="#1alertbox">AlertBox</a></li>
               
             
           </ul>
@@ -200,17 +200,31 @@
 
 
 
-<h1 id="imagelightbox">Imagelightbox</h1>
-
-<p>This is a responsive lightbox for view images.  To use this plugin, you need to define an <code>a</code> tag 
-with an <code>href</code> attribute that points a larger version of the image as well as a <code>data-imagelightbox</code> 
-tag that initiates the lightbox.</p>
-</div><div class="codeExample"><div class="exampleOutput">
-<a data-imagelightbox href="https://unsplash.it/1200/600/"><img src="https://unsplash.it/1200/600"></a>
-
-</div><div class="codeBlock"><div class="highlight"><pre>
-<span class="nt">&lt;a</span> <span class="na">data-imagelightbox</span> <span class="na">href=</span><span class="s">"https://unsplash.it/1200/600/"</span><span class="nt">&gt;&lt;img</span> <span class="na">src=</span><span class="s">"https://unsplash.it/1200/600"</span><span class="nt">&gt;&lt;/a&gt;</span>
-
+<h1 id="1alertbox">AlertBox</h1>
+</div><div class="codeExample"><div class="exampleOutput">    <div class="alert-box">
+        This is a notification
+        <a href="#" class="close">×</a>
+    </div>
+</div><div class="codeBlock"><div class="highlight"><pre>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"alert-box"</span><span class="nt">&gt;</span>
+        This is a notification
+        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">class=</span><span class="s">"close"</span><span class="nt">&gt;</span>×<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+</pre></div></div></div><div class="cortana-content"></div><div class="codeExample"><div class="exampleOutput">    <div class="alert-box secondary">
+        This is secondary
+        <a href="#" class="close">×</a>
+    </div>
+</div><div class="codeBlock"><div class="highlight"><pre>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"alert-box secondary"</span><span class="nt">&gt;</span>
+        This is secondary
+        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">class=</span><span class="s">"close"</span><span class="nt">&gt;</span>×<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+</pre></div></div></div><div class="cortana-content"></div><div class="codeExample"><div class="exampleOutput">    <div class="alert-box alert">
+        This is an error
+        <a href="#" class="close">×</a>
+    </div>
+</div><div class="codeBlock"><div class="highlight"><pre>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"alert-box alert"</span><span class="nt">&gt;</span>
+        This is an error
+        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"#"</span> <span class="na">class=</span><span class="s">"close"</span><span class="nt">&gt;</span>×<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
 </pre></div></div></div><div class="cortana-content">
         </div>
       </div>
