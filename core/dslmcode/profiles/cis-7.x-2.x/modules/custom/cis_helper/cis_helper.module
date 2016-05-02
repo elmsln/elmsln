@@ -458,7 +458,7 @@ function cis_helper_entity_update($entity, $type) {
     $query = array(
       'entityCondition' => array(
         'bundle' => 'cis_course',
-        'type'   => 'node',
+        'entity_type'   => 'node',
       ),
       'propertyCondition' => array(
         'status' => 1,
@@ -476,15 +476,17 @@ function cis_helper_entity_update($entity, $type) {
     // to keep it in sync while ignoring cis. bucket / path are required
     // for these call structured but is populated at time of command
     // spider being issued.
-    $request = array(
-      'method' => 'POST',
-      'api' => '1',
-      'data' => array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'entity_sync',
-        'query' => $query,
-        'data' => $data,
-      ),
+    $requests = array(
+      array(
+        'method' => 'POST',
+        'api' => '1',
+        'data' => array(
+          'elmsln_module' => 'elmsln_api',
+          'elmsln_callback' => 'entity_sync',
+          'query' => $query,
+          'data' => $data,
+        ),
+      )
     );
     _elmsln_api_authority_request($requests, TRUE);
   }

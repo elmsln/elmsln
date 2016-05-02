@@ -1,11 +1,5 @@
 <?php
 
-$query = new EntityFieldQuery;
-    $query->entityCondition('entity_type', 'node');
-    $query->entityCondition('bundle', 'ecd_asset');
-    $query->fieldCondition('field_resource_uuid_bind', 'value', $value['uuid'], '=');
-    $result = $query->execute();
-
 /**
  * Callback to keep an entity in sync based on criteria
  * matching the remote uuid. If the EFQ comes up empty
@@ -21,8 +15,8 @@ function elmsln_api_elmsln_api_callback_entity_sync() {
     $query = new EntityFieldQuery;
     foreach ($_elmsln['args']['query'] as $condition => $criteria) {
       foreach ($criteria as $field => $target) {
-        if (is_array($match)) {
-          if (count($match) == 2) {
+        if (is_array($target)) {
+          if (count($target) == 2) {
             $query->{$condition}($field, $target[0], $taget[1]);
           }
           else {
