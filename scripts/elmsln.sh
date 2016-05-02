@@ -22,9 +22,9 @@ elmslnwarn(){
 
 # prompt the user
 prompt="Leafy: Type the number for what you'd like to do today: "
-items=("oops, didn't want to be here" 'show me the sites drush knows about' 'upgrade the ELMSLN code base and system' 'upgrade just the drupal sites' 'backup the drupal databases.' 'backup the configuration directory.' 'clean up directory and file permissions issues.' 'refresh the drush plugins my user has' 'setup (or refresh) the recommended elmsln configuration for my user account' 'apply server level upgrades (can not be undone)' 'add domain support (can not be undone)' 'remove a drupal site from ELMSLN (can not be undone)')
-locations=('' '' 'upgrade/elmsln-upgrade-system.sh' 'upgrade/elmsln-upgrade-sites.sh' '' 'utilities/backup-config.sh' 'utilities/harden-security.sh' 'utilities/refresh-drush-config.sh' 'install/users/elmsln-admin-user.sh' 'upgrade/elmsln-bash-upgrades.sh' 'utilities/add-domain-support.sh' 'drush-create-site/rm-site.sh')
-commands=('' 'drush sa' 'bash' 'bash' 'drush @elmsln sql-dump --result-file --y' 'sudo bash' 'sudo bash' 'bash' 'bash' 'sudo bash' 'sudo bash' 'sudo bash')
+items=("oops, didn't want to be here" 'show me the sites drush knows about' 'upgrade the ELMSLN code base and system' 'upgrade just the drupal sites' 'backup the drupal databases.' 'backup the configuration directory.' 'clean up directory and file permissions issues.' 'refresh the drush plugins my user has' 'setup (or refresh) the recommended elmsln configuration for my user account' 'apply server level upgrades (can not be undone)' 'add domain support (can not be undone)' 'remove a drupal site from ELMSLN (can not be undone)' 'restart apache, mysql and php (can not be undone)')
+locations=('' '' 'upgrade/elmsln-upgrade-system.sh' 'upgrade/elmsln-upgrade-sites.sh' '' 'utilities/backup-config.sh' 'utilities/harden-security.sh' 'utilities/refresh-drush-config.sh' 'install/users/elmsln-admin-user.sh' 'upgrade/elmsln-bash-upgrades.sh' 'utilities/add-domain-support.sh' 'drush-create-site/rm-site.sh' 'utilities/restart-elmsln.sh')
+commands=('' 'drush sa' 'bash' 'bash' 'drush @elmsln sql-dump --result-file --y' 'sudo bash' 'sudo bash' 'bash' 'bash' 'sudo bash' 'sudo bash' 'sudo bash' 'sudo bash')
 
 # allow for dropping into developer mode if a flag isset
 if [[ ! -z $1 && $1 == 'dev' ]]; then
