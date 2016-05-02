@@ -33,6 +33,7 @@ features[variable][] = node_options_cis_course
 features[variable][] = node_preview_cis_course
 features[variable][] = node_submitted_cis_course
 features[variable][] = pathauto_node_cis_course_pattern
+features[variable][] = pathauto_node_section_pattern
 features[variable][] = pathauto_punctuation_ampersand
 features[variable][] = pathauto_punctuation_asterisk
 features[variable][] = pathauto_punctuation_at

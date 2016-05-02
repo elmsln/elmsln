@@ -106,6 +106,13 @@ function cis_course_authority_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'pathauto_node_section_pattern';
+  $strongarm->value = '[node:field-section-course-ref:field_course_machine_name]/[node:field-section-id]';
+  $export['pathauto_node_section_pattern'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'pathauto_punctuation_ampersand';
   $strongarm->value = '0';
   $export['pathauto_punctuation_ampersand'] = $strongarm;
