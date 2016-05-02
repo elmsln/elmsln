@@ -464,13 +464,26 @@ function cis_helper_entity_update($entity, $type) {
         'status' => 1,
       ),
       'fieldCondition' => array(
-        'field_cis_course_uuid' => array($entity->uuid, '='),
+        'field_cis_course_uuid' => array('value', $entity->uuid, '='),
       ),
     );
     $data = array(
       'title' => $entity->title,
-      'field_course_machine_name' => array('und' => array(0 => $entity->field_machine_name[LANGUAGE_NONE][0]['value'])),
-      'field_cis_course_uuid' => array('und' => array(0 => $entity->uuid)),
+      'uid' => 1,
+      'field_course_machine_name' => array(
+        'und' => array(
+          0 => array(
+            'value' => $entity->field_machine_name[LANGUAGE_NONE][0]['value'],
+          )
+        )
+      ),
+      'field_cis_course_uuid' => array(
+        'und' => array(
+          0 => array(
+            'value' => $entity->uuid,
+          )
+        )
+      ),
     );
     // hit all other authorities with data about this course
     // to keep it in sync while ignoring cis. bucket / path are required

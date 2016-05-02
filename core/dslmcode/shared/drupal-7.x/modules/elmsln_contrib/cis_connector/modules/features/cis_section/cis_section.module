@@ -812,7 +812,7 @@ function cis_section_elmsln_api_info() {
   $callbacks['sync_roster'] = array(
     'methods' => array('POST'),
     'file' => 'callbacks/v1/sync_roster.inc',
-    'bootstrap' => DRUPAL_BOOTSRAP_FULL,
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
   );
 
   return $callbacks;

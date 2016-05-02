@@ -17,10 +17,10 @@ function elmsln_api_elmsln_api_callback_entity_sync() {
       foreach ($criteria as $field => $target) {
         if (is_array($target)) {
           if (count($target) == 2) {
-            $query->{$condition}($field, $target[0], $taget[1]);
+            $query->{$condition}($field, $target[0], $target[1]);
           }
           else {
-            $query->{$condition}($field, $target[0], $taget[1], $taget[1]);
+            $query->{$condition}($field, $target[0], $target[1], $target[2]);
           }
         }
         else {
@@ -38,7 +38,7 @@ function elmsln_api_elmsln_api_callback_entity_sync() {
     $result = $query->execute();
     if (isset($result[$etype])) {
       $etids = array_keys($result[$etype]);
-      foreach ($etids as $nid) {
+      foreach ($etids as $etid) {
         $entity = entity_load_single($etype, $etid);
       }
     }
@@ -58,7 +58,7 @@ function elmsln_api_elmsln_api_callback_entity_sync() {
       $entity->{$key} = $value;
     }
     // only send back if we save the changes
-    entity_save($_elmsln['args']['type'], $entity);
+    entity_save($etype, $entity);
     return array(
       'entity_sync' => TRUE,
       'entity' => $entity,
