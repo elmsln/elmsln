@@ -455,22 +455,38 @@ function cis_helper_entity_update($entity, $type) {
   // tap authorities if any key properties are updated
   if ($type == 'node' && $entity->type == 'course') {
     // connect to all authority systems and update their corresponding course to match
-    $query = array('type' => 'cis_course', 'field_cis_course_uuid' => $entity->uuid);
+    $query = array(
+      'entityCondition' => array(
+        'bundle' => 'cis_course',
+        'type'   => 'node',
+      ),
+      'propertyCondition' => array(
+        'status' => 1,
+      ),
+      'fieldCondition' => array(
+        'field_cis_course_uuid' => array($entity->uuid, '='),
+      ),
+    );
     $data = array(
       'title' => $entity->title,
-      'field_course_machine_name' => $entity->field_machine_name[LANGUAGE_NONE][0]['value'],
-      'field_cis_course_uuid' => $entity->uuid,
+      'field_course_machine_name' => array('und' => array(0 => $entity->field_machine_name[LANGUAGE_NONE][0]['value'])),
+      'field_cis_course_uuid' => array('und' => array(0 => $entity->uuid)),
     );
-    $settings = _cis_connector_build_registry();
-    foreach ($settings as $bucket => $setting) {
-      // sniff out authority systems
-      if ($bucket != 'cis' && isset($setting['instance']) && $setting['instance'] == FALSE) {
-        // @todo this isn't setting it unless it already exists because set_data
-        // is for setting data after a look up. IT WON'T do it initially
-        // set data about this course in authority systems
-        _cis_connection_set_data($query, $data, 'nid', 'node', $bucket, '', TRUE, '', array('blocking' => FALSE));
-      }
-    }
+    // hit all other authorities with data about this course
+    // to keep it in sync while ignoring cis. bucket / path are required
+    // for these call structured but is populated at time of command
+    // spider being issued.
+    $request = array(
+      'method' => 'POST',
+      'api' => '1',
+      'data' => array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'entity_sync',
+        'query' => $query,
+        'data' => $data,
+      ),
+    );
+    _elmsln_api_authority_request($requests, TRUE);
   }
   // spider crons of associated services when section is updated
   if ($type == 'field_collection_item' && $entity->field_name == 'field_sections') {
