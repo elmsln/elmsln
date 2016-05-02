@@ -36,8 +36,7 @@
 	@media #{$large-up} {
 		//padding:2rem 1rem 0;
 	}
-	
-	
+
 	.row {
 		@extend transform();
 	}
@@ -50,23 +49,11 @@
 		//border: 1px solid #efefef;
 		// background: rgba(255,255,255,1);
 		//background-color: #efefef;
-		padding-top: 2rem;
 		//@include border-radius (3px);
 		//@include box-shadow();
 		//
 	}
-	.alert-box {
-		background-color: $messages-alerts-color;
-		margin:0 0 2rem 0;
-		padding:1.5rem;
-		border:none;
-		font-size: 0.9rem;
-		.close {
-			right:1rem;
-			color:#fff;
-			opacity:0.6;
-		}
-	}
+
 	.main {//to help center breadcrumbs
 		text-align:center;
 		article {
@@ -86,7 +73,7 @@
 		 	line-height: 0.82em;
 		 	padding:2rem 0 2rem;
 		 }
-		 
+
 		 @media #{$medium-up} { 
 			font-size: 3.889em;
 		 	line-height: 0.986em;

@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
  * This is for Utility sass mixins and functions
  */
@@ -7378,20 +7379,6 @@ footer {
 .etb-book .content-element-region-wrapper {
   max-width: 68rem; }
 
-.etb-book .content-element-region {
-  padding-top: 2rem; }
-
-.etb-book .alert-box {
-  background-color: #009bd3;
-  margin: 0 0 2rem 0;
-  padding: 1.5rem;
-  border: none;
-  font-size: 0.9rem; }
-  .etb-book .alert-box .close {
-    right: 1rem;
-    color: #fff;
-    opacity: 0.6; }
-
 .etb-book .main {
   text-align: center; }
   .etb-book .main article {
@@ -9009,6 +8996,56 @@ The figure label component is used to present textbook like captions to media el
 .clipboard .clipboardjs-button {
   background-color: #008CBA;
   color: white; }
+
+/*doc
+---
+title: AlertBox
+name: 1alertbox
+category:
+  - Components - AlertBox
+---
+
+```html_example
+	<div class="alert-box">
+		This is a notification
+		<a href="#" class="close">×</a>
+	</div>
+```
+
+```html_example
+	<div class="alert-box secondary">
+		This is secondary
+		<a href="#" class="close">×</a>
+	</div>
+```
+
+```html_example
+	<div class="alert-box alert">
+		This is an error
+		<a href="#" class="close">×</a>
+	</div>
+```
+*/
+.alert-box {
+  background-position: 8px 8px;
+  background-repeat: no-repeat;
+  border: 1px solid;
+  margin: 6px 0;
+  padding: 10px 10px 10px 10px;
+  background-color: #E8F5E9;
+  border: none;
+  border-radius: 3px;
+  background-position: 14px 50%;
+  color: #234600;
+  font-size: 16px;
+  font-size: 1rem;
+  font-weight: 600; }
+  .alert-box.secondary {
+    color: #840;
+    background-color: #fff3e0; }
+  .alert-box.alert {
+    color: #8c2e0b;
+    background-color: #EFC9C9; }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {
   padding: .5em;
