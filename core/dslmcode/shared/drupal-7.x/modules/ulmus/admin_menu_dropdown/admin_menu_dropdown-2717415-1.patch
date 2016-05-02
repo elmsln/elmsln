@@ -1,0 +1,107 @@
+diff --git a/admin_menu_dropdown.css b/admin_menu_dropdown.css
+index 6dc46dc..8cda4de 100644
+--- a/admin_menu_dropdown.css
++++ b/admin_menu_dropdown.css
+@@ -1,3 +1,4 @@
++/* $Id$ */
+ 
+ body.adm_menu_hidden {
+   margin-top:0px !important;
+diff --git a/admin_menu_dropdown.js b/admin_menu_dropdown.js
+index 8d2d476..79728f4 100644
+--- a/admin_menu_dropdown.js
++++ b/admin_menu_dropdown.js
+@@ -1,14 +1,28 @@
++// $Id$
+ 
++/**
++ * Admin menu dropdown behavior.
++ */
+ (function($){
+-if (Drupal.settings.admin_menu_dropdown.default) {
+-  $(document).ready(function(){$('#admin-menu').hide();$('body').addClass('adm_menu_hidden');});
+-}
+-$(document).keypress(function(e) {
+-  var unicode=e.keyCode? e.keyCode : e.charCode;
+-  if (String.fromCharCode(unicode)==Drupal.settings.admin_menu_dropdown.key){
+-    $('#admin-menu').slideToggle('fast');
+-    // TODO: Maybe animate the margin change so its not so jumpy?
+-    $('body').toggleClass('adm_menu_hidden');
++  Drupal.behaviors.adminMenuDropDown = {
++    attach: function (context, settings) {
++      // Initialize settings.
++      settings.admin_menu_dropdown = $.extend({
++        onload: false,
++        key: '`'
++      }, settings.admin_menu_dropdown || {});
++
++      $('#admin-menu').once(function () {
++        // Attach to keypress event.
++        $(document).keypress(function(e) {
++          var unicode = e.keyCode? e.keyCode : e.charCode;
++          if (String.fromCharCode(unicode) == settings.admin_menu_dropdown.key && !($(document.activeElement).attr("type") == "text" || $(document.activeElement)[0].tagName == "TEXTAREA")) {
++            $('#admin-menu').slideToggle('fast');
++            // TODO: Maybe animate the margin change so its not so jumpy?
++            $('body').toggleClass('adm_menu_hidden');
++          }
++        });
++      });
++    }
+   }
+-});
+ })(jQuery);
+diff --git a/admin_menu_dropdown.module b/admin_menu_dropdown.module
+index b4121f8..67bd425 100644
+--- a/admin_menu_dropdown.module
++++ b/admin_menu_dropdown.module
+@@ -1,4 +1,5 @@
+ <?php
++// $Id$
+ /**
+  * @file
+  * Admin Menu Hider, to keep the admin menu out of the way.
+@@ -7,18 +8,30 @@
+  */
+ 
+ /**
+- * Implements hook_init().
++ * Implements hook_page_build().
+  */
+-function admin_menu_dropdown_init() {
+-  $path = drupal_get_path('module', 'admin_menu_dropdown');
++function admin_menu_dropdown_page_build(&$page) {
++  if (!user_access('access administration menu') || admin_menu_suppress(FALSE)) {
++    return;
++  }
+   $settings = array(
+-    'key'     => variable_get('admin_menu_dropdown_key', '`'),
+-    'default' => variable_get('admin_menu_dropdown_default', 1),
++    'key'    => variable_get('admin_menu_dropdown_key', '`'),
++    'onload' => variable_get('admin_menu_dropdown_default', 1),
+   );
++  drupal_add_js(array('admin_menu_dropdown' => $settings), array('type' => 'setting'));
++  $path = drupal_get_path('module', 'admin_menu_dropdown');
++  drupal_add_js($path . '/admin_menu_dropdown.js', array('every_page' => TRUE, 'weight' => -999));
++  drupal_add_css($path . '/admin_menu_dropdown.css', array('every_page' => TRUE, 'weight' => -998));
++}
+ 
+-  drupal_add_js($path . '/admin_menu_dropdown.js', array('defer' => TRUE));
+-  drupal_add_js(array('admin_menu_dropdown' => $settings), array('type' => 'setting', 'scope' => JS_DEFAULT));
+-  drupal_add_css($path . '/admin_menu_dropdown.css');
++/**
++ * Implements hook_preprocess_html().
++ */
++function admin_menu_dropdown_preprocess_html(&$variables) {
++  if (variable_get('admin_menu_dropdown_default', 1)) {
++    drupal_add_css(drupal_get_path('module', 'admin_menu_dropdown') . '/admin_menu_dropdown_hide.css', array('every_page' => TRUE, 'weight' => -1000));
++    $variables['classes_array'][] = 'adm_menu_hidden';
++  }
+ }
+ 
+ /**
+@@ -45,5 +58,4 @@ function admin_menu_dropdown_form_admin_menu_theme_settings_alter(&$form, &$form
+     '#description' => t('This key will show/hide the admin menu.'),
+     '#wysiwyg' => FALSE,
+   );
+-
+ }

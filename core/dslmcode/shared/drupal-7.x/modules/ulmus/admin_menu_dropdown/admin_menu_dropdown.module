@@ -25,6 +25,16 @@ function admin_menu_dropdown_page_build(&$page) {
 }
 
 /**
+ * Implements hook_preprocess_html().
+ */
+function admin_menu_dropdown_preprocess_html(&$variables) {
+  if (variable_get('admin_menu_dropdown_default', 1)) {
+    drupal_add_css(drupal_get_path('module', 'admin_menu_dropdown') . '/admin_menu_dropdown_hide.css', array('every_page' => TRUE, 'weight' => -1000));
+    $variables['classes_array'][] = 'adm_menu_hidden';
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter() for admin_menu_theme_settings().
  */
 function admin_menu_dropdown_form_admin_menu_theme_settings_alter(&$form, &$form_state) {

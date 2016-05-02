@@ -22,11 +22,6 @@
             $('body').toggleClass('adm_menu_hidden');
           }
         });
-        if (settings.admin_menu_dropdown.onload) {
-          // Initially hide admin menu.
-          $(this).hide();
-          $('body').addClass('adm_menu_hidden');
-        }
       });
     }
   }
