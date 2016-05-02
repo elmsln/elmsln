@@ -530,8 +530,8 @@ function cis_section_form_cis_service_connection_ux_form_alter(&$form, &$form_st
 
 /**
  * Return if a section is the master or not.
- * @param  [type] $section_id [description]
- * @return [type]             [description]
+ * @param  string $section_id  section identifier
+ * @return bool                if this section is a master section or not
  */
 function _cis_section_is_master($section_id = NULL) {
   // if we didn't get an id passed in, use section context
@@ -539,7 +539,7 @@ function _cis_section_is_master($section_id = NULL) {
     $section_id = _cis_connector_section_context();
   }
   // check for a master section as they all prefix the same way
-  if ($section_id == CIS_SECTION_MASTER) {
+  if (strpos($section_id, CIS_SECTION_MASTER) === 0) {
     return TRUE;
   }
   return FALSE;
@@ -566,8 +566,8 @@ function cis_section_user_insert(&$edit, $account, $category) {
     $query->entityCondition('entity_type', 'node')
     // that are sections
     ->entityCondition('bundle', 'section')
-    // where it looks like the old master format
-    ->fieldCondition('field_section_id', 'value', 'master')
+    // where it looks like master
+    ->fieldCondition('field_section_id', 'value', CIS_SECTION_MASTER)
     // load all possible results in system, should only be 1 though
     ->addMetaData('account', user_load(1));
     // store result

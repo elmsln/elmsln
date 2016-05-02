@@ -471,8 +471,13 @@ function _cis_connector_section_context($account = NULL) {
     }
     // ensure section is set to master for staff at this point
     elseif (_cis_connector_role_grouping('staff', $account)) {
-      // we have no context and we are staff, default master
-      $section = 'master';
+      // we have no context, probably a master of some kind
+      if (_cis_connector_system_type() == 'authority' && $course = _cis_connector_course_context()) {
+        $section = 'master_' . $course;
+      }
+      else {
+        $section = 'master';
+      }
     }
     else {
       // load groups they are part of, most likely location for this
