@@ -425,7 +425,39 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
     );
     // rebuild these requests for the active network
     _elmsln_api_network_request($requests, '1', TRUE);
-    // @todo figure out the NID in question, call home if title / slogan changed
+    // ensure that course name is changed globally if updated anywhere
+    if (variable_get('site_name', '') != $form_state['values']['site_name']) {
+      $query = array(
+        'entityCondition' => array(
+          'bundle' => 'cis_course',
+          'entity_type'   => 'node',
+        ),
+        'propertyCondition' => array(
+          'status' => 1,
+        ),
+        'fieldCondition' => array(
+          'field_course_machine_name' => array('value', _cis_connector_course_context(), '='),
+        ),
+      );
+      $data = array(
+        'title' => $form_state['values']['site_name'],
+        'uid' => 1,
+      );
+      // hit all other authorities with data about this course
+      $requests = array(
+        array(
+          'method' => 'POST',
+          'api' => '1',
+          'data' => array(
+            'elmsln_module' => 'elmsln_api',
+            'elmsln_callback' => 'entity_sync',
+            'query' => $query,
+            'data' => $data,
+          ),
+        )
+      );
+      _elmsln_api_authority_request($requests, TRUE, array('cis'));
+    }
   }
 }
 
