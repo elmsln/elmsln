@@ -411,6 +411,142 @@ function _elmsln_api_nonblocking_requests($requests) {
 }
 
 /**
+ * Keep an entity in sync across the entire network.
+ * This call will update information about a course
+ * whether originating from or going to CIS, any authority
+ * or any service. The most common use-case is keeping the
+ * title of the course in sync across all services.
+ *
+ * @todo  explore a background processing capability as this gets intense
+ * @param  array  $properties       an array of items to keep in sync
+ *         possible values include: title, slogan, machine_name
+ * @param  string $api         api version to use
+ * @param  bool   $nonblocking if the call should be async or not
+ * @see  _elmsln_api_authority_request()
+ * @see  _elmsln_api_network_request()
+ * @see  _elmsln_api_request()
+ */
+function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
+  // prepare requests to kick off settings
+  $requests = array();
+  if (isset($properties['title'])) {
+    $requests[] = array(
+      'elmsln_module' => 'elmsln_api',
+      'elmsln_callback' => 'vset',
+      'name' => 'site_name',
+      'value' => $properties['title'],
+    );
+  }
+  if (isset($properties['slogan'])) {
+    $requests[] = array(
+      'elmsln_module' => 'elmsln_api',
+      'elmsln_callback' => 'vset',
+      'name' => 'site_slogan',
+      'value' => $properties['slogan'],
+    );
+  }
+  if (isset($properties['machine_name'])) {
+    $requests[] = array(
+      'elmsln_module' => 'elmsln_api',
+      'elmsln_callback' => 'vset',
+      'name' => 'cis_course_machine_name',
+      'value' => $properties['machine_name'],
+    );
+  }
+  // ship these requests across the network
+  _elmsln_api_network_request($requests, $api, $nonblocking);
+  // now go after the authorities
+  $query = array(
+    'entityCondition' => array(
+      'bundle' => 'cis_course',
+      'entity_type'   => 'node',
+    ),
+    'fieldCondition' => array(
+      'field_course_machine_name' => array('value', _cis_connector_course_context(), '='),
+    ),
+  );
+  $data = array();
+  // support for title, the easiest one
+  if (isset($properties['title'])) {
+    $data['title'] = $properties['title'];
+  }
+  // support for machine name
+  if (isset($properties['machine_name'])) {
+    $data['field_course_machine_name'] = array(
+      'und' => array(
+        0 => array(
+          'value' => $properties['machine_name'],
+        )
+      )
+    );
+  }
+  $request = array(
+    array(
+      'method' => 'POST',
+      'api' => $api,
+      'data' => array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'entity_sync',
+        'query' => $query,
+        'data' => $data,
+      ),
+    )
+  );
+  _elmsln_api_authority_request($request, $nonblocking, array('cis'));
+  // ensure this isn't CIS so we don't get an infinite loop!
+  if (variable_get('install_profile', 'standard') != 'cis') {
+    // hit CIS with the same update
+    $query = array(
+      'entityCondition' => array(
+        'bundle' => 'course',
+        'entity_type'   => 'node',
+      ),
+      'fieldCondition' => array(
+        'field_machine_name' => array('value', _cis_connector_course_context(), '='),
+      ),
+    );
+    // set title the same
+    if (isset($properties['title'])) {
+      $data['title'] = $properties['title'];
+    }
+    // update "course title" to be slogan
+    if (isset($properties['slogan'])) {
+      $data['field_course_title'] = array(
+        'und' => array(
+          0 => array(
+            'value' => $properties['slogan'],
+          )
+        )
+      );
+    }
+    // support for machine name which can get dicy
+    if (isset($properties['machine_name'])) {
+      $data['field_machine_name'] = array(
+        'und' => array(
+          0 => array(
+            'value' => $properties['machine_name'],
+          )
+        )
+      );
+    }
+    // send it off
+    $request = array(
+      'method' => 'POST',
+      'api' => $api,
+      'bucket' => 'cis',
+      'path' => '/',
+      'data' => array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'entity_sync',
+        'query' => $query,
+        'data' => $data,
+      ),
+    );
+    _elmsln_api_request($request, $nonblocking);
+  }
+}
+
+/**
  * Issue a call against a course network
  * @param  array $requests an array of requests
  * @see  _elmsln_api_request()
