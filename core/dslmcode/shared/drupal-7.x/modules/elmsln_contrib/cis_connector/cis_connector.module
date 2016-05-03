@@ -401,20 +401,30 @@ function _cis_connector_system_type($bucket = NULL) {
  * @see _cis_connector_section_context()
  */
 function _cis_connector_course_context() {
-  // @todo static cache this
   // pull current menu object into a node if possible
-  if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
-    // we are in CIS
-    if ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
-      return $node->field_machine_name['und'][0]['value'];
+  // statically cache future calls
+  $course = &drupal_static(__FUNCTION__);
+  if (!isset($course)) {
+    if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
+      // we are in an authority system
+      if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+        $course = $node->field_course_machine_name['und'][0]['value'];
+      }
+      // we are in CIS
+      elseif ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
+        $course = $node->field_machine_name['und'][0]['value'];
+      }
+      // this shouldn't be possible
+      else {
+        $course = str_replace('/', '', base_path());
+      }
     }
-    // we are in an authority system
-    elseif ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
-      return $node->field_course_machine_name['und'][0]['value'];
+    else {
+      // fallback and usual use-case is base_path from services
+      $course = str_replace('/', '', base_path());
     }
   }
-  // fallback and usual use-case is base_path from services
-  return str_replace('/', '', base_path());
+  return $course;
 }
 
 /**
