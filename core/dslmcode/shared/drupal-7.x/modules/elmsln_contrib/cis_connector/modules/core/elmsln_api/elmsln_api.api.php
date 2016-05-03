@@ -8,6 +8,51 @@
  */
 
 /**
+ * This is an example call that will snake a vset across everything in the network.
+ * The example is silly but it illustrates a non-blocking snake that you can kick off
+ * for high performance network propegation of data without invoking N+1 load
+ * against the system. This is an intentional recursive call that will spider
+ * the call against everything in the snake that kicks it off. This is awesome.
+ *
+ * In your data you need
+ * __snake_stack      array   array of tool machine names to hit in the order of occurance
+ * __course_context   string  the initial course context to send the call from.
+ */
+function _example_module_to_snake_a_call() {
+  // grab the registry keys
+  $settings = _cis_connector_build_registry();
+  // remove the current item
+  unset($settings[variable_get('install_profile', 'standard')]);
+  // build the snake off the keys
+  $snake = array_keys($settings);
+  // abstract the first bucket to call our snake
+  $bucket = array_pop($snake);
+  // if a service, hit service address, if not hit root
+  if (_cis_connector_system_type($bucket) == 'service') {
+    $path = '/' . _cis_connector_course_context() . '/';
+  }
+  else {
+    $path = '/';
+  }
+  // prep the head of the snake
+  $request = array(
+    'method' => 'POST',
+    'api' => '1',
+    'bucket' => $bucket,
+    'path' => $path,
+    'data' => array(
+      'elmsln_module' => 'elmsln_api',
+      'elmsln_callback' => 'vset',
+      'name' => 'site_name',
+      'value' => 'asdd',
+      '__snake_stack' => $snake,
+      '__course_context' => _cis_connector_course_context(),
+    ),
+  );
+  _elmsln_api_request($request);
+}
+
+/**
  * Register ELMSLN API callbacks. Read the documentation for a detailed explanation.
  *
  * @return array
