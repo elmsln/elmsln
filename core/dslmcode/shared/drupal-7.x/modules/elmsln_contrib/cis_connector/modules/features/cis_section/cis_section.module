@@ -666,7 +666,7 @@ function cis_section_url_outbound_alter(&$path, &$options, $original_path) {
 function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
   // support for syncing specific course rosters
   if ($machine_name == NULL) {
-    $machine_name = str_replace('/', '', base_path());
+    $machine_name = _cis_connector_course_context();
   }
   // the magic that keeps sections in sync with the cis
   $query = array(
