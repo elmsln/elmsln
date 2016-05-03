@@ -502,8 +502,26 @@ function cis_helper_entity_update($entity, $type) {
       )
     );
     _elmsln_api_authority_request($requests, TRUE);
+    // sync the services that this network uses
+    // prepare requests to kick off settings
+    $requests = array(
+      array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'vset',
+        'name' => 'site_name',
+        'value' => $entity->title,
+      ),
+      array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'vset',
+        'name' => 'site_slogan',
+        'value' => $entity->field_course_title['und'][0]['value'],
+      ),
+    );
+    // rebuild these requests for the active network
+    _elmsln_api_network_request($requests, '1', TRUE);
   }
-  // spider crons of associated services when section is updated
+  // spider associated services when section is updated
   if ($type == 'field_collection_item' && $entity->field_name == 'field_sections') {
     // load possible services
     $service_instances = _cis_helper_derive_service_instances($entity->item_id);
