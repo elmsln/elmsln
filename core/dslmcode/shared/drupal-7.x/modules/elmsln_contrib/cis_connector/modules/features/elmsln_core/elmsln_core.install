@@ -31,3 +31,27 @@ function elmsln_core_update_7001(&$sandbox) {
   $cfg = _cis_connector_get_cfg();
   variable_set('a11y_domain', '.' . $cfg['address']);
 }
+
+/**
+ * Update an internal UUID / machine_name property so that address
+ * could change without it bricking our connotations of course networks.
+ * This also paves the way for machine_names to change though it will
+ * be highly discouraged regardless.
+ */
+function elmsln_core_update_7002(&$sandbox) {
+  // only do this for services, authorities don't have this issue
+  if (_cis_connector_system_type() == 'service') {
+    $query = array(
+      'status' => 1,
+      'field_machine_name' => _cis_connector_course_context(),
+      'type' => 'course',
+    );
+    // do a look up for this course
+    $response = _cis_connection_query($query, 'node');
+    if (isset($response['list'][0])) {
+      $course = $response['list'][0];
+      variable_set('cis_course_machine_name', $course['field_machine_name']);
+      variable_set('cis_course_uuid', $course['uuid']);
+    }
+  }
+}
