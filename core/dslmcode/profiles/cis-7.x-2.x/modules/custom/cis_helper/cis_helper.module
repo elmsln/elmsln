@@ -454,72 +454,18 @@ function cis_helper_entity_insert($entity, $type) {
 function cis_helper_entity_update($entity, $type) {
   // tap authorities if any key properties are updated
   if ($type == 'node' && $entity->type == 'course') {
-    // connect to all authority systems and update their corresponding course to match
-    $query = array(
-      'entityCondition' => array(
-        'bundle' => 'cis_course',
-        'entity_type'   => 'node',
-      ),
-      'propertyCondition' => array(
-        'status' => 1,
-      ),
-      'fieldCondition' => array(
-        'field_cis_course_uuid' => array('value', $entity->uuid, '='),
-      ),
-    );
-    $data = array(
-      'title' => $entity->title,
-      'uid' => 1,
-      'field_course_machine_name' => array(
-        'und' => array(
-          0 => array(
-            'value' => $entity->field_machine_name[LANGUAGE_NONE][0]['value'],
-          )
-        )
-      ),
-      'field_cis_course_uuid' => array(
-        'und' => array(
-          0 => array(
-            'value' => $entity->uuid,
-          )
-        )
-      ),
-    );
-    // hit all other authorities with data about this course
-    // to keep it in sync while ignoring cis. bucket / path are required
-    // for these call structured but is populated at time of command
-    // spider being issued.
-    $requests = array(
-      array(
-        'method' => 'POST',
-        'api' => '1',
-        'data' => array(
-          'elmsln_module' => 'elmsln_api',
-          'elmsln_callback' => 'entity_sync',
-          'query' => $query,
-          'data' => $data,
-        ),
-      )
-    );
-    _elmsln_api_authority_request($requests, TRUE);
-    // sync the services that this network uses
-    // prepare requests to kick off settings
-    $requests = array(
-      array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'vset',
-        'name' => 'site_name',
-        'value' => $entity->title,
-      ),
-      array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'vset',
-        'name' => 'site_slogan',
-        'value' => $entity->field_course_title['und'][0]['value'],
-      ),
-    );
-    // rebuild these requests for the active network
-    _elmsln_api_network_request($requests, '1', TRUE);
+    // ensure that course name is changed globally if updated anywhere
+    $properties = array();
+    if ($entity->original->title != $entity->title) {
+      $properties['title'] = $entity->title;
+    }
+    if ($entity->original->field_course_title['und'][0]['value'] != $entity->field_course_title['und'][0]['value']) {
+      $properties['slogan'] = $entity->field_course_title['und'][0]['value'];
+    }
+    // if anything changed let's ship this off everywhere
+    if (!empty($properties)) {
+      _elmsln_api_course_sync($properties, '1', TRUE);
+    }
   }
   // spider associated services when section is updated
   if ($type == 'field_collection_item' && $entity->field_name == 'field_sections') {

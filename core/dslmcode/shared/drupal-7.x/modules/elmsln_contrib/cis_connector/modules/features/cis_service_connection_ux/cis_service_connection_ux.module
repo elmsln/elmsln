@@ -410,90 +410,20 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
         'elmsln_callback' => 'theme_settings',
         'values' => $values,
       ),
-      array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'vset',
-        'name' => 'site_name',
-        'value' => $form_state['values']['site_name'],
-      ),
-      array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'vset',
-        'name' => 'site_slogan',
-        'value' => $form_state['values']['site_slogan'],
-      ),
     );
     // rebuild these requests for the active network
     _elmsln_api_network_request($requests, '1', TRUE);
     // ensure that course name is changed globally if updated anywhere
+    $properties = array();
     if (variable_get('site_name', '') != $form_state['values']['site_name']) {
-      $query = array(
-        'entityCondition' => array(
-          'bundle' => 'cis_course',
-          'entity_type'   => 'node',
-        ),
-        'propertyCondition' => array(
-          'status' => 1,
-        ),
-        'fieldCondition' => array(
-          'field_course_machine_name' => array('value', _cis_connector_course_context(), '='),
-        ),
-      );
-      $data = array(
-        'title' => $form_state['values']['site_name'],
-        'uid' => 1,
-      );
-      // hit all other authorities with data about this course
-      $requests = array(
-        array(
-          'method' => 'POST',
-          'api' => '1',
-          'data' => array(
-            'elmsln_module' => 'elmsln_api',
-            'elmsln_callback' => 'entity_sync',
-            'query' => $query,
-            'data' => $data,
-          ),
-        )
-      );
-      _elmsln_api_authority_request($requests, TRUE, array('cis'));
-      // hit CIS with the same update
-      $query = array(
-        'entityCondition' => array(
-          'bundle' => 'course',
-          'entity_type'   => 'node',
-        ),
-        'propertyCondition' => array(
-          'status' => 1,
-        ),
-        'fieldCondition' => array(
-          'field_machine_name' => array('value', _cis_connector_course_context(), '='),
-        ),
-      );
-      $data = array(
-        'title' => $form_state['values']['site_name'],
-        'field_course_title' => array(
-          'und' => array(
-            0 => array(
-              'value' => $form_state['values']['site_slogan'],
-            )
-          )
-        ),
-      );
-      // send it off
-      $request = array(
-        'method' => 'POST',
-        'api' => '1',
-        'bucket' => 'cis',
-        'path' => '/',
-        'data' => array(
-          'elmsln_module' => 'elmsln_api',
-          'elmsln_callback' => 'entity_sync',
-          'query' => $query,
-          'data' => $data,
-        ),
-      );
-      _elmsln_api_request($request, TRUE);
+      $properties['title'] = $form_state['values']['site_name'];
+    }
+    if (variable_get('site_slogan', '') != $form_state['values']['site_slogan']) {
+      $properties['slogan'] = $form_state['values']['site_slogan'];
+    }
+    // if anything changed let's ship this off everywhere
+    if (!empty($properties)) {
+      _elmsln_api_course_sync($properties, '1', TRUE);
     }
   }
 }
