@@ -1,5 +1,0 @@
-This is a module adapted from Views Calc: http://drupal.org/project/views_calc
-
-The difference is that it doesn't use SQL to do the calculations but does calculations on the fields.
-
-This will make it possible to do things like use relationships, do any kind of math you want on the field itself, use any kind of grouping you want, and maybe eventually to override the Views grouping to offer multiple levels of grouping and tablulate across rows as well as columns.

@@ -45,11 +45,6 @@ fi
 # build and then actually doing it. When we wrap in the request form and
 # automated PR process it will become apparent just how insane this is.
 
-# create a symlink to the 2x version of CIS; this isn't in git so that
-# legacy instances can run off of 1.x and future iterations could run off what they need
-cd $elmsln/core/dslmcode/stacks/online/profiles
-ln -s ../../../profiles/cis-7.x-2.x cis
-
 core='7.x'
 distros=()
 buildlist=()

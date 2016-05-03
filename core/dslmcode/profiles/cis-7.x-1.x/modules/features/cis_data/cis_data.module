@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the CIS data feature.
- */
-
-include_once 'cis_data.features.inc';

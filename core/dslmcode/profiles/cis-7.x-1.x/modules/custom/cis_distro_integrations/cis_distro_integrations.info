@@ -1,6 +1,0 @@
-; $Id: cis_distro_integrations.info
-name = "CIS Distribution integrations"
-description = "Build routine modifications per distribution we are supporting."
-package = "CIS"
-dependencies[] = cis_helper
-core = "7.x"
