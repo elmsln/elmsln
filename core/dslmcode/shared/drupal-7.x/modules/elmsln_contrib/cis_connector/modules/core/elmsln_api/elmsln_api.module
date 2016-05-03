@@ -181,7 +181,42 @@ function elmsln_api_execute_request() {
   if ($delivery_callback === 'elmsln_api_deliver_json') {
     module_load_include('inc', 'elmsln_api', 'includes/json');
   }
-
+  // look for snake calls which we can perform on anything stupid enough
+  // to attempt it. This can destroy things if not done carefully
+  if (isset($_elmsln['args']['__snake_stack']) && !empty($_elmsln['args']['__snake_stack'])) {
+    // tee up the next request as well as removing this call
+    // from our queue of calls to ship off
+    while (!isset($path)) {
+      $bucket = array_pop($_elmsln['args']['__snake_stack']);
+      $systype = _cis_connector_system_type($bucket);
+      switch ($systype) {
+        case 'service':
+          $path = '/' . $_elmsln['args']['__course_context'] . '/';
+        break;
+        case 'authority':
+          $path = '/';
+        break;
+        default:
+          // support for skipping things outside authority / service scope
+        break;
+      }
+    }
+    // need to queue module / callback back up for the resigning of the request
+    $_elmsln['args']['elmsln_module'] = $_elmsln['module'];
+    $_elmsln['args']['elmsln_callback'] = $_elmsln['callback'];
+    $version = str_replace('v', '', $_elmsln['args']['q']);
+    // issue call now against the next item in the stack
+    $request = array(
+      'method' => strtoupper($method),
+      'api' => $version,
+      'bucket' => $bucket,
+      'path' => $path,
+      'data' => $_elmsln['args'],
+    );
+    // request the next item while indicating that recursive calls are allowed
+    // so that it gets passed down the snake
+    _elmsln_api_request($request, TRUE, TRUE);
+  }
   // Deliver the results. The delivery callback is responsible for setting the
   // appropriate headers, handling the result returned from the callback and
   // exiting the script properly.
