@@ -119,3 +119,17 @@ function cis_course_authority_node_insert($node) {
     }
   }
 }
+
+/**
+ * Implements hook_node_update().
+ */
+function cis_course_authority_node_update($node) {
+  // see if title has changed, if so let's mirror this
+  if ($node->original->title != $node->title) {
+    // reflect this change everywhere
+    $properties = array(
+      'title' => $node->title,
+    );
+    _elmsln_api_course_sync($properties, '1', TRUE);
+  }
+}
