@@ -377,7 +377,13 @@ function _cis_connector_system_type($bucket = NULL) {
     $bucket = variable_get('install_profile', 'standard');
   }
   if ($settings = _cis_connector_build_registry($bucket)) {
-    if (isset($settings['instance']) && $settings['instance']) {
+    // program hub won't follow normal system conventions nessecarily
+    // as it's a bucket that's non course centric but will have course
+    // data stuffed in it
+    if ($bucket == 'eph') {
+      return 'program';
+    }
+    elseif (isset($settings['instance']) && $settings['instance']) {
       return 'service';
     }
     else {
