@@ -105,6 +105,8 @@ function elmsln_api_execute_request() {
   // Provide a global ELMSLN variable that will be used through out the request.
   global $_elmsln;
   global $conf;
+  global $_elmsln_api_processing;
+  $_elmsln_api_processing = TRUE;
   // ensure this is a basic authorization call
   if (!elmsln_api_basic_auth()) {
     return FALSE;
@@ -332,10 +334,22 @@ function elmsln_api_basic_auth() {
  *   @param  string path     path to do the post against like /
  *   @param  string bucket   which system to connect to
  *   @param  string api      version of the api call to make
- * @param  string $nonblocking if this is a non-blocking call
+ * @param  bool $nonblocking if this is a non-blocking call
+ * @param  bool $recursion   whether calls should be allowed to be recursive.
+ *                           if they are, then this call being called by a spider
+ *                           script from elsewhere in the network could be invoking
+ *                           a spider to call back against it. Only disable this
+ *                           flag if you know why you'd want to do something insane
+ *                           like kicking off infinite recursion against apache
+ *                           threads that will continue to expand until your server
+ *                           dies!!!!!! You've been warned, there be dragons here!
  * @return mixed            response from the associated system
  */
-function _elmsln_api_request($request, $nonblocking = FALSE) {
+function _elmsln_api_request($request, $nonblocking = FALSE, $recursion = FALSE) {
+  global $_elmsln_api_processing;
+  if ($_elmsln_api_processing && !$recursion) {
+    return FALSE;
+  }
   // force use of normal calls if we are in developer mode
   if ($nonblocking && module_exists('cis_devel')) {
     $nonblocking = FALSE;
@@ -402,10 +416,14 @@ function _elmsln_api_request($request, $nonblocking = FALSE) {
  * This has no return because non-blocking assume completion.
  * @param  array $requests requests that need issued
  */
-function _elmsln_api_nonblocking_requests($requests) {
+function _elmsln_api_nonblocking_requests($requests, $recursion = FALSE) {
+  global $_elmsln_api_processing;
+  if ($_elmsln_api_processing && !$recursion) {
+    return FALSE;
+  }
   // loop through and queue the requests
   foreach ($requests as $request) {
-    _elmsln_api_request($request, TRUE);
+    _elmsln_api_request($request, TRUE, $recursion);
   }
   return count($requests);
 }
@@ -427,6 +445,10 @@ function _elmsln_api_nonblocking_requests($requests) {
  * @see  _elmsln_api_request()
  */
 function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
+  global $_elmsln_api_processing;
+  if ($_elmsln_api_processing) {
+    return FALSE;
+  }
   // prepare requests to kick off settings
   $requests = array();
   if (isset($properties['title'])) {
@@ -551,7 +573,11 @@ function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
  * @param  array $requests an array of requests
  * @see  _elmsln_api_request()
  */
-function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE, $path = '') {
+function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE, $path = '', $recursion = FALSE) {
+  global $_elmsln_api_processing;
+  if ($_elmsln_api_processing && !$recursion) {
+    return FALSE;
+  }
   // force use of normal calls if we are in developer mode
   if ($nonblocking && module_exists('cis_devel')) {
     $nonblocking = FALSE;
@@ -639,7 +665,11 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
  * @param  array $ignored_buckets  list of authorities to ignore
  * @see  _elmsln_api_request()
  */
-function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored_buckets = array()) {
+function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored_buckets = array(), $recursion = FALSE) {
+  global $_elmsln_api_processing;
+  if ($_elmsln_api_processing && !$recursion) {
+    return FALSE;
+  }
   // force use of normal calls if we are in developer mode
   if ($nonblocking && module_exists('cis_devel')) {
     $nonblocking = FALSE;
