@@ -401,6 +401,7 @@ function _cis_connector_system_type($bucket = NULL) {
  * @see _cis_connector_section_context()
  */
 function _cis_connector_course_context() {
+  // @todo static cache this
   // pull current menu object into a node if possible
   if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
     // we are in CIS
