@@ -433,7 +433,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
   // build whole registry since we're calling multiple things
   $settings = _cis_connector_build_registry();
   if ($path == '') {
-    $path = base_path();
+    $path = _cis_connector_course_context();
   }
   // ensure we have other course services in this network
   if ($services = _cis_connector_transaction('other_services')) {
