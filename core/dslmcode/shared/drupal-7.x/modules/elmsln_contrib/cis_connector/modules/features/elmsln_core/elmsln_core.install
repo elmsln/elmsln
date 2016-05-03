@@ -8,7 +8,7 @@
 /**
  * Implements hook_install().
  */
-function elsmln_core_install() {
+function elmsln_core_install() {
   // ensure a11y domain is set
   $cfg = _cis_connector_get_cfg();
   variable_set('a11y_domain', '.' . $cfg['address']);
@@ -18,14 +18,14 @@ function elsmln_core_install() {
  * Enable entity iframe suite which we automatically generate
  * the secure tokens to use now based on a hash.
  */
-function elsmln_core_update_7000(&$sandbox) {
+function elmsln_core_update_7000(&$sandbox) {
   module_enable(array('entity_iframe_mode', 'entity_iframe_provider', 'entity_iframe_consumer'));
 }
 
 /**
  * Enable a11y.
  */
-function elsmln_core_update_7001(&$sandbox) {
+function elmsln_core_update_7001(&$sandbox) {
   module_enable(array('a11y'));
   // set domain
   $cfg = _cis_connector_get_cfg();
