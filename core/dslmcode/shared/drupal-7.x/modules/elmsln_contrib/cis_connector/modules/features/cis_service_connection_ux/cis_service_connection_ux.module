@@ -457,6 +457,43 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
         )
       );
       _elmsln_api_authority_request($requests, TRUE, array('cis'));
+      // hit CIS with the same update
+      $query = array(
+        'entityCondition' => array(
+          'bundle' => 'course',
+          'entity_type'   => 'node',
+        ),
+        'propertyCondition' => array(
+          'status' => 1,
+        ),
+        'fieldCondition' => array(
+          'field_machine_name' => array('value', _cis_connector_course_context(), '='),
+        ),
+      );
+      $data = array(
+        'title' => $form_state['values']['site_name'],
+        'field_course_title' => array(
+          'und' => array(
+            0 => array(
+              'value' => $form_state['values']['site_slogan'],
+            )
+          )
+        ),
+      );
+      // send it off
+      $request = array(
+        'method' => 'POST',
+        'api' => '1',
+        'bucket' => 'cis',
+        'path' => '/',
+        'data' => array(
+          'elmsln_module' => 'elmsln_api',
+          'elmsln_callback' => 'entity_sync',
+          'query' => $query,
+          'data' => $data,
+        ),
+      );
+      _elmsln_api_request($request, TRUE);
     }
   }
 }
