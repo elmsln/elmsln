@@ -607,6 +607,8 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   // this effectively binds the remote drupal site to the service_instance
   // content type in CIS
   $options['vset'][] = 'cis_service_instance_uuid ' . $service_instance->uuid;
+  $options['vset'][] = 'cis_course_machine_name ' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
+  $options['vset'][] = 'cis_course_uuid ' . $course->uuid;
   // set private files to match the pattern of ELMSLN config directory
   $options['vset'][] = 'file_private_path /var/www/elmsln/config/private_files/' . $service->field_machine_name[LANGUAGE_NONE][0]['value'] . '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
   // load optional cis_helper defined values

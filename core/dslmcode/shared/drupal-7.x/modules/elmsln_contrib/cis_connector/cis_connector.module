@@ -420,8 +420,13 @@ function _cis_connector_course_context() {
       }
     }
     else {
+      // @todo in order to support https://github.com/elmsln/elmsln/issues/862
+      // use the variable that's been set for the machine name
+      $course = variable_get('cis_course_machine_name', FALSE);
       // fallback and usual use-case is base_path from services
-      $course = str_replace('/', '', base_path());
+      if (!$course) {
+        $course = str_replace('/', '', base_path());
+      }
     }
   }
   return $course;
