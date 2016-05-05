@@ -1,0 +1,231 @@
+<?php
+/**
+ * @file
+ * Displays the time it will take to read content on your site.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter() for node_type_form.
+ */
+function read_time_form_node_type_form_alter(&$form, &$form_state, $form_id) {
+  $type = $form['#node_type'];
+  $defaults = read_time_defaults();
+
+  // Get text fields in this bundle.
+  $field_instances = field_info_instances('node', $type->type);
+  foreach ($field_instances as $field => $field_instance) {
+    $field_info = field_info_field($field);
+    if (in_array($field_info['type'], array('text', 'text_long', 'text_with_summary'))) {
+      $fields[$field] = $field_instance['label'];
+    }
+  }
+
+  $form['read_time'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Read time'),
+    '#group' => 'additional_settings',
+  );
+  $form['read_time']['read_time_fields'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Fields'),
+    '#description' => t('Calculate the combined read time of these fields.'),
+    '#options' => $fields,
+    '#multiple' => TRUE,
+    '#default_value' => variable_get('read_time_fields_' . $type->type, $defaults['fields']),
+  );
+  $form['read_time']['read_time_wpm'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Words per minute'),
+    '#description' => t('Average reading speed used for the calculation.'),
+    '#size' => 2,
+    '#maxlength' => 3,
+    '#element_validate' => array('element_validate_integer_positive'),
+    '#default_value' => variable_get('read_time_wpm_' . $type->type, $defaults['wpm']),
+  );
+  $form['read_time']['read_time_format'] = array(
+    '#type' => 'select',
+    '#title' => t('Format'),
+    '#description' => t('How the calculation will be formatted.'),
+    '#options' => array(
+      'hour_short' => t('Hours & minutes, short (1 hr, 5 mins)'),
+      'hour_long' => t('Hours & minutes, long (1 hour, 5 minutes)'),
+      'min_short' => t('Minutes, short (65 mins)'),
+      'min_long' => t('Minutes, long (65 minutes)'),
+    ),
+    '#default_value' => variable_get('read_time_format_' . $type->type, $defaults['format']),
+  );
+  $form['read_time']['read_time_display'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Read time display'),
+    '#description' => t("How the read time will be displayed. Use <em>%read_time</em> to output the read time formatted as above."),
+    '#default_value' => variable_get('read_time_display_' . $type->type, $defaults['display']),
+  );
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function read_time_field_extra_fields() {
+  foreach (field_info_bundles('node') as $bundle => $bundle_info) {
+    $extra['node'][$bundle]['display'] = array(
+      'read_time' => array(
+        'label' => t('Read time'),
+        'description' => t('Read time'),
+        'weight' => 0,
+      ),
+    );
+  }
+
+  return $extra;
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function read_time_node_insert($node) {
+  $read_time = read_time_calculate($node);
+
+  db_insert('read_time')
+    ->fields(array(
+      'nid' => $node->nid,
+      'read_time' => $read_time,
+    ))
+    ->execute();
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function read_time_node_update($node) {
+  $read_time = read_time_calculate($node);
+
+  db_merge('read_time')
+    ->key(array(
+      'nid' => $node->nid,
+    ))
+    ->fields(array(
+      'read_time' => $read_time,
+    ))
+    ->execute();
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function read_time_node_view($node, $view_mode, $langcode) {
+  // Get read time field settings.
+  $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
+  $settings = $display_settings['read_time'];
+
+  if ($settings['visible']) {
+    // Get read time from database.
+    $read_time = db_query('SELECT read_time FROM {read_time} WHERE nid = :nid', array(
+      ':nid' => $node->nid,
+    ))->fetchField();
+
+    // Calculate read time if it doesn't exist and save to database.
+    if (empty($read_time)) {
+      $read_time = read_time_calculate($node);
+
+      db_merge('read_time')
+        ->key(array(
+          'nid' => $node->nid,
+        ))
+        ->fields(array(
+          'read_time' => $read_time,
+        ))
+        ->execute();
+    }
+
+    // Display read time with node.
+    $node->content['read_time'] = array(
+      '#markup' => '<span class="read-time">' . $read_time . '</span>',
+      '#weight' => $settings['weight'],
+    );
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function read_time_node_delete($node) {
+  db_delete('read_time')
+    ->condition('nid', $node->nid)
+    ->execute();
+}
+
+/**
+ * Implements hook_node_type_delete().
+ */
+function read_time_node_type_delete($info) {
+  variable_del('read_time_fields_' . $info->type);
+  variable_del('read_time_wpm_' . $info->type);
+  variable_del('read_time_format_' . $info->type);
+  variable_del('read_time_display_' . $info->type);
+}
+
+/**
+ * Calculate read time.
+ */
+function read_time_calculate($node) {
+  $defaults = read_time_defaults();
+
+  // Get read time bundle settings.
+  $fields = variable_get('read_time_fields_' . $node->type, $defaults['fields']);
+  $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
+  $format = variable_get('read_time_format_' . $node->type, $defaults['format']);
+  $display = variable_get('read_time_display_' . $node->type, $defaults['display']);
+
+  // Get fields to calculate read time of.
+  $field_words = '';
+  foreach ($fields as $field) {
+    $field_items = field_get_items('node', $node, $field);
+    foreach ($field_items as $field_item) {
+      $field_words .= strip_tags($field_item['value']);
+    }
+  }
+
+  // Calculate read time.
+  $words = str_word_count($field_words);
+  $time = $words / $wpm;
+
+  // Format read time.
+  if (in_array($format, array('hour_short', 'hour_long'))) {
+    $hours = floor($time / 60);
+    $minutes = ceil(fmod($time, 60));
+  }
+  else {
+    $minutes = ceil($time);
+  }
+  if (in_array($format, array('hour_long', 'min_long'))) {
+    $hour_suffix = 'hour';
+    $min_suffix = 'minute';
+  }
+  else {
+    $hour_suffix = 'hr';
+    $min_suffix = 'min';
+  }
+  $minute_format = format_plural($minutes, '1 ' . $min_suffix, '@count ' . $min_suffix . 's');
+  if (!empty($hours)) {
+    $hour_format = format_plural($hours, '1 ' . $hour_suffix, '@count ' . $hour_suffix . 's');
+    $read_time = format_string('@h, @m', array('@h' => $hour_format, '@m' => $minute_format));
+  }
+  else {
+    $read_time = $minute_format;
+  }
+
+  return check_plain(str_replace('%read_time', $read_time, $display));
+}
+
+/**
+ * Store default settings.
+ */
+function read_time_defaults() {
+  return array(
+    'fields' => array('body'),
+    'wpm' => '225',
+    'format' => 'hour_short',
+    'display' => t('Read time: %read_time'),
+  );
+}
+

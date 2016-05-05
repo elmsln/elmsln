@@ -1,0 +1,11 @@
+name = Read time
+description = "Displays the time it will take to read content on your site."
+core = 7.x
+
+
+; Information added by Drupal.org packaging script on 2016-02-15
+version = "7.x-1.1+1-dev"
+core = "7.x"
+project = "read_time"
+datestamp = "1455502740"
+

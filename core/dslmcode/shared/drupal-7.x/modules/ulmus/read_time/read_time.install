@@ -1,0 +1,45 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Read Time module.
+ */
+
+/**
+ * Implements read_time_schema().
+ */
+function read_time_schema() {
+  return array(
+    'read_time' => array(
+      'description' => 'The calculated read times of nodes.',
+      'fields' => array(
+        'nid' => array(
+          'description' => 'The {node}.nid of the node.',
+          'type' => 'int',
+          'not null' => TRUE,
+          'unsigned' => TRUE,
+        ),
+        'read_time' => array(
+          'description' => 'The calculated and formatted read time of the node.',
+          'type' => 'varchar',
+          'not null' => TRUE,
+          'default' => '',
+          'length' => 255,
+        ),
+      ),
+      'primary key' => array('nid'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function read_time_uninstall() {
+  foreach (node_type_get_names() as $bundle => $label) {
+    variable_del('read_time_fields_' . $bundle);
+    variable_del('read_time_wpm_' . $bundle);
+    variable_del('read_time_format_' . $bundle);
+    variable_del('read_time_display_' . $bundle);
+  }
+}
+
