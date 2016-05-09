@@ -663,9 +663,9 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
           }
           else {
             // queue these after formulation, the addresses are the most importantant
-            $nonblock[] = $request;
+            $nonblock[] = $service['field_distribution'];
             // form the address to call for each service
-            $addresses[] = _cis_connector_format_address($settings[$request['bucket']], $request['path']) . 'elmsln.php';
+            $addresses[$service['field_distribution']] = _cis_connector_format_address($settings[$request['bucket']], $request['path']) . 'elmsln.php';
           }
         }
       }
@@ -675,6 +675,10 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
       if ($nonblocking && isset($nonblock)) {
         // prepare the query to be shipped off
         $request['data']['q'] = 'v' . $request['api'];
+        // queue up the
+        $bucket = array_pop($nonblock);
+        $request['data']['__snake_stack'] = $nonblock;
+        $request['data']['__course_context'] = _cis_connector_course_context();
         // leave a flag for debug purposes if it's nonblocking
         $request['_httprl'] = TRUE;
         $options = array(
@@ -684,7 +688,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
           'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
           'blocking' => FALSE,
         );
-        httprl_request($addresses, $options);
+        httprl_request($addresses[$bucket], $options);
         $tmp = httprl_send_request();
       }
     }
