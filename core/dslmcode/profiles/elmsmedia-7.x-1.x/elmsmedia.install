@@ -71,5 +71,5 @@ function elmsmedia_update_7004(&$sandbox) {
  * Enable tincan API / H5P bridge.
  */
 function elmsmedia_update_7005(&$sandbox) {
-  module_enable(array('tincanapi', 'h5p_tincan_bridge'));
+  module_enable(array('tincanapi', 'h5p_tincan_bridge', 'elmsmedia_section_perms'));
 }
