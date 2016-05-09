@@ -66,7 +66,7 @@ function elmsmedia_h5p_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 32,
+      'weight' => 0,
     ),
   );
 
@@ -123,7 +123,7 @@ function elmsmedia_h5p_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'autocomplete_deluxe_taxonomy',
-      'weight' => 34,
+      'weight' => 3,
     ),
   );
 

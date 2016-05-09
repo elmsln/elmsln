@@ -39,7 +39,6 @@ features[field_base][] = field_images
 features[field_base][] = field_links
 features[field_base][] = field_submission_state
 features[field_base][] = field_video
-features[field_base][] = og_group_ref
 features[field_group][] = group_admin|node|cle_submission|form
 features[field_group][] = group_ferpacontent|node|cle_submission|full
 features[field_group][] = group_files|node|cle_submission|default

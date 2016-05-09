@@ -19,31 +19,35 @@ function elmsmedia_external_video_ds_layout_settings_info() {
   $ds_layout->layout = 'zf_2col_stacked';
   $ds_layout->settings = array(
     'regions' => array(
-      'left' => array(
-        0 => 'title',
-        1 => 'field_external_media',
-        2 => 'field_poster',
+      'header' => array(
+        0 => 'field_cis_course_ref',
       ),
-      'hidden' => array(
-        3 => 'path',
-        7 => '_add_existing_field',
+      'left' => array(
+        1 => 'title',
+        2 => 'field_external_media',
+        3 => 'field_poster',
       ),
       'right' => array(
         4 => 'field_tagging',
-        6 => 'field_figurelabel_ref',
+        5 => 'field_figurelabel_ref',
       ),
-      'header' => array(
-        5 => 'field_cis_course_ref',
+      'footer' => array(
+        6 => 'og_group_ref',
+      ),
+      'hidden' => array(
+        7 => 'path',
+        8 => '_add_existing_field',
       ),
     ),
     'fields' => array(
+      'field_cis_course_ref' => 'header',
       'title' => 'left',
       'field_external_media' => 'left',
       'field_poster' => 'left',
-      'path' => 'hidden',
       'field_tagging' => 'right',
-      'field_cis_course_ref' => 'header',
       'field_figurelabel_ref' => 'right',
+      'og_group_ref' => 'footer',
+      'path' => 'hidden',
       '_add_existing_field' => 'hidden',
     ),
     'classes' => array(),

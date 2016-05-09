@@ -37,7 +37,6 @@ features[field_base][] = field_grades_assignments_ref
 features[field_base][] = field_grades_course_ref
 features[field_base][] = field_number
 features[field_base][] = field_xapi_statements
-features[field_base][] = og_group_ref
 features[field_group][] = group_evidence|node|assessment_assignment|form
 features[field_group][] = group_logistics|node|assessment_assignment|form
 features[field_instance][] = node-assessment_assignment-field_assignment_directions

@@ -377,7 +377,13 @@ function _cis_connector_system_type($bucket = NULL) {
     $bucket = variable_get('install_profile', 'standard');
   }
   if ($settings = _cis_connector_build_registry($bucket)) {
-    if (isset($settings['instance']) && $settings['instance']) {
+    // program hub won't follow normal system conventions nessecarily
+    // as it's a bucket that's non course centric but will have course
+    // data stuffed in it
+    if ($bucket == 'eph') {
+      return 'program';
+    }
+    elseif (isset($settings['instance']) && $settings['instance']) {
       return 'service';
     }
     else {
@@ -402,18 +408,29 @@ function _cis_connector_system_type($bucket = NULL) {
  */
 function _cis_connector_course_context() {
   // pull current menu object into a node if possible
-  if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
-    // we are in CIS
-    if ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
-      return $node->field_machine_name['und'][0]['value'];
+  // statically cache future calls
+  $course = &drupal_static(__FUNCTION__);
+  if (!isset($course)) {
+    if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
+      // we are in an authority system
+      if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+        $course = $node->field_course_machine_name['und'][0]['value'];
+        return $course;
+      }
+      // we are in CIS
+      elseif ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
+        $course = $node->field_machine_name['und'][0]['value'];
+        return $course;
+      }
     }
-    // we are in an authority system
-    elseif ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
-      return $node->field_course_machine_name['und'][0]['value'];
+    // use the variable that's been set for the machine name
+    $course = variable_get('cis_course_machine_name', FALSE);
+    // fallback is just the base_path if variable not there
+    if (!$course) {
+      $course = str_replace('/', '', base_path());
     }
   }
-  // fallback and usual use-case is base_path from services
-  return str_replace('/', '', base_path());
+  return $course;
 }
 
 /**
@@ -471,8 +488,13 @@ function _cis_connector_section_context($account = NULL) {
     }
     // ensure section is set to master for staff at this point
     elseif (_cis_connector_role_grouping('staff', $account)) {
-      // we have no context and we are staff, default master
-      $section = 'master';
+      // we have no context, probably a master of some kind
+      if (_cis_connector_system_type() == 'authority' && $course = _cis_connector_course_context()) {
+        $section = 'master_' . $course;
+      }
+      else {
+        $section = 'master';
+      }
     }
     else {
       // load groups they are part of, most likely location for this
@@ -1253,24 +1275,26 @@ function cis_connector_drupal_goto_alter(&$path, &$options, &$http_response_code
  * based on passing it a few criteria.  Think of this as a function
  * to abstract and simplify entity field queries.
  *
- * @param $entity_type
+ * @param $entity_type string
  *   entity type to filter by
- * @param $bundle
+ * @param $bundle string
  *   bundle of that type to filter by
- * @param $id_field
+ * @param $id_field mixed
  *   field to use for the key in the array
- * @param $title_field
+ * @param $title_field mixed
  *   field to use as the value in the array
- * @param $field_conditions
+ * @param $field_conditions array
  *   (optional) additional conditions to apply to field filtering
- * @param $property_conditions
+ * @param $property_conditions array
  *   (optional) additional conditions to apply for properties
- * @param  $orderby
+ * @param  $orderby array
  *   (optional) order the results by field / property condtions keyed in array
+ * @param  $strict bool
+ *   (optional) whether to strictly enforce entity permissions or not, default enforce.
  * @return $options
  *   array of options as a clean list for selection of an entity id
  */
-function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $title_field, $field_conditions = array(), $property_conditions = array(), $orderby = array()) {
+function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $title_field, $field_conditions = array(), $property_conditions = array(), $orderby = array(), $strict = TRUE) {
   // pull items based on bundle
   $options = array();
   // assemble all entities requested
@@ -1351,6 +1375,12 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   else {
     // simple title sort
     $query->propertyOrderBy($title_field);
+  }
+  // allow for strict entity permissions or by-passing to get a true listing
+  // this is useful when trying to perform system operations as opposed to
+  // displaying in listings
+  if (!$strict) {
+    $query->addMetaData('account', user_load(1));
   }
   // execute our results
   $result = $query->execute();

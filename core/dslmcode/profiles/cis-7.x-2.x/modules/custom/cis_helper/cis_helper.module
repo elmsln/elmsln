@@ -454,25 +454,20 @@ function cis_helper_entity_insert($entity, $type) {
 function cis_helper_entity_update($entity, $type) {
   // tap authorities if any key properties are updated
   if ($type == 'node' && $entity->type == 'course') {
-    // connect to all authority systems and update their corresponding course to match
-    $query = array('type' => 'cis_course', 'field_cis_course_uuid' => $entity->uuid);
-    $data = array(
-      'title' => $entity->title,
-      'field_course_machine_name' => $entity->field_machine_name[LANGUAGE_NONE][0]['value'],
-      'field_cis_course_uuid' => $entity->uuid,
-    );
-    $settings = _cis_connector_build_registry();
-    foreach ($settings as $bucket => $setting) {
-      // sniff out authority systems
-      if ($bucket != 'cis' && isset($setting['instance']) && $setting['instance'] == FALSE) {
-        // @todo this isn't setting it unless it already exists because set_data
-        // is for setting data after a look up. IT WON'T do it initially
-        // set data about this course in authority systems
-        _cis_connection_set_data($query, $data, 'nid', 'node', $bucket, '', TRUE, '', array('blocking' => FALSE));
-      }
+    // ensure that course name is changed globally if updated anywhere
+    $properties = array();
+    if ($entity->original->title != $entity->title) {
+      $properties['title'] = $entity->title;
+    }
+    if ($entity->original->field_course_title['und'][0]['value'] != $entity->field_course_title['und'][0]['value']) {
+      $properties['slogan'] = $entity->field_course_title['und'][0]['value'];
+    }
+    // if anything changed let's ship this off everywhere
+    if (!empty($properties)) {
+      _elmsln_api_course_sync($properties, '1', TRUE);
     }
   }
-  // spider crons of associated services when section is updated
+  // spider associated services when section is updated
   if ($type == 'field_collection_item' && $entity->field_name == 'field_sections') {
     // load possible services
     $service_instances = _cis_helper_derive_service_instances($entity->item_id);
@@ -558,6 +553,8 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   // this effectively binds the remote drupal site to the service_instance
   // content type in CIS
   $options['vset'][] = 'cis_service_instance_uuid ' . $service_instance->uuid;
+  $options['vset'][] = 'cis_course_machine_name ' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
+  $options['vset'][] = 'cis_course_uuid ' . $course->uuid;
   // set private files to match the pattern of ELMSLN config directory
   $options['vset'][] = 'file_private_path /var/www/elmsln/config/private_files/' . $service->field_machine_name[LANGUAGE_NONE][0]['value'] . '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
   // load optional cis_helper defined values

@@ -9,13 +9,15 @@
  */
 function speedreader_requirements($phase) {
   module_load_include('module', 'speedreader');
-  $requirements = array();
-  $requirements['speedreader'] = array(
-    'title' => 'speedreader library',
+  $requirements = array(
+    'speedreader' => array(
+      'title' => 'Speed Reader library',
+    ),
   );
   switch ($phase) {
     case 'install':
     case 'runtime':
+    case 'update':
       $lib = speedreader_get_library();
       if (!$lib) {
         $requirements['speedreader']['description'] = 'SpeedReader: Could not locate the speedreader library. Please download the latest version of the library from ' . l(SPEEDREADER_URL, SPEEDREADER_URL) . ', unzip the package and place it in your libraries directory under the name speedreader.';

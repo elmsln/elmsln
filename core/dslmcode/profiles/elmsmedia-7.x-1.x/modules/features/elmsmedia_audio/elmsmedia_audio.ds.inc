@@ -19,29 +19,31 @@ function elmsmedia_audio_ds_layout_settings_info() {
   $ds_layout->layout = 'zf_2col_stacked';
   $ds_layout->settings = array(
     'regions' => array(
-      'footer' => array(
-        0 => 'path',
-      ),
       'header' => array(
-        1 => 'field_cis_course_ref',
+        0 => 'field_cis_course_ref',
       ),
       'left' => array(
-        2 => 'title',
-        3 => 'field_audio',
+        1 => 'title',
+        2 => 'field_audio',
       ),
       'right' => array(
-        4 => 'field_tagging',
+        3 => 'field_tagging',
+      ),
+      'footer' => array(
+        4 => 'og_group_ref',
       ),
       'hidden' => array(
-        5 => '_add_existing_field',
+        5 => 'path',
+        6 => '_add_existing_field',
       ),
     ),
     'fields' => array(
-      'path' => 'footer',
       'field_cis_course_ref' => 'header',
       'title' => 'left',
       'field_audio' => 'left',
       'field_tagging' => 'right',
+      'og_group_ref' => 'footer',
+      'path' => 'hidden',
       '_add_existing_field' => 'hidden',
     ),
     'classes' => array(),

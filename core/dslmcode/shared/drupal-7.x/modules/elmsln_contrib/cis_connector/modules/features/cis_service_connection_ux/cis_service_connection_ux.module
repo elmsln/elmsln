@@ -410,22 +410,21 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
         'elmsln_callback' => 'theme_settings',
         'values' => $values,
       ),
-      array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'vset',
-        'name' => 'site_name',
-        'value' => $form_state['values']['site_name'],
-      ),
-      array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'vset',
-        'name' => 'site_slogan',
-        'value' => $form_state['values']['site_slogan'],
-      ),
     );
     // rebuild these requests for the active network
     _elmsln_api_network_request($requests, '1', TRUE);
-    // @todo figure out the NID in question, call home if title / slogan changed
+    // ensure that course name is changed globally if updated anywhere
+    $properties = array();
+    if (variable_get('site_name', '') != $form_state['values']['site_name']) {
+      $properties['title'] = $form_state['values']['site_name'];
+    }
+    if (variable_get('site_slogan', '') != $form_state['values']['site_slogan']) {
+      $properties['slogan'] = $form_state['values']['site_slogan'];
+    }
+    // if anything changed let's ship this off everywhere
+    if (!empty($properties)) {
+      _elmsln_api_course_sync($properties, '1', TRUE);
+    }
   }
 }
 

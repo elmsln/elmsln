@@ -29,9 +29,12 @@ function elmsmedia_document_ds_layout_settings_info() {
       'right' => array(
         3 => 'field_tagging',
       ),
+      'footer' => array(
+        4 => 'og_group_ref',
+      ),
       'hidden' => array(
-        4 => 'path',
-        5 => '_add_existing_field',
+        5 => 'path',
+        6 => '_add_existing_field',
       ),
     ),
     'fields' => array(
@@ -39,6 +42,7 @@ function elmsmedia_document_ds_layout_settings_info() {
       'title' => 'left',
       'field_document_file' => 'left',
       'field_tagging' => 'right',
+      'og_group_ref' => 'footer',
       'path' => 'hidden',
       '_add_existing_field' => 'hidden',
     ),

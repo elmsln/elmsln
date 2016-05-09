@@ -32,10 +32,11 @@ function elmsmedia_h5p_ds_layout_settings_info() {
       'footer' => array(
         4 => 'h5p',
         5 => 'h5p_editor',
+        6 => 'og_group_ref',
       ),
       'hidden' => array(
-        6 => 'path',
-        7 => '_add_existing_field',
+        7 => 'path',
+        8 => '_add_existing_field',
       ),
     ),
     'fields' => array(
@@ -45,6 +46,7 @@ function elmsmedia_h5p_ds_layout_settings_info() {
       'field_tagging' => 'right',
       'h5p' => 'footer',
       'h5p_editor' => 'footer',
+      'og_group_ref' => 'footer',
       'path' => 'hidden',
       '_add_existing_field' => 'hidden',
     ),

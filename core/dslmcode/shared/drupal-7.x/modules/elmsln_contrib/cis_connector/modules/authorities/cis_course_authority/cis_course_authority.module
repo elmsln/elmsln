@@ -24,60 +24,112 @@ function _cis_course_authority_cis_sync($cached = FALSE) {
   $local_courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_cis_course_uuid', 'nid');
   // loop through the remote courses we pulled if we got any
   if (!empty($remote_courses)) {
-    foreach ($remote_courses as $course) {
+    foreach ($remote_courses as $remote_course) {
       $change = FALSE;
       // if the uuid matches the remote, we know we have to update something
-      if (isset($local_courses[$course['uuid']])) {
-        // load the local node which had the remote uuid match
-        $node = node_load($local_courses[$course['uuid']]);
+      if (isset($local_courses[$remote_course['uuid']])) {
+        $new = FALSE;
+        // load the local course which had the remote uuid match
+        $course = node_load($local_courses[$remote_course['uuid']]);
         // ensure title changed
-        if ($node->title != $course['title']) {
+        if ($course->title != $remote_course['title']) {
           $change = TRUE;
-          $node->title = $course['title'];
+          $course->title = $remote_course['title'];
         }
         // ensure machine name changed
-        if ($node->field_course_machine_name[LANGUAGE_NONE][0]['value'] != $course['field_machine_name']) {
+        if ($course->field_course_machine_name[LANGUAGE_NONE][0]['value'] != $remote_course['field_machine_name']) {
           $change = TRUE;
-          $node->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $course['field_machine_name'];
+          $course->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $remote_course['field_machine_name'];
         }
         // make sure we aren't saving, constantly
         if ($change) {
-          node_save($node);
+          node_save($course);
         }
       }
       else {
+        $new = TRUE;
         // create this locally
-        $node = new stdClass();
-        $node->type = 'cis_course';
-        $node->title = $course['title'];
+        $course = new stdClass();
+        $course->type = 'cis_course';
+        $course->title = $remote_course['title'];
         // machine name to match remote so we know how to build the links
-        $node->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $course['field_machine_name'];
+        $course->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $remote_course['field_machine_name'];
         // set the local uuid linked field value to that we get from the remote
-        $node->field_cis_course_uuid[LANGUAGE_NONE][0]['value'] = $course['uuid'];
-        $node->language = LANGUAGE_NONE;
-        $node->is_new = TRUE;
-        node_object_prepare($node);
+        $course->field_cis_course_uuid[LANGUAGE_NONE][0]['value'] = $remote_course['uuid'];
+        $course->language = LANGUAGE_NONE;
+        $course->is_new = TRUE;
+        node_object_prepare($course);
         // build out via submit then save
-        if($node = node_submit($node)) {
+        if($course = node_submit($course)) {
           // force these to be saved by user 1 just so they have some user affiliation
-          $node->uid = 1;
-          node_save($node);
+          $course->uid = 1;
+          node_save($course);
         }
       }
     }
     // now sync the sections to go along with it if they are enabled
-    // @todo get the relationships down correctly for course to section
-    // before we enable this. Most likely Course is a piece of content
-    // that can be owned by a section; which means if you have access to
-    // the section then you'll have access to the course though we could
-    // also want to go the other direction, maybe even using subgroups
-    /*if (module_exists('cis_section')) {
+    if (module_exists('cis_section')) {
       // load up courses now that we should have them all added locally
       $courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_course_machine_name', 'nid');
       // loop through each course and query to sync the section rosters
       foreach ($courses as $machine_name => $nid) {
         _cis_section_sync_roster($machine_name, $nid);
       }
-    }*/
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function cis_course_authority_node_presave($node) {
+  // create a master section when a course is created initially
+  if ($node->type == 'cis_course' && empty($node->nid) && module_exists('cis_section')) {
+    $section = new stdClass();
+    $section->type = 'section';
+    $section->title = t('@title master section', array('@title' => $node->title));
+    // set the local uuid linked field value to that we get from the remote
+    $section->field_section_id[LANGUAGE_NONE][0]['value'] = 'master_' . $node->field_course_machine_name[LANGUAGE_NONE][0]['value'];
+    $section->language = LANGUAGE_NONE;
+    $section->is_new = TRUE;
+    node_object_prepare($section);
+    // build out via submit then save
+    if($section = node_submit($section)) {
+      // force these to be saved by user 1 just so they have some user affiliation
+      $section->uid = 1;
+      node_save($section);
+    }
+    // write course to associate this section if needed
+    $node->field_course_sections_ref['und'][] = array('target_id' => $section->nid);
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function cis_course_authority_node_insert($node) {
+  // stupid but we have to create the association in two steps
+  if ($node->type == 'cis_course' && module_exists('cis_section')) {
+    $local_section = _cis_connector_assemble_entity_list('node', 'section', 'nid', 'nid', array('field_section_id' => array('value', 'master_' . $node->field_course_machine_name[LANGUAGE_NONE][0]['value'])), array(), array(), FALSE);
+    if (isset($local_section['node'])) {
+      $nid = array_pop($local_section['node']);
+      $section = node_load($nid);
+      $section->field_section_course_ref['und'][0]['target_id'] = $node->nid;
+      node_save($section);
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function cis_course_authority_node_update($node) {
+  // see if title has changed, if so let's mirror this
+  if ($node->original->title != $node->title) {
+    // reflect this change everywhere
+    $properties = array(
+      'title' => $node->title,
+    );
+    _elmsln_api_course_sync($properties, '1', TRUE);
   }
 }

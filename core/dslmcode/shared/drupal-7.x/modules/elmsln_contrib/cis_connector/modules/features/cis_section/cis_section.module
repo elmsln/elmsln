@@ -530,8 +530,8 @@ function cis_section_form_cis_service_connection_ux_form_alter(&$form, &$form_st
 
 /**
  * Return if a section is the master or not.
- * @param  [type] $section_id [description]
- * @return [type]             [description]
+ * @param  string $section_id  section identifier
+ * @return bool                if this section is a master section or not
  */
 function _cis_section_is_master($section_id = NULL) {
   // if we didn't get an id passed in, use section context
@@ -539,7 +539,7 @@ function _cis_section_is_master($section_id = NULL) {
     $section_id = _cis_connector_section_context();
   }
   // check for a master section as they all prefix the same way
-  if ($section_id == CIS_SECTION_MASTER) {
+  if (strpos($section_id, CIS_SECTION_MASTER) === 0) {
     return TRUE;
   }
   return FALSE;
@@ -566,8 +566,8 @@ function cis_section_user_insert(&$edit, $account, $category) {
     $query->entityCondition('entity_type', 'node')
     // that are sections
     ->entityCondition('bundle', 'section')
-    // where it looks like the old master format
-    ->fieldCondition('field_section_id', 'value', 'master')
+    // where it looks like master
+    ->fieldCondition('field_section_id', 'value', CIS_SECTION_MASTER)
     // load all possible results in system, should only be 1 though
     ->addMetaData('account', user_load(1));
     // store result
@@ -666,7 +666,7 @@ function cis_section_url_outbound_alter(&$path, &$options, $original_path) {
 function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
   // support for syncing specific course rosters
   if ($machine_name == NULL) {
-    $machine_name = str_replace('/', '', base_path());
+    $machine_name = _cis_connector_course_context();
   }
   // the magic that keeps sections in sync with the cis
   $query = array(
@@ -680,9 +680,9 @@ function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
   if (count($return['list']) == 1) {
     $section_strings = array();
     $section_times = array();
-    $course = $return['list'][0];
+    $remote_course = $return['list'][0];
     // loop through offerings
-    foreach ($course['field_offerings'] as $offering) {
+    foreach ($remote_course['field_offerings'] as $offering) {
       // loop through sections if they exist
       if (isset($offering['field_sections']['und']) && count($offering['field_sections']['und']) > 0) {
         foreach ($offering['field_sections']['und'] as $section) {
@@ -770,7 +770,7 @@ function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
         $section->field_cis_active['und'][0]['value'] = $section_status;
         // authority systems have an additional field for relating sections and courses
         if (module_exists('cis_course_authority')) {
-          $section->field_course['und'][0]['value'] = $course_nid;
+          $section->field_section_course_ref['und'][0]['target_id'] = $course_nid;
         }
         $section->language = LANGUAGE_NONE;
         // default these to admin ownership for less chance of seeing it
@@ -778,6 +778,12 @@ function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
         // save section, cron job will then be able to check data source for roster
         // if that functionality is enabled in local instance
         node_save($section);
+        // need to make sure the course references this section
+        if (module_exists('cis_course_authority')) {
+          $course = node_load($course_nid);
+          $course->field_course_sections_ref['und'][] = array('target_id' => $section->nid);
+          node_save($course);
+        }
       }
     }
   }
@@ -806,7 +812,7 @@ function cis_section_elmsln_api_info() {
   $callbacks['sync_roster'] = array(
     'methods' => array('POST'),
     'file' => 'callbacks/v1/sync_roster.inc',
-    'bootstrap' => DRUPAL_BOOTSRAP_FULL,
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
   );
 
   return $callbacks;

@@ -32,9 +32,12 @@ function elmsmedia_image_ds_layout_settings_info() {
         5 => 'field_citation',
         6 => 'field_figurelabel_ref',
       ),
+      'footer' => array(
+        7 => 'og_group_ref',
+      ),
       'hidden' => array(
-        7 => 'path',
-        8 => '_add_existing_field',
+        8 => 'path',
+        9 => '_add_existing_field',
       ),
     ),
     'fields' => array(
@@ -45,6 +48,7 @@ function elmsmedia_image_ds_layout_settings_info() {
       'field_tagging' => 'right',
       'field_citation' => 'right',
       'field_figurelabel_ref' => 'right',
+      'og_group_ref' => 'footer',
       'path' => 'hidden',
       '_add_existing_field' => 'hidden',
     ),

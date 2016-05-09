@@ -55,7 +55,7 @@ function _elmsln_ecd_request($node, $op) {
     else {
       // fallback case for services as well as producing empty
       // if no course would be established which is also not bad
-      $course = str_replace('/', '', base_path());
+      $course = _cis_connector_course_context();
     }
     // ship this data over to compliance
     $request = array(
