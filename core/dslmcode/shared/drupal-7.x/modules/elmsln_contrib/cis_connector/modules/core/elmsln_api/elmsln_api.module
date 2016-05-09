@@ -480,6 +480,8 @@ function _elmsln_api_nonblocking_requests($requests, $recursion = FALSE) {
  * @see  _elmsln_api_request()
  */
 function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
+  // need to kill any session level context for course
+  unset($_SESSION['cis_course_context']);
   global $_elmsln_api_processing;
   if ($_elmsln_api_processing) {
     return FALSE;
@@ -539,8 +541,16 @@ function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
   }
   // support for uuid
   if (isset($properties['uuid'])) {
-    $data['uuid'] = $properties['uuid'];
+    $data['field_cis_course_uuid'] = array(
+      'und' => array(
+        0 => array(
+          'value' => $properties['uuid'],
+        )
+      )
+    );
   }
+  // force these system level assets to be root ownership
+  $data['uid'] = 1;
   $request = array(
     array(
       'method' => 'POST',
@@ -593,8 +603,16 @@ function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
     }
     // support for uuid
     if (isset($properties['uuid'])) {
-      $data['uuid'] = $properties['uuid'];
+      $data['field_cis_course_uuid'] = array(
+        'und' => array(
+          0 => array(
+            'value' => $properties['uuid'],
+          )
+        )
+      );
     }
+    // force these system level assets to be root ownership
+    $data['uid'] = 1;
     // send it off
     $request = array(
       'method' => 'POST',
