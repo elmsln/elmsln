@@ -74,6 +74,7 @@ function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
  */
 function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
   $query_params = drupal_get_query_parameters();
+  $changed = FALSE;
   if (isset($query_params['elmsln_active_section']) && $section_id = $query_params['elmsln_active_section']) {
     // get a list of allowed sections for this user
     $sections = array();
@@ -103,12 +104,23 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
     }
     // Remove the active section query parameter and proceed to the url
     unset($query_params['elmsln_active_section']);
+    $changed = TRUE;
   }
   // course
   if (isset($query_params['elmsln_active_course']) && $course = $query_params['elmsln_active_course']) {
     $_SESSION['cis_course_context'] = $course;
     // Remove the active section query parameter and proceed to the url
     unset($query_params['elmsln_active_course']);
+    $changed = TRUE;
+  }
+  // look or cross-network masquerade
+  if (isset($query_params['elmsln_masquerade']) && $masquerad = $query_params['elmsln_masquerade']) {
+    // Remove masquerade item
+    unset($query_params['elmsln_masquerade']);
+    $changed = TRUE;
+  }
+  // ensure we skimmed something off before redirect looping!
+  if ($changed) {
     drupal_goto($path, array('query' => $query_params));
   }
 }
@@ -130,15 +142,21 @@ function elmsln_core_url_outbound_alter(&$path, &$options, $original_path) {
       $outgoing_domain = _cis_connector_url_get_properties($original_path);
       // verify that the link is going to a separate subdomain
       if ($current_domain['subdomain'] != $outgoing_domain['subdomain']) {
+        // keep section context
         $current_section = _cis_connector_section_context();
         if (isset($current_section) && $current_section) {
           // append the section context query parameter to the outgoing url
           $options['query']['elmsln_active_section'] = $current_section;
         }
+        // keep course context
         $current_course = _cis_connector_course_context();
         if (isset($current_course) && $current_course) {
           // append the section context query parameter to the outgoing url
           $options['query']['elmsln_active_course'] = $current_course;
+        }
+        // keep masquerade context
+        if (isset($_SESSION['masquerading'])) {
+          $options['query']['elmsln_masquerade'] = $GLOBALS['user']->name;
         }
       }
     }
