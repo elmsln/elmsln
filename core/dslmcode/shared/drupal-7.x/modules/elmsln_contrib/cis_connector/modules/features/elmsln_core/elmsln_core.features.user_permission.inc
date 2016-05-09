@@ -15,6 +15,7 @@ function elmsln_core_user_default_permissions() {
     'name' => 'access admin theme',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'instructor' => 'instructor',
       'staff' => 'staff',
     ),
@@ -117,7 +118,9 @@ function elmsln_core_user_default_permissions() {
   $permissions['delete revisions'] = array(
     'name' => 'delete revisions',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'staff' => 'staff',
     ),
     'module' => 'node',
   );
@@ -167,6 +170,7 @@ function elmsln_core_user_default_permissions() {
   $permissions['revert revisions'] = array(
     'name' => 'revert revisions',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
@@ -202,6 +206,7 @@ function elmsln_core_user_default_permissions() {
   $permissions['use text format textbook_editor'] = array(
     'name' => 'use text format textbook_editor',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
@@ -251,6 +256,7 @@ function elmsln_core_user_default_permissions() {
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'cis_lmsless',
   );
@@ -270,6 +276,7 @@ function elmsln_core_user_default_permissions() {
   $permissions['view revisions'] = array(
     'name' => 'view revisions',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
@@ -282,6 +289,7 @@ function elmsln_core_user_default_permissions() {
     'name' => 'view the administration theme',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'instructor' => 'instructor',
       'staff' => 'staff',
     ),
