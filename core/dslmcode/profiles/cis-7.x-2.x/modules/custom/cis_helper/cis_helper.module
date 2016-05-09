@@ -456,11 +456,19 @@ function cis_helper_entity_update($entity, $type) {
   if ($type == 'node' && $entity->type == 'course') {
     // ensure that course name is changed globally if updated anywhere
     $properties = array();
-    if ($entity->original->title != $entity->title) {
+    if (isset($entity->is_new) && $entity->is_new) {
       $properties['title'] = $entity->title;
-    }
-    if ($entity->original->field_course_title['und'][0]['value'] != $entity->field_course_title['und'][0]['value']) {
       $properties['slogan'] = $entity->field_course_title['und'][0]['value'];
+      $properties['machine_name'] = $entity->field_machine_name[LANGUAGE_NONE][0]['value'];
+      $properties['uuid'] = $entity->uuid;
+    }
+    else {
+      if (isset($entity->original) && $entity->original->title != $entity->title) {
+        $properties['title'] = $entity->title;
+      }
+      if (isset($entity->original) && $entity->original->field_course_title['und'][0]['value'] != $entity->field_course_title['und'][0]['value']) {
+        $properties['slogan'] = $entity->field_course_title['und'][0]['value'];
+      }
     }
     // if anything changed let's ship this off everywhere
     if (!empty($properties)) {
