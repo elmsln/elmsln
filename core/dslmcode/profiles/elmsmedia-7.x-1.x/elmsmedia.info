@@ -134,6 +134,8 @@ dependencies[] = entity_iframe_mode
 dependencies[] = video_embed_field
 ; Other
 dependencies[] = h5p
+dependencies[] = h5p_tincan_bridge
+dependencies[] = tincanapi
 dependencies[] = elmsmedia_helper
 dependencies[] = elmsln_ecd
 dependencies[] = imagefield_focus

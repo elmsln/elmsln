@@ -66,3 +66,10 @@ function elmsmedia_update_7003(&$sandbox) {
 function elmsmedia_update_7004(&$sandbox) {
   module_enable(array('elmsln_ecd'));
 }
+
+/**
+ * Enable tincan API / H5P bridge.
+ */
+function elmsmedia_update_7005(&$sandbox) {
+  module_enable(array('tincanapi', 'h5p_tincan_bridge'));
+}
