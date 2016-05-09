@@ -411,11 +411,6 @@ function _cis_connector_course_context() {
   // statically cache future calls
   $course = &drupal_static(__FUNCTION__);
   if (!isset($course)) {
-    // check for global session override
-    if (isset($_SESSION['cis_course_context'])) {
-      $course = $_SESSION['cis_course_context'];
-      return $course;
-    }
     // see if this is on a node, then check if we are in an authority
     if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
       // we are in an authority system
@@ -443,6 +438,11 @@ function _cis_connector_course_context() {
           return $course;
         }
       }
+    }
+    // check for global session override
+    if (isset($_SESSION['cis_course_context'])) {
+      $course = $_SESSION['cis_course_context'];
+      return $course;
     }
     // use the variable that's been set for the machine name
     $course = variable_get('cis_course_machine_name', FALSE);
