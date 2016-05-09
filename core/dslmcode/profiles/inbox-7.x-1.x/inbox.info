@@ -120,9 +120,9 @@ dependencies[] = elmsln_advagg
 ; ----------
 ; Service Dependencies
 ; ----------
-;dependencies[] = og
-;dependencies[] = og_ui
-;dependencies[] = cis_section
+dependencies[] = og
+dependencies[] = og_ui
+dependencies[] = cis_section
 
 ; ----------
 ; Authority Dependencies
@@ -136,8 +136,6 @@ dependencies[] = cis_course_authority
 ; ----------
 ; Inbox Dependencies
 ; ----------
-dependencies[] = og
-dependencies[] = og_ui
 dependencies[] = calendar
 
 dependencies[] = inbox_helper
