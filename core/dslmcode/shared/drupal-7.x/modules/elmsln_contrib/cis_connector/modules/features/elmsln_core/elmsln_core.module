@@ -66,3 +66,81 @@ function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
   $cfg = _cis_connector_get_cfg();
   $form['a11y_domain']['#default_value'] = '.' . $cfg['address'];
 }
+
+/**
+ * Implements hook_url_inbound_alter().
+ *
+ * Sets the active section / course for a user based on a query parameter.
+ */
+function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
+  $query_params = drupal_get_query_parameters();
+  if (isset($query_params['elmsln_active_section']) && $section_id = $query_params['elmsln_active_section']) {
+    // get a list of allowed sections for this user
+    $sections = array();
+    // select field section data
+    $query = new EntityFieldQuery();
+    // pull all nodes
+    $query->entityCondition('entity_type', 'node')
+    // that are sections
+    ->entityCondition('bundle', 'section')
+    // that are published
+    ->propertyCondition('status', 1);
+    $result = $query->execute();
+    // ensure we have results
+    if (isset($result['node'])) {
+      $nids = array_keys($result['node']);
+      $results = entity_load('node', $nids);
+      // convert to a readable array of options
+      foreach ($results as $val) {
+        $section = $val->field_section_id['und'][0]['safe_value'];
+        $sections[$section] = $val->title;
+      }
+    }
+    // check if the proposed section is in the list of allowed sections
+    if (in_array($section_id, $sections) || _cis_connector_role_grouping('staff')) {
+      // set the active session
+      $_SESSION['cis_section_context'] = $section_id;
+    }
+    // Remove the active section query parameter and proceed to the url
+    unset($query_params['elmsln_active_section']);
+  }
+  // course
+  if (isset($query_params['elmsln_active_course']) && $course = $query_params['elmsln_active_course']) {
+    $_SESSION['cis_course_context'] = $course;
+    // Remove the active section query parameter and proceed to the url
+    unset($query_params['elmsln_active_course']);
+    drupal_goto($path, array('query' => $query_params));
+  }
+}
+
+/**
+ * Implements hook_url_outbound_alter().
+ *
+ * Appends section context query parameter to
+ * all outbound links going to other ELMSLN subdomains.
+ */
+function elmsln_core_url_outbound_alter(&$path, &$options, $original_path) {
+  // do an easy inital check to see if it's going to an external site
+  // internal links shouldn't have a protocol
+  if (strpos($path, '://')) {
+    global $base_url;
+    $current_domain = _cis_connector_url_get_properties($base_url);
+    // verify the current domain is in the outgoing domain
+    if (strpos($original_path, $current_domain['domain'])) {
+      $outgoing_domain = _cis_connector_url_get_properties($original_path);
+      // verify that the link is going to a separate subdomain
+      if ($current_domain['subdomain'] != $outgoing_domain['subdomain']) {
+        $current_section = _cis_connector_section_context();
+        if (isset($current_section) && $current_section) {
+          // append the section context query parameter to the outgoing url
+          $options['query']['elmsln_active_section'] = $current_section;
+        }
+        $current_course = _cis_connector_course_context();
+        if (isset($current_course) && $current_course) {
+          // append the section context query parameter to the outgoing url
+          $options['query']['elmsln_active_course'] = $current_course;
+        }
+      }
+    }
+  }
+}
