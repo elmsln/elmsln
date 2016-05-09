@@ -15,7 +15,7 @@ pages:
   - Index: ia/ia-index.md
   - System: ia/System.md
   - Roles: ia/User-Roles.md
-  - Networked course data model: docs/ia/Course-Model.md
+  - Networked course data model: ia/Course-Model.md
   - Sections: ia/Sections.md
   - Tool architecture:
     - Online: systems/authority/online.md
