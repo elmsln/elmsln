@@ -216,7 +216,7 @@ function cis_types_strongarm() {
           'weight' => '0',
         ),
         'path' => array(
-          'weight' => '6',
+          'weight' => '4',
         ),
       ),
       'display' => array(),
@@ -258,7 +258,7 @@ function cis_types_strongarm() {
           'weight' => '36',
         ),
         'path' => array(
-          'weight' => '5',
+          'weight' => '3',
         ),
       ),
       'display' => array(),
@@ -297,10 +297,10 @@ function cis_types_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '0',
+          'weight' => '1',
         ),
         'path' => array(
-          'weight' => '3',
+          'weight' => '6',
         ),
       ),
       'display' => array(),
@@ -384,7 +384,7 @@ function cis_types_strongarm() {
           'weight' => '0',
         ),
         'path' => array(
-          'weight' => '1',
+          'weight' => '3',
         ),
       ),
       'display' => array(),

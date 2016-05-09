@@ -84,10 +84,10 @@ function cis_types_field_group_info() {
     'label' => 'Administrative',
     'weight' => '0',
     'children' => array(
-      0 => 'field_instructional_designer',
-      1 => 'field_method_of_access',
-      2 => 'field_display_in_course_list',
-      3 => 'field_lead_instructor',
+      0 => 'field_display_in_course_list',
+      1 => 'field_instructional_designer',
+      2 => 'field_lead_instructor',
+      3 => 'field_method_of_access',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -173,11 +173,9 @@ function cis_types_field_group_info() {
     'children' => array(
       0 => 'field_academic_home',
       1 => 'field_course_title',
-      2 => 'field_program_classification',
-      3 => 'field_university_bulletin',
-      4 => 'field_special_classifications',
-      5 => 'field_machine_name',
-      6 => 'title',
+      2 => 'field_machine_name',
+      3 => 'field_program_classification',
+      4 => 'title',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -191,6 +189,66 @@ function cis_types_field_group_info() {
     ),
   );
   $field_groups['group_details|node|course|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_details|node|program|form';
+  $field_group->group_name = 'group_details';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'program';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Details',
+    'weight' => '0',
+    'children' => array(
+      0 => 'field_abbreviation',
+      1 => 'field_academic_home',
+      2 => 'title',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-details field-group-fieldset',
+        'required_fields' => 1,
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_details|node|program|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_details|node|service|form';
+  $field_group->group_name = 'group_details';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'service';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Details',
+    'weight' => '0',
+    'children' => array(
+      0 => 'field_distribution',
+      1 => 'field_machine_name',
+      2 => 'title',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-details field-group-fieldset',
+        'required_fields' => 1,
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_details|node|service|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -253,6 +311,36 @@ function cis_types_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_marketing|node|program|form';
+  $field_group->group_name = 'group_marketing';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'program';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Marketing',
+    'weight' => '4',
+    'children' => array(
+      0 => 'field_facebook',
+      1 => 'field_program_site',
+      2 => 'field_twitter',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-marketing field-group-fieldset',
+        'required_fields' => 1,
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_marketing|node|program|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_offerings|node|course|form';
   $field_group->group_name = 'group_offerings';
   $field_group->entity_type = 'node';
@@ -261,7 +349,7 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Offerings',
-    'weight' => '4',
+    'weight' => '5',
     'children' => array(
       0 => 'field_offerings',
     ),
@@ -309,6 +397,42 @@ function cis_types_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_promo_details|node|course|form';
+  $field_group->group_name = 'group_promo_details';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'course';
+  $field_group->mode = 'form';
+  $field_group->parent_name = 'group_samples';
+  $field_group->data = array(
+    'label' => 'Details',
+    'weight' => '46',
+    'children' => array(
+      0 => 'field_course_author',
+      1 => 'field_credits',
+      2 => 'field_first_offered',
+      3 => 'field_related_courses',
+      4 => 'field_sample_lesson',
+      5 => 'field_sample_syllabus',
+      6 => 'field_special_classifications',
+      7 => 'field_university_bulletin',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'label' => 'Details',
+      'instance_settings' => array(
+        'required_fields' => 1,
+        'id' => '',
+        'classes' => 'group-promo-details field-group-fieldset',
+        'description' => '',
+      ),
+      'formatter' => 'collapsed',
+    ),
+  );
+  $field_groups['group_promo_details|node|course|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_resources|node|course|form';
   $field_group->group_name = 'group_resources';
   $field_group->entity_type = 'node';
@@ -317,10 +441,10 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Resources',
-    'weight' => '3',
+    'weight' => '4',
     'children' => array(
-      0 => 'group_tas',
-      1 => 'group_instructors',
+      0 => 'group_instructors',
+      1 => 'group_tas',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -348,14 +472,9 @@ function cis_types_field_group_info() {
     'label' => 'Promotional',
     'weight' => '2',
     'children' => array(
-      0 => 'field_sample_lesson',
-      1 => 'field_sample_syllabus',
-      2 => 'field_course_author',
-      3 => 'field_credits',
-      4 => 'field_first_offered',
-      5 => 'field_related_courses',
-      6 => 'group_screenshots',
-      7 => 'group_text_areas',
+      0 => 'group_screenshots',
+      1 => 'group_text_areas',
+      2 => 'group_promo_details',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -381,11 +500,11 @@ function cis_types_field_group_info() {
   $field_group->parent_name = 'group_samples';
   $field_group->data = array(
     'label' => 'Visuals',
-    'weight' => '32',
+    'weight' => '51',
     'children' => array(
-      0 => 'field_screenshot',
+      0 => 'field_author_video',
       1 => 'field_banner',
-      2 => 'field_author_video',
+      2 => 'field_screenshot',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -613,12 +732,12 @@ function cis_types_field_group_info() {
   $field_group->parent_name = 'group_samples';
   $field_group->data = array(
     'label' => 'Text areas',
-    'weight' => '31',
+    'weight' => '50',
     'children' => array(
       0 => 'body',
-      1 => 'field_long_description',
-      2 => 'field_topics_covered_text',
-      3 => 'field_course_readings',
+      1 => 'field_course_readings',
+      2 => 'field_long_description',
+      3 => 'field_topics_covered_text',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -632,6 +751,35 @@ function cis_types_field_group_info() {
     ),
   );
   $field_groups['group_text_areas|node|course|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_urls|node|service|form';
+  $field_group->group_name = 'group_urls';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'service';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'URLs',
+    'weight' => '1',
+    'children' => array(
+      0 => 'field_data_location',
+      1 => 'field_location',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-urls field-group-fieldset',
+        'required_fields' => 1,
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_urls|node|service|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -665,6 +813,7 @@ function cis_types_field_group_info() {
   t('Details');
   t('Files');
   t('Instructors');
+  t('Marketing');
   t('Offerings');
   t('Personel');
   t('Promotional');
@@ -676,6 +825,7 @@ function cis_types_field_group_info() {
   t('Teachers');
   t('Teaching Assistants');
   t('Text areas');
+  t('URLs');
   t('Visuals');
   t('Whole thing');
 

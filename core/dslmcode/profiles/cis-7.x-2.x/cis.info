@@ -88,6 +88,7 @@ dependencies[] = addanother
 dependencies[] = back_to_top
 dependencies[] = ckeditor_link
 dependencies[] = ds
+dependencies[] = ds_forms
 dependencies[] = imce
 dependencies[] = imce_crop
 dependencies[] = imce_mkdir

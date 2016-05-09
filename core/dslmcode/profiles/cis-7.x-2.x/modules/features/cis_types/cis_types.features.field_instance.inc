@@ -1733,7 +1733,7 @@ function cis_types_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 30,
+      'weight' => 54,
     ),
   );
 
@@ -1814,7 +1814,7 @@ function cis_types_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 38,
+      'weight' => 37,
     ),
   );
 
@@ -1866,7 +1866,7 @@ function cis_types_field_default_field_instances() {
         'sort_options' => 0,
       ),
       'type' => 'select_or_other',
-      'weight' => 33,
+      'weight' => 47,
     ),
   );
 
@@ -1972,7 +1972,7 @@ function cis_types_field_default_field_instances() {
         'year_range' => '2003:+1',
       ),
       'type' => 'date_select',
-      'weight' => 34,
+      'weight' => 48,
     ),
   );
 
@@ -2423,7 +2423,7 @@ function cis_types_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 37,
+      'weight' => 38,
     ),
   );
 
@@ -2661,7 +2661,7 @@ function cis_types_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 38,
+      'weight' => 51,
     ),
   );
 
@@ -2714,7 +2714,7 @@ function cis_types_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 37,
+      'weight' => 50,
     ),
   );
 
@@ -2757,7 +2757,7 @@ function cis_types_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 36,
+      'weight' => 49,
     ),
   );
 
@@ -2853,7 +2853,7 @@ function cis_types_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 41,
+      'weight' => 52,
     ),
   );
 
@@ -3036,7 +3036,7 @@ function cis_types_field_default_field_instances() {
       'module' => 'link',
       'settings' => array(),
       'type' => 'link_field',
-      'weight' => 42,
+      'weight' => 53,
     ),
   );
 
@@ -3080,7 +3080,7 @@ function cis_types_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 2,
+      'weight' => 5,
     ),
   );
 
@@ -3132,7 +3132,7 @@ function cis_types_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 1,
+      'weight' => 2,
     ),
   );
 
@@ -3211,7 +3211,7 @@ function cis_types_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 4,
+      'weight' => 3,
     ),
   );
 
@@ -3550,7 +3550,7 @@ Global will be available to all resources to reference',
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 6,
+      'weight' => 2,
     ),
   );
 
@@ -3644,7 +3644,7 @@ Global will be available to all resources to reference',
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 5,
+      'weight' => 1,
     ),
   );
 
@@ -3739,7 +3739,7 @@ Global will be available to all resources to reference',
         'size' => 16,
       ),
       'type' => 'text_textfield',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
