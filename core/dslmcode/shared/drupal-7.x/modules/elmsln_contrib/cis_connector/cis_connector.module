@@ -442,6 +442,7 @@ function _cis_connector_course_context() {
     // check for global session override
     if (isset($_SESSION['cis_course_context'])) {
       $course = $_SESSION['cis_course_context'];
+      unset($_SESSION['cis_course_context']);
       return $course;
     }
     // use the variable that's been set for the machine name
