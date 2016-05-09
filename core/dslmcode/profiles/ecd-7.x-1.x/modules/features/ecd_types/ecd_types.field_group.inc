@@ -79,11 +79,10 @@ function ecd_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Logistics',
-    'weight' => '1',
+    'weight' => '2',
     'children' => array(
-      0 => 'field_course',
-      1 => 'field_resource_uuid_bind',
-      2 => 'field_source',
+      0 => 'field_resource_uuid_bind',
+      1 => 'field_source',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -137,12 +136,12 @@ function ecd_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Verification',
-    'weight' => '3',
+    'weight' => '4',
     'children' => array(
       0 => 'field_accessibility_verified',
       1 => 'field_copyright_verified',
-      2 => 'field_quality_verified',
-      3 => 'field_ecd_needs_review',
+      2 => 'field_ecd_needs_review',
+      3 => 'field_quality_verified',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

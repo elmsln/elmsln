@@ -48,7 +48,6 @@ function ecd_types_ds_layout_settings_info_alter(&$data) {
     $data['node|cis_course|form']->settings['regions']['right'][4] = 'group_audits'; /* WAS: '' */
     $data['node|cis_course|form']->settings['regions']['right'][9] = 'field_accessibility_audit'; /* WAS: '' */
     unset($data['node|cis_course|form']->settings['regions']['footer'][3]);
-    unset($data['node|cis_course|form']->settings['regions']['hidden'][4]);
     unset($data['node|cis_course|form']->settings['regions']['right'][1]);
     unset($data['node|cis_course|form']->settings['regions']['right'][2]);
   }

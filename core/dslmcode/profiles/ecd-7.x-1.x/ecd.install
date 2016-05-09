@@ -22,3 +22,12 @@ function ecd_install() {
   // set homepage
   variable_set('site_frontpage', 'courses');
 }
+
+/**
+ * Implements hook_update_N().
+ * revert the type and display changes.
+ */
+function ecd_update_7001(&$sandbox) {
+  features_revert('ecd_types');
+  features_revert('ecd_displays');
+}

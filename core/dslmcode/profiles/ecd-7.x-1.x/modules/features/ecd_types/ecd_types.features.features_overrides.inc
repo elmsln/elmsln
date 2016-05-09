@@ -26,7 +26,6 @@ function ecd_types_features_override_default_overrides() {
   $overrides["ds_layout_settings.node|cis_course|form.settings|regions|footer|3"]["DELETED"] = TRUE;
   $overrides["ds_layout_settings.node|cis_course|form.settings|regions|footer|5"] = 'field_notes';
   $overrides["ds_layout_settings.node|cis_course|form.settings|regions|footer|6"] = 'field_resource_uuid_bind';
-  $overrides["ds_layout_settings.node|cis_course|form.settings|regions|hidden|4"]["DELETED"] = TRUE;
   $overrides["ds_layout_settings.node|cis_course|form.settings|regions|hidden|7"] = 'path';
   $overrides["ds_layout_settings.node|cis_course|form.settings|regions|hidden|8"] = '_add_existing_field';
   $overrides["ds_layout_settings.node|cis_course|form.settings|regions|left|1"] = 'field_course_machine_name';

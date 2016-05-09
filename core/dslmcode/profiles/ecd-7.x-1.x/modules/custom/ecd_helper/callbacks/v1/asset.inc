@@ -41,7 +41,7 @@ function ecd_helper_elmsln_api_callback_asset() {
       // load all the entities in the array
       $course = node_load($nid);
       if (isset($course->nid)) {
-        $node->field_course['und'][0]['target_id'] = $course->nid;
+        $node->field_cis_course_ref['und'][0]['target_id'] = $course->nid;
       }
       // set title to match what came from the remote
       $node->title = $value['title'];

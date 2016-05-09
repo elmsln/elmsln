@@ -89,13 +89,13 @@ function ecd_displays_views_default_views() {
   $handler->display->display_options['style_options']['caption'] = 'Current status of the compliance audit for this course';
   $handler->display->display_options['style_options']['save_messages'] = 'summary';
   /* Field: Content: Course */
-  $handler->display->display_options['fields']['field_course']['id'] = 'field_course';
-  $handler->display->display_options['fields']['field_course']['table'] = 'field_data_field_course';
-  $handler->display->display_options['fields']['field_course']['field'] = 'field_course';
-  $handler->display->display_options['fields']['field_course']['settings'] = array(
-    'link' => 1,
+  $handler->display->display_options['fields']['field_cis_course_ref']['id'] = 'field_cis_course_ref';
+  $handler->display->display_options['fields']['field_cis_course_ref']['table'] = 'field_data_field_cis_course_ref';
+  $handler->display->display_options['fields']['field_cis_course_ref']['field'] = 'field_cis_course_ref';
+  $handler->display->display_options['fields']['field_cis_course_ref']['settings'] = array(
+    'link' => 0,
   );
-  $handler->display->display_options['fields']['field_course']['delta_offset'] = '0';
+  $handler->display->display_options['fields']['field_cis_course_ref']['delta_offset'] = '0';
   /* Field: Content: Type */
   $handler->display->display_options['fields']['field_asset_type']['id'] = 'field_asset_type';
   $handler->display->display_options['fields']['field_asset_type']['table'] = 'field_data_field_asset_type';
@@ -163,15 +163,15 @@ function ecd_displays_views_default_views() {
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* Contextual filter: Content: Course (field_course) */
-  $handler->display->display_options['arguments']['field_course_target_id']['id'] = 'field_course_target_id';
-  $handler->display->display_options['arguments']['field_course_target_id']['table'] = 'field_data_field_course';
-  $handler->display->display_options['arguments']['field_course_target_id']['field'] = 'field_course_target_id';
-  $handler->display->display_options['arguments']['field_course_target_id']['default_action'] = 'not found';
-  $handler->display->display_options['arguments']['field_course_target_id']['default_argument_type'] = 'fixed';
-  $handler->display->display_options['arguments']['field_course_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['field_course_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['field_course_target_id']['summary_options']['items_per_page'] = '25';
+  /* Contextual filter: Content: Course (field_cis_course_ref) */
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['id'] = 'field_cis_course_ref_target_id';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['table'] = 'field_data_field_cis_course_ref';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['field'] = 'field_cis_course_ref_target_id';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['default_argument_type'] = 'node';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['summary_options']['items_per_page'] = '25';
   /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -542,27 +542,6 @@ function ecd_displays_views_default_views() {
     30037204 => 0,
     76550217 => 0,
   );
-  /* Filter criterion: Content: Course (field_course) */
-  $handler->display->display_options['filters']['field_course_target_id']['id'] = 'field_course_target_id';
-  $handler->display->display_options['filters']['field_course_target_id']['table'] = 'field_data_field_course';
-  $handler->display->display_options['filters']['field_course_target_id']['field'] = 'field_course_target_id';
-  $handler->display->display_options['filters']['field_course_target_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_course_target_id']['expose']['operator_id'] = 'field_course_target_id_op';
-  $handler->display->display_options['filters']['field_course_target_id']['expose']['label'] = 'Course';
-  $handler->display->display_options['filters']['field_course_target_id']['expose']['operator'] = 'field_course_target_id_op';
-  $handler->display->display_options['filters']['field_course_target_id']['expose']['identifier'] = 'field_course_target_id';
-  $handler->display->display_options['filters']['field_course_target_id']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    6065076 => 0,
-    135574917 => 0,
-    66784200 => 0,
-    67296478 => 0,
-    75987638 => 0,
-    166149871 => 0,
-    30037204 => 0,
-    76550217 => 0,
-  );
   $handler->display->display_options['path'] = 'assets';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Assets';
@@ -574,10 +553,146 @@ function ecd_displays_views_default_views() {
 
   /* Display: Course specific */
   $handler = $view->new_display('page', 'Course specific', 'page');
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Type */
+  $handler->display->display_options['fields']['field_asset_type']['id'] = 'field_asset_type';
+  $handler->display->display_options['fields']['field_asset_type']['table'] = 'field_data_field_asset_type';
+  $handler->display->display_options['fields']['field_asset_type']['field'] = 'field_asset_type';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = 'Asset';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: Accessibility verified (editable) */
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['id'] = 'field_accessibility_verified_editable';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['table'] = 'field_data_field_accessibility_verified';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['field'] = 'field_accessibility_verified_editable';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['label'] = 'Accessibility verified';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['alter']['text'] = ' ';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['widget_type'] = '0';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['suppress_label'] = 1;
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['suppress_description'] = 1;
+  /* Field: Content: Copyright verified (editable) */
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['id'] = 'field_copyright_verified_editable';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['table'] = 'field_data_field_copyright_verified';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['field'] = 'field_copyright_verified_editable';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['label'] = 'Copyright verified';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['alter']['text'] = ' ';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['widget_type'] = '0';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['suppress_label'] = 1;
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['suppress_description'] = 1;
+  /* Field: Content: Quality verified (editable) */
+  $handler->display->display_options['fields']['field_quality_verified_editable']['id'] = 'field_quality_verified_editable';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['table'] = 'field_data_field_quality_verified';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['field'] = 'field_quality_verified_editable';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['label'] = 'Quality verified';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['field_quality_verified_editable']['alter']['text'] = ' ';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['widget_type'] = '0';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['suppress_label'] = 1;
+  $handler->display->display_options['fields']['field_quality_verified_editable']['suppress_description'] = 1;
+  /* Field: Content: Needs review (editable) */
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['id'] = 'field_ecd_needs_review_editable';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['table'] = 'field_data_field_ecd_needs_review';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['field'] = 'field_ecd_needs_review_editable';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['label'] = 'Needs review';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['widget_type'] = '0';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['suppress_label'] = 1;
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['suppress_description'] = 1;
+  /* Field: Content: Source */
+  $handler->display->display_options['fields']['field_source']['id'] = 'field_source';
+  $handler->display->display_options['fields']['field_source']['table'] = 'field_data_field_source';
+  $handler->display->display_options['fields']['field_source']['field'] = 'field_source';
+  $handler->display->display_options['fields']['field_source']['click_sort_column'] = 'url';
+  $handler->display->display_options['fields']['field_source']['type'] = 'link_short';
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
   $handler->display->display_options['path'] = 'asset-compliance/%';
 
   /* Display: Course EVA */
   $handler = $view->new_display('entity_view', 'Course EVA', 'entity_view_1');
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Type */
+  $handler->display->display_options['fields']['field_asset_type']['id'] = 'field_asset_type';
+  $handler->display->display_options['fields']['field_asset_type']['table'] = 'field_data_field_asset_type';
+  $handler->display->display_options['fields']['field_asset_type']['field'] = 'field_asset_type';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = 'Asset';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: Accessibility verified (editable) */
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['id'] = 'field_accessibility_verified_editable';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['table'] = 'field_data_field_accessibility_verified';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['field'] = 'field_accessibility_verified_editable';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['label'] = 'Accessibility verified';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['alter']['text'] = ' ';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['widget_type'] = '0';
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['suppress_label'] = 1;
+  $handler->display->display_options['fields']['field_accessibility_verified_editable']['suppress_description'] = 1;
+  /* Field: Content: Copyright verified (editable) */
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['id'] = 'field_copyright_verified_editable';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['table'] = 'field_data_field_copyright_verified';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['field'] = 'field_copyright_verified_editable';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['label'] = 'Copyright verified';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['alter']['text'] = ' ';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['widget_type'] = '0';
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['suppress_label'] = 1;
+  $handler->display->display_options['fields']['field_copyright_verified_editable']['suppress_description'] = 1;
+  /* Field: Content: Quality verified (editable) */
+  $handler->display->display_options['fields']['field_quality_verified_editable']['id'] = 'field_quality_verified_editable';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['table'] = 'field_data_field_quality_verified';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['field'] = 'field_quality_verified_editable';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['label'] = 'Quality verified';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['field_quality_verified_editable']['alter']['text'] = ' ';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['widget_type'] = '0';
+  $handler->display->display_options['fields']['field_quality_verified_editable']['suppress_label'] = 1;
+  $handler->display->display_options['fields']['field_quality_verified_editable']['suppress_description'] = 1;
+  /* Field: Content: Needs review (editable) */
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['id'] = 'field_ecd_needs_review_editable';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['table'] = 'field_data_field_ecd_needs_review';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['field'] = 'field_ecd_needs_review_editable';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['label'] = 'Needs review';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['widget_type'] = '0';
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['suppress_label'] = 1;
+  $handler->display->display_options['fields']['field_ecd_needs_review_editable']['suppress_description'] = 1;
+  /* Field: Content: Source */
+  $handler->display->display_options['fields']['field_source']['id'] = 'field_source';
+  $handler->display->display_options['fields']['field_source']['table'] = 'field_data_field_source';
+  $handler->display->display_options['fields']['field_source']['field'] = 'field_source';
+  $handler->display->display_options['fields']['field_source']['click_sort_column'] = 'url';
+  $handler->display->display_options['fields']['field_source']['type'] = 'link_short';
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['defaults']['arguments'] = FALSE;
+  /* Contextual filter: Content: Course (field_cis_course_ref) */
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['id'] = 'field_cis_course_ref_target_id';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['table'] = 'field_data_field_cis_course_ref';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['field'] = 'field_cis_course_ref_target_id';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['default_argument_type'] = 'node';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['field_cis_course_ref_target_id']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['entity_type'] = 'node';
   $handler->display->display_options['bundles'] = array(
     0 => 'cis_course',
@@ -848,7 +963,7 @@ function ecd_displays_views_default_views() {
       'empty_column' => 0,
     ),
   );
-  /* Relationship: Entity Reference: Referencing entity */
+  /* Relationship: Broken/missing handler */
   $handler->display->display_options['relationships']['reverse_field_course_node']['id'] = 'reverse_field_course_node';
   $handler->display->display_options['relationships']['reverse_field_course_node']['table'] = 'node';
   $handler->display->display_options['relationships']['reverse_field_course_node']['field'] = 'reverse_field_course_node';
