@@ -635,6 +635,103 @@ function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
 }
 
 /**
+ * Keep a section in sync across the entire network.
+ * This call will update information about a section
+ * everywhere except the CIS (which is where sections start)
+ *
+ * @todo  explore a background processing capability as this gets intense
+ * @param  array  $properties       an array of items to keep in sync
+ *         possible values include: title, section_id, course, active
+ * @param  string $api         api version to use
+ * @param  bool   $nonblocking if the call should be async or not
+ * @see  _elmsln_api_authority_request()
+ * @see  _elmsln_api_network_request()
+ * @see  _elmsln_api_request()
+ */
+function _elmsln_api_section_sync($properties, $api = '1', $nonblocking = TRUE) {
+  // need to kill any session level context for course
+  unset($_SESSION['cis_section_context']);
+  global $_elmsln_api_processing;
+  if ($_elmsln_api_processing) {
+    return FALSE;
+  }
+  // prepare requests to kick off settings
+  $requests = array();
+  // go after all non-CIS systems
+  $query = array(
+    'entityCondition' => array(
+      'bundle' => 'section',
+      'entity_type'   => 'node',
+    ),
+    'fieldCondition' => array(
+      'field_section_id' => array('value', $properties['section_id'], '='),
+    ),
+  );
+  $data = array();
+  // support for title, the easiest one
+  if (isset($properties['title'])) {
+    $data['title'] = $properties['title'];
+  }
+  // support for field_section_id
+  if (isset($properties['section_id'])) {
+    $data['field_section_id'] = array(
+      'und' => array(
+        0 => array(
+          'value' => $properties['section_id'],
+        )
+      )
+    );
+  }
+  // support for course
+  if (isset($properties['course'])) {
+    $data['field_section_course_ref'] = array(
+      'und' => array(
+        0 => array(
+          'target_id' => $properties['course'],
+        )
+      )
+    );
+  }
+  // support for course
+  if (isset($properties['active'])) {
+    $data['field_cis_active'] = array(
+      'und' => array(
+        0 => array(
+          'value' => $properties['active'],
+        )
+      )
+    );
+  }
+  // force these system level assets to be root ownership
+  $data['uid'] = 1;
+  // force pathauto to be enabled
+  $data['path'] = array('pathauto' => 1);
+  $requests = array(
+    array(
+      'method' => 'POST',
+      'api' => $api,
+      'data' => array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'entity_sync',
+        'query' => $query,
+        'data' => $data,
+      ),
+    )
+  );
+  _elmsln_api_authority_request($requests, $nonblocking, array('cis'));
+  // ship these requests across the network
+  $requests = array(
+    array(
+      'elmsln_module' => 'elmsln_api',
+      'elmsln_callback' => 'entity_sync',
+      'query' => $query,
+      'data' => $data,
+    )
+  );
+  _elmsln_api_network_request($requests, $api, $nonblocking);
+}
+
+/**
  * Issue a call against a course network
  * @param  array $requests an array of requests
  * @see  _elmsln_api_request()

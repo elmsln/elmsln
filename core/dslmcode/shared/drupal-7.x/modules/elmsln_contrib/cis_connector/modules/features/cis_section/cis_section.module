@@ -82,11 +82,32 @@ function cis_section_cron() {
 function cis_section_entity_presave($entity, $type) {
   // our default handler for LTI section saves is anonymous
   // this way we don't need to give users permission to build these
-  if ($type == 'node' && $entity->type == 'section' && $entity->uid == 0) {
+  if ($type == 'node' && $entity->type == 'section') {
     // force this to be user 1's node, we don't want annonymous anything
     // as this can create confusion with access control modules and ownership
     // of content later on in the life cycle
-    $entity->uid = 1;
+    if ($entity->uid == 0) {
+      $entity->uid = 1;
+    }
+    // when CIS calls us we don't know the nid but we do know the UUID
+    // see if this is valid and if it is convert to it based on field match
+    if (module_exists('cis_course_authority') && uuid_is_valid($entity->field_section_course_ref['und'][0]['target_id'])) {
+      $query = new EntityFieldQuery;
+      $query->entityCondition('entity_type', 'node');
+      $query->entityCondition('bundle', 'cis_course');
+      $query->propertyCondition('status', 1);
+      $query->fieldCondition('field_cis_course_uuid', 'value', $entity->field_section_course_ref['und'][0]['target_id'], '=');
+      $result = $query->execute();
+      // ensure this produces results to avoid null queries
+      if (!empty($result['node'])) {
+        $nids = array_keys($result['node']);
+        $nid = array_pop($nids);
+        $entity->field_section_course_ref['und'][0]['target_id'] = $nid;
+      }
+      else {
+        unset($entity->field_section_course_ref);
+      }
+    }
   }
   // optional ability to email someone standard language
   // this happens if its a user, and we forced roster sync

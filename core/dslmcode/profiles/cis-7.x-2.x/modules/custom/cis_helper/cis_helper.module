@@ -286,19 +286,6 @@ function cis_helper_menu() {
     'menu_name' => 'menu-elmsln-add',
     'weight' => -9,
   );
-  // quick setup form for planning lots of sections at once
-  $items['cis/offerings/planning'] = array(
-    'title' => 'Planning',
-    'weight' => 0,
-    'description' => 'Plan what courses are going to be offered in the future',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('cis_helper_offering_planning_page'),
-    'access arguments' => array('access cis setup form'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'cis_helper.pages.inc',
-    'file path' => $path,
-    'menu_name' => 'menu-elmsln-settings',
-  );
   // quick setup form from a string, useful with LTI prepopulation
   $items['cis-quick-setup-access-id'] = array(
     'title' => 'Setup semester access',
@@ -426,8 +413,17 @@ function cis_helper_entity_presave($entity, $type) {
  * Implements hook_entity_insert().
  */
 function cis_helper_entity_insert($entity, $type) {
-  // run the same code as entity_update as that fires for sections
-  cis_helper_entity_update($entity, $type);
+  // act on nodes
+  if ($type == 'node' && $entity->type == 'course') {
+    // ensure that course name is changed globally if updated anywhere
+    $properties = array(
+      'title' => $entity->title,
+      'slogan' => $entity->field_course_title['und'][0]['value'],
+      'machine_name' => $entity->field_machine_name[LANGUAGE_NONE][0]['value'],
+      'uuid' => $entity->uuid,
+    );
+    _elmsln_api_course_sync($properties, '1', TRUE);
+  }
   // check to see if a service_instance is being inserted
   if ($type == 'node' && $entity->type == 'service_instance') {
     // set the entity reference field to course
@@ -456,19 +452,11 @@ function cis_helper_entity_update($entity, $type) {
   if ($type == 'node' && $entity->type == 'course') {
     // ensure that course name is changed globally if updated anywhere
     $properties = array();
-    if (isset($entity->is_new) && $entity->is_new) {
+    if (isset($entity->original) && $entity->original->title != $entity->title) {
       $properties['title'] = $entity->title;
-      $properties['slogan'] = $entity->field_course_title['und'][0]['value'];
-      $properties['machine_name'] = $entity->field_machine_name[LANGUAGE_NONE][0]['value'];
-      $properties['uuid'] = $entity->uuid;
     }
-    else {
-      if (isset($entity->original) && $entity->original->title != $entity->title) {
-        $properties['title'] = $entity->title;
-      }
-      if (isset($entity->original) && $entity->original->field_course_title['und'][0]['value'] != $entity->field_course_title['und'][0]['value']) {
-        $properties['slogan'] = $entity->field_course_title['und'][0]['value'];
-      }
+    if (isset($entity->original) && $entity->original->field_course_title['und'][0]['value'] != $entity->field_course_title['und'][0]['value']) {
+      $properties['slogan'] = $entity->field_course_title['und'][0]['value'];
     }
     // if anything changed let's ship this off everywhere
     if (!empty($properties)) {
@@ -1049,6 +1037,26 @@ function _cis_helper_restws_deep_load(&$response) {
       }
     }
   }
+}
+
+/**
+ * Evaluate if a section field collection item is active
+ * based on the date that it's asked about.
+ * @param  [type] $section [description]
+ * @return [type]          [description]
+ */
+function _cis_helper_section_is_active($section) {
+  // ensure there are dates in order to tell status
+  if (isset($section->field_access_dates)) {
+    $section_dates = $section->field_access_dates['und'][0];
+    $class_begin = $section->field_access_dates['und'][0]['value'];
+    // return access start and end timestamps
+    $dates = array('start' => $dates['value'], 'class_begin' => $class_begin, 'end' => $dates['value2']);
+    if ($dates['start'] < REQUEST_TIME && $dates['end'] > REQUEST_TIME) {
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 /**
