@@ -110,10 +110,9 @@ function cis_course_authority_node_presave($node) {
 function cis_course_authority_node_insert($node) {
   // stupid but we have to create the association in two steps
   if ($node->type == 'cis_course' && module_exists('cis_section')) {
-    $local_section = _cis_connector_assemble_entity_list('node', 'section', 'nid', 'nid', array('field_section_id' => array('value', 'master_' . $node->field_course_machine_name[LANGUAGE_NONE][0]['value'])), array(), array(), FALSE);
-    if (isset($local_section['node'])) {
-      $nid = array_pop($local_section['node']);
-      $section = node_load($nid);
+    // ensure that the section reference is set in reverse
+    foreach ($node->field_course_sections_ref['und'] as $s) {
+      $section = node_load($s['target_id']);
       $section->field_section_course_ref['und'][0]['target_id'] = $node->nid;
       node_save($section);
     }
@@ -125,7 +124,7 @@ function cis_course_authority_node_insert($node) {
  */
 function cis_course_authority_node_update($node) {
   // see if title has changed, if so let's mirror this
-  if ($node->original->title != $node->title) {
+  if ($node->type == 'cis_course' && isset($node->original) && $node->original->title != $node->title) {
     // reflect this change everywhere
     $properties = array(
       'title' => $node->title,
