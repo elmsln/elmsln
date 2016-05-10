@@ -329,7 +329,7 @@ function cis_service_connection_get_footer_language() {
   // request the standard footer language
   $query = array('type' => 'resource', 'field_machine_name' => 'footer_language');
   $response = _cis_connection_query($query);
-  if ($response) {
+  if ($response && isset($response['list'][0])) {
     // render text applying the input filter requested
     // @ignore coder_tough_love_14
     $text = str_replace('!current', date('Y'), $response['list'][0]['body']['value']);

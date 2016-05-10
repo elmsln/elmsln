@@ -14,6 +14,7 @@ define ('CIS_CONNECTOR_ENTITY_REMOTE_ONLY', 1);
 define ('CIS_CONNECTOR_DRUSH_TASK_RUNNER_PATH', '/var/www/elmsln/config/jobs/drush-command-job/');
 define ('ELMSLN_CFG_PATH', '/var/www/elmsln/config/scripts/drush-create-site/config.cfg');
 define ('CIS_NO_SECTION', FALSE);
+define ('CIS_SECTION_MASTER', 'master');
 
 /**
  * Implements hook_restws_meta_controls_alter().
@@ -547,6 +548,23 @@ function _cis_connector_section_context($account = NULL) {
 }
 
 /**
+ * Return if a section is the master or not.
+ * @param  string $section_id  section identifier
+ * @return bool                if this section is a master section or not
+ */
+function _cis_connector_is_master($section_id = NULL) {
+  // if we didn't get an id passed in, use section context
+  if (is_null($section_id)) {
+    $section_id = _cis_connector_section_context();
+  }
+  // check for a master section as they all prefix the same way
+  if (strpos($section_id, CIS_SECTION_MASTER) === 0) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
  * Modify the properties used to calculate the authcache key.
  *
  * @see authcache_key_properties()
@@ -587,7 +605,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
     $section = _cis_connector_section_context();
   }
   // account for FAKE master sections that have been auto generated
-  if (_cis_section_is_master($section)) {
+  if (_cis_connector_is_master($section)) {
     if ($request != 'other_services') {
       // return an empty array. this is what happened when there is a query for
       // a section that doesn't exist. this avoids it throwing an error
@@ -623,7 +641,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // check for section context existing; if it doesn't then
       // we know we are in an authority system and need to make a more complex
       // request for the systems in use by ANY section of this course
-      if (_cis_section_is_master($section) || in_array($section, array('default', NULL, FALSE)) !== FALSE) {
+      if (_cis_connector_is_master($section) || in_array($section, array('default', NULL, FALSE)) !== FALSE) {
         $query = array(
           'status' => 1,
           'field_machine_name' => _cis_connector_course_context(),

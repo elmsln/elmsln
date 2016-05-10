@@ -6,7 +6,6 @@
 
 define('CIS_SECTION_STUDENT', 'student');
 define('CIS_SECTION_PAST_STUDENT', 'past student');
-define('CIS_SECTION_MASTER', 'master');
 
 include_once 'cis_section.features.inc';
 
@@ -526,23 +525,6 @@ function cis_section_form_cis_service_connection_ux_form_alter(&$form, &$form_st
     '#options' => $options,
     '#required' => '1',
   );
-}
-
-/**
- * Return if a section is the master or not.
- * @param  string $section_id  section identifier
- * @return bool                if this section is a master section or not
- */
-function _cis_section_is_master($section_id = NULL) {
-  // if we didn't get an id passed in, use section context
-  if (is_null($section_id)) {
-    $section_id = _cis_connector_section_context();
-  }
-  // check for a master section as they all prefix the same way
-  if (strpos($section_id, CIS_SECTION_MASTER) === 0) {
-    return TRUE;
-  }
-  return FALSE;
 }
 
 /**
