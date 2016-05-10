@@ -29,9 +29,9 @@ commands=('' 'drush sa' 'bash' 'bash' 'drush @elmsln sql-dump --result-file --y'
 # allow for dropping into developer mode if a flag isset
 if [[ ! -z $1 && $1 == 'dev' ]]; then
   elmslnecho 'DEVELOPER MODE'
-  items+=('Create new tool')
-  locations+=('developer/create-new-tool.sh')
-  commands+=('bash')
+  items+=('Create new tool' 'Pull a system over top of this one')
+  locations+=('developer/create-new-tool.sh' 'utilities/migration/pull-down.sh')
+  commands+=('bash' 'sudo bash')
 fi
 
 # render the menu options
