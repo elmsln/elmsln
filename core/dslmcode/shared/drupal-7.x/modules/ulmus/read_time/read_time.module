@@ -4,6 +4,8 @@
  * Displays the time it will take to read content on your site.
  */
 
+define('READ_TIME_WPM', 275);
+
 /**
  * Implements hook_form_FORM_ID_alter() for node_type_form.
  */
@@ -107,6 +109,17 @@ function read_time_node_update($node) {
       'read_time' => $read_time,
     ))
     ->execute();
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function read_time_node_load($nodes, $types) {
+  // add read time to the node object itself so we can reference
+  // the data elsewhere without constantly calling for it
+  foreach ($nodes as $node) {
+    $node->read_time = read_time_calculate($node);
+  }
 }
 
 /**
@@ -221,11 +234,17 @@ function read_time_calculate($node) {
  * Store default settings.
  */
 function read_time_defaults() {
-  return array(
-    'fields' => array('body'),
-    'wpm' => '225',
-    'format' => 'hour_short',
-    'display' => t('Read time: %read_time'),
-  );
+  // statically cache future calls
+  $defaults = &drupal_static(__FUNCTION__);
+  if (!isset($defaults)) {
+    $defaults = array(
+      'fields' => array('body'),
+      'wpm' => READ_TIME_WPM,
+      'format' => 'hour_short',
+      'display' => t('Read time: %read_time'),
+    );
+    drupal_alter('read_time_defaults', $defaults);
+  }
+  return $defaults;
 }
 
