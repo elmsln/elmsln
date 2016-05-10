@@ -119,10 +119,16 @@ dependencies[] = elmsln_authcache
 dependencies[] = elmsln_advagg
 
 ; ----------
+; Service Dependencies
+; ----------
+dependencies[] = og
+dependencies[] = og_ui
+dependencies[] = cis_section
+
+; ----------
 ; Authority Dependencies
 ; ----------
 dependencies[] = cis_course_authority
-
 
 ; ----------
 ; ELMSMedia Dependencies
