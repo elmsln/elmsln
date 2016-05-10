@@ -423,6 +423,15 @@ function _cis_connector_course_context() {
         $course = $node->field_machine_name['und'][0]['value'];
         return $course;
       }
+      // see if we are on a section
+      elseif ($node->type == 'section' && isset($node->field_section_course_ref['und'][0]['entity'])) {
+        $node = $node->field_section_course_ref['und'][0]['entity'];
+        // we are in an authority system
+        if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+          $course = $node->field_course_machine_name['und'][0]['value'];
+          return $course;
+        }
+      }
       // see if we are on something that references a course
       // if it does, run the previous test again
       elseif (isset($node->field_cis_course_ref['und'][0]['entity'])) {
@@ -430,11 +439,6 @@ function _cis_connector_course_context() {
         // we are in an authority system
         if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
           $course = $node->field_course_machine_name['und'][0]['value'];
-          return $course;
-        }
-        // we are in CIS
-        elseif ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
-          $course = $node->field_machine_name['und'][0]['value'];
           return $course;
         }
       }
