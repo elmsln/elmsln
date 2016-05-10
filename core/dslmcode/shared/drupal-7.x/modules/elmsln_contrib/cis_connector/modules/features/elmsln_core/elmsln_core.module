@@ -141,7 +141,7 @@ function elmsln_core_url_outbound_alter(&$path, &$options, $original_path) {
     if (strpos($original_path, $current_domain['domain'])) {
       $outgoing_domain = _cis_connector_url_get_properties($original_path);
       // verify that the link is going to a separate subdomain
-      if ($current_domain['subdomain'] != $outgoing_domain['subdomain']) {
+      if ($current_domain['subdomain'] != 'online' && $current_domain['subdomain'] != $outgoing_domain['subdomain']) {
         // keep section context
         $current_section = _cis_connector_section_context();
         if (isset($current_section) && $current_section) {
