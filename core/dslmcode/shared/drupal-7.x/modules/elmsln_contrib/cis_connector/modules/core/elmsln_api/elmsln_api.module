@@ -718,7 +718,7 @@ function _elmsln_api_section_sync($properties, $api = '1', $nonblocking = TRUE) 
       ),
     )
   );
-  _elmsln_api_authority_request($requests, $nonblocking, array('cis'));
+  _elmsln_api_authority_request($requests, $nonblocking, array('cis', 'ecd'));
   // ship these requests across the network
   $requests = array(
     array(
