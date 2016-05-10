@@ -301,14 +301,24 @@ if [ -f  $hooksdir/post-install.sh ]; then
   # invoke this hook cause we found a file matching the name we need
   bash $hooksdir/post-install.sh
 fi
+
+# set concurrency to help speed up install
+concurrent=2
 # make sure user password is admin as a fallback
-drush @elmsln upwd admin --password=admin --y
+elmslnecho "Set admin account everywhere"
+drush @elmsln upwd admin --password=admin --concurrency=${concurrent} --strict=0 --v --y
 # enable bakery everywhere by default
-drush @elmsln en elmsln_bakery --y
+elmslnecho "Enable bakery for unified logins"
+drush @elmsln en elmsln_bakery --concurrency=${concurrent} --strict=0 --v --y
 # run all the existing crons so that they hit the CIS data and get sing100 for example
-drush @elmsln cron --y
-# clear caches on all sites this seems to make bakery happy
-drush @elmsln cc all --y
+elmslnecho "Run Cron to do some clean up"
+drush @elmsln cron --concurrency=${concurrent} --strict=0 --v --y
+# node access rebuild which will also clear caches
+elmslnecho "Rebuild node access permissions"
+drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --v --y
+# seed entity caches
+elmslnecho "Seed some initial caches on all sites"
+drush @elmsln ecl --concurrency=${concurrent} --strict=0 --v --y
 
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
