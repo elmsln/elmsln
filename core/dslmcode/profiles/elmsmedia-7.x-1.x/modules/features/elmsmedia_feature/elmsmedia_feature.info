@@ -38,5 +38,4 @@ features[image][] = image_lightboxed
 features[image][] = mediavideo_poster
 features[taxonomy][] = elmsmedia_tag
 features[views_view][] = elms_media_overview
-features_exclude[taxonomy][elmsmedia_course] = elmsmedia_course
 project path = sites/all/modules/custom
