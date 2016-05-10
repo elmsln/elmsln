@@ -69,7 +69,9 @@ do
   # run stack specific upgrades if they exist
   drush @${stack}-all drup d7_elmsln_${stack} ${elmsln}/scripts/upgrade/drush_recipes/d7/${stack} --replay-from=${replay} --concurrency=${concurrent} --strict=0 --v --y
 done
-
+# We just did a ton of stuff, let's make sure permissions are rebuilt to be safe
+elmslnecho "Rebuilding node permissions"
+drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --v --y
 # trigger crons to run now that these sites are all back and happy
 elmslnecho "Run crons as clean up"
 drush @elmsln cron --concurrency=${concurrent} --strict=0 --v --y
