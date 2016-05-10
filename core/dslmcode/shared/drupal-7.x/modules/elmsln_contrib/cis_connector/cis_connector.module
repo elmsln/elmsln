@@ -587,7 +587,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
     $section = _cis_connector_section_context();
   }
   // account for FAKE master sections that have been auto generated
-  if ($section == 'master') {
+  if (_cis_section_is_master($section)) {
     if ($request != 'other_services') {
       // return an empty array. this is what happened when there is a query for
       // a section that doesn't exist. this avoids it throwing an error
@@ -623,7 +623,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // check for section context existing; if it doesn't then
       // we know we are in an authority system and need to make a more complex
       // request for the systems in use by ANY section of this course
-      if ($section == 'master' || in_array($section, array('default', NULL, FALSE)) !== FALSE) {
+      if (_cis_section_is_master($section) || in_array($section, array('default', NULL, FALSE)) !== FALSE) {
         $query = array(
           'status' => 1,
           'field_machine_name' => _cis_connector_course_context(),

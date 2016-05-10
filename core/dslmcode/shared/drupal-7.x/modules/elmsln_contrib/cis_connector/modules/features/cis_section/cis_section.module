@@ -567,6 +567,8 @@ function cis_section_user_insert(&$edit, $account, $category) {
     // that are sections
     ->entityCondition('bundle', 'section')
     // where it looks like master
+    // @todo we need to account for inserts of users again authority systems
+    // while still putting them in the roster correctly
     ->fieldCondition('field_section_id', 'value', CIS_SECTION_MASTER)
     // load all possible results in system, should only be 1 though
     ->addMetaData('account', user_load(1));
