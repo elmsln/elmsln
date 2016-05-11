@@ -4,3 +4,4 @@ core = 7.x
 package = CPR
 dependencies[] = elmsln_api
 dependencies[] = cis_connector
+dependencies[] = cis_section
