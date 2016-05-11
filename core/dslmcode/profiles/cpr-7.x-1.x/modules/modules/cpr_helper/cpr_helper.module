@@ -7,12 +7,12 @@
 
 /**
  * Implements hook_cron().
+ * @todo  make this return the list so we can ship it around to everything
+ * Section needs ot be able to sync on its own so we'll need to be able
+ * to pass in course context by default / if on an authority then
+ * we need to sync it all up
  */
 function cpr_helper_cron() {
-  // load up courses as we'll have all of them locally
-  $courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_course_machine_name', 'nid');
-  // loop through each course and query to sync the section rosters
-  foreach ($courses as $machine_name => $nid) {
-    _cis_section_sync_roster($machine_name, $nid);
-  }
+  // run the sync
+  _cis_section_sync_roster();
 }

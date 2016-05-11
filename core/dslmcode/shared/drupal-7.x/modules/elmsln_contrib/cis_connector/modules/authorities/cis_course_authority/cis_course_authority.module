@@ -11,14 +11,20 @@ include_once 'cis_course_authority.features.inc';
  */
 function cis_course_authority_cron() {
   // sync with the CIS to ensure our local course nodes mirror the remote
-  _cis_course_authority_cis_sync();
+  _cis_course_authority_sync_cis_course();
+  // load up courses as we'll have all of them locally
+  $courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_course_machine_name', 'nid');
+  // loop through each course and query to sync the section rosters
+  foreach ($courses as $machine_name => $nid) {
+    _cis_section_sync_cis_sections($machine_name, $nid);
+  }
 }
 
 /**
  * Sync course data with that found in CIS.
  * @param  boolean $cached if we should use cached results from CIS or fresh
  */
-function _cis_course_authority_cis_sync($cached = FALSE) {
+function _cis_course_authority_sync_cis_course($cached = FALSE) {
   // call home for a list of courses
   $remote_courses = _cis_connection_service_instance_query('cis', 'node', array('type' => 'course'), $cached);
   $local_courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_cis_course_uuid', 'nid');

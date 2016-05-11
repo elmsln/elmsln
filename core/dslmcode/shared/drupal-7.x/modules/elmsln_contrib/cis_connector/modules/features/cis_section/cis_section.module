@@ -72,7 +72,7 @@ function _cis_section_og_context_handler() {
 function cis_section_cron() {
   // don't sync
   if (!module_exists('cis_course_authority')) {
-    _cis_section_sync_roster();
+    _cis_section_sync_cis_sections();
   }
 }
 
@@ -595,7 +595,7 @@ function cis_section_user_insert(&$edit, $account, $category) {
 /**
  * Callback to sync this system with the CIS roster / sections
  */
-function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
+function _cis_section_sync_cis_sections($machine_name = NULL, $course_nid = NULL) {
   // support for syncing specific course rosters
   if ($machine_name == NULL) {
     $machine_name = _cis_connector_course_context();
@@ -719,6 +719,13 @@ function _cis_section_sync_roster($machine_name = NULL, $course_nid = NULL) {
       }
     }
   }
+}
+
+
+/**
+ * Callback to sync the roster by assembling all sections and creating accounts.
+ */
+function _cis_section_sync_roster() {
   // test for if we should sync w/ our roster provider
   $frequency = variable_get('cis_service_connection_sync_frequency', CIS_SERVICE_CONNECTION_SYNC_FREQUENCY);
   $interval = 86400 * $frequency;
