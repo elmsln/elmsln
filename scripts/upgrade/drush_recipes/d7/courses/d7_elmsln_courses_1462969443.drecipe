@@ -1,0 +1,21 @@
+{
+	"name": "ELMSLN Courses upgrade 1462969443",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "vset",
+			"arguments": [
+				"outline_designer_page_icon",
+				"sites/all/modules/local_contrib/outline_designer/images/page.png"
+			]
+		}
+	],
+	"metadata": {
+		"type": "upgrade",
+		"version": "1462969443",
+		"author": "elmsln",
+		"description": "Fix outline designer page icon location change"
+	}
+}
