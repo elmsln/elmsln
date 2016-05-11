@@ -1,4 +1,94 @@
+ELMSLN 0.3.0, 2016-05-11 - OV
+------------------------
+This sees lots of documentation, bug, accessibility, performance and usability enhancements as well as improved functionality in all tools in the network. Notably Piwik, CIS 1.x and all legacy theme components have been removed (lots of cruft).
+- ELMSLN tool Builder #26
+- .ferpa-protect class for hiding protected work and properties in plain sight #286
+- CIS Section Authority #298
+- look into http://www.jsdelivr.com/ #329
+- Refactor "elmsmedia_feature" #353
+- Accessibility: high contrast mode #360
+- Mode to help people w/ dyslexia #412
+- LocalStorage bin across domain #413
+- expand community list on elmsln.org #423
+- Add keyboard shortcuts for navigating the course content outline #431
+- Document shortcodes #503
+- elmsln api call for updating a course name network wide #527
+- stomp out admin theme mode for non-admin users #552
+- on new course creation need to use elmsln api to spider authorities #553
+- localstorage bin for rememberng input in fields #598
+- Add unison plugin to vagrant documentation #602
+- Difficult to get from "Media" to "Course" #658
+- app.css change for "warnings" #702
+- H5P/Learning Locker Bridge #705
+- Submit patch related to fix in #687 back to lti_tool_provider #734
+- add section syncing to authorities #744
+- Play with Features Builder #749
+- Remove piwik references from example config #750
+- git book patch #752
+- Authority data model #755
+- Core 0.0.5 to 0.2 update - CIS 1.x homepage view/letter tabs #756
+- Core 0.0.5 to 0.2 update - saving course settings #757
+- Core 0.0.5 to 0.2 update - editing links in network list #758
+- Core 0.0.5 to 0.2 update - search and replace #759
+- Core 0.0.5 to 0.2 update - edit/share/more icons #760
+- support drush concurrency in elmsln-upgrade-sites #762
+- Images for Applying-shortcodes #765
+- Adding Students to Offerings/Classes #766
+- hovering token replacements show for non-admins #774
+- test and enable a11y module #775
+- FERPA Privacy mode not totally working in critique pages #776
+- A11y simulation mode #781
+- Guidelines For Reverse Committing #787
+- Users other than admin unable to login #789
+- Document drush usage in elmsln #790
+- Compliance on assets #794
+- Media: views for different roles #795
+- Course List Sync from CIS to authorities #799
+- A11y suggestions #800
+- apply patch to httprl spider #804
+- original domain #809
+- Switch Sections Option Isn't Appearing #811
+- Breadcrumb showing in iframe #813
+- Redirect loop in mooc/book-homepage callback #814
+- Fatal error when adding H5P nodes #815
+- investigate studio / comply build issues #817
+- Support user role in _cis_connector_assemble_entity_list #821
+- Create OG permissions / roles structure #824
+- Auto refresh drush plugins for all user accounts we control on version upgrade #825
+- Flexibility in vagrant script #831
+- Make authority spider elmsln_api command #833
+- Enable collapse.js available everywhere #834
+- masquerade block rewriting needs to check for sections #841
+- CIS 1.x - The farewell tour #843
+- Look into ghostinspector #844
+- Try out the mapfield innovation #845
+- leafy should have shortcuts for restarting apache / mysql / php-fpm #852
+- Authority section / course sync clean up #853
+- notice message link text is same as message #854
+- Fix blink of admin_menu on every page #855
+- static cache course context #859
+- Document course data model across the network #860
+- make network'ed entity sync function #861
+- Add variable to service instances that has UUID of course #862
+- Both prevent and support recursive network calls #863
+- upgrade.php notices #864
+- Learn how to spell in elmsln_core.install #865
+- imagine other calls as snake recursion #867
+- More refined snake example #869
+- clean up CIS forms #875
+- Document distributed course data model #877
+- CIS making new courses won't set machine name #879
+- elmsmedia url alias default is off #880
+- interact support sections #881
+- Rebuild permissions on upgrades #882
+- add pull-down.sh to developer mode in leafy #883
+- pin prick caches on service creation #887
+- account for compliance not having section connotation #888
+- outline designer page icon breaks #889
+
+
 ELMSLN 0.2.1, 2016-03-17 - leprechaun
+------------------------
 This fixed a critical upgrade path issue that would cause sites to be out of sync with how we intend them to be at a base level. Things like base-line permissions, menu links, and many other issues resolved in 0.2.0 would not be reflected (potentially) for those using ELMSLN before major versions.
 Breaking changes (though should only affect patient 0, aka btopro):
 - remove all but core themes #706
