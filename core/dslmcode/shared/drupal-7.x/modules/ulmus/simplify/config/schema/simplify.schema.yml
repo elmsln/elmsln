@@ -1,0 +1,87 @@
+simplify.global:
+  type: config_object
+  label: 'Global Configurations for Simplify module.'
+  mapping:
+    simplify_admin:
+      type: boolean
+      label: ''
+    simplify_nodes_global:
+      type: sequence
+      label: 'Nodes settings'
+      sequence:
+        type: string
+        label: 'Node setting'
+    simplify_users_global:
+      type: sequence
+      label: 'Users settings'
+      sequence:
+        type: string
+        label: 'User setting'
+    simplify_comments_global:
+      type: sequence
+      label: 'Comments settings'
+      sequence:
+        type: string
+        label: 'Comment setting'
+    simplify_taxonomies_global:
+      type: sequence
+      label: 'Taxonomies settings'
+      sequence:
+        type: string
+        label: 'Taxonomy setting'
+    simplify_blocks_global:
+      type: sequence
+      label: 'Blocks settings'
+      sequence:
+        type: string
+        label: 'Block setting'
+    simplify_profiles_global:
+      type: sequence
+      label: 'Profiles settings'
+      sequence:
+        type: string
+        label: 'Profile setting'
+
+simplify.content_type.*:
+  type: config_object
+  label: 'Per content-type configurations for Simplify module.'
+  mapping:
+    simplify_nodes:
+        type: sequence
+        label: 'Nodes settings'
+        sequence:
+          type: string
+          label: 'Node setting'
+
+simplify.vocabulary.*:
+  type: config_object
+  label: 'Per vocabulary configurations for Simplify module.'
+  mapping:
+    simplify_taxonomies:
+        type: sequence
+        label: 'Nodes settings'
+        sequence:
+          type: string
+          label: 'Node setting'
+
+simplify.comment_type.*:
+  type: config_object
+  label: 'Per comment-type configurations for Simplify module.'
+  mapping:
+    simplify_comments:
+        type: sequence
+        label: 'Comments settings'
+        sequence:
+          type: string
+          label: 'Comment setting'
+          
+simplify.block_type.*:
+  type: config_object
+  label: 'Per block-type configurations for Simplify module.'
+  mapping:
+    simplify_blocks:
+        type: sequence
+        label: 'Blocks settings'
+        sequence:
+          type: string
+          label: 'Block setting'
