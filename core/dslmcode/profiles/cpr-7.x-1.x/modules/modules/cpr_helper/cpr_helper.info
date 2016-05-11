@@ -1,0 +1,6 @@
+name = CPR Helper
+description = Helper functions for the central person registry
+core = 7.x
+package = CPR
+dependencies[] = elmsln_api
+dependencies[] = cis_connector
