@@ -50,7 +50,7 @@ echo $(timestamp) > ${elmsln}/config/REPLAY.txt
 elmslnecho "Rebuilding registies and caches for all systems"
 # set concurrency so these scripts can run in parallel execution
 concurrent=2
-drush @elmsln rr -concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln rr --concurrency=${concurrent} --strict=0 --v --y
 # run the safe upgrade of projects by taking the site offline then back on
 elmslnecho "Running update hooks"
 # run database updates
