@@ -147,7 +147,9 @@ function replicate_ui_confirm_submit($form, &$form_state) {
     else {
       // load entity for replicate
       $id = replicate_entity_by_id($entity_type, $entity_id);
-      $path = $entity_type . '/' . $id;
+      $entities = entity_load($entity_type, array($id));
+      $entity_uri = entity_uri($entity_type, $entities[$id]);
+      $path = $entity_uri['path'];
     }
     if ($id) {
       // Add replica id/type to form state.
