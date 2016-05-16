@@ -3,16 +3,3 @@
  * @file
  * Code for CPR helper.
  */
-
-
-/**
- * Implements hook_cron().
- * @todo  make this return the list so we can ship it around to everything
- * Section needs ot be able to sync on its own so we'll need to be able
- * to pass in course context by default / if on an authority then
- * we need to sync it all up
- */
-function cpr_helper_cron() {
-  // run the sync
-  _cis_section_sync_roster();
-}
