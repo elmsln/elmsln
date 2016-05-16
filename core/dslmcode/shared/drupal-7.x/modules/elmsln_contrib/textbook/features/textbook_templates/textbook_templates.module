@@ -8,17 +8,25 @@
  * Implements hook_wysiwyg_templates_load_alter().
  */
 function textbook_templates_wysiwyg_templates_load_alter(&$templates) {
+  // This is the array we need to add stuff to...
   $textbook = array(
+    'grid_of_video',
     'buttons',
-    'clean_table',
-    'lorem_ipsum',
-    'magellan_navigation',
-    'pricing_table',
+    'case_study',
+    'callout_panel',
+    'regular_panel',
+    'two_column_list_image',
+    'two_column_list_video',
+    'topic_reading',
     'quote',
+    'flex_video',
+    'lorem_ipsum',
+    'clean_table',
     'table_of_terms',
     'table_style_1',
     'table_style_2',
-    'topic_reading',
+    'pricing_table',
+    'magellan_navigation'
   );
   foreach ($templates as $key => $template) {
     // see if the template matches one in the textbook definition
