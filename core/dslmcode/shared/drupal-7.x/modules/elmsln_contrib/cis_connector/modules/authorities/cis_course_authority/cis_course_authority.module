@@ -73,3 +73,60 @@ function cis_course_authority_elmsln_api_info() {
 
   return $callbacks;
 }
+
+/**
+ * Sync course data with that found in CIS.
+ * @param  boolean $cached if we should use cached results from CIS or fresh
+ */
+function _cis_course_authority_sync_cis_course($cached = FALSE) {
+  // call home for a list of courses
+  $remote_courses = _cis_connection_service_instance_query('cis', 'node', array('type' => 'course'), $cached);
+  $local_courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_cis_course_uuid', 'nid');
+  // loop through the remote courses we pulled if we got any
+  if (!empty($remote_courses)) {
+    foreach ($remote_courses as $remote_course) {
+      $change = FALSE;
+      // if the uuid matches the remote, we know we have to update something
+      if (isset($local_courses[$remote_course['uuid']])) {
+        $new = FALSE;
+        // load the local course which had the remote uuid match
+        $course = node_load($local_courses[$remote_course['uuid']]);
+        // ensure title changed
+        if ($course->title != $remote_course['title']) {
+          $change = TRUE;
+          $course->title = $remote_course['title'];
+        }
+        // ensure machine name changed
+        if ($course->field_course_machine_name[LANGUAGE_NONE][0]['value'] != $remote_course['field_machine_name']) {
+          $change = TRUE;
+          $course->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $remote_course['field_machine_name'];
+        }
+        // make sure we aren't saving, constantly
+        if ($change) {
+          node_save($course);
+        }
+      }
+      else {
+        $new = TRUE;
+        // create this locally
+        $course = new stdClass();
+        $course->type = 'cis_course';
+        $course->title = $remote_course['title'];
+        // machine name to match remote so we know how to build the links
+        $course->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $remote_course['field_machine_name'];
+        // set the local uuid linked field value to that we get from the remote
+        $course->field_cis_course_uuid[LANGUAGE_NONE][0]['value'] = $remote_course['uuid'];
+        $course->language = LANGUAGE_NONE;
+        $course->is_new = TRUE;
+        node_object_prepare($course);
+        // build out via submit then save
+        if($course = node_submit($course)) {
+          // force these to be saved by user 1 just so they have some user affiliation
+          $course->uid = 1;
+          node_save($course);
+        }
+      }
+    }
+  }
+}
+
