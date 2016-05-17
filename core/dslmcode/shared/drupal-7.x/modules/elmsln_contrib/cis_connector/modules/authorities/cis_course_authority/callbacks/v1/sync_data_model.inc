@@ -6,7 +6,12 @@
 function cis_course_authority_elmsln_api_callback_sync_data_model() {
   global $_elmsln;
   // make sure we have a roster
-  if (isset($_elmsln['args']['roster']) && isset($_elmsln['args']['__course_context'])) {
+  if (
+      isset($_elmsln['args']['__course_context']) &&
+      isset($_elmsln['args']['roster']) &&
+      isset($_elmsln['args']['courses']) &&
+      isset($_elmsln['args']['sections'])
+    ) {
     $course = $_elmsln['args']['__course_context'];
     $roster = $_elmsln['args']['roster'];
     $courses = $_elmsln['args']['courses'];
@@ -71,7 +76,11 @@ function cis_course_authority_elmsln_api_callback_sync_data_model() {
     _cis_section_create_accounts($roster);
     return array(
       'sync_data_model' => TRUE,
-      'message' => "Course service synced successfully",
+      'message' => "Course authority synced successfully",
     );
   }
+  return array(
+    'sync_data_model' => FALSE,
+    'message' => "Course authority sync failed",
+  );
 }

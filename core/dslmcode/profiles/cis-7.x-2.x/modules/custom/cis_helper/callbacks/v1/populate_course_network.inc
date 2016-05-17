@@ -10,6 +10,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
   if (isset($_elmsln['args']['course'])) {
 
   }
+  // see if this is a queue based job to process
   elseif (isset($_elmsln['args']['queue'])) {
     // weird, but we'll call ourselves again in the background if
     // we had an item in the queue
@@ -22,7 +23,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $courses[$course->field_machine_name[LANGUAGE_NONE][0]['value']] = array(
       'title' => $course->title,
       'machine_name' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
-      'uuid' => $course->uuid
+      'uuid' => $course->uuid,
     );
     // pull together sections for this course
     $sections = _cis_helper_course_access_strings($course);
@@ -47,7 +48,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
         ),
       )
     );
-    _elmsln_api_authority_request($requests, TRUE, array('cis', 'ecd'));
+    _elmsln_api_authority_request($requests, TRUE, array('cis'), TRUE);
     // queue of the same call against the course service network
     $requests = array(
       array(
@@ -59,7 +60,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
         'sections' => $active,
       )
     );
-    _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/');
+    _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/', TRUE);
     // ensure we have stuff in the queue before trying this
     if ($queue->numberOfItems() > 0) {
       // now kick off a call to do roster syncing that kicks the next item off the queue
