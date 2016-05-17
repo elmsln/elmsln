@@ -136,10 +136,13 @@ function _cis_helper_course_access_strings($course) {
  * Assemble a roster based on a list of sections
  * keyed as section_id => field_collection_item
  */
-function _cis_helper_assemble_roster($sections) {
+function _cis_helper_assemble_roster(&$sections) {
   // build roster based on an array of sections
   $roster = array();
-  foreach ($sections as $section_id => $section) {
+  foreach ($sections as $section_id => &$section) {
+    // mark all sections active, last case of date after course runs is
+    // the only case that can deactivate a section
+    $section->active = 1;
     // ensure we only sync things that should be sycned
     // this helps elminate purely developmental section spaces like masters
     // as well as sections primed for setup but not active
@@ -168,6 +171,10 @@ function _cis_helper_assemble_roster($sections) {
           }
         }
         $roster[$section_id] = $tmproster;
+      }
+      // section has ended, deactivate it downstream
+      elseif ($dates['end'] < REQUEST_TIME) {
+        $section->active = 0;
       }
     }
     else {
