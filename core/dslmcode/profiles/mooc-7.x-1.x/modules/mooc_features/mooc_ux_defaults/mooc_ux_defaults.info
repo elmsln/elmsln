@@ -26,7 +26,6 @@ features[ctools][] = context:context:3
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[menu_custom][] = management
-features[menu_links][] = management_simplify:admin/config/user-interface/simplify
 features[user_permission][] = administer simplify
 features[user_permission][] = view hidden fields
 features[variable][] = book_allowed_types
