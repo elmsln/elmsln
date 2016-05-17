@@ -11,6 +11,7 @@ function mooc_ux_defaults_defaultconfig_features() {
   return array(
     'mooc_ux_defaults' => array(
       'strongarm' => 'strongarm',
+      'user_default_permissions' => 'user_default_permissions',
     ),
   );
 }
@@ -24,116 +25,58 @@ function mooc_ux_defaults_defaultconfig_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_author_options';
-  $strongarm->value = array();
-  $export['jammer_author_options'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_body_options';
-  $strongarm->value = array();
-  $export['jammer_body_options'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_comment_settings';
-  $strongarm->value = array();
-  $export['jammer_comment_settings'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_delete_button_unset_node_types';
-  $strongarm->value = array();
-  $export['jammer_delete_button_unset_node_types'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_menu_options';
-  $strongarm->value = array();
-  $export['jammer_menu_options'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_node_promoted';
-  $strongarm->value = 1;
-  $export['jammer_node_promoted'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_node_sticky';
-  $strongarm->value = 1;
-  $export['jammer_node_sticky'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_path_options';
-  $strongarm->value = array();
-  $export['jammer_path_options'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_preview_button_unset_node_types';
+  $strongarm->name = 'simplify_blocks_global';
   $strongarm->value = array(
-    'mooc_container' => 'mooc_container',
-    'page' => 'page',
-    'section' => 'section',
+    0 => 'format',
   );
-  $export['jammer_preview_button_unset_node_types'] = $strongarm;
+  $export['simplify_blocks_global'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_revision_information';
+  $strongarm->name = 'simplify_nodes_global';
   $strongarm->value = array(
-    'mooc_container' => 'mooc_container',
-    'page' => 'page',
-    'section' => 'section',
+    0 => 'author',
+    1 => 'format',
+    2 => 'revision',
+    3 => 'book',
+    4 => 'menu',
   );
-  $export['jammer_revision_information'] = $strongarm;
+  $export['simplify_nodes_global'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_revision_log_textarea_unset_node_types';
+  $strongarm->name = 'simplify_user1';
+  $strongarm->value = 0;
+  $export['simplify_user1'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'simplify_users_global';
   $strongarm->value = array(
-    'mooc_container' => 'mooc_container',
-    'page' => 'page',
-    'section' => 'section',
+    0 => 'format',
   );
-  $export['jammer_revision_log_textarea_unset_node_types'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_submit_button_unset_node_types';
-  $strongarm->value = array();
-  $export['jammer_submit_button_unset_node_types'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_teaser_controls_unset_node_types';
-  $strongarm->value = array(
-    'mooc_container' => 'mooc_container',
-    'page' => 'page',
-    'section' => 'section',
-  );
-  $export['jammer_teaser_controls_unset_node_types'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_user_delete_hide_button';
-  $strongarm->value = 1;
-  $export['jammer_user_delete_hide_button'] = $strongarm;
+  $export['simplify_users_global'] = $strongarm;
 
   return $export;
+}
+
+/**
+ * Implements hook_defaultconfig_user_default_permissions().
+ */
+function mooc_ux_defaults_defaultconfig_user_default_permissions() {
+  $permissions = array();
+
+  // Exported permission: 'administer simplify'.
+  $permissions['administer simplify'] = array(
+    'name' => 'administer simplify',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'simplify',
+  );
+
+  return $permissions;
 }
