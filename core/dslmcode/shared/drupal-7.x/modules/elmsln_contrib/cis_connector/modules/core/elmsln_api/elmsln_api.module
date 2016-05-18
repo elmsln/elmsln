@@ -774,6 +774,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
       // build an array for spidering each request
       $nonblock = array();
       $addresses = array();
+      $returned_data = array();
       // loop through each service
       foreach ($services as $service) {
         // make sure they don't match the existing one
@@ -787,7 +788,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
           );
           // if we are blocking then ship off now
           if (!$nonblocking) {
-            _elmsln_api_request($request);
+            $returned_data[] = _elmsln_api_request($request, $nonblocking, $recursion);
           }
           else {
             // queue these after formulation, the addresses are the most importantant
@@ -822,7 +823,14 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
         $tmp = httprl_send_request();
       }
     }
+    if (!empty($returned_data)) {
+      return $returned_data;
+    }
+    else {
+      return TRUE;
+    }
   }
+  return FALSE;
 }
 
 /**
@@ -876,7 +884,7 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
         $request['path'] = '/';
         // if we are blocking then ship off now
         if (!$nonblocking) {
-          _elmsln_api_request($request);
+          $returned_data[] = _elmsln_api_request($request, $nonblocking, $recursion);
         }
         else {
           // queue these after formulation, the addresses are the most importantant
@@ -910,7 +918,14 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
         $tmp = httprl_send_request();
       }
     }
+    if (!empty($returned_data)) {
+      return $returned_data;
+    }
+    else {
+      return TRUE;
+    }
   }
+  return FALSE;
 }
 
 /**
