@@ -858,9 +858,7 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
   // sniff out all other authorities
   $authorities = array();
   foreach ($settings as $bucket => $service) {
-    if ($bucket == variable_get('install_profile', 'standard') || (isset($service['instance']) && $service['instance']) || in_array($bucket, $ignored_buckets)) {
-    }
-    else {
+    if (_cis_connector_system_type($bucket) == 'authority' && $bucket != variable_get('install_profile', 'standard') && !in_array($bucket, $ignored_buckets)) {
       $authorities[$bucket] = $service;
     }
   }

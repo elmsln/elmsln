@@ -20,7 +20,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $queue->deleteItem($item);
     // load up the course node
     $course = node_load($nid);
-    $courses[$course->field_machine_name[LANGUAGE_NONE][0]['value']] = array(
+    $course_data = array(
       'title' => $course->title,
       'machine_name' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
       'uuid' => $course->uuid,
@@ -29,6 +29,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $sections = _cis_helper_course_access_strings($course);
     // pull together roster per section
     $roster = _cis_helper_assemble_roster($sections);
+    $active = array();
     // simplify section data so we can send along if its active or not
     foreach ($sections as $section_id => $section) {
       $active[$section_id] = $section->active;
@@ -43,7 +44,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
           'elmsln_callback' => 'sync_data_model',
           '__course_context' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
           'roster' => $roster,
-          'courses' => $courses,
+          'course' => $course_data,
           'sections' => $active,
         ),
       )
@@ -56,7 +57,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
         'elmsln_callback' => 'sync_data_model',
         '__course_context' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
         'roster' => $roster,
-        'courses' => $courses,
+        'course' => $course_data,
         'sections' => $active,
       )
     );
