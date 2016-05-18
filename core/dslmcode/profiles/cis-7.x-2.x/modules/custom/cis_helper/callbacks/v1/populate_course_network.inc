@@ -61,7 +61,9 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
         'sections' => $active,
       )
     );
-    _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/', TRUE);
+    // need to set context just before making this call
+    $_SESSION['cis_course_context'] = $course->field_machine_name[LANGUAGE_NONE][0]['value'];
+    $returned_data = _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/', TRUE);
     // ensure we have stuff in the queue before trying this
     if ($queue->numberOfItems() > 0) {
       // now kick off a call to do roster syncing that kicks the next item off the queue
