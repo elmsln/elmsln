@@ -386,7 +386,7 @@ function _elmsln_api_request($request, $nonblocking = FALSE, $recursion = FALSE)
     return FALSE;
   }
   // force use of normal calls if we are in developer mode
-  if ($nonblocking && module_exists('cis_devel')) {
+  if ($nonblocking && variable_get('cis_devel_nonblock', FALSE)) {
     $nonblocking = FALSE;
   }
   // load CIS connector so we can quickly load via low level bootstrap
@@ -742,7 +742,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
     return FALSE;
   }
   // force use of normal calls if we are in developer mode
-  if ($nonblocking && module_exists('cis_devel')) {
+  if ($nonblocking && variable_get('cis_devel_nonblock', FALSE)) {
     $nonblocking = FALSE;
   }
   if ($nonblocking) {
@@ -840,7 +840,7 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
     return FALSE;
   }
   // force use of normal calls if we are in developer mode
-  if ($nonblocking && module_exists('cis_devel')) {
+  if ($nonblocking && variable_get('cis_devel_nonblock', FALSE)) {
     $nonblocking = FALSE;
   }
   if ($nonblocking) {
