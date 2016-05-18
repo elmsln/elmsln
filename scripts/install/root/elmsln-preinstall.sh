@@ -353,6 +353,9 @@ if [[ -n "$zzz_performance" ]]; then
   if [ $os == '3' ]; then
     cp /var/www/elmsln/scripts/server/apache-2.4/zzz_performance.conf $zzz_performance
   else
+    if [ ! -d /etc/apache2/conf-available ]; then
+      mkdir /etc/apache2/conf-available
+    fi
     cp /var/www/elmsln/scripts/server/zzz_performance.conf $zzz_performance
   fi
   # account for ubuntu being a little different here when it comes to apache
