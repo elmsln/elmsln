@@ -173,7 +173,7 @@ function _cis_helper_assemble_roster(&$sections) {
         $roster[$section_id] = $tmproster;
       }
       // section has ended, deactivate it downstream
-      elseif ($dates['end'] < REQUEST_TIME) {
+      elseif ($dates['value2'] < REQUEST_TIME) {
         $section->active = 0;
       }
     }
