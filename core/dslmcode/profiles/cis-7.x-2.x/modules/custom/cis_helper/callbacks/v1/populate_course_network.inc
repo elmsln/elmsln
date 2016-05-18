@@ -8,7 +8,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
   global $_elmsln;
   // see if course isset
   if (isset($_elmsln['args']['course'])) {
-
+    $nid = _cis_connector_get_course_by_machine_name($_elmsln['args']['course']);
   }
   // see if this is a queue based job to process
   elseif (isset($_elmsln['args']['queue'])) {
@@ -18,6 +18,8 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $item = $queue->claimItem();
     $nid = $item->data;
     $queue->deleteItem($item);
+  }
+  if (isset($nid)) {
     // load up the course node
     $course = node_load($nid);
     $course_data = array(
@@ -29,9 +31,18 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $sections = _cis_helper_course_access_strings($course);
     // pull together roster per section
     $roster = _cis_helper_assemble_roster($sections);
+    // add in the users from CIS who are global users
+    $staff = _cis_connector_assemble_entity_list('user', 'user', 'uid', 'name', array('__role' => _cis_connector_role_groups('staff')));
     $active = array();
     // simplify section data so we can send along if its active or not
     foreach ($sections as $section_id => $section) {
+      // mix in the staff people from CIS
+      // so they get section access
+      foreach ($staff as $uname) {
+        if (!isset($roster[$section_id][$uname])) {
+          $roster[$section_id][$uname] = 'staff';
+        }
+      }
       $active[$section_id] = $section->active;
     }
     // ship it around the network
@@ -65,7 +76,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $_SESSION['cis_course_context'] = $course->field_machine_name[LANGUAGE_NONE][0]['value'];
     $returned_data = _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/', TRUE);
     // ensure we have stuff in the queue before trying this
-    if ($queue->numberOfItems() > 0) {
+    if (isset($_elmsln['args']['queue']) && $queue->numberOfItems() > 0) {
       // now kick off a call to do roster syncing that kicks the next item off the queue
       // at the end of it
       $nonblock = array(

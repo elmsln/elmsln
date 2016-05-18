@@ -175,6 +175,7 @@ function _cis_helper_assemble_roster(&$sections) {
       // section has ended, deactivate it downstream
       elseif ($dates['value2'] < REQUEST_TIME) {
         $section->active = 0;
+        $roster[$section_id] = array();
       }
     }
     else {
@@ -605,53 +606,30 @@ function cis_helper_entity_update($entity, $type) {
   }
   // spider associated services when section is updated
   if ($type == 'field_collection_item' && $entity->field_name == 'field_sections') {
-    // load possible services
-    $service_instances = _cis_helper_derive_service_instances($entity->item_id);
-    // cross-reference with those this section is reporting it implements
-    // this avoids possible cron runs of services this section isn't using
-    // overall it's not a big deal but this saves cycles none-the-less
-    $use_array = array();
-    if (!empty($entity->field_services)) {
-      foreach ($entity->field_services[LANGUAGE_NONE] as $in_use) {
-        $use_array[$in_use['target_id']] = $in_use['target_id'];
-      }
-    }
-    if (is_array($service_instances)) {
-      foreach ($service_instances as $instance) {
-        // check that this instance of a service is in use by this section
-        if (in_array($instance->field_services[LANGUAGE_NONE][0]['target_id'], $use_array)) {
-          // load the service and course entities
-          $service = entity_load_single('node', $instance->field_services[LANGUAGE_NONE][0]['target_id']);
-          $course = entity_load_single('node', $instance->field_course[LANGUAGE_NONE][0]['target_id']);
-          // clear the cis_connector cache because this data may have changed
-          $request = array(
-            'method' => 'POST',
-            'api' => '1',
-            'bucket' => $service->field_distribution[LANGUAGE_NONE][0]['value'],
-            'path' => '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/',
-            'data' => array(
-              'elmsln_module' => 'elmsln_api',
-              'elmsln_callback' => 'clear_cache_bin',
-              'bin' => 'cis_connector',
-            ),
-          );
-          _elmsln_api_request($request);
-          // sync the service but do it non-blocking
-          $nonblock[] = array(
-            'method' => 'POST',
-            'api' => '1',
-            'bucket' => $service->field_distribution[LANGUAGE_NONE][0]['value'],
-            'path' => '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/',
-            'data' => array(
-              'elmsln_module' => 'cis_section',
-              'elmsln_callback' => 'sync_roster',
-            ),
-          );
-          drupal_set_message(t('The remote service `@service` has been syncronized to reflect your changes.', array('@service' => $service->title)), 'status');
-        }
-      }
-      _elmsln_api_nonblocking_requests($nonblock);
-    }
+    $course = $entity->HostEntity()->HostEntity();
+    $requests = array(
+        array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'clear_cache_bin',
+        'bin' => 'cis_connector',
+      ),
+    );
+    // ship these requests across the network
+    _elmsln_api_network_request($requests, 1, TRUE);
+    // sync the service but do it non-blocking
+    $request = array(
+      'method' => 'POST',
+      'api' => '1',
+      'bucket' => 'cis',
+      'path' => '/',
+      'data' => array(
+        'elmsln_module' => 'cis_helper',
+        'elmsln_callback' => 'populate_course_network',
+        'course' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
+      ),
+    );
+    _elmsln_api_request($request, TRUE);
+    drupal_set_message(t('The course network for `@course` has been syncronized to reflect your changes.', array('@course' => $course->title)), 'status');
   }
 }
 
