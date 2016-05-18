@@ -5,12 +5,9 @@
  */
 function cis_course_service_elmsln_api_callback_sync_data_model() {
   global $_elmsln;
-  // make sure we have a roster
-  if (isset($_elmsln['args']['roster']) && isset($_elmsln['args']['__course_context'])) {
-    $roster = $_elmsln['args']['roster'];
-    $sections = $_elmsln['args']['sections'];
-    // update the section data model to match
-    foreach ($sections as $section_id => $section_status) {
+  // update the section data model to match
+  if (isset($_elmsln['args']['sections'])) {
+    foreach ($_elmsln['args']['sections'] as $section_id => $section_status) {
       if ($nid = _cis_section_load_section_by_id($section_id)) {
         // this case can be triggered if the dates get updated downstream in CIS
         // or if we create something ahead of the semester
@@ -34,11 +31,16 @@ function cis_course_service_elmsln_api_callback_sync_data_model() {
       }
     }
     // build accounts from the roster
-    _cis_section_create_accounts($roster);
-
+    if (isset($_elmsln['args']['roster'])) {
+      _cis_section_create_accounts($_elmsln['args']['roster']);
+    }
     return array(
       'sync_data_model' => TRUE,
       'message' => "Course service synced successfully",
     );
   }
+  return array(
+    'sync_data_model' => FALSE,
+    'message' => "Course service sync failed",
+  );
 }
