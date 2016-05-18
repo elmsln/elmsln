@@ -32,9 +32,6 @@ pecl install uploadprogress
 # adding uploadprogresss to php conf files
 touch /etc/php5/apache2/conf.d/uploadprogress.ini
 echo extension=uploadprogress.so > /etc/php5/apache2/conf.d/uploadprogress.ini
-# make sure mcrypt is enabled out of the box
-cd /etc/php5/fpm/conf.d
-ln -s /etc/php5/apache2/conf.d/mcrypt.ini 20-mcrypt.ini
 # restart fpm so we have access to these things
 service php5-fpm restart
 # set httpd_can_sendmail so drupal mails go out
