@@ -9,8 +9,10 @@ There are some handsfree install routines (copy and paste) that you can try. Thi
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos7/example-deploy)
 ### AWS EC2 AMI
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/amazon/example-deploy)
+### Ubuntu 12.x / Debian 7.x
+[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu12/example-deploy)
 ### Ubuntu 14.x / Debian 8.x
-[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu/example-deploy)
+[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu14/example-deploy)
 
 Hands free has some arguments passed into it to get going but these are for installation against a fresh copy of a server. If you install with the default options provided in those (with addresses of elmsln.dev) you'll want to make sure you modify your local `/etc/hosts` file to reflect these fake addresses.
 
