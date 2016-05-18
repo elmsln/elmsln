@@ -1438,7 +1438,10 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
     if (isset($roles)) {
       foreach($elist as $key => $entity) {
         // check that this entity has this role associated
-        if (empty(array_intersect_key(array_flip($roles), array_flip($entity->roles)))) {
+        $rtmp = array_flip($roles);
+        $ertmp = array_flip($entity->roles);
+        $aintersect = array_intersect_key($rtmp, $ertmp);
+        if (empty($aintersect)) {
           unset($elist[$key]);
         }
       }
