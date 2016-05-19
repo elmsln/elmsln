@@ -6,15 +6,9 @@
  */
 
  /**
- * Increases the max bundles for css bundlers from 2 to 15 
+ * Increases the max bundles for css & js bundlers from 2 to 15 
  */
 function elmsln_advagg_update_7000() {
   variable_set('advagg_bundler_max_css', '15');
-}
-
-/**
- * Increases the max bundles for js bundlers from 2 to 15 
- */
-function elmsln_advagg_update_7001() {
   variable_set('advagg_bundler_max_js', '15');
 }
