@@ -419,7 +419,20 @@ class ImageToolkitGdTestCase extends DrupalWebTestCase {
         $correct_dimensions_object = TRUE;
         $correct_colors = TRUE;
 
-        // Check the real dimensions of the image first.
+        // PHP 5.5 GD bug: https://bugs.php.net/bug.php?id=65148. PHP 5.5 GD
+        // rotates differently then it did in PHP 5.4 resulting in different
+        // dimensions then what math teaches us. For the test images, the
+        // dimensions will be 1 pixel smaller in both dimensions (though other
+        // tests have shown a difference of 0 to 3 pixels in both dimensions.
+        // @todo: if and when the PHP bug gets solved, add an upper limit
+        //   version check.
+        // @todo: in [#1551686] the dimension calculations for rotation are
+        //   reworked. That issue should also check if these tests can be made
+        //   more robust.
+        if (version_compare(PHP_VERSION, '5.5', '>=') && $values['function'] === 'rotate' && $values['arguments'][0] % 90 != 0) {
+          $values['height']--;
+          $values['width']--;
+        }
         if (imagesy($image->resource) != $values['height'] || imagesx($image->resource) != $values['width']) {
           $correct_dimensions_real = FALSE;
         }

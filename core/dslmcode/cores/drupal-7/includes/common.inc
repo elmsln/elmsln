@@ -3025,6 +3025,7 @@ function drupal_add_html_head_link($attributes, $header = FALSE) {
  */
 function drupal_add_css($data = NULL, $options = NULL) {
   $css = &drupal_static(__FUNCTION__, array());
+  $count = &drupal_static(__FUNCTION__ . '_count', 0);
 
   // Construct the options, taking the defaults into consideration.
   if (isset($options)) {
@@ -3060,7 +3061,7 @@ function drupal_add_css($data = NULL, $options = NULL) {
     }
 
     // Always add a tiny value to the weight, to conserve the insertion order.
-    $options['weight'] += count($css) / 1000;
+    $options['weight'] += $count / 1000;
 
     // Add the data to the CSS array depending on the type.
     switch ($options['type']) {
@@ -3068,11 +3069,13 @@ function drupal_add_css($data = NULL, $options = NULL) {
         // For inline stylesheets, we don't want to use the $data as the array
         // key as $data could be a very long string of CSS.
         $css[] = $options;
+        $count++;
         break;
       default:
         // Local and external files must keep their name as the associative key
         // so the same CSS file is not be added twice.
         $css[$data] = $options;
+        $count++;
     }
   }
 
