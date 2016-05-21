@@ -1,0 +1,185 @@
+<?php
+
+/**
+ * @file
+ * matching install file.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function matching_install() {
+  // Add body field to matching node
+  quiz_question_add_body_field('matching');
+
+  variable_set('node_options_matching', array('status'));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function matching_schema() {
+  // Properties for a question nodes go in here:
+  $schema['quiz_matching_properties'] = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'choice_penalty' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'nid', 'vid'
+    ),
+  );
+
+  $schema['quiz_matching_node'] = array(
+    'fields' => array(
+      'match_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'answer' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'feedback' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('match_id'),
+    'indexes' => array(
+      'question_id' => array('nid', 'vid'),
+    ),
+  );
+
+  // User answers go in here.
+  $schema['quiz_matching_user_answers'] = array(
+    'fields' => array(
+      'answer_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'match_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'result_answer_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'score' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'answer' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('answer_id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N()
+ */
+
+/**
+ * Add a table to store properties for the matching questions
+ */
+function matching_update_7400() {
+  $schema = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'choice_penalty' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'nid', 'vid'
+    ),
+  );
+
+  db_create_table('quiz_matching_properties', $schema);
+
+  // Insert default properties for all of the existing matching questions
+  $result = db_query("SELECT nid, vid FROM {node} WHERE type='matching'");
+
+  foreach ($result as $question) {
+    db_insert('quiz_matching_properties')
+      ->fields(array(
+        'nid' => $question->nid,
+        'vid' => $question->vid,
+        'choice_penalty' => 0,
+      ))
+      ->execute();
+  }
+}
+
+/**
+ * Make the matching schema look more like the rest of the questions.
+ */
+function matching_update_7501() {
+  db_add_field('quiz_matching_user_answers', 'result_answer_id', array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => FALSE,
+  ));
+
+  $sql = "UPDATE {quiz_node_results_answers} ra
+    INNER JOIN {quiz_matching_user_answers} mua ON mua.result_id = ra.result_id
+    INNER JOIN {quiz_matching_node} mn ON mn.match_id = mua.match_id
+    SET mua.result_answer_id = ra.result_answer_id";
+  db_query($sql);
+
+  db_drop_field('quiz_matching_user_answers', 'result_id');
+}

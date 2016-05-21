@@ -1,0 +1,134 @@
+<?php
+
+/**
+ * Long answer questions.
+ * @file
+ */
+
+/**
+ * Implements hook_install().
+ */
+function long_answer_install() {
+  // Add body field to long answer node
+  quiz_question_add_body_field('long_answer');
+
+  variable_set('node_options_long_answer', array('status'));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function long_answer_schema() {
+  // Properties for a question nodes go in here:
+  $schema['quiz_long_answer_node_properties'] = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'rubric' => array(
+        'type' => 'text',
+      ),
+    ),
+    'primary key' => array('nid', 'vid'),
+  );
+
+  // User answers go in here.
+  $schema['quiz_long_answer_user_answers'] = array(
+    'fields' => array(
+      'answer_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'result_answer_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'score' => array(
+        'type' => 'float',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_evaluated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+      'answer' => array(
+        'type' => 'text'
+      ),
+      'answer_feedback' => array(
+        'type' => 'text'
+      ),
+      'answer_feedback_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+    ),
+    'primary key' => array('answer_id'),
+    'unique keys' => array(
+      'result_answer_id' => array('result_answer_id'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Adding feedback field to table {quiz_long_answer_user_answers}
+ */
+function long_answer_update_7401() {
+  if (!db_field_exists('quiz_long_answer_user_answers', 'answer_feedback')) {
+    $spec = array(
+      'type' => 'text',
+      'not null' => FALSE,
+    );
+    db_add_field('quiz_long_answer_user_answers', 'answer_feedback', $spec);
+  }
+}
+
+/**
+ * Adding feedback format field to table {quiz_long_answer_user_answers}
+ */
+function long_answer_update_7402() {
+  if (!db_field_exists('quiz_long_answer_user_answers', 'answer_feedback_format')) {
+    $spec = array(
+      'type' => 'varchar',
+      'length' => 255,
+    );
+    db_add_field('quiz_long_answer_user_answers', 'answer_feedback_format', $spec);
+  }
+}
+
+/**
+ * Normalize data storage.
+ */
+function long_answer_update_7500() {
+  db_drop_unique_key('quiz_long_answer_user_answers', 'ids');
+  db_add_field('quiz_long_answer_user_answers', 'result_answer_id', array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => FALSE,
+  ));
+  db_query("UPDATE {quiz_long_answer_user_answers} qtua
+    INNER JOIN {quiz_node_results_answers} qnra ON (qtua.question_nid = qnra.question_nid
+    AND qtua.question_vid = qnra.question_vid
+    AND qtua.result_id = qnra.result_id)
+    SET qtua.result_answer_id = qnra.result_answer_id");
+  db_drop_field('quiz_long_answer_user_answers', 'result_id');
+  db_drop_field('quiz_long_answer_user_answers', 'question_nid');
+  db_drop_field('quiz_long_answer_user_answers', 'question_vid');
+
+  db_add_unique_key('quiz_long_answer_user_answers', 'result_answer_id', array('result_answer_id'));
+}

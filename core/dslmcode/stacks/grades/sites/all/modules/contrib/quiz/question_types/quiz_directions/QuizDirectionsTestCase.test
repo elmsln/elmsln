@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for the short_answer Module.
+ */
+
+/**
+ * Test class for short answer.
+ */
+class QuizDirectionsTestCase extends QuizQuestionTestCase {
+
+  var $question_node_type = 'quiz_directions';
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz directions'),
+      'description' => t('Unit test for Quiz directions question type.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    parent::setUp(array('quiz_directions'));
+  }
+
+  /**
+   * Test adding and taking a quiz directions question.
+   */
+  function testCreateQuizQuestion($settings = array()) {
+    // Login as our privileged user.
+    $this->drupalLogin($this->admin);
+
+    $question_node = $this->drupalCreateNode(array(
+      'type' => $this->question_node_type,
+      'title' => 'QD 1 title',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'QD 1 body text.'))),
+      ) + $settings);
+
+    return $question_node;
+  }
+
+}

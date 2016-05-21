@@ -1,0 +1,146 @@
+<?php
+
+/**
+ * The installer file for quiz_question.
+ * @file
+ */
+
+/**
+ * Implements hook_install().
+ */
+function quiz_question_install() {
+
+}
+
+/**
+ * Implements hook_schema().
+ */
+function quiz_question_schema() {
+  $schema = array();
+  $schema['quiz_question_properties'] = array(
+    'description' => 'Properties common for all quizzes',
+    'fields' => array(
+      'qqp_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'The primary identifier for this Question.',
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The node ID of this Question.',
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The version ID of this Question.',
+      ),
+      'max_score' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'description' => 'The unscaled max score of this Question.',
+      ),
+      'feedback' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'The generic feedback text to show for this Question.',
+      ),
+      'feedback_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => 'Text format for the feedback text.',
+      ),
+    ),
+    'primary key' => array('qqp_id'),
+    'indexes' => array('question_id' => array('vid', 'nid')),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function quiz_question_uninstall() {
+
+}
+
+/**
+ * Implements hook_update_N()
+ */
+
+/**
+ * Make the question body visible by default for the question view mode
+ */
+function quiz_question_update_7401() {
+  $question_types = array_keys(quiz_question_get_info());
+
+  foreach ($question_types as $question_type) {
+    $instance = field_read_instance('node', 'body', $question_type);
+
+    $instance['display']['question'] = array(
+      'label' => 'hidden',
+      'type' => 'text_default',
+      'weight' => 1,
+      'settings' => array(),
+      'module' => 'text',
+    );
+
+    field_update_instance($instance);
+  }
+}
+
+/**
+ * Add fields for general question feedback.
+ */
+function quiz_question_update_7500() {
+  db_drop_primary_key('quiz_question_properties');
+
+  db_add_field('quiz_question_properties', 'qqp_id', array(
+    'type' => 'serial',
+    ), array('primary key' => array('qqp_id')));
+
+  db_add_field('quiz_question_properties', 'feedback', array(
+    'type' => 'text',
+    'not null' => FALSE,
+  ));
+
+  db_add_field('quiz_question_properties', 'feedback_format', array(
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => FALSE,
+  ));
+
+  if (module_exists('truefalse')) {
+    // Migrate the truefalse feedback, since we have generic feedback now.
+    $filter = filter_default_format();
+    db_query("UPDATE {quiz_question_properties} qqp
+    INNER JOIN {quiz_truefalse_node} qtn ON (qtn.vid = qqp.vid)
+    SET qqp.feedback = qtn.feedback, qqp.feedback_format = :format", array(':format' => $filter));
+
+    // Drop old field.
+    db_drop_field('quiz_truefalse_node', 'feedback');
+  }
+
+  return t('Added global quiz question feedback fields and migrated true/false feedback.');
+}
+
+/**
+ * Drop table {quiz_question_latest_quizzes}.
+ */
+function quiz_question_update_7501() {
+  db_drop_table('quiz_question_latest_quizzes');
+  return t('Dropped table {quiz_question_latest_quizzes}');
+}
+
+/**
+ * Add missing question_id index.
+ */
+function quiz_question_update_7502() {
+  if (!db_index_exists('quiz_question_properties', 'question_id')) {
+    db_add_index('quiz_question_properties', 'question_id', array('vid', 'nid'));
+  }
+}

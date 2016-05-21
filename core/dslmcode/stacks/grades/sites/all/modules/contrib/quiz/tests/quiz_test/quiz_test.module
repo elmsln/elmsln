@@ -1,0 +1,8 @@
+<?php
+
+function quiz_test_quiz_feedback_times_alter(&$times) {
+  $times['after2attempts'] = array(
+    'name' => t('After 2 attempts'),
+    'description' => t('Show after 2 attempts'),
+  );
+}

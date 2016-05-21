@@ -1,0 +1,316 @@
+<?php
+
+/**
+ * @file
+ * Test suite for choice Questions type module.
+ */
+
+/**
+ * Test class for multichoice questions.
+ */
+class MultichoiceTestCase extends QuizQuestionTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Multichoice'),
+      'description' => t('Unit test for the multichoice question type.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  var $question_node_type = 'multichoice';
+
+  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    parent::setUp(array('multichoice'));
+  }
+
+  /**
+   * Create a default MCQ with default settings.
+   */
+  public function testCreateQuizQuestion($settings = array()) {
+    $settings += array(
+      'title' => 'MCQ 1 Title',
+      'type' => 'multichoice',
+      'choice_multi' => 0,
+      'choice_random' => 0,
+      'choice_boolean' => 0,
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'MCQ 1 body text'))),
+    );
+
+    // Set up some alternatives.
+    $settings['alternatives'][0]['answer']['value'] = 'A';
+    $settings['alternatives'][0]['answer']['format'] = 'filtered_html';
+    $settings['alternatives'][0]['feedback_if_chosen']['value'] = 'You chose A';
+    $settings['alternatives'][0]['feedback_if_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][0]['feedback_if_not_chosen']['value'] = 'You did not choose A';
+    $settings['alternatives'][0]['feedback_if_not_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][0]['score_if_chosen'] = 1;
+    $settings['alternatives'][0]['score_if_not_chosen'] = 0;
+
+    $settings['alternatives'][1]['answer']['value'] = 'B';
+    $settings['alternatives'][1]['answer']['format'] = 'filtered_html';
+    $settings['alternatives'][1]['feedback_if_chosen']['value'] = 'You chose B';
+    $settings['alternatives'][1]['feedback_if_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][1]['feedback_if_not_chosen']['value'] = 'You did not choose B';
+    $settings['alternatives'][1]['feedback_if_not_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][1]['score_if_chosen'] = 0;
+    $settings['alternatives'][1]['score_if_not_chosen'] = 0;
+
+    $settings['alternatives'][2]['answer']['value'] = 'C';
+    $settings['alternatives'][2]['answer']['format'] = 'filtered_html';
+    $settings['alternatives'][2]['feedback_if_chosen']['value'] = 'You chose C';
+    $settings['alternatives'][2]['feedback_if_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][2]['feedback_if_not_chosen']['value'] = 'You did not choose C';
+    $settings['alternatives'][2]['feedback_if_not_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][2]['score_if_chosen'] = 0;
+    $settings['alternatives'][2]['score_if_not_chosen'] = 0;
+
+    $node = $this->drupalCreateNode($settings);
+    $node = node_load($node->nid);
+
+    $this->assertNotNull($node->alternatives[0]['id'], 'Alternative A was created as part of question save.');
+    $this->assertNotNull($node->alternatives[1]['id'], 'Alternative B was created as part of question save.');
+    $this->assertNotNull($node->alternatives[2]['id'], 'Alternative C was created as part of question save.');
+
+    $this->assertEqual($node->alternatives[0]['answer']['value'], 'A', 'Alternative text A was saved and loaded correctly.');
+    $this->assertEqual($node->alternatives[1]['answer']['value'], 'B', 'Alternative text B was saved and loaded correctly.');
+    $this->assertEqual($node->alternatives[2]['answer']['value'], 'C', 'Alternative text C was saved and loaded correctly.');
+
+    $this->assertEqual($node->alternatives[0]['answer']['format'], 'filtered_html', 'Alternative format A was saved and loaded correctly.');
+    $this->assertEqual($node->alternatives[1]['answer']['format'], 'filtered_html', 'Alternative format B was saved and loaded correctly.');
+    $this->assertEqual($node->alternatives[1]['answer']['format'], 'filtered_html', 'Alternative format C was saved and loaded correctly.');
+
+    return $node;
+  }
+
+  public function testQuestionFeedback() {
+    $this->drupalLogin($this->admin);
+
+    $question_node = $this->testCreateQuizQuestion();
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    // Login as non-admin.
+    $this->drupalLogin($this->user);
+
+    // Test incorrect question. Feedback, answer.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer]" => $question_node->alternatives[1]['id'],
+      ), t('Finish'));
+    $this->assertPattern('/quiz-score-icon selected/', 'Found selected answer.');
+    $this->assertPattern('/quiz-score-icon should/', 'Found should answer.');
+    $this->assertPattern('/quiz-score-icon incorrect/', 'Found incorrect answer.');
+    $this->assertText('You did not choose A');
+    $this->assertText('You chose B');
+    $this->assertText('You did not choose C');
+  }
+
+  /**
+   * Test multiple answers.
+   */
+  function testMultipleAnswers() {
+    $this->drupalLogin($this->admin);
+    $question_node = $this->testCreateQuizQuestion(array('choice_multi' => 1));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer][1]" => 1,
+      "question[$question_node->nid][answer][user_answer][3]" => 3,
+      ), t('Finish'));
+    // 0 of 1, because user picked a correct answer and an incorrect answer.
+    $this->assertText('You got 0 of 1 possible points.');
+    $this->assertText('Your score: 0%');
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer][1]" => 1,
+      ), t('Finish'));
+    // 1 of 1, because user picked a correct answer and not an incorrect answer.
+    $this->assertText('You got 1 of 1 possible points.');
+    $this->assertText('Your score: 100%');
+  }
+
+  /**
+   * Test restoring a multiple choice answer.
+   */
+  function testAnswerMultiRestore() {
+    // Checkboxes.
+    $this->drupalLogin($this->admin);
+    $question_node = $this->testCreateQuizQuestion(array('choice_multi' => 1));
+    $question_node2 = $this->testCreateQuizQuestion(array('choice_multi' => 1));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer][1]" => 1,
+      ), t('Next'));
+    $this->drupalGet("node/$quiz_node->nid/take/1");
+    $this->assertFieldChecked('edit-question-1-answer-user-answer-1');
+  }
+
+  /**
+   * Test restoring a single choice answer.
+   */
+  function testAnswerSingleRestore() {
+    // Radio buttons.
+    $this->drupalLogin($this->admin);
+    $question_node = $this->testCreateQuizQuestion(array('choice_multi' => 0));
+    $question_node2 = $this->testCreateQuizQuestion(array('choice_multi' => 0));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer]" => 1,
+      ), t('Next'));
+    $this->drupalGet("node/$quiz_node->nid/take/1");
+    $this->assertFieldChecked('edit-question-1-answer-user-answer-1');
+  }
+
+  /**
+   * Test random order of choices.
+   * @todo I don't know how we would test random questions.
+   */
+  function testRandomOrder() {
+    $this->drupalLogin($this->admin);
+    $question_node = $this->testCreateQuizQuestion(array('choice_random' => 1));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $this->drupalLogin($this->user);
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer]" => $question_node->alternatives[0]['id'],
+      ), t('Finish'));
+  }
+
+  /**
+   * Test simple scoring.
+   */
+  function testSimpleScoring() {
+    $this->drupalLogin($this->admin);
+    $settings = array();
+    $settings['alternatives'][1]['score_if_chosen'] = 0;
+    $settings['alternatives'][1]['score_if_not_chosen'] = 0;
+    $settings['choice_multi'] = 1;
+    $settings['choice_boolean'] = 1;
+
+    $question_node = $this->testCreateQuizQuestion($settings);
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $this->drupalLogin($this->user);
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer][1]" => 1,
+      "question[$question_node->nid][answer][user_answer][3]" => 3,
+      ), t('Finish'));
+    $this->assertText('You got 0 of 1 possible points.');
+    $this->assertText('Your score: 0%');
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer][1]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 1 of 1 possible points.');
+    $this->assertText('Your score: 100%');
+  }
+
+  /**
+   * Test the reordering UI.
+   */
+  function testReorderingUI() {
+    $this->drupalLogin($this->admin);
+    $this->drupalGet('node/add/multichoice');
+    $question_node = $this->testCreateQuizQuestion();
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+    $this->drupalGet("node/$question_node->nid/edit");
+    $this->drupalPost(NULL, array(
+      'alternatives[0][answer][value]' => 'Correct answer 1',
+      'alternatives[0][weight]' => 1,
+      'alternatives[1][answer][value]' => 'Incorrect answer 2',
+      'alternatives[1][weight]' => 2,
+      'alternatives[2][answer][value]' => 'Incorrect answer 3',
+      'alternatives[2][weight]' => 3,
+      ), t('Save'));
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $a = strpos($this->content, 'Correct answer 1');
+    $b = strpos($this->content, 'Incorrect answer 2');
+    $c = strpos($this->content, 'Incorrect answer 3');
+
+    $this->assertTrue($a < $b, 'A comes before B');
+    $this->assertTrue($b < $c, 'B comes before C');
+
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 1 of 1 possible points.');
+    $this->assertText('Your score: 100%');
+
+    // Now screw them up.
+    $this->drupalGet("node/$question_node->nid/edit");
+    $this->drupalPost(NULL, array(
+      'alternatives[0][weight]' => 3,
+      'alternatives[1][weight]' => 2,
+      'alternatives[2][weight]' => 1,
+      ), t('Save'));
+    $question_node = node_load($question_node->nid);
+    $this->drupalGet("node/$quiz_node->nid/quiz/questions");
+    $this->drupalPost(NULL, array(
+      "revision[$question_node->nid-$question_node->vid]" => TRUE,
+      ), t('Submit'));
+
+    // Take the quiz again.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $a = strpos($this->content, 'Correct answer 1');
+    $b = strpos($this->content, 'Incorrect answer 2');
+    $c = strpos($this->content, 'Incorrect answer 3');
+
+    $this->assertTrue($a > $b, 'A comes after B');
+    $this->assertTrue($b > $c, 'B comes after C');
+
+    // Check that the correct answer did not change even with the weight
+    // adjustment.
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer]" => 4,
+      ), t('Finish'));
+    $this->assertText('You got 1 of 1 possible points.');
+    $this->assertText('Your score: 100%');
+  }
+
+  /**
+   * Test that the question response can be edited.
+   */
+  function testEditQuestionResponse() {
+    // Create & link a question.
+    $question_node = $this->testCreateQuizQuestion();
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $question_node2 = $this->testCreateQuizQuestion();
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    // Login as non-admin.
+    $this->drupalLogin($this->user);
+
+    // Take the quiz.
+    $this->drupalGet("node/$quiz_node->nid/take");
+
+    // Test editing a question.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalGet("node/$quiz_node->nid/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer]" => 1,
+      ), t('Next'));
+    $this->drupalGet("node/$quiz_node->nid/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer]" => 2,
+      ), t('Next'));
+  }
+
+}

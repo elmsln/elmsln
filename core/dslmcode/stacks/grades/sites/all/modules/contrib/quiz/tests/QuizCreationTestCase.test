@@ -1,0 +1,354 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for the quiz question Module.
+ */
+
+/**
+ * Test aspects of quiz creation including global and user defaults.
+ */
+class QuizCreationTestCase extends QuizTestCase {
+
+  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'truefalse';
+    $admin_permissions[] = "edit any truefalse content";
+    parent::setUp($modules, $admin_permissions, $user_permissions);
+  }
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz creation'),
+      'description' => t('Unit test for Quiz creation.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  /**
+   * Test basic quiz creation.
+   */
+  public function testQuizCreation() {
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/add/quiz");
+    $this->drupalPost(NULL, array(
+      'title' => 'Test quiz creation',
+      ), t('Save'));
+    $this->assertText('has been created');
+  }
+
+  /**
+   * Test system, global, and user defaults.
+   */
+  public function testQuizDefaults() {
+    // We need another admin user here.
+    $admin_permissions = array();
+    $admin_permissions[] = 'administer quiz configuration';
+    $admin_permissions[] = 'create quiz content';
+    $admin_permissions[] = 'edit any quiz content';
+    $admin_permissions[] = 'edit question titles';
+    $admin_permissions[] = 'access quiz';
+    $this->admin2 = $this->drupalCreateUser(array_unique($admin_permissions));
+
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/add/quiz");
+
+    // These are the basic system defaults.
+    $this->assertFieldChecked('edit-allow-resume');
+    $this->assertFieldChecked('edit-allow-skipping');
+    $this->assertNoFieldChecked('edit-allow-jumping');
+    $this->assertFieldChecked('edit-allow-change');
+    $this->assertFieldChecked('edit-backwards-navigation');
+    $this->assertNoFieldChecked('edit-repeat-until-correct');
+    $this->assertNoFieldChecked('edit-mark-doubtful');
+    $this->assertFieldChecked('edit-show-passed');
+
+    $this->drupalGet('admin/quiz/settings/quiz-form');
+    // Verify the same ones show up.
+    $this->assertFieldChecked('edit-allow-resume');
+    $this->assertFieldChecked('edit-allow-skipping');
+    $this->assertNoFieldChecked('edit-allow-jumping');
+    $this->assertFieldChecked('edit-allow-change');
+    $this->assertFieldChecked('edit-backwards-navigation');
+    $this->assertNoFieldChecked('edit-repeat-until-correct');
+    $this->assertNoFieldChecked('edit-mark-doubtful');
+    $this->assertFieldChecked('edit-show-passed');
+
+    // Change a default.
+    $this->drupalPost(NULL, array('allow_resume' => FALSE), t('Save'));
+    $this->drupalGet('admin/quiz/settings/quiz-form');
+    $this->assertNoFieldChecked('edit-allow-resume');
+
+    // Check that the default carried over. Check that other options remained
+    // set.
+    $this->drupalGet("node/add/quiz");
+    $this->assertNoFieldChecked('edit-allow-resume');
+    $this->assertFieldChecked('edit-allow-skipping');
+
+    // Check defaults for another user.
+    $this->drupalLogin($this->admin2);
+    $this->drupalGet("node/add/quiz");
+    $this->assertNoFieldChecked('edit-allow-resume');
+    $this->assertFieldChecked('edit-allow-skipping');
+
+    // Set allow skipping to off as a user default.
+    $this->drupalGet("node/add/quiz");
+    $this->drupalPost(NULL, array(
+      'title' => 'Test quiz',
+      'allow_skipping' => FALSE,
+      'remember_settings' => TRUE,
+      ), t('Save'));
+    $this->drupalGet("node/add/quiz");
+    $this->assertNoFieldChecked('edit-allow-resume');
+    $this->assertNoFieldChecked('edit-allow-skipping');
+
+    // Ensure it didn't affect another user.
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/add/quiz");
+    $this->assertNoFieldChecked('edit-allow-resume');
+    $this->assertFieldChecked('edit-allow-skipping');
+  }
+
+  /**
+   * Test quiz revisioning.
+   */
+  function testQuizRevisioning() {
+    $this->drupalLogin($this->admin);
+    $question_node = $this->drupalCreateNode(array(
+      'title' => 'Revision 1',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'Revision 1'))),
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+    // Set feedback.
+    $entities = entity_load('quiz_question', FALSE, array('nid' => $question_node->nid, 'vid' => $question_node->vid));
+    $quiz_question = reset($entities);
+    $quiz_question->feedback = 'Question feedback for Revision 1';
+    $quiz_question->feedback_format = filter_default_format();
+    entity_save('quiz_question', $quiz_question);
+
+    // Check for first revision.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 1");
+
+    // Update question. There are already attempts now so we expect a new
+    // revision.
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/{$question_node->nid}/edit");
+    $this->drupalPost(NULL, array(
+      'title' => 'Revision 2',
+      'body[und][0][value]' => 'Revision 2',
+      'correct_answer' => 0,
+      'feedback[value]' => 'Question feedback for Revision 2',
+      ), t('Save'));
+
+    // Finish on same revision.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 1 of 1 possible points.');
+    $this->assertText('Question feedback for Revision 1');
+
+    // Take quiz again. Should be on SAME revision. We have not yet updated the
+    // Quiz.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 1");
+
+    // Update the quiz to use the latest revision.
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/$quiz_node->nid/quiz/questions");
+    $this->drupalPost(NULL, array(
+      "revision[{$question_node->nid}-{$question_node->vid}]" => TRUE,
+      ), t('Submit'));
+
+    // Take quiz again. Should be on SAME revision. We have not yet finished
+    // this attempt.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 1");
+    // Finish the attempt.
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 1 of 1 possible points.');
+    $this->assertText('Question feedback for Revision 1');
+
+
+    // Take quiz again we should be on the new result, finally.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 2");
+    // Finish the attempt.
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 0 of 1 possible points.');
+    $this->assertText('Question feedback for Revision 2');
+  }
+
+  /**
+   * Test quiz with revisioning off.
+   */
+  function testQuizNoRevisioning() {
+    // No revisions. Ever!
+    variable_set('quiz_auto_revisioning', 0);
+
+    $this->drupalLogin($this->admin);
+    $question_node = $this->drupalCreateNode(array(
+      'title' => 'Revision 1',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'Revision 1'))),
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+    // Set feedback.
+    $entities = entity_load('quiz_question', FALSE, array('nid' => $question_node->nid, 'vid' => $question_node->vid));
+    $quiz_question = reset($entities);
+    $quiz_question->feedback = 'Question feedback for Revision 1';
+    $quiz_question->feedback_format = filter_default_format();
+    entity_save('quiz_question', $quiz_question);
+
+    // Check for first revision.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 1");
+
+    // Update question.
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/{$question_node->nid}/edit");
+    $this->drupalPost(NULL, array(
+      'title' => 'Revision 2',
+      'body[und][0][value]' => 'Revision 2',
+      'correct_answer' => 0,
+      'feedback[value]' => 'Question feedback for Revision 2',
+      ), t('Save'));
+
+    // We have revisioning turned off. So, the new question text should be
+    // present. Finish on same revision.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 2");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 0 of 1 possible points.');
+    $this->assertText('Question feedback for Revision 2');
+
+    // Take quiz again. Should be on SAME revision.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 2");
+
+    // Take quiz again. We have not yet finished this attempt.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 2");
+    // Finish the attempt.
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 0 of 1 possible points.');
+    $this->assertText('Question feedback for Revision 2');
+
+
+    // Take quiz again we should be on the new result.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 2");
+    // Finish the attempt.
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 0 of 1 possible points.');
+    $this->assertText('Question feedback for Revision 2');
+  }
+
+  /**
+   * Test cloning quizzes with questions.
+   */
+  public function testCloneQuiz() {
+    $this->drupalLogin($this->admin);
+    $question_node = $this->drupalCreateNode(array(
+      'title' => 'TF 1',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1'))),
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $old = $quiz_node->nid;
+    // Simulate the clone module.
+    $quiz_node->clone_from_original_nid = $old;
+    unset($quiz_node->vid);
+    unset($quiz_node->nid);
+    node_save($quiz_node);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$old/take");
+    $this->assertText('TF 1');
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText('TF 1');
+  }
+
+  /**
+   * Test quiz revisioning.
+   */
+  function testQuestionRevisionActions() {
+    $this->drupalLogin($this->admin);
+    $question_node = $this->drupalCreateNode(array(
+      'title' => 'Revision 1',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'Revision 1'))),
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    // Check for first revision.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->assertText("Revision 1");
+
+    // Save the question
+    $this->drupalGet("node/$question_node->nid/edit");
+    $this->drupalPost(NULL, array(), t('Save'));
+    $this->assertText(t('Revision actions'));
+    // Basic quiz admins won't be able to select this one.
+    $this->assertNoText(t('Update (no revision)'));
+    $this->assertText(t('Create new revision'));
+    $this->assertText(t('Do nothing'));
+    $this->assertText(t('Leave published'));
+
+    // Check that we have the opportunity to revise the quiz.
+    $this->drupalGet("node/$quiz_node->nid/quiz/questions");
+    $this->assertField("edit-revision-{$question_node->nid}-{$question_node->vid}");
+
+    $this->drupalGet("node/$question_node->nid/question-revision-actions");
+    $this->drupalPost(NULL, array(
+      "quizzes[$quiz_node->nid][revise]" => 'revise',
+      ), t('Submit')
+    );
+    $this->assertText('succesfully revised');
+
+    $this->drupalGet("node/$question_node->nid/question-revision-actions");
+    $this->drupalPost(NULL, array(
+      "quizzes[$quiz_node->nid][revise]" => 'nothing',
+      ), t('Submit')
+    );
+    $this->assertText('Quiz not updated, please use the Quiz question listing to if you decide to update the quiz manually.');
+
+    // Check that we no longer have the opportunity to revise the quiz.
+    $this->drupalGet("node/$quiz_node->nid/quiz/questions");
+    $this->assertNoField("edit-revision-{$question_node->nid}-{$question_node->vid}");
+
+    // Check that a better admin can manually update the quiz (no revisioning).
+    $better_admin = $this->drupalCreateUser(array('edit any truefalse content', 'edit any quiz content', 'manual quiz revisioning'));
+    $this->drupalLogin($better_admin);
+    $this->drupalGet("node/$question_node->nid/question-revision-actions");
+    $this->drupalPost(NULL, array(
+      "quizzes[$quiz_node->nid][revise]" => 'update',
+      ), t('Submit')
+    );
+    $this->assertText('succesfully updated');
+  }
+
+}

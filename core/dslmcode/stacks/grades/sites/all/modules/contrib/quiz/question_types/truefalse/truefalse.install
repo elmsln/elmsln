@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * @file
+ * The installer file for truefalse question type. *
+ */
+
+/**
+ * Implements hook_install().
+ */
+function truefalse_install() {
+  // Add body field to true false node
+  quiz_question_add_body_field('truefalse');
+
+  variable_set('node_options_truefalse', array('status'));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function truefalse_schema() {
+
+  // Extensions to nodes for T/F
+  $schema['quiz_truefalse_node'] = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'correct_answer' => array(
+        'description' => 'The correct answer for the user to give. 1 for true.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'vid', 'nid'
+    ),
+  );
+
+  // Place to store user answers for T/F questions
+  $schema['quiz_truefalse_user_answers'] = array(
+    'fields' => array(
+      'answer_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'result_answer_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'answer' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'default' => 0,
+      ),
+      'score' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('answer_id'),
+    'unique keys' => array(
+      'result_answer_id' => array('result_answer_id'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Normalize data storage.
+ */
+function truefalse_update_7500() {
+  db_drop_primary_key('quiz_truefalse_user_answers');
+  db_add_field('quiz_truefalse_user_answers', 'answer_id', array(
+    'type' => 'serial',
+    'not null' => TRUE,
+    ), array('primary key' => array('answer_id')));
+  db_add_field('quiz_truefalse_user_answers', 'result_answer_id', array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => FALSE,
+  ));
+  db_query("UPDATE {quiz_truefalse_user_answers} qtua
+    INNER JOIN {quiz_node_results_answers} qnra ON (qtua.question_nid = qnra.question_nid
+    AND qtua.question_vid = qnra.question_vid
+    AND qtua.result_id = qnra.result_id)
+    SET qtua.result_answer_id = qnra.result_answer_id");
+  db_drop_field('quiz_truefalse_user_answers', 'result_id');
+  db_drop_field('quiz_truefalse_user_answers', 'question_nid');
+  db_drop_field('quiz_truefalse_user_answers', 'question_vid');
+
+  db_add_unique_key('quiz_truefalse_user_answers', 'result_answer_id', array('result_answer_id'));
+}

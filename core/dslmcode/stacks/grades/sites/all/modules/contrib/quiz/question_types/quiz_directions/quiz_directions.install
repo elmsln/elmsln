@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * The installer file for quiz directions module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function quiz_directions_install() {
+  // Add body field to quiz directions node
+  quiz_question_add_body_field('quiz_directions');
+}

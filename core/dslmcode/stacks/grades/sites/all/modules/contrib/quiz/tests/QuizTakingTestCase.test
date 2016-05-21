@@ -1,0 +1,425 @@
+<?php
+
+class QuizTakingTestCase extends QuizTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz taking'),
+      'description' => t('Unit test for Quiz take behaviors.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'truefalse';
+    $modules[] = 'quiz_directions';
+    parent::setUp($modules);
+  }
+
+  /**
+   * Test the repeat until correct behavior. We do not have to test what type
+   * of feedback shows here, that is tested elsewhere.
+   */
+  public function testQuestionRepeatUntilCorrect() {
+    $this->drupalLogin($this->admin);
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'repeat_until_correct' => 1,
+      'review_options' => array('question' => array('answer_feedback' => 'answer_feedback')),
+    ));
+
+    $question_node = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node, $quiz_node);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 0,
+      ), t('Finish'));
+    $this->assertText('The answer was incorrect. Please try again.');
+    // Check that we are still on the question.
+    $this->assertUrl("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertNoText('The answer was incorrect. Please try again.');
+  }
+
+  /**
+   * Test the quiz resuming from database.
+   */
+  public function testQuizResuming() {
+    $this->drupalLogin($this->admin);
+    // Resuming is default behavior.
+    $quiz_node = $this->drupalCreateQuiz(array('allow_resume' => 1));
+
+    // 2 questions.
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    // Answer a question. Ensure the question navigation restrictions are
+    // maintained.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->drupalGet("node/{$quiz_node->nid}/take/2");
+    $this->assertResponse(403);
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+
+    // Login again.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->assertText('Resuming');
+
+    // We should have been advanced to the next question.
+    $this->assertUrl("node/{$quiz_node->nid}/take/2");
+
+    // Assert 2nd question is accessible (indicating the answer to #1 was
+    // saved.)
+    $this->drupalGet("node/{$quiz_node->nid}/take/2");
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Test the quiz not resuming from database.
+   */
+  public function testQuizNoResuming() {
+    $this->drupalLogin($this->admin);
+    // Resuming is default behavior.
+    $quiz_node = $this->drupalCreateQuiz(array('allow_resume' => 0));
+
+    // 2 questions.
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    // Answer a question. Ensure the question navigation restrictions are
+    // maintained.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->drupalGet("node/{$quiz_node->nid}/take/2");
+    $this->assertResponse(403);
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+
+    // Login again.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->assertNoText('Resuming');
+
+    // Assert 2nd question is not accessible (indicating the answer to #1 was
+    // not saved.)
+    $this->drupalGet("node/{$quiz_node->nid}/take/2");
+    $this->assertResponse(403);
+  }
+
+  /**
+   * Test the quiz availability tests.
+   *
+   * @TODO tests temporarily disabled
+   */
+  public function testQuizAvailability() {
+    $future = REQUEST_TIME + 86400;
+    $past = REQUEST_TIME - 86400;
+
+    // Within range.
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'quiz_always' => 0,
+      'quiz_open' => $past,
+      'quiz_close' => $future,
+    ));
+    $this->drupalGet("node/{$quiz_node->nid}");
+    $this->assertNoText(t('This @quiz is closed.', array('@quiz' => QUIZ_NAME)));
+
+    // Starts in the future.
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'quiz_always' => 0,
+      'quiz_open' => $future,
+      'quiz_close' => $future + 1,
+    ));
+    $this->drupalGet("node/{$quiz_node->nid}");
+    $this->assertText(t('This @quiz is not yet open.', array('@quiz' => QUIZ_NAME)));
+
+    // Ends in the past.
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'quiz_always' => 0,
+      'quiz_open' => $past,
+      'quiz_close' => $past + 1,
+    ));
+    $this->drupalGet("node/{$quiz_node->nid}");
+    $this->assertText(t('This @quiz is closed.', array('@quiz' => QUIZ_NAME)));
+
+    // Always available.
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'quiz_always' => 1,
+      'quiz_open' => $future,
+      'quiz_close' => $past,
+    ));
+    $this->drupalGet("node/{$quiz_node->nid}");
+    $this->assertNoText(t('This @quiz is closed.', array('@quiz' => QUIZ_NAME)));
+  }
+
+  /**
+   * Test the 'view quiz question outside of a quiz' permission.
+   */
+  function testViewQuestionsOutsideQuiz() {
+    $this->drupalLogin($this->admin);
+    // Resuming is default behavior.
+    $quiz_node = $this->drupalCreateQuiz();
+
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+
+    node_access_rebuild(FALSE);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$question_node1->nid}");
+    $this->assertResponse(403);
+
+    $user_with_privs = $this->drupalCreateUser(array('view quiz question outside of a quiz', 'access quiz'));
+    $this->drupalLogin($user_with_privs);
+    $this->drupalGet("node/{$question_node1->nid}");
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Test allow/restrict changing of answers.
+   */
+  function testChangeAnswer() {
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'review_options' => array('question' => array('score' => 'score')),
+    ));
+
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+    $question_node3 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 0,
+      ), t('Next'));
+    $this->assertText('Score: 0 of 1');
+
+    // Go back and correct the answer.
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->assertText('Score: 1 of 1');
+
+    // Restrict change after answer. Turn auto revisioning off since we need to
+    // operate on the same result.
+    variable_set('quiz_auto_revisioning', 0);
+    $quiz_node->allow_change = 0;
+    node_save($quiz_node);
+
+    // Check that the answer cannot be changed.
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $disabled_field = $this->xpath('//input[@id=:id and @disabled="disabled"]', array(':id' => 'edit-question-2-answer-1'));
+    $this->assertTrue($disabled_field, t('The answer cannot be changed.'));
+    $this->drupalPost(NULL, array(
+      ), t('Next'));
+    $this->assertText('Score: 1 of 1');
+
+    // Check allow change/blank behavior.
+    $this->drupalGet("node/{$quiz_node->nid}/take/2");
+    $this->drupalPost(NULL, array(
+      ), t('Leave blank'));
+    $this->drupalGet("node/{$quiz_node->nid}/take/2");
+    $disabled_field = $this->xpath('//input[@id=:id and @disabled="disabled"]', array(':id' => 'edit-question-3-answer-1'));
+    $this->assertTrue($disabled_field, t('The blank answer cannot be changed.'));
+    $quiz_node->allow_change_blank = 1;
+    node_save($quiz_node);
+    $this->drupalGet("node/{$quiz_node->nid}/take/2");
+    $disabled_field = $this->xpath('//input[@id=:id and @disabled="disabled"]', array(':id' => 'edit-question-3-answer-1'));
+    $this->assertFalse($disabled_field, t('The blank answer can be changed.'));
+  }
+
+  function testQuizMaxAttempts() {
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'takes' => 2,
+    ));
+
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 0,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 0,
+      ), t('Finish'));
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->assertText('You can only take this Quiz 2 times. You have taken it 1 time.');
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 0,
+      ), t('Next'));
+
+    // Make sure we can get back.
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->assertNoText('You can only take this Quiz 2 times. You have taken it 1 time.');
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 0,
+      ), t('Finish'));
+
+    // No more attempts.
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->assertText('You have already taken this Quiz 2 times. You may not take it again.');
+  }
+
+  /**
+   * Test that a user can answer a skipped question.
+   */
+  function testAnswerSkipped() {
+    $this->drupalLogin($this->admin);
+    $quiz_node = $this->drupalCreateQuiz(array('allow_skipping' => 1, 'allow_jumping' => 1));
+
+    // 2 questions.
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    $this->drupalLogin($this->user);
+
+    // Leave a question blank.
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      ), t('Leave blank'));
+
+    // Fill out the blank question.
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 1,
+      ), t('Finish'));
+
+    $this->clickLink(t('My results'));
+
+    $this->assertText("100");
+  }
+
+  /**
+   * Make sure a user can answer or skip an old question's revision.
+   */
+  function testAnswerOnOldQuizRevisioning() {
+    $this->drupalLogin($this->admin);
+
+    $question_node1 = $this->drupalCreateNode(array(
+      'title' => 'Q 1',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'Q 1'))),
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $quiz_node = $this->linkQuestionToQuiz($question_node1);
+
+    $question_node2 = $this->drupalCreateNode(array(
+      'title' => 'Q 2',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'Q 2'))),
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    $question_node1->revision = TRUE;
+    node_save($question_node1);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+
+    // Leave a question blank.
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      ), t('Leave blank'));
+
+    // Submit the question.
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+  }
+
+  /**
+   * Verify non gradable questions are excluded from counts
+   */
+  function testQuestionCount() {
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'review_options' => array('question' => array('score' => 'score')),
+    ));
+
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array('type' => 'quiz_directions'));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+    $question_node3 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);
+    $question_node4 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node4, $quiz_node);
+    $question_node5 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node5, $quiz_node);
+
+    $this->drupalGet("node/{$quiz_node->nid}");
+
+    $this->assertText("4");
+  }
+
+  /**
+   * Test the mark doubtful functionality.
+   */
+  function testMarkDoubtful() {
+    $this->drupalLogin($this->admin);
+    $quiz_node = $this->drupalCreateQuiz(array('allow_skipping' => 1, 'allow_jumping' => 1, 'mark_doubtful' => 1));
+
+    // 2 questions.
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array('type' => 'quiz_directions'));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    // Take the quiz.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+
+    // Ensure it is on truefalse.
+    $this->drupalGet("node/$quiz_node->nid/take/1");
+    $this->assertField("edit-question-$question_node1->nid-is-doubtful");
+
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      "question[$question_node1->nid][is_doubtful]" => 1,
+      ), t('Next'));
+    // Go back and verify it was saved.
+    $this->drupalGet("node/$quiz_node->nid/take/1");
+    $this->assertFieldChecked("edit-question-$question_node1->nid-is-doubtful");
+
+    // Ensure it is not on quiz directions.
+    $this->drupalGet("node/$quiz_node->nid/take/2");
+    $this->assertNoField("edit-question-$question_node2->nid-is-doubtful");
+  }
+
+}

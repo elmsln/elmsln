@@ -1,0 +1,16 @@
+name = Scale
+package = Quiz Question
+description = Scale question type for quiz.
+core = 7.x
+dependencies[] = quiz
+dependencies[] = quiz_question
+
+files[] = scale.classes.inc
+files[] = scale.test
+
+; Information added by Drupal.org packaging script on 2016-02-19
+version = "7.x-5.0-beta4"
+core = "7.x"
+project = "quiz"
+datestamp = "1455899370"
+

@@ -1,0 +1,557 @@
+<?php
+
+class QuizResultTestCase extends QuizTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz results'),
+      'description' => t('Unit test for Quiz results.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'truefalse';
+    $modules[] = 'multichoice';
+    parent::setUp($modules);
+  }
+
+  /**
+   * Test the various result summaries and pass rate.
+   */
+  public function testPassRateSummary() {
+    // By default, the feedback is after the quiz.
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'pass_rate' => 75,
+      'summary_pass' => 'This is the summary if passed',
+      'summary_pass_format' => 'plain_text',
+      'summary_default' => 'This is the default summary text',
+      'summary_default_format' => 'plain_text',
+      'resultoptions' => array(
+        array(
+          'option_name' => '90 and higher',
+          'option_summary' => 'You got 90 or more on the quiz',
+          'option_summary_format' => 'filtered_html',
+          'option_start' => 90,
+          'option_end' => 100,
+        ),
+        array(
+          'option_name' => '50 and higher',
+          'option_summary' => 'You got between 50 and 89',
+          'option_summary_format' => 'filtered_html',
+          'option_start' => 50,
+          'option_end' => 89,
+        ),
+        array(
+          'option_name' => 'Below 50',
+          'option_summary' => 'You failed bro',
+          'option_summary_format' => 'filtered_html',
+          'option_start' => 0,
+          'option_end' => 49,
+        ),
+      ),
+    ));
+
+    // 3 questions.
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'feedback' => 'Q1Feedback'));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'feedback' => 'Q2Feedback'));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+    $question_node3 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'feedback' => 'Q3Feedback'));
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);
+
+    // Test 100%
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 90 or more on the quiz');
+    $this->assertText('This is the summary if passed');
+    $this->assertNoText('This is the default summary text');
+
+    // Test 66%
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 0,
+      ), t('Finish'));
+    $this->assertText('You got between 50 and 89');
+    $this->assertNoText('This is the summary if passed');
+    $this->assertText('This is the default summary text');
+
+    // Test 33%
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 0,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 0,
+      ), t('Finish'));
+    $this->assertText('You failed bro');
+    $this->assertNoText('This is the summary if passed');
+    $this->assertText('This is the default summary text');
+  }
+
+  /**
+   * Test result CRUD operations.
+   *
+   * We have (at least) 3 different tables to clean up from on a Quiz result
+   * deletion - the quiz_result, the result answers, and the question type's
+   * answer storage. Let's ensure at least that happens.
+   */
+  function testQuizResultCrud() {
+    $this->drupalLogin($this->admin);
+
+    $question_node1 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $quiz_node = $this->linkQuestionToQuiz($question_node1);
+
+    // Submit an answer.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Finish'));
+
+    $quiz_result = entity_load('quiz_result', FALSE, array(
+      'nid' => $quiz_node->nid,
+      'vid' => $quiz_node->vid,
+      'uid' => $this->user->uid,
+    ));
+    $this->assertFalse(empty($quiz_result), 'Found quiz result');
+    $quiz_result = reset($quiz_result);
+
+    $quiz_result_answer = entity_load('quiz_result_answer', FALSE, array(
+      'result_id' => $quiz_result->result_id,
+      'question_nid' => $question_node1->nid,
+      'question_vid' => $question_node1->vid,
+    ));
+    $this->assertFalse(empty($quiz_result_answer), 'Found quiz result answer');
+    $quiz_result_answer = reset($quiz_result_answer);
+
+    // This isn't an entity yet.
+    $result = db_select('quiz_truefalse_user_answers', 'qtua')
+      ->fields('qtua')
+      ->condition('result_answer_id', $quiz_result_answer->result_answer_id)
+      ->execute();
+    $quiz_truefalse_result_answer = $result->fetch();
+    $this->assertFalse(empty($quiz_truefalse_result_answer), 'Found quiz result question answer');
+
+    // Now check the deletion.
+    entity_delete('quiz_result', $quiz_result->result_id);
+    $quiz_result2 = entity_load('quiz_result', FALSE, array(
+      'nid' => $quiz_node->nid,
+      'vid' => $quiz_node->vid,
+      'uid' => $this->user->uid,
+      ), TRUE);
+    $this->assertTrue(empty($quiz_result2), 'Did not find quiz result');
+
+    $quiz_result_answer = entity_load('quiz_result_answer', FALSE, array(
+      'result_answer_id' => $quiz_truefalse_result_answer->result_answer_id,
+      ), TRUE);
+    $this->assertTrue(empty($quiz_result_answer), 'Did not find quiz result answer');
+
+    // This isn't an entity yet.
+    $result = db_select('quiz_truefalse_user_answers', 'qtua')
+      ->fields('qtua')
+      ->condition('result_answer_id', $quiz_truefalse_result_answer->result_answer_id)
+      ->execute();
+    $quiz_truefalse_result_answer = $result->fetch();
+    $this->assertTrue(empty($quiz_truefalse_result_answer), 'Did not find quiz result question answer');
+  }
+
+  /**
+   * Test access to results.
+   */
+  function testQuizResultAccess() {
+    $this->drupalLogin($this->admin);
+
+    $question_node1 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $quiz_node = $this->linkQuestionToQuiz($question_node1);
+
+    // Submit an answer.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Finish'));
+
+    $resultsUrl = $this->getUrl();
+
+    $this->drupalGet($resultsUrl);
+    $this->assertResponse(200, t('User can view own result'));
+    $this->drupalLogout();
+    $this->drupalGet($resultsUrl);
+    $this->assertNoResponse(200, t('Anonymous user cannot view result'));
+  }
+
+  /**
+   * Test the all, best, and last quiz result pruning.
+   */
+  public function testResultPruning() {
+    $this->drupalLogin($this->admin);
+
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'keep_results' => QUIZ_KEEP_ALL,
+    ));
+
+    $question_node1 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+    $question_node3 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);
+    $question_node4 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node4, $quiz_node);
+
+    $this->drupalLogin($this->user);
+
+    // Create 2 100% results.
+    for ($i = 1; $i <= 2; $i++) {
+      $this->drupalGet("node/$quiz_node->nid/take");
+      $this->drupalPost(NULL, array(
+        "question[$question_node1->nid][answer]" => 1,
+        ), t('Next'));
+      $this->drupalPost(NULL, array(
+        "question[$question_node2->nid][answer]" => 1,
+        ), t('Next'));
+      $this->drupalPost(NULL, array(
+        "question[$question_node3->nid][answer]" => 1,
+        ), t('Next'));
+      $this->drupalPost(NULL, array(
+        "question[$question_node4->nid][answer]" => 1,
+        ), t('Finish'));
+    }
+
+    // Storing all results.
+    $results = entity_load('quiz_result');
+    $this->assertEqual(count($results), 2, 'Found 2 quiz results.');
+
+    $quiz_node->keep_results = QUIZ_KEEP_LATEST;
+    node_save($quiz_node);
+
+    // Create a 50% result.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 0,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node4->nid][answer]" => 0,
+      ), t('Finish'));
+
+    // We should only have one 50% result.
+    $results = entity_load('quiz_result', FALSE, array(), TRUE);
+    $this->assertEqual(count($results), 1, 'Found only one quiz result');
+    $quiz_result = reset($results);
+    $this->assertEqual($quiz_result->score, 50, 'Quiz result was 50%');
+
+    $quiz_node->keep_results = QUIZ_KEEP_BEST;
+    node_save($quiz_node);
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 0,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 0,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node4->nid][answer]" => 0,
+      ), t('Finish'));
+
+    // We should still only have one 50% result, since we failed.
+    $results = entity_load('quiz_result', FALSE, array(), TRUE);
+    $this->assertTrue(count($results) == 1, 'Found only one quiz result');
+    $quiz_result = reset($results);
+    $this->assertEqual($quiz_result->score, 50, 'Quiz score was 50%');
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node4->nid][answer]" => 0,
+      ), t('Finish'));
+
+    // We should still only have one 75% result.
+    $results = entity_load('quiz_result', FALSE, array(), TRUE);
+    $this->assertEqual(count($results), 1, 'Found only one quiz result');
+    $quiz_result = reset($results);
+    $this->assertEqual($quiz_result->score, 75, 'Quiz score was 75%');
+  }
+
+  /**
+   * Test the build on last attempt functionality.
+   */
+  public function testBuildOnLastAttempt() {
+    $this->drupalLogin($this->admin);
+
+    // Prepopulate correct answers.
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'build_on_last' => 'correct',
+    ));
+
+    $question_node1 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+    $question_node3 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);
+    $question_node4 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+    ));
+    $this->linkQuestionToQuiz($question_node4, $quiz_node);
+
+    $this->drupalLogin($this->user);
+
+    // Take the quiz.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    // No build on last form here.
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 0,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node4->nid][answer]" => 0,
+      ), t('Finish'));
+
+    // Take it again, ensure the correct answers are prefilled.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      'build_on_last' => 'correct',
+      ), t('Start @quiz', array('@quiz' => QUIZ_NAME)));
+    $this->assertFieldChecked("edit-question-{$question_node1->nid}-answer-1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->assertNoFieldChecked("edit-question-{$question_node2->nid}-answer-1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 0,
+      ), t('Next'));
+    $this->assertFieldChecked("edit-question-{$question_node3->nid}-answer-1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 1,
+      ), t('Next'));
+    $this->assertNoFieldChecked("edit-question-{$question_node4->nid}-answer-1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node4->nid][answer]" => 0,
+      ), t('Finish'));
+
+    // Switch the build option
+    $quiz_node->build_on_last = 'all';
+    node_save($quiz_node);
+
+    // Take the quiz with this revision.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 0,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 1,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node4->nid][answer]" => 0,
+      ), t('Finish'));
+
+    // Take it again, ensure all the answers are prefilled.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      'build_on_last' => 'all',
+      ), t('Start @quiz', array('@quiz' => QUIZ_NAME)));
+    $this->assertFieldChecked("edit-question-{$question_node1->nid}-answer-1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->assertFieldChecked("edit-question-{$question_node2->nid}-answer-0");
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 0,
+      ), t('Next'));
+    $this->assertFieldChecked("edit-question-{$question_node3->nid}-answer-1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 1,
+      ), t('Next'));
+    $this->assertFieldChecked("edit-question-{$question_node4->nid}-answer-0");
+    $this->drupalPost(NULL, array(
+      "question[$question_node4->nid][answer]" => 0,
+      ), t('Finish'));
+  }
+
+  /**
+   * Test fieldable Quiz results.
+   */
+  function testFieldableResults() {
+    // Add a field to quiz result and make it required for starting.
+    $field = array(
+      'field_name' => 'quiz_result_field_a',
+      'type' => 'text',
+    );
+    $instance = array(
+      'field_name' => 'quiz_result_field_a',
+      'entity_type' => 'quiz_result',
+      'bundle' => 'quiz_result',
+      'label' => 'Result field A',
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => 60,
+        ),
+        'type' => 'text_textfield',
+        'weight' => 1,
+      ),
+      'settings' => array(
+        'quiz_result_user_field' => 1,
+      ),
+      'required' => 1,
+    );
+    field_create_field($field);
+    field_create_instance($instance);
+
+    $quizNodeA = $this->drupalCreateQuiz();
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'feedback' => 'Q1Feedback'));
+    $this->linkQuestionToQuiz($question_node1, $quizNodeA);
+    $this->drupalLogin($this->user);
+
+    // Check if field shows up and user is not yet enrolled.
+    $this->drupalGet("node/$quizNodeA->nid/take");
+    $this->assertFieldById('edit-quiz-result-field-a-und-0-value');
+
+    // We haven't submitted the form so we should not have a Quiz result yet.
+    $quiz_result = _quiz_active_result_id($this->user->uid, $quizNodeA->nid, $quizNodeA->vid);
+    $this->assertFalse($quiz_result, 'Quiz result does not yet exist.');
+
+    // Submit the form.
+    $this->drupalPost(NULL, array(), t('Start Quiz'));
+    // Check that we hooked into Form API correctly.
+    $this->assertText('field is required');
+
+    // SUbmit the form with data.
+    $this->drupalPost(NULL, array('quiz_result_field_a[und][0][value]' => 'test 123'), t('Start Quiz'));
+    $quiz_result = _quiz_active_result_id($this->user->uid, $quizNodeA->nid, $quizNodeA->vid);
+    // Check the result exists now.
+    $this->assertText('Question 1');
+  }
+
+  /**
+   * Test our wildcard answer exporter.
+   */
+  function testQuizResultAnswerExport() {
+    $settings = array(
+      'title' => 'MCQ 1 Title',
+      'type' => 'multichoice',
+      'choice_multi' => 0,
+      'choice_random' => 0,
+      'choice_boolean' => 0,
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'MCQ 1 body text'))),
+    );
+
+    $settings['alternatives'][0]['answer']['value'] = 'This is the A answer';
+    $settings['alternatives'][0]['answer']['format'] = 'filtered_html';
+    $settings['alternatives'][0]['score_if_chosen'] = 1;
+    $settings['alternatives'][0]['feedback_if_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][0]['feedback_if_not_chosen']['format'] = 'filtered_html';
+
+    $settings['alternatives'][1]['answer']['value'] = 'This is the B answer';
+    $settings['alternatives'][1]['answer']['format'] = 'filtered_html';
+    $settings['alternatives'][1]['score_if_chosen'] = 0;
+    $settings['alternatives'][1]['feedback_if_chosen']['format'] = 'filtered_html';
+    $settings['alternatives'][1]['feedback_if_not_chosen']['format'] = 'filtered_html';
+
+
+    $question_node = $this->drupalCreateNode($settings);
+    // Reload to get the answer IDs.
+    $question_node = node_load($question_node->nid);
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer][user_answer]" => $question_node->alternatives[0]['id'],
+      ), t('Finish'));
+
+    // Make a modification to the default view.
+    $view = views_get_view('quiz_results');
+    $view->set_arguments(array($quiz_node->nid));
+    $view->set_display('page_1');
+    $fields = $view->display_handler->get_option('fields');
+    $newfield = array();
+    $newfield['id'] = 'answers';
+    $newfield['table'] = 'quiz_node_results';
+    $newfield['field'] = 'answers';
+    $fields['answers'] = $newfield;
+    $view->display_handler->set_option('fields', $fields);
+    $view->save();
+
+    // Verify the user's answer appears on our modified report.
+    $this->drupalGet("node/$quiz_node->nid/quiz/results");
+    $this->assertText('1. MCQ 1 Title');
+    $this->assertText('This is the A answer');
+    $this->assertNoText('This is the B answer');
+  }
+
+}

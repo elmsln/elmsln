@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for the long_answer Module.
+ */
+
+/**
+ * Test class for long answer.
+ */
+class LongAnswerTestCase extends QuizQuestionTestCase {
+
+  var $question_node_type = 'long_answer';
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Long answer'),
+      'description' => t('Unit test for Long answers question type.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    parent::setUp(array('long_answer'), array('score any quiz'));
+  }
+
+  /**
+   * Test manually graded questions. Also test feedback here instead of its own
+   * test case.
+   *
+   * Note: we use two questions here to make sure the grading form is handled
+   * correctly.
+   */
+  public function testGradeAnswerManualFeedback() {
+    $this->drupalLogin($this->admin);
+
+    $question_node1 = $this->testCreateQuizQuestion();
+    $quiz_node = $this->linkQuestionToQuiz($question_node1);
+
+    $question_node2 = $this->testCreateQuizQuestion();
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    // Test correct.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 'the answer is the zero one infinity rule',
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 'the number two really is ridiculous',
+      ), t('Finish'));
+    $this->assertText('Your score: 0%');
+    // Strange behavior - extra spacing in the HTML.
+    //$this->assertText('Score ? of 10');
+    $this->assertText('This answer has not yet been scored.');
+    $this->assertNoFieldByName('1[score]');
+    $this->assertNoFieldByName('2[score]');
+    $url_of_result = $this->getUrl();
+    $admin_url_of_result = preg_replace('#quiz-results/(\d+)#', 'quiz/results/$1', $this->getUrl());
+
+    // Test grading the question.
+    $this->drupalLogin($this->admin);
+    $this->drupalGet($admin_url_of_result);
+    $this->drupalPost(NULL, array(
+      "0[score]" => 3,
+      "1[score]" => 7,
+      "0[answer_feedback][value]" => 'Feedback for answer 1.',
+      "1[answer_feedback][value]" => 'Feedback for answer 2.',
+      "0[answer_feedback][format]" => 'filtered_html',
+      "1[answer_feedback][format]" => 'filtered_html',
+      ), t('Save score'));
+    $this->assertText('The scoring data you provided has been saved.');
+
+    // Test the score and feedback are visible to the user.
+    $this->drupalLogin($this->user);
+    $this->drupalGet($url_of_result);
+    $this->assertText('You got 10 of 20 possible points.');
+    $this->assertText('Your score: 50%');
+    // Strange behavior - extra spacing in the HTML.
+    //$this->assertText('Score 3 of 10');
+    //$this->assertText('Score 7 of 10');
+    $this->assertText('Feedback for answer 1.');
+    $this->assertText('Feedback for answer 2.');
+  }
+
+  /**
+   * Test adding and taking a truefalse question.
+   */
+  function testCreateQuizQuestion($settings = array()) {
+    if (!$settings) {
+      $settings = array(
+        'rubric' => 'LA 1 rubric.',
+      );
+    }
+
+    // Login as our privileged user.
+    $this->drupalLogin($this->admin);
+
+    $question_node = $this->drupalCreateNode(array(
+      'type' => $this->question_node_type,
+      'title' => 'LA 1 title',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'LA 1 body text.'))),
+      ) + $settings);
+
+    return $question_node;
+  }
+
+  /**
+   * Test that the question response can be edited.
+   */
+  function testEditQuestionResponse() {
+    $this->drupalLogin($this->admin);
+
+    // Create & link a question.
+    $question_node = $this->testCreateQuizQuestion();
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+    $question_node2 = $this->testCreateQuizQuestion();
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    // Login as non-admin.
+    $this->drupalLogin($this->user);
+
+
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalGet("node/$quiz_node->nid/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 'um some rule, I forget',
+      ), t('Next'));
+    $this->drupalGet("node/$quiz_node->nid/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 'um some rule, I forget',
+      ), t('Next'));
+  }
+
+}

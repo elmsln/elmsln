@@ -1,0 +1,68 @@
+<?php
+
+class QuizQuestionNumbering extends QuizTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz question numbering'),
+      'description' => t('Unit test for Quiz question numbering.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'truefalse';
+    $modules[] = 'quiz_directions';
+    $modules[] = 'quiz_page';
+    parent::setUp($modules);
+  }
+
+  public function testQuestionNumbering() {
+    $this->drupalLogin($this->admin);
+
+    // Create Quiz with review of score.
+    $quiz_node = $this->drupalCreateQuiz();
+
+    // Create the questions.
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text')))));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node); // QNR ID 1
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 2 body text')))));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node); // QNR ID 2
+    $question_node3 = $this->drupalCreateNode(array('type' => 'quiz_directions', 'body' => array(LANGUAGE_NONE => array(array('value' => 'QD 3 body text')))));
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);  // QNR ID 3
+    // Create the page.
+    $page_node1 = $this->drupalCreateNode(array('type' => 'quiz_page', 'body' => array(LANGUAGE_NONE => array(array('value' => 'PG 1 body text')))));
+    $this->linkQuestionToQuiz($page_node1, $quiz_node); // QNR ID 4
+    // Go to the manage questions form.
+    $this->drupalGet("node/$quiz_node->nid/quiz/questions");
+    $post = array(
+      // Make the questions have parents.
+      "qnr_pids[{$question_node1->nid}-{$question_node1->vid}]" => 4,
+      "qnr_pids[{$question_node2->nid}-{$question_node2->vid}]" => 4,
+      "qnr_pids[{$question_node3->nid}-{$question_node3->vid}]" => 4,
+      // Mirror what JS would have done by adjusting the weights.
+      "weights[{$page_node1->nid}-{$page_node1->vid}]" => 2,
+      "weights[{$question_node1->nid}-{$question_node1->vid}]" => 3,
+      "weights[{$question_node2->nid}-{$question_node2->vid}]" => 4,
+      "weights[{$question_node3->nid}-{$question_node3->vid}]" => 5,
+    );
+    $this->drupalPost(NULL, $post, t('Submit'));
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+
+    $this->assertText("PG 1 body text");
+
+    $this->assertText("Question 1");
+    $this->assertText("TF 1 body text");
+
+    $this->assertText("Question 2");
+    $this->assertText("TF 2 body text");
+
+    // There we only 2 real questions. Verify another question is present
+    // but we stopped numbering at 2.
+    $this->assertNoText("Question 3");
+    $this->assertText("QD 3 body text");
+  }
+
+}

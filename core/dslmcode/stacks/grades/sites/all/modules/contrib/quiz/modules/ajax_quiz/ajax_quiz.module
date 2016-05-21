@@ -1,0 +1,196 @@
+<?php
+/*
+ * @file
+ * module file for ajax_quiz quiz module
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function ajax_quiz_help($path, $arg) {
+  if ($path == 'admin/help#ajax_quiz') {
+    return '<p>' . t('AJAX version of quiz. Successive quiz questions will be loaded in the same page without page reload.') . '</p>';
+  }
+}
+
+/**
+ * Implementation of hook_perm()
+ * Valid permissions for this module
+ * @return array An array of valid permissions.
+ */
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function ajax_quiz_permission() {
+  return array(
+    'access ajax quiz' => array(
+      'title' => t('access ajax quiz'),
+      'description' => t('Allowed to take a quiz with ajax.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function ajax_quiz_form_alter(&$form, &$form_state, $form_id) {
+  $quiz_forms = array(
+    'quiz_question_answering_form',
+    'quiz_report_form',
+  );
+
+  if (in_array($form_id, $quiz_forms) && user_access('access ajax quiz')) {
+    // Wrap form.
+    $form['#prefix'] = '<div id="ajax-quiz-wrapper">';
+    $form['#suffix'] = '</div>';
+
+    // Build ajax array.
+    $ajax = array(
+      'callback' => 'ajax_quiz_navigate_quiz',
+    );
+
+    // Add ajax to each submit button.
+    $nav_children = element_children($form['navigation']);
+    foreach ($nav_children as $nav_child) {
+      if ($form['navigation'][$nav_child]['#type'] == 'submit') {
+        $form['navigation'][$nav_child]['#ajax'] = $ajax;
+      }
+    }
+  }
+}
+
+
+/**
+ * AJAX callback for quiz submission.
+ */
+function ajax_quiz_navigate_quiz($form, &$form_state) {
+  ctools_include('ajax');
+  // Array for ajax commands to return.
+  $commands = array();
+
+  // Get the quiz result.
+  if (isset($form['#quiz_result'])) {
+    $quiz_result = $form['#quiz_result'];
+  }
+  // Is there a temp result?
+  elseif (isset($quiz_session['temp']['result_id'])) {
+    $quiz_result =  quiz_result_load($quiz_session['temp']['result_id']);
+  }
+  else {
+    $quiz_result = FALSE;
+  }
+
+  // Get the quiz.
+  if ($quiz_result) {
+    $quiz = node_load($quiz_result->nid, $quiz_result->vid);
+  } else {
+    $quiz = FALSE;
+  }
+
+  // Get quiz session.
+  $quiz_session = $_SESSION['quiz'];
+
+  // Get question number.
+  if ($quiz && isset($quiz_session[$quiz->nid]['current'])) {
+    $question_number = $quiz_session[$quiz->nid]['current'];
+    // Feedback? reduce the question number.
+    // This is because the quiz is already progressed the question counter.
+    if ($form_state['feedback']) {
+      $question_number--;
+    }
+  }
+  else {
+    $question_number = 0;
+  }
+
+  // Have a quiz result and valid question?
+  if ($quiz_result && isset($quiz_result->layout[$question_number])) {
+    // Figure out current question.
+    $question = $quiz_result->layout[$question_number];
+
+    if (!empty($question['qnr_pid'])) {
+      // Find the parent.
+      foreach ($quiz_result->layout as $pquestion) {
+        if ($pquestion['qnr_id'] == $question['qnr_pid']) {
+          // Load the page that the requested question belongs to.
+          $question_node = node_load($pquestion['nid'], $pquestion['vid']);
+        }
+      }
+    }
+    else {
+      // Load the question.
+      $question_node = node_load($question['nid'], $question['vid']);
+    }
+
+    // Have a question node?
+    if ($question_node) {
+      // Getting feedback?
+      if ($form_state['feedback']) {
+        // Load the feedback form.
+        $feedback = quiz_question_feedback($quiz, $question_node);
+        $commands[] = ajax_command_replace('#ajax-quiz-wrapper', drupal_render($feedback));
+      }
+      else {
+        // Update build state question for form rebuilding.
+        $form_state['build_info']['args'][0] = $question_node;
+        // Mark this as the current question.
+        quiz_question_goto($quiz, $question_number);
+        // Added the progress info to the view.
+        $questions = array();
+        $i = 0;
+        foreach ($quiz_result->layout as $idx => $question) {
+          if (empty($question['qnr_pid'])) {
+            // Question has no parent. Show it in the jumper.
+            $questions[$idx] = ++$i;
+          }
+        }
+
+        // Update progress counter.
+        $progress['#markup'] = theme('quiz_progress', array(
+          'questions' => $questions,
+          'current' => $question_number,
+          'allow_jumping' => $quiz->allow_jumping,
+          'pager' => count($questions) >= variable_get('quiz_pager_start', 100),
+          'time_limit' => $quiz->time_limit,
+        ));
+        $commands[] = ajax_command_replace("#quiz-progress", drupal_render($progress));
+
+        // Build form based on what form we are on.
+        // Report form?
+        if ($form['#form_id'] == 'quiz_report_form') {
+          // Build answer for for next question.
+          $form = drupal_get_form('quiz_question_answering_form', $question_node, $quiz_result->result_id);
+        }
+        // Answering form?
+        else {
+          // Rebuild for next question.
+          $form_state['cache'] = FALSE;
+          $form_state['rebuild'] = TRUE;
+          $form = drupal_rebuild_form($form['#form_id'], $form_state, $form);
+        }
+
+        $commands[] = ajax_command_replace("#ajax-quiz-wrapper", drupal_render($form));
+      }
+    }
+  }
+  // Only have a result?
+  elseif ($quiz_result) {
+    // If there is a quiz result, but no current question. Completed quiz.
+    $commands[] = ctools_ajax_command_redirect('node/' . $quiz_result->nid . '/quiz-results/' . $quiz_result->result_id . '/view');
+  }
+  // No result, but have a quiz?
+  else {
+    // don't know what to do redirect back to quiz.
+    $commands[] = ctools_ajax_command_redirect('node/' . $quiz->nid);
+  }
+
+  // Return ajax commands.
+  return array('#type' => 'ajax', '#commands' => $commands);
+}

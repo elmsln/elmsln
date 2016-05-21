@@ -1,0 +1,59 @@
+<?php
+
+class QuizTimerTestCase extends QuizTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz timer'),
+      'description' => t('Unit test for Quiz and question timer behaviors.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'truefalse';
+    parent::setUp($modules);
+  }
+
+  /**
+   * Test quiz timer expiration.
+   */
+  function testQuizTimer() {
+    // Set up a quiz to show us feedback, 30 second expiration.
+    $quiz_node = $this->drupalCreateQuiz(array(
+      'review_options' => array('end' => array('score' => 'score')),
+      'time_limit' => 30,
+    ));
+
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+    $question_node3 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);
+
+    // Record 2 answers before expiration.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/{$quiz_node->nid}/take");
+    $this->drupalGet("node/{$quiz_node->nid}/take/1");
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 1,
+      ), t('Next'));
+    $this->assertNoText(t('The last answer was not submitted, as the time ran out.'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 1,
+      ), t('Next'));
+    $this->assertNoText(t('The last answer was not submitted, as the time ran out.'));
+
+    // Set the quiz result to have started 31 seconds ago.
+    db_query('UPDATE {quiz_node_results} SET time_start = :time', array(':time' => REQUEST_TIME - 31));
+
+    // Submit the last question past the expiration.
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText(t('The last answer was not submitted, as the time ran out.'));
+    $this->assertText('You got 2 of 3 possible points.');
+  }
+
+}

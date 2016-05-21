@@ -1,0 +1,272 @@
+<?php
+
+/**
+ * Sponsored by: Norwegian Centre for Telemedicine
+ * Code: falcon
+ *
+ * @file
+ * multichoice Install (a quiz question type)
+ */
+
+/**
+ * Implements hook_install().
+ */
+function multichoice_install() {
+  // Add body field to multichoice node
+  quiz_question_add_body_field('multichoice');
+
+  variable_set('node_options_multichoice', array('status'));
+}
+
+/**
+ * Implements hook_schema().
+ */
+function multichoice_schema() {
+  // Stores the users answers to a question.
+  $schema['quiz_multichoice_user_answers'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'result_answer_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'choice_order' => array(
+        'type' => 'text',
+      ),
+    ),
+    'primary key' => array(
+      'id'
+    ),
+    'unique keys' => array(
+      'result_answer_id' => array('result_answer_id'),
+    ),
+  );
+
+  $schema['quiz_multichoice_user_answer_multi'] = array(
+    'fields' => array(
+      'user_answer_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'answer_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array(
+      'user_answer_id', 'answer_id'
+    ),
+    'indexes' => array(
+      'answer_id' => array('user_answer_id'),
+    ),
+  );
+
+  $schema['quiz_multichoice_properties'] = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'choice_multi' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'choice_random' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'choice_boolean' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'nid', 'vid'
+    ),
+  );
+
+  /*
+   * Holds each answer in the answer_collections.
+   */
+  $schema['quiz_multichoice_answers'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'answer' => array(
+        'type' => 'text',
+      ),
+      'answer_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'feedback_if_chosen' => array(
+        'type' => 'text',
+      ),
+      'feedback_if_chosen_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'feedback_if_not_chosen' => array(
+        'type' => 'text',
+      ),
+      'feedback_if_not_chosen_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'score_if_chosen' => array(
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'score_if_not_chosen' => array(
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'question_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'id',
+    ),
+    'indexes' => array(
+      'quiz_id' => array('question_nid', 'question_vid'),
+    )
+  );
+
+  $schema['quiz_multichoice_user_settings'] = array(
+    'fields' => array(
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'choice_multi' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'choice_random' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'choice_boolean' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'uid'
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function multichoice_uninstall() {
+  $var = array(
+    'multichoice_def_scoring',
+    'multichoice_def_num_of_alts',
+  );
+  foreach ($var as $v) {
+    variable_del($v);
+  }
+}
+
+/**
+ * Change answer_format to a varchar.
+ */
+function multichoice_update_7500() {
+  foreach (array('answer_format', 'feedback_if_chosen_format', 'feedback_if_not_chosen_format') as $field) {
+    db_change_field('quiz_multichoice_answers', $field, $field, array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      )
+    );
+  }
+}
+
+/**
+ * Add weights for multichoice alternatives.
+ */
+function multichoice_update_7501() {
+  db_add_field('quiz_multichoice_answers', 'weight', array(
+    'type' => 'int',
+    'unsigned' => FALSE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+  // Lol.
+  db_query('UPDATE {quiz_multichoice_answers} SET weight = id');
+  return t('Added weights for multichoice alternatives.');
+}
+
+/**
+ * Normalize data storage.
+ */
+function multichoice_update_7502() {
+  db_add_field('quiz_multichoice_user_answers', 'result_answer_id', array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => FALSE,
+  ));
+  db_query("UPDATE {quiz_multichoice_user_answers} qtua
+    INNER JOIN {quiz_node_results_answers} qnra ON (qtua.question_nid = qnra.question_nid
+    AND qtua.question_vid = qnra.question_vid
+    AND qtua.result_id = qnra.result_id)
+    SET qtua.result_answer_id = qnra.result_answer_id");
+  db_drop_field('quiz_multichoice_user_answers', 'result_id');
+  db_drop_field('quiz_multichoice_user_answers', 'question_nid');
+  db_drop_field('quiz_multichoice_user_answers', 'question_vid');
+
+  db_add_unique_key('quiz_multichoice_user_answers', 'result_answer_id', array('result_answer_id'));
+}

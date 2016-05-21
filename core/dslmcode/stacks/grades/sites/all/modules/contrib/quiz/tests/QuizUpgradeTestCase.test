@@ -1,0 +1,72 @@
+<?php
+
+class QuizUpgradeTestCase extends UpdatePathTestCase {
+
+  public $quiz_modules = array(
+    'quiz',
+    'quiz_question',
+    'truefalse',
+    'multichoice',
+    'short_answer',
+    'long_answer',
+    'quiz_directions',
+    'scale',
+    'matching',
+    'ajax_quiz',
+    'quiz_stats',
+  );
+  public $other_modules = array(
+    'entity',
+    'field',
+  );
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz upgrade'),
+      'description' => t('Test an upgrade from various Quiz versions.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  /**
+   * We have a modified set up here, so that we can run multiple upgrade tests.
+   */
+  public function setUp() {
+    $this->setup = TRUE;
+  }
+
+  /**
+   * Test an upgrade to Quiz from 7.x-4.0-beta2
+   */
+  function test740Beta2Upgrade() {
+    $this->databaseDumpFiles = array(
+      drupal_get_path('module', 'quiz') . '/tests/upgrade/quiz-beta2.php.gz',
+    );
+    parent::setUp();
+    $this->uninstallModulesExcept(array_merge($this->quiz_modules, $this->other_modules));
+    $this->assertTrue($this->performUpgrade(), 'The upgrade was completed successfully.');
+
+    drupal_get_schema(NULL, TRUE);
+
+    foreach ($this->quiz_modules as $module) {
+      $schema = drupal_get_schema_unprocessed($module);
+      foreach ($schema as $table => $info) {
+        $this->assertTrue(db_table_exists($table), "$table exists");
+        foreach ($info['fields'] as $field_name => $field_info) {
+          $this->assertTrue(db_field_exists($table, $field_name), "$table has $field_name");
+        }
+        if (isset($info['indexes'])) {
+          foreach ($info['indexes'] as $index_name => $columns) {
+            $this->assertTrue(db_index_exists($table, $index_name), "$table has index $index_name");
+          }
+        }
+        if (isset($info['unique keys'])) {
+          foreach ($info['unique keys'] as $index_name => $columns) {
+            $this->assertTrue(db_index_exists($table, $index_name), "$table has unique key $index_name");
+          }
+        }
+      }
+    }
+  }
+
+}

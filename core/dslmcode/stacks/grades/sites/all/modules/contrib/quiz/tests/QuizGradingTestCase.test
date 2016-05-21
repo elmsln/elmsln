@@ -1,0 +1,137 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for the quiz question Module.
+ */
+
+/**
+ * Base test class for Quiz questions.
+ */
+class QuizGradingTestCase extends QuizTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz grading'),
+      'description' => t('Unit test for Quiz grading.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'truefalse';
+    $modules[] = 'short_answer';
+    parent::setUp($modules, array('score any quiz'));
+  }
+
+  /**
+   * Test question weights.
+   */
+  public function testWeightedScore() {
+    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $question_node3 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+
+    // Link the questions. Make a 26 point quiz.
+    $quiz_node = $this->linkQuestionToQuiz($question_node1);
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);
+
+    db_update('quiz_node_relationship')->condition('child_nid', $question_node1->nid)->fields(array('max_score' => 1))->execute();
+    db_update('quiz_node_relationship')->condition('child_nid', $question_node2->nid)->fields(array('max_score' => 5))->execute();
+    db_update('quiz_node_relationship')->condition('child_nid', $question_node3->nid)->fields(array('max_score' => 20))->execute();
+
+    // Login as non-admin.
+    $this->drupalLogin($this->user);
+
+    // Test correct question.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $result_id = _quiz_active_result_id($this->user->uid, $quiz_node->nid, $quiz_node->vid);
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 0,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 0,
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node3->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 20 of 26 possible points.');
+
+
+    // Make sure the values in the database are correct.
+    $qra1 = _quiz_question_response_get_instance($result_id, $question_node1);
+    $this->assertEqual($qra1->points_awarded, 0);
+
+    $qra2 = _quiz_question_response_get_instance($result_id, $question_node2);
+    $this->assertEqual($qra2->points_awarded, 0);
+
+    $qra3 = _quiz_question_response_get_instance($result_id, $question_node3);
+    $this->assertEqual($qra3->points_awarded, 20);
+
+    $quiz_result = quiz_result_load($result_id);
+    $this->assertEqual($quiz_result->score, 77);
+  }
+
+  /**
+   * Test question weights.
+   */
+  public function testManualWeightedScore() {
+    $question_node1 = $this->drupalCreateNode(array('type' => 'short_answer',
+      'correct_answer_evaluation' => ShortAnswerQuestion::ANSWER_MANUAL,
+      'correct_answer' => 'the Zero One Infinity rule',
+    ));
+    $quiz_node = $this->linkQuestionToQuiz($question_node1);
+
+    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+
+    // Link the question. Make a 10 point quiz with a 7 point SA and 3 point TF.
+    db_update('quiz_node_relationship')->condition('child_nid', $question_node1->nid)->fields(array('max_score' => 7))->execute();
+    db_update('quiz_node_relationship')->condition('child_nid', $question_node2->nid)->fields(array('max_score' => 3))->execute();
+
+    // Login as non-admin.
+    $this->drupalLogin($this->user);
+
+    // Test correct question.
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $result_id = _quiz_active_result_id($this->user->uid, $quiz_node->nid, $quiz_node->vid);
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 'blah blah',
+      ), t('Next'));
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer]" => 1,
+      ), t('Finish'));
+    $this->assertText('You got 3 of 10 possible points.');
+    $url_of_result = $this->getUrl();
+    $admin_url_of_result = preg_replace('#quiz-results/(\d+)#', 'quiz/results/$1', $this->getUrl());
+
+    // Test grading the question.
+    $this->drupalLogin($this->admin);
+    $this->drupalGet($admin_url_of_result);
+
+    $this->drupalPost(NULL, array(
+      "0[score]" => 3,
+      ), t('Save score'));
+
+
+    // Make sure the values in the database are correct.
+    // We scored 3 points, but this is out of the weighted maximum. So make sure
+    // that gets calculated correctly. The score should be be x out of 5 points,
+    // but the weighted is 7 points. Weighted by a ratio of 1.4 the
+    // question score should be 2.14.
+    $qra1 = _quiz_question_response_get_instance($result_id, $question_node1);
+    $this->assertEqual($qra1->points_awarded, 3);
+    $score = db_select('quiz_short_answer_user_answers', 'qs')->condition('result_answer_id', $qra1->result_answer_id)->fields('qs', array('score'))->execute()->fetchField();
+    $this->assertEqual(round($score, 2), 2.14);
+
+    $qra2 = _quiz_question_response_get_instance($result_id, $question_node2);
+    $this->assertEqual($qra2->points_awarded, 3);
+
+    // We got 3 + 3 points out of 10. Unweighted we would have received 2.14 + 1
+    // point.
+    $quiz_result = quiz_result_load($result_id);
+    $this->assertEqual($quiz_result->score, 60);
+  }
+
+}
