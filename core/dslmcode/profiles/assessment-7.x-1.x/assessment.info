@@ -137,6 +137,16 @@ dependencies[] = cis_course_authority
 ; ----------
 ; Assessment Dependencies
 ; ----------
+; Quiz goodness
+dependencies[] = quiz
+dependencies[] = quiz_question
+dependencies[] = quiz_page
+dependencies[] = multichoice
+dependencies[] = quiz_directions
+; Tin Can Goodness
+dependencies[] = tincanapi
+dependencies[] = tincanapi_quiz
+
 dependencies[] = assessment_item
 dependencies[] = assessment_assignment
 dependencies[] = assessment_gradebook
