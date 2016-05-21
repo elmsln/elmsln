@@ -30,6 +30,5 @@ ELMSLN is a collection of many, many projects, all individually licensed, all op
 
 - ELMSLN code on github (and not referenced or pulled in from other sources) is GPLv3.
 - Drupal and Drupal contributed modules and themes are GPLv2 due to licensing requirements of the drupal.org community.
-- Piwik is GPLv3 via it's original repo (https://github.com/piwik/piwik)
 - CKEditor 4.x is GPLv3
 - Other included libraries are their respective LICENSE.txt files included local to those pieces of code
