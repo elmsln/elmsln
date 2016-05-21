@@ -448,7 +448,7 @@ function _cis_connector_get_course_by_machine_name($machine_name) {
  * Still in systems like MOOC / Studio, it will load the base_path()
  * function.
  *
- * @return string  $course  The machine name of the course.
+ * @return string  $course  The machine name of the course or empty.
  *
  * @see _cis_connector_section_context()
  */
