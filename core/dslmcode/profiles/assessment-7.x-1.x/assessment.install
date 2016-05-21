@@ -18,3 +18,10 @@ function assessment_install() {
   // clean up
   features_revert_module('assessment_ux');
 }
+
+/**
+ * Implements hook_update_N().
+ */
+function assessment_update_7000(&$sandbox) {
+  module_enable(array('quiz_question', 'quiz_page', 'multichoice', 'quiz_directions', 'tincanapi', 'tincanapi_quiz', 'assessment_item', 'assessment_assignment', 'assessment_quiz'));
+}

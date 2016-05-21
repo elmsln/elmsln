@@ -146,9 +146,10 @@ dependencies[] = quiz_directions
 ; Tin Can Goodness
 dependencies[] = tincanapi
 dependencies[] = tincanapi_quiz
-
+; Assessment Core
 dependencies[] = assessment_item
 dependencies[] = assessment_assignment
+dependencies[] = assessment_quiz
 dependencies[] = assessment_gradebook
 dependencies[] = assessment_gradebook_ux
 dependencies[] = assessment_ux

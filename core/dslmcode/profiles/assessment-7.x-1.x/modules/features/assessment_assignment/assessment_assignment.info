@@ -50,6 +50,7 @@ features[field_instance][] = node-assessment_assignment-field_xapi_statements
 features[field_instance][] = node-assessment_assignment-og_group_ref
 features[field_instance][] = node-cis_course-field_grades_assignments_ref
 features[field_instance][] = node-section-field_grades_assignments_ref
+features[menu_links][] = menu-elmsln-add_assignment:node/add/assessment-assignment
 features[node][] = assessment_assignment
 features[variable][] = field_bundle_settings_node__assessment_assignment
 features[variable][] = menu_options_assessment_assignment
