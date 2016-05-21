@@ -79,22 +79,24 @@ function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
                       if (file_exists($site->getPathname() . '/settings.php')) {
                         // Add site alias
                         $basename = $site->getBasename();
-                        $pulledaliases["$stack.$basename"] = array(
-                          'root' => $root . $stack,
-                          'uri' => "$stack.$address.$basename",
-                        );
+                        // test that this isn't actually something like coursename = host
+                        if ($basename == $config['host'] && !is_dir("$root$stack/sites/$stack/$group/$group")) {
+                          $pulledaliases["$stack.$basename"] = array(
+                            'root' => $root . $stack,
+                            'uri' => "$stack.$address",
+                          );
+                        }
+                        else {
+                          $pulledaliases["$stack.$basename"] = array(
+                            'root' => $root . $stack,
+                            'uri' => "$stack.$address.$basename",
+                          );
+                        }
                       }
                     }
                     $site->next();
                   }
                 }
-              }
-              // account for stacks that function more like CIS
-              if (file_exists("$root$stack/sites/$stack/$group/settings.php")) {
-                $pulledaliases["$stack.$group"] = array(
-                  'root' => $root . $stack,
-                  'uri' => "$stack.$address",
-                );
               }
             }
             $stackdir->next();
