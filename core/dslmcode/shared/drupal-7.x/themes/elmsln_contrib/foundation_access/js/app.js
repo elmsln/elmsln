@@ -8,7 +8,6 @@
 
 var imageLightbox = require('./components/imageLightbox.js');
 var mediavideo = require('./components/mediavideo.js');
-var angular = require('./components/angular.js');
 
 (function ($) {
   // Accessibility To Do:
@@ -51,7 +50,6 @@ var angular = require('./components/angular.js');
       attach: function (context, settings) {
         imageLightbox();
         mediavideo();
-        angular();
       }
     };
   }
@@ -59,7 +57,6 @@ var angular = require('./components/angular.js');
     $(document).ready(function() {
       imageLightbox();
       mediavideo();
-      angular();
     });
   }
 
