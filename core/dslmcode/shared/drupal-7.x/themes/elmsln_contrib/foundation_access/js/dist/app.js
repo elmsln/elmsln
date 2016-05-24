@@ -2,14 +2,14 @@
 /**
  * This file will be compiled into foundation_access/js/dist/app.js
  *
- * To make changes to this file you must runt `grunt`.
- * If you do not have grunt, please make edits directly
+ * To make changes to this file you must runt `grunt`.  
+ * If you do not have grunt, please make edits directly 
  * to foundation_access/js/tweaks.js
  */
 
 var imageLightbox = require('./components/imageLightbox.js');
 var mediavideo = require('./components/mediavideo.js');
-var angular = require('./components/angular.js');
+
 (function ($) {
   // Accessibility To Do:
   //
@@ -51,7 +51,6 @@ var angular = require('./components/angular.js');
       attach: function (context, settings) {
         imageLightbox();
         mediavideo();
-        angular();
       }
     };
   }
@@ -59,7 +58,6 @@ var angular = require('./components/angular.js');
     $(document).ready(function() {
       imageLightbox();
       mediavideo();
-      angular();
     });
   }
 
@@ -197,54 +195,7 @@ var angular = require('./components/angular.js');
 
 })(jQuery);
 
-},{"./components/angular.js":2,"./components/imageLightbox.js":3,"./components/mediavideo.js":4}],2:[function(require,module,exports){
-module.exports = function() {
-	angular.module('Fa', [
-	  'ngResource'
-	])
-
-	/**
-	 * Constants
-	 */
-	.constant('endpoint_url', '')
-
-	/**
-	 * Config
-	 */
-	.config(['$resourceProvider', function($resourceProvider) {
-	  // Don't strip trailing slashes from calculated URLs
-	  $resourceProvider.defaults.stripTrailingSlashes = false;
-	}])
-
-	/**
-	 * Service
-	 */
-	.service('CoursesService', ['$resource', 'endpoint_url', function($resource, endpoint_url) {
-	  return $resource(endpoint_url + '/node.json?type=course&deep-load-refs=field_collection_item,node', null, {
-	  	query: {
-	  		method: 'GET',
-	  		isArray: false
-	  	}
-	  });
-	}])
-
-	/**
-	 * Controllers
-	 */
-	.controller('cisDashboard', ['$scope', 'CoursesService', function($scope, CoursesService) {
-	  $scope.courses = CoursesService.query();
-    // simple selector to make this item be 'active'
-    $scope.select = function(item) {
-      $scope.selected = item;
-    };
-    // test to see if something is 'active'
-    $scope.isActive = function(item) {
-      return $scope.selected === item;
-    };
-	}])
-	;
-};
-},{}],3:[function(require,module,exports){
+},{"./components/imageLightbox.js":2,"./components/mediavideo.js":3}],2:[function(require,module,exports){
 module.exports = function() {
   (function ($) {
     'use strict';
@@ -273,7 +224,7 @@ module.exports = function() {
   })(jQuery);
 };
 
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 module.exports = function() {
   (function ($) {
 	  'use strict';
