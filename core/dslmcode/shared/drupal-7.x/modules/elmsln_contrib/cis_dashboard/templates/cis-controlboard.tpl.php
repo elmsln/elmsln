@@ -49,11 +49,12 @@
         <dd class="active"><a href="#panel-sections-{{$index}}">Sections</a></dd>
         <dd><a href="#panel-content-{{$index}}">Content</a></dd>
         <dd><a href="#panel-people-{{$index}}">People</a></dd>
+        <dd><a href="#panel-network-{{$index}}">Network</a></dd>
       </dl>
       <div class="tabs-content cis--tab-panel__wrapper">
         <div class="content active row cis--course-item__vertical-tabs-wrapper" id="panel-sections-{{$index}}">
           <dl class="tabs vertical cis--tabs__vertical" data-tab>
-            <dd ng-class="{active: isActive(offering)}" ng-repeat="offering in course.field_offerings"><a href="#section-tab-panel-{{$index}}" class="offering-year-button" ng-click="select(offering)" ng-class="{active: isActive(offering)}">{{offering.field_year.und[0].value}}</a></dd>
+            <dd ng-class="{active: isActive(offering)}" ng-repeat="offering in course.field_offerings"><a href="#section-tab-panel-{{$index}}" class="offering-year-button" ng-click="select(offering)" ng-class="{active: isActive(offering)}">{{ offering.field_semester.und[0].value}} {{offering.field_year.und[0].value}}</a></dd>
           </dl>
           <div class="tabs-content vertical" ng-repeat="offering in course.field_offerings">
             <div class="content" id="section-tab-panel-{{$index}}" ng-class="{active: isActive(offering)}">
@@ -73,7 +74,7 @@
                 <div class="cis--element small-12 columns">
                 <div class="row cis--element__category">
                   <div class=" small-12 columns">
-                    <p>{{offering.field_semester.und[0].value}}</p>
+                    <p>{{offering.field_semester.und[0].value}} {{offering.field_year.und[0].value}}</p>
                   </div>
                   <div class="cis--element__menu small-12 columns" ng-repeat="section in offering.field_sections.und">
                     <p><a href="#">Section {{section.field_section_number.und[0].safe_value}}</a>
@@ -119,7 +120,7 @@
             <dd><a href="#people-tab-panel-2">people tab 2</a></dd>
           </dl>
           <div class="tabs-content vertical">
-            <div class="content active" id="people-tab-panel-1">
+            <div class="content active" id="people-tab-panel-1")">
               <p>people 1</p>
             </div>
             <div class="content" id="people-tab-panel-2">
@@ -127,6 +128,22 @@
             </div>
           </div>
         </div>
+
+        <div class="content row cis--network-item__vertical-tabs-wrapper" id="panel-network-{{$index}}">
+          <dl class="tabs vertical cis--tabs__vertical" data-tab>
+            <dd class="active"><a href="#network-tab-panel-1">network tab 1</a></dd>
+            <dd><a href="#network-tab-panel-2">network tab 2</a></dd>
+          </dl>
+          <div class="tabs-content vertical">
+            <div class="content active" id="network-tab-panel-1">
+              <p>network 1</p>
+            </div>
+            <div class="content" id="network-tab-panel-2">
+              <p>network 2</p>
+            </div>
+          </div>
+        </div>
+
         </div>
       </div><!-- /.columns -->
     </div><!-- /.row -->

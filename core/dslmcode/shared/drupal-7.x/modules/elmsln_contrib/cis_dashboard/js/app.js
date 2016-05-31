@@ -1,6 +1,10 @@
-angular.module('Fa', [
+angular.module('Fa', [ 
   'ngResource'
 ])
+/**
+ * Notes / TODO: 
+ * We will need to make 'Fa' 'elmsln_' eventually when we do a multiple app.js file approach
+ */
 
 /**
  * Constants
