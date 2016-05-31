@@ -26,7 +26,7 @@ function cis_dashboard_permission() {
 }
 
 function cis_dashboard_page() {
-	return theme('cis_dashbord');
+	return theme('cis_controlboard');
 }
 
 /**
@@ -34,17 +34,17 @@ function cis_dashboard_page() {
  */
 function cis_dashboard_theme($existing, $type, $theme, $path) {
   return array(
-    'cis_dashbord' => array(
+    'cis_controlboard' => array(
       'variables' => array('content' => NULL),
-      'template' => 'templates/cis-dashboard',
+      'template' => 'templates/cis-controlboard',
     ),
   );
 }
 
 /**
- * Implementation of hook_preprocess_cis_dashboard().
+ * Implementation of hook_preprocess_cis_controlboard().
  */
-function cis_dashboard_preprocess_cis_dashbord(&$variables) {
+function cis_dashboard_preprocess_cis_controlboard(&$variables) {
   drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.js', 'external');
   drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular-resource.js', 'external');
   drupal_add_js(drupal_get_path('module', 'cis_dashboard') . '/js/app.js');
