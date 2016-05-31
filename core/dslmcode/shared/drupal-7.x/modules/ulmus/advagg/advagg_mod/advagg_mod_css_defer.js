@@ -6,7 +6,7 @@
 /**
  * Given a css file, load it using JavaScript.
  *
- * @param string src
+ * @param {string} src
  *   URL of the css file to load.
  */
 function advagg_mod_loadStyleSheet(src) {

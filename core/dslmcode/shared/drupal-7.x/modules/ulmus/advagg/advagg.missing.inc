@@ -210,6 +210,12 @@ function advagg_generate_location_uri($filename, $type, array $aggregate_setting
  *   Array of settings. Used to generate the 307 redirect location.
  */
 function advagg_missing_send_saved_file(array $files_to_save, $uri, $created, $filename, $type, $redirect_counter, array $aggregate_settings = array()) {
+  // Send a 304 if this is a repeat request.
+  if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= REQUEST_TIME) {
+    header("HTTP/1.1 304 Not Modified");
+    exit();
+  }
+
   // Negotiate whether to use gzip compression.
   $return_compressed = isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE;
   header('Vary: Accept-Encoding', FALSE);
@@ -253,6 +259,19 @@ function advagg_missing_send_saved_file(array $files_to_save, $uri, $created, $f
 
   // Output file and exit.
   if (!empty($data)) {
+    $strlen = strlen($data);
+    // Send a 304 if this is a repeat request.
+    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+      $etags = explode(' ', $_SERVER['HTTP_IF_NONE_MATCH']);
+      if ( $etags[0] < REQUEST_TIME + 31 * 24 * 60 * 60
+        && isset($etags[1])
+        && $etags[1] == $strlen
+      ) {
+        header("HTTP/1.1 304 Not Modified");
+        exit();
+      }
+    }
+
     // Send out a 200 OK status.
     header($_SERVER['SERVER_PROTOCOL'] . " 200 OK");
 
@@ -263,6 +282,13 @@ function advagg_missing_send_saved_file(array $files_to_save, $uri, $created, $f
       // Etags generation in php is broken due to millisecond precision for the
       // files mtime; apache has it, php does not.
     }
+    else {
+      header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', REQUEST_TIME));
+    }
+    // Set the Expires date 1 month into the future.
+    header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', REQUEST_TIME + 31 * 24 * 60 * 60));
+    // Also send an etag out.
+    header('Etag: ' . REQUEST_TIME . ' ' . $strlen);
 
     if ($type === 'css') {
       header("Content-Type: text/css");
@@ -294,7 +320,7 @@ function advagg_missing_set_farfuture_headers() {
   // Browsers that implement the W3C Access Control specification might refuse
   // to use certain resources such as fonts if those resources violate the
   // same-origin policy. Send a header to explicitly allow cross-domain use of
-  // those resources. (This is called Cross-Origin Resource Sharing, or CORS.)
+  // those resources. This is called Cross-Origin Resource Sharing, or CORS.
   header("Access-Control-Allow-Origin: *");
   // Remove all previously set Cache-Control headers, because we're going to
   // override it. Since multiple Cache-Control headers might have been set,
@@ -356,7 +382,7 @@ function advagg_missing_create_file($filename, $no_alters = FALSE, $data = array
   }
 
   // Save aggregate file.
-  $files_to_save = advagg_save_aggregate($filename, $files, $type, $aggregate_settings);
+  list($files_to_save, $errors) = advagg_save_aggregate($filename, $files, $type, $aggregate_settings);
   // Update atime.
   advagg_multi_update_atime(array(
     array(
@@ -377,6 +403,7 @@ function advagg_missing_create_file($filename, $no_alters = FALSE, $data = array
     $aggregate_contents_hash,
     $aggregate_settings,
     $files,
+    $errors,
   );
 }
 
@@ -389,6 +416,10 @@ function advagg_missing_create_file($filename, $no_alters = FALSE, $data = array
  *   String: css or js.
  * @param bool $force
  *   (Optional) force recreate the .htaccess file.
+ *
+ * @return array
+ *   Empty array if not errors happened, list of errors if the write had any
+ *   issues.
  */
 function advagg_htaccess_check_generate(array $files_to_save, $type, $force = FALSE) {
   $content_type = $type;
@@ -399,16 +430,16 @@ function advagg_htaccess_check_generate(array $files_to_save, $type, $force = FA
   // @ignore style_lowercase_html:45
   $data  = "\n";
   $data .= "<FilesMatch \"^${type}" . ADVAGG_SPACE . "[A-Za-z0-9-_]{43}" . ADVAGG_SPACE . "[A-Za-z0-9-_]{43}" . ADVAGG_SPACE . "[A-Za-z0-9-_]{43}.${type}(\.gz)?\">\n";
-  $data .= "  # No mod_headers\n";
+  $data .= "  # No mod_headers. Apache module headers is not enabled.\n";
   $data .= "  <IfModule !mod_headers.c>\n";
-  $data .= "    # No mod_expires\n";
+  $data .= "    # No mod_expires. Apache module expires is not enabled.\n";
   $data .= "    <IfModule !mod_expires.c>\n";
   $data .= "      # Use ETags.\n";
   $data .= "      FileETag MTime Size\n";
   $data .= "    </IfModule>\n";
   $data .= "  </IfModule>\n";
   $data .= "\n";
-  $data .= "  # Use Expires Directive.\n";
+  $data .= "  # Use Expires Directive if apache module expires is enabled.\n";
   $data .= "  <IfModule mod_expires.c>\n";
   $data .= "    # Do not use ETags.\n";
   $data .= "    FileETag None\n";
@@ -418,6 +449,7 @@ function advagg_htaccess_check_generate(array $files_to_save, $type, $force = FA
   $data .= "    ExpiresDefault A31449600\n";
   $data .= "  </IfModule>\n";
   $data .= "\n";
+  $data .= "  # Use Headers Directive if apache module headers is enabled.\n";
   $data .= "  <IfModule mod_headers.c>\n";
   $data .= "    # Do not use etags for cache validation.\n";
   $data .= "    Header unset ETag\n";
@@ -444,6 +476,7 @@ function advagg_htaccess_check_generate(array $files_to_save, $type, $force = FA
   }
   $data .= "</FilesMatch>\n";
 
+  $errors = array();
   foreach (array_keys($files_to_save) as $uri) {
     $dir = dirname($uri);
     $htaccess_file = $dir . '/.htaccess';
@@ -451,8 +484,9 @@ function advagg_htaccess_check_generate(array $files_to_save, $type, $force = FA
       continue;
     }
 
-    advagg_save_data($htaccess_file, $data, $force);
+    $errors = advagg_save_data($htaccess_file, $data, $force);
   }
+  return $errors;
 }
 
 // Lookup functions.
@@ -562,11 +596,14 @@ function advagg_get_files_from_hashes($type, $aggregate_filenames_hash, $aggrega
  *   Array of filenames.
  * @param array $aggregate_settings
  *   Array of settings.
+ * @param string $aggregate_filename
+ *   Filename of the aggregeate.
  *
  * @return string
  *   String containing all the files.
  */
-function advagg_get_css_aggregate_contents(array $files, array $aggregate_settings) {
+function advagg_get_css_aggregate_contents(array $files, array $aggregate_settings, $aggregate_filename = '') {
+  $write_aggregate = TRUE;
   // Check if CSS compression is enabled.
   $optimize = TRUE;
   if (!empty($aggregate_settings['settings']['no_alters'])) {
@@ -575,6 +612,9 @@ function advagg_get_css_aggregate_contents(array $files, array $aggregate_settin
   if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
     $optimize = FALSE;
   }
+
+  module_load_include('inc', 'advagg', 'advagg');
+  $info_on_files = advagg_load_files_info_into_static_cache(array_keys($files));
 
   $data = '';
   if (!empty($files)) {
@@ -633,7 +673,31 @@ function advagg_get_css_aggregate_contents(array $files, array $aggregate_settin
       if (empty($aggregate_settings['settings']['no_alters'])) {
         drupal_alter('advagg_get_css_file_contents_pre', $file, $optimize, $aggregate_settings);
       }
-      $contents = advagg_load_css_stylesheet($file, $optimize, $aggregate_settings);
+      if (is_readable($file)) {
+        // Get the files contents.
+        $file_contents = (string) @file_get_contents($file);
+        // Get a hash of the file's contents.
+        $file_contents_hash = drupal_hash_base64($file_contents);
+        $cid = 'advagg:file:' . advagg_drupal_hash_base64($file);
+        if (empty($info_on_files[$cid]['content_hash'])) {
+          // If hash was not in the cache, get it from the DB.
+          $results = db_select('advagg_files', 'af')
+              ->fields('af', array('content_hash', 'filename_hash'))
+              ->condition('filename', $file)
+              ->execute();
+          foreach ($results as $row) {
+            $info_on_files['advagg:file:' . $row->filename_hash]['content_hash'] = $row->content_hash;
+          }
+        }
+        if ($info_on_files[$cid]['content_hash'] !== $file_contents_hash) {
+          // If the content hash doesn't match don't write the file.
+          $write_aggregate = advagg_missing_file_not_readable($file, $aggregate_filename, FALSE);
+        }
+        $contents = advagg_load_css_stylesheet($file, $optimize, $aggregate_settings, $file_contents);
+      }
+      else {
+        $write_aggregate = advagg_missing_file_not_readable($file, $aggregate_filename, TRUE);
+      }
 
       // Allow other modules to modify this files contents.
       // Call hook_advagg_get_css_file_contents_alter().
@@ -696,18 +760,32 @@ function advagg_get_css_aggregate_contents(array $files, array $aggregate_settin
             $css_selectors_rules = $css_rules;
           }
           $media_rules = trim($media_rules);
-          $css_selectors_rules = trim($css_selectors_rules);
+
+          // Pul all @font-face defentions inside the @media declaration above.
+          $font_face_string = '';
+          $font_blocks = advagg_parse_media_blocks($css_selectors_rules, '@font-face');
+          $css_selectors_rules = '';
+          foreach ($font_blocks as $rules) {
+            if (strpos($rules, '@font-face') !== FALSE) {
+              $font_face_string .= "\n {$rules}";
+            }
+            else {
+              $css_selectors_rules .= $rules;
+            }
+          }
+          $css_selectors_rules = str_replace("\n", "\n  ", $css_selectors_rules);
+          $font_face_string = str_replace("\n", "\n  ", $font_face_string);
 
           // Wrap css in dedicated media query if it differs from the global
           // media query and there actually are media rules.
           if (!empty($media_rules) && $media_rules !== $global_file_media) {
-            $output = "\n@media " . $media_rules . " {\n  " . str_replace("\n", "\n  ", $css_selectors_rules) . "\n}";
+            $output = "{$font_face_string} \n@media {$media_rules} {\n {$css_selectors_rules} \n}";
           }
           else {
-            $output = "\n" . $css_selectors_rules;
+            $output = "{$font_face_string} \n {$css_selectors_rules}";
           }
 
-          $contents .= $output;
+          $contents .= trim($output);
         }
 
       }
@@ -723,7 +801,7 @@ function advagg_get_css_aggregate_contents(array $files, array $aggregate_settin
       $import_statements[] = array($import_media, $matches[0]);
 
       // Close any open comment blocks.
-      $contents .= '/**/';
+      $contents .= "/**/\n";
       if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
         $contents .= "\n/* Above code came from $file */\n\n";
       }
@@ -751,7 +829,7 @@ function advagg_get_css_aggregate_contents(array $files, array $aggregate_settin
   if (empty($aggregate_settings['settings']['no_alters'])) {
     drupal_alter('advagg_get_css_aggregate_contents', $data, $files, $aggregate_settings);
   }
-  return $data;
+  return array($data, $write_aggregate);
 }
 
 /**
@@ -761,12 +839,18 @@ function advagg_get_css_aggregate_contents(array $files, array $aggregate_settin
  *   Array of filenames.
  * @param array $aggregate_settings
  *   Array of settings.
+ * @param string $aggregate_filename
+ *   Filename of the aggregeate.
  *
  * @return string
  *   String containing all the files.
  */
-function advagg_get_js_aggregate_contents(array $files, array $aggregate_settings) {
+function advagg_get_js_aggregate_contents(array $files, array $aggregate_settings, $aggregate_filename = '') {
+  $write_aggregate = TRUE;
   $data = '';
+
+  module_load_include('inc', 'advagg', 'advagg');
+  $info_on_files = advagg_load_files_info_into_static_cache(array_keys($files));
 
   if (!empty($files)) {
     // Build aggregate JS file.
@@ -774,11 +858,38 @@ function advagg_get_js_aggregate_contents(array $files, array $aggregate_setting
       $contents = '';
       // Append a ';' and a newline after each JS file to prevent them from
       // running together. Also close any comment blocks.
-      if (file_exists($filename)) {
-        $contents .= file_get_contents($filename) . ";/**/\n";
+      if (is_readable($filename)) {
+        $file_contents = (string) @file_get_contents($filename);
+        $file_contents_hash = drupal_hash_base64($file_contents);
+        $cid = 'advagg:file:' . advagg_drupal_hash_base64($filename);
+        if (empty($info_on_files[$cid]['content_hash'])) {
+          $results = db_select('advagg_files', 'af')
+              ->fields('af', array('content_hash', 'filename_hash'))
+              ->condition('filename', $filename)
+              ->execute();
+          foreach ($results as $row) {
+            $info_on_files['advagg:file:' . $row->filename_hash]['content_hash'] = $row->content_hash;
+          }
+        }
+        if ($info_on_files[$cid]['content_hash'] !== $file_contents_hash) {
+          // If the content hash doesn't match don't write the file.
+          $write_aggregate = advagg_missing_file_not_readable($filename, $aggregate_filename, FALSE);
+        }
+
+        $contents .= $file_contents;
+        // If a BOM is found, convert the file to UTF-8.
+        $encoding = advagg_get_encoding_from_bom($contents);
+        if (!empty($encoding)) {
+          $contents = advagg_convert_to_utf8($contents, $encoding);
+        }
+        // Make sure that the file is ended properly.
+        $contents .= ";/**/\n";
         if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
           $contents .= "/* Above code came from $filename */\n\n";
         }
+      }
+      else {
+        $write_aggregate = advagg_missing_file_not_readable($filename, $aggregate_filename, TRUE);
       }
       // Allow other modules to modify this files contents.
       // Call hook_advagg_get_js_file_contents_alter().
@@ -794,7 +905,55 @@ function advagg_get_js_aggregate_contents(array $files, array $aggregate_setting
   if (empty($aggregate_settings['settings']['no_alters'])) {
     drupal_alter('advagg_get_js_aggregate_contents', $data, $files, $aggregate_settings);
   }
-  return $data;
+  return array($data, $write_aggregate);
+}
+
+/**
+ * Let other modules know that this.
+ *
+ * @param string $filename
+ *   Filename of the missing file.
+ * @param string $aggregate_filename
+ *   Filename of the aggregate that is trying to be generated.
+ * @param bool $fs_read_failure
+ *   Set to TRUE if the file system couldn't be read.
+ */
+function advagg_missing_file_not_readable($filename, $aggregate_filename = '', $fs_read_failure = FALSE) {
+  $write_aggregate = FALSE;
+  $config_path = advagg_admin_config_root_path();
+
+  // Get cache of this report.
+  $cid = 'advagg:file_issue:' . drupal_hash_base64($filename);
+  $cache = cache_get($cid, 'cache_advagg_info');
+
+  // Let other modules know about this missing file.
+  // Call hook_advagg_missing_root_file().
+  module_invoke_all('advagg_missing_root_file', $aggregate_filename, $filename, $cache);
+
+  // Report to watchdog if this is not cached and it's not in the public dir.
+  if (empty($cache) && strpos($filename, 'public://') !== 0) {
+    if ($fs_read_failure) {
+      watchdog('advagg', 'Reading from the file system failed. This can sometimes happen durning a deployment. %file %aggregate', array(
+        '%file' => $filename,
+        '%aggregate' => $aggregate_filename,
+      ), WATCHDOG_WARNING);
+    }
+    else {
+      watchdog('advagg', 'The content hash for %file does not match the stored content hash from the database. Please <a href="@url">flush the advagg cache</a> under Smart Cache Flush. This can sometimes happen durning a deployment. %file %aggregate', array(
+        '%file' => $filename,
+        '%aggregate' => $aggregate_filename,
+        '@url' => url($config_path . '/advagg/operations', array(
+          'fragment' => 'edit-smart-flush',
+        )),
+      ), WATCHDOG_WARNING);
+    }
+    cache_set($cid, TRUE, 'cache_advagg_info', CACHE_TEMPORARY);
+  }
+  elseif (!empty($cache) && $cache->created < (REQUEST_TIME - variable_get('advagg_file_read_failure_timeout', ADVAGG_FILE_READ_FAILURE_TIMEOUT))) {
+    // Write the aggregate if it's been in a failure state for over an hour.
+    $write_aggregate = TRUE;
+  }
+  return $write_aggregate;
 }
 
 // File save functions.
@@ -811,7 +970,7 @@ function advagg_get_js_aggregate_contents(array $files, array $aggregate_setting
  *   Array of settings.
  *
  * @return array
- *   $files_to_save array.
+ *   array($files_to_save, $errors).
  */
 function advagg_save_aggregate($filename, array $files, $type, array $aggregate_settings) {
   list($css_path, $js_path) = advagg_get_root_files_dir();
@@ -832,10 +991,10 @@ function advagg_save_aggregate($filename, array $files, $type, array $aggregate_
   // Build the aggregates contents.
   $contents = '';
   if ($type === 'css') {
-    $contents = advagg_get_css_aggregate_contents($files, $aggregate_settings);
+    list($contents, $write_aggregate) = advagg_get_css_aggregate_contents($files, $aggregate_settings, $filename);
   }
   elseif ($type === 'js') {
-    $contents = advagg_get_js_aggregate_contents($files, $aggregate_settings);
+    list($contents, $write_aggregate) = advagg_get_js_aggregate_contents($files, $aggregate_settings, $filename);
   }
   if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
     $contents = "/* This aggregate contains the following files:\n" . implode(",\n", array_keys($files)) . ". */\n\n" . $contents;
@@ -853,33 +1012,36 @@ function advagg_save_aggregate($filename, array $files, $type, array $aggregate_
     drupal_alter('advagg_save_aggregate', $files_to_save, $aggregate_settings, $other_parameters);
   }
 
-  foreach ($files_to_save as $uri => $data) {
-    advagg_save_data($uri, $data);
-    if (!file_exists($uri) || filesize($uri) == 0) {
-      if ($type === 'css') {
-        $full_dir = DRUPAL_ROOT . '/' . $css_path[1];
-      }
-      elseif ($type === 'js') {
-        $full_dir = DRUPAL_ROOT . '/' . $js_path[1];
-      }
-      $free_space = @disk_free_space($full_dir);
-      if ($free_space !== FALSE && strlen($data) > $free_space) {
-        watchdog('advagg', 'Write to file system failed. Disk is full. %uri', array('%uri' => $uri), WATCHDOG_ALERT);
-      }
-      elseif (!is_writable($full_dir)) {
-        watchdog('advagg', 'Write to file system failed. Check directory permissions. %uri', array('%uri' => $uri), WATCHDOG_ERROR);
-      }
-      else {
-        watchdog('advagg', 'Write to file system failed. %uri', array('%uri' => $uri), WATCHDOG_ERROR);
-      }
-      // If the file is empty, remove it. Serving via drupal is better than an
-      // empty aggregate being served.
-      if (file_exists($uri) && filesize($uri) == 0) {
-        @unlink($uri);
+  $errors = array();
+  if ($write_aggregate) {
+    foreach ($files_to_save as $uri => $data) {
+      $errors = advagg_save_data($uri, $data);
+      if (!file_exists($uri) || filesize($uri) == 0) {
+        if ($type === 'css') {
+          $full_dir = DRUPAL_ROOT . '/' . $css_path[1];
+        }
+        elseif ($type === 'js') {
+          $full_dir = DRUPAL_ROOT . '/' . $js_path[1];
+        }
+        $free_space = @disk_free_space($full_dir);
+        if ($free_space !== FALSE && strlen($data) > $free_space) {
+          watchdog('advagg', 'Write to file system failed. Disk is full. %uri', array('%uri' => $uri), WATCHDOG_ALERT);
+        }
+        elseif (!is_writable($full_dir)) {
+          watchdog('advagg', 'Write to file system failed. Check directory permissions. %uri', array('%uri' => $uri), WATCHDOG_ERROR);
+        }
+        else {
+          watchdog('advagg', 'Write to file system failed. %uri', array('%uri' => $uri), WATCHDOG_ERROR);
+        }
+        // If the file is empty, remove it. Serving via drupal is better than an
+        // empty aggregate being served.
+        if (file_exists($uri) && filesize($uri) == 0) {
+          @unlink($uri);
+        }
       }
     }
   }
-  return $files_to_save;
+  return array($files_to_save, $errors);
 }
 
 /**
@@ -894,14 +1056,21 @@ function advagg_save_aggregate($filename, array $files, $type, array $aggregate_
  *   A string containing the contents of the file.
  * @param bool $overwrite
  *   (optional) Bool, set to TRUE to overwrite a file.
+ *
+ * @return array
+ *   Empty array if not errors happened, list of errors if the write had any
+ *   issues.
  */
 function advagg_save_data($uri, $data, $overwrite = FALSE) {
+  $t = get_t();
+  $errors = array();
   // Clear the stat cache.
   module_load_include('inc', 'advagg', 'advagg');
   advagg_clearstatcache($uri);
   // File already exists.
   if (!$overwrite && file_exists($uri) && filesize($uri) > 0) {
-    return;
+    $errors[2] = $t('File (@file) already exits.', array('@file' => $uri));
+    return $errors;
   }
 
   // If data is empty, write a space.
@@ -916,10 +1085,73 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
   // the rename command stays local.
   //
   // Get a temporary filename in the destination directory.
-  $dir = drupal_dirname($uri) . '/';
-  $temporary_file = @drupal_tempnam($dir, 'file_advagg_');
+  $uri_dir = drupal_dirname($uri) . '/';
+
+  // Corect the bug with drupal_tempnam where it doesn't pass subdirs to
+  // tempnam() if the dir is a stream wrapper.
+  $scheme = file_uri_scheme($uri_dir);
+  if ($scheme && file_stream_wrapper_valid_scheme($scheme)) {
+    $wrapper = file_stream_wrapper_get_instance_by_scheme($scheme);
+    $dir = $wrapper->getDirectoryPath() . '/' . substr($uri_dir, strlen($scheme . '://'));
+    $uri = $dir . substr($uri, strlen($uri_dir));
+  }
+  else {
+    $dir = $uri_dir;
+  }
+
+  $temporary_file = @drupal_tempnam($dir, 'advagg_file_');
   if ($temporary_file === FALSE) {
-    $temporary_file = $dir . 'file_advagg_' . md5(getmypid() . microtime(TRUE) . mt_rand());
+    $temporary_file = $dir . 'advagg_file_' . md5(getmypid() . microtime(TRUE) . mt_rand());
+    $errors[4] = $t('Temp file was not created using drupal_tempnam(); using @temp instead', array('@temp' => $temporary_file));
+  }
+  // Make sure temp filename has the correct name.
+  if (strpos($temporary_file, 'advagg_file_') === FALSE) {
+    // On windows, tempnam only takes the first 3 characters of the prefix.
+    if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+      $errors[6] = $t('Temp file (@file) did not have the correct name (starting with "advagg_file_") when using drupal_tempnam().', array('@file' => $temporary_file));
+    }
+
+    $basename = basename($temporary_file);
+    $temporary_file_fixed = str_replace($basename, 'advagg_file_' . md5(getmypid() . microtime(TRUE) . mt_rand()), $temporary_file);
+    if (!@rename($temporary_file, $temporary_file_fixed)) {
+      $errors[8] = $t('Renaming the incorrect temp filename (@incorrect) to the correct temp filename (@correct) failed.', array('@incorrect' => $temporary_file, '@correct' => $temporary_file_fixed));
+      // Remove if rename failed.
+      @unlink($temporary_file);
+      if (file_exists($temporary_file)) {
+        $errors[10] = $t('unlinking @file failed.', array('@file' => $temporary_file));
+      }
+      watchdog('advagg', 'Rename 1 failed. Current: %current Target: %target', array(
+        '%current' => $temporary_file,
+        '%target' => $temporary_file_fixed,
+      ), WATCHDOG_ERROR);
+    }
+    else {
+      $temporary_file = $temporary_file_fixed;
+    }
+  }
+  // Make sure temp filename has the correct dir.
+  $subdir = basename($dir);
+  if (strpos($temporary_file, $subdir) === FALSE) {
+    $errors[12] = $t('Temp file (@temp) did not have the correct directory (@dir) when using drupal_tempnam().', array('@temp' => $temporary_file, '@dir' => $subdir));
+
+    $basename = basename($temporary_file);
+    $baddir = substr($temporary_file, 0, strpos($temporary_file, $basename));
+    $temporary_file_fixed = str_replace($baddir, $dir, $temporary_file);
+    if (!@rename($temporary_file, $temporary_file_fixed)) {
+      $errors[14] = $t('Renaming the incorrect temp filename (@incorrect) to the correct temp filename (@correct) failed.', array('@incorrect' => $temporary_file, '@correct' => $temporary_file_fixed));
+      // Remove if rename failed.
+      @unlink($temporary_file);
+      if (file_exists($temporary_file)) {
+        $errors[16] = $t('unlinking @file failed.', array('@file' => $temporary_file));
+      }
+      watchdog('advagg', 'Rename 2 failed. Current: %current Target: %target', array(
+        '%current' => $temporary_file,
+        '%target' => $temporary_file_fixed,
+      ), WATCHDOG_ERROR);
+    }
+    else {
+      $temporary_file = $temporary_file_fixed;
+    }
   }
   $temporary_file_copy = $temporary_file;
 
@@ -931,18 +1163,27 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
     $parts = pathinfo($parts['filename']);
     $extension = '.' . $parts['extension'] . $extension;
   }
+
   // Move temp file into the dest dir, if not in there.
   // Add the extension on as well.
-  $temporary_file = str_replace(substr($temporary_file, 0, strpos($temporary_file, 'file_advagg_')), $dir, $temporary_file) . $extension;
+  $temporary_file_new = str_replace(substr($temporary_file, 0, strpos($temporary_file, 'advagg_file_')), $dir, $temporary_file) . $extension;
 
-  // Preform the rename, adding the extension to the temp file.
-  if (!@rename($temporary_file_copy, $temporary_file)) {
+  // Perform the rename, adding the extension to the temp file.
+  if (!@rename($temporary_file_copy, $temporary_file_new)) {
+    $errors[18] = $t('Renaming the filename (@incorrect) to (@correct) failed.', array('@incorrect' => $temporary_file_copy, '@correct' => $temporary_file_new));
     // Remove if rename failed.
     @unlink($temporary_file_copy);
+    if (file_exists($temporary_file_copy)) {
+      $errors[16] = $t('unlinking @file failed.', array('@file' => $temporary_file_copy));
+    }
+    watchdog('advagg', 'Rename 3 failed. Current: %current Target: %target', array(
+      '%current' => $temporary_file_copy,
+      '%target' => $temporary_file_new,
+    ), WATCHDOG_ERROR);
   }
 
   // Save to temporary filename in the destination directory.
-  $filepath = file_unmanaged_save_data($data, $temporary_file, FILE_EXISTS_REPLACE);
+  $filepath = file_unmanaged_save_data($data, $temporary_file_new, FILE_EXISTS_REPLACE);
 
   if ($filepath) {
     // Perform the rename operation.
@@ -954,10 +1195,26 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
       $result = @rename($filepath, $uri);
       // Remove temporary_file if rename failed.
       if (!$result) {
+        $errors[20] = $t('Renaming the filename (@incorrect) to (@correct) failed.', array('@incorrect' => $filepath, '@correct' => $uri));
+
         @unlink($filepath);
+        if (file_exists($filepath)) {
+          $errors[22] = $t('unlinking @file failed.', array('@file' => $filepath));
+        }
+        watchdog('advagg', 'Rename 4 failed. Current: %current Target: %target', array(
+          '%current' => $filepath,
+          '%target' => $uri,
+        ), WATCHDOG_ERROR);
       }
     }
   }
+  else {
+    $errors[24] = $t('Write failed. @file', array('@file' => $temporary_file_new));
+    watchdog('advagg', 'Write failed. Target: %target', array(
+      '%target' => $temporary_file_new,
+    ), WATCHDOG_ERROR);
+  }
+  return $errors;
 }
 
 // Helper functions.
@@ -1037,20 +1294,22 @@ function advagg_get_atime($aggregate_filenames_hash, $aggregate_contents_hash, $
  *
  * @param string $css
  *   String of CSS.
+ * @param string $starting_string
+ *   What to look for when starting to parse the string.
  *
  * @return array
  *   array of css with only media queries.
  *
  * @see http://stackoverflow.com/questions/14145620/regular-expression-for-media-queries-in-css
  */
-function advagg_parse_media_blocks($css) {
+function advagg_parse_media_blocks($css, $starting_string = '@media') {
   $media_blocks = array();
   $start = 0;
   $last_start = 0;
 
   // Using the string as an array throughout this function.
   // http://php.net/types.string#language.types.string.substr
-  while (($start = strpos($css, "@media", $start)) !== FALSE) {
+  while (($start = strpos($css, $starting_string, $start)) !== FALSE) {
     // Stack to manage brackets.
     $s = array();
 

@@ -23,9 +23,21 @@ define('ADVAGG_FONT_NO_FOUT', 0);
 
 // Core hook implementations.
 /**
- * Implements hook_page_build().
+ * Implements hook_module_implements_alter().
  */
-function advagg_font_page_build(&$page) {
+function advagg_font_module_implements_alter(&$implementations, $hook) {
+  // Move advagg to the bottom.
+  if ($hook === 'page_alter' && array_key_exists('advagg_font', $implementations)) {
+    $item = $implementations['advagg_font'];
+    unset($implementations['advagg_font']);
+    $implementations['advagg_font'] = $item;
+  }
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function advagg_font_page_alter(&$page) {
   // The $page variable is not an array; or the content key does not exist.
   if (!is_array($page) || !isset($page['content'])) {
     return;
@@ -142,9 +154,9 @@ function advagg_font_libraries_info() {
     'name' => 'fontfaceobserver',
     'vendor url' => 'https://github.com/bramstein/fontfaceobserver',
     'download url' => 'https://github.com/bramstein/fontfaceobserver/archive/master.zip',
-    // 1.50. : "version": "1.5.0",
     'version arguments' => array(
       'file' => 'package.json',
+      // 1.50. : "version": "1.5.0".
       'pattern' => '/"version":\\s+"([0-9\.]+)"/',
       'lines' => 10,
     ),
@@ -221,6 +233,9 @@ function advagg_font_get_replacements_array($css_string) {
     // Parse values string into an array of values.
     $values_array = explode(',', $values_string);
 
+    // Advance position for the next run of the while loop.
+    $property_position = $end;
+
     // Values array has more than 1 value and first element is a quoted string.
     if (count($values_array) > 1 && (strpos($values_array[0], '"') !== FALSE || strpos($values_array[0], "'") !== FALSE)) {
       // Save the first value to a variable and trim it.
@@ -252,8 +267,8 @@ function advagg_font_get_replacements_array($css_string) {
       // Get all selectors.
       $end_of_selectors = strpos($css_string, '{', $start);
       $selectors = substr($css_string, $start, $end_of_selectors - $start);
-      // Ensure selectors is not a media query
-      if (strpos($selectors,"@media") !== FALSE) {
+      // Ensure selectors is not a media query.
+      if (strpos($selectors, "@media") !== FALSE) {
         // Move the start to the end of the media query.
         $start = $end_of_selectors + 1;
         // Get the selectors again.
@@ -300,9 +315,6 @@ function advagg_font_get_replacements_array($css_string) {
         $next_value_original,
       );
     }
-
-    // Advance position.
-    $property_position = $end;
   }
   return $replacements;
 }

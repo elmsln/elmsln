@@ -34,7 +34,7 @@ define('ADVAGG_JS_CDN_COMPRESSION', TRUE);
  * Implements hook_js_alter().
  */
 function advagg_js_cdn_js_alter(&$javascript) {
-  // Only modify if jquery_update is not enabled,
+  // Only modify if jquery_update is not enabled.
   if (module_exists('jquery_update')) {
     return;
   }

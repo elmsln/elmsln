@@ -278,8 +278,11 @@ class CSSmin
         // Normalize all whitespace strings to single spaces. Easier to work with that way.
         $css = preg_replace('/\s+/', ' ', $css);
 
-    // Fix IE7 issue on matrix filters which browser accept whitespaces between Matrix parameters
-    $css = preg_replace_callback('/\s*filter\:\s*progid:DXImageTransform\.Microsoft\.Matrix\(([^\)]+)\)/', array($this, 'preserve_old_IE_specific_matrix_definition'), $css);
+  // preserve flex, keeping percentage even if 0
+  $css = preg_replace_callback('/flex\s?:\s?((?:[0-9 ]*)\s?(?:px|em|auto|%)?(?:calc\(.*\))?)/i',array($this, 'replace_flex'),$css);
+
+  // Fix IE7 issue on matrix filters which browser accept whitespaces between Matrix parameters
+  $css = preg_replace_callback('/\s*filter\:\s*progid:DXImageTransform\.Microsoft\.Matrix\(([^\)]+)\)/', array($this, 'preserve_old_IE_specific_matrix_definition'), $css);
 
         // Shorten & preserve calculations calc(...) since spaces are important
         $css = preg_replace_callback('/calc(\(((?:[^\(\)]+|(?1))*)\))/i', array($this, 'replace_calc'), $css);
@@ -367,6 +370,7 @@ class CSSmin
 
         // Replace background-position:0; with background-position:0 0;
         // same for transform-origin
+        // same for background
         // Changing -webkit-mask-position: 0 0 to just a single 0 will result in the second parameter defaulting to 50% (center)
         $css = preg_replace('/(background|background\-position|webkit\-mask\-position|(?:webkit|moz|o|ms|)\-?transform\-origin)\:0(;|\}| \!)/iS', '$1:0 0$2', $css);
 
@@ -479,7 +483,10 @@ class CSSmin
 
             if ($found_terminator) {
                 $token = $this->str_slice($css, $start_index, $end_index);
-                $token = preg_replace('/\s+/', '', $token);
+                // remove whitespace, except if $token contains svg, which needs whitepace left as is
+                if (strpos($token,"<svg")===false && strpos($token,'svg+xml')===false) {
+                  $token = preg_replace('/\s+/', '', $token);
+                }
                 $this->preserved_tokens[] = $token;
 
                 $preserver = 'url(' . self::TOKEN . (count($this->preserved_tokens) - 1) . '___)';
@@ -600,14 +607,20 @@ class CSSmin
 
     private function replace_calc($matches)
     {
-        $this->preserved_tokens[] = trim(preg_replace('/\s*([\*\/\(\),])\s*/', '$1', $matches[2]));
+        $this->preserved_tokens[] = preg_replace('/([\+\-]{1})\(/','$1 (',trim(preg_replace('/\s*([\*\/\(\),])\s*/', '$1', $matches[2])));
         return 'calc('. self::TOKEN . (count($this->preserved_tokens) - 1) . '___' . ')';
     }
 
-  private function preserve_old_IE_specific_matrix_definition($matches)
-  {
-    $this->preserved_tokens[] = $matches[1];
-    return 'filter:progid:DXImageTransform.Microsoft.Matrix(' . self::TOKEN . (count($this->preserved_tokens) - 1) . '___' . ')';
+    private function replace_flex($matches)
+    {
+        $this->preserved_tokens[] = trim($matches[1]);
+        return 'flex:'.self::TOKEN . (count($this->preserved_tokens) - 1) . '___';
+    }
+
+    private function preserve_old_IE_specific_matrix_definition($matches)
+    {
+  $this->preserved_tokens[] = $matches[1];
+  return 'filter:progid:DXImageTransform.Microsoft.Matrix(' . self::TOKEN . (count($this->preserved_tokens) - 1) . '___' . ')';
     }
 
   private function replace_keyframe_zero($matches)

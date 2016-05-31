@@ -64,12 +64,17 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
     ),
   );
   $form['advagg_js_compress_add_license'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Add licensing comments'),
+    '#type' => 'radios',
+    '#title' => t('Licensing comments'),
     '#default_value' => variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE),
-    '#description' => t("If unchecked, the Advanced Aggregation module's licensing comments
-   will be omitted from the aggregated files. Omitting the comments will produce somewhat better scores in
-   some automated security scans but otherwise should not affect your site. These are included by default in order to better follow the spirit of the GPL by providing the source for javascript files."),
+    '#description' => t("Stripping everything will produce somewhat better scores in
+   some automated scans but otherwise should not affect your site. Providing a link to the original source and keeping important comments is enabled by default in order to better follow the spirit of the GPL by linking to the original unminified javascript source files."),
+    '#options' => array(
+      0 => t('Strip everything'),
+      1 => t('Provide a link to the original source as a comment'),
+      2 => t('Keep important comments if the minifier supports it'),
+      3 => t('Do both; try to keep important comments and provide a link'),
+    ),
   );
 
   $options[-1] = t('Default');
@@ -137,7 +142,7 @@ function advagg_js_compress_admin_settings_form_submit($form, &$form_state) {
   // Save per file settings.
   $new_settings = array();
   foreach ($form_state['values'] as $key => $value) {
-    // Skip if not advagg_js_compressor_file_settings
+    // Skip if not advagg_js_compressor_file_settings.
     if (strpos($key, 'advagg_js_compressor_file_settings_') === FALSE) {
       continue;
     }

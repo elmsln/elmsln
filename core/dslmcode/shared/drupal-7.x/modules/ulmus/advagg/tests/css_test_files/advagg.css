@@ -15,6 +15,22 @@ home {
 home {
   background: url( geo-md-webfont.eot?#iefix );
 }
+/* https://www.drupal.org/node/2685177 */
+home {
+  background: url('fostbook-webfont.svg#Foundry Sterling Book');
+}
+home {
+  background: url( 'fostbook-webfont.svg#Foundry Sterling Book' );
+}
+home {
+  background: url("fostbook-webfont.svg#Foundry Sterling Book");
+}
+home {
+  background: url(fostbook-webfont.svg#Foundry Sterling Book);
+}
+home {
+  background: url( fostbook-webfont.svg#Foundry Sterling Book );
+}
 /* https://www.drupal.org/node/2362643 */
 home {
   background: url(#SVGID_1_);

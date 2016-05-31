@@ -5,9 +5,9 @@ core = 7.x
 
 configure = admin/config/development/performance/advagg/validator
 
-; Information added by Drupal.org packaging script on 2015-09-17
-version = "7.x-2.16"
+; Information added by Drupal.org packaging script on 2016-03-29
+version = "7.x-2.18"
 core = "7.x"
 project = "advagg"
-datestamp = "1442451549"
+datestamp = "1459291143"
 

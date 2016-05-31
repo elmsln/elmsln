@@ -19,8 +19,16 @@ function advagg_font_requirements($phase) {
   }
 
   // Get local and external fontfaceobserver version numbers.
-  $package = drupal_http_request('https://cdn.rawgit.com/bramstein/fontfaceobserver/master/package.json');
-  $package = json_decode($package->data);
+  $package = drupal_http_request('https://cdn.rawgit.com/bramstein/fontfaceobserver/master/package.json', array('timeout' => 7));
+  if (!empty($package->data)) {
+    $package = json_decode($package->data);
+  }
+  else {
+    unset($package);
+    $package = new stdClass();
+    $package->version = 0;
+  }
+
   $lib_info = array();
   if (function_exists('libraries_info')) {
     $lib_info = libraries_detect('fontfaceobserver');
@@ -41,7 +49,8 @@ function advagg_font_requirements($phase) {
   }
 
   if ( isset($lib_info['version'])
-    && version_compare($package->version,  $lib_info['version']) >= 1
+    && !empty($package->version)
+    && version_compare($package->version, $lib_info['version']) >= 1
   ) {
     $requirements['advagg_font_old_library'] = array(
       'title' => $t('AdvAgg Font - Version is out of date'),
@@ -61,7 +70,7 @@ function advagg_font_requirements($phase) {
       'title' => $t('AdvAgg Font'),
       'severity' => REQUIREMENT_OK,
       'value' => $t('OK'),
-      'description' => $t('The font face observer JavaScript library is up to date (%version).', array('%version' => $package->version)),
+      'description' => empty($package->version) ? $t('The font face observer JavaScript should be working.') : $t('The font face observer JavaScript library is up to date (%version).', array('%version' => $package->version)),
     );
   }
 

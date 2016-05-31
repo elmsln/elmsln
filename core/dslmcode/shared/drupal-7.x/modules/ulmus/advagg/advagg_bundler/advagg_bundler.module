@@ -31,6 +31,11 @@ define('ADVAGG_BUNDLER_OUTDATED', 1209600);
 define('ADVAGG_BUNDLER_ACTIVE', TRUE);
 
 /**
+ * Default value to for bundler, set to file count.
+ */
+define('ADVAGG_BUNDLER_GROUPING_LOGIC', 0);
+
+/**
  * Implements hook_menu().
  */
 function advagg_bundler_menu() {
@@ -236,7 +241,7 @@ function advagg_bundler_analyisis_query($safesql) {
   // root bundles that have been used in the last 2 weeks. This prevents an
   // old site structure from influencing new bundles.
   // Grouping by the filename gives us the count and makes it so we don't
-  // return a lot of rows;
+  // return a lot of rows.
   $db_type = Database::getConnection()->databaseType();
   $schema = Database::getConnection()->schema();
   if ($safesql) {
@@ -300,9 +305,10 @@ function advagg_bundler_analyisis_query($safesql) {
     else {
       $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
     }
-    // The ORDER BY clause is invalid in views, inline functions, derived tables, subqueries, 
-    // and common table expressions, unless TOP or FOR XML is also specified. So no point in 
-    // doing an order-by like in the other cases.
+    // The ORDER BY clause is invalid in views, inline functions,
+    // derived tables, subqueries, and common table expressions, unless TOP or
+    // FOR XML is also specified. So no point in doing an order-by like in the
+    // other cases.
   }
 
   // Create join for the advagg_aggregates_versions table.
@@ -314,16 +320,23 @@ function advagg_bundler_analyisis_query($safesql) {
     ->groupBy('aa.filename_hash');
 
   // Create main query for the advagg_files table.
+  $af_fields = array(
+    'filename',
+    'filesize',
+    'mtime',
+    'changes',
+    'linecount',
+    'filename_hash',
+  );
+  // Make drupal_get_installed_schema_version() available.
+  include_once DRUPAL_ROOT . '/includes/install.inc';
+  if (drupal_get_installed_schema_version('advagg') >= 7211) {
+    $af_fields[] = 'filesize_processed';
+  }
+
   $query = db_select('advagg_files', 'af');
   $query->join($subquery_aggregates, 'aa', 'af.filename_hash=aa.filename_hash');
-  $query = $query->fields('af', array(
-      'filename',
-      'filesize',
-      'mtime',
-      'changes',
-      'linecount',
-      'filename_hash',
-    ))
+  $query = $query->fields('af', $af_fields)
     ->fields('aa', $fields);
   $query->comment('Query called from ' . __FUNCTION__ . '()');
   $results = $query->execute();
@@ -357,6 +370,7 @@ function advagg_bundler_analyisis_query($safesql) {
       'group_hash' => $row->counter . ' ' . $row->hashlist,
       'mtime' => $row->mtime,
       'filesize' => $row->filesize,
+      'filesize_processed' => empty($row->filesize_processed) ? $row->filesize : $row->filesize_processed,
       'linecount' => $row->linecount,
       'changes' => $row->changes,
     );

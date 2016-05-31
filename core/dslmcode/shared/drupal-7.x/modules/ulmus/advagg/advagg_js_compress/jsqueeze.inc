@@ -20,7 +20,7 @@
 // @ignore :file
 
 /*
- * Copyright (C) 2015 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2016 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -99,14 +99,18 @@ class JSqueeze
 
     $varRx = '(?:[a-zA-Z_$])[a-zA-Z0-9_$]*',
     $reserved = array(
-        'abstract','as','boolean','break','byte','case','catch','char','class',
-        'const','continue','debugger','default','delete','do','double','else',
-        'enum','export','extends','false','final','finally','float','for',
-        'function','goto','if','implements','import','in','instanceof','int',
-        'long','native','new','null','package','private','protected','public',
-        'return','short','static','super','switch','synchronized','this',
-        'throw','throws','transient','true','try','typeof','var','void',
-        'while','with','yield','let','interface',
+        // Literals
+        'true','false','null',
+        // ES6
+        'break','case','class','catch','const','continue','debugger','default','delete','do','else','export','extends','finally','for','function','if','import','in','instanceof','new','return','super','switch','this','throw','try','typeof','var','void','while','with','yield',
+        // Future
+        'enum',
+        // Strict mode
+        'implements','package','protected','static','let','interface','private','public',
+        // Module
+        'await',
+        // Older standards
+        'abstract','boolean','byte','char','double','final','float','goto','int','long','native','short','synchronized','throws','transient','volatile',
     );
 
 
@@ -330,14 +334,31 @@ class JSqueeze
                 }
                 else
                 {
-                    $a = $j && ' ' == $code[$j] ? $code[$j-1] : $code[$j];
-                    if (false !== strpos('-!%&;<=>~:^+|,(*?[{ ', $a)
+                    $a = $j && (' ' == $code[$j] || "\x7F" == $code[$j]) ? $code[$j-1] : $code[$j];
+                    if (false !== strpos('-!%&;<=>~:^+|,()*?[{} ', $a)
                         || (false !== strpos('oenfd', $a)
                         && preg_match(
-                            "'(?<![\$.a-zA-Z0-9_])(do|else|return|typeof|yield) ?$'",
+                            "'(?<![\$.a-zA-Z0-9_])(do|else|return|typeof|yield[ \x7F]?\*?)[ \x7F]?$'",
                             substr($code, $j-7, 8)
                         )))
                     {
+                        if (')' === $a && $j > 1)
+                        {
+                            $a = 1;
+                            $k = $j - (' ' == $code[$j] || "\x7F" == $code[$j]) - 1;
+                            while ($k >= 0 && $a)
+                            {
+                                if ('(' === $code[$k]) --$a;
+                                else if (')' === $code[$k]) ++$a;
+                                --$k;
+                            }
+                            if (!preg_match("'(?<![\$.a-zA-Z0-9_])(if|for|while)[ \x7F]?$'", substr($code, 0, $k+1)))
+                            {
+                                $code[++$j] = '/';
+                                break;
+                            }
+                        }
+
                         $key = "//''\"\"" . $K++ . $instr = "/'";
                         $a = $j;
                         $code .= $key;
@@ -366,24 +387,24 @@ class JSqueeze
                 break;
 
             case "\n":
-                if ($j > 5)
+                if ($j > 3)
                 {
-                    ' ' == $code[$j] && --$j;
+                    if (' ' == $code[$j] || "\x7F" == $code[$j]) --$j;
 
                     $code[++$j] =
-                        false !== strpos('kend', $code[$j-1])
+                        false !== strpos('kend+-', $code[$j-1])
                             && preg_match(
-                                "'(?<![\$.a-zA-Z0-9_])(break|continue|return|yield) ?$'",
+                                "'(?:\+\+|--|(?<![\$.a-zA-Z0-9_])(break|continue|return|yield[ \x7F]?\*?))[ \x7F]?$'",
                                 substr($code, $j-8, 9)
                             )
-                        ? ';' : ' ';
+                        ? ';' : "\x7F";
 
                     break;
                 }
 
             case "\t": $f[$i] = ' ';
             case ' ':
-                if (!$j || ' ' == $code[$j]) break;
+                if (!$j || ' ' == $code[$j] || "\x7F" == $code[$j]) break;
 
             default:
                 $code[++$j] = $f[$i];
@@ -397,11 +418,15 @@ class JSqueeze
         $cc_on && $this->restoreCc($code, false);
 
         // Protect wanted spaces and remove unwanted ones
+        $code = strtr($code, "\x7F", ' ');
         $code = str_replace('- -', "-\x7F-", $code);
         $code = str_replace('+ +', "+\x7F+", $code);
+        $code = str_replace('get ', "get\x7F", $code);
+        $code = str_replace('set ', "set\x7F", $code);
         $code = preg_replace("'(\d)\s+\.\s*([a-zA-Z\$_[(])'", "$1\x7F.$2", $code);
         $code = preg_replace("# ([-!%&;<=>~:.^+|,()*?[\]{}/']+)#", '$1', $code);
         $code = preg_replace( "#([-!%&;<=>~:.^+|,()*?[\]{}/]+) #", '$1', $code);
+        $cc_on && $code = preg_replace_callback("'//[^\'].*?@#3'", function ($m) {return strtr($m[0], ' ', "\x7F");}, $code);
 
         // Replace new Array/Object by []/{}
         false !== strpos($code, 'new Array' ) && $code = preg_replace( "'new Array(?:\(\)|([;\])},:]))'", '[]$1', $code);
@@ -490,19 +515,19 @@ class JSqueeze
         }
 
         $f = implode('', $f);
-        $cc_on && $f = str_replace('@#3', "\n", $f);
+        $cc_on && $f = str_replace('@#3', "\r", $f);
 
         // Fix "else ;" empty instructions
         $f = preg_replace("'(?<![\$.a-zA-Z0-9_])else\n'", "\n", $f);
 
         $r1 = array( // keywords with a direct object
-            'case','delete','do','else','function','in','instanceof','break',
+            'case','delete','do','else','function','in','instanceof','of','break',
             'new','return','throw','typeof','var','void','yield','let','if',
             'const',
         );
 
         $r2 = array( // keywords with a subject
-            'in','instanceof',
+            'in','instanceof','of',
         );
 
         // Fix missing semi-colons
@@ -899,7 +924,18 @@ class JSqueeze
         $this->used_tree  =& $tree['used'];
 
         $tree['code'] = preg_replace_callback("#[.,{ ]?(?<![a-zA-Z0-9_\$@]){$this->varRx}:?#", array(&$this, 'getNewName'), $tree['code']);
-        $this->specialVarRx && $tree['code'] = preg_replace_callback("#//''\"\"[0-9]+'#", array(&$this, 'renameInString'), $tree['code']);
+
+        if ($this->specialVarRx && preg_match_all("#//''\"\"[0-9]+'#", $tree['code'], $b))
+        {
+            foreach ($b[0] as $a)
+            {
+                $this->strings[$a] = preg_replace_callback(
+                    "#[.,{]?(?<![a-zA-Z0-9_\$@]){$this->specialVarRx}:?#",
+                    array(&$this, 'getNewName'),
+                    $this->strings[$a]
+                );
+            }
+        }
 
         foreach ($tree['childs'] as $a => &$b)
         {
@@ -907,18 +943,6 @@ class JSqueeze
             $tree['code'] = str_replace($a, $b['code'], $tree['code']);
             unset($tree['childs'][$a]);
         }
-    }
-
-    protected function renameInString($a)
-    {
-        $b =& $this->strings[$a[0]];
-        unset($this->strings[$a[0]]);
-
-        return preg_replace_callback(
-            "#[.,{]?(?<![a-zA-Z0-9_\$@]){$this->specialVarRx}:?#",
-            array(&$this, 'getNewName'),
-            $b
-        );
     }
 
     protected function getNewName($m)

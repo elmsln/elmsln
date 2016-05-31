@@ -19,7 +19,7 @@ define('ADVAGG_CSS_CDN_JQUERY_UI_VERSION', '1.8.7');
  * Implements hook_css_alter().
  */
 function advagg_css_cdn_css_alter(&$css) {
-  // Only modify if jquery_update is not enabled,
+  // Only modify if jquery_update is not enabled.
   if (module_exists('jquery_update')) {
     return;
   }
@@ -43,7 +43,8 @@ function advagg_css_cdn_css_alter(&$css) {
       $css[$name]['data'] = '//ajax.googleapis.com/ajax/libs/jqueryui/' . $jquery_ui_version . '/themes/base/jquery.' . $ui_mapping[$name] . '.css';
       $css[$name]['type'] = 'external';
 
-      // Fallback can not work do to "SecurityError: The operation is insecure."
+      // Fallback does not work do to
+      // "SecurityError: The operation is insecure.".
     }
   }
 }

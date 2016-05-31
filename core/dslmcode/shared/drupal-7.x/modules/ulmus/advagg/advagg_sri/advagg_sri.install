@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * Handles Advanced Aggregation installation and upgrade tasks.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function advagg_sri_install() {
+  module_load_include('install', 'advagg', 'advagg');
+  $tables = array(
+    'advagg_sri' => array(
+      'filename',
+    ),
+  );
+
+  $schema = advagg_sri_schema();
+  foreach ($tables as $table => $fields) {
+    // Change utf8_bin to ascii_bin.
+    advagg_install_change_table_collation($table, $fields, 'ascii_bin', $schema[$table]['fields']);
+  }
+}
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function advagg_sri_uninstall() {
+  // Remove variables.
+  db_delete('variable')
+    ->condition('name', 'advagg_sri%', 'LIKE')
+    ->execute();
+}
+
+/**
+ * Implements hook_schema().
+ */
+function advagg_sri_schema() {
+  $schema = array();
+
+  // Copy the variable table and change a couple of things.
+  $schema['advagg_sri'] = drupal_get_schema_unprocessed('system', 'variable');
+
+  // Create the filename field.
+  $schema['advagg_sri']['fields']['filename'] = $schema['advagg_sri']['fields']['name'];
+  $schema['advagg_sri']['fields']['filename']['length'] = 143;
+  $schema['advagg_sri']['fields']['filename']['description'] = 'The name of the aggregate.';
+  $schema['advagg_sri']['fields']['filename']['binary'] = TRUE;
+  $schema['advagg_sri']['fields']['filename']['collation'] = 'ascii_bin';
+  $schema['advagg_sri']['fields']['filename']['charset'] = 'ascii';
+  $schema['advagg_sri']['fields']['filename']['mysql_character_set'] = 'ascii';
+
+  // Create the hashes field.
+  $schema['advagg_sri']['fields']['hashes'] = $schema['advagg_sri']['fields']['value'];
+  $schema['advagg_sri']['fields']['hashes']['description'] = 'The hashes associated with this filename.';
+
+  // Set primary key and table description.
+  $schema['advagg_sri']['description'] = 'Stores sha hashes of this file.';
+  $schema['advagg_sri']['primary key'][0] = 'filename';
+
+  // Remove the name and value fileds.
+  unset($schema['advagg_sri']['fields']['name'], $schema['advagg_sri']['fields']['value']);
+
+  return $schema;
+}

@@ -332,6 +332,62 @@ function advagg_mod_admin_settings_form() {
       '@link' => 'http://stackoverflow.com/questions/19374843/css-delivery-optimization-how-to-defer-css-loading',
     )),
   );
+  $form['css']['placement']['expert']['advagg_mod_css_defer_admin'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use JS to load CSS in the admin theme'),
+    '#default_value' => variable_get('advagg_mod_css_defer_admin', ADVAGG_MOD_CSS_DEFER_ADMIN),
+    '#description' => t('This will optimize CSS delivery with JavaScript when viewing the admin theme'),
+  );
+
+  // Taken from block_admin_configure().
+  $access = user_access('use PHP for settings');
+  $css_defer_pages = variable_get('advagg_mod_css_defer_pages', '');
+  $visibility_defer = variable_get('advagg_mod_css_defer_visibility', ADVAGG_MOD_VISIBILITY_LISTED);
+  $options = array(
+    ADVAGG_MOD_VISIBILITY_NOTLISTED => t('All pages except those listed'),
+    ADVAGG_MOD_VISIBILITY_LISTED => t('Only the listed pages'),
+  );
+  $description = t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
+    '%blog' => 'blog',
+    '%blog-wildcard' => 'blog/*',
+    '%front' => '<front>',
+  ));
+
+  if (module_exists('php') && $access) {
+    $options += array(ADVAGG_MOD_VISIBILITY_PHP => t('Pages on which this PHP code returns <code>TRUE</code> (experts only)'));
+    $title = t('Pages or PHP code');
+    $description .= ' ' . t('If the PHP option is chosen, enter PHP code between %php. Note that executing incorrect PHP code can break your Drupal site.', array('%php' => '<?php ?>'));
+  }
+  else {
+    $title = t('Pages');
+  }
+
+  if ($visibility_defer == ADVAGG_MOD_VISIBILITY_PHP && !$access) {
+    $form['css']['placement']['expert']['visibility_all'] = array(
+      '#type' => 'value',
+      '#value' => $visibility_defer,
+    );
+    $form['css']['placement']['expert']['pages_all'] = array(
+      '#type' => 'value',
+      '#value' => $css_defer_pages,
+    );
+  }
+  else {
+    $form['css']['placement']['expert']['advagg_mod_css_defer_visibility'] = array(
+      '#type' => 'radios',
+      '#title' => t('Defer CSS only on specific pages'),
+      '#options' => $options,
+      '#default_value' => $visibility_defer,
+      '#description' => t('Apply the above CSS setting only on specific pages. On other pages it will act as being Disabled.'),
+    );
+    $form['css']['placement']['expert']['advagg_mod_css_defer_pages'] = array(
+      '#type' => 'textarea',
+      '#title' => '<span class="element-invisible">' . $title . '</span>',
+      '#default_value' => $css_defer_pages,
+      '#description' => $description,
+    );
+  }
+
   $form['css']['placement']['expert']['advagg_mod_css_defer_js_code'] = array(
     '#type' => 'radios',
     '#title' => t('How to include the JS loading code'),
@@ -350,10 +406,22 @@ function advagg_mod_admin_settings_form() {
       ),
     ),
   );
+  $form['css']['placement']['expert']['advagg_mod_css_defer_rel_preload'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use link rel="preload"'),
+    '#default_value' => variable_get('advagg_mod_css_defer_rel_preload', ADVAGG_MOD_CSS_DEFER_REL_PRELOAD),
+    '#description' => t('In supporting browsers, this markup will cause the browser to fetch the CSS file in an asynchronous, non-render-blocking manner, and once loaded, its onload event handler will change its rel property to "stylesheet" causing it to apply visibly in the page'),
+    '#states' => array(
+      'disabled' => array(
+        ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
+      ),
+    ),
+  );
 
   $pages_all = variable_get('advagg_mod_inline_pages', '');
   $pages_css = variable_get('advagg_mod_inline_css_pages', '');
   $pages_js = variable_get('advagg_mod_inline_js_pages', '');
+  unset($options[ADVAGG_MOD_VISIBILITY_NOTLISTED]);
   $form['landing_page'] = array(
     '#type' => 'fieldset',
     '#title' => t('Inline CSS/JS on specific pages'),
@@ -361,27 +429,6 @@ function advagg_mod_admin_settings_form() {
     '#collapsible' => TRUE,
     '#collapsed' => ($pages_all || $pages_css || $pages_js) ? FALSE : TRUE,
   );
-  // Taken from block_admin_configure().
-  $access = user_access('use PHP for settings');
-  $options = array(
-    // ADVAGG_MOD_VISIBILITY_NOTLISTED => t('All pages except those listed'),
-    ADVAGG_MOD_VISIBILITY_LISTED => t('Only the listed pages'),
-  );
-  $description = t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
-    '%blog' => 'blog',
-    '%blog-wildcard' => 'blog/*',
-    '%front' => '<front>',
-  ));
-
-  if (module_exists('php') && $access) {
-    $options += array(ADVAGG_MOD_VISIBILITY_PHP => t('Pages on which this PHP code returns <code>TRUE</code> (experts only)'));
-    $title = t('Pages or PHP code');
-    $description .= ' ' . t('If the PHP option is chosen, enter PHP code between %php. Note that executing incorrect PHP code can break your Drupal site.', array('%php' => '<?php ?>'));
-  }
-  else {
-    $title = t('Pages');
-  }
-
   $visibility_all = variable_get('advagg_mod_inline_visibility', ADVAGG_MOD_VISIBILITY_LISTED);
   if ($visibility_all == ADVAGG_MOD_VISIBILITY_PHP && !$access) {
     $form['landing_page']['path']['visibility_all'] = array(

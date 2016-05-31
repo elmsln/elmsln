@@ -79,7 +79,7 @@ function advagg_ext_compress_execute_cmd($input_file, $ext = '') {
   if (empty($ext)) {
     $ext = strtolower(pathinfo($input_file, PATHINFO_EXTENSION));
     if ($ext !== 'css' && $ext !== 'js') {
-      // Get the $ext from the database,
+      // Get the $ext from the database.
       $row = db_select('advagg_files', 'af')
         ->fields('af')
         ->condition('filename', $input_file)
@@ -94,7 +94,7 @@ function advagg_ext_compress_execute_cmd($input_file, $ext = '') {
   }
 
   // Generate temp file.
-  $temp_file = drupal_tempnam('temporary://', 'file_advagg_');
+  $temp_file = drupal_tempnam('temporary://', 'advagg_file_');
   $new_temp_file = $temp_file . '.' . basename($input_file);
   @rename($temp_file, $new_temp_file);
   $output = advagg_get_relative_path($new_temp_file);
@@ -126,7 +126,7 @@ function advagg_ext_compress_execute_cmd($input_file, $ext = '') {
  */
 function advagg_ext_compress_js_compress(&$contents) {
   list(, $js_path) = advagg_get_root_files_dir();
-  $temp_file = drupal_tempnam($js_path[0], 'file_advagg_');
+  $temp_file = drupal_tempnam($js_path[0], 'advagg_file_');
   $new_temp_file = $temp_file . '.js';
   rename($temp_file, $new_temp_file);
   $temp_file_full = advagg_get_relative_path($new_temp_file);
@@ -149,7 +149,7 @@ function advagg_ext_compress_js_compress(&$contents) {
  */
 function advagg_ext_compress_css_compress(&$contents) {
   list($css_path) = advagg_get_root_files_dir();
-  $temp_file = drupal_tempnam($css_path[0], 'file_advagg_');
+  $temp_file = drupal_tempnam($css_path[0], 'advagg_file_');
   $new_temp_file = $temp_file . '.css';
   rename($temp_file, $new_temp_file);
   $temp_file_full = advagg_get_relative_path($new_temp_file);

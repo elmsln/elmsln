@@ -30,7 +30,12 @@ function advagg_advagg_save_aggregate_alter(array &$files_to_save, array $aggreg
   $gzip_exists = FALSE;
   foreach ($files_to_save as $uri => $contents) {
     // See if this uri contains .gz near the end of it.
-    $pos = strripos($uri, '.gz', 91 + strlen(ADVAGG_SPACE) * 3);
+    if (strlen($uri) > 91 + strlen(ADVAGG_SPACE) * 3) {
+      $pos = strripos($uri, '.gz', 91 + strlen(ADVAGG_SPACE) * 3);
+    }
+    else {
+      $pos = strripos($uri, '.gz');
+    }
     if (!empty($pos)) {
       $len = strlen($uri);
       // .gz file exists, exit loop.
@@ -322,7 +327,7 @@ function advagg_advagg_changed_files(array $files, array $types) {
 
       // Skip if the file that was changed is not in this themes directory.
       $theme_path = drupal_get_path('theme', $theme_name);
-      if (strpos($css_file, $theme_path) !== 0) {
+      if ((!empty($theme_path)) && strpos($css_file, $theme_path) !== 0) {
         continue;
       }
       $files_in_theme[] = $css_file;
@@ -414,6 +419,49 @@ function advagg_advagg_changed_files(array $files, array $types) {
   // Rescan again as the submit will generate new files in the css dir.
   if ($submit_ran) {
     advagg_push_new_changes();
+  }
+}
+
+/**
+ * Implements hook_advagg_changed_files().
+ *
+ * If the locale module is enabled regenerate locale translations.
+ *
+ * @param array $files
+ *   List of files that have changed.
+ * @param array $types
+ *   Array with the css and or the js key.
+ */
+function locale_advagg_changed_files(array $files, array $types) {
+  // Skip if no js changed.
+  if (empty($types['js'])) {
+    return;
+  }
+
+  $javascript = array();
+  foreach ($files as $filename => $meta_data) {
+    // Only care about js files.
+    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+    if ($ext != 'js') {
+      continue;
+    }
+    $javascript[] = array(
+      'type' => 'file',
+      'data' => $filename,
+    );
+  }
+  if (!empty($javascript)) {
+    $javascript_before = $javascript;
+    $language_before = $GLOBALS['language'];
+    $language_list = language_list();
+    foreach ($language_list as $lang) {
+      if ($lang->enabled) {
+        $GLOBALS['language'] = $lang;
+        $javascript = $javascript_before;
+        locale_js_alter($javascript);
+      }
+    }
+    $GLOBALS['language'] = $language_before;
   }
 }
 

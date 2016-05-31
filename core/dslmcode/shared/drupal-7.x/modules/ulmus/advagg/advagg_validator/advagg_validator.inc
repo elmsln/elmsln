@@ -134,7 +134,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
       db_merge('advagg_validator')
         ->key(array(
           'filename_hash' => $record['filename_hash'],
-          ))
+        ))
         ->fields($record)
         ->execute();
     }

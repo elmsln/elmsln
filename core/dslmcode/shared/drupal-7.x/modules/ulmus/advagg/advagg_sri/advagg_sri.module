@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Advanced aggregation sri module.
+ */
+
+// Define default variables.
+/**
+ * Default value of the SHA hash level.
+ */
+define('ADVAGG_SRI', 0);
+
+/**
+ * Default value to force SRI to always be generated.
+ */
+define('ADVAGG_SRI_FILE_GENERATION', FALSE);
+
+// Core hook implementations.
+/**
+ * Implements hook_menu().
+ */
+function advagg_sri_menu() {
+  $file_path = drupal_get_path('module', 'advagg_sri');
+  $config_path = advagg_admin_config_root_path();
+
+  $items[$config_path . '/advagg/sri'] = array(
+    'title' => 'Subresource Integrity',
+    'description' => 'Hash aggregated files.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advagg_sri_admin_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'advagg_sri.admin.inc',
+    'weight' => 10,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function advagg_sri_module_implements_alter(&$implementations, $hook) {
+  // Move advagg_sri to the bottom.
+  if ($hook === 'advagg_save_aggregate_alter' && array_key_exists('advagg_sri', $implementations)) {
+    $item = $implementations['advagg_sri'];
+    unset($implementations['advagg_sri']);
+    $implementations['advagg_sri'] = $item;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function advagg_sri_form_advagg_admin_settings_form_alter(&$form, $form_state) {
+  // Disable httprl if SRI is set to always on.
+  if (variable_get('advagg_sri_file_generation', ADVAGG_SRI_FILE_GENERATION)) {
+    $form['global']['advagg_use_httprl']['#default_value'] = FALSE;
+    $form['global']['advagg_use_httprl']['#disabled'] = TRUE;
+    $form['global']['advagg_use_httprl']['#description'] = t('The Subresource Integrity submodule has disabled httprl usage. This is the "Always output the page with the subresource integrity attribute" checkbox.');
+  }
+}

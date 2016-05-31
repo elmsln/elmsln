@@ -43,7 +43,7 @@ define('ADVAGG_JS_COMPRESSOR_FILE_SETTINGS', -1);
 /**
  * Default value to if inline compression is used if page is not cacheable.
  */
-define('ADVAGG_JS_COMPRESS_ADD_LICENSE', TRUE);
+define('ADVAGG_JS_COMPRESS_ADD_LICENSE', 3);
 
 /**
  * Implements hook_menu().
@@ -75,6 +75,7 @@ function advagg_js_compress_advagg_current_hooks_hash_array_alter(&$aggregate_se
   $aggregate_settings['variables']['advagg_js_compress_packer'] = variable_get('advagg_js_compress_packer', ADVAGG_JS_COMPRESS_PACKER);
   $aggregate_settings['variables']['advagg_js_compress_max_ratio'] = variable_get('advagg_js_compress_max_ratio', ADVAGG_JS_COMPRESS_MAX_RATIO);
   $aggregate_settings['variables']['advagg_js_compressor_file_settings'] = variable_get('advagg_js_compressor_file_settings', array());
+  $aggregate_settings['variables']['advagg_js_compress_add_license'] = variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE);
 }
 
 /**

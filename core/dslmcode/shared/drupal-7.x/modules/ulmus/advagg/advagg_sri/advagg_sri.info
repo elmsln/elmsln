@@ -1,9 +1,10 @@
-name = AdvAgg Async Font Loader
-description = Allows one to load fonts in an async manner
+name = AdvAgg Subresource Integrity
+description = Provide the integrity attribute for CSS and JS files.
 core = 7.x
 dependencies[] = advagg
 package = Advanced CSS/JS Aggregation
-configure = admin/config/development/performance/advagg/font
+
+configure = admin/config/development/performance/advagg/sri
 
 ; Information added by Drupal.org packaging script on 2016-03-29
 version = "7.x-2.18"

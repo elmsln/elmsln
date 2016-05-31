@@ -148,7 +148,7 @@ function advagg_validator_admin_form_generator($type, $run_client_side) {
     $point = &$form;
     $built = array();
     foreach ($levels as $key => $value) {
-      // Build direcotry structure,
+      // Build direcotry structure.
       $built[] = $value;
       $point = &$point[$value];
       if (!is_array($point)) {

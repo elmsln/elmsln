@@ -16,16 +16,23 @@ function advagg_font_admin_settings_form() {
   drupal_set_title(t('AdvAgg: Async Font Loader'));
   $form = array();
 
-  $package = drupal_http_request('https://cdn.rawgit.com/bramstein/fontfaceobserver/master/package.json');
-  $package = json_decode($package->data);
+  $package = drupal_http_request('https://cdn.rawgit.com/bramstein/fontfaceobserver/master/package.json', array('timeout' => 7));
+  if (!empty($package->data)) {
+    $package = json_decode($package->data);
+  }
+  else {
+    unset($package);
+    $package = new stdClass();
+    $package->version = 0;
+  }
 
   $options = array(
     0 => t('Disabled'),
     6 => t('Externally load the latest from github (version: @version)', array('@version' => $package->version)),
   );
   $description = t('This will use the fallback font until the font has been downloaded. See <a href="@link">fontfaceobserver</a> for more info.', array(
-      '@link' => 'https://github.com/bramstein/fontfaceobserver',
-    ));
+    '@link' => 'https://github.com/bramstein/fontfaceobserver',
+  ));
   if (function_exists('libraries_info')) {
     $lib_info = libraries_detect('fontfaceobserver');
     if ($lib_info['installed']) {

@@ -8,14 +8,14 @@
 /**
  * Test to see if the given string contains unicode.
  *
- * @param int interval
+ * @param {int} interval
  *   String to test.
- * @param int granularity
+ * @param {int} granularity
  *   String to test.
- * @param string langcode
+ * @param {string} langcode
  *   Language used in translation.
  *
- * @return
+ * @return {bool}
  *   true if string contains non ASCII characters.
  *   false if string only contains ASCII characters.
  */
@@ -66,10 +66,10 @@ Drupal.formatInterval = function (interval, granularity, langcode) {
 /**
  * Test to see if the given string contains unicode.
  *
- * @param str
+ * @param {string} str
  *   String to test.
  *
- * @return
+ * @return {bool}
  *   true if string contains non ASCII characters.
  *   false if string only contains ASCII characters.
  */
@@ -86,7 +86,7 @@ function advagg_is_unicode(str) {
 /**
  * Toggle the advagg cookie.
  *
- * @return
+ * @return {bool}
  *   true if hostname contains unicode.
  *   false so the form does not get submitted.
  */

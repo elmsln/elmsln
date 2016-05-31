@@ -56,7 +56,13 @@ class AdvAggCascadingStylesheetsTestCase extends DrupalWebTestCase {
   public function setUp() {
     // Enable any modules required for the test. This should be an array of
     // module names.
-    parent::setUp(array('advagg', 'php', 'locale', 'common_test', 'menu_test'));
+    parent::setUp(array(
+      'advagg',
+      'php',
+      'locale',
+      'common_test',
+      'menu_test',
+    ));
     // Include the advagg.module file.
     drupal_load('module', 'advagg');
     module_load_include('inc', 'advagg', 'advagg');
@@ -226,13 +232,28 @@ class AdvAggCascadingStylesheetsTestCase extends DrupalWebTestCase {
     global $language;
     $language->direction = LANGUAGE_RTL;
     $path = drupal_get_path('module', 'system');
-    drupal_add_css($path . '/system.base.css');
+    drupal_add_css($path . '/system.base.css', array('group' => CSS_SYSTEM));
+    drupal_add_css($path . '/system.menus.css', array('group' => CSS_SYSTEM));
+    drupal_add_css($path . '/system.theme.css', array('group' => CSS_SYSTEM));
     // Get the render array.
     $full_css = advagg_get_css();
     // Render the CSS.
     $styles = drupal_render($full_css);
     // Check to see if system.base-rtl.css was also added.
-    $this->assert(strpos($styles, $path . '/system.base-rtl.css') !== FALSE, 'CSS is alterable as right to left overrides are added.');
+    $base_pos = strpos($styles, $path . '/system.base.css');
+    $base_rtl_pos = strpos($styles, $path . '/system.base-rtl.css');
+    $this->assert($base_rtl_pos !== FALSE, 'CSS is alterable as right to left overrides are added.');
+    $this->assert($base_pos < $base_rtl_pos, 'system.base-rtl.css is added after system.base.css.');
+    // Check to see if system.menus-rtl.css was also added.
+    $menus_pos = strpos($styles, $path . '/system.menus.css');
+    $menus_rtl_pos = strpos($styles, $path . '/system.menus-rtl.css');
+    $this->assert($menus_rtl_pos !== FALSE, 'CSS is alterable as right to left overrides are added.');
+    $this->assert($menus_pos < $menus_rtl_pos, 'system.menus-rtl.css is added after system.menus.css.');
+    // Check to see if system.theme-rtl.css was also added.
+    $theme_pos = strpos($styles, $path . '/system.theme.css');
+    $theme_rtl_pos = strpos($styles, $path . '/system.theme-rtl.css');
+    $this->assert($theme_rtl_pos !== FALSE, 'CSS is alterable as right to left overrides are added.');
+    $this->assert($theme_pos < $theme_rtl_pos, 'system.theme-rtl.css is added after system.theme.css.');
     // Change the language back to left to right.
     $language->direction = LANGUAGE_LTR;
 
@@ -560,6 +581,7 @@ class AdvAggJavaScriptTestCase extends DrupalWebTestCase {
     // Enable Locale and SimpleTest in the test environment.
     parent::setUp(array(
       'locale',
+      'locale_test',
       'simpletest',
       'common_test',
       'form_test',
@@ -1033,6 +1055,149 @@ class AdvAggJavaScriptTestCase extends DrupalWebTestCase {
     $this->assertTrue(strpos($scripts, $child_js), 'The child #attached JavaScript was included when loading from cache.');
     $this->assertTrue(strpos($scripts, $subchild_js), 'The subchild #attached JavaScript was included when loading from cache.');
     $_SERVER['REQUEST_METHOD'] = $request_method;
+
+    //
+    // Tests the localisation of JavaScript libraries. Verifies that the
+    // datepicker can be localized.
+    advagg_test_reset_statics();
+    drupal_add_library('system', 'ui.datepicker');
+    $GLOBALS['conf']['advagg_mod_js_footer'] = 0;
+    $render_array = advagg_get_js();
+    $javascript = drupal_render($render_array);
+    $this->assertTrue(strpos($javascript, 'locale.datepicker.js'), 'locale.datepicker.js added to scripts.');
+
+    //
+    // Functional tests for JavaScript parsing for translatable strings.
+    // Tests parsing js files for translatable strings.
+    advagg_test_reset_statics();
+    $filename = drupal_get_path('module', 'locale_test') . '/locale_test.js';
+    // Parse the file to look for source strings.
+    _locale_parse_js_file($filename);
+
+    // Get all of the source strings that were found.
+    $source_strings = db_select('locales_source', 's')
+      ->fields('s', array('source', 'context'))
+      ->condition('s.location', $filename)
+      ->execute()
+      ->fetchAllKeyed();
+
+    // List of all strings that should be in the file.
+    $test_strings = array(
+      "Standard Call t" => '',
+      "Whitespace Call t" => '',
+
+      "Single Quote t" => '',
+      "Single Quote \\'Escaped\\' t" => '',
+      "Single Quote Concat strings t" => '',
+
+      "Double Quote t" => '',
+      "Double Quote \\\"Escaped\\\" t" => '',
+      "Double Quote Concat strings t" => '',
+
+      "Context !key Args t" => "Context string",
+
+      "Context Unquoted t" => "Context string unquoted",
+      "Context Single Quoted t" => "Context string single quoted",
+      "Context Double Quoted t" => "Context string double quoted",
+
+      "Standard Call plural" => '',
+      "Standard Call @count plural" => '',
+      "Whitespace Call plural" => '',
+      "Whitespace Call @count plural" => '',
+
+      "Single Quote plural" => '',
+      "Single Quote @count plural" => '',
+      "Single Quote \\'Escaped\\' plural" => '',
+      "Single Quote \\'Escaped\\' @count plural" => '',
+
+      "Double Quote plural" => '',
+      "Double Quote @count plural" => '',
+      "Double Quote \\\"Escaped\\\" plural" => '',
+      "Double Quote \\\"Escaped\\\" @count plural" => '',
+
+      "Context !key Args plural" => "Context string",
+      "Context !key Args @count plural" => "Context string",
+
+      "Context Unquoted plural" => "Context string unquoted",
+      "Context Unquoted @count plural" => "Context string unquoted",
+      "Context Single Quoted plural" => "Context string single quoted",
+      "Context Single Quoted @count plural" => "Context string single quoted",
+      "Context Double Quoted plural" => "Context string double quoted",
+      "Context Double Quoted @count plural" => "Context string double quoted",
+    );
+
+    // Assert that all strings were found properly.
+    foreach ($test_strings as $str => $context) {
+      $args = array('%source' => $str, '%context' => $context);
+
+      // Make sure that the string was found in the file.
+      $this->assertTrue(isset($source_strings[$str]), format_string('Found source string: %source', $args));
+
+      // Make sure that the proper context was matched.
+      $this->assertTrue(isset($source_strings[$str]) && $source_strings[$str] === $context, strlen($context) > 0 ? format_string('Context for %source is %context', $args) : format_string('Context for %source is blank', $args));
+    }
+    $this->assertEqual(count($source_strings), count($test_strings), 'Found correct number of source strings.');
+
+    //
+    // Adds a language and checks that the JavaScript translation files are
+    // properly created and rebuilt on deletion.
+    $user = $this->drupalCreateUser(array('translate interface', 'administer languages', 'access administration pages'));
+    $this->drupalLogin($user);
+
+    $langcode = 'xx';
+    // The English name for the language. This will be translated.
+    $name = $this->randomName(16);
+    // The native name for the language.
+    $native = $this->randomName(16);
+    // The domain prefix.
+    $prefix = $langcode;
+
+    // Add custom language.
+    $edit = array(
+      'langcode' => $langcode,
+      'name' => $name,
+      'native' => $native,
+      'prefix' => $prefix,
+      'direction' => '0',
+    );
+    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add custom language'));
+    drupal_static_reset('language_list');
+
+    // Build the JavaScript translation file.
+    $this->drupalGet('admin/config/regional/translate/translate');
+
+    // Retrieve the id of the first string available in the {locales_source}
+    // table and translate it.
+    $query = db_select('locales_source', 'l');
+    $query->addExpression('min(l.lid)', 'lid');
+    $result = $query->condition('l.location', '%.js%', 'LIKE')
+      ->condition('l.textgroup', 'default')
+      ->execute();
+    $url = 'admin/config/regional/translate/edit/' . $result->fetchObject()->lid;
+    $edit = array('translations['. $langcode .']' => $this->randomName());
+    $this->drupalPost($url, $edit, t('Save translations'));
+
+    // Trigger JavaScript translation parsing and building.
+    require_once DRUPAL_ROOT . '/includes/locale.inc';
+    _locale_rebuild_js($langcode);
+
+    // Retrieve the JavaScript translation hash code for the custom language to
+    // check that the translation file has been properly built.
+    $file = db_select('languages', 'l')
+      ->fields('l', array('javascript'))
+      ->condition('language', $langcode)
+      ->execute()
+      ->fetchObject();
+    $js_file = 'public://' . variable_get('locale_js_directory', 'languages') . '/' . $langcode . '_' . $file->javascript . '.js';
+    $this->assertTrue($result = file_exists($js_file), format_string('JavaScript file created: %file', array('%file' => $result ? $js_file : 'not found')));
+
+    // Test JavaScript translation rebuilding.
+    file_unmanaged_delete($js_file);
+    $this->assertTrue($result = !file_exists($js_file), format_string('JavaScript file deleted: %file', array('%file' => $result ? $js_file : 'found')));
+    cache_clear_all();
+    _locale_rebuild_js($langcode);
+    $this->assertTrue($result = file_exists($js_file), format_string('JavaScript file rebuilt: %file', array('%file' => $result ? $js_file : 'not found')));
+
   }
 
 }

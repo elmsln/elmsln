@@ -300,7 +300,8 @@ function advagg_js_compress_prep(&$contents, $filename, array $aggregate_setting
     && $semicolon_count > 10
     && $semicolon_count > (substr_count($contents, "\n", strpos($contents, ';')) * 5)
   ) {
-    if ($add_licensing && variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE)) {
+    $add_license_setting = isset($aggregate_settings['variables']['advagg_js_compress_add_license']) ? $aggregate_settings['variables']['advagg_js_compress_add_license'] : variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE);
+    if ($add_licensing && ($add_license_setting == 1 || $add_license_setting == 3)) {
       $url = file_create_url($filename);
       $contents = "/* Source and licensing information for the line(s) below can be found at $url. */\n" . $contents . ";\n/* Source and licensing information for the above line(s) can be found at $url. */\n";
     }
@@ -323,27 +324,17 @@ function advagg_js_compress_prep(&$contents, $filename, array $aggregate_setting
     }
   }
 
-  // Do not use jsmin() if the js file contains cyrillic characters.
-  if ($compressor == 3 && preg_match('/[А-Яа-яЁё]/u', $contents)) {
+  // Jsmin doesn't handle multi-byte characters before version 2, fall back to
+  // different compressor if jsmin version < 2 and $contents contains multi-
+  // byte characters.
+  if ($compressor == 3 && (version_compare(phpversion('jsmin'), '2.0.0', '<') &&advagg_js_compress_string_contains_multibyte_characters($contents))) {
     if (defined('PHP_VERSION_ID') && constant('PHP_VERSION_ID') >= 50300) {
       $compressor = 5;
-      watchdog('advagg_js_compress', 'The jsmin function does not handle cyrillic characters. Using JSqueeze.');
+      watchdog('advagg_js_compress', 'The currently installed jsmin version does not handle multibyte characters, you may consider to upgrade the jsmin extension. Using JSqueeze fallback.');
     }
     else {
       $compressor = 1;
-      watchdog('advagg_js_compress', 'The jsmin function does not handle cyrillic characters. Using JSmin+.');
-    }
-  }
-
-  // Do not use jsmin() if the js file contains cyrillic characters.
-  if ($compressor == 3 && preg_match('/[А-Яа-яЁё]/u', $contents)) {
-    if (defined('PHP_VERSION_ID') && constant('PHP_VERSION_ID') >= 50300) {
-      $compressor = 5;
-      watchdog('advagg_js_compress', 'The jsmin function does not handle cyrillic characters. Using JSqueeze.');
-    }
-    else {
-      $compressor = 1;
-      watchdog('advagg_js_compress', 'The jsmin function does not handle cyrillic characters. Using JSmin+.');
+      watchdog('advagg_js_compress', 'The currently installed jsmin version does not handle multibyte characters, you may consider to upgrade the jsmin extension. Using JSmin+ fallback.');
     }
   }
 
@@ -361,18 +352,24 @@ function advagg_js_compress_prep(&$contents, $filename, array $aggregate_setting
     $contents = str_replace(pack("CCC", 0xef, 0xbb, 0xbf), "", $contents);
     // Use the compressor.
     list(, , , $functions) = advagg_js_compress_configuration();
-    if ($compressor == 1) {
-      advagg_js_compress_jsminplus($contents, $log_errors);
-    }
-    elseif (isset($functions[$compressor])) {
+    if (isset($functions[$compressor])) {
       $run = $functions[$compressor];
       if (function_exists($run)) {
-        $run($contents);
+        $run($contents, $log_errors, $aggregate_settings);
       }
     }
     else {
       return;
     }
+
+    // Under some unknown/rare circumstances, JSMin and JSqueeze can add 2-3
+    // extraneous/wrong chars at the end of the string. This work-around will
+    // remove these chars if necessary. See https://www.drupal.org/node/2627468.
+    // Also see https://github.com/sqmk/pecl-jsmin/issues/46.
+    $a = strrpos($contents, ';');
+    $b = strrpos($contents, '}');
+    $c = strrpos($contents, ')');
+    $contents = substr($contents, 0, 1 + max($a, $b, $c));
 
     // Ensure that $contents ends with ; or }.
     if (strpbrk(substr(trim($contents), -1), ';}') === FALSE) {
@@ -393,6 +390,7 @@ function advagg_js_compress_prep(&$contents, $filename, array $aggregate_setting
 
   if ($test_ratios) {
     $aggregate_settings['variables']['advagg_js_compress_max_ratio'] = isset($aggregate_settings['variables']['advagg_js_compress_max_ratio']) ? $aggregate_settings['variables']['advagg_js_compress_max_ratio'] : variable_get('advagg_js_compress_max_ratio', ADVAGG_JS_COMPRESS_MAX_RATIO);
+    $add_license_setting = isset($aggregate_settings['variables']['advagg_js_compress_add_license']) ? $aggregate_settings['variables']['advagg_js_compress_add_license'] : variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE);
     // Make sure the returned string is not empty or has a VERY high
     // compression ratio.
     if ( empty($contents)
@@ -402,11 +400,31 @@ function advagg_js_compress_prep(&$contents, $filename, array $aggregate_setting
     ) {
       $contents = $contents_before;
     }
-    elseif ($add_licensing && variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE)) {
+    elseif ($add_licensing && ($add_license_setting == 1 || $add_license_setting == 3)) {
       $url = file_create_url($filename);
       $contents = "/* Source and licensing information for the line(s) below can be found at $url. */\n" . $contents . ";\n/* Source and licensing information for the above line(s) can be found at $url. */\n";
     }
   }
+}
+
+/**
+ * Checks if string contains multibyte characters.
+ *
+ * @param string $string
+ *   String to check.
+ *
+ * @return bool
+ *   TRUE if string contains multibyte character.
+ */
+function advagg_js_compress_string_contains_multibyte_characters($string) {
+  // Check if there are multy-byte characters: If the UTF-8 encoded string has
+  // multybytes strlen() will return a byte-count greater than the actual
+  // character count, returned by drupal_strlen().
+  if (strlen($string) == drupal_strlen($string)) {
+    return FALSE;
+  }
+
+  return TRUE;
 }
 
 /**
@@ -442,7 +460,10 @@ function advagg_js_compress_jsminplus(&$contents, $log_errors = TRUE) {
   catch (Exception $e) {
     // Log the exception thrown by JSMin+ and roll back to uncompressed content.
     if ($log_errors) {
-      watchdog('advagg_js_compress', $e->getMessage() . '<pre>' . $contents_before . '</pre>', NULL, WATCHDOG_WARNING);
+      watchdog('advagg_js_compress', '@message <pre> @contents </pre>', array(
+        '@message' => $e->getMessage(),
+        '@contents' => $contents_before,
+      ), WATCHDOG_WARNING);
     }
     $contents = $contents_before;
   }
