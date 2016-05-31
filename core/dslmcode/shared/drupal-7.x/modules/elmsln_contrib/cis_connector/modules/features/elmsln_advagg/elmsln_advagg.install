@@ -9,7 +9,11 @@
  * Increases the max bundles for css & js bundlers from 2 to 15
  */
 function elmsln_advagg_update_7000() {
+  // better optimization over 2 bundles oddly enough
   variable_set('advagg_bundler_max_css', 15);
   variable_set('advagg_bundler_max_js', 15);
+  // can conflict with foundation / foundation_access
   variable_set('advagg_cache_level', 3);
+  // gzip can cause issues if gzip libraries not available
+  variable_set('advagg_gzip', 0);
 }
