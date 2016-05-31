@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * ELMSLN advagg install.
+ */
+
+ /**
+ * Increases the max bundles for css & js bundlers from 2 to 15 
+ */
+function elmsln_advagg_update_7000() {
+  variable_set('advagg_bundler_max_css', 15);
+  variable_set('advagg_bundler_max_js', 15);
+}
