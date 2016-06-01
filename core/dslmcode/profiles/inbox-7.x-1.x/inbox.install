@@ -22,3 +22,11 @@ function inbox_install() {
   // set homepage
   variable_set('site_frontpage', 'calendar/month');
 }
+
+
+/**
+ * Enable CIS section and student filter for future usage.
+ */
+function inbox_update_7000(&$sandbox) {
+  module_enable(array('cis_section', 'elmsln_student_filter'));
+}

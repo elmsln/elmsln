@@ -136,8 +136,9 @@ dependencies[] = cis_course_authority
 ; ----------
 ; Inbox Dependencies
 ; ----------
-dependencies[] = calendar
+dependencies[] = elmsln_student_filter
 
+dependencies[] = calendar
 dependencies[] = inbox_helper
 dependencies[] = inbox_calendar
 dependencies[] = inbox_event
