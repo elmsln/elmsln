@@ -303,6 +303,44 @@ function mooc_ux_defaults_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'simplify_blocks_global';
+  $strongarm->value = array(
+    0 => 'format',
+  );
+  $export['simplify_blocks_global'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'simplify_nodes_global';
+  $strongarm->value = array(
+    0 => 'author',
+    1 => 'format',
+    2 => 'revision',
+    3 => 'book',
+    4 => 'menu',
+  );
+  $export['simplify_nodes_global'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'simplify_user1';
+  $strongarm->value = 0;
+  $export['simplify_user1'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'simplify_users_global';
+  $strongarm->value = array(
+    0 => 'format',
+  );
+  $export['simplify_users_global'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'tipsy';
   $strongarm->value = array(
     'drupal_forms' => array(
