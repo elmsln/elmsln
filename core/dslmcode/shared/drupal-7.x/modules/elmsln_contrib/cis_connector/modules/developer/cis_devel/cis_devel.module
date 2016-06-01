@@ -4,6 +4,26 @@
  * Provide uncached requests with developer messages for debugging
  */
 
+function _cis_devel_print($data) {
+  if (drupal_is_cli()) {
+    drush_print($data);
+  }
+  else {
+    // @ignore production_code
+    dpm($data);
+  }
+}
+
+function _cis_devel_print_r($data) {
+  if (drupal_is_cli()) {
+    drush_print_r($data);
+  }
+  else {
+    // @ignore production_code
+    dpm($data);
+  }
+}
+
 /**
  * Implements hook_cis_prerequest_alter().
  */
@@ -18,8 +38,7 @@ function cis_devel_cis_prerequest_alter(&$request) {
  */
 function cis_devel_cis_postrequest_alter(&$request) {
   if (user_access('access devel information')) {
-    // @ignore production_code
-    dpm($request);
+    _cis_devel_print_r($request);
   }
 }
 
@@ -28,8 +47,7 @@ function cis_devel_cis_postrequest_alter(&$request) {
  */
 function cis_devel_elmsln_api_prerequest_alter(&$request) {
   if (user_access('access devel information')) {
-    // @ignore production_code
-    dpm($request);
+    _cis_devel_print_r($request);
   }
 }
 
@@ -38,8 +56,7 @@ function cis_devel_elmsln_api_prerequest_alter(&$request) {
  */
 function cis_devel_elmsln_api_postrequest_alter(&$request) {
   if (user_access('access devel information')) {
-    // @ignore production_code
-    dpm($request);
+    _cis_devel_print_r($request);
   }
 }
 
@@ -49,9 +66,8 @@ function cis_devel_elmsln_api_postrequest_alter(&$request) {
 function cis_devel_cis_section_build_roster_alter(&$roster, $section) {
   if (user_access('access devel information')) {
     // @ignore production_code
-    dpm("Pulled roster for: $section");
-    // @ignore production_code
-    dpm($roster);
+    _cis_devel_print($section);
+    _cis_devel_print_r($roster);
   }
 }
 

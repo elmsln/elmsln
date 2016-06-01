@@ -13,6 +13,11 @@
  * entities by role.
  */
 
+// to debug non-blocking calls, add the following variable or config to settings.php
+// variable_set('cis_devel_nonblock', TRUE);
+// or, much better, put this in your settings.php file
+// $config['cis_devel_nonblock'] = TRUE;
+
 /**
  * Implements hook_cis_service_registry().
  *

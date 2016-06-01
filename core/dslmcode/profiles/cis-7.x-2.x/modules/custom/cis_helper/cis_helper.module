@@ -18,6 +18,52 @@ define('CIS_HELPER_DEFAULT_CONTENT_OUTLINE', 'lesson-based.xml');
  * Implements hook_cron().
  */
 function cis_helper_cron() {
+  // make a list of courses as a queue
+  $query = new EntityFieldQuery;
+  $result = $query
+    // pull all nodes
+    ->entityCondition('entity_type', 'node')
+    // that are courses
+    ->entityCondition('bundle', 'course')
+    // that aren't archived
+    ->propertyCondition('status', 1)
+    // run as user 1 to avoid issues of ability to load as cron is anon
+    ->addMetaData('account', user_load(1))
+    ->execute();
+  // load the instances
+  if (isset($result['node'])) {
+    if (drupal_is_cli()) {
+      // debug message if this gets backed up
+      drush_print(dt('Courses to process.. @count', array('@count' => count($result['node']))));
+    }
+    // make a queue for this
+    $queue = DrupalQueue::get('cis_course_process');
+    $queue->createQueue();
+    foreach ($result['node'] as $course) {
+      // ensure machine_name isset
+      if (isset($course->nid)) {
+        $queue->createItem($course->nid);
+      }
+    }
+    // ensure we have stuff in the queue before trying this
+    if ($queue->numberOfItems() > 0) {
+      // now kick off a call to do roster syncing that kicks the next item off the queue
+      // at the end of it
+      $nonblock = array(
+        'method' => 'POST',
+        'api' => '1',
+        'bucket' => 'cis',
+        'path' => '/',
+        'data' => array(
+          'elmsln_module' => 'cis_helper',
+          'elmsln_callback' => 'populate_course_network',
+          'queue' => TRUE,
+        ),
+      );
+      _elmsln_api_nonblocking_requests(array($nonblock));
+    }
+  }
+  // section list that's active to see if we need to process anything
   $query = new EntityFieldQuery;
   $result = $query
     // pull all field collections
@@ -46,6 +92,101 @@ function cis_helper_cron() {
       }
     }
   }
+}
+
+/**
+ * Derive section access strings from a course.
+ * @param  object $course   course node object.
+ * @return array            array of strings to pass off to section request area.
+ */
+function _cis_helper_course_access_strings($course) {
+  $section_list = array();
+  // load up offerings
+  if (isset($course->field_offerings[LANGUAGE_NONE])) {
+    $temp_entity_ids = array();
+    foreach ($course->field_offerings[LANGUAGE_NONE] as $temp_item) {
+      $temp_entity_ids[] = $temp_item['value'];
+    }
+    $offerings = entity_load('field_collection_item', $temp_entity_ids);
+    // loop through offerings
+    foreach ($offerings as $offering) {
+      // load up sections
+      if (isset($offering->field_sections[LANGUAGE_NONE])) {
+        $temp_entity_ids = array();
+        foreach ($offering->field_sections[LANGUAGE_NONE] as $temp_item) {
+          $temp_entity_ids[] = $temp_item['value'];
+        }
+        $sections = entity_load('field_collection_item', $temp_entity_ids);
+        // setp into each section found
+        foreach ($sections as $section) {
+          if (isset($section->field_access_string[LANGUAGE_NONE])) {
+            // loop through access strings
+            foreach ($section->field_access_string[LANGUAGE_NONE] as $access_string) {
+              $section_list[$access_string['value']] = $section;
+            }
+          }
+        }
+      }
+    }
+  }
+  return $section_list;
+}
+
+/**
+ * Assemble a roster based on a list of sections
+ * keyed as section_id => field_collection_item
+ */
+function _cis_helper_assemble_roster(&$sections) {
+  // build roster based on an array of sections
+  $roster = array();
+  foreach ($sections as $section_id => &$section) {
+    // mark all sections active, last case of date after course runs is
+    // the only case that can deactivate a section
+    $section->active = 1;
+    // ensure we only sync things that should be sycned
+    // this helps elminate purely developmental section spaces like masters
+    // as well as sections primed for setup but not active
+    // as the per the semester dates
+    if (isset($section->field_access_dates['und'])) {
+      $dates = $section->field_access_dates['und'][0];
+      if ($dates['value'] < REQUEST_TIME && $dates['value2'] > REQUEST_TIME) {
+        // build the roster for this section
+        $tmproster = module_invoke_all('cis_helper_build_roster', $section);
+        // allow for altering roster pull methods
+        drupal_alter('cis_helper_build_roster', $tmproster, $section);
+        $roster[$section_id] = $tmproster;
+      }
+      // test for it being before a section is active / is running
+      // this helps ensure students don't get access early but if
+      // instructors or teaching assistants come across the API it adds them
+      elseif ($dates['value'] > REQUEST_TIME) {
+        // build the roster for this section
+        $tmproster = module_invoke_all('cis_helper_build_roster', $section);
+        // allow for altering roster pull methods
+        drupal_alter('cis_helper_build_roster', $tmproster, $section);
+        foreach ($tmproster as $uname => $urole) {
+          // don't grant students early access
+          if ($urole == 'student') {
+            unset($tmproster[$uname]);
+          }
+        }
+        $roster[$section_id] = $tmproster;
+      }
+      // section has ended, deactivate it downstream
+      elseif ($dates['value2'] < REQUEST_TIME) {
+        $section->active = 0;
+        $roster[$section_id] = array();
+      }
+    }
+    else {
+      // build the roster for this section
+      $tmproster = module_invoke_all('cis_helper_build_roster', $section);
+      // allow for altering roster pull methods
+      drupal_alter('cis_helper_build_roster', $tmproster, $section);
+      $roster[$section_id] = $tmproster;
+    }
+  }
+  return $roster;
 }
 
 /**
@@ -465,53 +606,30 @@ function cis_helper_entity_update($entity, $type) {
   }
   // spider associated services when section is updated
   if ($type == 'field_collection_item' && $entity->field_name == 'field_sections') {
-    // load possible services
-    $service_instances = _cis_helper_derive_service_instances($entity->item_id);
-    // cross-reference with those this section is reporting it implements
-    // this avoids possible cron runs of services this section isn't using
-    // overall it's not a big deal but this saves cycles none-the-less
-    $use_array = array();
-    if (!empty($entity->field_services)) {
-      foreach ($entity->field_services[LANGUAGE_NONE] as $in_use) {
-        $use_array[$in_use['target_id']] = $in_use['target_id'];
-      }
-    }
-    if (is_array($service_instances)) {
-      foreach ($service_instances as $instance) {
-        // check that this instance of a service is in use by this section
-        if (in_array($instance->field_services[LANGUAGE_NONE][0]['target_id'], $use_array)) {
-          // load the service and course entities
-          $service = entity_load_single('node', $instance->field_services[LANGUAGE_NONE][0]['target_id']);
-          $course = entity_load_single('node', $instance->field_course[LANGUAGE_NONE][0]['target_id']);
-          // clear the cis_connector cache because this data may have changed
-          $request = array(
-            'method' => 'POST',
-            'api' => '1',
-            'bucket' => $service->field_distribution[LANGUAGE_NONE][0]['value'],
-            'path' => '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/',
-            'data' => array(
-              'elmsln_module' => 'elmsln_api',
-              'elmsln_callback' => 'clear_cache_bin',
-              'bin' => 'cis_connector',
-            ),
-          );
-          _elmsln_api_request($request);
-          // sync the service but do it non-blocking
-          $nonblock[] = array(
-            'method' => 'POST',
-            'api' => '1',
-            'bucket' => $service->field_distribution[LANGUAGE_NONE][0]['value'],
-            'path' => '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/',
-            'data' => array(
-              'elmsln_module' => 'cis_section',
-              'elmsln_callback' => 'sync_roster',
-            ),
-          );
-          drupal_set_message(t('The remote service `@service` has been syncronized to reflect your changes.', array('@service' => $service->title)), 'status');
-        }
-      }
-      _elmsln_api_nonblocking_requests($nonblock);
-    }
+    $course = $entity->HostEntity()->HostEntity();
+    $requests = array(
+        array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'clear_cache_bin',
+        'bin' => 'cis_connector',
+      ),
+    );
+    // ship these requests across the network
+    _elmsln_api_network_request($requests, 1, TRUE);
+    // sync the service but do it non-blocking
+    $request = array(
+      'method' => 'POST',
+      'api' => '1',
+      'bucket' => 'cis',
+      'path' => '/',
+      'data' => array(
+        'elmsln_module' => 'cis_helper',
+        'elmsln_callback' => 'populate_course_network',
+        'course' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
+      ),
+    );
+    _elmsln_api_request($request, TRUE);
+    drupal_set_message(t('The course network for `@course` has been syncronized to reflect your changes.', array('@course' => $course->title)), 'status');
   }
 }
 
@@ -1051,7 +1169,7 @@ function _cis_helper_section_is_active($section) {
     $section_dates = $section->field_access_dates['und'][0];
     $class_begin = $section->field_access_dates['und'][0]['value'];
     // return access start and end timestamps
-    $dates = array('start' => $dates['value'], 'class_begin' => $class_begin, 'end' => $dates['value2']);
+    $dates = array('start' => $section_dates['value'], 'class_begin' => $class_begin, 'end' => $section_dates['value2']);
     if ($dates['start'] < REQUEST_TIME && $dates['end'] > REQUEST_TIME) {
       return TRUE;
     }
@@ -1118,6 +1236,20 @@ function _cis_helper_generate_service_node($title, $machine_name, $distribution,
  */
 function cis_helper_httprl_spider_other_paths_alter(&$paths) {
   $paths[] = 'courses';
+}
+
+/**
+ * Implements hook_elmsln_api_info().
+ */
+function cis_helper_elmsln_api_info() {
+  // populate a course network
+  $callbacks['populate_course_network'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
+    'file' => 'callbacks/v1/populate_course_network.inc',
+  );
+
+  return $callbacks;
 }
 
 /**

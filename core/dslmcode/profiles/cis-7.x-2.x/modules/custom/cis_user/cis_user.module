@@ -1,0 +1,55 @@
+<?php
+// @file CIS user management
+
+/**
+ * Implements hook_menu().
+ */
+function cis_user_menu() {
+  $items['cis/import-users'] = array(
+    'title' => 'Import users',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_user_import_form'),
+    'access arguments' => array('cis user import users'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'menu-elmsln-settings',
+    'file' => 'cis_user.pages.inc',
+  );
+  $items['node/%node/import-users'] = array(
+    'title' => 'Import users',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_user_import_form'),
+    'access arguments' => array('cis user import users'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'cis_user.pages.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function cis_user_permission() {
+  return array(
+    'cis user import users' =>  array(
+      'title' => t('Import users'),
+      'description' => t('Import a CSV file and turn it into user accounts'),
+    ),
+  );
+}
+
+// convert csv to an associative array
+function _cis_user_csv_to_array($input, &$header, $delimiter=',') {
+  $data = array();
+  $csvData = str_getcsv($input, "\r\n");
+  foreach($csvData as $csvLine){
+    if(is_null($header)) $header = explode($delimiter, str_replace(' ', '',strtolower($csvLine)));
+    else{
+      $items = explode($delimiter, $csvLine);
+      for($n = 0, $m = count($header); $n < $m; $n++){
+        $prepareData[$header[$n]] = trim($items[$n]);
+      }
+      $data[] = $prepareData;
+    }
+  }
+  return $data;
+}

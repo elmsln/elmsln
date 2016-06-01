@@ -5,15 +5,6 @@
  */
 
 /**
- * Implements hook_install().
- */
-function cis_course_authority_install() {
-  // run the sync whenever this installs
-  _cis_course_authority_cis_sync();
-}
-
-
-/**
  * Implements hook_update_N().
  * Authority systems don't have resource, syllabus elements
  * unless stated specifically by something post install.

@@ -7,79 +7,6 @@
 include_once 'cis_course_authority.features.inc';
 
 /**
- * Implements hook_cron().
- */
-function cis_course_authority_cron() {
-  // sync with the CIS to ensure our local course nodes mirror the remote
-  _cis_course_authority_cis_sync();
-}
-
-/**
- * Sync course data with that found in CIS.
- * @param  boolean $cached if we should use cached results from CIS or fresh
- */
-function _cis_course_authority_cis_sync($cached = FALSE) {
-  // call home for a list of courses
-  $remote_courses = _cis_connection_service_instance_query('cis', 'node', array('type' => 'course'), $cached);
-  $local_courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_cis_course_uuid', 'nid');
-  // loop through the remote courses we pulled if we got any
-  if (!empty($remote_courses)) {
-    foreach ($remote_courses as $remote_course) {
-      $change = FALSE;
-      // if the uuid matches the remote, we know we have to update something
-      if (isset($local_courses[$remote_course['uuid']])) {
-        $new = FALSE;
-        // load the local course which had the remote uuid match
-        $course = node_load($local_courses[$remote_course['uuid']]);
-        // ensure title changed
-        if ($course->title != $remote_course['title']) {
-          $change = TRUE;
-          $course->title = $remote_course['title'];
-        }
-        // ensure machine name changed
-        if ($course->field_course_machine_name[LANGUAGE_NONE][0]['value'] != $remote_course['field_machine_name']) {
-          $change = TRUE;
-          $course->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $remote_course['field_machine_name'];
-        }
-        // make sure we aren't saving, constantly
-        if ($change) {
-          node_save($course);
-        }
-      }
-      else {
-        $new = TRUE;
-        // create this locally
-        $course = new stdClass();
-        $course->type = 'cis_course';
-        $course->title = $remote_course['title'];
-        // machine name to match remote so we know how to build the links
-        $course->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $remote_course['field_machine_name'];
-        // set the local uuid linked field value to that we get from the remote
-        $course->field_cis_course_uuid[LANGUAGE_NONE][0]['value'] = $remote_course['uuid'];
-        $course->language = LANGUAGE_NONE;
-        $course->is_new = TRUE;
-        node_object_prepare($course);
-        // build out via submit then save
-        if($course = node_submit($course)) {
-          // force these to be saved by user 1 just so they have some user affiliation
-          $course->uid = 1;
-          node_save($course);
-        }
-      }
-    }
-    // now sync the sections to go along with it if they are enabled
-    if (module_exists('cis_section')) {
-      // load up courses now that we should have them all added locally
-      $courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_course_machine_name', 'nid');
-      // loop through each course and query to sync the section rosters
-      foreach ($courses as $machine_name => $nid) {
-        _cis_section_sync_roster($machine_name, $nid);
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_node_insert().
  */
 function cis_course_authority_node_presave($node) {
@@ -132,3 +59,74 @@ function cis_course_authority_node_update($node) {
     _elmsln_api_course_sync($properties, '1', TRUE);
   }
 }
+
+/**
+ * Implements hook_elmsln_api_info().
+ */
+function cis_course_authority_elmsln_api_info() {
+  // populate a course network
+  $callbacks['sync_data_model'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
+    'file' => 'callbacks/v1/sync_data_model.inc',
+  );
+
+  return $callbacks;
+}
+
+/**
+ * Sync course data with that found in CIS.
+ * @param  boolean $cached if we should use cached results from CIS or fresh
+ */
+function _cis_course_authority_sync_cis_course($cached = FALSE) {
+  // call home for a list of courses
+  $remote_courses = _cis_connection_service_instance_query('cis', 'node', array('type' => 'course'), $cached);
+  $local_courses = _cis_connector_assemble_entity_list('node', 'cis_course', 'field_cis_course_uuid', 'nid');
+  // loop through the remote courses we pulled if we got any
+  if (!empty($remote_courses)) {
+    foreach ($remote_courses as $remote_course) {
+      $change = FALSE;
+      // if the uuid matches the remote, we know we have to update something
+      if (isset($local_courses[$remote_course['uuid']])) {
+        $new = FALSE;
+        // load the local course which had the remote uuid match
+        $course = node_load($local_courses[$remote_course['uuid']]);
+        // ensure title changed
+        if ($course->title != $remote_course['title']) {
+          $change = TRUE;
+          $course->title = $remote_course['title'];
+        }
+        // ensure machine name changed
+        if ($course->field_course_machine_name[LANGUAGE_NONE][0]['value'] != $remote_course['field_machine_name']) {
+          $change = TRUE;
+          $course->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $remote_course['field_machine_name'];
+        }
+        // make sure we aren't saving, constantly
+        if ($change) {
+          node_save($course);
+        }
+      }
+      else {
+        $new = TRUE;
+        // create this locally
+        $course = new stdClass();
+        $course->type = 'cis_course';
+        $course->title = $remote_course['title'];
+        // machine name to match remote so we know how to build the links
+        $course->field_course_machine_name[LANGUAGE_NONE][0]['value'] = $remote_course['field_machine_name'];
+        // set the local uuid linked field value to that we get from the remote
+        $course->field_cis_course_uuid[LANGUAGE_NONE][0]['value'] = $remote_course['uuid'];
+        $course->language = LANGUAGE_NONE;
+        $course->is_new = TRUE;
+        node_object_prepare($course);
+        // build out via submit then save
+        if($course = node_submit($course)) {
+          // force these to be saved by user 1 just so they have some user affiliation
+          $course->uid = 1;
+          node_save($course);
+        }
+      }
+    }
+  }
+}
+

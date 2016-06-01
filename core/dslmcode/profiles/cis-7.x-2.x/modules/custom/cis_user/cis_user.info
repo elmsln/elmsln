@@ -1,0 +1,5 @@
+name = CIS user management
+description = User management components and getting things uploaded.
+core = 7.x
+package = CIS
+dependencies[] = cis_connector

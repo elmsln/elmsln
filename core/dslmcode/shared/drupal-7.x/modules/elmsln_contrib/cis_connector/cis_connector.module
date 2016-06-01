@@ -394,6 +394,51 @@ function _cis_connector_system_type($bucket = NULL) {
 }
 
 /**
+ * Load a course node based on machine_name.
+ * This works in authority and CIS systems by doing the appropriate EFQ.
+ *
+ * @param $machine_name string
+ *
+ * @return    mixed    FALSE if nothing found or a entity id
+ */
+function _cis_connector_get_course_by_machine_name($machine_name) {
+  // entity field query to load a section by id
+  $query = new EntityFieldQuery();
+  $query
+  // pull group nodes
+  ->entityCondition('entity_type', 'node');
+  $bucket = variable_get('install_profile', 'standard');
+  // ensure this is an authority
+  if ($bucket == 'cis') {
+    $query->entityCondition('bundle', 'course')
+    ->fieldCondition('field_machine_name', 'value', $machine_name, '=');
+  }
+  // ensure this is an authority which can do this in the first place
+  elseif (_cis_connector_system_type($bucket) == 'authority') {
+    $query->entityCondition('bundle', 'cis_course')
+    ->fieldCondition('field_course_machine_name', 'value', $machine_name, '=');
+  }
+  else {
+    // this was from a service or something else weird, squish it
+    return FALSE;
+  }
+  $query->propertyCondition('status', 1)
+  // execute this as user 1 to avoid object conflicts
+  ->addMetaData('account', user_load(1))
+  // only return 1 value
+  ->range(0, 1);
+  $result = $query->execute();
+  // flip the results if it found them
+  if (isset($result['node'])) {
+    // we know there's only 1 value in this array
+    $key = array_keys($result['node']);
+    return array_pop(($key));
+  }
+  // no matches
+  return FALSE;
+}
+
+/**
  * Returns the current calculated course context.
  *
  * This function is what allows services to interpret addresses
@@ -403,7 +448,7 @@ function _cis_connector_system_type($bucket = NULL) {
  * Still in systems like MOOC / Studio, it will load the base_path()
  * function.
  *
- * @return string  $course  The machine name of the course.
+ * @return string  $course  The machine name of the course or empty.
  *
  * @see _cis_connector_section_context()
  */

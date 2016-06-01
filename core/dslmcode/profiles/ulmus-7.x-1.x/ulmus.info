@@ -123,6 +123,7 @@ dependencies[] = elmsln_advagg
 dependencies[] = og
 dependencies[] = og_ui
 dependencies[] = cis_section
+dependencies[] = cis_course_service
 
 ; ----------
 ; Authority Dependencies
