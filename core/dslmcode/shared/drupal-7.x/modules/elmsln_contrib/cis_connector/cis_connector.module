@@ -387,6 +387,10 @@ function _cis_connector_system_type($bucket = NULL) {
     elseif (isset($settings['instance']) && $settings['instance']) {
       return 'service';
     }
+    // account for things we intentionally are told to ignore
+    elseif (isset($settings['custom']) && $settings['custom']) {
+      return FALSE;
+    }
     else {
       return 'authority';
     }
