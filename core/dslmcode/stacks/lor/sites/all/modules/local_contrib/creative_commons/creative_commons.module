@@ -1,0 +1,536 @@
+<?php
+/*********************************************************************************************
+ * 
+ * CONSTANTS
+ * 
+ ********************************************************************************************/
+define('CC_NONE', 1);
+define('CC_BY', 2);
+define('CC_BY_SA', 3);
+define('CC_BY_ND', 4);
+define('CC_BY_NC', 5);
+define('CC_BY_NC_SA', 6);
+define('CC_BY_NC_ND', 7);
+define('CC_0', 8); // CC0 Licene type
+define('CC_PD', 9); // Public domain
+define('CC_SMALL_IMAGE', '80x15.png');
+define('CC_LARGE_IMAGE', '88x31.png');
+define('CC_IMAGE_URI', '//i.creativecommons.org/l');
+define('CC_LICENCE_URI', '//creativecommons.org/licences');
+define('CC_DEFAULT_VERSION', '3.0');
+define('CC_URL', 'cc_url');
+
+/*********************************************************************************************
+ * 
+ * FIELD HOOKS
+ * 
+ ********************************************************************************************/
+/**
+ * Implements hook_field_info().
+ *
+ * Provides the description of the field.
+ */
+function creative_commons_field_info(){
+  return array(
+    // We name our field as the associative name of the array.
+    'creative_commons' => array(
+      'label' => t('Creative Commons'),
+      'description' => t('Creative commons licence field.'),
+      'default_widget' => 'creative_commons',
+      'default_formatter' => 'creative_commons_small_image'
+    )
+  );
+}
+
+/**
+ * Implements hook_field_settings_form().
+ */
+function creative_commons_field_settings_form($field, $instance, $has_data){
+  $settings = $field['settings'];
+  $form['allowed_values'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Allowed values list'),
+    '#default_value' => (isset($settings['allowed_values']) ? $settings['allowed_values'] : array_keys(creative_commons_get_licence_types())),
+    '#options' => creative_commons_get_licence_types(),
+    '#description' => t("Please select which creative commons licence types are available for this field. If none are selected, all licence types will be available.")
+  );
+  $form['jurisdiction'] = array(
+    '#type' => 'select',
+    '#title' => t('Jurisdiction of your license'),
+    '#default_value' => (isset($settings['jurisdiction']) ? $settings['jurisdiction'] : ''),
+    '#options' => creative_commons_get_jurisdictions(),
+    '#description' => t("Please select which creative commons licence types are available for this field. If none are selected, all licence types will be available.")
+  );
+  return $form;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function creative_commons_field_is_empty($item, $field){
+  return empty($item['licence']);
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function creative_commons_field_formatter_info(){
+  return array(
+    'creative_commons_small_image' => array(
+      'label' => t('Creative Commons small image'),
+      'field types' => array(
+        'creative_commons'
+      )
+    ),
+    'creative_commons_large_image' => array(
+      'label' => t('Creative Commons large image'),
+      'field types' => array(
+        'creative_commons'
+      )
+    ),
+    'creative_commons_url' => array(
+      'label' => t('Creative Commons URL'),
+      'field types' => array(
+        'creative_commons'
+      )
+    )
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function creative_commons_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display){
+  $element = array();
+  foreach($items as $delta => $item){
+    switch($display['type']){
+      case 'creative_commons_small_image':
+        $element[$delta] = creative_commons_display($item['licence'], $field['settings']['jurisdiction'], CC_SMALL_IMAGE);
+        break;
+      case 'creative_commons_large_image':
+        $element[$delta] = creative_commons_display($item['licence'], $field['settings']['jurisdiction'], CC_LARGE_IMAGE);
+        break;
+      case 'creative_commons_url':
+        $element[$delta] = creative_commons_display($item['licence'], $field['settings']['jurisdiction'], CC_URL);
+        break;
+    }
+  }
+  return $element;
+}
+
+/**
+ * Helper function to build the render array for the creative commons logo & link
+ */
+function creative_commons_display($licence_type, $jurisdiction, $display_type){
+  $path = drupal_get_path('module', 'creative_commons');
+  if($jurisdiction && strpos($jurisdiction, '_')){
+    list($jurisdiction, $version) = explode('_', $jurisdiction);
+    $version = substr($version, 0, 1) . '.' . substr($version, 1, 1);
+  }else{
+    $version = CC_DEFAULT_VERSION;
+  }
+  switch($licence_type){
+    // These licence types are text only
+    case CC_NONE:
+      if($display_type == CC_URL){
+        $url = '';
+      }else{
+        return array(
+          '#markup' => t('All rights reserved.')
+        );
+      }
+      break;
+    case CC_0:
+      $image = $path . '/images/zero.png';
+      $url = 'http://creativecommons.org/about/cc0';
+      break;
+    case CC_PD:
+      $image = $path . '/images/public_domain.png';
+      $url = 'http://creativecommons.org/about/pdm';
+      break;
+    case CC_BY:
+      $licence = 'by';
+      break;
+    case CC_BY_SA:
+      $licence = 'by-sa';
+      break;
+    case CC_BY_ND:
+      $licence = 'by-nd';
+      break;
+    case CC_BY_NC:
+      $licence = 'by-nc';
+      break;
+    case CC_BY_NC_SA:
+      $licence = 'by-nc-sa';
+      break;
+    case CC_BY_NC_ND:
+      $licence = 'by-nc-nd';
+      break;
+  }
+  // Default image 
+  if(!isset($image)){
+    $image = variable_get('creative_commons_image_uri', CC_IMAGE_URI) . '/' . $licence . '/' . $version . '/' . ($jurisdiction ? $jurisdiction . '/' : '') . $display_type;
+  }
+  if(!isset($url)){
+    $url = CC_LICENCE_URI . '/' . $licence . '/' . $version . '/' . ($jurisdiction ? $jurisdiction : '');
+  }
+  if($display_type == CC_LARGE_IMAGE || $display_type == CC_SMALL_IMAGE){return array(
+      '#type' => 'html_tag',
+      '#tag' => 'a',
+      '#attributes' => array(
+        'href' => url($url, array(
+          'absolute' => TRUE,
+          'external' => TRUE
+        )),
+        'class' => ($display_type == CC_LARGE_IMAGE ? 'cc-large' : 'cc-small'),
+        'target' => '_blank'
+      ),
+      '#value' => theme('image', array(
+        'alt' => t('Creative Commons Licence'),
+        'path' => $image,
+        'width' => $display_type == CC_LARGE_IMAGE ? '88px' : '80px',
+        'height' => $display_type == CC_LARGE_IMAGE ? '31px' : '15px'
+      ))
+    );}
+  if($display_type == CC_URL){
+    //For DwC-A reasons need to change licences to licenses - bloody Americans ;)
+    $url = str_replace('licences', 'licenses', $url);
+    return array(
+      '#markup' => $url
+    );
+  }
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function creative_commons_field_widget_info(){
+  return array(
+    'select' => array(
+      'label' => t('Select list'),
+      'field types' => array(
+        'creative_commons'
+      )
+    ),
+    'radios' => array(
+      'label' => t('Radio buttons'),
+      'field types' => array(
+        'creative_commons'
+      )
+    )
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function creative_commons_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element){
+  $value = isset($items[$delta]['licence']) ? $items[$delta]['licence'] : '';
+  $widget = $element;
+  $widget['#delta'] = $delta;
+  if($instance['required'] || $instance['widget']['type'] == 'radios'){
+    $options = array();
+  }else{
+    $options = array(
+      '' => '- None -'
+    );
+  }
+  if(count($allowed_values = array_filter($field['settings']['allowed_values']))){
+    $options += (array)array_intersect_key(creative_commons_get_licence_types(), $allowed_values);
+  }else{
+    $options += (array)creative_commons_get_licence_types();
+  }
+  $widget += array(
+    '#type' => $instance['widget']['type'],
+    '#default_value' => $value,
+    '#options' => $options
+  );
+  $element['licence'] = $widget;
+  return $element;
+}
+
+function creative_commons_form_field_ui_field_edit_form_alter(&$form, &$form_state){
+  if($form['#field']['type'] == 'creative_commons'){
+    $form['field']['cardinality']['#default_value'] = 1;
+    $form['field']['#access'] = FALSE;
+  }
+}
+
+/*********************************************************************************************
+ * 
+ * FEEDS
+ * 
+ ********************************************************************************************/
+/**
+ * Implements hook_feeds_processor_targets_alter().
+ */
+function creative_commons_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name){
+  foreach(field_info_instances($entity_type, $bundle_name) as $name => $instance){
+    $info = field_info_field($name);
+    if($info['type'] == 'creative_commons'){
+      $targets[$name] = array(
+        'name' => check_plain($instance['label']),
+        'callback' => '_creative_commons_feeds_set_target_value',
+        'description' => t('The @label field of the node.', array(
+          '@label' => $instance['label']
+        ))
+      );
+    }
+  }
+}
+
+/**
+ * Callback to set the value for a CC field.
+ * 
+ * FIXME - Should CC be translatable?
+ */
+function _creative_commons_feeds_set_target_value($source, $entity, $target, $value){
+  $entity_type = strtolower(get_class($source->importer->processor));
+  if(($processor_location = strpos($entity_type, 'processor')) > 0){
+    $entity_type = substr($entity_type, 0, $processor_location);
+  }
+  if(substr($entity_type, 0, 5) == 'feeds'){
+    $entity_type = substr($entity_type, 5);
+  }
+  if(!entity_get_info($entity_type)){
+    $entity_type = 'node';
+  }
+  $field = isset($entity->$target) ? $entity->$target : array();
+  $value = array_search($value, creative_commons_get_licence_types());
+  $lang = field_language($entity_type, $entity, $target);
+  $lang = $lang ? $lang : LANGUAGE_NONE;
+  $field[$lang][] = array(
+    'licence' => $value
+  );
+  $entity->{$target} = $field;
+}
+
+/*********************************************************************************************
+ * 
+ * APACHESOLR
+ * 
+ ********************************************************************************************/
+/**
+ * Implements hook_apachesolr_field_mappings().
+ */
+function creative_commons_apachesolr_field_mappings(){
+  return array(
+    'creative_commons' => array(
+      'indexing_callback' => 'creative_commons_indexing_callback',
+      'map callback' => 'creative_commons_get_licence_types',
+      'index_type' => 'integer',
+      'facets' => TRUE,
+      'query types' => array(
+        'term'
+      ),
+      'query type' => 'term',
+      'facet missing allowed' => TRUE
+    )
+  );
+}
+
+/**
+ * Indexing callback
+ */
+function creative_commons_indexing_callback($entity, $field_name, $index_key, $field_info){
+  $fields = array();
+  if(!empty($entity->{$field_name})){
+    $fields[] = array(
+      'key' => $index_key,
+      'value' => $entity->{$field_name}[LANGUAGE_NONE][0]['licence']
+    );
+  }
+  return $fields;
+}
+
+/*********************************************************************************************
+ * 
+ * BLOCKS
+ * 
+ ********************************************************************************************/
+/**
+ * Implements hook_block_info().
+ */
+function creative_commons_block_info(){
+  $blocks['creative_commons'] = array(
+    'info' => t('Creative Commons'),
+    'region' => 'footer',
+    'status' => 0
+  );
+  return $blocks;
+}
+
+function creative_commons_block_configure($delta = ''){
+  $form = array();
+  if($delta == 'creative_commons'){
+    $form['creative_commons_block_licence_type'] = array(
+      '#type' => 'select',
+      '#title' => t('Licence type'),
+      '#default_value' => variable_get('creative_commons_block_licence_type', CC_BY),
+      '#options' => creative_commons_get_licence_types()
+    );
+    $form['creative_commons_block_jurisdiction'] = array(
+      '#type' => 'select',
+      '#title' => t('Jurisdiction'),
+      '#default_value' => variable_get('creative_commons_block_jurisdiction', ''),
+      '#options' => creative_commons_get_jurisdictions()
+    );
+    $form['creative_commons_block_display_type'] = array(
+      '#type' => 'radios',
+      '#title' => t('Display type'),
+      '#default_value' => variable_get('creative_commons_block_display_type', CC_LARGE_IMAGE),
+      '#options' => array(
+        CC_SMALL_IMAGE => t("Small image"),
+        CC_LARGE_IMAGE => t("Large image")
+      )
+    );
+  }
+  return $form;
+}
+
+function creative_commons_block_save($delta = '', $edit = array()){
+  // This example comes from node.module.
+  if($delta == 'creative_commons'){
+    variable_set('creative_commons_block_licence_type', $edit['creative_commons_block_licence_type']);
+    variable_set('creative_commons_block_jurisdiction', $edit['creative_commons_block_jurisdiction']);
+    variable_set('creative_commons_block_display_type', $edit['creative_commons_block_display_type']);
+  }
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function creative_commons_block_view($delta = ''){
+  $block = array();
+  switch($delta){
+    case 'creative_commons':
+      $licence = variable_get('creative_commons_block_licence_type', CC_BY);
+      $block['content'] = array(
+        '#theme' => 'creative_commons_block',
+        '#licence' => creative_commons_display($licence, variable_get('creative_commons_block_jurisdiction', ''), variable_get('creative_commons_block_display_type', CC_LARGE_IMAGE)),
+        '#text' => $licence == CC_NONE ? t('All rights reserved, except where otherwise stated.') : t('Except where otherwise noted, content on this site is licensed under a Creative Commons !licence Licence.', array(
+          '!licence' => creative_commons_get_licence_types($licence)
+        ))
+      );
+      if($licence != CC_NONE){
+        $block['content']['#attached'] = array(
+          'css' => array(
+            drupal_get_path('module', 'creative_commons') . '/css/creative_commons.css'
+          )
+        );
+      }
+      break;
+  }
+  return $block;
+}
+
+/*********************************************************************************************
+ * 
+ * THEME FUNCTIONS
+ * 
+ ********************************************************************************************/
+function creative_commons_theme($existing, $type, $theme, $path){
+  return array(
+    'creative_commons_block' => array(
+      'variables' => array(
+        'licence' => NULL,
+        'text' => NULL
+      )
+    )
+  );
+}
+
+function theme_creative_commons_block($variables){
+  $output = '';
+  $output .= drupal_render($variables['licence']);
+  $output .= '<p>' . $variables['text'] . '</p>';
+  return $output;
+}
+
+/*********************************************************************************************
+ * 
+ * MODULE FUNCTIONS
+ * 
+ ********************************************************************************************/
+/**
+ * Allowed values callback for field_license list field.
+ */
+function creative_commons_get_licence_types($type = null){
+  $licence_types = array(
+    CC_NONE => t('All Rights Reserved'),
+    CC_0 => t('CC0'),
+    CC_PD => t('Public Domain'),
+    CC_BY => t('Attribution CC BY'),
+    CC_BY_SA => t('Attribution, Share Alike CC BY-SA'),
+    CC_BY_ND => t('Attribution, No Derivative Works CC BY-ND'),
+    CC_BY_NC => t('Attribution, Non-Commercial CC BY-NC'),
+    CC_BY_NC_SA => t('Attribution, Non-Commercial, Share Alike CC BY-NC-SA'),
+    CC_BY_NC_ND => t('Attribution, Non-Commercial, No Derivative Works CC BY-NC-ND')
+  );
+  if($type && !is_array($type)){
+    return $licence_types[$type];
+  }else{
+    return $licence_types;
+  }
+}
+
+function creative_commons_get_jurisdictions(){
+  return array(
+    "" => t('International'),
+    "ar_25" => t("Argentina"),
+    "au" => t("Australia"),
+    "at" => t("Austria"),
+    "be_20" => t("Belgium"),
+    "br" => t("Brazil"),
+    "bg_25" => t("Bulgaria"),
+    "ca_25" => t("Canada"),
+    "cl" => t("Chile"),
+    "cn_25" => t("China Mainland"),
+    "co_25" => t("Colombia"),
+    "cr" => t("Costa Rica"),
+    "hr" => t("Croatia"),
+    "cz" => t("Czech Republic"),
+    "dk_25" => t("Denmark"),
+    "ec" => t("Ecuador"),
+    "ee" => t("Estonia"),
+    "fi_10" => t("Finland"),
+    "fr" => t("France"),
+    "de" => t("Germany"),
+    "gr" => t("Greece"),
+    "gt" => t("Guatemala"),
+    "hk" => t("Hong Kong"),
+    "hu_25" => t("Hungary"),
+    "in_25" => t("India"),
+    "il_25" => t("Israel"),
+    "it" => t("Italy"),
+    "jp_21" => t("Japan"),
+    "lu" => t("Luxembourg"),
+    "mk_25" => t("Macedonia"),
+    "my_25" => t("Malaysia"),
+    "mt_25" => t("Malta"),
+    "mx_25" => t("Mexico"),
+    "nl" => t("Netherlands"),
+    "nz" => t("New Zealand"),
+    "no" => t("Norway"),
+    "pe_25" => t("Peru"),
+    "ph" => t("Philippines"),
+    "pl" => t("Poland"),
+    "pt" => t("Portugal"),
+    "pr" => t("Puerto Rico"),
+    "ro" => t("Romania"),
+    "rs" => t("Serbia"),
+    "sg" => t("Singapore"),
+    "si_25" => t("Slovenia"),
+    "za_25" => t("South Africa"),
+    "kr_20" => t("South Korea"),
+    "es" => t("Spain"),
+    "se_25" => t("Sweden"),
+    "ch_25" => t("Switzerland"),
+    "tw" => t("Taiwan"),
+    "th" => t("Thailand"),
+    "uk_20" => t("UK: England & Wales"),
+    "scotland_25" => t("UK: Scotland"),
+    "us" => t("United States"),
+    "vn" => t("Vietnam")
+  );
+}

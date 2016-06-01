@@ -1,0 +1,143 @@
+<?php
+
+/**
+ * Implements hook_form_ID_alter().
+ */
+function content_taxonomy_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+  $field = $form['#field'];
+  $instance = $form['#instance'];
+
+  // Add parent selector to term reference fields,
+  // except to the autocomplete widget, as it ignores the parent setting.
+  if ($field['type'] == 'taxonomy_term_reference'
+    && !($instance['widget']['type'] == 'taxonomy_autocomplete' || $instance['widget']['type'] == 'autocomplete_deluxe_taxonomy')) {
+
+    // add parent form.
+    foreach ($field['settings']['allowed_values'] as $delta => $tree) {
+      $options[0] = '---';
+      // todo this might break with huge vocs
+      $voc = taxonomy_vocabulary_machine_name_load($tree['vocabulary']);
+      foreach (taxonomy_get_tree($voc->vid) as $term) {
+        $options[$term->tid] = str_repeat('- ', $term->depth) . $term->name;
+      }
+
+      $form['field']['settings']['allowed_values'][$delta]['parent']  = array(
+        '#type' => 'select',
+        '#title' => t('Parent'),
+        '#options' => $options,
+        '#default_value' => isset($tree['parent']) ? $tree['parent'] : 0,
+      );
+
+      $form['field']['settings']['allowed_values'][$delta]['depth']  = array(
+        '#type' => 'textfield',
+        '#title' => t('Tree depth'),
+        '#default_value' => isset($tree['depth']) ? $tree['depth'] : '',
+        '#description' => t('Set the depth of the tree. Leave empty to load all terms.'),
+        '#element_validate' => array('_element_validate_integer_positive'),
+      );
+    }
+  }
+
+  // Add opt group setting.
+  if ($field['type'] == 'taxonomy_term_reference' && $instance['widget']['type'] == 'options_select') {
+    $form['instance']['widget']['settings']['content_taxonomy_opt_groups']  = array(
+      '#type' => 'checkbox',
+      '#title' => t('Render parent terms as opt-groups'),
+      '#default_value' => isset($instance['widget']['settings']['content_taxonomy_opt_groups']) ? $instance['widget']['settings']['content_taxonomy_opt_groups'] : FALSE,
+      '#description' => t('This option only works if you have a 2-level hierarchy in your vocabulary. Then the parents in the first level get opt-groups and the child terms will be selectable.'),
+    );
+  }
+}
+
+/**
+ * Implements hook_field_info_alter().
+ */
+function content_taxonomy_field_info_alter(&$info) {
+  // Use own options callback for handling additional configuration options.
+  $info['taxonomy_term_reference']['settings']['options_list_callback'] = 'content_taxonomy_allowed_values';
+
+  // Add depth option.
+  foreach ($info['taxonomy_term_reference']['settings']['allowed_values'] as $key => $values) {
+    $info['taxonomy_term_reference']['settings']['allowed_values'][$key]['depth'] = 0;
+  }
+}
+
+/**
+ * Returns the set of valid terms for a taxonomy field.
+ * Extends taxonomy_allowed_values() with the tree depth option.
+ *
+ * @param $field
+ *   The field definition.
+ * @return
+ *   The array of valid terms for this field, keyed by term id.
+ */
+function content_taxonomy_allowed_values($field) {
+  $options = array();
+  foreach ($field['settings']['allowed_values'] as $tree) {
+    if ($vocabulary = taxonomy_vocabulary_machine_name_load($tree['vocabulary'])) {
+      $max_depth = (isset($tree['depth']) && !empty($tree['depth'])) ? $tree['depth'] : NULL;
+      if ($terms = taxonomy_get_tree($vocabulary->vid, $tree['parent'], $max_depth)) {
+        foreach ($terms as $term) {
+          $options[$term->tid] = str_repeat('- ', $term->depth) . $term->name;
+        }
+      }
+    }
+  }
+  return $options;
+}
+
+/**
+ * Implements hook_field_widget_info_alter().
+ */
+function content_taxonomy_field_widget_info_alter(&$info) {
+  if (isset($info['options_select']['settings'])) {
+    $info['options_select']['settings'] += array(
+      'content_taxonomy_opt_groups' => FALSE,
+    );
+  }
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function content_taxonomy_field_widget_form_alter(&$element, &$form_state, $context) {
+  $field = $context['field'];
+  $instance = $context['instance'];
+
+  if (!empty($instance['widget']['settings']['content_taxonomy_opt_groups'])) {
+    $options = content_taxonomy_allowed_values_opt_groups($field);
+    if (isset($element['#options']['_none'])) {
+      $options = array('_none' => $element['#options']['_none']) + $options;
+    }
+    $element['#options'] = $options;
+  }
+}
+
+/**
+ * Helper function for generating opt groups.
+ *
+ * Similar to content_taxonomy_allowed_values(), but unfortunately we cannot
+ * directly change content_taxonomy_allowed_values() as it only has the field
+ * variable and opt groups are settings on the instance level. Still, this is
+ * not a big performance issue, as taxonomy_get_tree statically caches some
+ * data.
+ */
+function content_taxonomy_allowed_values_opt_groups($field) {
+  $options = array();
+  foreach ($field['settings']['allowed_values'] as $tree) {
+    if ($vocabulary = taxonomy_vocabulary_machine_name_load($tree['vocabulary'])) {
+      if ($terms = taxonomy_get_tree($vocabulary->vid, 0, 2)) {
+        $current_group_term = NULL;
+        foreach ($terms as $term) {
+          if ($term->depth == 0) {
+            $current_group_term = $term;
+          }
+          elseif ($term->depth == 1 && !is_null($current_group_term)) {
+            $options[$current_group_term->name][$term->tid] = $term->name;
+          }
+        }
+      }
+    }
+  }
+  return $options;
+}

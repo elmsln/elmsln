@@ -1,0 +1,143 @@
+<?php
+
+/**
+ * @file
+*
+* Scratchpads creative commons tests.
+*/
+class ScratchpadsCreativeCommonsTestCase extends ScratchpadsTweaksTestCase{
+
+  public static function getInfo(){
+    return array(
+      'name' => 'Creative Commons',
+      'description' => "Tests creative commons fields and blocks",
+      'group' => 'Scratchpads'
+    );
+  }
+
+  /**
+   * Enable modules and create users with specific permissions.
+   */
+  public function setUp(){
+    $modules[] = 'creative_commons';
+    parent::setUp($modules);
+  }
+
+  /**
+   * Wrapper for other tests to speed up test run
+   */
+  function testWrapper(){
+    $this->drupalLogin($this->maintainer);
+    // Add a creative commons field and then edit that field in the node we create
+    $field_name = $this->validateAddCreativeCommonsField();
+    $nid = $this->createPageNode();
+    $this->validateEditPageWithCreativeCommonsField($nid, $field_name);
+    // Test blocks
+    $this->validateTestBlockInfo();
+    $this->validateTestBlockView();
+    // Perform basic access tests for non admin user
+    $this->drupalLogin($this->test_user);
+    $this->validateTestShowsUpFront();
+    $this->validateTestShowsUpNodePage($nid);
+    $this->validateLink();
+  }
+
+  /**
+   * Tests block_info() for the creative commons block
+   */
+  function validateTestBlockInfo(){
+    $info = module_invoke('creative_commons', 'block_info');
+    $this->assertTrue(isset($info['creative_commons']), t('creative_commons block exists.'));
+  }
+
+  /**
+   * Tests block_view() for the creative commons block view
+   */
+  function validateTestBlockView(){
+    $data = module_invoke('creative_commons', 'block_view', 'creative_commons');
+    $this->assertTrue(is_array($data), t('Block returns renderable array.'));
+  }
+
+  /**
+   * Test that the creative commons block shows up on the front page
+   */
+  function validateTestShowsUpFront(){
+    $this->drupalGet('');
+    $this->assertRaw('block-creative-commons-creative-commons', 'Creative commons block appears on front page');
+  }
+
+  /**
+   * Test that the creative commons block shows up on a node page
+   */
+  function validateTestShowsUpNodePage($nid){
+    $node_path = 'node/' . $nid;
+    $this->drupalGet($node_path);
+    $this->assertRaw('block-creative-commons-creative-commons', 'Creative commons block appears on node page');
+  }
+
+  /**
+   *  Creates a simple page node and returns the node id
+   */
+  protected function createPageNode(){
+    $page_node = $this->drupalCreateNode(array(
+      'type' => 'page'
+    ));
+    return $page_node->nid;
+  }
+
+  /**
+   * Add a creative commons field to a page node
+   */
+  function validateAddCreativeCommonsField(){
+    // add a new field of type create commons
+    $this->drupalGet('admin/structure/types/manage/page/fields');
+    $edit = array();
+    $field_name = $this->machine_name($this->randomName(8));
+    $edit['fields[_add_new_field][label]'] = $field_name;
+    $edit['fields[_add_new_field][type]'] = 'creative_commons';
+    $edit['fields[_add_new_field][field_name]'] = $field_name;
+    $edit['fields[_add_new_field][widget_type]'] = 'select';
+    $this->drupalPost(NULL, $edit, 'Save');
+    // step 2
+    $this->drupalPost(NULL, array(), 'Save field settings');
+    // step 3
+    $this->assertText('Updated field ' . $field_name . ' field settings.');
+    $this->drupalPost(NULL, array(), 'Save settings');
+    // confirmation message
+    $this->assertText('Saved ' . $field_name . ' configuration.');
+    return $field_name;
+  }
+
+  /**
+   *  Edit a page node and choose a create commons license
+   */
+  function validateEditPageWithCreativeCommonsField($nid, $field_name){
+    $node_edit_path = 'node/' . $nid . '/edit';
+    $this->drupalGet($node_edit_path);
+    $name = 'field_' . $field_name . '[und][0][licence]';
+    $edit = array();
+    $edit[$name] = 9; // Public Domain 
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertText('has been updated.', 'Page successfully updated');
+    $node_path = 'node/' . $nid;
+    $this->drupalGet($node_path);
+    $this->assertRaw('http://creativecommons.org/about/pdm', 'Link to license shown');
+  }
+
+  /**
+   * Test that there is a link to creative commons
+   */
+  function validateLink(){
+    $this->drupalGet('');
+    // This may be a partial link
+    $this->assertLinkByHref('http://creativecommons.org/licences');
+  }
+}
+  
+
+
+
+
+
+
+

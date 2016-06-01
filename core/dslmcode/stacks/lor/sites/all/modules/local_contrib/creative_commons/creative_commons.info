@@ -1,0 +1,10 @@
+name = Creative Commons
+description = Defines a field type for attaching creative commons licence types. 
+core = 7.x
+files[] = creative_commons.test
+; Information added by Drupal.org packaging script on 2015-04-18
+version = "7.x-1.2"
+core = "7.x"
+project = "creative_commons"
+datestamp = "1429358882"
+
