@@ -1,0 +1,69 @@
+<?php
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function pwa_requirements($phase) {
+  $requirements = [];
+
+  if ($phase !== 'runtime') {
+    return $requirements;
+  }
+
+  $t = get_t();
+  if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER["REQUEST_SCHEME"]) && $_SERVER["REQUEST_SCHEME"] === 'https')) {
+    $requirements['pwa'] = array(
+      'title' => $t('Progressive Web App'),
+      'value' => $t('HTTPS on'),
+      'severity' => REQUIREMENT_OK,
+      'description' => $t('Please make sure the certificate of %domain is valid for offline functionality to work.', ['%domain' => $_SERVER['HTTP_HOST']]),
+    );
+  }
+  elseif (in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
+    $requirements['pwa'] = array(
+      'title' => $t('Progressive Web App'),
+      'value' => 'localhost',
+      'severity' => REQUIREMENT_WARNING,
+      'description' => $t('You will need to configure HTTPS on your domain for this module to work.'),
+    );
+  }
+  else {
+    $requirements['pwa'] = array(
+      'title' => $t('Progressive Web App'),
+      'value' => $t('HTTPS off'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => $t('HTTPS need to be configured for the progressive web app module to work.'),
+    );
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_install().
+ */
+function pwa_install() {
+  $directory = file_default_scheme() . '://pwa';
+  file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
+
+  variable_set('pwa_swcache_exclude', implode("\n", ['admin/.*']));
+  variable_set('pwa_swcache_urls',  implode("\n", ['/', '/offline', variable_get('pwa_start_url', '')]));
+  pwa_flush_caches();
+
+  // By default give permissions to anon users.
+  //user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, ['access pwa' => TRUE]);
+  //user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, ['access pwa' => TRUE]);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function pwa_uninstall() {
+  db_delete('variable')
+    ->condition('name', 'pwa_%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}

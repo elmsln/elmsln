@@ -1,0 +1,13 @@
+diff --git a/pwa.install b/pwa.install
+index 61753f3..8dc97f8 100644
+--- a/pwa.install
++++ b/pwa.install
+@@ -14,7 +14,7 @@ function pwa_requirements($phase) {
+   }
+ 
+   $t = get_t();
+-  if ($_SERVER["REQUEST_SCHEME"] === 'https') {
++  if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER["REQUEST_SCHEME"]) && $_SERVER["REQUEST_SCHEME"] === 'https')) {
+     $requirements['pwa'] = array(
+       'title' => $t('Progressive Web App'),
+       'value' => $t('HTTPS on'),

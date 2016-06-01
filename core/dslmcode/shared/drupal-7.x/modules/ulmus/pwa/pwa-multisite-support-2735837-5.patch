@@ -1,0 +1,40 @@
+diff --git a/pwa.module b/pwa.module
+index b95dde8..8781cc0 100644
+--- a/pwa.module
++++ b/pwa.module
+@@ -120,7 +120,7 @@ function pwa_serviceworker_file() {
+     '[/*cacheUrls*/]' => drupal_json_encode($cacheUrls),
+     '[/*cacheUrlsAssets*/]' => drupal_json_encode(_pwa_fetch_offline_page_ressources($cacheUrls)),
+     '1/*cacheVersion*/' => variable_get('pwa_swcache_version', 1),
+-    'offline-image.png' => '/' . drupal_get_path('module', 'pwa') . '/assets/offline-image.png',
++    'offline-image.png' => base_path() . drupal_get_path('module', 'pwa') . '/assets/offline-image.png',
+   ];
+   return str_replace(array_keys($replace), array_values($replace), $sw);
+ }
+@@ -142,7 +142,7 @@ function pwa_preprocess_html(&$variables) {
+   ], 'manifest');
+ 
+   drupal_add_library('pwa', 'serviceworker');
+-  drupal_add_js(['pwa' => ['path' => '/pwa/' . variable_get('pwa_swcache_version', 1) . '/serviceworker.js']], 'setting');
++  drupal_add_js(['pwa' => ['path' => base_path() . 'pwa/' . variable_get('pwa_swcache_version', 1) . '/serviceworker.js']], 'setting');
+ }
+ 
+ /**
+@@ -157,7 +157,7 @@ function pwa_flush_caches() {
+   $manifest = pwa_manifest_file();
+   $manifest_uri = file_unmanaged_save_data($manifest, $scheme . '://pwa/manifest.json', FILE_EXISTS_REPLACE);
+   $manifest_url = file_create_url($manifest_uri);
+-  variable_set('pwa_filecache_manifest', str_replace($GLOBALS['base_url'], '', $manifest_url));
++  variable_set('pwa_filecache_manifest', str_replace($GLOBALS['base_url'], base_path(), $manifest_url));
+ 
+   // Create the serviceworker file in cache so it can be served from a menu
+   // callback so additional headers can be sent with the file.
+@@ -200,7 +200,7 @@ function _pwa_fetch_offline_page_ressources($pages) {
+ 
+   $dedup = array_unique($ressources);
+   foreach ($dedup as &$ressource) {
+-    $ressource = str_replace($base_url, '', $ressource);
++    $ressource = str_replace($base_url, base_path(), $ressource);
+   }
+   return $dedup;
+ }
