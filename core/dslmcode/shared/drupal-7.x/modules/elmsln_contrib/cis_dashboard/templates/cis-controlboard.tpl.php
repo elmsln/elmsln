@@ -46,12 +46,13 @@
       </div><!-- /.row-->
 
       <dl class="tabs cis--tabs__horizontal" data-tab>
-        <dd class="active"><a href="#panel-sections-{{$index}}">Sections</a></dd>
-        <dd><a href="#panel-content-{{$index}}">Content</a></dd>
-        <dd><a href="#panel-people-{{$index}}">People</a></dd>
-        <dd><a href="#panel-network-{{$index}}">Network</a></dd>
+        <dd ng-class="{ active: isSet(1)}"><a href="#panel-sections-{{$index}}" ng-click="setTab(1)">Sections</a></dd>
+        <dd ng-class="{ active: isSet(2)}"><a href="#panel-content-{{$index}}" ng-click="setTab(2)">Content</a></dd>
+        <dd ng-class="{ active: isSet(3)}"><a href="#panel-people-{{$index}}" ng-click="setTab(3)">People</a></dd>
+        <dd ng-class="{ active: isSet(4)}"><a href="#panel-network-{{$index}}" ng-click="setTab(4)">Network</a></dd>
       </dl>
-      <div class="tabs-content cis--tab-panel__wrapper">
+
+      <div ng-show="isSet(1)" class="tabs-content cis--tab-panel__wrapper">
         <div class="content active row cis--course-item__vertical-tabs-wrapper" id="panel-sections-{{$index}}">
           <dl class="tabs vertical cis--tabs__vertical" data-tab>
             <dd ng-class="{active: isActive(offering)}" ng-repeat="offering in course.field_offerings"><a href="#section-tab-panel-{{$index}}" class="offering-year-button" ng-click="select(offering)" ng-class="{active: isActive(offering)}">{{ offering.field_semester.und[0].value}} {{offering.field_year.und[0].value}}</a></dd>
@@ -91,15 +92,15 @@
                     <a href="#"><i class="material-icons">event</i>&nbsp;</a>
                     <a href="#"><i class="material-icons">content_copy</i>&nbsp;</a>
                     <a href="#"><i class="material-icons">delete</i>&nbsp;</a>
-                  </div>
-                 </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                  </div> <!--END cis--element__menu small-12 columns-->
+                 </div> <!--END row cis--element__category-->
+                </div> <!--END cis--element small-12 columns -->
+              </div> <!--END row collapse-->
+            </div> <!--END content-->
+          </div> <!--END tabs-content vertical-->
+        </div> <!--END content active row cis--course-item__vertical-tabs-wrapper-->
 
-        <div class="content row cis--course-item__vertical-tabs-wrapper" id="panel-content-{{$index}}">
+        <div ng-show="isSet(2)" class="content row cis--course-item__vertical-tabs-wrapper" id="panel-content-{{$index}}">
           <dl class="tabs vertical cis--tabs__vertical" data-tab>
             <dd class="active"><a href="#content-tab-panel-1">Content tab 1</a></dd>
             <dd><a href="#content-tab-panel-2">Content tab 2</a></dd>
@@ -114,22 +115,22 @@
           </div>
         </div>
 
-        <div class="content row cis--course-item__vertical-tabs-wrapper" id="panel-people-{{$index}}">
+        <div ng-show="isSet(3)" class="content row cis--course-item__vertical-tabs-wrapper" id="panel-people-{{$index}}">
           <dl class="tabs vertical cis--tabs__vertical" data-tab>
-            <dd class="active"><a href="#people-tab-panel-1">people tab 1</a></dd>
-            <dd><a href="#people-tab-panel-2">people tab 2</a></dd>
+            <dd ng-class="{active: isActive(offering)}"><a href="#people-tab-panel-{{$index}}">people tab 1</a></dd>
+            <dd><a href="#people-tab-panel-{{$index}}">people tab 2</a></dd>
           </dl>
           <div class="tabs-content vertical">
-            <div class="content active" id="people-tab-panel-1")">
+            <div class="content active" id="people-tab-panel-{{$index}}")>
               <p>people 1</p>
             </div>
-            <div class="content" id="people-tab-panel-2">
+            <div class="content" id="people-tab-panel-{{$index}}">
               <p>people 2</p>
             </div>
           </div>
         </div>
 
-        <div class="content row cis--network-item__vertical-tabs-wrapper" id="panel-network-{{$index}}">
+        <div ng-show="isSet(4)" class="content row cis--network-item__vertical-tabs-wrapper" id="panel-network-{{$index}}">
           <dl class="tabs vertical cis--tabs__vertical" data-tab>
             <dd class="active"><a href="#network-tab-panel-1">network tab 1</a></dd>
             <dd><a href="#network-tab-panel-2">network tab 2</a></dd>
