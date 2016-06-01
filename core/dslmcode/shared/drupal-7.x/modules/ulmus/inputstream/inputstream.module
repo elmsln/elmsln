@@ -1,0 +1,7 @@
+<?php
+// $Id: inputstream.module,v 1.1.2.1 2011/01/01 21:43:47 hugowetterberg Exp $
+
+// This module implementation is short and sweet. Include and register our
+// stream wrapper.
+require_once('DrupalStream.php');
+stream_wrapper_register("drupal", "DrupalStream");

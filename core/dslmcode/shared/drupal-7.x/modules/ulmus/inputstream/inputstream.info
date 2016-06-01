@@ -1,0 +1,15 @@
+; $Id: inputstream.info,v 1.1.2.1 2011/01/01 21:43:47 hugowetterberg Exp $
+name = Input stream helper 
+description = Provides a stream-wrapper for drupal://input that should be used instead of php://input
+core = 7.x
+php = 5.2
+
+files[] = inputstream.module
+files[] = DrupalStream.php
+
+; Information added by drupal.org packaging script on 2011-01-01
+version = "7.x-1.0-rc1"
+core = "7.x"
+project = "inputstream"
+datestamp = "1293918659"
+
