@@ -31,3 +31,12 @@ function ecd_update_7001(&$sandbox) {
   features_revert('ecd_types');
   features_revert('ecd_displays');
 }
+
+/**
+ * Sync with the distribution's current state.
+ */
+function ecd_update_7002(&$sandbox) {
+  features_revert('ecd_types');
+  features_revert('ecd_displays');
+  module_enable(array('ecd_entityforms', 'ecd_ux', 'ecd_perms'));
+}
