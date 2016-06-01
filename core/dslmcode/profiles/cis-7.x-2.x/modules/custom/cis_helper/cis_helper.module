@@ -605,7 +605,7 @@ function cis_helper_entity_update($entity, $type) {
     }
   }
   // spider associated services when section is updated
-  if ($type == 'field_collection_item' && $entity->field_name == 'field_sections') {
+  if ($type == 'field_collection_item' && $entity->field_name == 'field_sections' && !empty($entity->HostEntity())) {
     $course = $entity->HostEntity()->HostEntity();
     $requests = array(
         array(
