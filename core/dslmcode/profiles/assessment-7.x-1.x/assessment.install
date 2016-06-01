@@ -25,3 +25,10 @@ function assessment_install() {
 function assessment_update_7000(&$sandbox) {
   module_enable(array('quiz_question', 'quiz_page', 'multichoice', 'quiz_directions', 'tincanapi', 'tincanapi_quiz', 'assessment_item', 'assessment_assignment', 'assessment_quiz'));
 }
+
+/**
+ * Enable core modules and features created after initial setup.
+ */
+function assessment_update_7001(&$sandbox) {
+  module_enable(array('assessment_gradebook', 'assessment_gradebook_ux', 'assessment_ux', 'assessment_evaluation', 'assessment_helper', 'assessment_perms'));
+}
