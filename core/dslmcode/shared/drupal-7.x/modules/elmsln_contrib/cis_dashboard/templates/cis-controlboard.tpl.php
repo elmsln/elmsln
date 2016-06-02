@@ -78,7 +78,7 @@
                     <p>{{offering.field_semester.und[0].value}} {{offering.field_year.und[0].value}}</p>
                   </div>
                   <div class="cis--element__menu small-12 columns" ng-repeat="section in offering.field_sections.und">
-                    <p><a href="#">Section {{section.field_section_number.und[0].safe_value}}</a>
+                    <p><a href="#">Course Section {{section.field_section_number.und[0].safe_value}}</a>
                     <ul>
                     <li ng-repeat="string in section.field_access_string.und">{{string.value}}</li>
                     </ul>
