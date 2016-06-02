@@ -1,0 +1,96 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Simplify module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function simplify_install() {
+  // Update module weight
+  db_update('system')
+    ->fields(array('weight' => 5))
+    ->condition('name', 'simplify')
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function simplify_uninstall() {
+  // Delete global variables
+  variable_del('simplify_nodes_global');
+  variable_del('simplify_users_global');
+  variable_del('simplify_comments_global');
+  variable_del('simplify_taxonomy_global');
+
+  // Delete node & comment variables
+  $node_types = node_type_get_names();
+  foreach ($node_types as $type => $name) {
+    variable_del('simplify_nodes_' . $type);
+    variable_del('simplify_comments_' . $type);
+  }
+
+  // Delete taxonomy variables
+  if (module_exists('taxonomy')) {
+    $vocabularies = taxonomy_vocabulary_get_names();
+    foreach ($vocabularies as $name => $vocabulary) {
+      variable_del('simplify_taxonomy_' . $name);
+    }
+  }
+}
+
+/**
+ * Migrate settings from 2.x to 3.x.
+ */
+function simplify_update_7300(&$sandbox) {
+  // Migrate permissions
+  $roles = user_roles();
+  $role_permissions = user_role_permissions($roles);
+  foreach ($role_permissions as $rid => $permissions) {
+    $new_permissions = array();
+    if (isset($permissions['simplify node hide settings'])) {
+      $new_permissions['simplify node hide settings'] = FALSE;
+    }
+    else {
+      $new_permissions['view hidden fields'] = TRUE;
+    }
+    user_role_change_permissions($rid, $new_permissions);
+  }
+
+  // Migrate variables
+  $fields = array(
+    'author' => 'author',
+    'comment_settings' => 'comment',
+    'filter' => 'format',
+    'menu' => 'menu',
+    'options' => 'options',
+    'path' => 'path',
+    'revision_information' => 'revision',
+  );
+  $node_types = array('Node') + node_type_get_names();
+  foreach ($node_types as $type => $name) {
+    $type_old = $type ? '_' . $type : '';
+    $type_new = $type ? $type : 'global';
+    foreach ($fields as $field_old => $field_new) {
+      if (variable_get('simplify' . $type_old . '_node_hide_' . $field_old, 0)) {
+        $variable = variable_get('simplify_nodes_' . $type_new, array());
+        $variable[] = $field_new;
+        variable_set('simplify_nodes_' . $type_new, $variable);
+      }
+      variable_del('simplify' . $type_old . '_node_hide_' . $field_old);
+    }
+  }
+}
+
+/**
+ * Update module weight.
+ */
+function simplify_update_7301(&$sandbox) {
+  db_update('system')
+    ->fields(array('weight' => 5))
+    ->condition('name', 'simplify')
+    ->execute();
+}
+
