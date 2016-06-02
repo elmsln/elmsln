@@ -46,3 +46,11 @@ function cle_update_7000(&$sandbox) {
 function cle_update_7001(&$sandbox) {
   module_enable(array('elmsln_ecd'));
 }
+
+/**
+ * Enable the service module so we can do things specific
+ * to services in the future.
+ */
+function cle_update_7002(&$sandbox) {
+  module_enable(array('cis_course_service'));
+}

@@ -41,3 +41,11 @@ function editorial_update_7002(&$sandbox) {
   features_revert_module('editorial_ux');
 }
 
+/**
+ * Enable the service module so we can do things specific
+ * to services in the future.
+ */
+function editorial_update_7003(&$sandbox) {
+  module_enable(array('cis_course_service'));
+}
+

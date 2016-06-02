@@ -113,3 +113,11 @@ function mooc_update_7004(&$sandbox) {
   module_enable(array('elmsln_ecd'));
 }
 
+/**
+ * Enable the service module so we can do things specific
+ * to services in the future.
+ */
+function mooc_update_7005(&$sandbox) {
+  module_enable(array('cis_course_service'));
+}
+

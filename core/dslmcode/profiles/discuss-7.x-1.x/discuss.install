@@ -41,3 +41,11 @@ function discuss_update_7002(&$sandbox) {
   node_access_rebuild();
   harmony_access_rebuild();
 }
+
+/**
+ * Enable the service module so we can do things specific
+ * to services in the future.
+ */
+function discuss_update_7003(&$sandbox) {
+  module_enable(array('cis_course_service'));
+}
