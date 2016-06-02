@@ -39,7 +39,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
       // mix in the staff people from CIS
       // so they get section access
       foreach ($staff as $uname) {
-        if (!isset($roster[$section_id][$uname])) {
+        if (!isset($roster[$section_id][$uname]) && strpos($uname, 'SERVICE_') === FALSE) {
           $roster[$section_id][$uname] = 'staff';
         }
       }
