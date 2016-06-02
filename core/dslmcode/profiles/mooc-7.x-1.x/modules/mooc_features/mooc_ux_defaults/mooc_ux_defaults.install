@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file MOOC UX defaults
+ */
+
+/**
+ * MOOC uses Simplify instead of jammer
+ */
+function mooc_ux_defaults_7000(&$sandbox) {
+  module_disable(array('jammer', 'nodeformcols'));
+  module_enable(array('simplify'));
+}

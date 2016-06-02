@@ -315,10 +315,9 @@ function mooc_ux_defaults_strongarm() {
   $strongarm->name = 'simplify_nodes_global';
   $strongarm->value = array(
     0 => 'author',
-    1 => 'format',
+    1 => 'options',
     2 => 'revision',
-    3 => 'book',
-    4 => 'menu',
+    3 => 'menu',
   );
   $export['simplify_nodes_global'] = $strongarm;
 
