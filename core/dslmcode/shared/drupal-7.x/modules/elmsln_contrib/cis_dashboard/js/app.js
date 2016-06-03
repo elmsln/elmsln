@@ -54,6 +54,14 @@ angular.module('Fa', [
   $scope.isSet = function(tab) {
     return ($scope.tab === tab);
   };
+  $scope.predicate = 'title';
+  $scope.reverse = false;
+  $scope.order = function(predicate) {
+    $scope.predicate = predicate;
+    $scope.reverse = ($scope.predicate === predicate) ? !$scope.reverse : false;
+    console.log('within order function');
+    console.log("Scope Predicate = " + $scope.predicate + " Var Predicate = " + predicate);
+  };
 
 }])
 ; // end Angular
