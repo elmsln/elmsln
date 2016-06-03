@@ -35,8 +35,8 @@ function cis_course_authority_elmsln_api_callback_sync_data_model() {
         node_save($course);
       }
     }
-    // update the section data model to match
-    if (isset($_elmsln['args']['sections'])) {
+    // update the section data model to match, if this uses sections
+    if (isset($_elmsln['args']['sections']) && module_exists('cis_section')) {
       foreach ($_elmsln['args']['sections'] as $section_id => $section_status) {
         if ($nid = _cis_section_load_section_by_id($section_id)) {
           // this case can be triggered if the dates get updated downstream in CIS
