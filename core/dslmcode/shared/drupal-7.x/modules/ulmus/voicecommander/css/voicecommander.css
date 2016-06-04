@@ -1,0 +1,123 @@
+/* VoiceComander
+ *
+ * Desctop styles
+ */
+body.voicecommander {
+  overflow: hidden;
+}
+
+body.voicecommander .voice-commander-rec-window {
+  display: block;
+}
+
+body.voicecommander #voice-commander-rec {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  background: #000000;
+  opacity: 0.5;
+  top: 0;
+  z-index: 99999999;
+}
+
+.voice-commander-rec-window {
+  width: 300px;
+  height: 300px;
+  display: block;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: -150px 0 0 -150px;
+  background: #fff;
+  z-index: 999999999;
+  display: none;
+  border-radius: 30px;
+}
+
+.voice-commander-rec-window .icon {
+  width: 139px;
+  height: 139px;
+  background: url('../images/icon_speech.png');
+  margin: 56px auto 0;
+}
+
+.voice-commander-rec-window p {
+  font-family: Arial;
+  font-size: 20px;
+  text-align: center;
+  color: #6e6e6e;
+}
+
+.voice-commander-rec-window p.speak {
+  color: #e53030;
+}
+
+/*
+ * Mobile styles
+ */
+body.voicecommander-mobile .vc-mobile-button {
+  width: 50px;
+  height: 50px;
+  display: block;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 999999999;
+}
+
+body.voicecommander-mobile .message-area {
+  width: 100%;
+  height: 20px;
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  margin: -20px 0 0;
+  background: #fff;
+  z-index: 999999999;
+  overflow: hidden;
+}
+
+body.voicecommander-mobile .message-area .icon {
+  width: 14px;
+  max-width: 4%;
+  height: 14px;
+  margin: 3px 3px 0 3px;
+  padding: 0 0 0 0;
+  display: block;
+  float: left;
+  border-radius: 100%;
+  background: #ff0000;
+  opacity: 1;
+}
+
+body.voicecommander-mobile .message-area div.vc-message {
+  margin: 3px 0 0;
+  padding: 0;
+  display: block;
+  font-family: Arial;
+  font-size: 13px;
+  color: #6e6e6e;
+  width: 82%;
+  float: left;
+}
+
+body.voicecommander-mobile .message-area p.speak {
+  margin: 3px 0 0;
+  padding: 0;
+  display: block;
+  color: #ff0000;
+  font-family: Arial;
+  font-size: 13px;
+}
+
+body.voicecommander-mobile .vc-abort {
+  width: 3%;
+  height: 20px;
+  background-color: #df769a;
+  background: url("../images/mic_off.png") center center no-repeat;
+  padding: 0;
+  margin: 0;
+  float: right;
+  margin-right: 12px;
+}

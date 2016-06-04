@@ -1,0 +1,277 @@
+<?php
+/**
+ * @file
+ * A light-weight, customizable voice commander module for site navigation.
+ */
+
+/**
+ * Min plugin version of annyang plugin which voicecommander module support.
+ */
+define('VOICECOMMANDER_MIN_PLUGIN_VERSION', '1.5.0');
+
+/**
+ * URL to annyang plugin archive.
+ */
+define('VOICECOMMANDER_ANNYANG_PLUGIN_URL', 'https://github.com/Voicecommander/annyang/archive/master.zip');
+
+/**
+ * Prefix for downloaded Annyang plugin archive.
+ */
+define('VOICECOMMANDER_ANNYANG_DOWNLOAD_PREFIX', 'annyang-');
+
+/**
+ * Annyang plugin name.
+ */
+define('VOICECOMMANDER_ANNYANG_PLUGIN_NAME', 'annyang');
+
+/**
+ * Default prefix name value of setting form.
+ */
+define('VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME', 'drupal');
+
+/**
+ * Default menu name value of "management" menu.
+ */
+define('VOICECOMMANDER_DEFAULT_VALUE_MENU_NAME', 'management');
+
+/**
+ * Voicecommander module name.
+ */
+define('VOICECOMMANDER_MODULE_NAME', 'voicecommander');
+
+/**
+ * Recursive base (default) menu array "management".
+ *
+ * @param array $arr
+ *    An array $arr containing array of default "management" menu.
+ * @param array $out
+ *    Prepared an array of menu for audio comparison under the terms of the
+ *    annyang plugin.
+ * @param int $step
+ *    Count the passage of nested arrays.
+ *
+ * @return array
+ *    A render array for a default "management" menu a list of content: link
+ *    title with default prefix "drupal" and link path.
+ */
+function _voicecommander_base_menu_recursive($arr = array(), &$out = array(), &$step = 0) {
+  foreach ($arr as $value) {
+    if (isset($value['link']['link_title']) && isset($value['link']['link_path'])) {
+      $cnt = count($out);
+      $out[$cnt]['title'] = variable_get('voicecommander_prefix', 'Drupal') . ' ' . $value['link']['link_title'];
+      $out[$cnt]['href'] = url($value['link']['link_path'], array('absolute' => TRUE));
+    }
+
+    if (isset($value['below']) && is_array($value['below']) && count($value['below'])) {
+      $step++;
+      if ($step == 2) {
+        $step = 0;
+        continue;
+      }
+      _voicecommander_base_menu_recursive($value['below'], $out, $step);
+    }
+  }
+  return $out;
+}
+
+/**
+ * Recursive selected menus array from settings.
+ *
+ * @param array $arr
+ *    An array $arr containing selected menus array from settings.
+ * @param array $out
+ *    Prepared an array of selected menus from settings for audio comparison
+ *    under the terms of the annyang plugin.
+ *
+ * @return array
+ *    A render array for selected list menus arrays in settings a list of
+ *    content: link title and link path.
+ */
+function _voicecommander_menus_recursive($arr = array(), &$out = array()) {
+  foreach ($arr as $value) {
+    if (isset($value['#title']) && isset($value['#href'])) {
+      $cnt = count($out);
+      $out[$cnt]['title'] = $value['#title'];
+      $out[$cnt]['href'] = url($value['#href'], array('absolute' => TRUE));
+    }
+
+    if (isset($value['#below']) && is_array($value['#below']) && count($value['#below'])) {
+      _voicecommander_menus_recursive($value['#below'], $out);
+    }
+  }
+  return $out;
+}
+
+/**
+ * Implements hook_page_build().
+ *
+ * Load Annyang library.
+ * Load js and css base files of module.
+ * Load base commands from menus and add to Drupal.settings
+ */
+function voicecommander_page_build(&$page) {
+  $library = libraries_load(VOICECOMMANDER_ANNYANG_PLUGIN_NAME);
+
+  // Check whether the files were loaded Annyang plugin.
+  if ($library['loaded'] === 1) {
+    libraries_load(VOICECOMMANDER_ANNYANG_PLUGIN_NAME);
+  }
+  else {
+    drupal_set_message(t('VoiceCommander: plugin "Annyang" or file "annyang.min.js" is not exist in libraries folder. Run "drush vc" in Drush CLI or <a target="_blank" href="@path">download</a> and install it manual to /sites/default/libraries', array('@path' => VOICECOMMANDER_ANNYANG_PLUGIN_URL)), 'error');
+    watchdog('VoiceCommander', 'Plugin "Annyang" or file "annyang.min.js" is not exist in libraries folder.', array(), WATCHDOG_ERROR);
+  }
+
+  // Add custom module js and css files.
+  $page['content']['#attached']['css'][] = drupal_get_path('module', VOICECOMMANDER_MODULE_NAME) . '/css/voicecommander.css';
+  $page['content']['#attached']['js'][] = drupal_get_path('module', VOICECOMMANDER_MODULE_NAME) . '/js/voicecommander.js';
+
+  // Grab base menu 'management' and recursive it.
+  $base_menu_data = menu_tree_all_data('management');
+  $base_commands_data = _voicecommander_base_menu_recursive($base_menu_data);
+  $menus = variable_get('voicecommander_menu', array());
+  $menu_trees = array();
+
+  foreach ($menus as $menu_name) {
+    _voicecommander_menus_recursive(menu_tree($menu_name), $menu_trees);
+  }
+
+  // Add to Drupal.settings
+  drupal_add_js(
+    array(
+      'voiceCommanderAdminMenuData'      => array_merge($base_commands_data, $menu_trees),
+      'voiceCommanderSettingsDataPrefix' => variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME),
+      'voiceCommanderSettingsMobile'     => variable_get('voicecommander_mobile', 1),
+      'startCallback'                    => t('Please speak'),
+      'waitCallback'                     => t('Wait ...'),
+      'errorCallback'                    => t('Wrong or unset command. Please repeat.'),
+      'errorNetworkCallback'             => t('Network Error. Try later.'),
+      'permissionBlockedCallback'        => t('Permission Blocked. Check another process for using voice recognition'),
+      'permissionDeniedCallback'         => t('Permission Denied'),
+      'secureToken'                      => drupal_get_token(),
+    ),
+    'setting');
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function voicecommander_libraries_info() {
+  $libraries['annyang'] = array(
+    'name'              => 'Annyang plugin',
+    'vendor url'        => 'https://www.talater.com/annyang/',
+    'download url'      => VOICECOMMANDER_ANNYANG_PLUGIN_URL,
+    'version arguments' => array(
+      'file'    => 'annyang.min.js',
+      'pattern' => "/(?:version)?(?::)?([0-9]+.+)/",
+      'lines'   => 5,
+    ),
+    'files'             => array(
+      'js' => array(
+        'annyang.min.js',
+      ),
+    ),
+    'variants'          => array(
+      'minified' => array(
+        'files' => array(
+          'js' => array(
+            'annyang.min.js',
+          ),
+        ),
+      ),
+      'source'   => array(
+        'files' => array(
+          'js' => array(
+            'annyang.js',
+          ),
+        ),
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function voicecommander_menu() {
+  $items['admin/config/user-interface/voice-commander'] = array(
+    'title'            => 'VoiceCommander',
+    'description'      => 'Voice commander administrator settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('voicecommander_settings_form'),
+    'access arguments' => array('access voice commander settings'),
+    'file'             => 'includes/voicecommander.admin.inc',
+  );
+  $items['admin/config/user-interface/voice-commander/cc_all'] = array(
+    'title' => 'clear cache',
+    'access arguments' => array('access voice commander settings'),
+    'page callback' => 'voicecommander_cc_all',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function voicecommander_permission() {
+  return array(
+    'access voice commander settings' => array(
+      'title'       => t('Voice commander settings'),
+      'description' => t('Access to Voice commander settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function voicecommander_help($path, $arg) {
+  switch ($path) {
+    // Main module help for the voicecommander module.
+    case 'admin/help#voicecommander':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('A voice-driven launcher for navigating the entire menu system of your Drupal site.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<p>' . t('On any page, hit') . '<b>' . ' Ctrl+Alt ' . '</b>' . t('and start speak.') . '</p>';
+      $output .= '<p><i>' . t('Use better on https:// (Asks for permission once and remembers the choice).') . '</i></p>';
+      $output .= '<h3>' . t('Default commands:') . '</h3>';
+      $output .= '<p><i>' . t('Use it only for administrator permission') . '</i></p>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('Cache clear: "drupal cache\"') . '</li>';
+      $output .= '<li>' . t('Management menu: "[Administrator command prefix] [Management menu item]",
+                            where [Administrator command prefix] is an option that set at
+                            /admin/config/user-interface/voice-commander and [Management menu item] is an
+                            any menu link from management menu /admin/structure/menu/manage/management') . '</li>';
+      $output .= '</ul>';
+      $output .= '<p><i>' . t('Use it for all permissions or for permissions that uses the selected menu(s)') . '</i></p>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('Selected menu(s): "[menu item]", where [menu item] is menu name link from management menu from selected menu(s)') . '</li>';
+      $output .= '</ul>';
+      return $output;
+  }
+}
+
+/**
+ * Clear cache on default command.
+ */
+function voicecommander_cc_all() {
+  $query_parameters = drupal_get_query_parameters();
+  if (!empty($query_parameters['token'])) {
+    $token = $query_parameters['token'];
+  }
+
+  if (drupal_valid_token($token)) {
+    drupal_flush_all_caches();
+    drupal_set_message(t('Cache cleared'));
+    drupal_goto();
+  }
+  else {
+    drupal_set_message(t('Cache cannot be cleared. You dont have permission or try reload page or/and clean cache'));
+    drupal_goto();
+  }
+}

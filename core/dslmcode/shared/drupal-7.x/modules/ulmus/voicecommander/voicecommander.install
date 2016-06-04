@@ -1,0 +1,62 @@
+<?php
+/**
+ * @file
+ * Module install file.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function voicecommander_requirements($phase) {
+  $requirements = array();
+
+  if ($phase == 'runtime') {
+    $library = libraries_detect(VOICECOMMANDER_ANNYANG_PLUGIN_NAME);
+    $t = get_t();
+    $error_type = isset($library['error']) ? drupal_ucfirst($library['error']) : '';
+    $error_message = isset($library['error message']) ? $library['error message'] : '';
+
+    if (empty($library['installed'])) {
+      $requirements['voicecommander_plugin'] = array(
+        'title'       => $t('Voice commander'),
+        'value'       => check_plain($error_type),
+        'severity'    => REQUIREMENT_ERROR,
+        'description' => $t('!error You need to download the !annyang, extract the archive and place the annyang directory in the %path directory on your server.', array(
+            '!error'   => $error_message,
+            '!annyang' => l($t('Annyang plugin'), $library['download url']),
+            '%path'    => 'sites/all/libraries',
+          )),
+      );
+    }
+    elseif (version_compare($library['version'], VOICECOMMANDER_MIN_PLUGIN_VERSION, '>=')) {
+      $requirements['voicecommander_plugin'] = array(
+        'title'       => $t('Voice commander'),
+        'severity'    => REQUIREMENT_OK,
+        'value'       => $t('Annyang library installed.'),
+        'description' => $t('Version @v installed', array('@v' => $library['version'])),
+      );
+    }
+    else {
+      $requirements['voicecommander_plugin'] = array(
+        'title'       => $t('Voice commander'),
+        'value'       => $t('At least @a', array('@a' => VOICECOMMANDER_MIN_PLUGIN_VERSION)),
+        'severity'    => REQUIREMENT_ERROR,
+        'description' => $t('You need to download a later version of the !annyang and replace the old version located in the %path directory on your server.', array(
+            '!annyang' => l($t('Annyang plugin'), $library['download url']),
+            '%path'    => $library['library path'],
+          )),
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function voicecommander_uninstall() {
+  variable_del('voicecommander_prefix');
+  variable_del('voicecommander_menu');
+  variable_del('voicecommander_mobile');
+}
