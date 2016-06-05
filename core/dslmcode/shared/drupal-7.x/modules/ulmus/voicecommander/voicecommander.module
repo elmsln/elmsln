@@ -246,7 +246,7 @@ function voicecommander_voice_command() {
       ),
     ),
     'core_cacheclear' => array(
-      'file' => drupal_get_path('module', 'voicecommander') . '/js/voicecommander-cache.js',
+      'file' => drupal_get_path('module', 'voicecommander') . '/js/vc-cache.js',
       'commands' => array(
         '%phrase (clear) cache' => array(
           'callback' => 'Drupal.voicecommander.clearCache'
@@ -257,7 +257,7 @@ function voicecommander_voice_command() {
       ),
     ),
     'core_dictate' => array(
-      'file' => drupal_get_path('module', 'voicecommander') . '/js/voicecommander-dictate.js',
+      'file' => drupal_get_path('module', 'voicecommander') . '/js/vc-dictate.js',
       'commands' => array(
         '%phrase insert *input' => array(
           'callback' => 'Drupal.voicecommander.dictate'

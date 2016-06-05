@@ -5,3 +5,4 @@ package = Voice Commander
 configure = admin/config/user-interface/voice-commander
 
 dependencies[] = voicecommander
+dependencies[] = node

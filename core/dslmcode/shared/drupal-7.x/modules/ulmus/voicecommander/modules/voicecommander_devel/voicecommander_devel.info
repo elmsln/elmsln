@@ -1,7 +1,8 @@
-name = Voice Commander: Menu
-description = Add support for voice controlled menu items.
+name = Voice Commander: Devel
+description = Debugging support for Voice commander
 core = 7.x
 package = Voice Commander
 configure = admin/config/user-interface/voice-commander
+
 dependencies[] = voicecommander
-dependencies[] = menu
+dependencies[] = devel

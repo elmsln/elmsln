@@ -1,0 +1,28 @@
+<?php
+/**
+ * @file
+ * Debugging support for VC.
+ */
+
+/**
+ * Implements hook_voice_command().
+ */
+function voicecommander_devel_voice_command() {
+  $ops = array(
+    'devel' => array(
+      'file' => drupal_get_path('module', 'voicecommander_devel') . '/js/vc-devel.js',
+      'commands' => array(
+        // devel (but most say devil)
+        '%phrase devil' => array(
+          'callback' => 'Drupal.voicecommander.goTo',
+          'data' => arg (0) . '/' . arg(1) . '/devel',
+        ),
+        '%phrase debug (this)' => array(
+          'callback' => 'Drupal.voicecommander.goTo',
+          'data' => arg (0) . '/' . arg(1) . '/devel',
+        ),
+      ),
+    ),
+  );
+  return $ops;
+}

@@ -5,15 +5,12 @@
  */
 
 /**
- * Implements hook_page_build().
- *
- * Load Annyang library.
- * Load js and css base files of module.
- * Load base commands from menus and add to Drupal.settings
+ * Implements hook_voice_command().
  */
 function voicecommander_node_voice_command() {
-  $ops = array(
-    'node' => array(
+  $ops = array();
+  if (arg(0) == 'node' && is_numeric(arg(1))) {
+    $ops['node'] = array(
       'commands' => array(
         // edit
         '%phrase edit' => array(
@@ -31,44 +28,32 @@ function voicecommander_node_voice_command() {
           'data' => arg (0) . '/' . arg(1) . '/revisions',
         ),
       ),
-    ),
-  );
-  // support for book, core module as well
-  if (module_exists('book')) {
-    $ops['book'] = array(
-      'file' => drupal_get_path('module', 'voicecommander_node') . '/js/book.js',
-      'commands' => array(
-        // print
-        '%phrase print' => array(
-          'callback' => 'Drupal.voicecommander.goTo',
-          'data' => 'book/export/html/' . arg(1),
-        ),
-        // outline
-        '%phrase delete' => array(
-          'callback' => 'Drupal.voicecommander.goTo',
-          'data' => arg (0) . '/' . arg(1) . '/outline',
-        ),
-        // navigatiopn
-        '%phrase (go to) next (page)' => array(
-          'callback' => 'Drupal.voicecommander.bookNavigation',
-        ),
-        '%phrase (go to) previous (page)' => array(
-          'callback' => 'Drupal.voicecommander.bookNavigation',
-        ),
-      ),
     );
-  }
-  // support for devel, popular development project with nodes
-  if (module_exists('devel')) {
-    $ops['devel'] = array(
-      'commands' => array(
-        // devel
-        '%phrase devel' => array(
-          'callback' => 'Drupal.voicecommander.goTo',
-          'data' => arg (0) . '/' . arg(1) . '/devel',
+    // support for book, core module as well
+    if (module_exists('book')) {
+      $ops['book'] = array(
+        'file' => drupal_get_path('module', 'voicecommander_node') . '/js/vc-book.js',
+        'commands' => array(
+          // print
+          '%phrase print' => array(
+            'callback' => 'Drupal.voicecommander.goTo',
+            'data' => 'book/export/html/' . arg(1),
+          ),
+          // outline
+          '%phrase delete' => array(
+            'callback' => 'Drupal.voicecommander.goTo',
+            'data' => arg (0) . '/' . arg(1) . '/outline',
+          ),
+          // navigatiopn
+          '%phrase (go to) next (page)' => array(
+            'callback' => 'Drupal.voicecommander.bookNavigation',
+          ),
+          '%phrase (go to) previous (page)' => array(
+            'callback' => 'Drupal.voicecommander.bookNavigation',
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
   return $ops;
 }

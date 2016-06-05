@@ -9,6 +9,28 @@
  * Implements hook_voice_command().
  */
 function voicecommander_form_voice_command() {
-  $ops = array();
+  $ops = array(
+    'form' => array(
+      'file' => drupal_get_path('module', 'voicecommander_form') . '/js/vc-form.js',
+      'commands' => array(
+        // start on form
+        '%phrase start form' => array(
+          'callback' => 'Drupal.voicecommander.formNavigation',
+        ),
+        // next form item
+        '%phrase next form item' => array(
+          'callback' => 'Drupal.voicecommander.formNavigation',
+        ),
+        // previous form item
+        '%phrase previous form item' => array(
+          'callback' => 'Drupal.voicecommander.formNavigation',
+        ),
+        // submit on form
+        '%phrase submit form' => array(
+          'callback' => 'Drupal.voicecommander.formNavigation',
+        ),
+      ),
+    ),
+  );
   return $ops;
 }
