@@ -1,0 +1,66 @@
+<?php
+/**
+ * @file
+ * A light-weight, customizable voice commander module for node operations.
+ */
+
+/**
+ * Implements hook_page_build().
+ *
+ * Load Annyang library.
+ * Load js and css base files of module.
+ * Load base commands from menus and add to Drupal.settings
+ */
+function voicecommander_node_voice_command() {
+  $ops = array(
+    'node' => array(
+      'commands' => array(
+        // edit
+        '%phrase edit' => array(
+          'callback' => 'Drupal.voicecommander.goTo',
+          'data' => arg (0) . '/' . arg(1) . '/edit',
+        ),
+        // delete
+        '%phrase delete' => array(
+          'callback' => 'Drupal.voicecommander.goTo',
+          'data' => arg (0) . '/' . arg(1) . '/delete',
+        ),
+        // revisions
+        '%phrase revisions' => array(
+          'callback' => 'Drupal.voicecommander.goTo',
+          'data' => arg (0) . '/' . arg(1) . '/revisions',
+        ),
+      ),
+    ),
+  );
+  // support for book, core module as well
+  if (module_exists('book')) {
+    $ops['book'] = array(
+      'commands' => array(
+        // print
+        '%phrase print' => array(
+          'callback' => 'Drupal.voicecommander.goTo',
+          'data' => 'book/export/html/' . arg(1),
+        ),
+        // outline
+        '%phrase delete' => array(
+          'callback' => 'Drupal.voicecommander.goTo',
+          'data' => arg (0) . '/' . arg(1) . '/outline',
+        ),
+      ),
+    );
+  }
+  // support for devel, popular development project with nodes
+  if (module_exists('devel')) {
+    $ops['devel'] = array(
+      'commands' => array(
+        // devel
+        '%phrase devel' => array(
+          'callback' => 'Drupal.voicecommander.goTo',
+          'data' => arg (0) . '/' . arg(1) . '/devel',
+        ),
+      ),
+    );
+  }
+  return $ops;
+}

@@ -1,0 +1,7 @@
+name = Voice Commander: Node
+description = Add support for voice controlled node operations
+core = 7.x
+package = Voice Commander
+configure = admin/config/user-interface/voice-commander
+
+dependencies[] = voicecommander

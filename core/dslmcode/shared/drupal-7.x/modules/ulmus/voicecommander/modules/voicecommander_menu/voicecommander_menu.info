@@ -1,0 +1,6 @@
+name = Voice Commander: Menu
+description = Add support for voice controlled menu items.
+core = 7.x
+package = Voice Commander
+configure = admin/config/user-interface/voice-commander
+dependencies[] = voicecommander

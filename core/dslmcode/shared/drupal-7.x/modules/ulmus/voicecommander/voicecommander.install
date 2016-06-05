@@ -57,6 +57,5 @@ function voicecommander_requirements($phase) {
  */
 function voicecommander_uninstall() {
   variable_del('voicecommander_prefix');
-  variable_del('voicecommander_menu');
   variable_del('voicecommander_mobile');
 }

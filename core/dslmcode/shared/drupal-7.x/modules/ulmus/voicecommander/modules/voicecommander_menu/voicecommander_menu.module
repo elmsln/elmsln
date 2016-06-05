@@ -1,0 +1,80 @@
+<?php
+/**
+ * @file
+ * A light-weight, customizable voice commander module for site navigation.
+ */
+
+/**
+ * Default menu name value of "management" menu.
+ */
+define('VOICECOMMANDER_DEFAULT_VALUE_MENU_NAME', 'management');
+
+/**
+ * Implements hook_page_build().
+ *
+ * Load Annyang library.
+ * Load js and css base files of module.
+ * Load base commands from menus and add to Drupal.settings
+ */
+function voicecommander_menu_voice_command() {
+  $menus = variable_get('voicecommander_menu', array(VOICECOMMANDER_DEFAULT_VALUE_MENU_NAME));
+  $menu_trees = array();
+
+  foreach ($menus as $menu_name) {
+    _voicecommander_menu_recursive(menu_tree($menu_name), $menu_trees);
+  }
+
+  return array(
+    'core_menu' => array(
+      'commands' => $menu_trees,
+    ),
+  );
+  return ;
+}
+
+/**
+ * Recursive selected menus array from settings.
+ *
+ * @param array $arr
+ *    An array $arr containing selected menus array from settings.
+ * @param array $out
+ *    Prepared an array of selected menus from settings for audio comparison
+ *    under the terms of the annyang plugin.
+ *
+ * @return array
+ *    A render array for selected list menus arrays in settings a list of
+ *    content: link title and link path.
+ */
+function _voicecommander_menu_recursive($arr = array(), &$out = array()) {
+  foreach ($arr as $value) {
+    if (isset($value['#title']) && isset($value['#href'])) {
+      $out['%phrase ' . $value['#title']] = array(
+        'callback' => 'Drupal.voicecommander.goTo',
+        'data' => url($value['#href'], array('absolute' => TRUE)),
+      );
+    }
+
+    if (isset($value['#below']) && is_array($value['#below']) && count($value['#below'])) {
+      _voicecommander_menu_recursive($value['#below'], $out);
+    }
+  }
+  return $out;
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function voicecommander_menu_form_voicecommander_settings_form_alter(&$form, &$form_state, $form_id) {
+  // load all menus to pick from
+  $menus = menu_get_menus();
+
+  $form['voicecommander_menu'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Select menu'),
+    '#options'       => $menus,
+    '#description'   => t('Menu items titles from selected menus will be use as voicecommaner commands.<br />
+                        <em>*Management menu\'s items titles are using by default now with \'Administrator command prefix\'.</em>'),
+    '#multiple'      => TRUE,
+    '#default_value' => variable_get('voicecommander_menu', array(VOICECOMMANDER_DEFAULT_VALUE_MENU_NAME)),
+  );
+}

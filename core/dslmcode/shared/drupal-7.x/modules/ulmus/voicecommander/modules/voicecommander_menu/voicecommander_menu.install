@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * Module install file.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function voicecommander_menu_uninstall() {
+  variable_del('voicecommander_menu');
+}
