@@ -222,6 +222,29 @@ function voicecommander_cc_all() {
 function voicecommander_voice_command() {
   // optional clear cache statement to be more conversational
   return array(
+    'core' => array(
+      'commands' => array(
+        '%phrase (go) home' => array(
+          'callback' => 'Drupal.voicecommander.goTo',
+          'data' => '/',
+        ),
+        '%phrase (go) back' => array(
+          'callback' => 'Drupal.voicecommander.back',
+        ),
+        '%phrase (go) forward' => array(
+          'callback' => 'Drupal.voicecommander.forward',
+        ),
+        '%phrase scroll up' => array(
+          'callback' => 'Drupal.voicecommander.scroll',
+        ),
+        '%phrase scroll (back to) top' => array(
+          'callback' => 'Drupal.voicecommander.scroll',
+        ),
+        '%phrase scroll (down)' => array(
+          'callback' => 'Drupal.voicecommander.scroll',
+        ),
+      ),
+    ),
     'core_cacheclear' => array(
       'file' => drupal_get_path('module', 'voicecommander') . '/js/voicecommander-cache.js',
       'commands' => array(

@@ -6,11 +6,15 @@
 
 (function ($) {
   Drupal.voicecommander.dictate = function(wildcard) {
-    $(":focus").html($(":focus").html() + wildcard);
+    // place holder because the resultMatch has the real data we care about
   };
+  // @todo this is not a long term solution, we need to match userSaid
+  // to something and then react to it. This might make more sense
+  // with a mode that allows for just talking (no buttons) as well as
+  // the ability to use it over https so we see how fluid it is as well as
+  // the form module which will provide support for navigating forms with
+  // your voice, to which filling them out makes more sense at that time.
   annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
-    console.log(userSaid); // sample output: 'hello'
-    console.log(commandText); // sample output: 'hello (there)'
-    console.log(phrases); // sample output: ['hello', 'halo', 'yellow', 'polo', 'hello kitty']
+    $(":focus").val(userSaid);
   });
 })(jQuery);

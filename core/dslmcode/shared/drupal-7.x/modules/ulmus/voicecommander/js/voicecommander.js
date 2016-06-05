@@ -7,11 +7,42 @@
 (function ($) {
   //extend the drupal js object by adding in an voicecommander name-space
   Drupal.voicecommander = Drupal.voicecommander || { functions: {} }
-  // most common command to run from voice commander functions, triggers
-  // a link that's been provided by the phrase object's data attribute
+  // go to a link, this is most common
   Drupal.voicecommander.goTo = function(phrase) {
     window.location.href = Drupal.settings.basePath + Drupal.settings.voiceCommanderVoiceCommands[phrase].data;
   };
+  // go backward in history
+  Drupal.voicecommander.back = function(phrase) {
+    window.location.href = window.history.back();
+  };
+  // go forward in history
+  Drupal.voicecommander.forward = function(phrase) {
+    window.location.href = window.history.forward();
+  };
+  // voice based scrolling capabilities
+  Drupal.voicecommander.scroll = function(phrase) {
+    var height = "innerHeight" in window
+           ? window.innerHeight
+           : document.documentElement.offsetHeight;
+  // travel back up the screen
+   if (phrase.indexOf('up') !== -1) {
+    $('html, body').animate({
+        scrollTop: (height-(height*.9))
+     }, 500);
+   }
+   // travel to the top of the screen
+   else if (phrase.indexOf('top') !== -1) {
+    $('html, body').animate({
+        scrollTop: (0)
+     }, 500);
+   }
+   // travel down the screen, one screen height
+   else {
+    $('html, body').animate({
+        scrollTop: (height+(height*.9))
+     }, 500);
+   }
+  }
   $(document).ready(function() {
     var config = this.config;
     var commands = {};
@@ -54,12 +85,16 @@
       // now convert to a method that they'd be able to fire correctly when
       // called instead of the assembled calls
       $.each(commands, function (phrase, value) {
-        commandsWithCallbacks[phrase] = function () {
-          eval(commands[phrase].callback +"('" + phrase.toLowerCase() + "')");
-        };
+        if (phrase.indexOf(':') == -1 && phrase.indexOf(':') == -1) {
+          commandsWithCallbacks[phrase] = function () {
+            eval(commands[phrase].callback +"('" + phrase.toLowerCase() + "')");
+          };
+        }
+        else {
+          commandsWithCallbacks[phrase] = commands[phrase].callback;
+        }
       });
       // Create the function
-      console.log(commandsWithCallbacks);
       annyang.addCommands(commandsWithCallbacks);
       var useItOnce = true;
       var voiceCommanderStr = $('body').append('<div id="voice-commander-rec"></div><div class="voice-commander-rec-window"><div class="icon"></div><p></p></div>');

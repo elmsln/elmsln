@@ -36,6 +36,7 @@ function voicecommander_node_voice_command() {
   // support for book, core module as well
   if (module_exists('book')) {
     $ops['book'] = array(
+      'file' => drupal_get_path('module', 'voicecommander_node') . '/js/book.js',
       'commands' => array(
         // print
         '%phrase print' => array(
@@ -46,6 +47,13 @@ function voicecommander_node_voice_command() {
         '%phrase delete' => array(
           'callback' => 'Drupal.voicecommander.goTo',
           'data' => arg (0) . '/' . arg(1) . '/outline',
+        ),
+        // navigatiopn
+        '%phrase (go to) next (page)' => array(
+          'callback' => 'Drupal.voicecommander.bookNavigation',
+        ),
+        '%phrase (go to) previous (page)' => array(
+          'callback' => 'Drupal.voicecommander.bookNavigation',
         ),
       ),
     );

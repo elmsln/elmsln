@@ -50,7 +50,7 @@ function _voicecommander_menu_recursive($arr = array(), &$out = array()) {
     if (isset($value['#title']) && isset($value['#href'])) {
       $out['%phrase ' . $value['#title']] = array(
         'callback' => 'Drupal.voicecommander.goTo',
-        'data' => url($value['#href'], array('absolute' => TRUE)),
+        'data' => $value['#href'],
       );
     }
 
