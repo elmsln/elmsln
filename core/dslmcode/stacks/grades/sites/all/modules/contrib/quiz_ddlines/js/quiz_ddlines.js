@@ -336,7 +336,7 @@ Drupal.behaviors.quiz_ddlines = {
         if(engine.isNew()) {
           engine.addHelpText();
         }
-      }, ($.browser.msie ? 1000 : 0));
+      }, (navigator.userAgent.match(/msie/i) ? 1000 : 0));
     });
   }
 };
