@@ -69,7 +69,7 @@ function _voicecommander_apply() {
 
   // assemble all voice commands the system supports
   $commandsets = module_invoke_all('voice_command');
-  drupal_alter('voice_command', $commands);
+  drupal_alter('voice_command', $commandsets);
   $commands = array();
   foreach ($commandsets as $commandset) {
     if (isset($commandset['file'])) {

@@ -23,7 +23,6 @@ function inbox_install() {
   variable_set('site_frontpage', 'calendar/month');
 }
 
-
 /**
  * Enable CIS section and student filter for future usage.
  */
