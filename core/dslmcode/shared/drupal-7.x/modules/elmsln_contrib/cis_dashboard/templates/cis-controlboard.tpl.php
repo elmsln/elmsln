@@ -4,20 +4,16 @@
   <div class="large-6 columns text-right">
    <ul id="sort-drop" class="f-dropdown f-open-dropdown text-left" data-dropdown-content="" style="position: absolute; left: 13.3281px; top: 1892.75px;" aria-hidden="false">
     <li>
-      <a ng-disabled="true" ng-click="order('title')" href="#">Ascending</a>
-      <span class="sortorder" ng-show="predicate === 'title'" ng-class="{reverse:reverse}"></span>
+      <a ng-click="order('+title')" href="#">Ascending</a>
     </li>
     <li>
-      <a ng-disabled="true" ng-click="order('title')" href="#">Descending</a>
-      <span class="sortorder" ng-show="predicate === 'title'" ng-class="{reverse:reverse}"></span>
+      <a ng-click="order('-title')" href="#">Descending</a>
     </li>
     <li>
-      <a ng-disabled="true" ng-click="order('created')" href="#">Newest</a>
-      <span class="sortorder" ng-show="predicate === 'created'" ng-class="{reverse:reverse}"></span>
+      <a ng-click="order('-created')" href="#">Newest</a>
     </li>
      <li>
-      <a ng-disabled="true" ng-click="order('created')" href="#">Oldest</a>
-         <span class="sortorder" ng-show="predicate === 'created'" ng-class="{reverse:reverse}"></span>
+      <a ng-click="order('+created')" href="#">Oldest</a>
     </li>
   </ul>
     <a href="#" data-dropdown="sort-drop" class="tiny secondary radius button dropdown">Sort</a>
@@ -28,7 +24,7 @@
    </div>
 
 <div class="row">
-<div class="small-12 columns cis--course-item" ng-repeat="course in courses.list | orderBy:predicate:reverse">
+<div class="small-12 columns cis--course-item" ng-repeat="course in courses.list | orderBy:predicate">
   <div class="row collapse">
     <div class="small-12 columns">
       <div class="cis--course-item__header row">
