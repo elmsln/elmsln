@@ -13,17 +13,17 @@ function voicecommander_node_voice_command() {
     $ops['node'] = array(
       'commands' => array(
         // edit
-        '%phrase edit' => array(
+        '%phrase edit (node)(page)' => array(
           'callback' => 'Drupal.voicecommander.goTo',
           'data' => arg (0) . '/' . arg(1) . '/edit',
         ),
         // delete
-        '%phrase delete' => array(
+        '%phrase delete (node)(page)' => array(
           'callback' => 'Drupal.voicecommander.goTo',
           'data' => arg (0) . '/' . arg(1) . '/delete',
         ),
         // revisions
-        '%phrase revisions' => array(
+        '%phrase (node) revisions' => array(
           'callback' => 'Drupal.voicecommander.goTo',
           'data' => arg (0) . '/' . arg(1) . '/revisions',
         ),
@@ -35,16 +35,16 @@ function voicecommander_node_voice_command() {
         'file' => drupal_get_path('module', 'voicecommander_node') . '/js/vc-book.js',
         'commands' => array(
           // print
-          '%phrase print' => array(
+          '%phrase print (node)(page)' => array(
             'callback' => 'Drupal.voicecommander.goTo',
             'data' => 'book/export/html/' . arg(1),
           ),
           // outline
-          '%phrase delete' => array(
+          '%phrase delete (node)(page)' => array(
             'callback' => 'Drupal.voicecommander.goTo',
             'data' => arg (0) . '/' . arg(1) . '/outline',
           ),
-          // navigatiopn
+          // navigation
           '%phrase (go to) next (page)' => array(
             'callback' => 'Drupal.voicecommander.bookNavigation',
           ),
