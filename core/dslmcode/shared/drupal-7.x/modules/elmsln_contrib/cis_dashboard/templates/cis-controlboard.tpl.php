@@ -1,12 +1,20 @@
 <div class="row" ng-app="Fa" ng-controller="cisDashboard">
-
+<pre>Sorting predicate = {{predicate}}; reverse = {{reverse}}</pre>
 <div class="large-6 columns">
   <div class="large-6 columns text-right">
    <ul id="sort-drop" class="f-dropdown f-open-dropdown text-left" data-dropdown-content="" style="position: absolute; left: 13.3281px; top: 1892.75px;" aria-hidden="false">
-    <li><a href="#">Ascending</a></li>
-    <li><a href="#">Descending</a></li>
-    <li><a href="#">Newest</a></li>
-     <li><a href="#">Oldest</a></li>
+    <li>
+      <a ng-click="order('+title')" href="#">Ascending</a>
+    </li>
+    <li>
+      <a ng-click="order('-title')" href="#">Descending</a>
+    </li>
+    <li>
+      <a ng-click="order('-created')" href="#">Newest</a>
+    </li>
+     <li>
+      <a ng-click="order('+created')" href="#">Oldest</a>
+    </li>
   </ul>
     <a href="#" data-dropdown="sort-drop" class="tiny secondary radius button dropdown">Sort</a>
     <a class="fi-filter tiny secondary radius button" href="#">&nbsp;</a>
@@ -16,7 +24,7 @@
    </div>
 
 <div class="row">
-<div class="small-12 columns cis--course-item" ng-repeat="course in courses.list">
+<div class="small-12 columns cis--course-item" ng-repeat="course in courses.list | orderBy:predicate">
   <div class="row collapse">
     <div class="small-12 columns">
       <div class="cis--course-item__header row">

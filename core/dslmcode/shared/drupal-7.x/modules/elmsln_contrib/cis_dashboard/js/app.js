@@ -44,7 +44,7 @@ angular.module('Fa', [
   $scope.isActive = function(item) {
     return $scope.selected === item;
   };
-  // Sets the default tab = '1' representing 'Sections'
+  // sets the default tab = '1' representing 'Sections'
   $scope.tab = 1; 
   // setTab function sets updates the tab in the view when called
   $scope.setTab = function(tab) {
@@ -53,6 +53,12 @@ angular.module('Fa', [
   // isSet checks if what tab is set to display the correct tab view. 
   $scope.isSet = function(tab) {
     return ($scope.tab === tab);
+  };
+  // sets the default predicate sorting to ascending title. 
+  $scope.predicate = '+title';
+  // order sets the $scope.predicate to the correct passed in predicate to trigger the orderBy event for proper sorting.
+  $scope.order = function(predicate) {
+    $scope.predicate = predicate;
   };
 
 }])
