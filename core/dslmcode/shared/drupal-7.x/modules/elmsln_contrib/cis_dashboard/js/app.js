@@ -55,12 +55,15 @@ angular.module('Fa', [
     return ($scope.tab === tab);
   };
   // sets the default predicate sorting to ascending title. 
-  $scope.predicate = '+title';
+  $scope.courseSortDefault = '+title';
+  $scope.sectionSortDefault = '+field_year.und[0].value' + '+field_semester.und[0].value';
   // order sets the $scope.predicate to the correct passed in predicate to trigger the orderBy event for proper sorting.
-  $scope.order = function(predicate) {
-    $scope.predicate = predicate;
+  $scope.orderSections = function(predicate) {
+    $scope.sectionSortDefault = predicate;
   };
-
+  $scope.orderCourses = function(predicate) {
+    $scope.courseSortDefault = predicate;
+  };
 }])
 ; // end Angular
 console.log('cis angular working');
