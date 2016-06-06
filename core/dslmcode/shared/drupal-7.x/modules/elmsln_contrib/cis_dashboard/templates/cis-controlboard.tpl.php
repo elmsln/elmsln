@@ -1,19 +1,18 @@
 <div class="row" ng-app="Fa" ng-controller="cisDashboard">
-<pre>Sorting predicate = {{predicate}}; reverse = {{reverse}}</pre>
 <div class="large-6 columns">
   <div class="large-6 columns text-right">
    <ul id="sort-drop" class="f-dropdown f-open-dropdown text-left" data-dropdown-content="" style="position: absolute; left: 13.3281px; top: 1892.75px;" aria-hidden="false">
     <li>
-      <a ng-click="order('+title')" href="#">Ascending</a>
+      <a ng-click="orderCourses('+title')" href="#">Ascending</a>
     </li>
     <li>
-      <a ng-click="order('-title')" href="#">Descending</a>
+      <a ng-click="orderCourses('-title')" href="#">Descending</a>
     </li>
     <li>
-      <a ng-click="order('-created')" href="#">Newest</a>
+      <a ng-click="orderCourses('-created')" href="#">Newest</a>
     </li>
      <li>
-      <a ng-click="order('+created')" href="#">Oldest</a>
+      <a ng-click="orderCourses('+created')" href="#">Oldest</a>
     </li>
   </ul>
     <a href="#" data-dropdown="sort-drop" class="tiny secondary radius button dropdown">Sort</a>
@@ -24,7 +23,7 @@
    </div>
 
 <div class="row">
-<div class="small-12 columns cis--course-item" ng-repeat="course in courses.list | orderBy:predicate">
+<div class="small-12 columns cis--course-item" ng-repeat="course in courses.list | orderBy:courseSortDefault">
   <div class="row collapse">
     <div class="small-12 columns">
       <div class="cis--course-item__header row">
@@ -63,7 +62,7 @@
       <div class="tabs-content cis--tab-panel__wrapper">
         <div ng-show="isSet(1)" class="content active row cis--course-item__vertical-tabs-wrapper" id="panel-sections-{{$index}}">
           <dl class="tabs vertical cis--tabs__vertical" data-tab>
-            <dd ng-class="{active: isActive(offering)}" ng-repeat="offering in course.field_offerings"><a href="#section-tab-panel-{{$index}}" class="offering-year-button" ng-click="select(offering)" ng-class="{active: isActive(offering)}">{{ offering.field_semester.und[0].value}} {{offering.field_year.und[0].value}}</a></dd>
+            <dd ng-class="{active: isActive(offering)}" ng-init="orderSections('+field_year.und[0].value' + '+field_semester.und[0].value')" ng-repeat="offering in course.field_offerings | orderBy:sectionSortDefault"><a href="#section-tab-panel-{{$index}}" class="offering-year-button" ng-click="select(offering)" ng-class="{active: isActive(offering)}">{{offering.field_year.und[0].value}} {{offering.field_semester.und[0].value}}</a></dd>
           </dl>
           <div class="tabs-content vertical" ng-repeat="offering in course.field_offerings">
             <div class="content" id="section-tab-panel-{{$index}}" ng-class="{active: isActive(offering)}">
