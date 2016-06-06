@@ -461,6 +461,9 @@ function _cis_connector_course_context() {
   // statically cache future calls
   $course = &drupal_static(__FUNCTION__);
   if (!isset($course)) {
+    // @todo we need a way of detecting course context RIGHT AFTER A FORM IS SAVED
+    // if the destination changes, we technically don't know the context at that time
+    // which is weird but true.
     // see if this is on a node, then check if we are in an authority
     if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
       // we are in an authority system
@@ -497,6 +500,11 @@ function _cis_connector_course_context() {
     if (isset($_SESSION['cis_course_context'])) {
       $course = $_SESSION['cis_course_context'];
       unset($_SESSION['cis_course_context']);
+      return $course;
+    }
+    // check for GET in address bar
+    if (isset($_GET['elmsln_course'])) {
+      $course = $_GET['elmsln_course'];
       return $course;
     }
     // use the variable that's been set for the machine name

@@ -7,6 +7,73 @@
 include_once 'elmsln_core.features.inc';
 
 /**
+ * Implements hook_menu().
+ */
+function elmsln_core_menu() {
+  $items['elmsln/redirect/%/%/%'] = array(
+    'title' => 'view asset',
+    'page callback' => '_elmsln_core_remote_redirect',
+    'access arguments' => array('access content'),
+    'page arguments' => array(2, 3, 4, 'view'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['elmsln/redirect/%/%/%/view'] = array(
+    'title' => 'view asset',
+    'page callback' => '_elmsln_core_remote_redirect',
+    'access arguments' => array('access content'),
+    'page arguments' => array(2, 3, 4, 5),
+    'weight' => 0,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['elmsln/redirect/%/%/%/edit'] = array(
+    'title' => 'edit asset',
+    'page callback' => '_elmsln_core_remote_redirect',
+    'page arguments' => array(2, 3, 4, 5),
+    'access arguments' => array('access content'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+
+  return $items;
+}
+
+/**
+ * Allow for structured redirecting to other tools in the network.
+ *
+ * @param  string  $tool     tool to connect to in the registry
+ * @param  string  $type     entity type to point to
+ * @param  int     $etid     entity id
+ * @param  string  $op       view, edit, delete, etc, the entity operations
+ *
+ * @return                   nothing returned, should redirect to remote space
+ */
+function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
+  if ($settings = _cis_connector_build_registry($tool)) {
+    $instance = '/';
+    if (isset($settings['instance']) && $settings['instance']) {
+      $instance = '/' . _cis_connector_course_context() . '/';
+    }
+    $address = _cis_connector_format_address($settings, $instance, 'front') . $type . '/' . $etid . '/' . $op;
+    // allow for redirecting back to whatever was set
+    if (isset($_GET['destination'])) {
+      $address .= '?destination=' . $_GET['destination'];
+    }
+    if (isset($_GET['elmsln_course'])) {
+      $address .= '&cis_course_context=' . $_GET['elmsln_course'];
+    }
+    // redirect over to this location
+    header('Location: ' . $address, TRUE, 302);
+    // drupal_goto has this, says its important incase numeric code not understood
+    drupal_exit($address);
+  }
+  return t('This is not a valid tool in the network to create a link to.');
+}
+
+/**
  * Implements hook_permission().
  */
 function elmsln_core_permission() {
@@ -110,8 +177,8 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
   if (isset($query_params['elmsln_active_course']) && $course = $query_params['elmsln_active_course']) {
     $_SESSION['cis_course_context'] = $course;
     // Remove the active section query parameter and proceed to the url
-    unset($query_params['elmsln_active_course']);
-    $changed = TRUE;
+    //unset($query_params['elmsln_active_course']);
+    //$changed = TRUE;
   }
   // look or cross-network masquerade
   if (isset($query_params['elmsln_masquerade']) && $masquerad = $query_params['elmsln_masquerade']) {

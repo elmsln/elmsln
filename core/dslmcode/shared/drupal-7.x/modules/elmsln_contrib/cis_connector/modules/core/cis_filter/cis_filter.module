@@ -15,7 +15,6 @@ function cis_filter_menu() {
     'page callback' => '_cis_filter_modal_page',
     'access arguments' => array('access content'),
   );
-
   return $items;
 }
 
@@ -82,7 +81,8 @@ function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_
             $instance = '/';
             if (isset($settings['instance']) && $settings['instance']) {
               $instance = base_path();
-              //test for non-subdomain installation
+              // @todo huh!? when would this EVER fire?
+              // test for non-subdomain installation
               $test = explode('/', $instance);
               if (count($test) == 4) {
                 $instance = '/' . $test[2] . '/';
@@ -106,7 +106,22 @@ function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_
         ),
         'theme_hook_suggestion' => $template,
       );
-      $media[] = theme($render, $ary);
+      if (isset($code['item'])) {
+        $item_path = array($code['entity_type'], $code['item']);
+      }
+      else {
+        $item_path = explode('/', $code['link']);
+      }
+      $rendered = theme($render, $ary);
+      $render_array = array(
+        '#markup' => $rendered,
+        '#theme_wrappers' => array('contextual_container'),
+        '#contextual_links' => array(
+          'cis_filter' => array('elmsln/redirect', array($code['tool'], $item_path[0], $item_path[1])),
+        ),
+      );
+      $wrapper = drupal_render($render_array);
+      $media[] = $wrapper;
     }
     $text = preg_replace($patterns, $media, $text, 1);
   }
@@ -178,6 +193,14 @@ function cis_filter_theme() {
         'id' => '',
       ),
       'template' => 'templates/cis-filter-render--iframe',
+    ),
+    'cis_filter_contextual_links' => array(
+      'render element' => 'element',
+      'template' => 'templates/cis-filter-contextual-links',
+    ),
+    'contextual_container' => array(
+      'render element' => 'element',
+      'template' => 'templates/contextual-container',
     ),
   );
 }
@@ -471,7 +494,7 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
                 else {
                   $text = t('Submit @name', array('@name' => $item['title']));
                 }
-                // present a modal for them to submit this thing
+                // present a modal for them to submit this thin
                 $vars['content'] = '<ul class="submit-widget-links"><li>' . ctools_modal_text_button($text, $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll') . '</li></ul>';
                 $vars['class'] .= ' elmsln-action-unfinished';
               }
@@ -627,3 +650,40 @@ function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL
   }
   return ctools_modal_render('Submission', $contents) ;
 }
+
+/**
+ * Implements preprocess_cis_filter_contextual_links()
+ */
+function cis_filter_preprocess_cis_filter_contextual_links(&$variables) {
+  $variables['classes_array'][] = $variables['element']['class'];
+  $variables['title'] = $variables['element']['title'];
+  $variables['content'] = $variables['element']['#children'];
+  $variables['more'] = $variables['element']['more'];
+}
+
+/**
+ * Implements hook_preprocess_contextual_container()
+ */
+function cis_filter_preprocess_contextual_container(&$variables) {
+  $variables['content'] = $variables['element']['#markup'];
+}
+
+/**
+ * Implements hook_menu_contextual_links_alter().
+ */
+
+function cis_filter_menu_contextual_links_alter(&$links, $router_item, $root_path) {
+  // hook on a contextual path so we can redirect back here after
+  // the operation takes place on the other end, assuming they hit edit
+  if (in_array($root_path, array('elmsln/redirect/%/%/%'))) {
+    $links['cis_filter-edit']['localized_options'] = array(
+      'query' => array(
+        'destination' => 'elmsln/redirect/' . variable_get('install_profile', 'standard') .  '/' . arg(0) . '/' . arg(1),
+      )
+    );
+    if ($course = _cis_connector_course_context()) {
+      $links['cis_filter-edit']['localized_options']['query']['cis_course_context'] = $course;
+    }
+  }
+}
+
