@@ -143,6 +143,13 @@ dependencies[] = quiz_question
 dependencies[] = quiz_page
 dependencies[] = multichoice
 dependencies[] = quiz_directions
+dependencies[] = quiz_ddlines
+dependencies[] = long_answer
+dependencies[] = matching
+dependencies[] = scale
+dependencies[] = short_answer
+dependencies[] = truefalse
+
 ; Tin Can Goodness
 dependencies[] = tincanapi
 dependencies[] = tincanapi_quiz

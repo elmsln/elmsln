@@ -1,0 +1,14 @@
+name = Drag and drop with lines for Quiz
+package = Quiz Question
+description = Drag and drop with lines question type for quiz.
+core = 7.x
+dependencies[] = quiz
+dependencies[] = quiz_question
+dependencies[] = image
+files[] = quiz_ddlines.classes.inc
+; Information added by Drupal.org packaging script on 2015-07-10
+version = "7.x-5.0-beta2"
+core = "7.x"
+project = "quiz_ddlines"
+datestamp = "1436548168"
+

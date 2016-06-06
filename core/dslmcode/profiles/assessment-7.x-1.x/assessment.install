@@ -32,3 +32,10 @@ function assessment_update_7000(&$sandbox) {
 function assessment_update_7001(&$sandbox) {
   module_enable(array('assessment_gradebook', 'assessment_gradebook_ux', 'assessment_ux', 'assessment_evaluation', 'assessment_helper', 'assessment_perms'));
 }
+
+/**
+ * Enable more quiz question types.
+ */
+function assessment_update_7002(&$sandbox) {
+  module_enable(array('quiz_ddlines', 'long_answer', 'matching', 'scale', 'short_answer', 'truefalse'));
+}
