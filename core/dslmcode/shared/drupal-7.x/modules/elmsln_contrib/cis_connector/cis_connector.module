@@ -984,9 +984,34 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
   // statically cache future calls
   $data = &drupal_static($call);
   if (!isset($data)) {
-    // convert to something db friendly
+    // build a nice cid that's safe and targetable by pin-prick api
+    // cna hit just a bucket to destroy all entries
+    $cid_ary = array();
+    if ($bucket != 'none') {
+      $cid_ary[] = 'elmsln';
+    }
+    $cid_ary[] = $bucket;
+    // break up the url if we can
+    $tmp = explode('?', $url);
+    if (count($tmp) == 2) {
+      // try and abstract entity / entity id if possible
+      // split the format off the request like .json
+      $tmp = explode('.', $tmp[0]);
+      // split the address off
+      $tmp = explode('/', $tmp[0]);
+      // loop through remaining parts
+      foreach ($tmp as $cache_part) {
+        if ($cache_part != '') {
+          $cid_ary[] = $cache_part;
+        }
+      }
+    }
+    // salt this url since it might have sensitive data in it
     $salt = drupal_get_hash_salt();
-    $cid = hash('sha512', $salt . $call);
+    // this ensures that we don't get a match if anything
+    // else downstream changes based on address / query logic
+    $cid_ary[] = hash('sha512', $salt . $call);
+    $cid = implode(':', $cid_ary);
     // @ignore druplart_conditional_assignment
     if ($cached && ($cache = cache_get($cid, 'cache_cis_connector'))) {
       $data = $cache;

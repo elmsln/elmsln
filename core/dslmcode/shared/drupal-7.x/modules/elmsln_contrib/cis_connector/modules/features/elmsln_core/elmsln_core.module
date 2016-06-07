@@ -13,7 +13,7 @@ function elmsln_core_menu() {
   $items['elmsln/redirect/%/%/%'] = array(
     'title' => 'view asset',
     'page callback' => '_elmsln_core_remote_redirect',
-    'access arguments' => array('access content'),
+    'access arguments' => array('view cis shortcode'),
     'page arguments' => array(2, 3, 4, 'view'),
     'weight' => 0,
     'type' => MENU_LOCAL_TASK,
@@ -22,7 +22,7 @@ function elmsln_core_menu() {
   $items['elmsln/redirect/%/%/%/view'] = array(
     'title' => 'view asset',
     'page callback' => '_elmsln_core_remote_redirect',
-    'access arguments' => array('access content'),
+    'access arguments' => array('view cis shortcode'),
     'page arguments' => array(2, 3, 4, 5),
     'weight' => 0,
     'type' => MENU_DEFAULT_LOCAL_TASK,
@@ -32,7 +32,7 @@ function elmsln_core_menu() {
     'title' => 'edit asset',
     'page callback' => '_elmsln_core_remote_redirect',
     'page arguments' => array(2, 3, 4, 5),
-    'access arguments' => array('access content'),
+    'access arguments' => array('view cis shortcode'),
     'weight' => 0,
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
@@ -63,7 +63,32 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
       $address .= '?destination=' . $_GET['destination'];
     }
     if (isset($_GET['elmsln_course'])) {
-      $address .= '&cis_course_context=' . $_GET['elmsln_course'];
+      $address .= '&elmsln_course=' . $_GET['elmsln_course'];
+    }
+    // look for a CID to destroy prior to redirect, this should ensure
+    // that the cached references to the item just modified are deleted
+    // as the user gets there so they end up repopulating caches with
+    // the data they just changed, always ensuring its fresh!
+    if (isset($_GET['elmsln_cid_target'])) {
+      $cid = 'elmsln:' . variable_get('install_profile', 'standard') . ':';
+      $path = explode('/', $_GET['elmsln_cid_target']);
+      if (count($path) > 1) {
+        $cid .= $path[0] . ':' . $path[1] . ':';
+      }
+      // sync the service but do it non-blocking
+      $request = array(
+        'method' => 'POST',
+        'api' => '1',
+        'bucket' => $tool,
+        'path' => $instance,
+        'data' => array(
+          'elmsln_module' => 'elmsln_api',
+          'elmsln_callback' => 'clear_cache_bin',
+          'bin' => 'cis_connector',
+          'cid' => $cid,
+        ),
+      );
+      $response = _elmsln_api_request($request);
     }
     // redirect over to this location
     header('Location: ' . $address, TRUE, 302);
@@ -71,6 +96,23 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     drupal_exit($address);
   }
   return t('This is not a valid tool in the network to create a link to.');
+}
+
+/**
+ * Implements hook_drupal_goto_alter().
+ */
+function elmsln_core_drupal_goto_alter(&$path, &$options, &$http_response_code) {
+  // helper to propagate contextual data on redirects between systems
+  if (strpos($path, 'elmsln/redirect') === 0) {
+    // make sure course passes down through forms
+    // it's trippy but because elmsln/redirect doesn't load up using drupal_goto
+    // but is instead pointed to via one, this should ensure that we only ever
+    // do our remote cid destruction when needed and in the correct direction!
+    if (isset($_GET['elmsln_course'])) {
+      $options['query']['elmsln_course'] = filter_xss($_GET['elmsln_course']);
+    }
+    $options['query']['elmsln_cid_target'] = current_path();
+  }
 }
 
 /**
