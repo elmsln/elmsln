@@ -676,11 +676,13 @@ function cis_filter_menu_contextual_links_alter(&$links, $router_item, $root_pat
   // hook on a contextual path so we can redirect back here after
   // the operation takes place on the other end, assuming they hit edit
   if (in_array($root_path, array('elmsln/redirect/%/%/%'))) {
-    $links['cis_filter-edit']['localized_options'] = array(
-      'query' => array(
-        'destination' => 'elmsln/redirect/' . variable_get('install_profile', 'standard') .  '/' . arg(0) . '/' . arg(1),
-      )
-    );
+    foreach ($links as &$link) {
+      $link['localized_options'] = array(
+        'query' => array(
+          'destination' => 'elmsln/redirect/' . variable_get('install_profile', 'standard') .  '/' . arg(0) . '/' . arg(1),
+        )
+      );
+    }
     if ($course = _cis_connector_course_context()) {
       $links['cis_filter-edit']['localized_options']['query']['cis_course_context'] = $course;
     }
