@@ -11,7 +11,8 @@
                 H5P.externalDispatcher.on('xAPI', function (event) {
                     var data = {
                         token: moduleSettings.token,
-                        statement: JSON.stringify(event.data.statement)
+                        statement: JSON.stringify(event.data.statement),
+                        nid: moduleSettings.nid
                     };
                     $.post(moduleSettings.relayUrl, data);
                 });

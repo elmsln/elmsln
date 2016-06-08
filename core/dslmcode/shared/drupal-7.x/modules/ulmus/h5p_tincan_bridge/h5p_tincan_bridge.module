@@ -8,11 +8,13 @@
 define('H5P_TINCAN_BRIDGE__RELAY_URL', 'ajax/tincanapi/relay');
 
 /**
- * Implements hook_init().
+ * Implements hook_page_build().
  */
-function h5p_tincan_bridge_init() {
-  drupal_add_js(array('h5pTincanBridge' => array('token' => drupal_get_token(), 'relayUrl' => base_path() . H5P_TINCAN_BRIDGE__RELAY_URL)), 'setting');
-  drupal_add_js(drupal_get_path('module', 'h5p_tincan_bridge') . '/h5p_tincan_bridge.js');
+function h5p_tincan_bridge_page_build(&$page) {
+  if (arg(0) == 'node') {
+    drupal_add_js(array('h5pTincanBridge' => array('nid' => arg(1), 'token' => drupal_get_token(), 'relayUrl' => base_path() . H5P_TINCAN_BRIDGE__RELAY_URL)), 'setting');
+    drupal_add_js(drupal_get_path('module', 'h5p_tincan_bridge') . '/h5p_tincan_bridge.js');
+  }
 }
 
 /**
@@ -34,15 +36,13 @@ function h5p_tincan_bridge_menu() {
  * Menu callback for JavaScript event relay.
  */
 function h5p_tincan_bridge_view() {
-  if (isset($_POST['token']) && drupal_get_token() == $_POST['token'] && isset($_POST['statement'])) {
+  if (isset($_POST['token']) && drupal_get_token() == $_POST['token'] && isset($_POST['statement']) && isset($_POST['nid'])) {
 
     global $base_url;
 
     $data = json_decode($_POST['statement'], TRUE);
-    $nid = $data['object']['definition']['extensions']['http://h5p.org/x-api/h5p-local-content-id'];
-
-    //Regularize object id with node syntax
-    $data['object']['id'] = $base_url . '/node/' . $nid;
+    // Regularize object id with node syntax
+    $data['object']['id'] = $base_url . '/node/' . $_POST['nid'];
 
     h5p_tincan_bridge_tincanapi_add_og_context(node_load($nid), $data);
 
