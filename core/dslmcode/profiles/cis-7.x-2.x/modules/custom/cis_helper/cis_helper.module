@@ -149,11 +149,16 @@ function _cis_helper_assemble_roster(&$sections) {
     // as the per the semester dates
     if (isset($section->field_access_dates['und'])) {
       $dates = $section->field_access_dates['und'][0];
+      // convert date stamps to unix time stamps for comparison to now
+      $date = new DateTime($dates['value']);
+      $dates['value'] = $date->getTimestamp();
+      $date = new DateTime($dates['value2']);
+      $dates['value2'] = $date->getTimestamp();
       if ($dates['value'] < REQUEST_TIME && $dates['value2'] > REQUEST_TIME) {
         // build the roster for this section
-        $tmproster = module_invoke_all('cis_helper_build_roster', $section);
+        $tmproster = module_invoke_all('cis_helper_build_roster', $section_id);
         // allow for altering roster pull methods
-        drupal_alter('cis_helper_build_roster', $tmproster, $section);
+        drupal_alter('cis_helper_build_roster', $tmproster, $section_id);
         $roster[$section_id] = $tmproster;
       }
       // test for it being before a section is active / is running
@@ -161,9 +166,9 @@ function _cis_helper_assemble_roster(&$sections) {
       // instructors or teaching assistants come across the API it adds them
       elseif ($dates['value'] > REQUEST_TIME) {
         // build the roster for this section
-        $tmproster = module_invoke_all('cis_helper_build_roster', $section);
+        $tmproster = module_invoke_all('cis_helper_build_roster', $section_id);
         // allow for altering roster pull methods
-        drupal_alter('cis_helper_build_roster', $tmproster, $section);
+        drupal_alter('cis_helper_build_roster', $tmproster, $section_id);
         foreach ($tmproster as $uname => $urole) {
           // don't grant students early access
           if ($urole == 'student') {
@@ -180,9 +185,9 @@ function _cis_helper_assemble_roster(&$sections) {
     }
     else {
       // build the roster for this section
-      $tmproster = module_invoke_all('cis_helper_build_roster', $section);
+      $tmproster = module_invoke_all('cis_helper_build_roster', $section_id);
       // allow for altering roster pull methods
-      drupal_alter('cis_helper_build_roster', $tmproster, $section);
+      drupal_alter('cis_helper_build_roster', $tmproster, $section_id);
       $roster[$section_id] = $tmproster;
     }
   }
