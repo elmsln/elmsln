@@ -936,6 +936,8 @@ function elmsln_api_elmsln_api_info() {
   $callbacks['clear_cache_bin'] = array(
     'methods' => array('GET', 'POST'),
     'file' => 'callbacks/v1/clear_cache_bin.inc',
+    'includes' => array('cache'),
+    'dependencies' => array('system'),
   );
   // remote vset
   $callbacks['vset'] = array(

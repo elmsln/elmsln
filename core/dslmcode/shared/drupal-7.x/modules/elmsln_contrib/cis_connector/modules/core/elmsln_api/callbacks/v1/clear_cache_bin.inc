@@ -10,13 +10,18 @@ function elmsln_api_elmsln_api_callback_clear_cache_bin() {
   if (isset($_elmsln['args']['bin'])) {
     // convert to cache bin name
     $bin = 'cache_' . $_elmsln['args']['bin'];
+    $cid = NULL;
+    if (isset($_elmsln['args']['cid'])) {
+      $cid = $_elmsln['args']['cid'];
+    }
     // make sure the bin exists
     if (db_table_exists($bin)) {
-      $db = db_delete($bin)->execute();
+      cache_clear_all($cid, $bin, TRUE);
       return array(
         'cleared' => TRUE,
         'bin' => $bin,
-        'message' => "$bin cleared successfully",
+        'cid' => $cid,
+        'message' => "$bin:$cid* cleared successfully",
       );
     }
   }
