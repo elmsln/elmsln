@@ -15,11 +15,22 @@ function elmsmedia_h5p_page_build(&$page) {
 }
 
 /**
- * Implements hook_embedded_h5p_alter()
+ * Implements hook_embedded_h5p_alter().
  */
 function elmsmedia_h5p_embedded_h5p_alter(&$node) {
   // append domain partcial if we can for avoiding XSS blocking on same origin root
   if ($domain = _cis_connector_parent_domain()) {
     print '<script>document.domain = "' . $domain . '"</script>';
   }
+}
+
+/**
+ * Implements hook_tincanapi_ajax_data_alter().
+ */
+function elmsmedia_h5p_tincanapi_ajax_data_alter($data, $context) {
+  // @todo add support for...
+  // section context of user
+  // course context of user
+  // page where it was embedded (if applicable)
+  // $data['object']['context'] and stuff values in there
 }
