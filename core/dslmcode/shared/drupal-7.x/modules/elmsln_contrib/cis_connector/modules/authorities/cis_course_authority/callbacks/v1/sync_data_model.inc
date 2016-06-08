@@ -66,7 +66,7 @@ function cis_course_authority_elmsln_api_callback_sync_data_model() {
       }
     }
     // build accounts from the roster
-    if (isset($_elmsln['args']['roster'])) {
+    if (isset($_elmsln['args']['roster']) && module_exists('cis_section')) {
       _cis_section_create_accounts($_elmsln['args']['roster']);
     }
     return array(
