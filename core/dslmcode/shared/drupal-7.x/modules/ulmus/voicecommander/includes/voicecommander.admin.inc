@@ -13,8 +13,14 @@ function voicecommander_settings_form($form, &$form_state) {
     '#type'          => 'textfield',
     '#required'      => TRUE,
     '#default_value' => variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME),
-    '#description'   => t('Enter command prefix. Use command for example: "Drupal home page". Where word "Drupal" is prefix.<br />
-                            <em>It use only for administrator permission</em>.'),
+    '#description'   => t('Enter command prefix. Use command for example: "Drupal home page". Where word "Drupal" is prefix.'),
+  );
+  $form['voicecommander_optional_prefix'] = array(
+    '#title'         => t('Prefix is optional'),
+    '#type'          => 'checkbox',
+    '#required'      => TRUE,
+    '#default_value' => variable_get('voicecommander_optional_prefix', TRUE),
+    '#description'   => t('If enabled, then the prefix won\'t be required for usage. This can allow for a more natural form of conversation.'),
   );
 
   $form['voicecommander_mobile'] = array(

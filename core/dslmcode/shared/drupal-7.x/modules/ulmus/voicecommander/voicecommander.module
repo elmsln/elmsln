@@ -77,7 +77,11 @@ function _voicecommander_apply() {
     }
     foreach ($commandset['commands'] as $key => $command) {
       $tmp = $key;
-      $tmp = str_replace('%phrase', variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME), drupal_strtolower($key));
+      $replacement = variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME);
+      if (variable_get('voicecommander_optional_prefix', TRUE)) {
+        $replacement = '(' . $replacement . ')';
+      }
+      $tmp = str_replace('%phrase', $replacement, drupal_strtolower($key));
       $command['phrase'] = $tmp;
       $commandset['commands'][$tmp] = $command;
       unset($commandset['commands'][$key]);
