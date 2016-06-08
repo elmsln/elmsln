@@ -1,0 +1,50 @@
+diff --git a/js/quiz_ddlines.js b/js/quiz_ddlines.js
+index fe81107..78f238a 100644
+--- a/js/quiz_ddlines.js
++++ b/js/quiz_ddlines.js
+@@ -336,7 +336,7 @@ Drupal.behaviors.quiz_ddlines = {
+         if(engine.isNew()) {
+           engine.addHelpText();
+         }
+-      }, ($.browser.msie ? 1000 : 0));
++      }, (navigator.userAgent.match(/msie/i) ? 1000 : 0));
+     });
+   }
+ };
+@@ -692,7 +692,6 @@ function QuizImage(engine, uri, width, height) {
+     rstart = function () {
+       this.ox = this.attr("x");
+       this.oy = this.attr("y");
+-
+       self.image.ow = self.image.attr("width");
+       self.image.oh = self.image.attr("height");
+     },
+@@ -1619,21 +1618,14 @@ var Glow = {
+     instance: null,
+     glow: function(elem, color) {
+       this.remove();
+-
+       var settings = {};
+-
+       if(elem.type='circle') {
+         settings = {}
+       }
+       else {
+-
+       }
+-
+       this.instance = elem.glow({"color": color, width: 20, fill: true, opacity: 1.0});
+-
+       Engine.r.rect(self.label.attr('x')-4, self.label.attr('y')-4, self.label.attr('width')+8, self.label.attr('height')+8, 5);
+-
+-
+     },
+     remove: function() {
+       this.instance.remove();
+@@ -1644,4 +1636,4 @@ var Glow = {
+     }
+ };*/
+ 
+-}(jQuery));
++}(jQuery));
+\ No newline at end of file
