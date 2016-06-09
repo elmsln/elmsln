@@ -41,6 +41,10 @@ function elmsmedia_h5p_tincanapi_ajax_data_alter(&$data, $context) {
   else {
     $course = _cis_connector_course_context();
   }
+  $title = '';
+  if (isset($context['title'])) {
+    $title = filter_xss($context['title']);
+  }
   $url = '';
   if (isset($context['context'])) {
     $url = filter_xss($context['context']);
@@ -48,6 +52,7 @@ function elmsmedia_h5p_tincanapi_ajax_data_alter(&$data, $context) {
   $data['object']['definition']['extensions'] = array(
     'https://www.elmsln.org/x-api/elmsln-section' => $section,
     'https://www.elmsln.org/x-api/elmsln-course' => $course,
+    'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
     'https://www.elmsln.org/x-api/elmsln-url' => $url,
   );
 }
