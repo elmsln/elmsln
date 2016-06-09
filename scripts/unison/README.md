@@ -23,5 +23,5 @@ $ bash scripts/unison/unison-setup.bash
 ## Run Unison
 
 ```
-$ unison elsmln
+$ unison elmsln
 ```
