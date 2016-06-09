@@ -11,6 +11,9 @@
   Drupal.voicecommander.goTo = function(phrase) {
     window.location.href = Drupal.settings.basePath + Drupal.settings.voiceCommanderVoiceCommands[phrase].data;
   };
+  Drupal.voicecommander.goToELMSLN = function(phrase) {
+    window.location.href = Drupal.settings.voiceCommanderVoiceCommands[phrase].data;
+  };
   // go backward in history
   Drupal.voicecommander.back = function(phrase) {
     window.location.href = window.history.back();

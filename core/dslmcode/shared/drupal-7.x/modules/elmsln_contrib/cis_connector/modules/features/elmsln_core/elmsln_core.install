@@ -55,3 +55,10 @@ function elmsln_core_update_7002(&$sandbox) {
     }
   }
 }
+
+/**
+ * VOICE COMMAND SUPPORT IN CORE!!!
+ */
+function elmsln_core_update_7003(&$sandbox) {
+  module_enable(array('elmsln_voice'));
+}

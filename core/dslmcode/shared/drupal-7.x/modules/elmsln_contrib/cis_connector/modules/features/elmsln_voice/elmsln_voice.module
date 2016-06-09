@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ELMSLN Voice feature.
+ */
+
+include_once 'elmsln_voice.features.inc';
