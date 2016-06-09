@@ -350,6 +350,9 @@ function elmsln_core_voice_command() {
         case 'ecd':
           $distro = t('compliance');
         break;
+        case 'mooc':
+          $distro = t('(course) content (outline)');
+        break;
         case 'eph':
           $distro = t('program hub');
         break;
