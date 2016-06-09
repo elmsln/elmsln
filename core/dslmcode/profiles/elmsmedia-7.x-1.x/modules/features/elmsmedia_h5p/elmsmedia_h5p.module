@@ -27,10 +27,27 @@ function elmsmedia_h5p_embedded_h5p_alter(&$node) {
 /**
  * Implements hook_tincanapi_ajax_data_alter().
  */
-function elmsmedia_h5p_tincanapi_ajax_data_alter($data, $context) {
-  // @todo add support for...
-  // section context of user
-  // course context of user
+function elmsmedia_h5p_tincanapi_ajax_data_alter(&$data, $context) {
   // page where it was embedded (if applicable)
-  // $data['object']['context'] and stuff values in there
+  if (isset($context['section'])) {
+    $section = filter_xss($context['section']);
+  }
+  else {
+    $section = _cis_connector_section_context();
+  }
+  if (isset($context['course'])) {
+    $course = filter_xss($context['course']);
+  }
+  else {
+    $course = _cis_connector_course_context();
+  }
+  $url = '';
+  if (isset($context['context'])) {
+    $url = filter_xss($context['context']);
+  }
+  $data['object']['definition']['extensions'] = array(
+    'https://www.elmsln.org/x-api/elmsln-section' => $section,
+    'https://www.elmsln.org/x-api/elmsln-course' => $course,
+    'https://www.elmsln.org/x-api/elmsln-url' => $url,
+  );
 }
