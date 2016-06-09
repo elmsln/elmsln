@@ -88,3 +88,4 @@ $ gulp
 * [AngularUI Bootstrap](https://github.com/angular-ui/bootstrap), by AngularUI
 * [Slidebars](https://github.com/adchsm/Slidebars), by adchsm
 
+We use http://zavoloklom.github.io/material-design-iconic-font/
