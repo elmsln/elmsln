@@ -147,13 +147,15 @@ function _cis_lmsless_nav_admin_form_elements() {
     '#title' => t('Icon name'),
     '#description' => t('Machine name of the icon you would like to display next to the link. Leave blank for no icon.'),
   );
+  $options = array();
+  $icon_libraries = _elmsln_core_icon_libraries();
+  foreach ($icon_libraries as $name => $library) {
+    $options[$name] = $library['title'];
+  }
   $form['cis_lmsless_nav_links']['icon_library'] = array(
     '#type' => 'select',
     '#title' => t('Icon Library'),
-    '#options' => array(
-      'foundation_access' => 'Foundation Access',
-      'material' => 'Material',
-      ),
+    '#options' => $options,
     '#default_value' => 'foundation_access',
     '#description' => t('The library in which this icon resides.'),
     '#states' => array(

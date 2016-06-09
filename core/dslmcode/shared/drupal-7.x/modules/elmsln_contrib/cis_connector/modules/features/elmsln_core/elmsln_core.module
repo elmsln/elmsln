@@ -271,3 +271,27 @@ function elmsln_core_url_outbound_alter(&$path, &$options, $original_path) {
     }
   }
 }
+
+/**
+ * Return a list of available icon libraries that other modules have defined.
+ * @return [type] [description]
+ */
+function _elmsln_core_icon_libraries() {
+  $icon_libraries = module_invoke_all('icon_library');
+  drupal_alter('icon_library', $icon_libraries);
+  return $icon_libraries;
+}
+
+/**
+ * Implements hook_icon_library().
+ */
+function elmsln_core_icon_library() {
+  return array(
+    'foundation_access' => array(
+      'title' => t('Foundation access'),
+    ),
+    'material' => array(
+      'title' => t('Material'),
+    ),
+  );
+}
