@@ -335,7 +335,7 @@ function elmsln_core_voice_command() {
   $registry = _cis_connector_build_registry();
   foreach ($registry as $distro => $settings) {
     // only allow shouting commands admin links if an admin
-    if (($settings['instance'] && user_access('view lmsless links')) || (!$settings['instance'] && user_access('view lmsless administration links'))) {
+    if (isset($settings['instance']) && (($settings['instance'] && user_access('view lmsless links')) || (!$settings['instance'] && user_access('view lmsless administration links')))) {
       $instance = '/' . _cis_connector_course_context();
       $address = _cis_connector_format_address($settings, $instance, 'front');
       // support for things that we know commonly would make no sense still
