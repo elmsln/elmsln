@@ -1,3 +1,35 @@
+ELMSLN 0.3.1, 2016-06-08 - 4peat
+This sees a lot of improvements around deployments that have lots of courses by implementing a new network call methodology known as snake. This positions us to be able to propagate data across the network and keep it in sync without fear of the system crippling itself while doing so. Users, Courses, Sections (and their associations) will all be kept in sync across authorities and services.
+- Fix weird tincan api h5p bridge module developer hook call #948
+- course context across systems on forms #941
+- document patch to quiz_ddlines #939
+- Using 'Course Title' field across systems #934
+- update to latest version of advagg #924
+- Roll patches for pwa #923
+- Support ubuntu 12 #911
+- Auto grant roles / sync roster on addition of an offering in CIS #907
+- Test php 7 #901
+- Where to put the Quiz module #899
+- Visuals for #500 #897
+- Section sync in authorities #894
+- Batch API / make sure cron doesn't time out when syncing course and section lists #893
+- Ensure @stack.group calls work #891
+- API call directional changes #886
+- Uploading Template Image Throws `Undefined variable:` error in WYSIWYG Templates #885
+- Auto grant roles to instructors and admins on authorities #837
+- increase the number of advagg bundles in elmsln_advagg #836
+- Add simplify #826
+- Test patch from Replicate UI #823
+- Add more tables / clean up templates available #785
+- Method for adding new icon libraries #783
+- Idea - Referencing/Remixing Book Outlines #763
+- Link to Material Design Iconic fonts in #608
+- Allow adding people in CPR that show up everywhere #617
+- People dashboard #550
+- Do the options below the WYSIWYG when editing content actually affect the content? #500
+- Feature request - non time-based section control #234
+
+
 ELMSLN 0.3.0, 2016-05-11 - OV
 ------------------------
 This sees lots of documentation, bug, accessibility, performance and usability enhancements as well as improved functionality in all tools in the network. Notably Piwik, CIS 1.x and all legacy theme components have been removed (lots of cruft).
