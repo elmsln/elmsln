@@ -1,5 +1,7 @@
-ELMSLN 0.3.1, 2016-06-08 - 4peat
+ELMSLN 0.3.1, 2016-06-08 - Pittsburgh
 This sees a lot of improvements around deployments that have lots of courses by implementing a new network call methodology known as snake. This positions us to be able to propagate data across the network and keep it in sync without fear of the system crippling itself while doing so. Users, Courses, Sections (and their associations) will all be kept in sync across authorities and services.
+- Voice command support #684
+- enhanced keyboard and voice support for scroll / other operations #951
 - Fix weird tincan api h5p bridge module developer hook call #948
 - course context across systems on forms #941
 - document patch to quiz_ddlines #939
