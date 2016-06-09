@@ -4,3 +4,4 @@ core = 7.x
 package = MOOC
 dependencies[] = book_cache
 dependencies[] = book
+dependencies[] = elmsln_core

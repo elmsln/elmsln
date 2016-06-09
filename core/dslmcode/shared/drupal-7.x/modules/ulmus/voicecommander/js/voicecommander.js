@@ -21,27 +21,25 @@
   };
   // voice based scrolling capabilities
   Drupal.voicecommander.scroll = function(phrase) {
-    var height = "innerHeight" in window
-           ? window.innerHeight
-           : document.documentElement.offsetHeight;
-  // travel back up the screen
-   if (phrase.indexOf('up') !== -1) {
-    $('html, body').animate({
-        scrollTop: (height-(height*.9))
-     }, 500);
-   }
-   // travel to the top of the screen
-   else if (phrase.indexOf('top') !== -1) {
-    $('html, body').animate({
-        scrollTop: (0)
-     }, 500);
-   }
-   // travel down the screen, one screen height
-   else {
-    $('html, body').animate({
-        scrollTop: (height+(height*.9))
-     }, 500);
-   }
+    // travel back up the screen
+    var height = $(window).height();
+    if (phrase.indexOf('up') !== -1) {
+      $('html, body').animate({
+        scrollTop: ($(window).scrollTop()-(height*0.75))
+      }, 500);
+    }
+    // travel to the top of the screen
+    else if (phrase.indexOf('top') !== -1) {
+      $('html, body').animate({
+          scrollTop: (0)
+      }, 500);
+    }
+    // travel down the screen, one screen height
+    else {
+      $('html, body').animate({
+        scrollTop: ($(window).scrollTop()+(height*.75))
+      }, 500);
+    }
   }
   $(document).ready(function() {
     var config = this.config;

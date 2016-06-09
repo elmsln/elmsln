@@ -305,15 +305,15 @@ function mooc_helper_book_nav_fa_a11y() {
     if (arg(2) == NULL && !empty($node->book)) {
       return array(2 => '<div class="keyboard-short">
         <div class="keyboard-short__group">
-          <label>' . t('Previous Page') . '</label>
+          <label>' . t('Previous page') . '</label>
           <div class="keyboard-short__key">←</div>
         </div>
         <div class="keyboard-short__group">
-          <label>' . t('Next Page') . '</label>
+          <label>' . t('Next page') . '</label>
           <div class="keyboard-short__key">→</div>
         </div>
         <div class="keyboard-short__group">
-          <label>' . t('Open Content Outline') . '</label>
+          <label>' . t('Open content outline') . '</label>
           <div class="keyboard-short__key">o</div>
         </div>
       </div>');
