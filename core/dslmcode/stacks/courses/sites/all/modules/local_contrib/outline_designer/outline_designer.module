@@ -344,24 +344,3 @@ function _outline_designer_get_operations($type, $keep_callbacks = FALSE) {
   }
   return $ops;
 }
-
-
-/**
- * hook_libraries_info().
- */
-function outline_designer_libraries_info() {
-  $libraries['jwerty'] = array(
-    'name' => 'jwerty',
-    'vendor url' => 'https://github.com/keithamus/jwerty/',
-    'download url' => 'https://github.com/keithamus/jwerty/archive/master.zip',
-    'files' => array(
-      'js' => array('jwerty.js'),
-    ),
-    'version arguments' => array(
-      'file' => 'jwerty.js',
-      'pattern' => '/version: "([0-9]+\.[0-9]+)";/',
-      'lines' => 21,
-    ),
-  );
-  return $libraries;
-}

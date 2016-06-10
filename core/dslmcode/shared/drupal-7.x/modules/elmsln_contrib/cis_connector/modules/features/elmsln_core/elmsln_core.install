@@ -62,3 +62,10 @@ function elmsln_core_update_7002(&$sandbox) {
 function elmsln_core_update_7003(&$sandbox) {
   module_enable(array('elmsln_voice'));
 }
+
+/**
+ * Keyboard command support in core!
+ */
+function elmsln_core_update_7004(&$sandbox) {
+  module_enable(array('jwerty'));
+}

@@ -29,6 +29,7 @@ dependencies[] = node
 dependencies[] = strongarm
 dependencies[] = system
 dependencies[] = elmsln_voice
+dependencies[] = jwerty
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[user_permission][] = access admin theme
