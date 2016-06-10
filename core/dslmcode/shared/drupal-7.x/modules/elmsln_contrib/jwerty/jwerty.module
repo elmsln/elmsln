@@ -14,7 +14,7 @@ function jwerty_page_build(&$page) {
   $lib = jwerty_get_library();
   if ($lib) {
     // add library to all pages if it exists
-    drupal_add_js($lib);
+    drupal_add_js($lib, array('weight' => -100));
   }
 }
 
