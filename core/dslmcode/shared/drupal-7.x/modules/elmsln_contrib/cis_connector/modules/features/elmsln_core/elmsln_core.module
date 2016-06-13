@@ -393,6 +393,12 @@ function elmsln_core_voice_command() {
       );
     }
   }
+  $commands["%phrase play (video)"] =  array(
+    'callback' => 'Drupal.voicecommander.controlVideo',
+  );
+  $commands["%phrase pause (video)"] =  array(
+    'callback' => 'Drupal.voicecommander.controlVideo',
+  );
   return array(
     'elmsln_core' => array('commands' => $commands)
   );
