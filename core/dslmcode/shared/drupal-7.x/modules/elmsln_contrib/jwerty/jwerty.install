@@ -12,6 +12,8 @@ function jwerty_requirements($phase) {
   $requirements = array();
   $requirements['jwerty'] = array(
     'title' => 'jwerty.js library',
+    'value' => 'JWERTY installed',
+    'severity' => REQUIREMENT_OK,
   );
   switch ($phase) {
     case 'install':
