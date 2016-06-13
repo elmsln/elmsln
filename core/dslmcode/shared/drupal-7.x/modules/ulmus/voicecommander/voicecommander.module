@@ -52,11 +52,11 @@ function voicecommander_page_build(&$page) {
  * Apply voice commander to the current page.
  */
 function _voicecommander_apply() {
-  $library = libraries_load(VOICECOMMANDER_ANNYANG_PLUGIN_NAME);
-
+  // check that annyang is in here
+  $libraries = libraries_get_libraries();
   // Check whether the files were loaded Annyang plugin.
-  if ($library['loaded'] === 1) {
-    libraries_load(VOICECOMMANDER_ANNYANG_PLUGIN_NAME);
+  if (isset($libraries['annyang'])) {
+    drupal_add_js($libraries['annyang'] . '/annyang.min.js', array('weight' => -100));
   }
   else {
     drupal_set_message(t('VoiceCommander: plugin "Annyang" or file "annyang.min.js" is not exist in libraries folder. Run "drush vc" in Drush CLI or <a target="_blank" href="@path">download</a> and install it manual to /sites/default/libraries', array('@path' => VOICECOMMANDER_ANNYANG_PLUGIN_URL)), 'error');
