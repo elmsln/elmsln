@@ -91,16 +91,19 @@ function _voicecommander_apply() {
   // Add to Drupal.settings
   drupal_add_js(
     array(
-      'voiceCommanderVoiceCommands'      => $commands,
-      'voiceCommanderSettingsDataPrefix' => variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME),
-      'voiceCommanderSettingsMobile'     => variable_get('voicecommander_mobile', 1),
-      'startCallback'                    => t('Please speak'),
-      'waitCallback'                     => t('Wait ...'),
-      'errorCallback'                    => t('Wrong or unset command. Please repeat.'),
-      'errorNetworkCallback'             => t('Network Error. Try later.'),
-      'permissionBlockedCallback'        => t('Permission Blocked. Check another process for using voice recognition'),
-      'permissionDeniedCallback'         => t('Permission Denied'),
-      'secureToken'                      => drupal_get_token(),
+      'voiceCommander' => array(
+        'commands'      => $commands,
+        'prefix' => variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME),
+        'mobile'                      => variable_get('voicecommander_mobile', 1),
+        'startCallback'               => t('Please speak'),
+        'waitCallback'                => t('Wait ...'),
+        'errorCallback'               => t('Wrong or unset command. Please repeat.'),
+        'errorNetworkCallback'        => t('Network Error. Try later.'),
+        'permissionBlockedCallback'   => t('Permission Blocked. Check another process for using voice recognition'),
+        'permissionDeniedCallback'    => t('Permission Denied'),
+        'secureToken'                 => drupal_get_token(),
+        'continuous'                  => (variable_get('voicecommander_continuous', FALSE) && user_access('access voice commander settings')),
+      )
     ),
     'setting');
 }
