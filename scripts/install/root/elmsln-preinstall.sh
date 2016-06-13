@@ -409,6 +409,11 @@ if [[ $HOME != '/home/travis' ]]; then
   echo '# ELMSLN users dont need tty' >> /etc/sudoers
   echo 'Defaults:ulmus    !requiretty' >> /etc/sudoers
 fi
+
+# install google API so we can tap into it as needed
+cd /var/www/elmsln/core/dslmcode/shared/drupal-7.x/libraries/google-api-php-client/
+php /usr/local/bin/composer install
+
 # systems restart differently
 if [[ $os == '1' ]]; then
   /etc/init.d/httpd restart
