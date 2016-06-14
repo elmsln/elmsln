@@ -45,7 +45,15 @@ function elmsln_cdn_js_alter(&$javascript) {
       $library = libraries_detect("$name");
       $version = $library['version'];
       if (!empty($library) && !empty($version)) {
-        \Drupal\libraries_cdn\LibrariesCDN::setPlugin('jsdelivr', $name);
+        if (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR'){
+          \Drupal\libraries_cdn\LibrariesCDN::setPlugin('jsdelivr', $name);
+        }
+        elseif (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
+          \Drupal\libraries_cdn\LibrariesCDN::setPlugin('cdnjs', $name);
+        }
+        else{
+          //use local logic...
+        }
         $cdn_version_arr = \Drupal\libraries_cdn\LibrariesCDN::getFiles();
         if(array_key_exists($version, $cdn_version_arr)) {
           $files = $cdn_version_arr[$version];
