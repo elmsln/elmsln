@@ -155,7 +155,9 @@ function elmsln_core_page_build(&$page) {
   drupal_add_library('system', 'jquery.cookie');
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/field-focus.js');
   // jwerty keyboard support
-  drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-jwerty.js');
+  if (arg(2) != 'edit') {
+    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-jwerty.js');
+  }
   // get the configuration so we can set domain from here to enable
   // secure and policy compliant access to sub-domain cookies on
   // the client side. This clears up MULTIPLE issues at once and is
