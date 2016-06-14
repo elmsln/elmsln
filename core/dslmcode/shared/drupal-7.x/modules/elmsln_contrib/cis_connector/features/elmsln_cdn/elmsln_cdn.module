@@ -26,7 +26,7 @@
  * Implements hook_module_implements_alter().
  */
 function elmsln_cdn_module_implements_alter(&$implementations, $hook) {
-  if ($hook == 'rdf_mapping') {
+  if ($hook == 'js_alter') {
     $group = $implementations['elmsln_cdn'];
     unset($implementations['elmsln_cdn']);
     $implementations['elmsln_cdn'] = $group;
