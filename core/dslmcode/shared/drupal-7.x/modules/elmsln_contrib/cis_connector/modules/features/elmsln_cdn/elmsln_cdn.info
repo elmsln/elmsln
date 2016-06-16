@@ -4,6 +4,7 @@ core = 7.x
 package = ELMSLN Core
 configure = admin/config/development/elmsln_cdn
 dependencies[] = cdn
+dependencies[] = defaultconfig
 features[defaultconfig][] = strongarm:cdn_https_support
 features[defaultconfig][] = strongarm:cdn_mode
 features[defaultconfig][] = strongarm:cdn_status
