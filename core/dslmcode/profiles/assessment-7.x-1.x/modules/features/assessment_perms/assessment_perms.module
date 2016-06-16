@@ -42,28 +42,55 @@ function elmsln_cdn_js_alter(&$javascript) {
       $path_end = explode('sites/all/libraries/', $path)[1];
       $arr = explode("/", $path_end, 2);
       $name = $arr[0];
+      dpm($name);
       $library = libraries_detect("$name");
+      dpm($library);
+      if (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
+        $json = file_get_contents('http://api.cdnjs.com/libraries?search=' . $name);
+        $data = json_decode($json, true);
+        //
+        // NOTE: This gets the first result if there are multiple results. 
+        // There could be some error if these don't match. Use strnatcasecmp() to test comparisons.
+        //
+        $name = $data['results'][0]['name']; 
+      }
       $version = $library['version'];
       if (!empty($library) && !empty($version)) {
-        if (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR'){
-          \Drupal\libraries_cdn\LibrariesCDN::setPlugin('jsdelivr', $name);
-        }
-        elseif (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
-          \Drupal\libraries_cdn\LibrariesCDN::setPlugin('cdnjs', $name);
-        }
-        else{
-          //use local logic...
-        }
-        $cdn_version_arr = \Drupal\libraries_cdn\LibrariesCDN::getFiles();
-        if(array_key_exists($version, $cdn_version_arr)) {
-          $files = $cdn_version_arr[$version];
-          dpm("Found a File Version Match");
-          foreach ($files as $index => $value) {
-            $javascript[$path]['data'] = strval($files[$index]);
-            $javascript[$name]['type'] = 'external';
+        $cdn_version_arr_elements = getVersions($name);
+        if (!empty($cdn_version_arr_elements)) {
+          foreach ($cdn_version_arr_elements as $element => $value) {
+            if(strpos($version, $cdn_version_arr_elements[$element]['version']) !== FALSE) {
+              $files = $cdn_version_arr_elements[$element]['files'];
+              dpm("Found a File Version Match");
+              foreach ($files as $index => $value) {
+                $javascript[$path]['data'] = 'http://cdnjs.cloudflare.com/ajax/libs/'. $name .'/' . $version .'/' . $files[$index]; //strval($files[$index]);
+                $javascript[$name]['type'] = 'external';
+                dpm($javascript[$path]['data']);
+              }
+            }
           }
         }
       }
     }
   }
+}
+
+function getVersions($name) {
+  $versions = array();
+  $files = array();
+  if (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR'){
+    $json = file_get_contents('http://api.jsdelivr.com/v1/jsdelivr/libraries?name='. $name .'&fields=assets');
+    $files = json_decode($json, true);
+    $versions = $files['assets'];  
+  }
+  elseif (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
+    $json = file_get_contents('http://api.cdnjs.com/libraries/'. $name);
+    $files = json_decode($json, true);
+    $versions = $files['assets'];
+  }
+  else {
+    // return blank array === no CDN Selected
+  }
+  
+  return $versions;
 }
