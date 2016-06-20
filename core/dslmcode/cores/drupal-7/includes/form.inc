@@ -127,19 +127,7 @@ function drupal_get_form($form_id) {
   array_shift($args);
   $form_state['build_info']['args'] = $args;
 
-  $form = drupal_build_form($form_id, $form_state);
-
-  if (function_exists('render_boost_settings')) {
-    $config = render_boost_settings();
-
-    if ($config['enable']) {
-      $form_unique_id = render_boost_form_storage($form_id, $form);
-
-      return array('#markup' => "<!-- render_boost_form:$form_id:$form_unique_id -->");
-    }
-  }
-
-  return $form;
+  return drupal_build_form($form_id, $form_state);
 }
 
 /**
