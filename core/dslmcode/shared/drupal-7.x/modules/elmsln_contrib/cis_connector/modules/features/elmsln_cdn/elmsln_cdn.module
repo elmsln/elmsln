@@ -47,7 +47,7 @@ function elmsln_cdn_js_alter(&$javascript) {
         $json = file_get_contents('http://api.cdnjs.com/libraries?search=' . $name);
         $data = json_decode($json, true);
         //
-        // NOTE: This gets the first result if there are multiple results.
+        // NOTE: This gets the first result if there are multiple results. 
         // There could be some error if these don't match. Use strnatcasecmp() to test comparisons.
         //
         $name = $data['results'][0]['name']; 
@@ -55,7 +55,7 @@ function elmsln_cdn_js_alter(&$javascript) {
       elseif (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR') {
         //
         // NOTE: If we can find another way to get the $name out of JSDelivr so that we can get
-        // results from a search query that returns more than one library. (i.e. placeholder should be
+        // results from a search query that returns more than one library. (i.e. placeholder should be 
         // jquery-placeholder)
         //
       }
@@ -109,6 +109,6 @@ function getVersions($name) {
   else {
     // return blank array === no CDN Selected
   }
-
+  
   return $versions;
 }
