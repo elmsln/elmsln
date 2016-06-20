@@ -5862,6 +5862,13 @@ function drupal_render_page($page) {
     $page['content']['system_main'] = drupal_set_page_content();
   }
 
+  if (function_exists('render_boost_settings')) {
+    $config = render_boost_settings();
+    if ($config['enable']) {
+      return render_boost_original_render($page);
+    }
+  }
+
   return drupal_render($page);
 }
 
@@ -5951,6 +5958,14 @@ function drupal_render(&$elements) {
   // Do not print elements twice.
   if (!empty($elements['#printed'])) {
     return '';
+  }
+
+  if (function_exists('render_boost_settings')) {
+    $config = render_boost_settings();
+
+    if ($config['enable']) {
+      return render_boost_drupal_render($elements);
+    }
   }
 
   // Try to fetch the element's markup from cache and return.
