@@ -39,44 +39,7 @@
                 <?php endif; ?>
                 </li>
                 <?php endif; ?>
-
-                  <md-button class="md-icon-button r-header__icon" href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>">
-                  <a href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>" class="r-header__icon">
-                    <i class="zmdi zmdi-edit"></i>
-                  </a>
-                </li>
-
-                <!-- Outline -->
-                <li class="r-header__edit-icons__list-item">
-                  <md-menu md-position-mode="target-right target">
-                    <md-button aria-label="Course outline options menu" class="md-icon-button r-header__icon" ng-click="ctrl.openMenu($mdOpenMenu, $event)">
-                     <i class="zmdi zmdi-collection-text"></i>
-                    </md-button>
-                   <md-menu-content width="4">
-                     <md-menu-item>
-                       <md-button href="#">Add child page</md-button>
-                     </md-menu-item>
-                     <md-menu-item>
-                       <md-button href="#">Edit child outline</md-button>
-                     </md-menu-item>
-                     <md-menu-item>
-                       <md-button href="#">Edit course outline</md-button>
-                     </md-menu-item>
-                     <md-menu-item>
-                       <md-button href="#">Duplicate outline</md-button>
-                     </md-menu-item>
-                    </md-menu-content>
-                   </md-menu>
-                </li>
-                <!-- end Edit Icon -->
-
 <!--
-                  <md-button class="md-icon-button r-header__icon" href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>">
-                  <a href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>" class="r-header__icon">
-                    <i class="zmdi zmdi-edit"></i>
-                  </a>
-                </li>
-
                 <li class="r-header__edit-icons__list-item">
                   <md-menu md-position-mode="target-right target">
                     <md-button aria-label="Course outline options menu" class="md-icon-button r-header__icon" ng-click="ctrl.openMenu($mdOpenMenu, $event)">
