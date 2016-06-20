@@ -51,6 +51,31 @@ define('APDQC_TABLE_INDEXES', FALSE);
  */
 define('APDQC_INSTALL_IGNORE_MYSQL_VERSION', FALSE);
 
+/**
+ * Set to TRUE to prefetch all views unpack cached items.
+ */
+define('APDQC_PREFETCH_VIEWS_UNPACK', FALSE);
+
+/**
+ * TRUE if APDQC altered the cache table engine to be innodb.
+ */
+define('APDQC_INNODB', FALSE);
+
+/**
+ * OFF if APDQC checked and innodb_file_per_table was off at that time.
+ */
+define('APDQC_INNODB_FILE_PER_TABLE', FALSE);
+
+/**
+ * TRUE if APDQC altered the sessions table schema.
+ */
+define('APDQC_SESSIONS_SCHEMA', FALSE);
+
+/**
+ * TRUE if APDQC altered the semaphore table schema.
+ */
+define('APDQC_SEMAPHORE_SCHEMA', FALSE);
+
 
 /**
  * Implements hook_menu().
@@ -93,6 +118,89 @@ function apdqc_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_modules_installed().
+ */
+function apdqc_modules_installed($modules) {
+
+  $collation = variable_get('apdqc_table_collations', APDQC_TABLE_COLLATIONS);
+  $innodb = variable_get('apdqc_innodb', APDQC_INNODB);
+  $table_indexes = variable_get('apdqc_table_indexes', APDQC_TABLE_INDEXES);
+  $sessions_schema = variable_get('apdqc_sessions_schema', APDQC_SESSIONS_SCHEMA);
+  if (empty($collation) && !empty($innodb) && !empty($table_indexes)) {
+    // Cache tables have not been altered.
+    return;
+  }
+  if ($collation === TRUE) {
+    $collation = 'utf8_bin';
+  }
+  $ascii = array(
+    'binary' => TRUE,
+    'collation' => 'ascii_bin',
+    'charset' => 'ascii',
+    'mysql_character_set' => 'ascii',
+  );
+
+  // Ensure we have the admin functions.
+  module_load_include('admin.inc', 'apdqc');
+
+  // Check for cache tables in the recently enabled modules.
+  foreach ($modules as $module) {
+    $schema = drupal_get_schema_unprocessed($module);
+    if (empty($schema)) {
+      continue;
+    }
+    _drupal_schema_initialize($schema, $module, FALSE);
+    foreach ($schema as $table_name => &$values) {
+      if ($sessions_schema) {
+        $changed = FALSE;
+        foreach ($values['fields'] as $column => &$attributes) {
+          // Convert other session schemas to match the new session schema.
+          if (($column === 'sid' || $column === 'ssid') && !empty($attributes['length']) && $attributes['length'] >= 43 && stripos($attributes['type'], 'char') !== FALSE) {
+            $attributes['length'] = 43;
+            $attributes['type'] = 'char';
+            $attributes += $ascii;
+            $changed = TRUE;
+          }
+        }
+        if ($changed) {
+          apdqc_admin_sessions_table_duplicates(TRUE, FALSE, array($table_name => $values));
+        }
+      }
+
+      if (strpos($table_name, 'cache') !== 0) {
+        // Remove if not a cache* table.
+        unset($schema[$table_name]);
+        continue;
+      }
+      if (empty($schema[$table_name]['fields']['cid'])) {
+        // Remove if no cid field.
+        unset($schema[$table_name]);
+        continue;
+      }
+    }
+    if (empty($schema)) {
+      // Skip if this module doesn't have any cache tables.
+      continue;
+    }
+    $schema_keys = array_keys($schema);
+
+    if (!empty($innodb)) {
+      apdqc_admin_change_table_engine(TRUE, $schema_keys);
+    }
+    if (!empty($collation)) {
+      apdqc_admin_change_table_collation(TRUE, $collation, $schema);
+    }
+    if (!empty($table_indexes)) {
+      // Drop the expire index; use expire_created.
+      $before = array('expire');
+      $after = array('expire', 'created');
+      apdqc_convert_cache_index($before, $after, $schema_keys);
+    }
+  }
+
 }
 
 /**
@@ -248,29 +356,92 @@ function _apdqc_dblog_watchdog(array $log_entry) {
  * Implements hook_schema_alter().
  */
 function apdqc_schema_alter(&$schema) {
-  foreach ($schema as $table_name => $values) {
+  $collation = variable_get('apdqc_table_collations', APDQC_TABLE_COLLATIONS);
+  $table_indexes = variable_get('apdqc_table_indexes', APDQC_TABLE_INDEXES);
+
+  $ascii = array(
+    'binary' => TRUE,
+    'collation' => 'ascii_bin',
+    'charset' => 'ascii',
+    'mysql_character_set' => 'ascii',
+  );
+  $utf8 = array(
+    'binary' => TRUE,
+    'collation' => 'utf8_bin',
+    'charset' => 'utf8',
+    'mysql_character_set' => 'utf8',
+  );
+
+  foreach ($schema as $table_name => &$values) {
     if (strpos($table_name, 'semaphore') === 0) {
-      $schema[$table_name]['primary key'][] = 'value';
+      $schema[$table_name]['primary key'] = array('name', 'value', 'expire');
+      $schema[$table_name]['fields']['name'] += $ascii;
+
+      if (function_exists('apdqc_lock_base85_encode')) {
+        // Length of _apdqc_lock_id() is always 20 or less.
+        $schema[$table_name]['fields']['value']['length'] = 20;
+      }
+      else {
+        // Length of _lock_id() is always 33 or less.
+        $schema[$table_name]['fields']['value']['length'] = 33;
+      }
+      $schema[$table_name]['fields']['value'] += $ascii;
       continue;
+    }
+    if (strpos($table_name, 'session') === 0) {
+      // Length of drupal_random_key() is always 43.
+      $schema[$table_name]['fields']['sid']['length'] = 43;
+      $schema[$table_name]['fields']['sid']['type'] = 'char';
+      $schema[$table_name]['fields']['sid'] += $ascii;
+      $schema[$table_name]['fields']['ssid']['length'] = 43;
+      $schema[$table_name]['fields']['ssid']['type'] = 'char';
+      $schema[$table_name]['fields']['ssid'] += $ascii;
+      // Max length of IPv6 tunneled is 45.
+      $schema[$table_name]['fields']['hostname']['length'] = 45;
+      $schema[$table_name]['fields']['hostname'] += $ascii;
+      continue;
+    }
+    foreach ($values['fields'] as $column => &$attributes) {
+      // Convert other session schemas to match the new session schema.
+      if (($column === 'sid' || $column === 'ssid') && !empty($attributes['length']) && $attributes['length'] >= 43 && stripos($attributes['type'], 'char') !== FALSE) {
+        $attributes['length'] = 43;
+        $attributes['type'] = 'char';
+        $attributes += $ascii;
+      }
     }
 
     if (strpos($table_name, 'cache') !== 0) {
       // Skip if not a cache table.
       continue;
     }
-    if (!empty($schema[$table_name]['fields']['cid'])) {
-      // Force db collation to be utf8_bin for the cid of cache tables.
-      $schema[$table_name]['fields']['cid']['binary'] = TRUE;
+    if (empty($schema[$table_name]['fields']['cid'])) {
+      // Skip if not a cache table.
+      continue;
     }
-    if (!empty($schema[$table_name]['indexes']['expire'])) {
-      // Create a expire_created index.
-      $schema[$table_name]['indexes']['expire_created'] = array('expire', 'created');
-      unset($schema[$table_name]['indexes']['expire']);
+
+    if (!empty($collation)) {
+      if (!empty($schema[$table_name]['fields']['cid'])) {
+        // Force db collation to be *_bin for the cid of cache tables.
+        $schema[$table_name]['fields']['cid']['binary'] = TRUE;
+        if ($collation === 'ascii_bin') {
+          $schema[$table_name]['fields']['cid'] += $ascii;
+        }
+        else {
+          $schema[$table_name]['fields']['cid'] += $utf8;
+        }
+      }
+    }
+    if (!empty($table_indexes)) {
+      if (!empty($schema[$table_name]['indexes']['expire'])) {
+        // Create a expire_created index.
+        $schema[$table_name]['indexes']['expire_created'] = array('expire', 'created');
+        unset($schema[$table_name]['indexes']['expire']);
+      }
     }
 
     // Add cache*__truncated_table to the schema.
     if (strpos(strrev($table_name), strrev('__truncated_table')) !== 0 && db_table_exists($table_name . '__truncated_table')) {
-      $schema[$table_name . '__truncated_table'] = $values;
+      $schema[$table_name . '__truncated_table'] = $schema[$table_name];
     }
   }
 }
@@ -317,6 +488,7 @@ function apdqc_apdqc_install_check_boot_exit_hooks_alter(&$hook_boot, &$hook_exi
     'botcha',
     'logintoboggan',
     'moopapi',
+    'variable',
   );
   $exit_whitelist = array(
     'image_effects_text',
@@ -405,33 +577,53 @@ class ApdqcPrefetchDrupalDefaultEntityController {
    */
   public function __call($name, array $arguments) {
     if ($name == 'load' && function_exists('apdqc_run_prefetch_array') && function_exists('apdqc_escape_string')) {
-      // Use the advanced drupal_static() pattern, since this is called very
-      // often.
-      static $drupal_static_fast;
-      if (!isset($drupal_static_fast)) {
-        $drupal_static_fast['cache_field'] = &drupal_static('apdqc_cache_prefetch_ids');
-      }
-      $table_keys_cache_prefetch = array();
-      if (!empty($arguments[0])) {
-        foreach ($arguments[0] as $id) {
-          if (is_string($id)) {
-            $string = apdqc_escape_string('field:' . $this->originalEntityType . ':' . $id);
-            if (!isset($drupal_static_fast['cache_field'][$string])) {
-              $drupal_static_fast['cache_field'][$string] = TRUE;
-              $table_keys_cache_prefetch['cache_field'][] = $string;
+      if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+        // Use the advanced drupal_static() pattern, since this is called very
+        // often.
+        static $drupal_static_fast;
+        if (!isset($drupal_static_fast)) {
+          $drupal_static_fast['cache_field'] = &drupal_static('apdqc_cache_prefetch_ids');
+        }
+        $table_keys_cache_prefetch = array();
+        if (!empty($arguments[0])) {
+          foreach ($arguments[0] as $id) {
+            if (is_string($id) || is_numeric($id)) {
+              $string = apdqc_escape_string('field:' . $this->originalEntityType . ':' . $id);
+              if (!isset($drupal_static_fast['cache_field'][$string])) {
+                $drupal_static_fast['cache_field'][$string] = TRUE;
+                $table_keys_cache_prefetch['cache_field'][] = $string;
+              }
             }
           }
         }
-      }
 
-      // Prefetch cache.
-      if (!empty($table_keys_cache_prefetch)) {
-        apdqc_run_prefetch_array($table_keys_cache_prefetch);
+        // Prefetch cache.
+        if (!empty($table_keys_cache_prefetch)) {
+          apdqc_run_prefetch_array($table_keys_cache_prefetch);
+        }
       }
     }
-    return call_user_func_array(array($this->originalBaseClass, $name), $arguments);
+    $return = call_user_func_array(array($this->originalBaseClass, $name), $arguments);
+    return $return;
   }
 
+}
+
+/**
+ * Implements hook_panelizer_defaults_alter().
+ */
+function apdqc_panelizer_defaults_alter($items) {
+  if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
+    return;
+  }
+
+  $table_keys_cache_prefetch = array();
+  if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+    foreach ($items as $values) {
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:{$values->panelizer_type}:{$values->panelizer_key}";
+    }
+  }
+  apdqc_run_prefetch_array($table_keys_cache_prefetch);
 }
 
 /**
@@ -443,21 +635,119 @@ function apdqc_menu_get_item_alter($router_item, $path, $original_map) {
   }
 
   static $run_once;
-  if ($path === current_path()) {
-    if (!isset($run_once)) {
-      $run_once = TRUE;
-
-      if ($router_item['page_callback'] === 'views_page' || $router_item['access_callback'] === 'views_access') {
+  if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+    if ($router_item['page_callback'] === 'views_page' || $router_item['access_callback'] === 'views_access') {
+      if (!isset($run_once['views'])) {
+        $run_once['views'] = TRUE;
         $table_keys_cache_prefetch = apdqc_views_get_unpack_options();
-        $args = unserialize($router_item['page_arguments']);
-        $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:' . apdqc_escape_string($args[0]);
       }
-      // Prefetch cache.
-      if (!empty($table_keys_cache_prefetch)) {
-        apdqc_run_prefetch_array($table_keys_cache_prefetch);
+      $args = unserialize($router_item['page_arguments']);
+      $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:' . apdqc_escape_string($args[0]);
+      if ($args[0] === 'project_issue_project_searchapi') {
+        $lang_shorthand = apdqc_get_lang();
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:search_api_index_project_issues:' . $lang_shorthand;
+        if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+          $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:node:project_module';
+        }
+      }
+      if ($args[0] === 'project_issue_search_project_searchapi') {
+        $lang_shorthand = apdqc_get_lang();
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:search_api_index_project_issues:' . $lang_shorthand;
       }
     }
   }
+  if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+    if ($router_item['page_callback'] === 'theme') {
+      $args = unserialize($router_item['page_arguments']);
+      if ($args[0] === 'drupalorg_download') {
+        $table_keys_cache_prefetch = apdqc_views_get_unpack_options();
+        $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:project_index';
+        if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+          $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:node:project_module';
+        }
+      }
+    }
+  }
+  if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+    if ($router_item['page_callback'] === 'project_issue_node_add') {
+      $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:node:project_issue';
+      $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle_extra:node:project_issue';
+      $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:comment:comment_node_project_issue';
+      $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle_extra:comment:comment_node_project_issue';
+    }
+  }
+  // Prefetch cache.
+  if (!empty($table_keys_cache_prefetch)) {
+    apdqc_run_prefetch_array($table_keys_cache_prefetch);
+  }
+}
+
+/**
+ * Implements hook_views_pre_view().
+ */
+function apdqc_views_pre_view($view) {
+  if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
+    return;
+  }
+
+  static $lang_shorthand;
+  if (!isset($lang_shorthand)) {
+    $lang_shorthand = apdqc_get_lang();
+  }
+
+  $table_keys_cache_prefetch = array();
+  if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+    if (!empty($view->relationship)) {
+      foreach ($view->relationship as $values) {
+        if (!empty($values->table)) {
+          $table_keys_cache_prefetch['cache_views'][] = "views_data:{$values->table}:$lang_shorthand";
+        }
+      }
+    }
+
+    if (!empty($view->filter)) {
+      foreach ($view->filter as $values) {
+        if (!empty($values->table)) {
+          $table_keys_cache_prefetch['cache_views'][] = "views_data:{$values->table}:$lang_shorthand";
+        }
+      }
+    }
+
+    if (!empty($view->display_handler->display->display_options['relationships'])) {
+      foreach ($view->display_handler->display->display_options['relationships'] as $values) {
+        if (!empty($values['table'])) {
+          $table_keys_cache_prefetch['cache_views'][] = "views_data:{$values['table']}:$lang_shorthand";
+        }
+      }
+    }
+
+    if (!empty($view->display_handler->default_display->options['relationships'])) {
+      foreach ($view->display_handler->default_display->options['relationships'] as $values) {
+        if (!empty($values['table'])) {
+          $table_keys_cache_prefetch['cache_views'][] = "views_data:{$values['table']}:$lang_shorthand";
+        }
+      }
+    }
+
+    if (!empty($view->display_handler->options['filters'])) {
+      foreach ($view->display_handler->options['filters'] as $values) {
+        if (!empty($values['table'])) {
+          $table_keys_cache_prefetch['cache_views'][] = "views_data:{$values['table']}:$lang_shorthand";
+        }
+      }
+    }
+
+    if (!empty($view->display['default']->display_options['filters'])) {
+      foreach ($view->display['default']->display_options['filters'] as $values) {
+        if (!empty($values['table'])) {
+          $table_keys_cache_prefetch['cache_views'][] = "views_data:{$values['table']}:$lang_shorthand";
+        }
+      }
+    }
+  }
+
+  // Prefetch cache.
+  apdqc_run_prefetch_array($table_keys_cache_prefetch);
 }
 
 /**
@@ -473,34 +763,65 @@ function apdqc_views_pre_build($view) {
   if (!isset($lang_shorthand)) {
     $lang_shorthand = apdqc_get_lang();
   }
-
   $table_keys_cache_prefetch = array();
+
+  if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+    $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:' . $view->name;
+  }
+
   foreach ($view->display as $values) {
     // Get field data.
-    foreach ($values->handler->options['fields'] as $field_name => $info) {
-      if (strpos($field_name, 'field_') === 0) {
-        if (empty($run_once['field_data_' . $field_name])) {
-          $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_' . apdqc_escape_string($field_name) . ':' . $lang_shorthand;
-          $run_once['field_data_' . $field_name] = TRUE;
+    if (!empty($values->handler->options['fields'])) {
+      foreach ($values->handler->options['fields'] as $field_name => $info) {
+
+        if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+          if (strpos($field_name, 'field_') === 0) {
+            if (empty($run_once['field_data_' . $field_name])) {
+              $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_' . apdqc_escape_string($field_name) . ':' . $lang_shorthand;
+              $run_once['field_data_' . $field_name] = TRUE;
+            }
+          }
+        }
+        if (apdqc_get_bin_class_name('cache') === 'APDQCache') {
+          // One off for VBO.
+          if ($field_name == 'views_bulk_operations' && empty($run_once['ctools_plugin_files:views_bulk_operations:operation_types'])) {
+            $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:views_bulk_operations:operation_types';
+            $run_once['ctools_plugin_files:views_bulk_operations:operation_types'] = TRUE;
+          }
         }
       }
-      // One off for VBO.
-      if ($field_name == 'views_bulk_operations' && empty($run_once['ctools_plugin_files:views_bulk_operations:operation_types'])) {
-        $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:views_bulk_operations:operation_types';
-        $run_once['ctools_plugin_files:views_bulk_operations:operation_types'] = TRUE;
-      }
     }
-    // Get table data.
-    foreach ($values->handler->options['filters'] as $info) {
-      if (empty($run_once[$info['table']])) {
-        $table_keys_cache_prefetch['cache_views'][] = 'views_data:' . apdqc_escape_string($info['table']) . ':' . $lang_shorthand;
-        $run_once[$info['table']] = TRUE;
+    if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+      // Get table data.
+      if (!empty($values->handler->options['filters'])) {
+        foreach ($values->handler->options['filters'] as $info) {
+          if (empty($run_once[$info['table']])) {
+            $table_keys_cache_prefetch['cache_views'][] = 'views_data:' . apdqc_escape_string($info['table']) . ':' . $lang_shorthand;
+            $run_once[$info['table']] = TRUE;
+          }
+        }
       }
     }
   }
-  if (empty($run_once[$view->name])) {
-    $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:' . apdqc_escape_string($view->name);
-    $run_once[$view->name] = TRUE;
+  if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+    if (!empty($view->display_handler->handlers['field'])) {
+      foreach ($view->display_handler->handlers['field'] as $values) {
+        if (isset($values->field_info['bundles'])) {
+          foreach ($values->field_info['bundles'] as $entity_name => $entity_types) {
+            foreach ($entity_types as $entity_type) {
+              $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:$entity_name:$entity_type";
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+    if (empty($run_once[$view->name])) {
+      $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:' . apdqc_escape_string($view->name);
+      $run_once[$view->name] = TRUE;
+    }
   }
   // Prefetch cache.
   apdqc_run_prefetch_array($table_keys_cache_prefetch);
@@ -511,6 +832,9 @@ function apdqc_views_pre_build($view) {
  */
 function apdqc_views_post_execute($view) {
   if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
+    return;
+  }
+  if (apdqc_get_bin_class_name('cache_field') !== 'APDQCache') {
     return;
   }
 
@@ -542,6 +866,9 @@ function apdqc_views_pre_render($view) {
   if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
     return;
   }
+  if (apdqc_get_bin_class_name('cache_field') !== 'APDQCache') {
+    return;
+  }
 
   $table_keys_cache_prefetch = array();
   if (isset($view->style_plugin->row_plugin->nodes)) {
@@ -568,17 +895,29 @@ function apdqc_views_pre_render($view) {
  *   Multidimensional array containing tables and cache keys to prefectch.
  */
 function apdqc_views_get_unpack_options() {
+  if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
+    return array();
+  }
+
   static $run_once;
   $table_keys_cache_prefetch = array();
   if (!isset($run_once)) {
     $run_once = TRUE;
-    $lang_shorthand = apdqc_get_lang();
-    $table_keys_cache_prefetch['cache_views'][] = 'unpack_options:%:' . $lang_shorthand;
-    // Prefetch cache.
-    apdqc_run_prefetch_array($table_keys_cache_prefetch);
 
-    $table_keys_cache_prefetch = array();
+    if (apdqc_get_bin_class_name('cache_views') !== 'APDQCache') {
+      return;
+    }
+
+    $lang_shorthand = apdqc_get_lang();
+    if (variable_get('apdqc_prefetch_views_unpack', APDQC_PREFETCH_VIEWS_UNPACK)) {
+      // Prefetch cache; OR with a LIKE % results in slow queries.
+      $table_keys_cache_prefetch['cache_views'][] = 'unpack_options:%:' . $lang_shorthand;
+      apdqc_run_prefetch_array($table_keys_cache_prefetch);
+
+      $table_keys_cache_prefetch = array();
+    }
     $table_keys_cache_prefetch['cache_views'][] = 'views_data:node:' . $lang_shorthand;
+    $table_keys_cache_prefetch['cache_views'][] = 'views_data:' . $lang_shorthand;
   }
   return $table_keys_cache_prefetch;
 }
@@ -602,34 +941,94 @@ function apdqc_ctools_plugin_pre_alter(&$plugin, &$plugin_type_info) {
       $run_once['user'] = TRUE;
     }
   }
+  $table_keys_cache_prefetch = array();
+
+  if ($plugin['file'] === 'views_panes.inc' || $plugin['file'] === 'view_pane.inc') {
+    if (!isset($run_once['views_panes'])) {
+      $run_once['views_panes'] = TRUE;
+      if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+        $table_keys_cache_prefetch += apdqc_views_get_unpack_options();
+      }
+    }
+  }
 
   if ($plugin['file'] === 'view.inc' || $plugin['file'] === 'views.inc') {
     if (!isset($run_once['views'])) {
       $run_once['views'] = TRUE;
-      $table_keys_cache_prefetch = apdqc_views_get_unpack_options();
-      $data = cache_get('ctools_export_index:views_view', 'cache_views');
-      if (!empty($data) && is_array($data->data) && !empty($data->data)) {
-        foreach ($data->data as $name) {
-          $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:' . apdqc_escape_string($name);
+      if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+        $table_keys_cache_prefetch += apdqc_views_get_unpack_options();
+        $data = cache_get('ctools_export_index:views_view', 'cache_views');
+        if (!empty($data) && is_array($data->data) && !empty($data->data)) {
+          foreach ($data->data as $name) {
+            $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:' . apdqc_escape_string($name);
+          }
         }
-      }
-      if (!empty($run_once['user'])) {
-        $table_keys_cache_prefetch['cache_views'][] = 'views_data:users:' . $lang_shorthand;
-      }
+        if (!empty($run_once['user'])) {
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:users:' . $lang_shorthand;
+        }
 
-      // Prefetch cache.
-      apdqc_run_prefetch_array($table_keys_cache_prefetch);
+      }
     }
   }
   if ($plugin['name'] == 'entity_from_field') {
     if (!isset($run_once['entity_from_field'])) {
       $run_once['entity_from_field'] = TRUE;
-      $table_keys_cache_prefetch['cache_field'][] = 'field_info:fields';
-      $table_keys_cache_prefetch['cache_field'][] = 'field_info:instances';
-      // Prefetch cache.
-      apdqc_run_prefetch_array($table_keys_cache_prefetch);
+      if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+        $table_keys_cache_prefetch['cache_field'][] = 'field_info:fields';
+        $table_keys_cache_prefetch['cache_field'][] = 'field_info:instances';
+      }
     }
   }
+  if (module_exists('panels')) {
+    if (!isset($run_once['views_content_panes'])) {
+      $run_once['views_content_panes'] = TRUE;
+      if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+        $table_keys_cache_prefetch['cache_views'][] = 'views_content_panes:' . $lang_shorthand;
+      }
+    }
+  }
+  if ($plugin['name'] == 'download_releases_link') {
+    if (!isset($run_once['download_releases_link'])) {
+      $run_once['download_releases_link'] = TRUE;
+      if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+        $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:project_downloads';
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_project:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_files:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_file:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:file_managed:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_version:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_short_description:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_version_major:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_version_minor:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_version_patch:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_version_ext_weight:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_version_extra:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_version_ext_delta:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_recommended:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_update_status:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_release_build_type:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:project_release_supported_versions:' . $lang_shorthand;
+      }
+      if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+        $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:node:project_release';
+        $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:node:page';
+        $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:node:section';
+      }
+    }
+  }
+
+  if ($plugin['name'] === 'taxonomy_term') {
+    if (!isset($run_once['taxonomy_term'])) {
+      $run_once['taxonomy_term'] = TRUE;
+      if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:taxonomy_term_data:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:taxonomy_index:' . $lang_shorthand;
+      }
+    }
+  }
+
+  // Prefetch cache.
+  apdqc_run_prefetch_array($table_keys_cache_prefetch);
 }
 
 /**
@@ -637,6 +1036,9 @@ function apdqc_ctools_plugin_pre_alter(&$plugin, &$plugin_type_info) {
  */
 function apdqc_views_api() {
   if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
+    return;
+  }
+  if (apdqc_get_bin_class_name('cache_views') !== 'APDQCache') {
     return;
   }
 
@@ -657,11 +1059,55 @@ function apdqc_views_api() {
 }
 
 /**
+ * Implements hook_entity_load().
+ */
+function apdqc_entity_load($entities, $type) {
+  if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
+    return;
+  }
+
+  if (apdqc_get_bin_class_name('cache_field') !== 'APDQCache') {
+    return;
+  }
+
+  $bundle_type = apdqc_escape_string($type);
+  $table_keys_cache_prefetch = array();
+  foreach ($entities as $entity) {
+    if (!is_object($entity) || empty($entity->type)) {
+      continue;
+    }
+    $type = apdqc_escape_string($entity->type);
+    $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:$bundle_type:$type";
+    $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle_extra:$bundle_type:$type";
+
+    foreach ($entity as $key => $fields) {
+      if (strpos($key, 'field_') !== 0 || empty($fields[LANGUAGE_NONE])) {
+        continue;
+      }
+      foreach ($fields[LANGUAGE_NONE] as $values) {
+        if (empty($values['entity']) || !is_object($values['entity']) || empty($values['entity']->type)) {
+          continue;
+        }
+        $type = apdqc_escape_string($values['entity']->type);
+        $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:$bundle_type:$type";
+        $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle_extra:$bundle_type:$type";
+      }
+    }
+  }
+  // Prefetch cache.
+  apdqc_run_prefetch_array($table_keys_cache_prefetch);
+}
+
+/**
  * Implements hook_boot().
  */
 function apdqc_boot() {
   if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
-    return;
+    require_once 'apdqc.cache.inc';
+    $db_type = apdqc_fast_get_db_type();
+    if ($db_type === 'mysql') {
+      require_once 'apdqc.mysql.inc';
+    }
   }
 
   // Bail if this is a cached page hit.
@@ -669,36 +1115,53 @@ function apdqc_boot() {
   if (in_array('X-Drupal-Cache: HIT', $header_list)) {
     return;
   }
+
   $table_keys_cache_prefetch = array();
 
-  // Prefetch the rest of cache_bootstrap on a cache_page miss.
-  // List the cids we already have.
-  $table_keys_cache_prefetch['cache_bootstrap']['*'] = array(
-    'variables',
-    'bootstrap_modules',
-    'lookup_cache',
-    'system_list',
-    'module_implements',
-  );
+  if (apdqc_get_bin_class_name('cache_bootstrap') === 'APDQCache') {
+    // Prefetch the rest of cache_bootstrap on a cache_page miss.
+    // List the cids we already have.
+    $table_keys_cache_prefetch['cache_bootstrap']['*'] = array(
+      'variables',
+      'bootstrap_modules',
+      'lookup_cache',
+      'system_list',
+      'module_implements',
+    );
+  }
 
   // Get defaults for language & theme.
   $lang_shorthand = apdqc_get_lang();
   $default_theme = apdqc_escape_string(variable_get('theme_default', 'bartik'));
-  $table_keys_cache_prefetch['cache'][] = 'theme_registry:runtime:' . $default_theme;
 
-  // Get cache bin keys.
-  $table_keys_cache_prefetch['cache'][] = 'entity_info:' . $lang_shorthand;
-  $table_keys_cache_prefetch['cache'][] = 'node_types:' . $lang_shorthand;
+  if (apdqc_get_bin_class_name('cache') === 'APDQCache') {
+    $table_keys_cache_prefetch['cache'][] = 'theme_registry:runtime:' . $default_theme;
 
-  if (module_exists('field')) {
+    // Get cache bin keys.
+    $table_keys_cache_prefetch['cache'][] = 'entity_info:' . $lang_shorthand;
+    $table_keys_cache_prefetch['cache'][] = 'node_types:' . $lang_shorthand;
+  }
+
+  if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+
     $uid = apdqc_escape_string($GLOBALS['user']->uid);
     $table_keys_cache_prefetch['cache_field'][] = 'field:user:' . $uid;
+
+    $table_keys_cache_prefetch['cache_field'][] = 'field_info:fields';
     $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:user:user';
     $table_keys_cache_prefetch['cache_field'][] = 'field_info:instances';
-    $table_keys_cache_prefetch['cache_field'][] = 'field_info:fields';
     $table_keys_cache_prefetch['cache_field'][] = 'field_info:field_map';
     $table_keys_cache_prefetch['cache_field'][] = 'field_groups';
 
+    // Prefetch node field info.
+    $page = apdqc_escape_string($_GET['q']);
+    $bin = 'cache_field';
+    $query = " SELECT '$bin' AS bin, $bin.cid, $bin.data, $bin.created, $bin.expire, $bin.serialized FROM " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table($bin) . '}') . " AS $bin ";
+    $query .= " LEFT JOIN " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('url_alias') . '}') . " AS url_alias ON (url_alias.alias = '$page' AND url_alias.source LIKE 'node/%')";
+    $query .= " LEFT JOIN " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('node') . '}') . " AS node_a ON node_a.nid = SUBSTRING(url_alias.source, 6)";
+    $query .= " LEFT JOIN " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('node') . '}') . " AS node_b ON node_b.nid = " . substr($page, 5);
+    $query .= " WHERE cid = CONCAT('field_info:bundle:node:', node_a.type) OR cid = CONCAT('field_info:bundle:node:', node_b.type)";
+    apdqc_query(array('cache_field'), array('field_info:bundle:node:%'), $query, array('async' => TRUE));
   }
 
   // Prefetch cache.
@@ -710,22 +1173,76 @@ function apdqc_boot() {
  */
 function apdqc_stream_wrappers() {
   if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
+    require_once 'apdqc.cache.inc';
+    $db_type = apdqc_fast_get_db_type();
+    if ($db_type === 'mysql') {
+      require_once 'apdqc.mysql.inc';
+    }
+  }
+  static $run_once;
+  if (!empty($run_once)) {
     return;
   }
+  $run_once = TRUE;
 
   // Run before menu_get_item() && hook_init but inside full bootstrap.
   $lang_shorthand = apdqc_get_lang();
   $table_keys_cache_prefetch = array();
 
-  $table_keys_cache_prefetch['cache'][] = 'schema:runtime:1';
-  if (module_exists('ctools')) {
-    $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_type_info';
+  if (apdqc_get_bin_class_name('cache_menu') === 'APDQCache') {
+    $wrappers = stream_get_wrappers();
+    if (module_exists('block') && in_array('public', $wrappers)) {
+      drupal_path_initialize();
+      // Preload menus in the blocks.
+      $system_menus = menu_list_system_menus();
+      $main = variable_get('menu_main_links_source', 'main-menu');
+      $secondary = variable_get('menu_secondary_links_source', 'user-menu');
+      if (!array_key_exists($main, $system_menus)) {
+        $system_menus[$main] = 'Main Menu';
+      }
+      if ($main !== $secondary) {
+        $system_menus[$secondary] = 'Secondary Menu';
+      }
+      foreach ($system_menus as $menu_name => $title) {
+        $active_path = menu_tree_get_path($menu_name);
+        // Load the menu item corresponding to the current page.
+        $item = menu_get_item($active_path);
+        if ($item) {
+          $menu_name = apdqc_escape_string($menu_name);
+          // Generate a cache ID (cid) specific for this page.
+          $table_keys_cache_prefetch['cache_menu'][] = 'links:' . $menu_name . ':page:' . apdqc_escape_string($item['href']) . ':' . $lang_shorthand . ':' . (int) $item['access'] . ':1';
+          $table_keys_cache_prefetch['cache_menu'][] = 'links:' . $menu_name . ':page:' . apdqc_escape_string($item['href']) . ':' . $lang_shorthand . ':' . (int) $item['access'] . ':0';
+          $table_keys_cache_prefetch['cache_menu'][] = 'links:' . $menu_name . ':page:' . apdqc_escape_string($item['href']) . ':' . $lang_shorthand . ':' . (int) $item['access'] . ':1:trail';
+          $table_keys_cache_prefetch['cache_menu'][] = 'links:' . $menu_name . ':page:' . apdqc_escape_string($item['href']) . ':' . $lang_shorthand . ':' . (int) $item['access'] . ':0:trail';
+        }
+      }
+    }
   }
-  if (module_exists('context')) {
-    $table_keys_cache_prefetch['cache'][] = 'plugins:context:plugins';
-  }
-  if (module_exists('mailsystem')) {
-    $table_keys_cache_prefetch['cache'][] = 'mailsystem_get_classes';
+
+  if (apdqc_get_bin_class_name('cache') === 'APDQCache') {
+    $table_keys_cache_prefetch['cache'][] = 'schema:runtime:1';
+    if (module_exists('ctools')) {
+      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_type_info';
+    }
+    if (module_exists('context')) {
+      $table_keys_cache_prefetch['cache'][] = 'plugins:context:plugins';
+    }
+    if (module_exists('mailsystem')) {
+      $table_keys_cache_prefetch['cache'][] = 'mailsystem_get_classes';
+    }
+    if (module_exists('filter')) {
+      $table_keys_cache_prefetch['cache'][] = 'filter_formats:' . $lang_shorthand;
+    }
+    if (module_exists('context')) {
+      $table_keys_cache_prefetch['cache'][] = 'context';
+    }
+    if (module_exists('ctools')) {
+      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:arguments';
+      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:contexts';
+      if (module_exists('page_manager')) {
+        $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:page_manager:tasks';
+      }
+    }
   }
 
   // Get cache_path bin keys.
@@ -737,9 +1254,11 @@ function apdqc_stream_wrappers() {
   if (empty($source)) {
     $source = $page;
   }
-  $table_keys_cache_prefetch['cache_path'][] = apdqc_escape_string($source);
+  if (apdqc_get_bin_class_name('cache') === 'APDQCache') {
+    $table_keys_cache_prefetch['cache_path'][] = apdqc_escape_string($source);
+  }
 
-  if (module_exists('field')) {
+  if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
     $matched = apdqc_entity_urls($source);
     if (!empty($matched)) {
       // Use the advanced drupal_static() pattern, since this is called very
@@ -757,28 +1276,13 @@ function apdqc_stream_wrappers() {
         $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:user:user';
       }
     }
-  }
-  if (module_exists('filter')) {
-    $table_keys_cache_prefetch['cache'][] = 'filter_formats:' . $lang_shorthand;
-  }
-  if (module_exists('context')) {
-    $table_keys_cache_prefetch['cache'][] = 'context';
-  }
-
-  if (module_exists('token')) {
-    $table_keys_cache_prefetch['cache_token'][] = 'info:' . $lang_shorthand;
-  }
-
-  if (module_exists('ctools')) {
-    $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:arguments';
-    $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:contexts';
-    if (module_exists('page_manager')) {
-      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:page_manager:tasks';
-    }
-  }
-
-  if (module_exists('field')) {
     $table_keys_cache_prefetch['cache_field'][] = 'field_info_types:' . $lang_shorthand;
+  }
+
+  if (apdqc_get_bin_class_name('cache_token') === 'APDQCache') {
+    if (module_exists('token')) {
+      $table_keys_cache_prefetch['cache_token'][] = 'info:' . $lang_shorthand;
+    }
   }
 
   // Prefetch cache.
@@ -790,68 +1294,168 @@ function apdqc_stream_wrappers() {
  */
 function apdqc_init() {
   if (!function_exists('apdqc_run_prefetch_array') || !function_exists('apdqc_escape_string')) {
-    return;
+    require_once 'apdqc.cache.inc';
+    $db_type = apdqc_fast_get_db_type();
+    if ($db_type === 'mysql') {
+      require_once 'apdqc.mysql.inc';
+    }
   }
 
   $lang_shorthand = apdqc_get_lang();
   $table_keys_cache_prefetch = array();
 
-  if (module_exists('filter')) {
-    $table_keys_cache_prefetch['cache'][] = 'filter_list_format';
-  }
-  if (module_exists('image')) {
-    $table_keys_cache_prefetch['cache'][] = 'image_styles';
-  }
-  if (module_exists('cdn')) {
-    $table_keys_cache_prefetch['cache'][] = 'cdn_blacklist';
-  }
-  if (module_exists('entity')) {
-    $table_keys_cache_prefetch['cache'][] = 'entity_property_info:' . $lang_shorthand;
-  }
-  if (module_exists('ctools')) {
-    $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:access';
-    $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:content_types';
-    $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:relationships';
-    if (module_exists('panels')) {
-      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:panels:styles';
-      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:panels:layouts';
-      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:panels:display_renderers';
+  if (apdqc_get_bin_class_name('cache') === 'APDQCache') {
+    if (module_exists('filter')) {
+      $table_keys_cache_prefetch['cache'][] = 'filter_list_format';
     }
-    if (module_exists('page_manager')) {
-      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:page_manager:tasks';
-      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:page_manager:task_handlers';
+    if (module_exists('image')) {
+      $table_keys_cache_prefetch['cache'][] = 'image_styles';
+    }
+    if (module_exists('cdn')) {
+      $table_keys_cache_prefetch['cache'][] = 'cdn_blacklist';
+    }
+    if (module_exists('entity')) {
+      $table_keys_cache_prefetch['cache'][] = 'entity_property_info:' . $lang_shorthand;
+    }
+    if (module_exists('ctools')) {
+      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:access';
+      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:content_types';
+      $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:ctools:relationships';
+      if (module_exists('panels')) {
+        $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:panels:styles';
+        $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:panels:layouts';
+        $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:panels:display_renderers';
+      }
+      if (module_exists('page_manager')) {
+        $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:page_manager:tasks';
+        $table_keys_cache_prefetch['cache'][] = 'ctools_plugin_files:page_manager:task_handlers';
+      }
+    }
+    $default_theme = apdqc_escape_string(variable_get('theme_default', 'bartik'));
+    $global_theme = apdqc_escape_string($GLOBALS['theme']);
+    if ($default_theme != $global_theme) {
+      $table_keys_cache_prefetch['cache'][] = 'theme_registry:runtime:' . $global_theme;
+    }
+    $table_keys_cache_prefetch['cache'][] = 'theme_registry:' . $global_theme;
+  }
+
+  if (apdqc_get_bin_class_name('cache_rules') === 'APDQCache') {
+    if (module_exists('rules')) {
+      $table_keys_cache_prefetch['cache_rules'][] = 'data:' . $lang_shorthand;
     }
   }
 
-  if (module_exists('rules')) {
-    $table_keys_cache_prefetch['cache_rules'][] = 'data:' . $lang_shorthand;
+  if (apdqc_get_bin_class_name('cache_token') === 'APDQCache') {
+    if (module_exists('token')) {
+      $table_keys_cache_prefetch['cache_token'][] = 'info:' . $lang_shorthand;
+      $table_keys_cache_prefetch['cache_token'][] = 'field:info';
+    }
   }
 
-  if (module_exists('token')) {
-    $table_keys_cache_prefetch['cache_token'][] = 'info:' . $lang_shorthand;
-    $table_keys_cache_prefetch['cache_token'][] = 'field:info';
-  }
-  $table_keys_cache_prefetch['cache_menu'][] = 'menu_custom';
-  $default_theme = apdqc_escape_string(variable_get('theme_default', 'bartik'));
-  $global_theme = apdqc_escape_string($GLOBALS['theme']);
-  if ($default_theme != $global_theme) {
-    $table_keys_cache_prefetch['cache'][] = 'theme_registry:runtime:' . $global_theme;
-  }
+  if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+    if (function_exists('menu_get_item')) {
+      $item = menu_get_item();
+    }
+    if (!empty($item) && !empty($item['page_callback']) && $item['page_callback'] === 'drupalorg_home') {
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:post";
+    }
 
-  if (module_exists('field')) {
+    if (!empty($item) && !empty($item['page_callback']) && $item['page_callback'] === 'project_solr_browse_page') {
+      if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+        $table_keys_cache_prefetch += apdqc_views_get_unpack_options();
+        if ( !empty($item['path'])
+          && ($item['path'] === 'project/project_module'
+          || $item['path'] === 'project/project_distribution'
+          || $item['path'] === 'project/project_theme')
+        ) {
+          $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:project_issue_user_projects';
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_issue_assigned:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_project:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_project_machine_name:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:history:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_issue_status:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_issue_priority:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_issue_category:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_data_field_issue_version:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:node_comment_statistics:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:users:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:search_index:' . $lang_shorthand;
+          $table_keys_cache_prefetch['cache_views'][] = 'views_data:project_maintainer:' . $lang_shorthand;
+        }
+      }
+      if (!empty($item['path']) && $item['path'] === 'project/project_module') {
+        $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:project_module";
+        $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle_extra:node:project_module";
+      }
+    }
+
+    if ( !empty($item)
+      && !empty($item['page_arguments'][0]->type)
+      && ($item['page_arguments'][0]->type === 'project_module'
+      || $item['page_arguments'][0]->type === 'project_distribution'
+      || $item['page_arguments'][0]->type === 'project_theme')
+      && !empty($item['page_arguments'][0]->versioncontrol_project)
+      && !empty($item['page_arguments'][0]->project)
+    ) {
+      if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+        $table_keys_cache_prefetch += apdqc_views_get_unpack_options();
+        $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:project_issue_metrics_new_issues';
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:sampler_project_issue_new_issues_comments_by_project:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:project_issue_metrics_response_rate';
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:sampler_project_issue_responses_by_project:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:project_issue_metrics_open_bugs';
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:sampler_project_issue_opened_vs_closed_by_category:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:project_issue_metrics_participants';
+        $table_keys_cache_prefetch['cache_views'][] = 'views_data:sampler_project_issue_reporters_participants_by_project:' . $lang_shorthand;
+        $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:project_issue_metrics_first_response';
+      }
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:organization";
+    }
+
+    if ( !empty($item)
+      && !empty($item['page_arguments'][0])
+      && is_string($item['page_arguments'][0])
+      && $item['page_arguments'][0] === 'project_issue_project_searchapi'
+      && !empty($item['page_arguments'][1])
+      && is_string($item['page_arguments'][1])
+      && $item['page_arguments'][1] === 'page'
+    ) {
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:page";
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:project_release";
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:section";
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:changenotice";
+    }
+
+    if ( !empty($item)
+      && !empty($item['page_arguments'][0])
+      && is_object($item['page_arguments'][0])
+      && !empty($item['page_arguments'][0]->type)
+      && $item['page_arguments'][0]->type === 'project_issue'
+    ) {
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:page";
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:project_release";
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:section";
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:changenotice";
+      if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+        $table_keys_cache_prefetch += apdqc_views_get_unpack_options();
+        $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:change_records';
+      }
+    }
+
     $source = $_GET['q'];
     $matched = apdqc_entity_urls($source);
+
     if (!empty($matched)) {
       $entity_name = $matched[0];
       $entity_id = substr($source, strlen($matched[1]));
-      if (function_exists('menu_get_item')) {
-        $item = menu_get_item();
-      }
       $entity_bundle = '';
       if (!empty($item) && !empty($item['original_map'])) {
         $map_key = array_search($entity_id, $item['original_map']);
         if (!empty($item['map'][$map_key]->type)) {
           $entity_bundle = $item['map'][$map_key]->type;
+        }
+        elseif ($entity_name === 'user') {
+          $entity_bundle = 'user';
         }
       }
       if (!empty($entity_bundle)) {
@@ -862,76 +1466,120 @@ function apdqc_init() {
           $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:comment:comment_${entity_name}_${entity_bundle}";
           $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle_extra:comment:comment_${entity_name}_${entity_bundle}";
         }
+        if (module_exists('field_collection')) {
+
+          if (!empty($item['page_arguments'][0]) && is_object($item['page_arguments'][0])) {
+            $prefetch = apdqc_async_data(FALSE, 'cache_field', array('field_info:field_map'));
+            $parameters = array();
+            if (!empty($prefetch['field_info:field_map']['data'])) {
+              $parameters = unserialize($prefetch['field_info:field_map']['data']);
+            }
+            foreach ($parameters as $key => $values) {
+              if ($values['type'] === 'field_collection' && !empty($item['page_arguments'][0]->{$key}[LANGUAGE_NONE])) {
+                $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:field_collection_item:' . apdqc_escape_string($key);
+                $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle_extra:field_collection_item:' . apdqc_escape_string($key);
+                foreach ($item['page_arguments'][0]->{$key}[LANGUAGE_NONE] as $values) {
+                  if (!empty($values['value'])) {
+                    $table_keys_cache_prefetch['cache_field'][] = "field:field_collection_item:" . apdqc_escape_string($values['value']);
+                  }
+                }
+              }
+            }
+            if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+              $table_keys_cache_prefetch['cache_views'][] = 'views_data:field_collection_item:' . $lang_shorthand;
+            }
+          }
+        }
       }
     }
-  }
 
-  if (function_exists('menu_get_item')) {
-    $router_item = menu_get_item();
-  }
-  // If this router item points to its parent, start from the parents to
-  // compute tabs and actions.
-  if (!empty($router_item) && ($router_item['type'] & MENU_LINKS_TO_PARENT)) {
-    $router_item = menu_get_item($router_item['tab_parent_href']);
-  }
-  // If we failed to fetch a router item or the current user doesn't have
-  // access to it, don't bother computing the tabs.
-  if (!empty($router_item) && $router_item['access']) {
-    // Get all tabs (also known as local tasks) and the root page.
-    $table_keys_cache_prefetch['cache_menu'][] = 'local_tasks:' . apdqc_escape_string($router_item['tab_root']);
+    if (module_exists('googleanalytics')) {
+      $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:user:user";
+    }
   }
 
   if (module_exists('admin_menu')) {
     $cid = 'admin_menu:' . apdqc_escape_string($GLOBALS['user']->uid . ':' . session_id() . ':' . $GLOBALS['language']->language);
-    $table_keys_cache_prefetch['cache_menu'][] = $cid;
-    $table_keys_cache_prefetch['cache_admin_menu'][] = $cid;
+    if (apdqc_get_bin_class_name('cache_menu') === 'APDQCache') {
+      $table_keys_cache_prefetch['cache_menu'][] = $cid;
+    }
+    if (apdqc_get_bin_class_name('cache_admin_menu') === 'APDQCache') {
+      $table_keys_cache_prefetch['cache_admin_menu'][] = $cid;
+    }
   }
 
-  // Prefetch cache.
-  apdqc_run_prefetch_array($table_keys_cache_prefetch);
-
-  $table_keys_cache_prefetch = array();
-
-  // Load up system blocks.
-  if (module_exists('block')) {
-    // Preload menus in the blocks.
-    $system_menus = menu_list_system_menus();
-    $main = variable_get('menu_main_links_source', 'main-menu');
-    $secondary = variable_get('menu_secondary_links_source', 'user-menu');
-    $system_menus[$main] = 'Main Menu';
-    if ($main !== $secondary) {
-      $system_menus[$main] = 'Secondary Menu';
+  if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
+    if (module_exists('views')) {
+      $table_keys_cache_prefetch['cache_views'][] = 'ctools_export_index:views_view';
     }
-    if ( $secondary === $main
-      && $secondary !== 'user-menu'
-      && is_array($secondary['user-menu'])
-      && array_key_exists('user-menu', $secondary)
-    ) {
-      unset($secondary['user-menu']);
+  }
+
+  if (apdqc_get_bin_class_name('cache_field') === 'APDQCache') {
+    if (module_exists('field_group')) {
+      $table_keys_cache_prefetch['cache_field'][] = 'field_groups';
+    }
+  }
+
+  if (apdqc_get_bin_class_name('cache_menu') === 'APDQCache') {
+    $table_keys_cache_prefetch['cache_menu'][] = 'menu_custom';
+
+    // Get router item.
+    if (function_exists('menu_get_item')) {
+      $router_item = menu_get_item();
+    }
+    // If this router item points to its parent, start from the parents to
+    // compute tabs and actions.
+    if (!empty($router_item) && ($router_item['type'] & MENU_LINKS_TO_PARENT)) {
+      $router_item = menu_get_item($router_item['tab_parent_href']);
     }
 
-    foreach ($system_menus as $menu_name => $title) {
-      $active_path = menu_tree_get_path($menu_name);
-      // Load the menu item corresponding to the current page.
-      $item = menu_get_item($active_path);
-      if ($item) {
-        $menu_name = apdqc_escape_string($menu_name);
-        // Generate a cache ID (cid) specific for this page.
-        $table_keys_cache_prefetch['cache_menu'][] = 'links:' . $menu_name . ':page:' . apdqc_escape_string($item['href']) . ':' . $lang_shorthand . ':' . (int) $item['access'] . ':%';
-        // Get all tree data as well for this menu.
-        $table_keys_cache_prefetch['cache_menu'][] = "links:$menu_name:tree-data:$lang_shorthand:%";
+    // If we failed to fetch a router item or the current user doesn't have
+    // access to it, don't bother computing the tabs.
+    if (!empty($router_item) && $router_item['access']) {
+      // Get all tabs (also known as local tasks) and the root page.
+      $table_keys_cache_prefetch['cache_menu'][] = 'local_tasks:' . apdqc_escape_string($router_item['tab_root']);
+    }
+    // Load up system blocks.
+    if (module_exists('block')) {
+      // Preload menus in the blocks.
+      $system_menus = menu_list_system_menus();
+      $main = variable_get('menu_main_links_source', 'main-menu');
+      $secondary = variable_get('menu_secondary_links_source', 'user-menu');
+      if (!array_key_exists($main, $system_menus)) {
+        $system_menus[$main] = 'Main Menu';
+      }
+      if ($main !== $secondary) {
+        $system_menus[$secondary] = 'Secondary Menu';
+      }
+      $cids = array();
+      foreach ($system_menus as $menu_name => $title) {
+        $active_path = menu_tree_get_path($menu_name);
+        // Load the menu item corresponding to the current page.
+        $item = menu_get_item($active_path);
+        if ($item) {
+          $menu_name = apdqc_escape_string($menu_name);
+          $href = apdqc_escape_string($item['href']);
+          $cids[] = 'links:' . $menu_name . ':page:' . $href . ':' . $lang_shorthand . ':' . (int) $item['access'] . ':1';
+          $cids[] = 'links:' . $menu_name . ':page:' . $href . ':' . $lang_shorthand . ':' . (int) $item['access'] . ':0';
+          $cids[] = 'links:' . $menu_name . ':page:' . $href . ':' . $lang_shorthand . ':' . (int) $item['access'] . ':1:trail';
+          $cids[] = 'links:' . $menu_name . ':page:' . $href . ':' . $lang_shorthand . ':' . (int) $item['access'] . ':0:trail';
+        }
+      }
+
+      $prefetch = apdqc_async_data(FALSE, 'cache_menu', $cids);
+      foreach ($prefetch as $cid => $cache) {
+        if (empty($cache)) {
+          continue;
+        }
+        $menu_name = substr($cid, 6, strpos($cid, ':', 6) - 6);
+        $parameters = unserialize($cache['data']);
+        if (isset($parameters['expanded'])) {
+          sort($parameters['expanded']);
+        }
+        $hash = hash('sha256', serialize($parameters));
+        $table_keys_cache_prefetch['cache_menu'][] = "links:$menu_name:tree-data:$lang_shorthand:$hash";
       }
     }
-  }
-
-  if (module_exists('views')) {
-    $table_keys_cache_prefetch['cache_views'][] = 'ctools_export_index:views_view';
-  }
-
-  $table_keys_cache_prefetch['cache'][] = 'theme_registry:' . $GLOBALS['theme'];
-  $table_keys_cache_prefetch['cache'][] = 'theme_registry:' . $GLOBALS['theme'] . ':%';
-  if (module_exists('field_group')) {
-    $table_keys_cache_prefetch['cache_field'][] = 'field_groups';
   }
 
   // Prefetch cache.
@@ -965,6 +1613,7 @@ function apdqc_entity_urls($match = '') {
     }
     if (module_exists('node')) {
       $entities['node'] = 'node/';
+      $entities['_node'] = 'node';
     }
     if (module_exists('privatemsg_message')) {
       $entities['privatemsg_message'] = 'messages/view/';
@@ -984,6 +1633,7 @@ function apdqc_entity_urls($match = '') {
     }
     if (module_exists('user')) {
       $entities['user'] = 'user/';
+      $entities['_user'] = 'user';
     }
   }
 
@@ -993,7 +1643,7 @@ function apdqc_entity_urls($match = '') {
 
   foreach ($entities as $name => $first_part_uri) {
     if (strpos($match, $first_part_uri) === 0) {
-      $return[$match] = array($name, $first_part_uri);
+      $return[$match] = array(ltrim($name, '_'), $first_part_uri);
       break;
     }
   }

@@ -33,7 +33,7 @@ function _apdqc_lock_acquire($name, $timeout = 30) {
   // Ensure that the timeout is at least 1 sec. APC works with integer TTL.
   $timeout = (int) max($timeout, 1);
 
-  $key = _apc_get_lock_key($name);
+  $key = _apdqc_apc_get_lock_key($name);
 
   if (apc_add($key, _lock_id(), $timeout)) {
     $locks[$name] = _lock_id();
@@ -63,7 +63,7 @@ function _apdqc_lock_acquire($name, $timeout = 30) {
  *   TRUE if there is no lock or it was removed, FALSE otherwise.
  */
 function _apdqc_lock_may_be_available($name) {
-  return !apc_fetch(_apc_get_lock_key($name));
+  return !apc_fetch(_apdqc_apc_get_lock_key($name));
 }
 
 /**
@@ -109,7 +109,7 @@ function _apdqc_lock_wait($name, $delay = 30) {
     // 500ms, to reduce the potential for a lock stampede.
     $delay = $delay - $sleep;
     $sleep = min(500000, $sleep + 25000, $delay);
-    if (!apc_fetch(_apc_get_lock_key($name))) {
+    if (!apc_fetch(_apdqc_apc_get_lock_key($name))) {
       // No longer need to wait.
       return FALSE;
     }
@@ -130,7 +130,7 @@ function _apdqc_lock_wait($name, $delay = 30) {
 function _apdqc_lock_release($name) {
   global $locks;
 
-  apc_delete(_apc_get_lock_key($name));
+  apc_delete(_apdqc_apc_get_lock_key($name));
   // We unset unconditionally since caller assumes lock is released anyway.
   unset($locks[$name]);
 }
@@ -160,10 +160,10 @@ function _apdqc_lock_id() {
 function _apdqc_lock_release_all($lock_id = NULL) {
   global $locks;
   foreach ($locks as $name => $id) {
-    $value = apc_fetch(_apc_get_lock_key($name));
+    $value = apc_fetch(_apdqc_apc_get_lock_key($name));
 
     if ($value == $id) {
-      apc_delete(_apc_get_lock_key($name));
+      apc_delete(_apdqc_apc_get_lock_key($name));
     }
   }
 }
@@ -177,6 +177,6 @@ function _apdqc_lock_release_all($lock_id = NULL) {
  * @return string
  *   The name of the key.
  */
-function _apc_get_lock_key($name) {
+function _apdqc_apc_get_lock_key($name) {
   return "apc_lock:$name";
 }

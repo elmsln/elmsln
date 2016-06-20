@@ -88,7 +88,7 @@ class ApdqcFakeDatabaseStatement extends DatabaseStatementEmpty {
               $full_stack[] = $trace['function'] . '(' . count($trace['args']) . ')';
             }
           }
-          $full_stack = array_slice($full_stack, 2, 20);
+          $full_stack = array_slice($full_stack, 2, 30);
         }
 
         return 'Call from ' . $stack[$i + 1]['function'] . '()' . '.  ' . implode(' -> ', array_reverse($full_stack));

@@ -1,14 +1,15 @@
 name = Asynchronous Prefetch Database Query Cache
-description = APDQC. A pretty darn quick cache. Uses asynchronous connections & prefectching to speed up cache calls.
+description = APDQC. A pretty darn quick cache. Uses asynchronous connections & prefetching to speed up cache calls.
 package = Performance and scalability
 core = 7.x
 php = 5.3
+files[] = apdqc.test
 
 configure = admin/config/development/performance/apdqc
 
-; Information added by Drupal.org packaging script on 2015-12-10
-version = "7.x-1.0-rc1+4-dev"
+; Information added by Drupal.org packaging script on 2016-06-06
+version = "7.x-1.0-rc2+24-dev"
 core = "7.x"
 project = "apdqc"
-datestamp = "1449714241"
+datestamp = "1465241643"
 

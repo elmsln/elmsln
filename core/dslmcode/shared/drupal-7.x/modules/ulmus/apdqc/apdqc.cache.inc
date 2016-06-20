@@ -43,10 +43,12 @@ define('APDQC_USE_UNION_QUERY', FALSE);
 function apdqc_run_prefetch_array(array $table_keys_cache_prefetch, $reap_on_next_get = TRUE, $log = TRUE) {
   static $use_async_data;
   if (!isset($use_async_data)) {
-    $do_not_use_async_data = &drupal_static(__FUNCTION__);
+    $do_not_run_prefetch_array = &drupal_static('apdqc_run_prefetch_array', array());
   }
-  if ($do_not_use_async_data) {
-    return;
+  foreach ($table_keys_cache_prefetch as $table => $cids) {
+    if (is_array($do_not_run_prefetch_array)&& array_key_exists($table, $do_not_run_prefetch_array) && !empty($do_not_run_prefetch_array[$table])) {
+      return;
+    }
   }
   if (defined('APDQC_PREFETCH')) {
     // Bail if apdqc_prefetch is disabled.
@@ -61,6 +63,8 @@ function apdqc_run_prefetch_array(array $table_keys_cache_prefetch, $reap_on_nex
     if (apdqc_get_bin_class_name($bin) !== 'APDQCache') {
       continue;
     }
+    // Remove any duplicates or empty.
+    $cids = array_filter(array_unique($cids));
 
     $query = '';
     if (isset($cids['*'])) {
@@ -73,7 +77,7 @@ function apdqc_run_prefetch_array(array $table_keys_cache_prefetch, $reap_on_nex
     else {
       $like_ids = array();
       foreach ($cids as $key => $cid) {
-        if (strpos($cid, '%') !== FALSE) {
+        if (strpos($cid, ':%') !== FALSE) {
           unset($cids[$key]);
           $like_ids[] = $cid;
         }
@@ -507,12 +511,15 @@ class APDQCache extends DrupalDatabaseCache {
 
     // Use default core logic for this cache clear if inside of a transaction.
     if (Database::getConnection()->inTransaction()) {
+
       // Do not use any prefectched data.
-      drupal_static_reset('apdqc_async_data');
+      $apdqc_async_data = &drupal_static('apdqc_async_data');
       $do_not_use_async_data = &drupal_static('apdqc_async_data_do_not_use_async');
-      $do_not_use_async_data = TRUE;
-      $do_not_use_async_data = &drupal_static('apdqc_run_prefetch_array');
-      $do_not_use_async_data = TRUE;
+      $do_not_run_prefetch_array = &drupal_static('apdqc_run_prefetch_array');
+      $apdqc_async_data[$this->bin] = array();
+      $do_not_use_async_data[$this->bin] = TRUE;
+      $do_not_run_prefetch_array[$this->bin] = TRUE;
+
       $output = parent::clear($cid, $wildcard);
       $this->callCacheClearHooks($cid, $wildcard);
       return $output;
@@ -680,9 +687,9 @@ class APDQCache extends DrupalDatabaseCache {
       $empty_table = $result->fetch_row();
     }
     if (empty($result) || empty($empty_table)) {
-      return FALSE;
+      return TRUE;
     }
-    return TRUE;
+    return FALSE;
   }
 
   /**

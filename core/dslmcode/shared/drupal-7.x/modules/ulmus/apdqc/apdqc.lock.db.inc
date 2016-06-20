@@ -83,6 +83,10 @@ function _apdqc_lock_id() {
   if (!isset($lock_id)) {
     // Assign a unique id.
     $lock_id = uniqid(mt_rand(), TRUE);
+    // Compress the base16 string down to base85 string.
+    $lock_id = str_replace('.', '', $lock_id);
+    $lock_id = pack("H*", $lock_id);
+    $lock_id = apdqc_lock_base85_encode($lock_id);
     // We only register a shutdown function if a lock is used.
     drupal_register_shutdown_function('lock_release_all', $lock_id);
   }
@@ -127,10 +131,10 @@ function _apdqc_lock_acquire($name, $timeout = 30.0) {
         ->condition('name', $name)
         ->condition('value', _lock_id())
         ->execute();
-      if (!$success) {
-        // The lock was broken.
-        unset($locks[$name]);
-      }
+    }
+    if (!$success) {
+      // The lock was broken.
+      unset($locks[$name]);
     }
     return $success;
   }
@@ -241,7 +245,7 @@ function _apdqc_lock_may_be_available($name) {
       DELETE FROM {" . db_escape_table('semaphore') . "}
       WHERE name = '" . apdqc_escape_string($name) . "'
       AND value = '" . apdqc_escape_string($lock['value']) . "'
-      and expire = " . (float) $expire . "
+      AND expire = " . (float) $expire . "
     ");
     // Run Query.
     $results = apdqc_query(array('semaphore'), array($name), $query, array('get_affected_rows' => TRUE));
@@ -336,7 +340,7 @@ function _apdqc_lock_release($name) {
     AND value = '" . apdqc_escape_string(_lock_id()) . "'
   ");
   // Run Query.
-  $results = apdqc_query(array('semaphore'), array($name), $query, array('get_affected_rows' => TRUE));
+  $results = apdqc_query(array('semaphore'), array($name), $query, array('get_affected_rows' => TRUE, 'async' => TRUE));
   if (is_string($results) && $results === 'NO DB') {
     db_delete('semaphore')
       ->condition('name', $name)
@@ -364,7 +368,7 @@ function _apdqc_lock_release_all($lock_id = NULL) {
     WHERE value = '" . apdqc_escape_string($lock_id) . "'
   ");
   // Run Query.
-  $results = apdqc_query(array('semaphore'), array($lock_id), $query, array('get_affected_rows' => TRUE));
+  $results = apdqc_query(array('semaphore'), array($lock_id), $query, array('get_affected_rows' => TRUE, 'async' => TRUE));
   if (is_string($results) && $results === 'NO DB') {
     db_delete('semaphore')
       ->condition('value', $lock_id)
@@ -431,12 +435,65 @@ function _apdqc_lock_release_fuzzy($name) {
     WHERE name = '" . apdqc_escape_string($name) . "'
   ");
   // Run Query.
-  $results = apdqc_query(array('semaphore'), array($name), $query, array('get_affected_rows' => TRUE));
+  $results = apdqc_query(array('semaphore'), array($name), $query, array('get_affected_rows' => TRUE, 'async' => TRUE));
   if (is_string($results) && $results === 'NO DB') {
     db_delete('semaphore')
       ->condition('name', $name)
       ->execute();
   }
+}
+
+/**
+ * Convert a binary string to base85 ascii.
+ *
+ * @param string $binary
+ *   Binary string.
+ *
+ * @return string
+ *   Ascii base85 transformation of the binary string.
+ */
+function apdqc_lock_base85_encode($binary) {
+  // Calculate padding.
+  $padding = 4 - (strlen($binary) % 4);
+  if (strlen($binary) % 4 === 0) {
+    $padding = 0;
+  }
+  // Append NULL character to make sure this is a 4 byte chunk.
+  $binary .= str_repeat("\0", $padding);
+
+  // Generate output.
+  $output = '';
+  foreach (unpack('N*', $binary) as $chunk) {
+    // Fix bug with unpack returning negative numbers (32bit os).
+    if ($chunk < 0) {
+      // Chunk is now a float on 32bit systems.
+      $chunk += 4294967296;
+    }
+
+    // Convert the 32bit integer into 5 "quintet" chunks.
+    $int_ascii = intval($chunk / 52200625);
+    $chunk -= $int_ascii * 52200625;
+    $output .= chr($int_ascii + 33);
+
+    $int_ascii = intval($chunk / 614125);
+    $chunk -= $int_ascii * 614125;
+    $output .= chr($int_ascii + 33);
+
+    $int_ascii = intval($chunk / 7225);
+    $chunk -= $int_ascii * 7225;
+    $output .= chr($int_ascii + 33);
+
+    $int_ascii = intval($chunk / 85);
+    $chunk -= $int_ascii * 85;
+    $output .= chr($int_ascii + 33);
+    $output .= chr($chunk + 33);
+  }
+  // If we added some null bytes, remove them from the final string.
+  if ($padding) {
+    $output = preg_replace("/z$/", '!!!!!', $output);
+    $output = substr($output, 0, strlen($output) - $padding);
+  }
+  return $output;
 }
 
 /**

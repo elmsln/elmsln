@@ -23,9 +23,9 @@ function apdqc_enable() {
  * Changes the semaphore table to InnoDB if it's currently MEMORY.
  */
 function apdqc_disable() {
-  $mainteance_mode = variable_get('maintenance_mode', 0);
+  $maintenance_mode = variable_get('maintenance_mode', 0);
   $mm_changed = FALSE;
-  if ( !$mainteance_mode
+  if ( !$maintenance_mode
     && variable_get('apdqc_table_indexes', APDQC_TABLE_INDEXES)
     && variable_get('apdqc_table_collations', APDQC_TABLE_COLLATIONS)
     && variable_get('apdqc_semaphore_memory', APDQC_SEMAPHORE_MEMORY)
@@ -53,12 +53,20 @@ function apdqc_disable() {
     // Revert semaphore table to InnoDB if needed.
     $results = db_query("SHOW TABLE STATUS WHERE Name = '{semaphore}'")->fetchAssoc();
     if (strcasecmp($results['Engine'], 'InnoDB') != 0) {
-      apdqc_admin_convert_table_to_innodb(FALSE);
+      apdqc_admin_convert_semaphore_table_to_innodb(FALSE);
     }
   }
 
+  if (variable_get('apdqc_sessions_schema', APDQC_SESSIONS_SCHEMA)) {
+    apdqc_admin_sessions_table_update_schema(FALSE, TRUE);
+  }
+
+  if (variable_get('apdqc_semaphore_schema', APDQC_SESSIONS_SCHEMA)) {
+    apdqc_admin_semaphore_table_update_schema(FALSE, TRUE);
+  }
+
   if ($mm_changed) {
-    variable_set('maintenance_mode', $mainteance_mode);
+    variable_set('maintenance_mode', $maintenance_mode);
   }
 
   // Check settings.php.
@@ -96,6 +104,10 @@ function apdqc_uninstall() {
   variable_del('apdqc_semaphore_memory');
   variable_del('apdqc_table_collations');
   variable_del('apdqc_table_indexes');
+  variable_del('apdqc_innodb');
+  variable_del('apdqc_innodb_file_per_table');
+  variable_del('apdqc_sessions_schema');
+  variable_del('apdqc_semaphore_schema');
 
   // Check settings.php.
   $apdqcache_found = FALSE;
@@ -148,10 +160,24 @@ function apdqc_requirements($phase) {
     );
   }
 
+  // Make sure the apdqc constants are defined.
+  drupal_load('module', 'apdqc');
+
+  // Get MySQL type.
+  $results = db_query("SELECT SUBSTR(@@global.version_comment, 1, LOCATE(' ', @@global.version_comment) - 1) AS DBtype")->fetchAssoc();
+  $mysql_db_type = reset($results);
+  $pos = strpos($mysql_db_type, '.');
+  if ($pos !== FALSE) {
+    $mysql_db_type = substr($mysql_db_type, 0, $pos);
+  }
+
+  // Get DB version.
+  $version = Database::getConnection()->version();
+  $results = db_query("SELECT VERSION()")->fetchAssoc();
+  $version_alt = reset($results);
+
   // This module requires MySQL 5.5 or higher.
   if (!variable_get('apdqc_install_ignore_mysql_version', APDQC_INSTALL_IGNORE_MYSQL_VERSION)) {
-    $results = db_query("SELECT VERSION()")->fetchAssoc();
-    $version = reset($results);
     if (version_compare($version, '5.5.0', '<=')) {
       $requirements['apdqc_mysql_version'] = array(
         'title' => $t('APDQC'),
@@ -226,9 +252,68 @@ function apdqc_requirements($phase) {
         'description' => $t('MYSQLI_ASYNC is not available on this server. Please contact your hosting provider and see if they can make it available for you.'),
       );
     }
+
+    // Make sure the information_schema.processlist table is accessible.
+    $results = array();
+    $results += db_query("SELECT COUNT(*) AS current_connections FROM information_schema.processlist")->fetchAssoc();
+    if (empty($results['current_connections'])) {
+      $requirements['apdqc_information_schema_processlist'] = array(
+        'title'       => $t('APDQC - information_schema.processlist'),
+        'severity'    => REQUIREMENT_ERROR,
+        'value'       => $t('The information_schema.processlist table is not accessible.'),
+        'description' => $t('The @user needs to be granted permission for the information_schema.processlist table.', array(
+          '@user' => $GLOBALS['databases']['default']['default']['username'],
+        )),
+      );
+    }
+
+    // Make sure the information_schema.tables table is accessible.
+    $results = array();
+    $results += db_query("SELECT COUNT(*) AS table_count FROM information_schema.tables")->fetchAssoc();
+    if (empty($results['table_count'])) {
+      $requirements['apdqc_information_schema_tables'] = array(
+        'title'       => $t('APDQC - information_schema.tables'),
+        'severity'    => REQUIREMENT_ERROR,
+        'value'       => $t('The information_schema.tables table is not accessible.'),
+        'description' => $t('The @user needs to be granted permission for the information_schema.tables table.', array(
+          '@user' => $GLOBALS['databases']['default']['default']['username'],
+        )),
+      );
+    }
   }
 
   if ($phase === 'runtime') {
+    // Make sure any includes inside of the settings.php file is below apdqc.
+    $settings_file = DRUPAL_ROOT . '/' . conf_path() . '/settings.php';
+    if (file_exists($settings_file) && is_readable($settings_file)) {
+      $settings_file_contents = file_get_contents($settings_file);
+      $include_matches = array();
+      preg_match_all('/(?:include|include_once|require|require_once)\\s+(?:\\$[a-zA-Z_{\x7f-\xff][a-zA-Z0-9_}\x7f-\xff]*|DRUPAL_ROOT|\'|").*/', $settings_file_contents, $include_matches, PREG_OFFSET_CAPTURE);
+      if (!empty($include_matches[0][0][0])) {
+        $db_matches = array();
+        preg_match_all('/(?:\$conf\[|\$databases\[)(?:\'|")(?:default|cache_|lock_inc|session_inc).*/', $settings_file_contents, $db_matches, PREG_OFFSET_CAPTURE, $include_matches[0][0][1]);
+        if (!empty($db_matches[0][0][0])) {
+          $below_include = array();
+          foreach ($db_matches[0] as $match) {
+            if ($match[1] > $include_matches[0][0][1]) {
+              $below_include[] = $match[0];
+            }
+          }
+          if (!empty($below_include)) {
+            $requirements['apdqc_config_placement'] = array(
+              'title'       => $t('APDQC - settings.php configuration placement'),
+              'severity'    => REQUIREMENT_WARNING,
+              'value'       => $t('The apdqc configuration info should be above any includes or requires.'),
+              'description' => $t('Inside settings.php make sure that these lines <p><code>!code</code></p> are above this line <p><code>@line</code></p>', array(
+                '!code' => implode("\n<br />", $below_include),
+                '@line' => $include_matches[0][0][0],
+              )),
+            );
+          }
+        }
+      }
+    }
+
     // Warn if drupal_hash_salt is empty.
     // Error if empty and using a private file system.
     if (empty($GLOBALS['drupal_hash_salt'])) {
@@ -287,12 +372,31 @@ function apdqc_requirements($phase) {
       );
     }
 
+    // Make sure realpath_cache_ttl is long enough. 3600 = 1 hour.
+    $date_timezone = ini_get('date.timezone');
+    if (empty($date_timezone)) {
+      $date_default = date_default_timezone_get();
+      if (!empty($date_default)) {
+        $description = $t('Potential value: @date_default', array('@date_default' => $date_default));
+      }
+      $requirements['apdqc_date_timezone'] = array(
+        'title'       => $t('APDQC - PHP date.timezone'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('date.timezone should set. Current value: @value', array(
+          '@value' => var_export($date_timezone, TRUE),
+        )),
+        'description' => $t('Set date.timezone inside @ini. Will require a restart of PHP. !extra', array(
+          '@ini' => php_ini_loaded_file(),
+          '!extra' => $description,
+        )),
+      );
+    }
+
     // Make sure the DB connection is optimal.
     $use_socket = NULL;
     $host_is_ip = FALSE;
     $description = '';
     if (ip2long($GLOBALS['databases']['default']['default']['host']) === FALSE) {
-
       if (is_null($GLOBALS['databases']['default']['default']['host']) || $GLOBALS['databases']['default']['default']['host'] === 'localhost') {
         $mysql_ip = '127.0.0.1';
       }
@@ -317,10 +421,85 @@ function apdqc_requirements($phase) {
     }
 
     if ($use_socket === TRUE) {
-      // Unix socket.
-      $result = db_query("SHOW VARIABLES LIKE 'socket'")->fetchAssoc();
-      $description .= ' ' . $t('Inside settings.php add this below the $databases array: <p><code>@code</code></p>', array(
-        '@code' => '$databases[\'default\'][\'default\'][\'unix_socket\'] = \'' . $result['Value'] . '\';',
+      // Get socket.
+      $results = array();
+      $results += db_query("SHOW VARIABLES LIKE 'socket'")->fetchAllKeyed();
+
+      // Try 3 of the usual locations of the socket if file doesn't exist.
+      if (!file_exists($results['socket']) && file_exists('/var/lib/mysql/mysql.sock')) {
+        $results['socket'] = '/var/lib/mysql/mysql.sock';
+      }
+      elseif (!file_exists($results['socket']) && file_exists('/var/run/mysql/mysql.sock')) {
+        $results['socket'] = '/var/run/mysql/mysql.sock';
+      }
+      elseif (!file_exists($results['socket']) && file_exists('/tmp/mysql.sock')) {
+        $results['socket'] = '/tmp/mysql.sock';
+      }
+
+      if (empty($results['socket'])) {
+        // Socket file doesn't exist in the given location, bail out.
+        $use_socket = FALSE;
+      }
+      else {
+        // Test socket connection.
+        try {
+          // Compare these variables.
+          $names = array(
+            'cron_key',
+            'cron_last',
+            'css_js_query_string',
+            'drupal_private_key',
+            'install_time',
+            'site_name',
+            'site_mail',
+          );
+          $test_query = db_select('variable', 'v')
+            ->fields('v')
+            ->condition('name', $names, 'IN')
+            ->execute();
+          $variables_ip = array();
+          foreach ($test_query as $row) {
+            $variables_ip[$row->name] = unserialize($row->value);
+          }
+
+          // Create new db connection.
+          if (empty($GLOBALS['databases']['apdqc_default_socket_test_a'])) {
+            $GLOBALS['databases']['apdqc_default_socket_test_a'] = $GLOBALS['databases']['default'];
+            // Add in the unix_socket.
+            $GLOBALS['databases']['apdqc_default_socket_test_a']['default']['unix_socket'] = $results['socket'];
+            // Null out the host.
+            $GLOBALS['databases']['apdqc_default_socket_test_a']['default']['host'] = NULL;
+          }
+          // Make it available.
+          Database::parseConnectionInfo();
+          db_set_active('apdqc_default_socket_test_a');
+
+          // Test connection out.
+          $test_query = @db_select('variable', 'v')
+            ->fields('v')
+            ->condition('name', $names, 'IN')
+            ->execute();
+          $variables_socket = array();
+          foreach ($test_query as $row) {
+            $variables_socket[$row->name] = unserialize($row->value);
+          }
+          $diff_a = array_diff($variables_ip, $variables_socket);
+          $diff_b = array_diff($variables_socket, $variables_ip);
+          if (!empty($diff_a) || !empty($diff_b)) {
+            $use_socket = FALSE;
+          }
+        }
+        catch (PDOException $e) {
+          $use_socket = FALSE;
+        }
+        // Reset db connection.
+        db_set_active();
+      }
+    }
+    if ($use_socket === TRUE) {
+      $description .= ' ' . $t('Inside settings.php add this below the $databases array: <p><code>@line-1</code><br /><code>@line-2</code></p>', array(
+        '@line-1' => '$databases[\'default\'][\'default\'][\'unix_socket\'] = \'' . $results['socket'] . '\';',
+        '@line-2' => '$databases[\'default\'][\'default\'][\'host\'] = NULL;',
       ));
       if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         // Add in additional windows information; none so far.
@@ -347,8 +526,12 @@ function apdqc_requirements($phase) {
     }
 
     // Check database transaction isolation level.
+    $iso_level_table = 'information_schema';
+    if (version_compare($version, '5.7', '>=')) {
+      $iso_level_table = 'performance_schema';
+    }
     $results = db_query("SELECT variable_value IsolationLevel
-      FROM information_schema.session_variables
+      FROM " . $iso_level_table . ".session_variables
       WHERE variable_name = 'tx_isolation'
     ")->fetchAssoc();
     $iso_level = reset($results);
@@ -359,38 +542,10 @@ function apdqc_requirements($phase) {
         'value'       => $t('For best database performance, set the transaction isolation level to READ-COMMITTED. Current value: @value', array(
           '@value' => $iso_level,
         )),
-        'description' => $t('Inside settings.php add this below the $databases array <p><code>@line</code></p>.', array(
+        'description' => $t('Inside settings.php add this below the $databases array <p><code>@line</code></p>. You can alternatively add this to the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is set to READ-COMMITTED.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
           '@line' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'isolation\'] = "SET SESSION tx_isolation=\'READ-COMMITTED\'";',
-        )),
-      );
-    }
-
-    // Recommendation of engine type for the semaphore table.
-    module_load_include('admin.inc', 'apdqc');
-    $conversion = apdqc_semaphore_conversion();
-    if ($conversion == 1) {
-      $requirements['apdqc_memory_table'] = array(
-        'title'       => $t('APDQC - MySQL semaphore table'),
-        'severity'    => REQUIREMENT_WARNING,
-        'value'       => $t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.', array(
-          '@value' => $iso_level,
-        )),
-        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table to <code>@new-engine</code>.', array(
-          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
-          '@new-engine' => 'MEMORY',
-        )),
-      );
-    }
-    elseif ($conversion == 2) {
-      $requirements['apdqc_memory_table'] = array(
-        'title'       => $t('APDQC - MySQL semaphore table'),
-        'severity'    => REQUIREMENT_WARNING,
-        'value'       => $t('For newer versions of MySQL (5.6 and higher) the InnoDB engine for the semaphore table is recommended.', array(
-          '@value' => $iso_level,
-        )),
-        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table to <code>@new-engine</code>.', array(
-          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
-          '@new-engine' => 'InnoDB',
+          '@config' => 'transaction-isolation = READ-COMMITTED',
         )),
       );
     }
@@ -539,7 +694,7 @@ function apdqc_requirements($phase) {
 
     // Check innodb_flush_log_at_trx_commit value.
     $results = db_query("SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'")->fetchAssoc();
-    if ($results['Value'] != 2) {
+    if ($results['Value'] == 1) {
       $requirements['apdqc_flush_log_at_trx_commit'] = array(
         'title'       => $t('APDQC - MySQL innodb_flush_log_at_trx_commit'),
         'severity'    => REQUIREMENT_WARNING,
@@ -572,18 +727,20 @@ function apdqc_requirements($phase) {
       );
     }
 
-    // Make sure innodb_lock_wait_timeout is smaller than 40 seconds.
+    // Make sure innodb_lock_wait_timeout is smaller than 25 seconds.
+    // 30 seconds is usually the PHP timeout; so 25 gives 5 seconds for other
+    // operations to complete.
     $result = db_query("SHOW VARIABLES LIKE 'innodb_lock_wait_timeout'")->fetchAssoc();
-    if ($result['Value'] > 40) {
+    if ($result['Value'] > 25) {
+      $description = $t('Add this to the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is set to 25.', array(
+        '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+        '@config' => 'innodb_lock_wait_timeout = 25',
+      ));
       if (version_compare($version, '5.5.0', '>=')) {
-        $description = $t('Inside settings.php add this below the $databases array: <p><code>@code</code></p>', array(
-          '@code' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'innodb_lock_wait_timeout\'] = "SET SESSION innodb_lock_wait_timeout = 40";',
-        ));
-      }
-      else {
-        $description = $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code>', array(
+        $description = $t('Inside settings.php add this below the $databases array: <p><code>@code</code></p> You can alternatively add this to the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is set to 25.', array(
+          '@code' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'innodb_lock_wait_timeout\'] = "SET SESSION innodb_lock_wait_timeout = 25";',
           '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
-          '@config' => 'innodb_lock_wait_timeout = 40',
+          '@config' => 'innodb_lock_wait_timeout = 25',
         ));
       }
       $requirements['apdqc_innodb_lock_wait_timeout'] = array(
@@ -600,13 +757,15 @@ function apdqc_requirements($phase) {
     $result = db_query("SHOW VARIABLES LIKE 'wait_timeout'")->fetchAssoc();
     if ($result['Value'] > 600) {
       $requirements['apdqc_wait_timeout'] = array(
-        'title'       => $t('APDQC - MySQL innodb_lock_wait_timeout'),
+        'title'       => $t('APDQC - MySQL wait_timeout'),
         'severity'    => REQUIREMENT_WARNING,
         'value'       => $t('wait_timeout should be a smaller value. Current value: @value.', array(
           '@value' => $result['Value'],
         )),
-        'description' => $t('Inside settings.php add this below the $databases array: <p><code>@code</code></p>', array(
+        'description' => $t('Inside settings.php add this below the $databases array: <p><code>@code</code></p> You can alternatively add this to the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is set to 600.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
           '@code' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'wait_timeout\'] = "SET SESSION wait_timeout = 600";',
+          '@config' => 'wait_timeout = 600',
         )),
       );
     }
@@ -620,57 +779,587 @@ function apdqc_requirements($phase) {
     $results += db_query("SHOW GLOBAL STATUS LIKE 'Connection_errors_max_connections'")->fetchAllKeyed();
     $results += db_query("SHOW GLOBAL STATUS LIKE 'Connections'")->fetchAllKeyed();
     $results += db_query("SHOW GLOBAL STATUS LIKE 'Uptime'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL STATUS LIKE 'Threads_connected'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'table_open_cache'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL STATUS LIKE 'Table_open_cache_misses'")->fetchAllKeyed();
+
+    // Fix some of the data.
+    $results['max_usable_connections'] = $results['max_connections'];
+    if (empty($results['max_user_connections'])) {
+      $results['max_user_connections'] = $results['max_connections'];
+    }
     $results['max_usable_connections'] = min($results['max_connections'], $results['max_user_connections']);
+    $results['max_wanted_connections'] = max($results['max_connections'], $results['max_user_connections']);
+    if (!isset($results['Connection_errors_max_connections'])) {
+      $results['Connection_errors_max_connections'] = 'NULL';
+    }
     $description = '';
+
+    // Get new max values for connections & table_open_cache.
+    $new_max_connections = max($results['max_wanted_connections'], ceil($results['Max_used_connections'] / 0.801));
+    $new_table_open_cache = pow(2, ceil(log($results['table_open_cache'] + 1) / log(2)));
+
+    // Calculate MySQL parameters. From http://planet.mysql.com/entry/?id=684401
+    $max_open_files = max(10 + $new_max_connections + ($new_table_open_cache * 2), $new_max_connections * 5);
+
+    if ($results['open_files_limit'] < 65535 && $max_open_files > $results['open_files_limit']) {
+      // Check if the open files limit needs to be adjusted first.
+      $requirements['apdqc_open_files_limit'] = array(
+        'weight'      => -1,
+        'title'       => $t('APDQC - Server open_files_limit'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The Server open_files_limit settings need to be adjusted.'),
+        'description' => $t('The open files limit (%open_files_limit) on the MySQL server needs to be increased before any MySQL connections and the table_open_cache variables can be increased. The new server limit should be at least %new_open_files_limit. Guide for changing the open files limit on <a href="@systemd">systemd</a> and <a href="@linux">linux</a>. The <a href="@mysql_doc">open_files_limit</a> may also need to be set inside your MySQL configuration file (<a href="@mycnf">how to find it</a>).', array(
+          '%open_files_limit'     => $results['open_files_limit'],
+          '%new_open_files_limit' => $max_open_files,
+          '@systemd'              => 'https://dev.mysql.com/doc/refman/5.7/en/server-management-using-systemd.html#systemd-mysql-configuration',
+          '@linux'                => 'http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/',
+          '@mysql_doc'            => 'https://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_open_files_limit',
+        )),
+      );
+    }
     if ($results['max_usable_connections'] - 1 < $results['Max_used_connections']) {
-      $description .= ' ' . $t('In the past %time, you have dropped %number of connections due to the max connection limit being reached.', array(
+      // Check if any connections where dropped.
+      $description .= ' ' . $t('In the past %time, you have dropped %number of connections due to the max connection limit (%limit) being reached.', array(
         '%time' => format_interval($results['Uptime']),
         '%number' => $results['Connection_errors_max_connections'],
+        '%limit' => $results['max_usable_connections'],
       ));
       $connection_limit = TRUE;
       $severity = REQUIREMENT_ERROR;
     }
     elseif (floor($results['max_usable_connections'] * 0.8) < $results['Max_used_connections']) {
-      $description .= ' ' . $t('You are close to the max connections limit.', array(
-        '%time' => format_interval($results['Uptime']),
-        '%number' => $results['Connection_errors_max_connections'],
-      ));
+      // See if we have been close to the connection limit.
+      $description .= ' ' . $t('You are close to the max connections limit.');
       $connection_limit = TRUE;
       $severity = REQUIREMENT_WARNING;
     }
     if (!empty($connection_limit)) {
-      if (($results['max_connections'] == 214 && $results['open_files_limit'] == 1024) || ($results['max_connections'] + 1) * 4.8 < $results['open_files_limit']) {
-        $description .= ' ' . $t('The open files limit (%open_files_limit) on the MySQL server needs to be increased before max_connections can be increased.', array(
-          '%open_files_limit' => $results['open_files_limit'],
-        ));
-      }
-      elseif ($results['max_connections'] < $results['max_user_connections']) {
-        $description .= ' ' . $t('The max_connections value needs to be increased to at least %limit. The open files limit (%open_files_limit) might have been reached if the reported max_connections value (%value) is different from the value in your MySQL configuration file (<a href="@mycnf">how to find it</a>); if this is the case then you need to increase the open files limit on the MySQL sever before the max connections can be changed.', array(
+      if ($results['max_connections'] < $results['max_user_connections']) {
+        $description .= ' ' . $t('The max_connections value (%max_connections) needs to be increased to at least %limit inside your MySQL configuration file (<a href="@mycnf">how to find it</a>).', array(
           '%limit' => max($results['max_user_connections'], ceil($results['max_usable_connections'] * 0.801)),
-          '%value' => $results['max_connections'],
-          '%open_files_limit' => $results['open_files_limit'],
+          '%max_connections' => $results['max_connections'],
           '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
         ));
       }
       elseif ($results['max_connections'] > $results['max_user_connections'] && ceil($results['max_usable_connections'] * 0.801) < $results['max_connections']) {
-        $description .= ' ' . $t('The max_user_connections value needs to be increased inside your MySQL configuration file (<a href="@mycnf">how to find it</a>), you can go up to %limit.', array(
+        $description .= ' ' . $t('The max_user_connections value (%max_user_connections) needs to be increased inside your MySQL configuration file (<a href="@mycnf">how to find it</a>), you can go up to %limit. To get this warning to disappear it should be raised to at least %value.', array(
           '%limit' => $results['max_connections'],
           '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '%max_user_connections' => $results['max_user_connections'],
+          '%value' => ceil($results['Max_used_connections'] / 0.801),
         ));
       }
       else {
-        $description .= ' ' . $t('Please increase the max_connections and max_user_connections values inside your MySQL configuration file (<a href="@mycnf">how to find it</a>) to be at least %limit.', array(
-          '%limit' => ceil($results['max_usable_connections'] * 0.801),
+        $description .= ' ' . $t('Please increase the max_connections (%max_connections) and max_user_connections (%max_user_connections) values inside your MySQL configuration file (<a href="@mycnf">how to find it</a>) to be at least %limit.', array(
+          '%limit' => ceil($results['Max_used_connections'] / 0.801),
           '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '%max_connections' => $results['max_connections'],
+          '%max_user_connections' => $results['max_user_connections'],
         ));
       }
     }
     if (!empty($description)) {
+      $description .= ' ' . $t('In the past this server has used %max_used connections; there are currently %threads open.', array(
+        '%max_used' => $results['Max_used_connections'],
+        '%threads' => $results['Threads_connected'],
+      ));
+
       $requirements['apdqc_connection_limits'] = array(
         'title'       => $t('APDQC - MySQL Connection limits'),
         'severity'    => $severity,
         'value'       => $t('The MySQL connection limit settings need to be adjusted.'),
         'description' => $description,
+      );
+    }
+
+    // Check table_open_cache.
+    if (!empty($results['Table_open_cache_misses'])) {
+      // Bring the value up to the MySQL 5.7 default.
+      if ($results['table_open_cache'] < 2000) {
+        $requirements['apdqc_table_open_cache_new_default'] = array(
+          'title'       => $t('APDQC - table_open_cache'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('The table_open_cache value should be increased.'),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current size: @current.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'table_open_cache = 2000',
+            '@target' => 2000,
+            '@current' => $results['table_open_cache'],
+          )),
+        );
+      }
+      // Max out at 16384; might want to make this less.
+      elseif ($results['table_open_cache'] < 16384) {
+        $cache = cache_get('apdqc:table_open_cache_misses');
+        if (empty($cache) || $cache->data['table_open_cache'] != $results['table_open_cache']) {
+          // Set cache if not set or if table_open_cache changed.
+          cache_set('apdqc:table_open_cache_misses', $results);
+        }
+        elseif (REQUEST_TIME - $cache->created > 60) {
+          // Wait at least 60 seconds before checking this value.
+          $estimated_misses_per_hour = ($results['Table_open_cache_misses'] - $cache->data['Table_open_cache_misses']) * 60 / (REQUEST_TIME - $cache->created) * 60;
+          if ($estimated_misses_per_hour > 300) {
+            // Round up to power of 2.
+            $new_size = pow(2, ceil(log($results['table_open_cache'] + 1) / log(2)));
+            $requirements['apdqc_table_open_cache'] = array(
+              'title'       => $t('APDQC - table_open_cache'),
+              'severity'    => REQUIREMENT_WARNING,
+              'value'       => $t('The table_open_cache should be increased.'),
+              'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current size: @current.', array(
+                '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+                '@config' => 'table_open_cache = ' . $new_size,
+                '@target' => $new_size,
+                '@current' => $results['table_open_cache'],
+              )),
+            );
+          }
+        }
+      }
+    }
+
+    // Check table_open_cache_instances if MySQL is 5.6.6 or higher.
+    // Removed in MariaDB 10.0.7.
+    if (version_compare($version, '5.6.6', '>=') || ($mysql_db_type === 'mariadb' && version_compare($version_alt, '10.0.7', '<'))) {
+      $results = array();
+      $results += db_query("SHOW GLOBAL VARIABLES LIKE 'table_open_cache_instances'")->fetchAllKeyed();
+      if (!empty($results['table_open_cache_instances']) && $results['table_open_cache_instances'] < 16) {
+        $requirements['apdqc_table_open_cache_instances'] = array(
+          'title'       => $t('APDQC - table_open_cache_instances'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('The table_open_cache_instances value should be changed.'),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'table_open_cache_instances = 16',
+            '@target' => 16,
+            '@current' => $results['table_open_cache_instances'],
+          )),
+        );
+      }
+    }
+
+    // Check binlog_format.
+    $results = array();
+    $results += db_query("SHOW VARIABLES LIKE 'binlog_format'")->fetchAllKeyed();
+    if ($results['binlog_format'] === 'STATEMENT') {
+      $requirements['apdqc_binlog_format'] = array(
+        'title'       => $t('APDQC - MySQL binlog_format'),
+        'severity'    => REQUIREMENT_ERROR,
+        'value'       => $t('For best database performance, set the binlog_format to ROW or MIXED. Current value: %format', array(
+          '%format' => $results['binlog_format'],
+        )),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is MIXED or ROW.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'binlog_format = ROW',
+        )),
+      );
+    }
+
+    // Check innodb_log_file_size if MySQL 5.6.8 or higher.
+    // Or if MariaDB is 10.0 or higher.
+    if (version_compare($version, '5.6.8', '>=') || ($mysql_db_type === 'mariadb' && version_compare($version_alt, '10.0', '>='))) {
+      $results = array();
+      $results += db_query("SHOW GLOBAL STATUS LIKE 'Innodb_os_log_written'")->fetchAllKeyed();
+      $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_log_file_size'")->fetchAllKeyed();
+      if (!empty($results['Innodb_os_log_written'])) {
+        $cache = cache_get('apdqc:innodb_os_log_written');
+        if (empty($cache)) {
+          cache_set('apdqc:innodb_os_log_written', $results['Innodb_os_log_written']);
+        }
+        elseif (REQUEST_TIME - $cache->created > 60) {
+          // Estimate the number of writes per hour.
+          $estimated_innodb_os_log_written_per_hour = ($results['Innodb_os_log_written'] - $cache->data) * 60 / (REQUEST_TIME - $cache->created) * 60;
+          if ($estimated_innodb_os_log_written_per_hour > $results['innodb_log_file_size'] && ($results['innodb_log_file_size'] / 1048576) < 2047) {
+            // Round up to power of 2.
+            $new_size = pow(2, ceil(log($estimated_innodb_os_log_written_per_hour) / log(2)));
+            $requirements['apdqc_innodb_log_file_size'] = array(
+              'title'       => $t('APDQC - innodb_log_file_size'),
+              'severity'    => REQUIREMENT_WARNING,
+              'value'       => $t('The InnoDB log file size should be increased.'),
+              'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current size: @current.', array(
+                '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+                '@config' => 'innodb_log_file_size = ' . apdqc_install_byte2human($new_size),
+                '@target' => apdqc_install_byte2human($new_size),
+                '@current' => apdqc_install_byte2human($results['innodb_log_file_size']),
+              )),
+            );
+          }
+        }
+      }
+    }
+
+    // Check innodb_log_buffer_size.
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_log_buffer_size'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL STATUS LIKE 'Innodb_log_waits'")->fetchAllKeyed();
+    if (!empty($results['Innodb_log_waits'])) {
+      $cache = cache_get('apdqc:innodb_log_waits');
+      if (empty($cache) || $cache->data['innodb_log_buffer_size'] != $results['innodb_log_buffer_size']) {
+        // Set cache if not set or if the innodb_log_buffer_size changed.
+        cache_set('apdqc:innodb_log_waits', $results);
+      }
+      elseif (REQUEST_TIME - $cache->created > 60) {
+        // Wait at least 60 seconds before checking this value.
+        // Also max out at 256mb.
+        if ($results['Innodb_log_waits'] > $cache->data['Innodb_log_waits'] && $results['innodb_log_buffer_size'] < 268435456) {
+          // Round up to power of 2.
+          $new_size = pow(2, ceil(log($results['innodb_log_buffer_size'] + 1) / log(2)));
+          $requirements['apdqc_innodb_log_buffer_size'] = array(
+            'title'       => $t('APDQC - innodb_log_buffer_size'),
+            'severity'    => REQUIREMENT_WARNING,
+            'value'       => $t('The InnoDB log buffer size should be increased.'),
+            'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current size: @current.', array(
+              '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+              '@config' => 'innodb_log_buffer_size = ' . apdqc_install_byte2human($new_size),
+              '@target' => apdqc_install_byte2human($new_size),
+              '@current' => apdqc_install_byte2human($results['innodb_log_buffer_size']),
+            )),
+          );
+        }
+      }
+    }
+
+    // Check metadata_locks_hash_instances if MySQL is between 5.6.8 and 5.7.4.
+    // Or if MariaDB is 10.0 or higher.
+    if ((version_compare($version, '5.6.8', '>=') && version_compare($version, '5.7.4', '<')) || ($mysql_db_type === 'mariadb' && version_compare($version_alt, '10.0', '>='))) {
+      $results = array();
+      $results += db_query("SHOW GLOBAL VARIABLES LIKE 'metadata_locks_hash_instances'")->fetchAllKeyed();
+      if (!empty($results['metadata_locks_hash_instances']) && $results['metadata_locks_hash_instances'] < 256) {
+        $requirements['apdqc_metadata_locks_hash_instances'] = array(
+          'title'       => $t('APDQC - metadata_locks_hash_instances'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('The metadata_locks_hash_instances value should be increased.'),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current size: @current.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'metadata_locks_hash_instances = 256',
+            '@target' => 256,
+            '@current' => $results['metadata_locks_hash_instances'],
+          )),
+        );
+      }
+    }
+
+    // Check innodb_checksum_algorithm if MySQL is 5.6.3 or higher.
+    // Or if MariaDB is 10.0 or higher.
+    if (version_compare($version, '5.6.3', '>=') || ($mysql_db_type === 'mariadb' && version_compare($version_alt, '10.0', '>='))) {
+      $results = array();
+      $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_checksum_algorithm'")->fetchAllKeyed();
+      if (!empty($results['innodb_checksum_algorithm']) && stripos($results['innodb_checksum_algorithm'], 'crc32') === FALSE) {
+        $requirements['apdqc_innodb_checksum_algorithm'] = array(
+          'title'       => $t('APDQC - innodb_checksum_algorithm'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('The innodb_checksum_algorithm value should be changed.'),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'innodb_checksum_algorithm = crc32',
+            '@target' => 'crc32',
+            '@current' => $results['innodb_checksum_algorithm'],
+          )),
+        );
+      }
+    }
+
+    // Check table_definition_cache.
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'table_definition_cache'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'table_open_cache'")->fetchAllKeyed();
+    if ( !empty($results['table_definition_cache'])
+      && !empty($results['table_open_cache'])
+    ) {
+      $new_value = min(2000, floor(400 + ($results['table_open_cache'] / 2)));
+      if ($results['table_definition_cache'] < $new_value) {
+        $requirements['apdqc_table_definition_cache'] = array(
+          'title'       => $t('APDQC - table_definition_cache'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('The table_definition_cache value should be changed.'),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'table_definition_cache = ' . $new_value,
+            '@target' => $new_value,
+            '@current' => $results['table_definition_cache'],
+          )),
+        );
+      }
+    }
+
+    // Check mrr_buffer_size/read_rnd_buffer_size.
+    $results = array();
+    if ($mysql_db_type === 'mariadb') {
+      $results += db_query("SHOW VARIABLES LIKE 'mrr_buffer_size'")->fetchAllKeyed();
+      if (!empty($results['mrr_buffer_size']) && $results['mrr_buffer_size'] < 8388608) {
+        $requirements['apdqc_mrr_buffer_size'] = array(
+          'title'       => $t('APDQC - mrr_buffer_size'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('The mrr_buffer_size value should be changed.'),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current. Alternatively inside settings.php add this to the bottom of the file <p><code>@code</code></p>', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'mrr_buffer_size = 8M',
+            '@target' => '8M',
+            '@current' => apdqc_install_byte2human($results['mrr_buffer_size']),
+            '@code' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'mrr_buffer_size\'] = "SET SESSION mrr_buffer_size = 8388608";',
+          )),
+        );
+      }
+    }
+    else {
+      $results += db_query("SHOW VARIABLES LIKE 'read_rnd_buffer_size'")->fetchAllKeyed();
+      if (!empty($results['read_rnd_buffer_size']) && $results['read_rnd_buffer_size'] < 8388608) {
+        $requirements['apdqc_read_rnd_buffer_size'] = array(
+          'title'       => $t('APDQC - read_rnd_buffer_size'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('The read_rnd_buffer_size value should be changed.'),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current. Alternatively inside settings.php add this to the bottom of the file <p><code>@code</code></p>', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'read_rnd_buffer_size = 8M',
+            '@target' => '8M',
+            '@current' => apdqc_install_byte2human($results['read_rnd_buffer_size']),
+            '@code' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'read_rnd_buffer_size\'] = "SET SESSION read_rnd_buffer_size = 8388608";',
+          )),
+        );
+      }
+    }
+
+    // Check join_buffer_size.
+    $results = array();
+    $results += db_query("SHOW VARIABLES LIKE 'join_buffer_size'")->fetchAllKeyed();
+    if (!empty($results['join_buffer_size']) && $results['join_buffer_size'] < 8388608) {
+      $requirements['apdqc_join_buffer_size'] = array(
+        'title'       => $t('APDQC - join_buffer_size'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The join_buffer_size value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current. Alternatively inside settings.php add this to the bottom of the file <p><code>@code</code></p>', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'join_buffer_size = 8M',
+          '@target' => '8M',
+          '@current' => apdqc_install_byte2human($results['join_buffer_size']),
+          '@code' => '$databases[\'default\'][\'default\'][\'init_commands\'][\'join_buffer_size\'] = "SET SESSION join_buffer_size = 8388608";',
+        )),
+      );
+    }
+
+    // Check innodb_flush_method.
+    if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+      $results = array();
+      $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_log_file_size'")->fetchAllKeyed();
+      $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_flush_method'")->fetchAllKeyed();
+      if ( $results['innodb_flush_method'] !== 'ALL_O_DIRECT'
+        && $results['innodb_log_file_size'] >= 8589934592
+        && ($mysql_db_type === 'mariadb' && version_compare($version_alt, '10.0', '>='))
+        || $mysql_db_type === 'percona' && version_compare($version, '5.5', '>=')
+      ) {
+        // Use ALL_O_DIRECT if the log file size is over 8GB and using mariadb
+        // percona.
+        $requirements['apdqc_innodb_flush_method'] = array(
+          'title'       => $t('APDQC - innodb_flush_method'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('The innodb_flush_method value should be changed.'),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'innodb_flush_method = ALL_O_DIRECT',
+            '@target' => 'ALL_O_DIRECT',
+            '@current' => $results['innodb_flush_method'],
+          )),
+        );
+      }
+      elseif (strpos($results['innodb_flush_method'], 'O_DIRECT') === FALSE && strpos($results['innodb_flush_method'], 'O_DSYNC') === FALSE) {
+        // Recommend using O_DIRECT.
+        $requirements['apdqc_innodb_flush_method'] = array(
+          'title'       => $t('APDQC - innodb_flush_method'),
+          'severity'    => REQUIREMENT_WARNING,
+          'value'       => $t('The innodb_flush_method value should be changed.'),
+          'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current.', array(
+            '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+            '@config' => 'innodb_flush_method = O_DIRECT',
+            '@target' => 'O_DIRECT',
+            '@current' => $results['innodb_flush_method'],
+          )),
+        );
+      }
+    }
+
+    // Check innodb_file_per_table.
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_file_per_table'")->fetchAllKeyed();
+    if ($results['innodb_file_per_table'] !== 'ON' && $results['innodb_file_per_table'] != 1) {
+      if (variable_get('apdqc_innodb_file_per_table', APDQC_INNODB_FILE_PER_TABLE) !== 'OFF') {
+        variable_set('apdqc_innodb_file_per_table', 'OFF');
+      }
+      // Use innodb_file_per_table.
+      $requirements['apdqc_innodb_file_per_table'] = array(
+        'title'       => $t('APDQC - innodb_file_per_table'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The innodb_file_per_table value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_file_per_table = 1',
+          '@target' => '1',
+          '@current' => $results['innodb_file_per_table'],
+        )),
+      );
+    }
+
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'performance_schema'")->fetchAllKeyed();
+    if ($results['performance_schema'] !== 'OFF' && $results['performance_schema'] != 0) {
+      // Disable the performance_schema.
+      $requirements['apdqc_performance_schema'] = array(
+        'title'       => $t('APDQC - performance_schema'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The performance_schema value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'performance_schema = 0',
+          '@target' => '0',
+          '@current' => $results['apdqc_performance_schema'],
+        )),
+      );
+    }
+
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'thread_cache_size'")->fetchAllKeyed();
+    $results += db_query("SHOW VARIABLES LIKE 'max_connections'")->fetchAllKeyed();
+    $ideal = ceil(8 + ($results['max_connections'] / 100));
+    if ($results['thread_cache_size'] != -1 && $results['thread_cache_size'] < $ideal) {
+      // Increase the thread_cache_size.
+      $requirements['apdqc_thread_cache_size'] = array(
+        'title'       => $t('APDQC - thread_cache_size'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The thread_cache_size value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'thread_cache_size = ' . $ideal,
+          '@target' => $ideal,
+          '@current' => $results['thread_cache_size'],
+        )),
+      );
+    }
+
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_buffer_pool_size'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_buffer_pool_instances'")->fetchAllKeyed();
+    // Use 8 or more innodb_buffer_pool_instances if the innodb_buffer_pool_size
+    // is over 1GB.
+    if ($results['innodb_buffer_pool_size'] > 1073741824 && $results['innodb_buffer_pool_instances'] < 8) {
+      // Increase the thread_cache_size.
+      $requirements['apdqc_innodb_buffer_pool_instances'] = array(
+        'title'       => $t('APDQC - innodb_buffer_pool_instances'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The innodb_buffer_pool_instances value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_buffer_pool_instances = 8',
+          '@target' => 8,
+          '@current' => $results['innodb_buffer_pool_instances'],
+        )),
+      );
+    }
+
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_thread_concurrency'")->fetchAllKeyed();
+    // Make sure innodb_thread_concurrency is 0 (infinite concurrency).
+    if ($results['innodb_thread_concurrency'] != 0) {
+      // Increase the thread_cache_size.
+      $requirements['apdqc_innodb_thread_concurrency'] = array(
+        'title'       => $t('APDQC - innodb_thread_concurrency'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The innodb_thread_concurrency value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_thread_concurrency = 0',
+          '@target' => 0,
+          '@current' => $results['innodb_thread_concurrency'],
+        )),
+      );
+    }
+
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_spin_wait_delay'")->fetchAllKeyed();
+    // Make sure innodb_spin_wait_delay is at least 24.
+    if ($results['innodb_spin_wait_delay'] < 24) {
+      // Increase the thread_cache_size.
+      $requirements['apdqc_innodb_spin_wait_delay'] = array(
+        'title'       => $t('APDQC - innodb_spin_wait_delay'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The innodb_spin_wait_delay value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_spin_wait_delay = 24',
+          '@target' => 24,
+          '@current' => $results['innodb_spin_wait_delay'],
+        )),
+      );
+    }
+
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_sync_spin_loops'")->fetchAllKeyed();
+    // Make sure innodb_sync_spin_loops is at least 200.
+    if ($results['innodb_sync_spin_loops'] < 200) {
+      // Increase the thread_cache_size.
+      $requirements['apdqc_innodb_sync_spin_loops'] = array(
+        'title'       => $t('APDQC - innodb_sync_spin_loops'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The innodb_sync_spin_loops value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_sync_spin_loops = 200',
+          '@target' => 200,
+          '@current' => $results['innodb_sync_spin_loops'],
+        )),
+      );
+    }
+
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_read_io_threads'")->fetchAllKeyed();
+    // Make sure innodb_read_io_threads is at least 16.
+    if ($results['innodb_read_io_threads'] < 16) {
+      // Increase the thread_cache_size.
+      $requirements['innodb_read_io_threads'] = array(
+        'title'       => $t('APDQC - innodb_read_io_threads'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The innodb_read_io_threads value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_read_io_threads = 16',
+          '@target' => 16,
+          '@current' => $results['innodb_read_io_threads'],
+        )),
+      );
+    }
+
+    $results = array();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_write_io_threads'")->fetchAllKeyed();
+    // Make sure innodb_write_io_threads is at least 16.
+    if ($results['innodb_write_io_threads'] < 16) {
+      // Increase the thread_cache_size.
+      $requirements['innodb_write_io_threads'] = array(
+        'title'       => $t('APDQC - innodb_write_io_threads'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The innodb_write_io_threads value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is at least @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_write_io_threads = 16',
+          '@target' => 16,
+          '@current' => $results['innodb_write_io_threads'],
+        )),
+      );
+    }
+
+    $results = array();
+    $results += db_query("SHOW VARIABLES LIKE 'binlog_format'")->fetchAllKeyed();
+    $results += db_query("SHOW GLOBAL VARIABLES LIKE 'innodb_autoinc_lock_mode'")->fetchAllKeyed();
+    // Make sure innodb_autoinc_lock_mode is 1.
+    if ($results['binlog_format'] === 'ROW' && $results['innodb_autoinc_lock_mode'] != 2) {
+      // Increase the thread_cache_size.
+      $requirements['innodb_autoinc_lock_mode'] = array(
+        'title'       => $t('APDQC - innodb_autoinc_lock_mode'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The innodb_autoinc_lock_mode value should be changed.'),
+        'description' => $t('Find the MySQL configuration file (<a href="@mycnf">how to find it</a>) and add and/or modify this line <code>@config</code> so it is @target; current value: @current.', array(
+          '@mycnf' => 'https://mariadb.com/kb/en/mariadb/documentation/getting-started/starting-and-stopping-mariadb/mysqld-configuration-files-and-groups/',
+          '@config' => 'innodb_autoinc_lock_mode = 2',
+          '@target' => 2,
+          '@current' => $results['innodb_autoinc_lock_mode'],
+        )),
       );
     }
 
@@ -682,6 +1371,27 @@ function apdqc_requirements($phase) {
         break;
       }
     }
+    // Recommend APDQCache over DrupalDatabaseCache for cache_class_$bin's.
+    module_load_include('admin.inc', 'apdqc');
+    module_load_include('cache.inc', 'apdqc');
+    $cache_tables = apdqc_get_cache_tables(FALSE);
+    $cache_class = array();
+    $apdqc_class = array();
+    foreach ($cache_tables as $table) {
+      if (!db_table_exists($table)) {
+        continue;
+      }
+      if (apdqc_get_bin_class_name($table) === 'DrupalDatabaseCache') {
+        $cache_class[] = $table;
+      }
+      if (apdqc_get_bin_class_name($table) === 'APDQCache') {
+        $apdqc_class[] = $table;
+      }
+    }
+    $settings_lines = array();
+    foreach ($cache_class as $table) {
+      $settings_lines[] = '$conf[\'cache_class_' . $table . '\'] = \'APDQCache\';';
+    }
     if (!$apdqcache_found) {
       $file_path = drupal_get_path('module', 'apdqc');
       if (variable_get('cache_default_class', 'DrupalDatabaseCache') === 'DrupalDatabaseCache') {
@@ -691,9 +1401,9 @@ function apdqc_requirements($phase) {
         ));
       }
       else {
-        $description = $t('Inside settings.php add this to the bottom of the file <p><code>@line-1<br />@line-2</code></p>', array(
+        $description = $t('Inside settings.php add this to the bottom of the file <p><code>@line-1<br />!line-2</code></p>', array(
           '@line-1' => '$conf[\'cache_backends\'][] = \'' . $file_path . '/apdqc.cache.inc\';',
-          '@line-2' => '$conf[\'cache_class_cache_form\'] = \'APDQCache\';',
+          '!line-2' => implode('<br />', $settings_lines),
         ));
       }
       $requirements['apdqc_cache_backend'] = array(
@@ -715,36 +1425,20 @@ function apdqc_requirements($phase) {
         );
       }
       else {
-        // Recommend APDQCache over DrupalDatabaseCache for cache_class_$bin's.
-        module_load_include('admin.inc', 'apdqc');
-        module_load_include('cache.inc', 'apdqc');
-        $cache_tables = apdqc_get_cache_tables(FALSE);
-        $cache_class = array();
-        $apdqc_class = array();
-        foreach ($cache_tables as $table) {
-          if (!db_table_exists($table)) {
-            continue;
-          }
-          if (apdqc_get_bin_class_name($table) === 'DrupalDatabaseCache') {
-            $cache_class[] = $table;
-          }
-          if (apdqc_get_bin_class_name($table) === 'APDQCache') {
-            $apdqc_class[] = $table;
-          }
-        }
         if (!empty($cache_class)) {
           $requirements['apdqc_cache_classes'] = array(
             'title'       => $t('APDQC - Cache Class'),
             'severity'    => REQUIREMENT_WARNING,
             'value'       => $t('Please switch from DrupalDatabaseCache to APDQCache.'),
-            'description' => $t('Inside settings.php you need to change the cache_class_CACHE-TABLE-NAME from DrupalDatabaseCache to APDQCache. List of tables that need to be changed: @list', array(
+            'description' => $t('Inside settings.php you need to change the cache_class_CACHE-TABLE-NAME from DrupalDatabaseCache to APDQCache. List of tables that need to be changed: @list. Example code: <p><code>!line-1</code></p>', array(
               '@list' => implode(', ', $cache_class),
+              '!line-1' => implode('<br />', $settings_lines),
             )),
           );
         }
         elseif (empty($apdqc_class)) {
           $requirements['apdqc_cache_used'] = array(
-            'title'       => $t('APDQC - Cache Useage'),
+            'title'       => $t('APDQC - Cache Usage'),
             'severity'    => REQUIREMENT_WARNING,
             'value'       => $t('APDQC is not assigned to any cache tables.'),
             'description' => $t('Inside settings.php you need to assign APDQC to handle a cache table. The most common table to do if using another cache backend is the cache_form table. <p><code>@line-1</code></p>', array(
@@ -800,33 +1494,35 @@ function apdqc_requirements($phase) {
     }
 
     // Check cache table collation. Recommend utf8_bin.
-    // Make apdqc_admin_change_table_collation() available.
+    // Make apdqc_admin_operations_form() available.
     module_load_include('admin.inc', 'apdqc');
-    $tables = apdqc_admin_change_table_collation();
-    if (!empty($tables)) {
+    $apdqc_admin_operations_form = apdqc_admin_operations_form(array(), array());
+    if (isset($apdqc_admin_operations_form['convert_cache_tables_collation_utf8']) && empty($apdqc_admin_operations_form['convert_cache_tables_collation_utf8']['#collapsed'])) {
       $requirements['apdqc_cache_table_collation'] = array(
         'title'       => $t('APDQC - Cache table collations'),
         'severity'    => REQUIREMENT_WARNING,
-        'value'       => $t('Using the utf8_bin collation is faster and more accurate when matching cache ids since no unicode normalization is done to cache queries.'),
-        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to change the cache tables to utf8_bin. This is a <a href="@d8">Drupal 8 backport</a>.', array(
+        'value'       => $t('Using the utf8_bin collation is faster and more accurate when matching cache ids since no unicode normalization is done to cache queries. Using the ascii_bin collation is very fast but it could cause issues.'),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to change the cache tables to utf8_bin. This is a <a href="@d8">Drupal 8 backport</a>. You can also choose to convert then to ascii_bin, this is even faster but it might not be 100% safe depending on your setup. Tables not using utf8_bin: @tables', array(
           '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
           '@d8' => 'https://www.drupal.org/node/2352207',
+          '@tables' => implode(', ', $apdqc_admin_operations_form['convert_cache_tables_collation_utf8']['#raw_data']),
+        )),
+      );
+    }
+    elseif (isset($apdqc_admin_operations_form['convert_cache_tables_collation_ascii']) && empty($apdqc_admin_operations_form['convert_cache_tables_collation_ascii']['#collapsed'])) {
+      $requirements['apdqc_cache_table_collation'] = array(
+        'title'       => $t('APDQC - Cache table collations'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('Using the ascii_bin collation is faster when matching cache ids.'),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to change the cache tables to ascii_bin. Tables not using ascii_bin: @tables', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+          '@tables' => implode(', ', $apdqc_admin_operations_form['convert_cache_tables_collation_ascii']['#raw_data']),
         )),
       );
     }
 
     // Check cache table indexes. Make sure the expire_created index is there.
-    // Make apdqc_get_cache_table_indexes() available.
-    module_load_include('admin.inc', 'apdqc');
-    $cache_table_indexes = apdqc_get_cache_table_indexes();
-    $missing_expire_created_index = FALSE;
-    foreach ($cache_table_indexes as $indexes) {
-      if (!isset($indexes['expire_created'])) {
-        $missing_expire_created_index = TRUE;
-        break;
-      }
-    }
-    if (!empty($missing_expire_created_index)) {
+    if (!empty($apdqc_admin_operations_form['convert_cache_tables_indexes'])) {
       $requirements['apdqc_cache_table_indexes'] = array(
         'title'       => $t('APDQC - Cache table indexes'),
         'severity'    => REQUIREMENT_WARNING,
@@ -838,10 +1534,7 @@ function apdqc_requirements($phase) {
     }
 
     // Check cache table engine. Recommend InnoDB.
-    // Make apdqc_admin_change_table_engine() available.
-    module_load_include('admin.inc', 'apdqc');
-    $tables = apdqc_admin_change_table_engine();
-    if (!empty($tables)) {
+    if (!empty($apdqc_admin_operations_form['convert_cache_tables_engine'])) {
       $requirements['apdqc_cache_table_engine'] = array(
         'title'       => $t('APDQC - Cache table engine'),
         'severity'    => REQUIREMENT_ERROR,
@@ -852,9 +1545,73 @@ function apdqc_requirements($phase) {
       );
     }
 
+    // Recommendation of engine type for the semaphore table.
+    if (isset($apdqc_admin_operations_form['convert_semaphore_table']['convert_table_to_memory'])) {
+      $requirements['apdqc_memory_table'] = array(
+        'title'       => $t('APDQC - MySQL semaphore table'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('For older versions of MySQL (5.5 and lower) using the memory engine for the semaphore table is recommended.', array(
+          '@value' => $iso_level,
+        )),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table to <code>@new-engine</code>.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+          '@new-engine' => 'MEMORY',
+        )),
+      );
+    }
+    elseif (isset($apdqc_admin_operations_form['convert_semaphore_table']['convert_table_to_innodb'])) {
+      $requirements['apdqc_memory_table'] = array(
+        'title'       => $t('APDQC - MySQL semaphore table'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('For newer versions of MySQL (5.6 and higher) the InnoDB engine for the semaphore table is recommended.', array(
+          '@value' => $iso_level,
+        )),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to convert the semaphore table to <code>@new-engine</code>.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+          '@new-engine' => 'InnoDB',
+        )),
+      );
+    }
+
+    // Recommendation of schema changes for the sessions table.
+    if (isset($apdqc_admin_operations_form['convert_sessions_table_schema'])) {
+      $requirements['apdqc_sessions_schema'] = array(
+        'title'       => $t('APDQC - sessions table schema'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The sessions tables schema needs to be updated'),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to update the sessions table schema.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+        )),
+      );
+    }
+
+    // Recommendation of schema changes for the semaphore table.
+    if (isset($apdqc_admin_operations_form['convert_semaphore_table_schema'])) {
+      $requirements['apdqc_semaphore_schema'] = array(
+        'title'       => $t('APDQC - semaphore table schema'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The semaphore tables schema needs to be updated'),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> to update the semaphore table schema.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+        )),
+      );
+    }
+
+    // Reset all tables to have the engine InnoDB if already InnoDB. This will
+    // recreate the db table in its own file.
+    if (isset($apdqc_admin_operations_form['all_db_tables_own_file'])) {
+      // The innodb tables need to be converted.
+      $requirements['apdqc_innodb_file_per_table_convert'] = array(
+        'title'       => $t('APDQC - innodb_file_per_table conversion'),
+        'severity'    => REQUIREMENT_WARNING,
+        'value'       => $t('The innodb_file_per_table value was recently changed and now the tables need to be converted.'),
+        'description' => $t('Go to the <a href="@admin-page">APDQC Operations page</a> and select make every database table a file.', array(
+          '@admin-page' => url('admin/config/development/performance/apdqc/operations'),
+        )),
+      );
+    }
+
     // Set mysql_db_type if needed.
-    $results = db_query("SELECT SUBSTR(@@global.version_comment, 1, LOCATE(' ', @@global.version_comment) - 1) AS DBtype")->fetchAssoc();
-    $mysql_db_type = reset($results);
     $mysql_db_type_set = 'MySQL';
     if (isset($GLOBALS['databases']['default']['default']['mysql_db_type'])) {
       $mysql_db_type_set = $GLOBALS['databases']['default']['default']['mysql_db_type'];

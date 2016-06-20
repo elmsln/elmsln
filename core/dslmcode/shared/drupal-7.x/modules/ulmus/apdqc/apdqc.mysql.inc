@@ -12,6 +12,20 @@ if (!defined('APDQC_VERBOSE_DEVEL_OUTPUT')) {
 }
 
 /**
+ * Max number of connections a thread can use.
+ */
+if (!defined('APDQC_MAX_CONNECTIONS_PER_THREAD')) {
+  define('APDQC_MAX_CONNECTIONS_PER_THREAD', 10);
+}
+
+/**
+ * Max number of connections a thread can use before mysql max is checked.
+ */
+if (!defined('APDQC_MAX_CONNECTIONS_BEFORE_CHECK')) {
+  define('APDQC_MAX_CONNECTIONS_BEFORE_CHECK', 5);
+}
+
+/**
  * Used to get & parse async cached data.
  *
  * @param mixed $mysqli_result
@@ -38,15 +52,24 @@ function apdqc_async_data($mysqli_result = FALSE, $table = FALSE, $cids = array(
   // Use the advanced drupal_static() pattern, since this is called very often.
   static $local_storage;
   if (!isset($local_storage)) {
-    $local_storage = &drupal_static(__FUNCTION__);
+    $local_storage = &drupal_static('apdqc_async_data');
   }
   static $get_count;
   static $use_async_data;
   if (!isset($use_async_data)) {
-    $do_not_use_async_data = &drupal_static(__FUNCTION__ . '_do_not_use_async');
+    $do_not_use_async_data = &drupal_static('apdqc_async_data_do_not_use_async', array());
   }
-  if ($do_not_use_async_data) {
-    return array();
+  if (is_array($table)) {
+    foreach ($table as $t) {
+      if (is_array($do_not_use_async_data) && array_key_exists($t, $do_not_use_async_data) && !empty($do_not_use_async_data[$t])) {
+        return array();
+      }
+    }
+  }
+  else {
+    if (is_array($do_not_use_async_data) && array_key_exists($table, $do_not_use_async_data) && !empty($do_not_use_async_data[$table])) {
+      return array();
+    }
   }
 
   $output = array();
@@ -113,12 +136,14 @@ function apdqc_async_data($mysqli_result = FALSE, $table = FALSE, $cids = array(
       }
       // Prefetch the page cache.
       if (variable_get('cache_bootstrap_prefetch', CACHE_BOOTSTRAP_PREFETCH)) {
-        // Add in the page cache.
-        $cid = apdqc_escape_string($GLOBALS['base_root'] . request_uri(), 'cache_page');
-        $table_keys_cache_prefetch['cache_page'][] = $cid;
+        if (apdqc_get_bin_class_name('cache_page') === 'APDQCache') {
+          // Add in the page cache.
+          $cid = apdqc_escape_string($GLOBALS['base_root'] . request_uri(), 'cache_page');
+          $table_keys_cache_prefetch['cache_page'][] = $cid;
 
-        // Run async query.
-        apdqc_run_prefetch_array($table_keys_cache_prefetch, TRUE, FALSE);
+          // Run async query.
+          apdqc_run_prefetch_array($table_keys_cache_prefetch, TRUE, FALSE);
+        }
       }
     }
     if (is_string($table) && isset($local_storage[$table])) {
@@ -225,7 +250,7 @@ function apdqc_get_db_object(array $tables = array(), array $cids = array(), arr
       'wait_timeout' => 90,
       'connect_timeout' => 2,
       'innodb_lock_wait_timeout' => 10,
-      // 33554432 = 32MB
+      // 33554432 = 32MB.
       'max_allowed_packet' => 33554432,
     );
 
@@ -379,9 +404,9 @@ function apdqc_get_db_object(array $tables = array(), array $cids = array(), arr
     }
 
     // All current connections are in use.
-    if (count($db_info['pool']) < 8) {
+    if (count($db_info['pool']) < variable_get('apdqc_max_connections_per_thread', APDQC_MAX_CONNECTIONS_PER_THREAD)) {
       // Create a new DB connection.
-      if (count($db_info['pool']) < 3) {
+      if (count($db_info['pool']) < variable_get('apdqc_max_connections_before_check', APDQC_MAX_CONNECTIONS_BEFORE_CHECK)) {
         $mysqli = apdqc_mysqli_new_connection($db_info);
       }
       else {
@@ -568,12 +593,18 @@ function apdqc_mysqli_new_connection(array $db_info, $check_max = FALSE) {
       SET sql_mode = 'ANSI,STRICT_TRANS_TABLES,STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER',
       SESSION group_concat_max_len = 65535,
       SESSION tx_isolation='READ-COMMITTED',
-      SESSION wait_timeout = LEAST(@@global.wait_timeout, " . $db_info['var']['wait_timeout'] . "),
-      GLOBAL max_allowed_packet = GREATEST(@@global.max_allowed_packet, " . $db_info['var']['max_allowed_packet'] . ")
+      SESSION wait_timeout = LEAST(@@global.wait_timeout, {$db_info['var']['wait_timeout']}),
+      SESSION join_buffer_size = 131072
     ";
     // Set innodb_lock_wait_timeout if MySQL 5.5 or higher.
     if ($mysqli->server_version >= 50500) {
       $init_query .= ", SESSION innodb_lock_wait_timeout = " . $db_info['var']['innodb_lock_wait_timeout'];
+    }
+    if (!empty($db_info['connection']['mysql_db_type']) && stripos($db_info['connection']['mysql_db_type'], 'mariadb') !== FALSE) {
+      $init_query .= ", SESSION mrr_buffer_size = 262144";
+    }
+    else {
+      $init_query .= ", SESSION read_rnd_buffer_size = 262144";
     }
     $mysqli->query($init_query);
   }
@@ -690,33 +721,56 @@ function apdqc_query(array $tables, array $cids, $query, array $options = array(
   }
 
   if (strpos($query, 'SELECT ') === 0) {
+    // Get the mysql database type.
+    static $mysql_db_type;
+    if (!isset($mysql_db_type)) {
+      $mysql_db_type = &drupal_static('apdqc_mysql_db_type');
+      if (stripos($mysql_db_type, 'mariadb') !== FALSE) {
+        static $version_alt;
+        $version_alt = $mysqli->server_info;
+        $pos_a = stripos($version_alt, 'mariadb') - 7;
+        $pos_b = stripos($version_alt, '-');
+        if ($pos_a !== FALSE && $pos_b !== FALSE && $pos_a > $pos_b) {
+          $version_alt = substr($version_alt, $pos_b + 1, $pos_a);
+        }
+      }
+    }
+
     // Use a SELECT statement timeout if this is MySQL 5.7.4 or higher.
     $alter_select = FALSE;
-    if ($mysqli->server_version >= 50704) {
+    if ($mysqli->server_version >= 50704 && $mysqli->server_version < 50708) {
       $alter_select = TRUE;
     }
     // Use a SELECT statement timeout if this is Percona 5.6.14 or higher.
     elseif ($mysqli->server_version >= 50614) {
-      // Get the mysql database type.
-      static $mysql_db_type;
-      if (!isset($mysql_db_type)) {
-        $mysql_db_type = &drupal_static('apdqc_mysql_db_type');
-      }
-      if (stripos($mysql_db_type, 'Percona') !== FALSE) {
+      if (stripos($mysql_db_type, 'percona') !== FALSE) {
         $alter_select = TRUE;
       }
     }
     if ($alter_select) {
       $query = str_replace('SELECT ', 'SELECT MAX_STATEMENT_TIME=2000 ', $query);
     }
+    else {
+      if ($mysqli->server_version >= 50708) {
+        $query = str_replace('SELECT ', 'SELECT /*+ MAX_EXECUTION_TIME(2000) */ ', $query);
+      }
+      elseif (stripos($mysql_db_type, 'mariadb') !== FALSE && version_compare($version_alt, '10.1.2', '>=')) {
+        $query = str_replace('SELECT ', 'SET STATEMENT max_statement_time=2 FOR SELECT ', $query);
+      }
+    }
   }
 
   // Clear static cache on insert or delete & disable function for the rest of
   // this request.
   if (strpos($query, 'INSERT ') === 0 || strpos($query, 'DELETE ') === 0 || strpos($query, 'TRUNCATE ') === 0) {
-    drupal_static_reset('apdqc_async_data');
+    $apdqc_async_data = &drupal_static('apdqc_async_data');
     $do_not_use_async_data = &drupal_static('apdqc_async_data_do_not_use_async');
-    $do_not_use_async_data = TRUE;
+    $do_not_run_prefetch_array = &drupal_static('apdqc_run_prefetch_array');
+    foreach ($tables as $table) {
+      $apdqc_async_data[$table] = array();
+      $do_not_use_async_data[$table] = TRUE;
+      $do_not_run_prefetch_array[$table] = TRUE;
+    }
   }
 
   // Catch mysql disconnect errors with our own error handler.
@@ -724,7 +778,7 @@ function apdqc_query(array $tables, array $cids, $query, array $options = array(
   set_error_handler('_apdqc_query_error_handler');
 
   // About to query the semaphore table, set tx_isolation to READ-UNCOMMITTED.
-  if ($tables[0] == 'semaphore') {
+  if ($tables[0] == 'semaphore' || $tables[0] == 'sessions') {
     $mysqli->query("SET SESSION tx_isolation='READ-UNCOMMITTED'");
   }
 
@@ -758,7 +812,7 @@ function apdqc_query(array $tables, array $cids, $query, array $options = array(
       }
     }
     else {
-      watchdog('apdqc', 'This query failed: ' . $query);
+      watchdog('apdqc', 'This query failed: @query', array('@query' => $query));
     }
   }
   // Restore the Drupal error handler.
@@ -813,7 +867,7 @@ function apdqc_query(array $tables, array $cids, $query, array $options = array(
     }
   }
   // Done quering the semaphore table, set tx_isolation back to READ-COMMITTED.
-  if ($tables[0] == 'semaphore') {
+  if ($tables[0] == 'semaphore' || $tables[0] == 'sessions') {
     $mysqli->query("SET SESSION tx_isolation='READ-COMMITTED'");
   }
   return $return;

@@ -7,10 +7,19 @@ Asynchronous Prefetch Database Query Cache
 CONTENTS OF THIS FILE
 ---------------------
 
+ - Requirements
  - Installation
  - Features & benefits
  - Configuration
  - Troubleshooting
+
+
+REQUIREMENTS
+------------
+
+ - MySQL 5.5+
+ - mysqlnd Driver
+ - PHP 5.3+
 
 
 INSTALLATION

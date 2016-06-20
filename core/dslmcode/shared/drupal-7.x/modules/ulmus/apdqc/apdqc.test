@@ -1,0 +1,999 @@
+<?php
+
+/**
+ * @file
+ *   Tests for the Asynchronous Prefetch Database Query Cache module.
+ */
+
+/**
+ * Add new functionality to DrupalWebTestCase.
+ */
+class ApdqcCacheTestCase extends DrupalWebTestCase {
+  protected $default_bin = 'cache';
+  protected $default_cid = 'test_temporary';
+  protected $default_value = 'CacheTest';
+
+  /**
+   * Setup for tests.
+   */
+  function setUp() {
+    parent::setUp(func_get_args());
+    $cache_backends = variable_get('cache_backends', array());
+    $file_path = drupal_get_path('module', 'apdqc');
+    $cache_backends[] = "${file_path}/apdqc.cache.inc";
+    variable_set('cache_backends', $cache_backends);
+    variable_set('cache_default_class', 'APDQCache');
+  }
+
+  /**
+   * Check whether or not a cache entry exists.
+   *
+   * @param $cid
+   *   The cache id.
+   * @param $var
+   *   The variable the cache should contain.
+   * @param $bin
+   *   The bin the cache item was stored in.
+   * @return
+   *   TRUE on pass, FALSE on fail.
+   */
+  protected function checkCacheExists($cid, $var, $bin = NULL) {
+    if ($bin == NULL) {
+      $bin = $this->default_bin;
+    }
+
+    $cache = new APDQCache($bin);
+    $cached = $cache->get($cid);
+
+    return isset($cached->data) && $cached->data == $var;
+  }
+
+  /**
+   * Assert that a cache entry exists.
+   *
+   * @param $message
+   *   Message to display.
+   * @param $var
+   *   The variable the cache should contain.
+   * @param $cid
+   *   The cache id.
+   * @param $bin
+   *   The bin the cache item was stored in.
+   */
+  protected function assertCacheExists($message, $var = NULL, $cid = NULL, $bin = NULL) {
+    if ($bin == NULL) {
+      $bin = $this->default_bin;
+    }
+    if ($cid == NULL) {
+      $cid = $this->default_cid;
+    }
+    if ($var == NULL) {
+      $var = $this->default_value;
+    }
+
+    $this->assertTrue($this->checkCacheExists($cid, $var, $bin), $message);
+  }
+
+  /**
+   * Assert that a cache entry has been removed.
+   *
+   * @param $message
+   *   Message to display.
+   * @param $cid
+   *   The cache id.
+   * @param $bin
+   *   The bin the cache item was stored in.
+   */
+  function assertCacheRemoved($message, $cid = NULL, $bin = NULL) {
+    if ($bin == NULL) {
+      $bin = $this->default_bin;
+    }
+    if ($cid == NULL) {
+      $cid = $this->default_cid;
+    }
+
+    $cache = new APDQCache($bin);
+    $cached = $cache->get($cid);
+    $this->assertFalse($cached, $message);
+  }
+
+  /**
+   * Perform the general wipe.
+   *
+   * @param $bin
+   *   The bin to perform the wipe on.
+   */
+  protected function generalWipe($bin = NULL) {
+    if ($bin == NULL) {
+      $bin = $this->default_bin;
+    }
+
+    $cache = new APDQCache($bin);
+    $cache->clear();
+  }
+
+  /**
+   * Setup minimum lifetime settings for caching.
+   *
+   * @param $time
+   *   The minimum time in seconds the cache should live.
+   */
+  protected function setupLifetime($time) {
+    variable_set('cache_lifetime', $time);
+    variable_set('cache_flush', 0);
+  }
+}
+
+/**
+ * Test cache clearing methods for APDQC.
+ */
+class ApdqcCacheClearCase extends ApdqcCacheTestCase {
+  /**
+   * Provide information to the UI for this test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'APDQC cache clear test',
+      'description' => t('Check that caches are cleared correctly.'),
+      'group' => 'APDQC',
+    );
+  }
+
+  /**
+   * Install the apdqc module and setup the cache.
+   */
+  public function setUp() {
+    $this->default_bin = 'cache_page';
+    $this->default_value = $this->randomName(10);
+
+    parent::setUp('apdqc');
+    $cache_backends = variable_get('cache_backends', array());
+    $file_path = drupal_get_path('module', 'apdqc');
+    $cache_backends[] = "${file_path}/apdqc.cache.inc";
+    variable_set('cache_backends', $cache_backends);
+    variable_set('cache_default_class', 'APDQCache');
+  }
+
+  /**
+   * Tests CACHE_TEMPORARY behavior.
+   */
+  function testCacheTemporary() {
+    $cache = new APDQCache($this->default_bin);
+    // Set a permanent and temporary cache item.
+    $cache->set('test_cache_temporary', $this->default_value, CACHE_TEMPORARY);
+    $cache->set('test_cache_permanent', $this->default_value);
+    // Also set expired and yet to expire cache items.
+    $cache->set('test_cache_expired', $this->default_value, REQUEST_TIME - 1000);
+    $cache->set('test_cache_not_expired', $this->default_value, REQUEST_TIME + 1000);
+    // Run Tests.
+    $this->assertTrue($this->checkCacheExists('test_cache_expired', $this->default_value), 'cache_expired set');
+    $this->assertTrue($this->checkCacheExists('test_cache_temporary', $this->default_value), 'cache_temporary set');
+    $this->assertTrue($this->checkCacheExists('test_cache_permanent', $this->default_value), 'cache_permanent set');
+    $this->assertTrue($this->checkCacheExists('test_cache_not_expired', $this->default_value), 'cache_not_expired set');
+
+    // Clear all items in the bin. Only the temporary and expired items should
+    // be removed.
+    $cache->clear();
+    // Run Tests.
+    $this->assertFalse($this->checkCacheExists('test_cache_expired', $this->default_value), 'cache_expired removed after a clear');
+    $this->assertFalse($this->checkCacheExists('test_cache_temporary', $this->default_value), 'cache_temporary removed after a clear');
+    $this->assertTrue($this->checkCacheExists('test_cache_permanent', $this->default_value), 'cache_permanent still set after a clear');
+    $this->assertTrue($this->checkCacheExists('test_cache_not_expired', $this->default_value), 'cache_not_expired still set after a clear');
+
+    // Re-add the items we just cleared.
+    $cache->set('test_cache_temporary', $this->default_value, CACHE_TEMPORARY);
+    $cache->set('test_cache_expired', $this->default_value, REQUEST_TIME - 1000);
+
+    // Set a minimum cache lifetime.
+    $this->setupLifetime(300);
+
+    // Now after clearing the bin, only the expired item should be removed.
+    $cache->clear();
+    // Run Tests.
+    $this->assertFalse($this->checkCacheExists('test_cache_expired', $this->default_value), 'cache_expired removed after a clear with min lifetime');
+    $this->assertTrue($this->checkCacheExists('test_cache_temporary', $this->default_value), 'cache_temporary still set after a clear with min lifetime');
+    $this->assertTrue($this->checkCacheExists('test_cache_permanent', $this->default_value), 'cache_permanent still set after a clear with min lifetime');
+    $this->assertTrue($this->checkCacheExists('test_cache_not_expired', $this->default_value), 'cache_not_expired still set after a clear with min lifetime');
+  }
+
+  /**
+   * Test clearing using an array.
+   */
+  function testClearArray() {
+    $cache = new APDQCache($this->default_bin);
+
+    // Create three cache entries.
+    $cache->set('test_cid_clear1', $this->default_value);
+    $cache->set('test_cid_clear2', $this->default_value);
+    $cache->set('test_cid_clear3', $this->default_value);
+    $this->assertTrue($this->checkCacheExists('test_cid_clear1', $this->default_value)
+                      && $this->checkCacheExists('test_cid_clear2', $this->default_value)
+                      && $this->checkCacheExists('test_cid_clear3', $this->default_value),
+                      'Three cache entries were created.');
+
+    // Clear two entries using an array.
+    $cache->clear(array('test_cid_clear1', 'test_cid_clear2'));
+    $this->assertFalse($this->checkCacheExists('test_cid_clear1', $this->default_value)
+                       || $this->checkCacheExists('test_cid_clear2', $this->default_value),
+                       'Two cache entries removed after clearing with an array.');
+    // Make sure the 3rd entry still exists.
+    $this->assertTrue($this->checkCacheExists('test_cid_clear3', $this->default_value),
+                      'Entry was not cleared from the cache');
+
+    // Create two cache entries.
+    $cache->set('test_cid_clear1', $this->default_value);
+    $cache->set('test_cid_clear2', $this->default_value);
+    $this->assertTrue($this->checkCacheExists('test_cid_clear1', $this->default_value)
+                      && $this->checkCacheExists('test_cid_clear2', $this->default_value),
+                      'Two cache entries were created.');
+    // Clear all three entries using an array.
+    $cache->clear(array('test_cid_clear1', 'test_cid_clear2', 'test_cid_clear3'));
+    $this->assertFalse($this->checkCacheExists('test_cid_clear1', $this->default_value)
+                       || $this->checkCacheExists('test_cid_clear2', $this->default_value)
+                       || $this->checkCacheExists('test_cid_clear3', $this->default_value),
+                       'All cache entries removed when the array exceeded the cache clear threshold.');
+  }
+
+  /**
+   * Test minimum cache lifetime.
+   */
+  function testMinimumCacheLifetime() {
+    // Set a minimum/maximum cache lifetime.
+    $this->setupLifetime(300);
+    // Login as a newly-created user.
+    $account = $this->drupalCreateUser(array());
+    $this->drupalLogin($account);
+
+    // Set two cache objects in different bins.
+    $data = $this->randomName(100);
+    $cache = new APDQCache('cache');
+    $cache->set($data, $data, CACHE_TEMPORARY);
+    $cached = $cache->get($data);
+    $this->assertTrue(isset($cached->data) && $cached->data === $data, 'Cached item retrieved.');
+    $cache_page = new APDQCache('cache_page');
+    $cache_page->set($data, $data, CACHE_TEMPORARY);
+
+    // Expire old items in the 'page' bin.
+    $cache_page->clear();
+
+    // Since the database cache uses REQUEST_TIME, set the $_SESSION variable
+    // manually to force it to the current time.
+    $_SESSION['cache_expiration']['cache_page'] = time();
+
+    // Items in the default cache bin should not be expired.
+    $cached = $cache->get($data);
+    $this->assertTrue(isset($cached->data) && $cached->data == $data, 'Cached item retrieved');
+
+    // Despite the minimum cache lifetime, the item in the 'page' bin should
+    // be invalidated for the current user.
+    $cached = $cache_page->get($data);
+    $this->assertFalse($cached, 'Cached item was invalidated');
+  }
+}
+
+/**
+ * Test isEmpty() function.
+ */
+class ApdqcCacheIsEmptyCase extends ApdqcCacheTestCase {
+  /**
+   * Provide information to the UI for this test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'APDQC Cache emptiness test',
+      'description' => 'Check if a cache bin is empty after performing clear operations.',
+      'group' => 'APDQC'
+    );
+  }
+
+  /**
+   * Install the apdqc module and setup the cache.
+   */
+  function setUp() {
+    $this->default_bin = 'cache_page';
+    $this->default_value = $this->randomName(10);
+
+    parent::setUp('apdqc');
+    $cache_backends = variable_get('cache_backends', array());
+    $file_path = drupal_get_path('module', 'apdqc');
+    $cache_backends[] = "${file_path}/apdqc.cache.inc";
+    variable_set('cache_backends', $cache_backends);
+  }
+
+  /**
+   * Test clearing using a cid.
+   */
+  function testIsEmpty() {
+    $cache = new APDQCache($this->default_bin);
+    // Clear the cache bin.
+    $cache->clear('*', TRUE);
+    // Run the test.
+    $this->assertTrue($cache->isEmpty(), 'The cache bin is empty');
+
+    // Add some data to the cache bin.
+    $cache->set($this->default_cid, $this->default_value, CACHE_PERMANENT);
+    $this->assertCacheExists(t('Cache was set.'), $this->default_value, $this->default_cid);
+    // Run the test.
+    $this->assertFalse($cache->isEmpty(), 'The cache bin is not empty');
+
+    // Remove the cached data.
+    $cache->clear($this->default_cid, FALSE);
+    // Run the test.
+    $this->assertCacheRemoved(t('Cache was removed.'), $this->default_cid);
+    $this->assertTrue($cache->isEmpty(), 'The cache bin is empty');
+  }
+}
+
+/**
+ * Tests for the lock system.
+ */
+class ApdqcLockFunctionalTest extends DrupalWebTestCase {
+  /**
+   * Provide information to the UI for this test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'APDQC Locking framework tests',
+      'description' => 'Confirm locking works between two separate requests.',
+      'group' => 'APDQC',
+    );
+  }
+
+  /**
+   * Install system_test and apdqc module.
+   */
+  function setUp() {
+    parent::setUp(array(
+      'system_test',
+      'apdqc',
+    ));
+    $file_path = drupal_get_path('module', 'apdqc');
+    variable_set('lock_inc', "${file_path}/apdqc.lock.inc");
+  }
+
+  /**
+   * Confirm that we can acquire and release locks in two parallel requests.
+   */
+  function testLockAcquire() {
+    module_load_include('apdqc.lock.db.inc', 'apdqc');
+    $lock_acquired = 'TRUE: Lock successfully acquired in system_test_lock_acquire()';
+    $lock_not_acquired = 'FALSE: Lock not acquired in system_test_lock_acquire()';
+    $this->assertTrue(lock_acquire('system_test_lock_acquire'), 'Lock acquired by this request.', 'Lock');
+    $this->assertTrue(lock_acquire('system_test_lock_acquire'), 'Lock extended by this request.', 'Lock');
+    lock_release('system_test_lock_acquire');
+
+    // Cause another request to acquire the lock.
+    $this->drupalGet('system-test/lock-acquire');
+    $this->assertText($lock_acquired, 'Lock acquired by the other request.', 'Lock');
+    // The other request has finished, thus it should have released its lock.
+    $this->assertTrue(lock_acquire('system_test_lock_acquire'), 'Lock acquired by this request.', 'Lock');
+    // This request holds the lock, so the other request cannot acquire it.
+    $this->drupalGet('system-test/lock-acquire');
+    $this->assertText($lock_not_acquired, 'Lock not acquired by the other request.', 'Lock');
+    lock_release('system_test_lock_acquire');
+
+    // Try a very short timeout and lock breaking.
+    $this->assertTrue(lock_acquire('system_test_lock_acquire', 0.5), 'Lock acquired by this request.', 'Lock');
+    sleep(1);
+    // The other request should break our lock.
+    $this->drupalGet('system-test/lock-acquire');
+    $this->assertText($lock_acquired, 'Lock acquired by the other request, breaking our lock.', 'Lock');
+    // We cannot renew it, since the other thread took it.
+    $this->assertFalse(lock_acquire('system_test_lock_acquire'), 'Lock cannot be extended by this request.', 'Lock');
+
+    // Check the shut-down function.
+    $lock_acquired_exit = 'TRUE: Lock successfully acquired in system_test_lock_exit()';
+    $lock_not_acquired_exit = 'FALSE: Lock not acquired in system_test_lock_exit()';
+    $this->drupalGet('system-test/lock-exit');
+    $this->assertText($lock_acquired_exit, 'Lock acquired by the other request before exit.', 'Lock');
+    $this->assertTrue(lock_acquire('system_test_lock_exit'), 'Lock acquired by this request after the other request exits.', 'Lock');
+  }
+}
+
+
+class ApdqcSessionTestCase extends DrupalWebTestCase {
+  /**
+   * Provide information to the UI for this test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'APDQC Session tests',
+      'description' => 'Drupal session handling tests.',
+      'group' => 'APDQC'
+    );
+  }
+
+  /**
+   * Install session_test and apdqc module.
+   */
+  function setUp() {
+    parent::setUp(array(
+      'session_test',
+      'apdqc',
+    ));
+    $file_path = drupal_get_path('module', 'apdqc');
+    variable_set('session_inc', "${file_path}/apdqc.session.inc");
+    variable_set('page_cache_invoke_hooks', TRUE);
+    $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
+  }
+
+  /**
+   * Tests for drupal_save_session() and drupal_session_regenerate().
+   */
+  function testSessionSaveRegenerate() {
+    $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
+    $this->assertFalse(drupal_save_session(), 'drupal_save_session() correctly returns FALSE (inside of testing framework) when initially called with no arguments.', 'Session');
+    $this->assertFalse(drupal_save_session(FALSE), 'drupal_save_session() correctly returns FALSE when called with FALSE.', 'Session');
+    $this->assertFalse(drupal_save_session(), 'drupal_save_session() correctly returns FALSE when saving has been disabled.', 'Session');
+    $this->assertTrue(drupal_save_session(TRUE), 'drupal_save_session() correctly returns TRUE when called with TRUE.', 'Session');
+    $this->assertTrue(drupal_save_session(), 'drupal_save_session() correctly returns TRUE when saving has been enabled.', 'Session');
+
+    // Test session hardening code from SA-2008-044.
+    $user = $this->drupalCreateUser(array('access content'));
+
+    // Enable sessions.
+    $this->sessionReset($user->uid);
+
+    // Make sure the session cookie is set as HttpOnly.
+    $this->drupalLogin($user);
+    $this->assertTrue(preg_match('/HttpOnly/i', $this->drupalGetHeader('Set-Cookie', TRUE)), 'Session cookie is set as HttpOnly.');
+    $this->drupalLogout();
+
+    // Verify that the session is regenerated if a module calls exit
+    // in hook_user_login().
+    user_save($user, array('name' => 'session_test_user'));
+    $user->name = 'session_test_user';
+    $this->drupalGet('session-test/id');
+    $matches = array();
+    preg_match('/\s*session_id:(.*)\n/', $this->drupalGetContent(), $matches);
+    $this->assertTrue(!empty($matches[1]) , 'Found session ID before logging in.');
+    $original_session = $matches[1];
+
+    // We cannot use $this->drupalLogin($user); because we exit in
+    // session_test_user_login() which breaks a normal assertion.
+    $edit = array(
+      'name' => $user->name,
+      'pass' => $user->pass_raw
+    );
+    $this->drupalPost('user', $edit, t('Log in'));
+    $this->drupalGet('user');
+    $pass = $this->assertText($user->name, format_string('Found name: %name', array('%name' => $user->name)), 'User login');
+    $this->_logged_in = $pass;
+
+    $this->drupalGet('session-test/id');
+    $matches = array();
+    preg_match('/\s*session_id:(.*)\n/', $this->drupalGetContent(), $matches);
+    $this->assertTrue(!empty($matches[1]) , 'Found session ID after logging in.');
+    $this->assertTrue($matches[1] != $original_session, 'Session ID changed after login.');
+  }
+
+  /**
+   * Test data persistence via the session_test module callbacks.
+   */
+  function testDataPersistence() {
+    $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
+    $user = $this->drupalCreateUser(array('access content'));
+    // Enable sessions.
+    $this->sessionReset($user->uid);
+
+    $this->drupalLogin($user);
+
+    $value_1 = $this->randomName();
+    $this->drupalGet('session-test/set/' . $value_1);
+    $this->assertText($value_1, 'The session value was stored.', 'Session');
+    $this->drupalGet('session-test/get');
+    $this->assertText($value_1, 'Session correctly returned the stored data for an authenticated user.', 'Session');
+
+    // Attempt to write over val_1. If drupal_save_session(FALSE) is working.
+    // properly, val_1 will still be set.
+    $value_2 = $this->randomName();
+    $this->drupalGet('session-test/no-set/' . $value_2);
+    $this->assertText($value_2, 'The session value was correctly passed to session-test/no-set.', 'Session');
+    $this->drupalGet('session-test/get');
+    $this->assertText($value_1, 'Session data is not saved for drupal_save_session(FALSE).', 'Session');
+
+    // Switch browser cookie to anonymous user, then back to user 1.
+    $this->sessionReset();
+    $this->sessionReset($user->uid);
+    $this->assertText($value_1, 'Session data persists through browser close. ' . $value_1 . ' ' . microtime(TRUE), 'Session');
+
+    // Logout the user and make sure the stored value no longer persists.
+    $this->drupalLogout();
+    $this->sessionReset();
+    $this->drupalGet('session-test/get');
+    $this->assertNoText($value_1, "After logout, previous user's session data is not available.", 'Session');
+
+    // Now try to store some data as an anonymous user.
+    $value_3 = $this->randomName();
+    $this->drupalGet('session-test/set/' . $value_3);
+    $this->assertText($value_3, 'Session data stored for anonymous user.', 'Session');
+    $this->drupalGet('session-test/get');
+    $this->assertText($value_3, 'Session correctly returned the stored data for an anonymous user.', 'Session');
+
+    // Try to store data when drupal_save_session(FALSE).
+    $value_4 = $this->randomName();
+    $this->drupalGet('session-test/no-set/' . $value_4);
+    $this->assertText($value_4, 'The session value was correctly passed to session-test/no-set.', 'Session');
+    $this->drupalGet('session-test/get');
+    $this->assertText($value_3, 'Session data is not saved for drupal_save_session(FALSE).', 'Session');
+
+    // Login, the data should persist.
+    $this->drupalLogin($user);
+    $this->sessionReset($user->uid);
+    $this->drupalGet('session-test/get');
+    $this->assertNoText($value_1, 'Session has persisted for an authenticated user after logging out and then back in.', 'Session');
+
+    // Change session and create another user.
+    $user2 = $this->drupalCreateUser(array('access content'));
+    $this->sessionReset($user2->uid);
+    $this->drupalLogin($user2);
+  }
+
+  /**
+   * Test that empty anonymous sessions are destroyed.
+   */
+  function testEmptyAnonymousSession() {
+    $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
+    // Verify that no session is automatically created for anonymous user.
+    $this->drupalGet('');
+    $this->assertSessionCookie(FALSE);
+    $this->assertSessionEmpty(TRUE);
+
+    // The same behavior is expected when caching is enabled.
+    variable_set('cache', 1);
+    $this->drupalGet('');
+    $this->assertSessionCookie(FALSE);
+    $this->assertSessionEmpty(TRUE);
+    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'MISS', 'Page was not cached.');
+
+    // Start a new session by setting a message.
+    $this->drupalGet('session-test/set-message');
+    $this->assertSessionCookie(TRUE);
+    $this->assertTrue($this->drupalGetHeader('Set-Cookie'), 'New session was started.');
+
+    // Display the message, during the same request the session is destroyed
+    // and the session cookie is unset.
+    $this->drupalGet('');
+    $this->assertSessionCookie(FALSE);
+    $this->assertSessionEmpty(FALSE);
+    $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'), 'Caching was bypassed.');
+    $this->assertText(t('This is a dummy message.'), 'Message was displayed.');
+    $this->assertTrue(preg_match('/SESS\w+=deleted/', $this->drupalGetHeader('Set-Cookie')), 'Session cookie was deleted.');
+
+    // Verify that session was destroyed.
+    $this->drupalGet('');
+    $this->assertSessionCookie(FALSE);
+    $this->assertSessionEmpty(TRUE);
+    $this->assertNoText(t('This is a dummy message.'), 'Message was not cached.');
+    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
+    $this->assertFalse($this->drupalGetHeader('Set-Cookie'), 'New session was not started.');
+
+    // Verify that no session is created if drupal_save_session(FALSE) is called.
+    $this->drupalGet('session-test/set-message-but-dont-save');
+    $this->assertSessionCookie(FALSE);
+    $this->assertSessionEmpty(TRUE);
+
+    // Verify that no message is displayed.
+    $this->drupalGet('');
+    $this->assertSessionCookie(FALSE);
+    $this->assertSessionEmpty(TRUE);
+    $this->assertNoText(t('This is a dummy message.'), 'The message was not saved.');
+  }
+
+  /**
+   * Test that sessions are only saved when necessary.
+   */
+  function testSessionWrite() {
+    $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
+    $user = $this->drupalCreateUser(array('access content'));
+    $this->drupalLogin($user);
+
+    $sql = 'SELECT u.access, s.timestamp FROM {users} u INNER JOIN {sessions} s ON u.uid = s.uid WHERE u.uid = :uid';
+    $times1 = db_query($sql, array(':uid' => $user->uid))->fetchObject();
+
+    // Before every request we sleep one second to make sure that if the session
+    // is saved, its timestamp will change.
+
+    // Modify the session.
+    sleep(1);
+    $this->drupalGet('session-test/set/foo');
+    $times2 = db_query($sql, array(':uid' => $user->uid))->fetchObject();
+    $this->assertEqual($times2->access, $times1->access, 'Users table was not updated.');
+    $this->assertNotEqual($times2->timestamp, $times1->timestamp, 'Sessions table was updated.');
+
+    // Write the same value again, i.e. do not modify the session.
+    sleep(1);
+    $this->drupalGet('session-test/set/foo');
+    $times3 = db_query($sql, array(':uid' => $user->uid))->fetchObject();
+    $this->assertEqual($times3->access, $times1->access, 'Users table was not updated.');
+    $this->assertEqual($times3->timestamp, $times2->timestamp, 'Sessions table was not updated.');
+
+    // Do not change the session.
+    sleep(1);
+    $this->drupalGet('');
+    $times4 = db_query($sql, array(':uid' => $user->uid))->fetchObject();
+    $this->assertEqual($times4->access, $times3->access, 'Users table was not updated.');
+    $this->assertEqual($times4->timestamp, $times3->timestamp, 'Sessions table was not updated.');
+
+    // Force updating of users and sessions table once per second.
+    variable_set('session_write_interval', 0);
+    $this->drupalGet('');
+    $times5 = db_query($sql, array(':uid' => $user->uid))->fetchObject();
+    $this->assertNotEqual($times5->access, $times4->access, 'Users table was updated.');
+    $this->assertNotEqual($times5->timestamp, $times4->timestamp, 'Sessions table was updated.');
+  }
+
+  /**
+   * Test that empty session IDs are not allowed.
+   */
+  function testEmptySessionID() {
+    $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
+    $user = $this->drupalCreateUser(array('access content'));
+    $this->drupalLogin($user);
+    $this->drupalGet('session-test/is-logged-in');
+    $this->assertResponse(200, 'User is logged in.');
+
+    // Reset the sid in {sessions} to a blank string. This may exist in the
+    // wild in some cases, although we normally prevent it from happening.
+    db_query("UPDATE {sessions} SET sid = '' WHERE uid = :uid", array(':uid' => $user->uid));
+    // Send a blank sid in the session cookie, and the session should no longer
+    // be valid. Closing the curl handler will stop the previous session ID
+    // from persisting.
+    $this->curlClose();
+    $this->additionalCurlOptions[CURLOPT_COOKIE] = rawurlencode($this->session_name) . '=;';
+    $this->drupalGet('session-test/id-from-cookie');
+    $this->assertRaw("session_id:\n", 'Session ID is blank as sent from cookie header.');
+    // Assert that we have an anonymous session now.
+    $this->drupalGet('session-test/is-logged-in');
+    $this->assertResponse(403, 'An empty session ID is not allowed.');
+  }
+
+  /**
+   * Reset the cookie file so that it refers to the specified user.
+   *
+   * @param $uid User id to set as the active session.
+   */
+  function sessionReset($uid = 0) {
+    // Close the internal browser.
+    $this->curlClose();
+    $this->loggedInUser = FALSE;
+
+    // Change cookie file for user.
+    $this->cookieFile = file_stream_wrapper_get_instance_by_scheme('temporary')->getDirectoryPath() . '/cookie.' . $uid . '.txt';
+    $this->additionalCurlOptions[CURLOPT_COOKIEFILE] = $this->cookieFile;
+    $this->additionalCurlOptions[CURLOPT_COOKIESESSION] = TRUE;
+    $this->drupalGet('session-test/get');
+    $this->assertResponse(200, 'Session test module is correctly enabled.', 'Session');
+  }
+
+  /**
+   * Assert whether the SimpleTest browser sent a session cookie.
+   */
+  function assertSessionCookie($sent) {
+    if ($sent) {
+      $this->assertNotNull($this->session_id, 'Session cookie was sent.');
+    }
+    else {
+      $this->assertNull($this->session_id, 'Session cookie was not sent.');
+    }
+  }
+
+  /**
+   * Assert whether $_SESSION is empty at the beginning of the request.
+   */
+  function assertSessionEmpty($empty) {
+    $headers = $this->drupalGetHeaders();
+    if (!isset($headers['x-session-empty']) && !isset($headers['X-Session-Empty'])) {
+      $this->pass('X-Session-Empty header not found.');
+    }
+    else {
+      if ($empty) {
+        $this->assertIdentical($this->drupalGetHeader('X-Session-Empty'), '1', 'Session was empty.' . microtime(TRUE));
+      }
+      else {
+        $this->assertIdentical($this->drupalGetHeader('X-Session-Empty'), '0', 'Session was not empty.' . microtime(TRUE));
+      }
+    }
+  }
+}
+
+/**
+ * Ensure that when running under HTTPS two session cookies are generated.
+ */
+class ApdqcSessionHttpsTestCase extends DrupalWebTestCase {
+  /**
+   * Provide information to the UI for this test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'APDQC Session HTTPS handling',
+      'description' => 'Ensure that when running under HTTPS two session cookies are generated.',
+      'group' => 'APDQC'
+    );
+  }
+
+  /**
+   * Install session_test and apdqc module.
+   */
+  function setUp() {
+    parent::setUp(array(
+      'session_test',
+      'apdqc',
+    ));
+    $file_path = drupal_get_path('module', 'apdqc');
+    variable_set('session_inc', "${file_path}/apdqc.session.inc");
+  }
+
+  protected function testHttpsSession() {
+    global $is_https;
+
+    if ($is_https) {
+      $secure_session_name = session_name();
+      $insecure_session_name = substr(session_name(), 1);
+    }
+    else {
+      $secure_session_name = 'S' . session_name();
+      $insecure_session_name = session_name();
+    }
+
+    $user = $this->drupalCreateUser(array('access administration pages'));
+
+    // Test HTTPS session handling by altering the form action to submit the
+    // login form through https.php, which creates a mock HTTPS request.
+    $this->drupalGet('user');
+    $form = $this->xpath('//form[@id="user-login"]');
+    $form[0]['action'] = $this->httpsUrl('user');
+    $edit = array('name' => $user->name, 'pass' => $user->pass_raw);
+    $this->drupalPost(NULL, $edit, t('Log in'));
+
+    // Test a second concurrent session.
+    $this->curlClose();
+    $this->drupalGet('user');
+    $form = $this->xpath('//form[@id="user-login"]');
+    $form[0]['action'] = $this->httpsUrl('user');
+    $this->drupalPost(NULL, $edit, t('Log in'));
+
+    // Check secure cookie on secure page.
+    $this->assertTrue($this->cookies[$secure_session_name]['secure'], 'The secure cookie has the secure attribute');
+    // Check insecure cookie is not set.
+    $this->assertFalse(isset($this->cookies[$insecure_session_name]));
+    $ssid = $this->cookies[$secure_session_name]['value'];
+    $this->assertSessionIds($ssid, $ssid, 'Session has a non-empty SID and a correct secure SID.');
+    $cookie = $secure_session_name . '=' . $ssid;
+
+    // Verify that user is logged in on secure URL.
+    $this->curlClose();
+    $this->drupalGet($this->httpsUrl('admin/config'), array(), array('Cookie: ' . $cookie));
+    $this->assertText(t('Configuration'));
+    $this->assertResponse(200);
+
+    // Verify that user is not logged in on non-secure URL.
+    $this->curlClose();
+    $this->drupalGet($this->httpUrl('admin/config'), array(), array('Cookie: ' . $cookie));
+    $this->assertNoText(t('Configuration'));
+    $this->assertResponse(403);
+
+    // Verify that empty SID cannot be used on the non-secure site.
+    $this->curlClose();
+    $cookie = $insecure_session_name . '=';
+    $this->drupalGet($this->httpUrl('admin/config'), array(), array('Cookie: ' . $cookie));
+    $this->assertResponse(403);
+
+    // Test HTTP session handling by altering the form action to submit the
+    // login form through http.php, which creates a mock HTTP request on HTTPS
+    // test environments.
+    $this->curlClose();
+    $this->drupalGet('user');
+    $form = $this->xpath('//form[@id="user-login"]');
+    $form[0]['action'] = $this->httpUrl('user');
+    $edit = array('name' => $user->name, 'pass' => $user->pass_raw);
+    $this->drupalPost(NULL, $edit, t('Log in'));
+    $this->drupalGet($this->httpUrl('admin/config'));
+    $this->assertResponse(200);
+    $sid = $this->cookies[$insecure_session_name]['value'];
+    $this->assertSessionIds($sid, '', 'Session has the correct SID and an empty secure SID.');
+
+    // Verify that empty secure SID cannot be used on the secure site.
+    $this->curlClose();
+    $cookie = $secure_session_name . '=';
+    $this->drupalGet($this->httpsUrl('admin/config'), array(), array('Cookie: ' . $cookie));
+    $this->assertResponse(403);
+
+    // Clear browser cookie jar.
+    $this->cookies = array();
+
+    if ($is_https) {
+      // The functionality does not make sense when running on HTTPS.
+      return;
+    }
+
+    // Enable secure pages.
+    variable_set('https', TRUE);
+
+    $this->curlClose();
+    // Start an anonymous session on the insecure site.
+    $session_data = $this->randomName();
+    $this->drupalGet('session-test/set/' . $session_data);
+    // Check secure cookie on insecure page.
+    $this->assertFalse(isset($this->cookies[$secure_session_name]), 'The secure cookie is not sent on insecure pages.');
+    // Check insecure cookie on insecure page.
+    $this->assertFalse($this->cookies[$insecure_session_name]['secure'], 'The insecure cookie does not have the secure attribute');
+
+    // Store the anonymous cookie so we can validate that its session is killed
+    // after login.
+    $anonymous_cookie = $insecure_session_name . '=' . $this->cookies[$insecure_session_name]['value'];
+
+    // Check that password request form action is not secure.
+    $this->drupalGet('user/password');
+    $form = $this->xpath('//form[@id="user-pass"]');
+    $this->assertNotEqual(substr($form[0]['action'], 0, 6), 'https:', 'Password request form action is not secure');
+    $form[0]['action'] = $this->httpsUrl('user');
+
+    // Check that user login form action is secure.
+    $this->drupalGet('user');
+    $form = $this->xpath('//form[@id="user-login"]');
+    $this->assertEqual(substr($form[0]['action'], 0, 6), 'https:', 'Login form action is secure');
+    $form[0]['action'] = $this->httpsUrl('user');
+
+    $edit = array(
+      'name' => $user->name,
+      'pass' => $user->pass_raw,
+    );
+    $this->drupalPost(NULL, $edit, t('Log in'));
+    // Check secure cookie on secure page.
+    $this->assertTrue($this->cookies[$secure_session_name]['secure'], 'The secure cookie has the secure attribute');
+    // Check insecure cookie on secure page.
+    $this->assertFalse($this->cookies[$insecure_session_name]['secure'], 'The insecure cookie does not have the secure attribute');
+
+    $sid = $this->cookies[$insecure_session_name]['value'];
+    $ssid = $this->cookies[$secure_session_name]['value'];
+    $this->assertSessionIds($sid, $ssid, 'Session has both secure and insecure SIDs');
+    $cookies = array(
+      $insecure_session_name . '=' . $sid,
+      $secure_session_name . '=' . $ssid,
+    );
+
+    // Test that session data saved before login is still available on the
+    // authenticated session.
+    $this->drupalGet('session-test/get');
+    $this->assertText($session_data, 'Session correctly returned the stored data set by the anonymous session.');
+
+    foreach ($cookies as $cookie_key => $cookie) {
+      foreach (array('admin/config', $this->httpsUrl('admin/config')) as $url_key => $url) {
+        $this->curlClose();
+
+        $this->drupalGet($url, array(), array('Cookie: ' . $cookie));
+        if ($cookie_key == $url_key) {
+          $this->assertText(t('Configuration'));
+          $this->assertResponse(200);
+        }
+        else {
+          $this->assertNoText(t('Configuration'));
+          $this->assertResponse(403);
+        }
+      }
+    }
+
+    // Test that session data saved before login is not available using the
+    // pre-login anonymous cookie.
+    $this->cookies = array();
+    $this->drupalGet('session-test/get', array('Cookie: ' . $anonymous_cookie));
+    $this->assertNoText($session_data, 'Initial anonymous session is inactive after login.');
+
+    // Clear browser cookie jar.
+    $this->cookies = array();
+
+    // Start an anonymous session on the secure site.
+    $this->drupalGet($this->httpsUrl('session-test/set/1'));
+
+    // Mock a login to the secure site using the secure session cookie.
+    $this->drupalGet('user');
+    $form = $this->xpath('//form[@id="user-login"]');
+    $form[0]['action'] = $this->httpsUrl('user');
+    $this->drupalPost(NULL, $edit, t('Log in'));
+
+    // Test that the user is also authenticated on the insecure site.
+    $this->drupalGet("user/{$user->uid}/edit");
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Tests that empty session IDs do not cause unrelated sessions to load.
+   */
+  public function testEmptySessionId() {
+    global $is_https;
+
+    if ($is_https) {
+      $secure_session_name = session_name();
+    }
+    else {
+      $secure_session_name = 'S' . session_name();
+    }
+
+    // Enable mixed mode for HTTP and HTTPS.
+    variable_set('https', TRUE);
+
+    $admin_user = $this->drupalCreateUser(array('access administration pages'));
+    $standard_user = $this->drupalCreateUser(array('access content'));
+
+    // First log in as the admin user on HTTP.
+    // We cannot use $this->drupalLogin() here because we need to use the
+    // special http.php URLs.
+    $edit = array(
+      'name' => $admin_user->name,
+      'pass' => $admin_user->pass_raw
+    );
+    $this->drupalGet('user');
+    $form = $this->xpath('//form[@id="user-login"]');
+    $form[0]['action'] = $this->httpUrl('user');
+    $this->drupalPost(NULL, $edit, t('Log in'));
+
+    $this->curlClose();
+
+    // Now start a session for the standard user on HTTPS.
+    $edit = array(
+      'name' => $standard_user->name,
+      'pass' => $standard_user->pass_raw
+    );
+    $this->drupalGet('user');
+    $form = $this->xpath('//form[@id="user-login"]');
+    $form[0]['action'] = $this->httpsUrl('user');
+    $this->drupalPost(NULL, $edit, t('Log in'));
+
+    // Make the secure session cookie blank.
+    curl_setopt($this->curlHandle, CURLOPT_COOKIE, "$secure_session_name=");
+    $this->drupalGet($this->httpsUrl('user'));
+    $this->assertNoText($admin_user->name, 'User is not logged in as admin');
+    $this->assertNoText($standard_user->name, "The user's own name is not displayed because the invalid session cookie has logged them out.");
+  }
+
+  /**
+   * Test that there exists a session with two specific session IDs.
+   *
+   * @param $sid
+   *   The insecure session ID to search for.
+   * @param $ssid
+   *   The secure session ID to search for.
+   * @param $assertion_text
+   *   The text to display when we perform the assertion.
+   *
+   * @return
+   *   The result of assertTrue() that there's a session in the system that
+   *   has the given insecure and secure session IDs.
+   */
+  protected function assertSessionIds($sid, $ssid, $assertion_text) {
+    $args = array(
+      ':sid' => $sid,
+      ':ssid' => $ssid,
+    );
+    return $this->assertTrue(db_query('SELECT timestamp FROM {sessions} WHERE sid = :sid AND ssid = :ssid', $args)->fetchField(), $assertion_text);
+  }
+
+  /**
+   * Builds a URL for submitting a mock HTTPS request to HTTP test environments.
+   *
+   * @param $url
+   *   A Drupal path such as 'user'.
+   *
+   * @return
+   *   An absolute URL.
+   */
+  protected function httpsUrl($url) {
+    global $base_url;
+    return $base_url . '/modules/simpletest/tests/https.php?q=' . $url;
+  }
+
+  /**
+   * Builds a URL for submitting a mock HTTP request to HTTPS test environments.
+   *
+   * @param $url
+   *   A Drupal path such as 'user'.
+   *
+   * @return
+   *   An absolute URL.
+   */
+  protected function httpUrl($url) {
+    global $base_url;
+    return $base_url . '/modules/simpletest/tests/http.php?q=' . $url;
+  }
+}

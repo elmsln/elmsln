@@ -285,7 +285,7 @@ if (!function_exists('_drupal_session_open')) {
       if (!drupal_save_session()) {
         // We don't have anything to do if we are not allowed to save the
         // session.
-        return FALSE;
+        return TRUE;
       }
 
       // Check whether $_SESSION has been changed in this request.
@@ -425,6 +425,7 @@ if (!function_exists('_drupal_session_open')) {
       }
     }
     date_default_timezone_set(drupal_get_user_timezone());
+    return TRUE;
   }
 
   /**
@@ -447,6 +448,7 @@ if (!function_exists('_drupal_session_open')) {
         $_SESSION += $session_data;
       }
     }
+    return TRUE;
   }
 
   /**
@@ -459,7 +461,7 @@ if (!function_exists('_drupal_session_open')) {
 
     if (!drupal_save_session()) {
       // We don't have anything to do if we are not allowed to save the session.
-      return;
+      return TRUE;
     }
 
     if (empty($user->uid) && empty($_SESSION)) {
@@ -484,6 +486,7 @@ if (!function_exists('_drupal_session_open')) {
       // Write the session data.
       session_write_close();
     }
+    return TRUE;
   }
 
   /**
@@ -506,7 +509,7 @@ if (!function_exists('_drupal_session_open')) {
     global $user, $is_https;
     // Nothing to do if we are not allowed to change the session.
     if (!drupal_save_session()) {
-      return;
+      return TRUE;
     }
 
     if ($is_https && variable_get('https', FALSE)) {
@@ -583,6 +586,7 @@ if (!function_exists('_drupal_session_open')) {
       $user = $account;
     }
     date_default_timezone_set(drupal_get_user_timezone());
+    return TRUE;
   }
 
   /**
@@ -598,7 +602,7 @@ if (!function_exists('_drupal_session_open')) {
 
     // Nothing to do if we are not allowed to change the session.
     if (!drupal_save_session()) {
-      return;
+      return TRUE;
     }
 
     // Delete session data.
@@ -625,6 +629,7 @@ if (!function_exists('_drupal_session_open')) {
     elseif (variable_get('https', FALSE)) {
       _drupal_session_delete_cookie('S' . session_name(), TRUE);
     }
+    return TRUE;
   }
 
   /**
@@ -645,6 +650,7 @@ if (!function_exists('_drupal_session_open')) {
       setcookie($name, '', REQUEST_TIME - 3600, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
       unset($_COOKIE[$name]);
     }
+    return TRUE;
   }
 
   /**
@@ -656,7 +662,7 @@ if (!function_exists('_drupal_session_open')) {
   function drupal_session_destroy_uid($uid) {
     // Nothing to do if we are not allowed to change the session.
     if (!drupal_save_session()) {
-      return;
+      return TRUE;
     }
 
     $query = \Database::getConnection()->prefixTables("DELETE FROM {sessions}");
