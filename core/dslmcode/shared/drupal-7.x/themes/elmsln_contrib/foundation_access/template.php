@@ -36,6 +36,7 @@ function foundation_access_preprocess_html(&$variables) {
     }
   }
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
+
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
   drupal_add_css('//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css', array('group' => CSS_THEME, 'weight' => 1001));
