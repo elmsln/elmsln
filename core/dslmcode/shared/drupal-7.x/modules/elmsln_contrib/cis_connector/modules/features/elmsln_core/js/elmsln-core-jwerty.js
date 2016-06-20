@@ -2,7 +2,7 @@
   // apply jwerty keys to listen for
   $(document).ready(function(){
     // voice based video controls... within reason
-    Drupal.voicecommander.controlVideo = function(phrase) {
+    Drupal.voicecommanderControlVideo = function(phrase) {
       if (phrase.indexOf('play') !== -1) {
         // @todo something like this...
         /*$( 'iframe[src*="youtube.com"]' ).each( function( i, el ) {

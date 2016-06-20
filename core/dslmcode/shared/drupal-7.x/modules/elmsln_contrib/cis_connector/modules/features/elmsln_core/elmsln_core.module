@@ -396,10 +396,10 @@ function elmsln_core_voice_command() {
     }
   }
   $commands["%phrase play (video)"] =  array(
-    'callback' => 'Drupal.voicecommander.controlVideo',
+    'callback' => 'Drupal.voicecommanderControlVideo',
   );
   $commands["%phrase pause (video)"] =  array(
-    'callback' => 'Drupal.voicecommander.controlVideo',
+    'callback' => 'Drupal.voicecommanderControlVideo',
   );
   return array(
     'elmsln_core' => array('commands' => $commands)
