@@ -47,3 +47,12 @@ function hook_voice_command() {
 function hook_voice_command_alter(&$commands) {
   $commands['cacheclear']['file'] = 'mycustom-cache-clear-override.js';
 }
+
+/**
+ * Implements hook_voicecommander_access_alter().
+ */
+function hook_voicecommander_access_alter(&$access) {
+  if (_entity_iframe_mode_enabled()) {
+    $access = FALSE;
+  }
+}

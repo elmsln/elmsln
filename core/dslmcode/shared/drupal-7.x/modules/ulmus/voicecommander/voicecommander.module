@@ -43,9 +43,22 @@ define('VOICECOMMANDER_MODULE_NAME', 'voicecommander');
  */
 function voicecommander_page_build(&$page) {
   // ensure they have permission to use this
-  if (user_access('use voice commander')) {
+  if (_voicecommander_access()) {
     _voicecommander_apply();
   }
+}
+
+/**
+ * Access check for voice commander.
+ */
+function _voicecommander_access() {
+  // allow other projects to jump in and evaluate if it should apply VC
+  if (user_access('use voice commander')) {
+    $access = TRUE;
+    drupal_alter('voicecommander_access', $access);
+    return $access;
+  }
+  return FALSE;
 }
 
 /**

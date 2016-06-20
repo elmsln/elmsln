@@ -43,3 +43,12 @@ function _entity_iframe_mode_enabled() {
   }
   return FALSE;
 }
+
+/**
+ * Implements hook_voicecommander_access_alter().
+ */
+function entity_iframe_mode_voicecommander_access_alter(&$access) {
+  if (_entity_iframe_mode_enabled()) {
+    $access = FALSE;
+  }
+}
