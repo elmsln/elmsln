@@ -34,6 +34,8 @@ thread-cache-size              = 50
 open-files-limit               = 65535
 table-definition-cache         = 4096
 table-open-cache               = 4096
+join-buffer-size         = 8388608
+binlog-format            = ROW
 
 ; INNODB ;
 ;innodb-flush-method            = O_DIRECT
@@ -42,6 +44,12 @@ table-open-cache               = 4096
 ;innodb-flush-log-at-trx-commit = 1
 ;innodb-file-per-table          = 1
 ;innodb-buffer-pool-size        = 156M
+;innodb-read-io-threads   = 16
+;innodb-spin-wait-delay   = 24
+;innodb-sync-spin-loops   = 200
+;innodb-write-io-threads  = 16
+;innodb-autoinc-lock-mode = 2
+
 
 ; LOGGING ;
 log-error                      = /var/lib/mysql/mysql-error.log
