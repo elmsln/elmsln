@@ -12,7 +12,7 @@
     $items['admin/config/development/elmsln_cdn'] = array(
       'title'            => 'ELMSLN CDN',
       'description'      => 'Configure ELMSLN CDN integration.',
-      'access arguments' => array(CDN_PERM_ADMIN),
+      'access arguments' => array('access administration pages'),
       'page callback'    => 'drupal_get_form',
       'page arguments'   => array('elmsln_cdn_admin_general_settings_form'),
       'type'             => MENU_NORMAL_ITEM,
