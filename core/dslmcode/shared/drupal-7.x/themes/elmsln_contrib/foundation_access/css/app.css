@@ -7819,6 +7819,7 @@ p.txtbk-intro {
   h3 {
     font-size: 1.5rem; } }
 
+
 .materialize-red.lighten-5 {
   background-color: #fdeaeb !important; }
 
@@ -11744,6 +11745,7 @@ category:
         display: -webkit-flex;
         display: -ms-flexbox;
         display: flex; }
+
 
 .cis--tab-panel__wrapper.tabs-content > .content {
   padding: 1rem;

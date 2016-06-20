@@ -39,23 +39,12 @@
                 <?php endif; ?>
                 </li>
                 <?php endif; ?>
-                <?php if (!empty($cis_shortcodes)) : ?>
-                  <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Share')?>" class="r-header__icon" data-reveal-id="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="cis-shortcodes-drop" aria-expanded="false">
-                    <i class="zmdi zmdi-arrow-split"></i>
-                  </a></li>
-                <?php endif; ?>
-                <?php if (!empty($a11y)) : ?>
-                  <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Accessibility options')?>" class="r-header__icon" data-reveal-id="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false">
-                    <i class="zmdi zmdi-tune"></i>
-                  </a></li>
-                <?php endif; ?>
 
                   <md-button class="md-icon-button r-header__icon" href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>">
                   <a href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>" class="r-header__icon">
                     <i class="zmdi zmdi-edit"></i>
                   </a>
                 </li>
-                <?php endif; ?>
 
                 <!-- Outline -->
                 <li class="r-header__edit-icons__list-item">
@@ -87,7 +76,6 @@
                     <i class="zmdi zmdi-edit"></i>
                   </a>
                 </li>
-                <?php endif; ?>
 
                 <li class="r-header__edit-icons__list-item">
                   <md-menu md-position-mode="target-right target">
