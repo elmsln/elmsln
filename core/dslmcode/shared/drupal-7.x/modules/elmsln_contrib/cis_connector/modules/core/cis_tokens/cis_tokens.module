@@ -111,7 +111,9 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
         case 'help':
         case 'resources':
           $data = _cis_connector_transaction($name);
-          $replacements[$original] = $data['value'];
+          if (isset($data['value'])) {
+            $replacements[$original] = $data['value'];
+          }
         break;
         case 'welcome_letter':
         case 'syllabus':
