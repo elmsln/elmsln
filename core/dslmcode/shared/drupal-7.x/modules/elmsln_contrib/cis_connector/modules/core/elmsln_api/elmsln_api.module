@@ -439,7 +439,9 @@ function _elmsln_api_request($request, $nonblocking = FALSE, $recursion = FALSE)
         // a high enough bootstrap; nice thing is this will
         // just do nothing if we don't
         drupal_alter('elmsln_api_postrequest', $tmp);
-        return $tmp->data;
+        if (isset($tmp->data)) {
+          return $tmp->data;
+        }
       }
     }
   }
