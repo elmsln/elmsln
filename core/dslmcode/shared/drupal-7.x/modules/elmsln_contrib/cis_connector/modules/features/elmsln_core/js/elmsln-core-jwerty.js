@@ -23,26 +23,62 @@
       }
     };
     jwerty.key('↓,↓', function () {
-      var height = $(window).height();
-      $('html, body').animate({
-          scrollTop: $(window).scrollTop()+(height*0.75)
-      }, 1000);
+      if (!$(document.activeElement).is(":focus")) {
+        var height = $(window).height();
+        $('html, body').animate({
+            scrollTop: $(window).scrollTop()+(height*0.75)
+        }, 1000);
+      }
       return false;
     });
     jwerty.key('↑,↑', function () {
-      var height = $(window).height();
-      $('html, body').animate({
-        scrollTop: $(window).scrollTop()-(height*0.75)
-      }, 1000);
-      return false;
+      if (!$(document.activeElement).is(":focus")) {
+        var height = $(window).height();
+        $('html, body').animate({
+          scrollTop: $(window).scrollTop()-(height*0.75)
+        }, 1000);
+        return false;
+      }
     });
     // network
-    jwerty.key('n', function () {
-      $('.apps-icon').click();
+    jwerty.key('alt+shift+n', function () {
+      if (!$(document.activeElement).is(":focus")) {
+        $('.apps-icon').click();
+        $('#block-cis-lmsless-cis-lmsless-network-nav-modal').focus();
+      }
     });
-    // user
-    jwerty.key('u', function () {
-      $('.etb-nav_item_service_btn.etb-icon.user-icon').click();
+    // edit
+    jwerty.key('alt+shift+e', function () {
+      if (!$(document.activeElement).is(":focus")) {
+        window.location.href = window.location.href + '/edit';
+      }
+    });
+    // share
+    jwerty.key('alt+shift+s', function () {
+      if (!$(document.activeElement).is(":focus")) {
+        $('[data-reveal-id="block-cis-shortcodes-cis-shortcodes-block-nav-modal"]').click();
+        $('#block-cis-shortcodes-cis-shortcodes-block-nav-modal').focus();
+      }
+    });
+    // accessibility menu
+    jwerty.key('alt+shift+a', function () {
+      if (!$(document.activeElement).is(":focus")) {
+        $('[data-reveal-id="page-accessibility-menu"]').click();
+        $('#page-accessibility-menu').focus();
+      }
+    });
+    // more
+    jwerty.key('alt+shift+m', function () {
+      if (!$(document.activeElement).is(":focus")) {
+        $('[data-reveal-id="r-header__icon--advanced"]').click();
+        $('#block-cis-lmsless-cis-lmsless-user-nav-modal').focus();
+      }
+    });
+    // add
+    jwerty.key('alt+shift++', function () {
+      if (!$(document.activeElement).is(":focus")) {
+        $('.add-menu-drop').focus().click();
+      }
     });
   });
 })(jQuery);
