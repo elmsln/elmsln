@@ -12,7 +12,8 @@
                     var data = {
                         token: moduleSettings.token,
                         statement: JSON.stringify(event.data.statement),
-                        nid: moduleSettings.nid
+                        nid: moduleSettings.nid,
+                        settings: moduleSettings
                     };
                     $.post(moduleSettings.relayUrl, data);
                 });
