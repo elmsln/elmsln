@@ -12,6 +12,22 @@ include_once 'elmsmedia_h5p.features.inc';
  */
 function elmsmedia_h5p_page_build(&$page) {
   drupal_add_css(drupal_get_path('module', 'elmsmedia_h5p') . '/elmsmedia_h5p.css', array('group' => CSS_THEME, 'weight' => 1000));
+  // allow for h5p tincan bridge to still work when in entity iframe mode
+  if (arg(0) == 'entity_iframe' && arg(1) == 'node') {
+    $data = array(
+      'h5pTincanBridge' => array(
+        'nid' => arg(2),
+        'token' => drupal_get_token(),
+        'relayUrl' => base_path() . H5P_TINCAN_BRIDGE__RELAY_URL,
+      )
+    );
+    drupal_add_js($data, 'setting');
+    // our custom event listener for frame events talking to this domain
+    // this helps us provide context of where the interaction was in use at
+    // the time of display
+    drupal_add_js(drupal_get_path('module', 'elmsmedia_h5p') . '/js/elmsmedia-xapi-listener.js', array('weight' => -1000));
+    drupal_add_js(drupal_get_path('module', 'h5p_tincan_bridge') . '/h5p_tincan_bridge.js', array('weight' => 1000));
+  }
 }
 
 /**
@@ -28,26 +44,30 @@ function elmsmedia_h5p_embedded_h5p_alter(&$node) {
  * Implements hook_tincanapi_ajax_data_alter().
  */
 function elmsmedia_h5p_tincanapi_ajax_data_alter(&$data, $context) {
-  // page where it was embedded (if applicable)
-  if (isset($context['section'])) {
-    $section = filter_xss($context['section']);
-  }
-  else {
-    $section = _cis_connector_section_context();
-  }
-  if (isset($context['course'])) {
-    $course = filter_xss($context['course']);
+  // all h5p settings passed across which we can look for
+  // our custom attributes we want to ship along as a result
+  $settings = $context['settings'];
+  // check for items that came across, if we don't have them
+  // then attempt to inject them though that's probably not going to work
+  if (isset($settings['course'])) {
+    $course = filter_xss($settings['course']);
   }
   else {
     $course = _cis_connector_course_context();
   }
+  if (isset($settings['section'])) {
+    $section = filter_xss($settings['section']);
+  }
+  else {
+    $section = _cis_connector_section_context();
+  }
   $title = '';
-  if (isset($context['title'])) {
-    $title = filter_xss($context['title']);
+  if (isset($settings['title'])) {
+    $title = filter_xss($settings['title']);
   }
   $url = '';
-  if (isset($context['context'])) {
-    $url = filter_xss($context['context']);
+  if (isset($settings['url'])) {
+    $url = filter_xss($settings['url']);
   }
   $data['object']['definition']['extensions'] = array(
     'https://www.elmsln.org/x-api/elmsln-section' => $section,

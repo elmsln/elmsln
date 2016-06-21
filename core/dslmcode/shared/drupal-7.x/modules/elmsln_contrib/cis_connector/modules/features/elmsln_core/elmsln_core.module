@@ -156,6 +156,8 @@ function elmsln_core_page_build(&$page) {
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/field-focus.js');
   // jwerty keyboard support
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-jwerty.js');
+  // xapi context iframe sniffer
+  drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
   // get the configuration so we can set domain from here to enable
   // secure and policy compliant access to sub-domain cookies on
   // the client side. This clears up MULTIPLE issues at once and is
@@ -165,6 +167,10 @@ function elmsln_core_page_build(&$page) {
   $js_variables = array(
     'elmslnCore' => array(
       'domain' => '.' . $cfg['address'],
+      'course' => _cis_connector_course_context(),
+      'section' => _cis_connector_section_context(),
+      'title' => drupal_get_title(),
+      'url' => url(current_path(), array('absolute' => TRUE)),
     ),
   );
   drupal_add_js($js_variables, 'setting');
