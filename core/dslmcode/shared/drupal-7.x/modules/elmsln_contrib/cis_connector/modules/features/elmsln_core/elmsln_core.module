@@ -316,39 +316,45 @@ function elmsln_core_fa_a11y() {
       <div class="keyboard-short__key">↑</div>
     </div>
     <div class="keyboard-short__group">
+      <label>' . t('Open add tab') . '</label>
+      <div class="keyboard-short__key">Alt</div>
+      <div class="keyboard-short__key">Shift</div>
+      <div class="keyboard-short__key">d</div>
+    </div>
+    <div class="keyboard-short__group">
       <label>' . t('Open network tab') . '</label>
-      <div class="keyboard-short__key">alt</div>
-      <div class="keyboard-short__key">shift</div>
+      <div class="keyboard-short__key">Alt</div>
+      <div class="keyboard-short__key">Shift</div>
       <div class="keyboard-short__key">n</div>
     </div>
     <div class="keyboard-short__group">
       <label>' . t('Open user tab') . '</label>
-      <div class="keyboard-short__key">alt</div>
-      <div class="keyboard-short__key">shift</div>
+      <div class="keyboard-short__key">Alt</div>
+      <div class="keyboard-short__key">Shift</div>
       <div class="keyboard-short__key">u</div>
     </div>
     <div class="keyboard-short__group">
       <label>' . t('Open accessibility tab') . '</label>
-      <div class="keyboard-short__key">alt</div>
-      <div class="keyboard-short__key">shift</div>
+      <div class="keyboard-short__key">Alt</div>
+      <div class="keyboard-short__key">Shift</div>
       <div class="keyboard-short__key">a</div>
     </div>
     <div class="keyboard-short__group">
       <label>' . t('Open share tab') . '</label>
-      <div class="keyboard-short__key">alt</div>
-      <div class="keyboard-short__key">shift</div>
+      <div class="keyboard-short__key">Alt</div>
+      <div class="keyboard-short__key">Shift</div>
       <div class="keyboard-short__key">s</div>
     </div>
     <div class="keyboard-short__group">
       <label>' . t('Edit page') . '</label>
-      <div class="keyboard-short__key">alt</div>
-      <div class="keyboard-short__key">shift</div>
+      <div class="keyboard-short__key">Alt</div>
+      <div class="keyboard-short__key">Shift</div>
       <div class="keyboard-short__key">e</div>
     </div>
     <div class="keyboard-short__group">
       <label>' . t('Open more options menu') . '</label>
-      <div class="keyboard-short__key">alt</div>
-      <div class="keyboard-short__key">shift</div>
+      <div class="keyboard-short__key">Alt</div>
+      <div class="keyboard-short__key">Shift</div>
       <div class="keyboard-short__key">m</div>
     </div>
   </div>');

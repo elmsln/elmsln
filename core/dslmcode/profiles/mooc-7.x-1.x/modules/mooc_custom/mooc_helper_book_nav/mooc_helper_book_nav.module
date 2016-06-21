@@ -306,13 +306,17 @@ function mooc_helper_book_nav_fa_a11y() {
         <div class="keyboard-short__group">
           <label>' . t('Previous page') . '</label>
           <div class="keyboard-short__key">←</div>
+          <div class="keyboard-short__key">←</div>
         </div>
         <div class="keyboard-short__group">
           <label>' . t('Next page') . '</label>
           <div class="keyboard-short__key">→</div>
+          <div class="keyboard-short__key">→</div>
         </div>
         <div class="keyboard-short__group">
           <label>' . t('Open content outline') . '</label>
+          <div class="keyboard-short__key">Alt</div>
+          <div class="keyboard-short__key">Shift</div>
           <div class="keyboard-short__key">o</div>
         </div>
       </div>');

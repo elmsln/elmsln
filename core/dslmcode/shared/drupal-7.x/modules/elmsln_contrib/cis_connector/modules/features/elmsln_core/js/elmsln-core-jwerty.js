@@ -42,49 +42,33 @@
     });
     // network
     jwerty.key('alt+shift+n', function () {
-      if (!$(document.activeElement).is(":focus")) {
-        $('.apps-icon').click();
-        $('#block-cis-lmsless-cis-lmsless-network-nav-modal').focus();
-      }
+      $('.elmsln-network-button').focus().click();
     });
     // network
     jwerty.key('alt+shift+u', function () {
-      if (!$(document.activeElement).is(":focus")) {
-        $('.etb-nav_item_service_btn.user-icon').click();
-        $('#block-cis-lmsless-cis-lmsless-user-nav-modal').focus();
-      }
+      $('.elmsln-user-button').focus().click();
     });
     // edit
     jwerty.key('alt+shift+e', function () {
-      if (!$(document.activeElement).is(":focus")) {
-        window.location.href = window.location.href + '/edit';
+      if (!$(document.activeElement).is(":focus") && $('.elmsln-edit-button').attr('href') && window.location != $('.elmsln-edit-button').attr('href')) {
+        window.location = $('.elmsln-edit-button').attr('href');
       }
     });
     // share
     jwerty.key('alt+shift+s', function () {
-      if (!$(document.activeElement).is(":focus")) {
-        $('[data-reveal-id="block-cis-shortcodes-cis-shortcodes-block-nav-modal"]').click();
-        $('#block-cis-shortcodes-cis-shortcodes-block-nav-modal').focus();
-      }
+      $('.elmsln-share-button').focus().click();
     });
     // accessibility menu
     jwerty.key('alt+shift+a', function () {
-      if (!$(document.activeElement).is(":focus")) {
-        $('[data-reveal-id="page-accessibility-menu"]').click();
-        $('#page-accessibility-menu').focus();
-      }
+      $('.elmsln-accessibility-button').focus().click();
     });
     // more
     jwerty.key('alt+shift+m', function () {
-      if (!$(document.activeElement).is(":focus")) {
-        $('[data-reveal-id="r-header__icon--advanced"]').click();
-      }
+      $('.elmsln-more-button').focus().click();
     });
     // add
-    jwerty.key('alt+shift++', function () {
-      if (!$(document.activeElement).is(":focus")) {
-        $('.add-menu-drop').focus().click();
-      }
+    jwerty.key('alt+shift+d', function () {
+      $('.add-menu-drop').focus().click();
     });
   });
 })(jQuery);

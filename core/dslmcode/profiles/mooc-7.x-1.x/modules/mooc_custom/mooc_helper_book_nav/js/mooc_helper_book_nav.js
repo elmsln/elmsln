@@ -1,20 +1,20 @@
 (function ($) {
   $(document).ready(function(){
     // go back
-    jwerty.key('←', function () {
+    jwerty.key('←,←', function () {
       if ($('.page-previous').attr('href')) {
         window.location = $('.page-previous').attr('href');
       }
     });
     // go forward
-    jwerty.key('→', function () {
+    jwerty.key('→,→', function () {
       if ($('.page-next').attr('href')) {
         window.location = $('.page-next').attr('href');
       }
     });
     // shortcuts for outline button
-    jwerty.key('o', function () {
-      $('.mooc-helper-toc').click();
+    jwerty.key('alt+shift+o', function () {
+      $('.mooc-helper-toc').focus().click();
     });
   });
 })(jQuery);
