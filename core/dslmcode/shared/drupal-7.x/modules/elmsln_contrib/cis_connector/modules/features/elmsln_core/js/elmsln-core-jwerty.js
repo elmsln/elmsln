@@ -47,6 +47,13 @@
         $('#block-cis-lmsless-cis-lmsless-network-nav-modal').focus();
       }
     });
+    // network
+    jwerty.key('alt+shift+u', function () {
+      if (!$(document.activeElement).is(":focus")) {
+        $('.etb-nav_item_service_btn.user-icon').click();
+        $('#block-cis-lmsless-cis-lmsless-user-nav-modal').focus();
+      }
+    });
     // edit
     jwerty.key('alt+shift+e', function () {
       if (!$(document.activeElement).is(":focus")) {
@@ -71,7 +78,6 @@
     jwerty.key('alt+shift+m', function () {
       if (!$(document.activeElement).is(":focus")) {
         $('[data-reveal-id="r-header__icon--advanced"]').click();
-        $('#block-cis-lmsless-cis-lmsless-user-nav-modal').focus();
       }
     });
     // add
