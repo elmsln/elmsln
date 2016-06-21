@@ -16,7 +16,7 @@
         <ul class="left kill-margin middle-align-wrap">
         <?php if ($bar_elements['network']) : ?>
           <li class="apps">
-            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap" data-reveal-id="block-cis-lmsless-cis-lmsless-network-nav-modal">
+            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap elmsln-network-button" data-reveal-id="block-cis-lmsless-cis-lmsless-network-nav-modal">
               <div class="icon-apps-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Network'); ?></span>
             </a>
@@ -24,7 +24,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
           <li class="ferpa-protect">
-            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap" data-reveal-id="block-cis-lmsless-cis-lmsless-user-nav-modal">
+            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap elmsln-user-button" data-reveal-id="block-cis-lmsless-cis-lmsless-user-nav-modal">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="visible-for-large-up"><?php print $username; ?></span>
             </a>
@@ -32,7 +32,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['help']) : ?>
           <li class="divider-left">
-            <a href="<?php print $help_link;?>" class="etb-nav_item_service_btn etb-icon help-icon middle-align-wrap">
+            <a href="<?php print $help_link;?>" class="etb-nav_item_service_btn etb-icon help-icon elmsln-help-button middle-align-wrap">
               <div class="icon-help-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Help'); ?></span>
             </a>
@@ -44,7 +44,7 @@
             <?php else : ?>
             <li class="divider-left">
             <?php endif; ?>
-            <a href="<?php print $resources_link;?>" class="etb-nav_item_service_btn etb-icon resources-icon middle-align-wrap">
+            <a href="<?php print $resources_link;?>" class="etb-nav_item_service_btn etb-icon elmsln-resource-button resources-icon middle-align-wrap">
               <div class="icon-teacher-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Resources'); ?></span>
             </a>
@@ -56,7 +56,7 @@
             <?php else : ?>
             <li class="divider-left">
             <?php endif; ?>
-            <a href="<?php print $syllabus_link;?>" class="etb-nav_item_service_btn etb-icon info-icon middle-align-wrap">
+            <a href="<?php print $syllabus_link;?>" class="etb-nav_item_service_btn etb-icon info-icon elmsln-syllabus-button middle-align-wrap">
               <div class="icon-info-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Syllabus'); ?></span>
             </a>
@@ -74,7 +74,7 @@
           <?php
             // account for roles that don't have access to this
             if (!empty($elmsln_main_menu)) {?>
-            <a id="courseToolsMenuTrigger" class="course-title" href="#" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
+            <a id="courseToolsMenuTrigger" class="course-title elmsln-course-title" href="#" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
               <span class="course-title-group">
                 <span class="course-title"><?php print $slogan; ?></span>
                 <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
@@ -87,7 +87,7 @@
             <?php
             }
             else { ?>
-            <a id="courseToolsMenuTrigger" class="course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>">
+            <a id="courseToolsMenuTrigger" class="course-title elmsln-course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>">
               <span class="course-title-group">
                 <span class="course-title"><?php print $slogan; ?></span>
                 <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
