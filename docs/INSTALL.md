@@ -5,7 +5,7 @@ There are some handsfree install routines (copy and paste) that you can try. Thi
 
 ### CentOS 6.x / RHEL 6.x
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos/example-deploy)
-### CentOS 7.x
+### CentOS 7.x / RHEL 7.x
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos7/example-deploy)
 ### AWS EC2 AMI
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/amazon/example-deploy)
@@ -61,17 +61,12 @@ For most production use cases it is recommended that you use LDAP, Shibboleth, C
 # EXTRAS (optional)
 
 ## PIWIK
-Install the analytics package by pointing a domain to the
-elmsln/domains/analytics.  This is running piwik and has config and tmp files
-modified to point to the symlink directories in the config directory.
+https://piwik.org/download/
+We love Piwik. It's a great open source user analytics tool that can help you track and aid students with technical support issues as well as gain insight into how they are accessing your content. ELMS:LN has native support via the piwik module included with Drupal. It is recommended to install on its own server.
 
-Create a database named analytics_{host} to match the rest of your systems.
-You'll need to create a user / password and then  run through the installation
-at analytics.{domain}. There are examples in the cis_example modules included
-with this package as to how that might look.
-
-elmsln-config-vagrant also includes a working analytics example to see how
-a feature might be created to help make hooking in new systems easier.
+## Learning Locker
+https://learninglocker.net/get-started/
+We REALLY love Learning Locker. It's a great Learning Record Store (LRS) which ELMS:LN has native support for all over the place. This lets you track users in quizzes, H5P activities, and other engagements they have with their courses.
 
 ## MCRYPT
 You might need / want mcrypt if you are going to use file system encryption. All handsfree installers include this automatically.
