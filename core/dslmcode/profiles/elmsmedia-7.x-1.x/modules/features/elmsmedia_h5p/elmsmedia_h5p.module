@@ -69,10 +69,15 @@ function elmsmedia_h5p_tincanapi_ajax_data_alter(&$data, $context) {
   if (isset($settings['url'])) {
     $url = filter_xss($settings['url']);
   }
+  $role = '';
+  if (isset($settings['role'])) {
+    $url = filter_xss($settings['role']);
+  }
   $data['object']['definition']['extensions'] = array(
     'https://www.elmsln.org/x-api/elmsln-section' => $section,
     'https://www.elmsln.org/x-api/elmsln-course' => $course,
     'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
     'https://www.elmsln.org/x-api/elmsln-url' => $url,
+    'https://www.elmsln.org/x-api/elmsln-role' => $role,
   );
 }

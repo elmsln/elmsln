@@ -7,7 +7,8 @@
         "course": Drupal.settings.elmslnCore.course,
         "section": Drupal.settings.elmslnCore.section,
         "url": Drupal.settings.elmslnCore.url,
-        "title": Drupal.settings.elmslnCore.title
+        "title": Drupal.settings.elmslnCore.title,
+        "role": Drupal.settings.elmslnCore.role
       };
       var obj = this;
       // send the message to the other domain using postMessage call

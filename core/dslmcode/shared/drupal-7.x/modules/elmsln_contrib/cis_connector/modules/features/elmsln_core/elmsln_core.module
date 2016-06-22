@@ -163,6 +163,20 @@ function elmsln_core_page_build(&$page) {
   // the client side. This clears up MULTIPLE issues at once and is
   // awesome!
   $cfg = _cis_connector_get_cfg();
+  // see if this is an active learner or not, only thing we care about currently
+  // @todo probably faster way of getting this info
+  if (_cis_connector_role_grouping('active learner')) {
+    $role = 'student';
+  }
+  elseif (_cis_connector_role_grouping('staff')) {
+    $role = 'staff';
+  }
+  elseif (_cis_connector_role_grouping('teacher')) {
+    $role = 'teacher';
+  }
+  else {
+    $role = 'other';
+  }
   // pass variables to js
   $js_variables = array(
     'elmslnCore' => array(
@@ -171,6 +185,7 @@ function elmsln_core_page_build(&$page) {
       'section' => _cis_connector_section_context(),
       'title' => drupal_get_title(),
       'url' => url(current_path(), array('absolute' => TRUE)),
+      'role' => $role,
     ),
   );
   drupal_add_js($js_variables, 'setting');
