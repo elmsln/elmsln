@@ -56,7 +56,7 @@
             <?php else : ?>
             <li class="divider-left">
             <?php endif; ?>
-            <a href="<?php print $syllabus_link;?>" class="etb-nav_item_service_btn etb-icon info-icon elmsln-syllabus-button middle-align-wrap">
+            <a href="<?php print $syllabus_link;?>" class="etb-nav_item_service_btn etb-icon info-icon elmsln-syllabus-button middle-align-wrap" data-jwerty-key="y" data-voicecommand="syllabus">
               <div class="icon-info-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Syllabus'); ?></span>
             </a>

@@ -7,7 +7,12 @@
       Drupal.keys[$(this).attr('data-jwerty-key')] = this;
       jwerty.key('alt+shift+' + $(this).attr('data-jwerty-key'), function (event, selector) {
         var key = selector.replace('alt+shift+', '');
-        $(Drupal.keys[key]).focus().click();
+        if ($(Drupal.keys[key]).attr('href') == '#') {
+          $(Drupal.keys[key]).focus().click();
+        }
+        else {
+          window.location = $(Drupal.keys[key]).attr('href');
+        }
       });
     });
     // visualize what CAN be pressed
