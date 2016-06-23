@@ -8,7 +8,10 @@
 // automatically be discovered and then triggerable with whatever
 // the phrase is written in it. For example.
 
-//<a href="http://drupal.org" data-voicecommand="go to drupal">Drupal.org</a>
+// HTML example
+?>
+<a href="http://drupal.org" data-voicecommand="go to drupal">Drupal.org</a>
+<?php
 // will be found and automatically recognized as a valid command
 
 /**

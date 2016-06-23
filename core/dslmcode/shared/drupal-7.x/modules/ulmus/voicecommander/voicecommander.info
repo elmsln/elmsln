@@ -5,10 +5,3 @@ package = Voice Commander
 configure = admin/config/user-interface/voice-commander
 
 dependencies[] = libraries (2.x)
-
-; Information added by Drupal.org packaging script on 2015-03-13
-version = "7.x-1.0+2-dev"
-core = "7.x"
-project = "voicecommander"
-datestamp = "1426272483"
-
