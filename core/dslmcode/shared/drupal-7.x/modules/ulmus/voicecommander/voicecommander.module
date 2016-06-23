@@ -49,6 +49,51 @@ function voicecommander_page_build(&$page) {
 }
 
 /**
+ * Implementation of hook_form_alter().
+ */
+function voicecommander_form_alter(&$form, &$form_state, $form_id) {
+  // add voice command support to all submit buttons
+  foreach ($form as &$item) {
+    if (is_array($item) && isset($item['#type']) && in_array($item['#type'], array('submit', 'textfield', 'container'))) {
+      $command = '';
+      if ($item['#type'] == 'container' && isset($item['und']) && isset($item['und']['#title'])) {
+        $command .= drupal_strtolower($item['und']['#title']);
+      }
+      elseif (isset($item['#value'])) {
+        $command .= drupal_strtolower($item['#value']);
+      }
+      elseif (isset($item['#title'])) {
+        $command .= drupal_strtolower($item['#title']);
+      }
+      // ensure we had a well made form item
+      if ($command != '') {
+        $item['#attributes']['data-voicecommand'] = t('form ') . $command;
+      }
+    }
+    elseif (is_array($item)) {
+      foreach ($item as &$subitem) {
+        if (is_array($subitem) && isset($subitem['#type']) && in_array($subitem['#type'], array('submit', 'textfield', 'container'))) {
+          $command = '';
+          if ($subitem['#type'] == 'container' && isset($subitem['und']) && isset($subitem['und']['#title'])) {
+            $command .= drupal_strtolower($subitem['und']['#title']);
+          }
+          elseif (isset($subitem['#value'])) {
+            $command .= drupal_strtolower($subitem['#value']);
+          }
+          elseif (isset($subitem['#title'])) {
+            $command .= drupal_strtolower($subitem['#title']);
+          }
+          // ensure we had a well made form item
+          if ($command != '') {
+            $subitem['#attributes']['data-voicecommand'] = t('form ') . $command;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
  * Access check for voice commander.
  */
 function _voicecommander_access() {

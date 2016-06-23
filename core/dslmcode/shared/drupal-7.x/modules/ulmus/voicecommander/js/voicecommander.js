@@ -27,6 +27,7 @@
   // click a link based on the phrase match
   Drupal.voicecommander.clickLink = function(phrase) {
     Drupal.settings.voiceCommander.commands[phrase].object.click();
+    Drupal.settings.voiceCommander.commands[phrase].object.focus();
     $('span.voicecommand-phrase').remove();
     $('[data-voicecommand]').removeClass('voicecommander-outline');
     Drupal.voicecommander.reactivate();
@@ -98,7 +99,7 @@
         }
       }
       // support for items to be click-able if they define a data attribute
-      $('body a:visible').each(function(){
+      $('body a:visible,[data-voicecommand]').each(function(){
         var tmpphrase;
         var tmpcommand;
         if ($(this).attr('data-voicecommand')) {
