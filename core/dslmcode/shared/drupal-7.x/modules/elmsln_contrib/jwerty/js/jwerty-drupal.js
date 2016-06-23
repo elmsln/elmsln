@@ -7,7 +7,7 @@
       Drupal.keys[$(this).attr('data-jwerty-key')] = this;
       jwerty.key('alt+shift+' + $(this).attr('data-jwerty-key'), function (event, selector) {
         var key = selector.replace('alt+shift+', '');
-        if ($(Drupal.keys[key]).attr('href') == '#') {
+        if ($(Drupal.keys[key]).attr('href') == '#' || $(Drupal.keys[key]).attr('href') == '' || $(Drupal.keys[key]).attr('href') == undefined) {
           $(Drupal.keys[key]).focus().click();
         }
         else {
