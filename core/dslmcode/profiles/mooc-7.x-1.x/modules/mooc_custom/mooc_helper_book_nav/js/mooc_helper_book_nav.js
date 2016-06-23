@@ -12,9 +12,5 @@
         window.location = $('.page-next').attr('href');
       }
     });
-    // shortcuts for outline button
-    jwerty.key('alt+shift+o', function () {
-      $('.mooc-helper-toc').focus().click();
-    });
   });
 })(jQuery);

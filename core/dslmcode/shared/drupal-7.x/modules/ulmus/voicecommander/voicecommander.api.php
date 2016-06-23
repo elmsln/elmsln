@@ -4,6 +4,13 @@
  * Voice commander API documentation
  */
 
+// Anything item has the data-voicecommand attribute on it will
+// automatically be discovered and then triggerable with whatever
+// the phrase is written in it. For example.
+
+//<a href="http://drupal.org" data-voicecommand="go to drupal">Drupal.org</a>
+// will be found and automatically recognized as a valid command
+
 /**
  * Implements hook_voice_command().
  *

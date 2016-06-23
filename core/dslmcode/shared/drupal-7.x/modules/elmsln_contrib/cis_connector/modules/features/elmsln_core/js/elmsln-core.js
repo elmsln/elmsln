@@ -1,14 +1,15 @@
 (function ($) {
   // apply jwerty keys to listen for
   $(document).ready(function(){
+    Drupal.voicecommanderGoToELMSLN = function(phrase) {
+      window.location.href = Drupal.settings.voiceCommander.commands[phrase].data;
+    };
     // voice based video controls... within reason
     Drupal.voicecommanderControlVideo = function(phrase) {
       if (phrase.indexOf('play') !== -1) {
         // @todo something like this...
         /*$( 'iframe[src*="youtube.com"]' ).each( function( i, el ) {
           var youtube_command = window.JSON.stringify( { event: 'command', func: 'playVideo' } );
-          console.log(i);
-          console.log(el);
           i.postMessage( youtube_command, 'https://www.youtube.com' );
         });*/
       }
@@ -16,8 +17,6 @@
       else if (phrase.indexOf('pause') !== -1) {
         /*$( 'iframe[src*="youtube.com"]' ).each( function( i, el ) {
           var youtube_command = window.JSON.stringify( { event: 'command', func: 'pauseVideo' } );
-          console.log(i);
-          console.log(el);
           i.postMessage( youtube_command, 'https://www.youtube.com' );
         });*/
       }
@@ -39,36 +38,6 @@
         }, 1000);
         return false;
       }
-    });
-    // network
-    jwerty.key('alt+shift+n', function () {
-      $('.elmsln-network-button').focus().click();
-    });
-    // network
-    jwerty.key('alt+shift+u', function () {
-      $('.elmsln-user-button').focus().click();
-    });
-    // edit
-    jwerty.key('alt+shift+e', function () {
-      if (!$(document.activeElement).is(":focus") && $('.elmsln-edit-button').attr('href') && window.location != $('.elmsln-edit-button').attr('href')) {
-        window.location = $('.elmsln-edit-button').attr('href');
-      }
-    });
-    // share
-    jwerty.key('alt+shift+s', function () {
-      $('.elmsln-share-button').focus().click();
-    });
-    // accessibility menu
-    jwerty.key('alt+shift+a', function () {
-      $('.elmsln-accessibility-button').focus().click();
-    });
-    // more
-    jwerty.key('alt+shift+m', function () {
-      $('.elmsln-more-button').focus().click();
-    });
-    // add
-    jwerty.key('alt+shift+d', function () {
-      $('.add-menu-drop').focus().click();
     });
   });
 })(jQuery);

@@ -1,3 +1,7 @@
+/* jwerty */
+.jwerty-key-outline i {
+  opacity: .4 !important;
+}
 .keyboard-short__key {
   min-width: 18px;
   height: 18px;
@@ -17,6 +21,7 @@
   font: 15px/40px sans-serif;
   border-radius: 5px;
 }
+/* / jwerty */
 
 .alert-box.success a {
   color:#FFFF00;
@@ -77,10 +82,10 @@ a.add-menu-drop {
   padding: .5rem !important;
 }
 
-.r-header__icon {
+.r-header__icon i {
   opacity: 0.5;
 }
-.r-header__icon:hover {
+.r-header__icon i:hover {
   opacity: 0.8;
 }
 .r-header__icon-secondary {

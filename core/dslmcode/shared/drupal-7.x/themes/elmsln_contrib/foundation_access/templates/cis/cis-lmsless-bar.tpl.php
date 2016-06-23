@@ -16,7 +16,7 @@
         <ul class="left kill-margin middle-align-wrap">
         <?php if ($bar_elements['network']) : ?>
           <li class="apps">
-            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap elmsln-network-button" data-reveal-id="block-cis-lmsless-cis-lmsless-network-nav-modal">
+            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap elmsln-network-button" data-reveal-id="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
               <div class="icon-apps-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Network'); ?></span>
             </a>
@@ -24,7 +24,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
           <li class="ferpa-protect">
-            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap elmsln-user-button" data-reveal-id="block-cis-lmsless-cis-lmsless-user-nav-modal">
+            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap elmsln-user-button" data-reveal-id="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="visible-for-large-up"><?php print $username; ?></span>
             </a>
@@ -32,7 +32,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['help']) : ?>
           <li class="divider-left">
-            <a href="<?php print $help_link;?>" class="etb-nav_item_service_btn etb-icon help-icon elmsln-help-button middle-align-wrap">
+            <a href="<?php print $help_link;?>" class="etb-nav_item_service_btn etb-icon help-icon elmsln-help-button middle-align-wrap" data-jwerty-key="h" data-voicecommand="help">
               <div class="icon-help-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Help'); ?></span>
             </a>
@@ -44,7 +44,7 @@
             <?php else : ?>
             <li class="divider-left">
             <?php endif; ?>
-            <a href="<?php print $resources_link;?>" class="etb-nav_item_service_btn etb-icon elmsln-resource-button resources-icon middle-align-wrap">
+            <a href="<?php print $resources_link;?>" class="etb-nav_item_service_btn etb-icon elmsln-resource-button resources-icon middle-align-wrap" data-jwerty-key="r" data-voicecommand="resources">
               <div class="icon-teacher-black etb-icons svg"></div>
               <span class="visible-for-large-up"><?php print t('Resources'); ?></span>
             </a>

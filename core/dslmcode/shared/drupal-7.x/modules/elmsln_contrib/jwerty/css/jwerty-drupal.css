@@ -1,0 +1,9 @@
+.jwerty-key-outline {
+  border: 2px solid #33FF33 !important;
+}
+.jwerty-key {
+  font-weight: bold !important;
+  font-size: 2rem !important;
+  z-index: 1000;
+  color: #333333;
+}

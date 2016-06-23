@@ -5,6 +5,23 @@
 body.voicecommander {
   overflow: hidden;
 }
+.voicecommand-outline {
+  border: 2px solid #33FF33 !important;
+  opacity: 1 !important;
+}
+.voicecommand-phrase {
+  font-weight: bold !important;
+  font-size: .8rem !important;
+  z-index: 1000;
+  color: #00FF00;
+  line-height: .8rem;
+  position: static;
+  background-color: #111111;
+  opacity: 1 !important;
+  z-index: 10000;
+  text-align: center;
+  padding: .5rem !important;
+}
 
 body.voicecommander .voice-commander-rec-window {
   display: block;
@@ -15,7 +32,7 @@ body.voicecommander #voice-commander-rec {
   height: 100%;
   position: fixed;
   background: #000000;
-  opacity: 0.5;
+  opacity: 0.1;
   top: 0;
   z-index: 99999999;
 }

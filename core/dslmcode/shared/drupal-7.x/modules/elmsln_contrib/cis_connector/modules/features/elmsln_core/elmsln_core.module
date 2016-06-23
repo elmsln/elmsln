@@ -154,8 +154,8 @@ function elmsln_core_page_build(&$page) {
   // enable jquery cookie for all pages since we store a bunch of stuff local to the user account
   drupal_add_library('system', 'jquery.cookie');
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/field-focus.js');
-  // jwerty keyboard support
-  drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-jwerty.js');
+  // jwerty / voice support
+  drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
   // xapi context iframe sniffer
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
   // get the configuration so we can set domain from here to enable
@@ -413,39 +413,39 @@ function elmsln_core_voice_command() {
         case 'assessment':
           $distro = t('testing');
           $commands["%phrase go to (the) grading (system)(tool)"] =  array(
-            'callback' => 'Drupal.voicecommander.goToELMSLN',
+            'callback' => 'Drupal.voicecommanderGoToELMSLN',
             'data' => $address,
           );
           $commands["%phrase go to (the) gradebook (system)(tool)"] =  array(
-            'callback' => 'Drupal.voicecommander.goToELMSLN',
+            'callback' => 'Drupal.voicecommanderGoToELMSLN',
             'data' => $address,
           );
         break;
         case 'cle':
           $distro = t('open studio');
           $commands["%phrase go to (the) assignment studio (system)(tool)"] =  array(
-            'callback' => 'Drupal.voicecommander.goToELMSLN',
+            'callback' => 'Drupal.voicecommanderGoToELMSLN',
             'data' => $address,
           );
         break;
         case 'discuss':
           $distro = t('discussion boards');
           $commands["%phrase go to (the) forum (system)(tool)"] =  array(
-            'callback' => 'Drupal.voicecommander.goToELMSLN',
+            'callback' => 'Drupal.voicecommanderGoToELMSLN',
             'data' => $address,
           );
         break;
       }
       // make a shortcut to go to that part of the course experience
       $commands["%phrase go to (the) $distro (system)(tool)"] =  array(
-        'callback' => 'Drupal.voicecommander.goToELMSLN',
+        'callback' => 'Drupal.voicecommanderGoToELMSLN',
         'data' => $address,
       );
       // pull off the first part of the address for an alternate call
       $tmp = explode('.', $settings['address']);
       $alternate = array_shift($tmp);
       $commands["%phrase go to (the) $alternate (system)(tool)"] =  array(
-        'callback' => 'Drupal.voicecommander.goToELMSLN',
+        'callback' => 'Drupal.voicecommanderGoToELMSLN',
         'data' => $address,
       );
     }

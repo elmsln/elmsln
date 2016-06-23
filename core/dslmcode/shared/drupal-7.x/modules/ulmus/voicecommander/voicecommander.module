@@ -107,6 +107,7 @@ function _voicecommander_apply() {
       'voiceCommander' => array(
         'commands'      => $commands,
         'prefix' => variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME),
+        'optionalPrefix' => variable_get('voicecommander_optional_prefix', TRUE),
         'mobile'                      => variable_get('voicecommander_mobile', 1),
         'startCallback'               => t('Please speak'),
         'waitCallback'                => t('Wait ...'),
@@ -284,6 +285,16 @@ function voicecommander_voice_command() {
         ),
         '%phrase write *input' => array(
           'callback' => 'Drupal.voicecommander.dictate'
+        ),
+      ),
+    ),
+    'show_commands' => array(
+      'commands' => array(
+        '%phrase show options' => array(
+          'callback' => 'Drupal.voicecommander.showOptions'
+        ),
+        '%phrase hide options' => array(
+          'callback' => 'Drupal.voicecommander.showOptions'
         ),
       ),
     ),
