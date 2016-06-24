@@ -336,48 +336,6 @@ function elmsln_core_fa_a11y() {
       <div class="keyboard-short__key">↑</div>
       <div class="keyboard-short__key">↑</div>
     </div>
-    <div class="keyboard-short__group">
-      <label>' . t('Open add tab') . '</label>
-      <div class="keyboard-short__key">Alt</div>
-      <div class="keyboard-short__key">Shift</div>
-      <div class="keyboard-short__key">d</div>
-    </div>
-    <div class="keyboard-short__group">
-      <label>' . t('Open network tab') . '</label>
-      <div class="keyboard-short__key">Alt</div>
-      <div class="keyboard-short__key">Shift</div>
-      <div class="keyboard-short__key">n</div>
-    </div>
-    <div class="keyboard-short__group">
-      <label>' . t('Open user tab') . '</label>
-      <div class="keyboard-short__key">Alt</div>
-      <div class="keyboard-short__key">Shift</div>
-      <div class="keyboard-short__key">u</div>
-    </div>
-    <div class="keyboard-short__group">
-      <label>' . t('Open accessibility tab') . '</label>
-      <div class="keyboard-short__key">Alt</div>
-      <div class="keyboard-short__key">Shift</div>
-      <div class="keyboard-short__key">a</div>
-    </div>
-    <div class="keyboard-short__group">
-      <label>' . t('Open share tab') . '</label>
-      <div class="keyboard-short__key">Alt</div>
-      <div class="keyboard-short__key">Shift</div>
-      <div class="keyboard-short__key">s</div>
-    </div>
-    <div class="keyboard-short__group">
-      <label>' . t('Edit page') . '</label>
-      <div class="keyboard-short__key">Alt</div>
-      <div class="keyboard-short__key">Shift</div>
-      <div class="keyboard-short__key">e</div>
-    </div>
-    <div class="keyboard-short__group">
-      <label>' . t('Open more options menu') . '</label>
-      <div class="keyboard-short__key">Alt</div>
-      <div class="keyboard-short__key">Shift</div>
-      <div class="keyboard-short__key">m</div>
-    </div>
   </div>');
 }
 
@@ -386,70 +344,6 @@ function elmsln_core_fa_a11y() {
  */
 function elmsln_core_voice_command() {
   // see what we have in the registry
-  $registry = _cis_connector_build_registry();
-  foreach ($registry as $distro => $settings) {
-    // only allow shouting commands admin links if an admin
-    if (isset($settings['instance']) && (($settings['instance'] && user_access('view lmsless links')) || (!$settings['instance'] && user_access('view lmsless administration links')))) {
-      $instance = '/' . _cis_connector_course_context();
-      $address = _cis_connector_format_address($settings, $instance, 'front');
-      // support for things that we know commonly would make no sense still
-      // for the alternate command phrase
-      switch ($distro) {
-        case 'lq':
-          $distro = t('live question');
-        break;
-        case 'editorial':
-          $distro = t('journal');
-        break;
-        case 'ecd':
-          $distro = t('compliance');
-        break;
-        case 'mooc':
-          $distro = t('(course) content (outline)');
-        break;
-        case 'eph':
-          $distro = t('program hub');
-        break;
-        case 'assessment':
-          $distro = t('testing');
-          $commands["%phrase go to (the) grading (system)(tool)"] =  array(
-            'callback' => 'Drupal.voicecommanderGoToELMSLN',
-            'data' => $address,
-          );
-          $commands["%phrase go to (the) gradebook (system)(tool)"] =  array(
-            'callback' => 'Drupal.voicecommanderGoToELMSLN',
-            'data' => $address,
-          );
-        break;
-        case 'cle':
-          $distro = t('open studio');
-          $commands["%phrase go to (the) assignment studio (system)(tool)"] =  array(
-            'callback' => 'Drupal.voicecommanderGoToELMSLN',
-            'data' => $address,
-          );
-        break;
-        case 'discuss':
-          $distro = t('discussion boards');
-          $commands["%phrase go to (the) forum (system)(tool)"] =  array(
-            'callback' => 'Drupal.voicecommanderGoToELMSLN',
-            'data' => $address,
-          );
-        break;
-      }
-      // make a shortcut to go to that part of the course experience
-      $commands["%phrase go to (the) $distro (system)(tool)"] =  array(
-        'callback' => 'Drupal.voicecommanderGoToELMSLN',
-        'data' => $address,
-      );
-      // pull off the first part of the address for an alternate call
-      $tmp = explode('.', $settings['address']);
-      $alternate = array_shift($tmp);
-      $commands["%phrase go to (the) $alternate (system)(tool)"] =  array(
-        'callback' => 'Drupal.voicecommanderGoToELMSLN',
-        'data' => $address,
-      );
-    }
-  }
   $commands["%phrase play (video)"] =  array(
     'callback' => 'Drupal.voicecommanderControlVideo',
   );
