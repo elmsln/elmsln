@@ -73,13 +73,19 @@ function elmsln_cdn_js_alter(&$javascript) {
               $cdn_version_arr_elements_str = $cdn_version_arr_elements[$element];
              }
             if(strcmp($cdn_version_arr_elements_str, $version) === 0) {
-              $files = $cdn_version_arr_elements[$element]['files'];
+              if (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
+                $files = $cdn_version_arr_elements[$element]['files'];
+              }
+              elseif (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR') {
+                $content = file_get_contents('http://api.jsdelivr.com/v1/jsdelivr/libraries/' . $name . '/' . $version);
+                $files = json_decode($content, true);
+              }
               foreach ($files as $index => $value) {
                 if (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
                 $javascript[$path]['data'] = 'http://cdnjs.cloudflare.com/ajax/libs/'. $name .'/' . $version .'/' . $files[$index]; //strval($files[$index]);
                 }
                 elseif (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR') {
-                  $javascript[$path]['data'] = strval($files[$index]);
+                  $javascript[$path]['data'] = 'https://cdn.jsdelivr.net/'. $name . '/' . $version . '/' .strval($files[$index]);
                 }
                 $javascript[$name]['type'] = 'external';
               }
