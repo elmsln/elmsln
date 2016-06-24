@@ -12,7 +12,6 @@ body.voicecommander {
 .voicecommand-phrase {
   font-weight: bold !important;
   font-size: .8rem !important;
-  z-index: 1000;
   color: #00FF00;
   line-height: .8rem;
   position: static;

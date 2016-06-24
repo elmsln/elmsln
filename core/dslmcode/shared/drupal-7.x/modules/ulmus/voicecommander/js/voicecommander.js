@@ -10,10 +10,8 @@
   // reactivate voice command so we don't get multiple matches
   Drupal.voicecommander.reactivate = function() {
     if (Drupal.settings.voiceCommander.continuous == false) {
-      out = setTimeout(function () {
-        annyang.abort();
-      }, 500);
-      $('body').removeClass('voicecommander');
+      annyang.abort();
+      annyang.start();
     }
     else {
       annyang.abort();
@@ -28,8 +26,6 @@
   Drupal.voicecommander.clickLink = function(phrase) {
     Drupal.settings.voiceCommander.commands[phrase].object.click();
     Drupal.settings.voiceCommander.commands[phrase].object.focus();
-    $('span.voicecommand-phrase').remove();
-    $('[data-voicecommand]').removeClass('voicecommander-outline');
     Drupal.voicecommander.reactivate();
   };
   // go to a link, this is most common
