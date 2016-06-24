@@ -37,3 +37,6 @@ post_max_size = 50M
 ; Recommendation from @mcarper
 realpath_cache_size = 1M
 realpath_cache_ttl = 3600
+
+; Corrects larger deployments and Outline Designer saving the page
+max_input_vars = 4000
