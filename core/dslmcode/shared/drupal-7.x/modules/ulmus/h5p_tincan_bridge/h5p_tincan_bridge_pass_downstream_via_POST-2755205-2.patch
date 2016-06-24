@@ -1,0 +1,15 @@
+diff --git a/h5p_tincan_bridge.js b/h5p_tincan_bridge.js
+index 9f48e94..1678090 100644
+--- a/h5p_tincan_bridge.js
++++ b/h5p_tincan_bridge.js
+@@ -11,7 +11,9 @@
+                 H5P.externalDispatcher.on('xAPI', function (event) {
+                     var data = {
+                         token: moduleSettings.token,
+-                        statement: JSON.stringify(event.data.statement)
++                        statement: JSON.stringify(event.data.statement),
++                        nid: moduleSettings.nid,
++                        settings: moduleSettings
+                     };
+                     $.post(moduleSettings.relayUrl, data);
+                 });
