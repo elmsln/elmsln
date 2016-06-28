@@ -45,7 +45,45 @@ function cis_dashboard_theme($existing, $type, $theme, $path) {
  * Implementation of hook_preprocess_cis_controlboard().
  */
 function cis_dashboard_preprocess_cis_controlboard(&$variables) {
-  drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.js', 'external');
-  drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular-resource.js', 'external');
+  libraries_load('angular');
   drupal_add_js(drupal_get_path('module', 'cis_dashboard') . '/js/app.js');
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function cis_dashboard_libraries_info() {
+  $libraries = array();
+  $libraries['angular'] = array(
+    'name' => 'angular.js',
+    'vendor url' => 'https://angularjs.org/',
+    'download url' => 'https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.js',
+    'version arguments' => array(
+      'file' => 'angular.js',
+      'pattern' => '/AngularJS v(\d+\.\d+\.\d+)/',
+      'lines' => 2,
+    ),
+    'files' => array(
+      'css' => array(
+        'angular-csp.css'
+        ),
+      'js' => array(
+        'angular.js',
+        'angular-animate.min.js',
+        'angular-aria.min.js',
+        'angular-cookies.min.js',
+        'angular-loader.min.js',
+        'angular-message-format.min.js',
+        'angular-messages.min.js',
+        'angular-mocks.js',
+        'angular-parse-ext.min.js',
+        'angular-resource.min.js',
+        'angular-route.min.js',
+        'angular-sanitize.min.js',
+        'angular-touch.min.js'
+      ),
+    ),
+  );
+ 
+  return $libraries;
 }
