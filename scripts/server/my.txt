@@ -34,8 +34,8 @@ thread-cache-size              = 50
 open-files-limit               = 65535
 table-definition-cache         = 4096
 table-open-cache               = 4096
-join-buffer-size         = 8388608
-binlog-format            = ROW
+;join-buffer-size         = 8388608
+;binlog-format            = ROW
 
 ; INNODB ;
 ;innodb-flush-method            = O_DIRECT
@@ -71,4 +71,4 @@ slow-query-log                 = 0
 ;innodb_log_file_size = 100M
 ;innodb_log_buffer_size = 8M
 ;innodb_flush_log_at_trx_commit = 2
-innodb_lock_wait_timeout = 20
+;innodb_lock_wait_timeout = 20
