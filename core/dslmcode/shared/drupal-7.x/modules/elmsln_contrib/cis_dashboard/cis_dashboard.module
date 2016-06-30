@@ -45,7 +45,35 @@ function cis_dashboard_theme($existing, $type, $theme, $path) {
  * Implementation of hook_preprocess_cis_controlboard().
  */
 function cis_dashboard_preprocess_cis_controlboard(&$variables) {
-  drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.js', 'external');
-  drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular-resource.js', 'external');
+  libraries_load('angular');
   drupal_add_js(drupal_get_path('module', 'cis_dashboard') . '/js/app.js');
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function cis_dashboard_libraries_info() {
+  $libraries = array();
+  $libraries['angular'] = array(
+    'name' => 'angular.js',
+    'vendor url' => 'https://angularjs.org/',
+    'download url' => 'https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.js',
+    'version arguments' => array(
+      'file' => 'version.txt',
+      'pattern' => '/(\d+\.\d+\.\d+)/',
+      'lines' => 1,
+    ),
+    'files' => array(
+      'css' => array(
+        'angular-csp.css'
+        ),
+      'js' => array(
+        'angular.min.js',
+        'angular-resource.min.js',
+        'version.txt'
+      ),
+    ),
+  );
+ 
+  return $libraries;
 }
