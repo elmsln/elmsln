@@ -61,7 +61,7 @@ function _cis_section_og_context_handler() {
     $contexts = $gids;
   }
   else {
-    return;
+    return FALSE;
   }
   return $contexts;
 }

@@ -213,7 +213,7 @@ function elmsln_api_callback_bootstrap(array &$info) {
  */
 function elmsln_api_callback_process_request(&$info) {
   if ($info['process request'] === FALSE) {
-    return;
+    return FALSE;
   }
   // Iterate over the raw $_REQUEST array.
   $request_data = array();
