@@ -211,7 +211,7 @@ function features_override_module_component_overrides($module, $component, $rese
   features_override_remove_recursion($normal_copy);
 
   $component_overrides = array();
-  if ($normal && is_array($normal) || is_object($normal)) {
+  if ($normal && (is_array($normal) || is_object($normal))) {
     foreach ($normal as $name => $properties) {
       $component_overrides[$name] = array(
         'additions' => array(),
@@ -228,7 +228,7 @@ function features_override_module_component_overrides($module, $component, $rese
     }
   }
     // now check for any elements that are in $default but not in $normal that we didn't process yet
-  if ($default && is_array($default) || is_object($default)) {
+  if ($default && (is_array($default) || is_object($default))) {
     foreach ($default as $name => $properties) {
       if (!isset($normal_copy[$name])) {
         $_keys = array(array('type' => 'array', 'key' => $name));
