@@ -111,11 +111,6 @@ function mooc_content_theming_field_default_field_instances() {
   // Exported field_instance: 'node-page-field_instructional_significance'
   $field_instances['node-page-field_instructional_significance'] = array(
     'bundle' => 'page',
-    'default_value' => array(
-      0 => array(
-        'value' => 'page',
-      ),
-    ),
     'deleted' => 0,
     'description' => '',
     'display' => array(
