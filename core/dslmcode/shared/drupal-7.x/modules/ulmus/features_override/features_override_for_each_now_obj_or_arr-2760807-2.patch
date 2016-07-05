@@ -1,0 +1,23 @@
+diff --git a/features_override.export.inc b/features_override.export.inc
+index 745f9e0..94cd996 100644
+--- a/features_override.export.inc
++++ b/features_override.export.inc
+@@ -165,7 +165,7 @@ function features_override_module_component_overrides($module, $component, $rese
+   }
+ 
+   $component_overrides = array();
+-  if ($normal && is_array($normal) || is_object($normal)) {
++  if ($normal && (is_array($normal) || is_object($normal))) {
+     foreach ($normal as $name => $properties) {
+       $component_overrides[$name] = array(
+         'additions' => array(),
+@@ -180,7 +180,9 @@ function features_override_module_component_overrides($module, $component, $rese
+         $component_overrides[$name] = FALSE;
+       }
+     }
++  }
+     // now check for any elements that are in $default but not in $normal that we didn't process yet
++  if ($default && (is_array($default) || is_object($default))) {
+     foreach ($default as $name => $properties) {
+       if (!isset($normal_copy[$name])) {
+         $_keys = array(array('type' => 'array', 'key' => $name));
