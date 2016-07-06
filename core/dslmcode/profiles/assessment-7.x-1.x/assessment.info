@@ -163,4 +163,5 @@ dependencies[] = assessment_ux
 dependencies[] = assessment_evaluation
 dependencies[] = assessment_helper
 dependencies[] = assessment_perms
+dependencies[] = assessment_quiz_perms
 

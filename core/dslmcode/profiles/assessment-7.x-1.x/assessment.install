@@ -39,3 +39,11 @@ function assessment_update_7001(&$sandbox) {
 function assessment_update_7002(&$sandbox) {
   module_enable(array('quiz_ddlines', 'long_answer', 'matching', 'scale', 'short_answer', 'truefalse'));
 }
+
+/**
+ * Quiz permissions to make it remotely usable.
+ */
+function assessment_update_7003(&$sandbox) {
+  module_enable(array('assessment_quiz_perms'));
+}
+
