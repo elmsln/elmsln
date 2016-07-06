@@ -102,7 +102,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     'tool' => variable_get('install_profile', ''),
     'render' => 'submit',
     'link' => current_path(),
-    'text' => t('Submit @name', array('@name' => arg(0))),
+    'text' => drupal_get_title(),
     'modal' => 0,
   );
   $link_text = t('Link');
@@ -433,13 +433,13 @@ function _cis_shortcode_render_codes($entity, $type) {
       // add the groups in
       $field['cis_shortcodes'][$group] = array(
         '#type' => 'fieldset',
-        '#collapsed' => TRUE,
+        '#collapsed' => ($key === 0 ? FALSE : TRUE),
         '#collapsible' => TRUE,
         '#attributes' => array(
           'class' => array(
             'collapsible',
             'form-wrapper',
-            'collapsed'
+            ($key === 0 ? '' : 'collapsed')
           ),
         ),
         '#title' => $labels[$key],
