@@ -74,7 +74,7 @@
           <?php
             // account for roles that don't have access to this
             if (!empty($elmsln_main_menu)) {?>
-            <a id="courseToolsMenuTrigger" class="course-title elmsln-course-title" href="#" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" >
+            <a id="courseToolsMenuTrigger" class="course-title elmsln-course-title" href="#" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
               <span class="course-title-group">
                 <span class="course-title"><?php print $slogan; ?></span>
                 <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>

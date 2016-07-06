@@ -17,7 +17,6 @@ body.voicecommander {
   position: static;
   background-color: #111111;
   opacity: 1 !important;
-  z-index: 10000;
   text-align: center;
   padding: .5rem !important;
 }
