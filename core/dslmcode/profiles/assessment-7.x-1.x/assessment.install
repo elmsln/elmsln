@@ -17,6 +17,8 @@ function assessment_install() {
   _elmsln_installer_post_install_cleanup();
   // clean up
   features_revert_module('assessment_ux');
+  // front page
+  variable_set('site_frontpage', 'courses');
 }
 
 /**
@@ -45,5 +47,7 @@ function assessment_update_7002(&$sandbox) {
  */
 function assessment_update_7003(&$sandbox) {
   module_enable(array('assessment_quiz_perms'));
+  // front page
+  variable_set('site_frontpage', 'courses');
 }
 
