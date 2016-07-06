@@ -3,9 +3,6 @@
 .vertical-tabs fieldset.default-fallback, div.field-group-tabs-wrapper div.field-type-image fieldset, div.field-group-tabs-wrapper div.field-type-file fieldset {
  padding: 0px 0 0 !important;
 }
-#regions_admin_left h2 {
-  font-family: 'OpenSansLight';
-}
 /* increase opacy for accessibility purposes */ 
 .flex-caption {
  background: rgba(0, 0, 0, .9);
