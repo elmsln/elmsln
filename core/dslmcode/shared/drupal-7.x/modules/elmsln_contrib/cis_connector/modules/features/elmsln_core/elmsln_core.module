@@ -231,6 +231,10 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
     }
     // check if the proposed section is in the list of allowed sections
     if (in_array($section_id, $sections) || _cis_connector_role_grouping('staff')) {
+      // check for transition from authority to service as name of section changes
+      if (_cis_connector_is_master($section_id) && _cis_connector_system_type() == 'service' && strpos($section_id, '_')) {
+        $section_id = CIS_SECTION_MASTER;
+      }
       // set the active session
       $_SESSION['cis_section_context'] = $section_id;
     }
