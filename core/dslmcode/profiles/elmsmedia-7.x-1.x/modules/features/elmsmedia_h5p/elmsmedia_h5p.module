@@ -71,7 +71,7 @@ function elmsmedia_h5p_tincanapi_ajax_data_alter(&$data, $context) {
   }
   $role = '';
   if (isset($settings['role'])) {
-    $url = filter_xss($settings['role']);
+    $role = filter_xss($settings['role']);
   }
   $data['object']['definition']['extensions'] = array(
     'https://www.elmsln.org/x-api/elmsln-section' => $section,
