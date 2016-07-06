@@ -153,7 +153,6 @@ function elmsln_core_preprocess(&$variables, $hook) {
 function elmsln_core_page_build(&$page) {
   // enable jquery cookie for all pages since we store a bunch of stuff local to the user account
   drupal_add_library('system', 'jquery.cookie');
-  drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/field-focus.js');
   // jwerty / voice support
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
   // xapi context iframe sniffer
