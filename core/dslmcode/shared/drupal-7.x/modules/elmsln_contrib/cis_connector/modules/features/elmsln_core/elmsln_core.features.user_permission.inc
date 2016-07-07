@@ -15,7 +15,6 @@ function elmsln_core_user_default_permissions() {
     'name' => 'access admin theme',
     'roles' => array(
       'administrator' => 'administrator',
-      'authenticated user' => 'authenticated user',
       'instructor' => 'instructor',
       'staff' => 'staff',
     ),
@@ -289,7 +288,6 @@ function elmsln_core_user_default_permissions() {
     'name' => 'view the administration theme',
     'roles' => array(
       'administrator' => 'administrator',
-      'authenticated user' => 'authenticated user',
       'instructor' => 'instructor',
       'staff' => 'staff',
     ),
