@@ -75,6 +75,3 @@ drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --st
 # trigger crons to run now that these sites are all back and happy
 elmslnecho "Run crons as clean up"
 drush @elmsln cron --concurrency=${concurrent} --strict=0 --v --y
-# now loop through and prime the caches on everything
-elmslnecho "Seeding caches of all entities"
-drush @elmsln ecl --concurrency=${concurrent} --strict=0 --v --y
