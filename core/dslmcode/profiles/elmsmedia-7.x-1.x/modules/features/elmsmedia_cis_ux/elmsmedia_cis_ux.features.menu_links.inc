@@ -199,35 +199,10 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => -43,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-navigation_course-list:courses
-  $menu_links['menu-elmsln-navigation_course-list:courses'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'courses',
-    'router_path' => 'courses',
-    'link_title' => 'Course list',
-    'options' => array(
-      'attributes' => array(),
-      'item_attributes' => array(
-        'id' => '',
-        'class' => '',
-        'style' => '',
-      ),
-      'identifier' => 'menu-elmsln-navigation_course-list:courses',
-      'fa_icon' => 'page',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => 0,
-    'customized' => 1,
-  );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Audio');
-  t('Course list');
   t('Document');
   t('External Video');
   t('Figure label');
