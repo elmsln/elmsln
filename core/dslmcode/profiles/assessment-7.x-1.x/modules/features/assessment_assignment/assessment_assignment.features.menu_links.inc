@@ -14,7 +14,7 @@ function assessment_assignment_menu_default_menu_links() {
   $menu_links['menu-elmsln-add_assignment:node/add/assessment-assignment'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/assessment-assignment',
-    'router_path' => 'node/add/assessment-assignment',
+    'router_path' => 'node/add',
     'link_title' => 'Assignment',
     'options' => array(
       'attributes' => array(),
