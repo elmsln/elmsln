@@ -97,7 +97,7 @@ function assessment_quiz_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'og_group_ref',
     'label' => 'Section',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'authcache' => array(
         'clients' => array(
