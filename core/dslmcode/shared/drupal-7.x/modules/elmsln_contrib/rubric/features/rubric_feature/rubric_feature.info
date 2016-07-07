@@ -44,7 +44,6 @@ features[field_base][] = field_rubric_categories
 features[field_base][] = field_rubric_content
 features[field_base][] = field_rubric_criteria
 features[field_base][] = field_rubric_levels
-features[field_base][] = og_group_ref
 features[field_group][] = group_assessment_type|node|elms_rubric|form
 features[field_group][] = group_details|field_collection_item|field_rubric_categories|default
 features[field_group][] = group_details|field_collection_item|field_rubric_categories|form

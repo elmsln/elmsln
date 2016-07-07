@@ -9,7 +9,6 @@ dependencies[] = list
 dependencies[] = options
 dependencies[] = strongarm
 dependencies[] = text
-dependencies[] = yuml_type
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[field_base][] = field_yt_arrow_1
