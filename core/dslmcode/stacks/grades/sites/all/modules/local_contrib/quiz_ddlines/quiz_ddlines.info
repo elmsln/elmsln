@@ -6,9 +6,9 @@ dependencies[] = quiz
 dependencies[] = quiz_question
 dependencies[] = image
 files[] = quiz_ddlines.classes.inc
-; Information added by Drupal.org packaging script on 2015-07-10
-version = "7.x-5.0-beta2"
+; Information added by Drupal.org packaging script on 2016-07-08
+version = "7.x-5.0-beta2+2-dev"
 core = "7.x"
 project = "quiz_ddlines"
-datestamp = "1436548168"
+datestamp = "1467975332"
 

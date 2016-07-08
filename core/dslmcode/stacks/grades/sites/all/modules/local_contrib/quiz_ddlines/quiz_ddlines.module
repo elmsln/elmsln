@@ -176,6 +176,7 @@ function quiz_ddlines_config_validate($form, $form_state) {
 function _quiz_ddlines_add_js_and_css() {
   $module_path = drupal_get_path('module', 'quiz_ddlines');
   drupal_add_js($module_path.'/js/raphael.js');
+  drupal_add_js($module_path.'/js/raphael-min.js');
   drupal_add_js($module_path.'/js/colorwheel.js');
   drupal_add_js($module_path.'/js/quiz_ddlines.js');
   drupal_add_css($module_path.'/theme/quiz_ddlines.css');
