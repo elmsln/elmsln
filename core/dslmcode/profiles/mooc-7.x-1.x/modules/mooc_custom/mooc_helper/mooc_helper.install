@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * Install routine for the MOOC helper.
+ */
+
+/**
+ * Revert mooc helper to keep the instructional outlines field there
+ */
+function mooc_helper_update_7000(&$sandbox) {
+  features_revert('mooc_helper');
+}

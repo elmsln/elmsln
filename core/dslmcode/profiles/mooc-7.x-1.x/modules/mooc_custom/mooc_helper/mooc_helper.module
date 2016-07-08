@@ -4,6 +4,12 @@
  * Code for the MOOC Helper feature.
  */
 
+include_once 'mooc_helper.features.inc';
+/**
+ * @file
+ * Code for the MOOC Helper feature.
+ */
+
 /**
  * Implements hook_menu_contextual_links_alter().
  */
