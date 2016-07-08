@@ -48,3 +48,11 @@ function cis_section_update_7002(&$sandbox) {
     variable_set('cis_section_default', FALSE);
   }
 }
+
+/**
+ * Revert section to make this view strain the server less when
+ * working in larger environments.
+ */
+function cis_section_update_7003(&$sandbox) {
+  features_revert_module('cis_section');
+}

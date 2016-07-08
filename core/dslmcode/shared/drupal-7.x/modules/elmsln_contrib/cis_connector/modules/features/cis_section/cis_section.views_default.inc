@@ -35,7 +35,10 @@ function cis_section_views_default_views() {
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
     'title' => 'title',
@@ -107,15 +110,6 @@ function cis_section_views_default_views() {
   $handler->display->display_options['fields']['field_section_id']['id'] = 'field_section_id';
   $handler->display->display_options['fields']['field_section_id']['table'] = 'field_data_field_section_id';
   $handler->display->display_options['fields']['field_section_id']['field'] = 'field_section_id';
-  /* Field: Content: Instructional outlines */
-  $handler->display->display_options['fields']['field_instructional_outlines']['id'] = 'field_instructional_outlines';
-  $handler->display->display_options['fields']['field_instructional_outlines']['table'] = 'field_data_field_instructional_outlines';
-  $handler->display->display_options['fields']['field_instructional_outlines']['field'] = 'field_instructional_outlines';
-  $handler->display->display_options['fields']['field_instructional_outlines']['label'] = 'Instructional Outline';
-  $handler->display->display_options['fields']['field_instructional_outlines']['settings'] = array(
-    'link' => 0,
-  );
-  $handler->display->display_options['fields']['field_instructional_outlines']['delta_offset'] = '0';
   /* Field: COUNT(DISTINCT OG membership: Entity id) */
   $handler->display->display_options['fields']['etid']['id'] = 'etid';
   $handler->display->display_options['fields']['etid']['table'] = 'og_membership';
@@ -141,11 +135,11 @@ function cis_section_views_default_views() {
   $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['label'] = '';
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
-  /* Sort criterion: Content: Post date */
-  $handler->display->display_options['sorts']['created']['id'] = 'created';
-  $handler->display->display_options['sorts']['created']['table'] = 'node';
-  $handler->display->display_options['sorts']['created']['field'] = 'created';
-  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  /* Sort criterion: Content: Section id (field_section_id) */
+  $handler->display->display_options['sorts']['field_section_id_value']['id'] = 'field_section_id_value';
+  $handler->display->display_options['sorts']['field_section_id_value']['table'] = 'field_data_field_section_id';
+  $handler->display->display_options['sorts']['field_section_id_value']['field'] = 'field_section_id_value';
+  $handler->display->display_options['sorts']['field_section_id_value']['order'] = 'DESC';
   /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -164,6 +158,9 @@ function cis_section_views_default_views() {
   $handler->display->display_options['filters']['field_cis_active_value']['id'] = 'field_cis_active_value';
   $handler->display->display_options['filters']['field_cis_active_value']['table'] = 'field_data_field_cis_active';
   $handler->display->display_options['filters']['field_cis_active_value']['field'] = 'field_cis_active_value';
+  $handler->display->display_options['filters']['field_cis_active_value']['value'] = array(
+    1 => '1',
+  );
   $handler->display->display_options['filters']['field_cis_active_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_cis_active_value']['expose']['operator_id'] = 'field_cis_active_value_op';
   $handler->display->display_options['filters']['field_cis_active_value']['expose']['label'] = 'Status';
@@ -173,12 +170,13 @@ function cis_section_views_default_views() {
     2 => '2',
     1 => 0,
     6065076 => 0,
-    75987638 => 0,
     135574917 => 0,
-    166149871 => 0,
     66784200 => 0,
     67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
     30037204 => 0,
+    76550217 => 0,
   );
 
   /* Display: Page */
