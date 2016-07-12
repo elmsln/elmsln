@@ -69,11 +69,10 @@ function cis_dashboard_libraries_info() {
         ),
       'js' => array(
         'angular.min.js',
-        'angular-resource.min.js',
-        'version.txt'
+        'angular-resource.min.js'
       ),
     ),
   );
- 
+
   return $libraries;
 }

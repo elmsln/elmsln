@@ -66,4 +66,4 @@ angular.module('Fa', [
   };
 }])
 ; // end Angular
-console.log('cis angular working');
+
