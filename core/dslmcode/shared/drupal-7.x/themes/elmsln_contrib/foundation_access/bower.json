@@ -2,7 +2,8 @@
   "name": "foundation-libsass-template",
   "dependencies": {
     "foundation": "zurb/bower-foundation",
-    "material-design-iconic-font": "~2.2.0"
+    "material-design-iconic-font": "~2.2.0",
+    "Materialize": "materialize#~0.97.5"
   },
   "devDependencies": {
     "modular-scale": "~2.1.1",

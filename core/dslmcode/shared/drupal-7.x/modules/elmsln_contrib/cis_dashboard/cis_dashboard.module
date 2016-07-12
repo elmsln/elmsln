@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function cis_dashboard_menu() {
+  $items['cis-dashboard'] = array(
+    'title' => 'CIS Dashboard',
+    'page callback' => 'cis_dashboard_page',
+    'access arguments' => array('access cis dashboard'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function cis_dashboard_permission() {
+  return array(
+    'access cis dashboard' =>  array(
+      'title' => t('Administer CIS dashboard'),
+      'description' => t('Ability to access CIS managment dashboard.'),
+    ),
+  );
+}
+
+function cis_dashboard_page() {
+	return theme('cis_controlboard');
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cis_dashboard_theme($existing, $type, $theme, $path) {
+  return array(
+    'cis_controlboard' => array(
+      'variables' => array('content' => NULL),
+      'template' => 'templates/cis-controlboard',
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_preprocess_cis_controlboard().
+ */
+function cis_dashboard_preprocess_cis_controlboard(&$variables) {
+  libraries_load('angular');
+  drupal_add_js(drupal_get_path('module', 'cis_dashboard') . '/js/app.js');
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function cis_dashboard_libraries_info() {
+  $libraries = array();
+  $libraries['angular'] = array(
+    'name' => 'angular.js',
+    'vendor url' => 'https://angularjs.org/',
+    'download url' => 'https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.js',
+    'version arguments' => array(
+      'file' => 'version.txt',
+      'pattern' => '/(\d+\.\d+\.\d+)/',
+      'lines' => 1,
+    ),
+    'files' => array(
+      'css' => array(
+        'angular-csp.css'
+        ),
+      'js' => array(
+        'angular.min.js',
+        'angular-resource.min.js',
+        'version.txt'
+      ),
+    ),
+  );
+ 
+  return $libraries;
+}

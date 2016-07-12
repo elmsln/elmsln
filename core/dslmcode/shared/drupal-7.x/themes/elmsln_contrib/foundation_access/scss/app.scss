@@ -40,6 +40,43 @@
 // Global
 @import "global/utility";
 
+// Materialize
+// Mixins
+// @import "components/prefixer";
+@import "bower_components/Materialize/sass/components/mixins";
+@import "bower_components/Materialize/sass/components/color";
+// Variables;
+@import "bower_components/Materialize/sass/components/variables";
+// Reset
+@import "bower_components/Materialize/sass/components/normalize";
+// components
+@import "bower_components/Materialize/sass/components/global";
+// @import "bower_components/Materialize/sass/components/icons-material-design";
+// @import "bower_components/Materialize/sass/components/grid";
+// @import "bower_components/Materialize/sass/components/navbar";
+// @import "bower_components/Materialize/sass/components/roboto";
+// @import "bower_components/Materialize/sass/components/typography";
+@import "bower_components/Materialize/sass/components/cards";
+// @import "bower_components/Materialize/sass/components/toast";
+// @import "bower_components/Materialize/sass/components/tabs";
+// @import "bower_components/Materialize/sass/components/tooltip";
+// @import "bower_components/Materialize/sass/components/buttons";
+// @import "bower_components/Materialize/sass/components/dropdown";
+// @import "bower_components/Materialize/sass/components/waves";
+// @import "bower_components/Materialize/sass/components/modal";
+// @import "bower_components/Materialize/sass/components/collapsible";
+// @import "bower_components/Materialize/sass/components/chips";
+// @import "bower_components/Materialize/sass/components/materialbox";
+// @import "bower_components/Materialize/sass/components/form";
+// @import "bower_components/Materialize/sass/components/table_of_contents";
+// @import "bower_components/Materialize/sass/components/sideNav";
+// @import "bower_components/Materialize/sass/components/preloader";
+// @import "bower_components/Materialize/sass/components/slider";
+// @import "bower_components/Materialize/sass/components/carousel";
+// @import "bower_components/Materialize/sass/components/date_picker/default.scss";
+// @import "bower_components/Materialize/sass/components/date_picker/default.date.scss";
+// @import "bower_components/Materialize/sass/components/date_picker/default.time.scss";
+
 // Import regions
 @import "regions/r-header";
 @import "regions/r-subheader";
@@ -61,3 +98,6 @@
 
 // Import regions
 @import "mooc/mooc-book-nav";
+
+// CIS Dashboard
+@import "cis-dashboard/cis-dashboard"

@@ -38,8 +38,7 @@
     "tag": "2.2.0",
     "commit": "a1cdb51dc417163d0f262806ffe290751b0e63d3"
   },
-  "_source": "git://github.com/zavoloklom/material-design-iconic-font.git",
+  "_source": "https://github.com/zavoloklom/material-design-iconic-font.git",
   "_target": "~2.2.0",
-  "_originalSource": "material-design-iconic-font",
-  "_direct": true
+  "_originalSource": "material-design-iconic-font"
 }

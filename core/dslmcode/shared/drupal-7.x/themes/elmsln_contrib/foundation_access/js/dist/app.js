@@ -189,6 +189,8 @@ var mediavideo = require('./components/mediavideo.js');
         wrapper.focus();
       }
     });
+
+    $(window).foundation();
   });
 
 })(jQuery);

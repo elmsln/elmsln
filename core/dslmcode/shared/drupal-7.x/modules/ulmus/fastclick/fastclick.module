@@ -12,9 +12,13 @@ function fastclick_libraries_info() {
 
   $libraries['fastclick'] = array(
     'name' => 'FastClick',
-    'version' => 'master',
     'vendor url' => 'https://github.com/ftlabs/fastclick',
     'download url' => 'https://github.com/ftlabs/fastclick/archive/master.zip',
+    'version arguments' => array(
+      'file' => 'fastclick.js',
+      'pattern' => '/version (\d+\.\d+\.\d+)/',
+      'lines' => 4,
+    ),
     'files' => array(
       'js' => array(
         'fastclick.js' => array(
