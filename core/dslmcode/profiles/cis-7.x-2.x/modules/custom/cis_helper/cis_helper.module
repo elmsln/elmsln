@@ -10,7 +10,7 @@ define('CIS_HELPER_EXTERNAL_FLAG', '--external--');
 // server location of the jobs path for files to be written to.
 define('CIS_HELPER_JOB_PATH', '/var/www/elmsln/config/jobs');
 // default authentication method of newly created courses / sites.
-define('CIS_HELPER_DEFAULT_AUTHENTICATION', 'open');
+define('CIS_HELPER_DEFAULT_AUTHENTICATION', 'lms');
 // default instructional outline to import into mooc instance.
 define('CIS_HELPER_DEFAULT_CONTENT_OUTLINE', 'lesson-based.xml');
 
@@ -274,44 +274,6 @@ function cis_helper_page_build(&$page) {
     // special js for hiding / displaying groups of form fields
     drupal_add_js(drupal_get_path('module', 'cis_helper') . '/js/cis_helper.js');
   }
-  elseif (isset($node->type)) {
-    // only apply these to course pages
-    if (in_array($node->type, array('person', 'program', 'news', 'course')) && isset($node->field_academic_home[LANGUAGE_NONE])) {
-      if (!empty($node->field_academic_home[LANGUAGE_NONE])) {
-        $unit = node_load($node->field_academic_home[LANGUAGE_NONE][0]['target_id']);
-        // ensure we have a color for a unit
-        if (isset($unit->field_color[LANGUAGE_NONE])) {
-          $color = $unit->field_color[LANGUAGE_NONE][0]['jquery_colorpicker'];
-          $css = '
-          .unit-color-border li.active,
-          .unit-color-border li.active-trail,
-          .unit-color-border {
-            border-color: #' . $color . ' !important;
-          }
-          .unit-color, .amp, .unit-color a {
-            color: #' . $color . ' !important;
-          }
-          .unit-bg-color {
-            background-color: #' . $color . ' !important;
-          }
-          ::-moz-selection {
-            background-color: #' . $color . ';
-          }
-          ::selection {
-            background-color: #' . $color . ';
-          }';
-          // make sure it's added very late so it takes priority, even with important
-          $options = array(
-            'type' => 'inline',
-            'group' => CSS_THEME,
-            'weight' => 100,
-            'preprocess' => FALSE,
-          );
-          drupal_add_css($css, $options);
-        }
-      }
-    }
-  }
 }
 
 /**
@@ -408,7 +370,7 @@ function cis_helper_menu() {
   );
   // quick setup form
   $items['cis-quick-setup'] = array(
-    'title' => 'New course',
+    'title' => 'Setup a course',
     'description' => 'Setup a new course and plug it into the network of tools',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_helper_quick_setup_page'),

@@ -228,34 +228,43 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#required' => '1',
     '#multiple' => '0',
     '#key_type_toggled' => '1',
-    '#description' => t('The course that this is associated to'),
+    '#description' => t('A new course or select an existing to expand'),
     '#type' => 'select',
     '#options' => $options,
     '#multiple_toggle' => '1',
     '#default_value' => 'new',
     '#title' => t('Course'),
+    '#attributes' => array(
+      'class' => array(
+        'small-12', 'column'
+      )
+    ),
   );
   // container for settings related to a new course
   $form['new_course'] = array(
-    '#description' => t('Settings that only apply to new courses'),
     '#collapsed' => '0',
     '#type' => 'fieldset',
     '#collapsible' => '1',
-    '#title' => t('New Course settings'),
+    '#title' => t('Details'),
+    '#attributes' => array(
+      'class' => array(
+        'small-12', 'medium-6', 'column',
+      )
+    ),
   );
   // new course name
   $form['new_course']['new_name'] = array(
-    '#required' => '0',
-    '#description' => t('Name of the new course to create.'),
+    '#required' => '1',
+    '#description' => t('Short name of the new course to create.'),
     '#type' => 'textfield',
-    '#title' => t('Course name'),
+    '#title' => t('Name'),
   );
   // new course name
   $form['new_course']['new_title'] = array(
     '#required' => '0',
-    '#description' => t('Title of the new course.'),
+    '#description' => t('Longer title of the new course.'),
     '#type' => 'textfield',
-    '#title' => t('Course title'),
+    '#title' => t('Description'),
   );
   // access level
   $form['new_course']['access'] = array(
@@ -274,6 +283,32 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#multiple_toggle' => '1',
     '#title' => t('Method of access'),
   );
+  // details of the build
+  $form['details'] = array(
+    '#collapsed' => '0',
+    '#type' => 'fieldset',
+    '#collapsible' => '1',
+    '#title' => t('Structure'),
+    '#attributes' => array(
+      'class' => array(
+        'small-12', 'medium-6', 'column',
+      )
+    ),
+  );
+  // list of services
+  $service_list = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title', array(), array(), array('property' => array(array('title', 'ASC'))));
+  $form['details']['services'] = array(
+    '#multiple' => TRUE,
+    '#required' => TRUE,
+    '#key_type_toggled' => '1',
+    '#description' => t("What services would you like to use in this course network?"),
+    '#type' => 'checkboxes',
+    '#options' => $service_list,
+    '#multiple_toggle' => '1',
+    '#default_value' => array(1),
+    '#title' => t('Course network'),
+  );
+  // display instructional outline starting point
   $options = _cis_helper_get_instructional_outlines();
   $options[variable_get('file_public_path', conf_path() . '/files') . '/cis_outline_import/'] = t('CIS Outline Import (on server)');
   // add purely administrative options as part of advanced migration
@@ -284,20 +319,6 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
   if (module_exists('gitphp')) {
     $options['git_book_import'] = t('Git outline import');
   }
-  $form['details'] = array(
-    '#description' => t('What systems would you like to make up your course network?'),
-    '#collapsed' => '0',
-    '#type' => 'fieldset',
-    '#collapsible' => '1',
-    '#title' => t('Network structure'),
-  );
-  $form['optional'] = array(
-    '#description' => t('Additional settings for setting up logistics'),
-    '#collapsed' => '1',
-    '#type' => 'fieldset',
-    '#collapsible' => '1',
-    '#title' => t('Additional settings'),
-  );
   $form['details']['instructional_outline'] = array(
     '#type' => 'select',
     '#options' => $options,
@@ -333,17 +354,18 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
       '#required' => '0',
     );
   }
-  // list of services
-  $service_list = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title');
-  $form['details']['services'] = array(
-    '#multiple' => TRUE,
-    '#required' => FALSE,
-    '#key_type_toggled' => '1',
-    '#description' => t("What services would you like to use in this course network?"),
-    '#type' => 'checkboxes',
-    '#options' => $service_list,
-    '#multiple_toggle' => '1',
-    '#title' => t('Course network'),
+  // optional container
+  $form['optional'] = array(
+    '#description' => t('Additional settings for setting up logistics'),
+    '#collapsed' => '1',
+    '#type' => 'fieldset',
+    '#collapsible' => '1',
+    '#title' => t('Additional settings'),
+    '#attributes' => array(
+      'class' => array(
+        'small-12', 'medium-12', 'column'
+      )
+    ),
   );
   // section container
   $form['optional']['section'] = array(
@@ -428,10 +450,25 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
       ),
     ),
   );
-  $form['actions']['#type'] = 'actions';
-  $form['actions']['submit'] = array(
+  $form['actions']['actions'] = array(
+    '#collapsed' => '0',
+    '#type' => 'actions',
+    '#collapsible' => '1',
+    '#attributes' => array(
+      'class' => array(
+        'small-12', 'medium-6', 'column',
+      )
+    ),
+  );
+
+  $form['actions']['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Create course'),
+    '#attributes' => array(
+      'class' => array(
+        'small-12', 'column',
+      ),
+    )
   );
   return $form;
 }

@@ -4,6 +4,7 @@
  */
 (function ($) {
   $(document).ready(function(){
+    $('#edit-new-name').focus().select();
     $('#edit-instructional-outline').change(function(){
       switch ($(this).val()) {
         case 'xml_manifest_import':

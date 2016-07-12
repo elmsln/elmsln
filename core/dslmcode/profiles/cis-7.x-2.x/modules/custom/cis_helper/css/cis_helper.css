@@ -1,15 +1,3 @@
-/* CSS Document */
-/* Correct weirdness in Rubik theme */
-.vertical-tabs fieldset.default-fallback, div.field-group-tabs-wrapper div.field-type-image fieldset, div.field-group-tabs-wrapper div.field-type-file fieldset {
- padding: 0px 0 0 !important;
-}
-/* increase opacy for accessibility purposes */ 
-.flex-caption {
- background: rgba(0, 0, 0, .9);
- color: #EEE;
- text-shadow:none;
- font-size: 1.3em;
-}
 /* used on CIS quick form */
 .hide_form_field {
   display:none;
@@ -28,4 +16,8 @@ table.cis_course_table_list td {
 }
 table.cis_course_table_list td input {
   margin-top:10px;
+}
+
+body.page-cis-quick-setup div.form-item-course {
+ display:none;
 }
