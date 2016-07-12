@@ -255,16 +255,17 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
   // new course name
   $form['new_course']['new_name'] = array(
     '#required' => '1',
-    '#description' => t('Short name of the new course to create.'),
+    '#description' => t('Short name for your course'),
     '#type' => 'textfield',
+    '#placeholder' => t('Art010'),
     '#title' => t('Name'),
   );
   // new course name
   $form['new_course']['new_title'] = array(
-    '#required' => '0',
-    '#description' => t('Longer title of the new course.'),
+    '#required' => '1',
     '#type' => 'textfield',
     '#title' => t('Description'),
+    '#placeholder' => t('Introduction to Visual Studies'),
   );
   // access level
   $form['new_course']['access'] = array(
@@ -322,9 +323,9 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
   $form['details']['instructional_outline'] = array(
     '#type' => 'select',
     '#options' => $options,
-    '#required' => FALSE,
-    '#title' => t('Instructional outline'),
-    '#description' => t('This helps in creating a default instructional flow for the course, this just helps provide a starting point.'),
+    '#required' => TRUE,
+    '#title' => t('Content outline'),
+    '#description' => t('This helps in creating a default flow for the course. It\'s just a starting point though!'),
     '#default_value' => drupal_get_path('module', 'cis_helper') . '/instructional_models/' . CIS_HELPER_DEFAULT_CONTENT_OUTLINE,
   );
   if (user_access('cis setup admin options')) {
