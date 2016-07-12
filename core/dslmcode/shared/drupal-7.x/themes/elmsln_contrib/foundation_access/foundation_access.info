@@ -28,7 +28,8 @@ base theme = zurb_foundation
 
 ; For CSS users, load the app.css file:
 stylesheets[all][] = icons/faccess-icons/output/icons.data.svg.css
-stylesheets[all][] = bower_components/angular-material/angular-material.css
+stylesheets[all][] = css/app.css
+stylesheets[all][] = css/tweaks.css
 stylesheets[all][] = css/material.css
 stylesheets[all][] = css/fonts.css
 ; Block loading of foundation.min.css from the base theme. This file should either
@@ -37,8 +38,8 @@ stylesheets[all][] = css/normalize.css
 stylesheets[all][] = css/foundation.min.css
 
 ; For CSS users, load the app.css file:
-stylesheets[all][] = css/app.css
-stylesheets[all][] = css/tweaks.css
+stylesheets[all][] = bower_components/angular-material/angular-material.css
+
 
 stylesheets[print][] = css/print.css
 ; Foundation JavaScript.
