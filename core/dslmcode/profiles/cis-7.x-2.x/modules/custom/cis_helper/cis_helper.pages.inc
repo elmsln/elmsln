@@ -298,13 +298,16 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
   );
   // list of services
   $service_list = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title', array(), array(), array('property' => array(array('title', 'ASC'))));
+  $service_list2 = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'field_distribution', array(), array(), array('property' => array(array('title', 'ASC'))));
   $form['details']['services'] = array(
     '#multiple' => TRUE,
     '#required' => TRUE,
     '#key_type_toggled' => '1',
     '#description' => t("What services would you like to use in this course network?"),
     '#type' => 'checkboxes',
+    '#pre_render' => array('_cis_helper_checkbox_icon'),
     '#options' => $service_list,
+    '#cis_icon_map' => $service_list2,
     '#multiple_toggle' => '1',
     '#default_value' => array(1),
     '#title' => t('Course network'),
@@ -816,4 +819,18 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
   if (!isset($form_state['pass_through'])) {
     drupal_goto($course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/service-instances');
   }
+}
+
+
+/**
+ * Helper function to render checkboxes with icon next to them
+ */
+function _cis_helper_checkbox_icon($elements) {
+  foreach ($elements as $key => &$element) {
+    if (is_numeric($key) && $element['#type'] == 'checkbox') {
+      $icon = $elements['#cis_icon_map'][$key]['und'][0]['value'];
+      $element['#title'] .= '<div class="icon-' . $icon . '-black etb-modal-icons cis-checkbox-icon"></div>';
+    }
+  }
+  return $elements;
 }

@@ -21,3 +21,8 @@ table.cis_course_table_list td input {
 body.page-cis-quick-setup div.form-item-course {
  display:none;
 }
+
+.cis-checkbox-icon {
+  margin-left:-.25rem;
+  margin-right:.5rem;
+}
