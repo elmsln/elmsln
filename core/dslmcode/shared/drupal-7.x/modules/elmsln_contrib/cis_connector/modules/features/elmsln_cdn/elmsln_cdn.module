@@ -3,3 +3,122 @@
  * @file
  * Drupal needs this blank file.
  */
+
+/**
+ * Implements hook_menu().
+ */
+  function elmsln_cdn_menu() {
+    // Admin UI.
+    $items['admin/config/development/elmsln_cdn'] = array(
+      'title'            => 'ELMSLN CDN',
+      'description'      => 'Configure ELMSLN CDN integration.',
+      'access arguments' => array('access administration pages'),
+      'page callback'    => 'drupal_get_form',
+      'page arguments'   => array('elmsln_cdn_admin_general_settings_form'),
+      'type'             => MENU_NORMAL_ITEM,
+      'file'             => 'elmsln_cdn.admin.inc',
+    );
+
+    return $items;
+  }
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function elmsln_cdn_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'js_alter') {
+    $group = $implementations['elmsln_cdn'];
+    unset($implementations['elmsln_cdn']);
+    $implementations['elmsln_cdn'] = $group;
+  }
+}
+
+/**
+ * Implements hook_js_alter().
+ */
+function elmsln_cdn_js_alter(&$javascript) {
+  foreach ($javascript as $path => $values) {
+    if (strpos(strval($path), 'sites/all/libraries/') === 0) {
+      $path_end = explode('sites/all/libraries/', $path)[1];
+      $arr = explode("/", $path_end, 2);
+      $name = $arr[0];
+      $library = libraries_detect("$name");
+      if (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
+        $json = file_get_contents('http://api.cdnjs.com/libraries?search=' . $name);
+        $data = json_decode($json, true);
+        //
+        // NOTE: This gets the first result if there are multiple results.
+        // There could be some error if these don't match. Use strnatcasecmp() to test comparisons.
+        //
+        if (isset($data['results'][0])) {
+          $name = $data['results'][0]['name'];
+        }
+      }
+      elseif (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR') {
+        //
+        // NOTE: If we can find another way to get the $name out of JSDelivr so that we can get
+        // results from a search query that returns more than one library. (i.e. placeholder should be
+        // jquery-placeholder)
+        //
+      }
+      $version = $library['version'];
+      if (!empty($library) && !empty($version)) {
+        $cdn_version_arr_elements = getVersions($name);
+        if (!empty($cdn_version_arr_elements)) {
+          foreach ($cdn_version_arr_elements as $element => $value) {
+            if (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
+              $cdn_version_arr_elements_str = $cdn_version_arr_elements[$element]['version'];
+            }
+            elseif (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR') {
+              $cdn_version_arr_elements_str = $cdn_version_arr_elements[$element];
+             }
+            if(strcmp($cdn_version_arr_elements_str, $version) === 0) {
+              if (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
+                $files = $cdn_version_arr_elements[$element]['files'];
+              }
+              elseif (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR') {
+                $content = file_get_contents('http://api.jsdelivr.com/v1/jsdelivr/libraries/' . $name . '/' . $version);
+                $files = json_decode($content, true);
+              }
+              foreach ($files as $index => $value) {
+                if (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
+                $javascript[$path]['data'] = 'http://cdnjs.cloudflare.com/ajax/libs/'. $name .'/' . $version .'/' . $files[$index]; //strval($files[$index]);
+                }
+                elseif (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR') {
+                  $javascript[$path]['data'] = 'https://cdn.jsdelivr.net/'. $name . '/' . $version . '/' .strval($files[$index]);
+                }
+                $javascript[$name]['type'] = 'external';
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function getVersions($name) {
+  $versions = array();
+  $files = array();
+  if (variable_get('CDN_CHOICE') === 'CDN_JSDELIVR'){
+    $json = file_get_contents('http://api.jsdelivr.com/v1/jsdelivr/libraries?name='. $name .'&fields=versions');
+    $data = json_decode($json, true);
+    //
+    // If JSDelivr cannot find the library in the search query -- it will not be able to get any results
+    // JSDelivr instead returns a blank array -- and therefore -- this $versions statment will error.
+    //
+    if (isset($data[0])) {
+      $versions = $data[0]['versions'];
+    }
+  }
+  elseif (variable_get('CDN_CHOICE') === 'CDN_CDNJS') {
+    $json = file_get_contents('http://api.cdnjs.com/libraries/'. $name);
+    $files = json_decode($json, true);
+    $versions = $files['assets'];
+  }
+  else {
+    // return blank array === no CDN Selected
+  }
+
+  return $versions;
+}

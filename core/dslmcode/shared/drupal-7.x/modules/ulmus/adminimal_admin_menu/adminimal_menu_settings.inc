@@ -42,7 +42,7 @@ function adminimal_admin_menu_settings($form, &$form_state) {
 
 	$form['advanced_settings']['adminimal_admin_menu_slicknav'] = array(
 	  '#type' => 'checkbox',
-	  '#default_value' => variable_get('adminimal_admin_menu_slicknav', 'TRUE'),
+	  '#default_value' => variable_get('adminimal_admin_menu_slicknav', FALSE),
 	  '#title' => t('Enable Responsive Menu.'),
 	  '#description' => t('<strong>Default value => Checked</strong>. 
 	  Enable this option if you want to have responsive menu and mobile device support. 
@@ -51,7 +51,7 @@ function adminimal_admin_menu_settings($form, &$form_state) {
 
 	$form['advanced_settings']['adminimal_admin_menu_jquery'] = array(
 	  '#type' => 'checkbox',
-	  '#default_value' => variable_get('adminimal_admin_menu_jquery', 'TRUE'),
+	  '#default_value' => variable_get('adminimal_admin_menu_jquery', FALSE),
 	  '#title' => t('Load the requred jQuery 1.7 library automagically.'),
 	  '#description' => t('<strong>Default value => Checked</strong>. This will load the newer jQuery version 1.7 using 
 	  the no-conflict method so it wont interfere with any existing jQuery or other java-script libraries. 
@@ -63,7 +63,7 @@ function adminimal_admin_menu_settings($form, &$form_state) {
        ':input[name="adminimal_admin_menu_slicknav"]' => array('checked' => TRUE),
       ),
       'unchecked' => array(
-       variable_get('adminimal_admin_menu_jquery', 'TRUE') => FALSE,
+       variable_get('adminimal_admin_menu_jquery', FALSE) => FALSE,
       ),
      ),
 	);

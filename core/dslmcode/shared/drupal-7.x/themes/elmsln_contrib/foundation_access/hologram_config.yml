@@ -26,6 +26,7 @@ js_include:
   - '../js/jquery.sticky.js'
   - '../js/foundation.min.js'
   - '../libraries/imagelightbox/imagelightbox.js'
+  - '../bower_components/Materialize/dist/js/materialize.js'
   - '../js/dist/app.js'
 
 # Mark which category should be the index page
