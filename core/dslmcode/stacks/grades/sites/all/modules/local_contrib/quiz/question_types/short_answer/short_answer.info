@@ -1,4 +1,4 @@
-name = Short Answer
+name = Quiz - Short Answer
 package = Quiz Question
 description = Short answer question type for Quiz.
 core = 7.x

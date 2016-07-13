@@ -1,4 +1,4 @@
-name = Long Answer
+name = Quiz - Long Answer
 package = Quiz Question
 description = This provides long answer (essay, multi-paragraph) question types for use by the Quiz module.
 dependencies[] = quiz

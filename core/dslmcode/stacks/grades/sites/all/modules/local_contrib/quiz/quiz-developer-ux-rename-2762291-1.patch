@@ -1,0 +1,127 @@
+diff --git a/modules/ajax_quiz/ajax_quiz.info b/modules/ajax_quiz/ajax_quiz.info
+index 2f56e8f..ad658d7 100644
+--- a/modules/ajax_quiz/ajax_quiz.info
++++ b/modules/ajax_quiz/ajax_quiz.info
+@@ -1,5 +1,6 @@
+ name = AJAX Quiz
+ description = This module doesn't degrade gracefully, and we don't recommend using it until it does. This module attempts to provide an AJAX version of quiz. Successive quiz questions will be loaded in the same page without page reload, but it doesn't work flawlessly at the moment.
++package = Quiz Addon
+ dependencies[] = quiz
+ core = 7.x
+ files[] = ajax_quiz.admin.inc
+diff --git a/question_types/long_answer/long_answer.info b/question_types/long_answer/long_answer.info
+index 2a0c68c..e3b3484 100644
+--- a/question_types/long_answer/long_answer.info
++++ b/question_types/long_answer/long_answer.info
+@@ -1,4 +1,4 @@
+-name = Long Answer
++name = Quiz - Long Answer
+ package = Quiz Question
+ description = This provides long answer (essay, multi-paragraph) question types for use by the Quiz module.
+ dependencies[] = quiz
+diff --git a/question_types/matching/matching.info b/question_types/matching/matching.info
+index 95edb04..a29c392 100644
+--- a/question_types/matching/matching.info
++++ b/question_types/matching/matching.info
+@@ -1,4 +1,4 @@
+-name = Matching question
++name = Quiz - Matching question
+ package = Quiz Question
+ description = Provide a way to create matching type of questions.
+ core = 7.x
+diff --git a/question_types/multichoice/multichoice.info b/question_types/multichoice/multichoice.info
+index e5fdf68..41c7f97 100644
+--- a/question_types/multichoice/multichoice.info
++++ b/question_types/multichoice/multichoice.info
+@@ -1,4 +1,4 @@
+-name = Quiz Multichoice
++name = Quiz - Multichoice
+ package = Quiz Question
+ description = Multiple choice question type for quiz.
+ core = 7.x
+diff --git a/question_types/quiz_directions/quiz_directions.info b/question_types/quiz_directions/quiz_directions.info
+index 1062bcb..cc6d42c 100644
+--- a/question_types/quiz_directions/quiz_directions.info
++++ b/question_types/quiz_directions/quiz_directions.info
+@@ -1,5 +1,5 @@
+-name = Quiz Direction
+-package = Quiz Question
++name = Quiz - Directions
++package = Quiz core
+ description = Provide a slot to add directions for a quiz or some sub-portion of a quiz.
+ core = 7.x
+ dependencies[] = quiz
+diff --git a/question_types/quiz_page/quiz_page.info b/question_types/quiz_page/quiz_page.info
+index 84715f9..b390a77 100644
+--- a/question_types/quiz_page/quiz_page.info
++++ b/question_types/quiz_page/quiz_page.info
+@@ -1,5 +1,5 @@
+-name = Quiz pages
+-package = Quiz
++name = Quiz - pages
++package = Quiz core
+ description = Provides support for pages of questions.
+ core = 7.x
+ dependencies[] = quiz
+diff --git a/question_types/quiz_question/quiz_question.info b/question_types/quiz_question/quiz_question.info
+index 9e85ee6..ddc8dd5 100644
+--- a/question_types/quiz_question/quiz_question.info
++++ b/question_types/quiz_question/quiz_question.info
+@@ -1,5 +1,5 @@
+ name = Quiz Question
+-package = Quiz Core
++package = Quiz core
+ description = Helper module for all quiz question types
+ core = 7.x
+ dependencies[] = quiz
+diff --git a/question_types/scale/scale.info b/question_types/scale/scale.info
+index 2bf2403..cf6dd5f 100644
+--- a/question_types/scale/scale.info
++++ b/question_types/scale/scale.info
+@@ -1,4 +1,4 @@
+-name = Scale
++name = Quiz - Scale
+ package = Quiz Question
+ description = Scale question type for quiz.
+ core = 7.x
+diff --git a/question_types/short_answer/short_answer.info b/question_types/short_answer/short_answer.info
+index c090cad..f5ce2ea 100644
+--- a/question_types/short_answer/short_answer.info
++++ b/question_types/short_answer/short_answer.info
+@@ -1,4 +1,4 @@
+-name = Short Answer
++name = Quiz - Short Answer
+ package = Quiz Question
+ description = Short answer question type for Quiz.
+ core = 7.x
+diff --git a/question_types/truefalse/truefalse.info b/question_types/truefalse/truefalse.info
+index 7df8197..6d934c5 100644
+--- a/question_types/truefalse/truefalse.info
++++ b/question_types/truefalse/truefalse.info
+@@ -1,4 +1,4 @@
+-name = True False
++name = Quiz - True False
+ package = Quiz Question
+ description = Module to create True or False Kind of Questions
+ core = 7.x
+diff --git a/quiz.info b/quiz.info
+index 8957598..1be0623 100644
+--- a/quiz.info
++++ b/quiz.info
+@@ -1,5 +1,5 @@
+ name = Quiz
+-package = Quiz Core
++package = Quiz core
+ description = Create interactive quizzes. This module must have at least one question type module enabled in order to function properly.
+ core = 7.x
+ dependencies[] = ctools
+diff --git a/tests/quiz_test/quiz_test.info b/tests/quiz_test/quiz_test.info
+index 08824e7..38517f7 100644
+--- a/tests/quiz_test/quiz_test.info
++++ b/tests/quiz_test/quiz_test.info
+@@ -1,3 +1,4 @@
+ name = Quiz test fixtures
++package = Quiz core
+ core = 7.x
+ hidden = TRUE
+\ No newline at end of file

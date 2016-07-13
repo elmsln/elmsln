@@ -1,4 +1,4 @@
-name = True False
+name = Quiz - True False
 package = Quiz Question
 description = Module to create True or False Kind of Questions
 core = 7.x

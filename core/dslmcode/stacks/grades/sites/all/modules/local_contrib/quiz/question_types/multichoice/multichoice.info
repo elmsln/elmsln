@@ -1,4 +1,4 @@
-name = Quiz Multichoice
+name = Quiz - Multichoice
 package = Quiz Question
 description = Multiple choice question type for quiz.
 core = 7.x

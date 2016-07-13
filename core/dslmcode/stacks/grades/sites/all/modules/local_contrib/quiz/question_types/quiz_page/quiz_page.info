@@ -1,5 +1,5 @@
-name = Quiz pages
-package = Quiz
+name = Quiz - pages
+package = Quiz core
 description = Provides support for pages of questions.
 core = 7.x
 dependencies[] = quiz

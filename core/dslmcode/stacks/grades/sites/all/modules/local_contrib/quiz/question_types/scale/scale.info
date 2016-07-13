@@ -1,4 +1,4 @@
-name = Scale
+name = Quiz - Scale
 package = Quiz Question
 description = Scale question type for quiz.
 core = 7.x

@@ -1,4 +1,4 @@
-name = Matching question
+name = Quiz - Matching question
 package = Quiz Question
 description = Provide a way to create matching type of questions.
 core = 7.x

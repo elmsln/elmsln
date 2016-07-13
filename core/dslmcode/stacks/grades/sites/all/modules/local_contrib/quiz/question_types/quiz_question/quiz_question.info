@@ -1,5 +1,5 @@
 name = Quiz Question
-package = Quiz Core
+package = Quiz core
 description = Helper module for all quiz question types
 core = 7.x
 dependencies[] = quiz

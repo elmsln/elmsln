@@ -1,5 +1,5 @@
 name = Quiz
-package = Quiz Core
+package = Quiz core
 description = Create interactive quizzes. This module must have at least one question type module enabled in order to function properly.
 core = 7.x
 dependencies[] = ctools
