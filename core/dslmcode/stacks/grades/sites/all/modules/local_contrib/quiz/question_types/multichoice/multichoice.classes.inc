@@ -579,6 +579,7 @@ class MultichoiceQuestion extends QuizQuestion {
       }
       $form['alternatives'][$i]['correct'] = array(
         '#type' => 'checkbox',
+        '#title' => t('Correct'),
         '#default_value' => $correct_default,
         '#attributes' => array('onchange' => 'Multichoice.refreshScores(this, ' . variable_get('multichoice_def_scoring', 0) . ')'),
       );
