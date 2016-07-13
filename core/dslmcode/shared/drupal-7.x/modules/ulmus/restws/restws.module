@@ -312,7 +312,7 @@ function restws_menu_alter(&$items) {
     else {
       $items[$menu_path] = array(
         'page callback' => 'restws_page_callback',
-        'page arguments' => array($resource),
+        'page arguments' => array($resource, 'drupal_not_found'),
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
       );
@@ -331,7 +331,7 @@ function restws_menu_alter(&$items) {
     else {
       $items[$menu_path] = array(
         'page callback' => 'restws_page_callback',
-        'page arguments' => array($resource),
+        'page arguments' => array($resource, 'drupal_not_found'),
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
       );
@@ -352,7 +352,7 @@ function restws_menu_alter(&$items) {
       else {
         $items["$menu_path.$format"] = array(
           'page callback' => 'restws_page_callback',
-          'page arguments' => array($resource),
+          'page arguments' => array($resource, 'drupal_not_found'),
           'access callback' => TRUE,
           'type' => MENU_CALLBACK,
         );
@@ -363,8 +363,17 @@ function restws_menu_alter(&$items) {
 
 /**
  * Menu page callback.
+ *
+ * @param string $resource
+ *   The name of the resource.
+ * @param string $page_callback
+ *   The page callback to pass through when the request is not handled by this
+ *   module. If no other pre-existing callback is used, 'drupal_not_found'
+ *   should be passed explicitly.
+ * @param mixed $arg1,...
+ *   Further arguments that are passed through to the given page callback.
  */
-function restws_page_callback($resource, $page_callback = NULL) {
+function restws_page_callback($resource, $page_callback) {
   // Determine the position of the resource and resource id in the path.
   $resource_info = restws_get_resource_info($resource);
   $resource_pos = isset($resource_info['menu_path']) ? count(explode('/', $resource_info['menu_path'])) - 1 : 0;
@@ -466,12 +475,9 @@ function restws_page_callback($resource, $page_callback = NULL) {
 
   // @todo: Determine human readable URIs and redirect, if there is no
   // page callback.
-  if (isset($page_callback)) {
-    // Further page callback arguments have been appended to our arguments.
-    $args = func_get_args();
-    return call_user_func_array($page_callback, array_slice($args, 2));
-  }
-  restws_terminate_request('404 Not Found');
+  // Fall back to the passed $page_callback and pass through more arguments.
+  $args = func_get_args();
+  return call_user_func_array($page_callback, array_slice($args, 2));
 }
 
 /**

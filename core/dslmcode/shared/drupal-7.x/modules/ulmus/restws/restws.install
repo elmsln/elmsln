@@ -12,3 +12,10 @@
 function restws_update_7001() {
   cache_clear_all(NULL, 'cache_page');
 }
+
+/**
+ * Empty update to force a cache clear.
+ */
+function restws_update_7002() {
+
+}
