@@ -1534,7 +1534,7 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
       if (is_array($id_field)) {
         $key = $entity->{$id_field[0]}[LANGUAGE_NONE][0][$id_field[1]];
       }
-      elseif (strpos($id_field, 'field_') !== FALSE) {
+      elseif (strpos($id_field, 'field_') !== FALSE && isset($entity->{$id_field}[LANGUAGE_NONE])) {
         $key = $entity->{$id_field}[LANGUAGE_NONE][0]['value'];
       }
       else {
