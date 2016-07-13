@@ -1337,12 +1337,6 @@ form p:last-child {
   left: -9999px;
   opacity: 0;
 }
-/* fix for Drupal checkboxes that don't have a label */
-div.form-type-checkbox :last-child {
-  position: relative;
-  opacity:1;
-  left:auto;
-}
 
 [type="checkbox"] {
   /* checkbox aspect */

@@ -1,9 +1,13 @@
-/* jwerty */
 .jwerty-key-outline i {
   opacity: .4 !important;
 }
 
-/* / jwerty */
+/* fix for Drupal checkboxes that don't have a label in material */
+div.form-type-checkbox :last-child {
+  position: relative;
+  opacity:1;
+  left:auto;
+}
 
 .alert-box.success a {
   color:#FFFF00;
