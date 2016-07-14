@@ -27,7 +27,7 @@
     Drupal.settings.voiceCommander.utter.voice = Drupal.settings.voiceCommander.defaultVoice;
     // THOU SPEAKITH
     Drupal.settings.voiceCommander.synth.speak(Drupal.settings.voiceCommander.utter);
-    $('.jarvis-conversation').append('<span class="human">' + Drupal.settings.voiceCommander.robotName + ': ' + text + '</span>');
+    $('.jarvis-conversation').append('<div><span class="robot">' + Drupal.settings.voiceCommander.robotName + ': ' + text + '</span></div>');
   };
   // reactivate voice command so we don't get multiple matches
   Drupal.voicecommander.reactivate = function() {
