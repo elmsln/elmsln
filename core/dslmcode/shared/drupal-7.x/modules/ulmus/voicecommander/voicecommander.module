@@ -35,6 +35,11 @@ define('VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME', 'drupal');
 define('VOICECOMMANDER_MODULE_NAME', 'voicecommander');
 
 /**
+ * Every good program needs a robot
+ */
+define('VOICECOMMANDER_ROBOT_NAME', 'jarvis');
+
+/**
  * Implements hook_page_build().
  *
  * Load Annyang library.
@@ -45,6 +50,10 @@ function voicecommander_page_build(&$page) {
   // ensure they have permission to use this
   if (_voicecommander_access()) {
     _voicecommander_apply();
+    $page['page_bottom']['voicecommander'] = array(
+      '#weight' => 10,
+      '#markup' => theme('voicecommander_drawer'),
+    );
   }
 }
 
@@ -142,7 +151,9 @@ function _voicecommander_apply() {
       $tmp = str_replace('%phrase', $replacement, drupal_strtolower($key));
       $command['phrase'] = $tmp;
       $commandset['commands'][$tmp] = $command;
-      unset($commandset['commands'][$key]);
+      if ($tmp != $key) {
+        unset($commandset['commands'][$key]);
+      }
     }
     $commands += $commandset['commands'];
   }
@@ -150,18 +161,20 @@ function _voicecommander_apply() {
   drupal_add_js(
     array(
       'voiceCommander' => array(
-        'commands'      => $commands,
-        'prefix' => variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME),
-        'optionalPrefix' => variable_get('voicecommander_optional_prefix', TRUE),
-        'mobile'                      => variable_get('voicecommander_mobile', 1),
-        'startCallback'               => t('Please speak'),
-        'waitCallback'                => t('Wait ...'),
-        'errorCallback'               => t('Wrong or unset command. Please repeat.'),
-        'errorNetworkCallback'        => t('Network Error. Try later.'),
-        'permissionBlockedCallback'   => t('Permission Blocked. Check another process for using voice recognition'),
-        'permissionDeniedCallback'    => t('Permission Denied'),
-        'secureToken'                 => drupal_get_token(),
-        'continuous'                  => (variable_get('voicecommander_continuous', FALSE) && user_access('access voice commander settings')),
+        'commands'                  => $commands,
+        'prefix'                    => variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME),
+        'optionalPrefix'            => variable_get('voicecommander_optional_prefix', TRUE),
+        'mobile'                    => variable_get('voicecommander_mobile', 1),
+        'startCallback'             => t('Please speak'),
+        'waitCallback'              => t('Wait ...'),
+        'errorCallback'             => t('Wrong or unset command. Please repeat.'),
+        'errorNetworkCallback'      => t('Network Error. Try later.'),
+        'permissionBlockedCallback' => t('Permission Blocked. Check another process for using voice recognition'),
+        'permissionDeniedCallback'  => t('Permission Denied'),
+        'secureToken'               => drupal_get_token(),
+        'continuous'                => (variable_get('voicecommander_continuous', FALSE) && user_access('access voice commander settings')),
+        'userName'                  => $GLOBALS['user']->name,
+        'robotName'                 => variable_get('voicecommander_robot', VOICECOMMANDER_ROBOT_NAME),
       )
     ),
     'setting');
@@ -333,6 +346,16 @@ function voicecommander_voice_command() {
         ),
       ),
     ),
+    'jarvis' => array(
+      'commands' => array(
+        '(hey) ' . variable_get('voicecommander_robot', VOICECOMMANDER_ROBOT_NAME) => array(
+          'callback' => 'Drupal.voicecommander.jarvis'
+        ),
+        '(hey) ' . variable_get('voicecommander_robot', VOICECOMMANDER_ROBOT_NAME) . ' *input' => array(
+          'callback' => 'Drupal.voicecommander.jarvis'
+        ),
+      ),
+    ),
     'show_commands' => array(
       'commands' => array(
         '%phrase show options' => array(
@@ -342,6 +365,21 @@ function voicecommander_voice_command() {
           'callback' => 'Drupal.voicecommander.showOptions'
         ),
       ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function voicecommander_theme() {
+  return array(
+    'voicecommander_drawer' => array(
+      'variables' => array(
+        'label' => t('Jarvis..'),
+      ),
+      'render element' => 'element',
+      'template' => 'templates/voicecommander-drawer',
     ),
   );
 }

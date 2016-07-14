@@ -1,6 +1,5 @@
-/* VoiceComander
- *
- * Desctop styles
+/**
+ * option highlighting
  */
 body.voicecommander {
   overflow: hidden;
@@ -21,6 +20,46 @@ body.voicecommander {
   padding: .5rem !important;
 }
 
+/**
+ * command drawer for conversations / options area
+ */
+#voicecommander-drawer {
+  height: 20%;
+  left: 0;
+  right: 0;
+  bottom:0;
+  position: fixed;
+  z-index: 1000;
+  background-color: #111111;
+  color: #00FF00;
+  overflow-y: scroll;
+  display: none;
+}
+#voicecommander-drawer .voicecommander-drawer-label {
+  color: #00FF00;
+}
+#voicecommander-drawer .jarvis-conversation {
+  margin: 1rem;
+  color: #00FF00;
+}
+#voicecommander-drawer .jarvis-conversation span.human {
+  color: #FF9944;
+}
+#voicecommander-drawer .jarvis-conversation span.jarvis {
+  color: #66FF66;
+  font-weight: bold;
+}
+#voicecommander-drawer .jarvis-conversation span.jarvis-debug {
+  color: #882222;
+}
+
+#voicecommander-drawer.voicecommander-drawer-display {
+  display: block;
+}
+
+/**
+ * Desktop styles for non-continuous mode
+ */
 body.voicecommander .voice-commander-rec-window {
   display: block;
 }

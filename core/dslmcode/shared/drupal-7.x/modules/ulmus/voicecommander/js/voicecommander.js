@@ -7,6 +7,28 @@
 (function ($) {
   // extend the drupal js namespace by adding in voicecommander
   Drupal.voicecommander = Drupal.voicecommander || { functions: {} }
+  Drupal.settings.voiceCommander.synth = window.speechSynthesis;
+  Drupal.settings.voiceCommander.voices = Drupal.settings.voiceCommander.synth.getVoices();
+  Drupal.settings.voiceCommander.utter;
+  var commandsWithCallbacks = {};
+  // set the default voice to use
+  for(i = 0; i < Drupal.settings.voiceCommander.voices.length ; i++) {
+    if(Drupal.settings.voiceCommander.voices[i].default) {
+      Drupal.settings.voiceCommander.defaultVoice = Drupal.settings.voiceCommander.voices[i].name;
+    }
+  }
+  Drupal.voicecommander.say = function(text) {
+    // talk to me
+    Drupal.settings.voiceCommander.utter = new SpeechSynthesisUtterance(text);
+    // nothing crazy so we can understand our robot
+    Drupal.settings.voiceCommander.utter.pitch = 1;
+    Drupal.settings.voiceCommander.utter.rate = 1;
+    Drupal.settings.voiceCommander.utter.lang = 'en-US';
+    Drupal.settings.voiceCommander.utter.voice = Drupal.settings.voiceCommander.defaultVoice;
+    // THOU SPEAKITH
+    Drupal.settings.voiceCommander.synth.speak(Drupal.settings.voiceCommander.utter);
+    $('.jarvis-conversation').append('<span class="human">' + Drupal.settings.voiceCommander.robotName + ': ' + text + '</span>');
+  };
   // reactivate voice command so we don't get multiple matches
   Drupal.voicecommander.reactivate = function() {
     if (Drupal.settings.voiceCommander.continuous == false) {
@@ -36,15 +58,46 @@
   Drupal.voicecommander.back = function(phrase) {
     window.location.href = window.history.back();
   };
+  // future here we go
+  Drupal.voicecommander.jarvis = function(phrase) {
+    // @todo random phrase select
+    Drupal.voicecommander.say('Hello ' + Drupal.settings.voiceCommander.userName + ', what would you like to do?');
+    /*
+    var jarvis = {};
+    jarvis['count words'] = 'Drupal.voicecommander.wordCount';
+    jarvis['(how) many words (are in this page)'] = 'Drupal.voicecommander.wordCount';
+    jarvis['(i\'m) done'] = 'Drupal.voicecommander.reactivate';
+    jarvis['(cool) thanks'] = 'Drupal.voicecommander.reactivate';
+    jarvis['thank you'] = 'Drupal.voicecommander.reactivate';
+    annyang.abort();
+    annyang.addCommands(jarvis);
+    annyang.start({
+      autoRestart: true,
+      continuous: true
+    });*/
+  };
+  // word count
+  Drupal.voicecommander.wordCount = function(phrase) {
+    total_words=$('.node-view-mode-full').text.split(/[\s\.\?]+/).length;
+    Drupal.voicecommander.say('There are ' + total_words + ' total words in this document.');
+  };
   Drupal.voicecommander.showOptions = function(phrase) {
     if (phrase.indexOf('show') !== -1) {
       $('[data-voicecommand]').each(function(){
         $(this).prepend('<span class="voicecommand-phrase">' + $(this).attr('data-voicecommand') + '</span>');
       }).addClass('voicecommander-outline');
+      $('#voicecommander-drawer').addClass('voicecommander-drawer-display');
+      // @todo build the same thing for the footer roll that has all
+      // the data-conversation properties that you can have
+      Drupal.settings.voiceCommander.conversations = [];
+      $('[data-conversation]').each(function(){
+        Drupal.settings.voiceCommander.conversations.push($(this).attr('data-conversation'));
+      });
     }
     else {
       $('span.voicecommand-phrase').remove();
       $('[data-voicecommand]').removeClass('voicecommander-outline');
+      $('#voicecommander-drawer').removeClass('voicecommander-drawer-display');
     }
     Drupal.voicecommander.reactivate();
   }
@@ -129,7 +182,6 @@
         // support for wildcards which annyang needs to process directly
         commands[currentKey] = Drupal.settings.voiceCommander.commands[i];
       }
-      var commandsWithCallbacks = {};
       // now convert to a method that they'd be able to fire correctly when
       // called instead of the assembled calls
       $.each(commands, function (phrase, value) {
@@ -147,6 +199,9 @@
       var useItOnce = true;
       var voiceCommanderStr = $('body').append('<div id="voice-commander-rec"></div><div class="voice-commander-rec-window"><div class="icon"></div><p></p></div>');
       var out;
+      annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
+          $('.jarvis-conversation').append('<div><span class="human">' + Drupal.settings.voiceCommander.userName + ': ' + userSaid + '</span></div>');
+        });
       // well now, the future is getting pretty bright; continuous mode overrides all other capabilities
       if (Drupal.settings.voiceCommander.continuous == true) {
         annyang.start({
@@ -253,8 +308,9 @@
         if (event.ctrlKey && event.altKey && useItOnce) {
           // voicecommand
           $('[data-voicecommand]').each(function(){
-            $(this).prepend('<span class="voicecommand-phrase">' + $(this).attr('data-voicecommand') + '</span>');
+            $(this).prepend('<div><span class="voicecommand-phrase">' + $(this).attr('data-voicecommand') + '</span></div>');
           }).addClass('voicecommander-outline');
+          $('#voicecommander-drawer').addClass('voicecommander-drawer-display');
           useItOnce = false;
           if (Drupal.settings.voiceCommander.continuous == false) {
             $('.voice-commander-rec-window > p').removeClass('speak');
@@ -282,6 +338,7 @@
         if (event.ctrlKey || event.altKey) {
           $('span.voicecommand-phrase').remove();
           $('[data-voicecommand]').removeClass('voicecommander-outline');
+          $('#voicecommander-drawer').removeClass('voicecommander-drawer-display');
           useItOnce = true;
           if (Drupal.settings.voiceCommander.continuous == false) {
             $('body').removeClass('voicecommander');
