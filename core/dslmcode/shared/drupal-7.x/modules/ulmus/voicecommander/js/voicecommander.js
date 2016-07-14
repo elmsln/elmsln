@@ -60,6 +60,7 @@
   };
   // future here we go
   Drupal.voicecommander.jarvis = function(phrase) {
+    Drupal.voicecommander.showOptions(' show');
     // @todo random phrase select
     Drupal.voicecommander.say('Hello ' + Drupal.settings.voiceCommander.userName + ', what would you like to do?');
     /*
