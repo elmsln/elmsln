@@ -42,6 +42,12 @@ function foundation_access_preprocess_html(&$variables) {
   // google font / icon cdns
   drupal_add_css('//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   drupal_add_css('//fonts.googleapis.com/icon?family=Material+Icons', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 999));
+  // materialize from CDN; need to use library method before we actually use and need a lot more testing
+  // @todo
+  // need to fix issue with select lists disappearing
+  //drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css', array('type' => 'external', 'group' => CSS_THEME,));
+  // need to fix issue w/ jquery.easing not being included currently
+  //drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
 
   // theme path shorthand should be handled here
   foreach($variables['user']->roles as $role){
