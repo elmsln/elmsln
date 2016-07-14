@@ -11,6 +11,7 @@
     console.log('user said: ' + userSaid);
     console.log('phrases that matched:');
     console.log(phrases);
+    $('.jarvis-conversation').append('<div><span class="jarvis-debug">' + Drupal.t('debug: command match' + commandText) + '</span></div>');
   });
   // no match
   annyang.addCallback('resultNoMatch', function(phrases) {
