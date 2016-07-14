@@ -61,8 +61,9 @@
   // future here we go
   Drupal.voicecommander.jarvis = function(phrase) {
     Drupal.voicecommander.showOptions(' show');
+    var addressme = new Array('Hey ' + Drupal.settings.voiceCommander.userName + ', what would you like to do?', 'Hello ' + Drupal.settings.voiceCommander.userName + ', anything I can help with?', 'What can I do for you, ' + Drupal.settings.voiceCommander.userName + '?','Anything I can do for you ' + Drupal.settings.voiceCommander.userName + '?', 'What\'s up?');
     // @todo random phrase select
-    Drupal.voicecommander.say('Hello ' + Drupal.settings.voiceCommander.userName + ', what would you like to do?');
+    Drupal.voicecommander.say(addressme[Math.floor(Math.random()*addressme.length)]);
     /*
     var jarvis = {};
     jarvis['count words'] = 'Drupal.voicecommander.wordCount';
@@ -83,7 +84,11 @@
     Drupal.voicecommander.say('There are ' + total_words + ' total words in this document.');
   };
   Drupal.voicecommander.showOptions = function(phrase) {
-    if (phrase.indexOf('show') !== -1) {
+    // ignore if we say the show command while open already
+    if (phrase.indexOf('show') !== -1 && $('#voicecommander-drawer').hasClass('voicecommander-drawer-display')) {
+
+    }
+    else if (phrase.indexOf('show') !== -1) {
       $('[data-voicecommand]').each(function(){
         $(this).prepend('<span class="voicecommand-phrase">' + $(this).attr('data-voicecommand') + '</span>');
       }).addClass('voicecommander-outline');
