@@ -18,6 +18,6 @@
         $(".accessibility-content-toggle a").appendTo( ".cis_accessibility_check" );
       }
       $(".accessibility-content-toggle").hide();
-    }
-  };
+    }
+  };
 })(jQuery);
