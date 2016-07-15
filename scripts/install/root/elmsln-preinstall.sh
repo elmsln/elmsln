@@ -383,6 +383,7 @@ echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> .bashrc
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' .bashrc
+echo 'export PATH="$HOME/.config/composer/vendor/bin:$PATH"' >> $HOME/.bashrc
 source $HOME/.bashrc
 
 # full path to execute in case root needs to log out before it picks it up
