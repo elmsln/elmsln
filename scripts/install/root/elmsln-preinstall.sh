@@ -397,6 +397,7 @@ yes | cp -rf /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 # stupid ubuntu drush thing to work with sudo
 if [[ $os == '2' ]]; then
   ln -s /root/.composer/vendor/drush/drush /usr/share/drush
+  ln -s /root/.config/composer/vendor/drush/drush /usr/share/drush
 fi
 drush cc drush
 # setup the standard user accounts to work on the backend
