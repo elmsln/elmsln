@@ -383,6 +383,7 @@ echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> .bashrc
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' .bashrc
+sed -i '1i export PATH="$HOME/.config/composer/vendor/bin:$PATH"' .bashrc
 source $HOME/.bashrc
 
 # full path to execute in case root needs to log out before it picks it up
@@ -396,6 +397,7 @@ yes | cp -rf /var/www/elmsln/scripts/drush/server/* $HOME/.drush/
 # stupid ubuntu drush thing to work with sudo
 if [[ $os == '2' ]]; then
   ln -s /root/.composer/vendor/drush/drush /usr/share/drush
+  ln -s /root/.config/composer/vendor/drush/drush /usr/share/drush
 fi
 drush cc drush
 # setup the standard user accounts to work on the backend
