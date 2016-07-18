@@ -1,1 +1,1 @@
-./../../cores/drupal-7/robots.txt
+../../../../config/stacks/interact/robots.txt
