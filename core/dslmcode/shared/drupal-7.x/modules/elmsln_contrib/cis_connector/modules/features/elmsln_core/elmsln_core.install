@@ -69,3 +69,12 @@ function elmsln_core_update_7003(&$sandbox) {
 function elmsln_core_update_7004(&$sandbox) {
   module_enable(array('jwerty'));
 }
+
+/**
+ * Switch from provider / consumer to the resize methodology.
+ * It's much faster and much easier to manage / extend.
+ */
+function elmsln_core_update_7005(&$sandbox) {
+  module_disable(array('entity_iframe_provider', 'entity_iframe_consumer'));
+  module_enable(array('entity_iframe_resize'));
+}
