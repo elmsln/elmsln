@@ -55,6 +55,7 @@
         return false;
       }
     });
+    // @todo replace with our new method of eventListeners and postMessage
     $('#entity_iframe_response').click(function(){
       var data = $(this).val().split('#');
       iframeid= data[0];

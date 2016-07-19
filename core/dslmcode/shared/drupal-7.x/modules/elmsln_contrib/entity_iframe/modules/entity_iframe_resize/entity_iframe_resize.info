@@ -1,0 +1,5 @@
+name = "Entity iframe resize"
+description = "Resize when domains allow it and drop dead simple to setup. Jus enable this module on both domains."
+package = "Iframe"
+core = 7.x
+dependencies[] = entity_iframe_mode

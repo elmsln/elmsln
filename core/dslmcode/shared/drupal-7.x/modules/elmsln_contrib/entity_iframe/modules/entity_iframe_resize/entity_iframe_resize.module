@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Implements hook_page_build().
+ */
+function entity_iframe_resize_page_build(&$page) {
+  // ensure we are in iframe mode
+  if (_entity_iframe_mode_enabled()) {
+    drupal_add_js(drupal_get_path('module', 'entity_iframe_resize') . '/js/entity-iframe-resize.js');
+  }
+}
