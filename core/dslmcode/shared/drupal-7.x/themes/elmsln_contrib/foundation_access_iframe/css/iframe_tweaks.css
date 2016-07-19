@@ -39,3 +39,14 @@ body.entity-iframe-theme.modal-rendered h1#page-title{
   background-color: #EEEEEE;
   z-index: 1000;
 }
+
+html { height: auto !important; }
+body { height: auto !important; }
+
+.off-canvas-wrap .inner-wrap {
+  margin:0 !important;
+}
+
+.large-12 {
+  padding: 0;
+}
