@@ -71,8 +71,8 @@ function elmsln_core_update_7004(&$sandbox) {
 }
 
 /**
- * Enable entity iframe suite which we automatically generate
- * the secure tokens to use now based on a hash.
+ * Switch from provider / consumer to the resize methodology.
+ * It's much faster and much easier to manage / extend.
  */
 function elmsln_core_update_7005(&$sandbox) {
   module_disable(array('entity_iframe_provider', 'entity_iframe_consumer'));
