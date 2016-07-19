@@ -69,3 +69,12 @@ function elmsln_core_update_7003(&$sandbox) {
 function elmsln_core_update_7004(&$sandbox) {
   module_enable(array('jwerty'));
 }
+
+/**
+ * Enable entity iframe suite which we automatically generate
+ * the secure tokens to use now based on a hash.
+ */
+function elmsln_core_update_7005(&$sandbox) {
+  module_disable(array('entity_iframe_provider', 'entity_iframe_consumer'));
+  module_enable(array('entity_iframe_resize'));
+}
