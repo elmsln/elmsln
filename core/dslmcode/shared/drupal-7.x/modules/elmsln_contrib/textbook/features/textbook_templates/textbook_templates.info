@@ -16,7 +16,6 @@ features[wysiwyg_template][] = flex_video
 features[wysiwyg_template][] = grid_of_video
 features[wysiwyg_template][] = lorem_ipsum
 features[wysiwyg_template][] = magellan_navigation
-features[wysiwyg_template][] = pricing_table
 features[wysiwyg_template][] = quote
 features[wysiwyg_template][] = regular_panel
 features[wysiwyg_template][] = table_of_terms

@@ -58,7 +58,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'description' => 'A Clean example tabl',
     'weight' => 7,
     'fid' => 0,
-    'body' => '<table><thead><tr><th width="200">Table Header</th><th>Table Header</th><th width="150">Table Header</th><th width="150">Table Header</th></tr></thead><tbody><tr><td>Content Goes Here</td><td>This is longer content Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr></tbody></table>',
+    'body' => '<table class="responsive-table"><thead><tr><th>Table Header</th><th>Table Header</th><th>Table Header</th><th>Table Header</th></tr></thead><tbody><tr><td>Content Goes Here</td><td>This is longer content Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr></tbody></table>',
     'format' => 'textbook_editor',
     'name' => 'clean_table',
     'content_types' => array(),
@@ -105,16 +105,6 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'body' => '<a name="machinename"></a><h2 data-magellan-destination="machinename">Title</h2>',
     'format' => 'plain_text',
     'name' => 'magellan_navigation',
-    'content_types' => array(),
-  );
-  $templates['pricing_table'] = array(
-    'title' => 'Pricing Table',
-    'description' => 'A basic pricing table, easy to repurpose to other things',
-    'weight' => 10,
-    'fid' => 0,
-    'body' => '<ul class="pricing-table"><li class="title">Standard</li><li class="price">$99.99</li><li class="description">An awesome description</li><li class="bullet-item">1 Database</li><li class="bullet-item">5GB Storage</li><li class="bullet-item">20 Users</li><li class="cta-button"><a class="button" href="#">Buy Now</a></li></ul>',
-    'format' => 'textbook_editor',
-    'name' => 'pricing_table',
     'content_types' => array(),
   );
   $templates['quote'] = array(

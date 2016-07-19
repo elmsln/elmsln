@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Revert as the templates have changed from the originals included
+ */
+function textbook_templates_update_7001(&$sandbox) {
+  features_revert('textbook_templates');
+}

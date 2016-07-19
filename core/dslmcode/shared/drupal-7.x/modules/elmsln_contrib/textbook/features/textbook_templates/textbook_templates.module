@@ -25,7 +25,6 @@ function textbook_templates_wysiwyg_templates_load_alter(&$templates) {
     'table_of_terms',
     'table_style_1',
     'table_style_2',
-    'pricing_table',
     'magellan_navigation'
   );
   foreach ($templates as $key => $template) {

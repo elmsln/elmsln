@@ -20,6 +20,7 @@ dependencies[] = elmsln_voice
 dependencies[] = entity_iframe
 dependencies[] = entity_iframe_mode
 dependencies[] = entity_iframe_resize
+dependencies[] = textbook_editor
 dependencies[] = features
 dependencies[] = filter
 dependencies[] = gitphp
