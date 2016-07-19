@@ -7,16 +7,6 @@
 (function ($) {
   // extend the drupal js namespace by adding in voicecommander
   Drupal.voicecommander = Drupal.voicecommander || { functions: {} }
-  Drupal.settings.voiceCommander.synth = window.speechSynthesis;
-  Drupal.settings.voiceCommander.voices = Drupal.settings.voiceCommander.synth.getVoices();
-  Drupal.settings.voiceCommander.utter;
-  var commandsWithCallbacks = {};
-  // set the default voice to use
-  for(i = 0; i < Drupal.settings.voiceCommander.voices.length ; i++) {
-    if(Drupal.settings.voiceCommander.voices[i].default) {
-      Drupal.settings.voiceCommander.defaultVoice = Drupal.settings.voiceCommander.voices[i].name;
-    }
-  }
   Drupal.voicecommander.say = function(text) {
     // talk to me
     Drupal.settings.voiceCommander.utter = new SpeechSynthesisUtterance(text);
@@ -137,6 +127,16 @@
     }
   };
   $(document).ready(function() {
+    Drupal.settings.voiceCommander.synth = window.speechSynthesis;
+    Drupal.settings.voiceCommander.voices = Drupal.settings.voiceCommander.synth.getVoices();
+    Drupal.settings.voiceCommander.utter;
+    var commandsWithCallbacks = {};
+    // set the default voice to use
+    for(i = 0; i < Drupal.settings.voiceCommander.voices.length ; i++) {
+      if(Drupal.settings.voiceCommander.voices[i].default) {
+        Drupal.settings.voiceCommander.defaultVoice = Drupal.settings.voiceCommander.voices[i].name;
+      }
+    }
     var config = this.config;
     var commands = {};
     if (undefined !== annyang && annyang !== null) {
