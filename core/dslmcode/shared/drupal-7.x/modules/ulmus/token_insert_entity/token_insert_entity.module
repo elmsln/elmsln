@@ -19,7 +19,7 @@ function token_insert_entity_menu() {
 
   $items['token_insert_entity/insert'] = array(
     'page callback' => 'token_insert_entity_form_data',
-    'access arguments' => array('administer content'),
+    'access arguments' => array('administer nodes'),
     'delivery callback' => 'token_insert_entity_deliver',
     'file' => 'token_insert_entity.pages.inc',
     'type' => MENU_CALLBACK,
@@ -27,7 +27,7 @@ function token_insert_entity_menu() {
 
   $items['token_insert_entity/autocomplete'] = array(
     'page callback' => '_token_insert_entity_autocomplete',
-    'access arguments' => array('administer content'),
+    'access arguments' => array('administer nodes'),
     'file' => 'token_insert_entity.pages.inc',
     'type' => MENU_CALLBACK
   );
@@ -97,8 +97,10 @@ function token_insert_entity_tokens($type, $tokens, array $data = array(), array
         if (isset($entity_titles[$entity_type])) {
           // Embed a rendered entity.
           $entity = entity_load_single($entity_type, $id);
-          $rendered_entity = entity_view($entity_type, array($entity), $view_mode);
-          $replacements[$original] = drupal_render($rendered_entity);
+          if (entity_access('view', $entity_type, $entity)) {
+            $rendered_entity = entity_view($entity_type, array($entity), $view_mode);
+            $replacements[$original] = drupal_render($rendered_entity);
+          }
         }
       }
       elseif (($parts[1] == 'link') && count($parts) == 4) {
@@ -106,9 +108,11 @@ function token_insert_entity_tokens($type, $tokens, array $data = array(), array
         if (isset($entity_titles[$entity_type])) {
           // Link to an entity.
           $entity = entity_load_single($entity_type, $id);
-          $entity_uri = entity_uri($entity_type, $entity);
-          $entity_type_titles = _token_insert_entity_entity_type_titles();
-          $replacements[$original] = l(t($entity->{$entity_type_titles[$entity_type]}), $entity_uri['path']);
+          if (entity_access('view', $entity_type, $entity)) {
+            $entity_uri = entity_uri($entity_type, $entity);
+            $entity_type_titles = _token_insert_entity_entity_type_titles();
+            $replacements[$original] = l(t($entity->{$entity_type_titles[$entity_type]}), $entity_uri['path']);
+          }
         }
       }
     }

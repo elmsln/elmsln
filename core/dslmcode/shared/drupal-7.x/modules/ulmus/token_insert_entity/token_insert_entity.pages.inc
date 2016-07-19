@@ -31,10 +31,21 @@ function token_insert_entity_form_data() {
   $view_modes = array();
   foreach (entity_get_info() as $entity_type => $entity_info) {
     $entity_view_modes = array();
-    foreach($entity_info['view modes'] as $key => $view_mode) {
-      $entity_view_modes[$key] = $view_mode['label'];
+    if (module_exists('entity_view_mode')) {
+      foreach($entity_info['view modes'] as $key => $view_mode) {
+        $bundle_values = array_keys(entity_view_mode_get_enabled_bundles($entity_type, $key));
+        foreach ($bundle_values as $value) {
+          $entity_view_modes[$value][$key] = $view_mode['label'];
+        }
+      }
+      $view_modes[$entity_type] = $entity_view_modes;
     }
-    $view_modes[$entity_type] = $entity_view_modes;
+    else {
+      foreach($entity_info['view modes'] as $key => $view_mode) {
+        $entity_view_modes[$key] = $view_mode['label'];
+      }
+      $view_modes[$entity_type] = $entity_view_modes;
+    }
   }
 
   return array(
@@ -54,14 +65,20 @@ function _token_insert_entity_autocomplete($string) {
   foreach ($entities as $entity_type => $entity_property) {
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $entity_type)
-      ->propertyCondition($entity_property, $string, 'CONTAINS');
+      ->propertyCondition($entity_property, $string, 'CONTAINS')
+      ->addTag('token_insert_entity_autocomplete');
     $result = $query->execute();
     $ids = !empty($result[$entity_type]) ? array_keys($result[$entity_type]) : array();
     if (count($ids)) {
       $entities = entity_load($entity_type, $ids);
       foreach ($entities as $id => $entity) {
         $bundle = !empty($entity->type) ? $entity->type : $entity_type;
-        $matches[$entity_type . ':' . $id] = $bundle . ': ' . check_plain($entity->{$entity_property});
+        if (module_exists('entity_view_mode')) {
+          $matches[$entity_type . ':' . $bundle . ':' . $id] = $bundle . ': ' . check_plain($entity->{$entity_property});
+        }
+        else {
+          $matches[$entity_type . ':' . $id] = $bundle . ': ' . check_plain($entity->{$entity_property});
+        }
       }
     }
   }

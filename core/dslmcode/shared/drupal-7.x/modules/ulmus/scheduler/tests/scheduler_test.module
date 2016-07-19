@@ -32,7 +32,7 @@ function scheduler_test_scheduler_allow_publishing($node) {
 
   // If publication is denied then inform the user why.
   if (!$allowed) {
-    drupal_set_message(t('The content will only be published after approval by the CEO.'));
+    drupal_set_message(t('The content will only be published after approval by the CEO.'), 'status', FALSE);
   }
 
   return $allowed;

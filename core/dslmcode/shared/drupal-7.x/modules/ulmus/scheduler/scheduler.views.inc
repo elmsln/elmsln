@@ -11,10 +11,27 @@
 function scheduler_views_data() {
   $tables['scheduler']['table']['group'] = t('Scheduler');
 
-  // Define how the Scheduler table is linked to the node table.
+  // Advertise the Scheduler table as a possible base table.
+  // @see https://www.drupal.org/node/2611712
+  $tables['scheduler']['table']['base'] = array(
+    'field' => 'nid',
+    'title' => t('Content via Scheduler'),
+    'help' => t('Display node data using the Scheduler table as the base table'),
+  );
+
+  // Define how the Scheduler table is linked to the node table. This is used
+  // for the normal 'content' view when 'node' is the base table.
   $tables['scheduler']['table']['join']['node'] = array(
     'left_field' => 'nid',
     'field' => 'nid',
+  );
+
+  // Define how the node table is linked to the Scheduler table. This is needed
+  // when 'scheduler' is the base table, to give access to the node fields.
+  $tables['node']['table']['join']['scheduler'] = array(
+    'left_field' => 'nid',
+    'field' => 'nid',
+    'type' => 'inner', // to exclude any bad data rows in the scheduler table.
   );
 
   // Describe the two fields in the Scheduler database table.

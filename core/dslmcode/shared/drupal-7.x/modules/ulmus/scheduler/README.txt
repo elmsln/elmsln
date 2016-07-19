@@ -39,7 +39,7 @@ INSTALLATION
 --------------------------------------------------------------------------
 1. Copy the scheduler.module to your modules directory
 2. Enable module, database schemas will be setup automatically.     
-3. Grant users the permission "schedule (un)publishing of nodes" so they can
+3. Grant users the permission "Schedule content publication" so they can
    set when the nodes they create are to be (un)published.
    
 4. Visit admin > settings > content-types and click on any node type and
@@ -56,3 +56,19 @@ is at /scheduler/cron; a sample crontab entry to run scheduler every minute
 would look like:
 
 * * * * * /usr/bin/wget -O - -q "http://example.com/scheduler/cron"
+
+
+FEEDS INTEGRATION
+--------------------------------------------------------------------------
+The module provides integration with the Feeds module [1]. In order to set
+scheduling dates for publishing or unpublishing imported content you can map the
+source date fields to the "Scheduler: publish on" and "Scheduler: unpublish on"
+targets. Make sure the source date fields are using formats that are compatible
+with the PHP strtotime() function [2]. If needed the date format can be altered
+by writing a custom FeedsProcessor plugin [3] or by using the Feeds Tamper
+module [4].
+
+[1] Feeds module: https://www.drupal.org/project/feeds
+[2] PHP strtotime() function: http://php.net/manual/en/function.strtotime.php
+[3] The developer's guide to Feeds: https://www.drupal.org/node/622700
+[4] Feeds Tamper module: https://www.drupal.org/project/feeds_tamper

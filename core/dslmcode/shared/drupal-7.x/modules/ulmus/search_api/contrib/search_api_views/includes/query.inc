@@ -122,17 +122,61 @@ class SearchApiViewsQuery extends views_plugin_query {
   }
 
   /**
-   * Add a sort to the query.
+   * Adds a sort to the query.
    *
-   * @param $selector
+   * @param string $selector
    *   The field to sort on. All indexed fields of the index are valid values.
-   *   In addition, the special fields 'search_api_relevance' (sort by
-   *   relevance) and 'search_api_id' (sort by item id) may be used.
-   * @param $order
+   *   In addition, these special fields may be used:
+   *   - search_api_relevance: sort by relevance;
+   *   - search_api_id: sort by item id;
+   *   - search_api_random: random sort (available only if the server supports
+   *     the "search_api_random_sort" feature).
+   * @param string $order
    *   The order to sort items in - either 'ASC' or 'DESC'. Defaults to 'ASC'.
    */
   public function add_selector_orderby($selector, $order = 'ASC') {
     $this->query->sort($selector, $order);
+  }
+
+  /**
+   * Provides a sorting method as present in the Views default query plugin.
+   *
+   * This is provided so that the "Global: Random" sort included in Views will
+   * work properly with Search API Views. Random sorting is only supported if
+   * the active search server supports the "search_api_random_sort" feature,
+   * though, otherwise the call will be ignored.
+   *
+   * This method can only be used to sort randomly, as would be done with the
+   * default query plugin. All other calls are ignored.
+   *
+   * @param string|null $table
+   *   Only "rand" is recognized here, all other calls are ignored.
+   * @param string|null $field
+   *   Is ignored and only present for compatibility reasons.
+   * @param string $order
+   *   Either "ASC" or "DESC".
+   * @param string|null $alias
+   *   Is ignored and only present for compatibility reasons.
+   * @param array $params
+   *   The following optional parameters are recognized:
+   *   - seed: a predefined seed for the random generator.
+   *
+   * @see views_plugin_query_default::add_orderby()
+   */
+  public function add_orderby($table, $field = NULL, $order = 'ASC', $alias = '', $params = array()) {
+    $server = $this->getIndex()->server();
+    if ($table == 'rand') {
+      if ($server->supportsFeature('search_api_random_sort')) {
+        $this->add_selector_orderby('search_api_random', $order);
+        if ($params) {
+          $this->setOption('search_api_random_sort', $params);
+        }
+      }
+      else {
+        $variables['%server'] = $server->label();
+        watchdog('search_api_views', 'Tried to sort results randomly on server %server which does not support random sorting.', $variables, WATCHDOG_WARNING);
+      }
+    }
   }
 
   /**
@@ -203,6 +247,10 @@ class SearchApiViewsQuery extends views_plugin_query {
    * Builds the necessary info to execute the query.
    */
   public function build(&$view) {
+    if (!empty($this->errors)) {
+      return;
+    }
+
     $this->view = $view;
 
     // Setup the nested filter structure for this query.
@@ -296,13 +344,15 @@ class SearchApiViewsQuery extends views_plugin_query {
     // FALSE.
     $skip_result_count = $this->query->getOption('skip result count', TRUE);
     if ($skip_result_count) {
-      $skip_result_count = !$this->pager->use_count_query() && empty($view->get_total_rows);
+      $skip_result_count = !$this->pager || (!$this->pager->use_count_query() && empty($view->get_total_rows));
       $this->query->setOption('skip result count', $skip_result_count);
     }
 
     try {
       // Trigger pager pre_execute().
-      $this->pager->pre_execute($this->query);
+      if ($this->pager) {
+        $this->pager->pre_execute($this->query);
+      }
 
       // Views passes sometimes NULL and sometimes the integer 0 for "All" in a
       // pager. If set to 0 items, a string "0" is passed. Therefore, we unset
@@ -337,7 +387,9 @@ class SearchApiViewsQuery extends views_plugin_query {
       $view->execute_time = microtime(TRUE) - $start;
 
       // Trigger pager post_execute().
-      $this->pager->post_execute($view->result);
+      if ($this->pager) {
+        $this->pager->post_execute($view->result);
+      }
     }
     catch (Exception $e) {
       $this->errors[] = $e->getMessage();
@@ -375,8 +427,8 @@ class SearchApiViewsQuery extends views_plugin_query {
     // loading any items.
     foreach ($results as $id => $result) {
       if (!empty($this->options['entity_access']) && ($entity_type = $this->index->getEntityType())) {
-        $entity = entity_load($entity_type, array($id));
-        if (!entity_access('view', $entity_type, $entity[$id])) {
+        $entity = $this->index->loadItems(array($id));
+        if (!$entity || !entity_access('view', $entity_type, reset($entity))) {
           continue;
         }
       }
@@ -396,11 +448,11 @@ class SearchApiViewsQuery extends views_plugin_query {
 
       // Gather any fields from the search results.
       if (!empty($result['fields'])) {
-        $row['_entity_properties'] += $result['fields'];
+        $row['_entity_properties'] += search_api_get_sanitized_field_values($result['fields']);
       }
 
       // Check whether we need to extract any properties from the result item.
-      $missing_fields = array_diff_key($this->fields, $row);
+      $missing_fields = array_diff_key($this->fields, $row['_entity_properties']);
       if ($missing_fields) {
         $missing[$id] = $missing_fields;
         if (is_object($row['entity'])) {
@@ -418,14 +470,14 @@ class SearchApiViewsQuery extends views_plugin_query {
     // Load items of those rows which haven't got all field values, yet.
     if (!empty($ids)) {
       $items += $this->index->loadItems($ids);
-      // $items now includes loaded items, and those already passed in the
-      // search results.
-      foreach ($items as $id => $item) {
-        // Extract item properties.
-        $wrapper = $this->index->entityWrapper($item, FALSE);
-        $rows[$id]->_entity_properties += $this->extractFields($wrapper, $missing[$id]);
-        $rows[$id]->entity = $item;
-      }
+    }
+    // $items now includes all loaded items from which fields still need to be
+    // extracted.
+    foreach ($items as $id => $item) {
+      // Extract item properties.
+      $wrapper = $this->index->entityWrapper($item, FALSE);
+      $rows[$id]->_entity_properties += $this->extractFields($wrapper, $missing[$id]);
+      $rows[$id]->entity = $item;
     }
 
     // Finally, add all rows to the Views result set.
@@ -490,31 +542,31 @@ class SearchApiViewsQuery extends views_plugin_query {
    * query backend.
    */
   public function get_result_wrappers($results, $relationship = NULL, $field = NULL) {
-    $entity_type = $this->index->getEntityType();
+    $type = $this->index->getEntityType() ? $this->index->getEntityType() : $this->index->item_type;
     $wrappers = array();
-    $load_entities = array();
+    $load_items = array();
     foreach ($results as $row_index => $row) {
-      if ($entity_type && isset($row->entity)) {
+      if (isset($row->entity)) {
         // If this entity isn't load, register it for pre-loading.
         if (!is_object($row->entity)) {
-          $load_entities[$row->entity] = $row_index;
+          $load_items[$row->entity] = $row_index;
         }
-
-        $wrappers[$row_index] = $this->index->entityWrapper($row->entity);
+        else {
+          $wrappers[$row_index] = $this->index->entityWrapper($row->entity);
+        }
       }
     }
 
     // If the results are entities, we pre-load them to make use of a multiple
     // load. (Otherwise, each result would be loaded individually.)
-    if (!empty($load_entities)) {
-      $entities = entity_load($entity_type, array_keys($load_entities));
-      foreach ($entities as $entity_id => $entity) {
-        $wrappers[$load_entities[$entity_id]] = $this->index->entityWrapper($entity);
+    if (!empty($load_items)) {
+      $items = $this->index->loadItems(array_keys($load_items));
+      foreach ($items as $id => $item) {
+        $wrappers[$load_items[$id]] = $this->index->entityWrapper($item);
       }
     }
 
     // Apply the relationship, if necessary.
-    $type = $entity_type ? $entity_type : $this->index->item_type;
     $selector_suffix = '';
     if ($field && ($pos = strrpos($field, ':'))) {
       $selector_suffix = substr($field, 0, $pos);

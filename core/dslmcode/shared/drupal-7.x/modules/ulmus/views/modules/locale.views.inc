@@ -218,4 +218,11 @@ function locale_views_data_alter(&$data) {
       'handler' => 'views_handler_sort',
     ),
   );
+  $data['node']['specific_language'] = array(
+    'title' => t('Specific language'),
+    'help' => t('Sort by a specific language that the content is in.'),
+    'sort' => array(
+      'handler' => 'views_handler_sort_node_language',
+    ),
+  );
 }

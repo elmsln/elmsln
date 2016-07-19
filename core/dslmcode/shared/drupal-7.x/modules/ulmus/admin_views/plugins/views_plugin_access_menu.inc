@@ -19,14 +19,17 @@ class views_plugin_access_menu extends views_plugin_access {
    * In that case, we need to check access to the router path manually.
    */
   function access($account) {
+    // Retrieve the original router path for this view, and check access to it.
+    // Get this based on the display property of this access plugin, not the
+    // view itself. The 'current display' could be set to something else, like
+    // default.
+    $path = $this->display->handler->get_option('path');
+    $item = menu_get_item($path);
+
     // If we are on the original router path, the menu system has checked access already.
-    $item = menu_get_item();
     if ($item['href'] == $_GET['q']) {
       return TRUE;
     }
-    // Retrieve the original router path for this view, and check access to it.
-    $path = $this->view->display_handler->get_option('path');
-    $item = menu_get_item($path);
 
     return $item['access'];
   }

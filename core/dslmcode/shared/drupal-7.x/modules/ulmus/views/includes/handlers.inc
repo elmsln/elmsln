@@ -758,7 +758,7 @@ class views_many_to_one_helper {
    */
   public $placeholders = array();
 
-  function views_many_to_one_helper(&$handler) {
+  function __construct(&$handler) {
     $this->handler = &$handler;
   }
 
@@ -1547,7 +1547,6 @@ class views_join {
       if (is_array($this->extra)) {
         $extras = array();
         foreach ($this->extra as $info) {
-          $extra = '';
           // Figure out the table name. Remember, only use aliases provided
           // if at all possible.
           $join_table = '';
@@ -1565,36 +1564,63 @@ class views_join {
             }
           }
 
-          // Convert a single-valued array of values to the single-value case,
-          // and transform from IN() notation to = notation
-          if (is_array($info['value']) && count($info['value']) == 1) {
-            if (empty($info['operator'])) {
-              $operator = '=';
+          // If left_field is set use it for a field-to-field condition.
+          if (!empty($info['left_field'])) {
+            $operator = !empty($info['operator']) ? $info['operator'] : '=';
+            $left_table = (isset($info['left_table'])) ? $info['left_table'] : $left['alias'];
+            $extras[] = "$join_table$info[field] $operator $left_table.$info[left_field]";
+          }
+          // Else if formula is set, us it for a flexible on clause.
+          elseif (!empty($info['formula'])) {
+            // If a field is given, we build a "$field $op $formula".
+            // Without it would only be "$formula".
+            $extra = '';
+            if (isset($info['field'])) {
+              // With a single value, the '=' operator is implicit.
+              $operator = !empty($info['operator']) ? $info['operator'] : '=';
+              $extra .= "$join_table$info[field] $operator ";
+            }
+            $extra .= $info['formula'];
+            // Add placeholder arguments.
+            if (isset($info['formula_arguments']) && is_array($info['formula_arguments'])) {
+              $arguments = array_merge($arguments, $info['formula_arguments']);
+            }
+            $extras[] = $extra;
+          }
+          // Otherwise - and if we have a value - use it for a field-to-value condition.
+          elseif (!empty($info['value'])) {
+            // Convert a single-valued array of values to the single-value case,
+            // and transform from IN() notation to = notation
+            if (is_array($info['value']) && count($info['value']) == 1) {
+              if (empty($info['operator'])) {
+                $operator = '=';
+              }
+              else {
+                $operator = $info['operator'] == 'NOT IN' ? '!=' : '=';
+              }
+              $info['value'] = array_shift($info['value']);
+            }
+
+            if (is_array($info['value'])) {
+              // With an array of values, we need multiple placeholders and the
+              // 'IN' operator is implicit.
+              foreach ($info['value'] as $value) {
+                $placeholder_i = ':views_join_condition_' . $select_query->nextPlaceholder();
+                $arguments[$placeholder_i] = $value;
+              }
+
+              $operator = !empty($info['operator']) ? $info['operator'] : 'IN';
+              $placeholder = '( ' . implode(', ', array_keys($arguments)) . ' )';
             }
             else {
-              $operator = $info['operator'] == 'NOT IN' ? '!=' : '=';
-            }
-            $info['value'] = array_shift($info['value']);
-          }
-
-          if (is_array($info['value'])) {
-            // With an array of values, we need multiple placeholders and the
-            // 'IN' operator is implicit.
-            foreach ($info['value'] as $value) {
-              $placeholder_i = $view_query->placeholder('views_join_condition_');
-              $arguments[$placeholder_i] = $value;
+              // With a single value, the '=' operator is implicit.
+              $operator = !empty($info['operator']) ? $info['operator'] : '=';
+              $placeholder = ':views_join_condition_' . $select_query->nextPlaceholder();
+              $arguments[$placeholder] = $info['value'];
             }
 
-            $operator = !empty($info['operator']) ? $info['operator'] : 'IN';
-            $placeholder = '( ' . implode(', ', array_keys($arguments)) . ' )';
+            $extras[] = "$join_table$info[field] $operator $placeholder";
           }
-          else {
-            // With a single value, the '=' operator is implicit.
-            $operator = !empty($info['operator']) ? $info['operator'] : '=';
-            $placeholder = $view_query->placeholder('views_join_condition_');
-            $arguments[$placeholder] = $info['value'];
-          }
-          $extras[] = "$join_table$info[field] $operator $placeholder";
         }
 
         if ($extras) {
@@ -1660,7 +1686,6 @@ class views_join_subquery extends views_join {
       if (is_array($this->extra)) {
         $extras = array();
         foreach ($this->extra as $info) {
-          $extra = '';
           // Figure out the table name. Remember, only use aliases provided
           // if at all possible.
           $join_table = '';

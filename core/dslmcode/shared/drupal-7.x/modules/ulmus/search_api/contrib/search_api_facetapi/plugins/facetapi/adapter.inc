@@ -61,6 +61,10 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
   public function initActiveFilters($query) {
     $search_id = $query->getOption('search id');
     $index_id = $this->info['instance'];
+    // Only act on queries from the right index.
+    if ($index_id != $query->getIndex()->machine_name) {
+      return;
+    }
     $facets = facetapi_get_enabled_facets($this->info['name']);
     $this->fields = array();
 
@@ -78,21 +82,21 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
       // displayed.
       $facet_search_ids = isset($options['facet_search_ids']) ? $options['facet_search_ids'] : array();
 
+      // Remember this search ID, if necessary.
+      $this->rememberSearchId($index_id, $search_id);
+
       if (array_search($search_id, $facet_search_ids) === FALSE) {
-        $search_ids = variable_get('search_api_facets_search_ids', array());
-        if (empty($search_ids[$index_id][$search_id])) {
-          // Remember this search ID.
-          $search_ids[$index_id][$search_id] = $search_id;
-          variable_set('search_api_facets_search_ids', $search_ids);
-        }
         if (!$default_true) {
-          continue; // We are only to show facets for explicitly named search ids.
+          // We are only to show facets for explicitly named search ids.
+          continue;
         }
       }
       elseif ($default_true) {
-        continue; // The 'facet_search_ids' in the settings are to be excluded.
+        // The 'facet_search_ids' in the settings are to be excluded.
+        continue;
       }
-      $active[$facet['name']] = $search_id;
+      $facet_key = $facet['name'] . '@' . $this->getSearcher();
+      $active[$facet_key] = $search_id;
       $this->fields[$facet['name']] = array(
         'field'             => $facet['field'],
         'limit'             => $options['hard_limit'],
@@ -100,6 +104,23 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
         'min_count'         => $options['facet_mincount'],
         'missing'           => $options['facet_missing'],
       );
+    }
+  }
+
+  /**
+   * Adds a search ID to the list of known searches for an index.
+   *
+   * @param string $index_id
+   *   The machine name of the search index.
+   * @param string $search_id
+   *   The identifier of the executed search.
+   */
+  protected function rememberSearchId($index_id, $search_id) {
+    $search_ids = variable_get('search_api_facets_search_ids', array());
+    if (empty($search_ids[$index_id][$search_id])) {
+      $search_ids[$index_id][$search_id] = $search_id;
+      asort($search_ids[$index_id]);
+      variable_set('search_api_facets_search_ids', $search_ids);
     }
   }
 
@@ -257,6 +278,9 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
         '#options' => $granularity_options,
         '#default_value' => isset($options['date_granularity']) ? $options['date_granularity'] : FACETAPI_DATE_MINUTE,
       );
+
+      // Date facets don't support the "OR" operator (for now).
+      $form['global']['operator']['#access'] = FALSE;
     }
 
     // Add an "Exclude" option for terms.

@@ -31,7 +31,7 @@ function scheduler_rules_event_info() {
     'unpublish_on' => array(
       'type' => 'date',
       'label' => t('Scheduler Unpublish On date'),
-      'description' => t('Date and time that the node will be published by Scheduler'),
+      'description' => t('Date and time that the node will be unpublished by Scheduler'),
     ),
   );
 

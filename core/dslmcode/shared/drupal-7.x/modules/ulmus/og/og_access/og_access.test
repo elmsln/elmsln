@@ -407,3 +407,73 @@ class OgAccessUseGroupDefaultsTestCase extends DrupalWebTestCase {
     $this->assertTrue($node, 'A group content has been created successfully.');
   }
 }
+
+/**
+ * Tests group memberships that require approval.
+ */
+class OgAccessModeratedGroupApproval extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'OG group membership approval',
+      'description' => 'Test groups that require membership approval.',
+      'group' => 'Organic groups access',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('og', 'og_access', 'og_ui'));
+    node_access_rebuild();
+
+    // Creating the content type and the necessary fields for this test.
+    $content_type = $this->drupalCreateContentType();
+    og_create_field(OG_GROUP_FIELD, 'node', $content_type->type);
+    og_create_field(OG_ACCESS_FIELD, 'node', $content_type->type);
+
+    // Creating a private group, and a user.
+    $this->group = $this->drupalCreateNode(array('type' => $content_type->type));
+
+    $wrapper = entity_metadata_wrapper('node', $this->group);
+    $wrapper->{OG_GROUP_FIELD}->set(TRUE);
+    $wrapper->{OG_ACCESS_FIELD}->set(1);
+    $wrapper->save();
+    $this->user = $this->drupalCreateUser();
+
+    // Remove ability to apply without approval, but still allow them to subscribe.
+    $roles = og_roles('node', $this->group->type);
+    og_role_revoke_permissions(array_search(OG_ANONYMOUS_ROLE, $roles), array('subscribe without approval'));
+    og_role_grant_permissions(array_search(OG_ANONYMOUS_ROLE, $roles), array('subscribe'));
+
+    $this->drupalLogin($this->user);
+  }
+
+  /**
+   * Test that membership requests made via direct API calls result in proper
+   * pending status for private groups that require approval.
+   */
+  public function testMemberShipRequestStatus() {
+    // Save user as a member of the group, without passing state.
+    $this->user->og_user_node[LANGUAGE_NONE][0]['target_id'] = $this->group->nid;
+    user_save($this->user);
+
+    // User's membership should be pending.
+    $membership = og_get_membership('node', $this->group->nid, 'user', $this->user->uid);
+    $this->assertEqual($membership->state, OG_STATE_PENDING, t('User membership is pending.'));
+  }
+
+  /**
+   * Test that membership requests made via direct API calls that include
+   * membership state result in proper active status for private groups that
+   * require approval.
+   */
+  public function testMemberShipRequestStatusWithState() {
+    // Save user as a member of the group, passing the state.
+    $this->user->og_user_node[LANGUAGE_NONE][0]['target_id'] = $this->group->nid;
+    $this->user->og_user_node[LANGUAGE_NONE][0]['state'] = OG_STATE_ACTIVE;
+    user_save($this->user);
+
+    // User's membership should be active.
+    $membership = og_get_membership('node', $this->group->nid, 'user', $this->user->uid);
+    $this->assertEqual($membership->state, OG_STATE_ACTIVE, t('User membership is active.'));
+  }
+}

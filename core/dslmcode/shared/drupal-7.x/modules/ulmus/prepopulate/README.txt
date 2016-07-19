@@ -17,7 +17,7 @@ syntax like:
 
 http://www.example.com/node/add/blog?edit[title]=this is the title&edit[body]=body goes here
 
-Refer to the USAGE.txt file or the online handbook at http://drupal.org/node/228167 for more examples.
+Refer to the online handbook at http://drupal.org/node/228167 for more examples.
 
 Please report any bugs or feature requests to the Prepopulate issue queue:
 http://drupal.org/project/issues/prepopulate

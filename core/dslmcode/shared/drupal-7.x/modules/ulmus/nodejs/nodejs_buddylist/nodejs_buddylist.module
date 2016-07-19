@@ -94,6 +94,7 @@ function nodejs_buddylist_block_content($account, $id_prefix='nodejs-buddylist-u
     $html = '<ul>';
     $chat_enabled = module_exists('chatroom_nodejs');
     foreach ($buddies as $buddy) {
+      $buddy = user_load($buddy['uid']);
       $id = $id_prefix . $buddy->uid;
       $class = 'nodejs-buddylist-' . (in_array($buddy->uid, $online_uids) ? 'online' : 'offline');
       $chat_button = '';

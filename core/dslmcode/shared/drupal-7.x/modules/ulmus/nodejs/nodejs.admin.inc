@@ -46,6 +46,13 @@ function nodejs_settings() {
     '#required' => TRUE,
     '#description' => $description,
   );
+  $form['server']['nodejs_service_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Node.js service key'),
+    '#default_value' => variable_get('nodejs_service_key', ''),
+    '#size' => 40,
+    '#description' => t('An arbitrary string used as a secret between the Node.js server and the Drupal site. Be sure to enter the same service key in the Node.js app configuration file.'),
+  );
 
   return system_settings_form($form);
 }

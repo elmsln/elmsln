@@ -115,7 +115,8 @@ class SearchApiIndex extends Entity {
   public $item_type;
 
   /**
-   * An array of options for configuring this index. The layout is as follows:
+   * An array of options for configuring this index. The layout is as follows
+   * (with all keys being optional):
    * - cron_limit: The maximum number of items to be indexed per cron batch.
    * - index_directly: Boolean setting whether entities are indexed immediately
    *   after they are created or updated.
@@ -150,6 +151,8 @@ class SearchApiIndex extends Entity {
    *   - weight: Used for sorting the processors.
    *   - settings: Processor-specific settings, configured via the processor's
    *     configuration form.
+   * - datasource: Datasource-specific settings, configured via the datasource's
+   *   configuration form.
    *
    * @var array
    */
@@ -435,7 +438,6 @@ class SearchApiIndex extends Entity {
     }
     return $this->server()->query($this, $options);
   }
-
 
   /**
    * Indexes items on this index.
@@ -932,7 +934,12 @@ class SearchApiIndex extends Entity {
     $i = $only_indexed ? 1 : 0;
     if (!isset($this->fulltext_fields[$i])) {
       $this->fulltext_fields[$i] = array();
-      $fields = $only_indexed ? $this->options['fields'] : $this->getFields(FALSE);
+      if ($only_indexed) {
+        $fields = isset($this->options['fields']) ? $this->options['fields'] : array();
+      }
+      else {
+        $fields = $this->getFields(FALSE);
+      }
       foreach ($fields as $key => $field) {
         if (search_api_is_text_type($field['type'])) {
           $this->fulltext_fields[$i][] = $key;

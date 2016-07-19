@@ -46,7 +46,7 @@ function features_populate($info, $module_name) {
  */
 function _features_populate($pipe, &$export, $module_name = '', $reset = FALSE) {
   // Ensure that the export will be created in the english language.
-  _features_set_export_language();
+  $language = _features_export_language();
 
   if ($reset) {
     drupal_static_reset(__FUNCTION__);
@@ -92,6 +92,7 @@ function _features_populate($pipe, &$export, $module_name = '', $reset = FALSE) 
       }
     }
   }
+  _features_export_language($language);
   return $export;
 }
 
@@ -843,6 +844,13 @@ function features_get_default($component, $module_name = NULL, $alter = TRUE, $r
 
 /**
  * Get a map of components to their providing modules.
+ *
+ * @param string $component
+ * @param string $attribute
+ * @param callable $callback
+ * @param bool $reset
+ *
+ * @return array|bool
  */
 function features_get_default_map($component, $attribute = NULL, $callback = NULL, $reset = FALSE) {
   $map = &drupal_static(__FUNCTION__, array());
@@ -891,6 +899,9 @@ function features_get_default_map($component, $attribute = NULL, $callback = NUL
  * Retrieve an array of features/components and their current states.
  */
 function features_get_component_states($features = array(), $rebuild_only = TRUE, $reset = FALSE) {
+  // Ensure that the export will be created in the English language.
+  $language = _features_export_language();
+
   if ($reset) {
     drupal_static_reset(__FUNCTION__);
   }
@@ -901,7 +912,7 @@ function features_get_component_states($features = array(), $rebuild_only = TRUE
 
   // Retrieve only rebuildable components if requested.
   features_include();
-  $components = array_keys(features_get_components());
+  $components = array_keys(features_get_components(NULL, NULL, $reset));
   if ($rebuild_only) {
     foreach ($components as $k => $component) {
       if (!features_hook($component, 'features_rebuild')) {
@@ -984,6 +995,9 @@ function features_get_component_states($features = array(), $rebuild_only = TRUE
   foreach ($return as $k => $v) {
     $return[$k] = array_intersect_key($return[$k], array_flip($components));
   }
+
+  _features_export_language($language);
+
   return $return;
 }
 
@@ -1006,17 +1020,14 @@ function _features_linetrim($code) {
  * @param bool $remove_empty if set, remove null or empty values for assoc arrays.
  */
 function features_sanitize(&$array, $component = NULL, $remove_empty = TRUE) {
-  // make a deep copy of data to prevent problems when removing recursion later.
-  $array = unserialize(serialize($array));
+  $array = features_remove_recursion($array);
   if (isset($component)) {
     $ignore_keys = _features_get_ignore_keys($component);
     // remove keys to be ignored
-    // doing this now allows us to better control which recursive parts are removed
     if (count($ignore_keys)) {
       _features_remove_ignores($array, $ignore_keys);
     }
   }
-  features_remove_recursion($array);
   _features_sanitize($array, $remove_empty);
 }
 
@@ -1069,81 +1080,45 @@ function _features_is_assoc($array) {
 /**
  * Removes recursion from an object or array.
  *
- * @param $item
- *   An object or array passed by reference.
- */
-function features_remove_recursion(&$item) {
-  $uniqid = __FUNCTION__ . mt_rand(); // use of uniqid() here impacts performance
-  $stack = array();
-  return _features_remove_recursion($item, $stack, $uniqid);
-}
-
-/**
- * Helper to removes recursion from an object/array.
+ * Taken from https://code.google.com/p/formaldehyde/source/browse/trunk/formaldehyde.php
+ * Also used in node_export module
  *
- * @param $item
- *   An object or array passed by reference.
+ * @param $o mixed
+ * @return mixed
+ *   returns a copy of the object or array with recursion removed
  */
-function _features_remove_recursion(&$object, &$stack = array(), $uniqid) {
-  if ((is_object($object) || is_array($object)) && $object) {
-    $in_stack = FALSE;
-    foreach ($stack as &$item) {
-      if (_features_is_ref_to($object, $item, $uniqid)) {
-        $in_stack = TRUE;
-        break;
-      }
-    }
-    unset($item);
-
-    if (!$in_stack) {
-      $stack[] = $object;
-      foreach ($object as $key => &$subobject) {
-        if (_features_remove_recursion($subobject, $stack, $uniqid)) {
-          if (is_object($object)) {
-            unset($object->$key);
-          }
-          else {
-            unset($object[$key]);
-          }
+function features_remove_recursion($o) {
+  static $replace;
+  if (!isset($replace)) {
+    $replace = create_function(
+      '$m',
+      '$r="\x00{$m[1]}ecursion_features";return \'s:\'.strlen($r.$m[2]).\':"\'.$r.$m[2].\'";\';'
+    );
+  }
+  if (is_array($o) || is_object($o)) {
+    $re = '#(r|R):([0-9]+);#';
+    $serialize = serialize($o);
+    if (preg_match($re, $serialize)) {
+      $last = $pos = 0;
+      while (false !== ($pos = strpos($serialize, 's:', $pos))) {
+        $chunk = substr($serialize, $last, $pos - $last);
+        if (preg_match($re, $chunk)) {
+          $length = strlen($chunk);
+          $chunk = preg_replace_callback($re, $replace, $chunk);
+          $serialize = substr($serialize, 0, $last) . $chunk . substr($serialize, $last + ($pos - $last));
+          $pos += strlen($chunk) - $length;
         }
+        $pos += 2;
+        $last = strpos($serialize, ':', $pos);
+        $length = substr($serialize, $pos, $last - $pos);
+        $last += 4 + $length;
+        $pos = $last;
       }
-      unset($subobject);
-    }
-    else {
-      return TRUE;
+      $serialize = substr($serialize, 0, $last) . preg_replace_callback($re, $replace, substr($serialize, $last));
+      $o = unserialize($serialize);
     }
   }
-  return FALSE;
-}
-
-/**
- * Helper function in determining equality of arrays. Credit to http://stackoverflow.com/a/4263181
- *
- * @see _features_remove_recursion()
- *
- * @param $a
- *  object a
- * @param $b
- *  object b
- * @return bool
- *
- */
-function _features_is_ref_to(&$a, &$b, $uniqid) {
-  if (is_object($a) && is_object($b)) {
-    return ($a === $b);
-  }
-
-  $temp_a = $a;
-  $temp_b = $b;
-
-  $b = $uniqid;
-
-  if ($a === $uniqid) $return = true;
-  else $return = false;
-
-  $a = $temp_a;
-  $b = $temp_b;
-  return $return;
+  return $o;
 }
 
 /**
@@ -1162,7 +1137,7 @@ function _features_remove_ignores(&$item, $ignore_keys, $level = -1) {
   if (!is_array($item) && !is_object($item)) {
     return;
   }
-  foreach ($item as $key => $value) {
+  foreach ($item as $key => &$value) {
     if (isset($ignore_keys[$key]) && ($ignore_keys[$key] == $level)) {
       if ($is_object) {
         unset($item->$key);
@@ -1175,6 +1150,7 @@ function _features_remove_ignores(&$item, $ignore_keys, $level = -1) {
       _features_remove_ignores($value, $ignore_keys, $level+1);
     }
   }
+  unset($value);
 }
 
 /**

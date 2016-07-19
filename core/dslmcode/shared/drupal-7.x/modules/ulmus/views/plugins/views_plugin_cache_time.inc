@@ -107,4 +107,21 @@ class views_plugin_cache_time extends views_plugin_cache {
       return CACHE_PERMANENT;
     }
   }
+
+  function cache_set($type) {
+    $lifespan = $this->get_lifespan($type);
+    if ($lifespan >= 0) {
+      parent::cache_set($type);
+    }
+  }
+
+  function cache_get($type) {
+    $lifespan = $this->get_lifespan($type);
+    if ($lifespan >= 0) {
+      return parent::cache_get($type);
+    }
+    else {
+      return FALSE;
+    }
+  }
 }

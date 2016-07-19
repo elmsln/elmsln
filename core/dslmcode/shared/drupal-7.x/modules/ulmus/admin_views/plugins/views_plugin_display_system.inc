@@ -270,9 +270,10 @@ class views_plugin_display_system extends views_plugin_display {
           continue;
         }
         $child = &$callbacks[$child_path];
-        // Get this first, as we want to know if this existed before parent and
+        // Get these first, as we want to know if they existed before parent and
         // default values are merged.
         $file = isset($child['file']);
+        $access_callback = isset($child['access callback']);
         // Copy all properties from the original parent that will be replaced
         // with new values.
         // This typically resets 'access arguments', etc.
@@ -291,6 +292,11 @@ class views_plugin_display_system extends views_plugin_display {
         // something like .../modules/example_module/node.admin.inc.
         if (!$file && isset($child['module'], $parent['module']) && ($child['module'] != $parent['module'])) {
           unset($child['file']);
+        }
+        // The access callback should only be inherited for default local tasks.
+        // Ensure it hasn't been mistakenly set.
+        if (!$access_callback && (!isset($child['type']) || $child['type'] != MENU_DEFAULT_LOCAL_TASK)) {
+          unset($child['access callback']);
         }
         // Last catch-22, insert new default properties and their default values
         // for the child, which may not be defined on the original parent.

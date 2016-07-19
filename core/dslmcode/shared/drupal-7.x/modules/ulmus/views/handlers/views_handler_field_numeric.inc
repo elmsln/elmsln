@@ -107,6 +107,12 @@ class views_handler_field_numeric extends views_handler_field {
 
   function render($values) {
     $value = $this->get_value($values);
+
+    // Hiding should happen before rounding or adding prefix/suffix.
+    if ($this->options['hide_empty'] && empty($value) && ($value !== 0 || $this->options['empty_zero'])) {
+      return '';
+    }
+
     if (!empty($this->options['set_precision'])) {
       $value = number_format($value, $this->options['precision'], $this->options['decimal'], $this->options['separator']);
     }
@@ -118,11 +124,6 @@ class views_handler_field_numeric extends views_handler_field {
         // The substr may not be locale safe.
         $value .= $this->options['decimal'] . substr($remainder, 2);
       }
-    }
-
-    // Check to see if hiding should happen before adding prefix and suffix.
-    if ($this->options['hide_empty'] && empty($value) && ($value !== 0 || $this->options['empty_zero'])) {
-      return '';
     }
 
     // Should we format as a plural.

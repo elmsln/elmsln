@@ -13,7 +13,7 @@
 /**
  * Define the default file extension list that should be tracked as download.
  */
-define('PIWIK_TRACKFILES_EXTENSIONS', '7z|aac|arc|arj|asf|asx|avi|bin|csv|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls|xml|z|zip');
+define('PIWIK_TRACKFILES_EXTENSIONS', '7z|aac|arc|arj|asf|asx|avi|bin|csv|doc(x|m)?|dot(x|m)?|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt(x|m)?|pot(x|m)?|pps(x|m)?|ppam|sld(x|m)?|thmx|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls(x|m|b)?|xlt(x|m)|xlam|xml|z|zip');
 
 /**
  * Define default path exclusion list to remove tracking from admin pages,
@@ -98,15 +98,26 @@ function piwik_page_alter(&$page) {
   // 1. Check if the piwik account number has a value.
   // 2. Track page views based on visibility value.
   // 3. Check if we should track the currently active user's role.
-  if (!empty($id) && (_piwik_visibility_pages() || in_array($status, $trackable_status_codes)) && _piwik_visibility_user($user)) {
+  if (preg_match('/^\d{1,}$/', $id) && (_piwik_visibility_pages() || in_array($status, $trackable_status_codes)) && _piwik_visibility_user($user)) {
 
     $url_http = variable_get('piwik_url_http', '');
     $url_https = variable_get('piwik_url_https', '');
-    $scope = variable_get('piwik_js_scope', 'footer');
+    $scope = variable_get('piwik_js_scope', 'header');
 
     $set_custom_url = '';
     $set_document_title = '';
     $set_custom_data = array();
+
+    // Add link tracking.
+    $link_settings = array();
+    $link_settings['trackMailto'] = variable_get('piwik_trackmailto', 1);
+
+    if (module_exists('colorbox') && ($track_colorbox = variable_get('googleanalytics_trackcolorbox', 1))) {
+      $link_settings['trackColorbox'] = $track_colorbox;
+    }
+
+    drupal_add_js(array('piwik' => $link_settings), 'setting');
+    drupal_add_js(drupal_get_path('module', 'piwik') . '/piwik.js');
 
     // Piwik can show a tree view of page titles that represents the site structure
     // if setDocumentTitle() provides the page titles as a "/" delimited list.
@@ -120,9 +131,12 @@ function piwik_page_alter(&$page) {
         array_shift($titles);
       }
 
+      // Remove all empty titles.
+      $titles = array_filter($titles);
+
       if (!empty($titles)) {
         // Encode title, at least to keep "/" intact.
-        $titles = array_map('urlencode', $titles);
+        $titles = array_map('rawurlencode', $titles);
 
         $set_document_title = drupal_json_encode(implode('/', $titles));
       }
@@ -216,6 +230,14 @@ function piwik_page_alter(&$page) {
     $script .= '_paq.push(["setSiteId", ' . drupal_json_encode(variable_get('piwik_site_id', '')) . ']);';
     $script .= '_paq.push(["setTrackerUrl", u+"piwik.php"]);';
 
+    // Track logged in users across all devices.
+    if (variable_get('piwik_trackuserid', 0) && user_is_logged_in()) {
+      // The USER_ID value should be a unique, persistent, and non-personally
+      // identifiable string identifier that represents a user or signed-in
+      // account across devices.
+      $script .= '_paq.push(["setUserId", ' . drupal_json_encode(piwik_user_id_hash($user->uid)) . ']);';
+    }
+
     // Set custom data.
     if (!empty($set_custom_data)) {
       foreach ($set_custom_data as $custom_data) {
@@ -280,8 +302,20 @@ function piwik_page_alter(&$page) {
 
     // Add link tracking.
     if (variable_get('piwik_track', 1)) {
+      // Disable tracking of links with ".no-tracking" and ".colorbox" classes.
+      $ignore_classes = array(
+        'no-tracking',
+        'colorbox',
+      );
+      // Disable the download & outlink tracking for specific CSS classes.
+      // Custom code snippets with 'setIgnoreClasses' will override the value.
+      // http://developer.piwik.org/api-reference/tracking-javascript#disable-the-download-amp-outlink-tracking-for-specific-css-classes
+      $script .= '_paq.push(["setIgnoreClasses", ' . drupal_json_encode($ignore_classes) . ']);';
+
+      // Enable download & outlink link tracking.
       $script .= '_paq.push(["enableLinkTracking"]);';
     }
+
     if (!empty($message_events)) {
       $script .= $message_events;
     }
@@ -316,6 +350,23 @@ function piwik_page_alter(&$page) {
     // Add tracker code to scope.
     drupal_add_js($script, array('scope' => $scope, 'type' => 'inline'));
   }
+}
+
+/**
+ * Generate user id hash to implement USER_ID.
+ *
+ * The USER_ID value should be a unique, persistent, and non-personally
+ * identifiable string identifier that represents a user or signed-in
+ * account across devices.
+ *
+ * @param int $uid
+ *   User id.
+ *
+ * @return string
+ *   User id hash.
+ */
+function piwik_user_id_hash($uid) {
+  return drupal_hmac_base64($uid, drupal_get_private_key() . drupal_get_hash_salt());
 }
 
 /**

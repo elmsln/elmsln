@@ -419,7 +419,7 @@ class views_handler_argument extends views_handler {
     // Let the plugins do validation.
     $default_id = $form_state['values']['options']['default_argument_type'];
     $plugin = $this->get_plugin('argument default', $default_id);
-    if ($plugin) {
+    if ($plugin && isset($form['argument_default'][$default_id]) && isset($form_state['values']['options']['argument_default'][$default_id])) {
       $plugin->options_validate($form['argument_default'][$default_id], $form_state, $form_state['values']['options']['argument_default'][$default_id]);
     }
 
@@ -1075,9 +1075,6 @@ class views_handler_argument extends views_handler {
     $argument = clone $this;
     if (!isset($arg) && $argument->has_default_argument()) {
       $arg = $argument->get_default_argument();
-
-      // remember that this argument was computed, not passed on the URL.
-      $this->is_default = TRUE;
     }
     // Set the argument, which will also validate that the argument can be set.
     if ($argument->set_argument($arg)) {

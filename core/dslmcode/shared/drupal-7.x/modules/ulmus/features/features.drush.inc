@@ -32,6 +32,12 @@ function features_drush_command() {
     ),
     'drupal dependencies' => array('features'),
     'aliases' => array('fl', 'features'),
+    'outputformat' => array(
+      'default' => 'table',
+      'pipe-format' => 'list',
+      'field-labels' => array('name' => 'Name', 'feature' => 'Feature', 'status' => 'Status', 'version' => 'Version', 'state' => 'State'),
+      'output-data-type' => 'format-table',
+    ),
   );
   $items['features-export'] = array(
     'description' => "Export a feature from your site into a module.",
@@ -207,12 +213,12 @@ function drush_features_list() {
   }
 
   module_load_include('inc', 'features', 'features.export');
-  $rows = array(array(dt('Name'), dt('Feature'), dt('Status'), dt('Version'), dt('State')));
 
   // Sort the Features list before compiling the output.
   $features = features_get_features(NULL, TRUE);
   ksort($features);
 
+  $rows = array();
   foreach ($features as $k => $m) {
     switch (features_get_storage($m->name)) {
       case FEATURES_DEFAULT:
@@ -230,16 +236,19 @@ function drush_features_list() {
       ($m->status == 0 && ($status == 'all' || $status == 'disabled')) ||
       ($m->status == 1 && ($status == 'all' || $status == 'enabled'))
     ) {
-      $rows[] = array(
-        $m->info['name'],
-        $m->name,
-        $m->status ? dt('Enabled') : dt('Disabled'),
-        $m->info['version'],
-        $storage
+      $rows[$k] = array(
+        'name' => $m->info['name'],
+        'feature' => $m->name,
+        'status' => $m->status ? dt('Enabled') : dt('Disabled'),
+        'version' => $m->info['version'],
+        'state' => $storage
       );
     }
   }
-  drush_print_table($rows, TRUE);
+  if (version_compare(DRUSH_VERSION, '6.0', '<')) {
+    drush_print_table($rows, TRUE);
+  }
+  return $rows;
 }
 
 /**
@@ -337,8 +346,13 @@ function _drush_features_component_filter($all_components, $patterns = array(), 
     // Rewrite * to %. Let users use both as wildcard.
     $pattern = strtr($pattern, array('*' => '%'));
     $sources = array();
-    $source_pattern = strtok($pattern, ':');
-    $component_pattern = strtok(':');
+    if (strpos($pattern, ':') !== FALSE) {
+      list($source_pattern, $component_pattern) = explode(':', $pattern, 2);
+    }
+    else {
+      $source_pattern = $pattern;
+      $component_pattern = '';
+    }
     // If source is empty, use a pattern.
     if ($source_pattern == '') {
       $source_pattern = '%';
@@ -607,9 +621,18 @@ function _drush_features_export($info, $module_name = NULL, $directory = NULL) {
       drush_op('mkdir', $directory);
     }
     if (is_dir($directory)) {
+      // Ensure that the export will be created in the English language.
+      // The export language must be set before flushing caches as that can
+      // result into translatables being statically cached.
+      $language = _features_export_language();
+
       drupal_flush_all_caches();
       $export = _drush_features_generate_export($info, $module_name);
       $files = features_export_render($export, $module_name, TRUE);
+
+      // Restore the language
+      _features_export_language($language);
+
       // Copy any files if _files key is there.
       if (!empty($files['_files'])) {
         foreach ($files['_files'] as $file_name => $file_info) {
@@ -685,7 +708,7 @@ function _drush_features_generate_export(&$info, &$module_name) {
       }
       else {
         // Split version number parts.
-        $pattern = '/([0-9]-[a-z]+([0-9])+)/';
+        $pattern = '/([0-9]-[a-z]+([0-9]+))/';
         $matches = array();
         preg_match($pattern, $version_minor, $matches);
         $number = array_pop($matches);
@@ -797,7 +820,7 @@ function drush_features_revert() {
     }
   }
   else {
-    drush_features_list();
+    drush_print_table(drush_features_list());
     return;
   }
 }
@@ -851,7 +874,7 @@ function drush_features_revert_all() {
  */
 function drush_features_diff() {
   if (!$args = func_get_args()) {
-    drush_features_list();
+    drush_print_table(drush_features_list());
     return;
   }
   $module = $args[0];

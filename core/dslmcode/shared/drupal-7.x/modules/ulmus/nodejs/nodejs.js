@@ -20,9 +20,10 @@ Drupal.behaviors.nodejs = {
 Drupal.Nodejs.runCallbacks = function (message) {
   // It's possible that this message originated from an ajax request from the
   // client associated with this socket.
-  if (message.clientSocketId == Drupal.Nodejs.socket.id) {
+  if (message.clientSocketId && message.clientSocketId == Drupal.Nodejs.socket.id) {
     return;
   }
+
   if (message.callback) {
     if (typeof message.callback == 'string') {
       message.callback = [message.callback];
@@ -129,7 +130,13 @@ Drupal.Nodejs.sendAuthMessage = function () {
   Drupal.Nodejs.socket.emit('authenticate', authMessage);
 };
 
+Drupal.Nodejs.joinTokenChannel = function (channel, contentToken) {
+  var message = {
+    channel: channel,
+    contentToken: contentToken
+  };
+  Drupal.Nodejs.socket.emit('join-token-channel', message);
+};
+  
 })(jQuery);
-
-// vi:ai:expandtab:sw=2 ts=2
 

@@ -66,9 +66,15 @@ Drupal.behaviors.trackingSettingsSummary = {
 
     $('fieldset#edit-linktracking', context).drupalSetSummary(function (context) {
       var vals = [];
+      if ($('input#edit-piwik-trackmailto', context).is(':checked')) {
+        vals.push(Drupal.t('Mailto links'));
+      }
       if ($('input#edit-piwik-track', context).is(':checked')) {
         vals.push(Drupal.t('Outbound links'));
         vals.push(Drupal.t('Downloads'));
+      }
+      if ($('input#edit-piwik-trackcolorbox', context).is(':checked')) {
+        vals.push(Drupal.t('Colorbox'));
       }
       if (!vals.length) {
         return Drupal.t('Not tracked');

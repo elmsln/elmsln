@@ -1384,7 +1384,7 @@ class OgEntityFieldQueryTestCase extends DrupalWebTestCase {
     og_create_field('og_entity_test', 'user', 'user', $og_field);
 
 
-    // Create a non-group audience, entity-refence field.
+    // Create a non-group audience, entity reference field.
     $field = array(
       'entity_types' => array('node'),
       'settings' => array(

@@ -6,9 +6,9 @@ hidden = TRUE
 dependencies[] = list
 dependencies[] = options
 
-; Information added by Drupal.org packaging script on 2014-01-28
-version = "7.x-1.2"
+; Information added by Drupal.org packaging script on 2016-03-12
+version = "7.x-1.4"
 core = "7.x"
 project = "scheduler"
-datestamp = "1390940306"
+datestamp = "1457802848"
 

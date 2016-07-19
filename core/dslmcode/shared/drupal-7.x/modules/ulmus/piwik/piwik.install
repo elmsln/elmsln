@@ -36,9 +36,12 @@ function piwik_uninstall() {
   variable_del('piwik_roles');
   variable_del('piwik_site_id');
   variable_del('piwik_site_search');
+  variable_del('piwik_trackcolorbox');
+  variable_del('piwik_trackmailto');
   variable_del('piwik_track'); // interrims solution
   variable_del('piwik_trackfiles_extensions');
   variable_del('piwik_trackmessages');
+  variable_del('piwik_trackuserid');
   variable_del('piwik_translation_set');
   variable_del('piwik_url_http');
   variable_del('piwik_url_https');
@@ -65,7 +68,16 @@ function piwik_requirements($phase) {
   $t = get_t();
 
   switch ($phase) {
-    case 'runtime' :
+    case 'runtime':
+      // Module cannot validate piwik URL without external HTTP requests.
+      if (variable_get('drupal_http_request_fails', TRUE) && !system_check_http_request()) {
+        $requirements['piwik_http_requests'] = array(
+          'title' => $t('HTTP request status'),
+          'value' => $t('Fails'),
+          'severity' => REQUIREMENT_ERROR,
+          'description' => $t('Your system or network configuration does not allow Drupal to access web pages, resulting in reduced functionality. This could be due to your webserver configuration or PHP settings, and should be resolved in order to download information about available updates, fetch aggregator feeds, sign in via OpenID, or use other network-dependent services.'),
+        );
+      }
 
       // Raise warning if Piwik user account has not been set yet.
       if (!preg_match('/^\d{1,}$/', variable_get('piwik_site_id', ''))) {
@@ -242,4 +254,17 @@ function piwik_update_7204() {
   variable_del('piwik_visibility');
 
   return t('Renamed "piwik_visibility" settings variable to piwik_visibility_pages.');
+}
+
+/**
+ * Update list of default file extensions.
+ */
+function piwik_update_7205() {
+  if (variable_get('piwik_trackfiles_extensions', '') == '7z|aac|arc|arj|asf|asx|avi|bin|csv|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls|xml|z|zip') {
+    variable_set('piwik_trackfiles_extensions', '7z|aac|arc|arj|asf|asx|avi|bin|csv|doc(x|m)?|dot(x|m)?|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt(x|m)?|pot(x|m)?|pps(x|m)?|ppam|sld(x|m)?|thmx|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls(x|m|b)?|xlt(x|m)|xlam|xml|z|zip');
+    return t('The default extensions for download tracking have been updated.');
+  }
+  else {
+    return t('Custom extensions for download tracking setting found. Update skipped!');
+  }
 }

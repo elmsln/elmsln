@@ -395,6 +395,8 @@ function og_access_invoke_node_access_acquire_grants($group_type, $group_id, &$c
     ->range(0, $limit)
     ->propertyCondition('etid', $context['sandbox']['last_id'], '>')
     ->propertyCondition('gid', $group_id, '=')
+    // Order by the entity ID as the memberships are not ordered by this by default.
+    ->propertyOrderBy('etid', 'ASC')
     ->execute();
 
   // Mark "finished" if there are no more results.

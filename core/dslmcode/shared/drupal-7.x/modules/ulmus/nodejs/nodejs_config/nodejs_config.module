@@ -91,8 +91,9 @@ function nodejs_config_form($form, &$form_state) {
   $form['config']['nodejs_service_key'] = array(
     '#type' => 'textfield',
     '#title' => 'Service Key',
-    '#description' => 'An arbitrary string used as a secret between the node.js server and the Drupal site.',
+    '#description' => 'An arbitrary string used as a secret between the Node.js server and the Drupal site. The key can be changed on the Node.js module configuration page.',
     '#default_value' => variable_get('nodejs_service_key', ''),
+    '#disabled' => TRUE,
   );
   $form['config']['nodejs_config_write_channels'] = array(
     '#type' => 'checkbox',
