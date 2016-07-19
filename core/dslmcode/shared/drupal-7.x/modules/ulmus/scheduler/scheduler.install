@@ -50,6 +50,7 @@ function scheduler_uninstall() {
   // Keep variables in alphabetic order for easier maintenance and patching.
   $variables = array(
     'scheduler_allow_date_only',
+    'scheduler_cache_clear_all',
     'scheduler_date_format',
     'scheduler_date_only_format',
     'scheduler_default_time',
@@ -87,4 +88,75 @@ function scheduler_update_last_removed() {
   // The updates for Scheduler 6.x are no longer required in this file.
   // This function shows that the last update was scheduler_update_6101.
   return 6101;
+}
+
+/**
+ * Update roles with new 'View Scheduled Content' permission.
+ */
+function scheduler_update_7100() {
+  // Retrieve all roles that have both the 'administer nodes' and 'schedule
+  // (un)publishing of nodes' permissions.
+  // @see http://www.drupal.org/node/2355401
+  $query = db_select('role_permission', 'r');
+  $query->fields('r', array('rid'));
+  $query->condition('r.permission', 'administer nodes', '=');
+  $query->addJoin('INNER', 'role_permission', 'r2', 'r.rid = r2.rid');
+  $query->condition('r2.permission', 'schedule (un)publishing of nodes', '=');
+
+  // Grant these roles the 'view scheduled content' permission.
+  if ($roles_to_update = $query->execute()->fetchCol()) {
+    foreach ($roles_to_update as $rid ) {
+      // Use db_merge not db_insert in case the role already has the permission.
+      $query = db_merge('role_permission');
+      $query->key(array(
+        'rid' => $rid,
+        'permission' => 'view scheduled content',
+        'module' => 'scheduler',
+      ));
+      $query->fields(array(
+        'rid' => $rid,
+        'permission' => 'view scheduled content',
+        'module' => 'scheduler',
+      ));
+      $query->execute();
+    }
+  }
+
+  return format_plural(sizeof($roles_to_update), '1 role updated with view scheduled content permission.', '@count roles updated with view scheduled content permission.');
+}
+
+/**
+ * Delete obsolete Scheduler rows for nodes already unpublished.
+ */
+function scheduler_update_7101() {
+  // Retrieve all unpublished nodes which have a row in the Scheduler with an
+  // unpublish-on date in the past and no publish-on date.
+  // @see http://www.drupal.org/node/2355129
+  $query = db_select('scheduler', 's');
+  $query->addField('s', 'nid');
+  $query->addJoin('INNER', 'node', 'n', 's.nid = n.nid');
+  $query->condition('n.status', NODE_NOT_PUBLISHED, '=');
+  $query->condition('s.publish_on', 0, '=');
+  $query->condition('s.unpublish_on', 0, '>');
+  $query->condition('s.unpublish_on', REQUEST_TIME, '<');
+
+  // Delete these rows from the Scheduler table.
+  if ($nids_to_delete = $query->execute()->fetchCol()) {
+    db_delete('scheduler')->condition('nid', $nids_to_delete, 'IN')->execute();
+  }
+  return format_plural(sizeof($nids_to_delete), '1 obsolete row deleted from scheduler table.', '@count obsolete rows deleted from scheduler table.');
+}
+
+/**
+ * Update role_permission table with clean machine name.
+ */
+function scheduler_update_7102() {
+  // Change all values of 'schedule (un)publishing of nodes' to the cleaner
+  // 'schedule publishing of nodes'
+  // @see http://www.drupal.org/node/2538002
+  $rows_updated = db_update('role_permission')
+    ->fields(array('permission' => 'schedule publishing of nodes'))
+    ->condition('permission', 'schedule (un)publishing of nodes', '=') ->execute();
+
+  return format_plural($rows_updated, '1 row updated in role_permission table.', '@count rows updated in role_permission table.');
 }

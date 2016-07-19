@@ -352,7 +352,7 @@ Drupal.viewsUi.OptionsSearch.prototype.handleKeyup = function (event) {
 
   // Determine the user's search query. The search text has been converted to
   // lowercase.
-  search = this.$searchBox.val().toLowerCase();
+  search = (this.$searchBox.val() || '').toLowerCase();
   words = search.split(' ');
   wordsLength = words.length;
 

@@ -141,8 +141,8 @@ function _features_language_save($language) {
   }
   // Update Existing language.
   else {
-    // @TODO: get properties from schema.
-    $properties = array('language', 'name', 'native', 'direction', 'enabled', 'plurals', 'formula', 'domain', 'prefix', 'weight', 'javascript');
+    // Get field list from table schema.
+    $properties = drupal_schema_fields_sql('languages');
     // The javascript hash is not in the imported data but should be empty
     if (!isset($language->javascript)) {
       $language->javascript = '';

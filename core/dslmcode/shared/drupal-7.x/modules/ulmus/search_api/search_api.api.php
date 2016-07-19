@@ -341,7 +341,27 @@ function hook_search_api_query_alter(SearchApiQueryInterface $query) {
   // Exclude entities with ID 0. (Assume the ID field is always indexed.)
   if ($query->getIndex()->getEntityType()) {
     $info = entity_get_info($query->getIndex()->getEntityType());
-    $query->condition($info['entity keys']['id'], 0, '!=');
+    $query->condition($info['entity keys']['id'], 0, '<>');
+  }
+}
+
+/**
+ * Alter the search results before they are returned.
+ *
+ * @param array $results
+ *   The results returned by the server, which may be altered. The data
+ *   structure is the same as returned by SearchApiQueryInterface::execute().
+ * @param SearchApiQueryInterface $query
+ *   The search query that was executed.
+ */
+function hook_search_api_results_alter(array &$results, SearchApiQueryInterface $query) {
+  if ($query->getOption('search id') == 'search_api_views:my_search_view:page') {
+    // Log the number of results.
+    $vars = array(
+      '@keys' => $query->getOriginalKeys(),
+      '@num' => $results['result count'],
+    );
+    watchdog('my_module', 'Search view with query "@keys" had @num results.', $vars, WATCHDOG_DEBUG);
   }
 }
 
@@ -564,15 +584,15 @@ function hook_default_search_api_index_alter(array &$defaults) {
  * This function will be called for fields of the specific data type to convert
  * all individual values of the field to the correct format.
  *
- * @param $value
+ * @param mixed $value
  *   The raw, single value, as extracted from an entity wrapper.
- * @param $original_type
+ * @param string $original_type
  *   The original Entity API type of the value.
- * @param $type
+ * @param string $type
  *   The custom data type to which the value should be converted. Can be ignored
  *   if the callback is only used for a single data type.
  *
- * @return
+ * @return mixed|null
  *   The converted value, if a conversion could be executed. NULL otherwise.
  *
  * @see hook_search_api_data_type_info()

@@ -179,7 +179,7 @@ function nodejs_subscribe_node_update($node) {
       }
       catch (Exception $e) {
         $transaction->rollback();
-        watchdog('nodejs_subscribe', t('Error processing node subscription for nid %nid', array(':nid' => $node->nid)));
+        watchdog('nodejs_subscribe', 'Error processing node subscription for nid %nid', array(':nid' => $node->nid));
       }
     }
     else {

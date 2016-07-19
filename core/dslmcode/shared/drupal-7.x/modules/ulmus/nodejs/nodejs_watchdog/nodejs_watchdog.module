@@ -25,6 +25,25 @@ function nodejs_watchdog_watchdog(array $entry) {
 
   $entry['variables'] = isset($entry['variables']) ? serialize($entry['variables']) : serialize(array());
 
+  if (module_exists('dblog')) {
+    /**
+     * We can get wid because hook_watchdog for module nodejs_watchdog called after this hook for module dblog.
+     */
+    $query = db_select('watchdog', 'wd')
+      ->fields('wd', array('wid'))
+      ->condition('uid', $entry['uid'])
+      ->condition('type', $entry['type'])
+      ->condition('message', $entry['message'])
+      ->condition('hostname', $entry['ip'])
+      ->condition('timestamp', $entry['timestamp'])
+      ->execute()
+      ->fetchAssoc();
+
+    if (isset($query['wid'])) {
+      $entry['wid'] = $query['wid'];
+    }
+  }
+
   $row = array(
     'data' => array(
       array('class' => 'icon'),
@@ -100,4 +119,16 @@ function nodejs_watchdog_nodejs_handlers_info() {
   return array(
     drupal_get_path('module', 'nodejs_watchdog') . '/nodejs.watchdog.js',
   );
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function nodejs_watchdog_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'watchdog' && isset($implementations['nodejs_watchdog'])) {
+    // Move nodejs_watchdog_watchdog() to the end of the list.
+    $group = $implementations['nodejs_watchdog'];
+    unset($implementations['nodejs_watchdog']);
+    $implementations['nodejs_watchdog'] = $group;
+  }
 }

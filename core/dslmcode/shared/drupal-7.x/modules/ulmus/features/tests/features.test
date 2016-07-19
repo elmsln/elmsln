@@ -218,7 +218,7 @@ class FeaturesEnableTestCase extends DrupalWebTestCase {
 
 
 /**
- * Tests intergration of ctools for features.
+ * Tests integration of ctools for features.
  */
 class FeaturesCtoolsIntegrationTest extends DrupalWebTestCase {
   protected $profile = 'testing';

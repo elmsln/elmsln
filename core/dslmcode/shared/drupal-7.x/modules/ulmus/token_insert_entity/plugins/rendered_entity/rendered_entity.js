@@ -59,6 +59,14 @@
             $('#edit-entity', dialogdiv).focus();
             return;
           }
+          // In case we use entity_view_mode module, we have a
+          // different entity, but we don't want to change the token
+          // for backwards compatibility, so we discard the extra part.
+          var split_entity = entity.split(':');
+          if (split_entity.length > 2) {
+            entity = split_entity[0] + ':' + split_entity[2];
+          }
+
           token = '[embed:' + viewMode + ':' + entity + ']';
 
           var editor_id = instanceId;
@@ -101,9 +109,16 @@
           $('.extra-fields', dialogdiv).remove();
           // Render a select with the view modes of the selected entity.
           var entity = $('#edit-entity', dialogdiv).val();
-          entity = entity.split(':');
-          var view_modes = dialogdiv.view_modes[entity[0]];
-          $('form', dialogdiv).append('<div class="form-item form-type-select form-item-view-modes extra-fields" role="application"><label for="edit-view-modes">View modes</label><select id="view-modes" name="view_modes" class="form-select"></select></div>');
+          var entity = entity.split(':');
+          if (entity.length > 2) {
+            var step1 = dialogdiv.view_modes[entity[0]];
+            var view_modes = step1[entity[1]];
+          }
+          else {
+            var view_modes = dialogdiv.view_modes[entity[0]];
+          }
+          $('form .form-item-view-modes', dialogdiv).remove();
+          $('form', dialogdiv).append('<div class="form-item form-type-select form-item-view-modes" role="application"><label for="edit-view-modes">View modes</label><select id="view-modes" name="view_modes" class="form-select"></select></div>');
           $('#view-modes').append($('<option>', { value : 'link' }).text('Link to content'));
           $.each(view_modes, function(key, value) {
             $('#view-modes').append($('<option>', { value : 'render:' + key }).text('Embedded view: ' + value));

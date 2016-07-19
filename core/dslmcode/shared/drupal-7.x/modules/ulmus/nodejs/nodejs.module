@@ -1,5 +1,11 @@
 <?php
 
+// The node.js server app version required for the module.
+// Versions earlier than the specified one, and any different major version
+// will be rejected.
+define('NODEJS_SERVER_VERSION', '1.0.9');
+define('NODEJS_SERVER_NPM_URL', 'https://registry.npmjs.org/drupal-node.js');
+
 /**
  * Generate a token for a piece of content.
  */
@@ -42,7 +48,7 @@ function nodejs_send_content_channel_token($channel, $notify_on_disconnect = FAL
 
   // Http request went ok, process Node.js server response.
   if ($node_response = Nodejs::sendContentToken($message)) {
-    if ($node_response->status == 'ok') {
+    if ($node_response->status == 'success') {
       // We always set this in drupal.settings, even though Ajax requests will not
       // see it. It's a bit ugly, but it means that setting the tokens for full
       // page requests will just work.
@@ -52,7 +58,7 @@ function nodejs_send_content_channel_token($channel, $notify_on_disconnect = FAL
       return $node_response;
     }
     else {
-      watchdog('nodejs', t('Error sending content channel token for channel "%channel". Node.js server response: %error', array('%channel' => $channel, '%error' => $node_response->error)));
+      watchdog('nodejs', 'Error sending content channel token for channel "%channel". Node.js server response: %error', array('%channel' => $channel, '%error' => $node_response->error));
       return FALSE;
     }
   }
@@ -73,7 +79,7 @@ function nodejs_get_content_channel_users($channel) {
   // Http request went ok, process Node.js server response.
   if ($node_response = Nodejs::getContentTokenUsers($message)) {
     if (isset($node_response->error)) {
-      watchdog('nodejs', t('Error getting content channel users for channel "%channel" on the Node.js server. Server response: %error', array('%channel' => $channel, '%error' => $node_response->error)));
+      watchdog('nodejs', 'Error getting content channel users for channel "%channel" on the Node.js server. Server response: %error', array('%channel' => $channel, '%error' => $node_response->error));
       return FALSE;
     }
     else {
@@ -103,7 +109,7 @@ function nodejs_kick_user($uid) {
       return TRUE;
     }
     else {
-      watchdog('nodejs', t('Error kicking uid "%uid" from the Node.js server. Server response: %error', array('%uid' => $uid, '%error' => $node_response->error)));
+      watchdog('nodejs', 'Error kicking uid "%uid" from the Node.js server. Server response: %error', array('%uid' => $uid, '%error' => $node_response->error));
       return FALSE;
     }
   }
@@ -127,7 +133,7 @@ function nodejs_logout_user($token) {
       return TRUE;
     }
     else {
-      watchdog('nodejs', t('Error logging out token "%token" from the Node.js server. Server response: %error', array('%token' => $token, '%error' => $node_response->error)));
+      watchdog('nodejs', 'Error logging out token "%token" from the Node.js server. Server response: %error', array('%token' => $token, '%error' => $node_response->error));
       return FALSE;
     }
   }
@@ -150,7 +156,7 @@ function nodejs_set_user_presence_list($uid, array $uids) {
       return TRUE;
     }
     else {
-      watchdog('nodejs', t('Error setting user presence list for uid "%uid" on the Node.js server. Server response: %error', array('%uid' => $uid, '%error' => $node_response->error)));
+      watchdog('nodejs', 'Error setting user presence list for uid "%uid" on the Node.js server. Server response: %error', array('%uid' => $uid, '%error' => $node_response->error));
       return FALSE;
     }
   }
@@ -361,7 +367,7 @@ function nodejs_get_add_channel($channel) {
       return TRUE;
     }
     else {
-      watchdog('nodejs', t('Error adding channel to the Node.js server. Server response: %error', array('%error' => $node_response->error)));
+      watchdog('nodejs', 'Error adding channel to the Node.js server. Server response: %error', array('%error' => $node_response->error));
       return FALSE;
     }
   }
@@ -385,7 +391,7 @@ function nodejs_get_check_channel($channel) {
       return $node_response->result;
     }
     else {
-      watchdog('nodejs', t('Error checking channel on the Node.js server. Server response: %error', array('%error' => $node_response->error)));
+      watchdog('nodejs', 'Error checking channel on the Node.js server. Server response: %error', array('%error' => $node_response->error));
       return FALSE;
     }
   }
@@ -408,7 +414,7 @@ function nodejs_get_remove_channel($channel) {
       return TRUE;
     }
     else {
-      watchdog('nodejs', t('Error removing channel from the Node.js server. Server response: %error', array('%error' => $node_response->error)));
+      watchdog('nodejs', 'Error removing channel from the Node.js server. Server response: %error', array('%error' => $node_response->error));
       return FALSE;
     }
   }
@@ -725,7 +731,7 @@ function nodejs_remove_user_from_channel($uid, $channel) {
         '%channel' => $channel,
         '%error' => $node_response->error,
       );
-      watchdog('nodejs', t('Error removing user with uid: %uid from channel %channel on the Node.js server. Server response: %error', $params));
+      watchdog('nodejs', 'Error removing user with uid: %uid from channel %channel on the Node.js server. Server response: %error', $params);
       return FALSE;
     }
   }
@@ -754,7 +760,7 @@ function nodejs_add_user_to_channel($uid, $channel) {
         '%channel' => $channel,
         '%error' => $node_response->error,
       );
-      watchdog('nodejs', t('Error adding user with uid: %uid to channel %channel on the Node.js server. Server response: %error', $params));
+      watchdog('nodejs', 'Error adding user with uid: %uid to channel %channel on the Node.js server. Server response: %error', $params);
       return FALSE;
     }
   }
@@ -772,19 +778,38 @@ function nodejs_get_client_socket_id() {
   return preg_match('/^[0-9a-z_-]+$/i', $client_socket_id) ? $client_socket_id : '';
 }
 
+/**
+ * Checks if the node.js server app has an update.
+ */
+function nodejs_server_has_update() {
+  $response = drupal_http_request(NODEJS_SERVER_NPM_URL);
+  if (isset($response->error)) {
+    return FALSE;
+  }
+  $npm_data = json_decode($response->data);
+
+  $server_version = Nodejs::getServerVersion();
+
+  if ($server_version && isset($npm_data->{'dist-tags'}->latest) && $npm_data->{'dist-tags'}->latest != $server_version) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
 class Nodejs {
+
   public static $messages = array();
 
   public static $config = NULL;
 
   public static $baseUrl = NULL;
 
-  public static $headers = NULL;
+  public static $nodeServerVersion = NULL;
 
   public static function initConfig() {
     if (!isset(self::$config)) {
       self::$config = nodejs_get_config();
-      self::$headers = array('NodejsServiceKey' => self::$config['serviceKey']);
       self::$baseUrl = nodejs_get_url(self::$config);
     }
   }
@@ -803,95 +828,154 @@ class Nodejs {
     }
   }
 
+  public static function getServerVersion() {
+    if (isset(self::$nodeServerVersion)) {
+      return self::$nodeServerVersion;
+    }
+
+    $data = self::healthCheck();
+    if (!isset($data->version)) {
+      self::$nodeServerVersion = FALSE;
+    }
+    else {
+      self::$nodeServerVersion = $data->version;
+    }
+
+    return self::$nodeServerVersion;
+  }
+
+  public static function checkServerVersion() {
+    $server_version = self::getServerVersion();
+
+    if (!$server_version) {
+      // Version number is missing. Assume incompatibility.
+      return FALSE;
+    }
+
+    $current_parts = explode('.', $server_version);
+    $required_parts = explode('.', NODEJS_SERVER_VERSION);
+    $current_major = reset($current_parts);
+    $required_major = reset($required_parts);
+
+    if ($current_major != $required_major || version_compare($server_version, NODEJS_SERVER_VERSION) < 0) {
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+
   public static function sendMessage(StdClass $message) {
     self::initConfig();
+
     drupal_alter('nodejs_message', $message);
     $message->clientSocketId = nodejs_get_client_socket_id();
     $options = array(
       'method' => 'POST',
       'data' => drupal_json_encode($message),
-      'headers' => self::$headers,
       // This is server to server, so start with a low default timeout.
       'timeout' => !empty(self::$config['timeout']) ? self::$config['timeout'] : 5,
     );
     return self::httpRequest('nodejs/publish', $options);
   }
 
+  public static function healthCheck() {
+    $data = self::httpRequest('nodejs/health/check', array(), TRUE);
+    return $data;
+  }
+
   public static function setUserPresenceList($uid, array $uids) {
-    self::initConfig();
-    return self::httpRequest("nodejs/user/presence-list/$uid/" . implode(',', $uids), array('headers' => self::$headers));
+    return self::httpRequest("nodejs/user/presence-list/$uid/" . implode(',', $uids));
   }
 
   public static function logoutUser($token) {
-    self::initConfig();
-    return self::httpRequest("nodejs/user/logout/$token", array('headers' => self::$headers));
+    $options = array(
+      'method' => 'POST',
+    );
+    return self::httpRequest("nodejs/user/logout/$token", $options);
   }
 
   public static function sendContentTokenMessage($message) {
-    self::initConfig();
     $message->clientSocketId = nodejs_get_client_socket_id();
     drupal_alter('nodejs_content_channel_message', $message);
     $options = array(
       'method' => 'POST',
       'data' => drupal_json_encode($message),
-      'headers' => self::$headers,
       'options' => array('timeout' => 5.0),
     );
     return self::httpRequest('nodejs/content/token/message', $options);
   }
 
   public static function sendContentToken($message) {
-    self::initConfig();
     $options = array(
       'method' => 'POST',
       'data' => drupal_json_encode($message),
-      'headers' => self::$headers,
     );
     return self::httpRequest('nodejs/content/token', $options);
   }
 
   public static function getContentTokenUsers($message) {
-    self::initConfig();
     $options = array(
       'method' => 'POST',
       'data' => drupal_json_encode($message),
-      'headers' => self::$headers,
     );
     return self::httpRequest('nodejs/content/token/users', $options);
   }
 
   public static function kickUser($uid) {
-    self::initConfig();
-    return self::httpRequest("nodejs/user/kick/$uid", array('headers' => self::$headers));
+    $options = array(
+      'method' => 'POST',
+    );
+    return self::httpRequest("nodejs/user/kick/$uid", $options);
   }
 
   public static function addUserToChannel($uid, $channel) {
-    self::initConfig();
-    return self::httpRequest("nodejs/user/channel/add/$channel/$uid", array('headers' => self::$headers));
+    $options = array(
+      'method' => 'POST',
+    );
+    return self::httpRequest("nodejs/user/channel/add/$channel/$uid", $options);
   }
 
   public static function removeUserFromChannel($uid, $channel) {
-    self::initConfig();
-    return self::httpRequest("nodejs/user/channel/remove/$channel/$uid", array('headers' => self::$headers));
+    $options = array(
+      'method' => 'POST',
+    );
+    return self::httpRequest("nodejs/user/channel/remove/$channel/$uid", $options);
   }
 
   public static function addChannel($channel) {
-    self::initConfig();
-    return self::httpRequest("nodejs/channel/add/$channel", array('headers' => self::$headers));
+    $options = array(
+      'method' => 'POST',
+    );
+    return self::httpRequest("nodejs/channel/add/$channel", $options);
   }
 
   public static function checkChannel($channel) {
-    self::initConfig();
-    return self::httpRequest("nodejs/channel/check/$channel", array('headers' => self::$headers));
+    return self::httpRequest("nodejs/channel/check/$channel");
   }
 
   public static function removeChannel($channel) {
-    self::initConfig();
-    return self::httpRequest("nodejs/channel/remove/$channel", array('headers' => self::$headers));
+    $options = array(
+      'method' => 'POST',
+    );
+    return self::httpRequest("nodejs/channel/remove/$channel", $options);
   }
 
-  public static function httpRequest($url, $options) {
+  public static function httpRequest($url, $options = array(), $ignore_version = FALSE) {
     self::initConfig();
+
+    if (!$ignore_version && !self::checkServerVersion()) {
+      return FALSE;
+    }
+
+    $options += array(
+      'method' => 'GET',
+      'headers' => array(),
+    );
+    $options['headers'] += array(
+      'NodejsServiceKey' => self::$config['serviceKey'],
+      'Content-type' => 'application/json',
+    );
+
     $response = drupal_http_request(self::$baseUrl . $url, $options);
     // If a http error occurred, and logging of http errors is enabled, log it.
     if (isset($response->error)) {
@@ -906,7 +990,7 @@ class Nodejs {
           $params['data'] = $options['data'];
           $log_message = 'Error reaching the Node.js server at "%url" with data "%data": [%code] %error.';
         }
-        watchdog('nodejs', t($log_message, $params));
+        watchdog('nodejs', $log_message, $params);
       }
       return FALSE;
     }

@@ -1,5 +1,5 @@
 name = Search API
-description = "Provides a generic API for modules offering search capabilites."
+description = "Provides a generic API for modules offering search capabilities."
 dependencies[] = entity
 core = 7.x
 package = Search
@@ -16,9 +16,11 @@ files[] = includes/callback_language_control.inc
 files[] = includes/callback_node_access.inc
 files[] = includes/callback_node_status.inc
 files[] = includes/callback_role_filter.inc
+files[] = includes/callback_user_status.inc
 files[] = includes/datasource.inc
 files[] = includes/datasource_entity.inc
 files[] = includes/datasource_external.inc
+files[] = includes/datasource_multiple.inc
 files[] = includes/exception.inc
 files[] = includes/index_entity.inc
 files[] = includes/processor.inc
@@ -34,9 +36,9 @@ files[] = includes/service.inc
 
 configure = admin/config/search/search_api
 
-; Information added by Drupal.org packaging script on 2014-12-26
-version = "7.x-1.14"
+; Information added by Drupal.org packaging script on 2016-07-05
+version = "7.x-1.19"
 core = "7.x"
 project = "search_api"
-datestamp = "1419580682"
+datestamp = "1467710914"
 

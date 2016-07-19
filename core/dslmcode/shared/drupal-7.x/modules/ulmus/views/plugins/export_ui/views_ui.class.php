@@ -385,8 +385,8 @@ class views_ui extends ctools_export_ui {
     $output = parent::list_page($js, $input);
     if (is_string($output)) {
       $output = '<div id="views-ui-list-page">' . $output . '</div>';
-      return $output;
     }
+    return $output;
   }
 }
 

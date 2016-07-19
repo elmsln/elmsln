@@ -6,9 +6,9 @@ core = 7.x
 dependencies[] = nodejs
 
 
-; Information added by Drupal.org packaging script on 2015-11-29
-version = "7.x-1.10"
+; Information added by Drupal.org packaging script on 2016-05-26
+version = "7.x-1.13"
 core = "7.x"
 project = "nodejs"
-datestamp = "1448823841"
+datestamp = "1464273542"
 

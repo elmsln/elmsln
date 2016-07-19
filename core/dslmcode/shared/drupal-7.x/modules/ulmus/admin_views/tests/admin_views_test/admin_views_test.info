@@ -6,9 +6,9 @@ hidden = TRUE
 
 dependencies[] admin_views
 
-; Information added by Drupal.org packaging script on 2014-05-29
-version = "7.x-1.3"
+; Information added by Drupal.org packaging script on 2015-07-08
+version = "7.x-1.5"
 core = "7.x"
 project = "admin_views"
-datestamp = "1401347628"
+datestamp = "1436376676"
 

@@ -142,7 +142,6 @@ $translatables['admin_views_taxonomy_term'] = array(
   t('Term'),
   t('Operations'),
   t('edit'),
-  t('taxonomy/term/[tid]/edit'),
   t('.'),
   t('All'),
   t('Terms in %1'),

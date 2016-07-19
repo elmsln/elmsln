@@ -241,7 +241,7 @@ class ViewsPluginStyleTestCase extends ViewsPluginStyleTestBase {
     // Setup some random css class.
     $view->init_display();
     $view->init_style();
-    $random_name = $this->randomName();
+    $random_name = drupal_html_class($this->randomName());
     $view->style_plugin->options['row_class'] = $random_name . " test-token-[name]";
 
     $rendered_output = $view->preview();
@@ -255,7 +255,7 @@ class ViewsPluginStyleTestCase extends ViewsPluginStyleTestBase {
       $this->assertTrue(strpos($class, $random_name) !== FALSE, 'Take sure that a custom css class is added to the output.');
 
       // Check token replacement.
-      $name = $view->field['name']->get_value($view->result[$count]);
+      $name = drupal_html_class($view->field['name']->get_value($view->result[$count]));
       $this->assertTrue(strpos($class, "test-token-$name") !== FALSE, 'Take sure that a token in custom css class is replaced.');
 
       $count++;

@@ -84,8 +84,7 @@ function features_menu() {
   $items['admin/structure/features/cleanup'] = array(
     'title' => 'Cleanup',
     'description' => 'Clear cache after enabling/disabling a feature.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('features_cleanup_form', 4),
+    'page callback' => 'features_cleanup',
     'type' => MENU_CALLBACK,
     'file' => 'features.admin.inc',
     'weight' => 1,
@@ -128,7 +127,7 @@ function features_menu() {
     'description' => 'Display components of a feature.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('features_admin_components', 3),
-    'load arguments' => array(3, TRUE),
+    'load arguments' => array(TRUE),
     'access callback' => 'user_access',
     'access arguments' => array('administer features'),
     'type' => MENU_CALLBACK,
@@ -147,7 +146,7 @@ function features_menu() {
     'description' => 'Recreate an existing feature.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('features_export_form', 3),
-    'load arguments' => array(3, TRUE),
+    'load arguments' => array(TRUE),
     'access callback' => 'user_access',
     'access arguments' => array('administer features'),
     'type' => MENU_LOCAL_TASK,
@@ -160,7 +159,7 @@ function features_menu() {
       'description' => 'Compare default and current feature.',
       'page callback' => 'features_feature_diff',
       'page arguments' => array(3, 5),
-      'load arguments' => array(3, TRUE),
+      'load arguments' => array(TRUE),
       'access callback' => 'features_access_override_actions',
       'access arguments' => array(3),
       'type' => MENU_LOCAL_TASK,
@@ -173,7 +172,7 @@ function features_menu() {
     'description' => 'Lock a feature or components.',
     'page callback' => 'features_admin_lock',
     'page arguments' => array(3, 5, 6),
-    'load arguments' => array(3, TRUE, TRUE),
+    'load arguments' => array(TRUE),
     'access arguments' => array('administer features'),
     'type' => MENU_CALLBACK,
     'file' => 'features.admin.inc',
@@ -183,7 +182,7 @@ function features_menu() {
     'description' => 'Javascript status call back.',
     'page callback' => 'features_feature_status',
     'page arguments' => array(3),
-    'load arguments' => array(3, TRUE),
+    'load arguments' => array(TRUE),
     'access callback' => 'user_access',
     'access arguments' => array('administer features'),
     'type' => MENU_CALLBACK,
@@ -278,7 +277,11 @@ function features_flush_caches() {
       features_get_modules(NULL, TRUE);
     }
   }
-  return array('cache_features');
+
+  if (db_table_exists('cache_features')) {
+    return array('cache_features');
+  }
+  return array();
 }
 
 /**
@@ -515,7 +518,7 @@ function features_load_feature($name, $reset = FALSE) {
  * Return a module 'object' including .info information.
  *
  * @param $name
- *   The name of the module to retrieve information for. If ommitted,
+ *   The name of the module to retrieve information for. If omitted,
  *   an array of all available modules will be returned.
  * @param $reset
  *   Whether to reset the cache.
@@ -757,9 +760,9 @@ function features_get_info($type = 'module', $name = NULL, $reset = FALSE) {
     $cache->data = $data;
   }
   if (!empty($name)) {
-    return !empty($cache->data[$type][$name]) ? clone $cache->data[$type][$name] : array();
+    return !empty($cache->data[$type][$name]) ? clone $cache->data[$type][$name] : FALSE;
   }
-  return !empty($cache->data[$type]) ? $cache->data[$type] : array();
+  return !empty($cache->data[$type]) ? $cache->data[$type] : FALSE;
 }
 
 /**
@@ -906,7 +909,7 @@ function features_access_override_actions($feature) {
 
       features_include();
       module_load_include('inc', 'features', 'features.export');
-      $access[$feature->name] = in_array(features_get_storage($feature->name), array(FEATURES_OVERRIDDEN, FEATURES_NEEDS_REVIEW)) && user_access('administer features');
+      $access[$feature->name] = in_array(features_get_storage($feature->name), array(FEATURES_DEFAULT, FEATURES_OVERRIDDEN, FEATURES_NEEDS_REVIEW));
     }
     return $access[$feature->name];
   }
@@ -917,7 +920,9 @@ function features_access_override_actions($feature) {
  * Implements hook_form_alter() for system_modules form().
  */
 function features_form_system_modules_alter(&$form) {
-  features_rebuild();
+  if (variable_get('features_rebuild_modules_page', FALSE)) {
+    features_rebuild();
+  }
 }
 
 /**
@@ -1219,12 +1224,14 @@ function features_feature_unlock($feature, $component = NULL) {
 }
 
 /**
- * Sets the current language to english to ensure a proper export.
+ * Sets/Returns the current language to english to ensure a proper export.
  */
-function _features_set_export_language() {
-  // Ensure this is only done if the language isn't already en.
-  // This can be called multiple times - ensure the handling is done just once.
-  if ($GLOBALS['language']->language != 'en' && !drupal_static(__FUNCTION__)) {
+function _features_export_language($language = NULL) {
+  $current = $GLOBALS['language'];
+  if (isset($language)) {
+    $GLOBALS['language'] = $language;
+  }
+  elseif ($GLOBALS['language']->language != 'en') {
     // Create the language object as language_default() does.
     $GLOBALS['language'] = (object) array(
       'language' => 'en',
@@ -1239,57 +1246,8 @@ function _features_set_export_language() {
       'weight' => 0,
       'javascript' => '',
     );
-    // Ensure that static caches are cleared, as they might contain language
-    // specific information. But keep some important ones. The call below
-    // accesses a non existing key and requests to reset it. In such cases the
-    // whole caching data array is returned.
-    $static = drupal_static(uniqid('', TRUE), NULL, TRUE);
-    drupal_static_reset();
-    // Restore some of the language independent, runtime state information to
-    // keep everything working and avoid unnecessary double processing.
-    $static_caches_to_keep = array(
-      'conf_path',
-      'system_list',
-      'ip_address',
-      'drupal_page_is_cacheable',
-      'list_themes',
-      'drupal_page_header',
-      'drupal_send_headers',
-      'drupal_http_headers',
-      'language_list',
-      'module_implements',
-      'drupal_alter',
-      'path_is_admin',
-      'path_get_admin_paths',
-      'drupal_match_path',
-      'menu_get_custom_theme',
-      'menu_get_item',
-      'arg',
-      'drupal_system_listing',
-      'drupal_parse_info_file',
-      'libraries_get_path',
-      'module_hook_info',
-      'drupal_add_js',
-      'drupal_add_js:jquery_added',
-      'drupal_add_library',
-      'drupal_get_library',
-      'drupal_add_css',
-      'menu_set_active_trail',
-      'menu_link_get_preferred',
-      'menu_set_active_menu_names',
-      'theme_get_registry',
-      'features_get_components',
-      'features_get_components_by_key',
-    );
-    foreach ($static_caches_to_keep as $cid) {
-      if (isset($static[$cid])) {
-        $data = &drupal_static($cid);
-        $data = $static[$cid];
-      }
-    }
-    $called = &drupal_static(__FUNCTION__);
-    $called = TRUE;
   }
+  return $current;
 }
 
 /**
@@ -1326,6 +1284,11 @@ function features_features_ignore($component) {
     case 'field':
       $ignores['locked'] = 1;
       break;
+    case 'field_base':
+      $ignores['indexes'] = 0;
+      break;
+    case 'taxonomy':
+      $ignores['hierarchy'] = 0;
   }
   return $ignores;
 }

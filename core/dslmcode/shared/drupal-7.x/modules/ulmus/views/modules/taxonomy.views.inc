@@ -407,6 +407,20 @@ function taxonomy_views_data_alter(&$data) {
     ),
   );
 
+  $data['node']['term_node_tid_depth_join'] = array(
+    'help' => t('Display content if it has the selected taxonomy terms, or children of the selected terms. Due to additional complexity, this has fewer options than the versions without depth.'),
+    'real field' => 'nid',
+    'argument' => array(
+      'title' => t('Has taxonomy term ID with depth (using joins)'),
+      'handler' => 'views_handler_argument_term_node_tid_depth_join',
+      'accept depth modifier' => TRUE,
+    ),
+    'filter' => array(
+      'title' => t('Has taxonomy terms with depth (using joins)'),
+      'handler' => 'views_handler_filter_term_node_tid_depth_join',
+    ),
+  );
+
   $data['node']['term_node_tid_depth_modifier'] = array(
     'title' => t('Has taxonomy term ID depth modifier'),
     'help' => t('Allows the "depth" for Taxonomy: Term ID (with depth) to be modified via an additional contextual filter value.'),

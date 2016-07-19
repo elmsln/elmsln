@@ -5,9 +5,9 @@ package = Statistics
 configure = admin/config/system/piwik
 files[] = piwik.test
 test_dependencies[] = token
-; Information added by Drupal.org packaging script on 2014-05-28
-version = "7.x-2.4+8-dev"
+; Information added by Drupal.org packaging script on 2016-04-23
+version = "7.x-2.8"
 core = "7.x"
 project = "piwik"
-datestamp = "1401260931"
+datestamp = "1461442443"
 

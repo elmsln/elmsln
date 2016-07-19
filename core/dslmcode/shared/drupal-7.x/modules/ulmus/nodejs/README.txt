@@ -6,47 +6,29 @@ This module adds Node.js integration to Drupal.
 Setup
 =====
 
-1. Install Node.js.
+1. Install drupal-node.js packge with npm:
 
-1a. Install from a package manager:
+    npm install drupal-node.js
 
-https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+Make sure to do this outside of your Drupal modules directory, else Drupal may
+try to process folders containing Node.js module information and fail. Follow
+the install instructions in the drupal-node.js NPM package. You will need to
+provide the hostname and port of your Drupal site to the Node.js process, and
+ensure that the service token matches between Drupal and Node.js.
 
-1b. Install from the Node.js project website:
+2. Point Drupal at the Node.js server process, either using the configuration
+page or settings.php.
 
-http://nodejs.org/download/
+To use the configuration page, visit '/admin/config/nodejs/settings', and enter
+the appropriate values.
 
-2. Install required Node.js modules with the Node Package Manager (NPM).
+To use your settings file, edit settings.php to add:
 
-Make sure you are in the nodejs module directory - NPM needs the package.json
-file that comes with the nodejs module to install the right modules.
+    $conf['nodejs_config'] = [
+      // Configuration values here. See nodejs_get_config() function
+      // for the values you can override.
+    ];
 
-    cd path/to/your/nodejs/module/directory
-    npm install
-
-3. Create a 'nodejs.config.js' file in your nodejs module directory.
-
-Read the 'nodejs.config.js.example' file. A basic configuration can be as simple as:
-
-    settings = {
-      host: '*',
-      resource: '/socket.io',
-      serviceKey: 'CHANGE ME',
-      backend: {
-        port: 80,
-        host: 'changeme.example.com',
-      },
-      debug: true,
-      transports: ['polling', 'websocket']
-    };
-
-Set debug to false when you are happy with your setup.
-
-4. Run the node server with the command:
-
-    node server.js
-
-To get a bunch of debug information, run server.js like this:
-
-    DEBUG=* node server.js
+3. Visit the reports page to validate that Drupal can communicate successfully
+with the Node.js server process.
 
