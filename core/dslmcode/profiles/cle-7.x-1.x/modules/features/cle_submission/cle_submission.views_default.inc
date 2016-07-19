@@ -757,29 +757,6 @@ function cle_submission_views_default_views() {
     30037204 => 0,
     76550217 => 0,
   );
-  /* Filter criterion: Broken/missing handler */
-  $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
-  $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
-  $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
-  $handler->display->display_options['filters']['field_submission_type_value']['relationship'] = 'field_assignment_target_id';
-  $handler->display->display_options['filters']['field_submission_type_value']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator_id'] = 'field_submission_type_value_op';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['label'] = 'Type';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator'] = 'field_submission_type_value_op';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['identifier'] = 'field_submission_type_value';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['remember'] = TRUE;
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    6065076 => 0,
-    135574917 => 0,
-    66784200 => 0,
-    67296478 => 0,
-    75987638 => 0,
-    166149871 => 0,
-    30037204 => 0,
-    76550217 => 0,
-  );
 
   /* Display: Open Studio */
   $handler = $view->new_display('page', 'Open Studio', 'page');
@@ -793,6 +770,10 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: Page */
+  $handler = $view->new_display('page', 'Page', 'page_1');
+  $handler->display->display_options['path'] = 'cle';
   $export['cle_submissions'] = $view;
 
   $view = new view();
