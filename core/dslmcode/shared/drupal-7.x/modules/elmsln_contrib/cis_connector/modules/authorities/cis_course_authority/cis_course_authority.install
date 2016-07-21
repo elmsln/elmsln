@@ -23,3 +23,15 @@ function cis_course_authority_update_7002(&$sandbox) {
   module_enable(array('ds'));
   features_revert_module('cis_course_authority');
 }
+/**
+ * Implements hook_update_N().
+ * Self revert and enable DS to pick up those settings for course form
+ */
+function cis_course_authority_update_7003(&$sandbox) {
+/**
+ * Implements hook_update_N().
+ * Reverts the views component of cis_course_authority
+ */
+  features_revert(array('cis_course_authority' => array('views')));
+
+}
