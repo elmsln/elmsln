@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * cis_displays.install
+ */
+function cis_displays_update_7000() {
+  features_revert(array('cis_displays' => array('views')));
+}

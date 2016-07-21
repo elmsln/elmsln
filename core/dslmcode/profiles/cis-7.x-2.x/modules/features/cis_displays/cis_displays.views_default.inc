@@ -3178,11 +3178,6 @@ function cis_displays_views_default_views() {
     3 => 0,
     13 => 0,
   );
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_items'] = '10';
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_field'] = 'title';
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_raw_suggestion'] = 1;
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_raw_dropdown'] = 1;
-  $handler->display->display_options['filters']['title']['expose']['autocomplete_dependent'] = 0;
   $handler->display->display_options['filters']['title']['group_info']['label'] = 'Title';
   $handler->display->display_options['filters']['title']['group_info']['identifier'] = 'title';
   $handler->display->display_options['filters']['title']['group_info']['remember'] = FALSE;
@@ -3274,11 +3269,6 @@ function cis_displays_views_default_views() {
     3 => 0,
     13 => 0,
   );
-  $handler->display->display_options['filters']['title_1']['expose']['autocomplete_items'] = '10';
-  $handler->display->display_options['filters']['title_1']['expose']['autocomplete_field'] = 'title';
-  $handler->display->display_options['filters']['title_1']['expose']['autocomplete_raw_suggestion'] = 1;
-  $handler->display->display_options['filters']['title_1']['expose']['autocomplete_raw_dropdown'] = 1;
-  $handler->display->display_options['filters']['title_1']['expose']['autocomplete_dependent'] = 0;
   /* Filter criterion: Content: Display in course list (field_display_in_course_list) */
   $handler->display->display_options['filters']['field_display_in_course_list_value']['id'] = 'field_display_in_course_list_value';
   $handler->display->display_options['filters']['field_display_in_course_list_value']['table'] = 'field_data_field_display_in_course_list';
@@ -3373,10 +3363,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['view_node']['element_wrapper_class'] = 'course-block-details';
   $handler->display->display_options['fields']['view_node']['text'] = 'Details';
   $handler->display->display_options['path'] = 'courses/visual';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Visual listing';
-  $handler->display->display_options['menu']['description'] = 'Listing of courses';
-  $handler->display->display_options['menu']['weight'] = '1';
+  $handler->display->display_options['menu']['weight'] = '';
   $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
