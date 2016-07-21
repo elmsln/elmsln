@@ -194,6 +194,111 @@ function cis_section_views_default_views() {
   $handler->display->display_options['menu']['name'] = 'menu-elmsln-settings';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $export['cis_section_list'] = $view;
+
+  $view = new view();
+  $view->name = 'cis_user_list';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'users';
+  $view->human_name = 'CIS User list';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = 'User list';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    75987638 => 75987638,
+    166149871 => 166149871,
+    67296478 => 67296478,
+    76550217 => 76550217,
+  );
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['style_plugin'] = 'table';
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['name']['alter']['ellipsis'] = FALSE;
+  /* Field: User: Roles */
+  $handler->display->display_options['fields']['rid']['id'] = 'rid';
+  $handler->display->display_options['fields']['rid']['table'] = 'users_roles';
+  $handler->display->display_options['fields']['rid']['field'] = 'rid';
+  /* Sort criterion: User: Created date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'users';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  /* Filter criterion: User: Active */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'users';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = '1';
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: User: Roles */
+  $handler->display->display_options['filters']['rid']['id'] = 'rid';
+  $handler->display->display_options['filters']['rid']['table'] = 'users_roles';
+  $handler->display->display_options['filters']['rid']['field'] = 'rid';
+  $handler->display->display_options['filters']['rid']['value'] = array(
+    6065076 => 6065076,
+    75987638 => 75987638,
+    135574917 => 135574917,
+    166149871 => 166149871,
+    66784200 => 66784200,
+    67296478 => 67296478,
+    30037204 => 30037204,
+  );
+  /* Filter criterion: User: Roles */
+  $handler->display->display_options['filters']['rid_1']['id'] = 'rid_1';
+  $handler->display->display_options['filters']['rid_1']['table'] = 'users_roles';
+  $handler->display->display_options['filters']['rid_1']['field'] = 'rid';
+  $handler->display->display_options['filters']['rid_1']['value'] = array(
+    6065076 => 6065076,
+    75987638 => 75987638,
+    135574917 => 135574917,
+    166149871 => 166149871,
+    66784200 => 66784200,
+    67296478 => 67296478,
+    30037204 => 30037204,
+  );
+  $handler->display->display_options['filters']['rid_1']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['rid_1']['expose']['operator_id'] = 'rid_1_op';
+  $handler->display->display_options['filters']['rid_1']['expose']['label'] = 'Roles';
+  $handler->display->display_options['filters']['rid_1']['expose']['operator'] = 'rid_1_op';
+  $handler->display->display_options['filters']['rid_1']['expose']['identifier'] = 'rid_1';
+  $handler->display->display_options['filters']['rid_1']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    75987638 => 0,
+    135574917 => 0,
+    166149871 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    30037204 => 0,
+  );
+  $handler->display->display_options['filters']['rid_1']['expose']['reduce'] = TRUE;
+  
+  /* Display: Page */
+  $handler = $view->new_display('page', 'Page', 'page');
+  $handler->display->display_options['path'] = 'cis/user-list';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'Users';
+  $handler->display->display_options['menu']['name'] = 'menu-elmsln-settings';
   $export['cis_user_list'] = $view;
 
   return $export;
