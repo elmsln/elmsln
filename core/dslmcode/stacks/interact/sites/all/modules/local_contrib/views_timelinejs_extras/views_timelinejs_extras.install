@@ -4,9 +4,5 @@
  * Code for the Views TimelineJS Extras.
  */
 function views_timelinejs_extras_update_7001(&$sandbox) {
-/**
- * Implements hook_update_N().
- * Reverts the views component of views_timelinejs
- */
   features_revert(array('views_timelinejs_extras' => array('views')));
 }
