@@ -467,9 +467,15 @@ function lor_displays_defaultconfig_views_default_views() {
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->display->display_options['title'] = 'My bookmarks';
   $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'flag bookmarks';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    2 => 2,
+  );
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'none';
@@ -520,6 +526,10 @@ function lor_displays_defaultconfig_views_default_views() {
   $handler->display->display_options['relationships']['uid_1']['id'] = 'uid_1';
   $handler->display->display_options['relationships']['uid_1']['table'] = 'node';
   $handler->display->display_options['relationships']['uid_1']['field'] = 'uid';
+  /* Field: Content: Type */
+  $handler->display->display_options['fields']['type']['id'] = 'type';
+  $handler->display->display_options['fields']['type']['table'] = 'node';
+  $handler->display->display_options['fields']['type']['field'] = 'type';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -542,11 +552,10 @@ function lor_displays_defaultconfig_views_default_views() {
   $handler->display->display_options['fields']['last_comment_timestamp']['label'] = 'Last Post';
   /* Field: Flags: Flag link */
   $handler->display->display_options['fields']['ops']['id'] = 'ops';
-  $handler->display->display_options['fields']['ops']['table'] = 'flagging';
+  $handler->display->display_options['fields']['ops']['table'] = 'flag_content';
   $handler->display->display_options['fields']['ops']['field'] = 'ops';
   $handler->display->display_options['fields']['ops']['relationship'] = 'flag_content_rel';
-  $handler->display->display_options['fields']['ops']['label'] = '';
-  $handler->display->display_options['fields']['ops']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['ops']['label'] = 'Ops';
   /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -565,7 +574,7 @@ function lor_displays_defaultconfig_views_default_views() {
 
   $view = new view();
   $view->name = 'flag_bookmarks_tab';
-  $view->description = 'Provides a tab on all users\' profile pages containing bookmarks for that user.';
+  $view->description = 'Provides a tab on all user\'s profile pages containing bookmarks for that user.';
   $view->tag = 'flag';
   $view->base_table = 'node';
   $view->human_name = '';
@@ -577,13 +586,18 @@ function lor_displays_defaultconfig_views_default_views() {
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->display->display_options['title'] = 'User bookmarks';
   $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'flag bookmarks';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    2 => 2,
+  );
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '518400';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
-  $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '25';
+  $handler->display->display_options['pager']['type'] = 'none';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['grouping'] = '';
   $handler->display->display_options['style_options']['columns'] = array(
@@ -633,7 +647,7 @@ function lor_displays_defaultconfig_views_default_views() {
   $handler->display->display_options['relationships']['uid_1']['field'] = 'uid';
   /* Relationship: Flags: User */
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
-  $handler->display->display_options['relationships']['uid']['table'] = 'flagging';
+  $handler->display->display_options['relationships']['uid']['table'] = 'flag_content';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
   $handler->display->display_options['relationships']['uid']['relationship'] = 'flag_content_rel';
   $handler->display->display_options['relationships']['uid']['label'] = 'bookmarks_user';

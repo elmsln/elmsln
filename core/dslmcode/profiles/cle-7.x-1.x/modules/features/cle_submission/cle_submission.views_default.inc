@@ -25,7 +25,11 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['title'] = 'My Gallery';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '1800';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '1800';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['distinct'] = TRUE;
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -159,27 +163,6 @@ function cle_submission_views_default_views() {
     9 => 0,
     6 => 0,
     10 => 0,
-  );
-  /* Filter criterion: Broken/missing handler */
-  $handler->display->display_options['filters']['field_submission_type_value']['id'] = 'field_submission_type_value';
-  $handler->display->display_options['filters']['field_submission_type_value']['table'] = 'field_data_field_submission_type';
-  $handler->display->display_options['filters']['field_submission_type_value']['field'] = 'field_submission_type_value';
-  $handler->display->display_options['filters']['field_submission_type_value']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator_id'] = 'field_submission_type_value_op';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['label'] = 'Type';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['operator'] = 'field_submission_type_value_op';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['identifier'] = 'field_submission_type_value';
-  $handler->display->display_options['filters']['field_submission_type_value']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    6065076 => 0,
-    135574917 => 0,
-    66784200 => 0,
-    67296478 => 0,
-    75987638 => 0,
-    166149871 => 0,
-    30037204 => 0,
-    76550217 => 0,
   );
 
   /* Display: Submissions */
@@ -447,7 +430,11 @@ function cle_submission_views_default_views() {
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '1800';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '1800';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'some';
@@ -504,7 +491,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'cle_submission' => 'cle_submission',
   );
-
   /* Display: Block */
   $handler = $view->new_display('block', 'Block', 'block');
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
@@ -526,7 +512,11 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '300';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '300';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
@@ -797,7 +787,11 @@ function cle_submission_views_default_views() {
     67296478 => 67296478,
     30037204 => 30037204,
   );
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '300';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '300';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'lite';
@@ -1678,7 +1672,11 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['title'] = 'My Studio';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '1800';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '1800';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;

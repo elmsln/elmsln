@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * cle_critique.install
+ */
+function cle_critique_update_7000(&$sandbox) {
+  features_revert(array('cle_critique' => array('views')));
+}
