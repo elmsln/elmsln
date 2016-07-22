@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * editorial_displays.install
+ */
+function editorial_displays_update_7000(&$sandbox) {
+  features_revert(array('editorial_displays' => array('views')));
+}
