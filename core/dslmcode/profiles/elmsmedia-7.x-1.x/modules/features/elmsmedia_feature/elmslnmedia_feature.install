@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * elmslnmedia_feature.install
+ */
+function elmslnmedia_feature_update_7000(&$sandbox) {
+  features_revert(array('elmslnmedia_feature' => array('views')));
+}
