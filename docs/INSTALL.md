@@ -81,4 +81,15 @@ rpm -Uvh epel-release-6-8.noarch.rpm
 yum -y install php-mcrypt
 ```
 
+## ChromeOS / ChromeBit / IoT
+If you want to install ELMS:LN on a google Chromebit it is possible given it has 2 gigs of RAM (our minimum requirements). This is not supported but these are the steps to do it from testing:
+- `http://www.howtogeek.com/162120/how-to-install-ubuntu-linux-on-your-chromebook-with-crouton/`
+- at the end instead of launching X-windows run `sudo enter-chroot` which will boot into the device
+- `sudo -i` to switch to root
+- install as if this was Ubuntu 12, because it is. `https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu12/example-deploy`
+
+Not working currently as it doesn't install mysql for some reason correctly
+
+
+
 *Ex Uno Plures*
