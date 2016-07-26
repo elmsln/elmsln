@@ -1,0 +1,8 @@
+machine_name: prebuilt-template1
+title: Template
+group: Templates
+type: template
+description: Prebuilt image template
+icon: template1.gif
+template: template1.tpl.html
+action: insert

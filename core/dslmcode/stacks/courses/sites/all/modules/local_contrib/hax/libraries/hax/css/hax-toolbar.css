@@ -1,10 +1,10 @@
 .hax-toolbar {
-  top:30%;
-  bottom:30%;
+  bottom:0;
   right: 0;
   position: fixed;
-  z-index: 88;
-  width: 20%;
+  z-index: 1000;
+  width: 40%;
+  height: 25%;
   background-color: #CCCCCC;
   padding: 1rem;
 }
@@ -24,7 +24,7 @@
 }
 
 .hax-toolbar-tool {
-  width: 50%;
+  width: 33%;
   float: left;
   height:2rem;
   padding:.5rem .5rem .5rem 2rem;
@@ -32,8 +32,11 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-color: #FFFFFF;
+  color: #222222;
 }
+.hax-toolbar-tool:active,
+.hax-toolbar-tool:focus,
 .hax-toolbar-tool:hover {
-  background-color: #FF0000;
+  background-color: #9999FF;
   cursor: pointer;
 }

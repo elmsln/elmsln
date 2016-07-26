@@ -6,3 +6,12 @@ templates :
     - heading : template.yml
     - subheading : template.yml
     - paragraph : template.yml
+  - media :
+    - video : template.yml
+    - image : template.yml
+  - prebuilt :
+    - template1 : template.yml
+    - template2 : template.yml
+    - template3 : template.yml
+    - template4 : template.yml
+    - template5 : template.yml

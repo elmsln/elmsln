@@ -1,3 +1,10 @@
+.hax-body {
+  min-width: 75%;
+  min-height: 10rem;
+  outline: 1px solid #EEEEEE;
+  margin: 2rem;
+}
+
 .hax-accessible .hax-row [data-draggable="target"], .hax-accessible .hax-row [data-draggable="item"] {
   -webkit-transition: background-color 700ms cubic-bezier(0, 0.655, 0.205, 0.995);
   -moz-transition: background-color 700ms cubic-bezier(0, 0.655, 0.205, 0.995);
@@ -9,7 +16,7 @@
   -o-transition-timing-function: cubic-bezier(0, 0.655, 0.205, 0.995);
   transition-timing-function: cubic-bezier(0, 0.655, 0.205, 0.995);
   /* custom */
-} 
+}
 
 /* draggable targets */
 [data-draggable="target"] {
