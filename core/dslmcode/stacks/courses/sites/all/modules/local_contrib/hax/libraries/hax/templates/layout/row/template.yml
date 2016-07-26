@@ -1,0 +1,8 @@
+machine_name: layout-row
+title: Row
+group: Layout
+type: row
+description: A new row of content for your layout.
+icon: row.gif
+template: row.tpl.html
+action: insert

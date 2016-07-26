@@ -1,0 +1,8 @@
+machine_name: layout-column
+title: Column
+group: Layout
+type: column
+description: A Column element Lets you place content in it.
+icon: column.gif
+template: column.tpl.html
+action: insert

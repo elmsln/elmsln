@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <!--Import Google Icon Font-->
+      <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css"  media="screen,projection"/>
+      <link href="css/hax.css" rel="stylesheet">
+      <link href="css/hax-toolbar.css" rel="stylesheet">
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+
+    <body>
+    <input type="hidden" id="edit-hax-body"/>
+      <div class="hax-body"></div>
+      <div class="hax-toolbar"></div>
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+      <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+      <script type="text/javascript" src="js/hax-drag-drop.js"></script>
+      <script type="text/javascript" src="js/hax-toolbar.js"></script>
+      <script type="text/javascript" src="js/yaml.min.js"></script>
+      <script>
+      (function ($) {
+        "use strict";
+        var YAML = window.YAML
+          , json
+          , data
+          , yml
+          ;
+        // silly but this helps refactor the YAML
+        function loadManifest(manifest) {
+          var tmp = {};
+          for (var a in manifest.templates) {
+            if (Object.prototype.toString.call(manifest.templates[a]) === '[object Object]') {
+              for (var b in manifest.templates[a]) {
+                tmp[b] = {};
+                for (var c in manifest.templates[a][b]) {
+                  if (Object.prototype.toString.call(manifest.templates[a][b][c]) === '[object Object]') {
+                    for (var d in manifest.templates[a][b][c]) {
+                      tmp[b][d] = manifest.templates[a][b][c][d];
+                    }
+                  }
+                }
+              }
+            }
+          }
+          return tmp;
+        }
+        $(document).ready(function(){
+          var haxTemplates = {};
+          YAML.load('templates/manifest.yml', function(manifest) {
+            var templateManifest = loadManifest(manifest);
+            // now we can loop through and load these yaml files into existance and do the same thing
+            for ( var key in templateManifest) {
+              for ( var key2 in templateManifest[key]) {
+                YAML.load('templates/' + key + '/' + key2 + '/' + templateManifest[key][key2], function(template) {
+                  haxTemplates += template;
+                  console.log(template);
+                  $('.hax-template-items').append('<h3>' + template.title + '</h3><pre>' + JSON.stringify(template) +'</pre>');
+                });
+              }
+            }
+          });
+
+        });
+      })(jQuery);
+      angular.module('HAX', [
+        'ngSanitize'
+      ])
+      .controller('cleAssignmentsController', ['$scope', function($scope) {
+          $scope.haxTemplates = haxTemplates;
+      }])
+    ; // end Angular
+; // end Angular
+      </script>
+      <div class="hax-template-items" ng-repeat="template in haxTemplates">
+        <h3>{{template.title}}</h3>
+        <p>
+        {{template}}
+        </p>
+      </div>
+    </body>
+  </html>

@@ -1,0 +1,8 @@
+templates :
+  - layout :
+    - column : template.yml
+    - row : template.yml
+  - content :
+    - heading : template.yml
+    - subheading : template.yml
+    - paragraph : template.yml
