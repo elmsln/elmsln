@@ -100,8 +100,6 @@ function mooc_nav_block_field_default_field_bases() {
     'settings' => array(
       'allowed_values' => array(
         'block-left' => 'Block - Left',
-        'block-right' => 'Block - Right',
-        'magellan' => 'Magellan',
       ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,

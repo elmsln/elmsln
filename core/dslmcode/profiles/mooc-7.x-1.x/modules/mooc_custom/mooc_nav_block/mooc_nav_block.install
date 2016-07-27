@@ -1,0 +1,9 @@
+<?php
+/**
+ * We now only support left block at this time as right
+ * block is reserved for the in-page contextual Headings
+ * navigational element.
+ */
+function mooc_nav_block_7000(&$sandbox) {
+  features_revert_module('mooc_nav_block');
+}

@@ -15,7 +15,7 @@ function mooc_container_type_field_default_field_instances() {
     'bundle' => 'mooc_container',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'How this container should operate. Folders are purely for organizational purposes while index pages will render everything below them as a single page.',
+    'description' => 'How this container should operate. Folders are purely for organizational purposes.',
     'display' => array(
       'default' => array(
         'label' => 'hidden',
@@ -63,7 +63,7 @@ function mooc_container_type_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('How this container should operate. Folders are purely for organizational purposes while index pages will render everything below them as a single page.');
+  t('How this container should operate. Folders are purely for organizational purposes.');
   t('Type');
 
   return $field_instances;

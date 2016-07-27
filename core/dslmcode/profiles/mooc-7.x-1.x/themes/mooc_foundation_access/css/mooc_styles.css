@@ -43,15 +43,6 @@ a.mooc-helper-toc span {
   margin-right:1rem;
 }
 
-.magellan-wrap {
-  width: 100%;
-}
-
-.magellan-wrap.fixed {
-  top: 3.3rem !important;
-  width: 100%;
-}
-
 .sub-nav dt, .sub-nav dd, .sub-nav li {
   display: inline-block;
   float: none;
@@ -309,9 +300,6 @@ ul.book-navigation-wrapper {
 
 
 @media all and (max-width: 480px) {
-  .magellan-wrap.fixed {
-    display: none;
-  }
     .sub-nav dt, .sub-nav dd, .sub-nav li {
     display: block;
     float: none;
