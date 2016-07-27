@@ -768,19 +768,6 @@ button[type="submit"][id^="edit-return"]:focus {
   box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
 }
 
-.waves-input-wrapper input,
-.waves-input-wrapper button {
-  -o-transition:.5s;
-  -ms-transition:.5s;
-  -moz-transition:.5s;
-  -webkit-transition:.5s;
-  transition:.5s;
-}
-
-.waves-input-wrapper:hover input {
-  box-shadow: inset 0 -2px 0px rgba(0, 0, 0, 0.18);
-}
-
 div.horizontal-tabs ul li.horizontal-tab-button strong {
   font-size: 13px;
 }
