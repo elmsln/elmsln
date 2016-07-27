@@ -1,9 +1,41 @@
-.imagelightbox {
-  background-color: #FFFFFF;
+button, .button {
+  margin: 0;
 }
 
-.fieldset-description {
-  color: #222222;
+button {
+  height: 2.3rem;
+}
+
+#scrollspy-nav {
+  display: none;
+}
+#scrollspy-nav li.scrollspy-depth-1 {
+}
+#scrollspy-nav li.scrollspy-depth-2 {
+  padding-left:.75rem;
+}
+#scrollspy-nav li.scrollspy-depth-3 {
+  padding-left:1.5rem;
+}
+#scrollspy-nav li.scrollspy-depth-4 {
+  padding-left:2.25rem;
+}
+@media screen and (min-width: 80rem) {
+  #scrollspy-nav {
+    position: absolute !important;
+    left: 100%;
+    width: calc(50vw - 52%);
+    max-width: 30em;
+    display: block;
+  }
+}
+
+#etb-course-nav nav {
+  box-shadow:none;
+}
+
+.imagelightbox {
+  background-color: #FFFFFF;
 }
 
 .jwerty-key-outline i {
@@ -15,6 +47,10 @@ div.form-type-checkbox :last-child {
   position: relative;
   opacity:1;
   left:auto;
+}
+
+.a11y-contrast [type="checkbox"]:checked {
+  position: fixed;
 }
 
 .alert-box.success a {
@@ -53,6 +89,9 @@ a.add-menu-drop {
   display:none;
 }
 
+#etb-course-nav {
+  margin: 0;
+}
 #etb-course-nav span.course-title,
 #etb-course-nav span.course-abrv {
   justify-content: flex-end;
@@ -281,16 +320,19 @@ h1#page-title {
 .etb-book h2 {
   font-size: 2.25rem;
   font-weight: bold;
+  padding: 0;
 }
 
 .etb-book h3 {
   font-size: 1.75rem;
   font-weight: bold;
+  padding: 0;
 }
 
 .etb-book h4 {
   font-size: 1.25rem;
   font-weight: bold;
+  padding: 0;
 }
 
 /* inline flex support in browsers that don't support it currently */
@@ -316,3 +358,435 @@ ul.off-canvas-list .left-submenu li.back {
     z-index: 999;
   }
 }
+/* MaterializeCSS overrides to make Drupal / Zurb markup happy*/
+a {
+  color: #2196F3;
+  -o-transition:.3s;
+  -ms-transition:.3s;
+  -moz-transition:.3s;
+  -webkit-transition:.3s;
+  transition:.3s;
+}
+
+table th.active {
+  background: #607D8B;
+  color: #fff;
+}
+
+table tr.selected td.active,
+table tr.selected td {
+  background: #ECEFF1;
+}
+
+table th {
+  background: #E0E0E0;
+}
+
+tr.even:hover, tr.odd:hover {
+  background: #FFF9C4;
+}
+
+.marker,
+.form-required {
+  color: #FF9800;
+}
+
+td .marker {
+  position: relative;
+  top: 0.5em;
+  vertical-align: top;
+}
+
+table.tableheader-processed {
+  border: 1px solid #E0E0E0;
+}
+
+tr.even,
+tr.odd {
+    background: #FFF;
+}
+
+.messages ul {
+  list-style-type: none;
+}
+
+div.messages ul li {
+  font-size: 14px;
+  padding-bottom: 0.5em;
+}
+
+div.messages ul li:last-of-type {
+  padding-bottom: 0;
+}
+
+#help p {
+  font-size: 13px;
+}
+
+div.messages ul.krumo-node {
+  margin : 0;
+}
+
+div.messages ul.krumo-node li.krumo-child {
+  font-size: 12px;
+  padding-bottom: 0;
+}
+
+div.warning {
+  background-color: #fff3e0;
+  border: none;
+  border-radius: 3px;
+  background-position: 14px 50%;
+}
+
+ div.status {
+  background-color: #E8F5E9;
+  border: none;
+  border-radius: 3px;
+  background-position: 14px 50%;
+}
+
+
+.header-menu-options ul li.active a,
+.header-menu-options ul li.active a.active,
+.header-menu-options ul li.active a:active,
+.header-menu-options ul li.active a:visited {
+  margin-top: 0px;
+  border-top: none;
+}
+
+.header-menu-options ul li {
+  text-transform: uppercase;
+}
+
+div.breadcrumb a {
+  color: #A3A3A3;
+}
+
+div.breadcrumb a:hover {
+  color: #fff;
+}
+
+
+.header-menu-options ul li.active a,
+.header-menu-options ul li.active a.active,
+.header-menu-options ul li.active a:active,
+.header-menu-options ul li.active a:visited {
+  box-shadow: none;
+  background-color: transparent;
+  color: #000;
+}
+
+.header-menu-options ul {
+  background-color: #EEEEEE;
+}
+
+ul.action-links a,
+ul.post-links a {
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 15px;
+  background: #2196f3;
+  color: #FFFFFF;
+  padding: 3px 20px 2px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+ul.action-links a:hover,
+ul.post-links a:hover {
+  background: #29B6F6;
+  text-decoration: none;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+}
+
+
+#page .operations a {
+  text-transform: uppercase;
+}
+
+fieldset {
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  background: #fff;
+  border-radius: 3px;
+  padding: 2rem;
+  position: relative;
+}
+
+.fieldset-description {
+  padding-top: 28px;
+  padding-bottom: 20px;
+  color: #222222;
+}
+
+.text-format-wrapper fieldset.filter-wrapper {
+  box-shadow: none;
+  border: 1px solid #DDD;
+  border-radius: 0;
+}
+
+.horizontal-tabs-panes fieldset.horizontal-tabs-pane {
+  box-shadow: none;
+}
+
+fieldset legend {
+  font-size: 20px;
+  font-weight: 500;
+  position: absolute;
+  top: 14px;
+}
+
+.features-export-parent fieldset legend {
+  top: 0;
+}
+
+.header-menu-options ul {
+  overflow: hidden;
+}
+
+
+table th {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+table tr.add-new,
+table tr.add-new:hover {
+  background-color: #E8F5E9;
+}
+
+table tbody td a {
+  padding: .5em .75em;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+table tbody td a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+
+/* Gray Button */
+button[type="submit"],
+button.form-submit,
+a.button,
+div.exposed-filters button#edit-submit {
+  cursor: pointer;
+  background: #BBBBBB;
+  border: none;
+  padding: 6px 18px;
+  color: #fff;
+  text-align: center;
+  font-size: 1.077em;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.2rem;
+  transition: all, 0.3s;
+}
+
+button[type="submit"]:hover,
+button.form-submit:hover,
+a.button:hover,
+div.exposed-filters button#edit-submit:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+
+button[type="submit"]:active,
+button.form-submit:active,
+a.button:active,
+div.exposed-filters button#edit-submit:active {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+button[type="submit"]:focus,
+button.form-submit:focus,
+a.button:focus,
+div.exposed-filters button#edit-submit:focus {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+
+/* Green Button */
+i.zmdi-save {
+ color: #0E9C57;
+}
+button[type="submit"][id^="edit-submit"],
+button#edit-actions-submit,
+button[id^="save-continue"],
+button[type="submit"][id^="edit-save"],
+button#edit-save,
+button#edit-submit,
+button#edit-addanother,
+button#edit-actions-save {
+  cursor: pointer;
+  border: none;
+  padding: 6px 18px;
+  text-align: center;
+  font-weight: normal;
+  font-size: 1.077em;
+  background: #0E9C57;
+  color: #fff;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.2rem;
+}
+
+button[type="submit"][id^="edit-submit"]:hover,
+button#edit-actions-submit:hover,
+button[id^="save-continue"]:hover,
+button[type="submit"][id^="edit-save"]:hover,
+button#edit-save:hover,
+button#edit-submit:hover,
+button#edit-addanother:hover,
+button#edit-actions-save:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+button[type="submit"][id^="edit-submit"]:active,
+button#edit-actions-submit:active,
+button[id^="save-continue"]:active,
+button[type="submit"][id^="edit-save"]:active,
+button#edit-save:active,
+button#edit-submit:active,
+button#edit-addanother:active,
+button#edit-actions-save:active {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+button[type="submit"][id^="edit-submit"]:focus,
+button#edit-actions-submit:focus,
+button[id^="save-continue"]:focus,
+button[type="submit"][id^="edit-save"]:focus,
+button#edit-save:focus,
+button#edit-submit:focus,
+button#edit-addanother:focus,
+button#edit-actions-save:focus {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+/* Red Button */
+button#edit-delete,
+button#remove-button,
+button#edit-remove,
+button#edit-clear,
+a.button.remove,
+button[id*="remove-button"],
+.page-node-delete button#edit-submit {
+  cursor: pointer;
+  padding: 6px 18px;
+  border: none;
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 1.077em;
+  background: #D32F2F;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.2rem;
+  transition: all, 0.3s;
+}
+
+button#edit-delete:hover,
+button#remove-button:hover,
+button#edit-remove:hover,
+button#edit-clear:hover,
+a.button.remove:hover,
+button[id*="remove-button"]:hover,
+.page-node-delete button#edit-submit:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+button#edit-delete:active,
+button#remove-button:active,
+button#edit-remove:active,
+button#edit-clear:active,
+button[id*="remove-button"]:active,
+.page-node-delete button#edit-submit:active {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+button#edit-delete:focus,
+button#remove-button:focus,
+button#edit-remove:focus,
+button#edit-clear:focus,
+button[id*="remove-button"]:focus,
+.page-node-delete button#edit-submit:focus {
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+/* Blue Button */
+button#edit-preview-changes,
+button#edit-next,
+button#preview-submit,
+button[type="submit"][id^="edit-return"] {
+  cursor: pointer;
+  border: none;
+  padding: 6px 18px;
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 1.077em;
+  background: #0074BD;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.2rem;
+  transition: all, 0.3s;
+}
+
+button#edit-preview-changes:hover,
+button#edit-next:hover,
+button#preview-submit:hover,
+button[type="submit"][id^="edit-return"]:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+button#edit-preview-changes:active,
+button#edit-next:active,
+button#preview-submit:active,
+button[type="submit"][id^="edit-return"]:active {
+  border: none;
+  color: #fff;
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+button#edit-preview-changes:focus,
+button#edit-next:focus,
+button#preview-submit:focus,
+button[type="submit"][id^="edit-return"]:focus {
+  border: none;
+  color: #fff;
+  outline: none;
+  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
+}
+
+.waves-input-wrapper input,
+.waves-input-wrapper button {
+  -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition:.5s;
+}
+
+.waves-input-wrapper:hover input {
+  box-shadow: inset 0 -2px 0px rgba(0, 0, 0, 0.18);
+}
+
+div.horizontal-tabs ul li.horizontal-tab-button strong {
+  font-size: 13px;
+}
+
+.form-actions input {
+  height: 24px;
+  margin-right: 1rem;
+}
+
