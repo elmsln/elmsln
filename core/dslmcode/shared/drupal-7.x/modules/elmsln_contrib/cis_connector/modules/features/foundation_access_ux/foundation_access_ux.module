@@ -45,7 +45,10 @@ function foundation_access_ux_node_view($node, $view_mode, $langcode) {
         // loop through items found
         $scrollspy = '<div id="scrollspy-nav" class="hide-on-med-and-down"><h2 class="element-invisible">Page contents</h2><ul class="scrollspy-toc table-of-contents">';
         foreach ($results[0] as $key => $result) {
-          $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link" href="#' . hash('md5', $key) . '">' . $results[3][$key] . '</a></li>';
+          $tmp = trim($results[3][$key]);
+          if (!empty($tmp)) {
+            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link" href="#' . hash('md5', $key) . '">' . $tmp . '</a></li>';
+          }
         }
         $scrollspy .= '</ul></div>';
         $node->content['scrollspy'] = array(
