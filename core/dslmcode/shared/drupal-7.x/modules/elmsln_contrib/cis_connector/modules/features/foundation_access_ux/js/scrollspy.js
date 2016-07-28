@@ -6,10 +6,7 @@
     $('.scrollspy').scrollSpy();
     $('.scrollspy-toc').pushpin({offset: 50, top: $('#scrollspy-nav').offset().top });
     $('.scrollspy-link').click(function(){
-      $($(this).attr('href')).css('background-color', '#FF8866').animate({
-        backgroundColor: '',
-        },
-        1000, function() {
+      $($(this).attr('href')).css('background-color', '#FF8866').animate({backgroundColor: 'inherit'}, 1000, function() {
       });
     });
   });
