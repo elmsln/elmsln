@@ -1,0 +1,149 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function cle_dashboard_menu() {
+  $items['cle-dashboard'] = array(
+    'title' => 'Dashboard',
+    'page callback' => 'cle_dashboard_page',
+    'access arguments' => array('access cle dashboard'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function cle_dashboard_permission() {
+  return array(
+    'access cle dashboard' =>  array(
+      'title' => t('Access CLE dashboard'),
+      'description' => t('Ability to access CLE managment dashboard.'),
+    ),
+  );
+}
+
+function cle_dashboard_page() {
+  return theme('cle_dashboard');
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cle_dashboard_theme($existing, $type, $theme, $path) {
+  return array(
+    'cle_dashboard' => array(
+      'variables' => array('content' => NULL),
+      'template' => 'templates/cle-dashboard',
+    ),
+  );
+}
+
+/**
+ * Load Material Design.
+ */
+function cle_dashboard_page_build(&$page) {
+  global $theme;
+  if ($theme == 'cle_foundation_access') {
+    drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.js', array('scope' => 'footer'));
+    drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular-sanitize.js', array('scope' => 'footer'));
+  }
+  //custom
+  drupal_add_css(drupal_get_path('module', 'cle_dashboard') . '/css/cle-dashboard.css');
+  drupal_add_js(drupal_get_path('module', 'cle_dashboard') . '/js/cle-dashboard.js');
+}
+
+
+/**
+ * Implementation of hook_preprocess_cle_controlboard().
+ */
+function cle_dashboard_preprocess_cle_dashboard(&$variables) {
+  // Instantiate the user
+  global $user;
+
+  $assignments = array();
+  $assignments_ids = array();
+  $my_submissions = array();
+  $my_critiques = array();
+
+  // Get a list of assignments
+  $view_results = views_get_view_result('cle_dashboard');
+  if ($view_results) {
+    // ALWAYS REMOVE THE FIELD DATA TO PREVENT DATA FROM LEAKING OUT!!!
+    foreach ($view_results as $key => $result) {
+      unset($view_results[$key]->_field_data);
+      $assignments_ids[] = $result->nid;
+      $assignments[$result->nid] = $result;
+
+      // Find out if the assignment is active
+      $assignment_active = null;
+      $assignment_closed = null;
+      // if it has an end date
+      if (isset($result->field_field_due_date[0]['raw']['value']) && $due_date = $result->field_field_due_date[0]['raw']['value']) {
+        if (time() < $due_date) {
+          $assignment_active = TRUE;
+        }
+        // if it has a beginning date
+        if (isset($result->field_field_begin_date[0]['raw']['value']) && $begin_date = $result->field_field_begin_date[0]['raw']['value']) {
+          if (time() > $begin_date && time() < $due_date) {
+            $assignment_active = TRUE;
+          }
+          elseif (time() > $begin_date && time() > $due_date) {
+            $assignment_closed = TRUE;
+          }
+        }
+      }
+      $assignments[$result->nid]->active = $assignment_active;
+      $assignments[$result->nid]->closed = $assignment_closed;
+
+      // Find out if the Assignment has a critique
+      $critique = new stdClass();
+      $critique->active = FALSE;
+      $critique->url = '';
+      if (isset($result->field_field_cle_crit_type) && $type = $result->field_field_cle_crit_type) {
+        if ($type[0]['raw']['value'] != 'none') {
+          $critique->active = TRUE;
+          $critique->url = base_path() . 'cle/critique/critique-peer/' . $result->nid . '?og_group_ref=' . $result->node_og_membership_nid;
+          $assignments[$result->nid]->critique = $critique;
+          $assignments[$result->nid]->completed = FALSE;
+        }
+      }
+    }
+  }
+
+  // Get a list of 'My Submissions'
+  $view_results = views_get_view_result('cle_dashboard_my_submissions', 'Master', $user->uid);
+  if ($view_results) {
+    // ALWAYS REMOVE THE FIELD DATA TO PREVENT DATA FROM LEAKING OUT!!!
+    foreach ($view_results as $key => $result) {
+      unset($view_results[$key]->_field_data);
+      if ($result->node_created) {
+        $result->node_created = $result->node_created * 1000;
+      }
+      $my_submissions[] = $result;
+      $assignments[$result->node_field_data_field_assignment_nid]->completed = TRUE;
+    }
+  }
+
+  // Get a list of 'My Critiques'
+  $view_results = views_get_view_result('cle_dashboard_my_critiques', 'Master', $user->uid);
+  if ($view_results) {
+    // ALWAYS REMOVE THE FIELD DATA TO PREVENT DATA FROM LEAKING OUT!!!
+    foreach ($view_results as $key => $result) {
+      unset($view_results[$key]->_field_data);
+      unset($view_results[$key]->field_field_assignment[0]['raw']['entity']);
+      if ($result->node_created) {
+        $result->node_created = $result->node_created * 1000;
+      }
+      $my_critiques[$result->nid] = $result;
+      if (isset($result->field_field_assignment[0])) {
+        $assignments[$result->field_field_assignment[0]['raw']['target_id']]->critique->completed = TRUE;
+      }
+    }
+  }
+
+  drupal_add_js(array('cleDashboard' => array('assignments' => $assignments, 'submissions' => $my_submissions, 'critiques' => $my_critiques)), 'setting');
+}
+
