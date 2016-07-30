@@ -116,6 +116,7 @@ function foundation_access_ux_libraries_info() {
     'name'              => 'Materialize',
     'vendor url'        => 'http://materializecss.com/',
     'download url'      => 'http://materializecss.com/getting-started.html',
+    'version' => '0.97.7',
     'files'             => array(
       'js' => array(
         'js/materialize.min.js',
