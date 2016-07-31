@@ -5,7 +5,7 @@
  */
  /**
  * Implements hook_update_N().
- * Revert views component of cis_section
+ * Revert views component of icor_defaults
  */
 function icor_defaults_update_7001(&$sandbox) {
   features_revert(array('icor_defaults' => array('views')));
