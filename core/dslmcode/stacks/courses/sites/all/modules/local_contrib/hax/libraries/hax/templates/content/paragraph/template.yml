@@ -1,0 +1,8 @@
+machine_name: content-paragraph
+title: Paragraph
+group: Content
+type: content
+description: Simple paragraph of text to modify.
+icon: paragraph.gif
+template: paragraph.tpl.html
+action: insert

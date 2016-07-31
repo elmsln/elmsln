@@ -1,0 +1,3 @@
+name = Materialize Actions Logins
+description = Adds toast notifications on user login/logout.
+core = 7.x

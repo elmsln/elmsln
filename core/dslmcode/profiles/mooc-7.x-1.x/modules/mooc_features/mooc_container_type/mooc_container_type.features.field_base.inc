@@ -27,7 +27,6 @@ function mooc_container_type_field_default_field_bases() {
     'settings' => array(
       'allowed_values' => array(
         'folder' => 'Folder',
-        'index' => 'Index',
       ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,

@@ -1,7 +1,9 @@
 site_name: ELMSLN
 pages:
 - Home: index.md
-- Installation: INSTALL.md
+- Install:
+  - Installation: INSTALL.md
+  - Learning Locker: lrs/LearningLocker.md
 - End user guide:
   - Adding a course: enduser/add-a-course.md
   - Courses outline:

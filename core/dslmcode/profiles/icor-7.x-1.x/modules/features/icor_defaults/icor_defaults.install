@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * icor_defaults.install
+ */
+ /**
+ * Implements hook_update_N().
+ * Revert views component of cis_section
+ */
+function cis_section_update_7001(&$sandbox) {
+  features_revert(array('icor_defaults' => array('views')));
+}

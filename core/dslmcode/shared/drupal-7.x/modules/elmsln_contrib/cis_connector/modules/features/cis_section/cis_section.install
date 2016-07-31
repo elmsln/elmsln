@@ -56,3 +56,10 @@ function cis_section_update_7002(&$sandbox) {
 function cis_section_update_7003(&$sandbox) {
   features_revert_module('cis_section');
 }
+
+/**
+ * Revert views component of cis_section
+ */
+function cis_section_update_7004(&$sandbox) {
+  features_revert(array('cis_section' => array('views')));
+}

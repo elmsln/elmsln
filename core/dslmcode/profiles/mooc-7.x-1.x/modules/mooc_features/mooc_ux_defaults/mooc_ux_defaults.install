@@ -10,3 +10,10 @@ function mooc_ux_defaults_7000(&$sandbox) {
   module_disable(array('jammer', 'nodeformcols'));
   module_enable(array('simplify'));
 }
+
+/**
+ * We dropped Magelin so revert the UX.
+ */
+function mooc_ux_defaults_7001(&$sandbox) {
+  features_revert('mooc_ux_defaults');
+}

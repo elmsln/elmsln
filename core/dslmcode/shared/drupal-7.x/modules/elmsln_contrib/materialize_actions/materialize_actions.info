@@ -1,0 +1,4 @@
+name = Materialize Actions
+description = Set of useful interactions that work with the Materialize CSS library.
+core = 7.x
+

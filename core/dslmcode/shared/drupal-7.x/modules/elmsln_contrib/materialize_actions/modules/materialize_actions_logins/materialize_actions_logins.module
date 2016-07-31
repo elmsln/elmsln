@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * Impliments hook_user_login.
+ */
+function materialize_actions_logins_user_login(&$edit, $account) {
+  $_SESSION['user_login_status'] = 'login';
+}
+
+/**
+ * Impliments hook_user_logout.
+ */
+function materialize_actions_logins_user_logout(&$edit, $account) {
+  $_SESSION['user_login_status'] = 'logout';
+}
+
+/**
+ * Impliments hook_page_build.
+ */
+function materialize_actions_logins_page_build(&$page) {
+  if (isset($_SESSION['user_login_status'])) {
+    switch ($_SESSION['user_login_status']) {
+      case 'login':
+        drupal_add_js(
+          'jQuery(document).ready(function () { Materialize.toast("Logged In", 3000) });',
+          array(
+            'type' => 'inline',
+          )
+        );
+        unset($_SESSION['user_login_status']);
+        break;
+      case 'logout':
+        drupal_add_js(
+          'jQuery(document).ready(function () { Materialize.toast("Logged Out", 3000) });',
+          array(
+            'type' => 'inline',
+          )
+        );
+        unset($_SESSION['user_login_status']);
+        break;
+    }
+  }
+}
+

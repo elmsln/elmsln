@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * cle_submission.install
+ */
+function cle_submission_update_7000(&$sandbox) {
+  features_revert(array('cle_submission' => array('views')));
+}

@@ -1,0 +1,8 @@
+machine_name: content-subheading
+title: Subheading
+group: Content
+type: content
+description: Simple subheading.
+icon: subheading.gif
+template: subheading.tpl.html
+action: insert

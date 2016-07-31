@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * mooc_cis_ux.install
+ */
+function mooc_cis_ux_update_7000(&$sandbox) {
+  features_revert(array('mooc_cis_ux' => array('views')));
+}

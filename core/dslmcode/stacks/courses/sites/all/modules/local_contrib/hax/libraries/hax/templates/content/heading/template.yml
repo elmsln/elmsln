@@ -1,0 +1,8 @@
+machine_name: content-heading
+title: Heading
+group: Content
+type: content
+description: Simple heading.
+icon: heading.gif
+template: heading.tpl.html
+action: insert

@@ -14,7 +14,7 @@
   // the ability to use it over https so we see how fluid it is as well as
   // the form module which will provide support for navigating forms with
   // your voice, to which filling them out makes more sense at that time.
-  annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
-    $(":focus").val(userSaid);
-  });
+  //annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
+  //  $(":focus").val(userSaid);
+  //});
 })(jQuery);

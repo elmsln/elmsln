@@ -25,3 +25,129 @@ function foundation_access_ux_node_presave($node) {
     $node->book['options']['fa_icon'] = $icon;
   }
 }
+
+/**
+ * Implementation of hook_node_view().
+ */
+function foundation_access_ux_node_view($node, $view_mode, $langcode) {
+  if ($view_mode == 'full' && $node->type == 'page') {
+    // only do this for nodes for now
+    if ($node && !empty($node->content['body']) && isset($node->content['body'][0]['#markup'])) {
+      // target the scrollspy template style
+      $search = '/<h([1-4])(.*?)>(.*?)<\/h(.*?)>/s';
+      $replace = '<h$(strlen(${1}))${2} id="${3}" data-scrollspy="scrollspy">${3}</h${4}>';
+
+      // pregmatch the anchor and title for the heading
+      preg_match_all($search, $node->content['body'][0]['#markup'], $results);
+      $node->content['body'][0]['#markup'] = preg_replace_callback($search, '_foundation_access_ux_scrollspy_replace', $node->content['body'][0]['#markup']);
+      // ensure we have headings in the body of the document
+      if (count($results) == 5 && count($results[0]) > 1) {
+        // loop through items found
+        $scrollspy = '<div id="scrollspy-nav" class="hide-on-med-and-down"><h2 class="element-invisible">Page contents</h2><ul class="scrollspy-toc table-of-contents">';
+        foreach ($results[0] as $key => $result) {
+          $tmp = trim($results[3][$key]);
+          if (!empty($tmp)) {
+            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link" href="#' . hash('md5', $key) . '">' . $tmp . '</a></li>';
+          }
+        }
+        $scrollspy .= '</ul></div>';
+        $node->content['scrollspy'] = array(
+          '#markup' => $scrollspy,
+        );
+        drupal_add_js(drupal_get_path('module', 'foundation_access_ux') .'/js/scrollspy.js');
+      }
+    }
+  }
+}
+
+/**
+ * Callback to convert preg_replace into what we need it to be
+ * since we have to process some of the elements based on position
+ * in the HTML.
+ */
+function _foundation_access_ux_scrollspy_replace($matches) {
+  static $key;
+  if (empty($key)) {
+    $key = 0;
+  }
+  return '<h' . $matches[1] . $matches[2] .' data-scrollspy="scrollspy" id="' . hash('md5', $key++) . '">' . $matches[3] .'</h' . $matches[4] . '>';
+}
+
+/**
+ * Implements hook_horizontal_tabs().
+ */
+function foundation_access_horizontal_tabs($variables) {
+  $element = $variables['element'];
+  // Add required JavaScript and Stylesheet.
+  drupal_add_library('foundation_access_ux', 'materialize-tabs');
+  $output = '<h2 class="element-invisible">' . (!empty($element['#title']) ? $element['#title'] : t('Materialize Tabs')) . '</h2>';
+  $output .= '<div class="horizontal-tabs-panes">' . $element['#children'] . '</div>';
+
+  return $output;
+}
+
+/**
+ * Implements hook_library().
+ */
+function foundation_access_ux_library() {
+
+  $path = drupal_get_path('module', 'foundation_access_ux');
+  // Horizontal Tabs.
+  $libraries['materialize-tabs'] = array(
+    'title' => 'Materialize Tabs',
+    'website' => 'http://materializecss.com/tabs.html',
+    'version' => '0.97.7',
+    'js' => array(
+      $path . '/materialize-tabs/materialize-tabs.js' => array(),
+    ),
+    'css' => array(
+      $path . '/materialize-tabs/materialize-tabs.css' => array(),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function foundation_access_ux_libraries_info() {
+  $libraries['materialize'] = array(
+    'name'              => 'Materialize',
+    'vendor url'        => 'http://materializecss.com/',
+    'download url'      => 'http://materializecss.com/getting-started.html',
+    'version' => '0.97.7',
+    'files'             => array(
+      'js' => array(
+        'js/materialize.min.js',
+      ),
+      'css' => array(
+        'css/materialize.min.css',
+      ),
+    ),
+    'variants'          => array(
+      'minified' => array(
+        'files' => array(
+          'js' => array(
+            'js/materialize.min.js',
+          ),
+          'css' => array(
+            'css/materialize.min.css',
+          ),
+        ),
+      ),
+      'source'   => array(
+        'files' => array(
+          'js' => array(
+            'js/materialize.js',
+          ),
+          'css' => array(
+            'css/materialize.css',
+          ),
+        ),
+      ),
+    ),
+  );
+
+  return $libraries;
+}

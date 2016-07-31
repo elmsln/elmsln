@@ -1,0 +1,42 @@
+.hax-toolbar {
+  bottom:0;
+  right: 0;
+  position: fixed;
+  z-index: 1000;
+  width: 40%;
+  height: 25%;
+  background-color: #CCCCCC;
+  padding: 1rem;
+}
+
+.hax-toolbar .form-item-hax-body{
+  display:none;
+}
+
+.hax-toolbar-groupname {
+  font-size: .75rem;
+  font-weight: bold;
+  width: 100%;
+  clear: both;
+  text-align: center;
+  float: left;
+  background-color: #CCCCCC;
+}
+
+.hax-toolbar-tool {
+  width: 33%;
+  float: left;
+  height:2rem;
+  padding:.5rem .5rem .5rem 2rem;
+  font-size: 1rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+.hax-toolbar-tool:active,
+.hax-toolbar-tool:focus,
+.hax-toolbar-tool:hover {
+  background-color: #9999FF;
+  cursor: pointer;
+}

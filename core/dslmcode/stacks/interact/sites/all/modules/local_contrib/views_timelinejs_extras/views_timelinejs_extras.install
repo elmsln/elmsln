@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * Code for the Views TimelineJS Extras.
+ */
+function views_timelinejs_extras_update_7001(&$sandbox) {
+  features_revert(array('views_timelinejs_extras' => array('views')));
+}
