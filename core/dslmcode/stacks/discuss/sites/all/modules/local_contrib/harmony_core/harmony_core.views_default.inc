@@ -3,13 +3,11 @@
  * @file
  * harmony_core.views_default.inc
  */
-
 /**
  * Implements hook_views_default_views().
  */
 function harmony_core_views_default_views() {
   $export = array();
-
   $view = new view();
   $view->name = 'harmony_administration_posts';
   $view->description = '';
@@ -19,7 +17,6 @@ function harmony_core_views_default_views() {
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Posts';
@@ -348,7 +345,6 @@ function harmony_core_views_default_views() {
     'harmony_post.created' => 'harmony_post.created',
   );
   $handler->display->display_options['filters']['date_filter_1']['date_method'] = 'AND';
-
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
   $handler->display->display_options['path'] = 'admin/harmony/content/posts';
@@ -358,7 +354,6 @@ function harmony_core_views_default_views() {
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['harmony_administration_posts'] = $view;
-
   $view = new view();
   $view->name = 'harmony_administration_threads';
   $view->description = 'List and manage threads.';
@@ -368,7 +363,6 @@ function harmony_core_views_default_views() {
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Threads';
@@ -819,7 +813,6 @@ function harmony_core_views_default_views() {
     'harmony_thread.created' => 'harmony_thread.created',
   );
   $handler->display->display_options['filters']['date_filter']['date_method'] = 'AND';
-
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
   $handler->display->display_options['path'] = 'admin/harmony/content/threads';
@@ -832,7 +825,6 @@ function harmony_core_views_default_views() {
   $handler->display->display_options['tab_options']['title'] = 'Threads';
   $handler->display->display_options['tab_options']['weight'] = '0';
   $export['harmony_administration_threads'] = $view;
-
   $view = new view();
   $view->name = 'harmony_category_sub_category_listing';
   $view->description = 'Lists the sub-categories of the current category.';
@@ -842,7 +834,6 @@ function harmony_core_views_default_views() {
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Sub-categories';
@@ -894,11 +885,9 @@ function harmony_core_views_default_views() {
   $handler->display->display_options['filters']['machine_name']['value'] = array(
     'harmony_category' => 'harmony_category',
   );
-
   /* Display: Block */
   $handler = $view->new_display('block', 'Block', 'block');
   $export['harmony_category_sub_category_listing'] = $view;
-
   $view = new view();
   $view->name = 'harmony_post_replies_to_post';
   $view->description = '';
@@ -908,7 +897,6 @@ function harmony_core_views_default_views() {
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['use_more_always'] = FALSE;
@@ -945,7 +933,6 @@ function harmony_core_views_default_views() {
     1 => '1',
   );
   $export['harmony_post_replies_to_post'] = $view;
-
   $view = new view();
   $view->name = 'harmony_post_revisions';
   $view->description = '';
@@ -955,7 +942,6 @@ function harmony_core_views_default_views() {
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Revisions';
@@ -1137,7 +1123,6 @@ function harmony_core_views_default_views() {
   $handler->display->display_options['arguments']['post_id']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['post_id']['summary_options']['items_per_page'] = '25';
   $export['harmony_post_revisions'] = $view;
-
   $view = new view();
   $view->name = 'harmony_thread_administer_posts';
   $view->description = '';
@@ -1147,7 +1132,6 @@ function harmony_core_views_default_views() {
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Administer posts';
@@ -1484,7 +1468,6 @@ function harmony_core_views_default_views() {
     1 => 0,
     3 => 0,
   );
-
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
   $handler->display->display_options['path'] = 'thread/%/administer-posts';
@@ -1494,7 +1477,6 @@ function harmony_core_views_default_views() {
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['harmony_thread_administer_posts'] = $view;
-
   $view = new view();
   $view->name = 'harmony_thread_listing';
   $view->description = 'Listing of threads belonging to a category,';
@@ -1504,7 +1486,6 @@ function harmony_core_views_default_views() {
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['use_ajax'] = TRUE;
@@ -1723,7 +1704,6 @@ function harmony_core_views_default_views() {
   $handler->display->display_options['filters']['hidden']['table'] = 'harmony_thread';
   $handler->display->display_options['filters']['hidden']['field'] = 'hidden';
   $handler->display->display_options['filters']['hidden']['value'] = '0';
-
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
@@ -1735,7 +1715,6 @@ function harmony_core_views_default_views() {
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $export['harmony_thread_listing'] = $view;
-
   $view = new view();
   $view->name = 'harmony_thread_posts_listing';
   $view->description = '';
@@ -1745,7 +1724,6 @@ function harmony_core_views_default_views() {
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['use_more_always'] = FALSE;
@@ -1781,6 +1759,5 @@ function harmony_core_views_default_views() {
     1 => '1',
   );
   $export['harmony_thread_posts_listing'] = $view;
-
   return $export;
 }
