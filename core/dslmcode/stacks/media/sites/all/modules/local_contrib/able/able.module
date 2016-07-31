@@ -21,7 +21,6 @@ function able_menu() {
   );
 }
 
-
 /**
  * Implements hook_libraries_info().
  */
@@ -198,7 +197,7 @@ function able_theme() {
 
 function theme_able_video($variables) {
   $output = '<div class="ableplayer-video">';
-  $output .= '<video ' . drupal_attributes($variables['attributes']) . ' ></video>';
+  $output .= '<video ' . drupal_attributes($variables['attributes']) . ' data-able-player></video>';
   if ($variables['settings']['download_link']) {
     $output .= '<div class="ableplayer-download-link"><a href="' . $variables['attributes']['src'] . '">' . filter_xss_admin($variables['settings']['download_text']) . '</a></div>';
   }
