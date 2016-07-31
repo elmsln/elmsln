@@ -12,6 +12,7 @@
       for (var i = 0; i < iframes.length; i++) {
         if (iframes[i].contentWindow === event.source) {
           $(iframes[i]).attr('height', e.data.height);
+          $(document).trigger('frame-resize');
           break;
         }
       }

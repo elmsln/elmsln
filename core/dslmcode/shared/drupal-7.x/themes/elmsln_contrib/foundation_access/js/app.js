@@ -123,56 +123,16 @@ var mediavideo = require('./components/mediavideo.js');
       }
     }
   };
-
-  Drupal.offcanvasSubmenuHeight = {
-    attach: function (context, settings) {
-      ////// This corrects the vertical height of the offcanvas sub-navigation panels
-      if ($("#left-off-canvas-wrapper").length > 0) {
-        $("ul.off-canvas-list .left-submenu", context).css({"min-height": "0"}); // Clear the min-height
-        var remBase = parseInt($("body").css('font-size')); // Detect base px size for REM calculation
-        var offCanvasMenuHeight = $("#left-off-canvas-wrapper")[0].offsetHeight;
-        var remOffCanvasMenuOffset = offCanvasMenuHeight / remBase; // Divdes by remBase to get size in REMs
-        $("ul.off-canvas-list .left-submenu", context).css({"min-height": remOffCanvasMenuOffset+"rem"}); // Add the min-height to the wrapper
-      }
-    }
-  };
-
-  Drupal.behaviors.offcanvasSubmenuClick = {
-    attach:function(context, settings) {
-
-      $("li.has-submenu a:not(li.back a)", context).click(function() {
-        // Capture scroll position of container
-        Drupal.settings.leftOffCanvasScrollHeight = $(".left-off-canvas-menu", context)[0].scrollTop;
-        Drupal.settings.leftOffCanvasScrollWindow = parseInt($("body").scrollTop());
-
-        // Run height fix
-        Drupal.offcanvasSubmenuHeight.attach();
-
-        // Scroll to top
-        $('body').animate({scrollTop:$("#etb-tool-nav", context)[0].offsetTop},0);
-        $(".left-off-canvas-menu").animate({scrollTop:0},0); // Scroll to top of menu
-      });
-
-      $("li.back a", context).click(function() {
-        //Scroll to x position of the container before submenu was clicked
-        $(".left-off-canvas-menu").animate({scrollTop:Drupal.settings.leftOffCanvasScrollHeight},0); // Scroll to top of menu
-        $('body').animate({scrollTop:Drupal.settings.leftOffCanvasScrollWindow},0);
-      });
-
-    }
-  };
   // attach events to the window resizing / scrolling
   $(document).ready(function(){
     $(window).on('resize', function() {
       Drupal.offcanvasHeight.attach();
-      Drupal.offcanvasSubmenuHeight.attach();
     });
     $(window).scroll(function () {
         Drupal.progressScroll.attach();
     });
     // forcibly call these to fire the first time
     Drupal.offcanvasHeight.attach();
-    Drupal.offcanvasSubmenuHeight.attach();
     /* Implement customer javascript here */
     $(".disable-scroll").on("show", function () {
       $("body").addClass("scroll-disabled");

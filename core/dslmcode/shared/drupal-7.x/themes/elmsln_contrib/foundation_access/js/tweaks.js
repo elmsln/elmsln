@@ -20,4 +20,8 @@
       $(".accessibility-content-toggle").hide();
     }
   };
+  // resize event
+  $(document).on('frame-resize', function(){
+    Drupal.offcanvasHeight.attach();
+  });
 })(jQuery);
