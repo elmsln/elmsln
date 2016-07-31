@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * lor_displays.install
+ */
+function lor_displays_update_7000(&$sandbox) {
+  features_revert(array('lor_displays' => array('views')));
+}
