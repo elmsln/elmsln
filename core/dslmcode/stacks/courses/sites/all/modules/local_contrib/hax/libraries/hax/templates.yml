@@ -1,0 +1,81 @@
+  $tools['hax-core-content-paragraph'] = array(
+    'group' => t('Content'),
+    'name' => t('Paragraph'),
+    'type' => 'content',
+    'description' => t('Simple paragraph of text to modify'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<p data-draggable="item">The simplest of content can impact the greatest of minds.</p>',
+  );
+  $tools['hax-core-content-heading'] = array(
+    'group' => t('Content'),
+    'name' => t('Heading'),
+    'type' => 'content',
+    'description' => t('Simple heading to modify'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<h2 data-draggable="item">Dribs and Drabs</h2>',
+  );
+  $tools['hax-core-content-subheading'] = array(
+    'group' => t('Content'),
+    'name' => t('Subheading'),
+    'type' => 'content',
+    'description' => t('Simple subheading to modify'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => '<h3 data-draggable="item">Ex Uno Plures</h3>',
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-template-1'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Template 1'),
+    'description' => t('A simple template.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-template-1'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-template-2'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Template 2'),
+    'description' => t('A simple layout.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-template-2'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-template-3'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Template 3'),
+    'description' => t('A simple layout.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-template-3'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-template-4'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Template 4'),
+    'description' => t('A simple template.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-template-4'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-images-1'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Images 1'),
+    'description' => t('A simple template.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-images-1'),
+  );
+  // some basic templates to get there faster
+  $tools['hax-core-images-2'] = array(
+    'group' => t('Layouts'),
+    'name' => t('Images 2'),
+    'description' => t('A simple template.'),
+    'icon' => 'https://raw.githubusercontent.com/elmsln/elmsln-logos/master/icons/elmsln-emoji_128.gif',
+    'action' => 'insert',
+    'markup' => _hax_load_template('hax-core-images-2'),
+  );

@@ -1,0 +1,8 @@
+machine_name: media-image
+title: Image
+group: Media
+type: content
+description: Responsive image
+icon: image.gif
+template: image.tpl.html
+action: insert

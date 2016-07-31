@@ -3,6 +3,8 @@
 ## Hands free install
 There are some handsfree install routines (copy and paste) that you can try. This is the preferred method of installing ELMS Learning Network as it'll get you up and running with the least steps possible. You can watch @bradallenfisher [install via this method on ELMSLN](https://drupal.psu.edu/blog/post/elmsln-aws-ec2).
 
+[This one-line builder](https://rawgit.com/elmsln/install-builder/master/install.html) can help you generate a one-line command to copy and paste.
+
 ### CentOS 6.x / RHEL 6.x
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos/example-deploy)
 ### CentOS 7.x / RHEL 7.x
@@ -64,10 +66,6 @@ For most production use cases it is recommended that you use LDAP, Shibboleth, C
 https://piwik.org/download/
 We love Piwik. It's a great open source user analytics tool that can help you track and aid students with technical support issues as well as gain insight into how they are accessing your content. ELMS:LN has native support via the piwik module included with Drupal. It is recommended to install on its own server.
 
-## Learning Locker
-https://learninglocker.net/get-started/
-We REALLY love Learning Locker. It's a great Learning Record Store (LRS) which ELMS:LN has native support for all over the place. This lets you track users in quizzes, H5P activities, and other engagements they have with their courses.
-
 ## MCRYPT
 You might need / want mcrypt if you are going to use file system encryption. All handsfree installers include this automatically.
 
@@ -76,9 +74,20 @@ Go here: https://mirrors.fedoraproject.org/publiclist/EPEL/6/x86_64/#US find a m
 This example is 64 bit RHEL 6 building the rpm
 ```
 wget http://ftp.linux.ncsu.edu/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-rpm -Uvh epel-release-6-8.noarch.rpm
+rpm -Uvh epel-release-6-8.noar- Installation: INSTALL.mdch.rpm
 # install it
 yum -y install php-mcrypt
 ```
+
+## ChromeOS / ChromeBit / IoT
+If you want to install ELMS:LN on a google Chromebit it is possible given it has 2 gigs of RAM (our minimum requirements). This is not supported but these are the steps to do it from testing:
+- `http://www.howtogeek.com/162120/how-to-install-ubuntu-linux-on-your-chromebook-with-crouton/`
+- at the end instead of launching X-windows run `sudo enter-chroot` which will boot into the device
+- `sudo -i` to switch to root
+- install as if this was Ubuntu 12, because it is. `https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu12/example-deploy`
+
+Not working currently as it doesn't install mysql for some reason correctly
+
+
 
 *Ex Uno Plures*

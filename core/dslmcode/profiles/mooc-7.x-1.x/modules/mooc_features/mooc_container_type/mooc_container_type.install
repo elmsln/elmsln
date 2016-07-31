@@ -1,0 +1,11 @@
+<?php
+/**
+ * @file MOOC Container type.
+ */
+
+/**
+ * We dropped Magelin so revert the options available to container types so that we just use folders now.
+ */
+function mooc_container_type_7001(&$sandbox) {
+  features_revert('mooc_container_type');
+}

@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * cle_assignment.install
+ */
+function cle_assignment_update_7000(&$sandbox) {
+  features_revert(array('cle_assignment' => array('views')));
+}

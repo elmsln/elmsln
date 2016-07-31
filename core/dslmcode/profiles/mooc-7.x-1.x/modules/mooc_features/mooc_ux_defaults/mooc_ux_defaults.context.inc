@@ -30,12 +30,6 @@ function mooc_ux_defaults_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'textbook-textbook-magellan' => array(
-          'module' => 'textbook',
-          'delta' => 'textbook-magellan',
-          'region' => 'content',
-          'weight' => '-10',
-        ),
         'system-main' => array(
           'module' => 'system',
           'delta' => 'main',

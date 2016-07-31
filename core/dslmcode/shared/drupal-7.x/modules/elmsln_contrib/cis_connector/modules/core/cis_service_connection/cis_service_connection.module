@@ -181,8 +181,10 @@ function _cis_service_connection_ferpa_filter() {
   $form = array();
   $form['ferpa_filter'] = array(
     '#type' => 'checkbox',
+    '#id' => 'ferpa_filter',
     '#description' => t('This will provide a blur across all user specific content.'),
     '#title' => t('Enable FERPA protection'),
+    '#default_value' => 0,
   );
   return render($form);
 }

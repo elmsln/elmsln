@@ -56,6 +56,28 @@
   <!--[if lt IE 9]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
+  <!--cross platform favicons-->
+  <link rel="shortcut icon" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
+  <link rel="icon" sizes="16x16 32x32 64x64" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
+  <link rel="icon" type="image/png" sizes="196x196" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-192.png">
+  <link rel="icon" type="image/png" sizes="160x160" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-160.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-96.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-16.png">
+  <link rel="apple-touch-icon" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-57.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-114.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-72.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-144.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-60.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-120.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-76.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-180.png">
+  <meta name="msapplication-TileColor" content="#FFFFFF">
+  <meta name="msapplication-TileImage" content="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-144.png">
+  <meta name="msapplication-config" content="<?php print $theme_path . '/icons/elmsicons';?>/browserconfig.xml">
+  <!--/end cross platform favicons-->
 </head>
 <body class="<?php print $classes; ?>" <?php print $attributes;?>>
   <?php if (!empty($logo_img)) : ?>

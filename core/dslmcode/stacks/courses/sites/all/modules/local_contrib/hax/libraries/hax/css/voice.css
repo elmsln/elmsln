@@ -1,0 +1,35 @@
+/**
+ * command drawer for conversations / options area
+ */
+#voicecommander-drawer {
+  height: 25%;
+  left: 0;
+  right: 0;
+  bottom:0;
+  position: fixed;
+  z-index: 999;
+  background-color: #111111;
+  color: #00FF00;
+  overflow-y: scroll;
+}
+#voicecommander-drawer .voicecommander-drawer-label {
+  color: #00FF00;
+}
+#voicecommander-drawer .jarvis-conversation {
+  margin: 1rem;
+  color: #00FF00;
+}
+#voicecommander-drawer .jarvis-conversation span.human {
+  color: #FF9944;
+}
+#voicecommander-drawer .jarvis-conversation span.jarvis {
+  color: #66FF66;
+  font-weight: bold;
+}
+#voicecommander-drawer .jarvis-conversation span.jarvis-debug {
+  color: #882222;
+}
+
+#voicecommander-drawer.voicecommander-drawer-display {
+  display: block;
+}

@@ -273,7 +273,8 @@ function achievements_leaderboard_for($achievement) {
 function achievements_user_page($account) {
   drupal_set_title(t('Achievements for @name', array('@name' => $account->name)));
   $unlocks = achievements_unlocked_already(NULL, $account->uid);
-  $achiever = array_pop(achievements_totals_user(0, $account->uid));
+  $achievements_totals_user = achievements_totals_user(0, $account->uid);
+  $achiever = array_pop($achievements_totals_user);
 
   $build['achievements']['stats'] = array(
     '#theme'  => 'achievement_user_stats',

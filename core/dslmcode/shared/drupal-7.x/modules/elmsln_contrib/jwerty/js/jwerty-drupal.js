@@ -16,7 +16,7 @@
       });
     });
     // visualize what CAN be pressed
-    $(document).keydown(function () {
+    $(document).keydown(function (event) {
       if (event.shiftKey && event.altKey && useItOnce) {
         $('[data-jwerty-key]').each(function(){
           $(this).prepend('<span class="jwerty-key">' + $(this).attr('data-jwerty-key') + '</span>');
@@ -25,7 +25,7 @@
       }
     });
     // disable the visual
-    $(document).keyup(function () {
+    $(document).keyup(function (event) {
       if (event.shiftKey || event.altKey) {
         $('span.jwerty-key').remove();
         $('[data-jwerty-key]').removeClass('jwerty-key-outline').css('opacity', '');

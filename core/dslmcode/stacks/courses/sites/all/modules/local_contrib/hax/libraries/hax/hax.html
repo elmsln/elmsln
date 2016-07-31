@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <!--Import Google Icon Font-->
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css"  media="screen,projection"/>
+      <link href="css/hax.css" rel="stylesheet">
+      <link href="css/hax-toolbar.css" rel="stylesheet">
+      <link href="css/voice.css" rel="stylesheet">
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+      <script   src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script>
+      <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+
+      <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+
+       <script src="js/annyang/annyang.min.js"></script>
+
+      <script type="text/javascript" src="js/yaml/yaml.min.js"></script>
+    </head>
+
+    <body>
+      <input type="hidden" id="edit-hax-body"/>
+      <div class="hax-body"></div>
+      <div id="voicecommander-drawer" class="voicecommander-drawer-wrapper">
+      <div class="voicecommander-command-drawer">
+        <h3 class="voicecommander-drawer-label">Conversation log</h3>
+        <div class="jarvis-conversation"></div>
+        <div class="hax-toolbar"></div>
+      </div>
+    </div>
+      <script>
+      var haxTemplates = {};
+      (function ($) {
+        "use strict";
+        var YAML = window.YAML
+          , json
+          , data
+          , yml
+          ;
+        // silly but this helps refactor the YAML
+        function loadManifest(manifest) {
+          var tmp = {};
+          for (var a in manifest.templates) {
+            if (Object.prototype.toString.call(manifest.templates[a]) === '[object Object]') {
+              for (var b in manifest.templates[a]) {
+                tmp[b] = {};
+                for (var c in manifest.templates[a][b]) {
+                  if (Object.prototype.toString.call(manifest.templates[a][b][c]) === '[object Object]') {
+                    for (var d in manifest.templates[a][b][c]) {
+                      tmp[b][d] = manifest.templates[a][b][c][d];
+                    }
+                  }
+                }
+              }
+            }
+          }
+          return tmp;
+        }
+        $(document).ready(function(){
+          YAML.load('templates/manifest.yml', function(manifest) {
+            var templateManifest = loadManifest(manifest);
+            // now we can loop through and load these yaml files into existance and do the same thing
+            for ( var key in templateManifest) {
+              $('.hax-toolbar').append('<div class="hax-toolbar-group hax-toolbar-group-' + key + '"><span class="hax-toolbar-groupname">' + key + '</span>');
+              for ( var key2 in templateManifest[key]) {
+                YAML.load('templates/' + key + '/' + key2 + '/' + templateManifest[key][key2], function(template) {
+                  haxTemplates[template.machine_name] = template;
+                  var path=template.machine_name.split('-');
+                  $('.hax-toolbar').append('<span class="hax-toolbar-tool" style="background-image:url(templates/' + path[0] + '/' + path[1] + '/' + template.icon + ')" alt="' + template.title + '" data-hax-tool="' + template.machine_name + '" data-voicecommand="' + template.title.toLowerCase() + '">' + template.title + '</span>');
+                  $('.hax-template-items').append('<h3>' + template.title + '</h3><pre>' + JSON.stringify(template) +'</pre>');
+                });
+              }
+              $('.hax-toolbar').append('</div>');
+            }
+          });
+          // voice commands
+          var command = {'insert *item': (function (item) {
+            // cut off annyang so it stops processing and starts a new thread
+            $('[data-voicecommand="'+ item +'"]').each(function(){
+              annyang.abort();
+              // bring in jarvis for templates
+              if (item == 'template') {
+                Hax.say('Which template would you like?');
+              }
+              else {
+                $(this).click().focus();
+              }
+              $('.jarvis-conversation').append('<div><span class="human">Human: Insert ' + item + '</span></div>');
+              annyang.start({
+                autoRestart: true
+              });
+            });
+          })};
+          annyang.addCommands(command);
+          // start listening
+          annyang.start({
+            autoRestart: true
+          });
+        });
+      })(jQuery);
+      </script>
+      <script type="text/javascript" src="js/hax-drag-drop.js"></script>
+      <script type="text/javascript" src="js/hax-toolbar.js"></script>
+    </body>
+  </html>

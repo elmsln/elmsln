@@ -1,0 +1,13 @@
+<?php
+/**
+ * @file
+ * icor_interactive_player.install
+ */
+
+/**
+ * Implements hook_update_N().
+ * Reverts the views component of icor_interactive_player
+ */
+function icor_interactive_player_update_7001(&$sandbox) {
+  features_revert(array('icor_interactive_player' => array('views')));
+}

@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * editorial_journal_entry.install
+ */
+function editorial_journal_entry_update_7000(&$sandbox) {
+  features_revert(array('editorial_journal_entry' => array('views')));
+}

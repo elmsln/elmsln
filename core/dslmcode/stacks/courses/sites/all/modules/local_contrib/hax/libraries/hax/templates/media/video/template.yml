@@ -1,0 +1,8 @@
+machine_name: media-video
+title: Video
+group: Media
+type: content
+description: Responsive video
+icon: video.gif
+template: video.tpl.html
+action: insert
