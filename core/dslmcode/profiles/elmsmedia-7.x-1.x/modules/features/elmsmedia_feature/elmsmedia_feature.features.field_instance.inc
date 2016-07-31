@@ -26,7 +26,7 @@ function elmsmedia_feature_field_default_field_instances() {
           'height' => 30,
           'width' => '100%',
         ),
-        'type' => 'mediaelement_audio',
+        'type' => 'ableplayer_audio',
         'weight' => 1,
       ),
       'iframe' => array(
@@ -39,7 +39,7 @@ function elmsmedia_feature_field_default_field_instances() {
           'height' => 30,
           'width' => '100%',
         ),
-        'type' => 'mediaelement_audio',
+        'type' => 'ableplayer_audio',
         'weight' => 0,
       ),
       'teaser' => array(
@@ -1848,7 +1848,7 @@ function elmsmedia_feature_field_default_field_instances() {
           'height' => '400px',
           'width' => '100%',
         ),
-        'type' => 'mediaelement_video',
+        'type' => 'ableplayer_video',
         'weight' => 1,
       ),
       'iframe' => array(
@@ -1861,7 +1861,7 @@ function elmsmedia_feature_field_default_field_instances() {
           'height' => 360,
           'width' => '100%',
         ),
-        'type' => 'mediaelement_video',
+        'type' => 'ableplayer_video',
         'weight' => 1,
       ),
       'teaser' => array(

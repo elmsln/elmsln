@@ -26,7 +26,7 @@ function elmsmedia_audio_field_default_field_instances() {
           'height' => 30,
           'width' => '100%',
         ),
-        'type' => 'mediaelement_audio',
+        'type' => 'ableplayer_audio',
         'weight' => 1,
       ),
       'iframe' => array(
@@ -39,7 +39,7 @@ function elmsmedia_audio_field_default_field_instances() {
           'height' => 30,
           'width' => '100%',
         ),
-        'type' => 'mediaelement_audio',
+        'type' => 'ableplayer_audio',
         'weight' => 0,
       ),
       'teaser' => array(
