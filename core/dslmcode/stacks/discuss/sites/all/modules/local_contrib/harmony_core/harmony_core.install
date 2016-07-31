@@ -634,10 +634,3 @@ function harmony_core_update_7103() {
     variable_set('harmony_core_rebuild_actions', $actions);
   }
 }
-
-/**
- * Revert cis_displays component in views. This is for caching update. 
- */
-function harmony_core_update_7104(&$sandbox) {
-  features_revert(array('harmony_core' => array('views')));
-}
