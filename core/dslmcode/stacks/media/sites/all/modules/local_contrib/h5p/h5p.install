@@ -1118,10 +1118,6 @@ function h5p_update_7110() {
   _h5p_inform_h5p_org_communication();
 }
 
-function h5p_update_7111() {
-  features_revert(array('h5p' => array('views')));
-}
-
 /**
  * Check if any library installed is unsupported by core
  */
