@@ -149,7 +149,7 @@ var mediavideo = require('./components/mediavideo.js');
       }
     });
 
-    $(window).foundation();
+    //$(window).foundation();
   });
 
 })(jQuery);
