@@ -1,0 +1,9 @@
+name = "Ableplayer"
+description = "Provide Ableplayer to be used on the entire site or just with Filefields."
+core = 7.x
+dependencies[] = libraries
+files[] = able.admin.inc
+files[] = able.install
+files[] = able.module
+configure = admin/config/media/able
+
