@@ -1,5 +1,8 @@
 #ELMSLN - Installation Guide
 
+## Minimum Requirements 
+You will need at least a stand-alone server with 2 gigs of RAM.
+
 ## Hands free install
 There are some handsfree install routines (copy and paste) that you can try. This is the preferred method of installing ELMS Learning Network as it'll get you up and running with the least steps possible. You can watch @bradallenfisher [install via this method on ELMSLN](https://drupal.psu.edu/blog/post/elmsln-aws-ec2).
 
