@@ -269,7 +269,7 @@ function elmsmedia_video_field_default_field_instances() {
           'height' => '400px',
           'width' => '100%',
         ),
-        'type' => 'mediaelement_video',
+        'type' => 'ableplayer_video',
         'weight' => 1,
       ),
       'iframe' => array(
@@ -282,7 +282,7 @@ function elmsmedia_video_field_default_field_instances() {
           'height' => 360,
           'width' => '100%',
         ),
-        'type' => 'mediaelement_video',
+        'type' => 'ableplayer_video',
         'weight' => 1,
       ),
       'teaser' => array(
