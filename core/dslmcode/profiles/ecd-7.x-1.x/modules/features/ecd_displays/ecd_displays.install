@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * ecd_displays.install
+ */
+function ecd_displays_update_7000(&$sandbox) {
+  features_revert(array('ecd_displays' => array('views')));
+}
