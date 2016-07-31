@@ -3,6 +3,6 @@
  * @file
  * elmsmedia_feature.install
  */
-function elmsnmedia_feature_update_7000(&$sandbox) {
+function elmsmedia_feature_update_7000(&$sandbox) {
   features_revert(array('elmsmedia_feature' => array('views')));
 }
