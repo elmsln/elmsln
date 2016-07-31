@@ -1,9 +1,9 @@
-// Hover 
+// Hover
 %btn-focus {
   background-color:$etb-nav-bg-color;
 }
 %animation-all{
-  @extend transform();
+  // @extend transform();
 }
 %etb-nav_btn {
   list-style:none;
@@ -37,13 +37,13 @@ a.modal-img-link {
         &_btn {
           @extend %etb-nav_btn;
           @extend %animation-all;
-          
-          
+
+
           &:hover, &:focus, &.active {
             @extend %btn-focus;
           }
         }
-       
+
         &_modal {
 
         }
@@ -64,7 +64,7 @@ a.modal-img-link {
         &_input {
           margin:0.375rem;
         }
-        
+
         &_modal {
 
         }
@@ -80,7 +80,7 @@ a.modal-img-link {
           height:2.813rem;
         }
         &_title {
-          
+
         }
         &_identifier {
         }
@@ -90,7 +90,7 @@ a.modal-img-link {
       }
     }
   }
- 
+
 ////////// Course Ecosystem Navigation
 
 ////////
@@ -105,7 +105,7 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
 #etb-course-nav {
     background-color:$etb-nav-bg-color;
     border-bottom:$top-bar-border-width solid darken($etb-nav-bg-color, 5%);
-    
+
     @media #{$small-only} {
       border-bottom:$top-bar-border-width*2 solid $white;
     }
@@ -156,7 +156,7 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
         a {
           background-color:transparent;
            height: 4.375rem;
-          &:hover, &:focus { 
+          &:hover, &:focus {
             background-color: $etb-nav-bg-color;
           }
         }
@@ -196,7 +196,7 @@ $top-bar-height:$top-bar-border-width + $top-bar-base-height;
     color: #000;
     font-size: 1em;
     color:#626262;
-    
+
     @media #{$small-only} {
        padding: 0.5rem 0.3125rem 0rem 0.3125rem;
        text-align: center;
