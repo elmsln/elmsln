@@ -70,8 +70,8 @@ module.exports = function(grunt) {
       'js/dist/app.js': ['js/app.js']
     },
     watch: {
-      grunt: { 
-        files: ['Gruntfile.js'] 
+      grunt: {
+        files: ['Gruntfile.js']
       },
       sass: {
         files: ['scss/**/*.scss','scss/README.md'],
@@ -91,11 +91,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-grunticon');
   grunt.loadNpmTasks('grunt-autoprefixer');
   grunt.loadNpmTasks('grunt-hologram');
-  grunt.loadNpmTasks('grunt-browser-sync'); 
+  grunt.loadNpmTasks('grunt-browser-sync');
   grunt.loadNpmTasks('grunt-browserify');
 
   // grunt.registerTask('uglify', ['uglify:myScripts']);
   grunt.registerTask('styleguide', ['hologram', 'browserSync', 'watch']);
   grunt.registerTask('build', ['sass','autoprefixer','svgmin','grunticon:myIcons', 'browserify', 'hologram']);
   grunt.registerTask('default', ['build','watch']);
-}
+};
