@@ -8,8 +8,8 @@
  * Implements hook_field_formatter_info_alter().
  */
 function elmsmedia_helper_field_formatter_info_alter(&$info) {
-  $info['ableplayer_video']['module'] = 'elmsmedia_helper';
-  $info['ableplayer_audio']['module'] = 'elmsmedia_helper';
+  $info['able_video']['module'] = 'elmsmedia_helper';
+  $info['able_audio']['module'] = 'elmsmedia_helper';
 }
 
 /**
@@ -27,7 +27,7 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
   // different for ever page view and should not be used for styling.
   static $id = 0;
   $element = array();
-  $path = drupal_get_path('module', 'ableplayer');
+  $path = drupal_get_path('module', 'able');
   foreach ($items as $delta => $item) {
     // Support the link field type which stores it's data in 'url'.
     $src = ($field['type'] == 'link_field') ? $item['url'] : $item['uri'];
@@ -36,11 +36,11 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
     $js_settings = array();
     $js_settings['opts'] = array();
     $js_settings['controls'] = (bool)$settings['controls'];
-    if ($display['type'] == 'ableplayer_video') {
+    if ($display['type'] == 'able_video') {
       $js_settings['opts']['videoHeight'] = (int)$settings['height'];
       $js_settings['opts']['videoWidth'] = $settings['width'];
     }
-    elseif ($display['type'] == 'ableplayer_audio') {
+    elseif ($display['type'] == 'able_audio') {
       $js_settings['opts']['audioHeight'] = (int)$settings['height'];
       $js_settings['opts']['audioWidth'] = $settings['width'];
     }
@@ -54,9 +54,7 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
       '#settings' => $settings,
       '#attached' => array(
         'library' => array(array('ableplayer', 'ableplayer')),
-        'js' => array(
-          $path . '/ableplayer.js' => array(),
-          0 => array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
+        'js' => array(array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
         ),
       ),
     );
@@ -64,7 +62,7 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
       $element[$delta]['#attributes']['controls'] = 'controls';
     }
 
-    if ($display['type'] == 'ableplayer_video') {
+    if ($display['type'] == 'able_video') {
       $element[$delta]['#theme'] = 'elmsmedia_helper_video';
       $element[$delta]['#attributes']['height'] = $display['settings']['height'];
       $element[$delta]['#attributes']['width'] = $display['settings']['width'];
@@ -78,7 +76,7 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
         $element[$delta]['#settings']['caption'] = file_create_url($entity->field_caption['und'][0]['uri']);
       }
     }
-    elseif ($display['type'] == 'ableplayer_audio') {
+    elseif ($display['type'] == 'able_audio') {
       $element[$delta]['#theme'] = 'elmsmedia_helper_audio';
     }
   }
@@ -103,10 +101,15 @@ function elmsmedia_helper_theme() {
  * Callback for elmsmedia_helper_video()
  */
 function theme_elmsmedia_helper_video($variables) {
+  $src = $variables['attributes']['src'];
+  unset($variables['attributes']['src']);
   $output = '<div class="ableplayer-video">';
-  $output .= '<video ' . drupal_attributes($variables['attributes']) . ' >';
+  $output .= '<video preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player>';
+  //$mime = mime_content_type($src);
+  $output .= '<source type="video/mp4" src="' . $src . '"/>';
   if (isset($variables['settings']['caption'])) {
-    $output .= '<track kind="subtitles" src="' . $variables['settings']['caption'] . '" srclang="en" />';
+    // @todo i9n
+    $output .= '<track kind="captions" src="' . $variables['settings']['caption'] . '" srclang="en" />';
   }
   $output .= '</video>';
   if ($variables['settings']['download_link']) {
