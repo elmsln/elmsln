@@ -31,33 +31,33 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
   foreach ($items as $delta => $item) {
     // Support the link field type which stores it's data in 'url'.
     $src = ($field['type'] == 'link_field') ? $item['url'] : $item['uri'];
-
     $settings = $display['settings'];
     $js_settings = array();
     $js_settings['opts'] = array();
     $js_settings['controls'] = (bool)$settings['controls'];
     if ($display['type'] == 'able_video') {
       $js_settings['opts']['videoHeight'] = (int)$settings['height'];
-      $js_settings['opts']['videoWidth'] = $settings['width'];
     }
     elseif ($display['type'] == 'able_audio') {
       $js_settings['opts']['audioHeight'] = (int)$settings['height'];
-      $js_settings['opts']['audioWidth'] = $settings['width'];
     }
 
     $class = 'ableplayer-formatter-identifier-' . time() . '-' . $id++;
     $element[$delta] = array(
       '#attributes' => array(
         'src' => file_create_url($src),
+        'type' => file_get_mimetype($src),
         'class' => $class,
+        'id' => hash('md5', $src . $id),
       ),
       '#settings' => $settings,
       '#attached' => array(
-        'library' => array(array('ableplayer', 'ableplayer')),
-        'js' => array(array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
+        'js' => array(
+          array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
         ),
       ),
     );
+    libraries_load('ableplayer');
     if ($settings['controls']) {
       $element[$delta]['#attributes']['controls'] = 'controls';
     }
@@ -65,7 +65,6 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
     if ($display['type'] == 'able_video') {
       $element[$delta]['#theme'] = 'elmsmedia_helper_video';
       $element[$delta]['#attributes']['height'] = $display['settings']['height'];
-      $element[$delta]['#attributes']['width'] = $display['settings']['width'];
       // this is where we deviate from default ableplayer handler
       // this adds the poster image we want that's been uploaded
       if (isset($entity->field_poster['und'])) {
@@ -103,20 +102,19 @@ function elmsmedia_helper_theme() {
 function theme_elmsmedia_helper_video($variables) {
   $src = $variables['attributes']['src'];
   unset($variables['attributes']['src']);
-  $output = '<div class="ableplayer-video">';
-  $output .= '<video preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player>';
-  //$mime = mime_content_type($src);
-  $output .= '<source type="video/mp4" src="' . $src . '"/>';
+  $output = ' <div class="row ableplayer-video">
+  <div class="col s12 m8 l8">
+    <video preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1" data-transcript-div="' . $variables['attributes']['id'] . '-transcript">
+      <source src="' . $src . '"/>';
   if (isset($variables['settings']['caption'])) {
     // @todo i9n
     $output .= '<track kind="captions" src="' . $variables['settings']['caption'] . '" srclang="en" />';
   }
-  $output .= '</video>';
-  if ($variables['settings']['download_link']) {
-    // @ignore coder_tough_love_13
-    $output .= '<div class="ableplayer-download-link"><a href="' . $variables['attributes']['src'] . '">' . filter_xss_admin($variables['settings']['download_text']) . '</a></div>';
-  }
-  $output .= '</div>';
+  $output .= '
+    </video>
+  </div>
+  <div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>
+  </div>';
   return $output;
 }
 
@@ -148,12 +146,6 @@ function elmsmedia_helper_field_formatter_settings_form($field, $instance, $view
     '#default_value' => $settings['controls'],
   );
 
-  $element['width'] = array(
-    '#title' => t('Width'),
-    '#type' => 'textfield',
-    '#default_value' => $settings['width'],
-  );
-
   $element['height'] = array(
     '#title' => t('Height'),
     '#type' => 'textfield',
@@ -181,7 +173,7 @@ function elmsmedia_helper_field_formatter_settings_form($field, $instance, $view
 function elmsmedia_helper_field_formatter_settings_summary($field, $instance, $view_mode) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
-  return t('Width: @width, Height: @height', array('@width' => $settings['width'], '@height' => $settings['height']));
+  return t('Height: @height', array('@height' => $settings['height']));
 }
 
 /**

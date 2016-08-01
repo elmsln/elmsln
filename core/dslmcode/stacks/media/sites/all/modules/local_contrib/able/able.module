@@ -102,7 +102,6 @@ function able_field_formatter_info() {
     'field types' => array('file', 'link_field'),
     'settings' => array(
       'controls' => variable_get('able_video_default_controls', TRUE),
-      'width' => variable_get('able_video_default_width', '640'),
       'height' => variable_get('able_video_default_height', '385'),
       'download_link' => variable_get('able_video_default_download_link', FALSE),
       'download_text' => variable_get('able_video_default_download_text', t('Download')),
@@ -114,7 +113,6 @@ function able_field_formatter_info() {
     'field types' => array('file', 'link_field'),
     'settings' => array(
       'controls' => variable_get('able_audio_default_controls', TRUE),
-      'width' => variable_get('able_audio_default_width', '300'),
       'height' => variable_get('able_audio_default_height', '30'),
       'download_link' => variable_get('able_audio_default_download_link', FALSE),
       'download_text' => variable_get('able_audio_default_download_text', t('Download')),
@@ -143,11 +141,9 @@ function able_field_formatter_view($entity_type, $entity, $field, $instance, $la
     $js_settings['controls'] = (bool)$settings['controls'];
     if ($display['type'] == 'able_video') {
       $js_settings['opts']['videoHeight'] = (int)$settings['height'];
-      $js_settings['opts']['videoWidth'] = (int)$settings['width'];
     }
     elseif ($display['type'] == 'able_audio') {
       $js_settings['opts']['audioHeight'] = (int)$settings['height'];
-      $js_settings['opts']['audioWidth'] = (int)$settings['width'];
     }
 
     $class = 'ableplayer-formatter-identifier-' . time() . '-' . $id++;
@@ -158,13 +154,12 @@ function able_field_formatter_view($entity_type, $entity, $field, $instance, $la
       ),
       '#settings' => $settings,
       '#attached' => array(
-        'library' => array(array('ableplayer', 'ableplayer')),
         'js' => array(
-          $path . '/able.js' => array(),
-          0 => array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
+          array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
         ),
       ),
     );
+    libraries_load('ableplayer');
     if ($settings['controls']) {
       $element[$delta]['#attributes']['controls'] = 'controls';
     }
@@ -172,7 +167,6 @@ function able_field_formatter_view($entity_type, $entity, $field, $instance, $la
     if ($display['type'] == 'able_video') {
       $element[$delta]['#theme'] = 'able_video';
       $element[$delta]['#attributes']['height'] = $display['settings']['height'];
-      $element[$delta]['#attributes']['width'] = $display['settings']['width'];
     }
     elseif ($display['type'] == 'able_audio') {
       $element[$delta]['#theme'] = 'able_audio';
@@ -197,7 +191,7 @@ function able_theme() {
 
 function theme_able_video($variables) {
   $output = '<div class="ableplayer-video">';
-  $output .= '<video ' . drupal_attributes($variables['attributes']) . ' data-able-player></video>';
+  $output .= '<video ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1"></video>';
   if ($variables['settings']['download_link']) {
     $output .= '<div class="ableplayer-download-link"><a href="' . $variables['attributes']['src'] . '">' . filter_xss_admin($variables['settings']['download_text']) . '</a></div>';
   }
@@ -229,12 +223,6 @@ function able_field_formatter_settings_form($field, $instance, $view_mode, $form
     '#default_value' => $settings['controls'],
   );
 
-  $element['width'] = array(
-    '#title' => t('Width'),
-    '#type' => 'textfield',
-    '#default_value' => $settings['width'],
-  );
-
   $element['height'] = array(
     '#title' => t('Height'),
     '#type' => 'textfield',
@@ -262,5 +250,5 @@ function able_field_formatter_settings_form($field, $instance, $view_mode, $form
 function able_field_formatter_settings_summary($field, $instance, $view_mode) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
-  return t('Width: @width px, Height: @height px', array('@width' => $settings['width'], '@height' => $settings['height']));
+  return t('Height: @height px', array('@height' => $settings['height']));
 }

@@ -30,6 +30,7 @@ button {
   }
 }
 
+
 #etb-course-nav nav {
   box-shadow:none;
 }
@@ -190,6 +191,14 @@ a.add-menu-drop {
   font-size: 1rem;
   line-height: 2.5rem
 }
+@media all and (max-width: 720px) {
+  .elmsln-home-button-link span {
+    position: absolute;
+    left:-9999999;
+    opacity: 0;
+  }
+}
+
 .cis-lmsless-avatar {
   width: 2.5rem;
   height: 2.5rem;
