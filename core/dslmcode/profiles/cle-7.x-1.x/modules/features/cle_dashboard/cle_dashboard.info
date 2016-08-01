@@ -1,0 +1,17 @@
+name = CLE Dashboard
+description = Adds a dashboard that gives users a heads up display of there assignments, submissions, and critiques.
+core = 7.x
+package = CLE
+dependencies[] = cle_dashboard
+dependencies[] = features
+dependencies[] = strongarm
+dependencies[] = views
+features[ctools][] = strongarm:strongarm:1
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[user_permission][] = access cle dashboard
+features[variable][] = site_frontpage
+features[views_view][] = cle_dashboard
+features[views_view][] = cle_dashboard_my_submissions
+features[views_view][] = cle_dashboard_student_submissions
+features_exclude[dependencies][ctools] = ctools
