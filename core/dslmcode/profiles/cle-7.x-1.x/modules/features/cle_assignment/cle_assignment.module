@@ -30,10 +30,15 @@ function cle_assignment_page_build(&$page) {
     $submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
     $output = '';
     foreach ($submission as $nid => $title) {
-      $output .= l($title, 'node/' . $nid) . ' ';
+      $output .= l($title, 'node/' . $nid, array('attributes' => array('class' => array('cle-submission__link')))) . ' ';
     }
     if (empty($output)) {
-      $output = l(t('Submit assignment'),'node/add/cle-submission', array('query' => array('field_assignment' => $node->nid)));
+      $output = l(t('Submit assignment'),'node/add/cle-submission',
+        array(
+          'query' => array('field_assignment' => $node->nid),
+          'attributes' => array('class' => array('cle__submission-link', 'waves-effect waves-light btn-large')),
+        )
+      );
     }
     $page['content']['assignment_submission'] = array(
       '#markup' => $output,
