@@ -4,7 +4,15 @@
  * Code for the CLE Perms feature.
  */
 
-
+/**
+ * Implments hook_node_view_alter.
+ *
+ * Hide fields under the 'group_admin' field group from users
+ * who don't have access to the 'administer cle content' permission.
+ *
+ * @todo This should most likely be a module similar to the field_permissions
+ * module.
+ */
 function cle_perms_node_view_alter(&$build) {
   if (isset($build['#fieldgroups']['group_admin']->children)) {
     global $user;
