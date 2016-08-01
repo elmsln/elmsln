@@ -170,6 +170,9 @@ function _entity_iframe_render_codes(&$entity, $type, $render = 'entity') {
         'frameborder' => '0',
         'class' => 'entity_iframe entity_iframe_' . $type,
         'id' => 'entity_iframe_' . $type . '_' . $entity->{$type_info['entity keys']['id']},
+        'allowfullscreen' => 'true',
+        'webkitallowfullscreen' => 'true',
+        'mozallowfullscreen' => 'true',
       );
       $field['entity_iframe']['entity_iframe_embed'] = array(
         '#title' => t('Code'),
