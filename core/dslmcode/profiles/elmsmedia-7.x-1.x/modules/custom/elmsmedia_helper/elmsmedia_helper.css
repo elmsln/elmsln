@@ -2,3 +2,42 @@
 article.node iframe {
  margin: 0em;
 }
+
+.ableplayer-video *{
+  box-sizing: initial;
+}
+
+.ableplayer-video .able-window-toolbar label {
+  display: inline;
+}
+
+.ableplayer-video input[type="checkbox"]:not(:checked), .ableplayer-video input[type="checkbox"]:checked {
+  opacity: initial;
+  left: initial;
+  position: initial;
+}
+
+.ableplayer-video .ableplayer-transcript-container {
+  margin: 1em 0;
+}
+.ableplayer-video .able-transcript-area {
+  height: 410px;
+}
+
+.row .row.ableplayer-video {
+  margin: 0;
+}
+
+#admin-menu, #admin-menu .dropdown {
+  z-index: 9990;
+}
+.sticky-wrapper.is-sticky {
+  z-index: 9988 !important;
+}
+
+.reveal-modal.etb-nav-modal, .reveal-modal.open {
+  z-index: 9989;
+}
+.f-dropdown.open.f-open-dropdown {
+  z-index: 9987;
+}
