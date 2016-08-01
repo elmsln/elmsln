@@ -5,6 +5,18 @@
  */
 
 /**
+ * Implements hook_permission().
+ */
+function cle_perms_permission() {
+  return array(
+    'administer cle content' => array(
+      'title' => t('Administer CLE content'),
+      'description' => t('View all submissions and critiques, view authors of doubleblind content, critique at anytime and more.'),
+    ),
+  );
+}
+
+/**
  * Implments hook_node_view_alter.
  *
  * Hide fields under the 'group_admin' field group from users
@@ -20,6 +32,26 @@ function cle_perms_node_view_alter(&$build) {
       foreach ($build['#fieldgroups']['group_admin']->children as $child_field) {
         unset($build[$child_field]);
       }
+    }
+  }
+}
+
+/**
+ * Impliments hook_node_view.
+ * Removes author information for a submission or critique if the user doesn't
+ * have permission.
+ *
+ * @todo need to use hook_field_access instead. The problem with hook_field_access
+ * right now is that it doesn't work with author or submitted by fields. Need to
+ * either figure out why or create a custom author field.
+ */
+function cle_perms_node_view($node, $view_mode, $langcode) {
+  // Remove the author information of CLE content if the user doesn't have permission
+  if (isset($node->content['author'])) {
+    global $user;
+    $node_author = user_load($node->uid);
+    if (!user_access('administer cle content') && $node_author->uid != $user->uid) {
+      unset($node->content['author']);
     }
   }
 }

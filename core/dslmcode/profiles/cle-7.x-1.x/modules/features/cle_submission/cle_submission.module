@@ -100,3 +100,26 @@ function cle_submission_node_access($node, $op, $account) {
   }
   return NODE_ACCESS_IGNORE;
 }
+
+/**
+ * Helper function to find it a user has submitted an assignement.
+ */
+function _cle_submission_user_submitted_assignment($assignment_id, $user = NULL) {
+  if (!$user) {
+    global $user;
+  }
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node');
+  $query->entityCondition('bundle', 'cle_submission');
+  $query->propertyCondition('uid', $user->uid);
+  $query->fieldCondition('field_assignment', 'target_id', $assignment_id, '=');
+  $result = $query->execute();
+
+  if (isset($result['node'])) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}

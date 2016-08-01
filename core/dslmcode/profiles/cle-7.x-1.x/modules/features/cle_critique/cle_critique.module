@@ -23,8 +23,8 @@ function cle_critique_menu() {
     'title' => 'Peer critique',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_cle_critique_page_random_form'),
-    'access callback' => 'node_access',
-    'access arguments' => array('create', 'cle_critique'),
+    'access callback' => '_cle_custom_critique_peer_access_callback',
+    'access arguments' => array('create', 'cle_critique', 3),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'node.pages.inc',
     'file path' => drupal_get_path('module', 'node'),
@@ -205,6 +205,74 @@ function _cle_critique_random($anid) {
 }
 
 /**
+ * Access Callback for 'cle/critique/critique-peer/%node'.
+ */
+function _cle_custom_critique_peer_access_callback($assignment_id = NULL) {
+  $access = FALSE;
+
+  if (user_access('administer cle content')) {
+    return TRUE;
+  }
+
+  // See if the date is active
+  if (_cle_custom_critique_date_active($assignment_id)) {
+    $access = TRUE;
+  }
+  else {
+    drupal_set_message('Critiques are not yet active for this assignment.', 'status', FALSE);
+    return FALSE;
+  }
+
+  // see if the user has submitted the assignment first
+  if (_cle_critique_critique_date_active($assignment_id)) {
+    $access = TRUE;
+  }
+  else {
+    drupal_set_message('You must first submit your assignment.', 'status', FALSE);
+    return FALSE;
+  }
+
+  return $access;
+}
+
+/**
+ * Helper function to find if critiques are open for a submission.
+ */
+function _cle_critique_critique_date_active($assignment_id) {
+  $active = FALSE;
+  $assignment = entity_load_single('node', $assignment_id);
+  $critique_begin = strtotime($assignment->field_critique_date['und'][0]['value']);
+  $critique_end = strtotime($assignment->field_critique_date['und'][0]['value2']);
+
+  // if there is no end date
+  if (user_access('administer cle content')) {
+    $active = TRUE;
+  }
+  elseif ($critique_begin == $critique_end) {
+    if (time() > $critique_begin) {
+      $active = TRUE;
+    }
+  }
+  // if there is an end date
+  else {
+    if (time() > $critique_begin && time() < $critique_end) {
+      $active = TRUE;
+    }
+  }
+
+  return $active;
+}
+
+/**
+ * Impliments hook_page_build.
+ *
+ * Add javascript file for this module.
+ */
+function cle_critique_page_build(&$page) {
+  drupal_add_js(drupal_get_path('module', 'cle_critique') . '/js/cle_critique.js');
+}
+
+/**
  * Implementation of hook_query_TAG_alter().
  */
 function cle_critique_query_random_alter($query){
@@ -248,4 +316,13 @@ function cle_critique_node_view($node, $view_mode, $langcode) {
       drupal_set_title('Critique by classmate');
     }
   }
+}
+
+/**
+ * Impliments hook_form_FORMID_alter()
+ *
+ * Change the verbiage on the submit button.
+ */
+function cle_critique_form_cle_critique_node_form_alter(&$form, &$form_state, $form_id) {
+  $form['actions']['submit']['#value'] = t('Save Critique');
 }
