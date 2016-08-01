@@ -23,6 +23,15 @@ function elmsmedia_external_video_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 3,
       ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 0,
+      ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
@@ -31,12 +40,27 @@ function elmsmedia_external_video_field_default_field_instances() {
       ),
       'mediavideo' => array(
         'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 2,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -82,6 +106,17 @@ function elmsmedia_external_video_field_default_field_instances() {
         'type' => 'video_embed_field',
         'weight' => 0,
       ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'description' => 1,
+          'description_position' => 'bottom',
+          'video_style' => 'normal',
+        ),
+        'type' => 'video_embed_field',
+        'weight' => 3,
+      ),
       'iframe' => array(
         'label' => 'hidden',
         'module' => 'elmsmedia_helper',
@@ -94,6 +129,39 @@ function elmsmedia_external_video_field_default_field_instances() {
         'weight' => 0,
       ),
       'mediavideo' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'description' => 1,
+          'description_position' => 'bottom',
+          'video_style' => 'normal',
+        ),
+        'type' => 'video_embed_field',
+        'weight' => 0,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'description' => 1,
+          'description_position' => 'bottom',
+          'video_style' => 'normal',
+        ),
+        'type' => 'video_embed_field',
+        'weight' => 0,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'description' => 1,
+          'description_position' => 'bottom',
+          'video_style' => 'normal',
+        ),
+        'type' => 'video_embed_field',
+        'weight' => 0,
+      ),
+      'mediavideo__thumbnail__right' => array(
         'label' => 'hidden',
         'module' => 'elmsmedia_helper',
         'settings' => array(
@@ -146,6 +214,16 @@ function elmsmedia_external_video_field_default_field_instances() {
         'type' => 'entityreference_entity_view',
         'weight' => 1,
       ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => TRUE,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 4,
+      ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
@@ -156,11 +234,40 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'entityreference',
         'settings' => array(
-          'links' => 1,
-          'view_mode' => 'figurelabel',
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 1,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => TRUE,
+          'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
-        'weight' => 4,
+        'weight' => 1,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => TRUE,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 1,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => TRUE,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -226,6 +333,12 @@ function elmsmedia_external_video_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 5,
       ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
@@ -234,13 +347,27 @@ function elmsmedia_external_video_field_default_field_instances() {
       ),
       'mediavideo' => array(
         'label' => 'above',
-        'module' => 'image',
-        'settings' => array(
-          'image_link' => '',
-          'image_style' => 'mediavideo_poster',
-        ),
-        'type' => 'image',
-        'weight' => 3,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -297,13 +424,20 @@ function elmsmedia_external_video_field_default_field_instances() {
     'bundle' => 'external_video',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Tagging media can make it easier to find after the fact. This is used for searching and filtering.',
     'display' => array(
       'default' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 4,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 2,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -313,10 +447,27 @@ function elmsmedia_external_video_field_default_field_instances() {
       ),
       'mediavideo' => array(
         'label' => 'above',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 1,
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -328,9 +479,22 @@ function elmsmedia_external_video_field_default_field_instances() {
     'entity_type' => 'node',
     'fences_wrapper' => 'div',
     'field_name' => 'field_tagging',
-    'label' => 'Tagging',
+    'label' => 'Tags',
     'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -358,6 +522,39 @@ function elmsmedia_external_video_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 1,
+      ),
+      'mediavideo' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'mediavideo__thumbnail__right' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -441,7 +638,8 @@ function elmsmedia_external_video_field_default_field_instances() {
   t('Figure Label');
   t('Poster');
   t('Section');
-  t('Tagging');
+  t('Tagging media can make it easier to find after the fact. This is used for searching and filtering.');
+  t('Tags');
 
   return $field_instances;
 }

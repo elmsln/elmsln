@@ -22,6 +22,12 @@ function elmsmedia_video_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 5,
       ),
+      'full' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
       'iframe' => array(
         'label' => 'inline',
         'settings' => array(),
@@ -94,6 +100,15 @@ function elmsmedia_video_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 2,
       ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 0,
+      ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
@@ -157,6 +172,12 @@ function elmsmedia_video_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'full' => array(
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
@@ -234,13 +255,20 @@ function elmsmedia_video_field_default_field_instances() {
     'bundle' => 'video',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Tagging media can make it easier to find after the fact. This is used for searching and filtering.',
     'display' => array(
       'default' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 1,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 2,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -281,16 +309,33 @@ function elmsmedia_video_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_tagging',
-    'label' => 'Tagging',
-    'required' => FALSE,
+    'label' => 'Tags',
+    'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'user_register_form' => FALSE,
     ),
     'widget' => array(
+      'active' => 1,
       'module' => 'autocomplete_deluxe',
       'settings' => array(
         'autocomplete_deluxe_path' => 'autocomplete_deluxe/taxonomy',
-        'autocomplete_path' => 'taxonomy/autocomplete',
+        'delimiter' => '',
+        'limit' => 10,
+        'min_length' => 0,
+        'not_found_message' => 'The term \'@term\' will be added.',
         'size' => 60,
       ),
       'type' => 'autocomplete_deluxe_taxonomy',
@@ -305,6 +350,12 @@ function elmsmedia_video_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
+      ),
+      'full' => array(
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
@@ -386,6 +437,18 @@ function elmsmedia_video_field_default_field_instances() {
         ),
         'type' => 'able_video',
         'weight' => 0,
+      ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'controls' => 1,
+          'download_link' => 0,
+          'download_text' => 'Download',
+          'height' => '400px',
+        ),
+        'type' => 'able_video',
+        'weight' => 3,
       ),
       'iframe' => array(
         'label' => 'hidden',
@@ -489,6 +552,15 @@ function elmsmedia_video_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 3,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 1,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -597,7 +669,8 @@ function elmsmedia_video_field_default_field_instances() {
   t('Course');
   t('Poster');
   t('Section');
-  t('Tagging');
+  t('Tagging media can make it easier to find after the fact. This is used for searching and filtering.');
+  t('Tags');
   t('Transcript');
   t('Video');
 

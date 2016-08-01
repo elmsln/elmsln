@@ -213,6 +213,96 @@ function foundation_access_preprocess_node(&$variables) {
 }
 
 /**
+ * Implements theme_field().
+ *
+ * Changes to the default field output.
+ */
+function foundation_access_field($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<div ' . $variables['title_attributes'] . '>' . $variables['label'] . '</div>';
+  }
+
+  // Quick Edit module requires some extra wrappers to work.
+  if (module_exists('quickedit')) {
+    $output .= '<div class="field-items"' . $variables['content_attributes'] . '>';
+    foreach ($variables['items'] as $delta => $item) {
+      $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
+      $output .= '<div class="' . $classes . '"' . $variables['item_attributes'][$delta] . '>' . drupal_render($item) . '</div>';
+    }
+    $output .= '</div>';
+  }
+  else {
+    foreach ($variables['items'] as $item) {
+      $output .= drupal_render($item);
+    }
+  }
+
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
+
+  return $output;
+}
+
+/**
+ * Implements theme_field__taxonomy_term_reference().
+ */
+function foundation_access_field__taxonomy_term_reference($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<h3 class="field-label">' . $variables['label'] . '</h3>';
+  }
+
+  // Render the items.
+  $output .= ($variables['element']['#label_display'] == 'inline') ? '<ul class="links inline">' : '<ul class="links">';
+  foreach ($variables['items'] as $delta => $item) {
+    $output .= '<li class="chip taxonomy-term-reference taxonomy-term-reference-' . $delta . '"' . $variables['item_attributes'][$delta] . '>' . drupal_render($item) . '</li>';
+  }
+  $output .= '</ul>';
+
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . (!in_array('clearfix', $variables['classes_array']) ? ' clearfix' : '') . '">' . $output . '</div>';
+
+  return $output;
+}
+
+/**
+ * Implements theme_field__taxonomy_term_reference().
+ */
+function foundation_access_field__field_cis_course_ref($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<h3 ' . $variables['title_attributes'] . '>' . $variables['label'] . '</h3>';
+  }
+
+  // Quick Edit module requires some extra wrappers to work.
+  if (module_exists('quickedit')) {
+    $output .= '<div class="field-items"' . $variables['content_attributes'] . '>';
+    foreach ($variables['items'] as $delta => $item) {
+      $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
+      $output .= '<div class="' . $classes . '"' . $variables['item_attributes'][$delta] . '>' . drupal_render($item) . '</div>';
+    }
+    $output .= '</div>';
+  }
+  else {
+    foreach ($variables['items'] as $item) {
+      $output .= drupal_render($item);
+    }
+  }
+
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
+
+  return $output;
+}
+
+/**
  * Display Inherit External Video
  */
 function foundation_access_preprocess_node__inherit__external_video__mediavideo(&$variables) {
