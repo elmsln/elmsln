@@ -4,3 +4,88 @@
 	padding:1.5rem;
 	margin: 0 auto;
 }
+
+.cle__info,
+.cle__feedback {
+  background-color: #fdf7e8;
+  transition: box-shadow .25s;
+  padding: 20px;
+  margin: 0.5rem 0 1rem 0;
+  border-radius: 2px;
+  font-size: 1.1em;
+}
+
+.cle__info .field + .cle__info .field {
+  margin-top: 1em;
+}
+
+.cle__info .field-label {
+  opacity: .9;
+  font-size: .9em;
+}
+
+.cle__feedback {
+  background-color: #E0FFE0;
+}
+
+.cle__submission-link {
+  margin-top: 1em;
+}
+
+.cle__submission-link:hover {
+  color: white;
+}
+
+
+/* Critique Form */
+#cle-critique-node-form {
+  margin: auto calc(-50vw + 50%);
+  width: auto;
+  padding: 2em;
+}
+
+#cle-critique-node-form ~ div {
+  max-width: 90em;
+  margin: 0 auto;
+  display: block;
+}
+
+#cle-critique-node-form .node-cle-submission {
+  width: 60%;
+  float: left;
+  padding: 1em;
+}
+
+#cle-critique-node-form .field-name-field-cle-crit-feedback {
+  width: 40%;
+  float: right;
+  padding: 1em;
+  right: 0;
+  transition: all .5s ease;
+}
+
+#cle-critique-node-form .field-name-field-cle-crit-feedback.is-closed {
+  transform: translateX(100%);
+}
+
+#cle-critique-node-form .field-name-field-cle-crit-feedback.is-closed .cle-critique__hide-feedback {
+  display: flex;
+}
+#cle-critique-node-form .field-name-field-cle-crit-feedback.is-closed .cle-critique__hide-feedback {
+  position: absolute;
+  left: 0;
+  transform: translateX(-100%);
+}
+
+#cle-critique-node-form .text-format-wrapper {
+  opacity: 1;
+}
+#cle-critique-node-form .is-closed .text-format-wrapper {
+  opacity: .3;
+}
+
+
+#cle-critique-node-form .filter-wrapper {
+  display: none;
+}
+
