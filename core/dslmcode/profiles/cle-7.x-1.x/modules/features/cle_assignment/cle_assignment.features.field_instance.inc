@@ -238,7 +238,7 @@ function cle_assignment_field_default_field_instances() {
     'description' => 'Classify this type of submission. For example, is this a practice, activity, exercise, final assignment? This can then be filtered in lists to group submissions together.',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
@@ -321,7 +321,7 @@ function cle_assignment_field_default_field_instances() {
     'description' => 'This helps to identify assignments when viewing multiple',
     'display' => array(
       'default' => array(
-        'label' => 'hidden',
+        'label' => 'inline',
         'module' => 'jquery_colorpicker',
         'settings' => array(),
         'type' => 'jquery_colorpicker_color_display',
@@ -372,7 +372,7 @@ function cle_assignment_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'date',
         'settings' => array(
           'format_type' => 'long',

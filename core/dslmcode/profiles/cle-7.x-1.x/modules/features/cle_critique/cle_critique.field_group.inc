@@ -25,11 +25,11 @@ function cle_critique_field_group_info() {
     'children' => array(
       0 => 'field_cle_sub_type',
       1 => 'field_color',
-      2 => 'field_media_requirements',
-      3 => 'field_cle_crit_criteria',
-      4 => 'field_cle_crit_outline',
-      5 => 'field_cle_crit_type',
-      6 => 'field_critique_date',
+      2 => 'field_critique_date',
+      3 => 'field_media_requirements',
+      4 => 'field_cle_crit_criteria',
+      5 => 'field_cle_crit_outline',
+      6 => 'field_cle_crit_type',
     ),
     'format_type' => 'div',
     'format_settings' => array(
@@ -59,12 +59,12 @@ function cle_critique_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Critique',
-    'weight' => '4',
+    'weight' => '3',
     'children' => array(
-      0 => 'field_cle_crit_criteria',
-      1 => 'field_cle_crit_outline',
-      2 => 'field_cle_crit_type',
-      3 => 'field_critique_date',
+      0 => 'field_critique_date',
+      1 => 'field_cle_crit_criteria',
+      2 => 'field_cle_crit_outline',
+      3 => 'field_cle_crit_type',
     ),
     'format_type' => 'tab',
     'format_settings' => array(

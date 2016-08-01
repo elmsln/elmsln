@@ -13,40 +13,29 @@ function cle_assignment_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_admin|node|cle_assignment|default';
-  $field_group->group_name = 'group_admin';
+  $field_group->identifier = 'group_advanced|node|cle_assignment|form';
+  $field_group->group_name = 'group_advanced';
   $field_group->entity_type = 'node';
   $field_group->bundle = 'cle_assignment';
-  $field_group->mode = 'default';
+  $field_group->mode = 'form';
   $field_group->parent_name = '';
   $field_group->data = array(
-    'label' => 'Administrative',
-    'weight' => '2',
+    'label' => 'Advanced',
+    'weight' => '5',
     'children' => array(
-      0 => 'field_cle_sub_type',
-      1 => 'field_color',
-      2 => 'field_media_requirements',
-      3 => 'field_cle_crit_criteria',
-      4 => 'field_cle_crit_outline',
-      5 => 'field_cle_crit_type',
-      6 => 'field_critique_date',
+      0 => 'og_group_ref',
     ),
-    'format_type' => 'div',
+    'format_type' => 'tab',
     'format_settings' => array(
-      'label' => 'Administrative',
+      'formatter' => 'closed',
       'instance_settings' => array(
-        'id' => '',
-        'classes' => '',
         'description' => '',
-        'show_label' => '1',
-        'label_element' => 'h3',
-        'effect' => 'none',
-        'speed' => 'fast',
+        'classes' => '',
+        'required_fields' => 1,
       ),
-      'formatter' => 'open',
     ),
   );
-  $field_groups['group_admin|node|cle_assignment|default'] = $field_group;
+  $field_groups['group_advanced|node|cle_assignment|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -59,7 +48,7 @@ function cle_assignment_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Extras',
-    'weight' => '5',
+    'weight' => '4',
     'children' => array(
       0 => 'field_cis_tag',
       1 => 'field_cle_order',
@@ -180,7 +169,7 @@ function cle_assignment_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Logistics',
-    'weight' => '3',
+    'weight' => '2',
     'children' => array(
       0 => 'field_cle_sub_type',
       1 => 'field_due_date',
@@ -200,7 +189,7 @@ function cle_assignment_field_group_info() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Administrative');
+  t('Advanced');
   t('Details');
   t('Extras');
   t('Information');

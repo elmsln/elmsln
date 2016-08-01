@@ -18,7 +18,7 @@ function cle_critique_field_default_field_instances() {
     'description' => 'Present students with directions on what criteria they should be looking for while giving this critique. This can be equated with directions for how to accomplish the critique.',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
@@ -93,7 +93,7 @@ function cle_critique_field_default_field_instances() {
     'description' => 'Provide an outline of things students should look for when performing a critique. This can be used to guide students towards giving more meaningful critiques in earlier assignments or ensuring certain aspects of the critique are covered. Whatever you enter here will be automatically added to their text editor as their starting point to perform their critique.',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
@@ -171,7 +171,7 @@ Blind - Students receiving a critique don\'t know who performed the critique.
 Open critique - Students know who they are critiquing and who gave a critique.',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
