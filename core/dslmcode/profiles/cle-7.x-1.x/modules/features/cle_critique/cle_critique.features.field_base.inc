@@ -10,7 +10,7 @@
 function cle_critique_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_cle_crit_criteria'
+  // Exported field_base: 'field_cle_crit_criteria'.
   $field_bases['field_cle_crit_criteria'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -32,7 +32,7 @@ function cle_critique_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_cle_crit_feedback'
+  // Exported field_base: 'field_cle_crit_feedback'.
   $field_bases['field_cle_crit_feedback'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -54,7 +54,7 @@ function cle_critique_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_cle_crit_outline'
+  // Exported field_base: 'field_cle_crit_outline'.
   $field_bases['field_cle_crit_outline'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -76,7 +76,7 @@ function cle_critique_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_cle_crit_sub_ref'
+  // Exported field_base: 'field_cle_crit_sub_ref'.
   $field_bases['field_cle_crit_sub_ref'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -113,7 +113,7 @@ function cle_critique_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_cle_crit_type'
+  // Exported field_base: 'field_cle_crit_type'.
   $field_bases['field_cle_crit_type'] = array(
     'active' => 1,
     'cardinality' => 1,

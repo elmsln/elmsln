@@ -10,7 +10,8 @@
 function cle_assignment_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'comment-comment_node_cle_assignment-comment_body'
+  // Exported field_instance:
+  // 'comment-comment_node_cle_assignment-comment_body'.
   $field_instances['comment-comment_node_cle_assignment-comment_body'] = array(
     'bundle' => 'comment_node_cle_assignment',
     'default_value' => NULL,
@@ -43,7 +44,7 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-body'
+  // Exported field_instance: 'node-cle_assignment-body'.
   $field_instances['node-cle_assignment-body'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -55,7 +56,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 4,
+        'weight' => 1,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -130,7 +131,7 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_cis_tag'
+  // Exported field_instance: 'node-cle_assignment-field_cis_tag'.
   $field_instances['node-cle_assignment-field_cis_tag'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -141,7 +142,7 @@ function cle_assignment_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 8,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -191,7 +192,7 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_cle_order'
+  // Exported field_instance: 'node-cle_assignment-field_cle_order'.
   $field_instances['node-cle_assignment-field_cle_order'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -202,7 +203,7 @@ function cle_assignment_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 10,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -229,7 +230,7 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_cle_sub_type'
+  // Exported field_instance: 'node-cle_assignment-field_cle_sub_type'.
   $field_instances['node-cle_assignment-field_cle_sub_type'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -241,7 +242,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 15,
+        'weight' => 7,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -312,7 +313,7 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_color'
+  // Exported field_instance: 'node-cle_assignment-field_color'.
   $field_instances['node-cle_assignment-field_color'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -324,7 +325,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'jquery_colorpicker',
         'settings' => array(),
         'type' => 'jquery_colorpicker_color_display',
-        'weight' => 0,
+        'weight' => 2,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -364,7 +365,67 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_due_date'
+  // Exported field_instance: 'node-cle_assignment-field_critique_date'.
+  $field_instances['node-cle_assignment-field_critique_date'] = array(
+    'bundle' => 'cle_assignment',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'date',
+        'settings' => array(
+          'format_type' => 'long',
+          'fromto' => 'both',
+          'multiple_from' => '',
+          'multiple_number' => '',
+          'multiple_to' => '',
+        ),
+        'type' => 'date_default',
+        'weight' => 8,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_critique_date',
+    'label' => 'Critique Date',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'default_value' => 'now',
+      'default_value2' => 'same',
+      'default_value_code' => '',
+      'default_value_code2' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'date',
+      'settings' => array(
+        'increment' => 15,
+        'input_format' => 'm/d/Y - H:i:s',
+        'input_format_custom' => '',
+        'label_position' => 'above',
+        'text_parts' => array(),
+        'year_range' => '-3:+3',
+      ),
+      'type' => 'date_select',
+      'weight' => 20,
+    ),
+  );
+
+  // Exported field_instance: 'node-cle_assignment-field_due_date'.
   $field_instances['node-cle_assignment-field_due_date'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -382,7 +443,7 @@ function cle_assignment_field_default_field_instances() {
           'multiple_to' => '',
         ),
         'type' => 'date_default',
-        'weight' => 1,
+        'weight' => 11,
       ),
       'full' => array(
         'label' => 'inline',
@@ -451,7 +512,7 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_media_requirements'
+  // Exported field_instance: 'node-cle_assignment-field_media_requirements'.
   $field_instances['node-cle_assignment-field_media_requirements'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => array(
@@ -470,7 +531,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'full' => array(
         'label' => 'inline',
@@ -510,7 +571,7 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_number'
+  // Exported field_instance: 'node-cle_assignment-field_number'.
   $field_instances['node-cle_assignment-field_number'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -521,7 +582,7 @@ function cle_assignment_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 9,
       ),
       'full' => array(
         'label' => 'inline',
@@ -614,7 +675,7 @@ Page',
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_sub_number'
+  // Exported field_instance: 'node-cle_assignment-field_sub_number'.
   $field_instances['node-cle_assignment-field_sub_number'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -625,7 +686,7 @@ Page',
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 8,
+        'weight' => 11,
       ),
       'full' => array(
         'label' => 'inline',
@@ -713,7 +774,7 @@ Drawing Exercise',
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_visibility'
+  // Exported field_instance: 'node-cle_assignment-field_visibility'.
   $field_instances['node-cle_assignment-field_visibility'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => array(
@@ -728,7 +789,7 @@ Drawing Exercise',
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 9,
+        'weight' => 12,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -767,17 +828,81 @@ Drawing Exercise',
     ),
   );
 
+  // Exported field_instance: 'node-cle_assignment-og_group_ref'.
+  $field_instances['node-cle_assignment-og_group_ref'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'default_value_function' => '',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 10,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'og_group_ref',
+    'label' => 'Section',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'behaviors' => array(
+        'og_widget' => array(
+          'access_override' => 0,
+          'admin' => array(
+            'widget_type' => 'entityreference_autocomplete',
+          ),
+          'default' => array(
+            'widget_type' => 'options_select',
+          ),
+          'status' => TRUE,
+        ),
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'og',
+      'settings' => array(),
+      'type' => 'og_complex',
+      'weight' => 22,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Body');
   t('Classify this type of submission. For example, is this a practice, activity, exercise, final assignment? This can then be filtered in lists to group submissions together.');
   t('Color');
   t('Comment');
+  t('Critique Date');
   t('Due Date');
   t('Media Requirements');
   t('Number');
   t('Order');
   t('Public Assignments will be visible to everyone in the class.  This is useful when the assignment requires open critique and response.  Private Assignments will only be visible by you, the student submitting the work, and any support staff / TAs.');
+  t('Section');
   t('Sub-number');
   t('Submission type');
   t('Tag');

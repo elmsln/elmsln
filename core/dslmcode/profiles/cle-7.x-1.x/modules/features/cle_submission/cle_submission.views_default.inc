@@ -491,6 +491,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'cle_submission' => 'cle_submission',
   );
+
   /* Display: Block */
   $handler = $view->new_display('block', 'Block', 'block');
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;

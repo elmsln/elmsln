@@ -10,7 +10,7 @@
 function cle_critique_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-cle_assignment-field_cle_crit_criteria'
+  // Exported field_instance: 'node-cle_assignment-field_cle_crit_criteria'.
   $field_instances['node-cle_assignment-field_cle_crit_criteria'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -22,7 +22,7 @@ function cle_critique_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 13,
+        'weight' => 5,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -85,7 +85,7 @@ function cle_critique_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_cle_crit_outline'
+  // Exported field_instance: 'node-cle_assignment-field_cle_crit_outline'.
   $field_instances['node-cle_assignment-field_cle_crit_outline'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -97,7 +97,7 @@ function cle_critique_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 14,
+        'weight' => 6,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -160,7 +160,7 @@ function cle_critique_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_assignment-field_cle_crit_type'
+  // Exported field_instance: 'node-cle_assignment-field_cle_crit_type'.
   $field_instances['node-cle_assignment-field_cle_crit_type'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
@@ -175,7 +175,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 12,
+        'weight' => 4,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -215,7 +215,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
     ),
   );
 
-  // Exported field_instance: 'node-cle_critique-field_cle_crit_feedback'
+  // Exported field_instance: 'node-cle_critique-field_cle_crit_feedback'.
   $field_instances['node-cle_critique-field_cle_crit_feedback'] = array(
     'bundle' => 'cle_critique',
     'default_value' => NULL,
@@ -277,7 +277,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
     ),
   );
 
-  // Exported field_instance: 'node-cle_critique-field_cle_crit_sub_ref'
+  // Exported field_instance: 'node-cle_critique-field_cle_crit_sub_ref'.
   $field_instances['node-cle_critique-field_cle_crit_sub_ref'] = array(
     'bundle' => 'cle_critique',
     'default_value' => NULL,
@@ -293,7 +293,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
           'view_mode' => 'critique',
         ),
         'type' => 'entityreference_entity_view',
-        'weight' => 0,
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',

@@ -130,6 +130,9 @@ function cle_assignment_strongarm() {
       'gradebook_viewer' => array(
         'custom_settings' => TRUE,
       ),
+      'critique' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(

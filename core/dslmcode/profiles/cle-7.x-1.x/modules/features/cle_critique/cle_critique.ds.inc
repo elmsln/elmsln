@@ -16,26 +16,27 @@ function cle_critique_ds_layout_settings_info() {
   $ds_layout->entity_type = 'node';
   $ds_layout->bundle = 'cle_critique';
   $ds_layout->view_mode = 'default';
-  $ds_layout->layout = 'zf_2col_stacked';
+  $ds_layout->layout = 'ds_1col';
   $ds_layout->settings = array(
     'regions' => array(
-      'left' => array(
-        0 => 'field_cle_crit_sub_ref',
-      ),
-      'right' => array(
-        1 => 'field_cle_crit_feedback',
+      'ds_content' => array(
+        0 => 'group_info',
+        1 => 'author',
+        2 => 'field_cle_crit_feedback',
+        3 => 'field_cle_crit_sub_ref',
+        4 => 'group_feedback',
       ),
     ),
     'fields' => array(
-      'field_cle_crit_sub_ref' => 'left',
-      'field_cle_crit_feedback' => 'right',
+      'group_info' => 'ds_content',
+      'author' => 'ds_content',
+      'field_cle_crit_feedback' => 'ds_content',
+      'field_cle_crit_sub_ref' => 'ds_content',
+      'group_feedback' => 'ds_content',
     ),
     'classes' => array(),
     'wrappers' => array(
-      'header' => 'div',
-      'left' => 'div',
-      'right' => 'div',
-      'footer' => 'div',
+      'ds_content' => 'div',
     ),
     'layout_wrapper' => 'div',
     'layout_attributes' => '',
@@ -55,15 +56,17 @@ function cle_critique_ds_layout_settings_info() {
   $ds_layout->settings = array(
     'regions' => array(
       'ds_content' => array(
-        0 => 'field_assignment',
-        1 => 'body',
-        2 => 'field_images',
-        3 => 'field_video',
-        4 => 'field_links',
-        5 => 'field_files',
+        0 => 'group_info',
+        1 => 'field_assignment',
+        2 => 'body',
+        3 => 'field_images',
+        4 => 'field_video',
+        5 => 'field_links',
+        6 => 'field_files',
       ),
     ),
     'fields' => array(
+      'group_info' => 'ds_content',
       'field_assignment' => 'ds_content',
       'body' => 'ds_content',
       'field_images' => 'ds_content',
@@ -89,47 +92,43 @@ function cle_critique_ds_layout_settings_info() {
   $ds_layout->entity_type = 'node';
   $ds_layout->bundle = 'cle_submission';
   $ds_layout->view_mode = 'full';
-  $ds_layout->layout = 'zf_2col_bricks';
+  $ds_layout->layout = 'ds_1col';
   $ds_layout->settings = array(
     'regions' => array(
-      'above_left' => array(
-        0 => 'group_ferpacontent',
-        2 => 'body',
-        3 => 'field_links',
+      'ds_content' => array(
+        0 => 'group_info',
+        1 => 'body',
+        2 => 'group_ferpacontent',
+        3 => 'field_assignment',
+        4 => 'field_links',
+        5 => 'submitted_by',
         6 => 'field_images',
-        7 => 'field_video',
-        10 => 'field_files',
-      ),
-      'above_right' => array(
-        1 => 'field_assignment',
-        4 => 'submitted_by',
-        5 => 'critique_evas_entity_view_2',
-        8 => 'critique_evas_entity_view_1',
-        9 => 'comments',
+        7 => 'critique_evas_entity_view_2',
+        8 => 'field_video',
+        9 => 'field_submission_state',
+        10 => 'critique_evas_entity_view_1',
+        11 => 'field_files',
+        12 => 'comments',
       ),
     ),
     'fields' => array(
-      'group_ferpacontent' => 'above_left',
-      'field_assignment' => 'above_right',
-      'body' => 'above_left',
-      'field_links' => 'above_left',
-      'submitted_by' => 'above_right',
-      'critique_evas_entity_view_2' => 'above_right',
-      'field_images' => 'above_left',
-      'field_video' => 'above_left',
-      'critique_evas_entity_view_1' => 'above_right',
-      'comments' => 'above_right',
-      'field_files' => 'above_left',
+      'group_info' => 'ds_content',
+      'body' => 'ds_content',
+      'group_ferpacontent' => 'ds_content',
+      'field_assignment' => 'ds_content',
+      'field_links' => 'ds_content',
+      'submitted_by' => 'ds_content',
+      'field_images' => 'ds_content',
+      'critique_evas_entity_view_2' => 'ds_content',
+      'field_video' => 'ds_content',
+      'field_submission_state' => 'ds_content',
+      'critique_evas_entity_view_1' => 'ds_content',
+      'field_files' => 'ds_content',
+      'comments' => 'ds_content',
     ),
     'classes' => array(),
     'wrappers' => array(
-      'top' => 'div',
-      'above_left' => 'div',
-      'above_right' => 'div',
-      'middle' => 'div',
-      'below_left' => 'div',
-      'below_right' => 'div',
-      'bottom' => 'div',
+      'ds_content' => 'div',
     ),
     'layout_wrapper' => 'div',
     'layout_attributes' => '',

@@ -10,7 +10,7 @@
 function cle_section_assigmement_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-section-field_cle_assignments'
+  // Exported field_instance: 'node-section-field_cle_assignments'.
   $field_instances['node-section-field_cle_assignments'] = array(
     'bundle' => 'section',
     'default_value' => NULL,

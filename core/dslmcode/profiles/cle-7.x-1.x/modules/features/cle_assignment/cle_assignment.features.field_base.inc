@@ -10,7 +10,7 @@
 function cle_assignment_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'body'
+  // Exported field_base: 'body'.
   $field_bases['body'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -34,7 +34,7 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'text_with_summary',
   );
 
-  // Exported field_base: 'comment_body'
+  // Exported field_base: 'comment_body'.
   $field_bases['comment_body'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -58,7 +58,7 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_cis_tag'
+  // Exported field_base: 'field_cis_tag'.
   $field_bases['field_cis_tag'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -81,7 +81,7 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_cle_order'
+  // Exported field_base: 'field_cle_order'.
   $field_bases['field_cle_order'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -141,7 +141,7 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_cle_sub_type'
+  // Exported field_base: 'field_cle_sub_type'.
   $field_bases['field_cle_sub_type'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -164,7 +164,7 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_color'
+  // Exported field_base: 'field_color'.
   $field_bases['field_color'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -182,7 +182,38 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'jquery_colorpicker',
   );
 
-  // Exported field_base: 'field_due_date'
+  // Exported field_base: 'field_critique_date'.
+  $field_bases['field_critique_date'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_critique_date',
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'date',
+    'settings' => array(
+      'cache_count' => 4,
+      'cache_enabled' => 0,
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'granularity' => array(
+        'day' => 'day',
+        'hour' => 'hour',
+        'minute' => 'minute',
+        'month' => 'month',
+        'second' => 0,
+        'year' => 'year',
+      ),
+      'timezone_db' => 'UTC',
+      'todate' => 'optional',
+      'tz_handling' => 'site',
+    ),
+    'translatable' => 0,
+    'type' => 'datestamp',
+  );
+
+  // Exported field_base: 'field_due_date'.
   $field_bases['field_due_date'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -206,14 +237,14 @@ function cle_assignment_field_default_field_bases() {
         'year' => 'year',
       ),
       'timezone_db' => 'UTC',
-      'todate' => '',
+      'todate' => 'optional',
       'tz_handling' => 'site',
     ),
     'translatable' => 0,
     'type' => 'datestamp',
   );
 
-  // Exported field_base: 'field_media_requirements'
+  // Exported field_base: 'field_media_requirements'.
   $field_bases['field_media_requirements'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -243,7 +274,7 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_number'
+  // Exported field_base: 'field_number'.
   $field_bases['field_number'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -266,7 +297,7 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_sub_number'
+  // Exported field_base: 'field_sub_number'.
   $field_bases['field_sub_number'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -289,7 +320,7 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_visibility'
+  // Exported field_base: 'field_visibility'.
   $field_bases['field_visibility'] = array(
     'active' => 1,
     'cardinality' => 1,

@@ -50,7 +50,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Ferpa elements',
-    'weight' => '0',
+    'weight' => '2',
     'children' => array(
       0 => 'body',
       1 => 'field_files',
@@ -180,6 +180,72 @@ function cle_submission_field_group_info() {
     ),
   );
   $field_groups['group_images|node|cle_submission|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_info|node|cle_submission|critique';
+  $field_group->group_name = 'group_info';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'cle_submission';
+  $field_group->mode = 'critique';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Information',
+    'weight' => '0',
+    'children' => array(
+      0 => 'field_assignment',
+    ),
+    'format_type' => 'div',
+    'format_settings' => array(
+      'label' => 'Information',
+      'instance_settings' => array(
+        'id' => '',
+        'classes' => 'cle__info',
+        'description' => '',
+        'show_label' => '0',
+        'label_element' => 'h3',
+        'effect' => 'none',
+        'speed' => 'fast',
+      ),
+      'formatter' => 'open',
+    ),
+  );
+  $field_groups['group_info|node|cle_submission|critique'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_info|node|cle_submission|full';
+  $field_group->group_name = 'group_info';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'cle_submission';
+  $field_group->mode = 'full';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Information',
+    'weight' => '0',
+    'children' => array(
+      0 => 'field_assignment',
+      1 => 'field_submission_state',
+      2 => 'submitted_by',
+    ),
+    'format_type' => 'div',
+    'format_settings' => array(
+      'label' => 'Information',
+      'instance_settings' => array(
+        'id' => '',
+        'classes' => 'cle__info',
+        'description' => '',
+        'show_label' => '0',
+        'label_element' => 'h2',
+        'effect' => 'none',
+        'speed' => 'fast',
+      ),
+      'formatter' => 'open',
+    ),
+  );
+  $field_groups['group_info|node|cle_submission|full'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -355,6 +421,7 @@ function cle_submission_field_group_info() {
   t('Ferpa elements');
   t('Files');
   t('Images');
+  t('Information');
   t('Links');
   t('Media');
   t('Video');

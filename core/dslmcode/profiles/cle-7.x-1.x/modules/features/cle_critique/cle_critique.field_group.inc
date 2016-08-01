@@ -13,6 +13,44 @@ function cle_critique_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_admin|node|cle_assignment|default';
+  $field_group->group_name = 'group_admin';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'cle_assignment';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Administrative',
+    'weight' => '2',
+    'children' => array(
+      0 => 'field_cle_sub_type',
+      1 => 'field_color',
+      2 => 'field_media_requirements',
+      3 => 'field_cle_crit_criteria',
+      4 => 'field_cle_crit_outline',
+      5 => 'field_cle_crit_type',
+      6 => 'field_critique_date',
+    ),
+    'format_type' => 'div',
+    'format_settings' => array(
+      'label' => 'Administrative',
+      'instance_settings' => array(
+        'id' => '',
+        'classes' => '',
+        'description' => '',
+        'show_label' => '1',
+        'label_element' => 'h3',
+        'effect' => 'none',
+        'speed' => 'fast',
+      ),
+      'formatter' => 'open',
+    ),
+  );
+  $field_groups['group_admin|node|cle_assignment|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_cle_critique|node|cle_assignment|form';
   $field_group->group_name = 'group_cle_critique';
   $field_group->entity_type = 'node';
@@ -26,6 +64,7 @@ function cle_critique_field_group_info() {
       0 => 'field_cle_crit_criteria',
       1 => 'field_cle_crit_outline',
       2 => 'field_cle_crit_type',
+      3 => 'field_critique_date',
     ),
     'format_type' => 'tab',
     'format_settings' => array(
@@ -39,9 +78,44 @@ function cle_critique_field_group_info() {
   );
   $field_groups['group_cle_critique|node|cle_assignment|form'] = $field_group;
 
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_feedback|node|cle_critique|default';
+  $field_group->group_name = 'group_feedback';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'cle_critique';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Feedback',
+    'weight' => '2',
+    'children' => array(
+      0 => 'field_cle_crit_feedback',
+      1 => 'author',
+    ),
+    'format_type' => 'div',
+    'format_settings' => array(
+      'label' => 'Feedback',
+      'instance_settings' => array(
+        'id' => '',
+        'classes' => 'cle__feedback',
+        'description' => '',
+        'show_label' => '1',
+        'label_element' => 'h3',
+        'effect' => 'none',
+        'speed' => 'fast',
+      ),
+      'formatter' => 'open',
+    ),
+  );
+  $field_groups['group_feedback|node|cle_critique|default'] = $field_group;
+
   // Translatables
   // Included for use with string extractors like potx.
+  t('Administrative');
   t('Critique');
+  t('Feedback');
 
   return $field_groups;
 }

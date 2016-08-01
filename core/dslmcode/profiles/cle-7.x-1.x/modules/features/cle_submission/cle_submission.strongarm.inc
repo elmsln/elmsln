@@ -109,7 +109,7 @@ function cle_submission_strongarm() {
       'display' => array(
         'critique_evas_entity_view_1' => array(
           'critique' => array(
-            'weight' => '2',
+            'weight' => '16',
             'visible' => FALSE,
           ),
           'default' => array(
@@ -123,7 +123,7 @@ function cle_submission_strongarm() {
         ),
         'critique_evas_entity_view_2' => array(
           'critique' => array(
-            'weight' => '1',
+            'weight' => '15',
             'visible' => FALSE,
           ),
           'default' => array(
