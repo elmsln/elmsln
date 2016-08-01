@@ -154,12 +154,12 @@ function able_field_formatter_view($entity_type, $entity, $field, $instance, $la
       ),
       '#settings' => $settings,
       '#attached' => array(
+        'libraries_load' => array(array('ableplayer')),
         'js' => array(
           array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
         ),
       ),
     );
-    libraries_load('ableplayer');
     if ($settings['controls']) {
       $element[$delta]['#attributes']['controls'] = 'controls';
     }
