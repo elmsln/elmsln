@@ -3,3 +3,15 @@
  * @file
  * Code for the CLE Perms feature.
  */
+
+
+function cle_perms_node_view_alter(&$build) {
+  if (isset($build['#fieldgroups']['group_admin']->children)) {
+    global $user;
+    if (!user_access('administer cle content', $user)) {
+      foreach ($build['#fieldgroups']['group_admin']->children as $child_field) {
+        unset($build[$child_field]);
+      }
+    }
+  }
+}
