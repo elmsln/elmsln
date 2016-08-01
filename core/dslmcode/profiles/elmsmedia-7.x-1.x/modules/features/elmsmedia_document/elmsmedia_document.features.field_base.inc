@@ -10,7 +10,7 @@
 function elmsmedia_document_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_document_file'
+  // Exported field_base: 'field_document_file'.
   $field_bases['field_document_file'] = array(
     'active' => 1,
     'cardinality' => 1,

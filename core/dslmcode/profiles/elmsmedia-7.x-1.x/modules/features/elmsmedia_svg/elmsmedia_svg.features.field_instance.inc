@@ -10,7 +10,7 @@
 function elmsmedia_svg_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-svg-field_cis_course_ref'
+  // Exported field_instance: 'node-svg-field_cis_course_ref'.
   $field_instances['node-svg-field_cis_course_ref'] = array(
     'bundle' => 'svg',
     'default_value' => NULL,
@@ -79,7 +79,7 @@ function elmsmedia_svg_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-svg-field_figurelabel_ref'
+  // Exported field_instance: 'node-svg-field_figurelabel_ref'.
   $field_instances['node-svg-field_figurelabel_ref'] = array(
     'bundle' => 'svg',
     'default_value_function' => '',
@@ -158,7 +158,7 @@ function elmsmedia_svg_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-svg-field_svg'
+  // Exported field_instance: 'node-svg-field_svg'.
   $field_instances['node-svg-field_svg'] = array(
     'bundle' => 'svg',
     'deleted' => 0,
@@ -220,7 +220,7 @@ function elmsmedia_svg_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-svg-field_svg_alttext'
+  // Exported field_instance: 'node-svg-field_svg_alttext'.
   $field_instances['node-svg-field_svg_alttext'] = array(
     'bundle' => 'svg',
     'default_value' => NULL,
@@ -298,7 +298,7 @@ function elmsmedia_svg_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-svg-og_group_ref'
+  // Exported field_instance: 'node-svg-og_group_ref'.
   $field_instances['node-svg-og_group_ref'] = array(
     'bundle' => 'svg',
     'default_value' => NULL,

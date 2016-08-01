@@ -10,7 +10,7 @@
 function elmsmedia_figure_label_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-figurelabel-body'
+  // Exported field_instance: 'node-figurelabel-body'.
   $field_instances['node-figurelabel-body'] = array(
     'bundle' => 'figurelabel',
     'default_value' => NULL,
@@ -86,7 +86,7 @@ function elmsmedia_figure_label_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-figurelabel-field_cis_course_ref'
+  // Exported field_instance: 'node-figurelabel-field_cis_course_ref'.
   $field_instances['node-figurelabel-field_cis_course_ref'] = array(
     'bundle' => 'figurelabel',
     'default_value' => NULL,
@@ -154,7 +154,7 @@ function elmsmedia_figure_label_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-figurelabel-field_tagging'
+  // Exported field_instance: 'node-figurelabel-field_tagging'.
   $field_instances['node-figurelabel-field_tagging'] = array(
     'bundle' => 'figurelabel',
     'default_value' => NULL,
@@ -211,7 +211,7 @@ function elmsmedia_figure_label_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-figurelabel-og_group_ref'
+  // Exported field_instance: 'node-figurelabel-og_group_ref'.
   $field_instances['node-figurelabel-og_group_ref'] = array(
     'bundle' => 'figurelabel',
     'default_value' => NULL,

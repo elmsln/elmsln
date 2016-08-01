@@ -10,7 +10,7 @@
 function elmsmedia_audio_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_audio'
+  // Exported field_base: 'field_audio'.
   $field_bases['field_audio'] = array(
     'active' => 1,
     'cardinality' => 1,

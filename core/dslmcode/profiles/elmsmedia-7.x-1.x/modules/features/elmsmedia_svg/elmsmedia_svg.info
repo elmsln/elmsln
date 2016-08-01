@@ -11,6 +11,7 @@ dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = file
 dependencies[] = inline_entity_form
+dependencies[] = og
 dependencies[] = options
 dependencies[] = strongarm
 dependencies[] = svg_sanitizer

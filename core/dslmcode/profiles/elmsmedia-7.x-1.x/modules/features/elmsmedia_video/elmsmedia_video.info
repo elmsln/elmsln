@@ -12,6 +12,7 @@ dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = file
 dependencies[] = image
+dependencies[] = og
 dependencies[] = options
 dependencies[] = strongarm
 dependencies[] = taxonomy

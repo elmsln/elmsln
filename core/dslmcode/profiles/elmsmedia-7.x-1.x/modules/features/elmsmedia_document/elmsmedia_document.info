@@ -10,6 +10,7 @@ dependencies[] = elmsmedia_feature
 dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = file
+dependencies[] = og
 dependencies[] = options
 dependencies[] = strongarm
 dependencies[] = taxonomy

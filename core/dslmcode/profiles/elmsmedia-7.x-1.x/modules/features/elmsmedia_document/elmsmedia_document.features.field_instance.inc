@@ -10,7 +10,7 @@
 function elmsmedia_document_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-document-field_cis_course_ref'
+  // Exported field_instance: 'node-document-field_cis_course_ref'.
   $field_instances['node-document-field_cis_course_ref'] = array(
     'bundle' => 'document',
     'default_value' => NULL,
@@ -52,7 +52,7 @@ function elmsmedia_document_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-document-field_document_file'
+  // Exported field_instance: 'node-document-field_document_file'.
   $field_instances['node-document-field_document_file'] = array(
     'bundle' => 'document',
     'deleted' => 0,
@@ -94,7 +94,7 @@ function elmsmedia_document_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-document-field_tagging'
+  // Exported field_instance: 'node-document-field_tagging'.
   $field_instances['node-document-field_tagging'] = array(
     'bundle' => 'document',
     'default_value' => NULL,
@@ -139,7 +139,7 @@ function elmsmedia_document_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-document-og_group_ref'
+  // Exported field_instance: 'node-document-og_group_ref'.
   $field_instances['node-document-og_group_ref'] = array(
     'bundle' => 'document',
     'default_value' => NULL,
