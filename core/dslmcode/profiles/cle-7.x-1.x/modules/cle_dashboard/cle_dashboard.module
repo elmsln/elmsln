@@ -45,12 +45,10 @@ function cle_dashboard_theme($existing, $type, $theme, $path) {
  * Load Material Design.
  */
 function cle_dashboard_page_build(&$page) {
-  global $theme;
-  if ($theme == 'cle_foundation_access') {
-    drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.js', array('scope' => 'footer'));
-    drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular-sanitize.js', array('scope' => 'footer'));
-  }
-  //custom
+  // angular
+  drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.js', array('scope' => 'footer'));
+  drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular-sanitize.js', array('scope' => 'footer'));
+  // custom
   drupal_add_css(drupal_get_path('module', 'cle_dashboard') . '/css/cle-dashboard.css');
   drupal_add_js(drupal_get_path('module', 'cle_dashboard') . '/js/cle-dashboard.js');
 }
