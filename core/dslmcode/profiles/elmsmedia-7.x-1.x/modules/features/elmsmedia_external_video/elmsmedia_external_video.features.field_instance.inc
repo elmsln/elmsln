@@ -10,7 +10,7 @@
 function elmsmedia_external_video_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-external_video-field_cis_course_ref'
+  // Exported field_instance: 'node-external_video-field_cis_course_ref'.
   $field_instances['node-external_video-field_cis_course_ref'] = array(
     'bundle' => 'external_video',
     'default_value' => NULL,
@@ -67,7 +67,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-field_external_media'
+  // Exported field_instance: 'node-external_video-field_external_media'.
   $field_instances['node-external_video-field_external_media'] = array(
     'bundle' => 'external_video',
     'default_value' => NULL,
@@ -76,7 +76,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'video_embed_field',
+        'module' => 'elmsmedia_helper',
         'settings' => array(
           'description' => 1,
           'description_position' => 'bottom',
@@ -87,7 +87,7 @@ function elmsmedia_external_video_field_default_field_instances() {
       ),
       'iframe' => array(
         'label' => 'hidden',
-        'module' => 'video_embed_field',
+        'module' => 'elmsmedia_helper',
         'settings' => array(
           'description' => 1,
           'description_position' => 'bottom',
@@ -98,7 +98,7 @@ function elmsmedia_external_video_field_default_field_instances() {
       ),
       'mediavideo' => array(
         'label' => 'hidden',
-        'module' => 'video_embed_field',
+        'module' => 'elmsmedia_helper',
         'settings' => array(
           'description' => 1,
           'description_position' => 'bottom',
@@ -132,7 +132,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-field_figurelabel_ref'
+  // Exported field_instance: 'node-external_video-field_figurelabel_ref'.
   $field_instances['node-external_video-field_figurelabel_ref'] = array(
     'bundle' => 'external_video',
     'default_value_function' => '',
@@ -217,7 +217,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-field_poster'
+  // Exported field_instance: 'node-external_video-field_poster'.
   $field_instances['node-external_video-field_poster'] = array(
     'bundle' => 'external_video',
     'deleted' => 0,
@@ -295,7 +295,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-field_tagging'
+  // Exported field_instance: 'node-external_video-field_tagging'.
   $field_instances['node-external_video-field_tagging'] = array(
     'bundle' => 'external_video',
     'default_value' => NULL,
@@ -353,7 +353,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-og_group_ref'
+  // Exported field_instance: 'node-external_video-og_group_ref'.
   $field_instances['node-external_video-og_group_ref'] = array(
     'bundle' => 'external_video',
     'default_value' => NULL,

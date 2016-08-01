@@ -10,7 +10,7 @@
 function elmsmedia_video_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_caption'
+  // Exported field_base: 'field_caption'.
   $field_bases['field_caption'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -35,7 +35,7 @@ function elmsmedia_video_field_default_field_bases() {
     'type' => 'file',
   );
 
-  // Exported field_base: 'field_transcript'
+  // Exported field_base: 'field_transcript'.
   $field_bases['field_transcript'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -60,7 +60,7 @@ function elmsmedia_video_field_default_field_bases() {
     'type' => 'file',
   );
 
-  // Exported field_base: 'field_video'
+  // Exported field_base: 'field_video'.
   $field_bases['field_video'] = array(
     'active' => 1,
     'cardinality' => 1,

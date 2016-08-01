@@ -10,7 +10,7 @@
 function elmsmedia_image_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-elmsmedia_image-field_cis_course_ref'
+  // Exported field_instance: 'node-elmsmedia_image-field_cis_course_ref'.
   $field_instances['node-elmsmedia_image-field_cis_course_ref'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
@@ -67,7 +67,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_citation'
+  // Exported field_instance: 'node-elmsmedia_image-field_citation'.
   $field_instances['node-elmsmedia_image-field_citation'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
@@ -172,7 +172,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_figurelabel_ref'
+  // Exported field_instance: 'node-elmsmedia_image-field_figurelabel_ref'.
   $field_instances['node-elmsmedia_image-field_figurelabel_ref'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value_function' => '',
@@ -257,7 +257,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_image'
+  // Exported field_instance: 'node-elmsmedia_image-field_image'.
   $field_instances['node-elmsmedia_image-field_image'] = array(
     'bundle' => 'elmsmedia_image',
     'deleted' => 0,
@@ -360,7 +360,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_image_caption'
+  // Exported field_instance: 'node-elmsmedia_image-field_image_caption'.
   $field_instances['node-elmsmedia_image-field_image_caption'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
@@ -465,7 +465,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_tagging'
+  // Exported field_instance: 'node-elmsmedia_image-field_tagging'.
   $field_instances['node-elmsmedia_image-field_tagging'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
@@ -519,7 +519,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-og_group_ref'
+  // Exported field_instance: 'node-elmsmedia_image-og_group_ref'.
   $field_instances['node-elmsmedia_image-og_group_ref'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,

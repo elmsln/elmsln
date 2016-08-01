@@ -10,7 +10,7 @@
 function elmsmedia_audio_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-audio-field_audio'
+  // Exported field_instance: 'node-audio-field_audio'.
   $field_instances['node-audio-field_audio'] = array(
     'bundle' => 'audio',
     'deleted' => 0,
@@ -18,7 +18,7 @@ function elmsmedia_audio_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
+        'module' => 'file',
         'settings' => array(
           'controls' => 1,
           'download_link' => 0,
@@ -26,12 +26,12 @@ function elmsmedia_audio_field_default_field_instances() {
           'height' => 30,
           'width' => '100%',
         ),
-        'type' => 'ableplayer_audio',
+        'type' => 'file_default',
         'weight' => 1,
       ),
       'iframe' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
+        'module' => 'file',
         'settings' => array(
           'controls' => 1,
           'download_link' => 0,
@@ -39,7 +39,7 @@ function elmsmedia_audio_field_default_field_instances() {
           'height' => 30,
           'width' => '100%',
         ),
-        'type' => 'ableplayer_audio',
+        'type' => 'file_default',
         'weight' => 0,
       ),
       'teaser' => array(
@@ -71,7 +71,7 @@ function elmsmedia_audio_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-audio-field_cis_course_ref'
+  // Exported field_instance: 'node-audio-field_cis_course_ref'.
   $field_instances['node-audio-field_cis_course_ref'] = array(
     'bundle' => 'audio',
     'default_value' => NULL,
@@ -119,7 +119,7 @@ function elmsmedia_audio_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-audio-field_tagging'
+  // Exported field_instance: 'node-audio-field_tagging'.
   $field_instances['node-audio-field_tagging'] = array(
     'bundle' => 'audio',
     'default_value' => NULL,
@@ -167,7 +167,7 @@ function elmsmedia_audio_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-audio-og_group_ref'
+  // Exported field_instance: 'node-audio-og_group_ref'.
   $field_instances['node-audio-og_group_ref'] = array(
     'bundle' => 'audio',
     'default_value' => NULL,
