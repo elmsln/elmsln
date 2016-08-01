@@ -225,7 +225,7 @@ function elmsmedia_helper_field_formatter_settings_form($field, $instance, $view
 function elmsmedia_helper_field_formatter_settings_summary($field, $instance, $view_mode) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
-  return t('Height: @height', array('@height' => $settings['height']));
+  return t('Height: @height', array('@height' => (isset($settings['height']) ? $settings['height'] : '')));
 }
 
 /**
