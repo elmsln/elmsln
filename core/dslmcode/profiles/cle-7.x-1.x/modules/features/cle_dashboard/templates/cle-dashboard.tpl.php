@@ -12,7 +12,7 @@
         </div>
         <div class="post-date">
           <span> Due: </span>
-          <span ng-bind-html="assignment.field_field_begin_date[0].rendered['#markup']"></span> to <span ng-bind-html="assignment.field_field_due_date[0].rendered['#markup']"></span>
+          <span ng-bind-html="assignment.field_field_begin_date[0].rendered['#markup']"> to</span>  <span ng-bind-html="assignment.field_field_due_date[0].rendered['#markup']"></span>
         </div>
       </div>
     </a>
