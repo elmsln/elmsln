@@ -36,6 +36,14 @@
   color: white;
 }
 
+/* Assignment Node */
+.field-name-field-cle-crit-criteria p:first-of-type {
+  margin-top: 0;
+}
+.field-name-field-cle-crit-criteria p:last-of-type {
+  margin-bottom: 0;
+}
+
 
 /* Critique Form */
 #cle-critique-node-form {
@@ -83,7 +91,6 @@
 #cle-critique-node-form .is-closed .text-format-wrapper {
   opacity: .3;
 }
-
 
 #cle-critique-node-form .filter-wrapper {
   display: none;

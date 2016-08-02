@@ -50,3 +50,10 @@ span.form-required {
 .table tr:hover {
 	background-color:#eee;
 }
+
+.field-name-field-cle-crit-criteria p:first-of-type {
+  margin-top: 0;
+}
+.field-name-field-cle-crit-criteria p:last-of-type {
+  margin-bottom: 0;
+}

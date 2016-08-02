@@ -142,7 +142,7 @@ function cle_assignment_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 8,
+        'weight' => 3,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -203,7 +203,7 @@ function cle_assignment_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 10,
+        'weight' => 5,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -242,7 +242,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 7,
+        'weight' => 15,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -321,11 +321,11 @@ function cle_assignment_field_default_field_instances() {
     'description' => 'This helps to identify assignments when viewing multiple',
     'display' => array(
       'default' => array(
-        'label' => 'inline',
+        'label' => 'hidden',
         'module' => 'jquery_colorpicker',
         'settings' => array(),
         'type' => 'jquery_colorpicker_color_display',
-        'weight' => 2,
+        'weight' => 0,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -443,7 +443,7 @@ function cle_assignment_field_default_field_instances() {
           'multiple_to' => '',
         ),
         'type' => 'date_default',
-        'weight' => 11,
+        'weight' => 1,
       ),
       'full' => array(
         'label' => 'inline',
@@ -531,7 +531,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 3,
+        'weight' => 2,
       ),
       'full' => array(
         'label' => 'inline',
@@ -582,7 +582,7 @@ function cle_assignment_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 9,
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'inline',
@@ -686,7 +686,7 @@ Page',
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 11,
+        'weight' => 6,
       ),
       'full' => array(
         'label' => 'inline',
@@ -789,7 +789,7 @@ Drawing Exercise',
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 12,
+        'weight' => 7,
       ),
       'full' => array(
         'label' => 'hidden',

@@ -48,7 +48,7 @@ function cle_assignment_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Extras',
-    'weight' => '4',
+    'weight' => '5',
     'children' => array(
       0 => 'field_cis_tag',
       1 => 'field_cle_order',
@@ -169,7 +169,7 @@ function cle_assignment_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Logistics',
-    'weight' => '2',
+    'weight' => '3',
     'children' => array(
       0 => 'field_cle_sub_type',
       1 => 'field_due_date',
