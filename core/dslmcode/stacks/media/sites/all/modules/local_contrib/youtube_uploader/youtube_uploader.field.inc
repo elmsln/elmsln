@@ -2,9 +2,11 @@
 /**
  * @file
  * Implement a youtube_upload field, based on the file module's file field.
- * but that never hit the Drupal file system
- * the upload is done directly to Youtube in ajax
- * @link https://developers.google.com/youtube/v3 for implementation. @endlink
+ *
+ * That never hits the Drupal file system
+ * the upload is done directly to Youtube in ajax.
+ * @link https://developers.google.com/youtube/v3 for implementation. @endlink.
+ *
  * @see js/yu.js
  */
 
@@ -61,7 +63,8 @@ function youtube_uploader_field_widget_form(&$form, &$form_state, $field, $insta
 
   if (!isset($token['refresh_token'])) {
     drupal_set_message(t('Google refresh token not found. Please configure YouTube uploader !here', array(
-      '!here' => l(t('here'), 'admin/config/media/youtube_uploader'))), 'error');
+      '!here' => l(t('here'), 'admin/config/media/youtube_uploader'),
+    )), 'error');
   }
 
   $defaults = array(
@@ -149,7 +152,7 @@ function youtube_uploader_field_widget_process($element, &$form_state, $form) {
 
   /* @TODO try to add an additionnal _process to existing
    * file_managed_file_process and file_field_widget_process
-  */
+   */
   $item = $element['#value'];
   $ytid = isset($item['fid']) ? $item['fid'] : 0;
 
@@ -167,14 +170,15 @@ function youtube_uploader_field_widget_process($element, &$form_state, $form) {
   if (!$cors_path) {
     drupal_set_message(t('cors_upload.js file not found, check the !status-report section "Google CORS Upload" for more information. Videos shall not be uploaded', array('!status-report' => l(t('Status Report'), 'admin/reports/status'))), 'error', FALSE);
   }
-  // Attach library JS, module custom JS and setting to get video title as node title
+  // Attach library JS, module custom JS and setting to get video title as
+  // node title.
   $element['#attached']['js'] = array(
     $cors_path,
     drupal_get_path('module', 'youtube_uploader') . '/js/yu.js',
     array(
-          'data' => array('youtube_uploader' => array('autotitle' => variable_get('youtube_uploader_autotitle', FALSE))),
-          'type' => 'setting',
-      )
+      'data' => array('youtube_uploader' => array('autotitle' => variable_get('youtube_uploader_autotitle', FALSE))),
+      'type' => 'setting',
+    ),
   );
   $element['#attached']['css'] = array(
     drupal_get_path('module', 'youtube_uploader') . '/css/yu.css',
@@ -248,7 +252,8 @@ function youtube_uploader_field_widget_process($element, &$form_state, $form) {
     // by the javascript upload to youtube (see js/yu.js).
     '#attributes' => array(
       'class' => array('upload-video element-hidden'),
-      'style' => array('display:none')),
+      'style' => array('display:none'),
+    ),
   );
 
   $element['remove_button'] = array(
@@ -271,7 +276,8 @@ function youtube_uploader_field_widget_process($element, &$form_state, $form) {
     '#weight' => -10,
     '#suffix' => '<div class="during-upload" style="display: none"> <progress id="upload-progress" max="1" value="0"></progress> <span id="percent-transferred"></span>% <span id="seconds-left"></span>sec left </div>',
     '#attributes' => array(
-      'class' => array('youtube-uploader-file')),
+      'class' => array('youtube-uploader-file'),
+    ),
   );
 
   // Need to add a reference to the field to get video properties
@@ -288,11 +294,18 @@ function youtube_uploader_field_widget_process($element, &$form_state, $form) {
       '#markup' => theme('youtube_uploader_form_preview', array(
         'video_id' => $ytid,
         'title' => $item['video_title'],
-        'thumb' => $thumb_url)
+        'thumb' => $thumb_url,
+    )
       ) ,
       '#weight' => -10,
     );
   }
+
+  $element['description'] = array(
+    '#type' => 'markup',
+    '#markup' => '<div class="description">' . $element['#description'] . '</div>',
+    '#weight' => -4,
+  );
 
   // Prefix and suffix used for Ajax replacement.
   $element['#prefix'] = '<div id="' . $element['#id'] . '-ajax-wrapper">';
@@ -329,7 +342,7 @@ function youtube_uploader_field_widget_process($element, &$form_state, $form) {
 
 /**
  * Form submission handler for upload / remove buttons.
- * 
+ *
  * @see file_managed_file_submit()
  */
 function youtube_uploader_field_widget_submit($form, &$form_state) {
@@ -387,7 +400,7 @@ function youtube_uploader_field_delete($entity_type, $entity, $field, $instance,
 /**
  * Implements hook_field_is_empty().
  *
- * hook_field_is_emtpy() is where Drupal asks us if this field is empty.
+ * Hook_field_is_emtpy() is where Drupal asks us if this field is empty.
  * Return TRUE if it does not contain data, FALSE if it does. This lets
  * the form API flag an error when required fields are empty.
  */
@@ -455,8 +468,8 @@ function youtube_uploader_field_prepare_view($entity_type, $entities, $field, $i
 
 /**
  * Implements hook_field_prepare_view().
- * 
- * check if the field is required.
+ *
+ * Check if the field is required.
  */
 function youtube_uploader_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
   if ($instance['required'] == 1 && $items[0]['fid'] === "0") {
@@ -465,10 +478,10 @@ function youtube_uploader_field_validate($entity_type, $entity, $field, $instanc
 }
 
 /**
- * formatter
- * 
- * mostly taken from youtube module so credit to them 
- * http://drupal.org/project/youtube
+ * Formatter.
+ *
+ * Mostly taken from youtube module so credit to them
+ * http://drupal.org/project/youtube.
  */
 
 /**

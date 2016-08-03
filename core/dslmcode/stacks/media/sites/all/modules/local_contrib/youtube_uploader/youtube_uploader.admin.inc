@@ -13,7 +13,10 @@ function youtube_uploader_account_settings_form($form, $form_state) {
   // Test if we get the google API Library client.
   $ytapi = new youtubeUploaderYtapi();
   if (!$ytapi->mtestGoogleLib()) {
-    $form['lib_error']['#markup'] = t('Google Libraries not found.<br />Use drush to download them <em>drush ytu-libraries</em><br /> or check the !status for the manual procedure, section Google API and Google CORS.', array(
+    $form['lib_error']['#markup'] = t('Google Libraries not found.<br />Use drush to download them <em>drush ytu-libraries</em>
+        <br /> then go to the library folder google-api-php-client and run <em>composer install</em> 
+        <br />so the path <em>libraries/google-api-php-client/vendor/autoload.php</em> is available
+        <br /> or check the !status for the manual procedure, section Google API and Google CORS.', array(
           '!status' => l(t('Status report'), 'admin/reports/status'),
       ));
     return $form;
@@ -49,12 +52,13 @@ function youtube_uploader_account_settings_form($form, $form_state) {
     '#title' => t('Client ID'),
     '#default_value' => variable_get('youtube_uploader_client_id', ''),
     '#required' => TRUE,
+    '#description' => '<em>xxx..apps.googleusercontent.com</em><br />'
   );
   $protocol = (isset($_SERVER['HTTPS'])) ? 'https' : 'http';
   $form['google_app']['youtube_uploader_client_secret'] = array(
     '#type' => 'textfield',
     '#title' => t('Client secret'),
-    '#description' => '<em>xxx..apps.googleusercontent.com</em><br />' . t('Get credentials keys on !here <br />Next in "APIs & auth" -> "Credentials" -> "OAuth". Click "Create new Client ID" and then under "Application Type" select "Web Application".<br />For the redirect uri use !protocol :// !server_name /youtube_uploader/oauth2callback',
+    '#description' => t('Get credentials keys on !here <br />Next in "APIs & auth" -> "Credentials" -> "OAuth". Click "Create new Client ID" and then under "Application Type" select "Web Application".<br />For the redirect uri use !protocol :// !server_name /youtube_uploader/oauth2callback',
       array(
         '!here' => l(t('https://console.developers.google.com'), 'https://console.developers.google.com/project'),
         '!protocol' => $protocol,

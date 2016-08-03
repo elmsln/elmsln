@@ -15,11 +15,10 @@ stred (http://drupal.org/user/956840)
 DESCRIPTION
 -----------
 This module provides a field to upload video directly to YouTube and a formatter
- to display the videos. It uses the Google api php client library to interface the 
- YouTube API
- and implements the "browser upload method" so the file never hits the Drupal
- file system. It saves storage and bandwidth and your users don't need a 
- YouTube Account. 
+ to display the videos. It uses the Google api php client library to interface 
+ the YouTube API and implements the "browser upload method" so the file never
+ hits the Drupal file system. It saves storage and bandwidth and your users
+ don't need a YouTube Account. 
  
 REQUIREMENTS
 ------------
@@ -41,6 +40,8 @@ the libraries will be created on sites/all/libraries
 use drush ytu-libraries to only (re)install them. 
 Pass the directory as parameter to use a different libraries folder 
 drush ytu-libraries sites/mysite/libraries
+
+DO NOT FORGET NEXT to do a "composer install" inside of the google-api-php-client folder.
 
 Manual
 
@@ -114,4 +115,3 @@ http://drupal.org/project/video_upload
 
  Re-use video previously uploaded 
  (probably with the help of the FileField Sources module)
- 

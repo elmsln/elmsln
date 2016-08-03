@@ -2,9 +2,12 @@
 
 /**
  * @file
- * Youtube uploader Zend Gdata implementation
+ * Youtube uploader Zend Gdata implementation.
  */
 
+/**
+ * Class definition.
+ */
 class YoutubeUploaderYtapi {
 
   protected $yt;
@@ -32,22 +35,21 @@ class YoutubeUploaderYtapi {
    */
   protected function includeGoogleLib() {
 
-    if (file_exists(DRUPAL_ROOT . "/sites/all/libraries/google-api-php-client/src/Google/autoload.php")) {
-      $path = DRUPAL_ROOT . "/sites/all/libraries";
+    $lib_path = 'libraries/google-api-php-client/vendor/autoload.php';
+    if (file_exists(DRUPAL_ROOT . "/sites/all/" . $lib_path)) {
+      $path = DRUPAL_ROOT . "/sites/all/";
     }
-    elseif (file_exists(DRUPAL_ROOT . "/sites/" . $_SERVER['SERVER_NAME'] . "/libraries/google-api-php-client/src/Google/autoload.php")) {
-      $path = DRUPAL_ROOT . "/sites/" . $_SERVER['SERVER_NAME'] . "/libraries";
+    elseif (file_exists(DRUPAL_ROOT . "/sites/" . $_SERVER['SERVER_NAME'] . $lib_path)) {
+      $path = DRUPAL_ROOT . "/sites/" . $_SERVER['SERVER_NAME'] . "/";
     }
-    elseif (file_exists('profiles/' . drupal_get_profile() . '/libraries/google-api-php-client/src/Google/autoload.php')) {
-      $path = 'profiles/' . drupal_get_profile() . '/libraries';
+    elseif (file_exists('profiles/' . drupal_get_profile() . $lib_path)) {
+      $path = 'profiles/' . drupal_get_profile() . '/';
     }
     else {
       return FALSE;
     }
 
-    set_include_path(get_include_path() . PATH_SEPARATOR . $path);
-
-    require_once $path . '/google-api-php-client/src/Google/autoload.php';
+    require_once $path . $lib_path;
 
     return TRUE;
   }
@@ -70,7 +72,7 @@ class YoutubeUploaderYtapi {
     try {
       $this->authenticate();
       $this->client->authenticate($code);
-      variable_set('youtube_uploader_token', drupal_json_decode($this->client->getAccessToken()));
+      variable_set('youtube_uploader_token', $this->client->getAccessToken());
     }
     catch (Google_ServiceException $e) {
       drupal_set_message(t('A service error occurred: <code>@error</code></p>', array('@error' => htmlspecialchars($e->getMessage()))), 'error');
@@ -129,14 +131,15 @@ class YoutubeUploaderYtapi {
     $error = '';
     try {
       $this->authenticate();
-      $this->client->setAccessToken(drupal_json_encode($token));
+      $this->client->setAccessToken($token);
 
       // Check to see if our access token has expired.
       // If so, get a new one and save it to file for future use.
       if ($this->client->isAccessTokenExpired()) {
-        $new_token = json_decode($this->client->getAccessToken());
-        $this->client->refreshToken($new_token->refresh_token);
-        $token = drupal_json_decode($this->client->getAccessToken());
+        $new_token = $this->client->getAccessToken();
+        $this->client->refreshToken($new_token['refresh_token']);
+        $token = $this->client->getAccessToken();
+        $token['refresh_token'] = $new_token['refresh_token'];
         variable_set('youtube_uploader_token', $token);
       }
     }
@@ -199,4 +202,5 @@ class YoutubeUploaderYtapi {
       drupal_set_message(t('A client error occurred: <code>@error</code></p>', array('@error' => htmlspecialchars($e->getMessage()))), 'error');
     }
   }
+
 }
