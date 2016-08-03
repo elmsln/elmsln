@@ -100,3 +100,15 @@ div.textbook_box li:before{
   transition: all .3s ease-out;
   font-size: 1rem;
 }
+
+/* Responsive */
+@media screen and (max-width: 80rem) {
+  div.textbook_box h3 {
+    float: none;
+    margin: 0;
+    padding: 1rem 1rem 0;
+    border:none;
+    background-color: transparent;
+    line-height: 1;
+  }
+}
