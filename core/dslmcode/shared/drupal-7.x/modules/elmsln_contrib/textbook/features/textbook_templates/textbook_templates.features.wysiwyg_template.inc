@@ -223,13 +223,13 @@ function textbook_templates_wysiwyg_template_default_templates() {
 <p>This topic uses one or more required readings and one or more optional readings. By completing these readings before studying the lecture, you will make the most effective use of both. As you read, remember to take good notes using your study sheets.</p>
 <div class="textbook_box textbook_box_required">
   <h3>Required</h3>
-  <ol>
+  <ol class="list-colorluminance" data-colorluminance="#ff8888">
     <li>&quot;<a href="link">Linked page title</a>&quot; (Source: The source you are linking to)</li>
   </ol>
 </div>
 <div class="textbook_box textbook_box_optional">
   <h3>Optional</h3>
-  <ol>
+  <ol class="list-colorluminance" data-colorluminance="#80c0e0">
     <li>&quot;<a href="link">Linked page title</a>&quot; (Source: The source you are linking to)</li>
     <li>&quot;<a href="link">Linked page title</a>&quot; (Note: A note about what you should pay attention to)</li>
   </ol>
