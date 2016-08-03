@@ -123,7 +123,7 @@ class OgBehaviorHandler extends EntityReference_BehaviorHandler_Abstract {
       $gid = $item['target_id'];
 
       // Must provide correct state in the event that approval is required.
-      if (empty($item['state']) && $entity_type == 'user' && !og_user_access($group_type, $gid, 'subscribe without approval', $entity)) {
+      if (empty($item['state']) && $entity_type == 'user' && !og_user_access($group_type, $gid, 'subscribe without approval', $entity) && !og_user_access($group_type, $gid, 'subscribe without approval', $GLOBALS['user'])) {
         $item['state'] = OG_STATE_PENDING;
       }
       elseif (empty($item['state']) || !in_array($gid, $diff['insert'])) {
