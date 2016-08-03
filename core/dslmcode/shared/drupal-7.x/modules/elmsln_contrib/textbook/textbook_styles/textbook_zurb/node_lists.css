@@ -7,41 +7,35 @@ div.textbook_box {
   display: block;
   margin: 1em 0px 2em 0px;
   padding: .5em;
-  -moz-border-radius: 4px 4px 0px 0px;
-  -webkit-border-radius: 4px 4px 0px 0px;
-  border-radius: 4px 4px 0px 0px; /* future proofing */
-  -khtml-border-radius: 4px 4px 0px 0px; /* for old Konqueror browsers */
 }
 div.textbook_box h3 {
   font-size: 1.5em;
   font-weight: bold;
   display: block;
-  float: left;
-  margin-top: -25px !important;
-  margin-bottom: 0px;
-  margin-left: 5px;
-  margin-right:0px;
-  background-color:#fafafa;
-  border:2px solid;
-  padding:4px 6px;
-  letter-spacing:.06em;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px; /* future proofing */
-  -khtml-border-radius: 4px; /* for old Konqueror browsers */
+  float: right;
+  margin-top: -10px !important;
+  margin-right: -10px;
+  margin-bottom: 8px;
+  margin-left: 0px;
+  padding: 0px 0px 8px 8px;
+  background-color: #fafafa;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+  letter-spacing: .06em;
+  line-height: 1;
 }
 div.textbook_box_required {
-  border:#e98 2px solid;
+  border:#f88 2px solid;
 }
 div.textbook_box_required h3{
-  color:#e98;
+  color:#f88;
 }
 div.textbook_box_required li:before{
-  background: #e98;
+  background: #f88;
 }
 div.textbook_box_required li:hover:before{
  font-weight:bold;
- border: .3em solid #e98;
+ border: .3em solid #f88;
  background: #fff;
 }
 /* Optional list color shift */
@@ -79,10 +73,6 @@ div.textbook_box li{
   background: #eee;
   color: #444;
   text-decoration: none;
-  -moz-border-radius: .3em;
-  -webkit-border-radius: .3em;
-  border-radius: .3em; /* future proofing */
-  -khtml-border-radius: .3em; /* for old Konqueror browsers */
   transition: all .3s ease-out;
 }
 
