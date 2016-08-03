@@ -281,21 +281,9 @@ function foundation_access_field__field_cis_course_ref($variables) {
     $output .= '<h3 ' . $variables['title_attributes'] . '>' . $variables['label'] . '</h3>';
   }
 
-  // Quick Edit module requires some extra wrappers to work.
-  if (module_exists('quickedit')) {
-    $output .= '<div class="field-items"' . $variables['content_attributes'] . '>';
-    foreach ($variables['items'] as $delta => $item) {
-      $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
-      $output .= '<div class="' . $classes . '"' . $variables['item_attributes'][$delta] . '>' . drupal_render($item) . '</div>';
-    }
-    $output .= '</div>';
+  foreach ($variables['items'] as $item) {
+    $output .= drupal_render($item);
   }
-  else {
-    foreach ($variables['items'] as $item) {
-      $output .= drupal_render($item);
-    }
-  }
-
   // Render the top-level DIV.
   $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
 
