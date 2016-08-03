@@ -26,16 +26,18 @@ function elmsln_bakery_install() {
   $cfg = _cis_connector_get_cfg();
   // build the registry so we know our domains
   $settings = _cis_connector_build_registry();
+  // allow for custom bakery authority
+  $bakery_authority = variable_get('elmsln_bakery_authority', 'cpr');
   // set the domain which things can respond to
   variable_set('bakery_domain', '.' . $cfg['address']);
   // need to look at current site for it being the 'people' domain
-  if (variable_get('install_profile', 'standard') == 'cpr') {
+  if (variable_get('install_profile', 'standard') == $bakery_authority) {
     $children = array();
     // build out the children that this can respond to
     foreach ($settings as $key => $system) {
       // ensure custom usage of the registry doesn't bleed over into this
       // as well as this not being the people distro which is the authority
-      if (!isset($system['custom']) && $key != 'cpr') {
+      if (!isset($system['custom']) && $key != $bakery_authority) {
         $children[] = _cis_connector_format_address($system, '/', 'front');
       }
     }
@@ -46,7 +48,7 @@ function elmsln_bakery_install() {
     variable_set('bakery_is_master', 0);
   }
   // people distro is the master for this
-  $bakery_master = _cis_connector_format_address($settings['cpr'], '/', 'front');
+  $bakery_master = _cis_connector_format_address($settings[$bakery_authority], '/', 'front');
   variable_set('bakery_master', $bakery_master);
   // generate a key from the UUID on disk which will always turn into the same thing
   // but is completely random based on when this was installed and will never be duplicated
