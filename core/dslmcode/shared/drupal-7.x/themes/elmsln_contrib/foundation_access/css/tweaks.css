@@ -1,3 +1,8 @@
+/* ELMSLN bullets */
+article.node div.body ul li {
+  list-style-type: initial;
+}
+
 button, .button {
   margin: 0;
 }
