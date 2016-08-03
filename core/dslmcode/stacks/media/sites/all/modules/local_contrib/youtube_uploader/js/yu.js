@@ -1,17 +1,16 @@
 /**
-* @file
-* Javascript to process the video to YouTube.
-*/
+ * @file
+ * Javascript to process the video to YouTube.
+ */
 
 (function($) {
   Drupal.behaviors.youtube_uploader = {
 
     attach : function(context, settings) {
-      var STATUS_POLLING_INTERVAL_MILLIS = 60 * 1000; // One minute.
-
-
+      var STATUS_POLLING_INTERVAL_MILLIS = 60 * 1000;
+      // One minute.
       /**
-       * YouTube video uploader class
+       * YouTube video uploader class.
        *
        * @constructor
        */
@@ -28,9 +27,10 @@
       /**
        * Uploads a video file to YouTube.
        *
-       * @method uploadFile
-       * @param {object} file File object corresponding to the video to upload.
-       * @param {string} token requested to upload.
+       * @param object file
+         File object corresponding to the video to upload.
+       * @param string token
+        Token requested to upload.
        */
       UploadVideo.prototype.uploadFile = function(file, token) {
         var metadata = {
@@ -60,7 +60,8 @@
             try {
               var errorResponse = JSON.parse(data);
               message = errorResponse.error.message;
-            } finally {
+            }
+            finally {
               alert(message);
             }
           }.bind(this),
@@ -87,7 +88,7 @@
             var uploadResponse = JSON.parse(data);
             // Add the id to the hidden fid field.
             $('input.youtube_hidden_id:last').val(uploadResponse.id);
-            // Remove form input value. 
+            // Remove form input value.
             $('.field-type-youtube-upload .form-type-file input').val('');
             // Then trigger the real upload button so Drupal will rebuild everything fine.
             $('.field-type-youtube-upload .upload-video').trigger("mousedown");
@@ -98,7 +99,7 @@
         this.uploadStartTime = Date.now();
         uploader.upload();
       };
-      
+
       // Create a fake button to send the video to youtube.
       if ($('.upload-toyoutube').length < 1) {
         $('.field-type-youtube-upload .form-type-file')
@@ -108,12 +109,12 @@
 
       // Refresh the thumb from youtube.
       $('.refresh_thumb a').each(refreshYoutubeInfo);
-      
-      // Get video title from node title
-      if(Drupal.settings.youtube_uploader.autotitle == 1) {
+
+      // Get video title from node title.
+      if (Drupal.settings.youtube_uploader.autotitle == 1) {
         var $vid_title = $('.field-type-youtube-upload input.video_title');
         $('#edit-title').keyup(function () {
-          $vid_title.val( $(this).val() );
+          $vid_title.val($(this).val());
         });
       }
 
@@ -121,7 +122,7 @@
         // Test if binding is already done... do not know why it binds a
         // second event when the field is rebuilt ?? otherwise it
         // triggers 2 times the func.
-        if (!$(this).data('events'))  {
+        if (!$(this).data('events')) {
           $(this).click(refreshYoutubeInfoClick);
         }
       }
@@ -153,7 +154,7 @@
       }
 
       function sendToYoutube() {
-     // Remove error messages if any.
+        // Remove error messages if any.
         $(this).parent('.form-managed-file').removeErrorMessage();
         $(this).unbind("click", sendToYoutube);
 
@@ -164,17 +165,18 @@
           $(this).bind("click", sendToYoutube);
           return false;
         }
-        
+
         var field_ref = $(this).parents('.field-type-youtube-upload').find('input[name$="[youtube_uploader_field_ref]"]').val();
-        
+
         var uploadVideo = new UploadVideo();
-        
+
         var _this = $(this);
         $.getJSON(Drupal.settings.basePath + "youtube_uploader/get_upload_data/" + Drupal.encodePath(field_ref), function(json) {
- 
+
           if (json.error) {
             _this.parent('.form-managed-file').showErrorMessage(json.error);
-          } else {
+          }
+          else {
             uploadVideo.description = json.up_settings.youtube_uploader_description;
             uploadVideo.tags = json.up_settings.youtube_uploader_tags.split(',');
             uploadVideo.categoryId = json.up_settings.youtube_uploader_category;
@@ -184,12 +186,12 @@
           }
 
         });
-      
+
         return false;
 
       }
-      
-   // Display error message.
+
+      // Display error message.
       $.fn.showErrorMessage = function(message) {
         if ($(this).siblings('.messages').length < 1) {
           $(this).siblings('.messages').remove();

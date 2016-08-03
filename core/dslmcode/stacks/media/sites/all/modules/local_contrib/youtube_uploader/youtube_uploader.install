@@ -100,10 +100,12 @@ function youtube_uploader_requirements($phase) {
     );
     if (!$ytapi->mtestGoogleLib()) {
       $url = l($t('here'), 'https://github.com/google/google-api-php-client/archive/master.zip');
-      $requirements['youtube_uploader_php']['description'] = $t('Install the Google api php client library code with drush command <em>drush ytu-libraries</em><br /> or manually (from !here) and extract it so the path <br />sites/all/libraries/google-api-php-client/src/Google/autoload.php <br />or sites/!domain/libraries/google-api-php-client/src/Google/autoload.php<br /> is available',
+      $requirements['youtube_uploader_php']['description'] = $t('Install the Google api php client library code with drush command <em>drush ytu-libraries</em>
+          <br /> or manually (from !here) and extract it to a valid library folder
+          <br /> then go to the library folder google-api-php-client and run <em>composer install</em> 
+          <br /> so the path <br />libraries/google-api-php-client/src/Google/autoload.php is available',
           array(
             '!here' => $url,
-            '!domain' => $_SERVER['SERVER_NAME'],
           ));
       $requirements['youtube_uploader_php']['severity'] = REQUIREMENT_ERROR;
     }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * upload video files directly to YouTube
+ * Upload video files directly to YouTube.
  */
 
 // Include the field element.
@@ -85,11 +85,11 @@ function _youtube_uploader_get_upload_data($field_refp = NULL) {
   return drupal_json_output(array('up_token' => $tok, 'up_settings' => $field_settings));
 }
 
- /**
-  * Refresh the thumb and the title from YouTube..
-  *
-  * @see youtube_uploader_menu()
-  */
+/**
+ * Refresh the thumb and the title from YouTube..
+ *
+ * @see youtube_uploader_menu()
+ */
 function _youtube_uploader_refreshdata($video_id) {
   $new_data = _youtube_uploader_get_default_image($video_id);
   if (!empty($new_data['error'])) {
@@ -105,11 +105,11 @@ function _youtube_uploader_refreshdata($video_id) {
     ));
 }
 
- /**
-  * Google redirect here when user allowed application.
-  *
-  * @see youtube_uploader_menu()
-  */
+/**
+ * Google redirect here when user allowed application.
+ *
+ * @see youtube_uploader_menu()
+ */
 function _youtube_uploader_ytcallback() {
 
   $params = drupal_get_query_parameters();
@@ -132,11 +132,11 @@ function _youtube_uploader_ytcallback() {
 
 }
 
- /**
-  * Get default thumb from youtube.
-  *
-  * @see youtube_uploader_menu()
-  */
+/**
+ * Get default thumb from youtube.
+ *
+ * @see youtube_uploader_menu()
+ */
 function _youtube_uploader_get_default_image($video_id) {
 
   if (empty($video_id)) {
@@ -158,6 +158,7 @@ function _youtube_uploader_get_default_image($video_id) {
   $scheme     = file_default_scheme();
   $directory  = $scheme . '://youtube_upload';
 
+  $code = '';
   // Replace the existing one.
   if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
     $result = drupal_http_request($remote_path);
@@ -185,14 +186,14 @@ function _youtube_uploader_get_default_image($video_id) {
   return $er;
 }
 
- /**
-  * Helper.
-  *
-  * get form field for the youtube settings
-  * (used on at the module and the field level)
-  *
-  * @see youtube_uploader_menu()
-  */
+/**
+ * Helper.
+ *
+ * Get form field for the youtube settings
+ * (used on at the module and the field level)
+ *
+ * @see youtube_uploader_menu()
+ */
 function youtube_uploader_get_settings_form() {
   $ret = array(
     '#type' => 'fieldset',
@@ -307,9 +308,9 @@ function youtube_uploader_theme() {
   );
 }
 
- /**
-  * theme functions.
-  */
+/**
+ * Theme functions.
+ */
 
 /**
  * Theme the form widget.
