@@ -33,11 +33,6 @@ div.textbook_box_required h3{
 div.textbook_box_required li:before{
   background: #f88;
 }
-div.textbook_box_required li:hover:before{
- font-weight:bold;
- border: .3em solid #f88;
- background: #fff;
-}
 /* Optional list color shift */
 div.textbook_box_optional {
   border:#80c0e0 2px solid;
@@ -47,11 +42,6 @@ div.textbook_box_optional h3{
 }
 div.textbook_box_optional li:before{
   background: #80c0e0;
-}
-div.textbook_box_optional li:hover:before{
- font-weight:bold;
- border: .3em solid #80c0e0;
- background: #fff;
 }
 
 div.textbook_box ol, div.textbook_box ul{
@@ -68,12 +58,12 @@ div.textbook_box li{
   position: relative;
   display: block;
   padding: .4em .4em .4em 2em;
-  *padding: .4em;
   margin: .7em 0 !important;
   background: #eee;
   color: #444;
   text-decoration: none;
   transition: all .3s ease-out;
+  overflow-wrap: break-word;
 }
 
 div.textbook_box li:hover{
@@ -85,12 +75,11 @@ div.textbook_box li:before{
   counter-increment: li;
   position: absolute;
   left: -1rem;
-  top: 50%;
+  top: 55%;
   margin-top: -1.25rem;
-  height: 2rem;
-  width: 2rem;
-  line-height: 1.5rem;
-  border: .3rem solid #fff;
+  height: 2.3rem;
+  width: 2.3rem;
+  line-height: 2.3rem;
   text-align: center;
   font-weight: bold;
   -moz-border-radius: 2rem;
@@ -98,7 +87,7 @@ div.textbook_box li:before{
   border-radius: 2rem; /* future proofing */
   -khtml-border-radius: 2rem; /* for old Konqueror browsers */
   transition: all .3s ease-out;
-  font-size: 1rem;
+  font-size: 1.4rem;
 }
 
 /* Responsive */
