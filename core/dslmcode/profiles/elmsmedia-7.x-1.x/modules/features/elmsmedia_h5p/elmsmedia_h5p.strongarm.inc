@@ -182,7 +182,7 @@ function elmsmedia_h5p_strongarm() {
             'visible' => TRUE,
           ),
           'full' => array(
-            'weight' => '2',
+            'weight' => '3',
             'visible' => TRUE,
           ),
           'iframe' => array(

@@ -30,7 +30,7 @@ function elmsmedia_external_video_field_default_field_instances() {
           'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 0,
+        'weight' => 1,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -115,7 +115,7 @@ function elmsmedia_external_video_field_default_field_instances() {
           'video_style' => 'normal',
         ),
         'type' => 'video_embed_field',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'iframe' => array(
         'label' => 'hidden',
@@ -222,7 +222,7 @@ function elmsmedia_external_video_field_default_field_instances() {
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -337,7 +337,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 6,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -437,7 +437,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -534,7 +534,7 @@ function elmsmedia_external_video_field_default_field_instances() {
           'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 1,
+        'weight' => 2,
       ),
       'mediavideo' => array(
         'label' => 'above',

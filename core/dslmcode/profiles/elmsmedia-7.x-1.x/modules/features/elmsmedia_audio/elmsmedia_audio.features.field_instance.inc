@@ -29,6 +29,18 @@ function elmsmedia_audio_field_default_field_instances() {
         'type' => 'file_default',
         'weight' => 1,
       ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'controls' => TRUE,
+          'download_link' => FALSE,
+          'download_text' => 'Download',
+          'height' => 385,
+        ),
+        'type' => 'able_video',
+        'weight' => 3,
+      ),
       'iframe' => array(
         'label' => 'hidden',
         'module' => 'file',
@@ -87,6 +99,15 @@ function elmsmedia_audio_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 3,
       ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
@@ -132,6 +153,13 @@ function elmsmedia_audio_field_default_field_instances() {
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
         'weight' => 2,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 4,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -181,6 +209,15 @@ function elmsmedia_audio_field_default_field_instances() {
         'settings' => array(),
         'type' => 'og_list_default',
         'weight' => 4,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',

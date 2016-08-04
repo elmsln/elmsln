@@ -31,7 +31,7 @@ function elmsmedia_h5p_field_default_field_instances() {
           'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 1,
+        'weight' => 2,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -100,7 +100,7 @@ function elmsmedia_h5p_field_default_field_instances() {
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 0,
+        'weight' => 3,
       ),
       'iframe' => array(
         'label' => 'above',
