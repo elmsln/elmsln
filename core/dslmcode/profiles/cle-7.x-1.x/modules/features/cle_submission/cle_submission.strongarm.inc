@@ -135,6 +135,12 @@ function cle_submission_strongarm() {
             'visible' => TRUE,
           ),
         ),
+        'submission_progress' => array(
+          'full' => array(
+            'weight' => '0',
+            'visible' => TRUE,
+          ),
+        ),
       ),
     ),
   );

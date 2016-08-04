@@ -14,6 +14,7 @@ dependencies[] = field_group
 dependencies[] = file_entity
 dependencies[] = filefield_paths
 dependencies[] = flag
+dependencies[] = flexslider
 dependencies[] = flexslider_fields
 dependencies[] = link
 dependencies[] = masonry_views

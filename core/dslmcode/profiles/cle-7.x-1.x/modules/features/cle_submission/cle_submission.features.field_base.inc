@@ -168,6 +168,7 @@ function cle_submission_field_default_field_bases() {
         'submission_in_progress' => ' Submission in progress',
         'submission_ready' => 'Submission ready for review',
         'submission_needs_work' => 'Submission needs work',
+        'submission_complete' => 'Submission complete',
       ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,
