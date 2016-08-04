@@ -8,7 +8,7 @@
         <div class="secondary-content">
           <span class="chip" ng-if="assignment.active"> Open For Submissions </span>
           <span class="chip" ng-if="assignment.closed"> Closed </span>
-          <span class="chip completed" ng-if="assignment.completed"> <i class="material-icons">check</i> Done </span>
+          <span class="chip completed" ng-if="assignment.completed">  Done <i class="material-icons">check</i></span>
         </div>
         <div class="post-date">
           <span> Due: </span>
@@ -41,7 +41,8 @@
       <div class="collapsible-header"><i class="material-icons">subject</i>
         <b>{{submission.node_title}}</b>
         <div class="secondary-content">
-          <span class="chip" ng-bind-html="submission.field_field_submission_state[0]['rendered']['#markup']"></span>
+          <span ng-if="submission.field_field_submission_state[0]['rendered']['#markup'] == 'Submission ready for review'" class="chip completed" ><span ng-bind-html="submission.field_field_submission_state[0]['rendered']['#markup']"></span><i class="material-icons">check</i></span>
+          <span ng-if="submission.field_field_submission_state[0]['rendered']['#markup'] != 'Submission ready for review'" class="chip" ng-bind-html="submission.field_field_submission_state[0]['rendered']['#markup']"></span>
         </div>
         <div class="meta-content">
           <div>Assignment: {{submission.node_field_data_field_assignment_title}}</div>

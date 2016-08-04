@@ -41,6 +41,18 @@
   margin-right: 0;
   font-size: .8rem;
   padding: 0 8px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
 .cle-dashboard .secondary-content .chip.completed {
@@ -49,4 +61,5 @@
 
 .cle-dashboard .secondary-content .chip i {
   margin-right: 0;
+  font-size: 1.6em;
 }
