@@ -1,0 +1,20 @@
+name = Puzzler
+description = Allows inclusion of pieces of data from Wikipedia and keeps them up to date.
+package = Services
+
+core = 7.x
+php = 5.1
+
+stylesheets[all][] = css/puzzler.css
+;files[] =
+
+dependencies[] = token
+
+configure = admin/config/services/puzzler
+
+; Information added by Drupal.org packaging script on 2016-07-28
+version = "7.x-1.2+3-dev"
+core = "7.x"
+project = "puzzler"
+datestamp = "1469714044"
+

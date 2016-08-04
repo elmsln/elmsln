@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Install the table neccessary for the module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function puzzler_schema() {
+
+  $schema['puzzler_cache'] = array(
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'value' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+      'expires' => array(
+        'type' => 'int',
+        'length' => 11,
+        'not null' => FALSE,
+      ),
+      'created_at' => array(
+        'type' => 'int',
+        'length' => 11,
+        'not null' => TRUE,
+      ),
+    ),
+    'unique keys' => array('ix_uniq_name' => array('name')),
+  );
+
+  return $schema;
+}
