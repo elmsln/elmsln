@@ -56,37 +56,58 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
       );
     }
     else {
+      // load up all data pulled in
+      $video_data = unserialize($item['video_data']);
       $tmp = drupal_parse_url($item['video_url']);
-      $yvid = '';
-      // check for youtube url vs embed
-      if (isset($tmp['query']['v'])) {
-        $yvid = $tmp['query']['v'];
+      if ($video_data['handler'] == 'vimeo') {
+        $element[$delta] = array(
+          '#attributes' => array(
+            'data-vimeo-id' => $video_data['id'],
+            'class' => 'vimeo-video elmsln-video elmsln-video-vimeo',
+            'id' => hash('md5', $video_data['id'] . $id),
+            'frameborder' => "0",
+            'webkitallowfullscreen' => TRUE,
+            'mozallowfullscreen' => TRUE,
+            'allowfullscreen' => TRUE,
+            'src' => 'https://player.vimeo.com/video/' . $video_data['id'] . '?title=0&byline=0&portrait=0',
+            'width' => '640px',
+            'height' => '360px',
+          ),
+          '#settings' => $video_data,
+        );
       }
-      else {
-        // rip out from embed based url
-        $ypath = explode('/', $tmp['path']);
-        $next = FALSE;
-        foreach ($ypath as $part) {
-          if ($next) {
-            $yvid = $part;
-            continue;
-          }
-          if ($part == 'embed') {
-            $next = TRUE;
+      elseif ($video_data['handler'] == 'youtube') {
+        $yvid = '';
+        // check for youtube url vs embed
+        if (isset($tmp['query']['v'])) {
+          $yvid = $tmp['query']['v'];
+        }
+        else {
+          // rip out from embed based url
+          $ypath = explode('/', $tmp['path']);
+          $next = FALSE;
+          foreach ($ypath as $part) {
+            if ($next) {
+              $yvid = $part;
+              continue;
+            }
+            if ($part == 'embed') {
+              $next = TRUE;
+            }
           }
         }
+        $element[$delta] = array(
+          '#attributes' => array(
+            'data-youtube-id' => $yvid,
+            'class' => $class,
+            'id' => hash('md5', $yvid . $id),
+          ),
+          '#settings' => $settings,
+          '#attached' => array(
+            'libraries_load' => array(array('ableplayer')),
+          ),
+        );
       }
-      $element[$delta] = array(
-        '#attributes' => array(
-          'data-youtube-id' => $yvid,
-          'class' => $class,
-          'id' => hash('md5', $yvid . $id),
-        ),
-        '#settings' => $settings,
-        '#attached' => array(
-          'libraries_load' => array(array('ableplayer')),
-        ),
-      );
     }
 
     if ($display['type'] == 'able_video') {
@@ -106,8 +127,18 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
       $element[$delta]['#theme'] = 'elmsmedia_helper_audio';
     }
     elseif ($display['type'] == 'video_embed_field') {
-      if (isset($item['thumbnail_path'])) {
+      // see if this is youtube or vimeo
+      if ($video_data['handler'] == 'vimeo') {
+        $element[$delta]['#theme'] = 'elmsmedia_helper_vimeo';
+      }
+      elseif ($video_data['handler'] == 'youtube') {
         $element[$delta]['#theme'] = 'elmsmedia_helper_youtube';
+      }
+      // set poster image
+      if (isset($entity->field_poster['und'])) {
+        $element[$delta]['#attributes']['poster'] = file_create_url($entity->field_poster['und'][0]['uri']);
+      }
+      elseif (isset($item['thumbnail_path'])) {
         $element[$delta]['#attributes']['poster'] = file_create_url($item['thumbnail_path']);
       }
     }
@@ -127,6 +158,9 @@ function elmsmedia_helper_theme() {
       'variables' => array('attributes' => array(), 'settings' => array()),
     ),
     'elmsmedia_helper_youtube' => array(
+      'variables' => array('attributes' => array(), 'settings' => array()),
+    ),
+    'elmsmedia_helper_vimeo' => array(
       'variables' => array('attributes' => array(), 'settings' => array()),
     ),
   );
@@ -180,6 +214,18 @@ function theme_elmsmedia_helper_youtube($variables) {
     </video>
   </div>
   <div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>
+  </div>';
+  return $output;
+}
+
+/**
+ * Callback for elmsmedia_helper_youtube()
+ */
+function theme_elmsmedia_helper_vimeo($variables) {
+  $output = ' <div class="row vimeo-video">
+    <div class="col s12 m8 l8">
+      <iframe ' . drupal_attributes($variables['attributes']) . '></iframe>
+    </div>
   </div>';
   return $output;
 }
