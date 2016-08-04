@@ -44,6 +44,15 @@
   margin-bottom: 0;
 }
 
+/* Submission Node */
+.cle-submission-progress {
+  padding: 2em;
+}
+@media screen and (max-width: 600px) {
+  .cle-submission-progress {
+    font-size: .7em;
+  }
+}
 
 /* Critique Form */
 #cle-critique-node-form {
