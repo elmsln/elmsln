@@ -37,38 +37,6 @@ button {
   }
 }
 
-/* Materialize chip */
-@media screen and (min-width: 80rem) {
-  article.node .field-type-taxonomy-term-reference.field-wrapper {
-    position: absolute !important;
-    left: 100%;
-    width: calc(50vw - 52%);
-    max-width: 30em;
-    display: block;
-    top:5rem;
-  }
-}
-
-/* Course / Section float off column when room */
-@media screen and (min-width: 80rem) {
-  article.node .field-name-field-cis-course-ref.field-type-entityreference.field-wrapper {
-    position: absolute !important;
-    left: 100%;
-    top: 0;
-    width: calc(50vw - 52%);
-    max-width: 30em;
-    display: block;
-  }
-  article.node .field-name-field-og-group-ref.field-type-entityreference.field-wrapper {
-    position: absolute !important;
-    left: 100%;
-    width: calc(50vw - 52%);
-    top: 3rem;
-    max-width: 30em;
-    display: block;
-  }
-}
-
 #etb-course-nav nav {
   box-shadow:none;
 }
