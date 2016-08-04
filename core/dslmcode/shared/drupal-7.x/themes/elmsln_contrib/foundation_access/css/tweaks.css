@@ -798,3 +798,16 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
     white-space: nowrap;
   }
 }
+
+span.textbook-san-serif {
+ font-family: "Open Sans","Helvetica Neue","Helvetica",sans-serif;
+}
+
+h1 span.textbook-san-serif,
+h2 span.textbook-san-serif,
+h3 span.textbook-san-serif,
+h4 span.textbook-san-serif,
+h5 span.textbook-san-serif,
+h6 span.textbook-san-serif {
+ font-weight:300 !important;
+}
