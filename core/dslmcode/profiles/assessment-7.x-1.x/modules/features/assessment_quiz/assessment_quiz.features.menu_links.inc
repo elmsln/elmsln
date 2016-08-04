@@ -10,7 +10,7 @@
 function assessment_quiz_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-elmsln-add_quiz:node/add/quiz
+  // Exported menu link: menu-elmsln-add_quiz:node/add/quiz.
   $menu_links['menu-elmsln-add_quiz:node/add/quiz'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/quiz',
