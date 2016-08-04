@@ -1,0 +1,16 @@
+/* Hide the metadata info, if any, from the top */
+.metadata, .homonymie{
+    display:none;
+}
+
+/* Float the infobox table(s) to the right */
+.infobox, .infobox_v3, .infobox_v2{
+    float:right;
+    border: 5px solid white;
+}
+
+/* Float image(s) to the right */
+.tright{
+    float:right;
+    padding: 5px;
+}
