@@ -41,14 +41,33 @@ function _mooc_content_theming_banner_block() {
     // easiest use-case, this has a banner image
     if (isset($node->field_mooc_image) && !empty($node->field_mooc_image)) {
       $image_uri = $node->field_mooc_image['und'][0]['uri'];
-      return theme('image', array(
+      // fallbacks for missing alt info
+      if (isset($node->field_mooc_image['und'][0]['alt']) && !empty($node->field_mooc_image['und'][0]['alt'])) {
+        $alt = $node->field_mooc_image['und'][0]['alt'];
+      }
+      else {
+        $alt = t('@title banner', array('@title' => $node->title));
+      }
+      // fallbacks for missing title info
+      if (isset($node->field_mooc_image['und'][0]['title']) && !empty($node->field_mooc_image['und'][0]['title'])) {
+        $title = $node->field_mooc_image['und'][0]['title'];
+        $cite = "<cite class=\"mooc-logo-title image__cite\">$title</cite>";
+      }
+      else {
+        $title = $node->title;
+        $cite = '';
+      }
+      // build the image
+      $image = theme('image', array(
         'path' => $image_uri,
-        'alt' => strip_tags($node->title . ' ' . t('banner')),
-        'title' => strip_tags($node->title),
+        'alt' => strip_tags($alt),
+        'title' => strip_tags($title),
         'attributes' => array(
-          'class' => array('logo'),
+          'class' => array('logo', 'mooc-banner-image'),
         ),
       ));
+      // return with correct title / alt wrapper
+      return "<div class=\"mooc-banner-image-wrapper\">$image $cite</div>";
     }
     else {
       // spider back up through parents til we find a match
@@ -62,16 +81,34 @@ function _mooc_content_theming_banner_block() {
           $plid = $parent->book['plid'];
         }
         else {
-          // use this one, we always use the closest parent we find
           $image_uri = $parent->field_mooc_image['und'][0]['uri'];
-          return theme('image', array(
+          // fallbacks for missing alt info
+          if (isset($parent->field_mooc_image['und'][0]['alt']) && !empty($parent->field_mooc_image['und'][0]['alt'])) {
+            $alt = $parent->field_mooc_image['und'][0]['alt'];
+          }
+          else {
+            $alt = t('@title banner', array('@title' => $parent->title));
+          }
+          // fallbacks for missing title info
+          if (isset($parent->field_mooc_image['und'][0]['title']) && !empty($parent->field_mooc_image['und'][0]['title'])) {
+            $title = $parent->field_mooc_image['und'][0]['title'];
+            $cite = "<cite class=\"mooc-logo-title image__cite\">$title</cite>";
+          }
+          else {
+            $title = $parent->title;
+            $cite = '';
+          }
+          // build the image
+          $image = theme('image', array(
             'path' => $image_uri,
-            'alt' => strip_tags($parent->title . ' ' . t('banner')),
-            'title' => strip_tags($parent->title),
+            'alt' => strip_tags($alt),
+            'title' => strip_tags($title),
             'attributes' => array(
-              'class' => array('logo'),
+              'class' => array('logo', 'mooc-banner-image'),
             ),
           ));
+          // return with correct title / alt wrapper
+          return "<div class=\"mooc-banner-image-wrapper\">$image $cite</div>";
         }
       }
     }
