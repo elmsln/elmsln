@@ -78,3 +78,10 @@ function elmsln_core_update_7005(&$sandbox) {
   module_disable(array('entity_iframe_provider', 'entity_iframe_consumer'));
   module_enable(array('entity_iframe_resize'));
 }
+
+/**
+ * Revert to get our IMCE profiles in place.
+ */
+function elmsln_core_update_7006(&$sandbox) {
+  features_revert_module('elmsln_core');
+}
