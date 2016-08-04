@@ -20,30 +20,30 @@ function mooc_content_theming_field_group_info() {
   $field_group->mode = 'form';
   $field_group->parent_name = '';
   $field_group->data = array(
-    'label' => 'Visual identifiers',
-    'weight' => '2',
+    'label' => 'Visual',
+    'weight' => '3',
     'children' => array(
-      0 => 'field_instructional_significance',
-      1 => 'field_mooc_image',
-      2 => 'field_fa_primary_color',
-      3 => 'field_fa_secondary_color',
+      0 => 'field_fa_primary_color',
+      1 => 'field_fa_secondary_color',
+      2 => 'field_instructional_significance',
+      3 => 'field_mooc_image',
     ),
     'format_type' => 'tab',
     'format_settings' => array(
-      'label' => 'Visual identifiers',
+      'label' => 'Visual',
       'instance_settings' => array(
-        'required_fields' => 0,
-        'classes' => 'group-visual-identifiers field-group-fieldset',
+        'required_fields' => 1,
+        'classes' => 'tab',
         'description' => '',
       ),
-      'formatter' => 'open',
+      'formatter' => 'closed',
     ),
   );
   $field_groups['group_visual_identifiers|node|page|form'] = $field_group;
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Visual identifiers');
+  t('Visual');
 
   return $field_groups;
 }

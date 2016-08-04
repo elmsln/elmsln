@@ -4,6 +4,7 @@ core = 7.x
 package = MOOC
 dependencies[] = context
 dependencies[] = ctools
+dependencies[] = eim
 dependencies[] = features
 dependencies[] = field_group
 dependencies[] = image
