@@ -56,12 +56,24 @@ function hidden_nodes_scheduler_node_presave($node) {
  */
 function hidden_nodes_scheduler_scheduler_api($node, $action) {
   // If scheduler has just "published" a hidden node then make it unhidden.
-  if (module_exists('hidden_nodes') && !empty($node->hidden) && $action == 'publish') {
-    $actions = array('hidden_nodes_unhide_action');
-    $context['node'] = $node;
-    actions_do($actions, $node, $context, NULL, NULL);
-    node_save($node);
-    watchdog('hidden nodes', '@type %title is now un-hidden', array(
-      '@type' => node_type_get_name($node), '%title' => $node->title), WATCHDOG_NOTICE, l(t('view'), 'node/' . $node->nid));
+  if (module_exists('hidden_nodes') && !empty($node->hidden)) {
+    switch ($action) {
+      case 'publish':
+        $actions = array('hidden_nodes_unhide_action');
+        $context['node'] = $node;
+        actions_do($actions, $node, $context, NULL, NULL);
+        node_save($node);
+        watchdog('hidden nodes', '@type %title is now un-hidden', array(
+          '@type' => node_type_get_name($node), '%title' => $node->title), WATCHDOG_NOTICE, l(t('view'), 'node/' . $node->nid));
+      break;
+      case 'unpublish':
+        $actions = array('hidden_nodes_hide_action');
+        $context['node'] = $node;
+        actions_do($actions, $node, $context, NULL, NULL);
+        node_save($node);
+        watchdog('hidden nodes', '@type %title is now hidden', array(
+          '@type' => node_type_get_name($node), '%title' => $node->title), WATCHDOG_NOTICE, l(t('view'), 'node/' . $node->nid));
+      break;
+    }
   }
 }
