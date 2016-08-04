@@ -98,9 +98,44 @@ ul.book-navigation-wrapper {
   line-height: 2rem;
 }
 
+/* Scroll bar for breadcrumb nav that's really really long */
 .book-sibling-nav-container .f-dropdown.content {
-  max-width: 300px;
+  max-width: 20rem;
+  max-height: 20rem;
+  overflow-y: scroll;
 }
+
+.book-sibling-nav-container .f-dropdown.content {
+  scrollbar-face-color: #DDDDDD;
+  scrollbar-shadow-color: #BBBBBB;
+  scrollbar-highlight-color:#AAAAAA;
+  scrollbar-3dlight-color: #AAAAAA;
+  scrollbar-darkshadow-color: #BBBBBB;
+  scrollbar-track-color: #AAAAAA;
+  scrollbar-arrow-color: #BBBBBB;
+}
+.book-sibling-nav-container .f-dropdown.content::-webkit-scrollbar-track {
+      background-color: #DDDDDD;
+} /* the new scrollbar will have a flat appearance with the set background color */
+
+.book-sibling-nav-container .f-dropdown.content::-webkit-scrollbar-thumb {
+      background-color: #AAAAAA;
+} /* this will style the thumb, ignoring the track */
+
+.book-sibling-nav-container .f-dropdown.content::-webkit-scrollbar-button {
+      background-color: #DDDDDD;
+} /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+
+.book-sibling-nav-container .f-dropdown.content::-webkit-scrollbar-corner {
+      background-color: #DDDDDD;
+} /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
+
+.book-sibling-nav-container .f-dropdown.content::-webkit-scrollbar {
+      width: 1rem;
+      height: 1rem;
+} /* this targets the default scrollbar (compulsory) */
+
+/* end scroll bar styling */
 
 .book-sibling-nav-container .f-dropdown.content ul {
   margin: 0;
