@@ -20,9 +20,11 @@ function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state
       unset($form['field_submission_state']['und']['#options']['submission_in_progress']);
     }
     else {
-      // don't allow anyone to set this to needs work; this can only happen
-      // via the instructor in the gradebook
-      unset($form['field_submission_state']['und']['#options']['submission_needs_work']);
+      // only cle content admins can set the following states
+      if (!user_access('administer cle content')) {
+        unset($form['field_submission_state']['und']['#options']['submission_needs_work']);
+        unset($form['field_submission_state']['und']['#options']['submission_complete']);
+      }
     }
     // try to pull from the default being set
     if (isset($form['field_assignment']['und']['#default_value'][0])) {
