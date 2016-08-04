@@ -792,3 +792,9 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
   margin-right: 1rem;
 }
 
+.figurelabel {
+  display: flex;
+  .figurelabel__title {
+    white-space: nowrap;
+  }
+}
