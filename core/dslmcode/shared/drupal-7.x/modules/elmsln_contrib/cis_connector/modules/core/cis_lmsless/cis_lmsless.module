@@ -289,8 +289,18 @@ function _cis_lmsless_assemble() {
  */
 function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_id) {
   $section = _cis_connector_section_context();
-  // rename button
-  $form['submit']['#value'] = t('Emulate');
+  // rename buttons
+  $form['submit'] = array(
+    '#value' => t('Emulate'),
+    '#type' => 'submit',
+    '#weight' => 10,
+  );
+  $form['elmsln_view_user'] = array(
+    '#value' => t('View'),
+    '#type' => 'button',
+    '#suffix' => '</div>',
+    '#weight' => 11,
+  );
   // don't do these for the master section as it makes no sense
   if ($section && !_cis_connector_is_master($section)) {
     $form['masquerade_user_field']['#chosen'] = TRUE;

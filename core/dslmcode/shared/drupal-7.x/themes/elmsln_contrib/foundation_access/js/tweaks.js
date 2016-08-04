@@ -61,4 +61,13 @@
       });
     });
   });
+  // nice UI element to let us select users
+  $('#edit-elmsln-view-user').click(function(event) {
+    // prevent empty submission though this won't block incorrect submissions which would be page not found
+    if ($('#edit-masquerade-user-field').val() != '' && $('#edit-masquerade-user-field').val() != 'Anonymous') {
+      // force browser to this location, though we aren't garenteed this is a real place
+      // but should be most of the time unless someone mistypes
+      window.location = Drupal.settings.basePath + 'users/' + $('#edit-masquerade-user-field').val();
+    }
+  });
 })(jQuery);
