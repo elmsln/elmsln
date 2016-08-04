@@ -22,7 +22,7 @@ function cle_critique_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 5,
+        'weight' => 33,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -97,7 +97,7 @@ function cle_critique_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 6,
+        'weight' => 34,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -175,7 +175,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 4,
+        'weight' => 31,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
