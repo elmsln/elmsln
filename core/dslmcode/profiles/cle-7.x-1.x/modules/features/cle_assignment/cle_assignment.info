@@ -39,6 +39,7 @@ features[field_base][] = field_visibility
 features[field_group][] = group_advanced|node|cle_assignment|form
 features[field_group][] = group_cle_extras|node|cle_assignment|form
 features[field_group][] = group_cle_requirements|node|cle_assignment|form
+features[field_group][] = group_critique|node|cle_assignment|default
 features[field_group][] = group_details|node|cle_assignment|gradebook_viewer
 features[field_group][] = group_info|node|cle_assignment|default
 features[field_group][] = group_logistics|node|cle_assignment|form

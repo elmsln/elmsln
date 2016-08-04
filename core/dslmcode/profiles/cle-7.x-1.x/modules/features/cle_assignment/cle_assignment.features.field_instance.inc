@@ -242,7 +242,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 15,
+        'weight' => 33,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -325,7 +325,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'jquery_colorpicker',
         'settings' => array(),
         'type' => 'jquery_colorpicker_color_display',
-        'weight' => 0,
+        'weight' => 29,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -382,7 +382,7 @@ function cle_assignment_field_default_field_instances() {
           'multiple_to' => '',
         ),
         'type' => 'date_default',
-        'weight' => 8,
+        'weight' => 32,
       ),
     ),
     'entity_type' => 'node',
@@ -531,7 +531,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 2,
+        'weight' => 30,
       ),
       'full' => array(
         'label' => 'inline',
