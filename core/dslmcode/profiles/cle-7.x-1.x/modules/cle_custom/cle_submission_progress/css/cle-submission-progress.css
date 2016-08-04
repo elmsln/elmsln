@@ -1,0 +1,42 @@
+.cle-submission-progress {
+	color: lightgray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cle-submission-progress__col {
+  display: flex;
+  flex: 0 1 auto;
+  padding: 0 4%;
+  padding: 0 2vw;
+}
+
+.cle-submission-progress__item {
+  text-align: center;
+}
+.cle-submission-progress__item + .cle-submission-progress__item {
+  text-align: center;
+}
+
+.cle-submission-progress__item--active.cle-submission-progress__item--submission-in-progress {
+  color: orange;
+}
+.cle-submission-progress__item--active.cle-submission-progress__item--submission-ready {
+  color: green;
+}
+.cle-submission-progress__item--active.cle-submission-progress__item--needs-work {
+  color: blue;
+}
+
+.cle-submission-progress__state {
+  margin: 0;
+}
+
+.cle-submission-progress__description {
+  font-size: .8em;
+}
+
+.cle-submission-progress__icon {
+  font-size: 2.5rem;
+}

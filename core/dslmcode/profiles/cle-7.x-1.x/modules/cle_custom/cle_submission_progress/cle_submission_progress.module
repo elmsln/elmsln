@@ -1,0 +1,137 @@
+<?php
+
+/**
+ * Impliments hook_field_extra_fields.
+ */
+function cle_submission_progress_field_extra_fields() {
+  $extra = array();
+  $extra['node']['cle_submission'] = array(
+    'display' => array(
+      'submission_progress' => array(
+        'label' => t('Submission progress'),
+        'weight' => -5,
+        'type' => 'hidden',
+      ),
+    ),
+  );
+  return $extra;
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function cle_submission_progress_node_view($node, $view_mode, $langcode) {
+  $extrafields = field_extra_fields_get_display('node', $node->type, $view_mode);
+  $extrafield_name = 'submission_progress';
+  if (isset($extrafields[$extrafield_name])
+      && isset($extrafields[$extrafield_name]['visible'])
+      && $extrafields[$extrafield_name]['visible']) {
+    // Your logic here.
+    drupal_add_css(drupal_get_path('module', 'cle_submission_progress') . '/css/cle-submission-progress.css');
+    $node->content['submission_progress'] = array(
+      '#theme' => 'cle_submission_progress',
+      '#node' => $node,
+      '#view_mode' => $view_mode,
+    );
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cle_submission_progress_theme($existing, $type, $theme, $path) {
+  return array(
+    'cle_submission_progress' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL),
+      'template' => 'cle-submission-progress',
+    ),
+    'cle_submission_progress_item' => array(
+      'variables' => array('state' => NULL, 'name' => NULL, 'icon' => NULL, 'description' => NULL, 'status' => FALSE),
+      'template' => 'cle-submission-progress-item',
+    ),
+  );
+}
+
+/* Features implementation for exporting extra fields information */
+
+/**
+ * Implements hook_features_api.
+ */
+function cle_submission_progress_features_api() {
+  return array(
+    'cle_submission_progress' => array(
+      'name' => t('CLE Submission Progress'),
+      'default_hook' => 'cle_submission_info',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED,
+      'features_source' => TRUE,
+      'file' => drupal_get_path('module', 'cle_submission_progress') .'/cle_submission_progress.features.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_preprosses_hook.
+ */
+function cle_submission_progress_preprocess_cle_submission_progress(&$variables) {
+  try {
+    $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
+    if ($node_wrapper->type->value()) {
+      $submission_progress_fields = $node_wrapper->field_submission_state->optionsList();
+      $submission_progress_state = $node_wrapper->field_submission_state->value();
+      foreach ($submission_progress_fields as $field_machine_name => $field_name) {
+        if ($field_machine_name != 'submission_needs_work') {
+          $item = array(
+            '#theme' => 'cle_submission_progress_item',
+            '#state' => $field_machine_name,
+            '#name' => $field_name,
+            '#icon' => '',
+            '#description' => '',
+            '#status' => ($submission_progress_state == $field_machine_name) ? 'active': '',
+          );
+          $variables['content']['submission_progress_items'][] = $item;
+        }
+      }
+    }
+  }
+  catch (EntityMetadataWrapperException $exc) {
+    watchdog(
+      'cle_submission_progress',
+      'EntityMetadataWrapper exception in %function() @trace',
+      array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
+      WATCHDOG_ERROR
+    );
+  }
+}
+
+/**
+ * Implements hook_preprosses_hook.
+ */
+function cle_submission_progress_preprocess_cle_submission_progress_item(&$variables) {
+  $item_attributes = array();
+
+  switch ($variables['state']) {
+    case 'submission_in_progress':
+      $variables['icon'] = 'flash_on';
+      $variables['description'] = 'A draft state for your submission.';
+      break;
+    case 'submission_ready':
+      $variables['icon'] = 'people';
+      $variables['description'] = 'This submission is ready for review or critique.';
+      break;
+    case 'submission_complete':
+      $variables['icon'] = 'done';
+      $variables['name'] = 'Published';
+      $variables['description'] = 'Approved and published.';
+      break;
+  }
+
+  // add the state name to the item class
+  if ($variables['state']) {
+    $variables['classes_array'][] = 'cle-submission-progress__item--' . str_replace('_', '-', $variables['state']);
+  }
+
+  // if the item is active set the active class
+  if (isset($variables['status']) && $variables['status'] == 'active') {
+    $variables['classes_array'][] = 'cle-submission-progress__item--active';
+  }
+}

@@ -1,0 +1,4 @@
+name = CLE Submission Progress
+description = Adds an indicator to the submission node to indicate the progress of the submission.
+core = 7.x
+dependencies[] = cle_submission
