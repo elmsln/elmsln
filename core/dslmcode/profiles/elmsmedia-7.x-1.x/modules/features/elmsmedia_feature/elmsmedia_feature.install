@@ -3,6 +3,10 @@
  * @file
  * elmsmedia_feature.install
  */
+
+/**
+ * Improve the cache settings on main view
+ */
 function elmsmedia_feature_update_7000(&$sandbox) {
   features_revert(array('elmsmedia_feature' => array('views')));
 }
