@@ -10,6 +10,7 @@
       Drupal.settings.h5pTincanBridge.title = data.title;
       Drupal.settings.h5pTincanBridge.url = data.url;
       Drupal.settings.h5pTincanBridge.role = data.role;
+      Drupal.settings.h5pTincanBridge.hypothesis = data.hypothesis;
     }
   };
   window.addEventListener("message", Drupal.elmslnMessage, false);
