@@ -69,12 +69,22 @@ class H5peditorDrupalStorage implements H5peditorStorage {
   }
 
   /**
-   * TODO
+   * Delete file from drupal management.
+   * @param string $path Relative path to file
    */
   public function removeFile($path) {
-    db_delete('file_managed')
-    ->condition('uri', $path)
-    ->execute();
+
+    // Get file from file managed
+    $clean_path = str_replace('\\', '/', $path);
+    $file_uri = file_build_uri(substr($clean_path, strpos($clean_path, 'h5p/'), strlen($clean_path)));
+    $fid = db_query("SELECT fid FROM {file_managed} WHERE uri = :path",
+      array(':path' => $file_uri))->fetchField();
+    if ($fid !== false) {
+
+      // Delete file and database record
+      $file_object = file_load($fid);
+      file_delete($file_object);
+    }
   }
 
   /**

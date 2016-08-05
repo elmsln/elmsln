@@ -122,16 +122,19 @@ H5P.init = function (target) {
         delete contentData.contentUserData;
         var dialog = new H5P.Dialog('content-user-data-reset', 'Data Reset', '<p>' + H5P.t('contentChanged') + '</p><p>' + H5P.t('startingOver') + '</p><div class="h5p-dialog-ok-button" tabIndex="0" role="button">OK</div>', $container);
         H5P.jQuery(dialog).on('dialog-opened', function (event, $dialog) {
-          $dialog.find('.h5p-dialog-ok-button').click(function () {
-            dialog.close();
-          }).keypress(function (event) {
-            if (event.which === 32) {
+
+          var closeDialog = function (event) {
+            if (event.type === 'click' || event.which === 32) {
               dialog.close();
+              H5P.deleteUserData(contentId, 'state', 0);
             }
-          });
+          };
+
+          $dialog.find('.h5p-dialog-ok-button').click(closeDialog).keypress(closeDialog);
         });
         dialog.open();
       }
+      // If previousState is false we don't have a previous state
     });
 
     // Create new instance.
@@ -146,18 +149,49 @@ H5P.init = function (target) {
 
     // Create action bar
     var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
+
+    /**
+     * Helper for creating action bar buttons.
+     *
+     * @private
+     * @param {string} type
+     * @param {function} handler
+     * @param {string} customClass Instead of type class
+     */
+    var addActionButton = function (type, handler, customClass) {
+      H5P.jQuery('<li/>', {
+        'class': 'h5p-button h5p-' + (customClass ? customClass : type),
+        role: 'button',
+        tabindex: 0,
+        title: H5P.t(type + 'Description'),
+        html: H5P.t(type),
+        on: {
+          click: handler,
+          keypress: function (e) {
+            if (e.which === 32) {
+              handler();
+              e.preventDefault(); // (since return false will block other inputs)
+            }
+          }
+        },
+        appendTo: $actions
+      });
+    };
+
+    // Register action bar buttons
     if (!(contentData.disable & H5P.DISABLE_DOWNLOAD)) {
       // Add export button
-      H5P.jQuery('<li class="h5p-button h5p-export" role="button" tabindex="0" title="' + H5P.t('downloadDescription') + '">' + H5P.t('download') + '</li>').appendTo($actions).click(function () {
+      addActionButton('download', function () {
+        // Use button for download to avoid people linking directly to the .h5p
         window.location.href = contentData.exportUrl;
-      });
+      }, 'export');
     }
     if (!(contentData.disable & H5P.DISABLE_COPYRIGHT)) {
       var copyright = H5P.getCopyrights(instance, library.params, contentId);
 
       if (copyright) {
         // Add copyright dialog button
-        H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="0" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
+        addActionButton('copyrights', function () {
           // Open dialog with copyright information
           var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyright, $container);
           dialog.open();
@@ -166,7 +200,8 @@ H5P.init = function (target) {
     }
     if (!(contentData.disable & H5P.DISABLE_EMBED)) {
       // Add embed button
-      H5P.jQuery('<li class="h5p-button h5p-embed" role="button" tabindex="0" title="' + H5P.t('embedDescription') + '">' + H5P.t('embed') + '</li>').appendTo($actions).click(function () {
+      addActionButton('embed', function () {
+        // Open dialog with embed information
         H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
           width: $element.width(),
           height: $element.height()
@@ -836,9 +871,9 @@ H5P.error = function (err) {
  *
  * @param {string} key
  *   Translation identifier, may only contain a-zA-Z0-9. No spaces or special chars.
- * @param {Object} vars
+ * @param {Object} [vars]
  *   Data for placeholders.
- * @param {string} ns
+ * @param {string} [ns]
  *   Translation namespace. Defaults to H5P.
  * @returns {string}
  *   Translated text
@@ -903,7 +938,12 @@ H5P.Dialog = function (name, title, content, $element) {
           self.close();
         })
         .end()
-      .end();
+      .find('a')
+        .click(function (e) {
+          e.stopPropagation();
+        })
+      .end()
+    .end();
 
   this.open = function () {
     setTimeout(function () {
@@ -1293,15 +1333,15 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
  */
 H5P.copyrightLicenses = {
   'U': 'Undisclosed',
-  'CC BY': 'Attribution',
-  'CC BY-SA': 'Attribution-ShareAlike',
-  'CC BY-ND': 'Attribution-NoDerivs',
-  'CC BY-NC': 'Attribution-NonCommercial',
-  'CC BY-NC-SA': 'Attribution-NonCommercial-ShareAlike',
-  'CC BY-NC-ND': 'Attribution-NonCommercial-NoDerivs',
-  'GNU GPL': 'General Public License',
+  'CC BY': '<a href="http://creativecommons.org/licenses/by/4.0/legalcode" target="_blank">Attribution 4.0</a>',
+  'CC BY-SA': '<a href="https://creativecommons.org/licenses/by-sa/4.0/legalcode" target="_blank">Attribution-ShareAlike 4.0</a>',
+  'CC BY-ND': '<a href="https://creativecommons.org/licenses/by-nd/4.0/legalcode" target="_blank">Attribution-NoDerivs 4.0</a>',
+  'CC BY-NC': '<a href="https://creativecommons.org/licenses/by-nc/4.0/legalcode" target="_blank">Attribution-NonCommercial 4.0</a>',
+  'CC BY-NC-SA': '<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode" target="_blank">Attribution-NonCommercial-ShareAlike 4.0</a>',
+  'CC BY-NC-ND': '<a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode" target="_blank">Attribution-NonCommercial-NoDerivs 4.0</a>',
+  'GNU GPL': '<a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html" target="_blank">General Public License v3</a>',
   'PD': 'Public Domain',
-  'ODC PDDL': 'Public Domain Dedication and Licence',
+  'ODC PDDL': '<a href="http://opendatacommons.org/licenses/pddl/1.0/" target="_blank">Public Domain Dedication and Licence</a>',
   'CC PDM': 'Public Domain Mark',
   'C': 'Copyright'
 };
@@ -1466,7 +1506,7 @@ H5P.Coords = function (x, y, w, h) {
  *   return false if the library parameter is invalid
  */
 H5P.libraryFromString = function (library) {
-  var regExp = /(.+)\s(\d)+\.(\d)$/g;
+  var regExp = /(.+)\s(\d+)\.(\d+)$/g;
   var res = regExp.exec(library);
   if (res !== null) {
     return {
@@ -1810,7 +1850,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
     H5PIntegration.contents = H5PIntegration.contents || {};
     var content = H5PIntegration.contents['cid-' + contentId] || {};
     var preloadedData = content.contentUserData;
-    if (preloadedData && preloadedData[subContentId] && preloadedData[subContentId][dataId]) {
+    if (preloadedData && preloadedData[subContentId] && preloadedData[subContentId][dataId] !== undefined) {
       if (preloadedData[subContentId][dataId] === 'RESET') {
         done(undefined, null);
         return;
