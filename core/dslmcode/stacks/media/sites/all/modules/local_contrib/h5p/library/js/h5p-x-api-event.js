@@ -24,7 +24,7 @@ H5P.XAPIEvent.prototype.constructor = H5P.XAPIEvent;
  */
 H5P.XAPIEvent.prototype.setScoredResult = function (score, maxScore, instance, completion, success) {
   this.data.statement.result = {};
-  
+
   if (typeof score !== 'undefined') {
     if (typeof maxScore === 'undefined') {
       this.data.statement.result.score = {'raw': score};
@@ -40,22 +40,22 @@ H5P.XAPIEvent.prototype.setScoredResult = function (score, maxScore, instance, c
       }
     }
   }
-  
+
   if (typeof completion === 'undefined') {
     this.data.statement.result.completion = (this.getVerb() === 'completed' || this.getVerb() === 'answered');
   }
   else {
     this.data.statement.result.completion = completion;
   }
-  
+
   if (typeof success !== 'undefined') {
     this.data.statement.result.success = success;
   }
-  
+
   if (instance && instance.activityStartTime) {
     var duration = Math.round((Date.now() - instance.activityStartTime ) / 10) / 100;
     // xAPI spec allows a precision of 0.01 seconds
-    
+
     this.data.statement.result.duration = 'PT' + duration + 'S';
   }
 };
@@ -188,12 +188,18 @@ H5P.XAPIEvent.prototype.setActor = function () {
   }
   else {
     var uuid;
-    if (localStorage.H5PUserUUID) {
-      uuid = localStorage.H5PUserUUID;
+    try {
+      if (localStorage.H5PUserUUID) {
+        uuid = localStorage.H5PUserUUID;
+      }
+      else {
+        uuid = H5P.createUUID();
+        localStorage.H5PUserUUID = uuid;
+      }
     }
-    else {
-      uuid = H5P.createUUID();
-      localStorage.H5PUserUUID = uuid;
+    catch (err) {
+      // LocalStorage and Cookies are probably disabled. Do not track the user.
+      uuid = 'not-trackable-' + H5P.createUUID();
     }
     this.data.statement.actor = {
       'account': {

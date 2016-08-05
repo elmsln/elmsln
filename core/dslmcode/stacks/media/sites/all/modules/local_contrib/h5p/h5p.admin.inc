@@ -223,13 +223,11 @@ function h5p_library_list() {
   _h5p_admin_add_generic_css_and_js($module_path, $settings);
   drupal_add_js($module_path . '/library/js/h5p-library-list.js');
 
-  $upgrade_all_libraries = variable_get('h5p_unsupported_libraries', NULL) === NULL ? '' : '<p>' . t('Click <a href="@url">here</a> to upgrade all installed libraries', array('@url' => url('admin/content/h5p/libraries/upgrade-all'))) . '</p>';
-
   // Create the container which all admin content
   // will appends it's data to. This id is used by h5pintegration
   // to find where to put the admin content.
   $upload_form = drupal_get_form('h5p_library_upload_form');
-  return '<h3 class="h5p-admin-header">' . t('Add libraries') . '</h3>' . drupal_render($upload_form) . '<h3 class="h5p-admin-header">' . t('Installed libraries') . '</h3>' . $upgrade_all_libraries . '<div id="h5p-admin-container"></div>';
+  return '<h3 class="h5p-admin-header">' . t('Add libraries') . '</h3>' . drupal_render($upload_form) . '<h3 class="h5p-admin-header">' . t('Installed libraries') . '</h3><div id="h5p-admin-container"></div>';
 }
 
 /**
@@ -458,7 +456,7 @@ function h5p_library_upload_form_submit($form, &$form_state) {
  * Callback for rebuilding all content cache.
  */
 function h5p_rebuild_cache() {
-  if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') !== 'POST') {
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     drupal_set_message(t('HTTP POST is required.'), 'error');
     drupal_set_title(t('Error'));
     return '';
@@ -490,7 +488,7 @@ function h5p_rebuild_cache() {
  * @return string HTML
  */
 function h5p_content_upgrade($library_id) {
-  if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     h5p_content_upgrade_progress($library_id);
     return;
   }

@@ -54,32 +54,46 @@ ns.LibrarySelector = function (libraries, defaultLibrary, defaultParams) {
   //Add tutorial link:
   this.$tutorialUrl = ns.$('<a class="h5p-tutorial-url" target="_blank">' + ns.t('core', 'tutorialAvailable') + '</a>').hide();
 
+  // Create confirm dialog
+  var changeLibraryDialog = new H5P.ConfirmationDialog({
+    headerText: H5PEditor.t('core', 'changeLibrary'),
+    dialogText: H5PEditor.t('core', 'confirmChangeLibrary')
+  }).appendTo(document.body);
+
+  // Change library on confirmed
+  changeLibraryDialog.on('confirmed', function () {
+    changeLibraryToSelector();
+  });
+
+  // Revert selector on cancel
+  changeLibraryDialog.on('canceled', function () {
+    that.$selector.val(that.currentLibrary);
+  });
+
+  // Change library to selected
+  var changeLibraryToSelector = function () {
+    var library = that.$selector.val();
+    that.loadSemantics(library);
+    that.currentLibrary = library;
+
+    if (library !== '-') {
+      firstTime = false;
+    }
+
+    var tutorialUrl = that.$selector.find(':selected').data('tutorial-url');
+    that.$tutorialUrl.attr('href', tutorialUrl).toggle(tutorialUrl !== undefined && tutorialUrl !== null && tutorialUrl.length !== 0);
+  };
+
   this.$selector = ns.$('<select name="h5peditor-library" title="' + ns.t('core', 'selectLibrary') + '">' + options + '</select>').change(function () {
     // Use timeout to avoid bug in Chrome >44, when confirm is used inside change event.
     // Ref. https://code.google.com/p/chromium/issues/detail?id=525629
     setTimeout(function () {
-      var library;
-      var changeLibrary = true;
-
       if (!firstTime) {
-        changeLibrary = confirm(H5PEditor.t('core', 'confirmChangeLibrary'));
-      }
-
-      if (changeLibrary) {
-        library = that.$selector.val();
-        that.loadSemantics(library);
-        that.currentLibrary = library;
+        changeLibraryDialog.show(that.$selector.offset().top);
       }
       else {
-        that.$selector.val(that.currentLibrary);
+        changeLibraryToSelector();
       }
-
-      if (library !== '-') {
-        firstTime = false;
-      }
-
-      var tutorialUrl = that.$selector.find(':selected').data('tutorial-url');
-      that.$tutorialUrl.attr('href', tutorialUrl).toggle(tutorialUrl !== undefined && tutorialUrl !== null && tutorialUrl.length !== 0);
     }, 0);
   });
 };

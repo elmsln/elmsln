@@ -286,13 +286,13 @@ H5PEditor.List = (function ($) {
           parameters !== undefined && parameters.length > field.max) {
         // Invalid, more parameters than max allowed.
         valid = false;
-        self.setError(H5PEditor.t('core', 'exceedsMax', {':property': self.label, ':max': field.max}));
+        self.setError(H5PEditor.t('core', 'exceedsMax', {':property': '<em>' + self.label + '</em>', ':max': field.max}));
       }
       if (field.min !== undefined && field.min > 0 &&
           (parameters === undefined || parameters.length < field.min)) {
         // Invalid, less parameters than min allowed.
         valid = false;
-        self.setError(H5PEditor.t('core', 'exceedsMin', {':property': self.label, ':min': field.min}));
+        self.setError(H5PEditor.t('core', 'belowMin', {':property': '<em>' + self.label + '</em>', ':min': field.min}));
       }
 
       return valid;

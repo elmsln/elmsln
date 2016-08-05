@@ -99,7 +99,7 @@ H5P.EventDispatcher = (function () {
      *   Event type
      * @param {H5P.EventCallback} listener
      *   Event listener
-     * @param {Object} thisArg
+     * @param {Object} [thisArg]
      *   Optionally specify the this value when calling listener.
      */
     this.on = function (type, listener, thisArg) {
