@@ -1,5 +1,5 @@
 ﻿<h2>Overview</h2>
-<p>H5P is a file format for content/applications made using modern, open web technlogies (HTML5). The format enables easy installation and transfer of applications/content on different CMSes, LMSes and other platforms. An H5P canbe uploaded and published on a platform in mostly the same way one would publish a Flash file today. H5P files may also be updated by simply uploading a new version of the file, the same way as one would using Flash.</p>
+<p>H5P is a file format for content/applications made using modern, open web technologies (HTML5). The format enables easy installation and transfer of applications/content on different CMSes, LMSes and other platforms. An H5P can be uploaded and published on a platform in mostly the same way one would publish a Flash file today. H5P files may also be updated by simply uploading a new version of the file, the same way as one would using Flash.</p>
 <p>H5P opens for extensive reuse of code and wide flexibility regarding what may be developed as an H5P.</p>
 <p>The system uses package files containing all necessary files and libraries for the application to function. These files are based on open formats.</p>
 <h2>Overview of package files</h2>
@@ -12,7 +12,7 @@
 <li>A mandatory file in the root folder named <i>h5p.json</i></li>
 <li>An optional image file named <i>h5p.jpg</i>. This is an icon or an image of the application, 512 × 512 pixels. This image may be used by the platform as a preview of the application, and could be included in OG meta tags for use with social media.</li>
 <li>One content folder, named <i>content</i>. This will contain the preset configuration for the application, as well as any required media files.</li>
-<li>One or more library diractories named the same as the library's internal name.</li>
+<li>One or more library directories named the same as the library's internal name.</li>
 </ol>
 <h2>h5p.json</h2>
 <p>The <i>h5p.json</i> file is a normal JSON text file containing a JSON object with the following predefined properties.</p>
@@ -27,7 +27,7 @@
 <ul><li>contentType - Textual description of the type of content.</li>
 <li>description - Textual description of the package.</li>
 <li>author - Name of author.</li>
-<li>license - Kode for the content license. Use the following creative commons codes: cc-by, cc-by-sa, cc-by-nd, cc-by-nc, cc-by-nc-sa, cc-by-nc-nd. In addition for public domain: pd, and closed license: cr. More may be added later.</li>
+<li>license - Code for the content license. Use the following Creative Commons codes: cc-by, cc-by-sa, cc-by-nd, cc-by-nc, cc-by-nc-sa, cc-by-nc-nd. In addition for public domain: pd, and closed license: cr. More may be added later.</li>
 <li>dynamicDependencies - Libraries that may be loaded dynamically during execution.</li>
 <li>width - Width of the package content in cases where the package is not dynamically resizable.</li>
 <li>height - Height of the package content.</li>
@@ -74,9 +74,9 @@
 
 <p>The root of a library folder shall contain a file name <i>library.json</i> formatted similar to the package's <i>hp5.json</i>, but with a few differences. The library shall also have one or more images in the root folder, named <i>library.jpg</i>, <i>library1.jpg</i> etc. Image sizes 512px × 512px, and will be used in the H5P editor tool.</p>
 
-<p>Libraries are not allowed to modify the dokument tree in ways that will have consequences for the web site or will be noticable by the user without the library explicitly being initialized from the main package library or another invoked library.</p>
+<p>Libraries are not allowed to modify the document tree in ways that will have consequences for the web site or will be noticeable by the user without the library explicitly being initialized from the main package library or another invoked library.</p>
 
-<p>The library shall always include a Javascript object function named the same as the defined library <i>machineName</i> (defined in <i>library.json</i> and used as the library folder name).  This object will be instantiated with the library options as parameter. The resulting object must contain a function <i>attach(target)</i> that will be called after instantiation to attach the library DOM to the main DOM inside <i>target</i></p>
+<p>The library shall always include a JavaScript object function named the same as the defined library <i>machineName</i> (defined in <i>library.json</i> and used as the library folder name).  This object will be instantiated with the library options as parameter. The resulting object must contain a function <i>attach(target)</i> that will be called after instantiation to attach the library DOM to the main DOM inside <i>target</i></p>
 
 <h3>Example</h3>
 <p>A library called H5P.multichoice would typically be instantiated and attached to the page like this:</p>
@@ -138,7 +138,7 @@ multichoice.attach($multichoiceContainer);</code>
 <h2>Allowed file types</h2>
 <p>Files that require server side execution or that cannot be regarded an open standard shall not be used. Allowed file types: js, json, png, jpg, gif, svg, css, mp3, wav (audio: PCM), m4a (audio: AAC), mp4 (video: H.264, audio: AAC/MP3), ogg (video: Theora, audio: Vorbis) and webm (video VP8, audio: Vorbis). Administrators of web sites implementing H5P may open for accepting further formats. HTML files shall not be used. HTML for each library shall be inserted from the library scripts to ease code reuse. (By avoiding content being defined in said HTML).</p>
 <h2>API functions</h2>
-<p>The following javascript functions are available through h5p:</p>
+<p>The following JavaScript functions are available through h5p:</p>
 <ul>
 <li>H5P.getUserData(namespace, variable)</li>
 <li>H5P.setUserData(namespace, variable, data)</li>
@@ -156,13 +156,13 @@ multichoice.attach($multichoiceContainer);</code>
 <h2>Best practices</h2>
 <p>H5P is a very open standard. This is positive for flexibility. Most content may be produces as H5P. But this also allows for bad code, security weaknesses, code that may be difficult to reuse. Therefore the following best practices should be followed to get the most from H5P:</p>
 <ul>
-<li>Think reusability when creating a library. H5P support depencies between libraries, so the same small quiz-library may be used in various larger packages or libraries.</li>
-<li>H5P support library updates. This enables all content using a common library to be updated at once. This must be accounted for when writing new libraries. A library should be as general as possible. The content format should be thought out so there are no changes to the required content data when a library is updated. Note: Multiple versions of a library may exists at the same time, only patch level updates will be automatically installed.</li>
-<li>An H5P should not interact directly with the containing web site. It shall only affect elements within its own generated DOM tree. Elements shall also only be injected within the target defined on initialization. This is to avoid depencies to a specific platform or web page.</li>
+<li>Think reusability when creating a library. H5P support dependencies between libraries, so the same small quiz-library may be used in various larger packages or libraries.</li>
+<li>H5P supports library updates. This enables all content using a common library to be updated at once. This must be accounted for when writing new libraries. A library should be as general as possible. The content format should be thought out so there are no changes to the required content data when a library is updated. Note: Multiple versions of a library may exists at the same time, only patch level updates will be automatically installed.</li>
+<li>An H5P should not interact directly with the containing web site. It shall only affect elements within its own generated DOM tree. Elements shall also only be injected within the target defined on initialization. This is to avoid dependencies to a specific platform or web page.</li>
 <li>Prefix objects, global functions, etc with h5p to minimize the chance of namespace conflicts with the rest of the web page. Remember that there may also be multiple H5P objects inserted on a page, so plan ahead to avoid conflicts.</li>
 <li>Content should be responsive.</li>
 <li>Content should be WCAG 2 AA compliant</li>
 <li>All generated HTML should validate.</li>
-<li>All css should validate (some browser specific non-standard CSS may at times be required)</li>
-<li>Best practices for javascript, html, etc. should of course also be followed when writing an H5P.</li>
+<li>All CSS should validate (some browser specific non-standard CSS may at times be required)</li>
+<li>Best practices for JavaScript, HTML, etc. should of course also be followed when writing an H5P.</li>
 </ul>

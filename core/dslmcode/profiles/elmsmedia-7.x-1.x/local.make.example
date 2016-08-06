@@ -22,13 +22,6 @@ libraries[ckeditor][destination] = "libraries"
 
 ; +++++ Libraries +++++
 
-; mediaelement
-libraries[mediaelement][directory_name] = "mediaelement"
-libraries[mediaelement][type] = "library"
-libraries[mediaelement][destination] = "libraries"
-libraries[mediaelement][download][type] = "get"
-libraries[mediaelement][download][url] = "http://github.com/johndyer/mediaelement/zipball/master"
-
 ; elmsmedia
 libraries[elmsmedia][type] = "profile"
 libraries[elmsmedia][destination] = "../../profiles"

@@ -116,10 +116,13 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  Library properties
    * @param string $target
    *  Where the library folder will be saved
+   * @param string $developmentPath
+   *  Folder that library resides in
    */
-  public function exportLibrary($library, $target) {
+  public function exportLibrary($library, $target, $developmentPath=NULL) {
     $folder = \H5PCore::libraryToString($library, TRUE);
-    self::copyFileTree("{$this->path}/libraries/{$folder}", "{$target}/{$folder}");
+    $srcPath = ($developmentPath === NULL ? "/libraries/{$folder}" : $developmentPath);
+    self::copyFileTree("{$this->path}{$srcPath}", "{$target}/{$folder}");
   }
 
   /**
@@ -253,6 +256,8 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  To path
    * @return boolean
    *  Indicates if the directory existed.
+   *
+   * @throws Exception Unable to copy the file
    */
   private static function copyFileTree($source, $destination) {
     if (!self::dirReady($destination)) {

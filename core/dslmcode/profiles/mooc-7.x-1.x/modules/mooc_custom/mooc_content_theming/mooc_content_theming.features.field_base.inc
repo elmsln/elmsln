@@ -10,7 +10,7 @@
 function mooc_content_theming_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_fa_primary_color'
+  // Exported field_base: 'field_fa_primary_color'.
   $field_bases['field_fa_primary_color'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -28,7 +28,7 @@ function mooc_content_theming_field_default_field_bases() {
     'type' => 'jquery_colorpicker',
   );
 
-  // Exported field_base: 'field_fa_secondary_color'
+  // Exported field_base: 'field_fa_secondary_color'.
   $field_bases['field_fa_secondary_color'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -46,7 +46,7 @@ function mooc_content_theming_field_default_field_bases() {
     'type' => 'jquery_colorpicker',
   );
 
-  // Exported field_base: 'field_instructional_significance'
+  // Exported field_base: 'field_instructional_significance'.
   $field_bases['field_instructional_significance'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -88,7 +88,7 @@ function mooc_content_theming_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_mooc_image'
+  // Exported field_base: 'field_mooc_image'.
   $field_bases['field_mooc_image'] = array(
     'active' => 1,
     'cardinality' => 1,

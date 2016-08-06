@@ -50,11 +50,11 @@ abstract class H5PEventBase {
    * @param string $sub_type
    *  Name of event sub type
    * @param string $content_id
-   *  Identifier for content affacted by the event
+   *  Identifier for content affected by the event
    * @param string $content_title
    *  Content title (makes it easier to know which content was deleted etc.)
    * @param string $library_name
-   *  Name of the library affacted by the event
+   *  Name of the library affected by the event
    * @param string $library_version
    *  Library version
    */
@@ -178,14 +178,14 @@ abstract class H5PEventBase {
   /**
    * Stores the event data in the database.
    *
-   * Must be overriden by plugin.
+   * Must be overridden by plugin.
    */
   abstract protected function save();
 
   /**
    * Add current event data to statistics counter.
    *
-   * Must be overriden by plugin.
+   * Must be overridden by plugin.
    */
   abstract protected function saveStats();
 }

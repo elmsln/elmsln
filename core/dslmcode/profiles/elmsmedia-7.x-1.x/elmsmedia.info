@@ -145,7 +145,7 @@ dependencies[] = tincanapi
 dependencies[] = elmsmedia_helper
 dependencies[] = elmsln_ecd
 dependencies[] = imagefield_focus
-dependencies[] = mediaelement
+dependencies[] = able
 dependencies[] = clipboardjs
 ; Views
 dependencies[] = views_fluid_grid

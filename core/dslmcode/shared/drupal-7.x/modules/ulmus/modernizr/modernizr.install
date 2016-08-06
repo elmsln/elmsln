@@ -1,0 +1,222 @@
+<?php
+
+/**
+ * @file
+ *   Install file for Modernizr module.
+ */
+
+/**
+ * Implements hook_requirements().
+ *
+ * Changes its status based on ability to locate JS library.
+ * Changes its instructions based on Libraries API being enabled.
+ */
+function modernizr_requirements($phase) {
+  $requirements = array();
+
+  switch ($phase) {
+    case 'runtime':
+
+      /*
+       * Test for conditions
+       */
+
+      // Fetch the version and force it to skip cache.
+      $version = modernizr_get_version(TRUE);
+
+      // Fetch the path to the JS lib.
+      $path = modernizr_get_path();
+
+      // Test if Libraries module is being used by comparing output of path functions
+      if (module_exists('libraries')) {
+        // If this is truthy, the Modernizr is using Libraries API as best we can tell.
+        $using_libraries = (strpos($path, libraries_get_path('modernizr')) !== FALSE);
+      }
+      else {
+        $using_libraries = FALSE;
+      }
+
+      /*
+       * Generate status message and severity
+       */
+
+      // Modernizr / Libraries API installed and working correctly.
+      // Do the Drupal happy dance!
+      if ($path && $using_libraries) {
+        $description = FALSE;
+        $severity = REQUIREMENT_OK;
+      }
+      // Modernizr installed, but Libraries API not installed. Still acceptable, but nudge them.
+      elseif ($path && !$using_libraries) {
+        $description = t('Modernizr JS library is installed but you aren\'t using !libraries-api. You should use it.',
+          array(
+            '!libraries-api' => l(t('Libraries API'), 'http://drupal.org/project/libraries'),
+          )
+        );
+        $severity = REQUIREMENT_WARNING;
+      }
+      // Modernizr not installed, Libraries API is installed.
+      // Supply instructions recommending Libraries module.
+      elseif (!$path && module_exists('libraries')) {
+        $description = t('Modernizr JS library cannot be found. Download it from !modernizr-site, copy it into !path and rename it to modernizr.min.js.',
+          array(
+            '!modernizr-site' => l(t('modernizr.com'), 'http://modernizr.com/download/'),
+            // !path has a hardcoded default because the libraries_get_path() function might not return
+            // the correct path when conditions lead to this block of code being executed
+            '!path' => (libraries_get_path('modernizr')) ? libraries_get_path('modernizr') : 'sites/all/libraries/modernizr',
+          )
+        );
+        $severity = REQUIREMENT_ERROR;
+      }
+      // Modernizr not installed, Libraries API not installed.
+      // Supply generic instructions
+      else {
+        $description = t('Modernizr and Libraries API cannot be found. Download Modernizr from !modernizr-site, copy it into !path and rename it to modernizr.min.js. You should also use the !libraries-api by installing from drupal.org.',
+          array(
+            '!modernizr-site' => l(t('modernizr.com'), 'http://modernizr.com/download/'),
+            '!path' => 'sites/all/libraries/modernizr',
+            '!libraries-api' => l(t('Libraries API'), 'http://drupal.org/project/libraries'),
+          )
+        );
+        $severity = REQUIREMENT_ERROR;
+      }
+
+
+      /**
+       * We need a secondary set of requirements in case all modernizr tests
+       * requested are not added to the current modernizr build. This will only
+       * run if modernizr is available.
+       */
+      if ($path) {
+        $missing_tests = _modernizr_info_missing_tests();
+
+        if (empty($missing_tests)) {
+          // There are no missing tests! We are awesome!
+          $tests_value = t('All required tests are present in current Modernizr build.');
+          $tests_description = FALSE;
+          $tests_severity = REQUIREMENT_OK;
+        }
+        else {
+          // Pull tests that are currently set.
+          $current_tests = _modernizr_current_build();
+
+          // If the custom build hasn't been created yet, we should report that
+          // instead of saying that they're missing altogether. The development
+          // copy has all the tests, so none are missing. However, dev does NOT
+          // have Modernizr.load(), so it still registers as a full-blown error
+          // by default.
+          if (is_null($current_tests)) {
+            $tests_value = t('You haven\'t created a custom build yet.');
+            $tests_description = t('Modernizr only works with a custom build. Visit the !modernizr-settings to create one.', array('!modernizr-settings' => l(t('Modernizr settings page'), 'admin/config/development/modernizr')));
+            $tests_severity = variable_get('modernizr_quiet', MODERNIZR_QUIET_DEFAULT) ? REQUIREMENT_WARNING : REQUIREMENT_ERROR;
+          }
+          else {
+            // Custom build exists, and tests are missing, we need to fix that.
+            $tests_value = t('Tests are missing in current Modernizr build.');
+            $tests_description = t('Certain tests requested by currently enabled modules and themes are not within the current Modernizr build. Go to the !link to download a new version of Modernizr. The tests that are missing are: ', array('!link' => l(t('Modernizr settings page'), 'admin/config/development/modernizr'))) . '<code>' . implode('</code>, <code>', array_keys($missing_tests)) . '</code>';
+            $tests_severity = variable_get('modernizr_quiet', MODERNIZR_QUIET_DEFAULT) ? REQUIREMENT_WARNING : REQUIREMENT_ERROR;
+          }
+        }
+
+        /**
+         * Declare requirement to Drupal
+         */
+        $requirements[] = array(
+          'title' => t('Modernizr Tests'),
+          'value' => $tests_value,
+          'description' => $tests_description,
+          'severity' => $tests_severity,
+        );
+      }
+
+      /*
+       * Declare requirement to Drupal
+       */
+      $requirements[] = array(
+        'title' => t('Modernizr'),
+        'value' => $version ? $version : t('Not installed'),
+        'description' => $description,
+        'severity' => $severity,
+      );
+      break;
+  }
+
+  return $requirements;
+}
+
+/**
+ * Set module weight.
+ */
+function modernizr_set_module_weight() {
+  db_update('system')
+    ->fields(array('weight' => 10))
+    ->condition('name', 'modernizr', '=')
+    ->execute();
+}
+
+/**
+ * Implements hook_install().
+ */
+function modernizr_install() {
+  modernizr_set_module_weight();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function modernizr_uninstall() {
+  // Delete drupal_add_js() options.
+  variable_del('modernizr_load');
+  variable_del('modernizr_scope');
+  variable_del('modernizr_type');
+
+  // Delete Drupal admin UI options.
+  variable_del('modernizr_quiet');
+
+  // Delete custom build options.
+  variable_del('modernizr_cb_printshiv');
+  variable_del('modernizr_cb_load');
+}
+
+/**
+ * Delete the deprecated 'modernizr_serverside' variable.
+ */
+function modernizr_update_7300() {
+  variable_del('modernizr_serverside');
+
+  return t("Deleted 'modernizr_serverside' variable");
+}
+
+/**
+ * Revert the introduction of 'defer' as the default method of including script.
+ */
+function modernizr_update_7301() {
+  // Setting `defer` as default was a bad idea, because:
+  //   1. The deferred script almost always gets executed after any inlined
+  //      Modernizr.load() commands.
+  //
+  // @see https://www.drupal.org/node/2252899#comment-9228009
+  //
+  //   2. Setting `defer` by default is bad for backwards-compatibility.
+  //
+  // @see https://www.drupal.org/node/2252899#comment-9383221
+  if (variable_get('modernizr_type', MODERNIZR_TYPE_DEFAULT) == 'defer') {
+    variable_set('modernizr_type', MODERNIZR_TYPE_DEFAULT);
+  }
+}
+
+/**
+ * Increase module weight to override other modules library definitions.
+ */
+function modernizr_update_7302() {
+  modernizr_set_module_weight();
+  return t('Increased Modernizr module weight.');
+}
+
+/**
+ * Automatically enable yepnope.js for backwards compatibility.
+ */
+function modernizr_update_7303() {
+  variable_set('modernizr_cb_load', 1);
+  return t('Enabled yepnope.js for backwards compatibility.');
+}

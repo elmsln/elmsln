@@ -71,7 +71,92 @@ function elmsmedia_h5p_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'field_bundle_settings_node__h5p_content';
   $strongarm->value = array(
-    'view_modes' => array(),
+    'view_modes' => array(
+      'full' => array(
+        'custom_settings' => TRUE,
+      ),
+      'iframe' => array(
+        'custom_settings' => TRUE,
+      ),
+      'teaser' => array(
+        'custom_settings' => FALSE,
+      ),
+      'rss' => array(
+        'custom_settings' => FALSE,
+      ),
+      'diff_standard' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo__poster' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo__thumbnail' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch' => array(
+        'custom_settings' => FALSE,
+      ),
+      'figurelabel' => array(
+        'custom_settings' => FALSE,
+      ),
+      'token' => array(
+        'custom_settings' => FALSE,
+      ),
+      'revision' => array(
+        'custom_settings' => FALSE,
+      ),
+    ),
     'extra_fields' => array(
       'form' => array(
         'h5p' => array(
@@ -90,7 +175,22 @@ function elmsmedia_h5p_strongarm() {
           'weight' => '7',
         ),
       ),
-      'display' => array(),
+      'display' => array(
+        'h5p' => array(
+          'default' => array(
+            'weight' => '0',
+            'visible' => TRUE,
+          ),
+          'full' => array(
+            'weight' => '3',
+            'visible' => TRUE,
+          ),
+          'iframe' => array(
+            'weight' => '0',
+            'visible' => TRUE,
+          ),
+        ),
+      ),
     ),
   );
   $export['field_bundle_settings_node__h5p_content'] = $strongarm;

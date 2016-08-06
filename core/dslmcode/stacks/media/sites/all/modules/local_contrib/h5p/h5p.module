@@ -10,17 +10,6 @@
 define('H5P_VIEWS_DIR', drupal_get_path('module', 'h5p') . '/views');
 
 /**
- * Implements hook_init()
- */
-function h5p_init() {
-  if (path_is_admin(current_path()) && empty($_POST) && user_access('access administration pages')) {
-    $core = _h5p_get_instance('core');
-    $core->validateLibrarySupport();
-    _h5p_display_unsupported_libraries(arg(2) === 'h5p');
-  }
-}
-
-/**
  * Implements hook_menu().
  */
 function h5p_menu() {
@@ -157,7 +146,7 @@ function h5p_fetch_libraries_metadata($fetchingDisabled = FALSE) {
     // Fetch the library-metadata:
     $core = _h5p_get_instance('core');
     $core->fetchLibrariesMetadata($fetchingDisabled);
-    variable_set('h5p_fetched_library_metadata_on', time());
+    h5p_variable_set('h5p_fetched_library_metadata_on', time());
   }
 }
 
@@ -451,7 +440,7 @@ function h5p_insert($node) {
       'embed_type' => $node->embed_type,
       'disable' => $node->disable,
       'library' => $lib,
-      'h5p_library' => $node->h5p_library
+      'h5p_library' => isset($node->h5p_library) ? $node->h5p_library : NULL
     ), $node->nid);
   }
 }
@@ -479,10 +468,10 @@ function h5p_update($node) {
       // Replace old package
       $h5p_storage = _h5p_get_instance('storage');
       $h5p_storage->savePackage(array(
-        'id' => h5p_get_content_id($node),
-        'title' => $node->title,
-        'disable' => $node->disable),
-        $node->nid, FALSE);
+          'id' => h5p_get_content_id($node),
+          'title' => $node->title,
+          'disable' => $node->disable
+      ), $node->nid, FALSE);
     }
     else {
       h5p_insert($node);
@@ -499,8 +488,7 @@ function h5p_delete($node) {
 
   $res = db_query("SELECT content_id AS id, slug FROM {h5p_nodes} WHERE nid = :nid", array(':nid' => $node->nid));
   while($content = $res->fetchAssoc()) {
-    $h5p_core->deletePackage($content['id']);
-    $h5p_export->deleteExport($content);
+    $h5p_core->deletePackage($content);
 
     // Remove content points
     db_delete('h5p_points')
@@ -513,13 +501,15 @@ function h5p_delete($node) {
       ->execute();
   }
 
-  // Log content delete
-  new H5PEvent('content', 'delete',
-    $node->nid,
-    $node->title,
-    $node->main_library['name'],
-    $node->main_library['majorVersion'] . '.' . $node->main_library['minorVersion']
-  );
+  if (isset($node->main_library)) {
+    // Log content delete
+    new H5PEvent('content', 'delete',
+      $node->nid,
+      $node->title,
+      $node->main_library['name'],
+      $node->main_library['majorVersion'] . '.' . $node->main_library['minorVersion']
+    );
+  }
 }
 
 /**
@@ -559,38 +549,12 @@ function h5p_view($node, $view_mode = 'full') {
     h5p_set_started(h5p_get_content_id($node));
   }
 
-  // Check if any unsupported libraries. Only users which may update this node will get the warning message
-  if (node_access('update', $node)) {
-    _h5p_display_unsupported_libraries();
-  }
-
   $node->content['h5p'] = array(
     '#markup' => $html,
     '#weight' => 1,
   );
 
   return $node;
-}
-
-/**
- * If unsupported libraries, display a message
- */
-function _h5p_display_unsupported_libraries($display_details = FALSE) {
-  // Check if any unsupported libraries. Only users which may update this node will get the warning message
-  $unsupported_libraries = variable_get('h5p_unsupported_libraries');
-  if ($unsupported_libraries !== NULL) {
-    if ($display_details) {
-      $core = _h5p_get_instance('core');
-      $message = $core->createMarkupForUnsupportedLibraryList($unsupported_libraries);
-    }
-    else {
-      $message = t('You have %num_libs H5P libraries with versions not supported anymore. ', array('%num_libs' => sizeof($unsupported_libraries)));
-    }
-
-    $message .= t('Please upgrade all H5P libraries <a href="@url">here</a>', array('@url' => url('admin/content/h5p/libraries/upgrade-all')));
-
-    drupal_set_message($message, 'warning', FALSE);
-  }
 }
 
 /**
@@ -683,7 +647,7 @@ function h5p_access_set_finished() {
 function h5p_content_access($id, $op = 'view') {
   if ($id === '0') {
     // No content. Check if access to H5P content type.
-    return node_access($op, 'h5p_content');
+    return node_access('create', 'h5p_content');
   }
   if (variable_get('h5p_revisioning', 1)) {
     // We got vid, but we need nid. Let's ask DB
@@ -834,7 +798,11 @@ function h5p_get_core_settings() {
         'by' => t('by'),
         'showMore' => t('Show more'),
         'showLess' => t('Show less'),
-        'subLevel' => t('Sublevel')
+        'subLevel' => t('Sublevel'),
+        'confirmDialogHeader' => t('Confirm action'),
+        'confirmDialogBody' => t('Please confirm that you wish to proceed. This action is not reversible.'),
+        'cancelLabel' => t('Cancel'),
+        'confirmLabel' => t('Confirm')
       )
     )
   );
@@ -1158,6 +1126,9 @@ function _h5p_get_instance($type) {
     }
 
     $core = new H5PCore($interface, _h5p_get_h5p_path(), base_path(), $language->language, (variable_get('h5p_export', '1') ? TRUE : FALSE), $development_mode);
+
+    // Override regex for converting copied files paths
+    $core->relativePathRegExp = '/^((\.\.\/){1,3})(.*content\/)?(\d+|h5peditor)\/(.+)$/';
   }
 
   switch ($type) {
@@ -1426,9 +1397,10 @@ function h5p_embed($node) {
     return;
   }
 
+  $module_path = base_path() . drupal_get_path('module', 'h5p');
   $node = node_load($node);
   if (!$node || !node_access('view', $node) || !isset($node->json_content)) {
-    print '<body style="margin:0"><div style="background: #fafafa url(http://h5p.org/sites/all/themes/professional_themec/images/h5p.svg) no-repeat center;background-size: 50% 50%;width: 100%;height: 100%;"></div><div style="width:100%;position:absolute;top:75%;text-align:center;color:#434343;font-family: Consolas,monaco,monospace">' . t('Content unavailable.') . '</div></body>';
+    print '<body style="margin:0"><div style="background: #fafafa url(' . $module_path . '/library/images/h5p.svg) no-repeat center;background-size: 50% 50%;width: 100%;height: 100%;"></div><div style="width:100%;position:absolute;top:75%;text-align:center;color:#434343;font-family: Consolas,monaco,monospace">' . t('Content unavailable.') . '</div></body>';
     return;
   }
 
@@ -1438,8 +1410,6 @@ function h5p_embed($node) {
   $settings = h5p_get_core_settings();
   // TODO: The non-content specific settings could be apart of a combined
   // h5p-core.js file to avoid sending the same data multiple times.
-
-  $module_path = base_path() . drupal_get_path('module', 'h5p');
 
   // Get core scripts
   $scripts = array();
@@ -1526,5 +1496,15 @@ function h5p_views_pre_view($view, $display_id, $args) {
         $node->main_library['majorVersion'] . '.' . $node->main_library['minorVersion']
       );
     }
+  }
+}
+
+/**
+ * Checks if the variable has changed before setting it.
+ * This is to avoid performance costly mistakes.
+ */
+function h5p_variable_set($name, $value) {
+  if (variable_get($name) !== $value) {
+    variable_set($name, $value);
   }
 }

@@ -108,10 +108,10 @@ var H5PDataView = (function ($) {
       else {
         // Update table data
         self.updateTable(data.rows);
-
-        // Update pagination widget
-        self.updatePagination(data.num);
       }
+
+      // Update pagination widget
+      self.updatePagination(data.num);
 
       if (self.loaded !== undefined) {
         self.loaded();
@@ -288,6 +288,11 @@ var H5PDataView = (function ($) {
     var self = this;
 
     if (self.pagination === undefined) {
+      if (self.table === undefined) {
+        // No table, no pagination
+        return;
+      }
+
       // Create new widget
       var $pagerContainer = $('<div/>', {'class': 'h5p-pagination'});
       self.pagination = new H5PUtils.Pagination(num, self.limit, function (offset) {

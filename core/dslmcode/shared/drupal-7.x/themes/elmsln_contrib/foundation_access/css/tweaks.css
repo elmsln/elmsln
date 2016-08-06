@@ -1,3 +1,8 @@
+/* ELMSLN bullets */
+article.node div.body ul li {
+  list-style-type: initial;
+}
+
 button, .button {
   margin: 0;
 }
@@ -5,6 +10,16 @@ button, .button {
 button {
   height: 2.3rem;
 }
+
+/* Materialize select lists */
+ul.dropdown-content.select-dropdown {
+  margin: 0;
+}
+input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] input:not([type]), input[type="text"][disabled], input[type="text"][readonly], fieldset[disabled] input[type="text"], input[type="password"][disabled], input[type="password"][readonly], fieldset[disabled] input[type="password"], input[type="date"][disabled], input[type="date"][readonly], fieldset[disabled] input[type="date"], input[type="datetime"][disabled], input[type="datetime"][readonly], fieldset[disabled] input[type="datetime"], input[type="datetime-local"][disabled], input[type="datetime-local"][readonly], fieldset[disabled] input[type="datetime-local"], input[type="month"][disabled], input[type="month"][readonly], fieldset[disabled] input[type="month"], input[type="week"][disabled], input[type="week"][readonly], fieldset[disabled] input[type="week"], input[type="email"][disabled], input[type="email"][readonly], fieldset[disabled] input[type="email"], input[type="number"][disabled], input[type="number"][readonly], fieldset[disabled] input[type="number"], input[type="search"][disabled], input[type="search"][readonly], fieldset[disabled] input[type="search"], input[type="tel"][disabled], input[type="tel"][readonly], fieldset[disabled] input[type="tel"], input[type="time"][disabled], input[type="time"][readonly], fieldset[disabled] input[type="time"], input[type="url"][disabled], input[type="url"][readonly], fieldset[disabled] input[type="url"], input[type="color"][disabled], input[type="color"][readonly], fieldset[disabled] input[type="color"], textarea[disabled], textarea[readonly], fieldset[disabled] textarea {
+  background-color: initial;
+}
+
+/* Materialize scrollspy */
 
 #scrollspy-nav {
   display: none;
@@ -190,6 +205,14 @@ a.add-menu-drop {
   font-size: 1rem;
   line-height: 2.5rem
 }
+@media all and (max-width: 720px) {
+  .elmsln-home-button-link span {
+    position: absolute;
+    left:-9999999;
+    opacity: 0;
+  }
+}
+
 .cis-lmsless-avatar {
   width: 2.5rem;
   height: 2.5rem;
@@ -777,3 +800,22 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
   margin-right: 1rem;
 }
 
+.figurelabel {
+  display: flex;
+  .figurelabel__title {
+    white-space: nowrap;
+  }
+}
+
+span.textbook-san-serif {
+ font-family: "Open Sans","Helvetica Neue","Helvetica",sans-serif;
+}
+
+h1 span.textbook-san-serif,
+h2 span.textbook-san-serif,
+h3 span.textbook-san-serif,
+h4 span.textbook-san-serif,
+h5 span.textbook-san-serif,
+h6 span.textbook-san-serif {
+ font-weight:300 !important;
+}
