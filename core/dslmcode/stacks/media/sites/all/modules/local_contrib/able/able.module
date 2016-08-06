@@ -1,0 +1,254 @@
+<?php
+
+/**
+ * @file
+ * Provides HTML5 video and audio elements using able.js for HTML4 browsers.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function able_menu() {
+  return array(
+    'admin/config/media/ableplayer' => array(
+      'title' => 'able.js',
+      'description' => 'Settings for able.js integration with Drupal',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('able_admin_form'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'able.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function able_libraries_info() {
+  $libraries = array();
+
+  $js_options = array(
+    'group' => JS_LIBRARY,
+    'requires_jquery' => TRUE,
+  );
+
+  $css_options = array(
+    'group' => CSS_DEFAULT,
+  );
+
+  $libraries['ableplayer'] = array(
+    'name' => 'Able Player',
+    'vendor url' => 'https://github.com/ableplayer/ableplayer',
+    'download url' => 'https://github.com/ableplayer/ableplayer/releases',
+    'version arguments' => array(
+      'file' => 'build/ableplayer.min.js',
+      'pattern' => '@ableplayer V?(\d+\.\d+\.\d+)@',
+    ),
+    'files' => array(
+      'js' => array(
+        'build/ableplayer.min.js' => $js_options,
+        'thirdparty/js.cookie.js' => $js_options,
+      ),
+      'css' => array(
+        'build/ableplayer.min.css' => $css_options,
+      ),
+    ),
+    'variants' => array(
+      'source' => array(
+        'files' => array(
+          'js' => array(
+            'build/ableplayer.js' => $js_options,
+            'thirdparty/js.cookie.js' => $js_options,
+          ),
+          'css' => array(
+            'styles/ableplayer-playlist.css' => $css_options,
+            'styles/ableplayer-search.css' => $css_options,
+            'styles/ableplayer-sign.css' => $css_options,
+            'styles/ableplayer-transcript.css' => $css_options,
+            'styles/ableplayer.css' => $css_options,
+          ),
+        ),
+      ),
+    ),
+    'dependencies' => array(
+      'modernizr',
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_init().
+ */
+function able_init() {
+  // When the ableplayer is set to be on all pages add it to the page.
+  if (variable_get('able_sitewide', FALSE)) {
+    drupal_add_library('ableplayer', 'ableplayer');
+    drupal_add_js(drupal_get_path('module', 'ableplayer') . '/able.js');
+    drupal_add_js(array('ableplayerAll' => TRUE), array('type' => 'setting'));
+  }
+}
+
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function able_field_formatter_info() {
+  $formatters = array();
+
+  $formatters['able_video'] = array(
+    'label' => t('Ableplayer Video'),
+    'field types' => array('file', 'link_field'),
+    'settings' => array(
+      'controls' => variable_get('able_video_default_controls', TRUE),
+      'height' => variable_get('able_video_default_height', '385'),
+      'download_link' => variable_get('able_video_default_download_link', FALSE),
+      'download_text' => variable_get('able_video_default_download_text', t('Download')),
+    ),
+  );
+
+  $formatters['able_audio'] = array(
+    'label' => t('Ableplayer Audio'),
+    'field types' => array('file', 'link_field'),
+    'settings' => array(
+      'controls' => variable_get('able_audio_default_controls', TRUE),
+      'height' => variable_get('able_audio_default_height', '30'),
+      'download_link' => variable_get('able_audio_default_download_link', FALSE),
+      'download_text' => variable_get('able_audio_default_download_text', t('Download')),
+    ),
+  );
+
+  return $formatters;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function able_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // A unique caller per page for the JS specific settings to use. This may be
+  // different for ever page view and should not be used for styling.
+  static $id = 0;
+  $element = array();
+  $path = drupal_get_path('module', 'ableplayer');
+  foreach ($items as $delta => $item) {
+    // Support the link field type which stores it's data in 'url'.
+    $src = ($field['type'] == 'link_field') ? $item['url'] : $item['uri'];
+
+    $settings = $display['settings'];
+    $js_settings = array();
+    $js_settings['opts'] = array();
+    $js_settings['controls'] = (bool)$settings['controls'];
+    if ($display['type'] == 'able_video') {
+      $js_settings['opts']['videoHeight'] = (int)$settings['height'];
+    }
+    elseif ($display['type'] == 'able_audio') {
+      $js_settings['opts']['audioHeight'] = (int)$settings['height'];
+    }
+
+    $class = 'ableplayer-formatter-identifier-' . time() . '-' . $id++;
+    $element[$delta] = array(
+      '#attributes' => array(
+        'src' => file_create_url($src),
+        'class' => $class,
+      ),
+      '#settings' => $settings,
+      '#attached' => array(
+        'libraries_load' => array(array('ableplayer')),
+        'js' => array(
+          array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
+        ),
+      ),
+    );
+    if ($settings['controls']) {
+      $element[$delta]['#attributes']['controls'] = 'controls';
+    }
+
+    if ($display['type'] == 'able_video') {
+      $element[$delta]['#theme'] = 'able_video';
+      $element[$delta]['#attributes']['height'] = $display['settings']['height'];
+    }
+    elseif ($display['type'] == 'able_audio') {
+      $element[$delta]['#theme'] = 'able_audio';
+    }
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function able_theme() {
+  return array(
+    'able_video' => array(
+      'variables' => array('attributes' => array(), 'settings' => array()),
+    ),
+    'able_audio' => array(
+      'variables' => array('attributes' => array(), 'settings' => array()),
+    ),
+  );
+}
+
+function theme_able_video($variables) {
+  $output = '<div class="ableplayer-video">';
+  $output .= '<video ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1"></video>';
+  if ($variables['settings']['download_link']) {
+    $output .= '<div class="ableplayer-download-link"><a href="' . $variables['attributes']['src'] . '">' . filter_xss_admin($variables['settings']['download_text']) . '</a></div>';
+  }
+  $output .= '</div>';
+  return $output;
+}
+
+function theme_able_audio($variables) {
+  $output = '<div class="ableplayer-audio">';
+  $output .= '<audio ' . drupal_attributes($variables['attributes']) . ' ></audio>';
+  if ($variables['settings']['download_link']) {
+    $output .= '<div class="ableplayer-download-link"><a href="' . $variables['attributes']['src'] . '">' . filter_xss_admin($variables['settings']['download_text']) . '</a></div>';
+  }
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function able_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = array();
+
+  $element['controls'] = array(
+    '#title' => t('Controls'),
+    '#type' => 'checkbox',
+    '#default_value' => $settings['controls'],
+  );
+
+  $element['height'] = array(
+    '#title' => t('Height'),
+    '#type' => 'textfield',
+    '#default_value' => $settings['height'],
+  );
+
+  $element['download_link'] = array(
+    '#title' => t('Download Link'),
+    '#type' => 'checkbox',
+    '#default_value' => $settings['download_link'],
+  );
+
+  $element['download_text'] = array(
+    '#title' => t('Download Link Text'),
+    '#type' => 'textfield',
+    '#default_value' => $settings['download_text'],
+  );
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function able_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  return t('Height: @height px', array('@height' => $settings['height']));
+}

@@ -80,6 +80,17 @@ H5PEditor.ListEditor = (function ($) {
         'class' : 'h5p-li',
       });
 
+      // Create confirmation dialog for removing list item
+      var confirmRemovalDialog = new H5P.ConfirmationDialog({
+        dialogText: H5PEditor.t('core', 'confirmRemoval', {':type': entity})
+      }).appendTo(document.body);
+
+      // Remove list item on confirmation
+      confirmRemovalDialog.on('confirmed', function () {
+        list.removeItem($item.index());
+        $item.remove();
+      });
+
       /**
        * Mouse move callback
        *
@@ -194,10 +205,7 @@ H5PEditor.ListEditor = (function ($) {
         tabIndex: 1,
         on: {
           click: function () {
-            if (confirm(H5PEditor.t('core', 'confirmRemoval', {':type': entity}))) {
-              list.removeItem($item.index());
-              $item.remove();
-            }
+            confirmRemovalDialog.show($(this).offset().top);
           }
         }
       }).appendTo($titleBar);

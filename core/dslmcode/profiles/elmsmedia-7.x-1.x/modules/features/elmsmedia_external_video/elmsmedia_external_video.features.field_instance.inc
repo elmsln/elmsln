@@ -10,7 +10,7 @@
 function elmsmedia_external_video_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-external_video-field_cis_course_ref'
+  // Exported field_instance: 'node-external_video-field_cis_course_ref'.
   $field_instances['node-external_video-field_cis_course_ref'] = array(
     'bundle' => 'external_video',
     'default_value' => NULL,
@@ -19,12 +19,18 @@ function elmsmedia_external_video_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'full' => array(
+        'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
-          'link' => FALSE,
+          'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 2,
+        'weight' => 1,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -34,12 +40,27 @@ function elmsmedia_external_video_field_default_field_instances() {
       ),
       'mediavideo' => array(
         'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 2,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -67,7 +88,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-field_external_media'
+  // Exported field_instance: 'node-external_video-field_external_media'.
   $field_instances['node-external_video-field_external_media'] = array(
     'bundle' => 'external_video',
     'default_value' => NULL,
@@ -76,7 +97,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'video_embed_field',
+        'module' => 'elmsmedia_helper',
         'settings' => array(
           'description' => 1,
           'description_position' => 'bottom',
@@ -85,9 +106,20 @@ function elmsmedia_external_video_field_default_field_instances() {
         'type' => 'video_embed_field',
         'weight' => 0,
       ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'description' => 1,
+          'description_position' => 'bottom',
+          'video_style' => 'normal',
+        ),
+        'type' => 'video_embed_field',
+        'weight' => 4,
+      ),
       'iframe' => array(
         'label' => 'hidden',
-        'module' => 'video_embed_field',
+        'module' => 'elmsmedia_helper',
         'settings' => array(
           'description' => 1,
           'description_position' => 'bottom',
@@ -98,7 +130,40 @@ function elmsmedia_external_video_field_default_field_instances() {
       ),
       'mediavideo' => array(
         'label' => 'hidden',
-        'module' => 'video_embed_field',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'description' => 1,
+          'description_position' => 'bottom',
+          'video_style' => 'normal',
+        ),
+        'type' => 'video_embed_field',
+        'weight' => 0,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'description' => 1,
+          'description_position' => 'bottom',
+          'video_style' => 'normal',
+        ),
+        'type' => 'video_embed_field',
+        'weight' => 0,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'description' => 1,
+          'description_position' => 'bottom',
+          'video_style' => 'normal',
+        ),
+        'type' => 'video_embed_field',
+        'weight' => 0,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
         'settings' => array(
           'description' => 1,
           'description_position' => 'bottom',
@@ -132,7 +197,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-field_figurelabel_ref'
+  // Exported field_instance: 'node-external_video-field_figurelabel_ref'.
   $field_instances['node-external_video-field_figurelabel_ref'] = array(
     'bundle' => 'external_video',
     'default_value_function' => '',
@@ -140,14 +205,24 @@ function elmsmedia_external_video_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'entityreference',
         'settings' => array(
           'links' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
-        'weight' => 3,
+        'weight' => 1,
+      ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => TRUE,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 5,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -159,11 +234,40 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'entityreference',
         'settings' => array(
-          'links' => 1,
-          'view_mode' => 'figurelabel',
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 1,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => TRUE,
+          'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
-        'weight' => 4,
+        'weight' => 1,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => TRUE,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 1,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => TRUE,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -217,7 +321,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-field_poster'
+  // Exported field_instance: 'node-external_video-field_poster'.
   $field_instances['node-external_video-field_poster'] = array(
     'bundle' => 'external_video',
     'deleted' => 0,
@@ -227,7 +331,13 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 5,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -237,13 +347,27 @@ function elmsmedia_external_video_field_default_field_instances() {
       ),
       'mediavideo' => array(
         'label' => 'above',
-        'module' => 'image',
-        'settings' => array(
-          'image_link' => '',
-          'image_style' => 'mediavideo_poster',
-        ),
-        'type' => 'image',
-        'weight' => 3,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -295,19 +419,25 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-field_tagging'
+  // Exported field_instance: 'node-external_video-field_tagging'.
   $field_instances['node-external_video-field_tagging'] = array(
     'bundle' => 'external_video',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Tagging media can make it easier to find after the fact. This is used for searching and filtering.',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'full' => array(
         'label' => 'above',
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 1,
+        'weight' => 3,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -317,10 +447,27 @@ function elmsmedia_external_video_field_default_field_instances() {
       ),
       'mediavideo' => array(
         'label' => 'above',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 1,
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -332,9 +479,22 @@ function elmsmedia_external_video_field_default_field_instances() {
     'entity_type' => 'node',
     'fences_wrapper' => 'div',
     'field_name' => 'field_tagging',
-    'label' => 'Tagging',
+    'label' => 'Tags',
     'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -353,7 +513,7 @@ function elmsmedia_external_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-external_video-og_group_ref'
+  // Exported field_instance: 'node-external_video-og_group_ref'.
   $field_instances['node-external_video-og_group_ref'] = array(
     'bundle' => 'external_video',
     'default_value' => NULL,
@@ -363,10 +523,42 @@ function elmsmedia_external_video_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'og_ui',
         'settings' => array(),
-        'type' => 'og_list_default',
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'mediavideo' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
         'weight' => 5,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -446,7 +638,8 @@ function elmsmedia_external_video_field_default_field_instances() {
   t('Figure Label');
   t('Poster');
   t('Section');
-  t('Tagging');
+  t('Tagging media can make it easier to find after the fact. This is used for searching and filtering.');
+  t('Tags');
 
   return $field_instances;
 }

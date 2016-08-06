@@ -429,6 +429,13 @@ function _textbook_load_styles() {
 function _textbook_styles() {
   $styles = array(
     array(
+      'name' => t('San-serif'),
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'textbook-san-serif',
+      )
+    ),
+    array(
       'name' => t('Primary Color'),
       'element' => 'span',
       'attributes' => array(

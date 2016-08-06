@@ -19,7 +19,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'teaser' => 0,
     'rss' => 0,
     'diff_standard' => 0,
-    'iframe' => 0,
+    'iframe' => 1,
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
@@ -64,7 +64,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__audio__iframe_audio';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__audio__iframe_audio'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -469,7 +469,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'teaser' => 0,
     'rss' => 0,
     'diff_standard' => 0,
-    'iframe' => 0,
+    'iframe' => 1,
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
@@ -478,10 +478,10 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image__left__lightboxed' => 0,
     'image__right__lightboxed' => 0,
     'image__boxed__lightboxed' => 0,
-    'mediavideo' => 0,
-    'mediavideo__poster' => 0,
-    'mediavideo__thumbnail' => 0,
-    'mediavideo__thumbnail__right' => 0,
+    'mediavideo' => 1,
+    'mediavideo__poster' => 1,
+    'mediavideo__thumbnail' => 1,
+    'mediavideo__thumbnail__right' => 1,
     'mediasvg' => 0,
     'mediasvg__left' => 0,
     'mediasvg__left__medium' => 0,
@@ -514,7 +514,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__external_video__iframe_external_video';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__external_video__iframe_external_video'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -610,7 +610,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'teaser' => 0,
     'rss' => 0,
     'diff_standard' => 0,
-    'iframe' => 0,
+    'iframe' => 1,
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
@@ -655,7 +655,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__h5p_content__iframe_h5p_content';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__h5p_content__iframe_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -940,7 +940,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'teaser' => 0,
     'rss' => 0,
     'diff_standard' => 0,
-    'iframe' => 0,
+    'iframe' => 1,
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
@@ -985,7 +985,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__video__iframe_video';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__video__iframe_video'] = $strongarm;
 
   $strongarm = new stdClass();

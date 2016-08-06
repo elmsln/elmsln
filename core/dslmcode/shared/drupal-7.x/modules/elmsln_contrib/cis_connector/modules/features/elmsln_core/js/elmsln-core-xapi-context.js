@@ -10,6 +10,10 @@
         "title": Drupal.settings.elmslnCore.title,
         "role": Drupal.settings.elmslnCore.role
       };
+      // check for hypothesis data attribute
+      if ($(this).attr('data-xapi-hypothesis')) {
+        data["hypothesis"] = $(this).attr('data-xapi-hypothesis');
+      }
       var obj = this;
       // send the message to the other domain using postMessage call
       // @todo ensure this is within our network before sending it data

@@ -10,7 +10,7 @@
 function elmsmedia_svg_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_svg'
+  // Exported field_base: 'field_svg'.
   $field_bases['field_svg'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -35,7 +35,7 @@ function elmsmedia_svg_field_default_field_bases() {
     'type' => 'file',
   );
 
-  // Exported field_base: 'field_svg_alttext'
+  // Exported field_base: 'field_svg_alttext'.
   $field_bases['field_svg_alttext'] = array(
     'active' => 1,
     'cardinality' => 1,

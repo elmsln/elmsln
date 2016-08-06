@@ -32,6 +32,7 @@ function h5p_uninstall() {
   require_once('library/h5p-file-storage.interface.php');
   require_once('library/h5p-default-storage.class.php');
   require_once('h5p.classes.inc');
+  require_once('h5p.module');
 
   $interface = new H5PDrupal();
   $core = new H5PCore($interface, $h5p_path, base_path(), $language->language, (variable_get('h5p_export', '1') ? TRUE : FALSE), H5PDevelopment::MODE_NONE);
@@ -43,6 +44,15 @@ function h5p_uninstall() {
   foreach (array('temp', 'libraries', 'content', 'exports') as $directory) {
     _h5p_recursive_unlink($h5p_path . '/' . $directory);
   }
+
+  // Delete remaining h5p entries in file_managed table
+  $h5p_uri = db_or()
+    ->condition('uri', '%' . db_like('//h5p/') . '%', 'LIKE')
+    ->condition('uri', '%' . db_like('//h5peditor/') . '%', 'LIKE');
+
+  db_delete('file_managed')
+    ->condition($h5p_uri)
+    ->execute();
 
   // Only remove development dir if it's empty.
   $dir = $h5p_path . '/development';
@@ -71,6 +81,10 @@ function h5p_uninstall() {
   variable_del('h5p_unsupported_libraries');
   variable_del('h5p_fetched_library_metadata_on');
   variable_del('h5p_first_runnable_saved');
+  variable_del('h5p_save_content_frequency');
+  variable_del('h5p_save_content_state');
+  variable_del('h5p_update_available');
+  variable_del('h5p_update_available_path');
 
   // Intentionally not deleting variable h5p_site_uuid. If h5p module is uninstalled/installed,
   // the uuid should be the same
@@ -93,7 +107,22 @@ function _h5p_recursive_unlink($file) {
     rmdir($file);
   }
   elseif (file_exists($file)) {
-    unlink($file); // TODO: Remove from file_managed!!
+
+    // Get file from file_managed if it exists
+    $file_uri = file_build_uri(substr($file, strpos($file, 'h5p/'), strlen($file)));
+    $fid = db_query("SELECT fid FROM {file_managed} WHERE uri = :path",
+      array(':path' => $file_uri))->fetchField();
+    if ($fid !== false) {
+
+      // If it was found delete file and database record
+      $file_object = file_load($fid);
+      file_delete($file_object);
+    }
+    else {
+
+      // Delete locally
+      drupal_unlink($file);
+    }
   }
 }
 
@@ -101,7 +130,6 @@ function h5p_enable() {
   if (function_exists('views_invalidate_cache')) {
     views_invalidate_cache();
   }
-  h5p_validate_library_support();
 
   _h5p_inform_h5p_org_communication();
 }
@@ -851,7 +879,6 @@ function h5p_update_7101() {
  *
  */
 function h5p_update_7102() {
-  h5p_validate_library_support();
 }
 
 /**
@@ -1116,19 +1143,6 @@ function h5p_update_7110() {
   ));
 
   _h5p_inform_h5p_org_communication();
-}
-
-/**
- * Check if any library installed is unsupported by core
- */
-function h5p_validate_library_support() {
-  require_once drupal_get_path('module', 'h5p') . '/library/h5p-development.class.php';
-  require_once drupal_get_path('module', 'h5p') . '/library/h5p.classes.php';
-  require_once drupal_get_path('module', 'h5p') . '/h5p.classes.inc';
-
-  $core = _h5p_get_instance('core');
-  // Force check
-  $core->validateLibrarySupport(true);
 }
 
 /**

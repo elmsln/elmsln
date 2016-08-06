@@ -213,6 +213,84 @@ function foundation_access_preprocess_node(&$variables) {
 }
 
 /**
+ * Implements theme_field().
+ *
+ * Changes to the default field output.
+ */
+function foundation_access_field($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<div ' . $variables['title_attributes'] . '>' . $variables['label'] . '</div>';
+  }
+
+  // Quick Edit module requires some extra wrappers to work.
+  if (module_exists('quickedit')) {
+    $output .= '<div class="field-items"' . $variables['content_attributes'] . '>';
+    foreach ($variables['items'] as $delta => $item) {
+      $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
+      $output .= '<div class="' . $classes . '"' . $variables['item_attributes'][$delta] . '>' . drupal_render($item) . '</div>';
+    }
+    $output .= '</div>';
+  }
+  else {
+    foreach ($variables['items'] as $item) {
+      $output .= drupal_render($item);
+    }
+  }
+
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
+
+  return $output;
+}
+
+/**
+ * Implements theme_field__taxonomy_term_reference().
+ */
+function foundation_access_field__taxonomy_term_reference($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<h3 class="field-label">' . $variables['label'] . '</h3>';
+  }
+
+  // Render the items.
+  $output .= ($variables['element']['#label_display'] == 'inline') ? '<ul class="links inline">' : '<ul class="links">';
+  foreach ($variables['items'] as $delta => $item) {
+    $output .= '<li class="chip taxonomy-term-reference taxonomy-term-reference-' . $delta . '"' . $variables['item_attributes'][$delta] . '>' . drupal_render($item) . '</li>';
+  }
+  $output .= '</ul>';
+
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . (!in_array('clearfix', $variables['classes_array']) ? ' clearfix' : '') . '">' . $output . '</div>';
+
+  return $output;
+}
+
+/**
+ * Implements theme_field__taxonomy_term_reference().
+ */
+function foundation_access_field__field_cis_course_ref($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<h3 ' . $variables['title_attributes'] . '>' . $variables['label'] . '</h3>';
+  }
+
+  foreach ($variables['items'] as $item) {
+    $output .= drupal_render($item);
+  }
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
+
+  return $output;
+}
+
+/**
  * Display Inherit External Video
  */
 function foundation_access_preprocess_node__inherit__external_video__mediavideo(&$variables) {
@@ -825,3 +903,30 @@ function _foundation_access_hue_2_rgb($v1, $v2, $vh) {
   }
   return ($v1);
 };
+
+/**
+ * Converts youtube / vimeo URLs into things we can embed
+ * @param  string $video_url a well formed youtube/vimeo direct URL.
+ * @return string            the address that's valid for embed codes.
+ */
+function _foundation_access_video_url($video_url) {
+  // account for the broken form of embed code from youtube
+  if (strpos($video_url, 'youtube') && !strpos($video_url, 'embed')) {
+    $tmp = drupal_parse_url($video_url);
+    $yvid = '';
+    // check for youtube url vs embed
+    if (isset($tmp['query']['v'])) {
+      $yvid = $tmp['query']['v'];
+      return 'https://www.youtube.com/embed/' . $yvid;
+    }
+  }
+  // account for the broken form of embed code from vimeo
+  if (strpos($video_url, 'vimeo') && !strpos($video_url, 'player')) {
+    // rip out from embed based url
+    $vpath = explode('/', $video_url);
+    $part = array_pop($vpath);
+    return 'https://player.vimeo.com/video/' . $part;
+  }
+  // didn't know what to do or it was already well formed
+  return $video_url;
+}

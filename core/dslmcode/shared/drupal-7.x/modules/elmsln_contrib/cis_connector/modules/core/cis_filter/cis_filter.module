@@ -194,6 +194,7 @@ function cis_filter_theme() {
         'content' => '',
         'width' => '100%',
         'height' => '400',
+        'hypothesis' => '',
         'link' => '',
         'class' => 'entity_iframe',
         'id' => '',
@@ -350,6 +351,9 @@ function cis_filter_preprocess_cis_filter_render__iframe(&$vars) {
   }
   if (isset($code['height'])) {
     $vars['height'] = $code['height'];
+  }
+  if (isset($code['hypothesis'])) {
+    $vars['hypothesis'] = $code['hypothesis'];
   }
   // check for a specific id we can reference
   if ($code['item_type'] == 'id') {

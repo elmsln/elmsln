@@ -42,6 +42,22 @@ ns.Library = function (parent, field, params, setValue) {
   parent.ready(function () {
     self.passReadies = false;
   });
+
+  // Confirmation dialog for changing library
+  this.confirmChangeLibrary = new H5P.ConfirmationDialog({
+    headerText: H5PEditor.t('core', 'changeLibrary'),
+    dialogText: H5PEditor.t('core', 'confirmChangeLibrary')
+  }).appendTo(document.body);
+
+  // Load library on confirmation
+  this.confirmChangeLibrary.on('confirmed', function () {
+    self.loadLibrary(self.$select.val());
+  });
+
+  // Revert to current library on cancel
+  this.confirmChangeLibrary.on('canceled', function () {
+    self.$select.val(self.currentLibrary);
+  });
 };
 
 ns.Library.prototype = Object.create(H5P.EventDispatcher.prototype);
@@ -57,7 +73,7 @@ ns.Library.prototype.appendTo = function ($wrapper) {
   var that = this;
   var html = '';
   if (this.field.label !== 0) {
-    html = '<label class="h5peditor-label">' + (this.field.label === undefined ? this.field.name : this.field.label) + '</label>';
+    html = '<label class="h5peditor-label' + (this.field.optional ? '' : ' h5peditor-required') + '">' + (this.field.label === undefined ? this.field.name : this.field.label) + '</label>';
   }
 
   html = '<div class="field ' + this.field.type + '">' + html + '<select>' + ns.createOption('-', 'Loading...') + '</select>';
@@ -92,15 +108,19 @@ ns.Library.prototype.librariesLoaded = function (libList) {
   }
 
   self.$select.html(options).change(function () {
-    var lib = ns.$(this).val();
     // Use timeout to avoid bug in Chrome >44, when confirm is used inside change event.
     // Ref. https://code.google.com/p/chromium/issues/detail?id=525629
     setTimeout(function () {
-      if (self.params.library === undefined || confirm(H5PEditor.t('core', 'confirmChangeLibrary'))) {
-        self.loadLibrary(lib);
+
+      // Check if library is selected
+      if (self.params.library) {
+
+        // Confirm changing library
+        self.confirmChangeLibrary.show(self.$select.offset().top);
       } else {
-        // Reset selector
-        self.$select.val(self.currentLibrary);
+
+        // Load new library
+        self.loadLibrary(self.$select.val());
       }
     }, 0);
   });
@@ -127,7 +147,7 @@ ns.Library.prototype.librariesLoaded = function (libList) {
  *
  * @alias H5PEditor.Library#loadLibrary
  * @param {string} libraryName On the form machineName.majorVersion.minorVersion
- * @param {boolean} preserveParams
+ * @param {boolean} [preserveParams]
  */
 ns.Library.prototype.loadLibrary = function (libraryName, preserveParams) {
   var that = this;

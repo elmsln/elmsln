@@ -49,6 +49,21 @@ function _h5peditor_recursive_unlink($file) {
     rmdir($file);
   }
   elseif (file_exists($file)) {
-    unlink($file);
-  } 
+
+    // Clean up temporary h5peditor files that has not been removed yet.
+    $file_uri = file_build_uri(substr($file, strpos($file, 'h5p/'), strlen($file)));
+    $fid = db_query("SELECT fid FROM {file_managed} WHERE uri = :path",
+      array(':path' => $file_uri))->fetchField();
+    if ($fid !== false) {
+
+      // Delete file and database record
+      $file_object = file_load($fid);
+      file_delete($file_object);
+    }
+    else {
+
+      // Delete local file
+      drupal_unlink($file);
+    }
+  }
 }

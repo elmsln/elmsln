@@ -11,8 +11,10 @@ var ns = H5PEditor;
  * @returns {ns.File}
  */
 ns.File = function (parent, field, params, setValue) {
-  H5P.EventDispatcher.call(this);
   var self = this;
+
+  // Initialize inheritance
+  ns.FileUploader.call(self, field);
 
   this.parent = parent;
   this.field = field;
@@ -29,10 +31,65 @@ ns.File = function (parent, field, params, setValue) {
   parent.ready(function () {
     self.passReadies = false;
   });
+
+  // Create remove file dialog
+  this.confirmRemovalDialog = new H5P.ConfirmationDialog({
+    headerText: H5PEditor.t('core', 'removeFile'),
+    dialogText: H5PEditor.t('core', 'confirmRemoval', {':type': 'file'})
+  }).appendTo(document.body);
+
+  // Remove file on confirmation
+  this.confirmRemovalDialog.on('confirmed', function () {
+    delete self.params;
+    self.setValue(self.field);
+    self.addFile();
+
+    for (var i = 0; i < self.changes.length; i++) {
+      self.changes[i]();
+    }
+  });
+
+  // When uploading starts
+  self.on('upload', function () {
+    // Insert throbber
+    self.$file.html('<div class="h5peditor-uploading h5p-throbber">' + ns.t('core', 'uploading') + '</div>');
+
+    // Clear old error messages
+    self.$errors.html('');
+  });
+
+  // Handle upload complete
+  self.on('uploadComplete', function (event) {
+    var result = event.data;
+
+    try {
+      if (result.error) {
+        throw result.error;
+      }
+
+      self.params = self.params || {};
+      self.params.path = result.data.path;
+      self.params.mime = result.data.mime;
+      self.params.copyright = self.copyright;
+
+      // Make it possible for other widgets to process the result
+      self.trigger('fileUploaded', result.data);
+
+      self.setValue(self.field, self.params);
+
+      for (var i = 0; i < self.changes.length; i++) {
+        self.changes[i](self.params);
+      }
+    }
+    catch (error) {
+      self.$errors.append(ns.createError(error));
+    }
+
+    self.addFile();
+  });
 };
 
-
-ns.File.prototype = Object.create(H5P.EventDispatcher.prototype);
+ns.File.prototype = Object.create(ns.FileUploader.prototype);
 ns.File.prototype.constructor = ns.File;
 
 /**
@@ -43,11 +100,10 @@ ns.File.prototype.constructor = ns.File;
  */
 ns.File.prototype.appendTo = function ($wrapper) {
   var self = this;
-  ns.File.addIframe();
 
   var label = '';
   if (this.field.label !== 0) {
-    label = '<span class="h5peditor-label">' + (this.field.label === undefined ? this.field.name : this.field.label) + '</span>';
+    label = '<span class="h5peditor-label' + (this.field.optional ? '' : ' h5peditor-required') + '">' + (this.field.label === undefined ? this.field.name : this.field.label) + '</span>';
   }
 
   var html = ns.createItem(this.field.type, label + '<div class="file"></div><a class="h5p-copyright-button" href="#">' + ns.t('core', 'editCopyright') + '</a><div class="h5p-editor-dialog"><a href="#" class="h5p-close" title="' + ns.t('core', 'close') + '"></a></div>', this.field.description);
@@ -96,7 +152,7 @@ ns.File.prototype.addFile = function () {
 
   if (this.params === undefined) {
     this.$file.html('<a href="#" class="add" title="' + ns.t('core', 'addFile') + '"></a>').children('.add').click(function () {
-      that.uploadFile();
+      that.openFileSelector();
       return false;
     });
     return;
@@ -116,85 +172,12 @@ ns.File.prototype.addFile = function () {
   }
 
   this.$file.html('<a href="#" title="' + ns.t('core', 'changeFile') + '" class="thumbnail"><img ' + (thumbnail.width === undefined ? '' : ' width="' + thumbnail.width + '"') + 'height="' + thumbnail.height + '" alt="' + (this.field.label === undefined ? '' : this.field.label) + '"/><a href="#" class="remove" title="' + ns.t('core', 'removeFile') + '"></a></a>').children(':eq(0)').click(function () {
-    that.uploadFile();
+    that.openFileSelector();
     return false;
   }).children('img').attr('src', thumbnail.path).end().next().click(function (e) {
-    if (!confirm(ns.t('core', 'confirmRemoval', {':type': 'file'}))) {
-      return false;
-    }
-    delete that.params;
-    that.setValue(that.field);
-    that.addFile();
-
-    for (var i = 0; i < that.changes.length; i++) {
-      that.changes[i]();
-    }
-
+    that.confirmRemovalDialog.show(H5P.jQuery(this).offset().top);
     return false;
   });
-};
-
-/**
- * Start a new upload.
- */
-ns.File.prototype.uploadFile = function () {
-  var that = this;
-
-  if (ns.File.$file === 0) {
-    return; // Wait for our turn :)
-  }
-
-  this.$errors.html('');
-
-  ns.File.changeCallback = function () {
-    that.$file.html('<div class="h5peditor-uploading h5p-throbber">' + ns.t('core', 'uploading') + '</div>');
-  };
-
-  ns.File.callback = function (err, result) {
-    try {
-      if (err) {
-        throw err;
-      }
-
-      that.params = {
-        path: result.path,
-        mime: result.mime,
-        copyright: that.copyright
-      };
-      if (that.field.type === 'image') {
-        that.params.width = result.width;
-        that.params.height = result.height;
-      }
-
-      that.setValue(that.field, that.params);
-
-      for (var i = 0; i < that.changes.length; i++) {
-        that.changes[i](that.params);
-      }
-    }
-    catch (error) {
-      that.$errors.append(ns.createError(error));
-    }
-
-    that.addFile();
-  };
-
-  if (this.field.mimes !== undefined) {
-    var mimes = '';
-    for (var i = 0; i < this.field.mimes.length; i++) {
-      if (mimes !== '') {
-        mimes += ',';
-      }
-      mimes += this.field.mimes[i];
-    }
-    ns.File.$file.attr('accept', mimes);
-  }
-  else if (this.field.type === 'image') {
-    ns.File.$file.attr('accept', 'image/jpeg,image/png,image/gif');
-  }
-
-  ns.File.$field.val(JSON.stringify(this.field));
-  ns.File.$file.click();
 };
 
 /**
@@ -225,80 +208,6 @@ ns.File.prototype.ready = function (ready) {
   else {
     ready();
   }
-};
-
-/**
- * Add the iframe we use for uploads.
- */
-ns.File.addIframe = function () {
-  if (ns.File.iframeLoaded !== undefined) {
-    return;
-  }
-  ns.File.iframeLoaded = true;
-
-  // Prevent trying to parse first load event.
-  var initialized = false;
-
-  // All editor uploads share this iframe to conserve valuable resources.
-  ns.$('<iframe id="h5peditor-uploader"></iframe>').load(function (data) {
-    var $body = ns.$(this).contents().find('body');
-
-    if (initialized) {
-      // Try to read response
-      var response, error;
-      try {
-        response = JSON.parse($body.text());
-        if (response.error) {
-          error = response.error;
-        }
-        if (response.success === false) {
-          error = (response.message ? response.message : 'Unknown file upload error');
-        }
-      }
-      catch (err) {
-        H5P.error(err);
-        error = H5PEditor.t('core', 'fileToLarge');
-      }
-
-      // Trigger callback if set.
-      if (ns.File.callback !== undefined) {
-        if (error) {
-          ns.File.callback(H5PEditor.t('core', 'uploadError') + ': ' + error);
-        }
-        else {
-          ns.File.callback(undefined, response);
-        }
-      }
-    }
-    else {
-      initialized = true;
-    }
-
-    $body.html('');
-    var $form = ns.$(
-      '<form method="post" enctype="multipart/form-data" action="' + ns.getAjaxUrl('files') + '">' +
-        '<input name="file" type="file"/>' +
-        '<input name="field" type="hidden"/>' +
-        '<input name="contentId" type="hidden" value="' + (ns.contentId === undefined ? 0 : ns.contentId) + '"/>' +
-        '<input name="token" type="hidden" value="' + ns.uploadToken + '"/>' +
-        '<input name="dataURI" type="hidden"/>' +
-      '</form>').appendTo($body);
-
-    ns.File.$field = $form.children('input[name="field"]');
-    ns.File.$file = $form.children('input[name="file"]');
-    ns.File.$data = $form.children('input[name="dataURI"]');
-
-    ns.File.$file.change(function () {
-      if (ns.File.changeCallback !== undefined) {
-        ns.File.changeCallback();
-      }
-      ns.File.$data = 0;
-      ns.File.$field = 0;
-      ns.File.$file = 0;
-      $form.submit();
-    });
-
-  }).appendTo('body');
 };
 
 // Tell the editor what widget we are.

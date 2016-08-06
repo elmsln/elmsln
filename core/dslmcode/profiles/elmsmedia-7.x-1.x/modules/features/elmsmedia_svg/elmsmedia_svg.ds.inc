@@ -29,13 +29,14 @@ function elmsmedia_svg_ds_layout_settings_info() {
       'right' => array(
         3 => 'field_svg_alttext',
         4 => 'field_figurelabel_ref',
+        5 => 'field_tagging',
       ),
       'footer' => array(
-        5 => 'og_group_ref',
+        6 => 'og_group_ref',
       ),
       'hidden' => array(
-        6 => 'path',
-        7 => '_add_existing_field',
+        7 => 'path',
+        8 => '_add_existing_field',
       ),
     ),
     'fields' => array(
@@ -44,6 +45,7 @@ function elmsmedia_svg_ds_layout_settings_info() {
       'field_svg' => 'left',
       'field_svg_alttext' => 'right',
       'field_figurelabel_ref' => 'right',
+      'field_tagging' => 'right',
       'og_group_ref' => 'footer',
       'path' => 'hidden',
       '_add_existing_field' => 'hidden',
