@@ -37,6 +37,7 @@ pages:
     - Blog: systems/service/blog.md
     - Innovate: systems/developer/innovate.md
 - Developer:
+  - Contributing: development/contributing/Contributing.md
   - Roadmap: Roadmap.md
   - Process:
     - Concept development process: development/Concept-Process.md
