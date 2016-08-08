@@ -223,9 +223,16 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
   $options = array('new' => t('New'));
   // build list of node entities from structured EFQ
   $options += _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title');
+  // don't require these fields on a pass through
+  if (isset($form_state['pass_through'])) {
+    $required_new = FALSE;
+  }
+  else {
+    $required_new = TRUE;
+  }
   // select the course desired
   $form['course'] = array(
-    '#required' => '1',
+    '#required' => $required_new,
     '#multiple' => '0',
     '#key_type_toggled' => '1',
     '#description' => t('A new course or select an existing to expand'),
@@ -254,7 +261,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
   );
   // new course name
   $form['new_course']['new_name'] = array(
-    '#required' => '1',
+    '#required' => $required_new,
     '#description' => t('Short name for your course'),
     '#type' => 'textfield',
     '#placeholder' => t('Art010'),
@@ -262,14 +269,14 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
   );
   // new course name
   $form['new_course']['new_title'] = array(
-    '#required' => '1',
+    '#required' => $required_new,
     '#type' => 'textfield',
     '#title' => t('Description'),
     '#placeholder' => t('Introduction to Visual Studies'),
   );
   // access level
   $form['new_course']['access'] = array(
-    '#required' => '1',
+    '#required' => $required_new,
     '#description' => t('How restrictive would you like access to be?'),
     '#multiple' => '0',
     '#key_type_toggled' => '1',
@@ -301,7 +308,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
   $service_list2 = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'field_distribution', array(), array(), array('property' => array(array('title', 'ASC'))));
   $form['details']['services'] = array(
     '#multiple' => TRUE,
-    '#required' => TRUE,
+    '#required' => $required_new,
     '#key_type_toggled' => '1',
     '#description' => t("What services would you like to use in this course network?"),
     '#type' => 'checkboxes',
@@ -309,7 +316,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#options' => $service_list,
     '#cis_icon_map' => $service_list2,
     '#multiple_toggle' => '1',
-    '#default_value' => array(1),
+    '#default_value' => array(),
     '#title' => t('Course network'),
   );
   // display instructional outline starting point
