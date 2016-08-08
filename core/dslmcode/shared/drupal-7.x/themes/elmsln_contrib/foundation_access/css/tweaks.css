@@ -792,8 +792,8 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
   font-size: 13px;
 }
 
-.form-actions input {
-  height: 24px;
+.form-actions input,
+.form-actions button {
   margin-right: 1rem;
 }
 
