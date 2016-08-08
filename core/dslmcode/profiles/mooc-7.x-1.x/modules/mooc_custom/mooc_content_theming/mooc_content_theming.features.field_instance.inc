@@ -55,7 +55,7 @@ function mooc_content_theming_field_default_field_instances() {
       'module' => 'jquery_colorpicker',
       'settings' => array(),
       'type' => 'jquery_colorpicker',
-      'weight' => 16,
+      'weight' => 9,
     ),
   );
 
@@ -104,7 +104,7 @@ function mooc_content_theming_field_default_field_instances() {
       'module' => 'jquery_colorpicker',
       'settings' => array(),
       'type' => 'jquery_colorpicker',
-      'weight' => 17,
+      'weight' => 10,
     ),
   );
 
@@ -156,7 +156,7 @@ function mooc_content_theming_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 14,
+      'weight' => 137,
     ),
   );
 
@@ -217,7 +217,7 @@ function mooc_content_theming_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 15,
+      'weight' => 128,
     ),
   );
 
