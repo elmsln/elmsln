@@ -3,12 +3,8 @@ article.node div.body ul li {
   list-style-type: initial;
 }
 
-button, .button {
-  margin: 0;
-}
-
-button {
-  height: 2.3rem;
+div.image-widget-data {
+  float: none;
 }
 
 /* Materialize select lists */
@@ -59,6 +55,11 @@ input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] inp
 
 /* fix for Drupal checkboxes that don't have a label in material */
 div.form-type-checkbox :last-child {
+  position: relative;
+  opacity:1;
+  left:auto;
+}
+#od_popup table input[type="radio"]:not(:checked), #od_popup table input[type="radio"]:checked {
   position: relative;
   opacity:1;
   left:auto;
@@ -203,7 +204,7 @@ a.add-menu-drop {
   padding: 0;
   margin: 0 1rem 0;
   font-size: 1rem;
-  line-height: 2.5rem
+  line-height: 2.5rem;
 }
 @media all and (max-width: 720px) {
   .elmsln-home-button-link span {
@@ -599,7 +600,6 @@ div.exposed-filters button#edit-submit {
   cursor: pointer;
   background: #BBBBBB;
   border: none;
-  padding: 6px 18px;
   color: #fff;
   text-align: center;
   font-size: 1.077em;
@@ -647,7 +647,6 @@ button#edit-addanother,
 button#edit-actions-save {
   cursor: pointer;
   border: none;
-  padding: 6px 18px;
   text-align: center;
   font-weight: normal;
   font-size: 1.077em;
@@ -702,7 +701,6 @@ a.button.remove,
 button[id*="remove-button"],
 .page-node-delete button#edit-submit {
   cursor: pointer;
-  padding: 6px 18px;
   border: none;
   color: #fff;
   text-align: center;
@@ -752,7 +750,6 @@ button#preview-submit,
 button[type="submit"][id^="edit-return"] {
   cursor: pointer;
   border: none;
-  padding: 6px 18px;
   color: #fff;
   text-align: center;
   font-weight: normal;

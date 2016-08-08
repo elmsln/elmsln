@@ -247,6 +247,51 @@ function foundation_access_field($variables) {
 }
 
 /**
+ * Implements theme_file().
+ */
+function foundation_access_file($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'file';
+  element_set_attributes($element, array('id', 'name', 'size'));
+  _form_set_class($element, array('form-file'));
+  // apply classes and wrappers needed for materializecss
+  return '<div class="col s12 m8 file-field input-field">
+      <div class="btn">
+        <span>' . $element['#title'] . '</span>
+        <input' . drupal_attributes($element['#attributes']) . ' />
+      </div>
+      <div class="file-path-wrapper">
+        <input class="file-path validate" type="text">
+      </div>
+    </div>';
+}
+
+/**
+ * Implements theme_button().
+ */
+function foundation_access_button($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'submit';
+  element_set_attributes($element, array('id', 'name', 'value'));
+
+  $element['#attributes']['class'][] = 'form-' . $element['#button_type'];
+  if (!empty($element['#attributes']['disabled'])) {
+    $element['#attributes']['class'][] = 'form-button-disabled';
+  }
+  $element['#attributes']['class'][] = 'btn';
+  // wrap classes on an upload button
+  if ($variables['element']['#value'] == 'Upload') {
+    return '
+    <div class="col s12 m4 input-field">
+      <button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</button>
+    </div>';
+  }
+  else {
+    return '<button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</button>';
+  }
+}
+
+/**
  * Implements theme_field__taxonomy_term_reference().
  */
 function foundation_access_field__taxonomy_term_reference($variables) {
@@ -690,6 +735,16 @@ function foundation_access_breadcrumb($variables) {
  */
 function foundation_access_preprocess_cis_dashbord(&$variables, $hook) {
   $variables['theme_hook_suggestions'][] = 'cis_dashboard';
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function foundation_access_form_alter(&$form, &$form_state, $form_id) {
+  // drop zurb core class stuff
+  if (!empty($form['actions']) && !empty($form['actions']['submit'])) {
+    unset($form['actions']['submit']['#attributes']['class']);
+  }
 }
 
 /**
