@@ -291,6 +291,64 @@ function foundation_access_button($variables) {
 }
 
 /**
+ * Implements theme_select().
+ */
+function foundation_access_select($variables) {
+  $element = $variables['element'];
+  element_set_attributes($element, array('id', 'name', 'size'));
+  _form_set_class($element, array('form-select'));
+
+  return '<select' . drupal_attributes($element['#attributes']) . '>' . _foundation_access_form_select_options($element) . '</select>';
+}
+
+/**
+ * Fork of core form_select_options.
+ */
+function _foundation_access_form_select_options($element, $choices = NULL) {
+  if (!isset($choices)) {
+    $choices = $element['#options'];
+  }
+  // array_key_exists() accommodates the rare event where $element['#value'] is NULL.
+  // isset() fails in this situation.
+  $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
+  $value_is_array = $value_valid && is_array($element['#value']);
+  $options = '';
+  foreach ($choices as $key => $choice) {
+    if (is_array($choice)) {
+      $options .= '<optgroup label="' . check_plain($key) . '">';
+      $options .= form_select_options($element, $choice);
+      $options .= '</optgroup>';
+    }
+    elseif (is_object($choice)) {
+      $options .= form_select_options($element, $choice->option);
+    }
+    else {
+      $key = (string) $key;
+      if ($value_valid && (!$value_is_array && (string) $element['#value'] === $key || ($value_is_array && in_array($key, $element['#value'])))) {
+        $selected = ' selected="selected"';
+      }
+      else {
+        $selected = '';
+      }
+      $extra = '';
+      // support for materialize options
+      if (isset($element['#materialize']) && $key != '_none') {
+        $extra = 'class="' . $element['#materialize']['class'] . '"';
+        // add in the path to the images w/ the option being part of the
+        // name of the file. This is very specific to how we want to structure
+        // choice options to have an icon_path counterpart but it's not
+        // that hard to do so whatever.
+        if (isset($element['#materialize']['icon_path'])) {
+          $extra .= ' data-icon="' . base_path() . $element['#materialize']['icon_path'] . drupal_strtolower(str_replace('/', '-', str_replace(' ', '', check_plain($choice)))) . '.png"';
+        }
+      }
+      $options .= '<option ' . $extra . ' value="' . check_plain($key) . '"' . $selected . '>' . check_plain($choice) . '</option>';
+    }
+  }
+  return $options;
+}
+
+/**
  * Implements theme_field__taxonomy_term_reference().
  */
 function foundation_access_field__taxonomy_term_reference($variables) {
@@ -744,6 +802,37 @@ function foundation_access_form_alter(&$form, &$form_state, $form_id) {
   if (!empty($form['actions']) && !empty($form['actions']['submit'])) {
     unset($form['actions']['submit']['#attributes']['class']);
   }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function foundation_access_form_page_node_form_alter(&$form, &$form_state) {
+  $form['hidden_nodes']['#group'] = 'group_advanced';
+  $form['hidden_nodes']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'hidden_nodes';
+
+  $form['book']['#group'] = 'group_advanced';
+  $form['book']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'book';
+
+  $form['options']['#group'] = 'group_advanced';
+  $form['options']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'options';
+
+  $form['author']['#group'] = 'group_advanced';
+  $form['author']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'author';
+
+  $form['revision_information']['#group'] = 'group_advanced';
+  $form['revision_information']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'revision_information';
+
+  // support for images in significance dropdown
+  $form['field_instructional_significance']['und']['#materialize'] = array(
+    'class' => 'left',
+    'icon_path' => drupal_get_path('theme', 'foundation_access') . '/icons/pedagogy/',
+  );
 }
 
 /**

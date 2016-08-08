@@ -61,6 +61,43 @@ function foundation_access_ux_node_view($node, $view_mode, $langcode) {
 }
 
 /**
+ * Implements hook_field_extra_fields().
+ */
+function foundation_access_ux_field_extra_fields() {
+  $extra = array();
+  // do the magic so we can use these as individual buttons;
+  // this is one of the stupidest drupal conventions ever to overcome
+  foreach (node_type_get_types() as $type) {
+    $extra['node'][$type->type]['form']['hidden_nodes'] = array(
+      'label' => t('Hidden nodes'),
+      'description' => t('Hidden nodes'),
+      'weight' => 100,
+    );
+    $extra['node'][$type->type]['form']['book'] = array(
+      'label' => t('Outline'),
+      'description' => t('Book outline configuration'),
+      'weight' => 100,
+    );
+    $extra['node'][$type->type]['form']['options'] = array(
+      'label' => t('Publishing'),
+      'description' => t('Additional publishing options'),
+      'weight' => 100,
+    );
+    $extra['node'][$type->type]['form']['author'] = array(
+      'label' => t('Author'),
+      'description' => t('Author settings'),
+      'weight' => 100,
+    );
+    $extra['node'][$type->type]['form']['revision_information'] = array(
+      'label' => t('Revision info'),
+      'description' => t('Revision settings'),
+      'weight' => 100,
+    );
+  }
+  return $extra;
+}
+
+/**
  * Callback to convert preg_replace into what we need it to be
  * since we have to process some of the elements based on position
  * in the HTML.
