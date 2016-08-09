@@ -15,6 +15,9 @@
   }
 }
 
+.parallax-container {
+  height: 150px;
+}
 
 /* ELMSLN bullets */
 article.node div.body ul li {

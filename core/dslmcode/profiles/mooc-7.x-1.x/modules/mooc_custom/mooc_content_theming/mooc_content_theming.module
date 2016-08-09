@@ -67,7 +67,15 @@ function _mooc_content_theming_banner_block() {
         ),
       ));
       // return with correct title / alt wrapper
-      return "<div class=\"mooc-banner-image-wrapper\">$image $cite</div>";
+      return "
+      <div class=\"mooc-banner-image-wrapper\">
+        <div class=\"parallax-container\">
+          <div class=\"parallax\">
+            $image
+          </div>
+        </div>
+        $cite
+      </div>";
     }
     else {
       // spider back up through parents til we find a match
@@ -108,7 +116,15 @@ function _mooc_content_theming_banner_block() {
             ),
           ));
           // return with correct title / alt wrapper
-          return "<div class=\"mooc-banner-image-wrapper\">$image $cite</div>";
+          return "
+          <div class=\"mooc-banner-image-wrapper\">
+            <div class=\"parallax-container\">
+              <div class=\"parallax\">
+                $image
+              </div>
+            </div>
+            $cite
+          </div>";
         }
       }
     }
