@@ -38,10 +38,7 @@ function mooc_nav_block_block_view($delta = '') {
 
   switch ($delta) {
     case 'mooc_nav':
-      // hide on edit page
-      if (arg(2) != 'edit') {
-        $block = _mooc_nav_block_mooc_nav_block();
-      }
+      $block = _mooc_nav_block_mooc_nav_block();
     break;
   }
   return $block;
@@ -107,7 +104,7 @@ function _mooc_nav_block_mooc_nav_block() {
       $output = $nav['custom_text'];
     }
     $tree = menu_tree_output($children);
-    // @todo need to hijack the theme suggestion here
+    // @todo may need to hijack the theme suggestion here
     $output .= drupal_render($tree);
     $block['subject'] = $nav['label'];
     $block['content'] = $output;
