@@ -1,7 +1,8 @@
 name = CLE Assignment
-description = Assignment type, fields and displays
+description = Assignment type, fields and displays.
 core = 7.x
 package = CLE
+files[] = cle_assignment.test
 dependencies[] = cis_section
 dependencies[] = ctools
 dependencies[] = date

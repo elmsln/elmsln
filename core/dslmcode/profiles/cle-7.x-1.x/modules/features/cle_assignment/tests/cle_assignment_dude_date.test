@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * Set it so that the due date is a month ago and there is no end date and
+ * test that the assignment is set to active.
+ */
+$node = entity_create('node', array('type' => 'cle_assignment'));
+$node->uid = '1';
+$emw_node = entity_metadata_wrapper('node', $node);
+$emw_node->title = 'Test Assignment 1.';
+$emw_node->field_due_date->value->set(time() - '1000000');
+$saved_node = $emw_node->save();
+// Make sure that the assignment is marked as active.
+$active = _cle_assignment_is_assignment_active($emw_node);
+if ($active) {
+  throw new Exception('This assignment should have been inactive');
+}
+$closed = _cle_assignment_is_assignment_active($emw_node);
+
+/**
+ * Set it so that the due date is a month ago and the end date is
+ * a month in the future and test that the assignment is set to
+ * active.
+ */
+$node = entity_create('node', array('type' => 'cle_assignment'));
+$node->uid = '1';
+$emw_node = entity_metadata_wrapper('node', $node);
+$emw_node->title = 'Test Assignment 2.';
+$emw_node->field_due_date->value->set(time() - '1000000');
+$emw_node->field_due_date->value2->set(time() + '1000000');
+$saved_node = $emw_node->save();
+// Make sure that the assignment is marked as active.
+$active = _cle_assignment_is_assignment_active($emw_node);
+if (!$active) {
+  throw new Exception('This assignment should have been active');
+}
+
+
+/**
+ * Set it so that the due date is a in the future ago and the end date is
+ * 2 months in the future and test that the assignment is set to
+ * inactive.
+ */
+// Create an Entity.
+$node = entity_create('node', array('type' => 'cle_assignment'));
+$node->uid = '1';
+$emw_node = entity_metadata_wrapper('node', $node);
+$emw_node->title = 'Test Assignment 3.';
+// set it so that the due date is a month ago and the end date is
+// a month in the future.
+$emw_node->field_due_date->value->set(time() + '1000000');
+$emw_node->field_due_date->value2->set(time() + '2000000');
+$saved_node = $emw_node->save();
+
+// Make sure that the assignment is marked as active.
+$active = _cle_assignment_is_assignment_active($emw_node);
+if ($active) {
+  throw new Exception('This assignment should have been inactive');
+}

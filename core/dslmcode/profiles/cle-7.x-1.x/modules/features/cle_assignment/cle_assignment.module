@@ -64,3 +64,85 @@ function cle_assignment_node_insert($node) {
     }
   }
 }
+
+/**
+ * Helper function to find out if the assignment is active based on the start
+ * and end dates of a date field. Keep in mind that if there is an end_date
+ * specified, the due_date becomes a "start date". This is the way the date
+ * field works.
+ */
+function _cle_assignment_is_assignment_active($assignment) {
+  $active = FALSE;
+
+  try {
+    $assignment_wrapper = entity_metadata_wrapper('node', $assignment);
+    $due_date = $assignment_wrapper->field_due_date->value->value();
+    $end_date = $assignment_wrapper->field_due_date->value2->value();
+
+    // if it has an end date and it's not the same as the due date.
+    if ($due_date && $end_date && $due_date != $end_date) {
+      // if the current time is between the due date (or start date) and 
+      // end date.
+      if (time() > $due_date && time() < $end_date) {
+        $active = TRUE;
+      }
+    }
+    // if it only has a start date.
+    elseif ($due_date) {
+      // if the current time is less than the due date.
+      if (time() < $due_date) {
+        $active = TRUE;
+      }
+    }
+  }
+  catch (EntityMetadataWrapperException $exc) {
+    watchdog(
+      'cle_assignment',
+      'EntityMetadataWrapper exception in %function() @trace',
+      array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
+      WATCHDOG_ERROR
+    );
+  }
+
+  return $active;
+}
+
+/**
+ * Helper function to find out if the assignment is active based on the start
+ * and end dates of a date field. Keep in mind that if there is an end_date
+ * specified, the due_date becomes a "start date". This is the way the date
+ * field works.
+ */
+function _cle_assignment_is_assignment_closed($assignment) {
+  $closed = FALSE;
+
+  try {
+    $assignment_wrapper = entity_metadata_wrapper('node', $assignment);
+    $due_date = $assignment_wrapper->field_due_date->value->value();
+    $end_date = $assignment_wrapper->field_due_date->value2->value();
+
+    // if it has an end date and it's not the same as the due date.
+    if ($due_date && $end_date && $due_date != $end_date) {
+      if (time() > $end_date) {
+        $closed = TRUE;
+      }
+    }
+    // if it only has a start date.
+    elseif ($due_date) {
+      // if the current time is less than the due date.
+      if (time() > $due_date) {
+        $closed = TRUE;
+      }
+    }
+  }
+  catch (EntityMetadataWrapperException $exc) {
+    watchdog(
+      'cle_assignment',
+      'EntityMetadataWrapper exception in %function() @trace',
+      array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
+      WATCHDOG_ERROR
+    );
+  }
+
+  return $closed;
+}

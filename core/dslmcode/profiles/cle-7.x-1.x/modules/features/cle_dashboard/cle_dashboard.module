@@ -83,9 +83,9 @@ function cle_dashboard_preprocess_cle_dashboard(&$variables) {
 
       // Find out if the assignment is active
       $assignment_due_date = (isset($result->field_field_due_date[0]['raw']['value']) ? $result->field_field_due_date[0]['raw']['value'] : NULL);
-      $assignment_begin_date = (isset($result->field_field_begin_date[0]['raw']['value']) ? $result->field_field_begin_date[0]['raw']['value'] : NULL);
-      $assignments[$result->nid]->active = _cle_dashboard_is_assignment_active($assignment_due_date, $assignment_begin_date);
-      $assignments[$result->nid]->closed = _cle_dashboard_is_assignment_closed($assignment_due_date, $assignment_begin_date);
+      $assignment_end_date = (isset($result->field_field_due_date[0]['raw']['value2']) ? $result->field_field_due_date[0]['raw']['value2'] : NULL);
+      $assignments[$result->nid]->active = _cle_assignment_is_assignment_active($result->nid);
+      $assignments[$result->nid]->closed = _cle_assignment_is_assignment_closed($result->nid);
 
       // Find out if the Assignment has a critique
       $critique = new stdClass();
@@ -134,44 +134,4 @@ function cle_dashboard_preprocess_cle_dashboard(&$variables) {
   }
 
   drupal_add_js(array('cleDashboard' => array('assignments' => $assignments, 'submissions' => $my_submissions, 'critiques' => $my_critiques)), 'setting');
-}
-
-function _cle_dashboard_is_assignment_active($due_date = NULL, $begin_date = NULL) {
-  $active = FALSE;
-
-  // if it has an end date
-  if ($due_date) {
-    if (time() < $due_date) {
-      $active = TRUE;
-    }
-    // if it has a beginning date
-    if ($begin_date) {
-      if (time() > $begin_date && time() < $due_date) {
-        $active = TRUE;
-      }
-    }
-  }
-
-  return $active;
-}
-
-function _cle_dashboard_is_assignment_closed($due_date = NULL, $begin_date = NULL) {
-  $closed = FALSE;
-
-  if ($due_date) {
-    if (time() > $due_date) {
-      $closed = TRUE;
-    }
-    // if it has a beginning date
-    if ($begin_date) {
-      if (time() > $begin_date && time() < $due_date) {
-        $closed = FALSE;
-      }
-      elseif (time() > $begin_date && time() > $due_date) {
-        $closed = TRUE;
-      }
-    }
-  }
-
-  return $closed;
 }

@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Test suite for CLE Assignment module.
+ */
+
+/**
+ * Base class with some helper methods.
+ */
+class CLEAssignmentTestCase extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  function setUp() {
+    parent::setUp(func_get_args());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'CLE Assignment',
+      'description' => 'Tests core CLE Assignment capabilities.',
+      'group' => 'CLE',
+    );
+  }
+
+  /**
+   * Tests against restws w/ deep load
+   */
+  function testAssignmentActiveState() {
+    // Now enable the cis_connector module.
+    module_enable(array('cle_assignment'), TRUE);
+    drupal_flush_all_caches();
+    drupal_static_reset();
+    // assert meta controllers are working / available
+    $node_settings = array(
+      'type' => 'cle_assignment',
+      'field_due_date' => array(
+        'und' => array(
+          0 => array(
+            'value' => time() - 10000,
+            'value2' => time() + 10000,
+          ),
+        ),
+      ),
+    );
+    $node = $this->drupalCreateNode();
+    $this->assertTrue($node_active);
+  }
+}
