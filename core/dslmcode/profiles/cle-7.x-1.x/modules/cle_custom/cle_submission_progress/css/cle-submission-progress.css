@@ -25,8 +25,8 @@
 .cle-submission-progress__item--active.cle-submission-progress__item--submission-ready {
   color: green;
 }
-.cle-submission-progress__item--active.cle-submission-progress__item--needs-work {
-  color: blue;
+.cle-submission-progress__item--active.cle-submission-progress__item--submission-complete {
+  color: #458dff;
 }
 
 .cle-submission-progress__state {
