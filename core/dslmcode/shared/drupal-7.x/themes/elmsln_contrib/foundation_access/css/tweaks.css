@@ -19,6 +19,15 @@
   height: 150px;
 }
 
+#edit-body .cke_chrome {
+  border-top: 0;
+  border-bottom: 0;
+}
+
+.cke_bottom {
+  z-index: 1;
+}
+
 /* ELMSLN bullets */
 article.node div.body ul li {
   list-style-type: initial;
@@ -570,7 +579,10 @@ fieldset {
 .text-format-wrapper fieldset.filter-wrapper {
   box-shadow: none;
   border: 1px solid #DDD;
+  border-top: 0;
   border-radius: 0;
+  margin: -1.6rem 0 0 0;
+  padding: .25rem;
 }
 
 .horizontal-tabs-panes fieldset.horizontal-tabs-pane {
