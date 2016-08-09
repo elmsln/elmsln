@@ -15,6 +15,43 @@
   }
 }
 
+/* Scroll bar for breadcrumb nav that's really really long */
+.elmsln-scroll-bar {
+  overflow-y: scroll;
+}
+
+.elmsln-scroll-bar {
+  scrollbar-face-color: #DDDDDD;
+  scrollbar-shadow-color: #BBBBBB;
+  scrollbar-highlight-color:#AAAAAA;
+  scrollbar-3dlight-color: #AAAAAA;
+  scrollbar-darkshadow-color: #BBBBBB;
+  scrollbar-track-color: #AAAAAA;
+  scrollbar-arrow-color: #BBBBBB;
+}
+.elmsln-scroll-bar::-webkit-scrollbar-track {
+      background-color: #DDDDDD;
+} /* the new scrollbar will have a flat appearance with the set background color */
+
+.elmsln-scroll-bar::-webkit-scrollbar-thumb {
+      background-color: #AAAAAA;
+} /* this will style the thumb, ignoring the track */
+
+.elmsln-scroll-bar::-webkit-scrollbar-button {
+      background-color: #DDDDDD;
+} /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+
+.elmsln-scroll-bar::-webkit-scrollbar-corner {
+      background-color: #DDDDDD;
+} /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
+
+.elmsln-scroll-bar::-webkit-scrollbar {
+      width: 1rem;
+      height: 1rem;
+} /* this targets the default scrollbar (compulsory) */
+
+/* end scroll bar styling */
+
 .parallax-container {
   height: 150px;
 }

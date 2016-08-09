@@ -39,7 +39,7 @@
     <div class="book-sibling-parent-arrow icon--dropdown off-canvas-toolbar-item-icon"></div>
   </a>
 </li>
-<div id="book-sibling-children-<?php print $parent['mlid'] ?>" data-dropdown-content class="f-dropdown content book-sibling-children" aria-hidden="true" tabindex="-1">
+<div id="book-sibling-children-<?php print $parent['mlid'] ?>" data-dropdown-content class="f-dropdown content book-sibling-children elmsln-scroll-bar" aria-hidden="true" tabindex="-1">
   <ul>
 <?php
   foreach ($items as $item) {
