@@ -68,7 +68,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'description' => 'Flexible video template for embedding youtube / other sources',
     'weight' => 5,
     'fid' => 0,
-    'body' => '<div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="0" height="225" mozallowfullscreen="" src="//www.youtube.com/embed/4oZaA5BOjNI" webkitallowfullscreen="" width="400"></iframe></div>',
+    'body' => '<div class="video-container"><iframe allowfullscreen frameborder="0" height="225" mozallowfullscreen src="//www.youtube.com/embed/4oZaA5BOjNI" webkitallowfullscreen width="400"></iframe></div>',
     'format' => 'textbook_editor',
     'name' => 'flex_video',
     'content_types' => array(),
