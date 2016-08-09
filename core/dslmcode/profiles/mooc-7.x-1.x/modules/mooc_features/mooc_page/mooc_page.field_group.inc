@@ -49,7 +49,7 @@ function mooc_page_field_group_info() {
   $field_group->parent_name = 'group_settings';
   $field_group->data = array(
     'label' => 'Advanced',
-    'weight' => '140',
+    'weight' => '146',
     'children' => array(
       0 => 'group_advanced_tabs',
     ),
@@ -57,7 +57,7 @@ function mooc_page_field_group_info() {
     'format_settings' => array(
       'label' => 'Advanced',
       'instance_settings' => array(
-        'required_fields' => 1,
+        'required_fields' => 0,
         'classes' => 'group-advanced field-group-tab',
         'description' => 'These settings allow for advanced capabilities and generally will not need modified.',
       ),
@@ -86,7 +86,7 @@ function mooc_page_field_group_info() {
     'format_settings' => array(
       'label' => 'Author',
       'instance_settings' => array(
-        'required_fields' => 1,
+        'required_fields' => 0,
         'classes' => 'group-author field-group-htab',
         'description' => 'Modify authoring information of this content. This should only need modified if an author is no longer working on the course.',
       ),
@@ -142,7 +142,7 @@ function mooc_page_field_group_info() {
     'format_settings' => array(
       'label' => 'Outline',
       'instance_settings' => array(
-        'required_fields' => 1,
+        'required_fields' => 0,
         'classes' => 'group-outline field-group-htab',
         'description' => 'Use this to move content within the current outline or to break it out of its current outline over to another course outline. The weight has to do with the depth in the outline though the Outline Designer will adjust this automatically when dragging content around.',
       ),
@@ -164,11 +164,10 @@ function mooc_page_field_group_info() {
     'label' => 'Settings',
     'weight' => '2',
     'children' => array(
-      0 => 'group_navigation_block',
-      1 => 'group_advanced',
-      2 => 'group_visibility',
-      3 => 'group_pedagogy',
-      4 => 'group_visuals',
+      0 => 'group_advanced',
+      1 => 'group_visibility',
+      2 => 'group_inst_strat',
+      3 => 'group_interface',
     ),
     'format_type' => 'htabs',
     'format_settings' => array(
@@ -200,7 +199,7 @@ function mooc_page_field_group_info() {
     'format_settings' => array(
       'label' => 'Tag',
       'instance_settings' => array(
-        'required_fields' => 1,
+        'required_fields' => 0,
         'classes' => 'group-tag field-group-htab',
         'description' => 'Tag this resource if you plan on having multiple versions of it across sections. This allows for additional forms of short-codes which can figure out the correct "tagged" resource to use based on the section of the user viewing the tag. Only use this if you know why you are doing so as it is atypical.',
       ),
@@ -220,7 +219,7 @@ function mooc_page_field_group_info() {
   $field_group->parent_name = 'group_settings';
   $field_group->data = array(
     'label' => 'Visibility',
-    'weight' => '139',
+    'weight' => '145',
     'children' => array(
       0 => 'hidden_nodes',
       1 => 'options',
@@ -229,7 +228,7 @@ function mooc_page_field_group_info() {
     'format_settings' => array(
       'label' => 'Visibility',
       'instance_settings' => array(
-        'required_fields' => 1,
+        'required_fields' => 0,
         'classes' => 'group-visibility field-group-htab',
         'description' => 'Modify who can see this. Students won\'t see things marked Hidden, while unpublished will only show to the author of this piece of content.',
       ),

@@ -10,7 +10,7 @@
 function mooc_nav_block_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-page-field_mooc_nav_custom_text'
+  // Exported field_instance: 'node-page-field_mooc_nav_custom_text'.
   $field_instances['node-page-field_mooc_nav_custom_text'] = array(
     'bundle' => 'page',
     'default_value' => NULL,
@@ -80,7 +80,7 @@ function mooc_nav_block_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-page-field_mooc_nav_display'
+  // Exported field_instance: 'node-page-field_mooc_nav_display'.
   $field_instances['node-page-field_mooc_nav_display'] = array(
     'bundle' => 'page',
     'default_value' => NULL,
@@ -131,7 +131,7 @@ function mooc_nav_block_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-page-field_mooc_nav_label'
+  // Exported field_instance: 'node-page-field_mooc_nav_label'.
   $field_instances['node-page-field_mooc_nav_label'] = array(
     'bundle' => 'page',
     'default_value' => NULL,
@@ -201,7 +201,7 @@ function mooc_nav_block_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-page-field_mooc_nav_style'
+  // Exported field_instance: 'node-page-field_mooc_nav_style'.
   $field_instances['node-page-field_mooc_nav_style'] = array(
     'bundle' => 'page',
     'default_value' => NULL,
@@ -252,7 +252,7 @@ function mooc_nav_block_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-page-field_mooc_nav_type'
+  // Exported field_instance: 'node-page-field_mooc_nav_type'.
   $field_instances['node-page-field_mooc_nav_type'] = array(
     'bundle' => 'page',
     'default_value' => NULL,
