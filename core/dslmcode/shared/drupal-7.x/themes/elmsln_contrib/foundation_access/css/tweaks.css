@@ -19,6 +19,9 @@
 #block-cis-shortcodes-cis-shortcodes-block-nav-modal {
   bottom:10%;
 }
+#page-accessibility-menu {
+  bottom:10%;
+}
 
 /* Scroll bar for breadcrumb nav that's really really long */
 .elmsln-scroll-bar {

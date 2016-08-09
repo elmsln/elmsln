@@ -722,7 +722,26 @@ function mooc_helper_admin_paths() {
  */
 function mooc_helper_fa_a11y() {
   if (module_exists('speedreader')) {
-    return array(1 => '<a href="#" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">' . t('Speed reader') . '</a>');
+    return array(
+      'tools' => array(
+      '#type' => 'fieldset',
+      '#title' => t('Tools'),
+      '#description' => t('Use these accessibility tools to navigate content more easily.'),
+      '#collapsed' => TRUE,
+      '#collapsible' => TRUE,
+      '#weight' => 8,
+      '#attributes' => array(
+        'class' => array(
+          'collapsible',
+          'form-wrapper',
+          'collapsed',
+        ),
+      ),
+      'speedreader' => array(
+        '#markup' => '<a href="#" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">' . t('Speed reader') . '</a>'
+        ),
+      ),
+    );
   }
 }
 

@@ -160,7 +160,7 @@
 <?php print render($page['cis_lmsless_modal']); ?>
 <!-- Accessibility Modal -->
 <?php if (!empty($a11y)) : ?>
-<div id="page-accessibility-menu" class="reveal-modal" data-reveal aria-labelledby="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog">
+<div id="page-accessibility-menu" class="elmsln-scroll-bar reveal-modal disable-scroll" data-reveal aria-labelledby="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog">
   <h2 id="Accessibility"><?php print t('Accessibility') ?></h2>
   <?php print $a11y; ?>
   <a class="close-reveal-modal" data-voicecommand="close (menu)" data-jwerty-key="Esc">&#215;</a>

@@ -49,58 +49,79 @@ function a11y_a11y_block() {
   // apply the css / js as selected
   a11y_apply_a11y();
   $output = '';
+  // assemble the user alterations to the interface
+  $alters = array(
+    '#type' => 'fieldset',
+    '#title' => t('Alter interface'),
+    '#description' => t('Adjust the interface to make it easier to use for different conditions.'),
+    '#collapsed' => TRUE,
+    '#collapsible' => TRUE,
+    '#weight' => 9,
+    '#attributes' => array(
+      'class' => array(
+        'collapsible',
+        'form-wrapper',
+      ),
+    ),
+  );
+  // textsize default state
+  if (variable_get('a11y_textsize', 1)) {
+    $icon_path = base_path() . drupal_get_path('module', 'a11y') . '/plugins/icons/';
+    $alters['textsize'] = array(
+      '#markup' => '
+      <div class="a11y-textsize-controls"><label>Font Size</label><a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
+      <span>Smaller</span>
+      <img alt="' . t('Decrease text size') . '" title="' . t('Decrease text size') . '" src="' . $icon_path . 'text-decrease.png" />
+      </a>
+      <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
+        <span>Larger</span>
+        <img alt="' . t('Increase text size') . '" title="' . t('Increase text size') . '" src="' . $icon_path . 'text-increase.png" />
+      </a>
+      <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
+        <span>Reset</span>
+        <img alt="' . t('Reset text size') . '" title="' . t('Reset text size') . '" src="' . $icon_path . 'text-reset.png" />
+      </a>
+      </div>'
+    );
+  }
+  // open dyslexic font
   if (variable_get('a11y_opendyslexic', 1)) {
-    // textsize default state
-    $opendyslexic = array(
+    $alters['opendyslexic'] = array(
       '#type' => 'checkbox',
       '#id' => 'a11y_opendyslexic_checkbox',
       '#title' => t('Optimize fonts for dyslexia'),
       '#default_value' => 0,
       '#description' => t('This loads a font easier to read for people with dyslexia.'),
     );
-    $output .= drupal_render($opendyslexic);
   }
   if (variable_get('a11y_contrast', 1)) {
-    $contrast = array(
+    $alters['contrast'] = array(
       '#type' => 'checkbox',
       '#id' => 'a11y_contrast_checkbox',
       '#title' => t('High contrast mode'),
       '#default_value' => 0,
       '#description' => t('This renders the document in high contrast mode.'),
     );
-    $output .= drupal_render($contrast);
-    $invert = array(
+    $alters['invert'] = array(
       '#type' => 'checkbox',
       '#id' => 'a11y_invert_checkbox',
       '#title' => t('Invert colors'),
       '#default_value' => 0,
       '#description' => t('This renders the document as white on black'),
     );
-    $output .= drupal_render($invert);
   }
   if (variable_get('a11y_animation', 1)) {
     // animation default state
-    $animation = array(
+    $alters['animation'] = array(
       '#type' => 'checkbox',
       '#id' => 'a11y_animation_checkbox',
       '#title' => t('Disable interface animations'),
       '#default_value' => 0,
       '#description' => t('This can help those with trouble processing rapid screen movements.'),
     );
-    $output .= drupal_render($animation);
   }
-  if (variable_get('a11y_textsize', 1)) {
-    $icon_path = base_path() . drupal_get_path('module', 'a11y') . '/plugins/icons/';
-    $output .= '<div class="a11y-textsize-controls"><a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
-      <img alt="' . t('Decrease text size') . '" title="' . t('Decrease text size') . '" src="' . $icon_path . 'text-decrease.png" />
-    </a>
-    <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
-      <img alt="' . t('Increase text size') . '" title="' . t('Increase text size') . '" src="' . $icon_path . 'text-increase.png" />
-    </a>
-    <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
-      <img alt="' . t('Reset text size') . '" title="' . t('Reset text size') . '" src="' . $icon_path . 'text-reset.png" />
-    </a></div>';
-  }
+  // render any aleration array items we have
+  $output .= drupal_render($alters);
   // add in the simulations if they are allowed to see them
   if (user_access('view a11y simulations')) {
     $sim = array(
@@ -109,6 +130,14 @@ function a11y_a11y_block() {
       '#description' => t('Simulate different accessibility conditions. This is useful to see how your site would possibly be viewed by people with different conditions.'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
+      '#weight' => 15,
+      '#attributes' => array(
+        'class' => array(
+          'collapsible',
+          'form-wrapper',
+          'collapsed',
+        ),
+      ),
     );
     if (variable_get('a11y_sim_dyslexia', 1)) {
       $sim['dyslexia'] = array(
@@ -253,5 +282,10 @@ function a11y_apply_a11y() {
  * Returns the accessibility block to foundation access.
  */
 function a11y_fa_a11y() {
-  return array(0 => a11y_a11y_block());
+  return array(
+    'a11y_block' => array(
+      '#title' => t('a11y block'),
+      '#markup' => a11y_a11y_block(),
+    ),
+  );
 }

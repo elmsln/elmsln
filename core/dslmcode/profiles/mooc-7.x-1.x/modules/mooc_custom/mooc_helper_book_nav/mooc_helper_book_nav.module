@@ -299,10 +299,11 @@ function mooc_helper_book_nav_theme() {
  * Implements hook_fa_a11y().
  * Provides keyboard shortcut buttons
  */
-function mooc_helper_book_nav_fa_a11y() {
+function mooc_helper_book_nav_fa_a11y_alter(&$a11y) {
   if ($node = menu_get_object('node')) {
     if (arg(2) == NULL && !empty($node->book)) {
-      return array(2 => '<div class="keyboard-short">
+    $a11y['keyboard']['keys']['#markup'] .=
+      '<div class="keyboard-short">
         <div class="keyboard-short__group">
           <label>' . t('Previous page') . '</label>
           <div class="keyboard-short__key">←</div>
@@ -319,7 +320,7 @@ function mooc_helper_book_nav_fa_a11y() {
           <div class="keyboard-short__key">Shift</div>
           <div class="keyboard-short__key">o</div>
         </div>
-      </div>');
+      </div>';
     }
   }
 }
