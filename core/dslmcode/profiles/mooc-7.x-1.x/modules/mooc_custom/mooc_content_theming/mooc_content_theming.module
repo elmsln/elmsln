@@ -58,7 +58,8 @@ function _mooc_content_theming_banner_block() {
         $cite = '';
       }
       // build the image
-      $image = theme('image', array(
+      $image = theme('image_style', array(
+        'style_name' => 'mooc_content_banner',
         'path' => $image_uri,
         'alt' => strip_tags($alt),
         'title' => strip_tags($title),
@@ -107,7 +108,8 @@ function _mooc_content_theming_banner_block() {
             $cite = '';
           }
           // build the image
-          $image = theme('image', array(
+          $image = theme('image_style', array(
+            'style_name' => 'mooc_content_banner',
             'path' => $image_uri,
             'alt' => strip_tags($alt),
             'title' => strip_tags($title),

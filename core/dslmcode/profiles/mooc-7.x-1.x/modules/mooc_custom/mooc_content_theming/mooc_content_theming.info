@@ -31,4 +31,5 @@ features[field_instance][] = node-page-field_fa_primary_color
 features[field_instance][] = node-page-field_fa_secondary_color
 features[field_instance][] = node-page-field_instructional_significance
 features[field_instance][] = node-page-field_mooc_image
+features[image][] = mooc_content_banner
 features_exclude[field_group][group_settings|node|page|form] = group_settings|node|page|form
