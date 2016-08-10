@@ -215,11 +215,11 @@ function _cle_custom_critique_peer_access_callback($assignment_id = NULL) {
   }
 
   // See if the date is active
-  if (_cle_custom_critique_date_active($assignment_id)) {
+  if (_cle_assignment_is_assignment_active($assignment_id)) {
     $access = TRUE;
   }
   else {
-    drupal_set_message('Critiques are not yet active for this assignment.', 'status', FALSE);
+    drupal_set_message('Critiques are not yet active for this assignment.', 'warning', FALSE);
     return FALSE;
   }
 
@@ -228,7 +228,7 @@ function _cle_custom_critique_peer_access_callback($assignment_id = NULL) {
     $access = TRUE;
   }
   else {
-    drupal_set_message('You must first submit your assignment.', 'status', FALSE);
+    drupal_set_message('You must first submit your assignment.', 'warning', FALSE);
     return FALSE;
   }
 

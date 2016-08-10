@@ -81,7 +81,7 @@ function _cle_assignment_is_assignment_active($assignment) {
 
     // if it has an end date and it's not the same as the due date.
     if ($due_date && $end_date && $due_date != $end_date) {
-      // if the current time is between the due date (or start date) and 
+      // if the current time is between the due date (or start date) and
       // end date.
       if (time() > $due_date && time() < $end_date) {
         $active = TRUE;
