@@ -251,8 +251,22 @@ function _cis_shortcode_render_codes($entity, $type) {
               '#weight' => 3,
               '#id' => 'cis-shortcodes-link-' . $fname . '-' . $item_key,
             );
+
             // special case for uri's that are images
-            if (isset($item['filemime']) && strpos($item['filemime'], 'image') === 0) {
+            if (isset($item['filemime']) && strpos($item['filemime'], 'svg')) {
+              $properties['item_type'] = 'image';
+              $properties['delta'] = $item_key;
+              $entityfields['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
+                '#title' => t('Render @field as direct image', array('@field' => $fproperties['label'])),
+                '#attributes' => array('class' => array('cis_shortcodes_embed')),
+                '#value' => _cis_shortcodes_build_code($properties),
+                '#type' => 'textfield',
+                '#weight' => 3,
+                '#id' => 'cis-shortcodes-link-' . $fname . '-' . $item_key,
+              );
+            }
+            // special case for uri's that are images
+            elseif (isset($item['filemime']) && strpos($item['filemime'], 'image') === 0) {
               $properties['item_type'] = 'image';
               // support custom title and alt text in the code
               if (!empty($item['title'])) {
