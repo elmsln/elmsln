@@ -88,4 +88,5 @@ function elmsmedia_update_7006(&$sandbox) {
   features_revert_module('elmsmedia_figure_label');
   features_revert_module('elmsmedia_external_video');
   features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_cis_ux');
 }
