@@ -1,0 +1,38 @@
+diff --git a/svg_sanitizer.module b/svg_sanitizer.module
+index b13b356..d978853 100755
+--- a/svg_sanitizer.module
++++ b/svg_sanitizer.module
+@@ -8,14 +8,6 @@
+ define('SVG_SANITIZER_URL', 'https://github.com/darylldoyle/svg-sanitizer');
+ 
+ /**
+- * Implements hook_init().
+- */
+-function svg_sanitizer_init() {
+-  // Load the svg_sanitizer library
+-  libraries_load('svg_sanitizer');
+-}
+-
+-/**
+  * Impliments hook_libraries_info
+  *
+  * Defines the svg_sanitizer library as well as loading the php files.
+@@ -96,9 +88,10 @@ function svg_sanitizer_field_formatter_info() {
+ function svg_sanitizer_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+   $element = array();
+   $settings = $display['settings'];
+-
+   switch ($display['type']) {
+     case 'svg_sanitizer':
++      // Load the svg_sanitizer library
++      libraries_load('svg_sanitizer');
+       foreach ($items as $delta => $item) {
+         // create the file path
+         $svg_path = file_create_url($item['uri']);
+@@ -145,4 +138,4 @@ function _svg_sanitizer_sanitize($svg) {
+   $clean_svg = $sanitizer->sanitize($svg);
+ 
+   return $clean_svg;
+-}
++}
+\ No newline at end of file
