@@ -42,7 +42,7 @@ function elmsmedia_document_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_document';
-  $strongarm->value = 'edit-wysiwyg-template';
+  $strongarm->value = 'edit-view-mode-tab';
   $export['additional_settings__active_tab_document'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -65,6 +65,13 @@ function elmsmedia_document_strongarm() {
   $strongarm->name = 'diff_view_mode_preview_node_document';
   $strongarm->value = 'full';
   $export['diff_view_mode_preview_node_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'wysiwyg_template_default_document';
+  $strongarm->value = '';
+  $export['wysiwyg_template_default_document'] = $strongarm;
 
   return $export;
 }

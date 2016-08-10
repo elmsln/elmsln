@@ -18,40 +18,32 @@ function elmsmedia_audio_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'file',
+        'module' => 'elmsmedia_helper',
         'settings' => array(
           'controls' => 1,
           'download_link' => 0,
           'download_text' => 'Download',
           'height' => 30,
-          'width' => '100%',
         ),
-        'type' => 'file_default',
+        'type' => 'ableplayer_audio',
         'weight' => 1,
       ),
       'full' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'elmsmedia_helper',
         'settings' => array(
-          'controls' => TRUE,
-          'download_link' => FALSE,
-          'download_text' => 'Download',
-          'height' => 385,
+          'height' => 30,
         ),
         'type' => 'ableplayer_audio',
         'weight' => 3,
       ),
       'iframe' => array(
         'label' => 'hidden',
-        'module' => 'file',
+        'module' => 'elmsmedia_helper',
         'settings' => array(
-          'controls' => 1,
-          'download_link' => 0,
-          'download_text' => 'Download',
           'height' => 30,
-          'width' => '100%',
         ),
-        'type' => 'file_default',
+        'type' => 'ableplayer_audio',
         'weight' => 0,
       ),
       'teaser' => array(
@@ -112,7 +104,7 @@ function elmsmedia_audio_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -165,7 +157,7 @@ function elmsmedia_audio_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -218,6 +210,12 @@ function elmsmedia_audio_field_default_field_instances() {
         ),
         'type' => 'entityreference_label',
         'weight' => 3,
+      ),
+      'iframe' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',

@@ -41,5 +41,6 @@ features[variable][] = addanother_tab_video
 features[variable][] = diff_enable_revisions_page_node_video
 features[variable][] = diff_show_preview_changes_node_video
 features[variable][] = diff_view_mode_preview_node_video
+features[variable][] = wysiwyg_template_default_video
 features_exclude[field_base][field_poster] = field_poster
 features_exclude[dependencies][og_ui] = og_ui

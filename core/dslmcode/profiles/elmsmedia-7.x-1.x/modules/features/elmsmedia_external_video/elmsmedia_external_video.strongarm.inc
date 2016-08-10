@@ -42,7 +42,7 @@ function elmsmedia_external_video_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_external_video';
-  $strongarm->value = 'edit-view-mode-tab';
+  $strongarm->value = 'edit-submission';
   $export['additional_settings__active_tab_external_video'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -65,6 +65,13 @@ function elmsmedia_external_video_strongarm() {
   $strongarm->name = 'diff_view_mode_preview_node_external_video';
   $strongarm->value = 'full';
   $export['diff_view_mode_preview_node_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'wysiwyg_template_default_external_video';
+  $strongarm->value = '';
+  $export['wysiwyg_template_default_external_video'] = $strongarm;
 
   return $export;
 }

@@ -35,4 +35,5 @@ features[variable][] = additional_settings__active_tab_figurelabel
 features[variable][] = diff_enable_revisions_page_node_figurelabel
 features[variable][] = diff_show_preview_changes_node_figurelabel
 features[variable][] = diff_view_mode_preview_node_figurelabel
+features[variable][] = wysiwyg_template_default_figurelabel
 features_exclude[dependencies][og_ui] = og_ui

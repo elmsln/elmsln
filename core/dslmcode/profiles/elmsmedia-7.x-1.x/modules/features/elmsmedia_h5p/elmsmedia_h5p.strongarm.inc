@@ -42,21 +42,21 @@ function elmsmedia_h5p_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_h5p_content';
-  $strongarm->value = 'edit-view-mode-tab';
+  $strongarm->value = 'edit-submission';
   $export['additional_settings__active_tab_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'diff_enable_revisions_page_node_h5p_content';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['diff_enable_revisions_page_node_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'diff_show_preview_changes_node_h5p_content';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['diff_show_preview_changes_node_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -232,6 +232,13 @@ function elmsmedia_h5p_strongarm() {
   $strongarm->name = 'node_submitted_h5p_content';
   $strongarm->value = 0;
   $export['node_submitted_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'wysiwyg_template_default_h5p_content';
+  $strongarm->value = '';
+  $export['wysiwyg_template_default_h5p_content'] = $strongarm;
 
   return $export;
 }

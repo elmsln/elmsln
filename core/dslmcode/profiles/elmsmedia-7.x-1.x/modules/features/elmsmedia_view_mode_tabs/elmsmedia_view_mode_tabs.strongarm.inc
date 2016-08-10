@@ -830,105 +830,105 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__diff_standard_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__diff_standard_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__full_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__full_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__iframe_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__iframe_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__image_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__image_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__image__boxed_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__image__boxed_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__image__boxed__lightboxed_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__image__boxed__lightboxed_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__image__left_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__image__left_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__image__left__lightboxed_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__image__left__lightboxed_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__image__lightboxed_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__image__lightboxed_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__image__right_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__image__right_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__image__right__lightboxed_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__image__right__lightboxed_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__revision_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__revision_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__rss_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__rss_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__teaser_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__teaser_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__token_svg';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__token_svg'] = $strongarm;
 
   $strongarm = new stdClass();

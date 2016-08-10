@@ -42,7 +42,7 @@ function elmsmedia_figure_label_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_figurelabel';
-  $strongarm->value = 'edit-view-mode-tab';
+  $strongarm->value = 'edit-addanother-display';
   $export['additional_settings__active_tab_figurelabel'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -65,6 +65,13 @@ function elmsmedia_figure_label_strongarm() {
   $strongarm->name = 'diff_view_mode_preview_node_figurelabel';
   $strongarm->value = 'full';
   $export['diff_view_mode_preview_node_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'wysiwyg_template_default_figurelabel';
+  $strongarm->value = '';
+  $export['wysiwyg_template_default_figurelabel'] = $strongarm;
 
   return $export;
 }

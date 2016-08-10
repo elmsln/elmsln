@@ -42,7 +42,7 @@ function elmsmedia_svg_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_svg';
-  $strongarm->value = 'edit-view-mode-tab';
+  $strongarm->value = 'edit-submission';
   $export['additional_settings__active_tab_svg'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -83,6 +83,13 @@ function elmsmedia_svg_strongarm() {
     0 => '',
   );
   $export['svg_sanitizer_allowedtags'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'wysiwyg_template_default_svg';
+  $strongarm->value = '';
+  $export['wysiwyg_template_default_svg'] = $strongarm;
 
   return $export;
 }

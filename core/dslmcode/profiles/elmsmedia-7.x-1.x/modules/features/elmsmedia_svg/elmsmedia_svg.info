@@ -44,5 +44,6 @@ features[variable][] = diff_show_preview_changes_node_svg
 features[variable][] = diff_view_mode_preview_node_svg
 features[variable][] = svg_sanitizer_allowedattrs
 features[variable][] = svg_sanitizer_allowedtags
+features[variable][] = wysiwyg_template_default_svg
 features_exclude[field_base][field_figurelabel_ref] = field_figurelabel_ref
 features_exclude[dependencies][og_ui] = og_ui
