@@ -253,28 +253,29 @@ function a11y_apply_a11y() {
     ),
   );
   $plugin_path = drupal_get_path('module', 'a11y') . '/plugins/';
+  $plugin_js_opts = array('type' => 'file', 'scope' => 'footer');
   $sim_path = drupal_get_path('module', 'a11y') . '/simulations/';
   if (variable_get('a11y_opendyslexic', 1)) {
     $js_variables['a11y']['opendyslexic'] = 1;
-    drupal_add_js($plugin_path . 'opendyslexic/opendyslexic.js');
+    drupal_add_js($plugin_path . 'opendyslexic/opendyslexic.js', $plugin_js_opts);
   }
   if (variable_get('a11y_contrast', 1)) {
     $js_variables['a11y']['contrast'] = 1;
-    drupal_add_js($plugin_path . 'contrast/contrast.js');
+    drupal_add_js($plugin_path . 'contrast/contrast.js', $plugin_js_opts);
   }
   if (variable_get('a11y_animation', 1)) {
     $js_variables['a11y']['animation'] = 1;
-    drupal_add_js($plugin_path . 'animation/animation.js');
+    drupal_add_js($plugin_path . 'animation/animation.js', $plugin_js_opts);
   }
   if (variable_get('a11y_textsize', 1)) {
     $js_variables['a11y']['textsize'] = 1;
-    drupal_add_js($plugin_path . 'textsize/textsize.js');
+    drupal_add_js($plugin_path . 'textsize/textsize.js', $plugin_js_opts);
   }
   if (variable_get('a11y_sim_dyslexia', 1)) {
     $js_variables['a11y']['sim']['dyslexia'] = 1;
-    drupal_add_js($sim_path . 'dyslexia/dyslexia.js');
+    drupal_add_js($sim_path . 'dyslexia/dyslexia.js', $plugin_js_opts);
   }
-  drupal_add_js($js_variables, 'setting');
+  drupal_add_js($js_variables, array('type' => 'setting', 'scope' => 'footer'));
 }
 
 /**
