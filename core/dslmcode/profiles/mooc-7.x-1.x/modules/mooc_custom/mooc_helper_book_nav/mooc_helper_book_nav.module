@@ -305,17 +305,17 @@ function mooc_helper_book_nav_fa_a11y_alter(&$a11y) {
     $a11y['keyboard']['keys']['#markup'] .=
       '<div class="keyboard-short">
         <div class="keyboard-short__group">
-          <label>' . t('Previous page') . '</label>
+          <span>' . t('Previous page') . '</span>
           <div class="keyboard-short__key">←</div>
           <div class="keyboard-short__key">←</div>
         </div>
         <div class="keyboard-short__group">
-          <label>' . t('Next page') . '</label>
+          <span>' . t('Next page') . '</span>
           <div class="keyboard-short__key">→</div>
           <div class="keyboard-short__key">→</div>
         </div>
         <div class="keyboard-short__group">
-          <label>' . t('Open content outline') . '</label>
+          <span>' . t('Open content outline') . '</span>
           <div class="keyboard-short__key">Alt</div>
           <div class="keyboard-short__key">Shift</div>
           <div class="keyboard-short__key">o</div>

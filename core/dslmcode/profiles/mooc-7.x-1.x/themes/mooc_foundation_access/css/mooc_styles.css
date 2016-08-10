@@ -167,6 +167,7 @@ ul.book-navigation-wrapper {
 }
 
 .book-sibling-parent-text {
+  color: #4c4c4c;
   max-width: 7rem;
   display: inline-block;
   white-space: nowrap;

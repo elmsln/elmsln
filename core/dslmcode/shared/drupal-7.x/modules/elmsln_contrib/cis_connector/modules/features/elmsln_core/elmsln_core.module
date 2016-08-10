@@ -347,12 +347,12 @@ function elmsln_core_fa_a11y() {
         '#markup' =>
         '<div class="keyboard-short">
           <div class="keyboard-short__group">
-            <label>' . t('Scroll down') . '</label>
+            <span>' . t('Scroll down') . '</span>
             <div class="keyboard-short__key">↓</div>
             <div class="keyboard-short__key">↓</div>
           </div>
           <div class="keyboard-short__group">
-            <label>' . t('Scroll back to top') . '</label>
+            <span>' . t('Scroll back to top') . '</span>
             <div class="keyboard-short__key">↑</div>
             <div class="keyboard-short__key">↑</div>
           </div>

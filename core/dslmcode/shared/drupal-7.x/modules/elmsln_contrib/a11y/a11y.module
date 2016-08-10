@@ -69,17 +69,17 @@ function a11y_a11y_block() {
     $icon_path = base_path() . drupal_get_path('module', 'a11y') . '/plugins/icons/';
     $alters['textsize'] = array(
       '#markup' => '
-      <div class="a11y-textsize-controls"><label>Font Size</label><a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
+      <div class="a11y-textsize-controls"><span>' . t('Interface Size') . '</span><a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
       <span>Smaller</span>
-      <img alt="' . t('Decrease text size') . '" title="' . t('Decrease text size') . '" src="' . $icon_path . 'text-decrease.png" />
+      <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" />
       </a>
       <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
         <span>Larger</span>
-        <img alt="' . t('Increase text size') . '" title="' . t('Increase text size') . '" src="' . $icon_path . 'text-increase.png" />
+        <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" />
       </a>
       <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
         <span>Reset</span>
-        <img alt="' . t('Reset text size') . '" title="' . t('Reset text size') . '" src="' . $icon_path . 'text-reset.png" />
+        <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" />
       </a>
       </div>'
     );

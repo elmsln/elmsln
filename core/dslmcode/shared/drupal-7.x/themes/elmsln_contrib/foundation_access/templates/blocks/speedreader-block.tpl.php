@@ -15,9 +15,9 @@
     </div>
     <div class="controls settings-controls">
       <span class="speed">
-        <a id="spritz_slower" href="#" title="<?php print t('Slow Down');?>" class="slower entypo-fast-backward" data-jwerty-key="ctrl+s" data-voicecommand="speed read slower"></a>
-        <a id="spritz_pause" href="#" title="<?php print t('Pause/Play');?>" class="pause entypo-pause" data-jwerty-key="ctrl+d" data-voicecommand="speed read (play)(pause)"></a>
-        <a id="spritz_faster" href="#" title="<?php print t('Speed Up');?>" class="faster entypo-fast-forward" data-jwerty-key="ctrl+f" data-voicecommand="speed read faster"></a>
+        <a id="spritz_slower" href="#" title="<?php print t('Slow Down');?>" class="slower entypo-fast-backward" data-jwerty-key="ctrl+s" data-voicecommand="speed read slower"><span class="element-invisible"><?php print t('Read slower'); ?></span></a>
+        <a id="spritz_pause" href="#" title="<?php print t('Pause/Play');?>" class="pause entypo-pause" data-jwerty-key="ctrl+d" data-voicecommand="speed read (play)(pause)"><span class="element-invisible"><?php print t('Play / pause'); ?></span></a>
+        <a id="spritz_faster" href="#" title="<?php print t('Speed Up');?>" class="faster entypo-fast-forward" data-jwerty-key="ctrl+f" data-voicecommand="speed read faster"><span class="element-invisible"><?php print t('Read faster'); ?></span></a>
       </span>
     </div>
   </div>

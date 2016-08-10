@@ -301,6 +301,7 @@ function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_i
     '#suffix' => '</div>',
     '#weight' => 11,
   );
+  $form['masquerade_user_field']['#title'] = t('Account name');
   // don't do these for the master section as it makes no sense
   if ($section && !_cis_connector_is_master($section)) {
     $form['masquerade_user_field']['#chosen'] = TRUE;
