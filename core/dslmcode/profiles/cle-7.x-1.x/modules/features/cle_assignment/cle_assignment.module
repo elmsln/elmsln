@@ -146,3 +146,23 @@ function _cle_assignment_is_assignment_closed($assignment) {
 
   return $closed;
 }
+
+/**
+ * Helper function to find out if the submissions can be made for this
+ * assignment.
+ */
+function _cle_assignment_is_submittable($assignment, $account = NULL) {
+  $submission_open = FALSE;
+
+  // if the assignment is active then we will set it to true.
+  $active = _cle_assignment_is_assignment_active($assignment);
+  if ($active) {
+    $submission_open = TRUE;
+  }
+
+  if (user_access('administer cle content', $account)) {
+    $submission_open = TRUE;
+  }
+
+  return $submission_open;
+}

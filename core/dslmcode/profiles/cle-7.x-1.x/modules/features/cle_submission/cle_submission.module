@@ -10,6 +10,9 @@ include_once 'cle_submission.features.inc';
  * Implements hook_form_FORM_ID_alter().
  */
 function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state, $form_id) {
+  // add custom validation callback
+  $form['#validate'][] = 'cle_submission_form_cle_submission_node_form_validate';
+
   // ensure this isn't loaded in an ajax callback
   if (arg(0) != 'system') {
     // make sure that its not set to the needs work state
@@ -33,8 +36,18 @@ function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state
     else {
       $assignment = FALSE;
     }
-    // ensure we have an assignment to work on before hiding items
+
     if ($assignment) {
+      // make sure that the assignment is open for the submission for the
+      // current user
+      $assignment_is_open = _cle_assignment_is_submittable($assignment);
+      if (!$assignment_is_open) {
+        drupal_set_message(t('This assignment is not open for submissions.'), 'error');
+        drupal_access_denied();
+        exit();
+      }
+
+      // bring in styling and hide fields
       $path = drupal_get_path('module', 'cle_submission') . '/';
       drupal_add_css($path . 'css/submission_form.css');
       // fields that we allow to be optionally hidden
@@ -59,6 +72,20 @@ function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state
     }
   }
 
+}
+
+/**
+ * cle_submission_form_cle_submission_node_form submit handler.
+ */
+function cle_submission_form_cle_submission_node_form_validate($form, &$form_state) {
+  // find the assignment id
+  $assignment_id = (isset($form_state['values']['field_assignment']['und'][0]['target_id']) ? $form_state['values']['field_assignment']['und'][0]['target_id'] : NULL);
+  // see if the assignment is open for the current user
+  $assignment_is_open = _cle_assignment_is_submittable($assignment_id);
+  // if it is not open then we need to prevent the from from being submitted
+  if (!$assignment_is_open) {
+    form_set_error('', t('This assignment is not open for submissions.'));
+  }
 }
 
 /**
