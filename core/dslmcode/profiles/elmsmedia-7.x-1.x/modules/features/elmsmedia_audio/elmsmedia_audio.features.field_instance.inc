@@ -38,7 +38,7 @@ function elmsmedia_audio_field_default_field_instances() {
           'download_text' => 'Download',
           'height' => 385,
         ),
-        'type' => 'able_video',
+        'type' => 'ableplayer_audio',
         'weight' => 3,
       ),
       'iframe' => array(

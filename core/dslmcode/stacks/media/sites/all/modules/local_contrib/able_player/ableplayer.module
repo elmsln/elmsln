@@ -1,0 +1,348 @@
+<?php
+
+/**
+ * @file
+ * Module file for Able Player.
+ */
+
+/**
+ * Defined constants for the default File Entity video and audio bundles.
+ */
+define('ABLEPLAYER_BUNDLE_AUDIO', 'audio');
+define('ABLEPLAYER_BUNDLE_VIDEO', 'video');
+
+/**
+ * Defined constants for the supported mimetypes.
+ */
+define('ABLEPLAYER_MIME_MPEG', 'mpeg');
+define('ABLEPLAYER_MIME_OGG', 'ogg');
+define('ABLEPLAYER_MIME_MP4', 'mp4');
+define('ABLEPLAYER_MIME_WEBM', 'webm');
+define('ABLEPLAYER_MIME_YOUTUBE', 'youtube');
+
+/**
+ * Define some basic player defaults.
+ */
+define('ABLEPLAYER_VIDEO_HEIGHT', 360);
+define('ABLEPLAYER_AUDIO_HEIGHT', 30);
+
+require_once drupal_get_path('module', 'ableplayer') . '/includes/ableplayer.formatters.inc';
+
+/**
+ * Impelements hook_file_default_types_alter().
+ */
+function ableplayer_file_default_types_alter(&$types) {
+  $types['document']->mimetypes[] = 'text/vtt';
+}
+
+/**
+ * Implements hook_help().
+ */
+function ableplayer_help($path, $arg) {
+  switch ($path) {
+
+    case 'admin/help#ableplayer':
+
+      $filepath = drupal_get_path('module', 'ableplayer') . '/README.md';
+
+      if (is_file($filepath) && is_readable($filepath)) {
+        $readme = file_get_contents($filepath);
+      }
+
+      if (!isset($readme)) {
+        return NULL;
+      }
+
+      if (module_exists('markdown')) {
+        $filters = module_invoke('markdown', 'filter_info');
+        $info = $filters['filter_markdown'];
+
+        if (function_exists($info['process callback'])) {
+          $output = $info['process callback']($readme, NULL);
+        }
+        else {
+          $output = '<pre>' . $readme . '</pre>';
+        }
+      }
+      else {
+        $output = '<pre>' . $readme . '</pre>';
+      }
+
+      return $output;
+
+  }
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function ableplayer_libraries_info() {
+  $libraries = array();
+
+  $js_options = array(
+    'group' => JS_LIBRARY,
+    'requires_jquery' => TRUE,
+  );
+
+  $css_options = array(
+    'group' => CSS_DEFAULT,
+  );
+
+  $libraries['ableplayer'] = array(
+    'name' => 'Able Player',
+    'vendor url' => 'https://github.com/ableplayer/ableplayer',
+    'download url' => 'https://github.com/ableplayer/ableplayer/releases',
+    'version arguments' => array(
+      'file' => 'build/ableplayer.min.js',
+      'pattern' => '@ableplayer V?(\d+\.\d+\.\d+)@',
+    ),
+    'files' => array(
+      'js' => array(
+        'build/ableplayer.min.js' => $js_options,
+        'thirdparty/js.cookie.js' => $js_options,
+      ),
+      'css' => array(
+        'build/ableplayer.min.css' => $css_options,
+      ),
+    ),
+    'variants' => array(
+      'source' => array(
+        'files' => array(
+          'js' => array(
+            'build/ableplayer.js' => $js_options,
+            'thirdparty/js.cookie.js' => $js_options,
+          ),
+          'css' => array(
+            'styles/ableplayer-playlist.css' => $css_options,
+            'styles/ableplayer-search.css' => $css_options,
+            'styles/ableplayer-sign.css' => $css_options,
+            'styles/ableplayer-transcript.css' => $css_options,
+            'styles/ableplayer.css' => $css_options,
+          ),
+        ),
+      ),
+    ),
+    'dependencies' => array(
+      'modernizr',
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function ableplayer_menu() {
+  $items = array();
+
+  $items['admin/config/media/ableplayer'] = array(
+    'title' => 'Able Player',
+    'description' => 'Configuration for Able Player library',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ableplayer_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'admin/ableplayer.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_modernizr_info().
+ */
+function ableplayer_modernizr_info() {
+  $tests = array(
+    /* CSS */
+    'fontface',
+    'backgroundsize',
+    'borderimage',
+    'borderradius',
+    'boxshadow',
+    'flexbox',
+    'flexboxlegacy',
+    'hsla',
+    'multiplebgs',
+    'opacity',
+    'rgba',
+    'textshadow',
+    'cssanimations',
+    'csscolumns',
+    'generatedcontent',
+    'cssgradients',
+    'cssreflections',
+    'csstransforms',
+    'csstransforms3d',
+    'csstransitions',
+    /* HTML5 */
+    'audio',
+    'video',
+    'input',
+    'inputtypes',
+    /* Extensibility */
+    'teststyles',
+    'testprop',
+    'testallprops',
+    'prefixes',
+    'domprefixes',
+    /* Extra */
+    'shiv',
+    'load',
+    'mq',
+    'cssclasses',
+  );
+
+  return $tests;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ableplayer_theme($existing, $type, $theme, $path) {
+  return array(
+    'ableplayer' => array(
+      'variables' => array(
+        'id' => NULL,
+        'uri' => NULL,
+        'mimetype' => NULL,
+        'tracks' => array(),
+        'options' => array(),
+      ),
+      'file' => 'ableplayer.theme.inc',
+      'path' => $path . '/themes',
+    ),
+    'ableplayer_video' => array(
+      'variables' => array(
+        'attributes' => array(),
+        'settings' => array()
+      ),
+    ),
+    'ableplayer_audio' => array(
+      'variables' => array(
+        'attributes' => array(),
+        'settings' => array()
+      ),
+    ),
+  );
+}
+
+/**
+ * Default theme function for video.
+ */
+function theme_ableableplayer_video($variables) {
+  $output = '<div class="ableplayer-video">';
+  $output .= '<video ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1"></video>';
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Default theme function for audio.
+ */
+function theme_ableplayer_audio($variables) {
+  $output = '<div class="ableplayer-audio">';
+  $output .= '<audio ' . drupal_attributes($variables['attributes']) . ' ></audio>';
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function ableplayer_field_formatter_info() {
+  $formatters = array();
+
+  $formatters['ableplayer_video'] = array(
+    'label' => t('Ableplayer Video'),
+    'field types' => array('file', 'link_field'),
+    'settings' => array(
+      'height' => ABLEPLAYER_VIDEO_HEIGHT,
+    ),
+  );
+
+  $formatters['ableplayer_audio'] = array(
+    'label' => t('Ableplayer Audio'),
+    'field types' => array('file', 'link_field'),
+    'settings' => array(
+      'height' => ABLEPLAYER_AUDIO_HEIGHT,
+    ),
+  );
+
+  return $formatters;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function ableplayer_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $element = array();
+
+  $element['height'] = array(
+    '#title' => t('Height'),
+    '#type' => 'textfield',
+    '#default_value' => $settings['height'],
+  );
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function ableplayer_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  return t('Height: @height px', array('@height' => $settings['height']));
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function ableplayer_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // A unique caller per page for the JS specific settings to use. This may be
+  // different for ever page view and should not be used for styling.
+  static $id = 0;
+  $element = array();
+  $path = drupal_get_path('module', 'ableplayer');
+  foreach ($items as $delta => $item) {
+    // Support the link field type which stores it's data in 'url'.
+    $src = ($field['type'] == 'link_field') ? $item['url'] : $item['uri'];
+
+    $settings = $display['settings'];
+    $js_settings = array();
+    $js_settings['opts'] = array();
+    if ($display['type'] == 'ableplayer_video') {
+      $js_settings['opts']['videoHeight'] = (int)$settings['height'];
+    }
+    elseif ($display['type'] == 'ableplayer_audio') {
+      $js_settings['opts']['audioHeight'] = (int)$settings['height'];
+    }
+
+    $class = 'ableplayer-formatter-identifier-' . time() . '-' . $id++;
+    $element[$delta] = array(
+      '#attributes' => array(
+        'src' => file_create_url($src),
+        'class' => $class,
+      ),
+      '#settings' => $settings,
+      '#attached' => array(
+        'libraries_load' => array(array('ableplayer')),
+        'js' => array(
+          array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
+        ),
+      ),
+    );
+
+    if ($display['type'] == 'ableplayer_video') {
+      $element[$delta]['#theme'] = 'ableplayer_video';
+      $element[$delta]['#attributes']['height'] = $display['settings']['height'];
+    }
+    elseif ($display['type'] == 'ableplayer_audio') {
+      $element[$delta]['#theme'] = 'ableplayer_audio';
+    }
+  }
+  return $element;
+}

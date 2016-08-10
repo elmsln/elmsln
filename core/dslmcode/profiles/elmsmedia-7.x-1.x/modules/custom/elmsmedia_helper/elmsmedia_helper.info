@@ -1,5 +1,5 @@
 name = 'ELMSMedia helper'
 description = 'ELMSMedia distribution glue code'
 core = 7.x
-dependencies[] = able
+dependencies[] = ableplayer
 files[] = elmsmedia_helper.module

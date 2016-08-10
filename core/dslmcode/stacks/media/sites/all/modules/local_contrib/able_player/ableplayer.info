@@ -1,0 +1,9 @@
+name = Able Player
+description = Accessible audio and video
+core = 7.x
+dependencies[] = libraries
+dependencies[] = modernizr
+files[] = test/ableplayer_core.test
+files[] = test/ableplayer_output.test
+files[] = test/ableplayer_validation.test
+configure = admin/config/media/ableplayer

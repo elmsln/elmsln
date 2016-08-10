@@ -435,7 +435,7 @@ function elmsmedia_video_field_default_field_instances() {
           'download_text' => 'Download',
           'height' => '400px',
         ),
-        'type' => 'able_video',
+        'type' => 'ableplayer_video',
         'weight' => 0,
       ),
       'full' => array(
@@ -447,7 +447,7 @@ function elmsmedia_video_field_default_field_instances() {
           'download_text' => 'Download',
           'height' => '400px',
         ),
-        'type' => 'able_video',
+        'type' => 'ableplayer_video',
         'weight' => 4,
       ),
       'iframe' => array(
@@ -459,7 +459,7 @@ function elmsmedia_video_field_default_field_instances() {
           'download_text' => 'Download',
           'height' => '400px',
         ),
-        'type' => 'able_video',
+        'type' => 'ableplayer_video',
         'weight' => 0,
       ),
       'mediavideo' => array(
@@ -471,7 +471,7 @@ function elmsmedia_video_field_default_field_instances() {
           'download_text' => 'Download',
           'height' => '400px',
         ),
-        'type' => 'able_video',
+        'type' => 'ableplayer_video',
         'weight' => 0,
       ),
       'mediavideo__poster' => array(
@@ -483,7 +483,7 @@ function elmsmedia_video_field_default_field_instances() {
           'download_text' => 'Download',
           'height' => '400px',
         ),
-        'type' => 'able_video',
+        'type' => 'ableplayer_video',
         'weight' => 0,
       ),
       'mediavideo__thumbnail' => array(
@@ -495,7 +495,7 @@ function elmsmedia_video_field_default_field_instances() {
           'download_text' => 'Download',
           'height' => '400px',
         ),
-        'type' => 'able_video',
+        'type' => 'ableplayer_video',
         'weight' => 0,
       ),
       'mediavideo__thumbnail__right' => array(
@@ -507,7 +507,7 @@ function elmsmedia_video_field_default_field_instances() {
           'download_text' => 'Download',
           'height' => 385,
         ),
-        'type' => 'able_video',
+        'type' => 'ableplayer_video',
         'weight' => 0,
       ),
       'teaser' => array(

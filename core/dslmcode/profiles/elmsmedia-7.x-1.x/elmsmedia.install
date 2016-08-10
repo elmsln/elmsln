@@ -80,7 +80,7 @@ function elmsmedia_update_7005(&$sandbox) {
  */
 function elmsmedia_update_7006(&$sandbox) {
   module_disable(array('mediaelement'));
-  module_enable(array('able'));
+  module_enable(array('modernizr', 'ableplayer'));
   features_revert_module('elmsmedia_video');
   features_revert_module('elmsmedia_svg');
   features_revert_module('elmsmedia_image');
@@ -88,11 +88,4 @@ function elmsmedia_update_7006(&$sandbox) {
   features_revert_module('elmsmedia_figure_label');
   features_revert_module('elmsmedia_external_video');
   features_revert_module('elmsmedia_document');
-}
-
-/**
- * Enable modernizr.
- */
-function elmsmedia_update_7007(&$sandbox) {
-  module_enable(array(('modernizr'));
 }

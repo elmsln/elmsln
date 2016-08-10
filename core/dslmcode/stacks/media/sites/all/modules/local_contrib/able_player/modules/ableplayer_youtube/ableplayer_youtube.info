@@ -1,0 +1,7 @@
+name = Able Player Youtube
+description = A file display for Media Youtube using Able Player
+core = 7.x
+dependencies[] = ableplayer
+dependencies[] = media
+dependencies[] = media_youtube
+files[] = test/ableplayer_youtube.test

@@ -1,0 +1,151 @@
+<?php
+
+/**
+ * @file
+ * Install file for Able Player.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function ableplayer_install() {
+  $t = get_t();
+
+  $fields = array(
+    array(
+      'field_name' => 'ableplayer_transcript',
+      'label' => $t('Transcript'),
+      'type' => 'file',
+      'entity_type' => 'file',
+      'bundle' => NULL,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'required' => FALSE,
+      'locked' => TRUE,
+      'settings' => array(
+        'file_extensions' => 'vtt',
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+          'settings' => array(),
+        ),
+      ),
+    ),
+    array(
+      'field_name' => 'ableplayer_description',
+      'label' => $t('Description'),
+      'type' => 'file',
+      'entity_type' => 'file',
+      'bundle' => NULL,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'required' => FALSE,
+      'locked' => TRUE,
+      'settings' => array(
+        'file_extensions' => 'vtt',
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+          'settings' => array(),
+        ),
+      ),
+    ),
+    array(
+      'field_name' => 'ableplayer_chapters',
+      'label' => $t('Chapters'),
+      'type' => 'file',
+      'entity_type' => 'file',
+      'bundle' => NULL,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'required' => FALSE,
+      'locked' => TRUE,
+      'settings' => array(
+        'file_extensions' => 'vtt',
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+          'settings' => array(),
+        ),
+      ),
+    ),
+  );
+  // support for file_entity module
+  if (module_exists('file_entity')) {
+    $file_types = file_type_load_all();
+
+    foreach ($file_types as $file_type) {
+      if (!in_array($file_type->type, array(ABLEPLAYER_BUNDLE_AUDIO, ABLEPLAYER_BUNDLE_VIDEO))) {
+        continue;
+      }
+
+      foreach ($fields as $field) {
+        $field_info = field_info_field($field['field_name']);
+
+        if (empty($field_info)) {
+          field_create_field($field);
+        }
+
+        $field['bundle'] = $file_type->type;
+        $instance_info = field_info_instance($field['entity_type'], $field['field_name'], $field['bundle']);
+
+        if (empty($instance_info)) {
+          field_create_instance($field);
+        }
+      }
+    }
+
+    drupal_set_message($t("Able Player settings are available under <a href='@link'>Administration > Configuration > Media > Able Player</a>",
+      array(
+        '@link' => url('admin/config/media/ableplayer'),
+      )));
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function ableplayer_requirements($phase) {
+  module_load_include('inc', 'ableplayer', 'includes/ableplayer');
+
+  $requirements = array();
+  $t = get_t();
+
+  switch ($phase) {
+
+    case 'runtime':
+      $status = ableplayer_installation_status();
+
+      if ($status['error']) {
+        $value = $t('Not installed');
+        $description = $status['message'];
+        $severity = REQUIREMENT_ERROR;
+      }
+      else {
+        $value = $status['version'];
+        $description = FALSE;
+        $severity = REQUIREMENT_OK;
+      }
+
+      $requirements['ableplayer']['title'] = $t('Able Player');
+      $requirements['ableplayer']['value'] = $value;
+      $requirements['ableplayer']['description'] = $description;
+      $requirements['ableplayer']['severity'] = $severity;
+
+      break;
+
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ableplayer_uninstall() {
+  variable_del('ableplayer_compression_level');
+  variable_del('ableplayer_test_fallback');
+}

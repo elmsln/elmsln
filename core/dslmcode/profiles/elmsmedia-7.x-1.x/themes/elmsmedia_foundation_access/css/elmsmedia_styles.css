@@ -1,1 +1,4 @@
 /* CSS Document */
+.ev1-button--icon, .clipboard--button-only .clipboardjs-button {
+  margin-right: -100px;
+}
