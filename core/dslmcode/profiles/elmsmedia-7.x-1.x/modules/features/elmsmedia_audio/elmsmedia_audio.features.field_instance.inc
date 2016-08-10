@@ -20,9 +20,6 @@ function elmsmedia_audio_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'elmsmedia_helper',
         'settings' => array(
-          'controls' => 1,
-          'download_link' => 0,
-          'download_text' => 'Download',
           'height' => 30,
         ),
         'type' => 'ableplayer_audio',

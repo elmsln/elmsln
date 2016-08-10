@@ -23,9 +23,12 @@ function elmsmedia_video_field_group_info() {
     'label' => 'Details',
     'weight' => '0',
     'children' => array(
-      0 => 'field_cis_course_ref',
-      1 => 'field_tagging',
-      2 => 'og_group_ref',
+      0 => 'field_caption',
+      1 => 'field_cis_course_ref',
+      2 => 'field_poster',
+      3 => 'field_tagging',
+      4 => 'field_transcript',
+      5 => 'og_group_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

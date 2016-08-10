@@ -23,9 +23,10 @@ function elmsmedia_video_field_default_field_instances() {
         'weight' => 5,
       ),
       'full' => array(
-        'label' => 'inline',
+        'label' => 'above',
+        'module' => 'file',
         'settings' => array(),
-        'type' => 'hidden',
+        'type' => 'file_default',
         'weight' => 6,
       ),
       'iframe' => array(
@@ -107,7 +108,7 @@ function elmsmedia_video_field_default_field_instances() {
           'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 1,
+        'weight' => 8,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -178,9 +179,13 @@ function elmsmedia_video_field_default_field_instances() {
         'weight' => 4,
       ),
       'full' => array(
-        'label' => 'hidden',
-        'settings' => array(),
-        'type' => 'hidden',
+        'label' => 'above',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => 'medium',
+        ),
+        'type' => 'image',
         'weight' => 5,
       ),
       'iframe' => array(
@@ -268,7 +273,7 @@ function elmsmedia_video_field_default_field_instances() {
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 3,
+        'weight' => 10,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -356,9 +361,10 @@ function elmsmedia_video_field_default_field_instances() {
         'weight' => 6,
       ),
       'full' => array(
-        'label' => 'inline',
+        'label' => 'above',
+        'module' => 'file',
         'settings' => array(),
-        'type' => 'hidden',
+        'type' => 'file_default',
         'weight' => 7,
       ),
       'iframe' => array(
@@ -430,9 +436,6 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'elmsmedia_helper',
         'settings' => array(
-          'controls' => 1,
-          'download_link' => 0,
-          'download_text' => 'Download',
           'height' => '400px',
         ),
         'type' => 'ableplayer_video',
@@ -442,9 +445,6 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'elmsmedia_helper',
         'settings' => array(
-          'controls' => 1,
-          'download_link' => 0,
-          'download_text' => 'Download',
           'height' => '400px',
         ),
         'type' => 'ableplayer_video',
@@ -560,7 +560,7 @@ function elmsmedia_video_field_default_field_instances() {
           'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 2,
+        'weight' => 9,
       ),
       'iframe' => array(
         'label' => 'above',

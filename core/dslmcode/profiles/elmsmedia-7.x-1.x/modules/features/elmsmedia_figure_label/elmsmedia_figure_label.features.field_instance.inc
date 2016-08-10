@@ -24,6 +24,13 @@ function elmsmedia_figure_label_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 0,
       ),
+      'figurelabel' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
       'full' => array(
         'label' => 'hidden',
         'module' => 'text',
@@ -107,6 +114,12 @@ function elmsmedia_figure_label_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 1,
       ),
+      'figurelabel' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
       'full' => array(
         'label' => 'above',
         'module' => 'entityreference',
@@ -180,6 +193,12 @@ function elmsmedia_figure_label_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 2,
       ),
+      'figurelabel' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
       'full' => array(
         'label' => 'above',
         'module' => 'taxonomy',
@@ -239,6 +258,12 @@ function elmsmedia_figure_label_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'figurelabel' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',

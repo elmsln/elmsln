@@ -40,12 +40,9 @@ function elmsmedia_image_field_default_field_instances() {
       ),
       'image' => array(
         'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 2,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
       ),
       'image__boxed' => array(
         'label' => 'above',
@@ -58,12 +55,9 @@ function elmsmedia_image_field_default_field_instances() {
       ),
       'image__boxed__lightboxed' => array(
         'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 2,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
       ),
       'image__left' => array(
         'label' => 'above',
@@ -164,10 +158,9 @@ function elmsmedia_image_field_default_field_instances() {
       ),
       'image' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 3,
+        'type' => 'hidden',
+        'weight' => 4,
       ),
       'image__boxed' => array(
         'label' => 'above',
@@ -181,7 +174,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 3,
+        'weight' => 1,
       ),
       'image__left' => array(
         'label' => 'above',
@@ -333,7 +326,7 @@ function elmsmedia_image_field_default_field_instances() {
           'view_mode' => 'figurelabel',
         ),
         'type' => 'entityreference_entity_view',
-        'weight' => 5,
+        'weight' => 1,
       ),
       'image__boxed' => array(
         'label' => 'above',
@@ -353,7 +346,7 @@ function elmsmedia_image_field_default_field_instances() {
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
-        'weight' => 5,
+        'weight' => 3,
       ),
       'image__left' => array(
         'label' => 'above',
@@ -668,10 +661,9 @@ function elmsmedia_image_field_default_field_instances() {
       ),
       'image' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 4,
+        'type' => 'hidden',
+        'weight' => 5,
       ),
       'image__boxed' => array(
         'label' => 'above',
@@ -685,7 +677,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 4,
+        'weight' => 2,
       ),
       'image__left' => array(
         'label' => 'above',
@@ -828,10 +820,9 @@ function elmsmedia_image_field_default_field_instances() {
       ),
       'image' => array(
         'label' => 'above',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 1,
+        'type' => 'hidden',
+        'weight' => 2,
       ),
       'image__boxed' => array(
         'label' => 'above',
@@ -842,10 +833,9 @@ function elmsmedia_image_field_default_field_instances() {
       ),
       'image__boxed__lightboxed' => array(
         'label' => 'above',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 1,
+        'type' => 'hidden',
+        'weight' => 4,
       ),
       'image__left' => array(
         'label' => 'above',
@@ -947,9 +937,8 @@ function elmsmedia_image_field_default_field_instances() {
       ),
       'image' => array(
         'label' => 'above',
-        'module' => 'og_ui',
         'settings' => array(),
-        'type' => 'og_list_default',
+        'type' => 'hidden',
         'weight' => 6,
       ),
       'image__boxed' => array(
@@ -961,9 +950,8 @@ function elmsmedia_image_field_default_field_instances() {
       ),
       'image__boxed__lightboxed' => array(
         'label' => 'above',
-        'module' => 'og_ui',
         'settings' => array(),
-        'type' => 'og_list_default',
+        'type' => 'hidden',
         'weight' => 6,
       ),
       'image__left' => array(

@@ -234,9 +234,10 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'entityreference',
         'settings' => array(
-          'link' => FALSE,
+          'links' => TRUE,
+          'view_mode' => 'default',
         ),
-        'type' => 'entityreference_label',
+        'type' => 'entityreference_entity_view',
         'weight' => 1,
       ),
       'mediavideo__poster' => array(
@@ -534,6 +535,12 @@ function elmsmedia_external_video_field_default_field_instances() {
           'link' => 1,
         ),
         'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'iframe' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
         'weight' => 2,
       ),
       'mediavideo' => array(

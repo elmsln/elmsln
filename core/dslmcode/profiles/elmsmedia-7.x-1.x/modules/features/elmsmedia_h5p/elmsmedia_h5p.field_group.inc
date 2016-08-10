@@ -25,6 +25,7 @@ function elmsmedia_h5p_field_group_info() {
     'children' => array(
       0 => 'field_cis_course_ref',
       1 => 'field_tagging',
+      2 => 'og_group_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

@@ -42,7 +42,7 @@ function elmsmedia_h5p_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_h5p_content';
-  $strongarm->value = 'edit-submission';
+  $strongarm->value = 'edit-wysiwyg-template';
   $export['additional_settings__active_tab_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -160,19 +160,34 @@ function elmsmedia_h5p_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'h5p' => array(
-          'weight' => '4',
-        ),
-        'h5p_type' => array(
-          'weight' => '2',
-        ),
-        'h5p_editor' => array(
           'weight' => '5',
         ),
+        'h5p_type' => array(
+          'weight' => '3',
+        ),
+        'h5p_editor' => array(
+          'weight' => '6',
+        ),
         'title' => array(
-          'weight' => '1',
+          'weight' => '2',
         ),
         'path' => array(
           'weight' => '7',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '8',
+        ),
+        'book' => array(
+          'weight' => '11',
+        ),
+        'options' => array(
+          'weight' => '12',
+        ),
+        'author' => array(
+          'weight' => '9',
+        ),
+        'revision_information' => array(
+          'weight' => '10',
         ),
       ),
       'display' => array(
@@ -182,7 +197,7 @@ function elmsmedia_h5p_strongarm() {
             'visible' => TRUE,
           ),
           'full' => array(
-            'weight' => '3',
+            'weight' => '1',
             'visible' => TRUE,
           ),
           'iframe' => array(
