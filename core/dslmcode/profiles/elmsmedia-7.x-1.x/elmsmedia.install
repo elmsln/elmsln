@@ -76,17 +76,25 @@ function elmsmedia_update_7005(&$sandbox) {
 
 /**
  * Switch video player from media element to ableplayer
- * as well as fix an issue with display modes not showing.
+ * as well as fix an issue with display modes not showing
+ * and clean up the forms. This is a major step towards
+ * stabilization of the media system in capability and
+ * working out of the box with no configuration.
  */
 function elmsmedia_update_7006(&$sandbox) {
   module_disable(array('mediaelement'));
   module_enable(array('modernizr', 'ableplayer'));
-  features_revert_module('elmsmedia_video');
-  features_revert_module('elmsmedia_svg');
-  features_revert_module('elmsmedia_image');
-  features_revert_module('elmsmedia_h5p');
-  features_revert_module('elmsmedia_figure_label');
-  features_revert_module('elmsmedia_external_video');
-  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_audio');
   features_revert_module('elmsmedia_cis_ux');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_feature');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_perms');
+  features_revert_module('elmsmedia_section_perms');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+  features_revert_module('elmsmedia_view_mode_tabs');
 }
