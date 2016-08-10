@@ -53,3 +53,41 @@ function mooc_foundation_access_preprocess_page(&$variables) {
 function mooc_foundation_access_breadcrumb($variables) {
   // hide breadcrumbs
 }
+
+/**
+ * Default theme function for video.
+ */
+function mooc_foundation_access_read_time($variables) {
+  $defaults = read_time_defaults();
+  $node = $variables['node'];
+  $time = $node->read_time['text'];
+  // Get read time bundle settings.
+  $format = variable_get('read_time_format_' . $node->type, $defaults['format']);
+
+  // Format read time.
+  if (in_array($format, array('hour_short', 'hour_long'))) {
+    $hours = floor($time / 60);
+    $minutes = ceil(fmod($time, 60));
+  }
+  else {
+    $minutes = ceil($time);
+  }
+  if (in_array($format, array('hour_long', 'min_long'))) {
+    $hour_suffix = 'hour';
+    $min_suffix = 'minute';
+  }
+  else {
+    $hour_suffix = 'hr';
+    $min_suffix = 'min';
+  }
+  $minute_format = format_plural($minutes, '1 ' . $min_suffix, '@count ' . $min_suffix . 's');
+  if (!empty($hours)) {
+    $hour_format = format_plural($hours, '1 ' . $hour_suffix, '@count ' . $hour_suffix . 's');
+    $read_time = format_string('@h, @m', array('@h' => $hour_format, '@m' => $minute_format));
+  }
+  else {
+    $read_time = $minute_format;
+  }
+
+  return '<div class="chip">' . check_plain($read_time) . '</div>';
+}

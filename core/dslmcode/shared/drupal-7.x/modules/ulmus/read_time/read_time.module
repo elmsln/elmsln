@@ -90,7 +90,7 @@ function read_time_node_insert($node) {
   db_insert('read_time')
     ->fields(array(
       'nid' => $node->nid,
-      'read_time' => $read_time,
+      'read_time' => serialize(array('text' => $read_time)),
     ))
     ->execute();
 }
@@ -106,7 +106,7 @@ function read_time_node_update($node) {
       'nid' => $node->nid,
     ))
     ->fields(array(
-      'read_time' => $read_time,
+      'read_time' => serialize(array('text' => $read_time)),
     ))
     ->execute();
 }
@@ -116,9 +116,12 @@ function read_time_node_update($node) {
  */
 function read_time_node_load($nodes, $types) {
   // add read time to the node object itself so we can reference
-  // the data elsewhere without constantly calling for it
+  // the data elsewhere. This also opens the door for additional
+  // timed items that can impact reading.
   foreach ($nodes as $node) {
-    $node->read_time = read_time_calculate($node);
+    $record = db_query('SELECT read_time FROM {read_time} WHERE nid = :nid', array(':nid' => $node->nid))->fetchField();
+    $record = unserialize($record);
+    $nodes[$node->nid]->read_time = $record;
   }
 }
 
@@ -129,30 +132,25 @@ function read_time_node_view($node, $view_mode, $langcode) {
   // Get read time field settings.
   $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
   $settings = $display_settings['read_time'];
-
+  // make sure this is visible first
   if ($settings['visible']) {
-    // Get read time from database.
-    $read_time = db_query('SELECT read_time FROM {read_time} WHERE nid = :nid', array(
-      ':nid' => $node->nid,
-    ))->fetchField();
-
     // Calculate read time if it doesn't exist and save to database.
-    if (empty($read_time)) {
-      $read_time = read_time_calculate($node);
+    if (empty($node->read_time)) {
+      $node->read_time = read_time_calculate($node);
 
       db_merge('read_time')
         ->key(array(
           'nid' => $node->nid,
         ))
         ->fields(array(
-          'read_time' => $read_time,
+          'read_time' => serialize(array('text' => $node->read_time)),
         ))
         ->execute();
     }
 
     // Display read time with node.
     $node->content['read_time'] = array(
-      '#markup' => '<span class="read-time">' . $read_time . '</span>',
+      '#markup' => '<span class="read-time">' . theme('read_time', array('node' => $node)) . '</span>',
       '#weight' => $settings['weight'],
     );
   }
@@ -186,21 +184,48 @@ function read_time_calculate($node) {
   // Get read time bundle settings.
   $fields = variable_get('read_time_fields_' . $node->type, $defaults['fields']);
   $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
-  $format = variable_get('read_time_format_' . $node->type, $defaults['format']);
-  $display = variable_get('read_time_display_' . $node->type, $defaults['display']);
 
   // Get fields to calculate read time of.
   $field_words = '';
   foreach ($fields as $field) {
     $field_items = field_get_items('node', $node, $field);
-    foreach ($field_items as $field_item) {
-      $field_words .= strip_tags($field_item['value']);
+    if (is_array($field_items)) {
+      foreach ($field_items as $field_item) {
+        $field_words .= strip_tags($field_item['value']);
+      }
     }
   }
 
   // Calculate read time.
   $words = str_word_count($field_words);
-  $time = $words / $wpm;
+  $time = round(($words / $wpm), 3);
+
+  return $time;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function read_time_theme($existing, $type, $theme, $path) {
+  return array(
+    'read_time' => array(
+      'variables' => array(
+        'node' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Default theme function for video.
+ */
+function theme_read_time($variables) {
+  $defaults = read_time_defaults();
+  $node = $variables['node'];
+  $time = $node->read_time['text'];
+  // Get read time bundle settings.
+  $format = variable_get('read_time_format_' . $node->type, $defaults['format']);
+  $display = variable_get('read_time_display_' . $node->type, $defaults['display']);
 
   // Format read time.
   if (in_array($format, array('hour_short', 'hour_long'))) {
@@ -247,4 +272,3 @@ function read_time_defaults() {
   }
   return $defaults;
 }
-
