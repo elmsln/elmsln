@@ -23,7 +23,7 @@ function cle_critique_menu() {
     'title' => 'Peer critique',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_cle_critique_page_random_form'),
-    'access callback' => '_cle_custom_critique_peer_access_callback',
+    'access callback' => '_cle_critique_critique_peer_access_callback',
     'access arguments' => array('create', 'cle_critique', 3),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'node.pages.inc',
@@ -207,24 +207,25 @@ function _cle_critique_random($anid) {
 /**
  * Access Callback for 'cle/critique/critique-peer/%node'.
  */
-function _cle_custom_critique_peer_access_callback($assignment_id = NULL) {
+function _cle_critique_critique_peer_access_callback() {
+  $assignment_id = arg(3);
+  return _cle_critique_assignment_critique_access($assignment_id);
+}
+
+/**
+ * Helper function to see if the user has the ability to critique an assignment
+ * according to critique dates and user access.
+ *
+ */
+function _cle_critique_assignment_critique_access($assignment = NULL, $account = NULL) {
   $access = FALSE;
 
-  if (user_access('administer cle content')) {
+  if (user_access('administer cle content', $account)) {
     return TRUE;
   }
 
-  // See if the date is active
-  if (_cle_assignment_is_assignment_active($assignment_id)) {
-    $access = TRUE;
-  }
-  else {
-    drupal_set_message('Critiques are not yet active for this assignment.', 'warning', FALSE);
-    return FALSE;
-  }
-
   // see if the user has submitted the assignment first
-  if (_cle_critique_critique_date_active($assignment_id)) {
+  if (_cle_critique_critique_date_active($assignment)) {
     $access = TRUE;
   }
   else {
