@@ -24,7 +24,17 @@ function cle_critique_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_cle_critique_page_random_form'),
     'access callback' => '_cle_critique_critique_peer_access_callback',
-    'access arguments' => array('create', 'cle_critique', 3),
+    'access arguments' => array('create', 'cle_critique'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'node.pages.inc',
+    'file path' => drupal_get_path('module', 'node'),
+  );
+  $items['cle/critique/critique-submission/%node'] = array(
+    'title' => 'Critique submission',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_cle_critique_page_random_form'),
+    'access callback' => '_cle_critique_critique_submission_access_callback',
+    'access arguments' => array(3),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'node.pages.inc',
     'file path' => drupal_get_path('module', 'node'),
@@ -213,23 +223,42 @@ function _cle_critique_critique_peer_access_callback() {
 }
 
 /**
+ * Access Callback for 'cle/critique/critique-submission/%node.
+ */
+function _cle_critique_critique_submission_access_callback($node) {
+  $submission = $node;
+  $assignment_id = (isset($submission->field_assignment['und'][0]['target_id']) ? $submission->field_assignment['und'][0]['target_id'] : NULL);
+
+  return _cle_critique_assignment_critique_access($assignment_id);
+}
+
+/**
  * Helper function to see if the user has the ability to critique an assignment
  * according to critique dates and user access.
- *
  */
 function _cle_critique_assignment_critique_access($assignment = NULL, $account = NULL) {
   $access = FALSE;
 
+  // if the user has content admin rights then grant access and leave
   if (user_access('administer cle content', $account)) {
     return TRUE;
   }
 
-  // see if the user has submitted the assignment first
-  if (_cle_critique_critique_date_active($assignment)) {
+  // ensure that critiques are enabled for this assignment
+  if ($assignment && _cle_critique_critique_enabled($assignment)) {
     $access = TRUE;
   }
   else {
-    drupal_set_message('You must first submit your assignment.', 'warning', FALSE);
+    drupal_set_message(t('Critiques are not enabled for this assignment.'), 'status', FALSE);
+    return FALSE;
+  }
+
+  // ensure that the critiques are active for this assignment
+  if ($assignment && _cle_critique_critique_date_active($assignment)) {
+    $access = TRUE;
+  }
+  else {
+    drupal_set_message(t('Critiques are not active for this assignment.'), 'status', FALSE);
     return FALSE;
   }
 
@@ -237,20 +266,48 @@ function _cle_critique_assignment_critique_access($assignment = NULL, $account =
 }
 
 /**
- * Helper function to find if critiques are open for a submission.
+ * Helper function to find if critiques are enabled for an assignment.
+ */
+function _cle_critique_critique_enabled($assignment_id) {
+  $enabled = FALSE;
+  $assignment = entity_load_single('node', $assignment_id);
+
+  // if the user has content admin rights then grant access and leave
+  if (user_access('administer cle content')) {
+    return TRUE;
+  }
+
+  // ensure that the critiques are turned on for this assignment
+  $critique_type = (isset($assignment->field_cle_crit_type['und'][0]['value']) ? $assignment->field_cle_crit_type['und'][0]['value'] : NULL);
+  // make sure the critque type is not set to 'none'
+  if ($critique_type && $critique_type !== 'none') {
+    $enabled = TRUE;
+  }
+  else {
+    // if it is set to none then we will set a message and exit with false
+    return FALSE;
+  }
+
+  return $enabled;
+}
+
+/**
+ * Helper function to find if critiques are open for an assignment.
  */
 function _cle_critique_critique_date_active($assignment_id) {
   $active = FALSE;
   $assignment = entity_load_single('node', $assignment_id);
-  $critique_begin = strtotime($assignment->field_critique_date['und'][0]['value']);
-  $critique_end = strtotime($assignment->field_critique_date['und'][0]['value2']);
+  $critique_begin = $assignment->field_critique_date['und'][0]['value'];
+  $critique_end = $assignment->field_critique_date['und'][0]['value2'];
 
-  // if there is no end date
+  // if the user has content admin rights then grant access and leave
   if (user_access('administer cle content')) {
-    $active = TRUE;
+    return TRUE;
   }
-  elseif ($critique_begin == $critique_end) {
-    if (time() > $critique_begin) {
+
+  // if there is a due date without and end date, meaning there is no timespan
+  if ($critique_begin == $critique_end) {
+    if (time() < $critique_begin) {
       $active = TRUE;
     }
   }
