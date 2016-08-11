@@ -16,6 +16,27 @@
   color:#4c4c4c;
 }
 
+/* read-time */
+@media screen and (min-width: 95rem) {
+  div.read-time-wrapper {
+    position: absolute !important;
+    right: 100%;
+    width: calc(50vw - 51%);
+    top: 0;
+    max-width: 30em;
+    display: block;
+    height: 100%;
+  }
+  div.read-time-wrapper div.chip {
+    clear:both;
+    float:right;
+  }
+}
+div.read-time-wrapper div.chip i {
+  padding-right:.5rem;
+  line-height: inherit;
+}
+
 /* form usability */
 @media screen and (min-width: 95rem) {
   form.node-form div.field-group-htabs-wrapper.group-settings {

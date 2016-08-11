@@ -60,10 +60,19 @@ function mooc_foundation_access_breadcrumb($variables) {
 function mooc_foundation_access_read_time($variables) {
   $defaults = read_time_defaults();
   $node = $variables['node'];
-  $time = $node->read_time['text'];
+  // add in the children element to all totals if they exist
+  if (isset($node->read_time['_children'])) {
+    foreach ($node->read_time['_children'] as $key => $value) {
+      $node->read_time[$key] += $value;
+    }
+  }
   // Get read time bundle settings.
   $format = variable_get('read_time_format_' . $node->type, $defaults['format']);
+  $display = variable_get('read_time_display_' . $node->type, $defaults['display']);
+  $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
 
+  // convert words into time
+  $time = round(($node->read_time['words'] / $wpm), 3);
   // Format read time.
   if (in_array($format, array('hour_short', 'hour_long'))) {
     $hours = floor($time / 60);
@@ -88,6 +97,47 @@ function mooc_foundation_access_read_time($variables) {
   else {
     $read_time = $minute_format;
   }
+  $node->read_time['words'] = $read_time;
+  // chip read time is different
+  $output = '<div class="read-time-wrapper">';
+  // pick out the chips
+  foreach ($node->read_time as $key => $value) {
+    if ($value != 0 && $key != 'iframe' && $key != '_children') {
+      $label = '';
+      switch ($key) {
+        case 'words':
+          $label = t('Reading');
+          $icon = '<i class="tiny material-icons">library_books</i>';
+        break;
+        case 'audio':
+          $icon = '<i class="tiny material-icons">library_music</i>';
+        break;
+        case 'iframe':
+          $icon = '<i class="tiny material-icons">launch</i>';
+        break;
+        case 'img':
+          $label = t('Image');
+          $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
+          $icon = '<i class="tiny material-icons">perm_media</i>';
+        break;
+        case 'svg':
+          $label = t('Multimedia');
+          $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
+          $icon = '<i class="tiny material-icons">assessment</i>';
+        break;
+        case 'video':
+          $label = t('Video');
+          $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
+          $icon = '<i class="tiny material-icons">video_library</i>';
+        break;
+        default:
+          $icon = '';
+        break;
+      }
+      $output .= '<div class="chip">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
+    }
+  }
+  $output .= '</div>';
 
-  return '<div class="chip">' . check_plain($read_time) . '</div>';
+  return $output;
 }

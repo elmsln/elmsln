@@ -1,0 +1,99 @@
+<?php
+/**
+ * @file
+ * Support for walking down and spidering child nodes in book outines.
+ * This helps us gain cached data about what all the children in a book's
+ * reading time is. This is great for overview pages and self-updating!
+ */
+
+/**
+ * Implements hook_process_read_time_alter().
+ */
+function read_time_book_process_read_time_alter(&$read_time, $node, $criterion = NULL) {
+  // check for book and book association which would be awesome
+  // if we could store it for those using outlines of content
+  if (isset($node->book) && $node->book['has_children']) {
+    $keys = array();
+    // only build query below the current page
+    for ($i=$node->book['depth']; $i<10; $i++) {
+      $keys[] = 'p' . $i;
+    }
+    // get any children immediately below the current item
+    $query = db_select('menu_links', 'ml')
+              ->fields('ml', array('link_path'))
+              ->condition('mlid', $node->book['mlid'], '<>');
+    $db_or = db_or();
+    // form the db_or query
+    foreach ($keys as $key) {
+      $db_or->condition($key, $node->book['mlid'],'=');
+    }
+    $results = $query->condition($db_or)
+          ->orderBy('weight', 'ASC')
+          ->execute()
+          ->fetchAll();
+    // convert menu ids into node ids
+    $nids = array();
+    foreach ($results as $result) {
+      $nids[] = str_replace('node/', '', $result->link_path);
+    }
+    if (!empty($nids)) {
+      $read_time['_children'] = array();
+      // load these nodes
+      $nodes = node_load_multiple($nids);
+      foreach ($nodes as $cnode) {
+        foreach ($read_time as $key => $value) {
+          if ($key != '_children') {
+            if (!isset($read_time['_children'][$key])) {
+              $read_time['_children'][$key] = 0;
+            }
+            $read_time['_children'][$key] += $cnode->read_time[$key];
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function read_time_book_node_insert($node) {
+  // rebuild everyone above here
+  for ($i = $node->book['depth']; $i>0; $i--) {
+    if ($node->book['p' . $i] != 0 && $node->book['p' . $i] != $node->book['mlid']) {
+      $item = menu_link_load($node->book['p' . $i]);
+      if (!empty($item)) {
+        $nid = str_replace('node/', '', $item['link_path']);
+        $num_deleted = db_delete('read_time')
+          ->condition('nid', $nid)
+          ->execute();
+        // frag the node cache so we see this immediately
+        if (module_exists('entitycache')) {
+          cache_clear_all($nid, 'cache_entity_node');
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function read_time_book_node_update($node) {
+  // rebuild everyone above here
+  for ($i = $node->book['depth']; $i>0; $i--) {
+    if ($node->book['p' . $i] != 0 && $node->book['p' . $i] != $node->book['mlid']) {
+      $item = menu_link_load($node->book['p' . $i]);
+      if (!empty($item)) {
+        $nid = str_replace('node/', '', $item['link_path']);
+        $num_deleted = db_delete('read_time')
+          ->condition('nid', $nid)
+          ->execute();
+        // frag the node cache so we see this immediately
+        if (module_exists('entitycache')) {
+          cache_clear_all($nid, 'cache_entity_node');
+        }
+      }
+    }
+  }
+}
