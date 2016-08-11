@@ -3,6 +3,11 @@
   opacity: .8;
 }
 
+.imagelightbox__close {
+  color:#002a65;
+  background-color:#bdbdbd;
+}
+
 .image__cite, .image--lightboxed__cite {
   color:#4c4c4c;
 }
