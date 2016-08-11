@@ -117,8 +117,8 @@ function cle_submission_strongarm() {
             'visible' => FALSE,
           ),
           'full' => array(
-            'weight' => '4',
-            'visible' => TRUE,
+            'weight' => '13',
+            'visible' => FALSE,
           ),
         ),
         'critique_evas_entity_view_2' => array(
@@ -131,13 +131,19 @@ function cle_submission_strongarm() {
             'visible' => FALSE,
           ),
           'full' => array(
-            'weight' => '3',
-            'visible' => TRUE,
+            'weight' => '12',
+            'visible' => FALSE,
           ),
         ),
         'submission_progress' => array(
           'full' => array(
             'weight' => '0',
+            'visible' => TRUE,
+          ),
+        ),
+        'cle_critique_submission' => array(
+          'full' => array(
+            'weight' => '4',
             'visible' => TRUE,
           ),
         ),

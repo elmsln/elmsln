@@ -96,6 +96,7 @@ function cle_submission_page_build(&$page) {
   $path = drupal_get_path('module', 'cle_submission') . '/';
   if ($node = menu_get_object('node')) {
     if ($node->type == 'cle_submission') {
+      // add custom css
       $file = 'submission';
       drupal_add_css($path . 'css/' . $file . '.css');
     }

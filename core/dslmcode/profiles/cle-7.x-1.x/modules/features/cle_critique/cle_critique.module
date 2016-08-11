@@ -219,7 +219,8 @@ function _cle_critique_random($anid) {
  */
 function _cle_critique_critique_peer_access_callback() {
   $assignment_id = arg(3);
-  return _cle_critique_assignment_critique_access($assignment_id);
+  global $user;
+  return _cle_critique_assignment_critique_access($assignment_id, $user, array('messages' => TRUE));
 }
 
 /**
@@ -229,14 +230,19 @@ function _cle_critique_critique_submission_access_callback($node) {
   $submission = $node;
   $assignment_id = (isset($submission->field_assignment['und'][0]['target_id']) ? $submission->field_assignment['und'][0]['target_id'] : NULL);
 
-  return _cle_critique_assignment_critique_access($assignment_id);
+  return _cle_critique_assignment_critique_access($assignment_id, $user, array('messages' => TRUE));
 }
 
 /**
  * Helper function to see if the user has the ability to critique an assignment
  * according to critique dates and user access.
+ * @param   $assignment     This can be the id or object of the assignment.
+ * @param   $account        Specifiy the user account.
+ * @param   $options
+ *            - messages: Should this function return drupal_set_messages.
+ * @return  Boolean
  */
-function _cle_critique_assignment_critique_access($assignment = NULL, $account = NULL) {
+function _cle_critique_assignment_critique_access($assignment = NULL, $account = NULL, $options = array()) {
   $access = FALSE;
 
   // if the user has content admin rights then grant access and leave
@@ -249,7 +255,9 @@ function _cle_critique_assignment_critique_access($assignment = NULL, $account =
     $access = TRUE;
   }
   else {
-    drupal_set_message(t('Critiques are not enabled for this assignment.'), 'status', FALSE);
+    if (isset($options['messages']) && $options['messages']) {
+      drupal_set_message(t('Critiques are not enabled for this assignment.'), 'status', FALSE);
+    }
     return FALSE;
   }
 
@@ -258,7 +266,9 @@ function _cle_critique_assignment_critique_access($assignment = NULL, $account =
     $access = TRUE;
   }
   else {
-    drupal_set_message(t('Critiques are not active for this assignment.'), 'status', FALSE);
+    if (isset($options['messages']) && $options['messages']) {
+      drupal_set_message(t('Critiques are not active for this assignment.'), 'status', FALSE);
+    }
     return FALSE;
   }
 
@@ -360,6 +370,53 @@ function cle_critique_cis_shortcode_render_alter(&$field, $entity, $type) {
       '#weight' => 0,
     );
   }
+}
+
+/**
+ * Implements hook_field_extra_fields()
+ *
+ * Add Critique Submission button to the submission display.
+ */
+function cle_critique_field_extra_fields() {
+  $extra = array();
+  $extra['node']['cle_submission'] = array(
+    'display' => array(
+      'cle_critique_submission' => array(
+        'label' => t('Critique submission'),
+        'description' => t('Critique Submission'),
+        'weight' => 0,
+      ),
+    ),
+  );
+  return $extra;
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function cle_critique_entity_view($entity, $type, $view_mode, $langcode) {
+  // Extra fields
+  $extra_fields = field_info_extra_fields($type, $entity->type, 'display');
+  // Check the field is displayed for the current view_mode
+  $field_name = 'cle_critique_submission';
+  if(!empty($extra_fields[$field_name]['display'][$view_mode]['visible'])) {
+    // get the assignment of the submission
+    $assignment_id = (isset($entity->field_assignment['und'][0]['target_id']) ? $entity->field_assignment['und'][0]['target_id'] : NULL);
+    // find out if the user should has access to critique the submission
+    if (_cle_critique_assignment_critique_access($assignment_id)) {
+      $entity->content[$field_name] = array(
+        '#theme' => 'link',
+        '#text' => t('Critique submission'),
+        '#path' => '/cle/critique/critique-submission/' . $entity->nid,
+        '#options' => array(
+          'attributes' => array('class' => array('waves-effect', 'waves-light', 'btn')),
+            //REQUIRED:
+            'html' => FALSE,
+        ),
+      );
+    }
+  }
+
 }
 
 /**

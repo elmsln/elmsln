@@ -50,7 +50,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Ferpa elements',
-    'weight' => '2',
+    'weight' => '3',
     'children' => array(
       0 => 'body',
       1 => 'field_files',
@@ -224,7 +224,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Information',
-    'weight' => '1',
+    'weight' => '2',
     'children' => array(
       0 => 'field_assignment',
       1 => 'field_submission_state',
