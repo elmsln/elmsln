@@ -11,6 +11,7 @@ features[features_api][] = api:2
 features[user_permission][] = access cle dashboard
 features[variable][] = site_frontpage
 features[views_view][] = cle_dashboard
+features[views_view][] = cle_dashboard_my_critiques
 features[views_view][] = cle_dashboard_my_submissions
 features[views_view][] = cle_dashboard_student_submissions
 features_exclude[dependencies][ctools] = ctools
