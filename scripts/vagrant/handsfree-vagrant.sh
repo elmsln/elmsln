@@ -21,7 +21,7 @@ git clone $repo /var/www/elmsln
 cd /var/www/elmsln
 git checkout $branch
 cd $HOME
-bash /var/www/elmsln/scripts/install/handsfree/centos7/centos-install.sh elmsln ln elmsln.local http admin@elmsln.local yes
+bash /var/www/elmsln/scripts/install/handsfree/centos7/centos7-install.sh elmsln ln elmsln.local http admin@elmsln.local yes
 cd $HOME && source .bashrc
 
 git clone $configrepo /var/www/elmsln-config-vagrant
