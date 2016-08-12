@@ -750,31 +750,57 @@ function mooc_helper_fa_a11y() {
  */
 function mooc_helper_read_time_evaluate_alter(&$read_time, $node, $field_data) {
   $preg = '/<iframe(.*?)>/s';
-  // pregmatch the anchor and title for the heading
+  // pregmatch iframes
   preg_match_all($preg, $field_data, $results);
   foreach ($results[0] as $result) {
-    // sniff out youtube
+    // sniff out video
     if (_read_time_strpos_arr($result, array('elmsmedia_video', 'elmsmedia_external_video'))) {
       $read_time['video']++;
-      if (!isset($read_time['metadata']['internal'])) {
-        $read_time['metadata']['internal'] = 0;
+      if (!isset($read_time['metadata']['video']['internal'])) {
+        $read_time['metadata']['video']['internal'] = 0;
       }
-      $read_time['metadata']['internal']++;
+      $read_time['metadata']['video']['internal']++;
+      // look for our magic duration attribute
+      $preg2 = '/data-duration="(.*?)"/s';
+      preg_match_all($preg2, $result, $results2);
+      if (isset($results2[1]) && !empty($results2[1][0])) {
+        if (!isset($read_time['metadata']['video']['duration'])) {
+          $read_time['metadata']['video']['duration'] = 0;
+        }
+        $parts = explode(':', $results2[1][0]);
+        // strip off a 0:0:0 style time stamp and convert it to seconds.. wow
+        foreach ($parts as $key => $part) {
+          $read_time['metadata']['video']['duration'] += ($part * pow(60, count($parts)-1-$key));
+        }
+      }
     }
     if (_read_time_strpos_arr($result, array('elmsmedia_audio'))) {
       $read_time['audio']++;
-      if (!isset($read_time['metadata']['internal'])) {
-        $read_time['metadata']['internal'] = 0;
+      if (!isset($read_time['metadata']['audio']['internal'])) {
+        $read_time['metadata']['audio']['internal'] = 0;
       }
-      $read_time['metadata']['internal']++;
+      $read_time['metadata']['audio']['internal']++;
+      // look for our magic duration attribute
+      $preg2 = '/data-duration="(.*?)"/s';
+      preg_match_all($preg2, $result, $results2);
+      if (isset($results2[1]) && !empty($results2[1][0])) {
+        if (!isset($read_time['metadata']['audio']['duration'])) {
+          $read_time['metadata']['audio']['duration'] = 0;
+        }
+        $parts = explode(':', $results2[1][0]);
+        // strip off a 0:0:0 style time stamp and convert it to seconds.. wow
+        foreach ($parts as $key => $part) {
+          $read_time['metadata']['audio']['duration'] += ($part * pow(60, count($parts)-1-$key));
+        }
+      }
     }
     // h5p as interactive stuff under SVG
     if (_read_time_strpos_arr($result, array('elmsmedia_h5p', 'elmsmedia_svg'))) {
       $read_time['svg']++;
-      if (!isset($read_time['metadata']['internal'])) {
-        $read_time['metadata']['internal'] = 0;
+      if (!isset($read_time['metadata']['svg']['internal'])) {
+        $read_time['metadata']['svg']['internal'] = 0;
       }
-      $read_time['metadata']['internal']++;
+      $read_time['metadata']['svg']['internal']++;
     }
   }
 }

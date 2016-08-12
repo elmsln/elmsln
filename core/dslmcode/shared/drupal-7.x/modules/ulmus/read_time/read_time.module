@@ -179,32 +179,32 @@ function _read_time_evaluate($node, $criterion = NULL) {
  */
 function read_time_read_time_evaluate_alter(&$read_time, $node, $field_data) {
   $preg = '/<iframe(.*?)>/s';
-  // pregmatch the anchor and title for the heading
+  // pregmatch iframe tags
   preg_match_all($preg, $field_data, $results);
   foreach ($results[0] as $result) {
     // sniff out youtube
     if (_read_time_strpos_arr($result, array('youtube', 'youtu.be'))) {
       $read_time['video']++;
-      if (!isset($read_time['metadata']['youtube'])) {
-        $read_time['metadata']['youtube'] = 0;
+      if (!isset($read_time['metadata']['video']['youtube'])) {
+        $read_time['metadata']['video']['youtube'] = 0;
       }
-      $read_time['metadata']['youtube']++;
+      $read_time['metadata']['video']['youtube']++;
     }
     // sniff out vimeo
     if (_read_time_strpos_arr($result, array('vimeo'))) {
       $read_time['video']++;
-      if (!isset($read_time['metadata']['vimeo'])) {
-        $read_time['metadata']['vimeo'] = 0;
+      if (!isset($read_time['metadata']['video']['vimeo'])) {
+        $read_time['metadata']['video']['vimeo'] = 0;
       }
-      $read_time['metadata']['vimeo']++;
+      $read_time['metadata']['video']['vimeo']++;
     }
     // sniff out soundcloud
     if (_read_time_strpos_arr($result, array('soundcloud'))) {
       $read_time['audio']++;
-      if (!isset($read_time['metadata']['soundcloud'])) {
-        $read_time['metadata']['soundcloud'] = 0;
+      if (!isset($read_time['metadata']['audio']['soundcloud'])) {
+        $read_time['metadata']['audio']['soundcloud'] = 0;
       }
-      $read_time['metadata']['soundcloud']++;
+      $read_time['metadata']['audio']['soundcloud']++;
     }
   }
 }
@@ -353,7 +353,7 @@ function read_time_calculate($node, $field_data, $criterion = READ_TIME_DEFAULT_
     case 'video':
       // build our preg match to find the exact tags
       $preg = '/<' . $criterion . '(.*?)>/s';
-      // pregmatch the anchor and title for the heading
+      // pregmatch to count tags
       preg_match_all($preg, $field_data, $results);
       $count = count($results[0]);
     break;

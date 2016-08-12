@@ -46,7 +46,9 @@ function read_time_book_read_time_evaluate_alter(&$read_time, $node, $field_data
             if (!isset($read_time['metadata']['children'][$key])) {
               $read_time['metadata']['children'][$key] = 0;
             }
-            $read_time['metadata']['children'][$key] += $cnode->read_time[$key];
+            if (isset($cnode->read_time[$key])) {
+              $read_time['metadata']['children'][$key] += $cnode->read_time[$key];
+            }
           }
           else {
             foreach ($read_time['metadata'] as $meta => $data) {
