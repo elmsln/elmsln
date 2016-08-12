@@ -1,0 +1,13 @@
+INSTALL
+-------
+1. Place the entire getid3 directory into your modules directory
+   (sites/all/modules is the usual location).
+2. Go to http://www.getid3.org/ and download the latest stable version
+     Example: wget "http://sourceforge.net/projects/getid3/files/getID3%28%29%201.x/1.9.9/getID3-1.9.9-20141218.zip/download"
+3. Unzip the contents of the zip file into sites/all/libraries/getid3
+     unzip getID3-1.9.9-20141218.zip
+     mv getID3-1.9.9 /path/to/drupal/sites/all/libraries/getid3
+4. Delete the demos directory:
+     rm -r demos/
+5. Go to Dashboard > Modules and enable the GetID3 module.
+6. Review status report page to ensure library detected properly.
