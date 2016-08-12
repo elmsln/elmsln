@@ -405,28 +405,29 @@ function cle_critique_field_extra_fields() {
  * Implements hook_entity_view().
  */
 function cle_critique_entity_view($entity, $type, $view_mode, $langcode) {
-  // Extra fields
-  $extra_fields = field_info_extra_fields($type, $entity->type, 'display');
-  // Check the field is displayed for the current view_mode
-  $field_name = 'cle_critique_submission';
-  if(!empty($extra_fields[$field_name]['display'][$view_mode]['visible'])) {
-    // get the assignment of the submission
-    $assignment_id = (isset($entity->field_assignment['und'][0]['target_id']) ? $entity->field_assignment['und'][0]['target_id'] : NULL);
-    // find out if the user should has access to critique the submission
-    if (_cle_critique_assignment_critique_access($assignment_id)) {
-      $entity->content[$field_name] = array(
-        '#theme' => 'link',
-        '#text' => t('Critique submission'),
-        '#path' => '/cle/critique/critique-submission/' . $entity->nid,
-        '#options' => array(
-          'attributes' => array('class' => array('waves-effect', 'waves-light', 'btn')),
-            //REQUIRED:
-            'html' => FALSE,
-        ),
-      );
+  if (isset($entity->type)) {
+    // Extra fields
+    $extra_fields = field_info_extra_fields($type, $entity->type, 'display');
+    // Check the field is displayed for the current view_mode
+    $field_name = 'cle_critique_submission';
+    if(!empty($extra_fields[$field_name]['display'][$view_mode]['visible'])) {
+      // get the assignment of the submission
+      $assignment_id = (isset($entity->field_assignment['und'][0]['target_id']) ? $entity->field_assignment['und'][0]['target_id'] : NULL);
+      // find out if the user should has access to critique the submission
+      if (_cle_critique_assignment_critique_access($assignment_id)) {
+        $entity->content[$field_name] = array(
+          '#theme' => 'link',
+          '#text' => t('Critique submission'),
+          '#path' => '/cle/critique/critique-submission/' . $entity->nid,
+          '#options' => array(
+            'attributes' => array('class' => array('waves-effect', 'waves-light', 'btn')),
+              //REQUIRED:
+              'html' => FALSE,
+          ),
+        );
+      }
     }
   }
-
 }
 
 /**
