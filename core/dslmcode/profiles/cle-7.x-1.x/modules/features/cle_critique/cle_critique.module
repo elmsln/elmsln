@@ -229,6 +229,7 @@ function _cle_critique_critique_peer_access_callback() {
 function _cle_critique_critique_submission_access_callback($node) {
   $submission = $node;
   $assignment_id = (isset($submission->field_assignment['und'][0]['target_id']) ? $submission->field_assignment['und'][0]['target_id'] : NULL);
+  global $user;
 
   return _cle_critique_assignment_critique_access($assignment_id, $user, array('messages' => TRUE));
 }
