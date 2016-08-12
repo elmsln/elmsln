@@ -109,9 +109,9 @@ function cle_assignment_field_group_info() {
     'label' => 'Critique',
     'weight' => '34',
     'children' => array(
-      0 => 'field_cle_crit_criteria',
-      1 => 'field_cle_crit_outline',
-      2 => 'field_critique_date',
+      0 => 'field_critique_date',
+      1 => 'field_cle_crit_criteria',
+      2 => 'field_cle_crit_outline',
     ),
     'format_type' => 'div',
     'format_settings' => array(
