@@ -11,7 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # centos 7.x - 64 bit
   #config.vm.box = "geerlingguy/centos7"
   # centos 6.7 - 64 bit
-  config.vm.box = "elmsln/centos-6.7"
+  config.vm.box = "bradallenfisher/centos7"
   if Vagrant.has_plugin?("vagrant-cachier")
     config.cache.scope = :box
   end
