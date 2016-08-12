@@ -27,9 +27,7 @@ function hook_read_time_defaults_alter(&$defaults) {
 function hook_read_time_criteria() {
   return array(
     'keyname' => 'user_callback_function',
-    'text' => 'read_time_calculate',
-    'images' => 'read_time_calculate',
-    'video' => 'read_time_calculate',
+    'words' => 'read_time_calculate',
   );
 }
 
@@ -43,17 +41,18 @@ function hook_read_time_criteria_alter(&$criteria) {
 }
 
 /**
- * Implements hook_process_read_time_alter().
+ * Implements hook_read_time_evaluate_alter().
  *
- * Allow other projects process read_time after it's been calculated
+ * Allow other projects evaluate read_time after it's been calculated
  * from all elements hitting their callbacks.
  *
  * @param  array  &$read_time  criteria and their associated counts
  * @param  object  $node       node object
- * @param  string  $criterion  optional criterion if acting on a single one
+ * @param  string  $field_data text of all the fields to process
  *
- * @see  read_time_book_process_read_time_alter
+ * @see  read_time_book_read_time_evaluate_alter()
+ * @see  read_time_read_time_evaluate_alter()
  */
-function hook_process_read_time_alter(&$read_time, $node, $criterion = NULL) {
+function hook_read_time_evaluation_alter(&$read_time, $node, $field_data) {
 
 }

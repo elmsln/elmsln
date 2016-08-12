@@ -103,7 +103,6 @@ function read_time_read_time_criteria() {
     'audio' => 'read_time_calculate',
     'img' => 'read_time_calculate',
     'svg' => 'read_time_calculate',
-    'iframe' => 'read_time_calculate',
   );
 }
 
@@ -130,35 +129,111 @@ function read_time_get_criteria() {
 
 /**
  * Process the read time of a node.
- * @param  object $node     node object to process
+ * @param  object $node     node object to evaluate
  * @param  string $criterion criterion to assemble otherwise all criteria
  * @return array            array of the criteria in question
  */
-function read_time_process_read_time($node, $criterion = NULL) {
+function _read_time_evaluate($node, $criterion = NULL) {
   // assemble criteria
   $criteria = read_time_get_criteria();
-  $read_time = array();
+  $read_time = array('metadata' => array());
+  // pull in the defaults for the user; typically global in scope
+  $defaults = read_time_defaults();
+
+  // Get read time bundle settings.
+  $fields = variable_get('read_time_fields_' . $node->type, $defaults['fields']);
+
+  // Get input data from fields to calculate read time off
+  $field_data = '';
+  foreach ($fields as $field) {
+    $field_items = field_get_items('node', $node, $field);
+    if (is_array($field_items)) {
+      foreach ($field_items as $field_item) {
+        if (isset($field_item['format'])) {
+          $field_data .= check_markup($field_item['value'], $field_item['format']);
+        }
+        else {
+          $field_data .= $field_item['value'];
+        }
+      }
+    }
+  }
   // see if we want one or all criterion
   if (is_null($criterion)) {
     // loop through all criteria and build out
     foreach ($criteria as $key => $callback) {
-      $read_time[$key] = call_user_func_array($callback, array($node, $key));
+      $read_time[$key] = call_user_func_array($callback, array($node, $field_data, $key));
     }
   }
   // ensure this is a valid criterion if singular
   elseif (isset($criteria[$criterion])) {
-    $read_time[$criterion] = call_user_func_array($criteria[$criterion], array($node, $criterion));
+    $read_time[$criterion] = call_user_func_array($criteria[$criterion], array($node, $field_data, $criterion));
   }
-  // allow other projects to process read_time as needed
-  drupal_alter('process_read_time', $read_time, $node, $criterion);
+  // allow other projects to evaluate read_time as needed
+  drupal_alter('read_time_evaluate', $read_time, $node, $field_data);
   return $read_time;
+}
+
+/**
+ * Implements hook_read_time_evaluate_alter().
+ */
+function read_time_read_time_evaluate_alter(&$read_time, $node, $field_data) {
+  $preg = '/<iframe(.*?)>/s';
+  // pregmatch the anchor and title for the heading
+  preg_match_all($preg, $field_data, $results);
+  foreach ($results[0] as $result) {
+    // sniff out youtube
+    if (_read_time_strpos_arr($result, array('youtube', 'youtu.be'))) {
+      $read_time['video']++;
+      if (!isset($read_time['metadata']['youtube'])) {
+        $read_time['metadata']['youtube'] = 0;
+      }
+      $read_time['metadata']['youtube']++;
+    }
+    // sniff out vimeo
+    if (_read_time_strpos_arr($result, array('vimeo'))) {
+      $read_time['video']++;
+      if (!isset($read_time['metadata']['vimeo'])) {
+        $read_time['metadata']['vimeo'] = 0;
+      }
+      $read_time['metadata']['vimeo']++;
+    }
+    // sniff out soundcloud
+    if (_read_time_strpos_arr($result, array('soundcloud'))) {
+      $read_time['audio']++;
+      if (!isset($read_time['metadata']['soundcloud'])) {
+        $read_time['metadata']['soundcloud'] = 0;
+      }
+      $read_time['metadata']['soundcloud']++;
+    }
+  }
+}
+
+/**
+ * Helper function to look for multiple needles in haystack.
+ * @param  string $haystack  string to search in
+ * @param  array $needle     array of strings to search for
+ * @return mixed             position if found, otherwise false
+ */
+function _read_time_strpos_arr($haystack, $needles) {
+  // account for single value
+  if (!is_array($needles)) {
+    $needles = array($needles);
+  }
+  // loop through and a return position if it exists
+  foreach ($needles as $needle) {
+    if (($pos = strpos($haystack, $needle)) !== false) {
+      return $pos;
+    }
+  }
+  return false;
 }
 
 /**
  * Implements hook_node_insert().
  */
 function read_time_node_insert($node) {
-  $read_time = read_time_process_read_time($node);
+  $read_time = _read_time_evaluate($node);
 
   db_insert('read_time')
     ->fields(array(
@@ -172,7 +247,7 @@ function read_time_node_insert($node) {
  * Implements hook_node_update().
  */
 function read_time_node_update($node) {
-  $read_time = read_time_process_read_time($node);
+  $read_time = _read_time_evaluate($node);
 
   db_merge('read_time')
     ->key(array(
@@ -193,9 +268,9 @@ function read_time_node_load($nodes, $types) {
   // timed items that can impact reading.
   foreach ($nodes as $node) {
     $record = db_query('SELECT read_time FROM {read_time} WHERE nid = :nid', array(':nid' => $node->nid))->fetchField();
-    // ensure a record exists
+    // ensure a record exists otherwise build it out now
     if (empty($record)) {
-      $read_time = read_time_process_read_time($node);
+      $read_time = _read_time_evaluate($node);
       db_insert('read_time')
         ->fields(array(
           'nid' => $node->nid,
@@ -222,7 +297,7 @@ function read_time_node_view($node, $view_mode, $langcode) {
   if ($settings['visible']) {
     // Calculate read time if it doesn't exist and save to database.
     if (empty($node->read_time)) {
-      $node->read_time = read_time_process_read_time($node);
+      $node->read_time = _read_time_evaluate($node);
 
       db_merge('read_time')
         ->key(array(
@@ -267,37 +342,14 @@ function read_time_node_type_delete($info) {
 /**
  * Callback to calculate read time for words and media elements.
  */
-function read_time_calculate($node, $criterion = READ_TIME_DEFAULT_CRITERION) {
-  // pull in the defaults for the user; typically global in scope
-  $defaults = read_time_defaults();
-
-  // Get read time bundle settings.
-  $fields = variable_get('read_time_fields_' . $node->type, $defaults['fields']);
-
-  // Get input data from fields to calculate read time off
-  $field_data = '';
-  foreach ($fields as $field) {
-    $field_items = field_get_items('node', $node, $field);
-    if (is_array($field_items)) {
-      foreach ($field_items as $field_item) {
-        $field_data .= $field_item['value'];
-      }
-    }
-  }
-  // process the "words" based on the criterion passed in
+function read_time_calculate($node, $field_data, $criterion = READ_TIME_DEFAULT_CRITERION) {
+  // evaluation the "words" based on the criterion passed in
   switch ($criterion) {
     case 'words':
       // Calculate words by striping all tags; this is easy
       $count = str_word_count(strip_tags($field_data));
-      $context = array(
-        'node' => $node,
-        'results' => array(),
-        'field_data' => $field_data,
-        'criterion' => $criterion,
-      );
     break;
     case 'audio':
-    case 'iframe':
     case 'img':
     case 'svg':
     case 'video':
@@ -306,91 +358,9 @@ function read_time_calculate($node, $criterion = READ_TIME_DEFAULT_CRITERION) {
       // pregmatch the anchor and title for the heading
       preg_match_all($preg, $field_data, $results);
       $count = count($results[0]);
-      $context = array(
-        'node' => $node,
-        'results' => $results,
-        'field_data' => $field_data,
-        'criterion' => $criterion,
-      );
     break;
   }
-  // allow other projects to contextually modify this evaluation prior to storage
-  drupal_alter('read_time_criterion_calculate', $count, $context);
   return $count;
-}
-
-/**
- * Implements hook_read_time_criterion_calculate_alter().
- */
-function read_time_read_time_criterion_calculate_alter(&$count, $context) {
-  $needles = array();
-  // account for video and audio iframe based providers
-  switch ($context['criterion']) {
-    case 'video':
-      drupal_alter('read_time_video_provider', $needles);
-    break;
-    case 'audio':
-      drupal_alter('read_time_audio_provider', $needles);
-    break;
-    case 'iframe':
-      drupal_alter('read_time_video_provider', $needles);
-      drupal_alter('read_time_audio_provider', $needles);
-    break;
-  }
-  // if we have needles, loop through and process
-  if (!empty($needles)) {
-    // redo preg match against iframes to hunt for video / audio
-    $preg = '/<iframe(.*?)>/s';
-    // pregmatch the anchor and title for the heading
-    preg_match_all($preg, $context['field_data'], $results);
-    foreach ($results[0] as $result) {
-      // match against any array elements
-      if (_read_time_strpos_arr($result, $needles)) {
-        if ($context['criterion'] == 'iframe') {
-          $count--;
-        }
-        else {
-          $count++;
-        }
-      }
-    }
-  }
-}
-
-/**
- * Implements hook_read_time_video_provider_alter().
- */
-function read_time_read_time_video_provider_alter(&$needles) {
-  $needles[] = 'youtube';
-  $needles[] = 'youtu.be';
-  $needles[] = 'vimeo';
-}
-
-/**
- * Implements hook_read_time_video_provider_alter().
- */
-function read_time_read_time_audio_provider_alter(&$needles) {
-  $needles[] = 'soundcloud';
-}
-
-/**
- * Helper function to look for multiple needles in haystack.
- * @param  string $haystack  string to search in
- * @param  array $needle     array of strings to search for
- * @return mixed             position if found, otherwise false
- */
-function _read_time_strpos_arr($haystack, $needles) {
-  // account for single value
-  if (!is_array($needles)) {
-    $needles = array($needles);
-  }
-  // loop through and a return position if it exists
-  foreach ($needles as $needle) {
-    if (($pos = strpos($haystack, $needle)) !== false) {
-      return $pos;
-    }
-  }
-  return false;
 }
 
 /**
@@ -417,7 +387,7 @@ function theme_read_time($variables) {
   $display = variable_get('read_time_display_' . $node->type, $defaults['display']);
   $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
 
-  // @todo this needs to be able to process more then just words
+  // @todo this needs to be able to evaluation more then just words
   $words = $node->read_time['words'];
   // convert words into time
   $time = round(($words / $wpm), 3);
@@ -480,7 +450,7 @@ function read_time_entity_property_info_alter(&$info) {
   // this will make it available to Services / RestWS and full Entity Ops
   foreach ($info['node']['bundles'] as $key => &$bundle) {
     $bundle['properties']['read_time_total'] = array(
-      'label' => t("Read time Total"),
+      'label' => t("Read time total"),
       'description' => t("The total read time of all elements in read time"),
       'type' => 'integer',
       'getter callback' => 'read_time_node_get_properties',
@@ -509,8 +479,8 @@ function read_time_node_get_properties($node, array $options, $name) {
       $defaults = read_time_defaults();
       $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
       // mix in children if it is set
-      if (isset($node->read_time['_children'])) {
-        foreach ($node->read_time['_children'] as $key => $value) {
+      if (isset($node->read_time['metadata']['children'])) {
+        foreach ($node->read_time['metadata']['children'] as $key => $value) {
           $node->read_time[$key] += $value;
         }
       }

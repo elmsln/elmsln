@@ -61,8 +61,8 @@ function mooc_foundation_access_read_time($variables) {
   $defaults = read_time_defaults();
   $node = $variables['node'];
   // add in the children element to all totals if they exist
-  if (isset($node->read_time['_children'])) {
-    foreach ($node->read_time['_children'] as $key => $value) {
+  if (isset($node->read_time['metadata']['children'])) {
+    foreach ($node->read_time['metadata']['children'] as $key => $value) {
       $node->read_time[$key] += $value;
     }
   }
@@ -102,7 +102,7 @@ function mooc_foundation_access_read_time($variables) {
   $output = '<div class="read-time-wrapper">';
   // pick out the chips
   foreach ($node->read_time as $key => $value) {
-    if ($value != 0 && $key != 'iframe' && $key != '_children') {
+    if ($value != 0 && $key != 'metadata') {
       $label = '';
       switch ($key) {
         case 'words':

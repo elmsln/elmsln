@@ -7,9 +7,9 @@
  */
 
 /**
- * Implements hook_process_read_time_alter().
+ * Implements hook_read_time_evaluate_alter().
  */
-function read_time_book_process_read_time_alter(&$read_time, $node, $criterion = NULL) {
+function read_time_book_read_time_evaluate_alter(&$read_time, $node, $field_data) {
   // check for book and book association which would be awesome
   // if we could store it for those using outlines of content
   if (isset($node->book) && $node->book['has_children']) {
@@ -37,16 +37,26 @@ function read_time_book_process_read_time_alter(&$read_time, $node, $criterion =
       $nids[] = str_replace('node/', '', $result->link_path);
     }
     if (!empty($nids)) {
-      $read_time['_children'] = array();
+      $read_time['metadata']['children'] = array();
       // load these nodes
       $nodes = node_load_multiple($nids);
       foreach ($nodes as $cnode) {
         foreach ($read_time as $key => $value) {
-          if ($key != '_children') {
-            if (!isset($read_time['_children'][$key])) {
-              $read_time['_children'][$key] = 0;
+          if ($key != 'metadata') {
+            if (!isset($read_time['metadata']['children'][$key])) {
+              $read_time['metadata']['children'][$key] = 0;
             }
-            $read_time['_children'][$key] += $cnode->read_time[$key];
+            $read_time['metadata']['children'][$key] += $cnode->read_time[$key];
+          }
+          else {
+            foreach ($read_time['metadata'] as $meta => $data) {
+              // children handled above
+              if ($meta != 'children') {
+                if (isset($cnode->read_time[$key][$meta])) {
+                  $read_time['metadata'][$key][$meta] += $cnode->read_time[$key][$meta];
+                }
+              }
+            }
           }
         }
       }

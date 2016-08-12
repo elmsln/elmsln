@@ -746,6 +746,41 @@ function mooc_helper_fa_a11y() {
 }
 
 /**
+ * Implements hook_read_time_evaluate_alter().
+ */
+function mooc_helper_read_time_evaluate_alter(&$read_time, $node, $field_data) {
+  $preg = '/<iframe(.*?)>/s';
+  // pregmatch the anchor and title for the heading
+  preg_match_all($preg, $field_data, $results);
+  foreach ($results[0] as $result) {
+    // sniff out youtube
+    if (_read_time_strpos_arr($result, array('elmsmedia_video', 'elmsmedia_external_video'))) {
+      $read_time['video']++;
+      if (!isset($read_time['metadata']['internal'])) {
+        $read_time['metadata']['internal'] = 0;
+      }
+      $read_time['metadata']['internal']++;
+    }
+    if (_read_time_strpos_arr($result, array('elmsmedia_audio'))) {
+      $read_time['audio']++;
+      if (!isset($read_time['metadata']['internal'])) {
+        $read_time['metadata']['internal'] = 0;
+      }
+      $read_time['metadata']['internal']++;
+    }
+    // h5p as interactive stuff under SVG
+    if (_read_time_strpos_arr($result, array('elmsmedia_h5p', 'elmsmedia_svg'))) {
+      $read_time['svg']++;
+      if (!isset($read_time['metadata']['internal'])) {
+        $read_time['metadata']['internal'] = 0;
+      }
+      $read_time['metadata']['internal']++;
+    }
+  }
+}
+
+
+/**
  * Implement hook_ecd_asset_type_alter().
  */
 function mooc_helper_ecd_asset_type_alter(&$type, $node) {
