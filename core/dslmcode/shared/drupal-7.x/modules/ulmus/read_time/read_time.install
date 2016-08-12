@@ -32,6 +32,14 @@ function read_time_schema() {
 }
 
 /**
+ * Implements hook_install().
+ */
+function read_time_install() {
+  // rebuild nodes
+  _read_time_perform_batch_process();
+}
+
+/**
  * Implements hook_uninstall().
  */
 function read_time_uninstall() {
@@ -51,4 +59,5 @@ function read_time_uninstall() {
  */
 function read_time_update_7200(&$sandbox) {
   db_truncate('read_time');
+  _read_time_perform_batch_process();
 }

@@ -139,5 +139,5 @@ function mooc_foundation_access_read_time($variables) {
   }
   $output .= '</div>';
 
-  return $output;
+  return '<span class="read-time">' . $output . '</span>';
 }

@@ -230,20 +230,6 @@ function _read_time_strpos_arr($haystack, $needles) {
 }
 
 /**
- * Implements hook_node_insert().
- */
-function read_time_node_insert($node) {
-  $read_time = _read_time_evaluate($node);
-
-  db_insert('read_time')
-    ->fields(array(
-      'nid' => $node->nid,
-      'read_time' => serialize($read_time),
-    ))
-    ->execute();
-}
-
-/**
  * Implements hook_node_update().
  */
 function read_time_node_update($node) {
@@ -271,9 +257,11 @@ function read_time_node_load($nodes, $types) {
     // ensure a record exists otherwise build it out now
     if (empty($record)) {
       $read_time = _read_time_evaluate($node);
-      db_insert('read_time')
-        ->fields(array(
+      db_merge('read_time')
+        ->key(array(
           'nid' => $node->nid,
+        ))
+        ->fields(array(
           'read_time' => serialize($read_time),
         ))
         ->execute();
@@ -293,29 +281,13 @@ function read_time_node_view($node, $view_mode, $langcode) {
   // Get read time field settings.
   $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
   $settings = $display_settings['read_time'];
-  // make sure this is visible first
-  if ($settings['visible']) {
-    // Calculate read time if it doesn't exist and save to database.
-    if (empty($node->read_time)) {
-      $node->read_time = _read_time_evaluate($node);
-
-      db_merge('read_time')
-        ->key(array(
-          'nid' => $node->nid,
-        ))
-        ->fields(array(
-          'read_time' => serialize($node->read_time),
-        ))
-        ->execute();
-    }
-    // make sure we want to render out with nodes in this way globally
-    if (variable_get('read_time_node_view_' . $node->type, TRUE)) {
-      // Display read time with node.
-      $node->content['read_time'] = array(
-        '#markup' => '<span class="read-time">' . theme('read_time', array('node' => $node)) . '</span>',
-        '#weight' => $settings['weight'],
-      );
-    }
+  // make sure this is visible
+  if ($settings['visible'] && variable_get('read_time_node_view_' . $node->type, TRUE)) {
+    // Display read time with node.
+    $node->content['read_time'] = array(
+      '#markup' => theme('read_time', array('node' => $node)),
+      '#weight' => $settings['weight'],
+    );
   }
 }
 
@@ -337,6 +309,32 @@ function read_time_node_type_delete($info) {
   variable_del('read_time_format_' . $info->type);
   variable_del('read_time_display_' . $info->type);
   variable_del('read_time_node_view_' . $info->type);
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function read_time_block_info() {
+  $blocks['read_time'] = array(
+    'info' => t('Read time'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function read_time_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'read_time':
+      $block['subject'] = t('Read time');
+      $node = menu_get_object('node');
+      $block['content'] = theme('read_time', array('node' => $node));
+      break;
+  }
+  return $block;
 }
 
 /**
@@ -417,7 +415,7 @@ function theme_read_time($variables) {
     $read_time = $minute_format;
   }
 
-  return check_plain(str_replace('%read_time', $read_time, $display));
+  return '<span class="read-time">' . check_plain(str_replace('%read_time', $read_time, $display)) . '</span>';
 }
 
 /**
@@ -502,4 +500,79 @@ function read_time_node_get_properties($node, array $options, $name) {
       return NULL;
     break;
   }
+}
+
+/**
+ * Triggers the batch operation for updating nodes.
+ */
+function _read_time_perform_batch_process() {
+  $batch = array(
+    'title' => t('Updating existing nodes with read time data'),
+    'init_message' => t('Preparing to update entities..'),
+    'progress_message' => t('Processed @current out of @total items.'),
+    'operations' => array(
+      array('_read_time_analyze_existing_nodes', array()),
+    ),
+    'finished' => '_read_time_perform_batch_process_complete',
+  );
+  batch_set($batch);
+}
+
+/**
+ * BatchAPI complete callback for getID3 import.
+ */
+function _read_time_perform_batch_process_complete($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('Read time node data updated @count nodes successfully.', array('@count' => count($results))));
+  }
+  else {
+    drupal_set_message(theme('item_list', array('items' => $results['errors'])), 'error');
+  }
+}
+
+/**
+ * Performs batch operations to update existing nodes entity metadata.
+ *
+ * @param $context
+ * @return null|string
+ */
+function _read_time_analyze_existing_nodes(&$context) {
+  // set a flag so we can block other projects from looping infinitely
+  // on a major rebuild routine
+  // Little workaround so update hook and can use same batch.
+  if (isset($context['sandbox'])) {
+    $sandbox =& $context['sandbox'];
+  }
+  else {
+    $sandbox =& $context;
+  }
+
+  // Lets update 10 nodes at a time.
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['current_nid'] = 0;
+    // We only select files that are not in the getid3_meta table.
+    $sandbox['max'] = db_query('SELECT COUNT(nid) FROM {node} n WHERE n.status=1')->fetchField();
+  }
+
+  $query = db_select('node', 'n')
+    ->fields('n', array('nid'))
+    ->condition('nid', $sandbox['current_nid'], '>')
+    ->condition('status', 1, '=')
+    ->range(0, 10)
+    ->orderBy('nid', 'ASC');
+  $nodes = $query->execute()->fetchAll();
+  foreach ($nodes as $tmp) {
+    // We just need to load the node to initiate it.
+    $node = node_load($tmp->nid);
+    // Update batch
+    $sandbox['progress']++;
+    $context['results'][] = $node->nid;
+    $sandbox['current_nid'] = $node->nid;
+  }
+
+  $context['message'] = t('Parsing read time of @current out of @max nodes', array('@current' => count($context['results']), '@max' => $sandbox['max']));
+  // Let Batch API or upgrade hook know if this batch set is completed.
+  $context['finished'] = empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max']);
+  $sandbox['#finished'] = $context['finished'];
 }
