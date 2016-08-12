@@ -298,3 +298,41 @@ function theme_getid3_sample_rate($variables) {
 function theme_getid3_bitrate($variables) {
   return t('@bitrateKbps', array('@bitrate' => (int) ($variables['bitrate'] / 1000)));
 }
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function getid3_entity_property_info() {
+  // load up the properties we know about
+  $properties = array(
+    'duration' => 'duration',
+    'width' => 'integer',
+    'height' => 'integer',
+    'audio_format' => 'text',
+    'audio_sample_rate' => 'integer',
+    'audio_channel_mode' => 'text',
+    'audio_bitrate' => 'decimal',
+    'audio_bitrate_mode' => 'text',
+  );
+  foreach ($properties as $property => $type) {
+    $info['file']['properties'][$property] = array(
+      'label' => t('Getid3 @id', array('@id' => $property)),
+      'description' => t('@id read off the file', array('@id' => $property)),
+      'type' => $type,
+      'getter callback' => 'getid3_file_get_properties',
+      'computed' => TRUE,
+    );
+  }
+  return $info;
+}
+
+/**
+ * Callback for getting read_time properties.
+ * @see read_time_entity_property_info_alter()
+ */
+function getid3_file_get_properties($file, array $options, $name) {
+  if (isset($file->metadata[$name])) {
+    return $file->metadata[$name];
+  }
+  return NULL;
+}
