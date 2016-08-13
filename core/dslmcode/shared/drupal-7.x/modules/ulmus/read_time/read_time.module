@@ -175,61 +175,6 @@ function _read_time_evaluate($node, $criterion = NULL) {
 }
 
 /**
- * Implements hook_read_time_evaluate_alter().
- */
-function read_time_read_time_evaluate_alter(&$read_time, $node, $field_data) {
-  $preg = '/<iframe(.*?)>/s';
-  // pregmatch iframe tags
-  preg_match_all($preg, $field_data, $results);
-  foreach ($results[0] as $result) {
-    // sniff out youtube
-    if (_read_time_strpos_arr($result, array('youtube', 'youtu.be'))) {
-      $read_time['video']++;
-      if (!isset($read_time['metadata']['video']['youtube'])) {
-        $read_time['metadata']['video']['youtube'] = 0;
-      }
-      $read_time['metadata']['video']['youtube']++;
-    }
-    // sniff out vimeo
-    if (_read_time_strpos_arr($result, array('vimeo'))) {
-      $read_time['video']++;
-      if (!isset($read_time['metadata']['video']['vimeo'])) {
-        $read_time['metadata']['video']['vimeo'] = 0;
-      }
-      $read_time['metadata']['video']['vimeo']++;
-    }
-    // sniff out soundcloud
-    if (_read_time_strpos_arr($result, array('soundcloud'))) {
-      $read_time['audio']++;
-      if (!isset($read_time['metadata']['audio']['soundcloud'])) {
-        $read_time['metadata']['audio']['soundcloud'] = 0;
-      }
-      $read_time['metadata']['audio']['soundcloud']++;
-    }
-  }
-}
-
-/**
- * Helper function to look for multiple needles in haystack.
- * @param  string $haystack  string to search in
- * @param  array $needle     array of strings to search for
- * @return mixed             position if found, otherwise false
- */
-function _read_time_strpos_arr($haystack, $needles) {
-  // account for single value
-  if (!is_array($needles)) {
-    $needles = array($needles);
-  }
-  // loop through and a return position if it exists
-  foreach ($needles as $needle) {
-    if (($pos = strpos($haystack, $needle)) !== false) {
-      return $pos;
-    }
-  }
-  return false;
-}
-
-/**
  * Implements hook_node_update().
  */
 function read_time_node_update($node) {
@@ -329,9 +274,12 @@ function read_time_block_view($delta = '') {
   $block = array();
   switch ($delta) {
     case 'read_time':
-      $block['subject'] = t('Read time');
+      // need an object in order to function
       $node = menu_get_object('node');
-      $block['content'] = theme('read_time', array('node' => $node));
+      if (!empty($node)) {
+        $block['subject'] = t('Read time');
+        $block['content'] = theme('read_time', array('node' => $node));
+      }
       break;
   }
   return $block;
@@ -575,4 +523,24 @@ function _read_time_analyze_existing_nodes(&$context) {
   // Let Batch API or upgrade hook know if this batch set is completed.
   $context['finished'] = empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max']);
   $sandbox['#finished'] = $context['finished'];
+}
+
+/**
+ * Helper function to look for multiple needles in haystack.
+ * @param  string $haystack  string to search in
+ * @param  array $needle     array of strings to search for
+ * @return mixed             position if found, otherwise false
+ */
+function _read_time_strpos_arr($haystack, $needles) {
+  // account for single value
+  if (!is_array($needles)) {
+    $needles = array($needles);
+  }
+  // loop through and a return position if it exists
+  foreach ($needles as $needle) {
+    if (($pos = strpos($haystack, $needle)) !== false) {
+      return $pos;
+    }
+  }
+  return false;
 }

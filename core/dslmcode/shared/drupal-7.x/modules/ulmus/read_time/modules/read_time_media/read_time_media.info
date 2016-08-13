@@ -1,0 +1,4 @@
+name = Read time : External Media
+description = "Adds in support for vimeo, youtube, and soundcloud when calculating duration."
+core = 7.x
+dependencies[] = read_time

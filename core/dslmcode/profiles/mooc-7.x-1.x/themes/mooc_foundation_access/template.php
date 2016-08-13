@@ -110,6 +110,20 @@ function mooc_foundation_access_read_time($variables) {
           $icon = '<i class="tiny material-icons">library_books</i>';
         break;
         case 'audio':
+          $label = t('Audio');
+          $value .= ' ' . $label;
+          // support for duration if we've got it assembled
+          if (isset($node->read_time['metadata']['audio']['duration'])) {
+            if ($node->read_time['metadata']['audio']['duration'] < 60) {
+              $value .= ' ' . t('(@duration sec)', array('@duration' => $node->read_time['metadata']['audio']['duration']));
+            }
+            elseif ($node->read_time['metadata']['audio']['duration'] < 3600) {
+              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($node->read_time['metadata']['audio']['duration'] / 60), 1)));
+            }
+            else {
+              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($node->read_time['metadata']['audio']['duration'] / 3600), 1)));
+            }
+          }
           $icon = '<i class="tiny material-icons">library_music</i>';
         break;
         case 'iframe':
@@ -128,6 +142,18 @@ function mooc_foundation_access_read_time($variables) {
         case 'video':
           $label = t('Video');
           $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
+          // support for duration if we've got it assembled
+          if (isset($node->read_time['metadata']['video']['duration'])) {
+            if ($node->read_time['metadata']['video']['duration'] < 60) {
+              $value .= ' ' . t('(@duration sec)', array('@duration' => $node->read_time['metadata']['video']['duration']));
+            }
+            elseif ($node->read_time['metadata']['video']['duration'] < 3600) {
+              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($node->read_time['metadata']['video']['duration'] / 60), 1)));
+            }
+            else {
+              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($node->read_time['metadata']['video']['duration'] / 3600), 1)));
+            }
+          }
           $icon = '<i class="tiny material-icons">video_library</i>';
         break;
         default:
