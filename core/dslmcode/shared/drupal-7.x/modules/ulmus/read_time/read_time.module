@@ -10,6 +10,18 @@ define('READ_TIME_DEFAULT_CRITERION', 'words');
 define('READ_TIME_IMAGE', 12);
 
 /**
+ * Implements hook_permission().
+ */
+function read_time_permission() {
+  return array(
+    'view read time' =>  array(
+      'title' => t('View read time'),
+      'description' => t('Show users the read time statistics pulled off files.'),
+    ),
+  );
+}
+
+/**
  * Implements hook_form_FORM_ID_alter() for node_type_form.
  */
 function read_time_form_node_type_form_alter(&$form, &$form_state, $form_id) {
@@ -227,7 +239,7 @@ function read_time_node_view($node, $view_mode, $langcode) {
   $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
   $settings = $display_settings['read_time'];
   // make sure this is visible
-  if ($settings['visible'] && variable_get('read_time_node_view_' . $node->type, TRUE)) {
+  if (user_access('view read time') && $settings['visible'] && variable_get('read_time_node_view_' . $node->type, TRUE)) {
     // Display read time with node.
     $node->content['read_time'] = array(
       '#markup' => theme('read_time', array('node' => $node)),
@@ -274,11 +286,13 @@ function read_time_block_view($delta = '') {
   $block = array();
   switch ($delta) {
     case 'read_time':
-      // need an object in order to function
-      $node = menu_get_object('node');
-      if (!empty($node)) {
-        $block['subject'] = t('Read time');
-        $block['content'] = theme('read_time', array('node' => $node));
+      if (user_access('view read time')) {
+        // need an object in order to function
+        $node = menu_get_object('node');
+        if (!empty($node)) {
+          $block['subject'] = t('Read time');
+          $block['content'] = theme('read_time', array('node' => $node));
+        }
       }
       break;
   }
