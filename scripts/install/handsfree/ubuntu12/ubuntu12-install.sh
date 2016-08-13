@@ -22,7 +22,7 @@ start="$(timestamp)"
 apt-get update -y
 export DEBIAN_FRONTEND=noninteractive
 # using apt-get to install the main packages
-apt-get -y install uuid curl policycoreutils php5-mysql mysql-server patch git nano gcc make apache2 libapache2-mod-fastcgi apache2-mpm-event libapache2-mod-php5 php5 php5-fpm php5-common php-xml-parser php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear php5-dev php5-mcrypt mcrypt php5-gd
+apt-get -y install uuid curl policycoreutils php5-mysql mysql-server patch git nano gcc make apache2 libapache2-mod-fastcgi apache2-mpm-prefork libapache2-mod-php5 php5 php5-fpm php5-common php-xml-parser php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear php5-dev php5-mcrypt mcrypt php5-gd
 
 # enable apache headers
 a2enmod ssl rewrite headers
@@ -47,9 +47,8 @@ EOF
 
 # Put fastcgi in place, disable mod_php, use event for systems that don't need cosign and restart apache. 
 a2enmod actions fastcgi alias
-a2dismod mpm_prefork php5
+a2dismod php5
 a2enconf php5-fpm
-a2enmod mpm_event
 service apache2 restart
 
 # adding uploadprogresss to php conf files
