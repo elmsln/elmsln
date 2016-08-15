@@ -1,38 +1,39 @@
 <div ng-app="cleDashboard" ng-controller="cleAssignmentsController" class="cle-dashboard">
   <div class="collection with-header">
     <div class="collection-header"><h3>My Assignments</h3></div>
-    <a class="cle-dashboard__assignment" href="{{basePath}}node/{{assignment.nid}}" ng-repeat="assignment in data.assignments" ng-if="assignment.nid" ng-cloak>
-      <div class="collapsible-header">
-        <i class="material-icons">assignment</i>
-        <b>{{assignment.node_title}}</b>
-        <div class="secondary-content">
-          <span class="chip" ng-if="assignment.active"> Open For Submissions </span>
-          <span class="chip" ng-if="assignment.closed"> Closed </span>
-          <span class="chip completed" ng-if="assignment.completed">  Done <i class="material-icons">check</i></span>
+    <div ng-repeat="assignment in data.assignments">
+      <a class="cle-dashboard__assignment" href="{{basePath}}node/{{assignment.nid}}"  ng-if="assignment.nid" ng-cloak>
+        <div class="collapsible-header">
+          <i class="material-icons">assignment</i>
+          <b>{{assignment.node_title}}</b>
+          <div class="secondary-content">
+            <span class="chip" ng-if="assignment.active"> Open For Submissions </span>
+            <span class="chip" ng-if="assignment.closed"> Closed </span>
+            <span class="chip completed" ng-if="assignment.completed">  Done <i class="material-icons">check</i></span>
+          </div>
+          <div class="post-date">
+            <span> Due: </span>
+            <span ng-bind-html="assignment.field_field_begin_date[0].rendered['#markup']"> to</span>  <span ng-bind-html="assignment.field_field_due_date[0].rendered['#markup']"></span>
+          </div>
         </div>
-        <div class="post-date">
-          <span> Due: </span>
-          <span ng-bind-html="assignment.field_field_begin_date[0].rendered['#markup']"> to</span>  <span ng-bind-html="assignment.field_field_due_date[0].rendered['#markup']"></span>
+      </a>
+      <a class="cle-dashboard__critique" href="{{assignment.critique.url}}" ng-if="assignment.critique" ng-if="assignment.nid" ng-cloak>
+        <div class="collapsible-header">
+          <i class="material-icons">subdirectory_arrow_right</i>
+          <b>{{assignment.node_title}} Peer Review</b>
+          <i class="material-icons right-align">comment</i>
+          <div class="secondary-content">
+            <span class="chip completed" ng-if="assignment.critique.completed"> <i class="material-icons">check</i> Done </span>
+          </div>
+          <div class="meta-content">
+          </div>
+          <div class="post-date">
+            <span> Due: </span>
+            <span ng-bind-html="assignment.field_field_critique_date[0].rendered['#markup']">  </span>
+          </div>
         </div>
-      </div>
-    </a>
-
-    <a class="cle-dashboard__critique" href="{{assignment.critique.url}}" ng-repeat="assignment in data.assignments" ng-if="assignment.critique" ng-if="assignment.nid" ng-cloak>
-      <div class="collapsible-header">
-        <i class="material-icons">subdirectory_arrow_right</i>
-        <b>{{assignment.node_title}} Peer Review</b>
-        <i class="material-icons right-align">comment</i>
-        <div class="secondary-content">
-          <span class="chip completed" ng-if="assignment.critique.completed"> <i class="material-icons">check</i> Done </span>
-        </div>
-        <div class="meta-content">
-        </div>
-        <div class="post-date">
-          <span> Due: </span>
-          <span ng-bind-html="assignment.field_field_critique_date[0].rendered['#markup']">  </span>
-        </div>
-      </div>
-    </a>
+      </a>
+    </div>
   </div>
 
   <div class="collection with-header">
