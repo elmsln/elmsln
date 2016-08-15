@@ -70,18 +70,21 @@ function read_time_book_read_time_evaluate_alter(&$read_time, $node, $field_data
  * Implements hook_node_insert().
  */
 function read_time_book_node_insert($node) {
-  // rebuild everyone above here
-  for ($i = $node->book['depth']; $i>0; $i--) {
-    if ($node->book['p' . $i] != 0 && $node->book['p' . $i] != $node->book['mlid']) {
-      $item = menu_link_load($node->book['p' . $i]);
-      if (!empty($item)) {
-        $nid = str_replace('node/', '', $item['link_path']);
-        $num_deleted = db_delete('read_time')
-          ->condition('nid', $nid)
-          ->execute();
-        // frag the node cache so we see this immediately
-        if (module_exists('entitycache')) {
-          cache_clear_all($nid, 'cache_entity_node');
+  // rebuild if we have to / should; this is an intensive operation
+  if (isset($node->book) && variable_get('read_time_node_view_' . $node->type, TRUE)) {
+    // rebuild everyone above here
+    for ($i = $node->book['depth']; $i>0; $i--) {
+      if ($node->book['p' . $i] != 0 && $node->book['p' . $i] != $node->book['mlid']) {
+        $item = menu_link_load($node->book['p' . $i]);
+        if (!empty($item)) {
+          $nid = str_replace('node/', '', $item['link_path']);
+          $num_deleted = db_delete('read_time')
+            ->condition('nid', $nid)
+            ->execute();
+          // frag the node cache so we see this immediately
+          if (module_exists('entitycache')) {
+            cache_clear_all($nid, 'cache_entity_node');
+          }
         }
       }
     }
@@ -92,18 +95,21 @@ function read_time_book_node_insert($node) {
  * Implements hook_node_update().
  */
 function read_time_book_node_update($node) {
-  // rebuild everyone above here
-  for ($i = $node->book['depth']; $i>0; $i--) {
-    if ($node->book['p' . $i] != 0 && $node->book['p' . $i] != $node->book['mlid']) {
-      $item = menu_link_load($node->book['p' . $i]);
-      if (!empty($item)) {
-        $nid = str_replace('node/', '', $item['link_path']);
-        $num_deleted = db_delete('read_time')
-          ->condition('nid', $nid)
-          ->execute();
-        // frag the node cache so we see this immediately
-        if (module_exists('entitycache')) {
-          cache_clear_all($nid, 'cache_entity_node');
+  // rebuild if we have to / should; this is an intensive operation
+  if (isset($node->book) && variable_get('read_time_node_view_' . $node->type, TRUE) && $node->read_time_changed) {
+    // rebuild everyone above here
+    for ($i = $node->book['depth']; $i>0; $i--) {
+      if ($node->book['p' . $i] != 0 && $node->book['p' . $i] != $node->book['mlid']) {
+        $item = menu_link_load($node->book['p' . $i]);
+        if (!empty($item)) {
+          $nid = str_replace('node/', '', $item['link_path']);
+          $num_deleted = db_delete('read_time')
+            ->condition('nid', $nid)
+            ->execute();
+          // frag the node cache so we see this immediately
+          if (module_exists('entitycache')) {
+            cache_clear_all($nid, 'cache_entity_node');
+          }
         }
       }
     }

@@ -6,6 +6,43 @@
 
 include_once 'mooc_content_theming.features.inc';
 
+
+/**
+ * Implements hook_node_presave().
+ */
+function mooc_content_theming_node_presave($node) {
+  // make sure this is a book or in a book and not a new one
+  if (!empty($node->book['bid']) && $node->book['bid'] != 'new') {
+    $cid = '';
+    // need to load the full link cause book populates this later
+    $link = menu_link_load($node->book['mlid']);
+    for ($i = 0; $i< $link['depth']; $i++) {
+      if ($link['p' . ($i+1)] != 0) {
+        $cid .= ':' . $link['p' . ($i+1)];
+      }
+    }
+    _mooc_helper_book_nav_cache_clear('content-theming-banner' . $cid, TRUE);
+    _mooc_helper_book_nav_cache_clear('content-theming-colors' . $cid, TRUE);
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function mooc_content_theming_node_delete($node) {
+  // make sure this is a book or in a book and not a new one
+  if (!empty($node->book['bid'])) {
+    $cid = '';
+    for ($i = 0; $i< $node->book['depth']; $i++) {
+      if ($node->book['p' . ($i+1)] != 0) {
+        $cid .= ':' . $node->book['p' . ($i+1)];
+      }
+    }
+    _mooc_helper_book_nav_cache_clear('content-theming-banner' . $cid, TRUE);
+    _mooc_helper_book_nav_cache_clear('content-theming-colors' . $cid, TRUE);
+  }
+}
+
 /**
  * Implements hook_block_info().
  */
@@ -38,96 +75,142 @@ function _mooc_content_theming_banner_block() {
   // try to get node from active menu item
   $node = menu_get_object();
   if (isset($node->book)) {
-    // easiest use-case, this has a banner image
-    if (isset($node->field_mooc_image) && !empty($node->field_mooc_image)) {
-      $image_uri = $node->field_mooc_image['und'][0]['uri'];
-      // fallbacks for missing alt info
-      if (isset($node->field_mooc_image['und'][0]['alt']) && !empty($node->field_mooc_image['und'][0]['alt'])) {
-        $alt = $node->field_mooc_image['und'][0]['alt'];
+    $cid = 'content-theming-banner';
+    for ($i = 0; $i< $node->book['depth']; $i++) {
+      if ($node->book['p' . ($i+1)] != 0) {
+        $cid .= ':' . $node->book['p' . ($i+1)];
       }
-      else {
-        $alt = t('@title banner', array('@title' => $node->title));
-      }
-      // fallbacks for missing title info
-      if (isset($node->field_mooc_image['und'][0]['title']) && !empty($node->field_mooc_image['und'][0]['title'])) {
-        $title = $node->field_mooc_image['und'][0]['title'];
-        $cite = "<cite class=\"mooc-logo-title image__cite\">$title</cite>";
-      }
-      else {
-        $title = $node->title;
-        $cite = '';
-      }
-      // build the image
-      $image = theme('image_style', array(
-        'style_name' => 'mooc_content_banner',
-        'path' => $image_uri,
-        'alt' => strip_tags($alt),
-        'title' => strip_tags($title),
-        'attributes' => array(
-          'class' => array('logo', 'mooc-banner-image'),
-        ),
-      ));
-      // return with correct title / alt wrapper
-      return "
-      <div class=\"mooc-banner-image-wrapper\">
-        <div class=\"parallax-container\">
-          <div class=\"parallax\">
-            $image
-          </div>
-        </div>
-        $cite
-      </div>";
+    }
+    $data = &drupal_static(__FUNCTION__ . $cid);
+    // @ignore druplart_conditional_assignment
+    if (!$data && $cache = cache_get($cid, 'cache_mooc_helper_book_nav')) {
+      // this area is assembled html so we don't have to render again even
+      return $cache->data;
     }
     else {
-      // spider back up through parents til we find a match
-      $plid = $node->book['plid'];
-      while ($plid != 0) {
-        $pmenu = book_link_load($plid);
-        $parent = node_load($pmenu['nid']);
-        // check that it has the image field set
-        if (empty($parent->field_mooc_image)) {
-          // keep going
-          $plid = $parent->book['plid'];
+      // easiest use-case, this has a banner image
+      if (isset($node->field_mooc_image) && !empty($node->field_mooc_image)) {
+        $image_uri = $node->field_mooc_image['und'][0]['uri'];
+        // fallbacks for missing alt info
+        if (isset($node->field_mooc_image['und'][0]['alt']) && !empty($node->field_mooc_image['und'][0]['alt'])) {
+          $alt = $node->field_mooc_image['und'][0]['alt'];
         }
         else {
-          $image_uri = $parent->field_mooc_image['und'][0]['uri'];
-          // fallbacks for missing alt info
-          if (isset($parent->field_mooc_image['und'][0]['alt']) && !empty($parent->field_mooc_image['und'][0]['alt'])) {
-            $alt = $parent->field_mooc_image['und'][0]['alt'];
-          }
-          else {
-            $alt = t('@title banner', array('@title' => $parent->title));
-          }
-          // fallbacks for missing title info
-          if (isset($parent->field_mooc_image['und'][0]['title']) && !empty($parent->field_mooc_image['und'][0]['title'])) {
-            $title = $parent->field_mooc_image['und'][0]['title'];
-            $cite = "<cite class=\"mooc-logo-title image__cite\">$title</cite>";
-          }
-          else {
-            $title = $parent->title;
-            $cite = '';
-          }
-          // build the image
-          $image = theme('image_style', array(
-            'style_name' => 'mooc_content_banner',
-            'path' => $image_uri,
-            'alt' => strip_tags($alt),
-            'title' => strip_tags($title),
-            'attributes' => array(
-              'class' => array('logo', 'mooc-banner-image'),
-            ),
-          ));
-          // return with correct title / alt wrapper
-          return "
-          <div class=\"mooc-banner-image-wrapper\">
-            <div class=\"parallax-container\">
-              <div class=\"parallax\">
-                $image
-              </div>
-            </div>
-            $cite
-          </div>";
+          $alt = t('@title banner', array('@title' => $node->title));
         }
+        // fallbacks for missing title info
+        if (isset($node->field_mooc_image['und'][0]['title']) && !empty($node->field_mooc_image['und'][0]['title'])) {
+          $title = $node->field_mooc_image['und'][0]['title'];
+          $cite = "<cite class=\"mooc-logo-title image__cite\">$title</cite>";
+        }
+        else {
+          $title = $node->title;
+          $cite = '';
+        }
+        // build the image
+        $image = theme('image_style', array(
+          'style_name' => 'mooc_content_banner',
+          'path' => $image_uri,
+          'alt' => strip_tags($alt),
+          'title' => strip_tags($title),
+          'attributes' => array(
+            'class' => array('logo', 'mooc-banner-image'),
+          ),
+        ));
+        // return with correct title / alt wrapper, cache for later
+        $output = "
+        <div class=\"mooc-banner-image-wrapper\">
+          <div class=\"parallax-container\">
+            <div class=\"parallax\">
+              $image
+            </div>
+          </div>
+          $cite
+        </div>";
+        cache_set($cid, $output, 'cache_mooc_helper_book_nav');
+        return $output;
+      }
+      else {
+        // spider back up through parents til we find a match
+        $plid = $node->book['plid'];
+        while ($plid != 0) {
+          $pmenu = book_link_load($plid);
+          $parent = node_load($pmenu['nid']);
+          // check that it has the image field set
+          if (empty($parent->field_mooc_image)) {
+            // keep going
+            $plid = $parent->book['plid'];
+          }
+          else {
+            $image_uri = $parent->field_mooc_image['und'][0]['uri'];
+            // fallbacks for missing alt info
+            if (isset($parent->field_mooc_image['und'][0]['alt']) && !empty($parent->field_mooc_image['und'][0]['alt'])) {
+              $alt = $parent->field_mooc_image['und'][0]['alt'];
+            }
+            else {
+              $alt = t('@title banner', array('@title' => $parent->title));
+            }
+            // fallbacks for missing title info
+            if (isset($parent->field_mooc_image['und'][0]['title']) && !empty($parent->field_mooc_image['und'][0]['title'])) {
+              $title = $parent->field_mooc_image['und'][0]['title'];
+              $cite = "<cite class=\"mooc-logo-title image__cite\">$title</cite>";
+            }
+            else {
+              $title = $parent->title;
+              $cite = '';
+            }
+            // build the image
+            $image = theme('image_style', array(
+              'style_name' => 'mooc_content_banner',
+              'path' => $image_uri,
+              'alt' => strip_tags($alt),
+              'title' => strip_tags($title),
+              'attributes' => array(
+                'class' => array('logo', 'mooc-banner-image'),
+              ),
+            ));
+            // return with correct title / alt wrapper, cache for later
+            $output = "
+            <div class=\"mooc-banner-image-wrapper\">
+              <div class=\"parallax-container\">
+                <div class=\"parallax\">
+                  $image
+                </div>
+              </div>
+              $cite
+            </div>";
+            // now set everything up the tree as well to help those items be cached too
+            $parts = explode(':', $cid);
+            foreach ($parts as $part) {
+              if ($part != $plid && $part != 0) {
+                $tmp = implode(':', $parts);
+                cache_set($tmp, $output, 'cache_mooc_helper_book_nav');
+                $val = array_pop($parts);
+                if ($val == $plid) {
+                  return $output;
+                }
+              }
+            }
+            return $output;
+          }
+        }
+        // may seem silly but cache nothing, this prevents future
+        // calls from attempting to calculate that there's nothing
+        // that we can cache :)
+        $output = '';
+        // now set everything up the tree as well to help those items be cached too
+        $parts = explode(':', $cid);
+        foreach ($parts as $part) {
+          if ($part != $plid && $part != 0) {
+            $tmp = implode(':', $parts);
+            cache_set($tmp, $output, 'cache_mooc_helper_book_nav');
+            $val = array_pop($parts);
+            if ($val == $plid) {
+              return $output;
+            }
+          }
+        }
+        return $output;
       }
     }
   }
@@ -163,24 +246,63 @@ function mooc_content_theming_foundation_access_colors_alter(&$color, $current) 
   $node = menu_get_object('node');
   // allow pages to pass their styling down
   if (isset($node) && $node->type == 'page' && isset($node->{'field_fa_' . $current . '_color'})) {
-    if (!empty($node->{'field_fa_' . $current . '_color'})) {
-      $color = $node->{'field_fa_' . $current . '_color'}[LANGUAGE_NONE][0]['jquery_colorpicker'];
+    $cid = 'content-theming-colors';
+    for ($i = 0; $i< $node->book['depth']; $i++) {
+      if ($node->book['p' . ($i+1)] != 0) {
+        $cid .= ':' . $node->book['p' . ($i+1)];
+      }
     }
-    elseif (isset($node->book)) {
-      // spider back up through parents til we find a match
-      $plid = $node->book['plid'];
-      while ($plid != 0) {
-        $pmenu = book_link_load($plid);
-        $parent = node_load($pmenu['nid']);
-        // check that it has the image field set
-        if (empty($parent->{'field_fa_' . $current . '_color'})) {
-          // keep going
-          $plid = $parent->book['plid'];
+    $data = &drupal_static(__FUNCTION__ . $cid);
+    // @ignore druplart_conditional_assignment
+    if (!$data && $cache = cache_get($cid, 'cache_mooc_helper_book_nav')) {
+      // this area is assembled html so we don't have to render again even
+      $color = $cache->data;
+    }
+    else {
+      if (!empty($node->{'field_fa_' . $current . '_color'})) {
+        $color = $node->{'field_fa_' . $current . '_color'}[LANGUAGE_NONE][0]['jquery_colorpicker'];
+        cache_set($cid, $color, 'cache_mooc_helper_book_nav');
+      }
+      elseif (isset($node->book)) {
+        // spider back up through parents til we find a match
+        $plid = $node->book['plid'];
+        $cache_match = FALSE;
+        while ($plid != 0) {
+          $pmenu = book_link_load($plid);
+          $parent = node_load($pmenu['nid']);
+          // check that it has the image field set
+          if (empty($parent->{'field_fa_' . $current . '_color'})) {
+            // keep going
+            $plid = $parent->book['plid'];
+          }
+          else {
+            // use this one, we always use the closest parent we find
+            $color = $parent->{'field_fa_' . $current . '_color'}[LANGUAGE_NONE][0]['jquery_colorpicker'];
+            // now set everything up the tree as well to help those items be cached too
+            $parts = explode(':', $cid);
+            $val = '';
+            foreach ($parts as $part) {
+              if ($val != $plid && $part != $plid && $part != 0) {
+                $tmp = implode(':', $parts);
+                cache_set($tmp, $color, 'cache_mooc_helper_book_nav');
+                $val = array_pop($parts);
+                $cache_match = TRUE;
+              }
+            }
+            $plid = 0;
+          }
         }
-        else {
-          // use this one, we always use the closest parent we find
-          $color = $parent->{'field_fa_' . $current . '_color'}[LANGUAGE_NONE][0]['jquery_colorpicker'];
-          $plid = 0;
+        // no cache match, go all the way with whatever the current is
+        if (!$cache_match) {
+          // now set everything up the tree as well to help those items be cached too
+          $parts = explode(':', $cid);
+          foreach ($parts as $part) {
+            if (is_numeric($part)) {
+              $tmp = implode(':', $parts);
+              cache_set($tmp, $color, 'cache_mooc_helper_book_nav');
+              $val = array_pop($parts);
+            }
+          }
         }
       }
     }

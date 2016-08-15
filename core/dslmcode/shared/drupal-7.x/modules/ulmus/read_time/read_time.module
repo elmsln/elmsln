@@ -190,16 +190,28 @@ function _read_time_evaluate($node, $criterion = NULL) {
  * Implements hook_node_update().
  */
 function read_time_node_update($node) {
-  $read_time = _read_time_evaluate($node);
-
-  db_merge('read_time')
-    ->key(array(
-      'nid' => $node->nid,
-    ))
-    ->fields(array(
-      'read_time' => serialize($read_time),
-    ))
-    ->execute();
+  // see if there's currently a value for this, there should be
+  if ($read_time_old = _read_time_get_read_time($node->nid)) {
+    // compare it to the new one if we fresh calculate if
+    $read_time = _read_time_evaluate($node);
+    // only change the value if its different upon calculation
+    if ($read_time != $read_time_old) {
+        db_merge('read_time')
+      ->key(array(
+        'nid' => $node->nid,
+      ))
+      ->fields(array(
+        'read_time' => serialize($read_time),
+      ))
+      ->execute();
+      // set a flag so other things know this changed
+      $node->read_time_changed = TRUE;
+    }
+    else {
+      // set a flag saying this hasn't changed
+      $node->read_time_changed = FALSE;
+    }
+  }
 }
 
 /**
@@ -210,7 +222,7 @@ function read_time_node_load($nodes, $types) {
   // the data elsewhere. This also opens the door for additional
   // timed items that can impact reading.
   foreach ($nodes as $node) {
-    $record = db_query('SELECT read_time FROM {read_time} WHERE nid = :nid', array(':nid' => $node->nid))->fetchField();
+    $record = _read_time_get_read_time($node->nid);
     // ensure a record exists otherwise build it out now
     if (empty($record)) {
       $read_time = _read_time_evaluate($node);
@@ -225,7 +237,6 @@ function read_time_node_load($nodes, $types) {
       $nodes[$node->nid]->read_time = $read_time;
     }
     else {
-      $record = unserialize($record);
       $nodes[$node->nid]->read_time = $record;
     }
   }
@@ -557,4 +568,19 @@ function _read_time_strpos_arr($haystack, $needles) {
     }
   }
   return false;
+}
+
+/**
+ * Helper function to return current node's read time.
+ * @param  int   $nid  node id
+ * @return mixed       array of the data calculated or NULL if didn't exist
+ */
+function _read_time_get_read_time($nid) {
+  $record = db_query('SELECT read_time FROM {read_time} WHERE nid = :nid', array(':nid' => $nid))->fetchField();
+  // ensure we have a record
+  if (empty($record)) {
+    return NULL;
+  }
+  // return it unserialized since it's an array
+  return unserialize($record);
 }
