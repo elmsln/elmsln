@@ -23,9 +23,9 @@ function mooc_page_field_group_info() {
     'label' => 'Advanced tabs',
     'weight' => '125',
     'children' => array(
-      0 => 'group_tag',
-      1 => 'group_author',
-      2 => 'group_outline',
+      0 => 'group_author',
+      1 => 'group_outline',
+      2 => 'group_tag',
     ),
     'format_type' => 'htabs',
     'format_settings' => array(
@@ -164,10 +164,10 @@ function mooc_page_field_group_info() {
     'label' => 'Settings',
     'weight' => '2',
     'children' => array(
-      0 => 'group_advanced',
-      1 => 'group_visibility',
-      2 => 'group_inst_strat',
-      3 => 'group_interface',
+      0 => 'group_inst_strat',
+      1 => 'group_interface',
+      2 => 'group_advanced',
+      3 => 'group_visibility',
     ),
     'format_type' => 'htabs',
     'format_settings' => array(
