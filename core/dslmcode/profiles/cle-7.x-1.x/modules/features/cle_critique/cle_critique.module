@@ -29,16 +29,6 @@ function cle_critique_menu() {
     'file' => 'node.pages.inc',
     'file path' => drupal_get_path('module', 'node'),
   );
-  $items['cle/critique/critique-submission/%node'] = array(
-    'title' => 'Critique submission',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('_cle_critique_page_random_form'),
-    'access callback' => '_cle_critique_critique_submission_access_callback',
-    'access arguments' => array(3),
-    'type' => MENU_NORMAL_ITEM,
-    'file' => 'node.pages.inc',
-    'file path' => drupal_get_path('module', 'node'),
-  );
 
   return $items;
 }
@@ -51,39 +41,28 @@ function cle_critique_menu() {
  */
 function _cle_critique_page_random_form($arg, &$form_state) {
   // present a select list if a node hasn't been passed in
-  $arg = arg(3);
-  if (empty($arg)) {
-    // pull in the list of assignments
-    $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array('field_cle_crit_type' => array('value', 'none', '<>')), array(), array('field_cle_order' => 'value'));
-    $form = array();
-    // @todo list the critiques they've already done
-    $form['assignment'] = array(
-      '#title' => t('Assignment'),
-      '#options' => array(0 => '') + $assignments,
-      '#type' => 'select',
-      '#required' => '1',
-      '#multiple' => '0',
-      '#chosen' => TRUE,
-    );
-    $form['actions']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Submit'),
-      '#submit' => array('_cle_critique_page_random_form_submit'),
-    );
-    $form['#validate'] = array('_cle_critique_page_random_form_validate');
-    return $form;
-  }
-  else {
+  $assignment_id = arg(3);
+  $url_params = drupal_get_query_parameters();
+  $submission_id = (isset($url_params['submission']) ? $url_params['submission'] : NULL);
+
+  if ($assignment_id || $submission_id) {
     // load up the node form pages
     module_load_include('inc', 'node', 'node.pages');
     drupal_add_css(drupal_get_path('module', 'cle_critique') .'/css/cle_critique.css');
-    // render their work
-    $submission = _cle_critique_random($arg);
+    // find out if there is a specific submission to render or if we should
+    // find a random submission
+    if ($submission_id) {
+      $submission = node_load($submission_id);
+    }
+    else {
+      $submission = _cle_critique_random($assignment_id);
+    }
+
     if (!is_null($submission)) {
       // render the student submission for later
       $rendersubmission = node_view($submission, 'critique');
       // load up the assignment node
-      $assignmentnode = node_load($arg);
+      $assignmentnode = node_load($submission->field_assignment['und'][0]['target_id']);
       // prepopulate the critique node
       $critnode = (object) array(
         'uid' => $GLOBALS['user']->uid,
@@ -142,6 +121,27 @@ function _cle_critique_page_random_form($arg, &$form_state) {
       );
       return $form;
     }
+  }
+  else {
+    // pull in the list of assignments
+    $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array('field_cle_crit_type' => array('value', 'none', '<>')), array(), array('field_cle_order' => 'value'));
+    $form = array();
+    // @todo list the critiques they've already done
+    $form['assignment'] = array(
+      '#title' => t('Assignment'),
+      '#options' => array(0 => '') + $assignments,
+      '#type' => 'select',
+      '#required' => '1',
+      '#multiple' => '0',
+      '#chosen' => TRUE,
+    );
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+      '#submit' => array('_cle_critique_page_random_form_submit'),
+    );
+    $form['#validate'] = array('_cle_critique_page_random_form_validate');
+    return $form;
   }
 }
 
