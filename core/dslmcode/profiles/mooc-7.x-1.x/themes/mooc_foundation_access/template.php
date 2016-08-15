@@ -63,6 +63,9 @@ function mooc_foundation_access_read_time($variables) {
   // add in the children element to all totals if they exist
   if (isset($node->read_time['metadata']['children'])) {
     foreach ($node->read_time['metadata']['children'] as $key => $value) {
+      if (!isset($node->read_time[$key])) {
+        $node->read_time[$key] = 0;
+      }
       $node->read_time[$key] += $value;
     }
   }
@@ -113,15 +116,26 @@ function mooc_foundation_access_read_time($variables) {
           $label = t('Audio');
           $value .= ' ' . $label;
           // support for duration if we've got it assembled
-          if (isset($node->read_time['metadata']['audio']['duration'])) {
-            if ($node->read_time['metadata']['audio']['duration'] < 60) {
-              $value .= ' ' . t('(@duration sec)', array('@duration' => $node->read_time['metadata']['audio']['duration']));
+          if (isset($node->read_time['metadata']['audio']['duration']) || isset($node->read_time['metadata']['children']['audio_duration'])) {
+            $duration = 0;
+            if (isset($node->read_time['metadata']['audio']['duration'])) {
+              $duration += $node->read_time['metadata']['audio']['duration'];
             }
-            elseif ($node->read_time['metadata']['audio']['duration'] < 3600) {
-              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($node->read_time['metadata']['audio']['duration'] / 60), 1)));
+            if (isset($node->read_time['metadata']['children']['audio_duration'])) {
+              $duration += $node->read_time['metadata']['children']['audio_duration'];
+            }
+            // account for possibility of not reading duration off media
+            if ($duration == 0) {
+
+            }
+            elseif ($duration < 60) {
+              $value .= ' ' . t('(@duration sec)', array('@duration' => $duration));
+            }
+            elseif ($duration < 3600) {
+              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($duration / 60), 1)));
             }
             else {
-              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($node->read_time['metadata']['audio']['duration'] / 3600), 1)));
+              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
             }
           }
           $icon = '<i class="tiny material-icons">library_music</i>';
@@ -136,31 +150,46 @@ function mooc_foundation_access_read_time($variables) {
         break;
         case 'svg':
           $label = t('Multimedia');
-          $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
+          $value = $value . ' ' . $label;
           $icon = '<i class="tiny material-icons">assessment</i>';
         break;
         case 'video':
           $label = t('Video');
           $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
           // support for duration if we've got it assembled
-          if (isset($node->read_time['metadata']['video']['duration'])) {
-            if ($node->read_time['metadata']['video']['duration'] < 60) {
-              $value .= ' ' . t('(@duration sec)', array('@duration' => $node->read_time['metadata']['video']['duration']));
+          if (isset($node->read_time['metadata']['video']['duration']) || isset($node->read_time['metadata']['children']['video_duration'])) {
+            $duration = 0;
+            if (isset($node->read_time['metadata']['video']['duration'])) {
+              $duration += $node->read_time['metadata']['video']['duration'];
             }
-            elseif ($node->read_time['metadata']['video']['duration'] < 3600) {
-              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($node->read_time['metadata']['video']['duration'] / 60), 1)));
+            if (isset($node->read_time['metadata']['children']['video_duration'])) {
+              $duration += $node->read_time['metadata']['children']['video_duration'];
+            }
+            // account for possibility of not reading duration off media
+            if ($duration == 0) {
+
+            }
+            elseif ($duration < 60) {
+              $value .= ' ' . t('(@duration sec)', array('@duration' => $duration));
+            }
+            elseif ($duration < 3600) {
+              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($duration / 60), 1)));
             }
             else {
-              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($node->read_time['metadata']['video']['duration'] / 3600), 1)));
+              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
             }
           }
           $icon = '<i class="tiny material-icons">video_library</i>';
         break;
         default:
           $icon = '';
+          $value = '';
         break;
       }
-      $output .= '<div class="chip">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
+      // make sure there's something to render
+      if (!empty($value)) {
+        $output .= '<div class="chip">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
+      }
     }
   }
   $output .= '</div>';

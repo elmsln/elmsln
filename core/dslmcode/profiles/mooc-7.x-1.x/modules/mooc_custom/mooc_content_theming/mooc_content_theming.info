@@ -12,6 +12,7 @@ dependencies[] = jquery_colorpicker
 dependencies[] = list
 dependencies[] = mooc_page
 dependencies[] = options
+dependencies[] = mooc_helper_book_nav
 features[context][] = foundation_access_ux-content-theming
 features[ctools][] = context:context:3
 features[ctools][] = field_group:field_group:1

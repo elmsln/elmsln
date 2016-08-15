@@ -430,7 +430,7 @@ function mooc_helper_book_nav_flush_caches() {
  */
 function mooc_helper_book_nav_admin_menu_cache_info() {
   $caches['cache_mooc_helper_book_nav'] = array(
-    'title' => t('Book data'),
+    'title' => t('MOOC book nav data'),
     'callback' => '_mooc_helper_book_nav_cache_clear',
   );
   return $caches;

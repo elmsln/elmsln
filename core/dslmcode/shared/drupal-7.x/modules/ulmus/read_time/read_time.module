@@ -658,3 +658,13 @@ function read_time_token_info() {
     'tokens' => $tokens,
   );
 }
+
+/**
+ * Implements hook_flush_caches().
+ */
+function read_time_flush_caches() {
+  // on a cache clear we might have new data
+  db_truncate('read_time');
+  _read_time_perform_batch_process();
+  return array();
+}

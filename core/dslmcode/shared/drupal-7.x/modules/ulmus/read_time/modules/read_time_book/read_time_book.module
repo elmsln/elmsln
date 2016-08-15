@@ -41,6 +41,21 @@ function read_time_book_read_time_evaluate_alter(&$read_time, $node, $field_data
       // load these nodes
       $nodes = node_load_multiple($nids);
       foreach ($nodes as $cnode) {
+        // audio duration
+        if (!isset($read_time['metadata']['children']['audio_duration'])) {
+          $read_time['metadata']['children']['audio_duration'] = 0;
+        }
+        if (isset($cnode->read_time['metadata']['audio']['duration'])) {
+          $read_time['metadata']['children']['audio_duration'] += $cnode->read_time['metadata']['audio']['duration'];
+        }
+        // video duration
+        if (!isset($read_time['metadata']['children']['video_duration'])) {
+          $read_time['metadata']['children']['video_duration'] = 0;
+        }
+        if (isset($cnode->read_time['metadata']['video']['duration'])) {
+          $read_time['metadata']['children']['video_duration'] += $cnode->read_time['metadata']['video']['duration'];
+        }
+        // sum up the rest of the metadata stuff
         foreach ($read_time as $key => $value) {
           if ($key != 'metadata') {
             if (!isset($read_time['metadata']['children'][$key])) {
