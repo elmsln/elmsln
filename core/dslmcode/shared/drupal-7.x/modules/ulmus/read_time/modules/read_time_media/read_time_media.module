@@ -58,7 +58,8 @@ function read_time_media_read_time_evaluate_alter(&$read_time, $node, $field_dat
       // pregmatch iframe tags
       preg_match_all($preg2, $data, $results2);
       if (isset($results2[1])) {
-        $read_time['metadata']['audio']['duration'] += $results2[1][0];
+        // sound cloud represents time in microseconds
+        $read_time['metadata']['audio']['duration'] += ($results2[1][0] / 1000);
       }
       $read_time['metadata']['audio']['soundcloud']++;
     }
