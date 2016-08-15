@@ -25,7 +25,7 @@ function cis_service_connection_menu() {
     'page arguments' => array(0),
     'menu_name' => 'main-menu',
     'weight' => -1,
-    'access arguments' => array('access content'),
+    'access arguments' => array('view lmsless bar'),
   );
   // standard language from cis
   $items['syllabus'] = array(
@@ -34,7 +34,7 @@ function cis_service_connection_menu() {
     'page arguments' => array(0),
     'menu_name' => 'main-menu',
     'weight' => 0,
-    'access arguments' => array('access content'),
+    'access arguments' => array('view lmsless bar'),
   );
   // standard language from cis for help
   $items['course-help'] = array(
@@ -43,7 +43,7 @@ function cis_service_connection_menu() {
     'page arguments' => array(0),
     'menu_name' => 'main-menu',
     'weight' => 1,
-    'access arguments' => array('access content'),
+    'access arguments' => array('view lmsless bar'),
   );
   // standard language from cis
   $items['resources'] = array(
@@ -52,7 +52,7 @@ function cis_service_connection_menu() {
     'page arguments' => array(0),
     'menu_name' => 'main-menu',
     'weight' => 2,
-    'access arguments' => array('access content'),
+    'access arguments' => array('view lmsless bar'),
   );
     // Guided tour off of the welcome page with example content
   $items['guided_tour'] = array(
@@ -61,7 +61,7 @@ function cis_service_connection_menu() {
     'page arguments' => array(0),
     'menu_name' => 'main-menu',
     'weight' => 10,
-    'access arguments' => array('access content'),
+    'access arguments' => array('view lmsless bar'),
     'type' => MENU_LOCAL_TASK,
   );
   // direct download of the welcome letter, useful for remote referencing
@@ -71,7 +71,7 @@ function cis_service_connection_menu() {
     'page arguments' => array('welcome_letter', 1),
     'type' => MENU_LOCAL_TASK,
     'weight' => 2,
-    'access arguments' => array('access content'),
+    'access arguments' => array('view lmsless bar'),
   );
   // direct download of the syllabus, useful for remote referencing
   $items['syllabus/download'] = array(
@@ -80,7 +80,7 @@ function cis_service_connection_menu() {
     'page arguments' => array(0, 1),
     'type' => MENU_LOCAL_TASK,
     'weight' => 2,
-    'access arguments' => array('access content'),
+    'access arguments' => array('view lmsless bar'),
   );
   // build tabs for pages
   $vals = _cis_service_connection_links();
@@ -91,7 +91,7 @@ function cis_service_connection_menu() {
       'page arguments' => array(0),
       'menu_name' => 'main-menu',
       'weight' => 0,
-      'access arguments' => array('access content'),
+      'access arguments' => array('view lmsless bar'),
       'type' => MENU_DEFAULT_LOCAL_TASK
     );
     $items[$val . '/edit'] = array(
