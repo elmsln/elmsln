@@ -472,7 +472,6 @@ function _elmsln_api_nonblocking_requests($requests, $recursion = FALSE) {
  * or any service. The most common use-case is keeping the
  * title of the course in sync across all services.
  *
- * @todo  explore a background processing capability as this gets intense
  * @param  array  $properties       an array of items to keep in sync
  *         possible values include: title, slogan, machine_name, uuid
  * @param  string $api         api version to use
@@ -641,7 +640,6 @@ function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
  * This call will update information about a section
  * everywhere except the CIS (which is where sections start)
  *
- * @todo  explore a background processing capability as this gets intense
  * @param  array  $properties       an array of items to keep in sync
  *         possible values include: title, section_id, course, active
  * @param  string $api         api version to use
