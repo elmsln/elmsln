@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * CIS Course Service install.
+ */
+
+/**
+ * Ensure that our path settings are in place so that
+ * sections and users accounts get nicely formed address
+ * counterparts. This also ensures the default is node/{nid}
+ * so that it doesn't alter these "hard links".
+ */
+function cis_course_service_update_7001(&$sandbox) {
+  module_enable(array('path', 'pathauto'));
+  features_revert_module('cis_course_service');
+}
