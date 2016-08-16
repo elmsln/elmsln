@@ -932,6 +932,12 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
  * Implements hook_elmsln_api_info().
  */
 function elmsln_api_elmsln_api_info() {
+  // alive test
+  $callbacks['is_alive'] = array(
+    'methods' => array('GET', 'POST'),
+    'file' => 'callbacks/v1/is_alive.inc',
+    'dependencies' => array('system'),
+  );
   // remote cache bin wipe
   $callbacks['clear_cache_bin'] = array(
     'methods' => array('GET', 'POST'),
