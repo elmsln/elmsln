@@ -246,16 +246,18 @@ function read_time_node_load($nodes, $types) {
  * Implements hook_node_view().
  */
 function read_time_node_view($node, $view_mode, $langcode) {
-  // Get read time field settings.
-  $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
-  $settings = $display_settings['read_time'];
-  // make sure this is visible
-  if (user_access('view read time') && $settings['visible'] && variable_get('read_time_node_view_' . $node->type, TRUE)) {
-    // Display read time with node.
-    $node->content['read_time'] = array(
-      '#markup' => theme('read_time', array('node' => $node)),
-      '#weight' => $settings['weight'],
-    );
+  if (user_access('view read time') && arg(2) != 'edit' && arg(1) != 'add') {
+    // Get read time field settings.
+    $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
+    $settings = $display_settings['read_time'];
+    // make sure this is visible
+    if ($settings['visible'] && variable_get('read_time_node_view_' . $node->type, TRUE)) {
+      // Display read time with node.
+      $node->content['read_time'] = array(
+        '#markup' => theme('read_time', array('node' => $node)),
+        '#weight' => $settings['weight'],
+      );
+    }
   }
 }
 
