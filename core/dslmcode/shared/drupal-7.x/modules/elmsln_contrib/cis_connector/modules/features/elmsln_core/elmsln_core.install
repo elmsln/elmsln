@@ -85,3 +85,10 @@ function elmsln_core_update_7005(&$sandbox) {
 function elmsln_core_update_7006(&$sandbox) {
   features_revert_module('elmsln_core');
 }
+
+/**
+ * Enable our Chosen settings.
+ */
+function elmsln_core_update_7007(&$sandbox) {
+  features_revert_module('elmsln_core');
+}

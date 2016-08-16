@@ -286,6 +286,9 @@ function cis_service_connection_block_section_context_changer_form() {
       '#id' => 'section-to-view',
       '#title' => t('Section to view'),
       '#default_value' => _cis_connector_section_context(),
+      '#attributes' => array(
+        'class' => array('chosen'),
+      ),
     );
     $form['submit'] = array(
       '#type' => 'submit',

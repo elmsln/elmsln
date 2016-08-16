@@ -1,3 +1,8 @@
+/* chosen select support */
+select.chosen {
+  display: initial;
+}
+
 /* accessibility */
 .outline-nav-icon {
   opacity: .8;
