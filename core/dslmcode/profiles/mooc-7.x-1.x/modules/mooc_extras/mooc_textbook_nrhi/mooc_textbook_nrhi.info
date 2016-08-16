@@ -1,7 +1,7 @@
 name = MOOC textbook NRHI
 description = Textbook node reference highlighter overrides for MOOC
 core = 7.x
-package = MOOC
+package = MOOC Extras
 project = mooc
 dependencies[] = ctools
 dependencies[] = features_override
