@@ -14,7 +14,7 @@ function cle_critique_menu() {
     'title' => 'Give Feedback',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_cle_critique_page_random_form'),
-    'access callback' => 'node_access',
+    'access callback' => '_cle_critique_critique_peer_access_callback',
     'access arguments' => array('create', 'cle_critique'),
     'type' => MENU_NORMAL_ITEM,
     'weight' => -8,
@@ -218,37 +218,66 @@ function _cle_critique_random($anid) {
  * Access Callback for 'cle/critique/critique-peer/%node'.
  */
 function _cle_critique_critique_peer_access_callback() {
-  $assignment_id = arg(3);
-  global $user;
-  return _cle_critique_assignment_critique_access($assignment_id, $user, array('messages' => TRUE));
-}
+  $url_params = drupal_get_query_parameters();
+  $options = array(
+    'assignment' => NULL,
+    'submission' => NULL,
+    'messages' => TRUE
+  );
 
-/**
- * Access Callback for 'cle/critique/critique-submission/%node.
- */
-function _cle_critique_critique_submission_access_callback($node) {
-  $submission = $node;
-  $assignment_id = (isset($submission->field_assignment['und'][0]['target_id']) ? $submission->field_assignment['und'][0]['target_id'] : NULL);
-  global $user;
+  // if there is an assignment specified in the url then assign it to the
+  // options
+  if (arg(3)) {
+    $options['assignment'] = arg(3);
+  }
+  // if there is a submission specified in the query params then set the
+  // submission and update the assignment reference
+  if (isset($url_params['submission']) && is_numeric($url_params['submission'])) {
+    $_sub = $url_params['submission'];
+    $options['submission'] = $_sub;
+    // set the assignment to the assignment referenced in the submission
+    if (isset($_sub->field_assignment['und'][0]['target_id'])) {
+      $options['assignment'] = $_sub->field_assignment['und'][0]['target_id'];
+    }
+  }
 
-  return _cle_critique_assignment_critique_access($assignment_id, $user, array('messages' => TRUE));
+  return _cle_critique_assignment_critique_access($options);
 }
 
 /**
  * Helper function to see if the user has the ability to critique an assignment
  * according to critique dates and user access.
- * @param   $assignment     This can be the id or object of the assignment.
- * @param   $account        Specifiy the user account.
  * @param   $options
+ *            - assignment: Optionally This can be the id or object of the assignment.
+ *            - account: Optionally specify the user account.
+ *            - submission: Optioninally specifiy a submission.
  *            - messages: Should this function return drupal_set_messages.
  * @return  Boolean
  */
-function _cle_critique_assignment_critique_access($assignment = NULL, $account = NULL, $options = array()) {
+function _cle_critique_assignment_critique_access($options = array()) {
+  // return value
   $access = FALSE;
+  // set options
+  $assignment = (isset($options['assignment']) ? $options['assignment'] : NULL);
+  $account = (isset($options['account']) ? $options['account'] : NULL);
+  $submission = (isset($options['submission']) ? $options['submission'] : NULL);
+  $messages = (isset($options['messages']) ? $options['messages'] : NULL);
+
+
 
   // if the user has content admin rights then grant access and leave
   if (user_access('administer cle content', $account)) {
     return TRUE;
+  }
+
+  // make sure users can't critique their own work
+  if ($submission) {
+    if (_cle_critique_user_is_submission_author($submission, $account)) {
+      if ($messages) {
+        drupal_set_message(t('You can not critique your own submissions.'), 'status', FALSE);
+      }
+      return FALSE;
+    }
   }
 
   // ensure that critiques are enabled for this assignment
@@ -405,13 +434,14 @@ function cle_critique_entity_view($entity, $type, $view_mode, $langcode) {
       // get the assignment of the submission
       $assignment_id = (isset($entity->field_assignment['und'][0]['target_id']) ? $entity->field_assignment['und'][0]['target_id'] : NULL);
       // find out if the user should has access to critique the submission
-      if (_cle_critique_assignment_critique_access($assignment_id)) {
+      if (_cle_critique_assignment_critique_access(array('submission' => $assignment_id))) {
         $entity->content[$field_name] = array(
           '#theme' => 'link',
           '#text' => t('Critique submission'),
-          '#path' => '/cle/critique/critique-submission/' . $entity->nid,
+          '#path' => '/cle/critique/critique-peer',
           '#options' => array(
             'attributes' => array('class' => array('waves-effect', 'waves-light', 'btn')),
+            'query' => array('submission' => $entity->nid),
               //REQUIRED:
               'html' => FALSE,
           ),
@@ -442,4 +472,32 @@ function cle_critique_node_view($node, $view_mode, $langcode) {
  */
 function cle_critique_form_cle_critique_node_form_alter(&$form, &$form_state, $form_id) {
   $form['actions']['submit']['#value'] = t('Save Critique');
+}
+
+/**
+ * Helper function to determine if a user account is the author
+ * of a submission.
+ * @param  $submission    Node object or node id of the submission.
+ * @param  $account       Optionally specify which account to check.
+ * @return boolean        TRUE/FALSE
+ */
+function _cle_critique_user_is_submission_author($submission, $account = NULL) {
+  $return = FALSE;
+
+  // if there is no account specified then get the
+  // current logged in user
+  if (!$account) {
+    global $user;
+    $account = $user;
+  }
+  // make sure the submission is loaded
+  $submission = (!is_object($submission) ? node_load($submission) : $submission);
+  // make sure account isn't the author of the submission
+  if ($submission->uid == $account->uid) {
+    // if the account is the author of the submission then return false and
+    // exit
+    $return =  TRUE;
+  }
+
+  return $return;
 }
