@@ -454,6 +454,9 @@ function read_time_node_get_properties($node, array $options, $name) {
       // mix in children if it is set
       if (isset($node->read_time['metadata']['children'])) {
         foreach ($node->read_time['metadata']['children'] as $key => $value) {
+          if (!isset($node->read_time[$key])) {
+            $node->read_time[$key] = 0;
+          }
           $node->read_time[$key] += $value;
         }
       }
