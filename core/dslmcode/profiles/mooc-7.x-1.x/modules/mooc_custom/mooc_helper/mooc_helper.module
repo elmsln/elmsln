@@ -588,11 +588,21 @@ function mooc_helper_form_page_node_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['author'])) {
     $form['author']['#title'] = t('Author');
   }
-  if (isset($form['hidden_nodes'])) {
-    $form['hidden_nodes']['#title'] = t('Access');
+  if (isset($form['path'])) {
+    $form['path']['#title'] = t('Path');
+    $form['path']['#group'] = 'group_path';
+    $form['path']['#type'] = 'div';
   }
-  if (isset($form['options'])) {
-    $form['options']['#title'] = t('Advanced');
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function mooc_helper_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'form_alter' && isset($implementations['mooc_helper'])) {
+    $group = $implementations['mooc_helper'];
+    unset($implementations['mooc_helper']);
+    $implementations['mooc_helper'] = $group;
   }
 }
 
