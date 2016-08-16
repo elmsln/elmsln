@@ -182,7 +182,17 @@ function elmsln_api_execute_request() {
     module_load_include('inc', 'elmsln_api', 'includes/json');
   }
   // look for snake calls which we can perform on anything stupid enough
-  // to attempt it. This can destroy things if not done carefully
+  // to attempt it. This can destroy things if not done carefully so understand
+  // that this is the most amazing and dangerous code I've ever written. Honestly
+  // when explaining this to people it blows their minds both in what it's able to
+  // do from a load distribution standpoint as well as complexity of thinking this way
+  // this allows for recursive http requests which can spawn recursive http requests.
+  // Think long and hard before invoking these but if you know why you are doin them
+  // then you have reached the apex of being an elmsln developer. You've gotten to read
+  // this easteregg of a rant about how frigging cool this is and the fact that almost no
+  // one in the world will ever see it, nor will they need to know how or why it works. That's
+  // the beuty and danger of what we do. we make the impossible possible and it's incredible
+  // yet maddening at the same time.
   if (isset($_elmsln['args']['__snake_stack']) && !empty($_elmsln['args']['__snake_stack'])) {
     // tee up the next request as well as removing this call
     // from our queue of calls to ship off
