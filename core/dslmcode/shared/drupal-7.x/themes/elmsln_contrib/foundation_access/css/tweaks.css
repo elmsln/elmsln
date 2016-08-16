@@ -121,6 +121,9 @@ div.read-time-wrapper div.chip i {
 article.node div.body ul li {
   list-style-type: initial;
 }
+.custom-contextual-links ul.contextual-links li {
+  list-style-type: none !important;
+}
 
 /* helps clean up form defaults */
 div.image-widget-data {
