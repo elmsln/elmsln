@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * Caches path lookups by providing alternate drupal_lookup_path().
+ */
+
+/**
+ * Implements hook_flush_caches().
+ */
+function pathcache_flush_caches() {
+  return array('cache_path_source', 'cache_path_alias');
+}
+
+/**
+ * Helper function to clear the alias and source caches for a path.
+ */
+function pathcache_clear_cache($path) {
+  // Since adding a path in any language could affect results for both
+  // that language and the default language, clear all possible
+  // combinations here.
+  $languages = language_list();
+
+  //if the site is not multilingual then all cid will start with 'und:'
+  $languages[LANGUAGE_NONE] = LANGUAGE_NONE;
+  foreach ($languages as $language => $data) {
+    cache_clear_all($language . ':' . $path['source'], 'cache_path_alias');
+    cache_clear_all($language . ':' . $path['alias'], 'cache_path_source');
+  }
+}
+
+/**
+ * Implements hook_path_insert().
+ */
+function pathcache_path_insert($path) {
+  pathcache_clear_cache($path);
+}
+
+/**
+ * Implements hook_path_update().
+ */
+function pathcache_path_update($path) {
+  pathcache_clear_cache($path);
+}
+
+/**
+ * Implements hook_path_delete().
+ */
+function pathcache_path_delete($path) {
+  pathcache_clear_cache($path);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function pathcache_entity_update($entity, $type) {
+  if(!empty($entity->path['original'])){
+    pathcache_clear_cache($entity->path['original']);
+  }
+}
