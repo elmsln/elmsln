@@ -5,29 +5,6 @@
     "core": "7",
     "recipe": [
         {
-            "command": "en",
-            "arguments": [
-                "magic",
-                "fences",
-                "html5_tools",
-                "jquery_update"
-            ]
-        },
-        {
-            "command": "vset",
-            "arguments": [
-                "fences_default_classes",
-                "1"
-            ]
-        },
-        {
-            "command": "vset",
-            "arguments": [
-                "fences_default_markup",
-                "1"
-            ]
-        },
-        {
             "madlib": "TRUE",
             "command": "vset",
             "arguments": [
@@ -40,13 +17,6 @@
             "defaults": {
                 "[fa_sub]": "foundation_access"
             }
-        },
-        {
-            "command": "vset",
-            "arguments": [
-                "jquery_update_jquery_version",
-                "1.10"
-            ]
         },
         {
             "command": "cc",
