@@ -173,8 +173,13 @@ function theme_elmsmedia_helper_video($variables) {
   global $base_url;
   $src = $variables['attributes']['src'];
   unset($variables['attributes']['src']);
+  $class = '';
+  // make a responsive two-column situation if this has a transcript with it
+  if (isset($variables['settings']['caption'])) {
+    $class = ' class="col s12 m8 l8"';
+  }
   $output = ' <div class="row ableplayer-video">
-  <div class="col s12 m8 l8">
+  <div' . $class . '>
     <video preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1" data-transcript-div="' . $variables['attributes']['id'] . '-transcript">
       <source src="' . str_replace($base_url, '', $src) . '"/>';
   if (isset($variables['settings']['caption'])) {
@@ -183,9 +188,11 @@ function theme_elmsmedia_helper_video($variables) {
   }
   $output .= '
     </video>
-  </div>
-  <div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>
   </div>';
+  if (isset($variables['settings']['caption'])) {
+    $output .= '<div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>
+    </div>';
+  }
   return $output;
 }
 
@@ -198,8 +205,13 @@ function theme_elmsmedia_helper_audio($variables) {
   unset($variables['attributes']['src']);
   $type = $variables['attributes']['type'];
   unset($variables['attributes']['type']);
+  $class = '';
+  // make a responsive two-column situation if this has a transcript with it
+  if (isset($variables['settings']['caption'])) {
+    $class = 'class="col s12 m8 l8"';
+  }
   $output = '<div class="row ableplayer-audio">
-  <div class="col s12 m8 l8">';
+  <div' . $class . '>';
   $output .= '<audio preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1" data-transcript-div="' . $variables['attributes']['id'] . '-transcript">
     <source type="' . $type . '" src="' . str_replace($base_url, '', $src) . '"/>';
   if (isset($variables['settings']['caption'])) {
@@ -207,9 +219,11 @@ function theme_elmsmedia_helper_audio($variables) {
   }
   $output .= '
     </audio>
-  </div>
-  <div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>
   </div>';
+  if (isset($variables['settings']['caption'])) {
+    $output .= '<div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>
+    </div>';
+  }
   return $output;
 }
 
