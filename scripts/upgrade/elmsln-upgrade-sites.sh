@@ -72,6 +72,8 @@ done
 # We just did a ton of stuff, let's make sure permissions are rebuilt to be safe
 elmslnecho "Rebuilding node permissions"
 drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --v --y
+elmslnecho "Rebuilding js/css files"
+drush @elmsln advagg-force-new-aggregates --concurrency=${concurrent} --strict=0 --v --y
 # trigger crons to run now that these sites are all back and happy
 elmslnecho "Run crons as clean up"
 drush @elmsln cron --concurrency=${concurrent} --strict=0 --v --y
