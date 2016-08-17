@@ -14,6 +14,15 @@ function read_time_media_read_time_evaluate_alter(&$read_time, $node, $field_dat
   // pregmatch iframe tags
   preg_match_all($preg, $field_data, $results);
   foreach ($results[2] as $result) {
+    // brute force duration storage; let's default to cis_connector
+    // cached storage engine if we can do it.
+    if (module_exists('cis_connector')) {
+      $request = _cis_connector_request($result, array(), 'none', TRUE);
+    }
+    else {
+      $request = drupal_http_request($result);
+    }
+    $data = $request->data;
     // sniff out youtube
     if (_read_time_strpos_arr($result, array('youtube', 'youtu.be'))) {
       $read_time['video']++;
@@ -29,15 +38,6 @@ function read_time_media_read_time_evaluate_alter(&$read_time, $node, $field_dat
       }
       $read_time['metadata']['video']['youtube']++;
     }
-    // brute force duration storage; let's default to cis_connector
-    // cached storage engine if we can do it.
-    if (module_exists('cis_connector')) {
-      $request = _cis_connector_request($result, array(), 'none', TRUE);
-    }
-    else {
-      $request = drupal_http_request($result);
-    }
-    $data = $request->data;
     // sniff out vimeo
     if (_read_time_strpos_arr($result, array('vimeo'))) {
       $read_time['video']++;
