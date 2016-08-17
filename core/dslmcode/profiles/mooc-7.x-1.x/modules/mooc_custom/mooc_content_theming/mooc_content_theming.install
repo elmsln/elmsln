@@ -13,3 +13,10 @@ function mooc_content_theming_update_7000(&$sandbox) {
   module_enable(array('eim'));
   features_revert('mooc_content_theming');
 }
+
+/**
+ * Revert feature for positioning.
+ */
+function mooc_content_theming_update_7001(&$sandbox) {
+  features_revert('mooc_content_theming');
+}

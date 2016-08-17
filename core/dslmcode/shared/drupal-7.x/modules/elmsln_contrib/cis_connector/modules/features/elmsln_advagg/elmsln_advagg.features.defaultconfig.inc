@@ -53,7 +53,7 @@ function elmsln_advagg_defaultconfig_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'advagg_cache_level';
-  $strongarm->value = '3';
+  $strongarm->value = '1';
   $export['advagg_cache_level'] = $strongarm;
 
   $strongarm = new stdClass();

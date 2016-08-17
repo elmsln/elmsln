@@ -21,7 +21,7 @@ function mooc_nav_block_field_group_info() {
   $field_group->parent_name = 'group_interface';
   $field_group->data = array(
     'label' => 'Navigation',
-    'weight' => '144',
+    'weight' => '148',
     'children' => array(
       0 => 'field_mooc_nav_custom_text',
       1 => 'field_mooc_nav_display',

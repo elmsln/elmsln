@@ -55,6 +55,9 @@ function mooc_page_strongarm() {
         'revision_information' => array(
           'weight' => '133',
         ),
+        'path' => array(
+          'weight' => '102',
+        ),
       ),
       'display' => array(),
     ),

@@ -217,7 +217,7 @@ function mooc_content_theming_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 128,
+      'weight' => 144,
     ),
   );
 

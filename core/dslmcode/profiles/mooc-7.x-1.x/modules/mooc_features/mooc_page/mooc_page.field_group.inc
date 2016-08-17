@@ -49,7 +49,7 @@ function mooc_page_field_group_info() {
   $field_group->parent_name = 'group_settings';
   $field_group->data = array(
     'label' => 'Advanced',
-    'weight' => '146',
+    'weight' => '143',
     'children' => array(
       0 => 'group_advanced_tabs',
     ),
@@ -94,34 +94,6 @@ function mooc_page_field_group_info() {
     ),
   );
   $field_groups['group_author|node|page|form'] = $field_group;
-
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
-  $field_group->identifier = 'group_cis_tag_group|node|page|form';
-  $field_group->group_name = 'group_cis_tag_group';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'page';
-  $field_group->mode = 'form';
-  $field_group->parent_name = '';
-  $field_group->data = array(
-    'label' => 'Tags',
-    'weight' => '3',
-    'children' => array(
-      0 => 'field_cis_tag',
-    ),
-    'format_type' => 'tab',
-    'format_settings' => array(
-      'label' => 'Tags',
-      'instance_settings' => array(
-        'required_fields' => 0,
-        'classes' => 'group-cis-tag-group field-group-tab',
-        'description' => '',
-      ),
-      'formatter' => 'closed',
-    ),
-  );
-  $field_groups['group_cis_tag_group|node|page|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -194,6 +166,7 @@ function mooc_page_field_group_info() {
     'weight' => '128',
     'children' => array(
       0 => 'field_cis_tag',
+      1 => 'path',
     ),
     'format_type' => 'htab',
     'format_settings' => array(
@@ -219,7 +192,7 @@ function mooc_page_field_group_info() {
   $field_group->parent_name = 'group_settings';
   $field_group->data = array(
     'label' => 'Visibility',
-    'weight' => '145',
+    'weight' => '142',
     'children' => array(
       0 => 'hidden_nodes',
       1 => 'options',
@@ -245,7 +218,6 @@ function mooc_page_field_group_info() {
   t('Outline');
   t('Settings');
   t('Tag');
-  t('Tags');
   t('Visibility');
 
   return $field_groups;

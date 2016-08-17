@@ -129,3 +129,9 @@ function mooc_update_7006(&$sandbox) {
   features_revert_module('mooc_content_theming');
 }
 
+/**
+ * Improved authoring experince with content editing.
+ */
+function mooc_update_7007(&$sandbox) {
+  features_revert_module('mooc_page');
+}

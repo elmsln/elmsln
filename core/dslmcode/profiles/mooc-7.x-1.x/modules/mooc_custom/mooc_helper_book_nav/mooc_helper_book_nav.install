@@ -23,3 +23,10 @@ function mooc_helper_book_nav_update_7001(&$sandbox) {
     db_create_table($table, $schema);
   }
 }
+
+/**
+ * Get positioning correct.
+ */
+function mooc_helper_book_nav_update_7002(&$sandbox) {
+  features_revert('mooc_helper_book_nav');
+}

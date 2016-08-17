@@ -21,7 +21,7 @@ function mooc_content_theming_field_group_info() {
   $field_group->parent_name = 'group_interface';
   $field_group->data = array(
     'label' => 'Colors',
-    'weight' => '145',
+    'weight' => '147',
     'children' => array(
       0 => 'field_fa_primary_color',
       1 => 'field_fa_secondary_color',
@@ -79,11 +79,11 @@ function mooc_content_theming_field_group_info() {
   $field_group->parent_name = 'group_settings';
   $field_group->data = array(
     'label' => 'Interface',
-    'weight' => '143',
+    'weight' => '141',
     'children' => array(
-      0 => 'group_navigation_block',
-      1 => 'group_colors',
-      2 => 'group_topic_banner',
+      0 => 'group_colors',
+      1 => 'group_topic_banner',
+      2 => 'group_navigation_block',
     ),
     'format_type' => 'htab',
     'format_settings' => array(
@@ -101,34 +101,6 @@ function mooc_content_theming_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_pedagogy|node|page|form';
-  $field_group->group_name = 'group_pedagogy';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'page';
-  $field_group->mode = 'form';
-  $field_group->parent_name = 'group_settings';
-  $field_group->data = array(
-    'label' => 'Pedagogy',
-    'weight' => '136',
-    'children' => array(
-      0 => 'field_instructional_significance',
-    ),
-    'format_type' => 'htab',
-    'format_settings' => array(
-      'label' => 'Pedagogy',
-      'instance_settings' => array(
-        'required_fields' => 1,
-        'classes' => 'group-pedagogy field-group-htab',
-        'description' => 'Modify settings that help illustrate the pedagogical significance of this content.',
-      ),
-      'formatter' => 'closed',
-    ),
-  );
-  $field_groups['group_pedagogy|node|page|form'] = $field_group;
-
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
   $field_group->identifier = 'group_topic_banner|node|page|form';
   $field_group->group_name = 'group_topic_banner';
   $field_group->entity_type = 'node';
@@ -137,7 +109,7 @@ function mooc_content_theming_field_group_info() {
   $field_group->parent_name = 'group_interface';
   $field_group->data = array(
     'label' => 'Topic banner',
-    'weight' => '143',
+    'weight' => '146',
     'children' => array(
       0 => 'field_mooc_image',
     ),
@@ -155,75 +127,12 @@ function mooc_content_theming_field_group_info() {
   );
   $field_groups['group_topic_banner|node|page|form'] = $field_group;
 
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
-  $field_group->identifier = 'group_visual_identifiers|node|page|form';
-  $field_group->group_name = 'group_visual_identifiers';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'page';
-  $field_group->mode = 'form';
-  $field_group->parent_name = '';
-  $field_group->data = array(
-    'label' => 'Visual',
-    'weight' => '3',
-    'children' => array(
-      0 => 'field_fa_primary_color',
-      1 => 'field_fa_secondary_color',
-      2 => 'field_instructional_significance',
-      3 => 'field_mooc_image',
-    ),
-    'format_type' => 'tab',
-    'format_settings' => array(
-      'label' => 'Visual',
-      'instance_settings' => array(
-        'required_fields' => 1,
-        'classes' => 'tab',
-        'description' => '',
-      ),
-      'formatter' => 'closed',
-    ),
-  );
-  $field_groups['group_visual_identifiers|node|page|form'] = $field_group;
-
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
-  $field_group->identifier = 'group_visuals|node|page|form';
-  $field_group->group_name = 'group_visuals';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'page';
-  $field_group->mode = 'form';
-  $field_group->parent_name = 'group_settings';
-  $field_group->data = array(
-    'label' => 'Visuals',
-    'weight' => '138',
-    'children' => array(
-      0 => 'group_colors',
-      1 => 'group_topic_banner',
-    ),
-    'format_type' => 'htab',
-    'format_settings' => array(
-      'label' => 'Visuals',
-      'instance_settings' => array(
-        'required_fields' => 1,
-        'classes' => 'group-visuals field-group-htab',
-        'description' => 'These settings are also applied to any child content in the outline.',
-      ),
-      'formatter' => 'closed',
-    ),
-  );
-  $field_groups['group_visuals|node|page|form'] = $field_group;
-
   // Translatables
   // Included for use with string extractors like potx.
   t('Colors');
   t('Interface');
-  t('Pedagogy');
   t('Strategies');
   t('Topic banner');
-  t('Visual');
-  t('Visuals');
 
   return $field_groups;
 }

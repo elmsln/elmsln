@@ -17,3 +17,14 @@ function elmsln_advagg_update_7000() {
   // gzip can cause issues if gzip libraries not available
   variable_set('advagg_gzip', 0);
 }
+
+/**
+ * Updates cache level to 1 instead of 3. This is the normal
+ * setting that advagg has out of the box and we were trying
+ * to be more aggressive. This has proven to brick our sub-theme
+ * structure by leaving advagg with out of date css/js when doing
+ * major theme revision / upgrades; then requiring manual intervention.
+ */
+function elmsln_advagg_update_7001() {
+  variable_set('advagg_cache_level', 1);
+}
