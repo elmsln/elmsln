@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Module file for Able Player Youtube.
+ */
+
+/**
+ * Implements hook_file_formatter_info_alter().
+ */
+function ableplayer_youtube_file_formatter_info_alter(&$info) {
+  $info['ableplayer']['mime types'][] = ABLEPLAYER_BUNDLE_VIDEO . '/' . ABLEPLAYER_MIME_YOUTUBE;
+}
+
+/**
+ * Implements hook_preprocess_THEME().
+ */
+function ableplayer_youtube_preprocess_ableplayer(&$variables) {
+  switch ($variables['mimetype']) {
+
+    case ABLEPLAYER_BUNDLE_VIDEO . '/' . ABLEPLAYER_MIME_YOUTUBE:
+      $variables['youtube_id'] = ableplayer_youtube_get_video_id($variables['uri']);
+
+      break;
+
+  }
+}
+
+/**
+ * Helper function to extract YouTube video id from filestream uri.
+ *
+ * @param string $uri
+ *   The uri of the file to parse for YouTube id.
+ *
+ * @return string
+ *   The extracted id string.
+ */
+function ableplayer_youtube_get_video_id($uri) {
+  $wrapper = file_stream_wrapper_get_instance_by_uri($uri);
+  $parts = $wrapper->get_parameters();
+  $id = check_plain($parts['v']);
+
+  return $id;
+}

@@ -7,6 +7,7 @@
   <?php if (isset($service_option_link)) : ?>
     <div class="minimal-edit-buttons in-modal">
     <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-services-edit-menu-1" aria-controls="offcanvas-admin-menu" aria-expanded="false">
+      <span class="element-invisible"><?php print t('Additional network operations'); ?></span>
       <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
     </a>
   </div>

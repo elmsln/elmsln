@@ -39,9 +39,8 @@ function foundation_access_preprocess_html(&$variables) {
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
   drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css', array('group' => CSS_THEME, 'weight' => 1001));
-  // google font / icon cdns
-  drupal_add_css('//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
-  drupal_add_css('//fonts.googleapis.com/icon?family=Material+Icons', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 999));
+  // google font / icons from google
+  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   // bring in materialize
   $libraries = libraries_get_libraries();
   // see if we have it locally before serviing CDN
@@ -95,7 +94,7 @@ function foundation_access_preprocess_page(&$variables) {
   // allow modules to supply accessibility enhancements to the menu
   $a11y = module_invoke_all('fa_a11y');
   drupal_alter('fa_a11y', $a11y);
-  $variables['a11y'] = implode('', $a11y);
+  $variables['a11y'] = drupal_render($a11y);
   // sniff out if this is a view
   if ($menu_item['page_callback'] == 'views_page') {
     // try and auto append exposed filters to our local_subheader region
@@ -210,6 +209,187 @@ function foundation_access_preprocess_node(&$variables) {
   if (module_exists('display_inherit')) {
     display_inherit_inheritance_factory($type, $bundle, $viewmode, 'foundation_access', $variables);
   }
+}
+
+/**
+ * Implements theme_field().
+ *
+ * Changes to the default field output.
+ */
+function foundation_access_field($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<div ' . $variables['title_attributes'] . '>' . $variables['label'] . '</div>';
+  }
+
+  // Quick Edit module requires some extra wrappers to work.
+  if (module_exists('quickedit')) {
+    $output .= '<div class="field-items"' . $variables['content_attributes'] . '>';
+    foreach ($variables['items'] as $delta => $item) {
+      $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
+      $output .= '<div class="' . $classes . '"' . $variables['item_attributes'][$delta] . '>' . drupal_render($item) . '</div>';
+    }
+    $output .= '</div>';
+  }
+  else {
+    foreach ($variables['items'] as $item) {
+      $output .= drupal_render($item);
+    }
+  }
+
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
+
+  return $output;
+}
+
+/**
+ * Implements theme_file().
+ */
+function foundation_access_file($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'file';
+  element_set_attributes($element, array('id', 'name', 'size'));
+  _form_set_class($element, array('form-file'));
+  // apply classes and wrappers needed for materializecss
+  return '<div class="col s12 m8 file-field input-field">
+      <div class="btn">
+        <span>' . $element['#title'] . '</span>
+        <input' . drupal_attributes($element['#attributes']) . ' />
+      </div>
+      <div class="file-path-wrapper">
+        <input class="file-path validate" type="text">
+      </div>
+    </div>';
+}
+
+/**
+ * Implements theme_button().
+ */
+function foundation_access_button($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'submit';
+  element_set_attributes($element, array('id', 'name', 'value'));
+
+  $element['#attributes']['class'][] = 'form-' . $element['#button_type'];
+  if (!empty($element['#attributes']['disabled'])) {
+    $element['#attributes']['class'][] = 'form-button-disabled';
+  }
+  $element['#attributes']['class'][] = 'btn';
+  // wrap classes on an upload button
+  if ($variables['element']['#value'] == 'Upload') {
+    return '
+    <div class="col s12 m4 input-field">
+      <button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</button>
+    </div>';
+  }
+  else {
+    return '<button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</button>';
+  }
+}
+
+/**
+ * Implements theme_select().
+ */
+function foundation_access_select($variables) {
+  $element = $variables['element'];
+  element_set_attributes($element, array('id', 'name', 'size'));
+  _form_set_class($element, array('form-select'));
+
+  return '<select' . drupal_attributes($element['#attributes']) . '>' . _foundation_access_form_select_options($element) . '</select>';
+}
+
+/**
+ * Fork of core form_select_options.
+ */
+function _foundation_access_form_select_options($element, $choices = NULL) {
+  if (!isset($choices)) {
+    $choices = $element['#options'];
+  }
+  // array_key_exists() accommodates the rare event where $element['#value'] is NULL.
+  // isset() fails in this situation.
+  $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
+  $value_is_array = $value_valid && is_array($element['#value']);
+  $options = '';
+  foreach ($choices as $key => $choice) {
+    if (is_array($choice)) {
+      $options .= '<optgroup label="' . check_plain($key) . '">';
+      $options .= form_select_options($element, $choice);
+      $options .= '</optgroup>';
+    }
+    elseif (is_object($choice)) {
+      $options .= form_select_options($element, $choice->option);
+    }
+    else {
+      $key = (string) $key;
+      if ($value_valid && (!$value_is_array && (string) $element['#value'] === $key || ($value_is_array && in_array($key, $element['#value'])))) {
+        $selected = ' selected="selected"';
+      }
+      else {
+        $selected = '';
+      }
+      $extra = '';
+      // support for materialize options
+      if (isset($element['#materialize']) && $key != '_none') {
+        $extra = 'class="' . $element['#materialize']['class'] . '"';
+        // add in the path to the images w/ the option being part of the
+        // name of the file. This is very specific to how we want to structure
+        // choice options to have an icon_path counterpart but it's not
+        // that hard to do so whatever.
+        if (isset($element['#materialize']['icon_path'])) {
+          $extra .= ' data-icon="' . base_path() . $element['#materialize']['icon_path'] . drupal_strtolower(str_replace('/', '-', str_replace(' ', '', check_plain($choice)))) . '.png"';
+        }
+      }
+      $options .= '<option ' . $extra . ' value="' . check_plain($key) . '"' . $selected . '>' . check_plain($choice) . '</option>';
+    }
+  }
+  return $options;
+}
+
+/**
+ * Implements theme_field__taxonomy_term_reference().
+ */
+function foundation_access_field__taxonomy_term_reference($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<h3 class="field-label">' . $variables['label'] . '</h3>';
+  }
+
+  // Render the items.
+  $output .= ($variables['element']['#label_display'] == 'inline') ? '<ul class="links inline">' : '<ul class="links">';
+  foreach ($variables['items'] as $delta => $item) {
+    $output .= '<li class="chip taxonomy-term-reference taxonomy-term-reference-' . $delta . '"' . $variables['item_attributes'][$delta] . '>' . drupal_render($item) . '</li>';
+  }
+  $output .= '</ul>';
+
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . (!in_array('clearfix', $variables['classes_array']) ? ' clearfix' : '') . '">' . $output . '</div>';
+
+  return $output;
+}
+
+/**
+ * Implements theme_field__taxonomy_term_reference().
+ */
+function foundation_access_field__field_cis_course_ref($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<h3 ' . $variables['title_attributes'] . '>' . $variables['label'] . '</h3>';
+  }
+
+  foreach ($variables['items'] as $item) {
+    $output .= drupal_render($item);
+  }
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
+
+  return $output;
 }
 
 /**
@@ -615,6 +795,47 @@ function foundation_access_preprocess_cis_dashbord(&$variables, $hook) {
 }
 
 /**
+ * Implements hook_form_alter().
+ */
+function foundation_access_form_alter(&$form, &$form_state, $form_id) {
+  // drop zurb core class stuff
+  if (!empty($form['actions']) && !empty($form['actions']['submit'])) {
+    unset($form['actions']['submit']['#attributes']['class']);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function foundation_access_form_page_node_form_alter(&$form, &$form_state) {
+  $form['hidden_nodes']['#group'] = 'group_advanced';
+  $form['hidden_nodes']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'hidden_nodes';
+
+  $form['book']['#group'] = 'group_advanced';
+  $form['book']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'book';
+
+  $form['options']['#group'] = 'group_advanced';
+  $form['options']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'options';
+
+  $form['author']['#group'] = 'group_advanced';
+  $form['author']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'author';
+
+  $form['revision_information']['#group'] = 'group_advanced';
+  $form['revision_information']['#type'] = 'div';
+  $form['#groups']['group_advanced']->children[] = 'revision_information';
+
+  // support for images in significance dropdown
+  $form['field_instructional_significance']['und']['#materialize'] = array(
+    'class' => 'left',
+    'icon_path' => drupal_get_path('theme', 'foundation_access') . '/icons/pedagogy/',
+  );
+}
+
+/**
  * Helper function for return a whitelist of allowed tags that can be
  * present in an SVG file.
  */
@@ -825,3 +1046,30 @@ function _foundation_access_hue_2_rgb($v1, $v2, $vh) {
   }
   return ($v1);
 };
+
+/**
+ * Converts youtube / vimeo URLs into things we can embed
+ * @param  string $video_url a well formed youtube/vimeo direct URL.
+ * @return string            the address that's valid for embed codes.
+ */
+function _foundation_access_video_url($video_url) {
+  // account for the broken form of embed code from youtube
+  if (strpos($video_url, 'youtube') && !strpos($video_url, 'embed')) {
+    $tmp = drupal_parse_url($video_url);
+    $yvid = '';
+    // check for youtube url vs embed
+    if (isset($tmp['query']['v'])) {
+      $yvid = $tmp['query']['v'];
+      return 'https://www.youtube.com/embed/' . $yvid;
+    }
+  }
+  // account for the broken form of embed code from vimeo
+  if (strpos($video_url, 'vimeo') && !strpos($video_url, 'player')) {
+    // rip out from embed based url
+    $vpath = explode('/', $video_url);
+    $part = array_pop($vpath);
+    return 'https://player.vimeo.com/video/' . $part;
+  }
+  // didn't know what to do or it was already well formed
+  return $video_url;
+}

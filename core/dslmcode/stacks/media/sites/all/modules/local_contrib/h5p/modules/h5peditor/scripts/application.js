@@ -17,7 +17,9 @@ var ns = H5PEditor;
     ns.fileIcon = Drupal.settings.h5peditor.fileIcon;
     ns.ajaxPath = Drupal.settings.h5peditor.ajaxPath;
     ns.filesPath = Drupal.settings.h5peditor.filesPath;
-    ns.uploadToken = Drupal.settings.h5peditor.uploadToken;
+    ns.relativeUrl = Drupal.settings.h5peditor.relativeUrl;
+    ns.contentRelUrl = Drupal.settings.h5peditor.contentRelUrl;
+    ns.editorRelUrl = Drupal.settings.h5peditor.editorRelUrl;
 
     // Semantics describing what copyright information can be stored for media.
     ns.copyrightSemantics = Drupal.settings.h5peditor.copyrightSemantics;

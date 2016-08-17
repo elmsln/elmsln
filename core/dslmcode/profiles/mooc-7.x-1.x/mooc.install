@@ -121,3 +121,11 @@ function mooc_update_7005(&$sandbox) {
   module_enable(array('cis_course_service'));
 }
 
+/**
+ * Improved authoring experince with content editing.
+ */
+function mooc_update_7006(&$sandbox) {
+  features_revert_module('mooc_page');
+  features_revert_module('mooc_content_theming');
+}
+

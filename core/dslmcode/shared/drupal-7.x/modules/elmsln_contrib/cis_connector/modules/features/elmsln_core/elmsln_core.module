@@ -328,18 +328,38 @@ function elmsln_core_icon_library() {
  * Provides keyboard shortcut buttons
  */
 function elmsln_core_fa_a11y() {
-  return array(3 => '<div class="keyboard-short">
-    <div class="keyboard-short__group">
-      <label>' . t('Scroll down') . '</label>
-      <div class="keyboard-short__key">↓</div>
-      <div class="keyboard-short__key">↓</div>
-    </div>
-    <div class="keyboard-short__group">
-      <label>' . t('Scroll back to top') . '</label>
-      <div class="keyboard-short__key">↑</div>
-      <div class="keyboard-short__key">↑</div>
-    </div>
-  </div>');
+  return array(
+    'keyboard' => array(
+      '#type' => 'fieldset',
+      '#title' => t('Keyboard keys'),
+      '#description' => t('Use these key combinations to quickly navigate the course.'),
+      '#collapsed' => TRUE,
+      '#collapsible' => TRUE,
+      '#weight' => 9,
+      '#attributes' => array(
+        'class' => array(
+          'collapsible',
+          'form-wrapper',
+          'collapsed',
+        ),
+      ),
+      'keys' => array(
+        '#markup' =>
+        '<div class="keyboard-short">
+          <div class="keyboard-short__group">
+            <span>' . t('Scroll down') . '</span>
+            <div class="keyboard-short__key">↓</div>
+            <div class="keyboard-short__key">↓</div>
+          </div>
+          <div class="keyboard-short__group">
+            <span>' . t('Scroll back to top') . '</span>
+            <div class="keyboard-short__key">↑</div>
+            <div class="keyboard-short__key">↑</div>
+          </div>
+        </div>'
+      ),
+    )
+  );
 }
 
 /**

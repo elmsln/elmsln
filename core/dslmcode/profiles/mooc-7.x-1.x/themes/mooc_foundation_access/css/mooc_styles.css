@@ -98,9 +98,12 @@ ul.book-navigation-wrapper {
   line-height: 2rem;
 }
 
+/* Scroll bar for breadcrumb nav that's really really long */
 .book-sibling-nav-container .f-dropdown.content {
-  max-width: 300px;
+  max-width: 20rem;
+  max-height: 20rem;
 }
+/* end scroll bar styling */
 
 .book-sibling-nav-container .f-dropdown.content ul {
   margin: 0;
@@ -164,6 +167,7 @@ ul.book-navigation-wrapper {
 }
 
 .book-sibling-parent-text {
+  color: #4c4c4c;
   max-width: 7rem;
   display: inline-block;
   white-space: nowrap;

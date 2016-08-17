@@ -10,7 +10,7 @@
 function mooc_page_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'body'
+  // Exported field_base: 'body'.
   $field_bases['body'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -34,7 +34,7 @@ function mooc_page_field_default_field_bases() {
     'type' => 'text_with_summary',
   );
 
-  // Exported field_base: 'field_cis_tag'
+  // Exported field_base: 'field_cis_tag'.
   $field_bases['field_cis_tag'] = array(
     'active' => 1,
     'cardinality' => 1,

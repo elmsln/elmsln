@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * @file
+ * Test case for Able Player core functions.
+ */
+
+/**
+ * Test case for Able Player core functions.
+ */
+class AblePlayerCoreTestCase extends DrupalWebTestCase {
+
+  /**
+   * The Drupal user that will perform the test operations.
+   *
+   * @var object $user
+   */
+  protected $user;
+
+  /**
+   * Implementation of DrupalWebTestCase::getInfo().
+   */
+  public static function getInfo() {
+    $info = array();
+
+    $info['name'] = 'Able Player Core';
+    $info['description'] = 'Ensure that the settings validation functions operate correctly';
+    $info['group'] = 'Able Player';
+
+    return $info;
+  }
+
+  /**
+   * Implementation of DrupalWebTestCase::setUp().
+   */
+  public function setUp() {
+    $dependencies = array(
+      'ableplayer',
+    );
+
+    $user = array(
+      'access administration pages',
+      'administer file types',
+      'administer files',
+      'administer site configuration',
+      'bypass file access',
+      'bypass node access',
+      'view the administration theme',
+    );
+
+    parent::setUp($dependencies);
+
+    $this->user = $this->drupalCreateUser($user);
+    $this->drupalLogin($this->user);
+  }
+
+  /**
+   * Test that the default mimetypes for the Document type include VTT.
+   */
+  public function testAblePlayerFileDefaultTypesAlter() {
+    $types = file_type_load_all();
+
+    drupal_alter('file_default_types', $types);
+
+    $this->assertTrue(in_array('text/vtt', $types['document']->mimetypes),
+      'text/vtt mimetype added to Document file type');
+  }
+
+  /**
+   * Test that the theme hook returns the ableplayer key.
+   */
+  public function testAblePlayerTheme() {
+    $existing = array();
+    $type = 'module';
+    $theme = NULL;
+    $path = drupal_get_path('module', 'ableplayer');
+
+    $themes = module_invoke('ableplayer', 'theme', $existing, $type, $theme, $path);
+
+    $this->assertTrue(array_key_exists('ableplayer', $themes),
+      'Able Player theme found.');
+  }
+
+}

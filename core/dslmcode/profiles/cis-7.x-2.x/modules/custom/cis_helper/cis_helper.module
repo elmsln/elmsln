@@ -170,9 +170,13 @@ function _cis_helper_assemble_roster(&$sections) {
         // allow for altering roster pull methods
         drupal_alter('cis_helper_build_roster', $tmproster, $section_id);
         foreach ($tmproster as $uname => $urole) {
-          // don't grant students early access
+          // don't grant students early access but still give them an account
+          // this way our roster totals / accounts show up but they don't gain
+          // the student role until the time they are supposed to.
+          // it also enables them to access the welcome letter and other
+          // CIS delivered logistical information.
           if ($urole == 'student') {
-            unset($tmproster[$uname]);
+            $tmproster[$uname] = 'authenticated user';
           }
         }
         $roster[$section_id] = $tmproster;

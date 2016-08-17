@@ -1,6 +1,12 @@
 <?php
 /**
  * @file
+ * Code for the CIS Course Service feature.
+ */
+
+include_once 'cis_course_service.features.inc';
+/**
+ * @file
  * Code for CIS Course Service to integrate any Service into ELMSLN.
  */
 

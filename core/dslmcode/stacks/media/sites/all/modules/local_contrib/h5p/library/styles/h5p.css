@@ -176,16 +176,30 @@ div.h5p-fullscreen {
 .h5p-actions > .h5p-button {
   float: left;
   cursor: pointer;
-  margin: 0 1.5em 0 0;
+  margin: 0 0.5em 0 0;
   background: none;
-  padding: 0;
+  padding: 0 0.75em 0 0.25em;
   vertical-align: top;
   color: #999;
   text-decoration: none;
   outline: none;
+  line-height: 23px;
 }
 .h5p-actions > .h5p-button:hover {
   color: #666;
+}
+.h5p-actions > .h5p-button:active,
+.h5p-actions > .h5p-button:focus,
+.h5p-actions .h5p-link:active,
+.h5p-actions .h5p-link:focus {
+  color: #666;
+}
+.h5p-actions > .h5p-button:focus,
+.h5p-actions .h5p-link:focus {
+  outline-style: solid;
+  outline-width: thin;
+  outline-offset: -2px;
+  outline-color: #9ecaed;
 }
 .h5p-actions > .h5p-button:before {
   font-family: 'H5P';
@@ -208,7 +222,7 @@ div.h5p-fullscreen {
   float: right;
   margin-right: 0;
   font-size: 2.0em;
-  line-height: 1;
+  line-height: 23px;
   overflow: hidden;
   color: #999;
   text-decoration: none;
@@ -217,6 +231,7 @@ div.h5p-fullscreen {
 .h5p-actions .h5p-link:before {
   font-family: 'H5P';
   content: "\e88e";
+  vertical-align: bottom;
 }
 .h5p-actions > li {
   margin: 0;

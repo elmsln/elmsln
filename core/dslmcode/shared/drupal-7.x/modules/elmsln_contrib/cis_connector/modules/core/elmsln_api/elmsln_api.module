@@ -182,7 +182,17 @@ function elmsln_api_execute_request() {
     module_load_include('inc', 'elmsln_api', 'includes/json');
   }
   // look for snake calls which we can perform on anything stupid enough
-  // to attempt it. This can destroy things if not done carefully
+  // to attempt it. This can destroy things if not done carefully so understand
+  // that this is the most amazing and dangerous code I've ever written. Honestly
+  // when explaining this to people it blows their minds both in what it's able to
+  // do from a load distribution standpoint as well as complexity of thinking this way
+  // this allows for recursive http requests which can spawn recursive http requests.
+  // Think long and hard before invoking these but if you know why you are doin them
+  // then you have reached the apex of being an elmsln developer. You've gotten to read
+  // this easteregg of a rant about how frigging cool this is and the fact that almost no
+  // one in the world will ever see it, nor will they need to know how or why it works. That's
+  // the beuty and danger of what we do. we make the impossible possible and it's incredible
+  // yet maddening at the same time.
   if (isset($_elmsln['args']['__snake_stack']) && !empty($_elmsln['args']['__snake_stack'])) {
     // tee up the next request as well as removing this call
     // from our queue of calls to ship off
@@ -472,7 +482,6 @@ function _elmsln_api_nonblocking_requests($requests, $recursion = FALSE) {
  * or any service. The most common use-case is keeping the
  * title of the course in sync across all services.
  *
- * @todo  explore a background processing capability as this gets intense
  * @param  array  $properties       an array of items to keep in sync
  *         possible values include: title, slogan, machine_name, uuid
  * @param  string $api         api version to use
@@ -641,7 +650,6 @@ function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
  * This call will update information about a section
  * everywhere except the CIS (which is where sections start)
  *
- * @todo  explore a background processing capability as this gets intense
  * @param  array  $properties       an array of items to keep in sync
  *         possible values include: title, section_id, course, active
  * @param  string $api         api version to use
@@ -806,12 +814,14 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
       if ($nonblocking && isset($nonblock)) {
         // prepare the query to be shipped off
         $request['data']['q'] = 'v' . $request['api'];
-        // queue up the
-        $bucket = array_pop($nonblock);
-        $request['data']['__snake_stack'] = $nonblock;
         if (!isset($request['data']['__course_context'])) {
           $request['data']['__course_context'] = _cis_connector_course_context();
         }
+        // validate buckets are all alive before queueing this up
+        _elmsln_api_is_alive($nonblock);
+        // queue up the
+        $bucket = array_pop($nonblock);
+        $request['data']['__snake_stack'] = $nonblock;
         // leave a flag for debug purposes if it's nonblocking
         $request['_httprl'] = TRUE;
         $options = array(
@@ -901,12 +911,14 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
       if ($nonblocking && isset($nonblock)) {
         // prepare the query to be shipped off
         $request['data']['q'] = 'v' . $request['api'];
-        // queue up the
-        $bucket = array_pop($nonblock);
-        $request['data']['__snake_stack'] = $nonblock;
         if (!isset($request['data']['__course_context'])) {
           $request['data']['__course_context'] = _cis_connector_course_context();
         }
+        // validate buckets are all alive before queueing this up
+        _elmsln_api_is_alive($nonblock);
+        // queue up the
+        $bucket = array_pop($nonblock);
+        $request['data']['__snake_stack'] = $nonblock;
         // leave a flag for debug purposes if it's nonblocking
         $request['_httprl'] = TRUE;
         $options = array(
@@ -931,9 +943,61 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
 }
 
 /**
+ * Validate that buckets passed in are alive.
+ * @param  array &$buckets array of buckets to ask their status.
+ */
+function _elmsln_api_is_alive(&$buckets) {
+  global $_elmsln;
+  $tmp = $_elmsln['args'];
+  // need to queue module / callback back up for the resigning of the request
+  foreach ($buckets as $key => $bucket) {
+    $systype = _cis_connector_system_type($bucket);
+    switch ($systype) {
+      case 'service':
+        $path = '/' . $_elmsln['args']['__course_context'] . '/';
+      break;
+      case 'authority':
+        $path = '/';
+      break;
+      default:
+        // support for skipping things outside authority / service scope
+      break;
+    }
+    $tmp['elmsln_module'] = 'elmsln_api';
+    $tmp['elmsln_callback'] = 'is_alive';
+    // ensure that this is alive before hitting it, otherwise we'll break
+    // the snake and not everyone will get the message and we'll be sad
+    $request = array(
+      'method' => 'POST',
+      'api' => 1,
+      'bucket' => $bucket,
+      'path' => $path,
+      'data' => $tmp,
+    );
+    // this will ensure we are alive before trying to make the call out
+    $is_alive = _elmsln_api_request($request, FALSE, TRUE);
+    // convert json
+    $is_alive = drupal_json_decode($is_alive);
+    // verify that this call can go through before attempting
+    // this helps avoid poisned / bad registries, network issue, etc
+    // from breaking the snake chain call
+    if (isset($is_alive['is_alive']) && $is_alive['is_alive']) {
+    }
+    else {
+      unset($buckets[$key]);
+    }
+  }
+}
+
+/**
  * Implements hook_elmsln_api_info().
  */
 function elmsln_api_elmsln_api_info() {
+  // alive test
+  $callbacks['is_alive'] = array(
+    'methods' => array('GET', 'POST'),
+    'file' => 'callbacks/v1/is_alive.inc',
+  );
   // remote cache bin wipe
   $callbacks['clear_cache_bin'] = array(
     'methods' => array('GET', 'POST'),

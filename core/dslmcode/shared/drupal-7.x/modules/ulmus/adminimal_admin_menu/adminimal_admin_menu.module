@@ -138,7 +138,7 @@ function adminimal_admin_menu_admin_menu_output_alter(&$content) {
 
   // Alter icon.
   unset($content['icon']['icon']['#theme']);
-  $content['icon']['icon']['#title'] = '<span class="admin-menu-home-icon">&nbsp;</span>';
+  $content['icon']['icon']['#title'] = '<span class="admin-menu-home-icon">&nbsp;</span><span class="element-invisible">' . t('Home') . '</span>';
   $content['icon']['icon']['#attributes']['class'][] = 'admin-menu-toolbar-home-menu';
   $page['#attributes']['class'][] = 'adminimal-menu';
 

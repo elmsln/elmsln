@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @file
+ * Test Able Player YouTube output.
+ */
+
+/**
+ * Test case for Able Player Youtube output.
+ */
+class AblePlayerYouTubeTestCase extends DrupalWebTestCase {
+
+  /**
+   * The Drupal user that will perform the test operations.
+   *
+   * @var object $user
+   */
+  protected $user;
+
+  /**
+   * Implementation of DrupalWebTestCase::getInfo().
+   */
+  public static function getInfo() {
+    $info = array();
+
+    $info['name'] = 'Able Player YouTube';
+    $info['description'] = 'Verify that the HTML output of the Able Player YouTube is correct with given settings';
+    $info['group'] = 'Able Player';
+
+    return $info;
+  }
+
+  /**
+   * Implementation of DrupalWebTestCase::setUp().
+   */
+  public function setUp() {
+    $dependencies = array(
+      'ableplayer_youtube',
+    );
+
+    $user = array(
+      'access administration pages',
+      'administer file types',
+      'administer files',
+      'administer nodes',
+      'bypass file access',
+      'bypass node access',
+      'create files',
+      'view the administration theme',
+    );
+
+    parent::setUp($dependencies);
+
+    $this->user = $this->drupalCreateUser($user);
+    $this->drupalLogin($this->user);
+
+    $data = array();
+    $data['displays[ableplayer][status]'] = 1;
+    $data['displays[ableplayer][weight]'] = -50;
+    $data['displays[media_youtube_video][status]'] = FALSE;
+    $data['displays[media_youtube_image][status]'] = FALSE;
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('Your settings have been saved.'));
+  }
+  /**
+   * Tests that the Able Player module successfully displays for YouTube videos.
+   */
+  public function testAblePlayerYouTubeVideoLoad() {
+    $data = array();
+    $data['embed_code'] = 'https://www.youtube.com/watch?v=6xSO9LDn7qU';
+
+    $this->drupalPost('file/add/web', $data, t('Next'));
+    $this->assertText(t('Video Getting to know Catherine Clark was uploaded.'));
+
+    $this->drupalGet('file/1');
+    $this->assertPattern('/<video[^<>]+data-able-player>/',
+      'Attribute "data-able-player" found in raw HTML.');
+  }
+
+}

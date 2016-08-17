@@ -19,16 +19,24 @@ function read_time_schema() {
           'unsigned' => TRUE,
         ),
         'read_time' => array(
-          'description' => 'The calculated and formatted read time of the node.',
-          'type' => 'varchar',
-          'not null' => TRUE,
-          'default' => '',
-          'length' => 255,
+          'type' => 'blob',
+          'not null' => FALSE,
+          'size' => 'big',
+          'serialize' => TRUE,
+          'description' => 'A serialized array of read_time data and metadata.',
         ),
       ),
       'primary key' => array('nid'),
     ),
   );
+}
+
+/**
+ * Implements hook_install().
+ */
+function read_time_install() {
+  // rebuild nodes
+  _read_time_perform_batch_process();
 }
 
 /**
@@ -40,6 +48,27 @@ function read_time_uninstall() {
     variable_del('read_time_wpm_' . $bundle);
     variable_del('read_time_format_' . $bundle);
     variable_del('read_time_display_' . $bundle);
+    variable_del('read_time_node_view_' . $bundle);
   }
 }
 
+/**
+ * Upgrade hook to jump from 1.x to 2.x which just drops all
+ * the current times that have been calculated so that we can
+ * expand them from a single text string into a serialized array.
+ */
+function read_time_update_7200(&$sandbox) {
+  // empty the table before doing this
+  db_truncate('read_time');
+  $spec = array(
+    'type' => 'blob',
+    'not null' => FALSE,
+    'size' => 'big',
+    'serialize' => TRUE,
+    'description' => 'A serialized array of read_time data and metadata.',
+  );
+  // convert read_time field from string to blob so we can store more metadata
+  db_change_field('read_time', 'read_time', 'read_time', $spec);
+  // bulk update all nodes
+  _read_time_perform_batch_process();
+}

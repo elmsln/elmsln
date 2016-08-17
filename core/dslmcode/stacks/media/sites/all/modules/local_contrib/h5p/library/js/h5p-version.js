@@ -10,8 +10,8 @@ H5P.Version = (function () {
     var versionSplit = version.split('.', 3);
 
     // Public
-    this.major = versionSplit[0];
-    this.minor = versionSplit[1];
+    this.major =+ versionSplit[0];
+    this.minor =+ versionSplit[1];
 
     /**
      * Public. Custom string for this object.

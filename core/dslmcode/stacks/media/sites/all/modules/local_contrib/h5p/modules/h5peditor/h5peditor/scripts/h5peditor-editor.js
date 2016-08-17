@@ -153,7 +153,7 @@ ns.language = {};
  * @method H5PEditor.t
  * @param {string} library The library name(machineName), or "core".
  * @param {string} key Translation string identifier.
- * @param {Object} vars Placeholders and values to replace in the text.
+ * @param {Object} [vars] Placeholders and values to replace in the text.
  * @returns {string} Translated string, or a text if string translation is missing.
  */
 ns.t = function (library, key, vars) {

@@ -25,5 +25,4 @@ features[variable][] = ckeditor_link_autocomplete_node_types
 features[variable][] = ckeditor_link_autocomplete_vocabularies
 features[variable][] = ckeditor_link_type_name
 features[variable][] = ckeditor_link_type_selected
-features[variable][] = imce_profiles
 features[wysiwyg][] = textbook_editor

@@ -18,32 +18,34 @@ function mooc_nav_block_field_group_info() {
   $field_group->entity_type = 'node';
   $field_group->bundle = 'page';
   $field_group->mode = 'form';
-  $field_group->parent_name = '';
+  $field_group->parent_name = 'group_interface';
   $field_group->data = array(
-    'label' => 'Navigation Block',
-    'weight' => '3',
+    'label' => 'Navigation',
+    'weight' => '144',
     'children' => array(
-      0 => 'field_mooc_nav_style',
+      0 => 'field_mooc_nav_custom_text',
       1 => 'field_mooc_nav_display',
-      2 => 'field_mooc_nav_type',
-      3 => 'field_mooc_nav_label',
-      4 => 'field_mooc_nav_custom_text',
+      2 => 'field_mooc_nav_label',
+      3 => 'field_mooc_nav_style',
+      4 => 'field_mooc_nav_type',
     ),
-    'format_type' => 'tab',
+    'format_type' => 'fieldset',
     'format_settings' => array(
-      'formatter' => 'closed',
+      'label' => 'Navigation',
       'instance_settings' => array(
-        'description' => '',
+        'required_fields' => 0,
+        'id' => '',
         'classes' => 'group-navigation-block field-group-tab',
-        'required_fields' => 1,
+        'description' => 'Produce a navigation block to visualize where students are currently in the context of other pages.',
       ),
+      'formatter' => 'collapsed',
     ),
   );
   $field_groups['group_navigation_block|node|page|form'] = $field_group;
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Navigation Block');
+  t('Navigation');
 
   return $field_groups;
 }

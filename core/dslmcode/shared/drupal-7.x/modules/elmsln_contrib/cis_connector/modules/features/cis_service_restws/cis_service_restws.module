@@ -178,6 +178,7 @@ function _cis_service_restws_restws_deep_load(&$response) {
             'filesize' => 'filesize',
             'status' => 'status',
             'timestamp' => 'timestamp',
+            'metadata' => 'metadata',
           );
           foreach ($eary as $property => $value) {
             // value needs to be removed as it didn't pass wrapper validation

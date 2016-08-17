@@ -7,42 +7,31 @@ div.textbook_box {
   display: block;
   margin: 1em 0px 2em 0px;
   padding: .5em;
-  -moz-border-radius: 4px 4px 0px 0px;
-  -webkit-border-radius: 4px 4px 0px 0px;
-  border-radius: 4px 4px 0px 0px; /* future proofing */
-  -khtml-border-radius: 4px 4px 0px 0px; /* for old Konqueror browsers */
 }
 div.textbook_box h3 {
   font-size: 1.5em;
   font-weight: bold;
   display: block;
-  float: left;
-  margin-top: -25px !important;
-  margin-bottom: 0px;
-  margin-left: 5px;
-  margin-right:0px;
-  background-color:#fafafa;
-  border:2px solid;
-  padding:4px 6px;
-  letter-spacing:.06em;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px; /* future proofing */
-  -khtml-border-radius: 4px; /* for old Konqueror browsers */
+  float: right;
+  margin-top: -10px !important;
+  margin-right: -10px;
+  margin-bottom: 8px;
+  margin-left: 0px;
+  padding: 0px 0px 8px 8px;
+  background-color: #fafafa;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+  letter-spacing: .06em;
+  line-height: 1;
 }
 div.textbook_box_required {
-  border:#e98 2px solid;
+  border:#f88 2px solid;
 }
 div.textbook_box_required h3{
-  color:#e98;
+  color:#f88;
 }
 div.textbook_box_required li:before{
-  background: #e98;
-}
-div.textbook_box_required li:hover:before{
- font-weight:bold;
- border: .3em solid #e98;
- background: #fff;
+  background: #f88;
 }
 /* Optional list color shift */
 div.textbook_box_optional {
@@ -53,11 +42,6 @@ div.textbook_box_optional h3{
 }
 div.textbook_box_optional li:before{
   background: #80c0e0;
-}
-div.textbook_box_optional li:hover:before{
- font-weight:bold;
- border: .3em solid #80c0e0;
- background: #fff;
 }
 
 div.textbook_box ol, div.textbook_box ul{
@@ -74,16 +58,12 @@ div.textbook_box li{
   position: relative;
   display: block;
   padding: .4em .4em .4em 2em;
-  *padding: .4em;
   margin: .7em 0 !important;
   background: #eee;
   color: #444;
   text-decoration: none;
-  -moz-border-radius: .3em;
-  -webkit-border-radius: .3em;
-  border-radius: .3em; /* future proofing */
-  -khtml-border-radius: .3em; /* for old Konqueror browsers */
   transition: all .3s ease-out;
+  overflow-wrap: break-word;
 }
 
 div.textbook_box li:hover{
@@ -95,12 +75,11 @@ div.textbook_box li:before{
   counter-increment: li;
   position: absolute;
   left: -1rem;
-  top: 50%;
+  top: 55%;
   margin-top: -1.25rem;
-  height: 2rem;
-  width: 2rem;
-  line-height: 1.5rem;
-  border: .3rem solid #fff;
+  height: 2.3rem;
+  width: 2.3rem;
+  line-height: 2.3rem;
   text-align: center;
   font-weight: bold;
   -moz-border-radius: 2rem;
@@ -108,5 +87,17 @@ div.textbook_box li:before{
   border-radius: 2rem; /* future proofing */
   -khtml-border-radius: 2rem; /* for old Konqueror browsers */
   transition: all .3s ease-out;
-  font-size: 1rem;
+  font-size: 1.4rem;
+}
+
+/* Responsive */
+@media screen and (max-width: 80rem) {
+  div.textbook_box h3 {
+    float: none;
+    margin: 0;
+    padding: 1rem 1rem 0;
+    border:none;
+    background-color: transparent;
+    line-height: 1;
+  }
 }

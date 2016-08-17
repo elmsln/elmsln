@@ -10,7 +10,7 @@
 function elmsmedia_figure_label_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-figurelabel-body'
+  // Exported field_instance: 'node-figurelabel-body'.
   $field_instances['node-figurelabel-body'] = array(
     'bundle' => 'figurelabel',
     'default_value' => NULL,
@@ -23,6 +23,20 @@ function elmsmedia_figure_label_field_default_field_instances() {
         'settings' => array(),
         'type' => 'text_default',
         'weight' => 0,
+      ),
+      'figurelabel' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'hidden',
@@ -86,7 +100,7 @@ function elmsmedia_figure_label_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-figurelabel-field_cis_course_ref'
+  // Exported field_instance: 'node-figurelabel-field_cis_course_ref'.
   $field_instances['node-figurelabel-field_cis_course_ref'] = array(
     'bundle' => 'figurelabel',
     'default_value' => NULL,
@@ -96,9 +110,21 @@ function elmsmedia_figure_label_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+      'figurelabel' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+      'full' => array(
+        'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
-          'link' => FALSE,
+          'link' => 1,
         ),
         'type' => 'entityreference_label',
         'weight' => 1,
@@ -154,19 +180,31 @@ function elmsmedia_figure_label_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-figurelabel-field_tagging'
+  // Exported field_instance: 'node-figurelabel-field_tagging'.
   $field_instances['node-figurelabel-field_tagging'] = array(
     'bundle' => 'figurelabel',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Tagging media can make it easier to find after the fact. This is used for searching and filtering.',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'figurelabel' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'full' => array(
         'label' => 'above',
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -177,7 +215,7 @@ function elmsmedia_figure_label_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_tagging',
-    'label' => 'Tagging',
+    'label' => 'Tags',
     'required' => 0,
     'settings' => array(
       'authcache' => array(
@@ -211,7 +249,7 @@ function elmsmedia_figure_label_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-figurelabel-og_group_ref'
+  // Exported field_instance: 'node-figurelabel-og_group_ref'.
   $field_instances['node-figurelabel-og_group_ref'] = array(
     'bundle' => 'figurelabel',
     'default_value' => NULL,
@@ -221,10 +259,24 @@ function elmsmedia_figure_label_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'og_ui',
         'settings' => array(),
-        'type' => 'og_list_default',
+        'type' => 'hidden',
         'weight' => 3,
+      ),
+      'figurelabel' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -302,7 +354,8 @@ function elmsmedia_figure_label_field_default_field_instances() {
   t('Course');
   t('Description');
   t('Section');
-  t('Tagging');
+  t('Tagging media can make it easier to find after the fact. This is used for searching and filtering.');
+  t('Tags');
 
   return $field_instances;
 }

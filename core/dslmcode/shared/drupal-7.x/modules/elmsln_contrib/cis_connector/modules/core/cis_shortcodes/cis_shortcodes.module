@@ -65,7 +65,7 @@ function cis_shortcodes_block_view($delta = '') {
 
         // see if we have some share fields to render
         if (isset($field)) {
-          $block['content'] = render($field['cis_shortcodes']);
+          $block['content'] = render($field);
         }
         else {
           $block['content'] = '';
@@ -131,6 +131,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     '#value' => _cis_shortcodes_build_code($properties),
     '#type' => 'textfield',
     '#weight' => 0,
+    '#id' => 'cis-shortcodes-direct-link',
   );
   // _link should bail early
   if ($type != '_link') {
@@ -168,6 +169,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       '#value' => _cis_shortcodes_build_code($properties),
       '#type' => 'textfield',
       '#weight' => 0,
+      '#id' => 'cis-shortcodes-rendered-default',
     );
     // loop through the other potential view modes for this item
     foreach ($view_modes as $mode => $mode_settings) {
@@ -179,6 +181,7 @@ function _cis_shortcode_render_codes($entity, $type) {
           '#value' => _cis_shortcodes_build_code($properties),
           '#type' => 'textfield',
           '#weight' => 1,
+          '#id' => 'cis-shortcodes-rendered-' . $mode,
         );
       }
     }
@@ -199,6 +202,7 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#type' => 'textfield',
         '#pre_render' => array('_cis_shortcodes_add_js'),
         '#weight' => 1,
+        '#id' => 'cis-shortcodes-embed',
       );
       // add in the entity iframe items if they make sense
       $direct_frames = _entity_iframe_render_codes($entity, $type, 'block');
@@ -245,9 +249,24 @@ function _cis_shortcode_render_codes($entity, $type) {
               '#value' => _cis_shortcodes_build_code($properties),
               '#type' => 'textfield',
               '#weight' => 3,
+              '#id' => 'cis-shortcodes-link-' . $fname . '-' . $item_key,
             );
+
             // special case for uri's that are images
-            if (isset($item['filemime']) && strpos($item['filemime'], 'image') === 0) {
+            if (isset($item['filemime']) && strpos($item['filemime'], 'svg')) {
+              $properties['item_type'] = 'image';
+              $properties['delta'] = $item_key;
+              $entityfields['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
+                '#title' => t('Render @field as direct image', array('@field' => $fproperties['label'])),
+                '#attributes' => array('class' => array('cis_shortcodes_embed')),
+                '#value' => _cis_shortcodes_build_code($properties),
+                '#type' => 'textfield',
+                '#weight' => 3,
+                '#id' => 'cis-shortcodes-link-' . $fname . '-' . $item_key,
+              );
+            }
+            // special case for uri's that are images
+            elseif (isset($item['filemime']) && strpos($item['filemime'], 'image') === 0) {
               $properties['item_type'] = 'image';
               // support custom title and alt text in the code
               if (!empty($item['title'])) {
@@ -272,6 +291,7 @@ function _cis_shortcode_render_codes($entity, $type) {
                 '#value' => _cis_shortcodes_build_code($properties),
                 '#type' => 'textfield',
                 '#weight' => 3,
+                '#id' => 'cis-shortcodes-link-' . $fname . '-' . $item_key,
               );
             }
           }
@@ -288,6 +308,7 @@ function _cis_shortcode_render_codes($entity, $type) {
               '#value' => _cis_shortcodes_build_code($properties),
               '#type' => 'textfield',
               '#weight' => 3,
+              '#id' => 'cis-shortcodes-link-' . $fname . '-' . $item_key,
             );
           }
         }
@@ -314,6 +335,7 @@ function _cis_shortcode_render_codes($entity, $type) {
           '#value' => _cis_shortcodes_build_code($properties),
           '#type' => 'textfield',
           '#weight' => 2,
+          '#id' => 'cis-shortcodes-tag-iframe',
         );
       }
       $properties['render'] = 'link';
@@ -323,6 +345,7 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#value' => _cis_shortcodes_build_code($properties),
         '#type' => 'textfield',
         '#weight' => 4,
+        '#id' => 'cis-shortcodes-tag-link',
       );
     }
     // advanced student submission capability code, this is the most intense
@@ -399,6 +422,7 @@ function _cis_shortcode_render_codes($entity, $type) {
                 '#value' => _cis_shortcodes_build_code($properties),
                 '#type' => 'textfield',
                 '#weight' => 0,
+                '#id' => 'cis-shortcodes-submit-widget',
               );
             }
           }

@@ -100,6 +100,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
       else {
         // Go through the minor versions for this major version
         asyncSerial(minors, function (minor, upgrade, nextMinor) {
+          minor =+ minor;
           if (minor <= oldVersion.minor || minor > newVersion.minor) {
             // Older than or equal to the current version or newer than the selected
             nextMinor();

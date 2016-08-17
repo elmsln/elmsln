@@ -55,7 +55,7 @@ drush @elmsln rr --concurrency=${concurrent} --strict=0 --v --y
 elmslnecho "Running update hooks"
 # run database updates
 drush @elmsln cook dr_run_updates --concurrency=${concurrent} --strict=0 --v --y
-# make sure core is happy everywhere
+# make sure core is happy everywhere; this also forces any new modules to be enabled
 drush @elmsln en elmsln_core --concurrency=${concurrent} --strict=0 --v --y
 # run global upgrades from drup recipes
 drush @elmsln drup d7_elmsln_global ${elmsln}/scripts/upgrade/drush_recipes/d7/global --replay-from=${replay} --concurrency=${concurrent} --strict=0 --v --y

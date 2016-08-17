@@ -49,58 +49,79 @@ function a11y_a11y_block() {
   // apply the css / js as selected
   a11y_apply_a11y();
   $output = '';
+  // assemble the user alterations to the interface
+  $alters = array(
+    '#type' => 'fieldset',
+    '#title' => t('Alter interface'),
+    '#description' => t('Adjust the interface to make it easier to use for different conditions.'),
+    '#collapsed' => TRUE,
+    '#collapsible' => TRUE,
+    '#weight' => 9,
+    '#attributes' => array(
+      'class' => array(
+        'collapsible',
+        'form-wrapper',
+      ),
+    ),
+  );
+  // textsize default state
+  if (variable_get('a11y_textsize', 1)) {
+    $icon_path = base_path() . drupal_get_path('module', 'a11y') . '/plugins/icons/';
+    $alters['textsize'] = array(
+      '#markup' => '
+      <div class="a11y-textsize-controls"><span>' . t('Interface Size') . '</span><a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
+      <span>Smaller</span>
+      <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" />
+      </a>
+      <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
+        <span>Larger</span>
+        <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" />
+      </a>
+      <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
+        <span>Reset</span>
+        <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" />
+      </a>
+      </div>'
+    );
+  }
+  // open dyslexic font
   if (variable_get('a11y_opendyslexic', 1)) {
-    // textsize default state
-    $opendyslexic = array(
+    $alters['opendyslexic'] = array(
       '#type' => 'checkbox',
       '#id' => 'a11y_opendyslexic_checkbox',
       '#title' => t('Optimize fonts for dyslexia'),
       '#default_value' => 0,
       '#description' => t('This loads a font easier to read for people with dyslexia.'),
     );
-    $output .= drupal_render($opendyslexic);
   }
   if (variable_get('a11y_contrast', 1)) {
-    $contrast = array(
+    $alters['contrast'] = array(
       '#type' => 'checkbox',
       '#id' => 'a11y_contrast_checkbox',
       '#title' => t('High contrast mode'),
       '#default_value' => 0,
       '#description' => t('This renders the document in high contrast mode.'),
     );
-    $output .= drupal_render($contrast);
-    $invert = array(
+    $alters['invert'] = array(
       '#type' => 'checkbox',
       '#id' => 'a11y_invert_checkbox',
       '#title' => t('Invert colors'),
       '#default_value' => 0,
       '#description' => t('This renders the document as white on black'),
     );
-    $output .= drupal_render($invert);
   }
   if (variable_get('a11y_animation', 1)) {
     // animation default state
-    $animation = array(
+    $alters['animation'] = array(
       '#type' => 'checkbox',
       '#id' => 'a11y_animation_checkbox',
       '#title' => t('Disable interface animations'),
       '#default_value' => 0,
       '#description' => t('This can help those with trouble processing rapid screen movements.'),
     );
-    $output .= drupal_render($animation);
   }
-  if (variable_get('a11y_textsize', 1)) {
-    $icon_path = base_path() . drupal_get_path('module', 'a11y') . '/plugins/icons/';
-    $output .= '<div class="a11y-textsize-controls"><a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
-      <img alt="' . t('Decrease text size') . '" title="' . t('Decrease text size') . '" src="' . $icon_path . 'text-decrease.png" />
-    </a>
-    <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
-      <img alt="' . t('Increase text size') . '" title="' . t('Increase text size') . '" src="' . $icon_path . 'text-increase.png" />
-    </a>
-    <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
-      <img alt="' . t('Reset text size') . '" title="' . t('Reset text size') . '" src="' . $icon_path . 'text-reset.png" />
-    </a></div>';
-  }
+  // render any aleration array items we have
+  $output .= drupal_render($alters);
   // add in the simulations if they are allowed to see them
   if (user_access('view a11y simulations')) {
     $sim = array(
@@ -109,6 +130,14 @@ function a11y_a11y_block() {
       '#description' => t('Simulate different accessibility conditions. This is useful to see how your site would possibly be viewed by people with different conditions.'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
+      '#weight' => 15,
+      '#attributes' => array(
+        'class' => array(
+          'collapsible',
+          'form-wrapper',
+          'collapsed',
+        ),
+      ),
     );
     if (variable_get('a11y_sim_dyslexia', 1)) {
       $sim['dyslexia'] = array(
@@ -134,8 +163,7 @@ function a11y_menu() {
     'type' => MENU_NORMAL_ITEM,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('a11y_admin_settings'),
-    'access callback' => '_cis_connector_role_groupings',
-    'access arguments' => array(array('teacher', 'staff')),
+    'access arguments' => array('access administration pages'),
   );
 
   return $items;
@@ -214,6 +242,7 @@ function a11y_admin_settings($form, &$form_state) {
  */
 function a11y_apply_a11y() {
   drupal_add_library('system', 'jquery.cookie');
+  
   drupal_add_js(drupal_get_path('module', 'a11y') . '/a11y.js');
   // pass variables to js
   $js_variables = array(
@@ -224,28 +253,29 @@ function a11y_apply_a11y() {
     ),
   );
   $plugin_path = drupal_get_path('module', 'a11y') . '/plugins/';
+  $plugin_js_opts = array('type' => 'file', 'scope' => 'footer');
   $sim_path = drupal_get_path('module', 'a11y') . '/simulations/';
   if (variable_get('a11y_opendyslexic', 1)) {
     $js_variables['a11y']['opendyslexic'] = 1;
-    drupal_add_js($plugin_path . 'opendyslexic/opendyslexic.js');
+    drupal_add_js($plugin_path . 'opendyslexic/opendyslexic.js', $plugin_js_opts);
   }
   if (variable_get('a11y_contrast', 1)) {
     $js_variables['a11y']['contrast'] = 1;
-    drupal_add_js($plugin_path . 'contrast/contrast.js');
+    drupal_add_js($plugin_path . 'contrast/contrast.js', $plugin_js_opts);
   }
   if (variable_get('a11y_animation', 1)) {
     $js_variables['a11y']['animation'] = 1;
-    drupal_add_js($plugin_path . 'animation/animation.js');
+    drupal_add_js($plugin_path . 'animation/animation.js', $plugin_js_opts);
   }
   if (variable_get('a11y_textsize', 1)) {
     $js_variables['a11y']['textsize'] = 1;
-    drupal_add_js($plugin_path . 'textsize/textsize.js');
+    drupal_add_js($plugin_path . 'textsize/textsize.js', $plugin_js_opts);
   }
   if (variable_get('a11y_sim_dyslexia', 1)) {
     $js_variables['a11y']['sim']['dyslexia'] = 1;
-    drupal_add_js($sim_path . 'dyslexia/dyslexia.js');
+    drupal_add_js($sim_path . 'dyslexia/dyslexia.js', $plugin_js_opts);
   }
-  drupal_add_js($js_variables, 'setting');
+  drupal_add_js($js_variables, array('type' => 'setting', 'scope' => 'footer'));
 }
 
 /**
@@ -253,5 +283,10 @@ function a11y_apply_a11y() {
  * Returns the accessibility block to foundation access.
  */
 function a11y_fa_a11y() {
-  return array(0 => a11y_a11y_block());
+  return array(
+    'a11y_block' => array(
+      '#title' => t('a11y block'),
+      '#markup' => a11y_a11y_block(),
+    ),
+  );
 }

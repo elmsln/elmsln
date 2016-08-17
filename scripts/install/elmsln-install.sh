@@ -316,6 +316,9 @@ drush @elmsln cron --concurrency=${concurrent} --strict=0 --v --y
 # node access rebuild which will also clear caches
 elmslnecho "Rebuild node access permissions"
 drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --v --y
+# revert everything as some last minute clean up
+elmslnecho "Global feature revert as clean up"
+drush @elmsln fr-all --concurrency=${concurrent} --strict=0 --v --y
 # seed entity caches
 elmslnecho "Seed some initial caches on all sites"
 drush @elmsln ecl --concurrency=${concurrent} --strict=0 --v --y

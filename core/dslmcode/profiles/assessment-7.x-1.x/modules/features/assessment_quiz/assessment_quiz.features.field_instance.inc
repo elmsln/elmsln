@@ -10,7 +10,7 @@
 function assessment_quiz_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-quiz-field_cis_course_ref'
+  // Exported field_instance: 'node-quiz-field_cis_course_ref'.
   $field_instances['node-quiz-field_cis_course_ref'] = array(
     'bundle' => 'quiz',
     'default_value' => NULL,
@@ -70,7 +70,7 @@ function assessment_quiz_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-quiz-og_group_ref'
+  // Exported field_instance: 'node-quiz-og_group_ref'.
   $field_instances['node-quiz-og_group_ref'] = array(
     'bundle' => 'quiz',
     'default_value' => NULL,
