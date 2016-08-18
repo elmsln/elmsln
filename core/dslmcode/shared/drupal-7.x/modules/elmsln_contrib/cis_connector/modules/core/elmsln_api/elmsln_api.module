@@ -819,21 +819,26 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
         }
         // validate buckets are all alive before queueing this up
         _elmsln_api_is_alive($nonblock);
-        // queue up the
-        $bucket = array_pop($nonblock);
-        $request['data']['__snake_stack'] = $nonblock;
-        // leave a flag for debug purposes if it's nonblocking
-        $request['_httprl'] = TRUE;
-        $options = array(
-          'method' => $request['method'],
-          'data' => http_build_query($request['data']),
-          'timeout' => 1,
-          'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
-          'blocking' => FALSE,
-        );
-        //watchdog('addresses', serialize($addresses));
-        httprl_request($addresses[$bucket], $options);
-        $tmp = httprl_send_request();
+        // queue up the request
+        if (!empty($nonblock)) {
+          $bucket = array_pop($nonblock);
+          $request['data']['__snake_stack'] = $nonblock;
+          // leave a flag for debug purposes if it's nonblocking
+          $request['_httprl'] = TRUE;
+          $options = array(
+            'method' => $request['method'],
+            'data' => http_build_query($request['data']),
+            'timeout' => 1,
+            'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+            'blocking' => FALSE,
+          );
+          // use this to help debug snakes if needed
+          //watchdog('course', $request['data']['__course_context']);
+          //watchdog('whereitgoes', $bucket);
+          //watchdog('allplacestogo', serialize($nonblock));
+          httprl_request($addresses[$bucket], $options);
+          $tmp = httprl_send_request();
+        }
       }
     }
     if (!empty($returned_data)) {
