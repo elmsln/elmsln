@@ -29,7 +29,7 @@
   // apply all the materialize javascript
   Drupal.behaviors.materializeJS = {
     attach: function(context) {
-      $('select').not('.chosen').material_select();
+      $('select').not('.chosen').not('.cke_dialog_body select').material_select();
       $('.parallax').parallax();
       $('.carousel').carousel();
     }

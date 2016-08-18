@@ -3,6 +3,10 @@ select.chosen {
   display: initial;
 }
 
+.cke_dialog_body select {
+  display:initial;
+}
+
 /* accessibility */
 .outline-nav-icon {
   opacity: .8;
