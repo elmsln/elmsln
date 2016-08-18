@@ -27,6 +27,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
       'machine_name' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
       'uuid' => $course->uuid,
     );
+    $_elmsln['args']['__course_context'] = $course->field_machine_name[LANGUAGE_NONE][0]['value'];
     // pull together sections for this course
     $sections = _cis_helper_course_access_strings($course);
     // pull together roster per section

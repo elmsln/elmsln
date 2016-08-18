@@ -831,6 +831,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
           'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
           'blocking' => FALSE,
         );
+        //watchdog('addresses', serialize($addresses));
         httprl_request($addresses[$bucket], $options);
         $tmp = httprl_send_request();
       }
@@ -954,6 +955,9 @@ function _elmsln_api_is_alive(&$buckets) {
     $systype = _cis_connector_system_type($bucket);
     switch ($systype) {
       case 'service':
+        if (!isset($_elmsln['args']['__course_context'])) {
+          $_elmsln['args']['__course_context'] = _cis_connector_course_context();
+        }
         $path = '/' . $_elmsln['args']['__course_context'] . '/';
       break;
       case 'authority':
