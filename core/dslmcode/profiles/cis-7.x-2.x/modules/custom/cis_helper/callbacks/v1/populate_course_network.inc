@@ -78,6 +78,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $returned_data = _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/', TRUE);
     // ensure we have stuff in the queue before trying this
     if (isset($_elmsln['args']['queue']) && $queue->numberOfItems() > 0) {
+      sleep(10);
       // now kick off a call to do roster syncing that kicks the next item off the queue
       // at the end of it
       $nonblock = array(
