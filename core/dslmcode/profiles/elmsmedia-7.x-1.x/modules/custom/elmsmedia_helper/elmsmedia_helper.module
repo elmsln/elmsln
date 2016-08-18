@@ -8,8 +8,9 @@
  * Implements hook_field_formatter_info_alter().
  */
 function elmsmedia_helper_field_formatter_info_alter(&$info) {
-  $info['mediaelement_video']['module'] = 'elmsmedia_helper';
-  $info['mediaelement_audio']['module'] = 'elmsmedia_helper';
+  $info['ableplayer_video']['module'] = 'elmsmedia_helper';
+  $info['ableplayer_audio']['module'] = 'elmsmedia_helper';
+  $info['video_embed_field']['module'] = 'elmsmedia_helper';
 }
 
 /**
@@ -27,48 +28,91 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
   // different for ever page view and should not be used for styling.
   static $id = 0;
   $element = array();
-  $path = drupal_get_path('module', 'mediaelement');
+  $path = drupal_get_path('module', 'ableplayer');
   foreach ($items as $delta => $item) {
     // Support the link field type which stores it's data in 'url'.
-    $src = ($field['type'] == 'link_field') ? $item['url'] : $item['uri'];
-
+    $class = 'ableplayer-formatter-identifier-' . time() . '-' . $id++;
     $settings = $display['settings'];
-    $js_settings = array();
-    $js_settings['opts'] = array();
-    $js_settings['controls'] = (bool)$settings['controls'];
-    if ($display['type'] == 'mediaelement_video') {
-      $js_settings['opts']['videoHeight'] = (int)$settings['height'];
-      $js_settings['opts']['videoWidth'] = $settings['width'];
-    }
-    elseif ($display['type'] == 'mediaelement_audio') {
-      $js_settings['opts']['audioHeight'] = (int)$settings['height'];
-      $js_settings['opts']['audioWidth'] = $settings['width'];
-    }
-
-    $class = 'mediaelement-formatter-identifier-' . time() . '-' . $id++;
-    $element[$delta] = array(
-      '#attributes' => array(
-        'src' => file_create_url($src),
-        'class' => $class,
-      ),
-      '#settings' => $settings,
-      '#attached' => array(
-        'library' => array(array('mediaelement', 'mediaelement')),
-        'js' => array(
-          $path . '/mediaelement.js' => array(),
-          0 => array('type' => 'setting', 'data' => array('mediaelement' => array('.' . $class => $js_settings))),
+    if (!isset($item['video_url'])) {
+      $src = ($field['type'] == 'link_field') ? $item['url'] : $item['uri'];
+      $js_settings = array(
+        'opts' => array('videoHeight' => (int)$settings['height']),
+      );
+      $element[$delta] = array(
+        '#attributes' => array(
+          'src' => file_create_url($src),
+          'type' => file_get_mimetype($src),
+          'class' => $class,
+          'id' => hash('md5', $src . $id),
         ),
-      ),
-    );
-    if ($settings['controls']) {
-      $element[$delta]['#attributes']['controls'] = 'controls';
+        '#settings' => $settings,
+        '#attached' => array(
+          'libraries_load' => array(array('ableplayer')),
+          'js' => array(
+            array('type' => 'setting', 'data' => array('ableplayer' => array('.' . $class => $js_settings))),
+          ),
+        ),
+      );
+    }
+    else {
+      // load up all data pulled in
+      $video_data = unserialize($item['video_data']);
+      $tmp = drupal_parse_url($item['video_url']);
+      if ($video_data['handler'] == 'vimeo') {
+        $element[$delta] = array(
+          '#attributes' => array(
+            'data-vimeo-id' => $video_data['id'],
+            'class' => 'vimeo-video elmsln-video elmsln-video-vimeo',
+            'id' => hash('md5', $video_data['id'] . $id),
+            'frameborder' => "0",
+            'webkitallowfullscreen' => TRUE,
+            'mozallowfullscreen' => TRUE,
+            'allowfullscreen' => TRUE,
+            'src' => 'https://player.vimeo.com/video/' . $video_data['id'] . '?title=0&byline=0&portrait=0',
+            'width' => '640px',
+            'height' => '360px',
+          ),
+          '#settings' => $video_data,
+        );
+      }
+      elseif ($video_data['handler'] == 'youtube') {
+        $yvid = '';
+        // check for youtube url vs embed
+        if (isset($tmp['query']['v'])) {
+          $yvid = $tmp['query']['v'];
+        }
+        else {
+          // rip out from embed based url
+          $ypath = explode('/', $tmp['path']);
+          $next = FALSE;
+          foreach ($ypath as $part) {
+            if ($next) {
+              $yvid = $part;
+              continue;
+            }
+            if ($part == 'embed') {
+              $next = TRUE;
+            }
+          }
+        }
+        $element[$delta] = array(
+          '#attributes' => array(
+            'data-youtube-id' => $yvid,
+            'class' => $class,
+            'id' => hash('md5', $yvid . $id),
+          ),
+          '#settings' => $settings,
+          '#attached' => array(
+            'libraries_load' => array(array('ableplayer')),
+          ),
+        );
+      }
     }
 
-    if ($display['type'] == 'mediaelement_video') {
+    if ($display['type'] == 'ableplayer_video') {
       $element[$delta]['#theme'] = 'elmsmedia_helper_video';
       $element[$delta]['#attributes']['height'] = $display['settings']['height'];
-      $element[$delta]['#attributes']['width'] = $display['settings']['width'];
-      // this is where we deviate from default mediaelement handler
+      // this is where we deviate from default ableplayer handler
       // this adds the poster image we want that's been uploaded
       if (isset($entity->field_poster['und'])) {
         $element[$delta]['#attributes']['poster'] = file_create_url($entity->field_poster['und'][0]['uri']);
@@ -78,8 +122,22 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
         $element[$delta]['#settings']['caption'] = file_create_url($entity->field_caption['und'][0]['uri']);
       }
     }
-    elseif ($display['type'] == 'mediaelement_audio') {
+    elseif ($display['type'] == 'ableplayer_audio') {
       $element[$delta]['#theme'] = 'elmsmedia_helper_audio';
+      $element[$delta]['#attributes']['height'] = $display['settings']['height'];
+    }
+    elseif ($display['type'] == 'video_embed_field') {
+      // see if this is youtube or vimeo
+      if ($video_data['handler'] == 'vimeo') {
+        $element[$delta]['#theme'] = 'elmsmedia_helper_vimeo';
+      }
+      elseif ($video_data['handler'] == 'youtube') {
+        $element[$delta]['#theme'] = 'elmsmedia_helper_youtube';
+      }
+      // set poster image
+      if (isset($entity->field_poster['und'])) {
+        $element[$delta]['#attributes']['poster'] = file_create_url($entity->field_poster['und'][0]['uri']);
+      }
     }
   }
   return $element;
@@ -96,6 +154,12 @@ function elmsmedia_helper_theme() {
     'elmsmedia_helper_audio' => array(
       'variables' => array('attributes' => array(), 'settings' => array()),
     ),
+    'elmsmedia_helper_youtube' => array(
+      'variables' => array('attributes' => array(), 'settings' => array()),
+    ),
+    'elmsmedia_helper_vimeo' => array(
+      'variables' => array('attributes' => array(), 'settings' => array()),
+    ),
   );
 }
 
@@ -103,17 +167,29 @@ function elmsmedia_helper_theme() {
  * Callback for elmsmedia_helper_video()
  */
 function theme_elmsmedia_helper_video($variables) {
-  $output = '<div class="mediaelement-video">';
-  $output .= '<video ' . drupal_attributes($variables['attributes']) . ' >';
+  global $base_url;
+  $src = $variables['attributes']['src'];
+  unset($variables['attributes']['src']);
+  $class = '';
+  // make a responsive two-column situation if this has a transcript with it
   if (isset($variables['settings']['caption'])) {
-    $output .= '<track kind="subtitles" src="' . $variables['settings']['caption'] . '" srclang="en" />';
+    $class = ' class="col s12 m8 l8"';
   }
-  $output .= '</video>';
-  if ($variables['settings']['download_link']) {
-    // @ignore coder_tough_love_13
-    $output .= '<div class="mediaelement-download-link"><a href="' . $variables['attributes']['src'] . '">' . filter_xss_admin($variables['settings']['download_text']) . '</a></div>';
+  $output = ' <div class="row ableplayer-video">
+  <div' . $class . '>
+    <video preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1" data-transcript-div="' . $variables['attributes']['id'] . '-transcript">
+      <source src="' . str_replace($base_url, '', $src) . '"/>';
+  if (isset($variables['settings']['caption'])) {
+    // @todo i9n
+    $output .= '<track kind="captions" src="' . str_replace($base_url, '', $variables['settings']['caption']) . '" srclang="en" />';
   }
-  $output .= '</div>';
+  $output .= '
+    </video>
+  </div>';
+  if (isset($variables['settings']['caption'])) {
+    $output .= '<div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>
+    </div>';
+  }
   return $output;
 }
 
@@ -121,13 +197,67 @@ function theme_elmsmedia_helper_video($variables) {
  * Callback for audio rendering.
  */
 function theme_elmsmedia_helper_audio($variables) {
-  $output = '<div class="mediaelement-audio">';
-  $output .= '<audio ' . drupal_attributes($variables['attributes']) . ' ></audio>';
-  if ($variables['settings']['download_link']) {
-    // @ignore coder_tough_love_13
-    $output .= '<div class="mediaelement-download-link"><a href="' . $variables['attributes']['src'] . '">' . filter_xss_admin($variables['settings']['download_text']) . '</a></div>';
+  global $base_url;
+  $src = $variables['attributes']['src'];
+  unset($variables['attributes']['src']);
+  $type = $variables['attributes']['type'];
+  unset($variables['attributes']['type']);
+  $class = '';
+  // make a responsive two-column situation if this has a transcript with it
+  if (isset($variables['settings']['caption'])) {
+    $class = 'class="col s12 m8 l8"';
+  }
+  $output = '<div class="row ableplayer-audio">
+  <div' . $class . '>';
+  $output .= '<audio preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1" data-transcript-div="' . $variables['attributes']['id'] . '-transcript">
+    <source type="' . $type . '" src="' . str_replace($base_url, '', $src) . '"/>';
+  if (isset($variables['settings']['caption'])) {
+    $output .= '<track kind="captions" src="' . str_replace($base_url, '', $variables['settings']['caption']) . '" srclang="en" />';
+  }
+  $output .= '
+    </audio>
+  </div>';
+  if (isset($variables['settings']['caption'])) {
+    $output .= '<div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>
+    </div>';
+  }
+  return $output;
+}
+
+/**
+ * Callback for elmsmedia_helper_youtube()
+ */
+function theme_elmsmedia_helper_youtube($variables) {
+  $class = '';
+  if (isset($variables['settings']['caption'])) {
+    $class = 'class="col s12 m8 l8"';
+  }
+  $output = ' <div class="ableplayer-video">
+  <div ' . $class . '>
+    <video preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1">';
+  $output .= '
+    </video>
+  </div>';
+  if (isset($variables['settings']['caption'])) {
+    $output .= '<div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>';
   }
   $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Callback for elmsmedia_helper_youtube()
+ */
+function theme_elmsmedia_helper_vimeo($variables) {
+  $class = '';
+  if (isset($variables['settings']['caption'])) {
+    $class = 'class="col s12 m8 l8"';
+  }
+  $output = ' <div class="row vimeo-video">
+    <div ' . $class . '>
+      <iframe ' . drupal_attributes($variables['attributes']) . '></iframe>
+    </div>
+  </div>';
   return $output;
 }
 
@@ -139,34 +269,10 @@ function elmsmedia_helper_field_formatter_settings_form($field, $instance, $view
   $settings = $display['settings'];
   $element = array();
 
-  $element['controls'] = array(
-    '#title' => t('Controls'),
-    '#type' => 'checkbox',
-    '#default_value' => $settings['controls'],
-  );
-
-  $element['width'] = array(
-    '#title' => t('Width'),
-    '#type' => 'textfield',
-    '#default_value' => $settings['width'],
-  );
-
   $element['height'] = array(
     '#title' => t('Height'),
     '#type' => 'textfield',
     '#default_value' => $settings['height'],
-  );
-
-  $element['download_link'] = array(
-    '#title' => t('Download link'),
-    '#type' => 'checkbox',
-    '#default_value' => $settings['download_link'],
-  );
-
-  $element['download_text'] = array(
-    '#title' => t('Download link text'),
-    '#type' => 'textfield',
-    '#default_value' => $settings['download_text'],
   );
 
   return $element;
@@ -178,7 +284,7 @@ function elmsmedia_helper_field_formatter_settings_form($field, $instance, $view
 function elmsmedia_helper_field_formatter_settings_summary($field, $instance, $view_mode) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
-  return t('Width: @width, Height: @height', array('@width' => $settings['width'], '@height' => $settings['height']));
+  return t('Height: @height', array('@height' => (isset($settings['height']) ? $settings['height'] : '')));
 }
 
 /**

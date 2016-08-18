@@ -10,7 +10,7 @@
 function mooc_page_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-page-body'
+  // Exported field_instance: 'node-page-body'.
   $field_instances['node-page-body'] = array(
     'accessibility_content' => 1,
     'accessibility_content_block_submit' => array(
@@ -96,7 +96,7 @@ function mooc_page_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-page-field_cis_tag'
+  // Exported field_instance: 'node-page-field_cis_tag'.
   $field_instances['node-page-field_cis_tag'] = array(
     'bundle' => 'page',
     'default_value' => NULL,
@@ -149,7 +149,7 @@ function mooc_page_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 16,
+      'weight' => 101,
     ),
   );
 

@@ -4,9 +4,7 @@ class H5peditor {
 
   public static $styles = array(
     'libs/darkroom.css',
-    'styles/css/application.css',
-    'styles/css/h5peditor-image.css',
-    'styles/css/h5peditor-image-popup.css'
+    'styles/css/application.css'
   );
   public static $scripts = array(
     'scripts/h5peditor.js',
@@ -18,6 +16,7 @@ class H5peditor {
     'scripts/h5peditor-html.js',
     'scripts/h5peditor-number.js',
     'scripts/h5peditor-textarea.js',
+    'scripts/h5peditor-file-uploader.js',
     'scripts/h5peditor-file.js',
     'scripts/h5peditor-image.js',
     'scripts/h5peditor-image-popup.js',
@@ -34,7 +33,7 @@ class H5peditor {
     'scripts/h5peditor-none.js',
     'ckeditor/ckeditor.js',
   );
-  private $h5p, $storage, $files_directory, $basePath, $relativePathRegExp;
+  private $h5p, $storage, $files_directory, $basePath;
 
   /**
    * Constructor for the core editor library.
@@ -43,15 +42,13 @@ class H5peditor {
    * @param mixed $storage Instance of h5peditor storage.
    * @param string $basePath Url path to prefix assets with.
    * @param string $filesDir H5P files directory.
-   * @param string $editorFilesDir Optional custom editor files directory outside h5p files directory.
    */
-  function __construct($h5p, $storage, $basePath, $filesDir, $editorFilesDir = NULL, $relativePathRegExp = '/^(\.\.\/){1,2}(\d+|editor)\/(.+)$/') {
+  function __construct($h5p, $storage, $basePath, $filesDir, $editorFilesDir = NULL) {
     $this->h5p = $h5p;
     $this->storage = $storage;
     $this->basePath = $basePath;
     $this->contentFilesDir = $filesDir . DIRECTORY_SEPARATOR . 'content';
     $this->editorFilesDir = ($editorFilesDir === NULL ? $filesDir . DIRECTORY_SEPARATOR . 'editor' : $editorFilesDir);
-    $this->relativePathRegExp = $relativePathRegExp;
   }
 
   /**
@@ -65,7 +62,7 @@ class H5peditor {
       $libraries = array();
       foreach ($_POST['libraries'] as $libraryName) {
         $matches = array();
-        preg_match_all('/(.+)\s(\d)+\.(\d)$/', $libraryName, $matches);
+        preg_match_all('/(.+)\s(\d+)\.(\d+)$/', $libraryName, $matches);
         if ($matches) {
           $libraries[] = (object) array(
             'uberName' => $libraryName,
@@ -93,6 +90,9 @@ class H5peditor {
             'majorVersion' => $devLibs[$lid]['majorVersion'],
             'minorVersion' => $devLibs[$lid]['minorVersion'],
             'runnable' => $devLibs[$lid]['runnable'],
+            'restricted' => $libraries[$i]->restricted,
+            'tutorialUrl' => $libraries[$i]->tutorialUrl,
+            'isOld' => $libraries[$i]->isOld
           );
         }
       }
@@ -139,7 +139,7 @@ class H5peditor {
    *
    * @param string $oldLibrary
    * @param string $oldParameters
-   * @param object $newLibrary
+   * @param array $newLibrary
    * @param string $newParameters
    */
   public function processParameters($contentId, $newLibrary, $newParameters, $oldLibrary = NULL, $oldParameters = NULL) {
@@ -264,14 +264,14 @@ class H5peditor {
 
     // File could be copied from another content folder.
     $matches = array();
-    if (preg_match($this->relativePathRegExp, $params->path, $matches)) {
+    if (preg_match($this->h5p->relativePathRegExp, $params->path, $matches)) {
       // Create copy of file
-      $source = $this->content_directory . $params->path;
-      $destination = $this->content_directory . $matches[3];
+      $source = $this->content_directory . $matches[1] . $matches[4] . '/' . $matches[5];
+      $destination = $this->content_directory . $matches[5];
       if (file_exists($source) && !file_exists($destination)) {
         copy($source, $destination);
       }
-      $params->path = $matches[3];
+      $params->path = $matches[5];
     }
     else {
       // Check if tmp file

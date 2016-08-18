@@ -1,3 +1,141 @@
+ELMSLN 0.4.0, 2016-08-18 - Jarvis
+------------------------
+This is our biggest enhancement yet. With massive improvements in stability, usability, accessibility and sets us on good ground going forward with futuristic capabilities. There are too manu feature additions to list but among them include automatic media / course time analytics generation, background http snaking call structures, ableplayer for the most accessible video experience anywhere, early work on quizing/testing, greater xAPI coverage with custom metadata and in-browser voice and keyboard command support.
+
+poster image should override what youtube delivers for poster #1177 an hour agolink missing on ckeditor link page #1179
+Add ability to see what child tags exist in Tag Scanner #1175
+increase default php upload size to 2gigs infrastructure #1174
+Add global advagg incremented via system upgrade bug minor style guide / theme #1171
+Media Player Accessibility / assessment accessibility hard media / elmsmedia medium student design project style guide / theme #96
+Snake enhancements ELMSLN core enhancement hard infrastructure online / CIS #914
+stop axing pathauto in services enhancement service #1161
+Better describe why we enable elmsln_core every time we run upgrades Developer Experience #1159
+Support Chosen AND materializeCSS select enhancement style guide / theme #1158
+Improve accessibility of MaterializeCSS select list accessibility #1138
+Students should not be able to critique their own submissions. studio / cle #1154
+Make section sync create inactive sections instantly (but marked inactive) online / CIS Staff Experience #1145
+Estimate time to take in material courses / mooc enhancement Learner Experience media / elmsmedia medium Tincan / XAPI #847
+Group assignments and critiques together on dashboard studio / cle #1127
+Critique individual submission incorrectly using random generated submission critique bug studio / cle #1153
+Page edit grouping courses / mooc Instructor Experience Staff Experience style guide / theme #1072
+Wrap iframe in div for intrinsic height rendering trick ELMSLN core enhancement medium style guide / theme #782
+Add Media Button To Media Site bug media / elmsmedia #1084
+Update Vagrant to use Rhel 7 Based OS and php-fpm easy future infrastructure scale / performance vagrant #736
+Switch install scripts to use php-fpm / FCGI Developer Experience development future infrastructure medium scale / performance vagrant #472
+Critique submission error bug studio / cle #1143
+Critiques not showing in dashboard. bug studio / cle #1116
+Create critique button studio / cle #1128
+Instructors aren't able to critique assignments that are marked "no-critique" Instructor Experience studio / cle #1115
+Method of creating link to non-randomized critique studio / cle #1137
+Look into modernizr cache clear issue accessibility bug media / elmsmedia #1108
+running updb via UI can cause a 500 error bug Developer Experience #1097
+Keep display mode settings w/ types in media bug minor #1129
+Clicking the peer review as student throws error. bug studio / cle #1114
+Test and reroll this patch against a11y module development minor #1123
+Students should not be allowed to submit assignments passed their due dates. bug enhancement Pedagogy studio / cle #1113
+Add EasyCDN module enhancement #1118
+Parallax Scrolling enhancement media / elmsmedia #1104
+enable modernizr out of the box for elmsmedia bug easy media / elmsmedia #1103
+Audit content accessibility / usability accessibility courses / mooc #1073
+Support for Carousel enhancement style guide / theme #1111
+Materialize Authoring UX enhacnements courses / mooc enhancement #1107
+CIS offering submit validation error bug online / CIS #1106
+mooc_helper_book_nav Error in MOOC bug courses / mooc minor #1099
+EIM minor notice on form ajax submit bug #1105 10 CORE CONTRIBUTOR NOTICE: Branch management policy Developer Experience #1102
+Idea: Time-based hiding of nodes courses / mooc enhancement Pedagogy #1034
+update h5p to latest release media / elmsmedia Tincan / XAPI #1096
+xAPI tag for hypothesis for questions enhancement Pedagogy Tincan / XAPI #1056
+Interactive Breadcrumb runs off page with many menu items courses / mooc enhancement medium student design project #715
+Firefox/H5P Display adds extra whitespace bug media / elmsmedia minor style guide / theme #1079
+Video Viewmodes not autoplaying for Vimeo bug media / elmsmedia #1078
+Quick User View ELMSLN core enhancement #1081
+Make container to float full display items in media Developer Experience Instructor Experience media / elmsmedia Staff Experience #1091
+Card design component media / elmsmedia student design project style guide / theme User Experience #519
+Provide option for san-serif class application in wysiwyg courses / mooc easy enhancement #591
+Prevent FigureLabel title from wrapping text bug easy style guide / theme #441
+Quiz Builder/Tool - Adding Questions after a Preview assessment / quiz easy #1029
+Quiz Builder/Tool - Adding Images assessment / quiz easy enhancement #1027
+Session Expiration bug User Experience #920
+Bulleted Lists - New System bug style guide / theme #1092
+Image Attribution courses / mooc enhancement Instructor Experience medium question Staff Experience #639
+Clean up MOOC Navigation block bug courses / mooc enhancement medium student design project #526
+Implement puzzler once bug fixed courses / mooc enhancement #1053
+confusion when adding user groups manually bug studio / cle #1093
+view modes isn't displaying anything bug media / elmsmedia #1080
+entity iframe / rendered iframes don't allow full screen bug User Experience #1090
+icor_defaults bricks bug infrastructure major change #1087
+clean up the current view til we get our nice ones in place in CIS online / CIS #1050
+Control who can view CIS settings menu easy ELMSLN core Staff Experience #990
+review cachability of all views ELMSLN core scale / performance #1036
+Lots of white space til resize bug media / elmsmedia style guide / theme #1083
+warning from achievements module bug easy minor studio / cle #1022
+drop visual listing in CIS online / CIS #1049
+Materialize library not loading in Libraries API (master) bug minor #1075
+Officially implement MaterializeCSS enhancement style guide / theme User Experience #1065
+Drop Magellan for scrollspy.html style guide / theme #1068
+Fix FERPA protection checkbox bug style guide / theme #1067
+Directions for getting learning locker integrated documentation ready Tincan / XAPI #1008
+Create simple web-app that generates install command community enhancement #1037
+Document Crouton installer singularity / crazy stuff #839
+Optimize for Reader mode across platform enhancement #1058
+Fix phone home screen icons from elms to be the logo‏ enhancement minor style guide / theme #1057
+Add background to lightbox image to account for png's bug easy student design project style guide / theme #465
+Responsive tables courses / mooc easy enhancement style guide / theme #545
+Run automated upgrade routine and check development drupal related easy infrastructure #1032
+Low vision user needs additional contrast on forms accessibility enhancement #1045
+drupal 7.44 #1044
+CLE needs path for cle bug studio / cle #1042
+Failed to decode downloaded font bug style guide / theme #1039
+voicecommander error if JS loaded out of order bug #1043
+review entity_iframe_consumer / provider for consolidation Developer Experience ELMSLN core #1040
+replace entity_iframe drilldown with postMessage Developer Experience enhancement #975
+spacing after videos bug easy media / elmsmedia style guide / theme #170
+block robot crawlers by default infrastructure #1038
+Ubuntu 14 Install doesn't seem to work. bug drush related infrastructure #987
+Quiz Builder/Tool - Editing Questions assessment / quiz #1030
+Standard round of security updates drupal related major change security related #1024
+Quiz Builder/Tool - Marking Questions as Correct assessment / quiz bug #1028
+Figure Out Why Angular won't load in CDN Module bug development #991
+jquery added twice at least for admins bug scale / performance style guide / theme #1023
+CIS 2.x UX overhaul medium online / CIS Staff Experience student design project style guide / theme User Experience #405
+Materialize community Developer Experience style guide / theme #669
+drupal material themes to review easy style guide / theme #1014
+Add placeholder js library and see what it does? development #1018
+Do a video showing LRS + ELMSLN + xAPI community documentation easy #1013
+review hook_set_cis_service_data development easy ELMSLN core infrastructure #999
+Angular Local Integration Developer Experience easy minor #978
+quiz_ddlines patch was accepted, update drupal related easy #1012
+section list page bombs when there's a metric ton of sections to display stats about authority bug #1011
+Service "Almost there" in CIS bug documentation minor online / CIS #955
+voice in forms accessibility enhancement #983
+Robot to test upgrades to elmsln across the distros Developer Experience enhancement singularity / crazy stuff testing #60
+Grades planning assessment / rubrics authority #754
+Submit for Apereo Incubation AWESOME! community easy non-coder #917
+Field focus on all node edit forms bug minor #1005
+Voice close button issue bug minor #984
+Revisit XAPI statement structure enhancement Tincan / XAPI #946
+Possible Image Rendering Glitch bug courses / mooc minor style guide / theme #1001
+minor bugs to track down bug Developer Experience easy minor #931
+Vagrantfile install unsuccessful bug Developer Experience infrastructure #989
+Patch FastClick module to support versioning action plan bug Developer Experience minor #982
+Document patch made to h5p_tincan_bridge module Developer Experience documentation #974
+enhance jwerty library to provide api accessibility enhancement #981
+Keyboard command interface accessibility enhancement #980
+Voice command option interface accessibility enhancement #979
+Update Libraries Module enhancement #972
+Pages showing hidden in course outline bug medium minor #908
+use Window.postMessage to support for streamlined data operations enhancement hard infrastructure #954
+tweaks to install documentation documentation #973
+Debug h5p xapi ajax calls when loaded in iframe mode. bug #964
+Performance delivery enhancements ELMSLN core infrastructure medium scale / performance #680
+better class structure on interface buttons accessibility ELMSLN core enhancement style guide / theme #969
+shift keyboard shortcuts to not interfere with forms bug #970
+Disable VC in entity iframe mode bug #963
+Review render boost module easy hard infrastructure medium scale / performance #707
+Youtube Uploader libraries media / elmsmedia #928
+Voice performance enhancement #953
+Switch Sections Option Isn't Appearing bug courses / mooc minor #811
+
 ELMSLN 0.3.1, 2016-06-08 - Pittsburgh
 This sees a lot of improvements around deployments that have lots of courses by implementing a new network call methodology known as snake. This positions us to be able to propagate data across the network and keep it in sync without fear of the system crippling itself while doing so. Users, Courses, Sections (and their associations) will all be kept in sync across authorities and services.
 - Voice command support #684

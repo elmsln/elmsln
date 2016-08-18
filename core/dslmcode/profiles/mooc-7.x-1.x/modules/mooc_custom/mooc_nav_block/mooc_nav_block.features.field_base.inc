@@ -10,7 +10,7 @@
 function mooc_nav_block_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_mooc_nav_custom_text'
+  // Exported field_base: 'field_mooc_nav_custom_text'.
   $field_bases['field_mooc_nav_custom_text'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -32,7 +32,7 @@ function mooc_nav_block_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_mooc_nav_display'
+  // Exported field_base: 'field_mooc_nav_display'.
   $field_bases['field_mooc_nav_display'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -60,7 +60,7 @@ function mooc_nav_block_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_mooc_nav_label'
+  // Exported field_base: 'field_mooc_nav_label'.
   $field_bases['field_mooc_nav_label'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -83,7 +83,7 @@ function mooc_nav_block_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_mooc_nav_style'
+  // Exported field_base: 'field_mooc_nav_style'.
   $field_bases['field_mooc_nav_style'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -109,7 +109,7 @@ function mooc_nav_block_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_mooc_nav_type'
+  // Exported field_base: 'field_mooc_nav_type'.
   $field_bases['field_mooc_nav_type'] = array(
     'active' => 1,
     'cardinality' => 1,

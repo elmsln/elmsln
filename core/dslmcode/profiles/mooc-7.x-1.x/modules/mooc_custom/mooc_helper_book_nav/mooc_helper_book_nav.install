@@ -1,0 +1,32 @@
+<?php
+/**
+ * @file
+ * Install the book cache bin.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function mooc_helper_book_nav_schema() {
+  $schema['cache_mooc_helper_book_nav'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+
+/**
+ * Create cache bin for the top menu navigation.
+ */
+function mooc_helper_book_nav_update_7001(&$sandbox) {
+  $table = 'cache_mooc_helper_book_nav';
+  if (!db_table_exists($table)) {
+    $schema = drupal_get_schema_unprocessed('system', 'cache');
+    db_create_table($table, $schema);
+  }
+}
+
+/**
+ * Get positioning correct.
+ */
+function mooc_helper_book_nav_update_7002(&$sandbox) {
+  features_revert_module('mooc_helper_book_nav');
+}

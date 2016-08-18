@@ -7,9 +7,6 @@
 // svg_sanitizer global variables
 define('SVG_SANITIZER_URL', 'https://github.com/darylldoyle/svg-sanitizer');
 
-// Load the svg_sanitizer library
-libraries_load('svg_sanitizer');
-
 /**
  * Impliments hook_libraries_info
  *
@@ -91,9 +88,10 @@ function svg_sanitizer_field_formatter_info() {
 function svg_sanitizer_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
   $settings = $display['settings'];
-
   switch ($display['type']) {
     case 'svg_sanitizer':
+      // Load the svg_sanitizer library
+      libraries_load('svg_sanitizer');
       foreach ($items as $delta => $item) {
         // create the file path
         $svg_path = file_create_url($item['uri']);

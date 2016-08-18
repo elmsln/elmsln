@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the pathcache module.
+ */
+
+/**
+ * Implements hook_schema().
+*/
+function pathcache_schema() {
+  $schema = array();
+  $cache_schema = drupal_get_schema_unprocessed('system', 'cache');
+  $description = 'Cache table for URL aliases';
+  $schema['cache_path_source'] = $cache_schema;
+  $schema['cache_path_source']['description'] = $description;
+  $schema['cache_path_alias'] = $cache_schema;
+  $schema['cache_path_alias']['description'] = $description;
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function pathcache_install() {
+  variable_set('path_inc', drupal_get_path('module', 'pathcache') . '/path.inc');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function pathcache_uninstall() {
+  // Only reset the path_inc variable if it currently points to pathcache.
+  if (variable_get('path_inc') == drupal_get_path('module', 'pathcache') . '/path.inc') {
+    variable_del('path_inc');
+  }
+}

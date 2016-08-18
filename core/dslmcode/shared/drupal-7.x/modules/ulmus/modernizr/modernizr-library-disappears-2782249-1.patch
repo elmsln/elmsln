@@ -1,0 +1,27 @@
+diff --git a/modernizr.module b/modernizr.module
+index 939777c..cb92567 100644
+--- a/modernizr.module
++++ b/modernizr.module
+@@ -186,7 +186,6 @@ function modernizr_menu() {
+ function modernizr_libraries_info() {
+   $modernizr_js_settings = _modernizr_js_settings();
+   $libraries = array();
+-  $file_name = modernizr_get_filename();
+ 
+   // Define Modernizr within Libraries API
+   $libraries['modernizr'] = array(
+@@ -194,12 +193,12 @@ function modernizr_libraries_info() {
+     'vendor url' => 'http://modernizr.com',
+     'download url' => 'http://modernizr.com/download/',
+     'version arguments' => array(
+-      'file' => $file_name,
++      'file' => 'modernizr-custom.js',
+       'pattern' => MODERNIZR_VERSION_REGEX,
+     ),
+     'files' => array(
+       'js' => array(
+-        $file_name => $modernizr_js_settings,
++        'modernizr-custom.js' => $modernizr_js_settings,
+       ),
+     ),
+   );

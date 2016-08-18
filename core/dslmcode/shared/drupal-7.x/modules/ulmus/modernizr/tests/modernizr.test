@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Tests for Modernizr module.
+ */
+
+/**
+ * Tests basic Modernizr API functions.
+ */
+class ModernizrUnitTestCase extends DrupalUnitTestCase {
+  /**
+   * Displays a description in testing UI.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Modernizr module unit tests',
+      'description' => 'Tests basic api functions provided by Modernizr module.',
+      'group' => 'Modernizr',
+    );
+  }
+
+  /**
+   * Basic setup for Modernizr module tests.
+   */
+  function setUp() {
+    drupal_load('module', 'modernizr');
+    parent::setUp();
+  }
+
+  /**
+   * Tests that Modernizr is implementing hook_modernizr_info() correctly.
+   */
+  function testModernizrInfo() {
+    $tests = modernizr_api_list();
+    // cssclasses in array and provided by modernizr
+    $cssclasses = array_key_exists('cssclasses', $tests);
+    if ($cssclasses) {
+      // Flip source array for easier truth values.
+      $module_flip = array_flip($tests['cssclasses']['source']);
+      $cssclasses = array_key_exists('modernizr', $module_flip);
+    }
+    // printshiv in array and provided by modernizr
+    $printshiv = array_key_exists('printshiv', $tests);
+    if ($printshiv) {
+      // Flip source array for easier truth values.
+      $module_flip = array_flip($tests['printshiv']['source']);
+      $printshiv = array_key_exists('modernizr', $module_flip);
+    }
+    // load in array and provided by modernizr
+    $load = array_key_exists('load', $tests);
+    if ($load) {
+      // Flip source array for easier truth values.
+      $module_flip = array_flip($tests['load']['source']);
+      $load = array_key_exists('modernizr', $module_flip);
+    }
+
+    $this->assertTrue($cssclasses, "Modernizr's implementation of hook_modernizr_info is correctly inserting cssclasses tests into the api assembled test list.");
+    $this->assertTrue($printshiv, "Modernizr's implementation of hook_modernizr_info is correctly inserting printshiv tests into the api assembled test list.");
+    $this->assertTrue($load, "Modernizr's implementation of hook_modernizr_info is correctly inserting load tests into the api assembled test list.");
+  }
+}
+

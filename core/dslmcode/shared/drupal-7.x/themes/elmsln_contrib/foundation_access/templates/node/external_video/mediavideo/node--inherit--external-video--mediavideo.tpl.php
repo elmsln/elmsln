@@ -2,14 +2,15 @@
   <?php if (isset($content['field_figurelabel_ref'])): ?>
     <?php print render($content['field_figurelabel_ref'][0]); ?>
   <?php endif; ?>
-
   <?php if ($thumbnail): ?>
     <a href="#" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
   <?php endif; ?>
 
   <div class="mediavideo__video-wrapper">
-    <?php if ($video_url && $poster): ?>
-      <iframe data-mediavideo-src="<?php print $video_url; ?>" frameborder="0" allowfullscreen></iframe>
+    <?php if ($video_url && !$poster): ?>
+      <iframe src="<?php print _foundation_access_video_url($video_url); ?>" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    <?php elseif($video_url && $poster): ?>
+      <iframe data-mediavideo-src="<?php print _foundation_access_video_url($video_url); ?>" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
     <?php else: ?>
       <?php print render($content); ?>
     <?php endif; ?>

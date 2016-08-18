@@ -4,6 +4,23 @@
  * Displays the time it will take to read content on your site.
  */
 
+define('READ_TIME_WPM', 275);
+define('READ_TIME_DEFAULT_CRITERION', 'words');
+// 12 seconds per image, this is from a medium article suggesting it is reasonable
+define('READ_TIME_IMAGE', 12);
+
+/**
+ * Implements hook_permission().
+ */
+function read_time_permission() {
+  return array(
+    'view read time' =>  array(
+      'title' => t('View read time'),
+      'description' => t('Show users the read time statistics pulled off files.'),
+    ),
+  );
+}
+
 /**
  * Implements hook_form_FORM_ID_alter() for node_type_form.
  */
@@ -11,7 +28,7 @@ function read_time_form_node_type_form_alter(&$form, &$form_state, $form_id) {
   $type = $form['#node_type'];
   $defaults = read_time_defaults();
 
-  // Get text fields in this bundle.
+  // Get words fields in this bundle.
   $field_instances = field_info_instances('node', $type->type);
   foreach ($field_instances as $field => $field_instance) {
     $field_info = field_info_field($field);
@@ -60,6 +77,12 @@ function read_time_form_node_type_form_alter(&$form, &$form_state, $form_id) {
     '#description' => t("How the read time will be displayed. Use <em>%read_time</em> to output the read time formatted as above."),
     '#default_value' => variable_get('read_time_display_' . $type->type, $defaults['display']),
   );
+  $form['read_time']['read_time_node_view'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display on node view'),
+    '#description' => t("This will attach the counts to the node view of this type. Disable this if you will render read_time via a block or other custom implementation."),
+    '#default_value' => variable_get('read_time_node_view_' . $type->type, $defaults['node_view']),
+  );
 }
 
 /**
@@ -80,68 +103,161 @@ function read_time_field_extra_fields() {
 }
 
 /**
- * Implements hook_node_insert().
+ * Implements hook_read_time_criteria().
+ * Allows you to add new criteria for read time engagement.
+ * This is an example of the core implementation.
+ * @return array array items
  */
-function read_time_node_insert($node) {
-  $read_time = read_time_calculate($node);
+function read_time_read_time_criteria() {
+  return array(
+    'words' => 'read_time_calculate',
+    'video' => 'read_time_calculate',
+    'audio' => 'read_time_calculate',
+    'img' => 'read_time_calculate',
+    'svg' => 'read_time_calculate',
+  );
+}
 
-  db_insert('read_time')
-    ->fields(array(
-      'nid' => $node->nid,
-      'read_time' => $read_time,
-    ))
-    ->execute();
+/**
+ * Implements hook_read_time_criteria().
+ * Allows you to add new criteria for read time engagement.
+ * This is an example of the core implementation.
+ * @return array  an array of criteria keys and callback functions
+ */
+function read_time_get_criteria() {
+  $criteria = &drupal_static(__FUNCTION__);
+  if (!isset($criteria)) {
+    $criteria = module_invoke_all('read_time_criteria');
+    drupal_alter('read_time_criteria', $criteria);
+    // validate that the callbacks exist so we don't have to later on
+    foreach ($criteria as $key => $callback) {
+      if (!function_exists($callback)) {
+        unset($criteria[$key]);
+      }
+    }
+  }
+  return $criteria;
+}
+
+/**
+ * Process the read time of a node.
+ * @param  object $node     node object to evaluate
+ * @param  string $criterion criterion to assemble otherwise all criteria
+ * @return array            array of the criteria in question
+ */
+function _read_time_evaluate($node, $criterion = NULL) {
+  // assemble criteria
+  $criteria = read_time_get_criteria();
+  $read_time = array('metadata' => array());
+  // pull in the defaults for the user; typically global in scope
+  $defaults = read_time_defaults();
+
+  // Get read time bundle settings.
+  $fields = variable_get('read_time_fields_' . $node->type, $defaults['fields']);
+
+  // Get input data from fields to calculate read time off
+  $field_data = '';
+  foreach ($fields as $field) {
+    $field_items = field_get_items('node', $node, $field);
+    if (is_array($field_items)) {
+      foreach ($field_items as $field_item) {
+        if (isset($field_item['format'])) {
+          $field_data .= check_markup($field_item['value'], $field_item['format']);
+        }
+        else {
+          $field_data .= $field_item['value'];
+        }
+      }
+    }
+  }
+  // see if we want one or all criterion
+  if (is_null($criterion)) {
+    // loop through all criteria and build out
+    foreach ($criteria as $key => $callback) {
+      $read_time[$key] = call_user_func_array($callback, array($node, $field_data, $key));
+    }
+  }
+  // ensure this is a valid criterion if singular
+  elseif (isset($criteria[$criterion])) {
+    $read_time[$criterion] = call_user_func_array($criteria[$criterion], array($node, $field_data, $criterion));
+  }
+  // allow other projects to evaluate read_time as needed
+  drupal_alter('read_time_evaluate', $read_time, $node, $field_data);
+  return $read_time;
 }
 
 /**
  * Implements hook_node_update().
  */
 function read_time_node_update($node) {
-  $read_time = read_time_calculate($node);
+  // see if there's currently a value for this, there should be
+  if ($read_time_old = _read_time_get_read_time($node->nid)) {
+    // compare it to the new one if we fresh calculate if
+    $read_time = _read_time_evaluate($node);
+    // only change the value if its different upon calculation
+    if ($read_time != $read_time_old) {
+        db_merge('read_time')
+      ->key(array(
+        'nid' => $node->nid,
+      ))
+      ->fields(array(
+        'read_time' => serialize($read_time),
+      ))
+      ->execute();
+      // set a flag so other things know this changed
+      $node->read_time_changed = TRUE;
+    }
+    else {
+      // set a flag saying this hasn't changed
+      $node->read_time_changed = FALSE;
+    }
+  }
+}
 
-  db_merge('read_time')
-    ->key(array(
-      'nid' => $node->nid,
-    ))
-    ->fields(array(
-      'read_time' => $read_time,
-    ))
-    ->execute();
+/**
+ * Implements hook_node_load().
+ */
+function read_time_node_load($nodes, $types) {
+  // add read time to the node object itself so we can reference
+  // the data elsewhere. This also opens the door for additional
+  // timed items that can impact reading.
+  foreach ($nodes as $node) {
+    $record = _read_time_get_read_time($node->nid);
+    // ensure a record exists otherwise build it out now
+    if (empty($record)) {
+      $read_time = _read_time_evaluate($node);
+      db_merge('read_time')
+        ->key(array(
+          'nid' => $node->nid,
+        ))
+        ->fields(array(
+          'read_time' => serialize($read_time),
+        ))
+        ->execute();
+      $nodes[$node->nid]->read_time = $read_time;
+    }
+    else {
+      $nodes[$node->nid]->read_time = $record;
+    }
+  }
 }
 
 /**
  * Implements hook_node_view().
  */
 function read_time_node_view($node, $view_mode, $langcode) {
-  // Get read time field settings.
-  $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
-  $settings = $display_settings['read_time'];
-
-  if ($settings['visible']) {
-    // Get read time from database.
-    $read_time = db_query('SELECT read_time FROM {read_time} WHERE nid = :nid', array(
-      ':nid' => $node->nid,
-    ))->fetchField();
-
-    // Calculate read time if it doesn't exist and save to database.
-    if (empty($read_time)) {
-      $read_time = read_time_calculate($node);
-
-      db_merge('read_time')
-        ->key(array(
-          'nid' => $node->nid,
-        ))
-        ->fields(array(
-          'read_time' => $read_time,
-        ))
-        ->execute();
+  if (user_access('view read time') && arg(2) != 'edit' && arg(1) != 'add') {
+    // Get read time field settings.
+    $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
+    $settings = $display_settings['read_time'];
+    // make sure this is visible
+    if ($settings['visible'] && variable_get('read_time_node_view_' . $node->type, TRUE)) {
+      // Display read time with node.
+      $node->content['read_time'] = array(
+        '#markup' => theme('read_time', array('node' => $node)),
+        '#weight' => $settings['weight'],
+      );
     }
-
-    // Display read time with node.
-    $node->content['read_time'] = array(
-      '#markup' => '<span class="read-time">' . $read_time . '</span>',
-      '#weight' => $settings['weight'],
-    );
   }
 }
 
@@ -162,32 +278,92 @@ function read_time_node_type_delete($info) {
   variable_del('read_time_wpm_' . $info->type);
   variable_del('read_time_format_' . $info->type);
   variable_del('read_time_display_' . $info->type);
+  variable_del('read_time_node_view_' . $info->type);
 }
 
 /**
- * Calculate read time.
+ * Implements hook_block_info().
  */
-function read_time_calculate($node) {
-  $defaults = read_time_defaults();
+function read_time_block_info() {
+  $blocks['read_time'] = array(
+    'info' => t('Read time'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+  return $blocks;
+}
 
+/**
+ * Implements hook_block_view().
+ */
+function read_time_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'read_time':
+      if (user_access('view read time')) {
+        // need an object in order to function
+        $node = menu_get_object('node');
+        if (!empty($node)) {
+          $block['subject'] = t('Read time');
+          $block['content'] = theme('read_time', array('node' => $node));
+        }
+      }
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Callback to calculate read time for words and media elements.
+ */
+function read_time_calculate($node, $field_data, $criterion = READ_TIME_DEFAULT_CRITERION) {
+  // evaluation the "words" based on the criterion passed in
+  switch ($criterion) {
+    case 'words':
+      // Calculate words by striping all tags; this is easy
+      $count = str_word_count(strip_tags($field_data));
+    break;
+    case 'audio':
+    case 'img':
+    case 'svg':
+    case 'video':
+      // build our preg match to find the exact tags
+      $preg = '/<' . $criterion . '(.*?)>/s';
+      // pregmatch to count tags
+      preg_match_all($preg, $field_data, $results);
+      $count = count($results[0]);
+    break;
+  }
+  return $count;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function read_time_theme($existing, $type, $theme, $path) {
+  return array(
+    'read_time' => array(
+      'variables' => array(
+        'node' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Default theme function for video.
+ */
+function theme_read_time($variables) {
+  $defaults = read_time_defaults();
+  $node = $variables['node'];
   // Get read time bundle settings.
-  $fields = variable_get('read_time_fields_' . $node->type, $defaults['fields']);
-  $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
   $format = variable_get('read_time_format_' . $node->type, $defaults['format']);
   $display = variable_get('read_time_display_' . $node->type, $defaults['display']);
+  $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
 
-  // Get fields to calculate read time of.
-  $field_words = '';
-  foreach ($fields as $field) {
-    $field_items = field_get_items('node', $node, $field);
-    foreach ($field_items as $field_item) {
-      $field_words .= strip_tags($field_item['value']);
-    }
-  }
-
-  // Calculate read time.
-  $words = str_word_count($field_words);
-  $time = $words / $wpm;
+  // @todo this needs to be able to evaluation more then just words
+  $words = $node->read_time['words'];
+  // convert words into time
+  $time = round(($words / $wpm), 3);
 
   // Format read time.
   if (in_array($format, array('hour_short', 'hour_long'))) {
@@ -214,18 +390,286 @@ function read_time_calculate($node) {
     $read_time = $minute_format;
   }
 
-  return check_plain(str_replace('%read_time', $read_time, $display));
+  return '<span class="read-time">' . check_plain(str_replace('%read_time', $read_time, $display)) . '</span>';
 }
 
 /**
  * Store default settings.
  */
 function read_time_defaults() {
+  // statically cache future calls
+  $defaults = &drupal_static(__FUNCTION__);
+  if (!isset($defaults)) {
+    $defaults = array(
+      'fields' => array('body'),
+      'wpm' => READ_TIME_WPM,
+      'format' => 'hour_short',
+      'display' => t('Read time: %read_time'),
+      'node_view' => TRUE,
+    );
+    drupal_alter('read_time_defaults', $defaults);
+  }
+  return $defaults;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ *
+ * @see entity_entity_property_info_alter()
+ */
+function read_time_entity_property_info_alter(&$info) {
+  $criteria = read_time_get_criteria();
+  // add the read time properties into scope of all entity API data
+  // this will make it available to Services / RestWS and full Entity Ops
+  foreach ($info['node']['bundles'] as $key => &$bundle) {
+    $bundle['properties']['read_time_total'] = array(
+      'label' => t("Read time total"),
+      'description' => t("The total read time of all elements in read time"),
+      'type' => 'integer',
+      'getter callback' => 'read_time_node_get_properties',
+      'computed' => TRUE,
+    );
+    // wire in the rest of the criteria
+    foreach($criteria as $key => $callback) {
+      $bundle['properties']['read_time_' . $key] = array(
+        'label' => t('Read time @key', array('@key' => $key)),
+        'description' => t('The count of all @key elements', array('@key' => $key)),
+        'type' => 'integer',
+        'getter callback' => 'read_time_node_get_properties',
+        'computed' => TRUE,
+      );
+    }
+  }
+}
+
+/**
+ * Callback for getting read_time properties.
+ * @see read_time_entity_property_info_alter()
+ */
+function read_time_node_get_properties($node, array $options, $name) {
+  switch ($name) {
+    case 'read_time_total':
+      $defaults = read_time_defaults();
+      $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
+      // mix in children if it is set
+      if (isset($node->read_time['metadata']['children'])) {
+        foreach ($node->read_time['metadata']['children'] as $key => $value) {
+          if (!isset($node->read_time[$key])) {
+            $node->read_time[$key] = 0;
+          }
+          $node->read_time[$key] += $value;
+        }
+      }
+      $time = round(($node->read_time['words'] + (READ_TIME_IMAGE * $node->read_time['img']) / $wpm), 3);
+      return $time;
+    break;
+    default:
+      // ridiculous looking, but this allows us to
+      // hit all of the properties of read_time that
+      // are then kicked out to entity spec as read_time_{name}
+      // such as read_time_words and read_time_img
+      $tmp = explode('_', $name);
+      // kick the last part off so we know what key to look for
+      $property = array_pop($tmp);
+      // if its set we're golden, otherwise it's NULL
+      if (isset($node->read_time[$property])) {
+        return $node->read_time[$property];
+      }
+      return NULL;
+    break;
+  }
+}
+
+/**
+ * Triggers the batch operation for updating nodes.
+ */
+function _read_time_perform_batch_process() {
+  db_truncate('read_time');
+  $batch = array(
+    'title' => t('Updating existing nodes with read time data'),
+    'init_message' => t('Preparing to update entities..'),
+    'progress_message' => t('Processed @current out of @total items.'),
+    'operations' => array(
+      array('_read_time_analyze_existing_nodes', array()),
+    ),
+    'finished' => '_read_time_perform_batch_process_complete',
+  );
+  batch_set($batch);
+}
+
+/**
+ * BatchAPI complete callback for getID3 import.
+ */
+function _read_time_perform_batch_process_complete($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('Read time node data updated @count nodes successfully.', array('@count' => count($results))));
+  }
+  else {
+    drupal_set_message(theme('item_list', array('items' => $results['errors'])), 'error');
+  }
+}
+
+/**
+ * Performs batch operations to update existing nodes entity metadata.
+ *
+ * @param $context
+ * @return null|string
+ */
+function _read_time_analyze_existing_nodes(&$context) {
+  // set a flag so we can block other projects from looping infinitely
+  // on a major rebuild routine
+  // Little workaround so update hook and can use same batch.
+  if (isset($context['sandbox'])) {
+    $sandbox =& $context['sandbox'];
+  }
+  else {
+    $sandbox =& $context;
+  }
+
+  // Lets update 10 nodes at a time.
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['current_nid'] = 0;
+    // We only select files that are not in the getid3_meta table.
+    $sandbox['max'] = db_query('SELECT COUNT(nid) FROM {node} n WHERE n.status=1')->fetchField();
+  }
+
+  $query = db_select('node', 'n')
+    ->fields('n', array('nid'))
+    ->condition('nid', $sandbox['current_nid'], '>')
+    ->condition('status', 1, '=')
+    ->range(0, 10)
+    ->orderBy('nid', 'ASC');
+  $nodes = $query->execute()->fetchAll();
+  foreach ($nodes as $tmp) {
+    // We just need to load the node to initiate it.
+    $node = node_load($tmp->nid);
+    // Update batch
+    $sandbox['progress']++;
+    $context['results'][] = $node->nid;
+    $sandbox['current_nid'] = $node->nid;
+  }
+
+  $context['message'] = t('Parsing read time of @current out of @max nodes', array('@current' => count($context['results']), '@max' => $sandbox['max']));
+  // Let Batch API or upgrade hook know if this batch set is completed.
+  $context['finished'] = empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max']);
+  $sandbox['#finished'] = $context['finished'];
+}
+
+/**
+ * Helper function to look for multiple needles in haystack.
+ * @param  string $haystack  string to search in
+ * @param  array $needle     array of strings to search for
+ * @return mixed             position if found, otherwise false
+ */
+function _read_time_strpos_arr($haystack, $needles) {
+  // account for single value
+  if (!is_array($needles)) {
+    $needles = array($needles);
+  }
+  // loop through and a return position if it exists
+  foreach ($needles as $needle) {
+    if (($pos = strpos($haystack, $needle)) !== false) {
+      return $pos;
+    }
+  }
+  return false;
+}
+
+/**
+ * Helper function to return current node's read time.
+ * @param  int   $nid  node id
+ * @return mixed       array of the data calculated or NULL if didn't exist
+ */
+function _read_time_get_read_time($nid) {
+  $record = db_query('SELECT read_time FROM {read_time} WHERE nid = :nid', array(':nid' => $nid))->fetchField();
+  // ensure we have a record
+  if (empty($record)) {
+    return NULL;
+  }
+  // return it unserialized since it's an array
+  return unserialize($record);
+}
+
+/**
+ * Provide replacement values for placeholder tokens.
+ *
+ * @see http://api.drupal.org/api/drupal/modules--system--system.api.php/function/hook_tokens/7
+ * @see http://www.benmarshall.me/drupal-custom-tokens
+ * @param string $type
+ *   The machine-readable name of the type (group) of token being replaced, such
+ *   as 'node', 'user', or another type defined by a hook_token_info()
+ *   implementation.
+ * @param array $tokens
+ *   An array of tokens to be replaced. The keys are the machine-readable token
+ *   names, and the values are the raw [type:token] strings that appeared in the
+ *   original text.
+ * @param array $data (optional)
+ *   An associative array of data objects to be used when generating replacement
+ *   values, as supplied in the $data parameter to token_replace().
+ * @param array $options (optional)
+ *   An associative array of options for token replacement; see token_replace()
+ *   for possible values.
+ * @return array
+ *   An associative array of replacement values, keyed by the raw [type:token]
+ *   strings from the original text.
+ */
+function read_time_tokens($type, $tokens, $data = array(), $options = array()) {
+  $replacements = array();
+  $sanitize = !empty($options['sanitize']);
+  // read time tokens
+  if ($type == 'read_time') {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        // theme render the stats token
+        case 'stats':
+          if ($node = menu_get_object()) {
+            $replacements[$original] = theme('read_time', array('node' => $node));
+          }
+        break;
+      }
+    }
+  }
+  return $replacements;
+}
+
+/**
+ * Provide information about our custom tokens.
+ *
+ * @see http://api.drupal.org/api/drupal/modules--system--system.api.php/function/hook_token_info/7
+ * @see http://www.benmarshall.me/drupal-custom-tokens
+ * @return array
+ *   An associative array of available tokens and token types.
+ */
+function read_time_token_info() {
+  // define the types that we can process
+  $types = array(
+    'read_time' => array(
+      'name' => t('Read time'),
+      'description' => t('Read time statistics and rendered output'),
+    ),
+  );
+  // tokens per type
+  $tokens = array(
+    'read_time' => array(
+      'stats' => array(
+        'name' => t("Statistics"),
+        'description' => t("Themed statistics for reading time based on analysis of the content."),
+      ),
+    ),
+  );
+
   return array(
-    'fields' => array('body'),
-    'wpm' => '225',
-    'format' => 'hour_short',
-    'display' => t('Read time: %read_time'),
+    'types' => $types,
+    'tokens' => $tokens,
   );
 }
 
+/**
+ * Implements hook_flush_caches().
+ */
+function read_time_flush_caches() {
+  // on a cache clear we might have new data
+  _read_time_perform_batch_process();
+  return array();
+}

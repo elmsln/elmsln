@@ -37,6 +37,27 @@ function mooc_page_strongarm() {
         'title' => array(
           'weight' => '0',
         ),
+        'additional_settings' => array(
+          'weight' => '123',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '118',
+        ),
+        'book' => array(
+          'weight' => '129',
+        ),
+        'options' => array(
+          'weight' => '119',
+        ),
+        'author' => array(
+          'weight' => '132',
+        ),
+        'revision_information' => array(
+          'weight' => '133',
+        ),
+        'path' => array(
+          'weight' => '102',
+        ),
       ),
       'display' => array(),
     ),

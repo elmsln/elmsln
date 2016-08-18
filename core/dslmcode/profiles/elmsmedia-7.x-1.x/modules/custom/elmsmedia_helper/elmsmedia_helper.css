@@ -1,4 +1,60 @@
-/* CSS Document */
+/* Right float column */
+@media screen and (min-width: 80rem) {
+  article.node fieldset.elmsln-right-float-column {
+    position: absolute !important;
+    left: 100%;
+    width: calc(50vw - 52%);
+    max-width: 30em;
+    display: block;
+  }
+}
+
 article.node iframe {
  margin: 0em;
+}
+
+.ableplayer-audio *,
+.ableplayer-video *{
+  box-sizing: initial;
+}
+
+.ableplayer-audio .able-window-toolbar label,
+.ableplayer-video .able-window-toolbar label {
+  display: inline;
+}
+
+.ableplayer-audio input[type="checkbox"]:not(:checked), .ableplayer-audio input[type="checkbox"]:checked,
+.ableplayer-video input[type="checkbox"]:not(:checked), .ableplayer-video input[type="checkbox"]:checked {
+  opacity: initial;
+  left: initial;
+  position: initial;
+}
+
+.ableplayer-audio .ableplayer-transcript-container,
+.ableplayer-video .ableplayer-transcript-container {
+  margin: 1em 0;
+}
+
+.ableplayer-audio .able-transcript-area,
+.ableplayer-video .able-transcript-area {
+  height: 410px;
+}
+
+.row .row.ableplayer-audio,
+.row .row.ableplayer-video {
+  margin: 0;
+}
+
+#admin-menu, #admin-menu .dropdown {
+  z-index: 9990;
+}
+.sticky-wrapper.is-sticky {
+  z-index: 9988 !important;
+}
+
+.reveal-modal.etb-nav-modal, .reveal-modal.open {
+  z-index: 9989;
+}
+.f-dropdown.open.f-open-dropdown {
+  z-index: 9987;
 }

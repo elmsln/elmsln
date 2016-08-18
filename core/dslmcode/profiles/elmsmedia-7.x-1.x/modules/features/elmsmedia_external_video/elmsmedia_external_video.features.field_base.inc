@@ -10,7 +10,7 @@
 function elmsmedia_external_video_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_external_media'
+  // Exported field_base: 'field_external_media'.
   $field_bases['field_external_media'] = array(
     'active' => 1,
     'cardinality' => 1,

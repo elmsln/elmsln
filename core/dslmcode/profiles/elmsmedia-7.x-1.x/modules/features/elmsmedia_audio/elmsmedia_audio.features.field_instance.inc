@@ -10,7 +10,7 @@
 function elmsmedia_audio_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-audio-field_audio'
+  // Exported field_instance: 'node-audio-field_audio'.
   $field_instances['node-audio-field_audio'] = array(
     'bundle' => 'audio',
     'deleted' => 0,
@@ -20,26 +20,27 @@ function elmsmedia_audio_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'elmsmedia_helper',
         'settings' => array(
-          'controls' => 1,
-          'download_link' => 0,
-          'download_text' => 'Download',
           'height' => 30,
-          'width' => '100%',
         ),
-        'type' => 'mediaelement_audio',
+        'type' => 'ableplayer_audio',
         'weight' => 1,
+      ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'height' => 30,
+        ),
+        'type' => 'ableplayer_audio',
+        'weight' => 3,
       ),
       'iframe' => array(
         'label' => 'hidden',
         'module' => 'elmsmedia_helper',
         'settings' => array(
-          'controls' => 1,
-          'download_link' => 0,
-          'download_text' => 'Download',
           'height' => 30,
-          'width' => '100%',
         ),
-        'type' => 'mediaelement_audio',
+        'type' => 'ableplayer_audio',
         'weight' => 0,
       ),
       'teaser' => array(
@@ -71,7 +72,7 @@ function elmsmedia_audio_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-audio-field_cis_course_ref'
+  // Exported field_instance: 'node-audio-field_cis_course_ref'.
   $field_instances['node-audio-field_cis_course_ref'] = array(
     'bundle' => 'audio',
     'default_value' => NULL,
@@ -87,11 +88,20 @@ function elmsmedia_audio_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 3,
       ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -119,7 +129,7 @@ function elmsmedia_audio_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-audio-field_tagging'
+  // Exported field_instance: 'node-audio-field_tagging'.
   $field_instances['node-audio-field_tagging'] = array(
     'bundle' => 'audio',
     'default_value' => NULL,
@@ -133,11 +143,18 @@ function elmsmedia_audio_field_default_field_instances() {
         'type' => 'taxonomy_term_reference_link',
         'weight' => 2,
       ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 4,
+      ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -167,7 +184,7 @@ function elmsmedia_audio_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-audio-og_group_ref'
+  // Exported field_instance: 'node-audio-og_group_ref'.
   $field_instances['node-audio-og_group_ref'] = array(
     'bundle' => 'audio',
     'default_value' => NULL,
@@ -181,6 +198,21 @@ function elmsmedia_audio_field_default_field_instances() {
         'settings' => array(),
         'type' => 'og_list_default',
         'weight' => 4,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 3,
+      ),
+      'iframe' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',

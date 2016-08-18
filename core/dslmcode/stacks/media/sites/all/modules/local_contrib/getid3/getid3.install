@@ -1,0 +1,145 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the getid3 module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function getid3_requirements($phase) {
+  $t = get_t();
+  $requirements = array();
+
+  if ($phase == 'runtime') {
+    $requirements['getID3'] = array(
+      'title' => $t('getID3() PHP Library'),
+      'value' => $t('The getID3() library is present'),
+      'severity' => REQUIREMENT_ERROR,
+    );
+
+    // Detect the library
+    if (module_exists('libraries')) {
+      $library = libraries_detect('getid3');
+
+      if ($library['installed']) {
+        $requirements['getID3']['severity'] = REQUIREMENT_OK;
+      }
+      elseif (isset($library['error']) && !empty($library['error'])) {
+        $requirements['getID3']['description'] = $library['error message'];
+      }
+    }
+    else {
+      $requirements['getID3']['description'] = t('The getID3() module now requires Libraries.');
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_install().
+ */
+function getid3_install() {
+  // Run a batched update on all existing file entities.
+  getid3_perform_batch_process();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function getid3_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'getid3_%'");
+  cache_clear_all('variables', 'cache');
+}
+
+
+/**
+ * Create the getid3_meta table. (Skipped in 7.x-2.x)
+ */
+function getid3_update_7101() {
+  // @note: 7.x-2.x does not maintain it's own metadata table and relies on
+  //        the functionality provided by File Entity for this.
+
+  // Lets get the schema.
+  // $schema = getid3_schema();
+
+  // Create the table.
+  // db_create_table('getid3_meta', $schema['getid3_meta']);
+}
+
+/**
+ * Add the meta data to files already created. (Skipped in 7.x-2.x)
+ */
+function getid3_update_7102(&$sandbox) {
+  // @note: 7.x-2.x does not maintain it's own metadata table and relies on
+  //        the functionality provided by File Entity for this.
+  // @note: getid3_update_7202() does same process but for 7.x-2.x branch.
+
+
+  /*
+  // Explicityly load the getid3 module.
+  drupal_load('module', 'getid3');
+
+  // Lets update 10 files at a time.
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['current_fid'] = 0;
+    // We only select files that are not in the getid3_meta table.
+    $sandbox['max'] = db_query('SELECT COUNT(fid) FROM {file_managed} f where f.fid not in (select fid from {getid3_meta})')->fetchField();
+  }
+
+  $query = db_select('file_managed', 'f')
+    ->fields('f', array('fid'))
+    ->condition('fid', $sandbox['current_fid'], '>')
+    ->range(0, 10)
+    ->orderBy('fid', 'ASC');
+  // Make sure to only select files not in the getid3_meta table.
+  $query->where('f.fid not in (select fid from {getid3_meta})');
+  $files = $query->execute();
+
+  foreach ($files as $file) {
+    // getid3_analyze_file is expecting a file object
+    // so we'll load i.
+    $file = file_load($file->fid);
+    getid3_analyze_file($file);
+    $record = array_merge($file->getid3, array('fid' => $file->fid));
+    // Lets manually add it to the table.
+    drupal_write_record('getid3_meta', $record);
+    $sandbox['progress']++;
+    $sandbox['current_fid'] = $file->fid;
+  }
+
+  $sandbox['#finished'] = empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max']);
+
+  return t('All the meta data has been added for all the files.');
+  */
+}
+
+/**
+ * Remove unused variables from 7.x-1.x
+ */
+function getid3_update_7201() {
+  variable_del('getid3_path');
+  variable_del('getid3_path');
+}
+
+/**
+ * Moves getID3 metadata information into File Entity.
+ */
+function getid3_update_7202(&$sandbox) {
+  // Drop the old table, if created (was created in 7.x-1.x after 7101 update.)
+  if(db_table_exists('getid3_meta')) {
+    db_drop_table('getid3_meta');
+  }
+
+  // Process the existing file entities.
+  getid3_analyze_existing_files($sandbox);
+}
+
+/**
+ * Set the module weight back to 0
+ */
+function getid3_update_7203() {
+  db_query("UPDATE {system} SET weight = 0 WHERE name = 'getid3'");
+}

@@ -55,18 +55,15 @@ H5PEditor.ImageEditingPopup = (function ($, EventDispatcher) {
     editingImage.id = 'h5p-editing-image-' + uniqueId;
     editingContainer.appendChild(editingImage);
 
-    // Append to body
-    H5P.$body.get(0).appendChild(background);
-
     // Close popup on background click
-    background.onclick = function () {
+    background.addEventListener('click', function () {
       this.hide();
-    }.bind(this);
+    }.bind(this));
 
     // Prevent closing popup
-    popup.onclick = function (e) {
+    popup.addEventListener('click', function (e) {
       e.stopPropagation();
-    };
+    });
 
     // Make sure each ImageEditingPopup instance has a unique ID
     instanceCounter += 1;
@@ -82,7 +79,7 @@ H5PEditor.ImageEditingPopup = (function ($, EventDispatcher) {
       var button = document.createElement('button');
       button.textContent = ns.t('core', coreString);
       button.className = className;
-      button.onclick = clickEvent;
+      button.addEventListener('click', clickEvent);
       headerButtons.appendChild(button);
     };
 
@@ -281,6 +278,7 @@ H5PEditor.ImageEditingPopup = (function ($, EventDispatcher) {
      * @param {string} [imageSrc] Source of image that will be edited
      */
     this.show = function (offset, imageSrc) {
+      H5P.$body.get(0).appendChild(background);
       setDarkroomDimensions();
       if (imageSrc) {
 
@@ -318,6 +316,7 @@ H5PEditor.ImageEditingPopup = (function ($, EventDispatcher) {
       isShowing = false;
       H5P.$body.get(0).classList.remove('h5p-editor-image-popup');
       background.classList.add('hidden');
+      H5P.$body.get(0).removeChild(background);
     };
 
     /**

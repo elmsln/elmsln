@@ -31,8 +31,8 @@ memory_limit = 256M
 error_reporting = E_ALL & ~E_DEPRECATED
 
 ; increase max file upload size from defaults
-upload_max_filesize = 50M
-post_max_size = 50M
+upload_max_filesize = 2000M
+post_max_size = 2000M
 
 ; Recommendation from @mcarper
 realpath_cache_size = 1M

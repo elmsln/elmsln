@@ -1,0 +1,41 @@
+/**
+ * @file
+ *   Administrative CSS for Modernizr module.
+ */
+
+body.page-admin-config-development-modernizr .modernizr-tests {
+  margin-left: 2em;
+}
+
+body.page-admin-config-development-modernizr .modernizr-tests h3 {
+  float: left;
+  clear: left;
+  margin: 0 1em 1em 0;
+}
+
+body.page-admin-config-development-modernizr .modernizr-tests p.desc {
+  float: left;
+  margin: 0;
+}
+
+body.page-admin-config-development-modernizr div.download-modernizr {
+  float: none;
+  clear: both;
+  padding-top: 1em;
+}
+
+/**
+ * Styles for Test API. Based on whether our current Modernizr lib is in sync
+ * with the latest Test API settings.
+ */
+body.page-admin-config-development-modernizr .modernizr-tests h3.not-included {
+  font-weight: bold;
+  color: #d02;
+}
+body.page-admin-config-development-modernizr .modernizr-tests h3.not-included::after {
+  content: " (missing)";
+  font-size: .7em;
+  vertical-align: top;
+  position: relative;
+  top: -2px;
+}

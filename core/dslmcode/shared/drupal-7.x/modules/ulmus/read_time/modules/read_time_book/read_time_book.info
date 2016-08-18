@@ -1,0 +1,5 @@
+name = Read time : Book
+description = "Supports compiling read time data about children in book outlines"
+core = 7.x
+dependencies[] = read_time
+dependencies[] = book

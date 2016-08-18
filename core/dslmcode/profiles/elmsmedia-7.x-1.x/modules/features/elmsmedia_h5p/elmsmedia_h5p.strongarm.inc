@@ -42,21 +42,21 @@ function elmsmedia_h5p_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_h5p_content';
-  $strongarm->value = 'edit-view-mode-tab';
+  $strongarm->value = 'edit-wysiwyg-template';
   $export['additional_settings__active_tab_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'diff_enable_revisions_page_node_h5p_content';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['diff_enable_revisions_page_node_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'diff_show_preview_changes_node_h5p_content';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['diff_show_preview_changes_node_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -71,26 +71,141 @@ function elmsmedia_h5p_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'field_bundle_settings_node__h5p_content';
   $strongarm->value = array(
-    'view_modes' => array(),
+    'view_modes' => array(
+      'full' => array(
+        'custom_settings' => TRUE,
+      ),
+      'iframe' => array(
+        'custom_settings' => TRUE,
+      ),
+      'teaser' => array(
+        'custom_settings' => FALSE,
+      ),
+      'rss' => array(
+        'custom_settings' => FALSE,
+      ),
+      'diff_standard' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo__poster' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo__thumbnail' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch' => array(
+        'custom_settings' => FALSE,
+      ),
+      'figurelabel' => array(
+        'custom_settings' => FALSE,
+      ),
+      'token' => array(
+        'custom_settings' => FALSE,
+      ),
+      'revision' => array(
+        'custom_settings' => FALSE,
+      ),
+    ),
     'extra_fields' => array(
       'form' => array(
         'h5p' => array(
-          'weight' => '4',
-        ),
-        'h5p_type' => array(
-          'weight' => '2',
-        ),
-        'h5p_editor' => array(
           'weight' => '5',
         ),
+        'h5p_type' => array(
+          'weight' => '3',
+        ),
+        'h5p_editor' => array(
+          'weight' => '6',
+        ),
         'title' => array(
-          'weight' => '1',
+          'weight' => '2',
         ),
         'path' => array(
           'weight' => '7',
         ),
+        'hidden_nodes' => array(
+          'weight' => '8',
+        ),
+        'book' => array(
+          'weight' => '11',
+        ),
+        'options' => array(
+          'weight' => '12',
+        ),
+        'author' => array(
+          'weight' => '9',
+        ),
+        'revision_information' => array(
+          'weight' => '10',
+        ),
       ),
-      'display' => array(),
+      'display' => array(
+        'h5p' => array(
+          'default' => array(
+            'weight' => '0',
+            'visible' => TRUE,
+          ),
+          'full' => array(
+            'weight' => '1',
+            'visible' => TRUE,
+          ),
+          'iframe' => array(
+            'weight' => '0',
+            'visible' => TRUE,
+          ),
+        ),
+      ),
     ),
   );
   $export['field_bundle_settings_node__h5p_content'] = $strongarm;
@@ -132,6 +247,13 @@ function elmsmedia_h5p_strongarm() {
   $strongarm->name = 'node_submitted_h5p_content';
   $strongarm->value = 0;
   $export['node_submitted_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'wysiwyg_template_default_h5p_content';
+  $strongarm->value = '';
+  $export['wysiwyg_template_default_h5p_content'] = $strongarm;
 
   return $export;
 }

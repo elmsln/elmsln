@@ -10,7 +10,7 @@
 function mooc_content_theming_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-page-field_fa_primary_color'
+  // Exported field_instance: 'node-page-field_fa_primary_color'.
   $field_instances['node-page-field_fa_primary_color'] = array(
     'bundle' => 'page',
     'default_value' => NULL,
@@ -55,11 +55,11 @@ function mooc_content_theming_field_default_field_instances() {
       'module' => 'jquery_colorpicker',
       'settings' => array(),
       'type' => 'jquery_colorpicker',
-      'weight' => 16,
+      'weight' => 9,
     ),
   );
 
-  // Exported field_instance: 'node-page-field_fa_secondary_color'
+  // Exported field_instance: 'node-page-field_fa_secondary_color'.
   $field_instances['node-page-field_fa_secondary_color'] = array(
     'bundle' => 'page',
     'default_value' => NULL,
@@ -104,13 +104,14 @@ function mooc_content_theming_field_default_field_instances() {
       'module' => 'jquery_colorpicker',
       'settings' => array(),
       'type' => 'jquery_colorpicker',
-      'weight' => 17,
+      'weight' => 10,
     ),
   );
 
-  // Exported field_instance: 'node-page-field_instructional_significance'
+  // Exported field_instance: 'node-page-field_instructional_significance'.
   $field_instances['node-page-field_instructional_significance'] = array(
     'bundle' => 'page',
+    'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -155,11 +156,11 @@ function mooc_content_theming_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 14,
+      'weight' => 137,
     ),
   );
 
-  // Exported field_instance: 'node-page-field_mooc_image'
+  // Exported field_instance: 'node-page-field_mooc_image'.
   $field_instances['node-page-field_mooc_image'] = array(
     'bundle' => 'page',
     'deleted' => 0,
@@ -183,14 +184,29 @@ function mooc_content_theming_field_default_field_instances() {
     'label' => 'Image',
     'required' => 0,
     'settings' => array(
-      'alt_field' => 0,
+      'alt_field' => 1,
+      'alt_field_required' => 1,
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'default_image' => 0,
       'file_directory' => 'mooc_images',
       'file_extensions' => 'png gif jpg jpeg',
       'max_filesize' => '',
       'max_resolution' => '',
       'min_resolution' => '',
-      'title_field' => 0,
+      'title_field' => 1,
+      'title_field_required' => 0,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -201,7 +217,7 @@ function mooc_content_theming_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 15,
+      'weight' => 144,
     ),
   );
 

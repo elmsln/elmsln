@@ -120,7 +120,7 @@ ns.Number.prototype.validate = function () {
       this.$errors.append(ns.createError(ns.t('core', 'exceedsMax', {':property': 'number field', ':max': this.field.max})));
     }
     else if (this.field.min !== undefined && value < this.field.min) {
-      this.$errors.append(ns.createError(ns.t('core', 'exceedsMin', {':property': 'number field', ':min': this.field.min})));
+      this.$errors.append(ns.createError(ns.t('core', 'belowMin', {':property': 'number field', ':min': this.field.min})));
     }
     else if (this.field.step !== undefined && value % this.field.step)  {
       this.$errors.append(ns.createError(ns.t('core', 'outOfStep', {':property': 'number field', ':step': this.field.step})));

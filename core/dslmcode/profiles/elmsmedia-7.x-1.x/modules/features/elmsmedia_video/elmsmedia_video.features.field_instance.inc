@@ -10,7 +10,7 @@
 function elmsmedia_video_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-video-field_caption'
+  // Exported field_instance: 'node-video-field_caption'.
   $field_instances['node-video-field_caption'] = array(
     'bundle' => 'video',
     'deleted' => 0,
@@ -20,13 +20,44 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 5,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 6,
       ),
       'iframe' => array(
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 5,
+      ),
+      'mediavideo' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -57,7 +88,7 @@ function elmsmedia_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-video-field_cis_course_ref'
+  // Exported field_instance: 'node-video-field_cis_course_ref'.
   $field_instances['node-video-field_cis_course_ref'] = array(
     'bundle' => 'video',
     'default_value' => NULL,
@@ -66,18 +97,48 @@ function elmsmedia_video_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'full' => array(
+        'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
-          'link' => FALSE,
+          'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 6,
+        'weight' => 8,
       ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 4,
+      ),
+      'mediavideo' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -105,7 +166,7 @@ function elmsmedia_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-video-field_poster'
+  // Exported field_instance: 'node-video-field_poster'.
   $field_instances['node-video-field_poster'] = array(
     'bundle' => 'video',
     'deleted' => 0,
@@ -115,13 +176,47 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 4,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => 'medium',
+        ),
+        'type' => 'image',
+        'weight' => 5,
       ),
       'iframe' => array(
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 3,
+      ),
+      'mediavideo' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -160,25 +255,55 @@ function elmsmedia_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-video-field_tagging'
+  // Exported field_instance: 'node-video-field_tagging'.
   $field_instances['node-video-field_tagging'] = array(
     'bundle' => 'video',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Tagging media can make it easier to find after the fact. This is used for searching and filtering.',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+      'full' => array(
         'label' => 'above',
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 5,
+        'weight' => 10,
       ),
       'iframe' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 2,
+      ),
+      'mediavideo' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -189,16 +314,33 @@ function elmsmedia_video_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_tagging',
-    'label' => 'Tagging',
-    'required' => FALSE,
+    'label' => 'Tags',
+    'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'user_register_form' => FALSE,
     ),
     'widget' => array(
+      'active' => 1,
       'module' => 'autocomplete_deluxe',
       'settings' => array(
         'autocomplete_deluxe_path' => 'autocomplete_deluxe/taxonomy',
-        'autocomplete_path' => 'taxonomy/autocomplete',
+        'delimiter' => '',
+        'limit' => 10,
+        'min_length' => 0,
+        'not_found_message' => 'The term \'@term\' will be added.',
         'size' => 60,
       ),
       'type' => 'autocomplete_deluxe_taxonomy',
@@ -206,7 +348,7 @@ function elmsmedia_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-video-field_transcript'
+  // Exported field_instance: 'node-video-field_transcript'.
   $field_instances['node-video-field_transcript'] = array(
     'bundle' => 'video',
     'deleted' => 0,
@@ -216,13 +358,44 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 6,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 7,
       ),
       'iframe' => array(
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 6,
+      ),
+      'mediavideo' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -253,7 +426,7 @@ function elmsmedia_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-video-field_video'
+  // Exported field_instance: 'node-video-field_video'.
   $field_instances['node-video-field_video'] = array(
     'bundle' => 'video',
     'deleted' => 0,
@@ -263,14 +436,19 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'elmsmedia_helper',
         'settings' => array(
-          'controls' => 1,
-          'download_link' => 0,
-          'download_text' => 'Download',
           'height' => '400px',
-          'width' => '100%',
         ),
-        'type' => 'mediaelement_video',
-        'weight' => 1,
+        'type' => 'ableplayer_video',
+        'weight' => 0,
+      ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'height' => '400px',
+        ),
+        'type' => 'ableplayer_video',
+        'weight' => 4,
       ),
       'iframe' => array(
         'label' => 'hidden',
@@ -279,11 +457,58 @@ function elmsmedia_video_field_default_field_instances() {
           'controls' => 1,
           'download_link' => 0,
           'download_text' => 'Download',
-          'height' => 360,
-          'width' => '100%',
+          'height' => '400px',
         ),
-        'type' => 'mediaelement_video',
-        'weight' => 1,
+        'type' => 'ableplayer_video',
+        'weight' => 0,
+      ),
+      'mediavideo' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'controls' => 1,
+          'download_link' => FALSE,
+          'download_text' => 'Download',
+          'height' => '400px',
+        ),
+        'type' => 'ableplayer_video',
+        'weight' => 0,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'controls' => 1,
+          'download_link' => FALSE,
+          'download_text' => 'Download',
+          'height' => '400px',
+        ),
+        'type' => 'ableplayer_video',
+        'weight' => 0,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'controls' => 1,
+          'download_link' => FALSE,
+          'download_text' => 'Download',
+          'height' => '400px',
+        ),
+        'type' => 'ableplayer_video',
+        'weight' => 0,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'hidden',
+        'module' => 'elmsmedia_helper',
+        'settings' => array(
+          'controls' => TRUE,
+          'download_link' => FALSE,
+          'download_text' => 'Download',
+          'height' => 385,
+        ),
+        'type' => 'ableplayer_video',
+        'weight' => 0,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -314,7 +539,7 @@ function elmsmedia_video_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-video-og_group_ref'
+  // Exported field_instance: 'node-video-og_group_ref'.
   $field_instances['node-video-og_group_ref'] = array(
     'bundle' => 'video',
     'default_value' => NULL,
@@ -324,10 +549,48 @@ function elmsmedia_video_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'og_ui',
         'settings' => array(),
-        'type' => 'og_list_default',
-        'weight' => 7,
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 9,
+      ),
+      'iframe' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+      'mediavideo' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'mediavideo__poster' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'mediavideo__thumbnail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'mediavideo__thumbnail__right' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -406,7 +669,8 @@ function elmsmedia_video_field_default_field_instances() {
   t('Course');
   t('Poster');
   t('Section');
-  t('Tagging');
+  t('Tagging media can make it easier to find after the fact. This is used for searching and filtering.');
+  t('Tags');
   t('Transcript');
   t('Video');
 

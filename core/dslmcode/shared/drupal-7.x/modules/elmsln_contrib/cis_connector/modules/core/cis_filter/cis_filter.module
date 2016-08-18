@@ -154,6 +154,7 @@ function cis_filter_theme() {
         'settings' => array(),
         'instance' => '',
         'content' => '',
+        'response' => array(),
       ),
       'template' => 'templates/cis-filter-render--display-mode',
     ),
@@ -172,6 +173,7 @@ function cis_filter_theme() {
         'settings' => array(),
         'instance' => '',
         'content' => '',
+        'response' => array(),
       ),
       'template' => 'templates/cis-filter-render--value',
     ),
@@ -194,6 +196,8 @@ function cis_filter_theme() {
         'content' => '',
         'width' => '100%',
         'height' => '400',
+        'response' => array(),
+        'hypothesis' => '',
         'link' => '',
         'class' => 'entity_iframe',
         'id' => '',
@@ -227,6 +231,7 @@ function cis_filter_preprocess_cis_filter_render__value(&$vars) {
   // fields.
   // request the object via webservice
   $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, TRUE, 'deep-load-refs=file,node');
+  $vars['response'] = $response;
   // see if this text value is a complex one to filter
   if (isset($response[$code['field']]) && is_array($response[$code['field']])) {
     if (isset($response[$code['field']]['value'])) {
@@ -263,6 +268,8 @@ function cis_filter_preprocess_cis_filter_render__display_mode(&$vars) {
   $response['rendered'] = str_replace('/services/', '/', str_replace($settings['service_address'], $settings['address'], $response['rendered']));
   // rendered property will have the assessed output
   $vars['content'] = $response['rendered'];
+  // include full response in case its needed for theming
+  $vars['response'] = $response;
 }
 
 /**
@@ -351,11 +358,15 @@ function cis_filter_preprocess_cis_filter_render__iframe(&$vars) {
   if (isset($code['height'])) {
     $vars['height'] = $code['height'];
   }
+  if (isset($code['hypothesis'])) {
+    $vars['hypothesis'] = $code['hypothesis'];
+  }
   // check for a specific id we can reference
   if ($code['item_type'] == 'id') {
+     $vars['response'] = _cis_filter_filtered_request_object($code, $instance);
      $vars['id'] = $code['entity_type'] . '_' . $code['item'];
      // form a class that has a lot of info about this item encoded in it
-     $vars['class'] .=' entity_iframe_' . $code['entity_type'] . ' entity_iframe_tool_' . $code['tool'];
+     $vars['class'] .=' entity_iframe_' . $code['entity_type'] . ' entity_iframe_tool_' . $code['tool'] . ' ' . $code['tool'] . '_' . $vars['response']['type'];
      $vars['link'] .= 'entity_iframe/' . $code['entity_type'] . '/' . $code['item'];
   }
   else {
@@ -541,11 +552,14 @@ function cis_filter_preprocess_cis_filter_render(&$vars) {
  */
 function _cis_filter_filtered_request_object($code, $instance) {
   // request the object via webservice
-  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance);
+  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, TRUE, 'deep-load-refs=file');
   // see if this text value is a complex one to filter
   foreach($response as &$field) {
-    if (is_array($field)) {
+    if (is_array($field) && isset($field['value']) && isset($field['format'])) {
       $field = check_markup($field['value'], $field['format']);
+    }
+    elseif (is_array($field)) {
+      // leave this alone
     }
     else {
       $field = filter_xss($field);

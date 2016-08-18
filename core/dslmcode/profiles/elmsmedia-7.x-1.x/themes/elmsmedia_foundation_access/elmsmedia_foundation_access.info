@@ -5,7 +5,7 @@ core = 7.x
 engine = phptemplate
 base theme = foundation_access
 
-stylesheets[all][]   = css/elmsmedia_foundation_access.css
+stylesheets[all][]   = css/elmsmedia_styles.css
 
 ; CIS specific regions
 regions[cis_lmsless_modal]     = CIS LMSLess Modal

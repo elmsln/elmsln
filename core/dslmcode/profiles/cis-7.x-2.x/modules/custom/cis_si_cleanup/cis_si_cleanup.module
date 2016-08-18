@@ -35,14 +35,6 @@ function cis_si_cleanup_cis_service_instance_options_alter(&$options, $course, $
   // disable site update nofity by default so we don't get spammed
   // this allows having update status on without constantly emailing
   $options['vdel'][] = 'update_notify_emails';
-  // disable pathauto / path by default for all distros
-  // this is to help elimniate issues with paths changing constantly via
-  // copy/paste as nid's are static
-  $options['dis'][] = 'path';
-  $options['dis'][] = 'pathauto';
-  // uninstall these items
-  $options['pm-uninstall'][] = 'path';
-  $options['pm-uninstall'][] = 'pathauto';
   // make everything a webservice by default
   $options['en'][] = 'cis_service_restws';
 }

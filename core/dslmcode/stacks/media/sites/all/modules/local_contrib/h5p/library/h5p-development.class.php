@@ -14,13 +14,14 @@ class H5PDevelopment {
   /**
    * Constructor.
    *
-   * @param object $H5PFramework
+   * @param H5PFrameworkInterface|object $H5PFramework
    *  The frameworks implementation of the H5PFrameworkInterface
    * @param string $filesPath
    *  Path to where H5P should store its files
+   * @param $language
    * @param array $libraries Optional cache input.
    */
-  public function __construct($H5PFramework, $filesPath, $language, $libraries = NULL) {
+  public function __construct(H5PFrameworkInterface $H5PFramework, $filesPath, $language, $libraries = NULL) {
     $this->h5pF = $H5PFramework;
     $this->language = $language;
     $this->filesPath = $filesPath;
@@ -35,7 +36,7 @@ class H5PDevelopment {
   /**
    * Get contents of file.
    *
-   * @param string File path.
+   * @param string $file File path.
    * @return mixed String on success or NULL on failure.
    */
   private function getFileContents($file) {
@@ -77,7 +78,7 @@ class H5PDevelopment {
       }
 
       $library = json_decode($libraryJSON, TRUE);
-      if ($library === FALSE) {
+      if ($library === NULL) {
         continue; // Invalid JSON.
       }
 
@@ -111,7 +112,7 @@ class H5PDevelopment {
   }
 
   /**
-   * @return array Libraris in development folder.
+   * @return array Libraries in development folder.
    */
   public function getLibraries() {
     return $this->libraries;
@@ -152,6 +153,7 @@ class H5PDevelopment {
    * @param string $name of the library.
    * @param int $majorVersion of the library.
    * @param int $minorVersion of the library.
+   * @param $language
    * @return string Translation
    */
   public function getLanguage($name, $majorVersion, $minorVersion, $language) {
@@ -169,7 +171,7 @@ class H5PDevelopment {
    *
    * @param string $name Machine readable library name
    * @param integer $majorVersion
-   * @param integer $majorVersion
+   * @param $minorVersion
    * @return string Library identifier.
    */
   public static function libraryToString($name, $majorVersion, $minorVersion) {

@@ -26,7 +26,6 @@ dependencies[] = video_embed_field
 dependencies[] = view_mode_tab
 dependencies[] = views
 dependencies[] = views_fluid_grid
-features[ctools][] = strongarm:strongarm:1
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
 features[field_base][] = body

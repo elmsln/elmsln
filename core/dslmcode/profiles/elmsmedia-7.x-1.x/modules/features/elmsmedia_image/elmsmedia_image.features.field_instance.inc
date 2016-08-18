@@ -10,7 +10,7 @@
 function elmsmedia_image_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-elmsmedia_image-field_cis_course_ref'
+  // Exported field_instance: 'node-elmsmedia_image-field_cis_course_ref'.
   $field_instances['node-elmsmedia_image-field_cis_course_ref'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
@@ -19,12 +19,18 @@ function elmsmedia_image_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'full' => array(
+        'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
-          'link' => FALSE,
+          'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 2,
+        'weight' => 1,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -33,6 +39,63 @@ function elmsmedia_image_field_default_field_instances() {
         'weight' => 0,
       ),
       'image' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'image__boxed' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'image__boxed__lightboxed' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'image__left' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'image__left__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'image__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'image__right' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'image__right__lightboxed' => array(
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
@@ -67,7 +130,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_citation'
+  // Exported field_instance: 'node-elmsmedia_image-field_citation'.
   $field_instances['node-elmsmedia_image-field_citation'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
@@ -76,10 +139,16 @@ function elmsmedia_image_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'full' => array(
+        'label' => 'above',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -88,6 +157,54 @@ function elmsmedia_image_field_default_field_instances() {
         'weight' => 0,
       ),
       'image' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'image__boxed' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 3,
+      ),
+      'image__boxed__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 1,
+      ),
+      'image__left' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 3,
+      ),
+      'image__left__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 3,
+      ),
+      'image__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 3,
+      ),
+      'image__right' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 3,
+      ),
+      'image__right__lightboxed' => array(
         'label' => 'above',
         'module' => 'text',
         'settings' => array(),
@@ -172,7 +289,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_figurelabel_ref'
+  // Exported field_instance: 'node-elmsmedia_image-field_figurelabel_ref'.
   $field_instances['node-elmsmedia_image-field_figurelabel_ref'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value_function' => '',
@@ -181,13 +298,19 @@ function elmsmedia_image_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+      'full' => array(
+        'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
-        'weight' => 5,
+        'weight' => 4,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -201,6 +324,76 @@ function elmsmedia_image_field_default_field_instances() {
         'settings' => array(
           'links' => 1,
           'view_mode' => 'figurelabel',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 1,
+      ),
+      'image__boxed' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => 1,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 5,
+      ),
+      'image__boxed__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => 1,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 3,
+      ),
+      'image__left' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => 1,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 5,
+      ),
+      'image__left__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => 1,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 5,
+      ),
+      'image__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => 1,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 5,
+      ),
+      'image__right' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => 1,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
+        'weight' => 5,
+      ),
+      'image__right__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'links' => 1,
+          'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
         'weight' => 5,
@@ -257,7 +450,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_image'
+  // Exported field_instance: 'node-elmsmedia_image-field_image'.
   $field_instances['node-elmsmedia_image-field_image'] = array(
     'bundle' => 'elmsmedia_image',
     'deleted' => 0,
@@ -272,6 +465,16 @@ function elmsmedia_image_field_default_field_instances() {
         ),
         'type' => 'image',
         'weight' => 0,
+      ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 1,
       ),
       'iframe' => array(
         'label' => 'hidden',
@@ -289,6 +492,76 @@ function elmsmedia_image_field_default_field_instances() {
         'settings' => array(
           'image_link' => '',
           'image_style' => 'image',
+        ),
+        'type' => 'image',
+        'weight' => 0,
+      ),
+      'image__boxed' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 0,
+      ),
+      'image__boxed__lightboxed' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 0,
+      ),
+      'image__left' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 0,
+      ),
+      'image__left__lightboxed' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 0,
+      ),
+      'image__lightboxed' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 0,
+      ),
+      'image__right' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 0,
+      ),
+      'image__right__lightboxed' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
         ),
         'type' => 'image',
         'weight' => 0,
@@ -360,7 +633,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_image_caption'
+  // Exported field_instance: 'node-elmsmedia_image-field_image_caption'.
   $field_instances['node-elmsmedia_image-field_image_caption'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
@@ -369,10 +642,16 @@ function elmsmedia_image_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'full' => array(
+        'label' => 'above',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -381,6 +660,54 @@ function elmsmedia_image_field_default_field_instances() {
         'weight' => 0,
       ),
       'image' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 5,
+      ),
+      'image__boxed' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 4,
+      ),
+      'image__boxed__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 2,
+      ),
+      'image__left' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 4,
+      ),
+      'image__left__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 4,
+      ),
+      'image__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 4,
+      ),
+      'image__right' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 4,
+      ),
+      'image__right__lightboxed' => array(
         'label' => 'above',
         'module' => 'text',
         'settings' => array(),
@@ -465,19 +792,25 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-field_tagging'
+  // Exported field_instance: 'node-elmsmedia_image-field_tagging'.
   $field_instances['node-elmsmedia_image-field_tagging'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Tagging media can make it easier to find after the fact. This is used for searching and filtering.',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'full' => array(
         'label' => 'above',
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 1,
+        'weight' => 3,
       ),
       'iframe' => array(
         'label' => 'above',
@@ -486,6 +819,53 @@ function elmsmedia_image_field_default_field_instances() {
         'weight' => 0,
       ),
       'image' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'image__boxed' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 1,
+      ),
+      'image__boxed__lightboxed' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'image__left' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 1,
+      ),
+      'image__left__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 1,
+      ),
+      'image__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 1,
+      ),
+      'image__right' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 1,
+      ),
+      'image__right__lightboxed' => array(
         'label' => 'above',
         'module' => 'taxonomy',
         'settings' => array(),
@@ -502,9 +882,22 @@ function elmsmedia_image_field_default_field_instances() {
     'entity_type' => 'node',
     'fences_wrapper' => 'div',
     'field_name' => 'field_tagging',
-    'label' => 'Tagging',
+    'label' => 'Tags',
     'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -519,7 +912,7 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-og_group_ref'
+  // Exported field_instance: 'node-elmsmedia_image-og_group_ref'.
   $field_instances['node-elmsmedia_image-og_group_ref'] = array(
     'bundle' => 'elmsmedia_image',
     'default_value' => NULL,
@@ -528,6 +921,68 @@ function elmsmedia_image_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'image' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
+      ),
+      'image__boxed' => array(
+        'label' => 'above',
+        'module' => 'og_ui',
+        'settings' => array(),
+        'type' => 'og_list_default',
+        'weight' => 6,
+      ),
+      'image__boxed__lightboxed' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
+      ),
+      'image__left' => array(
+        'label' => 'above',
+        'module' => 'og_ui',
+        'settings' => array(),
+        'type' => 'og_list_default',
+        'weight' => 6,
+      ),
+      'image__left__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'og_ui',
+        'settings' => array(),
+        'type' => 'og_list_default',
+        'weight' => 6,
+      ),
+      'image__lightboxed' => array(
+        'label' => 'above',
+        'module' => 'og_ui',
+        'settings' => array(),
+        'type' => 'og_list_default',
+        'weight' => 6,
+      ),
+      'image__right' => array(
+        'label' => 'above',
+        'module' => 'og_ui',
+        'settings' => array(),
+        'type' => 'og_list_default',
+        'weight' => 6,
+      ),
+      'image__right__lightboxed' => array(
         'label' => 'above',
         'module' => 'og_ui',
         'settings' => array(),
@@ -613,7 +1068,8 @@ function elmsmedia_image_field_default_field_instances() {
   t('Figure Label');
   t('Image');
   t('Section');
-  t('Tagging');
+  t('Tagging media can make it easier to find after the fact. This is used for searching and filtering.');
+  t('Tags');
 
   return $field_instances;
 }

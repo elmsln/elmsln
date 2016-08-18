@@ -1,0 +1,132 @@
+<?php
+
+/**
+ * @file
+ * Test case for Able Player file display output.
+ */
+
+/**
+ * Test case for Able Player formatter output.
+ */
+class AblePlayerOutputTestCase extends DrupalWebTestCase {
+
+  /**
+   * The Drupal user that will perform the test operations.
+   *
+   * @var object $user
+   */
+  protected $user;
+
+  /**
+   * Implementation of DrupalWebTestCase::getInfo().
+   */
+  public static function getInfo() {
+    $info = array();
+
+    $info['name'] = 'Able Player Output';
+    $info['description'] = 'Verify that the HTML output of the Able Player is correct with given settings';
+    $info['group'] = 'Able Player';
+
+    return $info;
+  }
+
+  /**
+   * Implementation of DrupalWebTestCase::setUp().
+   */
+  public function setUp() {
+    $dependencies = array(
+      'ableplayer',
+    );
+
+    $user = array(
+      'access administration pages',
+      'administer file types',
+      'administer files',
+      'administer nodes',
+      'bypass file access',
+      'bypass node access',
+      'create files',
+      'view the administration theme',
+    );
+
+    parent::setUp($dependencies);
+
+    $this->user = $this->drupalCreateUser($user);
+    $this->drupalLogin($this->user);
+
+    $data = array();
+    $data['displays[ableplayer][status]'] = 1;
+    $data['displays[ableplayer][weight]'] = -50;
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('Your settings have been saved.'));
+
+    $data = array();
+    $data['displays[ableplayer][status]'] = 1;
+    $data['displays[ableplayer][weight]'] = -50;
+
+    $this->drupalPost('admin/structure/file-types/manage/audio/file-display', $data, t('Save configuration'));
+    $this->assertText(t('Your settings have been saved.'));
+  }
+
+  /**
+   * Tests that the Able Player module successfully displays for audio uploads.
+   */
+  public function testAblePlayerAudioLoad() {
+    $data = array();
+    $data['files[upload]'] = realpath(drupal_get_path('module', 'ableplayer') . '/test/files/sample.ogg');
+
+    $this->drupalPost('file/add', $data, t('Next'));
+
+    $sample_file_path = realpath(drupal_get_path('module', 'ableplayer') . '/test/files/sample.vtt');
+
+    $data = array();
+    $data['files[ableplayer_transcript_und_0]'] = $sample_file_path;
+    $data['files[ableplayer_description_und_0]'] = $sample_file_path;
+    $data['files[ableplayer_chapters_und_0]'] = $sample_file_path;
+
+    $this->drupalPost('file/1/edit', $data, t('Save'));
+
+    $this->drupalGet('file/1');
+    $this->assertPattern('@<audio[^<>]+data-able-player>@',
+      'Attribute "data-able-player" found in raw HTML.');
+    $this->assertRaw('ableplayer.min.js',
+      'ableplayer.min.js loaded successfully');
+    $this->assertRaw('ableplayer.min.css',
+      'ableplayer.min.css loaded successfully');
+  }
+
+  /**
+   * Tests that the Able Player module successfully displays for video uploads.
+   */
+  public function testAblePlayerVideoLoad() {
+    $data = array();
+    $data['files[upload]'] = realpath(drupal_get_path('module', 'ableplayer') . '/test/files/sample.webm');
+
+    $this->drupalPost('file/add', $data, t('Next'));
+
+    $sample_file_path = realpath(drupal_get_path('module', 'ableplayer') . '/test/files/sample.vtt');
+
+    $data = array();
+    $data['files[ableplayer_transcript_und_0]'] = $sample_file_path;
+    $data['files[ableplayer_description_und_0]'] = $sample_file_path;
+    $data['files[ableplayer_chapters_und_0]'] = $sample_file_path;
+
+    $this->drupalPost('file/1/edit', $data, t('Save'));
+
+    $this->drupalGet('file/1');
+    $this->assertPattern('@<video[^<>]+data-able-player>@',
+      'Attribute "data-able-player" found in raw HTML.');
+    $this->assertPattern('@<track kind="captions" src=".*?" srclang="" label="" />@',
+      'Transcript track found in raw HTML.');
+    $this->assertPattern('@<track kind="descriptions" src=".*?" srclang="" label="" />@',
+      'Description track found in raw HTML.');
+    $this->assertPattern('@<track kind="chapters" src=".*?" srclang="" label="" />@',
+      'Chapters track found in raw HTML.');
+    $this->assertRaw('ableplayer.min.js',
+      'ableplayer.min.js loaded successfully');
+    $this->assertRaw('ableplayer.min.css',
+      'ableplayer.min.css loaded successfully');
+  }
+
+}

@@ -1,0 +1,240 @@
+<?php
+
+/**
+ * @file
+ * Test case for Able Player display settings validation.
+ */
+
+/**
+ * Test case for Able Player settings validation.
+ */
+class AblePlayerValidationTestCase extends DrupalWebTestCase {
+
+  /**
+   * The Drupal user that will perform the test operations.
+   *
+   * @var object $user
+   */
+  protected $user;
+
+  /**
+   * Implementation of DrupalWebTestCase::getInfo().
+   */
+  public static function getInfo() {
+    $info = array();
+
+    $info['name'] = 'Able Player Validation';
+    $info['description'] = 'Ensure that the settings validation functions operate correctly';
+    $info['group'] = 'Able Player';
+
+    return $info;
+  }
+
+  /**
+   * Implementation of DrupalWebTestCase::setUp().
+   */
+  public function setUp() {
+    $dependencies = array(
+      'ableplayer',
+    );
+
+    $user = array(
+      'access administration pages',
+      'administer file types',
+      'administer files',
+      'administer site configuration',
+      'bypass file access',
+      'bypass node access',
+      'view the administration theme',
+    );
+
+    parent::setUp($dependencies);
+
+    $this->user = $this->drupalCreateUser($user);
+    $this->drupalLogin($this->user);
+  }
+
+  /**
+   * Able Player is available as a file display.
+   */
+  public function testAblePlayerPresent() {
+    $this->drupalGet('admin/structure/file-types/manage/video/file-display');
+    $this->assertText(t('Able Player'));
+  }
+
+  /**
+   * Accepts valid dimensions.
+   */
+  public function testAblePlayerValidDimensions() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][width]'] = '0';
+    $data['displays[ableplayer][settings][height]'] = '0';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('Your settings have been saved'),
+      'Settings submission succeeded with valid dimensions.');
+  }
+
+  /**
+   * Rejects negative width.
+   */
+  public function testAblePlayerNegativeWidth() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][width]'] = '-1';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('The value entered for @dimension is invalid. Please insert a positive integer (pixels).',
+      array('@dimension' => 'Width')),
+      'Settings submission failed with negative width.');
+  }
+
+  /**
+   * Rejects non-numeric width.
+   */
+  public function testAblePlayerNonNumericWidth() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][width]'] = 'abc';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('The value entered for @dimension is invalid. Please insert a positive integer (pixels).',
+      array('@dimension' => 'Width')),
+      'Setting submission failed with non-numeric width.');
+  }
+
+  /**
+   * Rejects whitespace characters in width.
+   */
+  public function testAblePlayerSpacesInWidth() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][width]'] = '1 2';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('The value entered for @dimension is invalid. Please insert a positive integer (pixels).',
+      array('@dimension' => 'Width')),
+      'Settings submission failed with spaces in width.');
+  }
+
+  /**
+   * Rejects negative height.
+   */
+  public function testAblePlayerNegativeHeight() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][height]'] = '-1';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('The value entered for @dimension is invalid. Please insert a positive integer (pixels).',
+      array('@dimension' => 'Height')),
+      'Settings submission failed with negative hieght');
+  }
+
+  /**
+   * Rejects non-numeric height.
+   */
+  public function testAblePlayerNonNumericHeight() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][height]'] = 'abc';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('The value entered for @dimension is invalid. Please insert a positive integer (pixels).',
+      array('@dimension' => 'Height')),
+      'Settings submission failed with non-numeric height.');
+  }
+
+  /**
+   * Rejects spaces in height.
+   */
+  public function testAblePlayerSpacesInHeight() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][height]'] = '1 2';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('The value entered for @dimension is invalid. Please insert a positive integer (pixels).',
+      array('@dimension' => 'Height')),
+      'Settings submission failed with spaces in height.');
+  }
+
+  /**
+   * Accepts maximum possible volume.
+   */
+  public function testAblePlayerMaximumVolume() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][volume]'] = '1';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('Your settings have been saved'),
+      'Settings submission succeeded with maximum volume.');
+  }
+
+  /**
+   * Accepts minimum possible volume.
+   */
+  public function testAblePlayerMinimumVolume() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][volume]'] = '0';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('Your settings have been saved'),
+      'Settings submission succeeded with minimum volume.');
+  }
+
+  /**
+   * Rejects negative volume.
+   */
+  public function testAblePlayerNegativeVolume() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = TRUE;
+    $data['displays[ableplayer][settings][volume]'] = '-1';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('The value entered for Volume is invalid. Please insert a number between 0 and 1.'),
+      'Settings submission failed with negative volume.');
+  }
+
+  /**
+   * Rejects non-numeric volume.
+   */
+  public function testAblePlayerNonNumericVolume() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = 1;
+    $data['displays[ableplayer][settings][volume]'] = '1a';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('The value entered for Volume is invalid. Please insert a number between 0 and 1.'),
+      'Settings submission failed with non-numeric volume.');
+  }
+
+  /**
+   * Rejects volume greater than 1.
+   */
+  public function testAblePlayerExceededVolume() {
+    $data = array();
+
+    $data['displays[ableplayer][status]'] = 1;
+    $data['displays[ableplayer][settings][volume]'] = '1a';
+
+    $this->drupalPost('admin/structure/file-types/manage/video/file-display', $data, t('Save configuration'));
+    $this->assertText(t('The value entered for Volume is invalid. Please insert a number between 0 and 1.'),
+      'Settings submission failed with volume greater than 1.');
+  }
+
+}

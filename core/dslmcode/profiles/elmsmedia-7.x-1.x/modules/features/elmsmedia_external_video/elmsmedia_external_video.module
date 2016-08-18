@@ -5,3 +5,21 @@
  */
 
 include_once 'elmsmedia_external_video.features.inc';
+
+
+/**
+ * Implements hook_node_presave().
+ */
+function elmsmedia_external_video_node_presave($node) {
+  if ($node->type == 'external_video') {
+    $video_data = unserialize($node->field_external_media['und'][0]['video_data']);
+    if (in_array('youtube', $video_data)) {
+      // check for bad links and convert to good ones
+      if (strpos($node->field_external_media['und'][0]['video_url'], 'youtu.be')) {
+        $tmp = explode('/', $node->field_external_media['und'][0]['video_url']);
+        $id = array_pop($tmp);
+        $node->field_external_media['und'][0]['video_url'] = 'https://www.youtube.com/watch?v=' . $id;
+      }
+    }
+  }
+}

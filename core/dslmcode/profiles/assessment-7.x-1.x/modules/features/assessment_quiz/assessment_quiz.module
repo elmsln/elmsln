@@ -1,8 +1,10 @@
 <?php
 /**
  * @file
- * Drupal needs this blank file.
+ * Code for the Assessment Quiz feature.
  */
+
+include_once 'assessment_quiz.features.inc';
 
 
 /**

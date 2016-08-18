@@ -1,0 +1,73 @@
+<?php
+/**
+ * @file
+ * Support for walking down and spidering child nodes in book outines.
+ * This helps us gain cached data about what all the children in a book's
+ * reading time is. This is great for overview pages and self-updating!
+ */
+
+/**
+ * Implements hook_read_time_evaluate_alter().
+ */
+function read_time_media_read_time_evaluate_alter(&$read_time, $node, $field_data) {
+  $preg = '/<iframe(.*?)src="(.*?)" (.*?)>/s';
+  // pregmatch iframe tags
+  preg_match_all($preg, $field_data, $results);
+  foreach ($results[2] as $result) {
+    // brute force duration storage; let's default to cis_connector
+    // cached storage engine if we can do it.
+    if (module_exists('cis_connector')) {
+      $request = _cis_connector_request($result, array(), 'none', TRUE);
+    }
+    else {
+      $request = drupal_http_request($result);
+    }
+    $data = $request->data;
+    // sniff out youtube
+    if (_read_time_strpos_arr($result, array('youtube', 'youtu.be'))) {
+      $read_time['video']++;
+      if (!isset($read_time['metadata']['video']['youtube'])) {
+        $read_time['metadata']['video']['youtube'] = 0;
+        $read_time['metadata']['video']['duration'] = 0;
+      }
+      $preg2 = '/"length_seconds"\:(.*?),/s';
+      // pregmatch iframe tags
+      preg_match_all($preg2, $data, $results2);
+      if (isset($results2[1][0])) {
+        $read_time['metadata']['video']['duration'] += $results2[1][0];
+      }
+      $read_time['metadata']['video']['youtube']++;
+    }
+    // sniff out vimeo
+    if (_read_time_strpos_arr($result, array('vimeo'))) {
+      $read_time['video']++;
+      if (!isset($read_time['metadata']['video']['vimeo'])) {
+        $read_time['metadata']['video']['vimeo'] = 0;
+        $read_time['metadata']['video']['duration'] = 0;
+      }
+      $preg2 = '/"duration"\:(.*?),/s';
+      // pregmatch iframe tags
+      preg_match_all($preg2, $data, $results2);
+      if (isset($results2[1][0])) {
+        $read_time['metadata']['video']['duration'] += $results2[1][0];
+      }
+      $read_time['metadata']['video']['vimeo']++;
+    }
+    // sniff out soundcloud
+    if (_read_time_strpos_arr($result, array('soundcloud'))) {
+      $read_time['audio']++;
+      if (!isset($read_time['metadata']['audio']['soundcloud'])) {
+        $read_time['metadata']['audio']['soundcloud'] = 0;
+        $read_time['metadata']['audio']['duration'] = 0;
+      }
+      $preg2 = '/"duration"\:(.*?),/s';
+      // pregmatch iframe tags
+      preg_match_all($preg2, $data, $results2);
+      if (isset($results2[1][0])) {
+        // sound cloud represents time in microseconds
+        $read_time['metadata']['audio']['duration'] += ($results2[1][0] / 1000);
+      }
+      $read_time['metadata']['audio']['soundcloud']++;
+    }
+  }
+}
