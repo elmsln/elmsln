@@ -7,7 +7,9 @@
   <?php endif; ?>
 
   <div class="mediavideo__video-wrapper">
-    <?php if ($video_url && $poster): ?>
+    <?php if ($video_url && !$poster): ?>
+      <iframe src="<?php print _foundation_access_video_url($video_url); ?>" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    <?php elseif($video_url && $poster): ?>
       <iframe data-mediavideo-src="<?php print _foundation_access_video_url($video_url); ?>" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
     <?php else: ?>
       <?php print render($content); ?>
