@@ -231,14 +231,20 @@ function theme_elmsmedia_helper_audio($variables) {
  * Callback for elmsmedia_helper_youtube()
  */
 function theme_elmsmedia_helper_youtube($variables) {
-  $output = ' <div class="row ableplayer-video">
-  <div class="col s12 m8 l8">
+  $class = '';
+  if (isset($variables['settings']['caption'])) {
+    $class = 'class="col s12 m8 l8"';
+  }
+  $output = ' <div class="ableplayer-video">
+  <div ' . $class . '>
     <video preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1">';
   $output .= '
     </video>
-  </div>
-  <div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>
   </div>';
+  if (isset($variables['settings']['caption'])) {
+    $output .= '<div id="' . $variables['attributes']['id'] . '-transcript" class="ableplayer-transcript-container col s12 m4 l4"></div>';
+  }
+  $output .= '</div>';
   return $output;
 }
 
@@ -246,8 +252,12 @@ function theme_elmsmedia_helper_youtube($variables) {
  * Callback for elmsmedia_helper_youtube()
  */
 function theme_elmsmedia_helper_vimeo($variables) {
+  $class = '';
+  if (isset($variables['settings']['caption'])) {
+    $class = 'class="col s12 m8 l8"';
+  }
   $output = ' <div class="row vimeo-video">
-    <div class="col s12 m8 l8">
+    <div ' . $class . '>
       <iframe ' . drupal_attributes($variables['attributes']) . '></iframe>
     </div>
   </div>';
