@@ -401,11 +401,10 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
   $variables['thumbnail'] = FALSE;
   $poster_image_uri = '';
   $elements = &$variables['elements'];
-
   // Assign Poster
   // if the poster field is available use that for the poster imgage
-  if (isset($elements['field_poster']['#items'][0])) {
-    $poster_image_uri = $elements['field_poster']['#items'][0]['uri'];
+  if (isset($elements['#node']->field_poster['und'][0]['uri'])) {
+    $poster_image_uri = $elements['#node']->field_poster['und'][0]['uri'];
   }
   // if not, attempt to use the thumbnail created by the video upload field
   elseif (isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {

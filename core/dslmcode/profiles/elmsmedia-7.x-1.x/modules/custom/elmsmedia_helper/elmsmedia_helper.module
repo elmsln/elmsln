@@ -138,9 +138,6 @@ function elmsmedia_helper_field_formatter_view($entity_type, $entity, $field, $i
       if (isset($entity->field_poster['und'])) {
         $element[$delta]['#attributes']['poster'] = file_create_url($entity->field_poster['und'][0]['uri']);
       }
-      elseif (isset($item['thumbnail_path'])) {
-        $element[$delta]['#attributes']['poster'] = file_create_url($item['thumbnail_path']);
-      }
     }
   }
   return $element;
