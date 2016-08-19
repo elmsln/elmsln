@@ -484,7 +484,6 @@ function read_time_node_get_properties($node, array $options, $name) {
  * Triggers the batch operation for updating nodes.
  */
 function _read_time_perform_batch_process() {
-  db_truncate('read_time');
   $batch = array(
     'title' => t('Updating existing nodes with read time data'),
     'init_message' => t('Preparing to update entities..'),
@@ -669,6 +668,7 @@ function read_time_token_info() {
  * Implements hook_flush_caches().
  */
 function read_time_flush_caches() {
+  db_truncate('read_time');
   // on a cache clear we might have new data
   _read_time_perform_batch_process();
   return array();
