@@ -69,7 +69,7 @@ function read_time_book_read_time_evaluate_alter(&$read_time, $node, $field_data
             foreach ($read_time['metadata'] as $meta => $data) {
               // children handled above
               if ($meta != 'children') {
-                if (isset($cnode->read_time[$key][$meta])) {
+                if (isset($cnode->read_time[$key]) && isset($cnode->read_time[$key][$meta]) && is_numeric($cnode->read_time[$key][$meta])) {
                   $read_time['metadata'][$key][$meta] += $cnode->read_time[$key][$meta];
                 }
               }
