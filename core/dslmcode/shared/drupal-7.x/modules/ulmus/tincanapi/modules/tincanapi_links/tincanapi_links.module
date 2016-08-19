@@ -9,26 +9,29 @@
  * Implements hook_page_build().
  */
 function tincanapi_links_page_build(&$page) {
-  // Settings.
-  $settings = array(
-    'tincanapi_links' => array(
-      'external' => (variable_get('tincanapi_links_external') ? TRUE : FALSE),
-    ),
-  );
+  // don't apply to admin pages
+  if (!path_is_admin(current_path())) {
+    // Settings.
+    $settings = array(
+      'tincanapi_links' => array(
+        'external' => (variable_get('tincanapi_links_external') ? TRUE : FALSE),
+      ),
+    );
 
-  if (variable_get('tincanapi_links_extensions')) {
-    $extensions = explode(',', variable_get('tincanapi_links_extensions'));
-    $settings['tincanapi_links']['extensions'] = $extensions;
+    if (variable_get('tincanapi_links_extensions')) {
+      $extensions = explode(',', variable_get('tincanapi_links_extensions'));
+      $settings['tincanapi_links']['extensions'] = $extensions;
+    }
+    else {
+      $settings['tincanapi_links']['extensions'] = FALSE;
+    }
+
+    drupal_add_js($settings, 'setting');
+
+    // Click Handler.
+    $module_path = drupal_get_path('module', 'tincanapi_links');
+    drupal_add_js($module_path . '/js/tincanapi_links.js');
   }
-  else {
-    $settings['tincanapi_links']['extensions'] = FALSE;
-  }
-
-  drupal_add_js($settings, 'setting');
-
-  // Click Handler.
-  $module_path = drupal_get_path('module', 'tincanapi_links');
-  drupal_add_js($module_path . '/js/tincanapi_links.js');
 }
 
 /**
