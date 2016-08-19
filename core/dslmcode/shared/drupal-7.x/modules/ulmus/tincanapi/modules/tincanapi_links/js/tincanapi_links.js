@@ -5,21 +5,24 @@
 
 (function ($) {
 
-  $('a').live('click', function(e) {
-    // Do not track links that are tracked elsewhere or ignored.
-    if ($(this).hasClass('tincanapi-ignore') || $(this).hasClass('tincanapi-links-ignore')) {
-      return;
-    }
+  // check for links once the document is loaded
+  $(document).ready(function(){
+    $('a').on('click', function(e) {
+      // Do not track links that are tracked elsewhere or ignored.
+      if ($(this).hasClass('tincanapi-ignore') || $(this).hasClass('tincanapi-links-ignore')) {
+        return;
+      }
 
-    // Track external clicks.
-    if (Drupal.settings.tincanapi_links.external && Drupal.tincanapi.links.isExternal(this.href)) {
-      Drupal.tincanapi.links.track($(this), 'visited');
-    }
+      // Track external clicks.
+      if (Drupal.settings.tincanapi_links.external && Drupal.tincanapi.links.isExternal(this.href)) {
+        Drupal.tincanapi.links.track($(this), 'visited');
+      }
 
-    // Track file extensions.
-    if (Drupal.tincanapi.links.isTracked(this.href)) {
-      Drupal.tincanapi.links.track($(this), 'downloaded');
-    }
+      // Track file extensions.
+      if (Drupal.tincanapi.links.isTracked(this.href)) {
+        Drupal.tincanapi.links.track($(this), 'downloaded');
+      }
+    });
   });
 
   Drupal.tincanapi.links = {
