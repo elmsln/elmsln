@@ -116,15 +116,16 @@ function cle_submission_field_group_info() {
     'children' => array(
       0 => 'field_files',
     ),
-    'format_type' => 'accordion-item',
+    'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Files',
       'instance_settings' => array(
         'required_fields' => 1,
-        'classes' => 'group-files field-group-accordion-item',
+        'id' => '',
+        'classes' => '',
         'description' => '',
       ),
-      'formatter' => 'open',
+      'formatter' => 'collapsed',
     ),
   );
   $field_groups['group_files|node|cle_submission|form'] = $field_group;
@@ -170,13 +171,16 @@ function cle_submission_field_group_info() {
     'children' => array(
       0 => 'field_images',
     ),
-    'format_type' => 'accordion-item',
+    'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Images',
       'instance_settings' => array(
-        'classes' => 'group-images field-group-accordion-item',
+        'required_fields' => 1,
+        'id' => '',
+        'classes' => '',
+        'description' => '',
       ),
-      'formatter' => 'open',
+      'formatter' => 'collapsed',
     ),
   );
   $field_groups['group_images|node|cle_submission|form'] = $field_group;
@@ -288,15 +292,16 @@ function cle_submission_field_group_info() {
     'children' => array(
       0 => 'field_links',
     ),
-    'format_type' => 'accordion-item',
+    'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Links',
       'instance_settings' => array(
         'required_fields' => 1,
-        'classes' => 'group-links field-group-accordion-item',
+        'id' => '',
+        'classes' => '',
         'description' => '',
       ),
-      'formatter' => 'open',
+      'formatter' => 'collapsed',
     ),
   );
   $field_groups['group_links|node|cle_submission|form'] = $field_group;
@@ -349,14 +354,20 @@ function cle_submission_field_group_info() {
       2 => 'group_links',
       3 => 'group_video',
     ),
-    'format_type' => 'accordion',
+    'format_type' => 'div',
     'format_settings' => array(
       'label' => 'Media',
       'instance_settings' => array(
-        'classes' => 'group-media field-group-accordion',
+        'required_fields' => 1,
+        'id' => '',
+        'classes' => '',
         'description' => '',
-        'effect' => 'bounceslide',
+        'show_label' => '0',
+        'label_element' => 'h3',
+        'effect' => 'none',
+        'speed' => 'fast',
       ),
+      'formatter' => 'open',
     ),
   );
   $field_groups['group_media|node|cle_submission|form'] = $field_group;
@@ -402,15 +413,16 @@ function cle_submission_field_group_info() {
     'children' => array(
       0 => 'field_video',
     ),
-    'format_type' => 'accordion-item',
+    'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Video',
       'instance_settings' => array(
         'required_fields' => 1,
-        'classes' => 'group-video field-group-accordion-item',
+        'id' => '',
+        'classes' => '',
         'description' => '',
       ),
-      'formatter' => 'open',
+      'formatter' => 'collapsed',
     ),
   );
   $field_groups['group_video|node|cle_submission|form'] = $field_group;
