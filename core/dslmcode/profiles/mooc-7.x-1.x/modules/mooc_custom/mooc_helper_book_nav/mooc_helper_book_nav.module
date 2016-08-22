@@ -51,8 +51,7 @@ function mooc_helper_book_nav_node_delete($node) {
 function mooc_helper_book_nav_menu_link_insert($link) {
   // make sure this is a book or in a book
   if (!empty($link['bid'])) {
-    $node = menu_get_object();
-    _mooc_helper_book_nav_cache_clear('nav:' . $node->book['bid'] . ':' . $node->book['mlid'], TRUE);
+    _mooc_helper_book_nav_cache_clear('nav:' . $link['bid'], TRUE);
   }
 }
 
@@ -62,8 +61,7 @@ function mooc_helper_book_nav_menu_link_insert($link) {
 function mooc_helper_book_nav_menu_link_update($link) {
   // make sure this is a book or in a book
   if (!empty($link['bid'])) {
-    $node = menu_get_object();
-    _mooc_helper_book_nav_cache_clear('nav:' . $node->book['bid'] . ':' . $node->book['mlid'], TRUE);
+    _mooc_helper_book_nav_cache_clear('nav:' . $link['bid'], TRUE);
   }
 }
 

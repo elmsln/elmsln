@@ -126,7 +126,8 @@ function outline_designer_outline_designer_ops_js($ajax_path, $nid = NULL) {
  * Theme Callback: render the top buttons for outline designer ui.
  */
 function theme_outline_designer_ui_prefix($variables) {
-  $nid = $variables['nid'];
+  $node = $variables['node'];
+  $nid = $node->nid;
   $icon_path = $variables['icon_path'];
   $can_add = $variables['can_add'];
   $output = '<fieldset class="collapsible"><div>';
@@ -138,6 +139,14 @@ function theme_outline_designer_ui_prefix($variables) {
           </div>
         </div>
       </div>';
+  }
+
+  // form a disable path
+  if ($node->book['bid'] == $node->nid) {
+    $disable_path = 'admin/content/book/' . $nid;
+  }
+  else {
+    $disable_path = 'node/' . $nid . '/outline/children';
   }
   $output .= '<div style="height:30px; float:left;">
         <a href="#" onclick="Drupal.outline_designer.scale(-1);" class="od-operation-icons od-decrease">
@@ -155,7 +164,7 @@ function theme_outline_designer_ui_prefix($variables) {
         <a href="#" onclick="Drupal.outline_designer.collapseAll();" class="od-operation-icons od-close-all">
           <img alt="' . t('Close all branches') . '" title="' . t('Close all branches') . '" src="' . $icon_path . 'close-all.png" />
         </a>
-        ' .  l(t('Disable auto-update'), current_path(), array('query' => array('disable-outline-designer' => TRUE))) . '
+        ' .  l(t('Disable auto-update'), $disable_path, array('query' => array('disable-outline-designer' => TRUE))) . '
       </div>
     </div>
   </fieldset>';
@@ -271,7 +280,7 @@ function outline_designer_theme() {
     ),
     'outline_designer_ui_prefix' => array(
       'variables' => array(
-        'nid' => NULL,
+        'node' => NULL,
         'icon_path' => NULL,
         'can_add' => NULL,
       ),
