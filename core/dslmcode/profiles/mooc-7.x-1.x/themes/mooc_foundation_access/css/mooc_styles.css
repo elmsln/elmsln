@@ -116,7 +116,7 @@ ul.book-navigation-wrapper {
 }
 
 .book-sibling-parent-pagination a {
-  border: 1px solid #eeeeee;
+  border: 1px solid #aaaaaa;
   border-radius: .25rem;
   line-height: 1.5rem;
   font-size: 1rem;
@@ -137,7 +137,6 @@ ul.book-navigation-wrapper {
   overflow: hidden;
   padding-top: 1.5em;
   width: 1.5em;
-  opacity: .5;
   vertical-align: text-top;
 }
 
