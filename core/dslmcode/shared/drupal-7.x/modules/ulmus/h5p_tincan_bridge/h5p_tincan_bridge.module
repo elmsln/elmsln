@@ -43,6 +43,7 @@ function h5p_tincan_bridge_view() {
     $data = json_decode($_POST['statement'], TRUE);
     // Regularize object id with node syntax
     $data['object']['id'] = $base_url . '/node/' . $_POST['nid'];
+    $nid = $_POST['nid'];
 
     h5p_tincan_bridge_tincanapi_add_og_context(node_load($nid), $data);
     // allow other projects to jump in here
