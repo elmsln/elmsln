@@ -146,7 +146,7 @@ function _outline_designer_book_admin_form_alter(&$form, $form_state, $form_id, 
   else {
     $can_add = FALSE;
   }
-  $form['table']['#prefix'] = theme('outline_designer_ui_prefix', array('nid' => $form['#node']->nid, 'icon_path' => $icon_path, 'can_add' => $can_add));
+  $form['table']['#prefix'] = theme('outline_designer_ui_prefix', array('node' => $form['#node'], 'icon_path' => $icon_path, 'can_add' => $can_add));
   $form['#prefix'] = '<div id="ajax_table_replacement">';
   $form['#suffix'] = '</div>';
 }
