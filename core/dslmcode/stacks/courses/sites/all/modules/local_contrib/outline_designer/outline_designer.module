@@ -155,6 +155,7 @@ function theme_outline_designer_ui_prefix($variables) {
         <a href="#" onclick="Drupal.outline_designer.collapseAll();" class="od-operation-icons od-close-all">
           <img alt="' . t('Close all branches') . '" title="' . t('Close all branches') . '" src="' . $icon_path . 'close-all.png" />
         </a>
+        ' .  l(t('Disable auto-update'), current_path(), array('query' => array('disable-outline-designer' => TRUE))) . '
       </div>
     </div>
   </fieldset>';

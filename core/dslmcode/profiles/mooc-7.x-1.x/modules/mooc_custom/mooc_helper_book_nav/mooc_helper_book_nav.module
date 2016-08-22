@@ -36,21 +36,33 @@ function mooc_helper_book_nav_node_view($node, $view_mode, $langcode) {
 }
 
 /**
- * Implements hook_node_presave().
- */
-function mooc_helper_book_nav_node_presave($node) {
-  // make sure this is a book or in a book and not a new one
-  if (!empty($node->book['bid']) && $node->book['bid'] != 'new') {
-    _mooc_helper_book_nav_cache_clear('nav:' . $node->book['bid'] . ':' . $node->book['mlid'], TRUE);
-  }
-}
-
-/**
  * Implements hook_node_delete().
  */
 function mooc_helper_book_nav_node_delete($node) {
   // make sure this is a book or in a book and not a new one
   if (!empty($node->book['bid'])) {
+    _mooc_helper_book_nav_cache_clear('nav:' . $node->book['bid'] . ':' . $node->book['mlid'], TRUE);
+  }
+}
+
+/**
+ * Implements hook_menu_link_update().
+ */
+function mooc_helper_book_nav_menu_link_insert($link) {
+  // make sure this is a book or in a book
+  if (!empty($link['bid'])) {
+    $node = menu_get_object();
+    _mooc_helper_book_nav_cache_clear('nav:' . $node->book['bid'] . ':' . $node->book['mlid'], TRUE);
+  }
+}
+
+/**
+ * Implements hook_menu_link_update().
+ */
+function mooc_helper_book_nav_menu_link_update($link) {
+  // make sure this is a book or in a book
+  if (!empty($link['bid'])) {
+    $node = menu_get_object();
     _mooc_helper_book_nav_cache_clear('nav:' . $node->book['bid'] . ':' . $node->book['mlid'], TRUE);
   }
 }
