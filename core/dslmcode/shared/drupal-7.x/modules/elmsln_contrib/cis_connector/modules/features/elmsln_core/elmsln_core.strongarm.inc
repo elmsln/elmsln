@@ -13,6 +13,14 @@ function elmsln_core_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'admin_theme_path';
+  $strongarm->value = 'imce
+admin/*';
+  $export['admin_theme_path'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'chosen_disable_search';
   $strongarm->value = 0;
   $export['chosen_disable_search'] = $strongarm;

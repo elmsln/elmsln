@@ -63,6 +63,7 @@ features[user_permission][] = view lmsless administration links
 features[user_permission][] = view lmsless bar
 features[user_permission][] = view revisions
 features[user_permission][] = view the administration theme
+features[variable][] = admin_theme_path
 features[variable][] = chosen_disable_search
 features[variable][] = chosen_disable_search_threshold
 features[variable][] = chosen_jquery_selector
