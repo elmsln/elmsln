@@ -97,5 +97,5 @@ function elmsln_core_update_7007(&$sandbox) {
  * Set admin path for IMCE so it triggers admin theme.
  */
 function elmsln_core_update_7008(&$sandbox) {
-  variable_set('admin_theme', 'imce' . "\n" . 'admin/*');
+  features_revert_module('elmsln_core');
 }
