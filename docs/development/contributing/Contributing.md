@@ -18,5 +18,20 @@ In order to better manage quality of each release, we have adopted the following
 ### Issue branches
 If there is a specific tricky issue that needs its own branch, these should be named i{issue number} like `i96` for example. These branches are only to be used for more wicked problem spaces where we’re creating lots of new functionality OR when you plan on tackling something for the day and want to keep it all tidy. The idea isn’t to work in `i` branches endlessly, it’s to keep them tight knit and then get them pushed into their associated working branch as quickly as possible. *This is especially true / a necessary evil for theming*. Theming is notoriously painful to get to rebase / merge happily with upstreams because unlike modules, themes tend to touch a lot of files across parts of the project.
 
+## Forking Workflow
+The prefered method of contributing to the ELMS:LN codebase is to develop against a forked version of the repo. The ideal way to set up that workflow is to create two remotes in your local git repository; an 'upstream' remote that only allows you to pull updates from the central repository, and 'origin' that allows you to push and pull against your fork.
+
+### Example remote setup:
+In this example I'm setting up a local copy of elmsln from heyMP's fork of elmsln.
+```
+mkdir elmsln
+cd elmsln
+git init
+git remote add upstream https://github.com/elmsln/elmsln.git
+git remote set-url --push upstream DISABLE
+git remote add origin git@github.com:heyMP/elmsln.git
+git pull upstream master
+```
+
 ## Pull requests
 It is not required but preferred that all commits making their way in have a PR to track. This helps improve with transparency of testing as well as keeps core maintainers all on the same page. All core maintainers have the ability to push against master for project sustainability.
