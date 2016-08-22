@@ -84,6 +84,9 @@ function outline_designer_book_form_alter(&$form, $form_state, $form_id) {
  * Helper to allow other sub-sub projects to implement this
  */
 function _outline_designer_book_admin_form_alter(&$form, $form_state, $form_id, $ajax_path) {
+  if (isset($_GET['disable-outline-designer'])) {
+    return FALSE;
+  }
   if (arg(1) != 'ajax' && arg(1) != 'ocp_ajax') {
     _outline_designer_setup($ajax_path, $form['#node']->nid);
   }
@@ -872,6 +875,9 @@ function outline_designer_book_theme_registry_alter(&$theme_registry) {
  * Theme override for book_admin_table
  */
 function theme_outline_designer_book_admin_table($variables) {
+  if (isset($_GET['disable-outline-designer'])) {
+    return theme_book_admin_table($variables);
+  }
   $form = $variables['form'];
   drupal_add_tabledrag('book-outline', 'match', 'parent', 'book-plid', 'book-plid', 'book-mlid', TRUE, MENU_MAX_DEPTH - 2);
   drupal_add_tabledrag('book-outline', 'order', 'sibling', 'book-weight');

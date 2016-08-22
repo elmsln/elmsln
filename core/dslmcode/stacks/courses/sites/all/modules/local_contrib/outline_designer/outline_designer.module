@@ -52,6 +52,9 @@ function outline_designer_menu() {
  * Helper function to generate scripts for a page.
  */
 function _outline_designer_setup($ajax_path, $nid) {
+  if (isset($_GET['disable-outline-designer'])) {
+    return FALSE;
+  }
   drupal_add_css(drupal_get_path('module', 'outline_designer') . '/css/outline_designer.css');
   drupal_add_js(drupal_get_path('module', 'outline_designer') . '/js/jquery.contextmenu.js');
   drupal_add_js(drupal_get_path('module', 'outline_designer') . '/js/outline_designer.js', array('scope' => 'footer'));
