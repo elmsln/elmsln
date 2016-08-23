@@ -1,10 +1,10 @@
 # Media
 
-## What it is
+## What is it
 Media is an asset management tool - the space for hosting all media assets (videos, images, documents, audio etc.) to be displayed across any course within the system. From here, shortcodes are generated to embed any asset into a course site with a variety of pre-built style options known as 'view modes'.
 Assets can therefore be centrally maintained and changes to any asset will be cascaded down to update all instances of it in all the courses it is used. All asset types can be tagged and/or assigned to a specific course to allow for easy filtering and organisation of assets for content producers.
 
-## What is has
+## What it has
 
 ### Audio
 The uploading of audio files in mp3 format. 
