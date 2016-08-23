@@ -876,14 +876,6 @@ function outline_designer_book_theme_registry_alter(&$theme_registry) {
  */
 function theme_outline_designer_book_admin_table($variables) {
   if (isset($_GET['disable-outline-designer'])) {
-    $style = '
-#edit-save {
-  bottom: 0;
-  position: fixed;
-  width: 50%;
-  margin: 0;
-}';
-    drupal_add_css($style, array('type' => 'inline'));
     return l(t('Enable auto-update'), current_path(), array('query' => array())) .
  theme_book_admin_table($variables);
   }
