@@ -16,7 +16,7 @@ If you notice an issue or have a question please file it in our [issue queue]((h
 
 Documentation
 ==============
-See the Docs for questions and documentation either on our [docs site](http://docs.elmsln.org) or [API site](http://api.elmsln.org).
+See the Docs for questions and documentation either on our [docs site](http://elmsln.readthedocs.org/en/latest/) or [API site](http://api.elmsln.org).
 
 How can I get more involved?
 ==============
