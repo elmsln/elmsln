@@ -232,7 +232,7 @@ function theme_elmsmedia_helper_youtube($variables) {
   if (isset($variables['settings']['caption'])) {
     $class = 'class="col s12 m8 l8"';
   }
-  $output = ' <div class="ableplayer-video">
+  $output = ' <div class="ableplayer-video elmsln-youtube">
   <div ' . $class . '>
     <video preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1">';
   $output .= '
@@ -246,14 +246,14 @@ function theme_elmsmedia_helper_youtube($variables) {
 }
 
 /**
- * Callback for elmsmedia_helper_youtube()
+ * Callback for elmsmedia_helper_vimeo()
  */
 function theme_elmsmedia_helper_vimeo($variables) {
   $class = '';
   if (isset($variables['settings']['caption'])) {
     $class = 'class="col s12 m8 l8"';
   }
-  $output = ' <div class="row vimeo-video">
+  $output = ' <div class="row vimeo-video elmsln-vimeo">
     <div ' . $class . '>
       <iframe ' . drupal_attributes($variables['attributes']) . '></iframe>
     </div>

@@ -1,0 +1,114 @@
+<?php
+
+/**
+ * @file
+ * A Tin Can API module to handle Vimeo/Youtube video event tracking.
+ */
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function tincanapi_video_preprocess_page(&$variables) {
+  // add youtube in if it has a selector
+  if (variable_get('tincanapi_selector_youtube', '.media-youtube-video')) {
+    drupal_add_js(
+      array(
+        'tincanapi' => array(
+          'selector_youtube' => variable_get('tincanapi_selector_youtube', '.media-youtube-video'),
+        ),
+      ),
+      'setting'
+    );
+  }
+  // add vimeo in if it has a selector
+  if (variable_get('tincanapi_selector_vimeo', '.media-vimeo-video')) {
+    // add in player api v2
+    drupal_add_js('https://player.vimeo.com/api/player.js', array('type' => 'external'));
+    drupal_add_js(
+      array(
+        'tincanapi' => array(
+          'selector_vimeo' => variable_get('tincanapi_selector_vimeo', '.media-vimeo-video'),
+        ),
+      ),
+      'setting'
+    );
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function tincanapi_video_form_tincanapi_admin_form_alter(&$form, $form_state) {
+  $form['media'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Media settings'),
+    '#collapsed' => TRUE,
+    '#collapsible' => TRUE,
+    '#description' => t('Settings related to media integrations for tincanapi.'),
+    'tincanapi_selector_youtube' => array(
+      '#type' => 'textfield',
+      '#title' => t('Youtube selector'),
+      '#description' => t('The css selector that you want to automatically listen for statements from.'),
+      '#default_value' => variable_get('tincanapi_selector_youtube', '.media-youtube-video'),
+    ),
+    'tincanapi_selector_vimeo' => array(
+      '#type' => 'textfield',
+      '#title' => t('Vimeo selector'),
+      '#description' => t('The css selector that you want to automatically listen for statements from.'),
+      '#default_value' => variable_get('tincanapi_selector_vimeo', '.media-vimeo-video'),
+    ),
+  );
+}
+
+/**
+ * Implements tincanapi_ajax_data_alter().
+ */
+function tincanapi_video_tincanapi_ajax_data_alter($module_name, &$data, $context) {
+  global $base_url;
+
+  if ('video' == $module_name) {
+    $verb = $context['verb'];
+
+    $data['verb'] = tincanapi_get_verb($verb);
+    $data['object']['id'] = $context['id'];
+    $data['object']['definition']['name']['en-US'] = $context['title'];
+    $data['object']['definition']['type'] = TINCANAPI_CUSTOM_URI . '/media/video';
+
+    if (isset($context['referrer'])) {
+      if (is_array($context['referrer'])) {
+        $context['referrer'] = end($context['referrer']);
+      }
+
+      $parent = array(
+        'id' => $context['referrer'],
+        'objectType' => 'Activity',
+      );
+
+      $data['context']['contextActivities']['parent'] = $parent;
+    }
+
+    tincanapi_media_set_context_extensions($context, $data);
+  }
+
+  // Add organic group (class) information.
+  if ('video' == $module_name && isset($context['referrer'])) {
+    $parent = explode("/", parse_url($context['referrer'], PHP_URL_PATH));
+    $parent = node_load(end($parent));
+
+    if (isset($parent->og_group_ref)) {
+      $og_group_values = field_get_items('node', $parent, 'og_group_ref');
+      $group_nid = $og_group_values[0]['target_id'];
+
+      $group_node = node_load($group_nid);
+      if ($group_node) {
+        $group = array(
+          'id' => $base_url . '/node/' . $group_node->nid,
+          'definition' => array('name' => array('en-US' => $group_node->title)),
+          'objectType' => 'Activity',
+        );
+
+        $data['context']['contextActivities']['grouping'] = $group;
+      }
+    }
+  }
+}
