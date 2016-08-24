@@ -27,7 +27,98 @@
         });
       };
     }
+    // try and skim any html5 object on the page
+    $('video').not('.tincan-processed').each(function () {
+      Drupal.tincanapi.html5Video.processVideo($(this));
+    });
   });
+      // vimeo tracking
+  var HTML5VideoTracker = function(element) {
+    var globals = this;
+    this.element = element;
+    this.title = Drupal.settings.h5pTincanBridge.title;
+    this.url = Drupal.settings.tincanapi.currentPage;
+    this.time = null;
+    this.HTML5Video = element;
+    this.init = function() {
+      globals.element.on('playing', function(event) {
+        globals.trackEvent('play', this.start, this.end);
+      }).on('ended', function(event) {
+        globals.trackEvent('complete', this.start, this.end);
+      }).on('pause', function(event) {
+        globals.trackEvent('paused', this.start, this.end);
+      }).on('seeking', function(event) {
+        globals.trackEvent('skipped', this.start, this.end);
+      }).on('completed', function(event){
+        globals.trackEvent('watched', this.start, this.end);
+      });
+      globals.element.on('timeupdate', function(time) {
+        globals.time = time.timeStamp*1000;
+      });
+    };
+
+    this.trackEvent = function (verb, start, end) {
+      var data = {
+        module: 'video',
+        verb: verb,
+        id: globals.url,
+        title: globals.title,
+        duration: globals.element.duration,
+        referrer: Drupal.settings.tincanapi.currentPage
+      };
+
+      if(start !== null) {
+        data["start_time"] = (start / 1000);
+      }
+
+      if(end !== null) {
+        data["end_time"] = (end / 1000);
+      }
+      Drupal.tincanapi.track(data);
+
+      // Create Watched event
+      if(verb == "play") {
+        globals.time = start;
+      }
+
+      if(verb == "paused" && globals.time !== null) {
+        globals.trackEvent("watched", globals.time, end);
+        globals.time = null;
+      }
+    };
+
+    this.init();
+  };
+  Drupal.tincanapi.html5Video = {
+    processVideo: function(video) {
+      var id;
+      if ($(video).attr('id')) {
+        id = $(video).attr('id');
+      }
+      else {
+        id = Drupal.tincanapi.html5Video.getRandomId();
+        video.attr('id', id);
+        $(video).attr('id', id);
+      }
+      // HTML5 tracker
+      new HTML5VideoTracker(video);
+      video.addClass('tincan-processed');
+    },
+
+    getRandomId: function() {
+      var id = '';
+
+      var min = 97;
+      var max = 122;
+
+      for (var i = 0; i < 10; i++) {
+        var random = Math.floor(Math.random() * (max - min + 1)) + min;
+        id += String.fromCharCode(random);
+      }
+
+      return 'html5video-' + id;
+    },
+  };
   // youtube tracking
   var YoutubeTracker = function(id) {
     var globals = this;
