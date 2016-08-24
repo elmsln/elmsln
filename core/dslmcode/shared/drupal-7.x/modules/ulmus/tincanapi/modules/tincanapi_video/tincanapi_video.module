@@ -10,24 +10,24 @@
  */
 function tincanapi_video_preprocess_page(&$variables) {
   // add youtube in if it has a selector
-  if (variable_get('tincanapi_selector_youtube', '.media-youtube-video')) {
+  if (variable_get('tincanapi_selector_youtube', "iframe[data-mediavideo-src^='https://www.youtube.com/embed'],iframe[src^='https://www.youtube.com/embed']")) {
     drupal_add_js(
       array(
         'tincanapi' => array(
-          'selector_youtube' => variable_get('tincanapi_selector_youtube', '.media-youtube-video'),
+          'selector_youtube' => variable_get('tincanapi_selector_youtube', "iframe[data-mediavideo-src^='https://www.youtube.com/embed'],iframe[src^='https://www.youtube.com/embed']"),
         ),
       ),
       'setting'
     );
   }
   // add vimeo in if it has a selector
-  if (variable_get('tincanapi_selector_vimeo', '.media-vimeo-video')) {
+  if (variable_get('tincanapi_selector_vimeo', "iframe[data-mediavideo-src^='https://player.vimeo.com/video'],iframe[src^='https://player.vimeo.com/video']")) {
     // add in player api v2
     drupal_add_js('https://player.vimeo.com/api/player.js', array('type' => 'external'));
     drupal_add_js(
       array(
         'tincanapi' => array(
-          'selector_vimeo' => variable_get('tincanapi_selector_vimeo', '.media-vimeo-video'),
+          'selector_vimeo' => variable_get('tincanapi_selector_vimeo', "iframe[data-mediavideo-src^='https://player.vimeo.com/video'],iframe[src^='https://player.vimeo.com/video']"),
         ),
       ),
       'setting'
@@ -49,13 +49,13 @@ function tincanapi_video_form_tincanapi_admin_form_alter(&$form, $form_state) {
       '#type' => 'textfield',
       '#title' => t('Youtube selector'),
       '#description' => t('The css selector that you want to automatically listen for statements from.'),
-      '#default_value' => variable_get('tincanapi_selector_youtube', '.media-youtube-video'),
+      '#default_value' => variable_get('tincanapi_selector_youtube', "iframe[data-mediavideo-src^='https://www.youtube.com/embed'],iframe[src^='https://www.youtube.com/embed']"),
     ),
     'tincanapi_selector_vimeo' => array(
       '#type' => 'textfield',
       '#title' => t('Vimeo selector'),
       '#description' => t('The css selector that you want to automatically listen for statements from.'),
-      '#default_value' => variable_get('tincanapi_selector_vimeo', '.media-vimeo-video'),
+      '#default_value' => variable_get('tincanapi_selector_vimeo', "iframe[data-mediavideo-src^='https://player.vimeo.com/video'],iframe[src^='https://player.vimeo.com/video']"),
     ),
   );
 }
