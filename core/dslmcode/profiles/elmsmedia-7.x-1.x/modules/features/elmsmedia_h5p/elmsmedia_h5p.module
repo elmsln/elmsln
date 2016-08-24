@@ -43,7 +43,7 @@ function elmsmedia_h5p_embedded_h5p_alter(&$node) {
 /**
  * Implements hook_tincanapi_ajax_data_alter().
  */
-function elmsmedia_h5p_tincanapi_ajax_data_alter($module_name, &$data, $context) {
+function elmsmedia_h5p_tincanapi_ajax_data_alter(&$data, $context) {
   // all h5p settings passed across which we can look for
   // our custom attributes we want to ship along as a result
   $settings = $context['settings'];
