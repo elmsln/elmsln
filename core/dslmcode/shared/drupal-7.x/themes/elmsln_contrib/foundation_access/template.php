@@ -1067,6 +1067,8 @@ function _foundation_access_video_url($video_url) {
     // rip out from embed based url
     $vpath = explode('/', $video_url);
     $part = array_pop($vpath);
+    // drop the autoplay property cause it conflicts with what we're doing
+    $part = str_replace('autoplay=1', '', $part);
     return 'https://player.vimeo.com/video/' . $part;
   }
   // didn't know what to do or it was already well formed

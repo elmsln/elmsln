@@ -4,7 +4,31 @@
  */
 
 (function ($) {
-
+  // tee up for tracking
+  $(document).ready(function () {
+    // Add Youtube API if we detect anything that it would work against in the first place
+    if ($(Drupal.settings.tincanapi.selector_youtube).length > 0) {
+      var tag = document.createElement('script');
+      tag.id = 'tincanapi-google-api';
+      tag.src = "//www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      window.onYouTubeIframeAPIReady = function() {
+        // YouTube player support; pass ready event to jQuery so we can catch in player.
+        $(document).ready(function () {
+          $(Drupal.settings.tincanapi.selector_youtube).not('.tincan-processed').each(function () {
+            Drupal.tincanapi.youtube.processVideo($(this));
+          });
+          // check for ableplayer compatibility
+          if (typeof window.AblePlayer !== 'undefined') {
+            AblePlayer.youtubeIframeAPIReady = true;
+            $('body').trigger('youtubeIframeAPIReady', []);
+          }
+        });
+      };
+    }
+  });
+  // youtube tracking
   var YoutubeTracker = function(id) {
     var globals = this;
     this.id = id;
@@ -79,27 +103,6 @@
 
     this.init();
   };
-
-  // Add Youtube API
-  var tag = document.createElement('script');
-  tag.id = 'tincanapi-google-api';
-  tag.src = "//www.youtube.com/iframe_api";
-  var firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-  window.onYouTubeIframeAPIReady = function() {
-    // YouTube player support; pass ready event to jQuery so we can catch in player.
-    $(document).ready(function () {
-      $(Drupal.settings.tincanapi.selector_youtube).not('.tincan-processed').each(function () {
-        Drupal.tincanapi.youtube.processVideo($(this));
-      });
-      // check for ableplayer for compatibility
-      if (typeof window.AblePlayer !== 'undefined') {
-        AblePlayer.youtubeIframeAPIReady = true;
-        $('body').trigger('youtubeIframeAPIReady', []);
-      }
-    });
-  };
-
   Drupal.behaviors.tincanapiYouTube = {
     attach: function (context) {
       // The YouTube API isn't ready when the page is loaded.
@@ -110,7 +113,6 @@
       }
     }
   };
-
   Drupal.tincanapi.youtube = {
     processVideo: function(video) {
       if(typeof YT.Player === "undefined") {
@@ -128,23 +130,21 @@
         iframe.attr('id', id);
         $(iframe.context).attr('id', id);
       }
+      // mediavideo specific src
+      if ($(iframe.context).attr('data-mediavideo-src')) {
+        var tmp = $(iframe.context).attr('data-mediavideo-src');
+        $(iframe.context).attr('data-mediavideo-src', '');
+        $(iframe.context).attr('data-mediavideo-src', tmp + '?enablejsapi=1');
+        new YoutubeTracker(id);
+        video.addClass('tincan-processed');
+      }
       // add in youtubetracker stuff if we have an src on the iframe
-      if ($(iframe.context).attr('src')) {
+      else if ($(iframe.context).attr('src')) {
         var tmp = $(iframe.context).attr('src');
         $(iframe.context).attr('src', '');
         $(iframe.context).attr('src', tmp + '?enablejsapi=1');
         new YoutubeTracker(id);
         video.addClass('tincan-processed');
-      }
-      else {
-        // mediavideo specific src
-        if ($(iframe.context).attr('data-mediavideo-src')) {
-          var tmp = $(iframe.context).attr('data-mediavideo-src');
-          $(iframe.context).attr('data-mediavideo-src', '');
-          $(iframe.context).attr('data-mediavideo-src', tmp + '?enablejsapi=1');
-          new YoutubeTracker(id);
-          video.addClass('tincan-processed');
-        }
       }
     },
 
@@ -163,6 +163,7 @@
     },
   };
 
+  // vimeo tracking
   var VimeoTracker = function(iframe) {
     var globals = this;
     this.iframe = iframe;
@@ -250,7 +251,6 @@
 
     this.init();
   };
-
   Drupal.behaviors.tincanapiVimeo = {
     attach: function (context) {
 
