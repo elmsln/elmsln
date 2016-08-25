@@ -78,23 +78,21 @@ function _mooc_nav_block_mooc_nav_block() {
         }
       break;
       case 'content-outline-active-below':
+        $config['min_depth'] = $node->book['depth']+1;
+        $config['max_depth'] = $node->book['depth']+1;
+        // do nothing else if here and below is set and we are the page setting it
         if ($nav['display'] == 'here-below' && $node->book['mlid'] == $nav['parent']) {
-          $config['min_depth'] = $node->book['depth']+1;
-          $config['max_depth'] = $node->book['depth']+1;
+
         }
-        elseif ($nav['display'] == 'here') {
-          // Don't display if it's not the parent page.
-          if ($node->book['mlid'] == $nav['parent']) {
-            $config['min_depth'] = $node->book['depth']+1;
-            $config['max_depth'] = $node->book['depth']+1;
-          }
-          else {
-            return;
-          }
+        // if we are here only but NOT the page setting it we need to render nothing
+        elseif ($nav['display'] == 'here' && $node->book['mlid'] != $nav['parent']) {
+          return;
         }
+        // if we are something else (here and below but NOT on the parent itself probably)
+        // then we need to render things from the current page down since it is active below
+        // 1 level
         else {
-          $config['min_depth'] = $node->book['depth'];
-          $config['max_depth'] = $node->book['depth'];
+          $config['conditions'] = array('plid' => $node->book['mlid']);
         }
       break;
     }
