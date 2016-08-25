@@ -42,18 +42,13 @@
     this.HTML5Video = element;
     this.init = function() {
       globals.element.on('playing', function(event) {
-        globals.trackEvent('play', this.start, this.end);
-      }).on('ended', function(event) {
-        globals.trackEvent('complete', this.start, this.end);
+        globals.trackEvent('play', globals.element.context.currentTime, globals.time);
       }).on('pause', function(event) {
-        globals.trackEvent('paused', this.start, this.end);
+        globals.trackEvent('paused', globals.element.context.currentTime, globals.time);
       }).on('seeking', function(event) {
-        globals.trackEvent('skipped', this.start, this.end);
-      }).on('completed', function(event){
-        globals.trackEvent('watched', this.start, this.end);
-      });
-      globals.element.on('timeupdate', function(time) {
-        globals.time = time.timeStamp*1000;
+        globals.trackEvent('skipped', globals.time, globals.element.context.currentTime);
+      }).on('ended', function(event){
+        globals.trackEvent('complete', globals.element.context.currentTime, globals.time);
       });
     };
 
@@ -63,28 +58,23 @@
         verb: verb,
         id: globals.url,
         title: globals.title,
-        duration: globals.element.duration,
+        duration: globals.element.context.duration,
         referrer: Drupal.settings.tincanapi.currentPage
       };
 
       if(start !== null) {
-        data["start_time"] = (start / 1000);
+        data["start_time"] = start;
       }
 
       if(end !== null) {
-        data["end_time"] = (end / 1000);
+        data["end_time"] = end;
       }
       Drupal.tincanapi.track(data);
 
-      // Create Watched event
-      if(verb == "play") {
-        globals.time = start;
-      }
-
       if(verb == "paused" && globals.time !== null) {
-        globals.trackEvent("watched", globals.time, end);
-        globals.time = null;
+        globals.trackEvent("watched", globals.time, start);
       }
+      globals.time = start;
     };
 
     this.init();
