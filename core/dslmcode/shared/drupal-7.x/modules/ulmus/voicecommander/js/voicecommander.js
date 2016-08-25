@@ -161,7 +161,7 @@
           tmpcommand = $(this).attr('data-voicecommand');
         }
         else {
-          tmpcommand = $(this).text().trim();
+          tmpcommand = $(this).text().trim().replace(':','').replace('(','').replace(')','').replace('*','');
           if (tmpcommand != '') {
             tmpcommand = Drupal.t('go to') + ' ' + tmpcommand;
           }
