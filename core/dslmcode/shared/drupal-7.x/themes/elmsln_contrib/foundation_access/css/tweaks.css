@@ -1,3 +1,7 @@
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
+  display: initial;
+}
+
 /* chosen select support */
 select.chosen {
   display: initial;
@@ -10,6 +14,9 @@ select.chosen {
 /* accessibility */
 .outline-nav-icon {
   opacity: .8;
+  height: 2.25rem;
+  width: 2.25rem;
+  line-height: 2.25rem;
 }
 
 .imagelightbox__close {
