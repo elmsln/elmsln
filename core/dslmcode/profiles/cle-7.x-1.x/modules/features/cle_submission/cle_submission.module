@@ -133,6 +133,7 @@ function cle_submission_node_access($node, $op, $account) {
 
 /**
  * Helper function to find it a user has submitted an assignement.
+ * @return true will return list of submission ids, false will return false.
  */
 function _cle_submission_user_submitted_assignment($assignment_id, $user = NULL) {
   if (!$user) {
@@ -147,7 +148,9 @@ function _cle_submission_user_submitted_assignment($assignment_id, $user = NULL)
   $result = $query->execute();
 
   if (isset($result['node'])) {
-    return TRUE;
+    $submission_ids = array_keys($result['node']);
+    $submissions_obj = entity_load('node', $submission_ids);
+    return $submissions_obj;
   }
   else {
     return FALSE;

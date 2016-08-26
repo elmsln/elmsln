@@ -26,11 +26,15 @@ function cle_assignment_init() {
 function cle_assignment_page_build(&$page) {
   $node = menu_get_object();
   if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
-    $field_conditions = array('field_assignment' => array('target_id', array($node->nid), 'IN'));
-    $submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
+    $submissions = _cle_submission_user_submitted_assignment($node->nid);
     $output = '';
-    foreach ($submission as $nid => $title) {
-      $output .= l($title, 'node/' . $nid, array('attributes' => array('class' => array('cle-submission__link')))) . ' ';
+    if ($submissions) {
+      $output .= '<h3>' . t('My Submissions') . '</h3>';
+      $output .= '<ul class="collection">';
+      foreach ($submissions as $submission) {
+        $output .= l($submission->title, 'node/' . $submission->nid, array('attributes' => array('class' => array('collection-item'))));
+      }
+      $output .= '</ul>';
     }
     if (empty($output)) {
       $output = l(t('Submit assignment'),'node/add/cle-submission',
