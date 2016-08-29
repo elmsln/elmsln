@@ -46,8 +46,12 @@ function h5p_tincan_bridge_view() {
     $nid = $_POST['nid'];
 
     h5p_tincan_bridge_tincanapi_add_og_context(node_load($nid), $data);
-    // allow other projects to jump in here
-    drupal_alter('tincanapi_ajax_data', $data, $_POST);
+    $hook = 'tincanapi_ajax_data_alter';
+    foreach (module_implements($hook) as $module) {
+      $function = $module . '_' . $hook;
+      $function('h5p_tincan_bridge', $data, $_POST);
+    }
+
 
     tincanapi_send("statements", "POST", $data);
   }
