@@ -79,7 +79,7 @@ function tincanapi_permission() {
  * Menu callback for JavaScript event tracking.
  */
 function tincanapi_ajax_track() {
-  if (isset($_POST['token']) && drupal_get_token() == $_POST['token'] && isset($_POST['module'])) {
+  if (isset($_POST['token']) && drupal_valid_token($_POST['token'], '', TRUE) && isset($_POST['module'])) {
     $module_name = $_POST['module'];
     $context = $_POST;
 
