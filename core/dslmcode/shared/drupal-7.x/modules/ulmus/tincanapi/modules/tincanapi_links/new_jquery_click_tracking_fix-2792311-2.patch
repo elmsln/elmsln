@@ -1,0 +1,107 @@
+diff --git a/modules/tincanapi_links/js/tincanapi_links.js b/modules/tincanapi_links/js/tincanapi_links.js
+index d5e3057..e003aab 100644
+--- a/modules/tincanapi_links/js/tincanapi_links.js
++++ b/modules/tincanapi_links/js/tincanapi_links.js
+@@ -5,21 +5,24 @@
+ 
+ (function ($) {
+ 
+-  $('a').live('click', function(e) {
+-    // Do not track links that are tracked elsewhere or ignored.
+-    if ($(this).hasClass('tincanapi-ignore') || $(this).hasClass('tincanapi-links-ignore')) {
+-      return;
+-    }
++  // check for links once the document is loaded
++  $(document).ready(function(){
++    $('a').on('click', function(e) {
++      // Do not track links that are tracked elsewhere or ignored.
++      if ($(this).hasClass('tincanapi-ignore') || $(this).hasClass('tincanapi-links-ignore')) {
++        return;
++      }
+ 
+-    // Track external clicks.
+-    if (Drupal.settings.tincanapi_links.external && Drupal.tincanapi.links.isExternal(this.href)) {
+-      Drupal.tincanapi.links.track($(this), 'visited');
+-    }
++      // Track external clicks.
++      if (Drupal.settings.tincanapi_links.external && Drupal.tincanapi.links.isExternal(this.href)) {
++        Drupal.tincanapi.links.track($(this), 'visited');
++      }
+ 
+-    // Track file extensions.
+-    if (Drupal.tincanapi.links.isTracked(this.href)) {
+-      Drupal.tincanapi.links.track($(this), 'downloaded');
+-    }
++      // Track file extensions.
++      if (Drupal.tincanapi.links.isTracked(this.href)) {
++        Drupal.tincanapi.links.track($(this), 'downloaded');
++      }
++    });
+   });
+ 
+   Drupal.tincanapi.links = {
+@@ -80,4 +83,4 @@
+     }
+   };
+ 
+-})(jQuery);
++})(jQuery);
+\ No newline at end of file
+diff --git a/modules/tincanapi_links/tincanapi_links.module b/modules/tincanapi_links/tincanapi_links.module
+index 24db3f9..5313268 100644
+--- a/modules/tincanapi_links/tincanapi_links.module
++++ b/modules/tincanapi_links/tincanapi_links.module
+@@ -9,26 +9,29 @@
+  * Implements hook_page_build().
+  */
+ function tincanapi_links_page_build(&$page) {
+-  // Settings.
+-  $settings = array(
+-    'tincanapi_links' => array(
+-      'external' => (variable_get('tincanapi_links_external') ? TRUE : FALSE),
+-    ),
+-  );
++  // don't apply to admin pages
++  if (!path_is_admin(current_path())) {
++    // Settings.
++    $settings = array(
++      'tincanapi_links' => array(
++        'external' => (variable_get('tincanapi_links_external') ? TRUE : FALSE),
++      ),
++    );
+ 
+-  if (variable_get('tincanapi_links_extensions')) {
+-    $extensions = explode(',', variable_get('tincanapi_links_extensions'));
+-    $settings['tincanapi_links']['extensions'] = $extensions;
+-  }
+-  else {
+-    $settings['tincanapi_links']['extensions'] = FALSE;
+-  }
++    if (variable_get('tincanapi_links_extensions')) {
++      $extensions = explode(',', variable_get('tincanapi_links_extensions'));
++      $settings['tincanapi_links']['extensions'] = $extensions;
++    }
++    else {
++      $settings['tincanapi_links']['extensions'] = FALSE;
++    }
+ 
+-  drupal_add_js($settings, 'setting');
++    drupal_add_js($settings, 'setting');
+ 
+-  // Click Handler.
+-  $module_path = drupal_get_path('module', 'tincanapi_links');
+-  drupal_add_js($module_path . '/js/tincanapi_links.js');
++    // Click Handler.
++    $module_path = drupal_get_path('module', 'tincanapi_links');
++    drupal_add_js($module_path . '/js/tincanapi_links.js');
++  }
+ }
+ 
+ /**
+@@ -95,4 +98,4 @@ function tincanapi_links_tincanapi_ajax_data_alter($module_name, &$data, $contex
+       }
+     }
+   }
+-}
++}
+\ No newline at end of file
