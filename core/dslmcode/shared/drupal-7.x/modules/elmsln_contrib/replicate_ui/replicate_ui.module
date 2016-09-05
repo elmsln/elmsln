@@ -93,13 +93,18 @@ function replicate_ui_access($type, $etid) {
     }
     $etid = $etid->{$info['entity keys']['id']};
   }
+  $access = FALSE;
   // make sure they can create this item and access replicate
   $entity = entity_load_single($type, $etid);
   // ensure this exists, they have access to see and create the type and access the ui
   if (!empty($entity) && entity_access('view', $type, $entity) && entity_access('create', $type, $entity) && user_access('replicate entities')) {
-    return TRUE;
+    $access = TRUE;
   }
-  return FALSE;
+
+  // Allow other modules to check this access.
+  drupal_alter('replicate_ui_access_check', $access, $type, $entity);
+
+  return $access;
 }
 
 /**
@@ -158,7 +163,6 @@ function replicate_ui_confirm_submit($form, &$form_state) {
       // redirect to the new item
       drupal_set_message(t('%type (%id) has been replicated to id %new!', array('%type' => $entity_type, '%id' => $entity_id, '%new' => $id)));
       $form_state['redirect'] = $path;
-      
       if (module_exists('rules')) {
         // Rules needs the entity in a wrapper, since we don't know beforehand
         // what type of entity we have.
