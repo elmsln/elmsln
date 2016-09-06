@@ -74,7 +74,7 @@ function mooc_content_theming_block_view($delta = '') {
 function _mooc_content_theming_banner_block() {
   // try to get node from active menu item
   $node = menu_get_object();
-  if (isset($node->book)) {
+  if (isset($node->book) && isset($node->book['depth'])) {
     $cid = 'content-theming-banner';
     for ($i = 0; $i< $node->book['depth']; $i++) {
       if ($node->book['p' . ($i+1)] != 0) {
