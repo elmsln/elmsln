@@ -60,7 +60,9 @@ drush @online en vagrant_cis_dev cis_example_cis --y
 # restart apache to frag some caches because of the different settings that changed inside
 service httpd restart
 
-su - vagrant 'bash -s' /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/vagrant
+su - vagrant bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/vagrant
+
+sed -i '1i export PATH="/home/vagrant/.config/composer/vendor/bin:$PATH"' /home/vagrant/.bashrc
 
 # add vagrant to the elmsln group
 usermod -a -G elmsln vagrant
