@@ -206,7 +206,7 @@ do
 
   sudo mkdir -p $drupalroot/sites/$subdir
   sudo mv $drupalroot/sites/$course $drupalroot/sites/$subdir/$course
-  sudo mkdir $drupalroot/sites/$subdir/$course/files/feeds
+  sudo mkdir -p $drupalroot/sites/$subdir/$course/files/feeds
   sudo chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files/feeds
   sudo chown $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files/feeds -v
   sudo chmod 774 $drupalroot/sites/$subdir/$course/files/feeds -v
@@ -285,11 +285,11 @@ do
   sudo chown -R $wwwuser:$webgroup $drupalroot/sites/$subdir/$course/files
 
   ##add drupal_priv directories, set permissions
-  if [ ! -d $drupal_priv/$service/$course ]; then
-    sudo mkdir -p $drupal_priv/$service/$course
-    sudo chown $wwwuser:$webgroup $drupal_priv/$service/$course
-    sudo chmod g+w $drupal_priv/$service/$course
-  fi
+  sudo mkdir -p $drupal_priv/$service/$course/feeds -v
+  sudo chown $wwwuser:$webgroup $drupal_priv/$service/$course
+  sudo chown $wwwuser:$webgroup $drupal_priv/$service/$course/feeds
+  sudo chmod 774 $drupal_priv/$service/$course -v
+  sudo chmod 774 $drupal_priv/$service/$course/feeds -v
 
   # work through the open ended drush commands
   echo "5" > $fileloc/$course.$service.progress
@@ -298,11 +298,9 @@ do
   if [[ $options ]]; then
     grep ^drush $coursefile.processing | while read drush; do
       drushcommand=`echo $drush | awk '{print $2}'`
-      background='TRUE'
       case $drushcommand in
       en)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      background='FALSE'
       ;;
       vset)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
@@ -312,7 +310,6 @@ do
       ;;
       feeds-import)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      background='FALSE'
       ;;
       cron)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
@@ -322,29 +319,24 @@ do
       ;;
       dis)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      background='FALSE'
       ;;
       urol)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      background='FALSE'
       ;;
       ucrt)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      background='FALSE'
       ;;
       fr)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
       pm-uninstall)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      background='FALSE'
       ;;
       vdel)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
       cook)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
-      background='FALSE'
       ;;
       uuid-recreate)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
@@ -369,12 +361,7 @@ do
       echo "Your site has been installed, doing some clean up and you will be taken there soon!" >> $fileloc/$course.$service.progress
       # use this for debugging as it will print what it is doing to the file
       #echo "drush @$service.$course $drushcommand --y" >> $fileloc/$course.$service.progress
-      # do most commands in a background thread
-      if [[ $background = 'TRUE' ]]; then
-          (drush --y --root=$drupalroot --v --uri=$hostname.$course $drushcommand < /dev/null &) >> $configsdir/logs/drush-create-site.log
-        else
-          drush --y --root=$drupalroot --v --uri=$hostname.$course $drushcommand >> $configsdir/logs/drush-create-site.log
-      fi
+      drush --y --root=$drupalroot --v --uri=$hostname.$course $drushcommand >> $configsdir/logs/drush-create-site.log
     done
   fi
   # done running commands, now we add in our cache bin optimization settings
