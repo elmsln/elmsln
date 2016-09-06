@@ -58,4 +58,24 @@ drush @online dis seckit --y
 # specific stuff for aiding in development
 drush @online en vagrant_cis_dev cis_example_cis --y
 # restart apache to frag some caches because of the different settings that changed inside
-sudo /etc/init.d/httpd restart
+service httpd restart
+
+su - vagrant 'bash -s' /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/vagrant
+
+# add vagrant to the elmsln group
+usermod -a -G elmsln vagrant
+
+# set all permissions correctly and for vagrant user
+bash /var/www/elmsln/scripts/utilities/harden-security.sh vagrant
+
+# disable varnish which the Cent 6.x image enables by default
+# this way when we're doing local development we don't get cached anything
+# port swap to not use varnish in local dev
+sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
+sed -i 's/8080/80/g' /etc/httpd/conf.d/*.conf
+service varnish stop
+service httpd restart
+service mysqld restart
+
+# disable varnish from starting automatically on reboot
+chkconfig varnish off
