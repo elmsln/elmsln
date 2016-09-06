@@ -86,7 +86,7 @@ function read_time_book_read_time_evaluate_alter(&$read_time, $node, $field_data
  */
 function read_time_book_node_insert($node) {
   // rebuild if we have to / should; this is an intensive operation
-  if (isset($node->book) && variable_get('read_time_node_view_' . $node->type, TRUE)) {
+  if (isset($node->book) && isset($node->book['depth']) && variable_get('read_time_node_view_' . $node->type, TRUE)) {
     // rebuild everyone above here
     for ($i = $node->book['depth']; $i>0; $i--) {
       if ($node->book['p' . $i] != 0 && $node->book['p' . $i] != $node->book['mlid']) {
