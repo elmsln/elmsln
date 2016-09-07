@@ -53,6 +53,21 @@ function read_time_media_read_time_evaluate_alter(&$read_time, $node, $field_dat
       }
       $read_time['metadata']['video']['vimeo']++;
     }
+    // sniff out TED talks
+    if (_read_time_strpos_arr($result, array('ted.com'))) {
+      $read_time['video']++;
+      if (!isset($read_time['metadata']['video']['ted'])) {
+        $read_time['metadata']['video']['ted'] = 0;
+        $read_time['metadata']['video']['duration'] = 0;
+      }
+      $preg2 = '/"duration"\:(.*?),/s';
+      // pregmatch iframe tags
+      preg_match_all($preg2, $data, $results2);
+      if (isset($results2[1][0])) {
+        $read_time['metadata']['video']['duration'] += $results2[1][0];
+      }
+      $read_time['metadata']['video']['ted']++;
+    }
     // sniff out soundcloud
     if (_read_time_strpos_arr($result, array('soundcloud'))) {
       $read_time['audio']++;
