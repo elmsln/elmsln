@@ -33,8 +33,10 @@
   function word_show(i) {
     $('#spritz_progress').width(100*i/words.length+'%');
     var word = words[i];
-    var stop = Math.round((word.length+1)*0.4)-1;
-    $space.html('<div>'+word.slice(0,stop)+'</div><div>'+word[stop]+'</div><div>'+word.slice(stop+1)+'</div>');
+    if (typeof word !== 'undefined') {
+      var stop = Math.round((word.length+1)*0.4)-1;
+      $space.html('<div>'+word.slice(0,stop)+'</div><div>'+word[stop]+'</div><div>'+word.slice(stop+1)+'</div>');
+    }
   }
   function word_next() {
     i++;
@@ -134,16 +136,19 @@
     });
 
     $(document).keyup(function(e) {
-      if (e.target.tagName.toLowerCase() != 'body') {
-        return;
-      }
-      switch (e.keyCode) {
-        case 32:
-          spritz_flip(); button_flash('pause'); break;
-        case 38:
-          spritz_faster(); button_flash('faster'); break;
-        case 40:
-          spritz_slower(); button_flash('slower'); break;
+      // ensure this is on screen before triggering
+      if ($('#spritz_word').is(':visible')) {
+        if (e.target.tagName.toLowerCase() != 'body') {
+          return;
+        }
+        switch (e.keyCode) {
+          case 32:
+            spritz_flip(); button_flash('pause'); break;
+          case 38:
+            spritz_faster(); button_flash('faster'); break;
+          case 40:
+            spritz_slower(); button_flash('slower'); break;
+        }
       }
     });
 
