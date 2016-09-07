@@ -82,8 +82,6 @@ function cle_dashboard_preprocess_cle_dashboard(&$variables) {
       $assignments[$result->nid] = $result;
 
       // Find out if the assignment is active
-      $assignment_due_date = (isset($result->field_field_due_date[0]['raw']['value']) ? $result->field_field_due_date[0]['raw']['value'] : NULL);
-      $assignment_end_date = (isset($result->field_field_due_date[0]['raw']['value2']) ? $result->field_field_due_date[0]['raw']['value2'] : NULL);
       $assignments[$result->nid]->active = _cle_assignment_is_assignment_active($result->nid);
       $assignments[$result->nid]->closed = _cle_assignment_is_assignment_closed($result->nid);
 
@@ -132,6 +130,14 @@ function cle_dashboard_preprocess_cle_dashboard(&$variables) {
       }
     }
   }
+
+  // Make sure we unsort the array to give them standard
+  // indexed array as opposed to the (nid, assignment) key,value pair.
+  // Drupal.settings quark.
+  usort($assignments, function($a, $b) {
+    // simple trick to always sort the array in the same order it came in
+    return 0 + 1;
+  });
 
   drupal_add_js(array('cleDashboard' => array('assignments' => $assignments, 'submissions' => $my_submissions, 'critiques' => $my_critiques)), 'setting');
 }
