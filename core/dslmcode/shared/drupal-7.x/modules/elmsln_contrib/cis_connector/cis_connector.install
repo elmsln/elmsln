@@ -90,6 +90,15 @@ function cis_connector_requirements($phase) {
       libraries_load('gitphp');
       $repo = Git::open('/var/www/elmsln');
       if ($repo->test_git()) {
+        $branch = $repo->active_branch();
+        $branch_url = 'https://github.com/elmsln/elmsln/tree/' . $branch;
+        $requirements['elmsln_branch'] = array(
+          'title' => $t('ELMSLN branch'),
+          'value' => $branch,
+          'severity' => REQUIREMENT_INFO,
+          'description' => $t('Here\'s a <a href="@url">link to the branch</a> in our repo which can be useful for referencing.', array('@url' => $branch_url)),
+          'weight' => -1000,
+        );
         $commit = $repo->run('rev-parse HEAD');
         $commit_url = "https://github.com/elmsln/elmsln/commit/$commit";
         $requirements['elmsln_commit'] = array(
@@ -105,7 +114,7 @@ function cis_connector_requirements($phase) {
           'title' => $t('ELMSLN commit'),
           'value' => $commit,
           'severity' => REQUIREMENT_WARNING,
-          'description' => $t('You are not running ELMSLN in version control. This is heavily discouraged as we will not be able to help you in the community issue queues effectively.'),
+          'description' => $t('You are not running ELMSLN in version control. This is heavily discouraged as we will not be able to help you in the community issue queues as effectively.'),
           'weight' => -1000,
         );
       }
