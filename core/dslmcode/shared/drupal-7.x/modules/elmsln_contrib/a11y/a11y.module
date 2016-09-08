@@ -242,7 +242,7 @@ function a11y_admin_settings($form, &$form_state) {
  */
 function a11y_apply_a11y() {
   drupal_add_library('system', 'jquery.cookie');
-  
+
   drupal_add_js(drupal_get_path('module', 'a11y') . '/a11y.js');
   // pass variables to js
   $js_variables = array(
