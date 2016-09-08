@@ -56,3 +56,8 @@
 *.woff2   -text diff
 *.exe     -text diff
 *.dll     -text diff
+*.PNG     -text diff
+*.ogg     -text diff
+*.mp3     -text diff
+*.mp4     -text diff
+
