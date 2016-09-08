@@ -98,3 +98,10 @@ function elmsmedia_update_7006(&$sandbox) {
   features_revert_module('elmsmedia_video');
   features_revert_module('elmsmedia_view_mode_tabs');
 }
+
+/**
+ * Bring back the image caption settings that were lost some how.
+ */
+function elmsmedia_update_7007(&$sandbox) {
+  features_revert_module('elmsmedia_image');
+}
