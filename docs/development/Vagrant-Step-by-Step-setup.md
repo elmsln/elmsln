@@ -5,8 +5,8 @@ ELMSLN Vagrant Instructions
 This is a Vagrant profile for installing a fully functioning [ELMS Learning Network](https://github.com/elmsln/elmsln) in a single command!  This instance is for development purposes but you can follow the [installation instructions](http://docs.elmsln.org/en/latest/INSTALL/) to install this on any real server!
 
 ###How to use this to bring up ELMSLN
-1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (ensure you are on the latest version 5.0.14+)
-2. Install [Vagrant](http://www.vagrantup.com/downloads.html) (you'll need Vagrant 1.7+)
+1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (ensure you are on the version 5.0.26)
+2. Install [Vagrant](http://www.vagrantup.com/downloads.html) (you'll need Vagrant 1.8.4)
 3. Install [git](http://git-scm.com/downloads)
 4. Navigate to the folder you want elmsln in, and clone the repository using the command (`git clone https://github.com/elmsln/elmsln.git`)
 ![clone elmsln](https://cloud.githubusercontent.com/assets/16597608/13260179/60875b1e-da28-11e5-865f-89e6586f370a.PNG)
