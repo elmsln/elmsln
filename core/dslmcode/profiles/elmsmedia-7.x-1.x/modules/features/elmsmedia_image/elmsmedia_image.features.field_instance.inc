@@ -21,7 +21,7 @@ function elmsmedia_image_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 5,
       ),
       'full' => array(
         'label' => 'above',
@@ -42,7 +42,7 @@ function elmsmedia_image_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 5,
       ),
       'image__boxed' => array(
         'label' => 'above',
@@ -138,10 +138,11 @@ function elmsmedia_image_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
+        'module' => 'text',
         'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
+        'type' => 'text_default',
+        'weight' => 3,
       ),
       'full' => array(
         'label' => 'above',
@@ -157,10 +158,11 @@ function elmsmedia_image_field_default_field_instances() {
         'weight' => 0,
       ),
       'image' => array(
-        'label' => 'above',
+        'label' => 'hidden',
+        'module' => 'text',
         'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
+        'type' => 'text_default',
+        'weight' => 2,
       ),
       'image__boxed' => array(
         'label' => 'above',
@@ -297,9 +299,12 @@ function elmsmedia_image_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
+        'label' => 'hidden',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
         'weight' => 1,
       ),
       'full' => array(
@@ -641,10 +646,11 @@ function elmsmedia_image_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
+        'module' => 'text',
         'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 5,
+        'type' => 'text_default',
+        'weight' => 2,
       ),
       'full' => array(
         'label' => 'above',
@@ -660,10 +666,11 @@ function elmsmedia_image_field_default_field_instances() {
         'weight' => 0,
       ),
       'image' => array(
-        'label' => 'above',
+        'label' => 'hidden',
+        'module' => 'text',
         'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 5,
+        'type' => 'text_default',
+        'weight' => 3,
       ),
       'image__boxed' => array(
         'label' => 'above',
@@ -803,7 +810,7 @@ function elmsmedia_image_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'above',
@@ -822,7 +829,7 @@ function elmsmedia_image_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 4,
       ),
       'image__boxed' => array(
         'label' => 'above',
