@@ -61,7 +61,7 @@ function materialize_actions_status_messages($variables) {
 function _materialize_actions_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
   if ($message) {
     drupal_add_js(
-      'jQuery(document).ready(function () { Materialize.toast("'. $message .'", "'. $display_length .'", "'. $class_name.'", "'. $callback .'") });',
+      'jQuery(document).ready(function () { Materialize.toast("'. htmlspecialchars($message) .'", "'. $display_length .'", "'. $class_name.'", "'. $callback .'") });',
       array(
         'type' => 'inline',
       )
