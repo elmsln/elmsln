@@ -20,6 +20,10 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
     'label' => t('Image Right'),
     'custom settings' => FALSE,
   );
+  $entity_info['node']['view modes']['image__card'] = array(
+    'label' => t('Image Card'),
+    'custom settings' => FALSE,
+  );
   $entity_info['node']['view modes']['image__boxed'] = array(
     'label' => t('Image Boxed'),
     'custom settings' => FALSE,
