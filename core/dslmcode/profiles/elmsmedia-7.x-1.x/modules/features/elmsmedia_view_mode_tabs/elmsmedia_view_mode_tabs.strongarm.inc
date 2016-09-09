@@ -23,23 +23,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
-    'image__boxed' => 0,
     'image__lightboxed' => 0,
-    'image__left__lightboxed' => 0,
-    'image__right__lightboxed' => 0,
+    'image__lightboxed__left' => 0,
+    'image__lightboxed__right' => 0,
+    'image__card' => 0,
+    'image__card__left' => 0,
+    'image__card__right' => 0,
+    'image__card__lightboxed' => 0,
+    'image__card__lightboxed__left' => 0,
+    'image__card__lightboxed__right' => 0,
+    'image__boxed' => 0,
+    'image__boxed__left' => 0,
+    'image__boxed__right' => 0,
     'image__boxed__lightboxed' => 0,
+    'image__boxed__lightboxed__left' => 0,
+    'image__boxed__lightboxed__right' => 0,
     'mediavideo' => 0,
-    'mediavideo__poster' => 0,
     'mediavideo__thumbnail' => 0,
     'mediavideo__thumbnail__right' => 0,
+    'mediavideo__poster' => 0,
     'mediasvg' => 0,
-    'mediasvg__left' => 0,
-    'mediasvg__left__medium' => 0,
-    'mediasvg__left__small' => 0,
-    'mediasvg__right' => 0,
-    'mediasvg__right__medium' => 0,
-    'mediasvg__right__small' => 0,
     'mediasvg__stretch' => 0,
+    'mediasvg__left' => 0,
+    'mediasvg__right' => 0,
+    'mediasvg__medium' => 0,
+    'mediasvg__medium__stretch' => 0,
+    'mediasvg__medium__left' => 0,
+    'mediasvg__medium__right' => 0,
+    'mediasvg__small' => 0,
+    'mediasvg__small__stretch' => 0,
+    'mediasvg__small__left' => 0,
+    'mediasvg__small__right' => 0,
     'figurelabel' => 0,
     'token' => 0,
     'revision' => 0,
@@ -91,9 +105,79 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__boxed__left_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__boxed__left_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__audio__image__boxed__lightboxed_audio';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__audio__image__boxed__lightboxed_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__boxed__lightboxed__left_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__boxed__lightboxed__left_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__boxed__lightboxed__right_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__boxed__lightboxed__right_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__boxed__right_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__boxed__right_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__card_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__card_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__card__left_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__card__left_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__card__lightboxed_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__card__lightboxed_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__card__lightboxed__left_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__card__lightboxed__left_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__card__lightboxed__right_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__card__lightboxed__right_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__card__right_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__card__right_audio'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -115,6 +199,20 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__audio__image__lightboxed_audio';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__audio__image__lightboxed_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__lightboxed__left_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__lightboxed__left_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__image__lightboxed__right_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__image__lightboxed__right_audio'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -161,6 +259,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__medium_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__mediasvg__medium_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__medium__left_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__mediasvg__medium__left_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__medium__right_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__mediasvg__medium__right_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__medium__stretch_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__mediasvg__medium__stretch_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__right_audio';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__audio__mediasvg__right_audio'] = $strongarm;
@@ -178,6 +304,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__right__small_audio';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__audio__mediasvg__right__small_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__small_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__mediasvg__small_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__small__left_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__mediasvg__small__left_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__small__right_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__mediasvg__small__right_audio'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__audio__mediasvg__small__stretch_audio';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__audio__mediasvg__small__stretch_audio'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -255,23 +409,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
-    'image__boxed' => 0,
     'image__lightboxed' => 0,
-    'image__left__lightboxed' => 0,
-    'image__right__lightboxed' => 0,
+    'image__lightboxed__left' => 0,
+    'image__lightboxed__right' => 0,
+    'image__card' => 0,
+    'image__card__left' => 0,
+    'image__card__right' => 0,
+    'image__card__lightboxed' => 0,
+    'image__card__lightboxed__left' => 0,
+    'image__card__lightboxed__right' => 0,
+    'image__boxed' => 0,
+    'image__boxed__left' => 0,
+    'image__boxed__right' => 0,
     'image__boxed__lightboxed' => 0,
+    'image__boxed__lightboxed__left' => 0,
+    'image__boxed__lightboxed__right' => 0,
     'mediavideo' => 0,
-    'mediavideo__poster' => 0,
     'mediavideo__thumbnail' => 0,
     'mediavideo__thumbnail__right' => 0,
+    'mediavideo__poster' => 0,
     'mediasvg' => 0,
-    'mediasvg__left' => 0,
-    'mediasvg__left__medium' => 0,
-    'mediasvg__left__small' => 0,
-    'mediasvg__right' => 0,
-    'mediasvg__right__medium' => 0,
-    'mediasvg__right__small' => 0,
     'mediasvg__stretch' => 0,
+    'mediasvg__left' => 0,
+    'mediasvg__right' => 0,
+    'mediasvg__medium' => 0,
+    'mediasvg__medium__stretch' => 0,
+    'mediasvg__medium__left' => 0,
+    'mediasvg__medium__right' => 0,
+    'mediasvg__small' => 0,
+    'mediasvg__small__stretch' => 0,
+    'mediasvg__small__left' => 0,
+    'mediasvg__small__right' => 0,
     'figurelabel' => 0,
     'token' => 0,
     'revision' => 0,
@@ -323,9 +491,79 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__boxed__left_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__boxed__left_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__document__image__boxed__lightboxed_document';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__document__image__boxed__lightboxed_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__boxed__lightboxed__left_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__boxed__lightboxed__left_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__boxed__lightboxed__right_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__boxed__lightboxed__right_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__boxed__right_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__boxed__right_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__card_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__card_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__card__left_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__card__left_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__card__lightboxed_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__card__lightboxed_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__card__lightboxed__left_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__card__lightboxed__left_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__card__lightboxed__right_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__card__lightboxed__right_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__card__right_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__card__right_document'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -347,6 +585,20 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__document__image__lightboxed_document';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__document__image__lightboxed_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__lightboxed__left_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__lightboxed__left_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__image__lightboxed__right_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__image__lightboxed__right_document'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -393,6 +645,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__mediasvg__medium_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__mediasvg__medium_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__mediasvg__medium__left_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__mediasvg__medium__left_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__mediasvg__medium__right_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__mediasvg__medium__right_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__mediasvg__medium__stretch_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__mediasvg__medium__stretch_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__document__mediasvg__right_document';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__document__mediasvg__right_document'] = $strongarm;
@@ -410,6 +690,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__document__mediasvg__right__small_document';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__document__mediasvg__right__small_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__mediasvg__small_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__mediasvg__small_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__mediasvg__small__left_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__mediasvg__small__left_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__mediasvg__small__right_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__mediasvg__small__right_document'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__document__mediasvg__small__stretch_document';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__document__mediasvg__small__stretch_document'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -487,23 +795,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image' => 1,
     'image__left' => 1,
     'image__right' => 1,
-    'image__boxed' => 1,
     'image__lightboxed' => 1,
-    'image__left__lightboxed' => 1,
-    'image__right__lightboxed' => 1,
+    'image__lightboxed__left' => 1,
+    'image__lightboxed__right' => 1,
+    'image__card' => 1,
+    'image__card__left' => 1,
+    'image__card__right' => 1,
+    'image__card__lightboxed' => 1,
+    'image__card__lightboxed__left' => 1,
+    'image__card__lightboxed__right' => 1,
+    'image__boxed' => 1,
+    'image__boxed__left' => 1,
+    'image__boxed__right' => 1,
     'image__boxed__lightboxed' => 1,
+    'image__boxed__lightboxed__left' => 1,
+    'image__boxed__lightboxed__right' => 1,
     'mediavideo' => 0,
-    'mediavideo__poster' => 0,
     'mediavideo__thumbnail' => 0,
     'mediavideo__thumbnail__right' => 0,
+    'mediavideo__poster' => 0,
     'mediasvg' => 0,
-    'mediasvg__left' => 0,
-    'mediasvg__left__medium' => 0,
-    'mediasvg__left__small' => 0,
-    'mediasvg__right' => 0,
-    'mediasvg__right__medium' => 0,
-    'mediasvg__right__small' => 0,
     'mediasvg__stretch' => 0,
+    'mediasvg__left' => 0,
+    'mediasvg__right' => 0,
+    'mediasvg__medium' => 0,
+    'mediasvg__medium__stretch' => 0,
+    'mediasvg__medium__left' => 0,
+    'mediasvg__medium__right' => 0,
+    'mediasvg__small' => 0,
+    'mediasvg__small__stretch' => 0,
+    'mediasvg__small__left' => 0,
+    'mediasvg__small__right' => 0,
     'figurelabel' => 0,
     'token' => 0,
     'revision' => 0,
@@ -555,9 +877,79 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__boxed__left_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__boxed__left_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__boxed__lightboxed_elmsmedia_image';
   $strongarm->value = 1;
   $export['view_mode_tab_settings__elmsmedia_image__image__boxed__lightboxed_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__boxed__lightboxed__left_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__boxed__lightboxed__left_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__boxed__lightboxed__right_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__boxed__lightboxed__right_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__boxed__right_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__boxed__right_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__card_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__card_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__card__left_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__card__left_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__card__lightboxed_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__card__lightboxed_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__card__lightboxed__left_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__card__lightboxed__left_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__card__lightboxed__right_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__card__lightboxed__right_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__card__right_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__card__right_elmsmedia_image'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -579,6 +971,20 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__lightboxed_elmsmedia_image';
   $strongarm->value = 1;
   $export['view_mode_tab_settings__elmsmedia_image__image__lightboxed_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__lightboxed__left_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__lightboxed__left_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__image__lightboxed__right_elmsmedia_image';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__elmsmedia_image__image__lightboxed__right_elmsmedia_image'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -625,6 +1031,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__medium_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediasvg__medium_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__medium__left_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediasvg__medium__left_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__medium__right_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediasvg__medium__right_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__medium__stretch_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediasvg__medium__stretch_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__right_elmsmedia_image';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__elmsmedia_image__mediasvg__right_elmsmedia_image'] = $strongarm;
@@ -646,6 +1080,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__small_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediasvg__small_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__small__left_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediasvg__small__left_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__small__right_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediasvg__small__right_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__small__stretch_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediasvg__small__stretch_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediasvg__stretch_elmsmedia_image';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__elmsmedia_image__mediasvg__stretch_elmsmedia_image'] = $strongarm;
@@ -660,6 +1122,13 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediavideo__left_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediavideo__left_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediavideo__poster_elmsmedia_image';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__elmsmedia_image__mediavideo__poster_elmsmedia_image'] = $strongarm;
@@ -667,9 +1136,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediavideo__poster__left_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediavideo__poster__left_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediavideo__poster__right_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediavideo__poster__right_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediavideo__right_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediavideo__right_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediavideo__thumbnail_elmsmedia_image';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__elmsmedia_image__mediavideo__thumbnail_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__elmsmedia_image__mediavideo__thumbnail__left_elmsmedia_image';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__elmsmedia_image__mediavideo__thumbnail__left_elmsmedia_image'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -719,23 +1216,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
-    'image__boxed' => 0,
     'image__lightboxed' => 0,
-    'image__left__lightboxed' => 0,
-    'image__right__lightboxed' => 0,
+    'image__lightboxed__left' => 0,
+    'image__lightboxed__right' => 0,
+    'image__card' => 0,
+    'image__card__left' => 0,
+    'image__card__right' => 0,
+    'image__card__lightboxed' => 0,
+    'image__card__lightboxed__left' => 0,
+    'image__card__lightboxed__right' => 0,
+    'image__boxed' => 0,
+    'image__boxed__left' => 0,
+    'image__boxed__right' => 0,
     'image__boxed__lightboxed' => 0,
+    'image__boxed__lightboxed__left' => 0,
+    'image__boxed__lightboxed__right' => 0,
     'mediavideo' => 1,
-    'mediavideo__poster' => 1,
     'mediavideo__thumbnail' => 1,
     'mediavideo__thumbnail__right' => 1,
+    'mediavideo__poster' => 1,
     'mediasvg' => 0,
-    'mediasvg__left' => 0,
-    'mediasvg__left__medium' => 0,
-    'mediasvg__left__small' => 0,
-    'mediasvg__right' => 0,
-    'mediasvg__right__medium' => 0,
-    'mediasvg__right__small' => 0,
     'mediasvg__stretch' => 0,
+    'mediasvg__left' => 0,
+    'mediasvg__right' => 0,
+    'mediasvg__medium' => 0,
+    'mediasvg__medium__stretch' => 0,
+    'mediasvg__medium__left' => 0,
+    'mediasvg__medium__right' => 0,
+    'mediasvg__small' => 0,
+    'mediasvg__small__stretch' => 0,
+    'mediasvg__small__left' => 0,
+    'mediasvg__small__right' => 0,
     'figurelabel' => 0,
     'token' => 0,
     'revision' => 0,
@@ -787,9 +1298,79 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__boxed__left_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__boxed__left_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__external_video__image__boxed__lightboxed_external_video';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__external_video__image__boxed__lightboxed_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__boxed__lightboxed__left_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__boxed__lightboxed__left_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__boxed__lightboxed__right_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__boxed__lightboxed__right_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__boxed__right_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__boxed__right_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__card_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__card_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__card__left_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__card__left_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__card__lightboxed_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__card__lightboxed_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__card__lightboxed__left_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__card__lightboxed__left_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__card__lightboxed__right_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__card__lightboxed__right_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__card__right_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__card__right_external_video'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -811,6 +1392,20 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__external_video__image__lightboxed_external_video';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__external_video__image__lightboxed_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__lightboxed__left_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__lightboxed__left_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__image__lightboxed__right_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__image__lightboxed__right_external_video'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -857,6 +1452,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__medium_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__mediasvg__medium_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__medium__left_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__mediasvg__medium__left_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__medium__right_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__mediasvg__medium__right_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__medium__stretch_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__mediasvg__medium__stretch_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__right_external_video';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__external_video__mediasvg__right_external_video'] = $strongarm;
@@ -878,6 +1501,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__small_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__mediasvg__small_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__small__left_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__mediasvg__small__left_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__small__right_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__mediasvg__small__right_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__small__stretch_external_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__external_video__mediasvg__small__stretch_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__external_video__mediasvg__stretch_external_video';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__external_video__mediasvg__stretch_external_video'] = $strongarm;
@@ -892,6 +1543,13 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediavideo__left_external_video';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__external_video__mediavideo__left_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__external_video__mediavideo__poster_external_video';
   $strongarm->value = 1;
   $export['view_mode_tab_settings__external_video__mediavideo__poster_external_video'] = $strongarm;
@@ -899,9 +1557,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediavideo__poster__left_external_video';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__external_video__mediavideo__poster__left_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediavideo__poster__right_external_video';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__external_video__mediavideo__poster__right_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediavideo__right_external_video';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__external_video__mediavideo__right_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__external_video__mediavideo__thumbnail_external_video';
   $strongarm->value = 1;
   $export['view_mode_tab_settings__external_video__mediavideo__thumbnail_external_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__external_video__mediavideo__thumbnail__left_external_video';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__external_video__mediavideo__thumbnail__left_external_video'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -951,23 +1637,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
-    'image__boxed' => 0,
     'image__lightboxed' => 0,
-    'image__left__lightboxed' => 0,
-    'image__right__lightboxed' => 0,
+    'image__lightboxed__left' => 0,
+    'image__lightboxed__right' => 0,
+    'image__card' => 0,
+    'image__card__left' => 0,
+    'image__card__right' => 0,
+    'image__card__lightboxed' => 0,
+    'image__card__lightboxed__left' => 0,
+    'image__card__lightboxed__right' => 0,
+    'image__boxed' => 0,
+    'image__boxed__left' => 0,
+    'image__boxed__right' => 0,
     'image__boxed__lightboxed' => 0,
+    'image__boxed__lightboxed__left' => 0,
+    'image__boxed__lightboxed__right' => 0,
     'mediavideo' => 0,
-    'mediavideo__poster' => 0,
     'mediavideo__thumbnail' => 0,
     'mediavideo__thumbnail__right' => 0,
+    'mediavideo__poster' => 0,
     'mediasvg' => 0,
-    'mediasvg__left' => 0,
-    'mediasvg__left__medium' => 0,
-    'mediasvg__left__small' => 0,
-    'mediasvg__right' => 0,
-    'mediasvg__right__medium' => 0,
-    'mediasvg__right__small' => 0,
     'mediasvg__stretch' => 0,
+    'mediasvg__left' => 0,
+    'mediasvg__right' => 0,
+    'mediasvg__medium' => 0,
+    'mediasvg__medium__stretch' => 0,
+    'mediasvg__medium__left' => 0,
+    'mediasvg__medium__right' => 0,
+    'mediasvg__small' => 0,
+    'mediasvg__small__stretch' => 0,
+    'mediasvg__small__left' => 0,
+    'mediasvg__small__right' => 0,
     'figurelabel' => 1,
     'token' => 0,
     'revision' => 0,
@@ -1019,9 +1719,79 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__boxed__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__boxed__left_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__figurelabel__image__boxed__lightboxed_figurelabel';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__figurelabel__image__boxed__lightboxed_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__boxed__lightboxed__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__boxed__lightboxed__left_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__boxed__lightboxed__right_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__boxed__lightboxed__right_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__boxed__right_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__boxed__right_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__card_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__card_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__card__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__card__left_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__card__lightboxed_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__card__lightboxed_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__card__lightboxed__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__card__lightboxed__left_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__card__lightboxed__right_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__card__lightboxed__right_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__card__right_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__card__right_figurelabel'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1043,6 +1813,20 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__figurelabel__image__lightboxed_figurelabel';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__figurelabel__image__lightboxed_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__lightboxed__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__lightboxed__left_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__image__lightboxed__right_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__image__lightboxed__right_figurelabel'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1089,6 +1873,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__medium_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediasvg__medium_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__medium__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediasvg__medium__left_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__medium__right_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediasvg__medium__right_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__medium__stretch_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediasvg__medium__stretch_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__right_figurelabel';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__figurelabel__mediasvg__right_figurelabel'] = $strongarm;
@@ -1110,6 +1922,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__small_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediasvg__small_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__small__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediasvg__small__left_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__small__right_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediasvg__small__right_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__small__stretch_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediasvg__small__stretch_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__figurelabel__mediasvg__stretch_figurelabel';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__figurelabel__mediasvg__stretch_figurelabel'] = $strongarm;
@@ -1124,6 +1964,13 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediavideo__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediavideo__left_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__figurelabel__mediavideo__poster_figurelabel';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__figurelabel__mediavideo__poster_figurelabel'] = $strongarm;
@@ -1131,9 +1978,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediavideo__poster__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediavideo__poster__left_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediavideo__poster__right_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediavideo__poster__right_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediavideo__right_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediavideo__right_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__figurelabel__mediavideo__thumbnail_figurelabel';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__figurelabel__mediavideo__thumbnail_figurelabel'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__figurelabel__mediavideo__thumbnail__left_figurelabel';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__figurelabel__mediavideo__thumbnail__left_figurelabel'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1183,23 +2058,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
-    'image__boxed' => 0,
     'image__lightboxed' => 0,
-    'image__left__lightboxed' => 0,
-    'image__right__lightboxed' => 0,
+    'image__lightboxed__left' => 0,
+    'image__lightboxed__right' => 0,
+    'image__card' => 0,
+    'image__card__left' => 0,
+    'image__card__right' => 0,
+    'image__card__lightboxed' => 0,
+    'image__card__lightboxed__left' => 0,
+    'image__card__lightboxed__right' => 0,
+    'image__boxed' => 0,
+    'image__boxed__left' => 0,
+    'image__boxed__right' => 0,
     'image__boxed__lightboxed' => 0,
+    'image__boxed__lightboxed__left' => 0,
+    'image__boxed__lightboxed__right' => 0,
     'mediavideo' => 0,
-    'mediavideo__poster' => 0,
     'mediavideo__thumbnail' => 0,
     'mediavideo__thumbnail__right' => 0,
+    'mediavideo__poster' => 0,
     'mediasvg' => 0,
-    'mediasvg__left' => 0,
-    'mediasvg__left__medium' => 0,
-    'mediasvg__left__small' => 0,
-    'mediasvg__right' => 0,
-    'mediasvg__right__medium' => 0,
-    'mediasvg__right__small' => 0,
     'mediasvg__stretch' => 0,
+    'mediasvg__left' => 0,
+    'mediasvg__right' => 0,
+    'mediasvg__medium' => 0,
+    'mediasvg__medium__stretch' => 0,
+    'mediasvg__medium__left' => 0,
+    'mediasvg__medium__right' => 0,
+    'mediasvg__small' => 0,
+    'mediasvg__small__stretch' => 0,
+    'mediasvg__small__left' => 0,
+    'mediasvg__small__right' => 0,
     'figurelabel' => 0,
     'token' => 0,
     'revision' => 0,
@@ -1251,9 +2140,79 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__boxed__left_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__boxed__left_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__h5p_content__image__boxed__lightboxed_h5p_content';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__h5p_content__image__boxed__lightboxed_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__boxed__lightboxed__left_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__boxed__lightboxed__left_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__boxed__lightboxed__right_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__boxed__lightboxed__right_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__boxed__right_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__boxed__right_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__card_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__card_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__card__left_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__card__left_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__card__lightboxed_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__card__lightboxed_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__card__lightboxed__left_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__card__lightboxed__left_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__card__lightboxed__right_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__card__lightboxed__right_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__card__right_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__card__right_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1275,6 +2234,20 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__h5p_content__image__lightboxed_h5p_content';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__h5p_content__image__lightboxed_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__lightboxed__left_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__lightboxed__left_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__image__lightboxed__right_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__image__lightboxed__right_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1321,6 +2294,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__medium_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__mediasvg__medium_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__medium__left_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__mediasvg__medium__left_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__medium__right_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__mediasvg__medium__right_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__medium__stretch_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__mediasvg__medium__stretch_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__right_h5p_content';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__h5p_content__mediasvg__right_h5p_content'] = $strongarm;
@@ -1338,6 +2339,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__right__small_h5p_content';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__h5p_content__mediasvg__right__small_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__small_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__mediasvg__small_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__small__left_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__mediasvg__small__left_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__small__right_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__mediasvg__small__right_h5p_content'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__h5p_content__mediasvg__small__stretch_h5p_content';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__h5p_content__mediasvg__small__stretch_h5p_content'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1415,23 +2444,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
-    'image__boxed' => 0,
     'image__lightboxed' => 0,
-    'image__left__lightboxed' => 0,
-    'image__right__lightboxed' => 0,
+    'image__lightboxed__left' => 0,
+    'image__lightboxed__right' => 0,
+    'image__card' => 0,
+    'image__card__left' => 0,
+    'image__card__right' => 0,
+    'image__card__lightboxed' => 0,
+    'image__card__lightboxed__left' => 0,
+    'image__card__lightboxed__right' => 0,
+    'image__boxed' => 0,
+    'image__boxed__left' => 0,
+    'image__boxed__right' => 0,
     'image__boxed__lightboxed' => 0,
+    'image__boxed__lightboxed__left' => 0,
+    'image__boxed__lightboxed__right' => 0,
     'mediavideo' => 0,
-    'mediavideo__poster' => 0,
     'mediavideo__thumbnail' => 0,
     'mediavideo__thumbnail__right' => 0,
+    'mediavideo__poster' => 0,
     'mediasvg' => 1,
-    'mediasvg__left' => 1,
-    'mediasvg__left__medium' => 1,
-    'mediasvg__left__small' => 1,
-    'mediasvg__right' => 1,
-    'mediasvg__right__medium' => 1,
-    'mediasvg__right__small' => 1,
     'mediasvg__stretch' => 1,
+    'mediasvg__left' => 1,
+    'mediasvg__right' => 1,
+    'mediasvg__medium' => 1,
+    'mediasvg__medium__stretch' => 1,
+    'mediasvg__medium__left' => 1,
+    'mediasvg__medium__right' => 1,
+    'mediasvg__small' => 1,
+    'mediasvg__small__stretch' => 1,
+    'mediasvg__small__left' => 1,
+    'mediasvg__small__right' => 1,
     'figurelabel' => 0,
     'token' => 0,
     'revision' => 0,
@@ -1483,9 +2526,79 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__boxed__left_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__boxed__left_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__image__boxed__lightboxed_svg';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__svg__image__boxed__lightboxed_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__boxed__lightboxed__left_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__boxed__lightboxed__left_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__boxed__lightboxed__right_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__boxed__lightboxed__right_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__boxed__right_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__boxed__right_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__card_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__card_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__card__left_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__card__left_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__card__lightboxed_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__card__lightboxed_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__card__lightboxed__left_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__card__lightboxed__left_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__card__lightboxed__right_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__card__lightboxed__right_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__card__right_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__card__right_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1507,6 +2620,20 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__svg__image__lightboxed_svg';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__svg__image__lightboxed_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__lightboxed__left_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__lightboxed__left_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__image__lightboxed__right_svg';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__svg__image__lightboxed__right_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1553,6 +2680,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__medium_svg';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__svg__mediasvg__medium_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__medium__left_svg';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__svg__mediasvg__medium__left_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__medium__right_svg';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__svg__mediasvg__medium__right_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__medium__stretch_svg';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__svg__mediasvg__medium__stretch_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__right_svg';
   $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__mediasvg__right_svg'] = $strongarm;
@@ -1570,6 +2725,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__right__small_svg';
   $strongarm->value = 1;
   $export['view_mode_tab_settings__svg__mediasvg__right__small_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__small_svg';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__svg__mediasvg__small_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__small__left_svg';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__svg__mediasvg__small__left_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__small__right_svg';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__svg__mediasvg__small__right_svg'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__svg__mediasvg__small__stretch_svg';
+  $strongarm->value = 1;
+  $export['view_mode_tab_settings__svg__mediasvg__small__stretch_svg'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1647,23 +2830,37 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image' => 0,
     'image__left' => 0,
     'image__right' => 0,
-    'image__boxed' => 0,
     'image__lightboxed' => 0,
-    'image__left__lightboxed' => 0,
-    'image__right__lightboxed' => 0,
+    'image__lightboxed__left' => 0,
+    'image__lightboxed__right' => 0,
+    'image__card' => 0,
+    'image__card__left' => 0,
+    'image__card__right' => 0,
+    'image__card__lightboxed' => 0,
+    'image__card__lightboxed__left' => 0,
+    'image__card__lightboxed__right' => 0,
+    'image__boxed' => 0,
+    'image__boxed__left' => 0,
+    'image__boxed__right' => 0,
     'image__boxed__lightboxed' => 0,
+    'image__boxed__lightboxed__left' => 0,
+    'image__boxed__lightboxed__right' => 0,
     'mediavideo' => 0,
-    'mediavideo__poster' => 0,
     'mediavideo__thumbnail' => 0,
     'mediavideo__thumbnail__right' => 0,
+    'mediavideo__poster' => 0,
     'mediasvg' => 0,
-    'mediasvg__left' => 0,
-    'mediasvg__left__medium' => 0,
-    'mediasvg__left__small' => 0,
-    'mediasvg__right' => 0,
-    'mediasvg__right__medium' => 0,
-    'mediasvg__right__small' => 0,
     'mediasvg__stretch' => 0,
+    'mediasvg__left' => 0,
+    'mediasvg__right' => 0,
+    'mediasvg__medium' => 0,
+    'mediasvg__medium__stretch' => 0,
+    'mediasvg__medium__left' => 0,
+    'mediasvg__medium__right' => 0,
+    'mediasvg__small' => 0,
+    'mediasvg__small__stretch' => 0,
+    'mediasvg__small__left' => 0,
+    'mediasvg__small__right' => 0,
     'figurelabel' => 0,
     'token' => 0,
     'revision' => 0,
@@ -1715,9 +2912,79 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__boxed__left_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__boxed__left_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__video__image__boxed__lightboxed_video';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__video__image__boxed__lightboxed_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__boxed__lightboxed__left_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__boxed__lightboxed__left_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__boxed__lightboxed__right_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__boxed__lightboxed__right_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__boxed__right_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__boxed__right_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__card_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__card_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__card__left_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__card__left_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__card__lightboxed_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__card__lightboxed_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__card__lightboxed__left_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__card__lightboxed__left_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__card__lightboxed__right_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__card__lightboxed__right_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__card__right_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__card__right_video'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1739,6 +3006,20 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__video__image__lightboxed_video';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__video__image__lightboxed_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__lightboxed__left_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__lightboxed__left_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__image__lightboxed__right_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__image__lightboxed__right_video'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -1785,6 +3066,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__mediasvg__medium_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__mediasvg__medium_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__mediasvg__medium__left_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__mediasvg__medium__left_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__mediasvg__medium__right_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__mediasvg__medium__right_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__mediasvg__medium__stretch_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__mediasvg__medium__stretch_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__video__mediasvg__right_video';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__video__mediasvg__right_video'] = $strongarm;
@@ -1802,6 +3111,34 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->name = 'view_mode_tab_settings__video__mediasvg__right__small_video';
   $strongarm->value = 0;
   $export['view_mode_tab_settings__video__mediasvg__right__small_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__mediasvg__small_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__mediasvg__small_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__mediasvg__small__left_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__mediasvg__small__left_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__mediasvg__small__right_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__mediasvg__small__right_video'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'view_mode_tab_settings__video__mediasvg__small__stretch_video';
+  $strongarm->value = 0;
+  $export['view_mode_tab_settings__video__mediasvg__small__stretch_video'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
