@@ -5,7 +5,7 @@
       <square70x70logo src="/elmsln-70.png"/>
       <square150x150logo src="/elmsln-150.png"/>
       <square310x310logo src="/elmsln-310.png"/>
-      <TileColor>#FFFFFF</TileColor>
+      <TileColor>#EEEEEE</TileColor>
     </tile>
   </msapplication>
 </browserconfig>
