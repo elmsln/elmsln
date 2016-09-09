@@ -1,6 +1,6 @@
 <?php foreach ($view_modes as $view_mode => $data): ?>
   <hr />
-  <a name="<?php print $data['header_id']; ?>"></a><h2><?php print $view_mode; ?></h2>
+  <h2 data-scrollspy="scrollspy" id="<?php print $data['header_id']; ?>"><?php print $view_mode; ?></h2>
   <hr />
   <div class="clipboard__wrapper">
 	  <?php if (isset($data['view_mode']['#prefix'])): ?>

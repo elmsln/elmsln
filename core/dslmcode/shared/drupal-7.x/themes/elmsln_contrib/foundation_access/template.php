@@ -444,6 +444,17 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
     $variables['image'] = $variables['elements']['field_image'][0];
     $variables['image']['#item']['attributes']['class'][] = 'image__img';
   }
+  $tmp = explode('__', $variables['view_mode']);
+  // inherrit class structure from deep structures
+  if (count($tmp) > 1) {
+    // build the base from the 1st two items
+    $base = array_shift($tmp);
+    // loop through what's left to add as classes
+    foreach ($tmp as $part) {
+      $class = $base . '--' . $part;
+      $variables['classes_array'][] = $class;
+    }
+  }
 
   // Assign Caption
   if (isset($variables['elements']['field_image_caption'][0]['#markup'])) {

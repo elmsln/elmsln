@@ -8,96 +8,51 @@
  * Implements hook_entity_info_alter().
  */
 function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
-  $entity_info['node']['view modes']['image'] = array(
-    'label' => t('Image'),
-    'custom settings' => FALSE,
+  $types = array(
+    'image' => array('', '__card', '__boxed'),
+    'mediavideo' => array('', '__thumbnail', '__thumbnail__right', '__poster'),
+    'mediasvg' => array(''),
+    'figurelabel' => array(''),
   );
-  $entity_info['node']['view modes']['image__left'] = array(
-    'label' => t('Image Left'),
-    'custom settings' => FALSE,
+  $directions = array(
+    'image' => array('__left', '__right'),
+    'mediavideo' => array(),
+    'mediasvg' => array('__stretch', '__left', '__right'),
+    'figurelabel' => array(),
   );
-  $entity_info['node']['view modes']['image__right'] = array(
-    'label' => t('Image Right'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['image__card'] = array(
-    'label' => t('Image Card'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['image__boxed'] = array(
-    'label' => t('Image Boxed'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['image__lightboxed'] = array(
-    'label' => t('Image Lightboxed'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['image__left__lightboxed'] = array(
-    'label' => t('Image Left Lightboxed'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['image__right__lightboxed'] = array(
-    'label' => t('Image Right Lightboxed'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['image__boxed__lightboxed'] = array(
-    'label' => t('Image Boxed Lightboxed'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediavideo'] = array(
-    'label' => t('Media Video'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediavideo__poster'] = array(
-    'label' => t('Media Video Poster'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediavideo__thumbnail'] = array(
-    'label' => t('Media Video Thumbnail'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediavideo__thumbnail__right'] = array(
-    'label' => t('Media Video Thumbnail Right'),
-    'custom settings' => FALSE,
+  $variants = array(
+    'image' => array('__lightboxed'),
+    'mediavideo' => array(),
+    'mediasvg' => array('__medium', '__small'),
+    'figurelabel' => array(),
   );
 
-  // MediaSVG
-  $entity_info['node']['view modes']['mediasvg'] = array(
-    'label' => t('Media SVG'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediasvg__left'] = array(
-    'label' => t('Media SVG Left'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediasvg__left__medium'] = array(
-    'label' => t('Media SVG Left Medium'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediasvg__left__small'] = array(
-    'label' => t('Media SVG Left Small'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediasvg__right'] = array(
-    'label' => t('Media SVG Right'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediasvg__right__medium'] = array(
-    'label' => t('Media SVG Right Medium'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediasvg__right__small'] = array(
-    'label' => t('Media SVG Right Small'),
-    'custom settings' => FALSE,
-  );
-  $entity_info['node']['view modes']['mediasvg__stretch'] = array(
-    'label' => t('Media SVG Stretch'),
-    'custom settings' => FALSE,
-  );
-
-  // Figure Label
-  $entity_info['node']['view modes']['figurelabel'] = array(
-    'label' => t('Figure Label'),
-    'custom settings' => FALSE,
-  );
+  // calculate all styles possible from arrays above
+  // this is nuts
+  foreach ($types as $type => $styles) {
+    foreach ($styles as $style) {
+      $entity_info['node']['view modes'][$type . $style] = array(
+        'label' => t(ucfirst($type . $style)),
+        'custom settings' => FALSE,
+      );
+      foreach ($directions[$type] as $direction) {
+        $entity_info['node']['view modes'][$type . $style . $direction] = array(
+          'label' => t(ucfirst($type . '' . $style . ' ' . $direction)),
+          'custom settings' => FALSE,
+        );
+      }
+      foreach ($variants[$type] as $variant) {
+        $entity_info['node']['view modes'][$type . $style . $variant] = array(
+          'label' => t(ucfirst($type . ' ' . $style . ' ' . $direction)),
+          'custom settings' => FALSE,
+        );
+        foreach ($directions[$type] as $direction) {
+          $entity_info['node']['view modes'][$type . $style . $variant . $direction] = array(
+            'label' => t(ucfirst($type . ' ' . $style . ' ' . $variant . ' ' . $direction)),
+            'custom settings' => FALSE,
+          );
+        }
+      }
+    }
+  }
 }
