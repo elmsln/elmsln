@@ -13,18 +13,21 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
     'mediavideo' => array('', '__thumbnail', '__thumbnail__right', '__poster'),
     'mediasvg' => array(''),
     'figurelabel' => array(''),
+    'h5p' => array('', '__card'),
   );
   $directions = array(
     'image' => array('__left', '__right'),
     'mediavideo' => array(),
     'mediasvg' => array('__stretch', '__left', '__right'),
     'figurelabel' => array(),
+    'h5p' => array(),
   );
   $variants = array(
     'image' => array('__lightboxed'),
     'mediavideo' => array(),
     'mediasvg' => array('__medium', '__small'),
     'figurelabel' => array(),
+    'h5p' => array(),
   );
 
   // calculate all styles possible from arrays above

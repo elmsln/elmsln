@@ -204,6 +204,11 @@ function foundation_access_preprocess_node(&$variables) {
   if (isset($viewmode)) {
     $variables['classes_array'][] = str_replace('_', '-', $viewmode);
   }
+  // hook on the iframe mode stuff
+  if (module_exists('cis_connector') && module_exists('entity_iframe')) {
+    $settings = _cis_connector_build_registry(variable_get('install_profile', 'standard'));
+    $variables['iframe_path'] = _cis_connector_format_address($settings, '/', 'front') . 'entity_iframe/node/' . $variables['nid'];
+  }
 
   // create inheritance templates and preprocess functions for this entity
   if (module_exists('display_inherit')) {

@@ -8,6 +8,14 @@ include_once 'elmsmedia_h5p.features.inc';
 
 
 /**
+ * Implementation of hook_form_h5p_library_upload_form_alter().
+ */
+function elmsmedia_h5p_form_h5p_library_upload_form_alter(&$form, &$form_state, $form_id) {
+  /* Your code here */
+  drupal_set_message(t('You can get the latest copy of H5P <a href="@link">from here</a>.', array('@link' => 'https://h5p.org/update-all-content-types')), 'status');
+}
+
+/**
  * Implements hook_page_build().
  */
 function elmsmedia_h5p_page_build(&$page) {

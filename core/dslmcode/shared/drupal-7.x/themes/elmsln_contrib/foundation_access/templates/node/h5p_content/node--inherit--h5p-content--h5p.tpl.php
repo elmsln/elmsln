@@ -1,0 +1,1 @@
+<iframe id="node_<?php print $id;?>" class="entity_iframe entity_iframe_node entity_iframe_tool_elmsmedia elmsmedia_h5p_content" src="<?php print $iframe_path; ?>" width="100%" frameborder="0" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe>
