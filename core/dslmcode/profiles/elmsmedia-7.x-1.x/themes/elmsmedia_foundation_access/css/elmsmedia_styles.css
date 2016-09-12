@@ -10,3 +10,21 @@
 .able .able-vidcap-container {
   overflow: hidden;
 }
+
+
+#scrollspy-nav .item-list ul li {
+  margin: 0;
+  padding: 0;
+}
+
+#scrollspy-nav ul li a {
+  font-size: .8rem;
+}
+
+#scrollspy-nav ul li a:hover {
+  font-size: 1rem;
+}
+
+#scrollspy-nav ul li a:active {
+  background-color: #FF6600;
+}

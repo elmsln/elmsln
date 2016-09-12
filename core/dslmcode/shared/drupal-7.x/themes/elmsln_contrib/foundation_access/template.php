@@ -448,6 +448,7 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
   if (isset($variables['elements']['field_image'][0])) {
     $variables['image'] = $variables['elements']['field_image'][0];
     $variables['image']['#item']['attributes']['class'][] = 'image__img';
+    $variables['image']['#item']['attributes']['class'][] = 'responsive-img';
   }
   $tmp = explode('__', $variables['view_mode']);
   // inherrit class structure from deep structures
@@ -458,6 +459,10 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
     foreach ($tmp as $part) {
       $class = $base . '--' . $part;
       $variables['classes_array'][] = $class;
+      // special class applied to the image itself to make it a circle
+      if ($part == 'circle') {
+        $variables['image']['#item']['attributes']['class'][] = 'circle';
+      }
     }
   }
 
@@ -465,15 +470,25 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
   if (isset($variables['elements']['field_image_caption'][0]['#markup'])) {
     $variables['image_caption'] = $variables['elements']['field_image_caption'][0]['#markup'];
   }
-
   // Assign Cite
   if (isset($variables['elements']['field_citation'][0]['#markup'])) {
     $variables['image_cite'] = $variables['elements']['field_citation'][0]['#markup'];
   }
-
   // If the viewmode contains "lightbox" then enable the lightbox option
   if (strpos($variables['view_mode'], 'lightboxed')) {
     $variables['image_lightbox_url'] = image_style_url('image_lightboxed', $variables['image']['#item']['uri']);
+  }
+  // account for card size
+  if (strpos($variables['view_mode'], 'card')) {
+    if (strpos($variables['view_mode'], 'small')) {
+      $variables['card_size'] = 'small';
+    }
+    elseif (strpos($variables['view_mode'], 'large')) {
+      $variables['card_size'] = 'large';
+    }
+    else {
+      $variables['card_size'] = 'medium';
+    }
   }
 }
 

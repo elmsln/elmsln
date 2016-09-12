@@ -2,7 +2,7 @@
   <?php if (isset($content['field_figurelabel_ref'])): ?>
     <?php print render($content['field_figurelabel_ref'][0]); ?>
   <?php endif; ?>
-  <div class="card">
+  <div class="card <?php print $card_size;?>">
     <div class="card-image waves-effect waves-block waves-light">
       <?php if ($image_lightbox_url): ?>
       <a data-imagelightbox href="<?php print $image_lightbox_url; ?>">

@@ -11,12 +11,16 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
   $modes = array(
     'image' => array(
       '' => array(
-        '__left' => array('__lightboxed'),
-        '__right' => array('__lightboxed'),
+        '__left' => array('__lightboxed', '__circle', '__circle__lightboxed'),
+        '__right' => array('__lightboxed', '__circle', '__circle__lightboxed'),
       ),
+      '__circle' => array(
+        '__lightboxed' => array(),
+      ),
+      '__lightboxed' => array(),
       '__card' => array(
-        '__left' => array('__lightboxed'),
-        '__right' => array('__lightboxed'),
+        '__left__lightboxed' => array('__small', '__medium', '__large'),
+        '__right__lightboxed' => array('__small', '__medium', '__large'),
       ),
       '__boxed' => array(
         '__left' => array('__lightboxed'),
@@ -52,17 +56,17 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
   foreach ($modes as $type => $styles) {
     foreach ($styles as $style => $directions) {
       $entity_info['node']['view modes'][$type . $style] = array(
-        'label' => t(ucfirst($type . $style)),
+        'label' => t(ucfirst(str_replace('__', ' ', $type . $style))),
         'custom settings' => FALSE,
       );
       foreach ($directions as $direction => $variants) {
         $entity_info['node']['view modes'][$type . $style . $direction] = array(
-          'label' => t(ucfirst($type . '' . $style . ' ' . $direction)),
+          'label' => t(ucfirst(str_replace('__', ' ', $type . $style . $direction))),
           'custom settings' => FALSE,
         );
         foreach ($variants as $variant) {
           $entity_info['node']['view modes'][$type . $style . $direction . $variant] = array(
-            'label' => t(ucfirst($type . ' ' . $style . ' ' . $direction)),
+            'label' => t(ucfirst(str_replace('__', ' ', $type . $style . $direction . $variant))),
             'custom settings' => FALSE,
           );
         }
