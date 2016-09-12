@@ -359,7 +359,7 @@ function _elmsmedia_helper_restws_deep_load(&$response) {
         $val = $val['file'];
         $is_file = TRUE;
       }
-      if (in_array($val['resource'], $allowed)) {
+      if (isset($val['resource']) && in_array($val['resource'], $allowed)) {
         // load the entity
         $entity = entity_load_single($val['resource'], $val['id']);
         // ensure they can view this specific item
