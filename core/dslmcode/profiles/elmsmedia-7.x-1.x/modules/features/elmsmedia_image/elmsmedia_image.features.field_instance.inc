@@ -302,9 +302,10 @@ function elmsmedia_image_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'entityreference',
         'settings' => array(
-          'link' => FALSE,
+          'links' => 1,
+          'view_mode' => 'figurelabel',
         ),
-        'type' => 'entityreference_label',
+        'type' => 'entityreference_entity_view',
         'weight' => 1,
       ),
       'full' => array(
@@ -613,7 +614,21 @@ function elmsmedia_image_field_default_field_instances() {
     'label' => 'Image',
     'required' => 1,
     'settings' => array(
-      'alt_field' => 0,
+      'alt_field' => 1,
+      'alt_field_required' => 0,
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'default_image' => 0,
       'file_directory' => '',
       'file_extensions' => 'png gif jpg jpeg',
@@ -624,6 +639,7 @@ function elmsmedia_image_field_default_field_instances() {
       'max_resolution' => '',
       'min_resolution' => '',
       'title_field' => 0,
+      'title_field_required' => 0,
       'user_register_form' => FALSE,
     ),
     'widget' => array(

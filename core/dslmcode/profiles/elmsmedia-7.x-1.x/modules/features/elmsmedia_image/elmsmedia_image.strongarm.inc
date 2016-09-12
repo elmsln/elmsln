@@ -156,6 +156,51 @@ function elmsmedia_image_strongarm() {
       'revision' => array(
         'custom_settings' => FALSE,
       ),
+      'image__card' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__parallax' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__parallax__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'h5p' => array(
+        'custom_settings' => FALSE,
+      ),
+      'h5p__card' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(),

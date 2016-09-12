@@ -459,10 +459,6 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
     foreach ($tmp as $part) {
       $class = $base . '--' . $part;
       $variables['classes_array'][] = $class;
-      // special class applied to the image itself to make it a circle
-      if ($part == 'circle') {
-        $variables['image']['#item']['attributes']['class'][] = 'circle';
-      }
     }
   }
 
@@ -477,6 +473,76 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
   // If the viewmode contains "lightbox" then enable the lightbox option
   if (strpos($variables['view_mode'], 'lightboxed')) {
     $variables['image_lightbox_url'] = image_style_url('image_lightboxed', $variables['image']['#item']['uri']);
+  }
+  // account for card size
+  if (strpos($variables['view_mode'], 'card')) {
+    if (strpos($variables['view_mode'], 'small')) {
+      $variables['card_size'] = 'small';
+    }
+    elseif (strpos($variables['view_mode'], 'large')) {
+      $variables['card_size'] = 'large';
+    }
+    else {
+      $variables['card_size'] = 'medium';
+    }
+  }
+  // special class applied to the image itself to make it a circle
+  if (strpos($variables['view_mode'], 'circle')) {
+    $variables['image']['#item']['attributes']['class'][] = 'circle';
+  }
+}
+
+/**
+ * Display Inherit Image gallery
+ */
+function foundation_access_preprocess_node__inherit__image_gallery__image(&$variables) {
+  $variables['images'] = array();
+  $variables['image_caption'] = '';
+  $variables['image_cite'] = '';
+  $variables['image_lightbox_urls'] = '';
+
+  // Assign Image
+  if (isset($variables['elements']['field_images'])) {
+    $tmpimages = $variables['elements']['field_images']['#items'];
+    // append classes to images for rendering
+    foreach ($tmpimages as $key => $image) {
+      $variables['images'][$key] = array(
+        '#theme' => 'image_formatter',
+        '#item' => $tmpimages[$key]['entity']->field_image[LANGUAGE_NONE][0],
+        '#image_style' => 'image_gallery_square',
+        '#path' => '',
+      );
+      $variables['images'][$key]['#item']['attributes']['class'][] = 'image__img';
+      $variables['images'][$key]['#item']['attributes']['class'][] = 'responsive-img';
+      // special class applied to the image itself to make it a circle
+      if (strpos($variables['view_mode'], 'circle')) {
+        $variables['images'][$key]['#item']['attributes']['class'][] = 'circle';
+      }
+      // If the viewmode contains "lightbox" then enable the lightbox option
+      if (strpos($variables['view_mode'], 'lightboxed')) {
+        $variables['image_lightbox_url'][$key] = image_style_url('image_lightboxed', $tmpimages[$key]['entity']->field_image[LANGUAGE_NONE][0]['uri']);
+      }
+    }
+  }
+  $tmp = explode('__', $variables['view_mode']);
+  // inherrit class structure from deep structures
+  if (count($tmp) > 1) {
+    // build the base from the 1st two items
+    $base = array_shift($tmp);
+    // loop through what's left to add as classes
+    foreach ($tmp as $part) {
+      $class = $base . '--' . $part;
+      $variables['classes_array'][] = $class;
+    }
+  }
+
+  // Assign Caption
+  if (isset($variables['elements']['field_image_caption'][0]['#markup'])) {
+    $variables['image_caption'] = $variables['elements']['field_image_caption'][0]['#markup'];
+  }
+  // Assign Cite
+  if (isset($variables['elements']['field_citation'][0]['#markup'])) {
+    $variables['image_cite'] = $variables['elements']['field_citation'][0]['#markup'];
   }
   // account for card size
   if (strpos($variables['view_mode'], 'card')) {

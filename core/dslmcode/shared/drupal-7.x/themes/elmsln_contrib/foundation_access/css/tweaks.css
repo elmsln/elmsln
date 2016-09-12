@@ -1,3 +1,10 @@
+/* media elements */
+.elmsln-image-gallery-wrapper {
+  margin: 1rem 0 1.5rem;
+}
+.elmsln-gallery-image {
+  margin-top: 1rem;
+}
 .image--parallax {
   align-items: initial;
 }
