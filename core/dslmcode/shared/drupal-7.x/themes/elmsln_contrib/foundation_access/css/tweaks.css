@@ -14,7 +14,6 @@ select.chosen {
 /* accessibility */
 .outline-nav-icon {
   opacity: .8;
-  height: 2.25rem;
   width: 2.25rem;
   line-height: 2.25rem;
 }
