@@ -8,50 +8,59 @@
  * Implements hook_entity_info_alter().
  */
 function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
-  $types = array(
-    'image' => array('', '__card', '__boxed'),
-    'mediavideo' => array('', '__thumbnail', '__thumbnail__right', '__poster'),
-    'mediasvg' => array(''),
-    'figurelabel' => array(''),
-    'h5p' => array('', '__card'),
+  $modes = array(
+    'image' => array(
+      '' => array(
+        '__left' => array('__lightboxed'),
+        '__right' => array('__lightboxed'),
+      ),
+      '__card' => array(
+        '__left' => array('__lightboxed'),
+        '__right' => array('__lightboxed'),
+      ),
+      '__boxed' => array(
+        '__left' => array('__lightboxed'),
+        '__right' => array('__lightboxed'),
+      ),
+      '__parallax' => array(),
+    ),
+    'mediavideo' => array(
+      '' => array(),
+      '__thumbnail' => array(),
+      '__thumbnail__right' => array(),
+      '__poster' => array(),
+    ),
+    'mediasvg' => array(
+      '' => array(
+        '__stretch' => array('__medium', '__small'),
+        '__left' => array('__medium', '__small'),
+        '__right' => array('__medium', '__small'),
+      ),
+    ),
+    'figurelabel' => array(
+      '' => array(),
+    ),
+    'h5p' => array(
+      '' => array(),
+      '__card' => array(),
+    ),
   );
-  $directions = array(
-    'image' => array('__left', '__right'),
-    'mediavideo' => array(),
-    'mediasvg' => array('__stretch', '__left', '__right'),
-    'figurelabel' => array(),
-    'h5p' => array(),
-  );
-  $variants = array(
-    'image' => array('__lightboxed'),
-    'mediavideo' => array(),
-    'mediasvg' => array('__medium', '__small'),
-    'figurelabel' => array(),
-    'h5p' => array(),
-  );
-
   // calculate all styles possible from arrays above
   // this is nuts
-  foreach ($types as $type => $styles) {
-    foreach ($styles as $style) {
+  foreach ($modes as $type => $styles) {
+    foreach ($styles as $style => $directions) {
       $entity_info['node']['view modes'][$type . $style] = array(
         'label' => t(ucfirst($type . $style)),
         'custom settings' => FALSE,
       );
-      foreach ($directions[$type] as $direction) {
+      foreach ($directions as $direction => $variants) {
         $entity_info['node']['view modes'][$type . $style . $direction] = array(
           'label' => t(ucfirst($type . '' . $style . ' ' . $direction)),
           'custom settings' => FALSE,
         );
-      }
-      foreach ($variants[$type] as $variant) {
-        $entity_info['node']['view modes'][$type . $style . $variant] = array(
-          'label' => t(ucfirst($type . ' ' . $style . ' ' . $direction)),
-          'custom settings' => FALSE,
-        );
-        foreach ($directions[$type] as $direction) {
-          $entity_info['node']['view modes'][$type . $style . $variant . $direction] = array(
-            'label' => t(ucfirst($type . ' ' . $style . ' ' . $variant . ' ' . $direction)),
+        foreach ($variants as $variant) {
+          $entity_info['node']['view modes'][$type . $style . $direction . $variant] = array(
+            'label' => t(ucfirst($type . ' ' . $style . ' ' . $direction)),
             'custom settings' => FALSE,
           );
         }
