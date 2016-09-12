@@ -227,9 +227,10 @@ for tool in "${authoritylist[@]}"
   # set base_url
   echo "\$base_url= '$protocol://$site_domain';" >> $sitedir/$tool/$host/settings.php
 
-  # enable the cis_settings registry, set private path then execute clean up routines
+  # enable the cis_settings registry, set private path, tmp path, then execute clean up routines
   drush -y --uri=$protocol://$site_domain en $cissettings
   drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
+  drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_priv}
   # distro specific additional install routine
   drush -y --uri=$protocol://$site_domain cook elmsln_$dist
   # clean up tasks per distro here
