@@ -1,3 +1,7 @@
+.image--parallax {
+  align-items: initial;
+}
+
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
   display: initial;
 }
