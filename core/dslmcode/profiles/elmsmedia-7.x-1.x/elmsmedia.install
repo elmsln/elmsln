@@ -113,4 +113,5 @@ function elmsmedia_update_7007(&$sandbox) {
   features_revert_module('elmsmedia_svg');
   features_revert_module('elmsmedia_video');
   features_revert_module('elmsmedia_view_mode_tabs');
+  module_enable(array('getid3'));
 }
