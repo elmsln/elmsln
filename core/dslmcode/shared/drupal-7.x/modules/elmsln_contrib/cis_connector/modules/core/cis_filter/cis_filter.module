@@ -553,16 +553,18 @@ function cis_filter_preprocess_cis_filter_render(&$vars) {
 function _cis_filter_filtered_request_object($code, $instance) {
   // request the object via webservice
   $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, TRUE, 'deep-load-refs=file');
-  // see if this text value is a complex one to filter
-  foreach($response as &$field) {
-    if (is_array($field) && isset($field['value']) && isset($field['format'])) {
-      $field = check_markup($field['value'], $field['format']);
-    }
-    elseif (is_array($field)) {
-      // leave this alone
-    }
-    else {
-      $field = filter_xss($field);
+  if (!empty($response)) {
+    // see if this text value is a complex one to filter
+    foreach($response as &$field) {
+      if (is_array($field) && isset($field['value']) && isset($field['format'])) {
+        $field = check_markup($field['value'], $field['format']);
+      }
+      elseif (is_array($field)) {
+        // leave this alone
+      }
+      else {
+        $field = filter_xss($field);
+      }
     }
   }
   return $response;
