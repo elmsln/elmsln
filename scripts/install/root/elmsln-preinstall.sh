@@ -141,7 +141,7 @@ elif [ $os == '3' ]; then
   phpini="/etc/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
   # our install sets this up ahead of time
-  mycnf=""
+  mycnf="/etc/my.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
