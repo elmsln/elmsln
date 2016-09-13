@@ -19,6 +19,7 @@
 
 #scrollspy-nav ul li a {
   font-size: .8rem;
+  font-weight: bold;
 }
 
 #scrollspy-nav ul li a:hover {
@@ -26,5 +27,5 @@
 }
 
 #scrollspy-nav ul li a:active {
-  background-color: #FF6600;
+  background-color: #FFAA44;
 }
