@@ -8,6 +8,9 @@
 .image--parallax {
   align-items: initial;
 }
+.carousel.carousel-slider {
+height: 400px;
+}
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
   display: initial;
