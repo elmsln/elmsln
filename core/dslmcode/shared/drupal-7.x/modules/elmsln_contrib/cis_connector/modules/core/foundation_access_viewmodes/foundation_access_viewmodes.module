@@ -50,6 +50,11 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
       '' => array(),
       '__card' => array(),
     ),
+    'image_gallery' => array(
+      '__carousel' => array(
+        '__slider' => array(),
+      ),
+    )
   );
   // calculate all styles possible from arrays above
   // this is nuts

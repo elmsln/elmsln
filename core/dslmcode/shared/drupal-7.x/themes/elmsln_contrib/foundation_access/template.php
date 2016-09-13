@@ -495,6 +495,38 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
 /**
  * Display Inherit Image gallery
  */
+function foundation_access_preprocess_node__inherit__image_gallery(&$variables) {
+  $variables['images'] = array();
+
+  // Assign Image
+  if (isset($variables['elements']['field_images'])) {
+    $tmpimages = $variables['elements']['field_images']['#items'];
+    // append classes to images for rendering
+    foreach ($tmpimages as $key => $image) {
+      $variables['images'][$key] = array(
+        '#theme' => 'image_formatter',
+        '#item' => $tmpimages[$key]['entity']->field_image[LANGUAGE_NONE][0],
+        '#image_style' => 'image_gallery_square',
+        '#path' => '',
+      );
+    }
+  }
+  $tmp = explode('__', $variables['view_mode']);
+  // inherrit class structure from deep structures
+  if (count($tmp) > 1) {
+    // build the base from the 1st two items
+    $base = array_shift($tmp);
+    // loop through what's left to add as classes
+    foreach ($tmp as $part) {
+      $class = $base . '--' . $part;
+      $variables['classes_array'][] = $class;
+    }
+  }
+}
+
+/**
+ * Display Inherit Image gallery
+ */
 function foundation_access_preprocess_node__inherit__image_gallery__image(&$variables) {
   $variables['images'] = array();
   $variables['image_caption'] = '';

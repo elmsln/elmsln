@@ -31,7 +31,8 @@
     attach: function(context) {
       $('select').not('.chosen').not('.cke_dialog_body select').material_select();
       $('.parallax').parallax();
-      $('.carousel').carousel();
+      $('.carousel.carousel-slider').carousel({full_width: true});
+      $('.carousel').not('.carousel-slider').carousel();
     }
   };
 })(jQuery);
