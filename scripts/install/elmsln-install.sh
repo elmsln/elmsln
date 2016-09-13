@@ -202,11 +202,15 @@ for tool in "${authoritylist[@]}"
   sudo chown -R $wwwuser:$webgroup $sitedir/$tool/$host/files
   sudo chmod -R 755 $sitedir/$tool/$host/files
 
-  # setup private file directory
+  # setup private and tmp file directories
   sudo mkdir -p $drupal_priv/$tool
   sudo mkdir -p $drupal_priv/$tool/$tool
+  sudo mkdir -p $drupal_tmp/$tool
+  sudo mkdir -p $drupal_tmp/$tool/tmp
   sudo chown -R $wwwuser:$webgroup $drupal_priv
+  sudo chown -R $wwwuser:$webgroup $drupal_tmp
   sudo chmod -R 755 $drupal_priv
+  sudo chmod -R 755 $drupal_tmp
 
   # copy the default settings file to this location
   # we leave the original for the time being because this is the first instace
@@ -230,7 +234,7 @@ for tool in "${authoritylist[@]}"
   # enable the cis_settings registry, set private path, temporary path, then execute clean up routines
   drush -y --uri=$protocol://$site_domain en $cissettings
   drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
-  drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_priv}/tmp
+  drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}/$tool/tmp
   # distro specific additional install routine
   drush -y --uri=$protocol://$site_domain cook elmsln_$dist
   # clean up tasks per distro here
