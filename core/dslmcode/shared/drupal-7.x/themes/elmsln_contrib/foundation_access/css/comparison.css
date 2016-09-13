@@ -40,6 +40,7 @@
 	position:relative;
 	float:left;
 	border:0;
+	background-position:initial;
 }
 
 .elmsln-image-gallery-wrapper .ui-resizable-handle {
