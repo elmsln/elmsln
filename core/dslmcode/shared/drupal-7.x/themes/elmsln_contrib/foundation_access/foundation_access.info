@@ -35,6 +35,7 @@ stylesheets[all][] = css/fonts.css
 ; not exist or be blank in your subtheme. See https://drupal.org/node/263967
 stylesheets[all][] = css/normalize.css
 stylesheets[all][] = css/foundation.min.css
+stylesheets[all][] = css/comparison.css
 stylesheets[all][] = css/tweaks.css
 
 ; For CSS users, load the app.css file:
@@ -60,6 +61,7 @@ scripts[] = libraries/imagelightbox/imagelightbox.js
 
 ; Our themes custom scripts compiled by Browserify
 scripts[] = js/dist/app.js
+scripts[] = js/comparison.js
 scripts[] = js/tweaks.js
 scripts[] = js/material.js
 
