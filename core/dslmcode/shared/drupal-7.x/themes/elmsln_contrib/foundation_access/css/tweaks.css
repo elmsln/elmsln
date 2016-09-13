@@ -1,3 +1,7 @@
+/* fix for ckeditor templates in firefox */
+.cke_tpl_preview_img img {
+  width: 100px;
+}
 /* media elements */
 .elmsln-image-gallery-wrapper {
   margin: 1rem 0 1.5rem;
