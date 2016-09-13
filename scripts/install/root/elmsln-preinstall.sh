@@ -264,6 +264,7 @@ echo "# compiled drupal \"stacks\"" >> $config
 echo "stacks='/var/www/elmsln/core/dslmcode/stacks'" >> $config
 echo "# location of drupal private files" >> $config
 echo "drupal_priv='/var/www/elmsln/config/private_files'" >> $config
+echo "drupal_tmp='/var/www/elmsln/config/tmp'" >> $config
 echo "# configsdir" >> $config
 echo "configsdir='/var/www/elmsln/config'" >> $config
 # capture automatically generated values that can be used to reference this
