@@ -91,6 +91,10 @@ chmod 0444 "$configsdir/scripts/drush-create-site/config.cfg" -v
 chown -R $wwwuser:$webgroup "$drupal_priv"
 chown $wwwuser:$webgroup "$drupal_priv" -v
 chmod 2774 "$drupal_priv" -v
+# set web server perms correctly for tmp files
+chown -R $wwwuser:$webgroup "$drupal_tmp"
+chown $wwwuser:$webgroup "$drupal_tmp" -v
+chmod 2774 "$drupal_tmp" -v
 # set web server perms correctly for jobs
 chown -R $wwwuser:$webgroup "$configsdir/jobs"
 chown $wwwuser:$webgroup "$configsdir/jobs" -v
