@@ -1,0 +1,22 @@
+diff --git a/bulk_photo_nodes.module b/bulk_photo_nodes.module
+index d8249be..200e0a1 100644
+--- a/bulk_photo_nodes.module
++++ b/bulk_photo_nodes.module
+@@ -697,11 +697,15 @@ function bulk_photo_nodes_prepare_fields(&$node_fields, $node, &$node_overrides,
+         // return values.
+         $check_empty = _bulk_photo_nodes_array_filter($node_overrides[$field_name]);
+         if (!empty($check_empty)) {
+-          $node->$field_name = $node_overrides[$field_name];
++          if ($node_overrides[$field_name]['und'] == '_none') {
++            unset($node->$field_name);
++          } else {
++            $node->$field_name = $node_overrides[$field_name];
++          }
+         }
+         else {
+           unset($node->$field_name);
+-        }
++        }        
+       }
+       else {
+         if ($node_overrides[$field_name]) {
