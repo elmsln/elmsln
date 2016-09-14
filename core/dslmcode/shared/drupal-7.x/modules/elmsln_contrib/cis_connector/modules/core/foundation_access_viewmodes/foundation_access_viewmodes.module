@@ -22,12 +22,12 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
         '__left__lightboxed' => array('__small', '__medium', '__large'),
         '__right__lightboxed' => array('__small', '__medium', '__large'),
       ),
+      '__parallax' => array(
+        '__lightboxed' => array(),
+      ),
       '__boxed' => array(
         '__left' => array('__lightboxed'),
         '__right' => array('__lightboxed'),
-      ),
-      '__parallax' => array(
-        '__lightboxed' => array(),
       ),
     ),
     'mediavideo' => array(

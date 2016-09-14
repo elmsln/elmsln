@@ -68,7 +68,7 @@
       <span class="card-title activator grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print $row->node_title;?></span><i class="material-icons right">more_vert</i></span>
     </div>
     <div class="card-action">
-      <?php print l('view', 'node/' . $row->nid);?>
+      <?php print l('view', 'node/' . $row->nid . '/view_modes');?>
       <?php print l('edit', 'node/' . $row->nid . '/edit');?>
     </div>
     <div class="card-reveal">
