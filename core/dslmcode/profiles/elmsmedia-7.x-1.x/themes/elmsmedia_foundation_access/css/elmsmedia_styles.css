@@ -29,3 +29,24 @@
 #scrollspy-nav ul li a:active {
   background-color: #FFAA44;
 }
+
+.card .card-content .card-title {
+  line-height: 1.4rem;
+  font-size: 1.2rem;
+}
+.card .card-title {
+  line-height: 1.4rem;
+  font-size: 1.2rem;
+}
+
+.elmsmedia-no-preview-item {
+  height:240px;
+  width: 300px;
+  text-align: center;
+  line-height: 240px;
+}
+
+.elmsln-card-title {
+  max-width: 80%;
+  display: inline-block;
+}

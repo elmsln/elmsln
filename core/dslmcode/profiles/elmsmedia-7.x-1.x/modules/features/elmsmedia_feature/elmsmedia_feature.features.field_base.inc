@@ -10,7 +10,7 @@
 function elmsmedia_feature_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'body'
+  // Exported field_base: 'body'.
   $field_bases['body'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -34,7 +34,7 @@ function elmsmedia_feature_field_default_field_bases() {
     'type' => 'text_with_summary',
   );
 
-  // Exported field_base: 'field_cis_course_ref'
+  // Exported field_base: 'field_cis_course_ref'.
   $field_bases['field_cis_course_ref'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -73,7 +73,7 @@ function elmsmedia_feature_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_poster'
+  // Exported field_base: 'field_poster'.
   $field_bases['field_poster'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -97,7 +97,7 @@ function elmsmedia_feature_field_default_field_bases() {
     'type' => 'image',
   );
 
-  // Exported field_base: 'field_tagging'
+  // Exported field_base: 'field_tagging'.
   $field_bases['field_tagging'] = array(
     'active' => 1,
     'cardinality' => -1,

@@ -10,7 +10,7 @@
 function elmsmedia_cis_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-elmsln-add_audio:node/add/audio
+  // Exported menu link: menu-elmsln-add_audio:node/add/audio.
   $menu_links['menu-elmsln-add_audio:node/add/audio'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/audio',
@@ -34,7 +34,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-add_document:node/add/document
+  // Exported menu link: menu-elmsln-add_document:node/add/document.
   $menu_links['menu-elmsln-add_document:node/add/document'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/document',
@@ -58,7 +58,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => -49,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-add_external-video:node/add/external-video
+  // Exported menu link: menu-elmsln-add_external-video:node/add/external-video.
   $menu_links['menu-elmsln-add_external-video:node/add/external-video'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/external-video',
@@ -82,7 +82,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => -48,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-add_figure-label:node/add/figurelabel
+  // Exported menu link: menu-elmsln-add_figure-label:node/add/figurelabel.
   $menu_links['menu-elmsln-add_figure-label:node/add/figurelabel'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/figurelabel',
@@ -105,7 +105,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => -47,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-add_h5p:node/add/h5p-content
+  // Exported menu link: menu-elmsln-add_h5p:node/add/h5p-content.
   $menu_links['menu-elmsln-add_h5p:node/add/h5p-content'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/h5p-content',
@@ -128,7 +128,30 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => -46,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-add_image:node/add/elmsmedia-image
+  // Exported menu link: menu-elmsln-add_image-gallery:node/add/image-gallery.
+  $menu_links['menu-elmsln-add_image-gallery:node/add/image-gallery'] = array(
+    'menu_name' => 'menu-elmsln-add',
+    'link_path' => 'node/add/image-gallery',
+    'router_path' => 'node/add/image-gallery',
+    'link_title' => 'Image gallery',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'identifier' => 'menu-elmsln-add_image-gallery:node/add/image-gallery',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -44,
+    'customized' => 1,
+  );
+  // Exported menu link: menu-elmsln-add_image:node/add/elmsmedia-image.
   $menu_links['menu-elmsln-add_image:node/add/elmsmedia-image'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/elmsmedia-image',
@@ -152,7 +175,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => -45,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-add_svg:node/add/svg
+  // Exported menu link: menu-elmsln-add_svg:node/add/svg.
   $menu_links['menu-elmsln-add_svg:node/add/svg'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/svg',
@@ -172,10 +195,10 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -44,
+    'weight' => -43,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-add_video:node/add/video
+  // Exported menu link: menu-elmsln-add_video:node/add/video.
   $menu_links['menu-elmsln-add_video:node/add/video'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/video',
@@ -196,7 +219,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -43,
+    'weight' => -42,
     'customized' => 1,
   );
 
@@ -208,6 +231,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
   t('Figure label');
   t('H5P');
   t('Image');
+  t('Image gallery');
   t('SVG');
   t('Video');
 

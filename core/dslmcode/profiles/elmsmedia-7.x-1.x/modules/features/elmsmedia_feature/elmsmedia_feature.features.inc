@@ -34,6 +34,23 @@ function elmsmedia_feature_image_default_styles() {
     ),
   );
 
+  // Exported image style: image_card_medium.
+  $styles['image_card_medium'] = array(
+    'label' => 'Image Card medium',
+    'effects' => array(
+      3 => array(
+        'name' => 'smartcrop_scale_and_crop',
+        'data' => array(
+          'width' => 240,
+          'height' => 160,
+          'upscale' => 1,
+          '#imageinfo_cache_effect_callback' => 'smartcrop_scale_effect',
+        ),
+        'weight' => 1,
+      ),
+    ),
+  );
+
   // Exported image style: image_lightboxed.
   $styles['image_lightboxed'] = array(
     'label' => 'Image Lightboxed',

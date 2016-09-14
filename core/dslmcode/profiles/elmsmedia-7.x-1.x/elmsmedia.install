@@ -114,4 +114,6 @@ function elmsmedia_update_7007(&$sandbox) {
   features_revert_module('elmsmedia_video');
   features_revert_module('elmsmedia_view_mode_tabs');
   features_revert_module('elmsmedia_cis_ux');
+  features_revert_module('elmsmedia_feature');
+  variable_set('site_frontpage', 'elmsmedia');
 }

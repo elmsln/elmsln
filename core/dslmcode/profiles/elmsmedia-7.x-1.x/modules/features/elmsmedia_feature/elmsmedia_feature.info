@@ -33,6 +33,7 @@ features[field_base][] = field_cis_course_ref
 features[field_base][] = field_poster
 features[field_base][] = field_tagging
 features[image][] = image
+features[image][] = image_card_medium
 features[image][] = image_lightboxed
 features[image][] = mediavideo_poster
 features[taxonomy][] = elmsmedia_tag
