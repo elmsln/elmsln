@@ -25,7 +25,6 @@ function elmsmedia_install() {
   features_revert_module('elmsmedia_cis_ux');
 }
 
-
 /**
  * Revert UX to make the links show up
  */
@@ -104,7 +103,7 @@ function elmsmedia_update_7006(&$sandbox) {
  * for all the content types that we have.
  */
 function elmsmedia_update_7007(&$sandbox) {
-  module_enable(array('getid3', 'elmsmedia_image_gallery'));
+  module_enable(array('getid3', 'elmsmedia_image_gallery', 'bulk_photo_nodes', 'bpn_upload', 'plupload'));
   features_revert_module('elmsmedia_audio');
   features_revert_module('elmsmedia_document');
   features_revert_module('elmsmedia_external_video');

@@ -1,0 +1,65 @@
+diff --git a/bulk_photo_nodes.module b/bulk_photo_nodes.module
+index 27fcead..5a70c4d 100644
+--- a/bulk_photo_nodes.module
++++ b/bulk_photo_nodes.module
+@@ -380,10 +380,12 @@ function bulk_photo_nodes_create_subform(&$form, &$form_state) {
+     $form['nodes'][$key]['right']['node'][$image_field]['und'][0]['#type'] = 'value';
+     $form['nodes'][$key]['right']['node'][$image_field]['und'][0]['#value'] = (array) $file['file_object'];
+ 
+-    // Move body field around to proper fieldset.
+-    $form['nodes'][$key]['right']['body'] = $form['nodes'][$key]['right']['node']['body'];
+-    $form['nodes'][$key]['right']['node']['body']['#weight'] = 0;
+-    unset($form['nodes'][$key]['right']['node']['body']);
++    // Move body field around to proper fieldset if body field exist.
++    if (isset($form['nodes'][$key]['right']['node']['body'])) {
++      $form['nodes'][$key]['right']['body'] = $form['nodes'][$key]['right']['node']['body'];
++      $form['nodes'][$key]['right']['node']['body']['#weight'] = 0;
++      unset($form['nodes'][$key]['right']['node']['body']);
++    }
+   }
+ }
+ 
+@@ -688,6 +690,9 @@ function bulk_photo_nodes_recursive_ajax(&$element) {
+       if (!empty($element['#value_key']) && $element['#value_key'] == 'tid') {
+         $element['#element_validate'] = array('bulk_photo_nodes_taxonomy_validate');
+       }
++      if (!empty($element['#value_key']) && $element['#value_key'] == 'nid') {
++        $element['#element_validate'] = array('bulk_photo_nodes_nodereference_validate');
++      }      
+     }
+   }
+   else {
+@@ -707,6 +712,9 @@ function bulk_photo_nodes_recursive_ajax(&$element) {
+       if (!empty($element['#value_key']) && $element['#value_key'] == 'tid') {
+         $element['#element_validate'] = array('bulk_photo_nodes_taxonomy_validate');
+       }
++      if (!empty($element['#value_key']) && $element['#value_key'] == 'nid') {
++        $element['#element_validate'] = array('bulk_photo_nodes_nodereference_validate');
++      }      
+     }
+   }
+ }
+@@ -835,6 +843,23 @@ function bulk_photo_nodes_taxonomy_validate(&$element, &$form_state) {
+ }
+ 
+ /**
++ * Validates selected node reference nid.
++ */
++function bulk_photo_nodes_nodereference_validate(&$element, &$form_state) {
++  if ($element['#value'] !== '_none') {
++    $nid = array(
++      0 => array(
++        'nid' => $element['#value'],
++      ),
++    );
++  }
++  else {
++    $nid = 0;
++  }
++  form_set_value($element, $nid, $form_state);
++}
++
++/**
+  * Checks if a given field form element has a value.
+  *
+  * @param string $field_name

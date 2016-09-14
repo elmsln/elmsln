@@ -1,0 +1,16 @@
+name = Bulk Photo Nodes
+description = "Allows for bulk creation of nodes with images and other metadata"
+core = 7.x
+package = Bulk Photo Nodes
+dependencies[] = field
+dependencies[] = file
+dependencies[] = image
+dependencies[] = node
+files[] = tests/bulk_photo_nodes.test
+
+; Information added by Drupal.org packaging script on 2015-03-18
+version = "7.x-1.0+11-dev"
+core = "7.x"
+project = "bulk_file_nodes"
+datestamp = "1426693684"
+

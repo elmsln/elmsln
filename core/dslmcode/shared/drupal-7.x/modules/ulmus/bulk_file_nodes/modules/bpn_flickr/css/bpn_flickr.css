@@ -1,0 +1,14 @@
+.bpn-flickr-thumbnail,
+.bpn-flickr-thumbnail input,
+.bpn-flickr-thumbnail label {
+  cursor: pointer;
+}
+.bpn-flickr-thumbnail.selected {
+  background-color: #ffffd3;
+}
+.bpn-flickr-thumbnail:nth-child(3n+1) {
+  clear: left;
+}
+.bpn-flickr-thumbnail.third {
+  clear: left;
+}

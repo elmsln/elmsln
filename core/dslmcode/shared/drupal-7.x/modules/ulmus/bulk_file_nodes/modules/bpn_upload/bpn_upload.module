@@ -1,0 +1,123 @@
+<?php
+/**
+ * @file
+ * Hooks and functions for the bpn_upload module.
+ */
+
+/**
+ * Implements hook_bpn_upload().
+ *
+ * Defines a multi-step form to use with bulk_photo_nodes.
+ */
+function bpn_upload_bulk_photo_nodes_method() {
+  return 'bpn_upload_form';
+}
+
+/**
+ * Form constructor multi-step bulk photo nodes.
+ *
+ * @see bpn_upload_form_step_1()
+ * @see bpn_upload_form_step_1_submit()
+ * @see bpn_upload_form_step_2()
+ * @ingroup forms
+ */
+function bpn_upload_form($form, &$form_state, $node_type) {
+  if (empty($form_state['step'])) {
+    $form_state['step'] = 1;
+  }
+  if (empty($form_state['node_type'])) {
+    $form_state['node_type'] = $node_type;
+  }
+  $form_callback = 'bpn_upload_form_step_' . $form_state['step'];
+  if (function_exists($form_callback)) {
+    return $form_callback($form, $form_state);
+  }
+  return $form;
+}
+
+/**
+ * Form constructor for step one of bpn_upload_form().
+ *
+ * @see bpn_upload_form_step_1_submit()
+ * @ingroup forms
+ */
+function bpn_upload_form_step_1($form, &$form_state) {
+  $node_type = $form_state['node_type'];
+
+  $form = array(
+    '#weight' => -1,
+    'header' => array(
+      '#markup' => '<h3>' . t('Upload Images From Your Computer') . '</h3>',
+    ),
+  );
+
+  $form['plupload'] = array(
+    '#type' => 'plupload',
+    '#required' => TRUE,
+  );
+
+  // Get list of allowed file extensions.
+  $valid_extensions = array();
+  $options = bulk_photo_nodes_get_file_info($node_type);
+  if (!empty($options['instance_info']['settings']['file_extensions'])) {
+    $valid_extensions = $options['instance_info']['settings']['file_extensions'];
+  }
+
+  if (!empty($valid_extensions)) {
+    $form['plupload']['#upload_validators'] = array('file_validate_extensions' => array($valid_extensions));
+  }
+
+  $form['next'] = array(
+    '#type' => 'submit',
+    '#value' => t('Next'),
+    '#suffix' => '<div class="description">' . t('Add description(s) on next page') . '</div>',
+  );
+
+  $form['#submit'] = array('bpn_upload_form_step_1_submit');
+  drupal_set_title(t('Upload Images'));
+  return $form;
+}
+
+/**
+ * Form submission handler for bpn_upload_form_step_1().
+ */
+function bpn_upload_form_step_1_submit($form, &$form_state) {
+  $node_type = $form_state['node_type'];
+  $saved_files = array();
+  foreach ($form_state['values']['plupload'] as $uploaded_file) {
+    if ($uploaded_file['status'] == 'done') {
+      $source = $uploaded_file['tmppath'];
+      $destination = file_stream_wrapper_uri_normalize('public://' . $uploaded_file['name']);
+      $destination = file_unmanaged_move($source, $destination, FILE_EXISTS_RENAME);
+      $file = plupload_file_uri_to_object($destination);
+      file_save($file);
+      if (function_exists('exif_read_data')) {
+        $read_data_compatible_types = array(IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM);
+        $type_of_image = exif_imagetype($destination);
+        if (in_array($type_of_image, $read_data_compatible_types)) {
+          $extra_info = exif_read_data(drupal_realpath($destination));
+        }
+      }
+      $form_state['saved_files'][] = array(
+        'extra_info' => (!empty($extra_info)) ? $extra_info : FALSE,
+        'file_object' => $file,
+      );
+    }
+    else {
+      form_set_error('plupload', "Upload of {$uploaded_file['name']} failed");
+    }
+  }
+  $form_state['step'] = 2;
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Form constructor for step two of bpn_upload_form().
+ *
+ * @see bpn_upload_form_step_1()
+ * @see bpn_upload_form_step_1_submit()
+ * @todo find a better way of transfering form state.
+ */
+function bpn_upload_form_step_2($form, &$form_state) {
+  return bulk_photo_nodes_add_form($form, $form_state);
+}

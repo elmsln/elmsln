@@ -5,3 +5,23 @@
  */
 
 include_once 'elmsmedia_image.features.inc';
+
+/**
+ * Implementation of hook_form_node_add_elmsmedia_image_alter().
+ */
+function elmsmedia_image_form_elmsmedia_image_node_form_alter(&$form, &$form_state) {
+  // notify user they can use the bulk upload form if they want
+  if (arg(1) == 'add') {
+    drupal_set_message(t('Have a bunch of images to add? Try using the <a href="@url">bulk upload form</a>.', array('@url' => url('node/add/elmsmedia-image/bulk'))), 'notice');
+  }
+}
+
+/**
+ * Implements hook_bulk_photo_nodes_node_alter().
+ */
+function elmsmedia_image_bulk_photo_nodes_node_alter(&$node, $node_fields, $node_overrides) {
+  // unset the figure label reference
+  if ($node->type == 'elmsmedia_image' && isset($node->field_figurelabel_ref['und'])) {
+    unset($node->field_figurelabel_ref);
+  }
+}
