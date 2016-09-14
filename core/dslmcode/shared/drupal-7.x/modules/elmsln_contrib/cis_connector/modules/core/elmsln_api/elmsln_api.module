@@ -811,7 +811,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
       // if we have nonblocking calls and a collection of them
       // then kick this off to multi-process quickly and without
       // looking back!
-      if ($nonblocking && isset($nonblock)) {
+      if (!empty($request) && $nonblocking && isset($nonblock)) {
         // prepare the query to be shipped off
         $request['data']['q'] = 'v' . $request['api'];
         if (!isset($request['data']['__course_context'])) {
