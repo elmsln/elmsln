@@ -431,7 +431,7 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo_
 }
 
 /**
- * Display Inherit Image
+ * Display Inherit Image.
  */
 function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$variables) {
   $variables['image'] = array();
@@ -442,6 +442,11 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
   // Assign Image
   if (isset($variables['elements']['field_image'][0])) {
     $variables['image'] = $variables['elements']['field_image'][0];
+    // if the image is a .gif then just use the original file
+    // so that it doesn't break the animation
+    if (isset($variables['image']['#item']['filemime']) && $variables['image']['#item']['filemime'] == 'image/gif') {
+      $variables['image']['#image_style'] = '';
+    }
     $variables['image']['#item']['attributes']['class'][] = 'image__img';
   }
 
