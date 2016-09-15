@@ -40,7 +40,7 @@
 }
 
 .elmsmedia-no-preview-item {
-  height:240px;
+  height: 240px;
   width: 300px;
   text-align: center;
   line-height: 240px;
@@ -49,4 +49,24 @@
 .elmsln-card-title {
   max-width: 80%;
   display: inline-block;
+}
+
+.elmsmedia-card ul.collection {
+  zoom: 0.9;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.elmsmedia-card span.label {
+  font-weight: bold;
+}
+
+.elmsmedia-card .tags {
+  zoom:0.75;
+}
+.elmsmedia-card .tags .field-name-field-tagging {
+  display: inline;
+}
+.elmsmedia-card .tags .field-name-field-tagging .links{
+  margin:0;
 }

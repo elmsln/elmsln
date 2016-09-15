@@ -59,7 +59,7 @@
     $course = 'no course';
   }
 ?>
-<div class="col s12 m6 l4">
+<div class="col s12 m6 l4 elmsmedia-card">
   <div class="card small sticky-action">
     <div class="card-image waves-effect waves-block waves-light">
       <?php print $preview; ?>
@@ -73,12 +73,24 @@
     </div>
     <div class="card-reveal">
       <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print $row->node_title;?></span><i class="material-icons right"><?php print t('close');?></i></span>
-      <p>
-        <?php print $fields['changed']->content;?>
-        <span class="chip"><?php print $course;?></span>
-        <span class="chip"><?php print $fields['type']->content;?></span>
-        <?php print $fields['field_tagging']->content;?>
-      </p>
+      <ul class="collection">
+        <li class="collection-item">
+          <span><?php print $fields['type']->content;?></span>
+          <span class="secondary-content"><i class="tiny material-icons">info_outline</i></span>
+        </li>
+        <li class="collection-item">
+          <span><?php print $course;?></span>
+          <span class="secondary-content"><i class="tiny material-icons">library_books</i></span>
+        </li>
+        <li class="collection-item">
+          <span><?php print $fields['changed']->content;?></span>
+          <span class="secondary-content"><i class="tiny material-icons">schedule</i></span>
+        </li>
+        <li class="collection-item">
+          <span class="secondary-content"><i class="tiny material-icons">label</i></span>
+          <span class="tags"><?php print $fields['field_tagging']->content;?></span>
+        </li>
+      </ul>
     </div>
   </div>
 </div>

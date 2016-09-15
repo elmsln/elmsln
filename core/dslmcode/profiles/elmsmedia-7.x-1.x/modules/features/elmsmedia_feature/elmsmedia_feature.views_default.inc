@@ -232,8 +232,11 @@ function elmsmedia_feature_views_default_views() {
     'audio' => 'audio',
     'document' => 'document',
     'external_video' => 'external_video',
+    'figurelabel' => 'figurelabel',
     'elmsmedia_image' => 'elmsmedia_image',
+    'image_gallery' => 'image_gallery',
     'h5p_content' => 'h5p_content',
+    'svg' => 'svg',
     'video' => 'video',
   );
   $handler->display->display_options['filters']['type_1']['group'] = 1;
@@ -430,7 +433,9 @@ function elmsmedia_feature_views_default_views() {
   $handler->display->display_options['fields']['field_tagging']['element_wrapper_type'] = '0';
   $handler->display->display_options['fields']['field_tagging']['element_default_classes'] = FALSE;
   $handler->display->display_options['fields']['field_tagging']['type'] = 'taxonomy_term_reference_plain';
+  $handler->display->display_options['fields']['field_tagging']['delta_limit'] = '5';
   $handler->display->display_options['fields']['field_tagging']['delta_offset'] = '0';
+  $handler->display->display_options['fields']['field_tagging']['separator'] = ' ';
   $handler->display->display_options['fields']['field_tagging']['field_api_classes'] = TRUE;
   /* Field: Content: Course */
   $handler->display->display_options['fields']['field_cis_course_ref']['id'] = 'field_cis_course_ref';
@@ -562,8 +567,11 @@ function elmsmedia_feature_views_default_views() {
     'audio' => 'audio',
     'document' => 'document',
     'external_video' => 'external_video',
+    'figurelabel' => 'figurelabel',
     'elmsmedia_image' => 'elmsmedia_image',
+    'image_gallery' => 'image_gallery',
     'h5p_content' => 'h5p_content',
+    'svg' => 'svg',
     'video' => 'video',
   );
   $handler->display->display_options['filters']['type_1']['group'] = 1;
