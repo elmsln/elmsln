@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ */
+function view_mode_tab_uninstall() {
+  // delete all the type names
+  $types = node_type_get_names();
+  foreach ($types as $type => $name) {
+    variable_del('view_mode_tab_settings__' . $type);
+  }
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Delete variables that were flooding the database table and
+ * not doing anything. This would cause some serious confusion
+ * when doing feature exports of this setting.
+ */
+function view_mode_tab_update_7000(&$sandbox) {
+  $types = node_type_get_names();
+  // we don't know what to delete so we'll need to lazy delete based on the type name
+  foreach ($types as $type => $name) {
+    db_delete('variable')
+      ->condition('name', 'view_mode_tab_settings__' . $type . '_%', 'LIKE')
+      ->execute();
+  }
+  cache_clear_all('variables', 'cache_bootstrap');
+}
