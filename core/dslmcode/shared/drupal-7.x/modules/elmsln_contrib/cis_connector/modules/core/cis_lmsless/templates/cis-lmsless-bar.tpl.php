@@ -13,6 +13,10 @@
    * $active - the part of the services array relating to the current system
    * being worked with.
    */
+  // account for empty services for fallback
+  if (!isset($services)) {
+    $services = array();
+  }
 ?>
 <div class="cis-lmsless-container cis-lmsless-bar <?php print $classes; ?>" <?php print $attributes; ?>>
   <div class="cis-lmsless-item cis-lmsless-home"><?php print l('HOME', $front_page); ?></div>
