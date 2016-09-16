@@ -1,0 +1,28 @@
+name = Views Content Cache
+description = Provides a views cache plugin based on content type changes.
+package = Views
+core = 7.x
+dependencies[] = views
+dependencies[] = ctools
+
+; Context plugins
+files[] = plugins/views_content_cache/base.inc
+files[] = plugins/views_content_cache/comment.inc
+files[] = plugins/views_content_cache/node.inc
+files[] = plugins/views_content_cache/node_only.inc
+files[] = plugins/views_content_cache/og.inc
+files[] = plugins/views_content_cache/votingapi.inc
+
+; Views plugins
+files[] = views/views_content_cache_plugin_cache.inc
+he.inc
+
+; Tests
+files[] = tests/views_content_cache.test
+
+; Information added by  packaging script on 2013-11-05
+version = "7.x-3.0-alpha3"
+core = "7.x"
+project = "views_content_cache"
+datestamp = "1383658110"
+

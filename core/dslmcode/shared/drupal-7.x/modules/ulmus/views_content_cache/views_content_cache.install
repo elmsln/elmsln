@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * @file
+ * Install file for views content cache.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function views_content_cache_schema() {
+  $schema = array();
+  $schema['views_content_cache'] = array(
+    'description' => 'Stores timestamps for various cache segments showing the last time the segment changed.',
+    'fields' => array(
+      'timestamp' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Updated timestamp for a given cache segment.',
+      ),
+      'c1' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+        'description' => 'Cache segment 1.',
+      ),
+      'c2' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+        'description' => 'Cache segment 2.',
+      ),
+      'c3' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+        'description' => 'Cache segment 3.',
+      ),
+      'c4' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+        'description' => 'Cache segment 4.',
+      ),
+      'c5' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+        'description' => 'Cache segment 5.',
+      ),
+      'c6' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+        'description' => 'Cache segment 6.',
+      ),
+      'c7' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+        'description' => 'Cache segment 7.',
+      ),
+      'c8' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+        'description' => 'Cache segment 8.',
+      ),
+    ),
+    'indexes' => array(
+      'timestamp' => array('timestamp'),
+      'c1' => array('c1'),
+      'c2' => array('c2'),
+      'c3' => array('c3'),
+      'c4' => array('c4'),
+      'c5' => array('c5'),
+      'c6' => array('c6'),
+      'c7' => array('c7'),
+      'c8' => array('c8'),
+    ),
+  );
+  return $schema;
+}
+
