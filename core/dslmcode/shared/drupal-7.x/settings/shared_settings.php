@@ -33,7 +33,8 @@ $conf['cache_class_cache_form'] = 'APDQCache';
 // from apdqc testing
 $databases['default']['default']['init_commands']['isolation'] = "SET SESSION tx_isolation='READ-COMMITTED'";
 $databases['default']['default']['init_commands']['wait_timeout'] = "SET SESSION wait_timeout = 600";
-
+// pathcache settings
+$conf['path_inc'] = 'sites/all/modules/ulmus/pathcache/path.inc';
 // allow user deployment settings to always take priority
 include_once "/var/www/elmsln/config/shared/drupal-7.x/settings/shared_settings.php";
 

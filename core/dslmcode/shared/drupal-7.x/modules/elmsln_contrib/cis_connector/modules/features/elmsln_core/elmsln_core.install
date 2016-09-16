@@ -99,3 +99,10 @@ function elmsln_core_update_7007(&$sandbox) {
 function elmsln_core_update_7008(&$sandbox) {
   features_revert_module('elmsln_core');
 }
+
+/**
+ * Enable pathcache module to improve query speed
+ */
+function elmsln_core_update_7009(&$sandbox) {
+  module_enable(array('pathcache'));
+}
