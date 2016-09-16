@@ -17,7 +17,12 @@ height: 400px;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
-  display: initial;
+  display: block;
+  width: 100%;
+}
+
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li:hover {
+  background-color: #dddddd;
 }
 
 /* chosen select support */
@@ -307,10 +312,6 @@ a.add-menu-drop {
 
 #block-mooc-nav-block-mooc-nav-nav li.active-trail {
   background-color: #eeeeee;
-}
-
-#block-mooc-nav-block-mooc-nav-nav li a.active {
-  text-decoration: underline;
 }
 
 .mooc-nav-block-left {
