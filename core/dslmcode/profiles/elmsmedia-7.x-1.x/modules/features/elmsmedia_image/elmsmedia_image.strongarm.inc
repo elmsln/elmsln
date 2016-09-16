@@ -48,6 +48,27 @@ function elmsmedia_image_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'bulk_photo_nodes_elmsmedia_image';
+  $strongarm->value = array(
+    0 => 'image_field',
+  );
+  $export['bulk_photo_nodes_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'bulk_photo_node_types';
+  $strongarm->value = array(
+    'elmsmedia_image' => 'field_image',
+    'elmsmedia_image_override' => 0,
+    'external_video_override' => 1,
+    'audio_override' => 1,
+  );
+  $export['bulk_photo_node_types'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'diff_enable_revisions_page_node_elmsmedia_image';
   $strongarm->value = 0;
   $export['diff_enable_revisions_page_node_elmsmedia_image'] = $strongarm;

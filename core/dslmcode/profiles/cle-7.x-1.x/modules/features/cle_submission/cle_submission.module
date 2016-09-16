@@ -12,6 +12,7 @@ include_once 'cle_submission.features.inc';
 function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state, $form_id) {
   // ensure this isn't loaded in an ajax callback
   if (arg(0) != 'system') {
+    unset($form['body']['und'][0]['summary']);
     // make sure that its not set to the needs work state
     // if it is then we need to allow anyone to see it so they could change it
     // back to ready for review but not the "in progress" since this is just
