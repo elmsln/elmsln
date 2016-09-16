@@ -9,6 +9,13 @@ define('CLE_ASSIGNMENT_DEFAULT_COLOR', 'aac');
 include_once 'cle_assignment.features.inc';
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state, $form_id) {
+  unset($form['body']['und'][0]['summary']);
+}
+
+/**
  * Implements hook_init().
  */
 function cle_assignment_init() {
