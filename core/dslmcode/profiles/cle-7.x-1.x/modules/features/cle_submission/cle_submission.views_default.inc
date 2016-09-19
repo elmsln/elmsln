@@ -491,6 +491,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'cle_submission' => 'cle_submission',
   );
+
   /* Display: Block */
   $handler = $view->new_display('block', 'Block', 'block');
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
@@ -498,10 +499,10 @@ function cle_submission_views_default_views() {
 
   $view = new view();
   $view->name = 'cle_submissions';
-  $view->description = 'Student submissions';
-  $view->tag = 'default';
+  $view->description = 'Submissions overview page';
+  $view->tag = 'studio';
   $view->base_table = 'node';
-  $view->human_name = 'Submissions';
+  $view->human_name = 'Open Studio';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -512,11 +513,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'time';
-  $handler->display->display_options['cache']['results_lifespan'] = '300';
-  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
-  $handler->display->display_options['cache']['output_lifespan'] = '300';
-  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
@@ -642,25 +639,15 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
   $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'textbook_editor';
   $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '15';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '20';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['pager']['options']['id'] = '0';
   $handler->display->display_options['pager']['options']['quantity'] = '';
-  $handler->display->display_options['style_plugin'] = 'fluid_grid';
-  $handler->display->display_options['style_options']['items_width'] = '250';
-  $handler->display->display_options['style_options']['items_height'] = '250';
-  $handler->display->display_options['style_options']['advanced_layout'] = array(
-    'align' => TRUE,
-    'margins' => TRUE,
-    'css3' => TRUE,
-  );
-  $handler->display->display_options['style_options']['list_alignment'] = 'center';
-  $handler->display->display_options['style_options']['items_alignment'] = 'center';
-  $handler->display->display_options['style_options']['items_h_margin'] = '0.2em';
-  $handler->display->display_options['style_options']['items_v_margin'] = '0.2em';
-  $handler->display->display_options['style_options']['box_shadow'] = '1';
-  $handler->display->display_options['style_options']['border_radius'] = '1';
+  $handler->display->display_options['style_plugin'] = 'default';
+  $handler->display->display_options['style_options']['default_row_class'] = FALSE;
+  $handler->display->display_options['style_options']['row_class_special'] = FALSE;
   $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
   /* Relationship: Content: Author */
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
@@ -678,34 +665,82 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['name']['relationship'] = 'uid';
   $handler->display->display_options['fields']['name']['label'] = 'artist';
   $handler->display->display_options['fields']['name']['link_to_user'] = FALSE;
-  /* Field: Content: Link */
-  $handler->display->display_options['fields']['view_node']['id'] = 'view_node';
-  $handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
-  $handler->display->display_options['fields']['view_node']['field'] = 'view_node';
-  $handler->display->display_options['fields']['view_node']['label'] = 'Action';
-  $handler->display->display_options['fields']['view_node']['text'] = 'comment';
+  /* Field: Submission nid */
+  $handler->display->display_options['fields']['nid']['id'] = 'nid';
+  $handler->display->display_options['fields']['nid']['table'] = 'node';
+  $handler->display->display_options['fields']['nid']['field'] = 'nid';
+  $handler->display->display_options['fields']['nid']['ui_name'] = 'Submission nid';
+  $handler->display->display_options['fields']['nid']['label'] = '';
+  $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
   /* Field: Content: Images */
   $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
   $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
   $handler->display->display_options['fields']['field_images']['field'] = 'field_images';
   $handler->display->display_options['fields']['field_images']['label'] = '';
   $handler->display->display_options['fields']['field_images']['alter']['path'] = 'node/[nid]';
-  $handler->display->display_options['fields']['field_images']['element_class'] = 'cle-image';
+  $handler->display->display_options['fields']['field_images']['element_type'] = 'div';
+  $handler->display->display_options['fields']['field_images']['element_class'] = 'carousel-item';
   $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_images']['element_wrapper_type'] = '0';
+  $handler->display->display_options['fields']['field_images']['element_default_classes'] = FALSE;
   $handler->display->display_options['fields']['field_images']['click_sort_column'] = 'fid';
   $handler->display->display_options['fields']['field_images']['type'] = 'colorbox';
   $handler->display->display_options['fields']['field_images']['settings'] = array(
-    'colorbox_node_style' => 'cle_micro',
+    'colorbox_node_style' => 'cle_submission',
     'colorbox_node_style_first' => '',
-    'colorbox_image_style' => 'cle_submission',
+    'colorbox_image_style' => '',
     'colorbox_gallery' => 'page',
     'colorbox_gallery_custom' => '',
-    'colorbox_caption' => 'node_title',
+    'colorbox_caption' => 'auto',
     'colorbox_caption_custom' => '',
   );
   $handler->display->display_options['fields']['field_images']['delta_limit'] = '0';
   $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
-  $handler->display->display_options['fields']['field_images']['separator'] = ' ';
+  $handler->display->display_options['fields']['field_images']['separator'] = '';
+  /* Field: Content: Updated date */
+  $handler->display->display_options['fields']['changed']['id'] = 'changed';
+  $handler->display->display_options['fields']['changed']['table'] = 'node';
+  $handler->display->display_options['fields']['changed']['field'] = 'changed';
+  $handler->display->display_options['fields']['changed']['label'] = '';
+  $handler->display->display_options['fields']['changed']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['changed']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['changed']['custom_date_format'] = 'm/d/y g:ia';
+  $handler->display->display_options['fields']['changed']['second_date_format'] = 'long';
+  /* Field: Submission title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['ui_name'] = 'Submission title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* Field: Assignment title */
+  $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
+  $handler->display->display_options['fields']['title_1']['table'] = 'node';
+  $handler->display->display_options['fields']['title_1']['field'] = 'title';
+  $handler->display->display_options['fields']['title_1']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['title_1']['ui_name'] = 'Assignment title';
+  $handler->display->display_options['fields']['title_1']['label'] = '';
+  $handler->display->display_options['fields']['title_1']['element_label_colon'] = FALSE;
+  /* Field: Assignment nid */
+  $handler->display->display_options['fields']['nid_1']['id'] = 'nid_1';
+  $handler->display->display_options['fields']['nid_1']['table'] = 'node';
+  $handler->display->display_options['fields']['nid_1']['field'] = 'nid';
+  $handler->display->display_options['fields']['nid_1']['relationship'] = 'field_assignment_target_id';
+  $handler->display->display_options['fields']['nid_1']['ui_name'] = 'Assignment nid';
+  $handler->display->display_options['fields']['nid_1']['label'] = '';
+  $handler->display->display_options['fields']['nid_1']['element_label_colon'] = FALSE;
+  /* Field: Content: Comment count */
+  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['label'] = '';
+  $handler->display->display_options['fields']['comment_count']['element_label_colon'] = FALSE;
+  /* Field: Content: New comments */
+  $handler->display->display_options['fields']['new_comments']['id'] = 'new_comments';
+  $handler->display->display_options['fields']['new_comments']['table'] = 'node';
+  $handler->display->display_options['fields']['new_comments']['field'] = 'new_comments';
+  $handler->display->display_options['fields']['new_comments']['label'] = '';
+  $handler->display->display_options['fields']['new_comments']['element_label_colon'] = FALSE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';

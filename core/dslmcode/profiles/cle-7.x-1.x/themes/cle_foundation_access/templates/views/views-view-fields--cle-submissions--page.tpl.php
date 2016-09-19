@@ -23,72 +23,65 @@
  *
  * @ingroup views_templates
  */
-  foreach ($fields as $id => $field):
-    //dpm($id);
-  //dpm($field);
-  endforeach;
-
-  // assemble preview
-  if (isset($fields['field_poster'])) {
-    $preview = $fields['field_poster']->content;
-  }
-  elseif (isset($fields['field_document_file'])) {
-    $preview = $fields['field_document_file']->content;
-  }
-  elseif (isset($fields['field_image'])) {
-    $preview = $fields['field_image']->content;
-  }
-  elseif (isset($fields['field_images'])) {
-    $preview = $fields['field_images']->content;
-  }
-  elseif (isset($fields['field_external_media'])) {
-    $preview = $fields['field_external_media']->content;
-  }
-  elseif (isset($fields['field_svg'])) {
-    $preview = $fields['field_svg']->content;
+  // ensure we have images, otherwise we can't show a preview at this time
+  if (isset($row->field_field_images) && count($row->field_field_images) > 0) {
+    $images = '';
   }
   else {
-    $preview = '<div class="elmsln-no-preview-item  light-blue lighten-5">' . t('no preview') . '</div>';
+    $images = '<div class="elmsln-no-preview-item  light-blue lighten-5">' . t('no preview') . '</div>';
   }
-
-  // course
-  if (isset($fields['field_cis_course_ref'])) {
-    $course = $fields['field_cis_course_ref']->content;
-  }
-  else {
-    $course = 'no course';
+  // build the images out as a row
+  foreach ($row->field_field_images as $image_array) {
+    $build_image = array(
+      'style_name' => 'cle_submission',
+      'path' => $image_array['rendered']['#item']['uri'],
+    );
+    $link_ary = array(
+      'html' => TRUE,
+      'attributes' => array(
+        'class' => 'colorbox',
+        'rel' => 'gallery-all',
+      )
+    );
+    // create the image
+    $image = l(theme('image_style', $build_image), file_create_url($image_array['rendered']['#item']['uri']), $link_ary);
+    $images .= '<div class="carousel-item">' . $image . '</div>';
   }
 ?>
 <div class="col s12 m6 l4 elmsln-card">
   <div class="card small sticky-action">
     <div class="card-image waves-effect waves-block waves-light">
-      <?php print $preview; ?>
+       <div class="carousel carousel-slider center" data-indicators="true">
+         <?php print $images; ?>
+      </div>
     </div>
     <div class="card-content">
       <span class="card-title activator grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print $row->node_title;?></span><i class="material-icons right">more_vert</i></span>
     </div>
     <div class="card-action">
-      <?php print l('view', 'node/' . $row->nid . '/view_modes');?>
-      <?php print l('edit', 'node/' . $row->nid . '/edit');?>
+      <?php print l('Comment', 'node/' . $row->nid);?>
+      <?php if (isset($row->node_new_comments) && $row->node_new_comments > 0) : ?>
+      <span class="new badge blue lighten-5"><?php print $row->node_new_comments;?></span>
+    <?php endif;?>
     </div>
     <div class="card-reveal">
       <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print $row->node_title;?></span><i class="material-icons right"><?php print t('close');?></i></span>
       <ul class="collection">
         <li class="collection-item">
-          <span><?php print $fields['type']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">info_outline</i></span>
+          <span><?php print $row->users_node_name?></span>
+          <span class="secondary-content"><i class="tiny material-icons">assignment_ind</i></span>
         </li>
         <li class="collection-item">
-          <span><?php print $course;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">library_books</i></span>
+          <span><?php print $row->node_field_data_field_assignment_title;?></span>
+          <span class="secondary-content"><i class="tiny material-icons">assignment</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $fields['changed']->content;?></span>
           <span class="secondary-content"><i class="tiny material-icons">schedule</i></span>
         </li>
         <li class="collection-item">
-          <span class="secondary-content"><i class="tiny material-icons">label</i></span>
-          <span class="tags"><?php print $fields['field_tagging']->content;?></span>
+          <span class="secondary-content"><i class="tiny material-icons">comment</i></span>
+          <span class="comments-count"><?php print format_plural($row->node_comment_statistics_comment_count, '@num comment', '@num commments', array('@num' => $row->node_comment_statistics_comment_count)) ;?></span>
         </li>
       </ul>
     </div>
