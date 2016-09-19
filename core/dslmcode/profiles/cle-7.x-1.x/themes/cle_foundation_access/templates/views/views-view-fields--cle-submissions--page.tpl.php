@@ -56,7 +56,12 @@
       </div>
     </div>
     <div class="card-content">
-      <span class="card-title activator grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print $row->node_title;?></span><i class="material-icons right">more_vert</i></span>
+      <span class="card-title activator grey-text text-darken-4">
+        <span class="truncate elmsln-card-title">
+          <?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'orange-text')));?>
+        </span>
+        <i class="material-icons right">more_vert</i>
+      </span>
     </div>
     <div class="card-action">
       <?php print l('Comment', 'node/' . $row->nid);?>
@@ -65,22 +70,22 @@
     <?php endif;?>
     </div>
     <div class="card-reveal">
-      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print $row->node_title;?></span><i class="material-icons right"><?php print t('close');?></i></span>
+      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'orange-text')));?></span><i class="material-icons right"><?php print t('close');?></i></span>
       <ul class="collection">
         <li class="collection-item">
           <span><?php print $row->users_node_name?></span>
-          <span class="secondary-content"><i class="tiny material-icons">assignment_ind</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">assignment_ind</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $row->node_field_data_field_assignment_title;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">assignment</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">assignment</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $fields['changed']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">schedule</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">schedule</i></span>
         </li>
         <li class="collection-item">
-          <span class="secondary-content"><i class="tiny material-icons">comment</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">comment</i></span>
           <span class="comments-count"><?php print format_plural($row->node_comment_statistics_comment_count, '@num comment', '@num commments', array('@num' => $row->node_comment_statistics_comment_count)) ;?></span>
         </li>
       </ul>

@@ -115,8 +115,8 @@
     </div>
     <div class="card-content">
       <span class="card-title activator grey-text text-darken-4">
-        <span class="truncate elmsln-card-title">
-          <?php print l($row->node_title, 'node/' . $row->nid . '/view_modes');?>
+        <span class="truncate elmsln-card-title orange-text">
+          <?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'orange-text')));?>
         </span>
         <i class="material-icons right">more_vert</i>
       </span>
@@ -126,22 +126,22 @@
       <?php print l('edit', 'node/' . $row->nid . '/edit');?>
     </div>
     <div class="card-reveal">
-      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid . '/view_modes');?></span><i class="material-icons right"><?php print t('close');?></i></span>
+      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'orange-text')));?></span><i class="material-icons right"><?php print t('close');?></i></span>
       <ul class="collection">
         <li class="collection-item">
           <span><?php print $fields['type']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">info_outline</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">info_outline</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $course;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">library_books</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">library_books</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $fields['changed']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">schedule</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">schedule</i></span>
         </li>
         <li class="collection-item">
-          <span class="secondary-content"><i class="tiny material-icons">label</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">label</i></span>
           <span class="tags"><?php print $fields['field_tagging']->content;?></span>
         </li>
       </ul>
