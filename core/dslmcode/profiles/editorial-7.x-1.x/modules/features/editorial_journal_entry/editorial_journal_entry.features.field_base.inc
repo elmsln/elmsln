@@ -10,7 +10,7 @@
 function editorial_journal_entry_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_editorial_exercise'
+  // Exported field_base: 'field_editorial_exercise'.
   $field_bases['field_editorial_exercise'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -38,7 +38,7 @@ function editorial_journal_entry_field_default_field_bases() {
     'type' => 'taxonomy_term_reference',
   );
 
-  // Exported field_base: 'field_journal_entry'
+  // Exported field_base: 'field_journal_entry'.
   $field_bases['field_journal_entry'] = array(
     'active' => 1,
     'cardinality' => 1,
