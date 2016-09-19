@@ -22,7 +22,7 @@ function editorial_journal_entry_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'My Journal';
+  $handler->display->display_options['title'] = 'My Writing Exercises';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'time';
@@ -63,7 +63,7 @@ function editorial_journal_entry_views_default_views() {
   $handler = $view->new_display('page', 'Page', 'page');
   $handler->display->display_options['path'] = 'editorial/writing-exercises';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'My Journal';
+  $handler->display->display_options['menu']['title'] = 'My Writing Exercises';
   $handler->display->display_options['menu']['description'] = 'Your personal class journal for completing exercises';
   $handler->display->display_options['menu']['weight'] = '-10';
   $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
