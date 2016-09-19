@@ -29,3 +29,10 @@
 #scrollspy-nav ul li a:active {
   background-color: #FFAA44;
 }
+
+
+.elmsln-card img.h5p-overlay-icon {
+  z-index: 100;
+  position: absolute;
+  width: 3rem;
+}
