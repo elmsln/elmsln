@@ -146,10 +146,15 @@ function book_copy_copy_confirm_submit($form, &$form_state) {
  * Execute a batch process.
  */
 function book_copy_process_copy($nid, $title, $new_title, $progressive = TRUE, $redirect = NULL) {
+  $queue_id = rand(1, 9999);
+  $queue = DrupalQueue::get($queue_id);
+  $queue->createQueue();
+
   $batch = array(
    'title' => t('Copying book %title', array('%title' => $title)),
    'operations' => array(
-      array('book_copy_copy', array($nid, $new_title)),
+      array('book_copy_copy', array($nid, $new_title, $queue_id)),
+      array('book_copy_update_internal_links', array($queue_id)),
     ),
    'finished' => '_book_copy_copy_finished',
   );
@@ -164,7 +169,7 @@ function book_copy_process_copy($nid, $title, $new_title, $progressive = TRUE, $
 /**
  * Callback for replicating a book outline below a passed node.
  */
-function book_copy_copy($initial_nid, $new_title, &$context) {
+function book_copy_copy($initial_nid, $new_title, $queue_id, &$context) {
   // batch job is starting
   if (!isset($context['sandbox']['progress'])) {
     $node = node_load($initial_nid);
@@ -217,6 +222,14 @@ function book_copy_copy($initial_nid, $new_title, &$context) {
     }
     // save the cloned item
     node_save($clone);
+    // create a map of the odl nid and the new nid and save
+    $old_node_nid = $entity->nid;
+    $new_node_nid = $clone->nid;
+    $nid_map = array($old_node_nid => $new_node_nid);
+    // Add the old nid and the new nid to the Drupal Queue
+    $queue = DrupalQueue::get($queue_id);
+    $queue->createItem($nid_map);
+
     $context['sandbox']['map'][$nid] = $clone->book['mlid'];
     // capture new root nid for the case that we have a whole new book
     if ($clone->book['plid'] == 0) {
@@ -250,6 +263,58 @@ function _book_copy_copy_finished($success, $results, $operations) {
     $message = format_plural(count($results), '1 book item successfully copied.', '@count book items successfully copied.');
     $message .= theme('item_list', $results);
     drupal_set_message($message);
+  }
+}
+
+/**
+  * Update the internal links
+  *
+  * @todo: Improve the preg_replace regex
+  *        preg_match_all("/(?<=href=(\"|'))[^\"']+(?=(\"|'))/", $new_node->body['und'][0]['value'], $matches);
+  */
+function book_copy_update_internal_links($queue_id) {
+  $nid_map = array();
+  // load the nid_map queue
+  $queue = DrupalQueue::get($queue_id);
+  // assemble the queue into the nid_map array
+  while ($queue->numberOfItems() > 0) {
+    // load the item from the queue
+    $item = $queue->claimItem();
+    // remove the item from the queue
+    $queue->deleteItem($item);
+    // add the item to the nid_map array
+    foreach ($item->data as $old_nid => $new_nid) {
+      $nid_map[$old_nid] = $new_nid;
+    }
+  }
+
+  // find the patterns and replacements for the preg_replace
+  $patterns = array();
+  $replacements = array();
+  foreach($nid_map as $old_nid => $new_nid) {
+    $patterns[] = "/node\/" . $old_nid . "/";
+    $replacements[] = "node/" . $new_nid;
+  }
+
+  // loop over the newly created nids and attempt to update the internal links
+  $new_nids = array_values($nid_map);
+  foreach ($new_nids as $new_nid) {
+    $updated_node_body = NULL;
+    // load the newly created node
+    $new_node = node_load($new_nid);
+    // see if we have a body field
+    $node_body = (isset($new_node->body['und'][0]['value']) ? $new_node->body['und'][0]['value'] : NULL);
+
+    // if there is a body, attempt to replace old_nids with new_nids
+    if ($node_body) {
+      $updated_node_body = preg_replace($patterns, $replacements, $node_body);
+    }
+
+    // save the node with the updated nids
+    if ($updated_node_body) {
+      $new_node->body['und'][0]['value'] = $updated_node_body;
+      node_save($new_node);
+    }
   }
 }
 
