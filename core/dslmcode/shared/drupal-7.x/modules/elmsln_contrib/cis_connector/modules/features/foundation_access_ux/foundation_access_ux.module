@@ -35,7 +35,6 @@ function foundation_access_ux_node_view($node, $view_mode, $langcode) {
     if ($node && !empty($node->content['body']) && isset($node->content['body'][0]['#markup'])) {
       // target the scrollspy template style
       $search = '/<h([1-4])(.*?)>(.*?)<\/h(.*?)>/s';
-      $replace = '<h$(strlen(${1}))${2} id="${3}" data-scrollspy="scrollspy">${3}</h${4}>';
 
       // pregmatch the anchor and title for the heading
       preg_match_all($search, $node->content['body'][0]['#markup'], $results);
