@@ -748,7 +748,7 @@ function mooc_helper_fa_a11y() {
         ),
       ),
       'speedreader' => array(
-        '#markup' => '<a href="#" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">' . t('Speed reader') . '</a>'
+        '#markup' => '<a class="elmsln-modal-trigger" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">' . t('Speed reader') . '</a>'
         ),
       ),
     );

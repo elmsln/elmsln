@@ -16,7 +16,7 @@
         <ul class="left kill-margin middle-align-wrap">
         <?php if ($bar_elements['network']) : ?>
           <li class="apps">
-            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap elmsln-network-button" data-reveal-id="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
+            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
               <div class="icon-apps-black etb-icons svg"></div>
               <span class="hide-on-med-and-down"><?php print t('Network'); ?></span>
             </a>
@@ -24,7 +24,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
           <li class="ferpa-protect">
-            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap elmsln-user-button" data-reveal-id="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
+            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="hide-on-med-and-down"><?php print $username; ?></span>
             </a>

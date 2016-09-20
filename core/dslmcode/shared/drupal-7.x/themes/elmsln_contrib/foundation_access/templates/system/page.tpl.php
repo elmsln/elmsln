@@ -41,13 +41,13 @@
                 </li>
                 <?php endif; ?>
                 <?php if (!empty($cis_shortcodes)) : ?>
-                  <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Share')?>" class="r-header__icon elmsln-share-button" data-reveal-id="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="cis-shortcodes-drop" aria-expanded="false" data-jwerty-key="s" data-voicecommand="open share (menu)">
+                  <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Share')?>" class="r-header__icon elmsln-share-button elmsln-right-side-nav-trigger" data-activates="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="cis-shortcodes-drop" aria-expanded="false" data-jwerty-key="s" data-voicecommand="open share (menu)">
                     <i class="zmdi zmdi-arrow-split"></i>
                     <span class="element-invisible"><?php print t('Short code menu'); ?></span>
                   </a></li>
                 <?php endif; ?>
                 <?php if (!empty($a11y)) : ?>
-                  <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Accessibility options')?>" class="r-header__icon elmsln-accessibility-button" data-reveal-id="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false" data-jwerty-key="a" data-voicecommand="open accessibility (menu)">
+                  <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Accessibility options')?>" class="r-header__icon elmsln-accessibility-button elmsln-right-side-nav-trigger" data-activates="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false" data-jwerty-key="a" data-voicecommand="open accessibility (menu)">
                     <i class="zmdi zmdi-tune"></i>
                     <span class="element-invisible"><?php print t('Accessibility menu'); ?></span>
                   </a></li>
@@ -167,7 +167,7 @@
 <?php print render($page['cis_lmsless_modal']); ?>
 <!-- Accessibility Modal -->
 <?php if (!empty($a11y)) : ?>
-<div id="page-accessibility-menu" class="elmsln-scroll-bar reveal-modal disable-scroll" data-reveal aria-labelledby="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog">
+<div id="page-accessibility-menu" class="elmsln-scroll-bar etb-nav-modal elmsln-modal side-nav disable-scroll" aria-labelledby="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog">
   <h2 id="Accessibility"><?php print t('Accessibility') ?></h2>
   <?php print $a11y; ?>
   <a class="close-reveal-modal" data-voicecommand="close (menu)" data-jwerty-key="Esc">&#215;</a>

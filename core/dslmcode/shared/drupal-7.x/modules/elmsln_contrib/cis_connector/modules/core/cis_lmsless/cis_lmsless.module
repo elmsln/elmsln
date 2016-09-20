@@ -154,19 +154,19 @@ function _cis_lmsless_assemble_user() {
         $vars['user_section'] = '<span>' . filter_xss($section) . '</span>';
         // ensure they can see the section switcher link
         if (user_access('switch section context')) {
-          $vars['user_section'] .= '<span><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal" class="admin-alert">' . t('change') . '</a></span>';
+          $vars['user_section'] .= '<span><a href="#block-cis-service-connection-section-context-changer-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn">' . t('change') . '</a></span>';
         }
       }
       // render differently if the user is already masquerading
       if (isset($_SESSION['masquerading'])) {
         $tmptext = '<span><div>' . filter_xss($GLOBALS['user']->name) . '</div></span>';
-        $vars['masquerade'] = $tmptext . '<div>' . l(t('revert'), 'masquerade/unswitch', array('attributes' => array('class' => 'admin-alert'), 'query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '</div>';
+        $vars['masquerade'] = $tmptext . '<div>' . l(t('revert'), 'masquerade/unswitch', array('attributes' => array('class' => 'waves-effect waves-light btn'), 'query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '</div>';
       }
       else {
-        $vars['masquerade'] = '<a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal" class="admin-alert">' . t('impersonate account') . '</a>';
+        $vars['masquerade'] = '<a href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn">' . t('impersonate account') . '</a>';
       }
       // support for the FERPA filter block
-      $vars['ferpa_flter'] = '<a href="#" data-reveal-id="block-cis-service-connection-ferpa-filter-nav-modal" class="admin-alert">' . t('Privacy settings') . '</a>';
+      $vars['ferpa_flter'] = '<a href="#block-cis-service-connection-ferpa-filter-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn">' . t('Privacy settings') . '</a>';
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
       unset($tmproles[1]);

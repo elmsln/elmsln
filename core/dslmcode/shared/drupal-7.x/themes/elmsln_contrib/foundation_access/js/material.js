@@ -33,6 +33,30 @@
       $('.parallax').parallax();
       $('.carousel').not('.carousel-slider').carousel();
       $('.carousel-slider').carousel({full_width: true});
+      $('.elmsln-right-side-nav-trigger').sideNav({
+        menuWidth: 450, // Default is 240
+        edge: 'right', // Choose the horizontal origin
+        closeOnClick: false // Closes side-nav on <a> clicks, useful for Angular/Meteor
+      });
+      $('.elmsln-left-side-nav-trigger').sideNav({
+        menuWidth: 280, // Default is 240
+        edge: 'left', // Choose the horizontal origin
+        closeOnClick: false // Closes side-nav on <a> clicks, useful for Angular/Meteor
+      });
+      $('.elmsln-modal-trigger').leanModal({
+        dismissible: true, // Modal can be dismissed by clicking outside of the modal
+        opacity: .5, // Opacity of modal background
+        in_duration: 200, // Transition in duration
+        out_duration: 200, // Transition out duration
+        starting_top: '4%', // Starting top style attribute
+        ending_top: '10%', // Ending top style attribute
+      });
+      // close x's
+      // @todo this is blocking openning again
+      $('.close-reveal-modal').click(function(){
+        $('#' + $(this).parents().attr('id')).closeModal();
+        $('[data-activates=' + $(this).parents().attr('id') + ']').sideNav('hide');
+      });
     }
   };
 })(jQuery);

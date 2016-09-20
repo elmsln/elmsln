@@ -139,8 +139,17 @@ select.chosen {
   color:#4c4c4c;
 }
 
-.reveal-modal .close-reveal-modal {
-  color:#4c4c4c;
+.elmsln-modal .close-reveal-modal {
+    color: #4c4c4c;
+    cursor: pointer;
+    font-size: 2.5rem;
+    font-weight: bold;
+    line-height: 1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: .25rem;
 }
 
 div.read-time-wrapper div.chip i {

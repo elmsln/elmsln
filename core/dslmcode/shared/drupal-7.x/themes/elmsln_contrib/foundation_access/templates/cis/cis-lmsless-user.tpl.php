@@ -25,16 +25,12 @@
   <?php if (!empty($masquerade)) : ?>
   <hr class="pad-1" />
   <h2><?php print t('Impersonate'); ?></h2>
-  <div class="cis-admin-area user-nav-masquerade">
     <?php print $masquerade; ?>
-  </div>
   <?php endif; ?>
   <?php if (!empty($ferpa_flter)) : ?>
   <hr class="pad-1" />
   <h2><?php print t('Privacy settings'); ?></h2>
-  <div class="cis-admin-area user-nav-ferpa-flter">
     <?php print $ferpa_flter; ?>
-  </div>
   <?php endif; ?>
   <?php if (isset($section_title)) : ?>
   <hr class="pad-1" />
