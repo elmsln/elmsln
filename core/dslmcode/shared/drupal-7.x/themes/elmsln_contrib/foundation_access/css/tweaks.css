@@ -1,3 +1,23 @@
+/* Sticky footer from MaterializeCSS */
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+
+footer.page-footer{
+  background-color: #3e3e3e;
+  padding-top: 1rem;
+  text-align: center; }
+  footer.page-footer p {
+    color: #999;
+    font-size: 0.8rem; }
+
 /* ELMSLN card - variation of materializeCSS card */
 .elmsln-card .card .card-content .card-title {
   line-height: 1.4rem;

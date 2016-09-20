@@ -7172,17 +7172,6 @@ body {
       .off-canvas-wrap .inner-wrap {
         margin: 0 0 18.875rem 0; } }
 
-.sticky-footer {
-  height: 10rem; }
-
-footer {
-  background-color: #3e3e3e;
-  padding-top: 1rem;
-  text-align: center; }
-  footer p {
-    color: #999;
-    font-size: 0.8rem; }
-
 .scroll-disabled {
   overflow: hidden; }
 
