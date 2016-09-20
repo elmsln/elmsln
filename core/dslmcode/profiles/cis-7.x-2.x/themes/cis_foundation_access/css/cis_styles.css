@@ -4,13 +4,3 @@
     padding: 0;
     margin: 0;
 }
-
-legend + .fieldset-wrapper {
-    padding-top: 0.75em;
-}
-
-fieldset.bef-select-as-radios-fieldset.collapsed legend,
-fieldset.bef-select-as-checkboxes-fieldset.collapsed legend
-{
-    position: absolute;
-}

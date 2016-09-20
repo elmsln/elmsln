@@ -135,7 +135,7 @@ function _cis_lmsless_assemble_user() {
         'height' => '220',
         'alt' => t('Picture of @name', array('@name' => $vars['username'])),
         'attributes' => array(
-          'class' => 'cis-lmsless-avatar-big ferpa-protect',
+          'class' => 'circle cis-lmsless-avatar-big ferpa-protect',
         )
       );
       $vars['userpicturebig'] = theme_image_style($image);
@@ -382,7 +382,7 @@ function _cis_lmsless_theme_vars() {
         'height' => '26',
         'alt' => t('Picture of @name', array('@name' => $vars['username'])),
         'attributes' => array(
-          'class' => 'cis-lmsless-avatar etb-icons ferpa-protect',
+          'class' => 'circle cis-lmsless-avatar etb-icons ferpa-protect',
         )
       );
       $vars['userpicture'] = theme_image_style($image);

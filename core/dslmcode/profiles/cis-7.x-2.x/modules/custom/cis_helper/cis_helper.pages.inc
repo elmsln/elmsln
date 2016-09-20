@@ -467,7 +467,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#collapsible' => '1',
     '#attributes' => array(
       'class' => array(
-        's12', 'm6', 'col',
+        's12', 'm6'
       )
     ),
   );

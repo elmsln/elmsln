@@ -100,7 +100,6 @@
   <?php print $page_top; ?>
   <?php print $page; ?>
   <?php print $page_bottom; ?>
-  <?php print _zurb_foundation_add_reveals(); ?>
   <script>
     (function ($, Drupal, window, document, undefined) {
       $(document).foundation();

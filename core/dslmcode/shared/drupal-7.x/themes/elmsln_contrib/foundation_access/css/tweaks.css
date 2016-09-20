@@ -9,7 +9,6 @@ main {
   flex: 1 0 auto;
 }
 
-
 footer.page-footer{
   background-color: #3e3e3e;
   padding-top: 1rem;
@@ -17,6 +16,11 @@ footer.page-footer{
   footer.page-footer p {
     color: #999;
     font-size: 0.8rem; }
+
+/* undo core error message conflict */
+div.error {
+  background-image: initial;
+}
 
 /* ELMSLN card - variation of materializeCSS card */
 .elmsln-card .card .card-content .card-title {
@@ -767,6 +771,17 @@ fieldset {
   border-radius: 3px;
   padding: 2rem;
   position: relative;
+  min-height: 4rem !important;
+}
+
+legend + .fieldset-wrapper {
+    padding-top: 2.5rem;
+}
+
+fieldset.bef-select-as-radios-fieldset.collapsed legend,
+fieldset.bef-select-as-checkboxes-fieldset.collapsed legend
+{
+    position: absolute;
 }
 
 .fieldset-description {
