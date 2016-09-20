@@ -86,9 +86,9 @@
             </div>
           </div>
           <div class="row content-element-region-wrapper">
-            <div class="content-element-region small-12 medium-12 large-12 columns">
+            <div class="content-element-region s12 m12 l12 col">
               <div class="row">
-                <div class="small-12 medium-12 large-push-1 large-10 columns" role="content">
+                <div class="s12 m12 push-l1 l10 col" role="content">
                   <?php if (!empty($page['highlighted'])): ?>
                     <div class="highlight panel callout">
                       <?php print render($page['highlighted']); ?>

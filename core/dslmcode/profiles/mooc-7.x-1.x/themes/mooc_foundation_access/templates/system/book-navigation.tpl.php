@@ -29,7 +29,7 @@
  */
 ?>
 <?php if ($has_links): ?>
-  <div id="book-navigation-<?php print $book_id; ?>" class="book-navigation-footer small-12 medium-12 large-12 book-sibling-nav-container">
+  <div id="book-navigation-<?php print $book_id; ?>" class="book-navigation-footer col s12 m12 l12 book-sibling-nav-container">
     <?php if ($has_links): ?>
       <?php if ($prev_url): ?>
         <li class="toolbar-menu-icon book-sibling-parent-pagination book-sibling-parent-pagination-previous">
