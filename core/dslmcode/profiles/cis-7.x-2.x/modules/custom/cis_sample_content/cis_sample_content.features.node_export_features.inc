@@ -217,10 +217,10 @@ function cis_sample_content_node_export_features_default() {
       \'body\' => array(
         \'und\' => array(
           array(
-            \'value\' => "<p>&copy; Copyright&nbsp;2013&nbsp;-&nbsp;!current&nbsp; All rights&nbsp;reserved.&nbsp;</p>\\r\\n",
+            \'value\' => "<p>&copy; Copyright&nbsp;!current&nbsp; All rights&nbsp;reserved.&nbsp;</p>\\r\\n",
             \'summary\' => \'\',
             \'format\' => \'textbook_editor\',
-            \'safe_value\' => \'<p>© Copyright 2013 - !current  All&nbsp;rights reserved. </p>\',
+            \'safe_value\' => \'<p>© Copyright !current  All&nbsp;rights reserved. </p>\',
             \'safe_summary\' => \'\',
           ),
         ),
