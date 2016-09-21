@@ -649,7 +649,7 @@ function foundation_access_preprocess_clipboardjs(&$variables) {
     '#value' => check_plain($variables['button_label']),
     '#attributes' => array(
       'class' => array('clipboardjs-button', 'zmdi', 'zmdi-copy'),
-      'data-clipboard-alert' => $variables['alert_style'],
+      'data-clipboard-alert' => 'toast',
       'data-clipboard-alert-text' => $variables['alert_text'],
       'data-clipboard-target' => '#' . $uniqid,
       'onClick' => 'return false;',
