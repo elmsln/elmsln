@@ -7,7 +7,7 @@ module.exports = function() {
         var alertText = $(e.trigger).data('clipboardAlertText');
         var target = $(e.trigger).data('clipboardTarget');
 
-        // Display as alert.
+        // Display as Materialize toast.
         if (alertStyle === 'toast') {
           Materialize.toast(alertText, 2000);
         }
