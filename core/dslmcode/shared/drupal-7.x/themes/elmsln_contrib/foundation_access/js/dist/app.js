@@ -2,13 +2,14 @@
 /**
  * This file will be compiled into foundation_access/js/dist/app.js
  *
- * To make changes to this file you must runt `grunt`.  
- * If you do not have grunt, please make edits directly 
+ * To make changes to this file you must runt `grunt`.
+ * If you do not have grunt, please make edits directly
  * to foundation_access/js/tweaks.js
  */
 
 var imageLightbox = require('./components/imageLightbox.js');
 var mediavideo = require('./components/mediavideo.js');
+var clipboardjs = require('./components/clipboardjs.js');
 
 (function ($) {
   // Accessibility To Do:
@@ -51,6 +52,7 @@ var mediavideo = require('./components/mediavideo.js');
       attach: function (context, settings) {
         imageLightbox();
         mediavideo();
+        clipboardjs();
       }
     };
   }
@@ -155,7 +157,26 @@ var mediavideo = require('./components/mediavideo.js');
 
 })(jQuery);
 
-},{"./components/imageLightbox.js":2,"./components/mediavideo.js":3}],2:[function(require,module,exports){
+},{"./components/clipboardjs.js":2,"./components/imageLightbox.js":3,"./components/mediavideo.js":4}],2:[function(require,module,exports){
+module.exports = function() {
+  (function ($) {
+    'use strict';
+
+      Drupal.clipboard.on('success', function (e) {
+        var alertStyle = $(e.trigger).data('clipboardAlert');
+        var alertText = $(e.trigger).data('clipboardAlertText');
+        var target = $(e.trigger).data('clipboardTarget');
+
+        // Display as alert.
+        if (alertStyle === 'toast') {
+          Materialize.toast(alertText, 2000);
+        }
+      });
+
+  })(jQuery);
+};
+
+},{}],3:[function(require,module,exports){
 module.exports = function() {
   (function ($) {
     'use strict';
@@ -184,7 +205,7 @@ module.exports = function() {
   })(jQuery);
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 module.exports = function() {
   (function ($) {
 	  'use strict';

@@ -1,13 +1,14 @@
 /**
  * This file will be compiled into foundation_access/js/dist/app.js
  *
- * To make changes to this file you must runt `grunt`.  
- * If you do not have grunt, please make edits directly 
+ * To make changes to this file you must runt `grunt`.
+ * If you do not have grunt, please make edits directly
  * to foundation_access/js/tweaks.js
  */
 
 var imageLightbox = require('./components/imageLightbox.js');
 var mediavideo = require('./components/mediavideo.js');
+var clipboardjs = require('./components/clipboardjs.js');
 
 (function ($) {
   // Accessibility To Do:
@@ -50,6 +51,7 @@ var mediavideo = require('./components/mediavideo.js');
       attach: function (context, settings) {
         imageLightbox();
         mediavideo();
+        clipboardjs();
       }
     };
   }
