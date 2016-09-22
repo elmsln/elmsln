@@ -146,27 +146,26 @@ function _cis_lmsless_assemble_user() {
     }
     else {
       $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout'))));
-      $vars['userprofile'] = l('profile', 'user/' . $GLOBALS['user']->uid);
+      $vars['userprofile'] = l('<i class="material-icons white-text">face</i>Profile', 'user/' . $GLOBALS['user']->uid, array('attributes' => array('class' => 'waves-effect waves-light btn'), 'html' => TRUE));
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       // account for systems without sections (like authorities)
       if ($section) {
-        $vars['user_section'] = '<span>' . filter_xss($section) . '</span>';
         // ensure they can see the section switcher link
         if (user_access('switch section context')) {
-          $vars['user_section'] .= '<span><a href="#block-cis-service-connection-section-context-changer-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn">' . t('change') . '</a></span>';
+          $vars['user_section'] = '<a href="#block-cis-service-connection-section-context-changer-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn"><i class="material-icons white-text">perm_identity</i>' . t('Change section') . '</span></a>';
         }
       }
       // render differently if the user is already masquerading
       if (isset($_SESSION['masquerading'])) {
         $tmptext = '<span><div>' . filter_xss($GLOBALS['user']->name) . '</div></span>';
-        $vars['masquerade'] = $tmptext . '<div>' . l(t('revert'), 'masquerade/unswitch', array('attributes' => array('class' => 'waves-effect waves-light btn'), 'query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '</div>';
+        $vars['masquerade'] = $tmptext . '<div>' . l('<i class="material-icons white-text">supervisor_account</i>' . t('revert'), 'masquerade/unswitch', array('attributes' => array('class' => 'waves-effect waves-light btn'), 'html' => TRUE, 'query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '</div>';
       }
       else {
-        $vars['masquerade'] = '<a href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn">' . t('impersonate account') . '</a>';
+        $vars['masquerade'] = '<a href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn"><i class="material-icons white-text">supervisor_account</i>' . t('impersonate account') . '</a>';
       }
       // support for the FERPA filter block
-      $vars['ferpa_flter'] = '<a href="#block-cis-service-connection-ferpa-filter-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn">' . t('Privacy settings') . '</a>';
+      $vars['ferpa_flter'] = '<a href="#block-cis-service-connection-ferpa-filter-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn"><i class="material-icons white-text">visibility</i>' . t('Privacy settings') . '</a>';
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
       unset($tmproles[1]);
@@ -382,7 +381,7 @@ function _cis_lmsless_theme_vars() {
         'height' => '26',
         'alt' => t('Picture of @name', array('@name' => $vars['username'])),
         'attributes' => array(
-          'class' => 'circle cis-lmsless-avatar etb-icons ferpa-protect',
+          'class' => 'circle cis-lmsless-avatar ferpa-protect',
         )
       );
       $vars['userpicture'] = theme_image_style($image);
@@ -440,7 +439,7 @@ function cis_lmsless_theme() {
         'tour' => url('guided_tour'),
         'username' => t('Account'),
         'userlink' => '',
-        'userpicturebig' => '<div class="ferpa-protect icon-user-black etb-icons svg"></div>',
+        'userpicturebig' => '<div class="ferpa-protect icon-user-black svg"></div>',
         'masquerade' => '',
         'ferpa_flter' => '',
         'user_roles' => '',

@@ -15,49 +15,41 @@
         <!-- Left Nav Section -->
         <ul class="left kill-margin middle-align-wrap">
         <?php if ($bar_elements['network']) : ?>
-          <li class="apps">
-            <a href="#" class="etb-nav_item_service_btn etb-icon apps-icon middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
-              <div class="icon-apps-black etb-icons svg"></div>
-              <span class="hide-on-med-and-down"><?php print t('Network'); ?></span>
+          <li class="elmsln-network-menu-item">
+            <a href="#" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger  black-text waves-effect waves-orange" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
+              <div class="cis-lmsless-network icon-apps-black svg"></div>
+              <span class="hide-on-med-and-down truncate"><?php print t('Network'); ?></span>
             </a>
           </li>
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
-          <li class="ferpa-protect">
-            <a href="#" class="etb-nav_item_service_btn etb-icon user-icon middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
+          <li class="elmsln-user-profile-menu-item ferpa-protect divider-right">
+            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect waves-orange" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
-              <span class="hide-on-med-and-down"><?php print $username; ?></span>
+              <span class="hide-on-med-and-down truncate"><?php print $username; ?></span>
             </a>
           </li>
           <?php endif; ?>
           <?php if ($bar_elements['help']) : ?>
-          <li class="divider-left">
-            <a href="<?php print $help_link;?>" class="etb-nav_item_service_btn etb-icon help-icon elmsln-help-button middle-align-wrap" data-jwerty-key="h" data-voicecommand="help">
-              <div class="icon-help-black etb-icons svg"></div>
+          <li>
+            <a href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text waves-effect waves-orange" data-jwerty-key="h" data-voicecommand="help">
+              <i class="material-icons left">help</i>
               <span class="hide-on-med-and-down"><?php print t('Help'); ?></span>
             </a>
           </li>
           <?php endif; ?>
           <?php if (isset($bar_elements['resources']) && $bar_elements['resources']) : ?>
-            <?php if ($bar_elements['help']) : ?>
             <li>
-            <?php else : ?>
-            <li class="divider-left">
-            <?php endif; ?>
-            <a href="<?php print $resources_link;?>" class="etb-nav_item_service_btn etb-icon elmsln-resource-button resources-icon middle-align-wrap" data-jwerty-key="r" data-voicecommand="resources">
-              <div class="icon-teacher-black etb-icons svg"></div>
+            <a href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap black-text waves-effect waves-orange" data-jwerty-key="r" data-voicecommand="resources">
+              <i class="material-icons left">local_library</i>
               <span class="hide-on-med-and-down"><?php print t('Resources'); ?></span>
             </a>
           </li>
           <?php endif; ?>
           <?php if ($bar_elements['syllabus']) : ?>
-            <?php if ($bar_elements['help'] || $bar_elements['resources']) : ?>
             <li>
-            <?php else : ?>
-            <li class="divider-left">
-            <?php endif; ?>
-            <a href="<?php print $syllabus_link;?>" class="etb-nav_item_service_btn etb-icon info-icon elmsln-syllabus-button middle-align-wrap" data-jwerty-key="y" data-voicecommand="syllabus">
-              <div class="icon-info-black etb-icons svg"></div>
+            <a href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap black-text waves-effect waves-orange" data-jwerty-key="y" data-voicecommand="syllabus">
+              <i class="material-icons left">info_outline</i>
               <span class="hide-on-med-and-down"><?php print t('Syllabus'); ?></span>
             </a>
           </li>

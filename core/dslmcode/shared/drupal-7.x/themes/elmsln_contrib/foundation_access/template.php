@@ -87,6 +87,77 @@ function foundation_access_preprocess_html(&$variables) {
 }
 
 /**
+ * Style for fieldsets
+ */
+function foundation_access_fieldset($variables) {
+  $element = $variables['element'];
+  element_set_attributes($element, array('id'));
+  _form_set_class($element, array('form-wrapper'));
+  // allow for materialization if it exists, otherwise serve default
+  if (isset($element['#materialize'])) {
+    switch ($element['#materialize']['type']) {
+      case 'collapsible_wrapper':
+        $output = '<ul' . drupal_attributes($element['#attributes']) .'>' . $element['#children'] . '</ul>';
+      break;
+      case 'collapsible':
+        $collapse = '';
+        $icon = '';
+        $body = '';
+        if (isset($element['#collapsed']) && !$element['#collapsed']) {
+          $collapse = ' active';
+        }
+        // support icons in the headings of collapsed fieldsets
+        if (isset($element['#materialize']['icon'])) {
+          $icon = '<i class="material-icons">' . $element['#materialize']['icon'] . '</i>';
+        }
+        // support descriptions / form the body
+        if (isset($element['#description'])) {
+          $body .= '<p>' . $element['#description'] . '</p>';
+        }
+        // apply the value if it exists
+        if (isset($element['#value'])) {
+          $body .= $element['#value'];
+        }
+        // apply markup if it was pre-rendered
+        if (isset($element['#markup'])) {
+          $body .= $element['#markup'];
+        }
+        // drive down into the child elements if they exist
+        $body .= $element['#children'];
+        // form the fieldset as a collapse element
+        $output = '
+        <li>
+          <div class="collapsible-header' . $collapse . '">' .
+            $icon . $element['#title'] .
+          '</div>
+          <div class="collapsible-body">' .
+          $body .
+          '</div>
+        </li>';
+      break;
+    }
+  }
+  else {
+    $output = '<fieldset' . drupal_attributes($element['#attributes']) . '>';
+    if (!empty($element['#title'])) {
+      // Always wrap fieldset legends in a SPAN for CSS positioning.
+      $output .= '<legend><span class="fieldset-legend">' . $element['#title'] . '</span></legend>';
+    }
+    $output .= '<div class="fieldset-wrapper">';
+    if (!empty($element['#description'])) {
+      $output .= '<div class="fieldset-description">' . $element['#description'] . '</div>';
+    }
+    $output .= $element['#children'];
+    if (isset($element['#value'])) {
+      $output .= $element['#value'];
+    }
+    $output .= '</div>';
+    $output .= "</fieldset>\n";
+  }
+  return $output;
+}
+
+/**
  * Implements template_preprocess_page.
  */
 function foundation_access_preprocess_page(&$variables) {
@@ -94,6 +165,16 @@ function foundation_access_preprocess_page(&$variables) {
   // allow modules to supply accessibility enhancements to the menu
   $a11y = module_invoke_all('fa_a11y');
   drupal_alter('fa_a11y', $a11y);
+  $a11y['alters']['#collapsed'] = FALSE;
+  // add in the form api wrapper meta properties to render as materialize collapse
+  $a11y['#type'] = 'fieldset';
+  $a11y['#materialize'] = array(
+    'type' => 'collapsible_wrapper'
+  );
+  $a11y['#attributes'] = array(
+    'class' => array('collapsible'),
+    'data-collapsible' => 'accordion',
+  );
   $variables['a11y'] = drupal_render($a11y);
   // sniff out if this is a view
   if ($menu_item['page_callback'] == 'views_page') {
@@ -293,6 +374,100 @@ function foundation_access_button($variables) {
   else {
     return '<button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</button>';
   }
+}
+
+/**
+ * Implements theme_textfield().
+ */
+function foundation_access_textfield($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'text';
+  element_set_attributes($element, array('id', 'name', 'value', 'size', 'maxlength'));
+
+  $extra = '';
+  if ($element['#autocomplete_path'] && drupal_valid_path($element['#autocomplete_path'])) {
+    drupal_add_library('system', 'drupal.autocomplete');
+    $element['#attributes']['class'][] = 'form-autocomplete';
+
+    $attributes = array();
+    $attributes['type'] = 'hidden';
+    $attributes['id'] = $element['#attributes']['id'] . '-autocomplete';
+    $attributes['value'] = url($element['#autocomplete_path'], array('absolute' => TRUE));
+    $attributes['disabled'] = 'disabled';
+    $attributes['class'][] = 'autocomplete';
+    $extra = '<input' . drupal_attributes($attributes) . ' />';
+  }
+
+  $output = '<input' . drupal_attributes($element['#attributes']) . ' />';
+
+  return $output . $extra;
+}
+
+/**
+ * Implements theme_form_element().
+ */
+function foundation_access_form_element($variables) {
+  $element = &$variables['element'];
+  // This function is invoked as theme wrapper, but the rendered form element
+  // may not necessarily have been processed by form_builder().
+  $element += array(
+    '#title_display' => 'before',
+  );
+
+  // Add element #id for #type 'item'.
+  if (isset($element['#markup']) && !empty($element['#id'])) {
+    $attributes['id'] = $element['#id'];
+  }
+  // Add element's #type and #name as class to aid with JS/CSS selectors.
+  $attributes['class'] = array('form-item');
+  if ($element['#type'] == 'textfield') {
+    $attributes['class'][] = 'input-field';
+  }
+  if (!empty($element['#type'])) {
+    $attributes['class'][] = 'form-type-' . strtr($element['#type'], '_', '-');
+  }
+  if (!empty($element['#name'])) {
+    $attributes['class'][] = 'form-item-' . strtr($element['#name'], array(' ' => '-', '_' => '-', '[' => '-', ']' => ''));
+  }
+  // Add a class for disabled elements to facilitate cross-browser styling.
+  if (!empty($element['#attributes']['disabled'])) {
+    $attributes['class'][] = 'form-disabled';
+  }
+  $output = '<div' . drupal_attributes($attributes) . '>' . "\n";
+
+  // If #title is not set, we don't display any label or required marker.
+  if (!isset($element['#title'])) {
+    $element['#title_display'] = 'none';
+  }
+  $prefix = isset($element['#field_prefix']) ? '<span class="field-prefix">' . $element['#field_prefix'] . '</span> ' : '';
+  $suffix = isset($element['#field_suffix']) ? ' <span class="field-suffix">' . $element['#field_suffix'] . '</span>' : '';
+
+  switch ($element['#title_display']) {
+    case 'before':
+    case 'invisible':
+      $output .= ' ' . theme('form_element_label', $variables);
+      $output .= ' ' . $prefix . $element['#children'] . $suffix . "\n";
+      break;
+
+    case 'after':
+      $output .= ' ' . $prefix . $element['#children'] . $suffix;
+      $output .= ' ' . theme('form_element_label', $variables) . "\n";
+      break;
+
+    case 'none':
+    case 'attribute':
+      // Output no label and no required marker, only the children.
+      $output .= ' ' . $prefix . $element['#children'] . $suffix . "\n";
+      break;
+  }
+
+  if (!empty($element['#description'])) {
+    $output .= '<div class="description">' . $element['#description'] . "</div>\n";
+  }
+
+  $output .= "</div>\n";
+
+  return $output;
 }
 
 /**
@@ -683,6 +858,22 @@ function foundation_access_menu_link(&$variables) {
       $title = '<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $title;
     }
   }
+  // support for add menu to get floating classes
+  if ($element['#original_link']['menu_name'] == 'menu-elmsln-add') {
+    $element['#localized_options']['attributes']['class'][] = 'btn-floating';
+    $element['#localized_options']['attributes']['class'][] = 'elmsln-btn-floating';
+    // load up a map of icons and color associations
+    $icon_map = _foundation_access_icon_map();
+    $icon = str_replace(' ', '_', drupal_strtolower($title));
+    if (isset($icon_map[$icon])) {
+      $element['#localized_options']['attributes']['class'][] = $icon_map[$icon]['color'];
+      $title = '<i class="material-icons blue-grey-text text-lighten-5 left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
+      $element['#localized_options']['html'] = TRUE;
+    }
+  }
+  if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
+    $element['#localized_options']['attributes']['class'][] = 'tab';
+  }
   $output = l($title, $element['#href'], $element['#localized_options']);
   return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
 }
@@ -698,14 +889,14 @@ function foundation_access_menu_tree__menu_elmsln_settings($variables) {
  * Implements menu_tree__menu_elmsln_navigation.
  */
 function foundation_access_menu_tree__menu_elmsln_navigation($variables) {
-  return '<ul class="header-menu-options">' . $variables['tree'] . '</ul>';
+  return '<ul class="tabs">' . $variables['tree'] . '</ul>';
 }
 
 /**
  * Implements menu_tree__menu_elmsln_add.
  */
 function foundation_access_menu_tree__menu_elmsln_add($variables) {
-  return '<ul id="add-menu-drop" data-dropdown-content class="f-dropdown" role="menu" aria-hidden="false" tabindex="-1" class="menu">' . $variables['tree'] . '</ul>';
+  return '<ul role="menu" aria-hidden="false" tabindex="-1">' . $variables['tree'] . '</ul>';
 }
 
 function foundation_access_preprocess_book_sibling_nav(&$variables) {
@@ -969,6 +1160,216 @@ function foundation_access_form_page_node_form_alter(&$form, &$form_state) {
 }
 
 /**
+ * Implements theme_pager().
+ */
+function foundation_access_pager($variables) {
+  $element = $variables['element'];
+  $parameters = $variables['parameters'];
+  $quantity = $variables['quantity'];
+  global $pager_page_array, $pager_total;
+
+  // Calculate various markers within this pager piece:
+  // Middle is used to "center" pages around the current page.
+  $pager_middle = ceil($quantity / 2);
+  // Current is the page we are currently paged to.
+  $pager_current = $pager_page_array[$element] + 1;
+  // First is the first page listed by this pager piece (re-quantify).
+  $pager_first = $pager_current - $pager_middle + 1;
+  // Last is the last page listed by this pager piece (re-quantify)
+  $pager_last = $pager_current + $quantity - $pager_middle;
+  // Max is the maximum page number.
+  $pager_max = $pager_total[$element];
+  // End of marker calculations.
+
+  // Prepare for generation loop.
+  $i = $pager_first;
+  if ($pager_last > $pager_max) {
+    // Adjust "center" if at end of query.
+    $i = $i + ($pager_max - $pager_last);
+    $pager_last = $pager_max;
+  }
+  if ($i <= 0) {
+    // Adjust "center" if at start of query.
+    $pager_last = $pager_last + (1 - $i);
+    $i = 1;
+  }
+  // End of generation loop preparation.
+
+  $li_first = theme('pager_first', array(
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">first_page</i><span class="element-invisible">' . t('First page') . '</span>'),
+    'element' => $element,
+    'parameters' => $parameters,
+  ));
+  $li_previous = theme('pager_previous', array(
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">chevron_left</i><span class="element-invisible">' . t('Previous page') . '</span>'),
+    'element' => $element,
+    'interval' => 1,
+    'parameters' => $parameters,
+  ));
+  $li_next = theme('pager_next', array(
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">chevron_right</i><span class="element-invisible">' . t('Next page') . '</span>'),
+    'element' => $element,
+    'interval' => 1,
+    'parameters' => $parameters,
+  ));
+  $li_last = theme('pager_last', array(
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">last_page</i><span class="element-invisible">' . t('Last page') . '</span>'),
+    'element' => $element,
+    'parameters' => $parameters,
+  ));
+
+  if ($pager_total[$element] > 1) {
+    if ($li_first) {
+      $items[] = array(
+        'class' => array('arrow'),
+        'data' => $li_first,
+      );
+    }
+    if ($li_previous) {
+      $items[] = array(
+        'class' => array('arrow'),
+        'data' => $li_previous,
+      );
+    }
+
+    // When there is more than one page, create the pager list.
+    if ($i != $pager_max) {
+      if ($i > 1) {
+        $items[] = array(
+          'class' => array('unavailable'),
+          'data' => '<a href="">&hellip;</a>',
+        );
+      }
+      // Now generate the actual pager piece.
+      for (; $i <= $pager_last && $i <= $pager_max; $i++) {
+        if ($i < $pager_current) {
+          $items[] = array(
+            'data' => theme('pager_previous', array(
+              'text' => $i,
+              'element' => $element,
+              'interval' => ($pager_current - $i),
+              'parameters' => $parameters,
+            )),
+            'class' => array('waves-effect'),
+          );
+        }
+        if ($i == $pager_current) {
+          $items[] = array(
+            'class' => array('active'),
+            'data' => '<a href="">' . $i . '</a>',
+          );
+        }
+        if ($i > $pager_current) {
+          $items[] = array(
+            'data' => theme('pager_next', array(
+              'text' => $i,
+              'element' => $element,
+              'interval' => ($i - $pager_current),
+              'parameters' => $parameters,
+            )),
+            'class' => array('waves-effect'),
+          );
+        }
+      }
+      if ($i < $pager_max) {
+        $items[] = array(
+          'class' => array('unavailable'),
+          'data' => '<a href="">&hellip;</a>',
+        );
+      }
+    }
+    // End generation.
+    if ($li_next) {
+      $items[] = array(
+        'class' => array('arrow'),
+        'data' => $li_next,
+      );
+    }
+    if ($li_last) {
+      $items[] = array(
+        'class' => array('arrow'),
+        'data' => $li_last,
+      );
+    }
+
+    $pager_links = array(
+      '#theme' => 'item_list',
+      '#items' => $items,
+      '#attributes' => array('class' => array('pagination')),
+    );
+
+    $pager_links['#prefix'] = '<div class="row">';
+    $pager_links['#suffix'] = '</div>';
+    $pager_links = drupal_render($pager_links);
+    return '<h2 class="element-invisible">' . t('Pages') . '</h2>' . $pager_links;
+  }
+}
+
+/**
+ * Implements theme_pager_link().
+ */
+function foundation_access_pager_link($variables) {
+  $text = $variables['text'];
+  $is_html = FALSE;
+  if (is_array($text) && isset($text['html'])) {
+    $is_html = $text['html'];
+  }
+  if (is_array($text) && isset($text['text'])) {
+    $text = $text['text'];
+  }
+  $page_new = $variables['page_new'];
+  $element = $variables['element'];
+  $parameters = $variables['parameters'];
+  $attributes = $variables['attributes'];
+
+  $page = isset($_GET['page']) ? $_GET['page'] : '';
+  if ($new_page = implode(',', pager_load_array($page_new[$element], $element, explode(',', $page)))) {
+    $parameters['page'] = $new_page;
+  }
+
+  $query = array();
+  if (count($parameters)) {
+    $query = drupal_get_query_parameters($parameters, array());
+  }
+  if ($query_pager = pager_get_query_parameters()) {
+    $query = array_merge($query, $query_pager);
+  }
+
+  // Set each pager link title
+  if (!isset($attributes['title'])) {
+    static $titles = NULL;
+    if (!isset($titles)) {
+      $titles = array(
+        t('« first') => t('Go to first page'),
+        t('‹ previous') => t('Go to previous page'),
+        t('next ›') => t('Go to next page'),
+        t('last »') => t('Go to last page'),
+      );
+    }
+    if (isset($titles[$text])) {
+      $attributes['title'] = $titles[$text];
+    }
+    elseif (is_numeric($text)) {
+      $attributes['title'] = t('Go to page @number', array('@number' => $text));
+    }
+  }
+
+  // @todo l() cannot be used here, since it adds an 'active' class based on the
+  //   path only (which is always the current path for pager links). Apparently,
+  //   none of the pager links is active at any time - but it should still be
+  //   possible to use l() here.
+  // @see http://drupal.org/node/1410574
+  $attributes['href'] = url($_GET['q'], array('query' => $query));
+  if ($is_html) {
+    $output = filter_xss($text, array('i', 'em', 'strong', 'div', 'span'));
+  }
+  else {
+    $output = check_plain($text);
+  }
+  return '<a' . drupal_attributes($attributes) . '>' . $output . '</a>';
+}
+
+/**
  * Helper function for return a whitelist of allowed tags that can be
  * present in an SVG file.
  */
@@ -1207,4 +1608,56 @@ function _foundation_access_video_url($video_url) {
   }
   // didn't know what to do or it was already well formed
   return $video_url;
+}
+
+/**
+ * Map of materializeCSS icon / color associations when wanting to make them into icons.
+ * @return array   associative array of icon / colors
+ */
+function _foundation_access_icon_map() {
+  // statically cache future calls
+  $map = &drupal_static(__FUNCTION__);
+  if (!isset($map)) {
+    $map = array(
+      'audio' => array(
+        'color' => 'green',
+        'icon' => 'music_video',
+      ),
+      'document' => array(
+        'color' => 'light-green',
+        'icon' => 'insert_drive_file',
+      ),
+      'external_video' => array(
+        'color' => 'red',
+        'icon' => 'video_library',
+      ),
+      'figure_label' => array(
+        'color' => 'deep-orange',
+        'icon' => 'label_outline',
+      ),
+      'h5p' => array(
+        'color' => 'orange',
+        'icon' => 'local_activity',
+      ),
+      'image' => array(
+        'color' => 'teal',
+        'icon' => 'photo',
+      ),
+      'image_gallery' => array(
+        'color' => 'blue',
+        'icon' => 'collections',
+      ),
+      'svg' => array(
+        'color' => 'indigo',
+        'icon' => 'graphic_eq',
+      ),
+      'video' => array(
+        'color' => 'purple',
+        'icon' => 'ondemand_video',
+      ),
+    );
+    // allow others to modify core associations
+    drupal_alter('fa_icon_map', $map);
+  }
+  return $map;
 }

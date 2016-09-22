@@ -337,13 +337,17 @@ function elmsln_core_fa_a11y() {
       '#description' => t('Use these key combinations to quickly navigate the course.'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
-      '#weight' => 9,
+      '#weight' => -8,
       '#attributes' => array(
         'class' => array(
           'collapsible',
           'form-wrapper',
           'collapsed',
         ),
+      ),
+      '#materialize' => array(
+        'type' => 'collapsible',
+        'icon' => 'keyboard',
       ),
       'keys' => array(
         '#markup' =>

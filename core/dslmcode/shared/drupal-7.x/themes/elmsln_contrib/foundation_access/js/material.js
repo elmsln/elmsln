@@ -12,8 +12,6 @@
       $("#r-header__icon--advanced li, #courseToolsMenu li").addClass(waveEffect);
       // TABS
       $(".horizontal-tabs-list .horizontal-tab-button").addClass(waveEffect);
-      // LMSLESS
-      $("#block-cis-lmsless-cis-lmsless-network-nav-modal a, .elmsln-network-button, .elmsln-user-button, .elmsln-syllabus-button, .elmsln-resource-button, .elmsln-help-button").addClass(waveEffect);
       // INPAGE WIDGET
       //$(".cis-filter-activity-item").addClass("waves-effect waves-button waves-classic");
       $(".cis-filter-activity-item ul.submit-widget-links li").addClass(waveEffect);
@@ -32,6 +30,9 @@
       $('select').not('.chosen').not('.cke_dialog_body select').material_select();
       $('.parallax').parallax();
       $('.carousel').not('.carousel-slider').carousel();
+      $('.collapsible').collapsible({
+        accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+      });
       $('.carousel-slider').carousel({full_width: true});
       $('.elmsln-right-side-nav-trigger').sideNav({
         menuWidth: 450, // Default is 240

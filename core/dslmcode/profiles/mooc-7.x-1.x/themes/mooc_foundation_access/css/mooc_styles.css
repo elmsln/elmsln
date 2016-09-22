@@ -1,3 +1,42 @@
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
+  display: block;
+  width: 100%;
+}
+
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li:hover {
+  background-color: #dddddd;
+}
+
+#block-mooc-nav-block-mooc-nav-nav {
+  border:1px solid #cccccc;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+#block-mooc-nav-block-mooc-nav-nav ul{
+  margin: 0;
+  list-style: none;
+}
+
+#block-mooc-nav-block-mooc-nav-nav li {
+  clear: both;
+  padding: .25rem;
+}
+
+#block-mooc-nav-block-mooc-nav-nav li.active-trail {
+  background-color: #eeeeee;
+}
+
+.mooc-nav-block-left {
+  float: left;
+  margin-right: 1rem;
+}
+.mooc-nav-block-right {
+  float: right;
+  margin-left: 1rem;
+}
+
 .page-mooc-book-toc ul.menu {
   list-style-type: none;
 }
@@ -72,6 +111,7 @@ ul.book-navigation-wrapper {
 
 .book-sibling-nav-container {
   margin: 0;
+  font-size: 0.8rem;
 }
 
 .book-sibling-parent-pagination-wrapper {

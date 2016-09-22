@@ -7,36 +7,32 @@
     $username = $user_name;
   }
 ?>
-  <h1><?php print t('Account'); ?></h1>
-  <hr class="pad-1" />
-  <?php if (empty($username)) : ?>
-    <h2><span style="float:right;"><?php print $userlink; ?></span></h2>
-  <?php endif; ?>
+  <li class="ferpa-protect">
+    <div class="userView">
+      <img class="background" src="http://materializecss.com/images/office.jpg">
+      <?php if (isset($userpicturebig)) { print $userpicturebig; } ?>
+      <?php if (!empty($username)) : ?>
+        <a><span class="white-text name"><?php print "$username"; ?></span></a>
+      <?php endif; ?>
+      <a><span class="white-text section-title"><?php if (isset($section_title)) { print $section_title; } ?></span></a>
+      <a><span class="white-text user-roles"><?php if (!empty($user_roles)) { print $user_roles; } ?></span></a>
+    </div>
+  </li>
   <?php if (!empty($username)) : ?>
-    <h2 class="ferpa-protect"><?php print "$username ($userprofile) "; ?><span style="float:right;"><?php print $userlink; ?></span></h2>
-    <?php if (isset($userpicturebig)) { print $userpicturebig; } ?>
+  <li>
+    <?php print $userprofile; ?>
+  </li>
+  <li>
+    <?php print $userlink; ?>
+  </li>
   <?php endif; ?>
-  <?php if (!empty($user_roles)) : ?>
-  <h2><?php print t('Roles'); ?></h2>
-  <div class="user-nav-user-roles">
-    <?php print $user_roles; ?>
-  </div>
-  <?php endif; ?>
-  <?php if (!empty($masquerade)) : ?>
-  <hr class="pad-1" />
-  <h2><?php print t('Impersonate'); ?></h2>
-    <?php print $masquerade; ?>
-  <?php endif; ?>
-  <?php if (!empty($ferpa_flter)) : ?>
-  <hr class="pad-1" />
-  <h2><?php print t('Privacy settings'); ?></h2>
-    <?php print $ferpa_flter; ?>
-  <?php endif; ?>
-  <?php if (isset($section_title)) : ?>
-  <hr class="pad-1" />
-  <h2><?php print t('Section'); ?></h2>
-  <div class="user-nav-section ferpa-protect">
-    <?php print $user_section; ?>
-  </div>
-  <?php endif; ?>
-  <hr />
+<?php if (!empty($masquerade)) : ?>
+  <li><?php print $masquerade; ?></li>
+<?php endif; ?>
+<?php if (!empty($ferpa_flter)) : ?>
+  <li><div class="divider"></div></li>
+  <li><?php print $ferpa_flter; ?></li>
+<?php endif; ?>
+<?php if (isset($user_section)) : ?>
+  <li><?php print $user_section; ?></li>
+<?php endif; ?>

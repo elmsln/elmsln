@@ -739,7 +739,7 @@ function mooc_helper_fa_a11y() {
       '#description' => t('Use these accessibility tools to navigate content more easily.'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
-      '#weight' => 8,
+      '#weight' => -8,
       '#attributes' => array(
         'class' => array(
           'collapsible',
@@ -747,8 +747,12 @@ function mooc_helper_fa_a11y() {
           'collapsed',
         ),
       ),
+      '#materialize' => array(
+        'type' => 'collapsible',
+        'icon' => 'view_module',
+      ),
       'speedreader' => array(
-        '#markup' => '<a class="elmsln-modal-trigger" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">' . t('Speed reader') . '</a>'
+        '#markup' => '<a class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text">chrome_reader_mode</i>' . t('Speed reader') . '</a>'
         ),
       ),
     );
