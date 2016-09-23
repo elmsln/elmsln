@@ -165,7 +165,6 @@ function foundation_access_preprocess_page(&$variables) {
   // allow modules to supply accessibility enhancements to the menu
   $a11y = module_invoke_all('fa_a11y');
   drupal_alter('fa_a11y', $a11y);
-  $a11y['alters']['#collapsed'] = FALSE;
   // add in the form api wrapper meta properties to render as materialize collapse
   $a11y['#type'] = 'fieldset';
   $a11y['#materialize'] = array(

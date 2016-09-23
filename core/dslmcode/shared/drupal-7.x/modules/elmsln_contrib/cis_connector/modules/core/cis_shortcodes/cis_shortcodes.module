@@ -468,7 +468,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       // add the groups in
       $field['cis_shortcodes'][$group] = array(
         '#type' => 'fieldset',
-        '#collapsed' => ($key === 0 ? FALSE : TRUE),
+        '#collapsed' => TRUE,
         '#collapsible' => TRUE,
         '#attributes' => array(
           'class' => array(
