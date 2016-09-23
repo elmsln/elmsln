@@ -172,7 +172,7 @@
 <div id="page-accessibility-menu" class="elmsln-scroll-bar etb-nav-modal elmsln-modal side-nav disable-scroll" aria-labelledby="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog">
   <h1 id="Accessibility"><?php print t('Accessibility') ?></h1>
   <?php print $a11y; ?>
-  <a class="close-reveal-modal" data-voicecommand="close (menu)" data-jwerty-key="Esc">&#215;</a>
+  <a class="close-reveal-side-nav" data-voicecommand="close (menu)" data-jwerty-key="Esc">&#215;</a>
 </div>
 <?php endif; ?>
 <!-- /Accessibility side nav -->

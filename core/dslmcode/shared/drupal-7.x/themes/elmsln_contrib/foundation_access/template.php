@@ -112,7 +112,7 @@ function foundation_access_fieldset($variables) {
         }
         // support descriptions / form the body
         if (isset($element['#description'])) {
-          $body .= $element['#description'];
+          $body .= '<p>' . $element['#description'] . '</p>';
         }
         // apply the value if it exists
         if (isset($element['#value'])) {
@@ -131,7 +131,10 @@ function foundation_access_fieldset($variables) {
             $icon . $element['#title'] .
           '</div>
           <div class="collapsible-body">
-            <p>' . $body . '</p>
+            <div class="elmsln-collapsible-body">
+              ' . $body . '
+            </div>
+            <div class="divider"></div>
           </div>
         </li>';
       break;
@@ -356,7 +359,7 @@ function foundation_access_file($variables) {
 function foundation_access_css_alter(&$css) {
   // Remove Drupal core CSS except system base
   foreach ($css as $path => $values) {
-    if (strpos($path, 'modules/') === 0 && $path != 'modules/system/system.base.css') {
+    if (strpos($path, 'modules/') === 0 && !in_array($path, array('modules/contextual/contextual.css', 'modules/system/system.base.css'))) {
       unset($css[$path]);
     }
   }

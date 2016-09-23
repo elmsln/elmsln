@@ -21,8 +21,8 @@
   box-shadow: inset 0 0 25px #eee, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
   display: inline-block;
   border-radius: 1px;
-  width: 42px;
-  height: 40px;
-  font: 15px/40px sans-serif;
+  width: 32px;
+  height: 30px;
+  font: 12px/30px sans-serif;
   border-radius: 5px;
 }
