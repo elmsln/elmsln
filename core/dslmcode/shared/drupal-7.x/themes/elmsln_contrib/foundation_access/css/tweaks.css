@@ -1,4 +1,10 @@
 /* tweaks to side-nav padding / structure */
+.side-nav .btn-flat {
+   padding: 0 0 0 .5rem;
+   margin: 0;
+   line-height: 3rem;
+}
+
 .collapsible-body p{
   padding: 0;
 }
