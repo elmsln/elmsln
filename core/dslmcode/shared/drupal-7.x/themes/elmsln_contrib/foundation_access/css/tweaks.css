@@ -1,3 +1,14 @@
+ul.pagination li {
+  float: none;
+  display: inline-block;
+  height: 2rem;
+  width: 2rem;
+}
+ul.pagination li a {
+  height: 2rem;
+  width: 2rem;
+}
+
 #admin-menu, #admin-menu .dropdown {
   z-index: 100000;
 }

@@ -112,7 +112,7 @@ function foundation_access_fieldset($variables) {
         }
         // support descriptions / form the body
         if (isset($element['#description'])) {
-          $body .= '<p>' . $element['#description'] . '</p>';
+          $body .= $element['#description'];
         }
         // apply the value if it exists
         if (isset($element['#value'])) {
@@ -130,9 +130,9 @@ function foundation_access_fieldset($variables) {
           <div class="collapsible-header' . $collapse . '">' .
             $icon . $element['#title'] .
           '</div>
-          <div class="collapsible-body">' .
-          $body .
-          '</div>
+          <div class="collapsible-body">
+            <p>' . $body . '</p>
+          </div>
         </li>';
       break;
     }
@@ -348,6 +348,18 @@ function foundation_access_file($variables) {
         <input class="file-path validate" type="text">
       </div>
     </div>';
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function foundation_access_css_alter(&$css) {
+  // Remove Drupal core CSS except system base
+  foreach ($css as $path => $values) {
+    if (strpos($path, 'modules/') === 0 && $path != 'modules/system/system.base.css') {
+      unset($css[$path]);
+    }
+  }
 }
 
 /**
@@ -1294,7 +1306,7 @@ function foundation_access_pager($variables) {
     $pager_links = array(
       '#theme' => 'item_list',
       '#items' => $items,
-      '#attributes' => array('class' => array('pagination')),
+      '#attributes' => array('class' => array('pagination', 'col', 's12', 'center-align')),
     );
 
     $pager_links['#prefix'] = '<div class="row">';
