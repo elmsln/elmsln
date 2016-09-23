@@ -614,9 +614,19 @@ ul.header-menu-options li.active-trail {
 }
 
 h1#page-title {
-  font-size: 2.75rem;
-  line-height: 2.75rem;
-  padding: 0rem 0 .5rem;
+  font-size: 2.5rem;
+  line-height: 2.25rem;
+  padding: 0;
+  margin-bottom:.5rem;
+  text-align: left;
+  text-transform: none;
+  border-bottom: dotted 1px #ff9800;
+
+}
+
+.read-time {
+  float: right;
+  margin-top:-2.7rem;
 }
 
 .etb-book h2 {
