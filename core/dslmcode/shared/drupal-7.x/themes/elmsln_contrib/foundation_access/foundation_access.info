@@ -47,11 +47,8 @@ stylesheets[print][] = css/print.css
 ; as well as detection for mobile devices.
 scripts[] = js/libs.min.js
 
-; Foundation framework scripts (minified).
-; If you prefer to have more control over which components are included you
-; can comment this line and uncomment the ones below you want.
+; Hijack foundation stuff
 scripts[] = js/foundation.min.js
-
 ; Theme scripts.
 ; This file is empty, just uncomment this line and start editing!
 scripts[] = js/jquery.sticky.js

@@ -44,8 +44,6 @@
 ?>
 <!DOCTYPE html>
 <!-- Sorry no IE7 support! -->
-<!-- @see http://foundation.zurb.com/docs/index.html#basicHTMLMarkup -->
-
 <!--[if IE 8]><html class="no-js lt-ie9" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <!--<![endif]-->
 <head>
@@ -66,6 +64,5 @@
   <?php print $page_top; ?>
   <?php print $page; ?>
   <?php print $page_bottom; ?>
-  <?php print _zurb_foundation_add_reveals(); ?>
 </body>
 </html>

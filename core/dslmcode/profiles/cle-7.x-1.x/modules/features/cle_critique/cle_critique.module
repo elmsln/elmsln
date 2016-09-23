@@ -104,7 +104,7 @@ function _cle_critique_page_random_form($arg, &$form_state) {
       // render the form with our defaults passed in
       $form = drupal_get_form('cle_critique_node_form', $critnode);
       $form['work-to-critique'] = array(
-        '#markup' => '<div class="zf-2col-bricks"><div class="row"><div class="group-above-left medium-6 columns">' . render($rendersubmission) . '</div><div class="group-above-right medium-6 columns">',
+        '#markup' => '<div class="zf-2col-bricks"><div class="row"><div class="group-above-left m6 col">' . render($rendersubmission) . '</div><div class="group-above-right m6 col">',
         '#weight' => -100,
       );
       // need to emulate what node_form does by setting both of these

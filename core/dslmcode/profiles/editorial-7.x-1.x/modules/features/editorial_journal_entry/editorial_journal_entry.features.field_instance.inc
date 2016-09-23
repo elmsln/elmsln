@@ -11,7 +11,7 @@ function editorial_journal_entry_field_default_field_instances() {
   $field_instances = array();
 
   // Exported field_instance:
-  // 'node-editorial_journal_entry-field_editorial_exercise'
+  // 'node-editorial_journal_entry-field_editorial_exercise'.
   $field_instances['node-editorial_journal_entry-field_editorial_exercise'] = array(
     'bundle' => 'editorial_journal_entry',
     'default_value' => NULL,
@@ -63,7 +63,8 @@ function editorial_journal_entry_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-editorial_journal_entry-field_journal_entry'
+  // Exported field_instance:
+  // 'node-editorial_journal_entry-field_journal_entry'.
   $field_instances['node-editorial_journal_entry-field_journal_entry'] = array(
     'bundle' => 'editorial_journal_entry',
     'default_value' => NULL,
@@ -139,7 +140,7 @@ function editorial_journal_entry_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-editorial_journal_entry-og_group_ref'
+  // Exported field_instance: 'node-editorial_journal_entry-og_group_ref'.
   $field_instances['node-editorial_journal_entry-og_group_ref'] = array(
     'bundle' => 'editorial_journal_entry',
     'default_value' => NULL,

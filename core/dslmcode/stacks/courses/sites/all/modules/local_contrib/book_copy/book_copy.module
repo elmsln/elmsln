@@ -146,12 +146,20 @@ function book_copy_copy_confirm_submit($form, &$form_state) {
  * Execute a batch process.
  */
 function book_copy_process_copy($nid, $title, $new_title, $progressive = TRUE, $redirect = NULL) {
+  $queue_id = rand(1, 9999);
+  $queue = DrupalQueue::get($queue_id);
+  $queue->createQueue();
+
   $batch = array(
-   'title' => t('Copying book %title', array('%title' => $title)),
-   'operations' => array(
-      array('book_copy_copy', array($nid, $new_title)),
+    'title' => t('Copying book %title', array('%title' => $title)),
+    'operations' => array(
+      array('book_copy_copy', array($nid, $new_title, $queue_id)),
+      array('book_copy_update_internal_links', array($queue_id)),
     ),
-   'finished' => '_book_copy_copy_finished',
+    'finished' => '_book_copy_copy_finished',
+    'init_message' => t('Outline Copy is starting.'),
+    'progress_message' => t('We are now copying your outline please be patient...'),
+    'error_message' => t('The process has encountered an error.'),
   );
   batch_set($batch);
   // there is a core glitch in D6/7 that requires progressive be defined this way
@@ -164,7 +172,7 @@ function book_copy_process_copy($nid, $title, $new_title, $progressive = TRUE, $
 /**
  * Callback for replicating a book outline below a passed node.
  */
-function book_copy_copy($initial_nid, $new_title, &$context) {
+function book_copy_copy($initial_nid, $new_title, $queue_id, &$context) {
   // batch job is starting
   if (!isset($context['sandbox']['progress'])) {
     $node = node_load($initial_nid);
@@ -217,6 +225,14 @@ function book_copy_copy($initial_nid, $new_title, &$context) {
     }
     // save the cloned item
     node_save($clone);
+    // create a map of the odl nid and the new nid and save
+    $old_node_nid = $entity->nid;
+    $new_node_nid = $clone->nid;
+    $nid_map = array($old_node_nid => $new_node_nid);
+    // Add the old nid and the new nid to the Drupal Queue
+    $queue = DrupalQueue::get($queue_id);
+    $queue->createItem($nid_map);
+
     $context['sandbox']['map'][$nid] = $clone->book['mlid'];
     // capture new root nid for the case that we have a whole new book
     if ($clone->book['plid'] == 0) {
@@ -236,6 +252,82 @@ function book_copy_copy($initial_nid, $new_title, &$context) {
 
   // Multistep processing : report progress.
   $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+}
+
+/**
+  * Update the internal links in body fields of new nodes that have just been cloned.
+  *
+  */
+function book_copy_update_internal_links($queue_id, &$context) {
+  $nid_map = array();
+  // We are using the batch api for this. 
+  if (!isset($context['sandbox']['progress'])) {
+    $context['sandbox']['progress'] = 0;
+
+    // load the nid_map queue
+    $queue = DrupalQueue::get($queue_id);
+    // assemble the queue into the nid_map array
+    while ($queue->numberOfItems() > 0) {
+      // load the item from the queue
+      $item = $queue->claimItem();
+      // remove the item from the queue
+      $queue->deleteItem($item);
+      // add the item to the nid_map array
+      foreach ($item->data as $old_nid => $new_nid) {
+        $context['sandbox']['nid_map'][$old_nid] = $new_nid;
+      }
+    }
+    // Set the max, and the unprocessed pointer as well as create a pattern array and a replacement array.
+    $context['sandbox']['max'] = count($context['sandbox']['nid_map']);
+    $context['sandbox']['unprocessed'] = $context['sandbox']['nid_map'];
+    $context['sandbox']['patterns'] = array();
+    $context['sandbox']['replacements'] = array();
+
+    // Build the patterns and replacements from the nid map.
+    foreach($context['sandbox']['nid_map'] as $old_nid => $new_nid) {
+      // This pattern finds the exact old node nid followed by a ".
+      // This way it will never be anything longer than the actual node id, for instance 300 when it should be 30
+      $context['sandbox']['patterns'][] = '/node\/' . $old_nid . '(?=\")/';
+      $context['sandbox']['replacements'][] = 'node/' . $new_nid;
+    }
+  }
+  // Set a limit on how many nodes will process in each batch as well as initialize the counter. 
+  $limit = BOOK_COPY_PROCESSING_LIMIT;
+  $count = 0;
+
+  // loop over the newly created nids and attempt to update the internal links
+  foreach ($context['sandbox']['unprocessed'] as $key => $new_nid) {
+    $count++;
+    // Start with a clean slate.
+    $updated_node_body = NULL;
+    // load the newly created node
+    $new_node = node_load($new_nid);
+    // see if we have a body field
+    $node_body = (isset($new_node->body['und'][0]['value']) ? $new_node->body['und'][0]['value'] : NULL);
+
+    // if there is a body, attempt to replace old_nids with new_nids
+    if ($node_body) {
+      $updated_node_body = preg_replace($context['sandbox']['patterns'], $context['sandbox']['replacements'], $node_body);
+    }
+
+    // save the node with the updated nids
+    if ($updated_node_body) {
+      $new_node->body['und'][0]['value'] = $updated_node_body;
+      node_save($new_node);
+    }
+    // Repeat the process on the next batch
+    unset($context['sandbox']['unprocessed'][$key]);
+    $context['sandbox']['progress']++;
+
+    // exit early if we have reached execution limit
+    if ($count == $limit) {
+      break;
+    }
+  }
+  // Are we there yet... if not keep going if so call finished.
+  if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
 }
 
 /**

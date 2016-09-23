@@ -23,23 +23,31 @@
  *
  * @ingroup views_templates
  */
-  foreach ($fields as $id => $field):
-    //dpm($id);
-  //dpm($field);
-  endforeach;
 
+  $type = $fields['type_1']->content;
   // assemble preview
   if (isset($fields['field_poster'])) {
     $preview = $fields['field_poster']->content;
   }
-  elseif (isset($fields['field_document_file'])) {
+  elseif ($type == 'document') {
     $preview = $fields['field_document_file']->content;
   }
   elseif (isset($fields['field_image'])) {
     $preview = $fields['field_image']->content;
   }
   elseif (isset($fields['field_images'])) {
-    $preview = $fields['field_images']->content;
+    $images = '';
+    // build the images out as a row
+    foreach ($row->field_field_images as $image_array) {
+      $build_image = array(
+        'style_name' => 'image_card_medium',
+        'path' => $image_array['raw']['entity']->field_image['und'][0]['uri'],
+      );
+      // create the image
+      $image = theme('image_style', $build_image);
+      $images .= '<div class="carousel-item">' . $image . '</div>';
+    }
+    $preview = '<div class="carousel carousel-slider center" data-indicators="true">' . $images . '</div>';
   }
   elseif (isset($fields['field_external_media'])) {
     $preview = $fields['field_external_media']->content;
@@ -47,8 +55,49 @@
   elseif (isset($fields['field_svg'])) {
     $preview = $fields['field_svg']->content;
   }
+  elseif ($type == 'h5p_content') {
+    $h5ptype = str_replace('.', '', str_replace(' ', '', strtolower($fields['title_1']->content)));
+    // loop through known h5p types and pick an image for it
+    switch ($h5ptype) {
+      case 'accordion':
+      case 'chart':
+      case 'collage':
+      case 'coursepresentation':
+      case 'dialogcards':
+      case 'documentationtool':
+      case 'draganddrop':
+      case 'dragtext':
+      case 'fillintheblanks':
+      case 'imagehotspots':
+      case 'findthehotspot':
+      case 'flashcards':
+      case 'guesstheanswer':
+      case 'iframeembedder':
+      case 'markthewords':
+      case 'multiplechoice':
+      case 'memorygame':
+      case 'timeline':
+      case 'twitteruserfeed':
+      case 'singlechoiceset':
+      case 'summary':
+      case 'questionset':
+      case 'appearinforchatandtalk':
+      case 'interactivevideo':
+        $preview = '<img src="' . base_path() . drupal_get_path('module', 'elmsmedia_h5p') . '/images/' . $h5ptype . '.png" />';
+      break;
+      // h5p types we don't have an icon for at least present a title on a blank card
+      default:
+        $preview = '<div class="elmsln-no-preview-item  light-blue lighten-2">' . $fields['title_1']->content . '</div>';
+      break;
+    }
+    $preview .= '<img src="' . base_path() . drupal_get_path('module', 'elmsmedia_h5p') . '/images/h5p.png" class="h5p-overlay-icon" />';
+  }
+  elseif ($type == 'figurelabel') {
+    $noderender = node_view($row->_field_data['nid']['entity'], 'figurelabel');
+    $preview = render($noderender);
+  }
   else {
-    $preview = '<div class="elmsmedia-no-preview-item  light-blue lighten-5">' . t('no preview') . '</div>';
+    $preview = '<div class="elmsln-no-preview-item  light-blue lighten-5">' . $fields['type']->content . '</div>';
   }
 
   // course
@@ -56,38 +105,43 @@
     $course = $fields['field_cis_course_ref']->content;
   }
   else {
-    $course = 'no course';
+    $course = t('no course');
   }
 ?>
-<div class="col s12 m6 l4 elmsmedia-card">
+<div class="col s12 m6 l4 elmsln-card">
   <div class="card small sticky-action">
     <div class="card-image waves-effect waves-block waves-light">
-      <?php print $preview; ?>
+      <?php print l($preview, 'node/' . $row->nid . '/view_modes', array('html' => TRUE)); ?>
     </div>
     <div class="card-content">
-      <span class="card-title activator grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print $row->node_title;?></span><i class="material-icons right">more_vert</i></span>
+      <span class="card-title activator grey-text text-darken-4">
+        <span class="truncate elmsln-card-title orange-text">
+          <?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'orange-text')));?>
+        </span>
+        <i class="material-icons right">more_vert</i>
+      </span>
     </div>
     <div class="card-action">
       <?php print l('view', 'node/' . $row->nid . '/view_modes');?>
       <?php print l('edit', 'node/' . $row->nid . '/edit');?>
     </div>
     <div class="card-reveal">
-      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print $row->node_title;?></span><i class="material-icons right"><?php print t('close');?></i></span>
+      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'orange-text')));?></span><i class="material-icons right"><?php print t('close');?></i></span>
       <ul class="collection">
         <li class="collection-item">
           <span><?php print $fields['type']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">info_outline</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">info_outline</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $course;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">library_books</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">library_books</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $fields['changed']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons">schedule</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">schedule</i></span>
         </li>
         <li class="collection-item">
-          <span class="secondary-content"><i class="tiny material-icons">label</i></span>
+          <span class="secondary-content"><i class="tiny material-icons orange-text">label</i></span>
           <span class="tags"><?php print $fields['field_tagging']->content;?></span>
         </li>
       </ul>

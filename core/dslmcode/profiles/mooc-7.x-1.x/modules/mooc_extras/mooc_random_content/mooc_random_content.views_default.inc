@@ -23,7 +23,7 @@ function mooc_random_content_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Design Classic of the Day';
-  $handler->display->display_options['css_class'] = 'small-6 columns random-content-element';
+  $handler->display->display_options['css_class'] = 's6 col random-content-element';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'time';

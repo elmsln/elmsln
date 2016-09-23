@@ -141,7 +141,7 @@ function foundation_access_preprocess_page(&$variables) {
   }
   // wrap non-node content in an article tag
   if (isset($variables['page']['content']['system_main']['main'])) {
-    $variables['page']['content']['system_main']['main']['#markup'] = '<article class="large-12 columns view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
+    $variables['page']['content']['system_main']['main']['#markup'] = '<article class="l12 col view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
   }
   /**
    * @todo Get rid of this logic and put it somewhere else
@@ -649,7 +649,7 @@ function foundation_access_preprocess_clipboardjs(&$variables) {
     '#value' => check_plain($variables['button_label']),
     '#attributes' => array(
       'class' => array('clipboardjs-button', 'zmdi', 'zmdi-copy'),
-      'data-clipboard-alert' => $variables['alert_style'],
+      'data-clipboard-alert' => 'toast',
       'data-clipboard-alert-text' => $variables['alert_text'],
       'data-clipboard-target' => '#' . $uniqid,
       'onClick' => 'return false;',

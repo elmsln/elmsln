@@ -223,7 +223,7 @@ function cle_assignment_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Assignments';
-  $handler->display->display_options['css_class'] = 'small-12 small-centered columns small-text-center';
+  $handler->display->display_options['css_class'] = 's12 col center-align';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['access']['type'] = 'role';

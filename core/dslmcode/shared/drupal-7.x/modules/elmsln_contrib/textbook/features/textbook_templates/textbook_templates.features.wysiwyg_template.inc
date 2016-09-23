@@ -38,7 +38,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'weight' => 0,
     'fid' => 0,
     'body' => '<div class="row">
-  <div class="small-10 small-push-1 columns">
+  <div class="s10 push-s1 col">
     <div class="icon-online-black etb-modal-icons" style="width: 8rem;height: 6rem;">
     </div>
     <h4>Case Study
@@ -245,11 +245,11 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'weight' => 0,
     'fid' => 0,
     'body' => '<div class="panel callout radius row">
-  <div class="small-6 columns">
+  <div class="s6 col">
     <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li><li>Item 4</li>
     </ul>
   </div>
-  <div class="small-6 columns"><img height="100px" src="https://marlaongtao.files.wordpress.com/2013/11/plato-cave.jpg" width="100%">
+  <div class="s6 col"><img height="100px" src="https://marlaongtao.files.wordpress.com/2013/11/plato-cave.jpg" width="100%">
   </div>
 </div>',
     'format' => 'textbook_editor',
@@ -261,7 +261,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'description' => 'A two column template with a bulleted list and video to the right of it',
     'weight' => 0,
     'fid' => 0,
-    'body' => '<div class="panel callout radius row"><div class="small-6 columns"><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li><li>Item 4</li></ul></div><div class="small-6 columns"><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" webkitallowfullscreen="" width="200"></iframe></div></div></div>',
+    'body' => '<div class="panel callout radius row"><div class="s6 col"><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li><li>Item 4</li></ul></div><div class="s6 col"><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" webkitallowfullscreen="" width="200"></iframe></div></div></div>',
     'format' => 'textbook_editor',
     'name' => 'two_column_list_video',
     'content_types' => array(),

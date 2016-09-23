@@ -1,3 +1,92 @@
+/* Sticky footer from MaterializeCSS */
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+footer.page-footer{
+  background-color: #3e3e3e;
+  padding-top: 1rem;
+  text-align: center; }
+  footer.page-footer p {
+    color: #999;
+    font-size: 0.8rem; }
+
+/* undo core error message conflict */
+div.error {
+  background-image: initial;
+}
+
+/* ELMSLN card - variation of materializeCSS card */
+.elmsln-card .card .card-content .card-title {
+  line-height: 1.4rem;
+  font-size: 1.2rem;
+}
+.elmsln-card .card .card-title {
+  line-height: 1.4rem;
+  font-size: 1.2rem;
+}
+.elmsln-card .carousel.carousel-slider {
+  height: 200px !important;
+}
+.elmsln-card .carousel .indicators {
+  background-color: #ffffff;
+  opacity: .4;
+}
+.elmsln-card .carousel .indicators:hover {
+  opacity: .8;
+}
+.elmsln-card .carousel .indicators .indicator-item {
+  background-color: #2196F3 !important;
+  margin: .5rem .25rem 1.25rem .25rem;
+  height: .5rem;
+  width: .5rem;
+}
+.elmsln-card  .carousel .indicators .indicator-item:hover {
+  background-color: #ff9621 !important;
+}
+
+.elmsln-card  .carousel .indicators .indicator-item.active {
+  background-color: #ff9621 !important;
+}
+
+.elmsln-no-preview-item {
+  height: 240px;
+  width: 300px;
+  text-align: center;
+  line-height: 240px;
+}
+
+.elmsln-card-title {
+  max-width: 80%;
+  display: inline-block;
+}
+
+.elmsln-card ul.collection {
+  zoom: 0.9;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.elmsln-card span.label {
+  font-weight: bold;
+}
+
+.elmsln-card .tags {
+  zoom:0.75;
+}
+.elmsln-card .tags .field-name-field-tagging {
+  display: inline;
+}
+.elmsln-card .tags .field-name-field-tagging .links{
+  margin:0;
+}
+
 /* fix for ckeditor templates in firefox */
 .cke_tpl_preview_img img {
   width: 100px;
@@ -682,6 +771,17 @@ fieldset {
   border-radius: 3px;
   padding: 2rem;
   position: relative;
+  min-height: 4rem !important;
+}
+
+legend + .fieldset-wrapper {
+    padding-top: 2.5rem;
+}
+
+fieldset.bef-select-as-radios-fieldset.collapsed legend,
+fieldset.bef-select-as-checkboxes-fieldset.collapsed legend
+{
+    position: absolute;
 }
 
 .fieldset-description {

@@ -24,7 +24,14 @@ function cle_submission_field_group_info() {
     'weight' => '5',
     'children' => array(
       0 => 'field_energy',
-      1 => 'og_group_ref',
+      1 => 'field_submission_state',
+      2 => 'og_group_ref',
+      3 => 'path',
+      4 => 'hidden_nodes',
+      5 => 'book',
+      6 => 'options',
+      7 => 'author',
+      8 => 'revision_information',
     ),
     'format_type' => 'tab',
     'format_settings' => array(

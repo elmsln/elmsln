@@ -243,7 +243,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#title' => t('Course'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'column'
+        's12', 'col'
       )
     ),
   );
@@ -255,7 +255,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#title' => t('Details'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'medium-6', 'column',
+        's12', 'm6', 'col',
       )
     ),
   );
@@ -299,7 +299,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#title' => t('Structure'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'medium-6', 'column',
+        's12', 'm6', 'col',
       )
     ),
   );
@@ -374,7 +374,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#title' => t('Additional settings'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'medium-12', 'column'
+        's12', 'm12', 'col'
       )
     ),
   );
@@ -467,7 +467,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#collapsible' => '1',
     '#attributes' => array(
       'class' => array(
-        'small-12', 'medium-6', 'column',
+        's12', 'm6'
       )
     ),
   );
@@ -477,7 +477,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#value' => t('Create course'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'column',
+        's12', 'col',
       ),
     )
   );

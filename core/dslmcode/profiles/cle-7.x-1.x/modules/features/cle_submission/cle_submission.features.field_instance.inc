@@ -10,7 +10,8 @@
 function cle_submission_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'comment-comment_node_cle_submission-comment_body'
+  // Exported field_instance:
+  // 'comment-comment_node_cle_submission-comment_body'.
   $field_instances['comment-comment_node_cle_submission-comment_body'] = array(
     'bundle' => 'comment_node_cle_submission',
     'default_value' => NULL,
@@ -66,7 +67,7 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_submission-body'
+  // Exported field_instance: 'node-cle_submission-body'.
   $field_instances['node-cle_submission-body'] = array(
     'bundle' => 'cle_submission',
     'default_value' => NULL,
@@ -154,7 +155,7 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_submission-field_assignment'
+  // Exported field_instance: 'node-cle_submission-field_assignment'.
   $field_instances['node-cle_submission-field_assignment'] = array(
     'bundle' => 'cle_submission',
     'default_value' => NULL,
@@ -227,7 +228,7 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_submission-field_energy'
+  // Exported field_instance: 'node-cle_submission-field_energy'.
   $field_instances['node-cle_submission-field_energy'] = array(
     'bundle' => 'cle_submission',
     'default_value' => array(
@@ -283,7 +284,7 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_submission-field_files'
+  // Exported field_instance: 'node-cle_submission-field_files'.
   $field_instances['node-cle_submission-field_files'] = array(
     'bundle' => 'cle_submission',
     'deleted' => 0,
@@ -362,7 +363,7 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_submission-field_images'
+  // Exported field_instance: 'node-cle_submission-field_images'.
   $field_instances['node-cle_submission-field_images'] = array(
     'bundle' => 'cle_submission',
     'deleted' => 0,
@@ -486,7 +487,7 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_submission-field_links'
+  // Exported field_instance: 'node-cle_submission-field_links'.
   $field_instances['node-cle_submission-field_links'] = array(
     'bundle' => 'cle_submission',
     'default_value' => NULL,
@@ -557,7 +558,7 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_submission-field_submission_state'
+  // Exported field_instance: 'node-cle_submission-field_submission_state'.
   $field_instances['node-cle_submission-field_submission_state'] = array(
     'bundle' => 'cle_submission',
     'default_value' => array(
@@ -608,11 +609,11 @@ function cle_submission_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 9,
+      'weight' => 12,
     ),
   );
 
-  // Exported field_instance: 'node-cle_submission-field_video'
+  // Exported field_instance: 'node-cle_submission-field_video'.
   $field_instances['node-cle_submission-field_video'] = array(
     'bundle' => 'cle_submission',
     'default_value' => NULL,
@@ -688,7 +689,7 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_submission-og_group_ref'
+  // Exported field_instance: 'node-cle_submission-og_group_ref'.
   $field_instances['node-cle_submission-og_group_ref'] = array(
     'bundle' => 'cle_submission',
     'default_value' => NULL,
