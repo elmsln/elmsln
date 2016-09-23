@@ -142,30 +142,30 @@ function _cis_lmsless_assemble_user() {
     }
     // set a login link if we don't have a user name
     if ($vars['username'] == '') {
-      $vars['userlink'] = l(t('login'), 'user', array('attributes' => array('class' => array('account-logout'))));
+      $vars['userlink'] = l('<i class="material-icons black-text">power_settings_new</i>' . t('Login'), 'user', array('html' => TRUE, 'attributes' => array('class' => array('account-logout', 'waves-effect', 'waves-light', 'btn-flat'))));
     }
     else {
-      $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout'))));
-      $vars['userprofile'] = l('<i class="material-icons white-text">face</i>Profile', 'user/' . $GLOBALS['user']->uid, array('attributes' => array('class' => 'waves-effect waves-light btn'), 'html' => TRUE));
+      $vars['userlink'] = l('<i class="material-icons black-text">power_settings_new</i>' . t('Log out'), 'user/logout', array('html' => TRUE, 'attributes' => array('class' => array('account-logout', 'waves-effect', 'waves-light', 'btn-flat'))));
+      $vars['userprofile'] = l('<i class="material-icons black-text">account_circle</i>' . t('Profile'), 'user/' . $GLOBALS['user']->uid, array('html' => TRUE, 'attributes' => array('class' => array('waves-effect', 'waves-light', 'btn-flat'))));
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       // account for systems without sections (like authorities)
       if ($section) {
         // ensure they can see the section switcher link
         if (user_access('switch section context')) {
-          $vars['user_section'] = '<a href="#block-cis-service-connection-section-context-changer-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn"><i class="material-icons white-text">perm_identity</i>' . t('Change section') . '</span></a>';
+          $vars['user_section'] = '<a href="#block-cis-service-connection-section-context-changer-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn-flat"><i class="material-icons black-text">perm_identity</i>' . t('Change section') . '</span></a>';
         }
       }
       // render differently if the user is already masquerading
       if (isset($_SESSION['masquerading'])) {
         $tmptext = '<span><div>' . filter_xss($GLOBALS['user']->name) . '</div></span>';
-        $vars['masquerade'] = $tmptext . '<div>' . l('<i class="material-icons white-text">supervisor_account</i>' . t('revert'), 'masquerade/unswitch', array('attributes' => array('class' => 'waves-effect waves-light btn'), 'html' => TRUE, 'query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '</div>';
+        $vars['masquerade'] = $tmptext . '<div>' . l('<i class="material-icons black-text">supervisor_account</i>' . t('revert'), 'masquerade/unswitch', array('attributes' => array('class' => array('waves-effect', 'waves-light', 'btn-flat')), 'html' => TRUE, 'query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '</div>';
       }
       else {
-        $vars['masquerade'] = '<a href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn"><i class="material-icons white-text">supervisor_account</i>' . t('impersonate account') . '</a>';
+        $vars['masquerade'] = '<a href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn-flat"><i class="material-icons black-text">supervisor_account</i>' . t('impersonate account') . '</a>';
       }
       // support for the FERPA filter block
-      $vars['ferpa_flter'] = '<a href="#block-cis-service-connection-ferpa-filter-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn"><i class="material-icons white-text">visibility</i>' . t('Privacy settings') . '</a>';
+      $vars['ferpa_flter'] = '<a href="#block-cis-service-connection-ferpa-filter-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn-flat"><i class="material-icons black-text">visibility</i>' . t('Privacy settings') . '</a>';
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
       unset($tmproles[1]);

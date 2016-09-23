@@ -18,21 +18,20 @@
       <a><span class="white-text user-roles"><?php if (!empty($user_roles)) { print $user_roles; } ?></span></a>
     </div>
   </li>
-  <?php if (!empty($username)) : ?>
-  <li>
-    <?php print $userprofile; ?>
-  </li>
-  <li>
-    <?php print $userlink; ?>
-  </li>
-  <?php endif; ?>
-<?php if (!empty($masquerade)) : ?>
-  <li><?php print $masquerade; ?></li>
+<?php if (!empty($username)) : ?>
+  <li><?php print $userprofile; ?></li>
 <?php endif; ?>
 <?php if (!empty($ferpa_flter)) : ?>
-  <li><div class="divider"></div></li>
   <li><?php print $ferpa_flter; ?></li>
+<?php endif; ?>
+<?php if (isset($user_section) || !empty($masquerade)) : ?>
+  <li><div class="divider"></div></li>
 <?php endif; ?>
 <?php if (isset($user_section)) : ?>
   <li><?php print $user_section; ?></li>
 <?php endif; ?>
+<?php if (!empty($masquerade)) : ?>
+  <li><?php print $masquerade; ?></li>
+<?php endif; ?>
+  <li><div class="divider"></div></li>
+  <li><?php print $userlink; ?></li>
