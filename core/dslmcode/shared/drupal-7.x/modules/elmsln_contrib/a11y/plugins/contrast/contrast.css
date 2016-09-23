@@ -1,4 +1,4 @@
-body * {
+body {
   -webkit-filter: contrast(2);
   filter: contrast(2);
 }

@@ -46,11 +46,11 @@
       });
       $('.elmsln-modal-trigger').leanModal({
         dismissible: true, // Modal can be dismissed by clicking outside of the modal
-        opacity: .8, // Opacity of modal background
-        in_duration: 100, // Transition in duration
-        out_duration: 100, // Transition out duration
-        starting_top: '100', // Starting top style attribute
-        ending_top: '100', // Ending top style attribute
+        opacity: .5, // Opacity of modal background
+        in_duration: 150, // Transition in duration
+        out_duration: 150, // Transition out duration
+        starting_top: '1rem', // Starting top style attribute
+        ending_top: '1rem', // Ending top style attribute
       });
       // close x's
       $('.close-reveal-modal').click(function(){

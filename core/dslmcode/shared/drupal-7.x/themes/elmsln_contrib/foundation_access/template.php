@@ -434,7 +434,7 @@ function foundation_access_form_element($variables) {
   }
   // Add element's #type and #name as class to aid with JS/CSS selectors.
   $attributes['class'] = array('form-item');
-  if ($element['#type'] == 'textfield') {
+  if ($element['#type'] == 'textfield' || $element['#type'] == 'password') {
     $attributes['class'][] = 'input-field';
   }
   if (!empty($element['#type'])) {

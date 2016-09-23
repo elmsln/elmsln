@@ -13,6 +13,13 @@
   padding: 0;
 }
 
+.form-item .description {
+  margin: 0;
+  padding: 0;
+  font-size: .6rem;
+  line-height: 1rem;
+}
+
 /* Page tweaks to undo our app.css stuff */
 ul.pagination li {
   float: none;
@@ -65,6 +72,7 @@ ul.pagination li a {
 }
 .elmsln-modal.modal {
   z-index: 10002 !important;
+  padding: 2rem 4rem;
 }
 
 #block-cis-shortcodes-cis-shortcodes-block-nav-modal {
