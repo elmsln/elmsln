@@ -5,7 +5,7 @@
     attach: function (context, settings) {
       var waveEffect = "waves-effect waves-orange";
       // MOOC
-      $(".mooc-helper-toc, #block-mooc-helper-mooc-helper-toc-nav-modal a, .book-sibling-nav-container li").addClass(waveEffect);
+      $("#block-mooc-helper-mooc-helper-toc-nav-modal a, .book-sibling-nav-container li").addClass(waveEffect);
       // GENERIC
       $("button").addClass(waveEffect);
       // DROPDOWNS
