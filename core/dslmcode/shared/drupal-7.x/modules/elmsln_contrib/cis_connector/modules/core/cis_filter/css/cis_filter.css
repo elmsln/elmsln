@@ -51,8 +51,3 @@ div.ctools-modal-content .modal-content {
   padding: .1rem 1rem;
   margin: 0 .5rem;
 }
-.cis-filter-activity-item ul.submit-widget-links li:hover{
-  -webkit-box-shadow: 0px 1px 1.5px 1px rgba(0, 0, 0, 0.52);
-  box-shadow: 0px 1px 1.5px 1px rgba(0, 0, 0, 0.52);
-  background-color: #eeeeee;
-}

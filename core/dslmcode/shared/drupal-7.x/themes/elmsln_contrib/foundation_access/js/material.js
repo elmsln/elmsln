@@ -12,9 +12,6 @@
       $("#r-header__icon--advanced li, #courseToolsMenu li").addClass(waveEffect);
       // TABS
       $(".horizontal-tabs-list .horizontal-tab-button").addClass(waveEffect);
-      // INPAGE WIDGET
-      //$(".cis-filter-activity-item").addClass("waves-effect waves-button waves-classic");
-      $(".cis-filter-activity-item ul.submit-widget-links li").addClass(waveEffect);
       // IN PAGE MENU
       $(".header-menu-options li, .elmsln-home-button-link").addClass(waveEffect);
     }
