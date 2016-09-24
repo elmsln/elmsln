@@ -1,3 +1,10 @@
+/* CIS filter / submit widget */
+.cis-filter-activity-item .material-icons {
+  font-size:3rem;
+  margin-top:1rem;
+  opacity:.8;
+}
+
 /* tweaks to side-nav padding / structure */
 .side-nav .btn-flat {
    padding: 0 0 0 .5rem;
