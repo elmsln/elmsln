@@ -314,25 +314,6 @@ ul.book-navigation-wrapper {
   line-height: 2.25rem;
 }
 
-.book-sibling-nav-item .outline-nav-icon {
-  opacity: .5;
-  filter: alpha(opacity=50);
-}
-
-.book-sibling-nav-past-page .outline-nav-icon {
-}
-
-.book-sibling-nav-current-page .outline-nav-icon {
-  background-color: #FFCCCC !important;
-  opacity: 1;
-  filter: alpha(opacity=1);
-}
-
-.book-sibling-nav-future-page .outline-nav-icon {
-  opacity: 0.3;
-  filter: alpha(opacity=30);
-}
-
 .etb-book hr.book-parent-container {
   margin: 1rem 0rem 1rem;
 }
@@ -417,9 +398,6 @@ ul.book-navigation-wrapper {
   }
   #block-mooc-helper-mooc-helper-toc-nav-modal a {
     height: inherit;
-  }
-  .outline-nav-icon {
-    margin-right: .1rem;
   }
   #block-mooc-helper-mooc-helper-toc-nav-modal a.close-reveal-modal {
     height: 1rem;

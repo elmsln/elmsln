@@ -1,3 +1,18 @@
+/* consistend focus state presentation */
+a:hover,
+a:focus,
+button:focus,
+input:focus,
+i:focus,
+li:focus {
+  outline: #0078a0 .1rem solid;
+}
+
+/* top bar profile divider */
+.divider-right {
+  border-right: 0.0625rem solid #ccc;
+}
+
 /* CIS filter / submit widget */
 .cis-filter-activity-item .material-icons {
   font-size:3rem;
@@ -10,6 +25,13 @@
    padding: 0 0 0 .5rem;
    margin: 0;
    line-height: 3rem;
+}
+
+.side-nav a {
+  padding: .5rem;
+}
+.side-nav a span {
+  line-height: 1.25rem;
 }
 
 .collapsible-body p{
@@ -86,6 +108,9 @@ ul.pagination li a {
 .elmsln-modal.modal {
   z-index: 10002 !important;
   padding: 2rem 4rem;
+}
+.elmsln-modal-hidden {
+  display: none;
 }
 
 #block-cis-shortcodes-cis-shortcodes-block-nav-modal {
@@ -308,6 +333,7 @@ select.chosen {
   opacity: .8;
   width: 2.25rem;
   line-height: 2.25rem;
+  margin-top: .25rem;
 }
 
 .imagelightbox__close {
@@ -977,30 +1003,6 @@ div.exposed-filters button#edit-submit {
   transition: all, 0.3s;
 }
 
-button[type="submit"]:hover,
-button.form-submit:hover,
-a.button:hover,
-div.exposed-filters button#edit-submit:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,.2);
-}
-
-button[type="submit"]:active,
-button.form-submit:active,
-a.button:active,
-div.exposed-filters button#edit-submit:active {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-button[type="submit"]:focus,
-button.form-submit:focus,
-a.button:focus,
-div.exposed-filters button#edit-submit:focus {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-
 /* Green Button */
 i.zmdi-save {
  color: #0E9C57;
@@ -1025,41 +1027,6 @@ button#edit-actions-save {
   border-radius: 0.2rem;
 }
 
-button[type="submit"][id^="edit-submit"]:hover,
-button#edit-actions-submit:hover,
-button[id^="save-continue"]:hover,
-button[type="submit"][id^="edit-save"]:hover,
-button#edit-save:hover,
-button#edit-submit:hover,
-button#edit-addanother:hover,
-button#edit-actions-save:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,.3);
-}
-
-button[type="submit"][id^="edit-submit"]:active,
-button#edit-actions-submit:active,
-button[id^="save-continue"]:active,
-button[type="submit"][id^="edit-save"]:active,
-button#edit-save:active,
-button#edit-submit:active,
-button#edit-addanother:active,
-button#edit-actions-save:active {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-button[type="submit"][id^="edit-submit"]:focus,
-button#edit-actions-submit:focus,
-button[id^="save-continue"]:focus,
-button[type="submit"][id^="edit-save"]:focus,
-button#edit-save:focus,
-button#edit-submit:focus,
-button#edit-addanother:focus,
-button#edit-actions-save:focus {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
 /* Red Button */
 button#edit-delete,
 button#remove-button,
@@ -1081,36 +1048,6 @@ button[id*="remove-button"],
   transition: all, 0.3s;
 }
 
-button#edit-delete:hover,
-button#remove-button:hover,
-button#edit-remove:hover,
-button#edit-clear:hover,
-a.button.remove:hover,
-button[id*="remove-button"]:hover,
-.page-node-delete button#edit-submit:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,.3);
-}
-
-button#edit-delete:active,
-button#remove-button:active,
-button#edit-remove:active,
-button#edit-clear:active,
-button[id*="remove-button"]:active,
-.page-node-delete button#edit-submit:active {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-button#edit-delete:focus,
-button#remove-button:focus,
-button#edit-remove:focus,
-button#edit-clear:focus,
-button[id*="remove-button"]:focus,
-.page-node-delete button#edit-submit:focus {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
 /* Blue Button */
 button#edit-preview-changes,
 button#edit-next,
@@ -1127,33 +1064,6 @@ button[type="submit"][id^="edit-return"] {
   text-transform: uppercase;
   border-radius: 0.2rem;
   transition: all, 0.3s;
-}
-
-button#edit-preview-changes:hover,
-button#edit-next:hover,
-button#preview-submit:hover,
-button[type="submit"][id^="edit-return"]:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,.3);
-}
-
-button#edit-preview-changes:active,
-button#edit-next:active,
-button#preview-submit:active,
-button[type="submit"][id^="edit-return"]:active {
-  border: none;
-  color: #fff;
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-button#edit-preview-changes:focus,
-button#edit-next:focus,
-button#preview-submit:focus,
-button[type="submit"][id^="edit-return"]:focus {
-  border: none;
-  color: #fff;
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
 }
 
 div.horizontal-tabs ul li.horizontal-tab-button strong {

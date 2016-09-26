@@ -29,7 +29,6 @@ base theme = zurb_foundation
 ; For CSS users, load the app.css file:
 stylesheets[all][] = icons/faccess-icons/output/icons.data.svg.css
 stylesheets[all][] = css/app.css
-stylesheets[all][] = css/material.css
 stylesheets[all][] = css/fonts.css
 ; Block loading of foundation.min.css from the base theme. This file should either
 ; not exist or be blank in your subtheme. See https://drupal.org/node/263967
@@ -60,7 +59,7 @@ scripts[] = libraries/imagelightbox/imagelightbox.js
 scripts[] = js/dist/app.js
 scripts[] = js/comparison.js
 scripts[] = js/tweaks.js
-scripts[] = js/material.js
+scripts[] = js/materialize/materialize.js
 
 ; This section lists the regions defined in the page.tpl.php. The name in
 ; brackets is the machine name of the region. The text after the equals sign is

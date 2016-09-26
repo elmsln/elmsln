@@ -27,10 +27,10 @@
 // sort so the items are weighted
 ?>
 <div class="fixed-action-btn elmsln-fixed-action-btn click-to-toggle" style="bottom: 45px; right: 24px;">
-    <a class="btn-floating btn-large red">
-      <i class="material-icons">add</i>
-    </a>
-    <?php if ($content): ?>
-      <?php print $content; ?>
-    <?php endif; ?>
-  </div>
+  <a href="#" class="btn-floating btn-large red" tabindex="0" aria-labelledby="<?php print t('Add content'); ?>">
+    <i class="material-icons">add</i>
+  </a>
+  <?php if ($content): ?>
+    <?php print $content; ?>
+  <?php endif; ?>
+</div>

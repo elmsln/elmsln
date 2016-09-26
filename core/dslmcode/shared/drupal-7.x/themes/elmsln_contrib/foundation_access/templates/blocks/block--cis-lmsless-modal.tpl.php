@@ -1,4 +1,4 @@
-<div id="<?php print $block_html_id ?>-nav-modal" class="elmsln-scroll-bar elmsln-modal etb-nav-modal modal disable-scroll">
+<div id="<?php print $block_html_id ?>-nav-modal" class="elmsln-scroll-bar elmsln-modal etb-nav-modal modal disable-scroll" aria-labelledby="<?php print $block->subject; ?>" aria-hidden="true" role="dialog" tabindex="-1">
 <?php print $content; ?>
-<a class="close-reveal-modal" aria-label="<?php print t('Close'); ?>" data-voicecommand="close (menu)" data-jwerty-key="Esc">&#215;</a>
+<a href="#" class="close-reveal-modal" aria-label="<?php print t('Close'); ?>" data-voicecommand="close" data-jwerty-key="Esc">&#215;</a>
 </div>

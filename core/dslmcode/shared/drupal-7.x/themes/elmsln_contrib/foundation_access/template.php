@@ -50,8 +50,8 @@ function foundation_access_preprocess_html(&$variables) {
     drupal_add_js($libraries['materialize'] .'/js/materialize.min.js', array('scope' => 'footer', 'weight' => 1000));
   }
   else {
-    drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
-    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
+    drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
+    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
   }
   // TODO need to fix issue w/ jquery.easing not being included currently
   // theme path shorthand should be handled here
@@ -126,7 +126,7 @@ function foundation_access_fieldset($variables) {
         $body .= $element['#children'];
         // form the fieldset as a collapse element
         $output = '
-        <li>
+        <li class="collapsible-li" tabindex="0" role="button">
           <div class="collapsible-header' . $collapse . '">' .
             $icon . $element['#title'] .
           '</div>
@@ -877,7 +877,7 @@ function foundation_access_menu_link(&$variables) {
     $element['#localized_options']['attributes']['class'][] = 'btn-floating';
     $element['#localized_options']['attributes']['class'][] = 'elmsln-btn-floating';
     // load up a map of icons and color associations
-    $icon_map = _foundation_access_icon_map();
+    $icon_map = _elmsln_core_icon_map();
     $icon = str_replace(' ', '_', drupal_strtolower($title));
     if (isset($icon_map[$icon])) {
       $element['#localized_options']['attributes']['class'][] = $icon_map[$icon]['color'];
@@ -1622,56 +1622,4 @@ function _foundation_access_video_url($video_url) {
   }
   // didn't know what to do or it was already well formed
   return $video_url;
-}
-
-/**
- * Map of materializeCSS icon / color associations when wanting to make them into icons.
- * @return array   associative array of icon / colors
- */
-function _foundation_access_icon_map() {
-  // statically cache future calls
-  $map = &drupal_static(__FUNCTION__);
-  if (!isset($map)) {
-    $map = array(
-      'audio' => array(
-        'color' => 'green',
-        'icon' => 'music_video',
-      ),
-      'document' => array(
-        'color' => 'light-green',
-        'icon' => 'insert_drive_file',
-      ),
-      'external_video' => array(
-        'color' => 'red',
-        'icon' => 'video_library',
-      ),
-      'figure_label' => array(
-        'color' => 'deep-orange',
-        'icon' => 'label_outline',
-      ),
-      'h5p' => array(
-        'color' => 'orange',
-        'icon' => 'local_activity',
-      ),
-      'image' => array(
-        'color' => 'teal',
-        'icon' => 'photo',
-      ),
-      'image_gallery' => array(
-        'color' => 'blue',
-        'icon' => 'collections',
-      ),
-      'svg' => array(
-        'color' => 'indigo',
-        'icon' => 'graphic_eq',
-      ),
-      'video' => array(
-        'color' => 'purple',
-        'icon' => 'ondemand_video',
-      ),
-    );
-    // allow others to modify core associations
-    drupal_alter('fa_icon_map', $map);
-  }
-  return $map;
 }

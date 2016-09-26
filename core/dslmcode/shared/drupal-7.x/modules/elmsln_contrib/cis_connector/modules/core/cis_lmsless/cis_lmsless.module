@@ -331,6 +331,7 @@ function _cis_lmsless_theme_vars() {
       'site_name' => variable_get('site_name', t('Service')),
       'slogan' => variable_get('site_slogan', ''),
       'distro' => variable_get('install_profile', 'standard'),
+      'lmsless_classes' => _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard')),
     );
     $vars['home'] = l('<div class="' . $vars['distro'] . '-home elmsln-home-icon icon-' . $vars['distro'] . '-black etb-modal-icons"></div><span>' . t('Home') . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($vars['distro'] . '-home-button'))));
     // build in section context if we have one we can pull
@@ -476,10 +477,69 @@ function cis_lmsless_theme() {
         'resources' => array(),
         'tech_support' => array(),
         'elmsln_main_menu' => '',
+        'lmsless_classes' => array(),
         'bar_elements' => array('network' => TRUE, 'user' => TRUE, 'help' => TRUE, 'resources' => TRUE, 'syllabus' => TRUE),
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',
     ),
   );
+}
+
+/**
+ * Returns a color association for a distribution / tool in the network
+ */
+function _cis_lmsless_get_distro_classes($distro = NULL) {
+  // establish an empty series of classes
+  $empty = array(
+    'topbar' => ''
+  );
+  // statically cache future calls
+  $map = &drupal_static(__FUNCTION__);
+  if (!isset($map)) {
+    $map = array(
+      'elmsmedia' => array(
+        'topbar' => 'red lighten-1',
+      ),
+      'icor' => array(
+        'topbar' => 'green lighten-1',
+      ),
+      'mooc' => array(
+        'topbar' => 'blue lighten-1',
+      ),
+      'cle' => array(
+        'topbar' => 'amber lighten-1',
+      ),
+      'inbox' => array(
+        'topbar' => 'orange lighten-1',
+      ),
+      'cpr' => array(
+        'topbar' => 'deep-orange lighten-1',
+      ),
+      'violet' => array(
+        'topbar' => 'yellow lighten-1',
+      ),
+      'discuss' => array(
+        'topbar' => 'indigo lighten-1',
+      ),
+      'ecd' => array(
+        'topbar' => 'lime',
+      ),
+      'cis' => array(
+        'topbar' => 'pink lighten-1',
+      ),
+    );
+    // allow others to modify core color associations
+    drupal_alter('cis_lmsless_color', $map);
+  }
+  // see if we should return anything
+  if (isset($distro)) {
+    // if we don't know about this then return nothing
+    if (isset($map[$distro])) {
+      return $map[$distro];
+    }
+    return $empty;
+  }
+  // return everything
+  return $map;
 }
