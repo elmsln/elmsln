@@ -140,7 +140,7 @@
       <a class="exit-off-canvas"></a>
       </div>
     </main>
-    <footer class="page-footer">
+    <footer class="page-footer <?php print $cis_lmsless['lmsless_classes']['topbar'];?>">
     <div class="container">
       <div class="row">
         <div class="s12 push-m1 m-10 col">
@@ -169,7 +169,7 @@
 <?php print render($page['cis_lmsless_modal']); ?>
 <!-- Accessibility side nav -->
 <?php if (!empty($a11y)) : ?>
-<div id="page-accessibility-menu" class="elmsln-scroll-bar etb-nav-modal elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-labelledby="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
+<div id="page-accessibility-menu" class="elmsln-scroll-bar etb-nav-modal elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
   <h1 id="Accessibility"><?php print t('Accessibility') ?></h1>
   <?php print $a11y; ?>
   <a href="#" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>

@@ -2,10 +2,9 @@
 a:hover,
 a:focus,
 button:focus,
-input:focus,
 i:focus,
 li:focus {
-  outline: #0078a0 .1rem solid;
+  outline: #0078a0 .1rem solid !important;
 }
 
 /* top bar profile divider */
@@ -34,6 +33,13 @@ li:focus {
   line-height: 1.25rem;
 }
 
+.collapsible-header-trigger {
+
+}
+.collapsible-header-trigger:hover {
+  background-color: initial;
+}
+
 .collapsible-body p{
   padding: 0;
 }
@@ -51,7 +57,7 @@ li:focus {
 .form-item .description {
   margin: 0;
   padding: 0;
-  font-size: .6rem;
+  font-size: .8rem;
   line-height: 1rem;
 }
 
@@ -224,11 +230,11 @@ main {
 }
 
 footer.page-footer{
-  background-color: #3e3e3e;
+  background-color: #f5f5f5;
   padding-top: 1rem;
   text-align: center; }
   footer.page-footer p {
-    color: #999;
+    color: #222222;
     font-size: 0.8rem; }
 
 /* undo core error message conflict */
@@ -536,6 +542,7 @@ a.add-menu-drop {
 #etb-course-nav span.course-title,
 #etb-course-nav span.course-abrv {
   justify-content: flex-end;
+  color:#424242;
 }
 
 .ferpa-privacy-blur {

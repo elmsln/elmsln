@@ -498,35 +498,47 @@ function _cis_lmsless_get_distro_classes($distro = NULL) {
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
-      'elmsmedia' => array(
-        'topbar' => 'red lighten-1',
-      ),
-      'icor' => array(
-        'topbar' => 'green lighten-1',
-      ),
       'mooc' => array(
-        'topbar' => 'blue lighten-1',
+        'topbar' => 'blue lighten-4',
       ),
       'cle' => array(
-        'topbar' => 'amber lighten-1',
-      ),
-      'inbox' => array(
-        'topbar' => 'orange lighten-1',
-      ),
-      'cpr' => array(
-        'topbar' => 'deep-orange lighten-1',
-      ),
-      'violet' => array(
-        'topbar' => 'yellow lighten-1',
+        'topbar' => 'amber lighten-4',
       ),
       'discuss' => array(
-        'topbar' => 'indigo lighten-1',
+        'topbar' => 'teal lighten-4',
+      ),
+      'ulmus' => array(
+        'topbar' => 'grey',
+      ),
+      'editorial' => array(
+        'topbar' => 'cyan lighten-4',
+      ),
+      'inbox' => array(
+        'topbar' => 'orange lighten-4',
+      ),
+      'elmsmedia' => array(
+        'topbar' => 'red lighten-4',
+      ),
+      'icor' => array(
+        'topbar' => 'yellow lighten-4',
+      ),
+      'cpr' => array(
+        'topbar' => 'deep-orange lighten-4',
       ),
       'ecd' => array(
-        'topbar' => 'lime',
+        'topbar' => 'lime lighten-4',
       ),
       'cis' => array(
-        'topbar' => 'pink lighten-1',
+        'topbar' => 'pink lighten-4',
+      ),
+      'lor' => array(
+        'topbar' => 'purple lighten-4',
+      ),
+      'lq' => array(
+        'topbar' => 'light-green lighten-3',
+      ),
+      'assessment' => array(
+        'topbar' => 'light-blue lighten-3',
       ),
     );
     // allow others to modify core color associations

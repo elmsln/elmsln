@@ -126,10 +126,11 @@ function foundation_access_fieldset($variables) {
         $body .= $element['#children'];
         // form the fieldset as a collapse element
         $output = '
-        <li class="collapsible-li" tabindex="0" role="button">
-          <div class="collapsible-header' . $collapse . '">' .
+        <li class="collapsible-li">
+          <a href="#" class="collapsible-header' . $collapse . '">' .
             $icon . $element['#title'] .
-          '</div>
+          '
+          </a>
           <div class="collapsible-body">
             <div class="elmsln-collapsible-body">
               ' . $body . '
@@ -885,9 +886,10 @@ function foundation_access_menu_link(&$variables) {
       $element['#localized_options']['html'] = TRUE;
     }
   }
-  if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
+  // @todo apply tabs here when we get the targetting / style figured out
+  /*if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
     $element['#localized_options']['attributes']['class'][] = 'tab';
-  }
+  }*/
   $output = l($title, $element['#href'], $element['#localized_options']);
   return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
 }
@@ -903,7 +905,8 @@ function foundation_access_menu_tree__menu_elmsln_settings($variables) {
  * Implements menu_tree__menu_elmsln_navigation.
  */
 function foundation_access_menu_tree__menu_elmsln_navigation($variables) {
-  return '<ul class="tabs">' . $variables['tree'] . '</ul>';
+  // @todo apply tabs here when we get the targetting / style figured out
+  return '<ul class="header-menu-options">' . $variables['tree'] . '</ul>';
 }
 
 /**

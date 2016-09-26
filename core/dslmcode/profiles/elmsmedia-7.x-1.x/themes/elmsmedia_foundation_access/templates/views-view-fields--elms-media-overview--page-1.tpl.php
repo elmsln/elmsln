@@ -118,7 +118,7 @@
         <span class="truncate elmsln-card-title orange-text">
           <?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'orange-text')));?>
         </span>
-        <i class="material-icons right">more_vert</i>
+        <i class="material-icons right" tabindex="0" role="button">more_vert</i>
       </span>
     </div>
     <div class="card-action">
@@ -126,7 +126,7 @@
       <?php print l('edit', 'node/' . $row->nid . '/edit');?>
     </div>
     <div class="card-reveal">
-      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'orange-text')));?></span><i class="material-icons right"><?php print t('close');?></i></span>
+      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'orange-text')));?></span><i class="material-icons right" tabindex="0" role="button"><?php print t('close');?></i></span>
       <ul class="collection">
         <li class="collection-item">
           <span><?php print $fields['type']->content;?></span>
