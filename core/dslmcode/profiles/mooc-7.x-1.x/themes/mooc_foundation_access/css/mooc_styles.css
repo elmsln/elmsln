@@ -1,10 +1,14 @@
-#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
-  display: block;
-  width: 100%;
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li {
+  padding: 0;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li:hover {
   background-color: #dddddd;
+}
+
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
+  display: block;
+  width: 100%;
 }
 
 #block-mooc-nav-block-mooc-nav-nav {
@@ -80,6 +84,10 @@ a.mooc-helper-toc span {
   float:left;
   height: 2.5rem;
   margin-right:1rem;
+}
+
+#block-mooc-helper-mooc-helper-toc-nav-modal h2 {
+  margin-bottom: 2rem
 }
 
 .sub-nav dt, .sub-nav dd, .sub-nav li {
