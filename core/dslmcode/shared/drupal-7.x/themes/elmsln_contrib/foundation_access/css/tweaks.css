@@ -293,6 +293,10 @@ body {
   min-height: 100vh;
   flex-direction: column;
 }
+/* ensure iframes still resize correctly */
+body.entity-iframe-theme {
+  display: block;
+}
 
 main {
   flex: 1 0 auto;
@@ -575,6 +579,7 @@ a.add-menu-drop {
 
 #etb-course-nav {
   margin: 0;
+  border: none;
 }
 #etb-course-nav span.course-title,
 #etb-course-nav span.course-abrv {

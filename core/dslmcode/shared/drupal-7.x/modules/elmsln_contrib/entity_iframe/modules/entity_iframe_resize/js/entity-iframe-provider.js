@@ -2,12 +2,11 @@
 // set event listener for our post back message from parents
 // of this content item being framed to display elsewhere
 (function ($) {
-  var initialResize = false;
   // resize to just beyond the height of the body
   function fireResize(rebuild) {
     var data = {
       "subject" : "entityIframe.resize",
-      "height": ($('body').height()+20)
+      "height": ($('body').height())
     };
     // post up to the parent frame
     window.parent.postMessage(data, '*');
@@ -39,11 +38,23 @@
     }
     resizeTimeout = setTimeout(function() {
       fireResize(true);
-    }, 500);
+    }, 1000);
   };
+  // account for possible scrollbar creation
+  $(window).scroll(function () {
+      // looks weird but this helps ensure we don't resize
+    if (resizeTimeout) {
+      clearTimeout(resizeTimeout);
+    }
+    resizeTimeout = setTimeout(function() {
+      fireResize(true);
+    }, 10);
+  });
   // wire up the mutator observer so we can detect a change in the frame to post
   $(document).ready(function(){
-    fireResize(false);
+    setTimeout(function() {
+      fireResize(false);
+    }, 100);
     // do an immediate post once document is loaded
     // account for prefixed mutators in older browsers
     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
@@ -62,7 +73,7 @@
             fireResize(true);
           }, 500);
         };
-      }, 1000);
+      }, 500);
     });
     // define what element should be observed by the observer and what types of mutations trigger the callback
     // perform this when we notice any change to the body to ensure that the change didn't affect the frame size
