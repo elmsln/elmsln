@@ -20,16 +20,6 @@
       $(".accessibility-content-toggle").hide();
     }
   };
-  // resize event
-  $(document).on('frame-resize', function(){
-    Drupal.offcanvasHeight.attach();
-  });
-  // behavior frame resize
-  Drupal.behaviors.frameResize = {
-    attach: function(context, settings) {
-      Drupal.offcanvasHeight.attach();
-    }
-  };
   // calculate the color difference between items
   // based on https://www.sitepoint.com/javascript-generate-lighter-darker-color/
   Drupal.ColorLuminance = function(hex, lum) {

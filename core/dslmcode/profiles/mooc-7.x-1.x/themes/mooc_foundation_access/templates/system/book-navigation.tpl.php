@@ -33,12 +33,12 @@
     <?php if ($has_links): ?>
       <div class="col s6">
       <?php if ($prev_url): ?>
-          <a href="<?php print $prev_url; ?>" class="book-sibling-parent-pagination book-sibling-parent-pagination-previous page-previous waves-effect waves-orange btn black-text white elmsln-z-depth-0" title="<?php print t('Go to previous page'); ?>" data-voicecommand="previous" data-jwerty-key="←"><i class="material-icons left">navigate_before</i><?php print t('previous'); ?></a>
+          <a href="<?php print $prev_url; ?>" class="book-sibling-parent-pagination book-sibling-parent-pagination-previous page-previous waves-effect cis-lmsless-color btn black-text white elmsln-z-depth-0" title="<?php print t('Go to previous page'); ?>" data-voicecommand="previous" data-jwerty-key="←"><i class="material-icons left">navigate_before</i><?php print t('previous'); ?></a>
       <?php endif; ?>
       </div>
       <div class="col s6">
       <?php if ($next_url): ?>
-          <a href="<?php print $next_url; ?>" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next waves-effect waves-orange btn black-text white elmsln-z-depth-0" title="<?php print t('Go to next page'); ?>" data-voicecommand="next" data-jwerty-key="→"><i class="material-icons right">navigate_next</i><?php print t('next'); ?></a>
+          <a href="<?php print $next_url; ?>" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next waves-effect cis-lmsless-color btn black-text white elmsln-z-depth-0" title="<?php print t('Go to next page'); ?>" data-voicecommand="next" data-jwerty-key="→"><i class="material-icons right">navigate_next</i><?php print t('next'); ?></a>
       <?php endif; ?>
       </div>
     <?php endif; ?>

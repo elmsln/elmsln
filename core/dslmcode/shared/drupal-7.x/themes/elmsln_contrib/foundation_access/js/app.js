@@ -72,8 +72,8 @@ var mediavideo = require('./components/mediavideo.js');
   // sticky stuff
   Drupal.behaviors.stickyStuff = {
     attach: function (context, settings) {
-      $('.r-header', context).sticky({topSpacing:4, width: '100%'}).css({backgroundColor: '#FFFFFF',width: '100%'});
-      $('.page-scroll.progress', context).sticky({topSpacing:0}).css('background-color','#EEEEEE');
+      $('.r-header', context).sticky({topSpacing:4, width: '100%'});
+      $('.page-scroll.progress', context).sticky({topSpacing:0}).addClass(Drupal.settings.cis_lmsless['topbar']);
     }
   };
   // ability to disable background scrolling on modal open
@@ -100,46 +100,25 @@ var mediavideo = require('./components/mediavideo.js');
       }
       Drupal.settings.progressScroll.scrollPercent = (Drupal.settings.progressScroll.scroll / Drupal.settings.progressScroll.total)*100;
       // set percentage of the meter to the scroll down the screen
-      $(".page-scroll.progress .meter", context).css({backgroundColor:"#222222", "width": Drupal.settings.progressScroll.scrollPercent+"%"});
+      $(".page-scroll.progress .meter", context).css({"width": Drupal.settings.progressScroll.scrollPercent+"%"}).addClass(Drupal.settings.cis_lmsless['topbar'] + ' darken-1');
     }
   };
 
-  // Function for making the offcanvas menu height stretch down to the footer
-
-  Drupal.offcanvasHeight = {
-    attach: function (context, settings) {
-      // ensure we have everything first
-      if ($("footer", context).length > 0 && $("#etb-tool-nav", context).length > 0) {
-        ////// This corrects the vertical height of the offcanvas wrapper to fill the open space on the page
-        $(".off-canvas-wrap .inner-wrap", context).css({"min-height": "0"}); // Clear the min-height
-        var footerOffset = $("footer", context)[0].offsetTop; // Detect top offset of footer
-        var offcanvasOffset = $("#etb-tool-nav", context)[0].offsetTop; // Detect top offset of offcanvas nav
-        var contentnavOffset = footerOffset - offcanvasOffset; // Figure out how tall the offcanvas menu should be
-        var remBase = parseInt($("body").css('font-size')); // Detect base px size for REM calculation
-
-        // var remSize = parseInt(remBase); // Remove px from remBase
-        var remOffCanvasOffset = contentnavOffset / remBase; // Divdes by remBase to get size in REMs
-        $(".off-canvas-wrap .inner-wrap", context).css({"min-height": remOffCanvasOffset+"rem"}); // Add the min-height to the wrapper
-      }
-    }
-  };
   // attach events to the window resizing / scrolling
   $(document).ready(function(){
-    $(window).on('resize', function() {
-      Drupal.offcanvasHeight.attach();
-    });
     $(window).scroll(function () {
         Drupal.progressScroll.attach();
     });
-    // forcibly call these to fire the first time
-    Drupal.offcanvasHeight.attach();
     /* Implement customer javascript here */
     $(".disable-scroll").on("show", function () {
       $("body").addClass("scroll-disabled");
     }).on("hidden", function () {
       $("body").removeClass("scroll-disabled")
     });
-
+    // back to top color matching styling
+    $('#backtotop').addClass('circle').addClass(Drupal.settings.cis_lmsless['topbar'] + ' darken-4');
+    $('.cis-lmsless-color').addClass('waves-' + Drupal.settings.cis_lmsless['topbar']);
+    // reveal id
     $('*[data-reveal-id]').click(function () {
       var revealID = $(this).attr("data-reveal-id");
       var wrapper = $("#" + revealID);

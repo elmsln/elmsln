@@ -1,3 +1,37 @@
+/* Materialize Waves additional colors */
+.waves-effect.waves-blue .waves-ripple {
+  /* The alpha value allows the text and background color of the button to still show through. */
+  background-color: rgba(187, 222, 251, 0.65);
+}
+.waves-effect.waves-amber .waves-ripple {
+  background-color: rgba(255, 236, 179, 0.65);
+}
+.waves-effect.waves-lime .waves-ripple {
+  background-color: rgba(240, 244, 195, 0.65);
+}
+.waves-effect.waves-deep-orange .waves-ripple {
+  background-color: rgba(255, 204, 188, 0.65);
+}
+.waves-effect.waves-light-blue .waves-ripple {
+  background-color: rgba(179, 229, 252, 0.65);
+}
+.waves-effect.waves-pink .waves-ripple {
+  background-color: rgba(248, 187, 208, 0.65);
+}
+.waves-effect.waves-light-green .waves-ripple {
+  background-color: rgba(220, 237, 200, 0.65);
+}
+
+
+
+/* form override for core and materialize */
+.container-inline div, .container-inline label {
+  display: block;
+}
+.input-field label {
+  color:#515151;
+}
+
 /* consistend focus state presentation */
 a:hover,
 a:focus,
@@ -20,17 +54,22 @@ li:focus {
 }
 
 /* tweaks to side-nav padding / structure */
-.side-nav .btn-flat {
-   padding: 0 0 0 .5rem;
+.side-nav a.btn-flat {
+   padding: 10px 15px;
    margin: 0;
-   line-height: 3rem;
+   line-height: 2rem;
 }
 
-.side-nav a {
-  padding: .5rem;
+.side-nav li>a>i, .side-nav li>a>[class^="mdi-"], .side-nav li>a>[class*="mdi-"], .side-nav li>a>i.material-icons {
+  line-height: 2rem;
 }
+
 .side-nav a span {
   line-height: 1.25rem;
+}
+
+.side-nav .divider {
+  margin: 0;
 }
 
 .collapsible-header-trigger {
@@ -117,6 +156,38 @@ ul.pagination li a {
 }
 .elmsln-modal-hidden {
   display: none;
+}
+
+/* Materialize scrollspy */
+#scrollspy-nav {
+  display: none;
+}
+#scrollspy-nav li.scrollspy-depth-1 {
+}
+#scrollspy-nav li.scrollspy-depth-2 {
+  padding-left:.75rem;
+}
+#scrollspy-nav li.scrollspy-depth-3 {
+  padding-left:1.5rem;
+}
+#scrollspy-nav li.scrollspy-depth-4 {
+  padding-left:2.25rem;
+}
+@media screen and (min-width: 80rem) {
+  #scrollspy-nav {
+    position: absolute !important;
+    left: 100%;
+    width: calc(50vw - 52%);
+    max-width: 30em;
+    display: block;
+  }
+}
+
+/* fix for Drupal checkboxes that don't have a label in material */
+div.form-type-checkbox :last-child {
+  position: relative;
+  opacity:1;
+  left:auto;
 }
 
 #block-cis-shortcodes-cis-shortcodes-block-nav-modal {
@@ -449,32 +520,6 @@ input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] inp
   background-color: initial;
 }
 
-/* Materialize scrollspy */
-
-#scrollspy-nav {
-  display: none;
-}
-#scrollspy-nav li.scrollspy-depth-1 {
-}
-#scrollspy-nav li.scrollspy-depth-2 {
-  padding-left:.75rem;
-}
-#scrollspy-nav li.scrollspy-depth-3 {
-  padding-left:1.5rem;
-}
-#scrollspy-nav li.scrollspy-depth-4 {
-  padding-left:2.25rem;
-}
-@media screen and (min-width: 80rem) {
-  #scrollspy-nav {
-    position: absolute !important;
-    left: 100%;
-    width: calc(50vw - 52%);
-    max-width: 30em;
-    display: block;
-  }
-}
-
 #etb-course-nav nav {
   box-shadow:none;
 }
@@ -487,12 +532,6 @@ input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] inp
   opacity: .4 !important;
 }
 
-/* fix for Drupal checkboxes that don't have a label in material */
-div.form-type-checkbox :last-child {
-  position: relative;
-  opacity:1;
-  left:auto;
-}
 #od_popup table input[type="radio"]:not(:checked), #od_popup table input[type="radio"]:checked {
   position: relative;
   opacity:1;
@@ -581,17 +620,11 @@ a.add-menu-drop {
 
 #backtotop {
   background: url(../img/backtotop.png) no-repeat center center;
-  right:0px;
-  bottom: 0px;
+  right: 1rem;
+  bottom: 1rem;
   z-index: 1000;
-}
-
-@media (-webkit-min-device-pixel-ratio: 2),
-(min-resolution: 192dpi) {
-  #backtotop {
-    background: url(../img/backtotop2x.png) no-repeat center center;
-    background-size: 70px 70px;
-  }
+  width: 2rem;
+  height: 2rem;
 }
 
 .elmsln-home-icon {
@@ -794,7 +827,7 @@ table th {
 }
 
 tr.even:hover, tr.odd:hover {
-  background: #FFF9C4;
+  background: #cfd8dc;
 }
 
 .marker,
@@ -927,7 +960,7 @@ fieldset {
 }
 
 legend + .fieldset-wrapper {
-    padding-top: 2.5rem;
+    padding-top: 0;
 }
 
 fieldset.bef-select-as-radios-fieldset.collapsed legend,
@@ -937,8 +970,7 @@ fieldset.bef-select-as-checkboxes-fieldset.collapsed legend
 }
 
 .fieldset-description {
-  padding-top: 28px;
-  padding-bottom: 20px;
+  padding: 1rem 0;
   color: #222222;
 }
 
@@ -947,7 +979,7 @@ fieldset.bef-select-as-checkboxes-fieldset.collapsed legend
   border: none;
   border-top: 0;
   border-radius: 0;
-  margin: -1.6rem 0 0 0;
+  margin: 0;
   padding: 0;
 }
 
@@ -978,7 +1010,7 @@ table th {
 
 table tr.add-new,
 table tr.add-new:hover {
-  background-color: #E8F5E9;
+  background-color: #cfd8dc;
 }
 
 table tbody td a {
@@ -999,7 +1031,7 @@ button.form-submit,
 a.button,
 div.exposed-filters button#edit-submit {
   cursor: pointer;
-  background: #BBBBBB;
+  background: #145650;
   border: none;
   color: #fff;
   text-align: center;

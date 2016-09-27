@@ -127,7 +127,7 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a href="#" class="collapsible-header' . $collapse . '">' .
+          <a href="#" class="collapsible-header waves-effect cis-lmsless-color' . $collapse . '">' .
             $icon . $element['#title'] .
           '
           </a>
@@ -1267,7 +1267,7 @@ function foundation_access_pager($variables) {
               'interval' => ($pager_current - $i),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect'),
+            'class' => array('waves-effect', 'cis-lmsless-color'),
           );
         }
         if ($i == $pager_current) {
@@ -1284,7 +1284,7 @@ function foundation_access_pager($variables) {
               'interval' => ($i - $pager_current),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect'),
+            'class' => array('waves-effect', 'cis-lmsless-color'),
           );
         }
       }

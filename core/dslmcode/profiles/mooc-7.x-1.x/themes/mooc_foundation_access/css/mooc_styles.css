@@ -3,7 +3,7 @@
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li:hover {
-  background-color: #dddddd;
+  background-color: #cfd8dc;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
@@ -29,7 +29,7 @@
 }
 
 #block-mooc-nav-block-mooc-nav-nav li.active-trail {
-  background-color: #eeeeee;
+  background-color: #eceff1;
 }
 
 .mooc-nav-block-left {
@@ -51,8 +51,8 @@
 }
 
 .page-mooc-book-toc ul.menu a:hover {
-  border: 1px solid #dddddd;
-  background-color: #eeeeee;
+  border: 1px solid #cfd8dc;
+  background-color: #eceff1;
 }
 
 a.mooc-helper-toc {
@@ -104,7 +104,7 @@ ul.book-navigation-wrapper {
 }
 
 .book-menu-item-active {
-  background-color: #eeeeee;
+  background-color: #eceff1;
 }
 .book-navigation-header {
   display: -webkit-box;
@@ -174,8 +174,8 @@ ul.book-navigation-wrapper {
 }
 
 .book-sibling-parent-pagination a:hover {
-  border: 1px solid #dddddd;
-  background-color: #eeeeee;
+  border: 1px solid #cfd8dc;
+  background-color: #eceff1;
 }
 
 .book-sibling-spacer {
@@ -209,8 +209,8 @@ ul.book-navigation-wrapper {
 }
 
 .book-sibling-parent a:hover {
-  border: 1px solid #dddddd;
-  background-color: #eeeeee;
+  border: 1px solid #cfd8dc;
+  background-color: #eceff1;
 }
 
 .book-sibling-parent-text {
@@ -236,7 +236,7 @@ ul.book-navigation-wrapper {
   height: 80%;
 }
 #block-mooc-helper-mooc-helper-toc-nav-modal a {
-  border: 1px solid #eeeeee;
+  border: 1px solid #eceff1;
   border-radius: 3px;
   line-height: 150%;
   font-size: 1rem;
@@ -257,12 +257,12 @@ ul.book-navigation-wrapper {
 }
 
 #block-mooc-helper-mooc-helper-toc-nav-modal a:hover {
-  border: 1px solid #dddddd;
-  background-color: #eeeeee;
+  border: 1px solid #cfd8dc;
+  background-color: #eceff1;
 }
 #block-mooc-helper-mooc-helper-toc-nav-modal a.active-trail {
   font-weight: bold;
-  background-color: #eeeeee;
+  background-color: #eceff1;
 }
 #block-mooc-helper-mooc-helper-toc-nav-modal a.active-trail.active {
   background-color: #cccccc;
