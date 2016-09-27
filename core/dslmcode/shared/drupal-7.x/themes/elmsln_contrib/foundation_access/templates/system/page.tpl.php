@@ -36,7 +36,7 @@
                   </a>
                 <?php else: ?>
                   <a href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>" class="r-header__icon  elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit">
-                    <i class="material-icons black-text">mode_edit</i>
+                    <i class="material-icons black-text <?php print $cis_lmsless['lmsless_classes']['text'] . ' text-' . $cis_lmsless['lmsless_classes']['dark'];?>">mode_edit</i>
                     <span class="element-invisible"><?php print t('Edit content'); ?></span>
                   </a>
                 <?php endif; ?>
@@ -44,13 +44,13 @@
                 <?php endif; ?>
                 <?php if (!empty($cis_shortcodes)) : ?>
                   <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Share')?>" class="r-header__icon elmsln-share-button elmsln-right-side-nav-trigger" data-activates="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="cis-shortcodes-drop" aria-expanded="false" data-jwerty-key="s" data-voicecommand="open share (menu)">
-                    <i class="material-icons black-text">share</i>
+                    <i class="material-icons black-text <?php print $cis_lmsless['lmsless_classes']['text'] . ' text-' . $cis_lmsless['lmsless_classes']['dark'];?>">share</i>
                     <span class="element-invisible"><?php print t('Short code menu'); ?></span>
                   </a></li>
                 <?php endif; ?>
                 <?php if (!empty($a11y)) : ?>
                   <li class="r-header__edit-icons__list-item"><a href="#" title="<?php print t('Accessibility options')?>" class="r-header__icon elmsln-accessibility-button elmsln-right-side-nav-trigger" data-activates="page-accessibility-menu" aria-controls="accessibility-drop" aria-expanded="false" data-jwerty-key="a" data-voicecommand="open accessibility (menu)">
-                    <i class="material-icons black-text">accessibility</i>
+                    <i class="material-icons black-text <?php print $cis_lmsless['lmsless_classes']['text'] . ' text-' . $cis_lmsless['lmsless_classes']['dark'];?>">accessibility</i>
                     <span class="element-invisible"><?php print t('Accessibility menu'); ?></span>
                   </a></li>
                 <?php endif; ?>
@@ -58,7 +58,7 @@
                 <li class="r-header__edit-icons__list-item">
                 <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
                     <a href="#" title="<?php print t('More')?>" class="r-header__icon elmsln-more-button" data-dropdown="r-header__icon--advanced" aria-controls="r-header__icon--advanced" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)">
-                      <i class="material-icons black-text">more_vert</i>
+                      <i class="material-icons black-text <?php print $cis_lmsless['lmsless_classes']['text'] . ' text-' . $cis_lmsless['lmsless_classes']['dark'];?>">more_vert</i>
                       <span class="element-invisible"><?php print t('More options'); ?></span>
                     </a>
                     <ul id="r-header__icon--advanced" data-dropdown-content class="f-dropdown f-dropdown--classic content" aria-hidden="true" tabindex="-1">
@@ -140,7 +140,7 @@
       <a class="exit-off-canvas"></a>
       </div>
     </main>
-    <footer class="page-footer <?php print $cis_lmsless['lmsless_classes']['topbar'];?>">
+    <footer class="page-footer <?php print $cis_lmsless['lmsless_classes']['color'] . ' ' . $cis_lmsless['lmsless_classes']['light'];?>">
     <div class="container">
       <div class="row">
         <div class="s12 push-m1 m-10 col">

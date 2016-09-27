@@ -74,7 +74,7 @@ var mediavideo = require('./components/mediavideo.js');
   Drupal.behaviors.stickyStuff = {
     attach: function (context, settings) {
       $('.r-header', context).sticky({topSpacing:4, width: '100%'});
-      $('.page-scroll.progress', context).sticky({topSpacing:0}).addClass(Drupal.settings.cis_lmsless['topbar']);
+      $('.page-scroll.progress', context).sticky({topSpacing:0}).addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
     }
   };
   // ability to disable background scrolling on modal open
@@ -101,7 +101,7 @@ var mediavideo = require('./components/mediavideo.js');
       }
       Drupal.settings.progressScroll.scrollPercent = (Drupal.settings.progressScroll.scroll / Drupal.settings.progressScroll.total)*100;
       // set percentage of the meter to the scroll down the screen
-      $(".page-scroll.progress .meter", context).css({"width": Drupal.settings.progressScroll.scrollPercent+"%"}).addClass(Drupal.settings.cis_lmsless['topbar'] + ' darken-1');
+      $(".page-scroll.progress .meter", context).css({"width": Drupal.settings.progressScroll.scrollPercent+"%"}).addClass(Drupal.settings.cis_lmsless['color']);
     }
   };
 
@@ -117,9 +117,14 @@ var mediavideo = require('./components/mediavideo.js');
       $("body").removeClass("scroll-disabled")
     });
     // back to top color matching styling
-    $('#backtotop').addClass('circle').addClass(Drupal.settings.cis_lmsless['waves'] + ' darken-4');
+    $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
     // @todo make this the target for waves
-    $('.cis-lmsless-color').addClass('waves-' + Drupal.settings.cis_lmsless['waves']);
+    $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    $('.cis-lmsless-text').addClass(Drupal.settings.cis_lmsless['text']);
+    $('i.cis-lmsless-text').addClass('text-' + Drupal.settings.cis_lmsless['dark']);
+    $('.chip').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    $('.chip i').addClass(Drupal.settings.cis_lmsless['text'] + ' text-' + Drupal.settings.cis_lmsless['dark']);
+
     //@todo only target certain text
     //$('li a').addClass(Drupal.settings.cis_lmsless['text'] + ' darken-4');
     // reveal id
@@ -131,8 +136,6 @@ var mediavideo = require('./components/mediavideo.js');
         wrapper.focus();
       }
     });
-
-    //$(window).foundation();
   });
 
 })(jQuery);

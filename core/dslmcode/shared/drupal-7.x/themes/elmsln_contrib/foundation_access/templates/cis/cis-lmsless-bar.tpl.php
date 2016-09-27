@@ -8,7 +8,7 @@
   }
 ?>
 <!-- Ecosystem Top Nav -->
-<div id="etb-course-nav" class="row full collapse <?php print $lmsless_classes['topbar'];?>">
+<div id="etb-course-nav" class="row full collapse <?php print $lmsless_classes['color'] . ' ' . $lmsless_classes['light'];?>">
   <div class="s12 m6 col">
     <nav class="top-bar etb-nav middle-align-wrap etb-nav--center--parent" data-options="is_hover: false" data-topbar role="navigation">
      <section>
@@ -16,7 +16,7 @@
         <ul class="left kill-margin middle-align-wrap">
         <?php if ($bar_elements['network']) : ?>
           <li class="elmsln-network-menu-item">
-            <a href="#" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger  black-text waves-effect cis-lmsless-color" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
+            <a href="#" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger  black-text waves-effect cis-lmsless-waves" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
               <div class="cis-lmsless-network icon-apps-black svg"></div>
               <span class="hide-on-med-and-down truncate"><?php print t('Network'); ?></span>
             </a>
@@ -24,7 +24,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
           <li class="elmsln-user-profile-menu-item ferpa-protect divider-right">
-            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect cis-lmsless-color" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
+            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect cis-lmsless-waves" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="hide-on-med-and-down truncate"><?php print $username; ?></span>
             </a>
@@ -32,7 +32,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['help']) : ?>
           <li>
-            <a href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text waves-effect cis-lmsless-color" data-jwerty-key="h" data-voicecommand="help">
+            <a href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text waves-effect cis-lmsless-waves" data-jwerty-key="h" data-voicecommand="help">
               <i class="material-icons left">help</i>
               <span class="hide-on-med-and-down"><?php print t('Help'); ?></span>
             </a>
@@ -40,7 +40,7 @@
           <?php endif; ?>
           <?php if (isset($bar_elements['resources']) && $bar_elements['resources']) : ?>
             <li>
-            <a href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap black-text waves-effect cis-lmsless-color" data-jwerty-key="r" data-voicecommand="resources">
+            <a href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap black-text waves-effect cis-lmsless-waves" data-jwerty-key="r" data-voicecommand="resources">
               <i class="material-icons left">local_library</i>
               <span class="hide-on-med-and-down"><?php print t('Resources'); ?></span>
             </a>
@@ -48,7 +48,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['syllabus']) : ?>
             <li>
-            <a href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap black-text waves-effect cis-lmsless-color" data-jwerty-key="y" data-voicecommand="syllabus">
+            <a href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap black-text waves-effect cis-lmsless-waves" data-jwerty-key="y" data-voicecommand="syllabus">
               <i class="material-icons left">info_outline</i>
               <span class="hide-on-med-and-down"><?php print t('Syllabus'); ?></span>
             </a>

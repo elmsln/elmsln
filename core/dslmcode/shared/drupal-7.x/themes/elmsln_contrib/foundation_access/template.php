@@ -127,7 +127,7 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a href="#" class="collapsible-header waves-effect cis-lmsless-color' . $collapse . '">' .
+          <a href="#" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '">' .
             $icon . $element['#title'] .
           '
           </a>
@@ -882,14 +882,21 @@ function foundation_access_menu_link(&$variables) {
     $icon = str_replace(' ', '_', drupal_strtolower($title));
     if (isset($icon_map[$icon])) {
       $element['#localized_options']['attributes']['class'][] = $icon_map[$icon]['color'];
-      $title = '<i class="material-icons blue-grey-text text-lighten-5 left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
+      $title = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
       $element['#localized_options']['html'] = TRUE;
+    }
+    else {
+      $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+      $element['#localized_options']['attributes']['class'][] = $lmsless_classes['color'];
+      $element['#localized_options']['attributes']['class'][] = 'black-text';
+      $element['#localized_options']['attributes']['class'][] = $lmsless_classes['light'];
     }
   }
   // @todo apply tabs here when we get the targetting / style figured out
-  /*if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
+  if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
     $element['#localized_options']['attributes']['class'][] = 'tab';
-  }*/
+    $element['#localized_options']['attributes']['target'] = '_self';
+  }
   $output = l($title, $element['#href'], $element['#localized_options']);
   return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
 }
@@ -905,8 +912,7 @@ function foundation_access_menu_tree__menu_elmsln_settings($variables) {
  * Implements menu_tree__menu_elmsln_navigation.
  */
 function foundation_access_menu_tree__menu_elmsln_navigation($variables) {
-  // @todo apply tabs here when we get the targetting / style figured out
-  return '<ul class="header-menu-options">' . $variables['tree'] . '</ul>';
+  return '<ul class="tabs">' . $variables['tree'] . '</ul>';
 }
 
 /**
@@ -1267,7 +1273,7 @@ function foundation_access_pager($variables) {
               'interval' => ($pager_current - $i),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-color'),
+            'class' => array('waves-effect', 'cis-lmsless-waves'),
           );
         }
         if ($i == $pager_current) {
@@ -1284,7 +1290,7 @@ function foundation_access_pager($variables) {
               'interval' => ($i - $pager_current),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-color'),
+            'class' => array('waves-effect', 'cis-lmsless-waves'),
           );
         }
       }

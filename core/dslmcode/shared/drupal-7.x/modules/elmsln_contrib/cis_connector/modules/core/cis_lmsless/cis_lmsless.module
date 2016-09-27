@@ -495,80 +495,97 @@ function cis_lmsless_theme() {
 function _cis_lmsless_get_distro_classes($distro = NULL) {
   // establish an empty series of classes
   $empty = array(
-    'topbar' => ''
+    'dark'   => 'darken-4',
+    'light'  => 'lighten-4',
+    'color' => '',
+    'text' => '',
   );
   // statically cache future calls
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
       'mooc' => array(
-        'topbar' => 'blue lighten-4',
-        'waves' => 'blue',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'blue',
         'text' => 'blue-text',
       ),
       'cle' => array(
-        'topbar' => 'amber lighten-4',
-        'waves' => 'amber',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'amber',
         'text' => 'amber-text',
       ),
       'discuss' => array(
-        'topbar' => 'teal lighten-4',
-        'waves' => 'teal',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'teal',
         'text' => 'teal-text',
       ),
       'ulmus' => array(
-        'topbar' => 'grey',
-        'waves' => 'grey',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'grey',
         'text' => 'grey-text',
       ),
       'editorial' => array(
-        'topbar' => 'cyan lighten-4',
-        'waves' => 'cyan',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'cyan',
         'text' => 'cyan-text',
       ),
       'inbox' => array(
-        'topbar' => 'orange lighten-4',
-        'waves' => 'orange',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'orange',
         'text' => 'orange-text',
       ),
       'elmsmedia' => array(
-        'topbar' => 'red lighten-4',
-        'waves' => 'red',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'red',
         'text' => 'red-text',
       ),
       'icor' => array(
-        'topbar' => 'yellow lighten-4',
-        'waves' => 'yellow',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'yellow',
         'text' => 'yellow-text',
       ),
       'cpr' => array(
-        'topbar' => 'deep-orange lighten-4',
-        'waves' => 'deep-orange',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'deep-orange',
         'text' => 'deep-orange-text',
       ),
       'ecd' => array(
-        'topbar' => 'lime lighten-4',
-        'waves' => 'lime',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'lime',
         'text' => 'lime-text',
       ),
       'cis' => array(
-        'topbar' => 'pink lighten-4',
-        'waves' => 'pink',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'pink',
         'text' => 'pink-text',
       ),
       'lor' => array(
-        'topbar' => 'purple lighten-4',
-        'waves' => 'purple',
-        'text' => 'purple-text',
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color'  => 'purple',
+        'text'   => 'purple-text',
       ),
       'lq' => array(
-        'topbar' => 'light-green lighten-3',
-        'waves' => 'light-green',
+        'dark'   => 'darken-3',
+        'light'  => 'lighten-3',
+        'color' => 'light-green',
         'text' => 'light-green',
       ),
       'assessment' => array(
-        'topbar' => 'light-blue lighten-3',
-        'waves' => 'light-blue',
+        'dark'   => 'darken-3',
+        'light'  => 'lighten-3',
+        'color' => 'light-blue',
         'text' => 'light-blue-text',
       ),
     );
