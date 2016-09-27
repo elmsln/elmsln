@@ -124,9 +124,6 @@ var mediavideo = require('./components/mediavideo.js');
     $('i.cis-lmsless-text').addClass('text-' + Drupal.settings.cis_lmsless['dark']);
     $('.chip').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
     $('.chip i').addClass(Drupal.settings.cis_lmsless['text'] + ' text-' + Drupal.settings.cis_lmsless['dark']);
-
-    //@todo only target certain text
-    //$('li a').addClass(Drupal.settings.cis_lmsless['text'] + ' darken-4');
     // reveal id
     $('*[data-reveal-id]').click(function () {
       var revealID = $(this).attr("data-reveal-id");
