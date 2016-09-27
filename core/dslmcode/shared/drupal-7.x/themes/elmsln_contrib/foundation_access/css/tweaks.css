@@ -1,3 +1,15 @@
+/* materialize paralax modifications */
+.parallax-container {
+  height: 10rem;
+}
+.header-image-container {
+  width: 100%;
+  margin: 0;
+}
+.header-image-container  .parallax-container {
+  height: 8rem;
+}
+
 /* tab support */
 .tabs .tab {
   min-width: 100px;
@@ -36,7 +48,6 @@
 }
 
 /* consistend focus state presentation */
-a:hover,
 a:focus,
 button:focus,
 i:focus,
@@ -491,10 +502,6 @@ div.read-time-wrapper div.chip i {
 } /* this targets the default scrollbar (compulsory) */
 
 /* end scroll bar styling */
-
-.parallax-container {
-  height: 150px;
-}
 
 #edit-body .cke_chrome {
   border-top: 0;

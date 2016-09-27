@@ -68,22 +68,14 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['logo_img'] = '';
   // make sure we have a logo before trying to render a real one to screen
   if (!empty($variables['logo'])) {
-    $variables['logo_img'] = l(theme('image', array(
+    $variables['logo_img'] = theme('image', array(
       'path' => $variables['logo'],
-      'alt' => strip_tags($variables['site_name']) . ' ' . t('logo'),
-      'title' => strip_tags($variables['site_name']) . ' ' . t('Home'),
+      'alt' => '',
       'attributes' => array(
         'class' => array('logo__img'),
       ),
-    )), '<front>', array('html' => TRUE));
+    ));
   }
-  // add logo style classes to the logo element
-  $logo_classes = array();
-  $logo_option = theme_get_setting('foundation_access_logo_options');
-  if (isset($logo_option) && !is_null($logo_option)) {
-    $logo_classes[] = 'logo--' . $logo_option;
-  }
-  $variables['logo_classes'] = implode(' ', $logo_classes);
 }
 
 /**

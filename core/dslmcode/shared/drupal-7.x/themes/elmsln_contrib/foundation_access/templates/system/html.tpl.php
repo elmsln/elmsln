@@ -91,8 +91,12 @@
 </head>
 <body class="<?php print $classes; ?>" <?php print $attributes;?>>
   <?php if (!empty($logo_img)) : ?>
-    <div class="logo <?php print $logo_classes; ?>">
-    <?php print $logo_img; ?>
+    <div class="header-image-container">
+      <div class="parallax-container">
+        <div class="parallax">
+          <?php print $logo_img; ?>
+        </div>
+      </div>
     </div>
   <?php endif; ?>
   <div class="skip-link">
