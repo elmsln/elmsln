@@ -117,8 +117,11 @@ var mediavideo = require('./components/mediavideo.js');
       $("body").removeClass("scroll-disabled")
     });
     // back to top color matching styling
-    $('#backtotop').addClass('circle').addClass(Drupal.settings.cis_lmsless['topbar'] + ' darken-4');
-    $('.cis-lmsless-color').addClass('waves-' + Drupal.settings.cis_lmsless['topbar']);
+    $('#backtotop').addClass('circle').addClass(Drupal.settings.cis_lmsless['waves'] + ' darken-4');
+    // @todo make this the target for waves
+    $('.cis-lmsless-color').addClass('waves-' + Drupal.settings.cis_lmsless['waves']);
+    //@todo only target certain text
+    //$('li a').addClass(Drupal.settings.cis_lmsless['text'] + ' darken-4');
     // reveal id
     $('*[data-reveal-id]').click(function () {
       var revealID = $(this).attr("data-reveal-id");

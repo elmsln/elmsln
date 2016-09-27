@@ -22,8 +22,6 @@
   background-color: rgba(220, 237, 200, 0.65);
 }
 
-
-
 /* form override for core and materialize */
 .container-inline div, .container-inline label {
   display: block;

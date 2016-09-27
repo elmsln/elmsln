@@ -503,45 +503,73 @@ function _cis_lmsless_get_distro_classes($distro = NULL) {
     $map = array(
       'mooc' => array(
         'topbar' => 'blue lighten-4',
+        'waves' => 'blue',
+        'text' => 'blue-text',
       ),
       'cle' => array(
         'topbar' => 'amber lighten-4',
+        'waves' => 'amber',
+        'text' => 'amber-text',
       ),
       'discuss' => array(
         'topbar' => 'teal lighten-4',
+        'waves' => 'teal',
+        'text' => 'teal-text',
       ),
       'ulmus' => array(
         'topbar' => 'grey',
+        'waves' => 'grey',
+        'text' => 'grey-text',
       ),
       'editorial' => array(
         'topbar' => 'cyan lighten-4',
+        'waves' => 'cyan',
+        'text' => 'cyan-text',
       ),
       'inbox' => array(
         'topbar' => 'orange lighten-4',
+        'waves' => 'orange',
+        'text' => 'orange-text',
       ),
       'elmsmedia' => array(
         'topbar' => 'red lighten-4',
+        'waves' => 'red',
+        'text' => 'red-text',
       ),
       'icor' => array(
         'topbar' => 'yellow lighten-4',
+        'waves' => 'yellow',
+        'text' => 'yellow-text',
       ),
       'cpr' => array(
         'topbar' => 'deep-orange lighten-4',
+        'waves' => 'deep-orange',
+        'text' => 'deep-orange-text',
       ),
       'ecd' => array(
         'topbar' => 'lime lighten-4',
+        'waves' => 'lime',
+        'text' => 'lime-text',
       ),
       'cis' => array(
         'topbar' => 'pink lighten-4',
+        'waves' => 'pink',
+        'text' => 'pink-text',
       ),
       'lor' => array(
         'topbar' => 'purple lighten-4',
+        'waves' => 'purple',
+        'text' => 'purple-text',
       ),
       'lq' => array(
         'topbar' => 'light-green lighten-3',
+        'waves' => 'light-green',
+        'text' => 'light-green',
       ),
       'assessment' => array(
         'topbar' => 'light-blue lighten-3',
+        'waves' => 'light-blue',
+        'text' => 'light-blue-text',
       ),
     );
     // allow others to modify core color associations
