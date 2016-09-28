@@ -17,6 +17,7 @@ ul.dropdown-content li a {
 }
 ul.dropdown-content.book-sibling-children {
   max-height: 20rem;
+  min-width: 12rem;
 }
 ul.dropdown-content .button-group > li {
   display: block;
@@ -172,11 +173,20 @@ li:focus {
 }
 
 .side-nav a span {
-  line-height: 1.25rem;
+  line-height: 3rem;
+  height: 3rem;
+  padding: 0 0 0 1rem;
+  margin:0;
 }
 
 .side-nav .divider {
   margin: 0;
+}
+.side-nav .userView {
+  padding: 2rem;
+}
+.side-nav .userView a {
+  height: 1rem;
 }
 
 .collapsible-header-trigger {
@@ -227,31 +237,48 @@ ul.pagination li a {
   z-index: 9988 !important;
 }
 
+/* ELMSLN app.css conflicts w/ menu items */
+.etb-modal-icons {
+  height: 3rem;
+}
+
 /* ELMSLN Materialize modal tweaks */
+.elmsln-modal-title-wrapper {
+  height: 2.5rem;
+  padding: 2rem 0;
+  border-bottom: solid .25rem black;
+}
+.elmsln-modal-title {
+  margin: 0;
+  width: 100%;
+}
+.elmsln-modal-content {
+  margin-top: 2rem;
+}
 .elmsln-modal .close-reveal-modal {
   color: #4c4c4c;
   cursor: pointer;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: bold;
-  line-height: 1;
+  line-height: 0;
   position: absolute;
   top: 0;
   right: 0;
   margin: 0;
-  padding: .25rem;
+  padding: 2rem 0.25rem;
 }
 
 .elmsln-modal .close-reveal-side-nav {
   color: #4c4c4c;
   cursor: pointer;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: bold;
-  line-height: 1;
+  line-height: 0;
   position: absolute;
   top: 0;
   right: 0;
   margin: 0;
-  padding: .25rem;
+  padding: 2rem 0.25rem;
 }
 
 .elmsln-modal.side-nav {
@@ -590,8 +617,8 @@ div.read-time-wrapper div.chip i {
 } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
 
 .elmsln-scroll-bar::-webkit-scrollbar {
-      width: 1rem;
-      height: 1rem;
+      width: .5rem;
+      height: .5rem;
 } /* this targets the default scrollbar (compulsory) */
 
 /* end scroll bar styling */
@@ -605,6 +632,9 @@ div.read-time-wrapper div.chip i {
   z-index: 1;
 }
 
+article.node-view-mode-full {
+  margin-top: 2rem;
+}
 /* ELMSLN bullets */
 article.node div.body ul li {
   list-style-type: initial;
@@ -861,25 +891,28 @@ h1#page-title {
 
 .read-time {
   float: right;
-  margin-top:-2.7rem;
+  margin-top:-4.5rem;
 }
 
 .etb-book h2 {
   font-size: 2.25rem;
   font-weight: bold;
   padding: 0;
+  color: #222222;
 }
 
 .etb-book h3 {
   font-size: 1.75rem;
   font-weight: bold;
   padding: 0;
+  color: #222222;
 }
 
 .etb-book h4 {
   font-size: 1.25rem;
   font-weight: bold;
   padding: 0;
+  color: #222222;
 }
 
 .etb-book li {

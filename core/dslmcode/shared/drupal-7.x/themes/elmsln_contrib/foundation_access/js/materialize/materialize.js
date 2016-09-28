@@ -59,7 +59,7 @@
         setTimeout(function() {
           $('#' + Drupal.settings.activeSideNav).addClass('elmsln-modal-hidden');
           Drupal.settings.activeSideNav = null;
-        }, 500);
+        }, 150);
       });
     }
   };
@@ -87,6 +87,7 @@
     $('.chip i').addClass(Drupal.settings.cis_lmsless['text'] + ' text-' + Drupal.settings.cis_lmsless['dark']);
     $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
     $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+     $('.cis-lmsless-background').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
     // hover state for tables to match styling
     $('tr.even, tr.odd, ul.menu li a, ul.tabs li a').not('.active,.elmsln-fixed-action-btn a').hover(
       function() {
@@ -96,7 +97,7 @@
       }
     );
     // focus event
-    $('a,i,button,li').not('li.expanded').on('focusin', function() {
+    $('a,i,button,li').not('li.expanded, .scrollspy-toc li').on('focusin', function() {
       $(this).addClass(Drupal.settings.cis_lmsless['outline']);
     }).on('focusout', function() {
       $(this).removeClass(Drupal.settings.cis_lmsless['outline']);

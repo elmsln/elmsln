@@ -3,7 +3,7 @@
    * CIS LMS-less Network block template.
    */
 ?>
-  <li><h1><?php print $site_name; ?></h1></li>
+  <li class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background"><h1 class="flow-text valign elmsln-modal-title"><?php print $site_name; ?></h1></li>
   <!-- End Menu Item Dropdowns -->
   <?php foreach ($services as $title => $items) : ?>
     <li><div class="divider"></div></li>
