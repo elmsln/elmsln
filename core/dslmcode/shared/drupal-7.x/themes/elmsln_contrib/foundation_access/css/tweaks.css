@@ -808,14 +808,13 @@ ul.header-menu-options li.active-trail {
 }
 
 h1#page-title {
+  color: #222222;
   font-size: 2.5rem;
   line-height: 2.25rem;
   padding: 0;
   margin-bottom:.5rem;
   text-align: left;
   text-transform: none;
-  border-bottom: dotted 1px #ff9800;
-
 }
 
 .read-time {
