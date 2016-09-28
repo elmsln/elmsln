@@ -66,20 +66,20 @@
           <?php
             // account for roles that don't have access to this
             if (!empty($elmsln_main_menu)) {?>
-            <a id="courseToolsMenuTrigger" class="course-title elmsln-course-title" href="#" title="" data-dropdown="courseToolsMenu" aria-controls="courseToolsMenu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
+            <a id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-dropdown-button" href="#" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
               <span class="course-title-group">
                 <span class="course-title"><?php print $slogan; ?></span>
                 <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
               </span>
               <span class="course-title-icon icon--dropdown"></span>
             </a>
-            <ul id="courseToolsMenu" class="f-dropdown f-dropdown--classic content" data-dropdown-content aria-hidden="true" aria-autoclose="true">
+            <ul id="elmsln-tools-menu" class="dropdown-content" aria-hidden="true" aria-autoclose="true">
               <?php print $elmsln_main_menu; ?>
             </ul>
             <?php
             }
             else { ?>
-            <a id="courseToolsMenuTrigger" class="course-title elmsln-course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>">
+            <a id="elmsln-tools-trigger" class="course-title elmsln-course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>">
               <span class="course-title-group">
                 <span class="course-title"><?php print $slogan; ?></span>
                 <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>

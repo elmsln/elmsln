@@ -175,10 +175,10 @@ function elmsln_core_libraries_info() {
     'version' => '0.97.7',
     'files'             => array(
       'js' => array(
-        'js/materialize.min.js',
+        'js/materialize.js',
       ),
       'css' => array(
-        'css/materialize.min.css',
+        'css/materialize.css',
       ),
     ),
     'variants'          => array(

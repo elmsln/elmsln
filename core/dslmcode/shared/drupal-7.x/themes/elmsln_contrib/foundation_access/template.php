@@ -46,8 +46,8 @@ function foundation_access_preprocess_html(&$variables) {
   // see if we have it locally before serviing CDN
   // This allows EASY CDN module to switch to CDN later if that's the intention
   if (isset($libraries['materialize'])) {
-    drupal_add_css($libraries['materialize'] .'/css/materialize.min.css', array('weight' => -1000));
-    drupal_add_js($libraries['materialize'] .'/js/materialize.min.js', array('scope' => 'footer', 'weight' => 1000));
+    drupal_add_css($libraries['materialize'] .'/css/materialize.css', array('weight' => -1000));
+    drupal_add_js($libraries['materialize'] .'/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
   }
   else {
     drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
@@ -837,6 +837,26 @@ function foundation_access_preprocess_clipboardjs(&$variables) {
       'onClick' => 'return false;',
     ),
   );
+}
+
+/**
+ * Implements theme_menu_local_tasks().
+ */
+function foundation_access_menu_local_tasks(&$variables) {
+  $output = '';
+  if (!empty($variables['primary'])) {
+    $variables['primary']['#prefix'] = '<h2 class="element-invisible">' . t('Primary tabs') . '</h2>';
+    $variables['primary']['#prefix'] .= '<ul class="button-group">';
+    $variables['primary']['#suffix'] = '</ul>';
+    $output .= drupal_render($variables['primary']);
+  }
+  if (!empty($variables['secondary'])) {
+    $variables['secondary']['#prefix'] = '<h2 class="element-invisible">' . t('Secondary tabs') . '</h2>';
+    $variables['secondary']['#prefix'] .= '<ul class="button-group">';
+    $variables['secondary']['#suffix'] = '</ul>';
+    $output .= drupal_render($variables['secondary']);
+  }
+  return $output;
 }
 
 /**

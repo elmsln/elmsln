@@ -1,3 +1,45 @@
+/* etb / app.css conflcting with materialize menu */
+ul.dropdown-content ul {
+  margin: 0;
+}
+.dropdown-content li {
+  min-height: initial;
+}
+ul.dropdown-content li:not(.has-form) a:not(.button) {
+  color: #333333;
+}
+ul.dropdown-content li a {
+  background-color: transparent;
+  line-height: 2.25rem;
+  padding: .5rem !important;
+  display: block;
+  font-weight: normal;
+}
+ul.dropdown-content.book-sibling-children {
+  max-height: 20rem;
+}
+ul.dropdown-content .button-group > li {
+  display: block;
+  margin: 0;
+}
+.top-bar-section ul li > a {
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.dropdown-content li span.cis_accessibility_check {
+  margin:0;
+  padding: 0;
+}
+
+/* materialize dropdown modifications */
+ul.dropdown-content {
+  display: none;
+  margin: 0;
+  overflow-x: hidden;
+}
+
 /* materialize paralax modifications */
 .parallax-container {
   height: 10rem;
@@ -838,6 +880,10 @@ h1#page-title {
   font-size: 1.25rem;
   font-weight: bold;
   padding: 0;
+}
+
+.etb-book li {
+  line-height: 2.25rem;
 }
 
 /* inline flex support in browsers that don't support it currently */

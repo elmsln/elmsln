@@ -14,10 +14,10 @@
   };
   Drupal.behaviors.accessibilityCheckHide = {
     attach: function(context, settings) {
-      if ($(".cis_accessibility_check a").length == 0) {
-        $(".accessibility-content-toggle a").appendTo( ".cis_accessibility_check" );
+      if ($('.cis_accessibility_check a').length == 0) {
+        $('.accessibility-content-toggle a').appendTo('.cis_accessibility_check');
       }
-      $(".accessibility-content-toggle").hide();
+      $('.accessibility-content-toggle').hide();
     }
   };
   // calculate the color difference between items

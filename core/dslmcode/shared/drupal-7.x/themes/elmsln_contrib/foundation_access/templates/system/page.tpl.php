@@ -57,22 +57,22 @@
                 <!-- end Edit Icon -->
                 <li class="r-header__edit-icons__list-item">
                 <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-                    <a href="#" title="<?php print t('More')?>" class="r-header__icon elmsln-more-button" data-dropdown="r-header__icon--advanced" aria-controls="r-header__icon--advanced" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)">
+                    <a href="#" title="<?php print t('More')?>" class="r-header__icon elmsln-more-button elmsln-dropdown-button" data-activates="elmsln-more-menu" aria-controls="elmsln-more-menu" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)">
                       <i class="material-icons black-text <?php print $cis_lmsless['lmsless_classes']['text'] . ' text-' . $cis_lmsless['lmsless_classes']['dark'];?>">more_vert</i>
                       <span class="element-invisible"><?php print t('More options'); ?></span>
                     </a>
-                    <ul id="r-header__icon--advanced" data-dropdown-content class="f-dropdown f-dropdown--classic content" aria-hidden="true" tabindex="-1">
+                    <ul id="elmsln-more-menu" class="dropdown-content" aria-hidden="true" tabindex="-1">
                     <?php if (!empty($tabs)): ?>
                         <?php print render($tabs); ?>
                       <?php if (!empty($tabs2)): print render($tabs2); endif; ?>
                     <?php endif; ?>
-                    <?php if ($action_links): ?>
+                    <?php if (!empty($action_links)): ?>
                         <?php print render($action_links); ?>
                     <?php endif; ?>
                     <?php if (isset($tabs_extras)): ksort($tabs_extras); ?>
                      <?php foreach ($tabs_extras as $group) : ?>
                       <?php foreach ($group as $button) : ?>
-                        <li><?php print $button; ?></li>
+                        <li class="elmsln-more-menu-option"><?php print $button; ?></li>
                       <?php endforeach; ?>
                      <?php endforeach; ?>
                     <?php endif; ?>

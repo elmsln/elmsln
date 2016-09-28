@@ -33,14 +33,13 @@
   }
 ?>
 <li class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
-    <a href="#" title="<?php print $ptitle ?>" class="<?php print (isset($parent['_class']) ? $parent['_class'] : ''); ?>" aria-controls="middle-section-buttons" aria-expanded="false" data-dropdown="book-sibling-children-<?php print $parent['mlid'] ?>">
+    <a href="#" title="<?php print $ptitle ?>" class="elmsln-dropdown-button <?php print (isset($parent['_class']) ? $parent['_class'] : ''); ?>" aria-controls="book-sibling-children-<?php print $parent['mlid'] ?>" aria-expanded="false" data-activates="book-sibling-children-<?php print $parent['mlid'] ?>">
       <div class="book-sibling-parent-text"><?php print $outline_label; ?> <?php print $parent_count; ?> <?php print $parent_title ?></div>
       <?php if ($parent_icon !== ''): ?><?php print $parent_icon ?><?php endif; ?>
       <div class="book-sibling-parent-arrow icon--dropdown off-canvas-toolbar-item-icon"></div>
     </a>
 </li>
-<div id="book-sibling-children-<?php print $parent['mlid'] ?>" data-dropdown-content class="f-dropdown content book-sibling-children elmsln-scroll-bar" aria-hidden="true" tabindex="-1">
-  <ul>
+<ul id="book-sibling-children-<?php print $parent['mlid'] ?>" class="content dropdown-content book-sibling-children elmsln-scroll-bar" aria-hidden="true" tabindex="-1">
 <?php
   foreach ($items as $item) {
     // look for active trail item
@@ -71,5 +70,4 @@
     print $link;
   }
 ?>
-  </ul>
-</div>
+</ul>

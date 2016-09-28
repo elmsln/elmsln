@@ -188,29 +188,18 @@ ul.book-navigation-wrapper {
   vertical-align: text-top;
 }
 
+.book-sibling-children a,
 .book-sibling-parent a {
-  border: 1px solid #e5e5e5;
-  border-radius: 3px;
-  line-height: 150%;
   font-size: .8rem;
-  text-align: center;
   color: #8a8a8a;
-  padding: 0 .5rem;
   line-height: inherit;
-  height: 2rem;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
 }
-
-.book-sibling-parent a:hover {
-  border: 1px solid #cfd8dc;
-  background-color: #eceff1;
+.book-sibling-parent a.elmsln-dropdown-button {
+  border: 1px solid #e5e5e5;
 }
 
 .book-sibling-parent-text {
@@ -318,10 +307,6 @@ ul.book-navigation-wrapper {
   font-size: 1rem;
 }
 
-.etb-book li {
-  line-height: 2.25rem;
-}
-
 .etb-book hr.book-parent-container {
   margin: 1rem 0rem 1rem;
 }
@@ -339,18 +324,6 @@ ul.book-navigation-wrapper {
 }
 
 @media all and (max-width: 720px) {
-  .book-sibling-parent,
-  .book-sibling-parent a {
-    clear: both;
-    width: 100%;
-    max-width: none;
-    text-align: left;
-  }
-
-  .book-sibling-parent a {
-    padding: .5rem 0;
-  }
-
   .book-navigation-header .book-sibling-parent-pagination {
     display: none;
   }
