@@ -2,12 +2,20 @@
 .parallax-container {
   height: 10rem;
 }
+
+/* header banner image falling under the content */
 .header-image-container {
   width: 100%;
   margin: 0;
-}
-.header-image-container  .parallax-container {
+  position: relative;
+  overflow: hidden;
   height: 8rem;
+  min-height: 8rem;
+}
+.header-image-container img {
+  display: block;
+  top:-1rem;
+  min-height: 8rem;
 }
 
 /* tab support */
@@ -39,20 +47,63 @@
   background-color: rgba(220, 237, 200, 0.65);
 }
 
+/* consistend focus state presentation */
+a:focus,
+button:focus,
+i:focus,
+li:focus {
+  outline: solid .1rem #0078a0;
+}
+/* Materialize Outline classes */
+.blue-outline {
+  outline: solid .1rem #2962ff !important;
+}
+.amber-outline {
+  outline: solid .1rem #ffab00 !important;
+}
+.teal-outline {
+  outline: solid .1rem #00bfa5 !important;
+}
+.grey-outline {
+  outline: solid .1rem #212121 !important;
+}
+.cyan-outline {
+  outline: solid .1rem #00b8d4 !important;
+}
+.orange-outline {
+  outline: solid .1rem #ff6d00 !important;
+}
+.red-outline {
+  outline: solid .1rem #d50000 !important;
+}
+.blue-outline {
+  outline: solid .1rem #2962ff !important;
+}
+.deep-orange-outline {
+  outline: solid .1rem #dd2c00 !important;
+}
+.lime-outline {
+  outline: solid .1rem #aeea00 !important;
+}
+.pink-outline {
+  outline: solid .1rem #c51162 !important;
+}
+.purple-outline {
+  outline: solid .1rem #aa00ff !important;
+}
+.light-green-outline {
+  outline: solid .1rem #64dd17 !important;
+}
+.light-blue-outline {
+  outline: solid .1rem #01579b !important;
+}
+
 /* form override for core and materialize */
 .container-inline div, .container-inline label {
   display: block;
 }
 .input-field label {
   color:#515151;
-}
-
-/* consistend focus state presentation */
-a:focus,
-button:focus,
-i:focus,
-li:focus {
-  outline: #0078a0 .1rem solid !important;
 }
 
 /* top bar profile divider */

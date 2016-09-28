@@ -115,14 +115,27 @@ var mediavideo = require('./components/mediavideo.js');
     }).on("hidden", function () {
       $("body").removeClass("scroll-disabled")
     });
-    // back to top color matching styling
-    $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
-    // @todo make this the target for waves
-    $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+        // apply color styling for this tool to accent the interface
     $('.cis-lmsless-text').addClass(Drupal.settings.cis_lmsless['text']);
     $('i.cis-lmsless-text').addClass('text-' + Drupal.settings.cis_lmsless['dark']);
-    $('.chip').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    $('.chip,ul li a.active, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
     $('.chip i').addClass(Drupal.settings.cis_lmsless['text'] + ' text-' + Drupal.settings.cis_lmsless['dark']);
+    $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
+    $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    // hover state for tables to match styling
+    $('tr.even, tr.odd, ul.menu li a, ul.tabs li a').not('.active,.elmsln-fixed-action-btn a').hover(
+      function() {
+        $(this).addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+      }, function() {
+        $(this).removeClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+      }
+    );
+    // focus event
+    $('a,i,button,li').not('li.expanded').on('focusin', function() {
+      $(this).addClass(Drupal.settings.cis_lmsless['outline']);
+    }).on('focusout', function() {
+      $(this).removeClass(Drupal.settings.cis_lmsless['outline']);
+    });
     // reveal id
     $('*[data-reveal-id]').click(function () {
       var revealID = $(this).attr("data-reveal-id");
