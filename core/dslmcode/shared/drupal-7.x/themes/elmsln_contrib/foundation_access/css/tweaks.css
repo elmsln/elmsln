@@ -2,7 +2,6 @@
 .page-scroll.progress {
   border-radius: 0;
 }
-
 /* System badge */
 .elmsln-system-badge {
   position: absolute;
@@ -51,31 +50,9 @@
   margin: 1.25rem .75rem;
   z-index: 4;
 }
-
-.elmsln-system-badge .elmsln-badge-inner {
+.elmsln-system-badge .elmsln-badge-middle-name {
   position: absolute;
-  z-index: 3;
-  width: 5rem;
-  height: 5rem;
-  margin: .25rem .25rem;
-}
-
-.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-top {
-  width: 0;
-  border-bottom-width: 1.2rem;
-  border-bottom-style: solid;
-  border-left: 2rem solid transparent;
-  border-right: 2rem solid transparent;
-}
-.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-middle {
-  width: 4rem;
-  height: 2.4rem;
-  position: relative;
-  z-index: 10;
-}
-.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-middle-name {
-  position: absolute;
-  margin: -2.6rem 0 0 4rem;
+  margin: 1.25rem 0 0 4.25rem;
   height: 2.75rem;
   border-top-width: .2rem;
   border-bottom-width: .2rem;
@@ -88,7 +65,28 @@
   font-size: .8rem;
   white-space: nowrap;
   box-shadow: 5px 20px 30px 0 rgba(0,0,0,0.2);
-  z-index: 9;
+  z-index: 2;
+}
+
+.elmsln-system-badge .elmsln-badge-inner {
+  position: absolute;
+  z-index: 3;
+  width: 5rem;
+  height: 5rem;
+  margin: .25rem .25rem;
+}
+.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-top {
+  width: 0;
+  border-bottom-width: 1.2rem;
+  border-bottom-style: solid;
+  border-left: 2rem solid transparent;
+  border-right: 2rem solid transparent;
+}
+.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-middle {
+  width: 4rem;
+  height: 2.4rem;
+  position: relative;
+  z-index: 10;
 }
 .elmsln-system-badge .elmsln-badge-inner .elmsln-badge-bottom {
   width: 0;
@@ -103,7 +101,6 @@
   position: absolute;
   z-index: 2;
 }
-
 .elmsln-system-badge .elmsln-badge-outer .elmsln-badge-top {
   width: 0;
   border-bottom-width: 1.35rem;
@@ -124,6 +121,8 @@
   border-left: 2.25rem solid transparent;
   border-right: 2.25rem solid transparent;
 }
+
+
 /* etb / app.css conflcting with materialize menu */
 ul.dropdown-content ul {
   margin: 0;
@@ -521,6 +520,18 @@ ul.pagination li a {
 }
 #scrollspy-nav li.scrollspy-depth-4 {
   padding-left:2.25rem;
+}
+
+#scrollspy-nav .scrollspy-link.active {
+  border-left: unset;
+  border-left-style: solid;
+  border-left-width: .2rem;
+}
+.table-of-contents a.active {
+  color:unset;
+}
+ul.scrollspy-toc.table-of-contents {
+  margin-left: 0;
 }
 @media screen and (min-width: 80rem) {
   #scrollspy-nav {

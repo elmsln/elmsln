@@ -1,0 +1,21 @@
+<?php
+/**
+ * @file
+ * Functions for supplying shape creation and output
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function themeshapesapi_theme() {
+  return array(
+    'hexagon' => array(
+      'render element' => 'element',
+      'variables' => array(
+        'style' => 'normal',
+        'classes' => '',
+        'content' => '',
+      ),
+    ),
+  );
+}

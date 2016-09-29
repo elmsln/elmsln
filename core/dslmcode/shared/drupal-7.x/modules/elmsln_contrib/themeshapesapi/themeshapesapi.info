@@ -1,0 +1,4 @@
+name = Theme shapes API
+description = Library to provide capabilities to generate shapes with CSS
+core = 7.x
+package = Theme

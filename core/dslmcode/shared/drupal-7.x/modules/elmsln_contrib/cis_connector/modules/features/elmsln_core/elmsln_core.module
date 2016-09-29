@@ -62,7 +62,7 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         foreach ($results[0] as $key => $result) {
           $tmp = strip_tags(trim($results[3][$key]));
           if (!empty($tmp)) {
-            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link" href="#' . hash('md5', $key) . '">' . $tmp . '</a></li>';
+            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link cis-lmsless-border cis-lmsless-text" href="#' . hash('md5', $key) . '">' . $tmp . '</a></li>';
           }
         }
         $scrollspy .= '</ul></div>';
