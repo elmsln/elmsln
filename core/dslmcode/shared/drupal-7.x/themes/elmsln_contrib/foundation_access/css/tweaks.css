@@ -1303,7 +1303,7 @@ fieldset {
 }
 
 legend + .fieldset-wrapper {
-    padding-top: 0;
+    padding-top: 4rem;
 }
 
 fieldset.bef-select-as-radios-fieldset.collapsed legend,
