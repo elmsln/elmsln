@@ -56,6 +56,9 @@
       });
     });
   });
+  $('.alert-box .close').click(function(){
+    $(this).parent().remove();
+  });
   // nice UI element to let us select users
   $('#edit-elmsln-view-user').click(function(event) {
     // prevent empty submission though this won't block incorrect submissions which would be page not found

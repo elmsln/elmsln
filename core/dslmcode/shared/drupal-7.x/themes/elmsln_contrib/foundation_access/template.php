@@ -9,6 +9,16 @@ function foundation_access_preprocess_html(&$variables) {
   // find the name
   $variables['install_profile'] = variable_get('install_profile', 'standard');
   $settings = _cis_connector_build_registry($variables['install_profile']);
+  switch ($variables['install_profile']) {
+    case 'lq':
+    case 'lor':
+      $variables['system_icon'] = 'beaker';
+    break;
+    default:
+      $address = explode('.', $settings['address']);
+      $variables['system_icon'] = array_shift($address);
+    break;
+  }
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   // loop through our system specific colors
   $colors = array('primary', 'secondary', 'required', 'optional');

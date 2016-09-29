@@ -89,18 +89,21 @@
   <!--/end cross platform favicons and tweaks-->
 </head>
 <body class="<?php print $classes; ?>" <?php print $attributes;?>>
+  <div class="skip-link">
+    <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
+  </div>
   <?php if (!empty($logo_img)) : ?>
     <div class="header-image-container">
       <?php print $logo_img; ?>
     </div>
   <?php endif; ?>
-  <a href="<?php print base_path();?>">
+  <a href="<?php print base_path();?>" tabindex="-1">
   <div class="elmsln-system-badge">
-    <div class="icon-<?php print $install_profile;?>-black elmsln-badge"></div>
+    <div class="icon-<?php print $system_icon;?>-black elmsln-badge"></div>
     <div class="elmsln-badge-inner">
       <div class="elmsln-badge-top white-border"></div>
       <div class="elmsln-badge-middle white"></div>
-      <div class="elmsln-badge-middle-name white <?php print $lmsless_classes['color'];?>-border <?php print $lmsless_classes['text'];?>"><?php print $system_title;?></div>
+      <div class="elmsln-badge-middle-name white <?php print $lmsless_classes['color'];?>-border"><a href="<?php print base_path();?>" class="<?php print $lmsless_classes['text'];?> <?php print $lmsless_classes['color'];?>-outline"><?php print $system_title;?></a></div>
       <div class="elmsln-badge-bottom white-border"></div>
     </div>
     <div class="elmsln-badge-outer">
@@ -110,9 +113,6 @@
     </div>
   </div>
   </a>
-  <div class="skip-link">
-    <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
-  </div>
   <?php print $page_top; ?>
   <?php print $page; ?>
   <?php print $page_bottom; ?>

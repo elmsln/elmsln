@@ -752,7 +752,7 @@ function mooc_helper_fa_a11y() {
         'icon' => 'view_module',
       ),
       'speedreader' => array(
-        '#markup' => '<a class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text">chrome_reader_mode</i>' . t('Speed reader') . '</a>'
+        '#markup' => '<a class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">chrome_reader_mode</i>' . t('Speed reader') . '</a>'
         ),
       ),
     );
