@@ -560,6 +560,10 @@ function _elmsln_core_icon_map() {
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
+      'event' => array(
+        'color' => 'green',
+        'icon' => 'event',
+      ),
       'audio' => array(
         'color' => 'green',
         'icon' => 'music_video',

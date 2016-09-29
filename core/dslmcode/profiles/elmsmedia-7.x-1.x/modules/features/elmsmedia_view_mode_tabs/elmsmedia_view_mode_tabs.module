@@ -52,7 +52,7 @@ function _elmsmedia_view_mode_tab_load($node) {
     $output .= '<div class="scrollspy-toc">' . theme('item_list', array('items' => $header, 'attributes' => array('class' => array('table-of-contents')))) . '</div>';
     $output .= '</div>';
     $output .= theme('view_mode_tab_display', array('view_modes' => $rendered_node, 'node' => $node));
-    drupal_add_js(drupal_get_path('module', 'foundation_access_ux') .'/js/scrollspy.js');
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/js/materialize/scrollspy/materialize-scrollspy.js');
   }
   return $output;
 }
