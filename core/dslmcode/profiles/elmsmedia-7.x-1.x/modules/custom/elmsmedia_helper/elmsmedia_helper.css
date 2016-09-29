@@ -44,17 +44,3 @@ article.node iframe {
 .row .row.ableplayer-video {
   margin: 0;
 }
-
-#admin-menu, #admin-menu .dropdown {
-  z-index: 9990;
-}
-.sticky-wrapper.is-sticky {
-  z-index: 9988 !important;
-}
-
-.reveal-modal.etb-nav-modal, .reveal-modal.open {
-  z-index: 9989;
-}
-.f-dropdown.open.f-open-dropdown {
-  z-index: 9987;
-}

@@ -14,20 +14,10 @@
   };
   Drupal.behaviors.accessibilityCheckHide = {
     attach: function(context, settings) {
-      if ($(".cis_accessibility_check a").length == 0) {
-        $(".accessibility-content-toggle a").appendTo( ".cis_accessibility_check" );
+      if ($('.cis_accessibility_check a').length == 0) {
+        $('.accessibility-content-toggle a').appendTo('.cis_accessibility_check');
       }
-      $(".accessibility-content-toggle").hide();
-    }
-  };
-  // resize event
-  $(document).on('frame-resize', function(){
-    Drupal.offcanvasHeight.attach();
-  });
-  // behavior frame resize
-  Drupal.behaviors.frameResize = {
-    attach: function(context, settings) {
-      Drupal.offcanvasHeight.attach();
+      $('.accessibility-content-toggle').hide();
     }
   };
   // calculate the color difference between items
@@ -65,6 +55,9 @@
         $(this).addClass('luminance-' + luminance.replace('#', ''));
       });
     });
+  });
+  $('.alert-box .close').click(function(){
+    $(this).parent().remove();
   });
   // nice UI element to let us select users
   $('#edit-elmsln-view-user').click(function(event) {

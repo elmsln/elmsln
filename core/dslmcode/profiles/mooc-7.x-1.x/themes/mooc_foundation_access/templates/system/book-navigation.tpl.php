@@ -29,18 +29,18 @@
  */
 ?>
 <?php if ($has_links): ?>
-  <div id="book-navigation-<?php print $book_id; ?>" class="book-navigation-footer col s12 m12 l12 book-sibling-nav-container">
+  <div id="book-navigation-<?php print $book_id; ?>" class="book-navigation-footer row book-sibling-nav-container">
     <?php if ($has_links): ?>
+      <div class="col s6">
       <?php if ($prev_url): ?>
-        <li class="toolbar-menu-icon book-sibling-parent-pagination book-sibling-parent-pagination-previous">
-          <a href="<?php print $prev_url; ?>" class="page-previous" title="<?php print t('Go to previous page'); ?>" data-voicecommand="previous" data-jwerty-key="←"><span class="book-sibling-spacer icon-chevron-left"></span><span class="book-pagination-button-text book-prev"><?php print t('previous'); ?></span></a>
-        </li>
+          <a href="<?php print $prev_url; ?>" class="book-sibling-parent-pagination book-sibling-parent-pagination-previous page-previous waves-effect cis-lmsless-waves btn black-text white elmsln-z-depth-0" title="<?php print t('Go to previous page'); ?>" data-voicecommand="previous" data-jwerty-key="←"><i class="material-icons left">navigate_before</i><?php print t('previous'); ?></a>
       <?php endif; ?>
+      </div>
+      <div class="col s6">
       <?php if ($next_url): ?>
-        <li class="toolbar-menu-icon book-sibling-parent-pagination book-sibling-parent-pagination-next">
-          <a href="<?php print $next_url; ?>" class="page-next" title="<?php print t('Go to next page'); ?>" data-voicecommand="next" data-jwerty-key="→"><span class="book-pagination-button-text book-next"><?php print t('next'); ?></span><span class="book-sibling-spacer icon-chevron-right"></span></a>
-        </li>
+          <a href="<?php print $next_url; ?>" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next waves-effect cis-lmsless-waves btn black-text white elmsln-z-depth-0" title="<?php print t('Go to next page'); ?>" data-voicecommand="next" data-jwerty-key="→"><i class="material-icons right">navigate_next</i><?php print t('next'); ?></a>
       <?php endif; ?>
+      </div>
     <?php endif; ?>
   </div>
 <?php endif; ?>

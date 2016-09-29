@@ -17,8 +17,8 @@
 ?>
 <div class="book-navigation-header col s12 m12 l12 book-sibling-nav-container book-navigation-header-<?php print $count ?>">
   <!-- TOC Icon -->
-  <a href="#" class="mooc-helper-toc crourses-icon elmsln-outline-button"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents" data-jwerty-key="o" data-voicecommand="open outline">
-    <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div><span class="book-sibling-parent-text"><?php print t('Outline'); ?></span>
+  <a href="#block-mooc-helper-mooc-helper-toc-nav-modal" class="mooc-helper-toc elmsln-outline-button elmsln-modal-trigger black-text waves-effect cis-lmsless-waves" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents" data-jwerty-key="o" data-voicecommand="open outline">
+    <i class="material-icons">explore</i><?php print t('Outline'); ?>
   </a>
   <span class="book-sibling-spacer icon-chevron-right hide-on-med-and-down">/</span>
   <ul class="book-navigation-wrapper hide-on-med-and-down">

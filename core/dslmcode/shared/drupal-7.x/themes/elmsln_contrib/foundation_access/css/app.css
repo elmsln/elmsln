@@ -2559,7 +2559,7 @@ span.postfix, label.postfix {
   border-color: #cccccc; }
 
 /* We use this to get basic styling on all basic form elements */
-input:not([type]), input[type="text"], input[type="password"], input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="month"], input[type="week"], input[type="email"], input[type="number"], input[type="search"], input[type="tel"], input[type="time"], input[type="url"], input[type="color"], textarea {
+/*input:not([type]), input[type="text"], input[type="password"], input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="month"], input[type="week"], input[type="email"], input[type="number"], input[type="search"], input[type="tel"], input[type="time"], input[type="url"], input[type="color"], textarea {
   -webkit-appearance: none;
   -moz-appearance: none;
   border-radius: 0;
@@ -2606,7 +2606,7 @@ input:not([type]), input[type="text"], input[type="password"], input[type="date"
     cursor: default; }
   input:not([type]).radius, input[type="text"].radius, input[type="password"].radius, input[type="date"].radius, input[type="datetime"].radius, input[type="datetime-local"].radius, input[type="month"].radius, input[type="week"].radius, input[type="email"].radius, input[type="number"].radius, input[type="search"].radius, input[type="tel"].radius, input[type="time"].radius, input[type="url"].radius, input[type="color"].radius, textarea.radius {
     border-radius: 3px; }
-
+*/`
 form .row .prefix-radius.row.collapse input,
 form .row .prefix-radius.row.collapse textarea,
 form .row .prefix-radius.row.collapse select,
@@ -3941,7 +3941,7 @@ ul.pagination {
     position: absolute;
     top: 0.625rem;
     right: 1.375rem; }
-
+/*
 .side-nav {
   display: block;
   font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
@@ -3978,6 +3978,7 @@ ul.pagination {
       font-size: 0.875rem;
       font-weight: bold;
       text-transform: uppercase; }
+*/
 
 .split.button {
   position: relative;
@@ -10638,7 +10639,8 @@ category:
       position: absolute;
       right: 100%;
       width: calc(50vw - 52%);
-      max-width: 30em; } }
+      max-width: 30em;
+      top:0; } }
   #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav h3 {
     font-size: 1.2em;
     padding: .5em; }

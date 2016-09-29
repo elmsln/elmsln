@@ -87,8 +87,8 @@ function mooc_helper_book_nav_block_view($delta = '') {
     // build out the top navigational element with all the drop downs
     case 'book_sibling_nav':
       $block['subject'] = '';
-      $block['content'] = '<a href="#" class="mooc-helper-toc etb-modal-icon courses-icon"  data-reveal-id="block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents"  data-jwerty-key="o" data-voicecommand="open outline">
-        <div class="mooc-helper-toc-icon icon-courses-black etb-modal-icons"></div>' . t('Outline') . '</a>';
+      $block['content'] = '<a href="#block-mooc-helper-mooc-helper-toc-nav-modal" class="mooc-helper-toc elmsln-outline-button elmsln-modal-trigger black-text waves-effect waves-orange" aria-controls="toc-drop" aria-expanded="false" title="Table of Contents" data-jwerty-key="o" data-voicecommand="open outline">
+          <i class="material-icons">explore</i>' . t('Outline') .'</a>';
       $next_title = t('>');
       $prev_title = t('<');
       // load the node in scope globally at the moment and ensure we have one
@@ -281,7 +281,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
                 $parents[$menu_item['plid']]['_class'] = 'book-parent-tree';
                 // see if the active global is this parent item
                 if ($menu_item['mlid'] == $globalnode->book['mlid']) {
-                  $parents[$menu_item['plid']]['_class'] .= ' active';
+                  $parents[$menu_item['plid']]['_class'] .= ' active-trail';
                 }
               }
               // send compiled menu link off to theme engine for rendering
@@ -306,7 +306,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
                   $parents[$item['plid']]['_class'] = 'book-parent-tree';
                   // see if the active global is this parent item
                   if ($item['mlid'] == $globalnode->book['mlid']) {
-                    $parents[$item['plid']]['_class'] .= ' active';
+                    $parents[$item['plid']]['_class'] .= ' active-trail';
                   }
                 }
               }

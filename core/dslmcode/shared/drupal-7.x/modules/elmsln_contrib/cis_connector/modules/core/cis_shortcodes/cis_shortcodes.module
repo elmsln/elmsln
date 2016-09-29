@@ -94,7 +94,12 @@ function _cis_shortcode_render_codes($entity, $type) {
     '#attributes' => array(
       'class' => array(
         'form-wrapper',
+        'collapsible',
       ),
+      'data-collapsible' => 'accordion',
+    ),
+    '#materialize' => array(
+      'type' => 'collapsible_wrapper',
     ),
   );
   $properties = array(
@@ -450,6 +455,12 @@ function _cis_shortcode_render_codes($entity, $type) {
     t('Discovers this resource through generic lookup. By embedding per tag you are given more flexibility later on when you want to reference a version of this item that may be specific to the section of the user viewing the page.'),
     t('Advanced items that provide dedicated capabilities.'),
   );
+  $icons = array(
+    'settings_system_daydream',
+    'web',
+    'compare_arrows',
+    'widgets',
+  );
   // loop through the groupings and see if we have any shortcodes for each
   foreach ($groupings as $key => $group) {
     // looks weird but this is valid
@@ -457,7 +468,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       // add the groups in
       $field['cis_shortcodes'][$group] = array(
         '#type' => 'fieldset',
-        '#collapsed' => ($key === 0 ? FALSE : TRUE),
+        '#collapsed' => TRUE,
         '#collapsible' => TRUE,
         '#attributes' => array(
           'class' => array(
@@ -469,6 +480,10 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#title' => $labels[$key],
         '#description' => $descriptions[$key],
         '#weight' => $key,
+        '#materialize' => array(
+          'type' => 'collapsible',
+          'icon' => $icons[$key],
+        ),
       );
       // merges anything founda bove into this fieldset
       $field['cis_shortcodes'][$group] += $$group;
