@@ -170,7 +170,7 @@
 <!-- Accessibility side nav -->
 <?php if (!empty($a11y)) : ?>
 <div id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
-    <div class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background"><h1 class="flow-text valign elmsln-modal-title"><?php print t('Accessibility'); ?></h1>
+    <div class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background cis-lmsless-border"><h1 class="flow-text valign elmsln-modal-title"><?php print t('Accessibility'); ?></h1>
       <a href="#" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>
     </div>
     <div class="elmsln-modal-content">

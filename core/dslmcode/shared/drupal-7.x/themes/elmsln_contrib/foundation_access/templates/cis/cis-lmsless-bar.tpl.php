@@ -8,7 +8,7 @@
   }
 ?>
 <!-- Ecosystem Top Nav -->
-<div id="etb-course-nav" class="row full collapse <?php print $lmsless_classes['color'] . ' ' . $lmsless_classes['light'];?>">
+<div id="etb-course-nav" class="row full collapse <?php print $lmsless_classes['color'] . ' ' . $lmsless_classes['light'] . ' ' . $lmsless_classes['color'];?>-border">
   <div class="s12 m6 col">
     <nav class="top-bar etb-nav middle-align-wrap etb-nav--center--parent" data-options="is_hover: false" data-topbar role="navigation">
      <section>

@@ -6,6 +6,10 @@
  *
  */
 function foundation_access_preprocess_html(&$variables) {
+  // find the name
+  $variables['install_profile'] = variable_get('install_profile', 'standard');
+  $settings = _cis_connector_build_registry($variables['install_profile']);
+  $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   // loop through our system specific colors
   $colors = array('primary', 'secondary', 'required', 'optional');
   $css = '';
@@ -53,7 +57,6 @@ function foundation_access_preprocess_html(&$variables) {
     drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
     drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
   }
-  // TODO need to fix issue w/ jquery.easing not being included currently
   // theme path shorthand should be handled here
   foreach($variables['user']->roles as $role){
     $variables['classes_array'][] = 'role-' . drupal_html_class($role);
@@ -62,6 +65,8 @@ function foundation_access_preprocess_html(&$variables) {
   if (isset($_GET['modal'])) {
     $variables['classes_array'][] = 'modal-rendered';
   }
+  // pull in the lmsless classes / colors
+  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
   // add page level variables into scope for the html tpl file
   $variables['site_name'] = check_plain(variable_get('site_name', 'ELMSLN'));
   $variables['logo'] = theme_get_setting('logo');
@@ -179,16 +184,6 @@ function foundation_access_preprocess_page(&$variables) {
     $variables['page']['local_subheader'][$bid] = $block['content'];
   }
   $variables['distro'] = variable_get('install_profile', 'standard');
-  // load registry for this distro
-  $settings = _cis_connector_build_registry($variables['distro']);
-  $home_text = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
-  $variables['home'] = l('<div class="' . $variables['distro'] . '-home elmsln-home-icon icon-' . $variables['distro'] . '-black etb-modal-icons"></div><span>' . $home_text . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($variables['distro'] . '-home-button', 'elmsln-home-button-link'))));
-  // ensure header has something in it in the first place
-  if (isset($variables['page']['header'])) {
-    $keys = array_keys($variables['page']['header']);
-    $keyname = array_shift($keys);
-    $variables['page']['header'][$keyname]['#prefix'] = $variables['home'];
-  }
   // make sure we have lmsless enabled so we don't WSOD
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
   // support for lmsless since we don't require it

@@ -87,7 +87,8 @@
     $('.chip i').addClass(Drupal.settings.cis_lmsless['text'] + ' text-' + Drupal.settings.cis_lmsless['dark']);
     $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
     $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
-     $('.cis-lmsless-background').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    $('.cis-lmsless-background').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    $('.cis-lmsless-border').addClass(Drupal.settings.cis_lmsless['color'] + '-border');
     // hover state for tables to match styling
     $('tr.even, tr.odd, ul.menu li a, ul.tabs li a').not('.active,.elmsln-fixed-action-btn a').hover(
       function() {

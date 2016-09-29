@@ -1,3 +1,121 @@
+/* Avoid .progress conflict with materialize */
+.page-scroll.progress {
+  border-radius: 0;
+}
+
+/* System badge */
+.elmsln-system-badge {
+  position: absolute;
+  z-index: 5;
+  -o-transition:.3s;
+  -ms-transition:.3s;
+  -moz-transition:.3s;
+  -webkit-transition:.3s;
+  transition:.3s;
+  height: 5.5rem;
+  width: 7.5rem;
+}
+@media screen and (max-width: 600px) {
+  .elmsln-system-badge {
+    top: .5rem;
+    right: 5.5rem;
+    transform:scale(.9,.9);
+  }
+}
+@media screen and (min-width: 600px) {
+  .elmsln-system-badge {
+    top: 1rem;
+    right: 5.5rem;
+    transform:scale(.7,.7);
+  }
+}
+@media screen and (min-width: 792px) {
+  .elmsln-system-badge {
+    top: 1rem;
+    right: 5.5rem;
+  }
+}
+@media screen and (min-width: 992px) {
+  .elmsln-system-badge {
+    top: 5.5rem;
+    right: 20rem;
+  }
+}
+
+.elmsln-system-badge .elmsln-badge {
+  height: 3.5rem;
+  width: 3.5rem;
+  position: absolute;
+  margin: 1rem .5rem;
+  z-index: 4;
+}
+
+.elmsln-system-badge .elmsln-badge-inner {
+  position: absolute;
+  z-index: 3;
+  width: 5rem;
+  height: 5rem;
+  margin: .25rem .25rem;
+}
+
+.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-top {
+  width: 0;
+  border-bottom-width: 1.2rem;
+  border-bottom-style: solid;
+  border-left: 2rem solid transparent;
+  border-right: 2rem solid transparent;
+}
+.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-middle {
+  width: 4rem;
+  height: 2.4rem;
+}
+.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-middle-name {
+  position: absolute;
+  margin: -2.6rem 0 0 4rem;
+  height: 2.75rem;
+  border-top-width: .2rem;
+  border-bottom-width: .2rem;
+  border-right-width: .2rem;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-right-style: solid;
+  line-height: 2.5rem;
+  padding: 0 1rem;
+  font-size: .8rem;
+}
+.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-bottom {
+  width: 0;
+  border-top-width: 1.2rem;
+  border-top-style: solid;
+  border-left: 2rem solid transparent;
+  border-right: 2rem solid transparent;
+}
+
+.elmsln-system-badge .elmsln-badge-outer {
+  position: absolute;
+  z-index: 2;
+}
+
+.elmsln-system-badge .elmsln-badge-outer .elmsln-badge-top {
+  width: 0;
+  border-bottom-width: 1.35rem;
+  border-bottom-style: solid;
+  border-left: 2.25rem solid transparent;
+  border-right: 2.25rem solid transparent;
+  position: relative;
+}
+.elmsln-system-badge .elmsln-badge-outer .elmsln-badge-middle {
+  width: 4.5rem;
+  height: 2.7rem;
+  box-shadow: 0 20px 40px 0 rgba(0,0,0,0.4),0 0px 40px 0 rgba(0,0,0,0.4)
+}
+.elmsln-system-badge .elmsln-badge-outer .elmsln-badge-bottom {
+  width: 0;
+  border-top-width: 1.35rem;
+  border-top-style: solid;
+  border-left: 2.25rem solid transparent;
+  border-right: 2.25rem solid transparent;
+}
 /* etb / app.css conflcting with materialize menu */
 ul.dropdown-content ul {
   margin: 0;
@@ -99,46 +217,90 @@ li:focus {
 }
 /* Materialize Outline classes */
 .blue-outline {
-  outline: solid .1rem #2962ff !important;
+  outline-color: #2962ff !important;
 }
 .amber-outline {
-  outline: solid .1rem #ffab00 !important;
+  outline-color: #ffab00 !important;
 }
 .teal-outline {
-  outline: solid .1rem #00bfa5 !important;
+  outline-color: #00bfa5 !important;
 }
 .grey-outline {
-  outline: solid .1rem #212121 !important;
+  outline-color: #212121 !important;
 }
 .cyan-outline {
-  outline: solid .1rem #00b8d4 !important;
+  outline-color: #00b8d4 !important;
 }
 .orange-outline {
-  outline: solid .1rem #ff6d00 !important;
+  outline-color: #ff6d00 !important;
 }
 .red-outline {
-  outline: solid .1rem #d50000 !important;
-}
-.blue-outline {
-  outline: solid .1rem #2962ff !important;
+  outline-color: #d50000 !important;
 }
 .deep-orange-outline {
-  outline: solid .1rem #dd2c00 !important;
+  outline-color: #dd2c00 !important;
 }
 .lime-outline {
-  outline: solid .1rem #aeea00 !important;
+  outline-color: #aeea00 !important;
 }
 .pink-outline {
-  outline: solid .1rem #c51162 !important;
+  outline-color: #c51162 !important;
 }
 .purple-outline {
-  outline: solid .1rem #aa00ff !important;
+  outline-color: #aa00ff !important;
 }
 .light-green-outline {
-  outline: solid .1rem #64dd17 !important;
+  outline-color: #64dd17 !important;
 }
 .light-blue-outline {
-  outline: solid .1rem #01579b !important;
+  outline-color: #01579b !important;
+}
+.white-outline {
+  outline-color: #ffffff !important;
+}
+
+/* Materialize Border classes */
+.blue-border {
+  border-color: #2196F3;
+}
+.amber-border {
+  border-color: #ffc107;
+}
+.teal-border {
+  border-color: #009688;
+}
+.grey-border {
+  border-color: #9e9e9e;
+}
+.cyan-border {
+  border-color: #00bcd4;
+}
+.orange-border {
+  border-color: #ff9800;
+}
+.red-border {
+  border-color: #f44336;
+}
+.deep-orange-border {
+  border-color: #ff5722;
+}
+.lime-border {
+  border-color: #cddc39;
+}
+.pink-border {
+  border-color: #e91e63;
+}
+.purple-border {
+  border-color: #9c27b0;
+}
+.light-green-border {
+  border-color: #8bc34a;
+}
+.light-blue-border {
+  border-color: #03a9f4;
+}
+.white-border {
+  border-color: #ffffff;
 }
 
 /* form override for core and materialize */
@@ -246,7 +408,8 @@ ul.pagination li a {
 .elmsln-modal-title-wrapper {
   height: 2.5rem;
   padding: 2rem 0;
-  border-bottom: solid .25rem black;
+  border-bottom-style: solid;
+  border-bottom-width: .2rem;
 }
 .elmsln-modal-title {
   margin: 0;
@@ -714,7 +877,9 @@ a.add-menu-drop {
 
 #etb-course-nav {
   margin: 0;
-  border: none;
+  border-bottom: none;
+  border-top-width: .2rem;
+  border-top-style: solid;
 }
 #etb-course-nav span.course-title,
 #etb-course-nav span.course-abrv {
@@ -763,24 +928,6 @@ a.add-menu-drop {
   z-index: 1000;
   width: 2rem;
   height: 2rem;
-}
-
-.elmsln-home-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-.elmsln-home-button-link {
-  padding: 0;
-  margin: 0 1rem 0;
-  font-size: 1rem;
-  line-height: 2.5rem;
-}
-@media all and (max-width: 720px) {
-  .elmsln-home-button-link span {
-    position: absolute;
-    left:-9999999;
-    opacity: 0;
-  }
 }
 
 ul.header-menu-options {

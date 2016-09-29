@@ -336,7 +336,6 @@ function _cis_lmsless_theme_vars() {
     );
     // push this into variables on the page for usage
     drupal_add_js(array('cis_lmsless' => $lmsless_classes), array('type' => 'setting'));
-    $vars['home'] = l('<div class="' . $vars['distro'] . '-home elmsln-home-icon icon-' . $vars['distro'] . '-black etb-modal-icons"></div><span>' . t('Home') . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($vars['distro'] . '-home-button'))));
     // build in section context if we have one we can pull
     if ($section = _cis_connector_section_context()) {
       $vars['section'] = $section;

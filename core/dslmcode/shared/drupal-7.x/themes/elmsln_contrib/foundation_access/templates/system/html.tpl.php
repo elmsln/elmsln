@@ -44,7 +44,6 @@
 ?>
 <!DOCTYPE html>
 <!-- Sorry no IE7 support! -->
-<!-- @see http://foundation.zurb.com/docs/index.html#basicHTMLMarkup -->
 
 <!--[if IE 8]><html class="no-js lt-ie9" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <![endif]-->
 <!--[if gt IE 8]><!-->
@@ -95,6 +94,22 @@
       <?php print $logo_img; ?>
     </div>
   <?php endif; ?>
+  <a href="<?php print base_path();?>">
+  <div class="elmsln-system-badge">
+    <div class="icon-<?php print $install_profile;?>-black elmsln-badge"></div>
+    <div class="elmsln-badge-inner">
+      <div class="elmsln-badge-top white-border"></div>
+      <div class="elmsln-badge-middle white"></div>
+      <div class="elmsln-badge-middle-name white <?php print $lmsless_classes['color'];?>-border <?php print $lmsless_classes['text'];?>"><?php print $system_title;?></div>
+      <div class="elmsln-badge-bottom white-border"></div>
+    </div>
+    <div class="elmsln-badge-outer">
+      <div class="elmsln-badge-top <?php print $lmsless_classes['color'];?>-border"></div>
+      <div class="elmsln-badge-middle <?php print $lmsless_classes['color'];?>"></div>
+      <div class="elmsln-badge-bottom <?php print $lmsless_classes['color'];?>-border"></div>
+    </div>
+  </div>
+  </a>
   <div class="skip-link">
     <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
   </div>
