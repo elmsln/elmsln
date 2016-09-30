@@ -1,7 +1,6 @@
 .cis-filter-activity-item {
   float: none;
-  margin: 2rem auto;
-  padding: 1.25rem .25rem 0rem 7rem;
+  margin: auto;
   font-size: 1rem;
   line-height: 4.75em;
   border: 1px solid rgba(0, 0, 0, 0.52);
@@ -21,8 +20,12 @@
   height: 100%;
 }
 div.ctools-modal-content .modal-content {
-  padding: .1rem;
   overflow: inherit;
+  position: initial;
+}
+div.ctools-modal-content .popups-close {
+  position: relative;
+  z-index: 100;
 }
 
 .elmsln-action-finished {
