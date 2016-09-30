@@ -193,7 +193,7 @@ ul.dropdown-content li:not(.has-form) a:not(.button) {
 }
 ul.dropdown-content li a {
   background-color: transparent;
-  line-height: 2.25rem;
+  line-height: 1.25rem;
   padding: .5rem !important;
   display: block;
   font-weight: normal;
@@ -789,6 +789,12 @@ main {
   flex: 1 0 auto;
 }
 
+main li,
+main li a {
+  height: 2.25rem;
+  line-height: 1.5rem;
+}
+
 footer.page-footer{
   background-color: #f5f5f5;
   padding-top: 1rem;
@@ -895,13 +901,6 @@ select.chosen {
 }
 
 /* accessibility */
-.outline-nav-icon {
-  opacity: .8;
-  width: 2.25rem;
-  line-height: 2.25rem;
-  margin-top: .25rem;
-}
-
 .imagelightbox__close {
   color:#002a65;
   background-color:#bdbdbd;
@@ -1248,10 +1247,6 @@ h1#page-title {
   font-weight: bold;
   padding: 0;
   color: #222222;
-}
-
-.etb-book li {
-  line-height: 2.25rem;
 }
 
 /* inline flex support in browsers that don't support it currently */

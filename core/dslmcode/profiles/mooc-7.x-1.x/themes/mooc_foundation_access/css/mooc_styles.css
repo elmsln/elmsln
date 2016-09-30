@@ -1,3 +1,10 @@
+.outline-nav-icon {
+  opacity: .8;
+  width: 2.5rem;
+  line-height: 2.5rem;
+  margin: 0;
+}
+
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li {
   padding: 0;
 }
@@ -62,9 +69,9 @@ a.mooc-helper-toc {
   font-size: .8rem;
   text-align: center;
   color: #222222;
-  padding: 0.5rem 0.2rem;
+  padding: 0.5rem;
   line-height: inherit;
-  height: 2rem;
+  height: 2.5rem;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -187,6 +194,10 @@ ul.book-navigation-wrapper {
   vertical-align: text-top;
 }
 
+.book-sibling-parent {
+  display: inline-flex;
+}
+
 .book-sibling-children a,
 .book-sibling-parent a {
   font-size: .8rem;
@@ -209,6 +220,7 @@ ul.book-navigation-wrapper {
   overflow: hidden;
   text-overflow: ellipsis;
   border: none;
+  height: 2.5rem;
   text-decoration: none;
 }
 
@@ -293,6 +305,11 @@ ul.book-navigation-wrapper {
   width: 1.6rem;
   margin-left: .5rem;
   margin-right: 0;
+}
+
+.book-parent-tree {
+  line-height: 2.25rem;
+  padding: .5rem;
 }
 
 .book-sibling-nav-item,
