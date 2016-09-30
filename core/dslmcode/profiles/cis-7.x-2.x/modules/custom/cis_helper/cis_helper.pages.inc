@@ -303,9 +303,14 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
       )
     ),
   );
+  $field_conditions = array();
+  // ensure only users with permission get this advanced option
+  if (!user_access('cis setup admin options')) {
+    $field_conditions = array('field_machine_name' => array('value', 'innovate', '<>'));
+  }
   // list of services
-  $service_list = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title', array(), array(), array('property' => array(array('title', 'ASC'))));
-  $service_list2 = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'field_distribution', array(), array(), array('property' => array(array('title', 'ASC'))));
+  $service_list = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title', $field_conditions, array(), array('property' => array(array('title', 'ASC'))));
+  $service_list2 = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'field_distribution', $field_conditions, array(), array('property' => array(array('title', 'ASC'))));
   $form['details']['services'] = array(
     '#multiple' => TRUE,
     '#required' => $required_new,
