@@ -243,7 +243,7 @@ function _cis_lmsless_assemble_network() {
     if (user_access('view lmsless administration links') && is_array($reg)) {
       foreach ($reg as $key => $value) {
         $addr = explode('.', $value['address']);
-        if (isset($value['instance']) && !$value['instance'] && $addr[0] != $vars['active']['machine_name']) {
+        if (isset($value['instance']) && !$value['instance']) {
           $list[$administrative][$addr[0]] = array(
             'title' => $reg[$key]['default_title'],
             'url' => url(_cis_connector_format_address($reg[$key],  '/' . $course_context, 'front')),

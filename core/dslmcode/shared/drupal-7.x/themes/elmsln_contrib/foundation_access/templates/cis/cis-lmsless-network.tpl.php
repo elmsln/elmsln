@@ -8,8 +8,14 @@
   <?php foreach ($services as $title => $items) : ?>
     <li><div class="divider"></div></li>
     <li><a class="subheader"><?php print t('@title', array('@title' => $title)); ?></a></li>
-    <?php foreach ($items as $service) : ?>
-      <li><a href="<?php print $service['url']; ?>" class="waves-effect cis-lmsless-waves etb-modal-icon <?php print $service['machine_name']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>">
+    <?php
+      foreach ($items as $service) :
+        $activetool = '';
+        if ($service['machine_name'] == $active['machine_name']) {
+          $activetool = 'active ';
+        }
+    ?>
+      <li><a href="<?php print $service['url']; ?>" class="waves-effect cis-lmsless-waves etb-modal-icon <?php print $activetool . $service['machine_name']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>">
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <div class="etb-modal-icons etb-modal-material-icons"><i class="zmdi zmdi-<?php print $service['machine_name']; ?>"></i></div>
       <?php else: ?>
