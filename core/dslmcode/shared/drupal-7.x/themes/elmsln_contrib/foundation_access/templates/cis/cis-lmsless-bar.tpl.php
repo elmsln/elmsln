@@ -13,8 +13,8 @@
     <nav class="top-bar etb-nav middle-align-wrap etb-nav--center--parent" data-options="is_hover: false" data-topbar role="navigation">
      <section>
         <!-- Left Nav Section -->
-        <ul class="left kill-margin middle-align-wrap">
-        <?php if ($bar_elements['network']) : ?>
+        <ul class="left-nav-section">
+          <?php if ($bar_elements['network']) : ?>
           <li class="elmsln-network-menu-item">
             <a href="#" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger  black-text waves-effect cis-lmsless-waves" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
               <div class="cis-lmsless-network icon-apps-black svg"></div>
@@ -23,8 +23,8 @@
           </li>
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
-          <li class="elmsln-user-profile-menu-item ferpa-protect divider-right">
-            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect cis-lmsless-waves" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
+          <li class="elmsln-user-profile-menu-item ferpa-protect">
+            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect cis-lmsless-waves divider-right" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="hide-on-med-and-down truncate"><?php print $username; ?></span>
             </a>
@@ -55,9 +55,9 @@
           </li>
           <?php endif; ?>
         </ul>
-        </section>
-      </nav>
-    </div>
+      </section>
+    </nav>
+  </div>
     <div class="etb-title s12 m6 col">
       <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar role="navigation">
        <section class="top-bar-section title-link">

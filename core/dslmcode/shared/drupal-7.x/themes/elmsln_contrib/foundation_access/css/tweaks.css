@@ -1,3 +1,36 @@
+/* cis lmsless nav */
+.left-nav-section {
+  display: flex;
+  margin-left: -.6rem;
+}
+.left-nav-section li {
+  display: inline-block;
+  margin: -.1rem 0 0;
+  padding: .2rem 0;
+  height: 4.5rem;
+  line-height: 4.5rem;
+  min-width: 4.5rem;
+}
+nav ul.left-nav-section a {
+  padding: 0 .5rem;
+  height: 4.4rem;
+  line-height: 4.4rem;
+  min-width: 4.4rem;
+}
+nav ul.left-nav-section a span {
+  margin: 0 .5rem;
+}
+nav ul.left-nav-section a i,
+nav ul.left-nav-section a div,
+nav ul.left-nav-section a img {
+  margin: auto;
+}
+.cis-lmsless-avatar,
+.cis-lmsless-network {
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
 /* Avoid .progress conflict with materialize */
 .page-scroll.progress {
   border-radius: 0;
@@ -628,25 +661,6 @@ a.elmsln-btn-floating:hover {
 }
 .page-next.elmsln-z-depth-0 {
   box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.12);
-}
-
-.elmsln-user-profile-menu-item,
-.elmsln-network-menu-item {
-  min-width: 5rem;
-  font-size: 2rem;
-  line-height: 56px;
-}
-
-.elmsln-network-button,
-.elmsln-user-button {
-  padding: .5rem;
-  height: 56px;
-}
-
-.cis-lmsless-avatar,
-.cis-lmsless-network {
-  height: 2.5rem;
-  width: 2.5rem;
 }
 
 /* Sticky footer from MaterializeCSS */
