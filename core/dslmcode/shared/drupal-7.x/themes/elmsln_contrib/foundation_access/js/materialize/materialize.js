@@ -50,7 +50,7 @@
       });
       // close x's
       $('.close-reveal-modal').click(function(){
-        $('#' + $(this).parents().attr('id')).closeModal();
+        $('#' + $(this).parents().parents().attr('id')).closeModal();
         $('[href=#' + $(this).parents().attr('id') + ']').focus();
       });
       $('.close-reveal-side-nav').click(function(){
