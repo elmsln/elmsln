@@ -209,6 +209,12 @@ function hidden_nodes_form_alter(&$form, $form_state, $form_id) {
         '#default_value' => $node->hidden,
         '#access' => user_access('view hidden content'),
       );
+      $form['hidden_nodes']['propagate'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Propagate hidden status'),
+        '#access' => user_access('view hidden content'),
+      );
+      $form['#submit'][] = '_hidden_nodes_form_submit';
     }
   }
   // Book form integration.
@@ -240,6 +246,18 @@ function hidden_nodes_form_alter(&$form, $form_state, $form_id) {
         }
       }
     }
+  }
+}
+
+/**
+ * Implements hook_node_grants().
+ */
+function _hidden_nodes_form_submit($form, $form_state) {
+  $nid = $form_state['values']['nid'];
+  $status = $form_state['values']['hidden'];
+  $check_status = $form_state['values']['propagate'];
+  if ($check_status == 1) {
+    hidden_nodes_propagate_hide_node($nid, TRUE, $status);
   }
 }
 
@@ -472,6 +490,44 @@ function hidden_nodes_outline_designer_hide_node($nid, $multiple, $status) {
   return 0;
 }
 
+function hidden_nodes_propagate_hide_node($nid, $multiple, $status) {
+  $node = node_load($nid);
+  if ($multiple) {
+        // Pull only the nodes that have the original node as a parent.
+        $mlid = $node->book['mlid'];
+        // Ensure this is a real value.
+        if ($mlid != 0 && $mlid != '') {
+          $result = db_select('menu_links', 'ml')
+            ->fields('ml', array('link_path'))
+            ->condition(db_or()
+              ->condition('p2', $mlid)
+              ->condition('p3', $mlid)
+            ->condition(db_or()
+              ->condition('p4', $mlid)
+              ->condition('p5', $mlid)
+            ->condition(db_or()
+              ->condition('p6', $mlid)
+              ->condition('p7', $mlid)
+            ->condition(db_or()
+              ->condition('p8', $mlid)
+              ->condition('p9', $mlid)
+            )
+            )
+            )
+            )
+            ->orderBy('depth', 'asc')
+            ->execute();
+          foreach ($result as $value) {
+            $current_node = node_load(str_replace('node/', '', $value->link_path));
+            if (isset($current_node->nid) && in_array($current_node->type, variable_get('hidden_nodes_types', array())) && node_access('update', $current_node)) {
+              $current_node->hidden = $status;
+              node_save($current_node);
+            }
+          }
+        }
+      }
+      drupal_set_message(t('Content was propagated'));
+}
 /**
  * Implements hook_action_info().
  */
