@@ -115,7 +115,7 @@
       }
     );
     // focus event
-    $('a,i,button,li,input[type=file],.btn').not('li.expanded, .scrollspy-toc li').on('focusin', function() {
+    $('a,i,button,li').not('li.expanded, .scrollspy-toc li').on('focusin', function() {
       $(this).addClass(Drupal.settings.cis_lmsless['outline']);
     }).on('focusout', function() {
       $(this).removeClass(Drupal.settings.cis_lmsless['outline']);

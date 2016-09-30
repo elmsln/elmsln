@@ -360,7 +360,7 @@ function foundation_access_file($variables) {
   _form_set_class($element, array('form-file', 'elmsln-file-input'));
   // apply classes and wrappers needed for materializecss
   return '<div class="col s12 m8 file-field input-field">
-      <div class="btn" tabindex="-1">
+      <div class="elmsln-file-btn-trigger btn">
         <span>' . $element['#title'] . '</span>
         <input' . drupal_attributes($element['#attributes']) . ' />
       </div>
