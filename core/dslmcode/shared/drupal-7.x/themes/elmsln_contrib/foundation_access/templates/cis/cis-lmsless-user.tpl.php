@@ -21,11 +21,11 @@
 <?php if (!empty($username)) : ?>
   <li><?php print $userprofile; ?></li>
 <?php endif; ?>
-<?php if (!empty($ferpa_flter)) : ?>
-  <li><?php print $ferpa_flter; ?></li>
-<?php endif; ?>
 <?php if (isset($user_section) || !empty($masquerade)) : ?>
   <li><div class="divider cis-lmsless-background"></div></li>
+<?php endif; ?>
+<?php if (!empty($ferpa_flter)) : ?>
+  <li><?php print $ferpa_flter; ?></li>
 <?php endif; ?>
 <?php if (isset($user_section)) : ?>
   <li><?php print $user_section; ?></li>
