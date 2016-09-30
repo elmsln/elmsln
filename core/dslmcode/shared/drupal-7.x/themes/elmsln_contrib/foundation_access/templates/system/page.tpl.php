@@ -14,8 +14,8 @@
     <main id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
       <div class="inner-wrap">
         <!-- progress bar -->
-        <div class="page-scroll progress">
-          <span class="meter" style="width: 0%"></span>
+        <div class="page-scroll progress <?php print $cis_lmsless['lmsless_classes']['color'] . ' ' . $cis_lmsless['lmsless_classes']['light'];?>">
+          <span class="meter <?php print $cis_lmsless['lmsless_classes']['color'];?>" style="width: 0%"></span>
         </div>
         <section class="main-section etb-book">
           <div class="r-header row">
@@ -114,15 +114,19 @@
                       <?php print render($page['help']); ?>
                     </div>
                   <?php endif; ?>
-                  <?php if (!empty($page['local_header'])): ?>
-                  <div class="r-local-header row">
-                    <?php print render($page['local_header']); ?>
-                  </div>
-                  <?php endif; ?>
-                  <?php if (!empty($page['local_subheader'])): ?>
-                  <div class="r-local-subheader row">
-                    <?php print render($page['local_subheader']); ?>
-                  </div>
+                  <?php if (!empty($page['local_header']) || !empty($page['local_subheader'])): ?>
+                    <div class="r-local-header-wrapper row">
+                      <?php if (!empty($page['local_header'])): ?>
+                      <div class="r-local-header row">
+                        <?php print render($page['local_header']); ?>
+                      </div>
+                      <?php endif; ?>
+                      <?php if (!empty($page['local_subheader'])): ?>
+                      <div class="r-local-subheader row">
+                        <?php print render($page['local_subheader']); ?>
+                      </div>
+                      <?php endif; ?>
+                    </div>
                   <?php endif; ?>
                   <a id="main-content"></a>
                   <?php if ($title): ?>

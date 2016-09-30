@@ -11,15 +11,14 @@
         accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
       });
       $('.elmsln-dropdown-button').dropdown({
-          inDuration: 150,
-          outDuration: 50,
-          constrain_width: false,
-          hover: false,
-          gutter: 0,
-          belowOrigin: true,
-          alignment: 'left'
-        }
-      );
+        inDuration: 150,
+        outDuration: 50,
+        constrain_width: false,
+        hover: false,
+        gutter: 0,
+        belowOrigin: true,
+        alignment: 'left'
+      });
       $('.carousel-slider').carousel({full_width: true});
       $('.elmsln-right-side-nav-trigger').bind('click', function() {
           $('#' + $(this).attr('data-activates')).removeClass('elmsln-modal-hidden').focus();
@@ -45,8 +44,8 @@
         opacity: .5, // Opacity of modal background
         in_duration: 150, // Transition in duration
         out_duration: 50, // Transition out duration
-        starting_top: '1rem', // Starting top style attribute
-        ending_top: '1rem', // Ending top style attribute
+        starting_top: '8rem', // Starting top style attribute
+        ending_top: '8rem', // Ending top style attribute
         ready: function() { $('.close-reveal-modal:visible').parents().focus(); }, // Callback for Modal open
       });
       // close x's
@@ -82,15 +81,33 @@
   $(document).ready(function(){
     // apply color styling for this tool to accent the interface
     $('.cis-lmsless-text, .dropdown-content .nolink').addClass(Drupal.settings.cis_lmsless['text']);
+    // color text icons that want it
     $('i.cis-lmsless-text').addClass('text-' + Drupal.settings.cis_lmsless['dark']);
-    $('.chip,ul li a.active, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
-    $('.chip i').addClass(Drupal.settings.cis_lmsless['text'] + ' text-' + Drupal.settings.cis_lmsless['dark']);
-    $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
+    // apply waves to things that want its color
     $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    // apply background to things that want our background
     $('.cis-lmsless-background').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
-    $('.cis-lmsless-border').addClass(Drupal.settings.cis_lmsless['color'] + '-border');
+
+    $('.cis-lmsless-color').addClass(Drupal.settings.cis_lmsless['color']);
+    // apply border to things that want our background
+    $('.cis-lmsless-border, .tabs li.tab a').addClass(Drupal.settings.cis_lmsless['color'] + '-border');
+    // color chips
+    $('.chip,ul li a.active, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    // color chip colors
+    $('.chip i').addClass(Drupal.settings.cis_lmsless['text'] + ' text-' + Drupal.settings.cis_lmsless['dark']);
+    // color back to top item
+    $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
+
     // hover state for tables to match styling
-    $('tr.even, tr.odd, ul.menu li a, ul.tabs li a').not('.active,.elmsln-fixed-action-btn a').hover(
+    $('tr.even, tr.odd, ul.menu li a').not('.active,.elmsln-fixed-action-btn a').hover(
+      function() {
+        $(this).addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+      }, function() {
+        $(this).removeClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+      }
+    );
+    // tab slide effect
+    $('.tabs li.tab a').hover(
       function() {
         $(this).addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
       }, function() {
@@ -98,7 +115,7 @@
       }
     );
     // focus event
-    $('a,i,button,li').not('li.expanded, .scrollspy-toc li').on('focusin', function() {
+    $('a,i,button,li,input[type=file],.btn').not('li.expanded, .scrollspy-toc li').on('focusin', function() {
       $(this).addClass(Drupal.settings.cis_lmsless['outline']);
     }).on('focusout', function() {
       $(this).removeClass(Drupal.settings.cis_lmsless['outline']);

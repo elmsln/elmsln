@@ -150,7 +150,7 @@ function foundation_access_ux_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'textbook_active';
-  $strongarm->value = 'textbook_zurb';
+  $strongarm->value = 'textbook_materialize';
   $export['textbook_active'] = $strongarm;
 
   $strongarm = new stdClass();

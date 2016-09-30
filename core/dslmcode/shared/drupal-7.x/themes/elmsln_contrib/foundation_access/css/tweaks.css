@@ -1,3 +1,28 @@
+/* in page nav */
+.r-header__left {
+  width: 100%;
+}
+.r-header__left .tabs li {
+  width: unset;
+  min-width: 120px;
+}
+
+.r-local-header-wrapper.row {
+  margin: 0 0 1rem 0;
+}
+
+/* Materialize tab modifications */
+.tabs .tab a:hover {
+  border-bottom-style: solid;
+  border-bottom-width: .2rem;
+}
+.tabs .tab a.active {
+  border-bottom-style: solid;
+  border-bottom-width: .2rem;
+}
+.elmsln-tabs.tabs .indicator {
+  height: 0;
+}
 /* cis lmsless nav */
 .left-nav-section {
   display: flex;
@@ -5,17 +30,17 @@
 }
 .left-nav-section li {
   display: inline-block;
-  margin: -.1rem 0 0;
-  padding: .2rem 0;
-  height: 4.5rem;
-  line-height: 4.5rem;
-  min-width: 4.5rem;
+  margin: .1rem 0 0;
+  padding: 0;
+  height: 4.8rem;
+  line-height: 4.8rem;
+  min-width: 4.8rem;
 }
 nav ul.left-nav-section a {
   padding: 0 .5rem;
-  height: 4.4rem;
-  line-height: 4.4rem;
-  min-width: 4.4rem;
+  height: 4.8rem;
+  line-height: 4.8rem;
+  min-width: 4.8rem;
 }
 nav ul.left-nav-section a span {
   margin: 0 .5rem;
@@ -219,11 +244,6 @@ ul.dropdown-content {
   min-height: 8rem;
 }
 
-/* tab support */
-.tabs .tab {
-  min-width: 100px;
-}
-
 /* Materialize Waves additional colors */
 .waves-effect.waves-blue .waves-ripple {
   /* The alpha value allows the text and background color of the button to still show through. */
@@ -250,10 +270,20 @@ ul.dropdown-content {
 
 /* consistend focus state presentation */
 a:focus,
-button:focus,
 i:focus,
-li:focus {
-  outline: solid .1rem #0078a0;
+li:focus,
+button:focus,
+input[type=file]:focus,
+.btn:focus {
+  outline-style: solid;
+  outline-width: .1rem;
+  outline-color: #2962ff;
+}
+
+button:focus,
+input[type=file]:focus,
+.btn:focus {
+  outline-width: .3rem;
 }
 /* Materialize Outline classes */
 .blue-outline {
@@ -382,6 +412,67 @@ li:focus {
 .accessible-pink-text {
   color: #9d0f3f !important;
 }
+/* Materialize Selecton classes */
+.blue-selection ::selection {
+  background: #e3f2fd;
+  color: #222222;
+}
+.amber-selection ::selection {
+  background: #fff8e1;
+  color: #222222;
+}
+.teal-selection ::selection {
+  background: #e0f2f1;
+  color: #222222;
+}
+.yellow-selection ::selection {
+  background: #fffde7;
+  color: #222222;
+}
+.grey-selection ::selection {
+  background: #e0e0e0;
+  color: #222222;
+}
+.cyan-selection ::selection {
+  background: #e0f7fa;
+  color: #222222;
+}
+.orange-selection ::selection {
+  background: #fff3e0;
+  color: #222222;
+}
+.red-selection ::selection {
+  background: #ffebee;
+  color: #222222;
+}
+.deep-orange-selection ::selection {
+  background: #ffccbc;
+  color: #222222;
+}
+.lime-selection ::selection {
+  background: #f9fbe7;
+  color: #222222;
+}
+.green-selection ::selection {
+  background: #e8f5e9;
+  color: #222222;
+}
+.pink-selection ::selection {
+  background: #fce4ec;
+  color: #222222;
+}
+.purple-selection ::selection {
+  background: #f3e5f5;
+  color: #222222;
+}
+.light-green-selection ::selection {
+  background: #f1f8e9;
+  color: #222222;
+}
+.light-blue-selection ::selection {
+  background: #e1f5fe;
+  color: #222222;
+}
 
 /* form override for core and materialize */
 .container-inline div, .container-inline label {
@@ -393,7 +484,8 @@ li:focus {
 
 /* top bar profile divider */
 .divider-right {
-  border-right: 0.0625rem solid #ccc;
+  border-right-width: 0.0625rem;
+  border-right-style:solid;
 }
 
 /* CIS filter / submit widget */
@@ -500,7 +592,10 @@ ul.pagination li a {
   width: 100%;
 }
 .elmsln-modal-content {
-  margin-top: 2rem;
+  padding: 2rem;
+}
+.side-nav .elmsln-modal-content {
+ padding: 0;
 }
 .elmsln-modal .close-reveal-modal {
   color: #4c4c4c;
@@ -533,7 +628,6 @@ ul.pagination li a {
 }
 .elmsln-modal.modal {
   z-index: 10002 !important;
-  padding: 2rem 4rem;
 }
 .elmsln-modal-hidden {
   display: none;
@@ -560,8 +654,18 @@ ul.pagination li a {
   border-left-style: solid;
   border-left-width: .2rem;
 }
+.table-of-contents a {
+  line-height: 2.25rem;
+  height: 2.25rem;
+  width: 100%;
+}
 .table-of-contents a.active {
   color:unset;
+}
+#scrollspy-nav a:hover {
+  border-left: unset;
+  border-left-style: solid;
+  border-left-width: .2rem;
 }
 ul.scrollspy-toc.table-of-contents {
   margin-left: 0;
@@ -586,23 +690,30 @@ div.form-type-checkbox :last-child {
 #block-cis-shortcodes-cis-shortcodes-block-nav-modal {
   bottom:10%;
 }
-#block-speedreader-speedreader-block-nav-modal {
-  top:25% !important;
-  left: 25%;
-  width: 50%;
-  height: 50%;
-}
 
-#block-speedreader-speedreader-block-nav-modal .words {
-  margin: 1rem auto;
-}
-a[data-reveal-id="block-speedreader-speedreader-block-nav-modal"] {
-  font-size: 1.5rem;
+#block-speedreader-speedreader-block-nav-modal .controls a,
+#block-speedreader-speedreader-block-nav-modal .controls i  {
+  font-size: 5rem;
+  line-height: 5rem;
+  margin: 0;
+  padding: 0;
+  height: 5rem;
+  width: 5rem;
 }
 .spritz-word {
   font-size: 5rem;
-  line-height: 9.5rem;
-  height: 50%;
+  line-height: 8rem;
+  height: 10rem;
+  overflow: hidden;
+}
+.spritz {
+    font-size: 5rem;
+  line-height: 10rem;
+  height: 10rem;
+  overflow: hidden;
+}
+#spritz_progress {
+  height: .5rem;
 }
 .a11y-invert .etb-modal-icons,
 .a11y-invert .etb-icons {
@@ -1258,7 +1369,6 @@ div.warning {
   background-position: 14px 50%;
 }
 
-
 .header-menu-options ul li.active a,
 .header-menu-options ul li.active a.active,
 .header-menu-options ul li.active a:active,
@@ -1278,7 +1388,6 @@ div.breadcrumb a {
 div.breadcrumb a:hover {
   color: #fff;
 }
-
 
 .header-menu-options ul li.active a,
 .header-menu-options ul li.active a.active,
@@ -1317,18 +1426,8 @@ ul.post-links a:hover {
   text-transform: uppercase;
 }
 
-fieldset {
-  border: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
-  background: #fff;
-  border-radius: 3px;
-  padding: 2rem;
-  position: relative;
-  min-height: 4rem !important;
-}
-
 legend + .fieldset-wrapper {
-    padding-top: 4rem;
+  padding: 1rem;
 }
 
 fieldset.bef-select-as-radios-fieldset.collapsed legend,
@@ -1355,11 +1454,15 @@ fieldset.bef-select-as-checkboxes-fieldset.collapsed legend
   box-shadow: none;
 }
 
+fieldset {
+  padding: 0;
+}
+
 fieldset legend {
-  font-size: 20px;
-  font-weight: 500;
-  position: absolute;
-  top: 14px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
 }
 
 .features-export-parent fieldset legend {
@@ -1487,17 +1590,4 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
   .figurelabel__title {
     white-space: nowrap;
   }
-}
-
-span.textbook-san-serif {
- font-family: "Open Sans","Helvetica Neue","Helvetica",sans-serif;
-}
-
-h1 span.textbook-san-serif,
-h2 span.textbook-san-serif,
-h3 span.textbook-san-serif,
-h4 span.textbook-san-serif,
-h5 span.textbook-san-serif,
-h6 span.textbook-san-serif {
- font-weight:300 !important;
 }

@@ -6,8 +6,10 @@
   <li class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background cis-lmsless-border"><h1 class="flow-text valign elmsln-modal-title"><?php print $site_name; ?></h1></li>
   <!-- End Menu Item Dropdowns -->
   <?php foreach ($services as $title => $items) : ?>
-    <li><div class="divider"></div></li>
-    <li><a class="subheader"><?php print t('@title', array('@title' => $title)); ?></a></li>
+    <li>
+      <a class="subheader"><?php print t('@title', array('@title' => $title)); ?></a>
+      <div class="divider cis-lmsless-background"></div>
+    </li>
     <?php
       foreach ($items as $service) :
         $activetool = '';

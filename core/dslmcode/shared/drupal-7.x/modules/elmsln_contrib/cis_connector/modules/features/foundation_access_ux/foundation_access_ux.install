@@ -62,3 +62,10 @@ function foundation_access_ux_update_7002(&$sandbox) {
   // kill menu caches associated with this so the new items show up
   menu_cache_clear('menu-elmsln-navigation');
 }
+
+/**
+ * Switch to materialize for textbook tweaks.
+ */
+function foundation_access_ux_update_7003(&$sandbox) {
+  features_revert_module('foundation_access_ux');
+}

@@ -234,6 +234,28 @@ function textbook_textbook_style() {
         ),
       ),
     ),
+    'textbook_materialize' => array(
+      'name' => t('MaterializeCSS'),
+      'node' => array(
+        'css' => array(
+          $tpath . 'textbook_materialize/node_tables.css',
+          $tpath . 'textbook_materialize/node_lists.css',
+          $tpath . 'textbook_materialize/node.css',
+        ),
+        'reset' => array(
+          $tpath . 'textbook_materialize/reset.css',
+        ),
+        'js' => array(
+          'misc/form.js',
+          'misc/collapse.js',
+        )
+      ),
+      'print' => array(
+        'css' => array(
+          $tpath . 'textbook_materialize/print.css',
+        ),
+      ),
+    ),
   );
   return $styles;
 }

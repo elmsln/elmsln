@@ -76,17 +76,7 @@ var clipboardjs = require('./components/clipboardjs.js');
   Drupal.behaviors.stickyStuff = {
     attach: function (context, settings) {
       $('.r-header', context).sticky({topSpacing:4, width: '100%'});
-      $('.page-scroll.progress', context).sticky({topSpacing:0}).addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
-    }
-  };
-  // ability to disable background scrolling on modal open
-  Drupal.behaviors.bodyScrollDisable = {
-    attach: function (context, settings) {
-      $('.disable-scroll', context).on("open.fndtn.reveal", function () {
-        $("body").addClass("scroll-disabled");
-      }).on("close.fndtn.reveal", function () {
-        $("body").removeClass("scroll-disabled")
-      });
+      $('.page-scroll.progress', context).sticky({topSpacing:0});
     }
   };
   // Page Scrolling Progress Bar
@@ -103,7 +93,7 @@ var clipboardjs = require('./components/clipboardjs.js');
       }
       Drupal.settings.progressScroll.scrollPercent = (Drupal.settings.progressScroll.scroll / Drupal.settings.progressScroll.total)*100;
       // set percentage of the meter to the scroll down the screen
-      $(".page-scroll.progress .meter", context).css({"width": Drupal.settings.progressScroll.scrollPercent+"%"}).addClass(Drupal.settings.cis_lmsless['color']);
+      $(".page-scroll.progress .meter", context).css({"width": Drupal.settings.progressScroll.scrollPercent+"%"});
     }
   };
 

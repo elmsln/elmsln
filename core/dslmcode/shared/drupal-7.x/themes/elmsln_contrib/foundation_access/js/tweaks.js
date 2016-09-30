@@ -56,6 +56,7 @@
       });
     });
   });
+  // remove alerts when they are clicked on
   $('.alert-box .close').click(function(){
     $(this).parent().remove();
   });

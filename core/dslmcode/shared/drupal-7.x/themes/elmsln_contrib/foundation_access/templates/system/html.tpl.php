@@ -88,7 +88,7 @@
   <meta name="theme-color" content="#eeeeee">
   <!--/end cross platform favicons and tweaks-->
 </head>
-<body class="<?php print $classes; ?>" <?php print $attributes;?>>
+<body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?>>
   <div class="skip-link">
     <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
   </div>

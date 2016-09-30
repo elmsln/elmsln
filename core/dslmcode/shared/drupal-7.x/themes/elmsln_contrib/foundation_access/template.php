@@ -142,7 +142,7 @@ function foundation_access_fieldset($variables) {
             <div class="elmsln-collapsible-body">
               ' . $body . '
             </div>
-            <div class="divider"></div>
+            <div class="divider cis-lmsless-background"></div>
           </div>
         </li>';
       break;
@@ -274,6 +274,25 @@ function foundation_access_preprocess_page(&$variables) {
 }
 
 /**
+ * Implements hook_preprocess_block().
+ */
+function foundation_access_preprocess_block(&$variables) {
+  // Convenience variable for block headers.
+  $title_class = &$variables['title_attributes_array']['class'];
+
+  // Generic block header class.
+  $title_class[] = 'block-title';
+
+  // In the header region visually hide block titles.
+  if ($variables['block']->region == 'header') {
+    $title_class[] = 'element-invisible';
+  }
+
+  // Add a unique class for each block for styling.
+  $variables['classes_array'][] = $variables['block_html_id'];
+}
+
+/**
  * Implementation of hook_preprocess_node().
  */
 function foundation_access_preprocess_node(&$variables) {
@@ -338,10 +357,10 @@ function foundation_access_file($variables) {
   $element = $variables['element'];
   $element['#attributes']['type'] = 'file';
   element_set_attributes($element, array('id', 'name', 'size'));
-  _form_set_class($element, array('form-file'));
+  _form_set_class($element, array('form-file', 'elmsln-file-input'));
   // apply classes and wrappers needed for materializecss
   return '<div class="col s12 m8 file-field input-field">
-      <div class="btn">
+      <div class="btn" tabindex="-1">
         <span>' . $element['#title'] . '</span>
         <input' . drupal_attributes($element['#attributes']) . ' />
       </div>
@@ -357,7 +376,7 @@ function foundation_access_file($variables) {
 function foundation_access_css_alter(&$css) {
   // Remove Drupal core CSS except system base
   foreach ($css as $path => $values) {
-    if (strpos($path, 'modules/') === 0 && !in_array($path, array('modules/contextual/contextual.css', 'modules/system/system.base.css'))) {
+    if (strpos($path, 'modules/') === 0 && !in_array($path, array('modules/contextual/contextual.css'))) {
       unset($css[$path]);
     }
   }
@@ -911,7 +930,9 @@ function foundation_access_menu_link(&$variables) {
   }
   // @todo apply tabs here when we get the targetting / style figured out
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
-    $element['#localized_options']['attributes']['class'][] = 'tab';
+    $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+    $element['#attributes']['class'][] = 'tab';
+    $element['#localized_options']['attributes']['class'][] = $lmsless_classes['text'];
     $element['#localized_options']['attributes']['target'] = '_self';
   }
   $output = l($title, $element['#href'], $element['#localized_options']);
@@ -929,7 +950,7 @@ function foundation_access_menu_tree__menu_elmsln_settings($variables) {
  * Implements menu_tree__menu_elmsln_navigation.
  */
 function foundation_access_menu_tree__menu_elmsln_navigation($variables) {
-  return '<ul class="tabs">' . $variables['tree'] . '</ul>';
+  return '<ul class="elmsln-tabs tabs">' . $variables['tree'] . '</ul>';
 }
 
 /**
@@ -986,7 +1007,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
   if ($element['#below']) {
     $sub_menu = drupal_render($element['#below']);
   }
-  $id = 'zfa-menu-panel-' . $element['#original_link']['mlid'];
+  $id = 'menu-panel-' . $element['#original_link']['mlid'];
   // account for no link'ed items
   if ($element['#href'] == '<nolink>') {
     $output = '<a href="#">' . $title . '</a>';
@@ -1162,7 +1183,7 @@ function foundation_access_preprocess_cis_dashbord(&$variables, $hook) {
  * Implements hook_form_alter().
  */
 function foundation_access_form_alter(&$form, &$form_state, $form_id) {
-  // drop zurb core class stuff
+  // drop core class stuff
   if (!empty($form['actions']) && !empty($form['actions']['submit'])) {
     unset($form['actions']['submit']['#attributes']['class']);
   }
@@ -1343,6 +1364,53 @@ function foundation_access_pager($variables) {
     $pager_links = drupal_render($pager_links);
     return '<h2 class="element-invisible">' . t('Pages') . '</h2>' . $pager_links;
   }
+}
+
+/**
+ *  Themes status messages
+ */
+function foundation_access_status_messages($variables) {
+  $display = $variables['display'];
+  $output = '';
+
+  $status_heading = array(
+    'error' => t('Error message'),
+    'status' => t('Status message'),
+    'warning' => t('Warning message'),
+  );
+
+  $status_mapping = array(
+    'error' => 'alert',
+    'status' => 'success',
+    'warning' => 'secondary'
+  );
+
+  foreach (drupal_get_messages($display) as $type => $messages) {
+    if (isset($status_mapping[$type])) {
+      $output .= "<div data-alert class=\"alert-box $status_mapping[$type]\">\n";
+    }
+    else {
+      $output .= "<div data-alert class=\"alert-box\">\n";
+    }
+
+    if (!empty($status_heading[$type])) {
+      $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
+    }
+    if (count($messages) > 1) {
+      $output .= " <ul class=\"no-bullet\">\n";
+      foreach ($messages as $message) {
+        $output .= '  <li>' . $message . "</li>\n";
+      }
+      $output .= " </ul>\n";
+    }
+    else {
+      $output .= $messages[0];
+    }
+    $output .= '<a href="#" class="close">&times;</a>';
+    $output .= "</div>\n";
+  }
+
+  return $output;
 }
 
 /**
