@@ -228,14 +228,19 @@ function _cis_lmsless_assemble_network() {
         );
       }
     }
-    // ensure that there's at least the current if no services selected
-    if (!isset($list)) {
-      $list[$service_group][$machine_name] = $vars['active'];
-    }
     // allow theme to override this if set
     $theme_override = theme_get_setting('foundation_access_system_label');
     if (!empty($theme_override)) {
       $vars['active']['title'] = $theme_override;
+    }
+    // special exception for inbox as it's not an administrative system but is authority
+    if (isset($reg['inbox'])) {
+      $addr = explode('.', $reg['inbox']['address']);
+      $list[$service_group][$addr[0]] = array(
+        'title' => $reg['inbox']['default_title'],
+        'url' => url(_cis_connector_format_address($reg['inbox'],  '/' . $course_context, 'front')),
+        'machine_name' => $addr[0],
+      );
     }
     // add in links to the Authority systems if permission exists
     // @ignore druplart_conditional_assignment
@@ -243,7 +248,7 @@ function _cis_lmsless_assemble_network() {
     if (user_access('view lmsless administration links') && is_array($reg)) {
       foreach ($reg as $key => $value) {
         $addr = explode('.', $value['address']);
-        if (isset($value['instance']) && !$value['instance']) {
+        if (isset($value['instance']) && !$value['instance'] && $key != 'inbox') {
           $list[$administrative][$addr[0]] = array(
             'title' => $reg[$key]['default_title'],
             'url' => url(_cis_connector_format_address($reg[$key],  '/' . $course_context, 'front')),
@@ -257,15 +262,11 @@ function _cis_lmsless_assemble_network() {
         $vars['service_option_link'] = _cis_connector_format_address($reg['cis'],  '/' . $course_context, 'front') . '/service-instances';
       }
     }
-    // special exception for inbox as it's not an administrative system but is authority
-    if (isset($reg['inbox'])) {
-      unset($list[$administrative]['inbox']);
-      $addr = explode('.', $reg['inbox']['address']);
-      $list[$service_group][$addr[0]] = array(
-        'title' => $reg['inbox']['default_title'],
-        'url' => url(_cis_connector_format_address($reg['inbox'],  '/' . $course_context, 'front')),
-        'machine_name' => $addr[0],
-      );
+    // sort by title so that network icons are in alphabetical order
+    foreach ($list as &$order) {
+      usort($order, function($a, $b) {
+        return strcmp($a['title'], $b['title']);
+      });
     }
     $vars['services'] = $list;
     drupal_alter('cis_lmsless_theme_vars', $vars);
