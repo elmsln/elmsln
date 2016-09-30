@@ -1,8 +1,677 @@
+/* cis lmsless nav */
+.left-nav-section {
+  display: flex;
+  margin-left: -.6rem;
+}
+.left-nav-section li {
+  display: inline-block;
+  margin: -.1rem 0 0;
+  padding: .2rem 0;
+  height: 4.5rem;
+  line-height: 4.5rem;
+  min-width: 4.5rem;
+}
+nav ul.left-nav-section a {
+  padding: 0 .5rem;
+  height: 4.4rem;
+  line-height: 4.4rem;
+  min-width: 4.4rem;
+}
+nav ul.left-nav-section a span {
+  margin: 0 .5rem;
+}
+nav ul.left-nav-section a i,
+nav ul.left-nav-section a div,
+nav ul.left-nav-section a img {
+  margin: auto;
+}
+.cis-lmsless-avatar,
+.cis-lmsless-network {
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+/* Avoid .progress conflict with materialize */
+.page-scroll.progress {
+  border-radius: 0;
+}
+/* System badge */
+.elmsln-system-badge {
+  position: absolute;
+  z-index: 5;
+  -o-transition:.3s;
+  -ms-transition:.3s;
+  -moz-transition:.3s;
+  -webkit-transition:.3s;
+  transition:.3s;
+  height: 5.5rem;
+  width: 7.5rem;
+}
+@media screen and (max-width: 600px) {
+  .elmsln-system-badge {
+    top: .5rem;
+    right: 2rem;
+    transform:scale(.5,.5);
+  }
+}
+@media screen and (min-width: 600px) {
+  .elmsln-system-badge {
+    top: .5rem;
+    right: 4rem;
+    transform:scale(.75,.75);
+  }
+}
+@media screen and (min-width: 992px) {
+  .elmsln-system-badge {
+    top: 5.5rem;
+    right: 15rem;
+    transform:scale(1,1);
+  }
+}
+@media screen and (min-width: 1200px) {
+  .elmsln-system-badge {
+    top: 5.5rem;
+    right: 20rem;
+    transform:scale(1,1);
+  }
+}
+
+.elmsln-system-badge .elmsln-badge {
+  height: 3rem;
+  width: 3rem;
+  position: absolute;
+  margin: 1.25rem .75rem;
+  z-index: 4;
+}
+.elmsln-system-badge .elmsln-badge-middle-name {
+  position: absolute;
+  margin: 1.25rem 0 0 4.25rem;
+  height: 2.75rem;
+  border-top-width: .2rem;
+  border-bottom-width: .2rem;
+  border-right-width: .2rem;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-right-style: solid;
+  line-height: 2.5rem;
+  padding: 0 1rem;
+  font-size: .8rem;
+  white-space: nowrap;
+  box-shadow: 5px 20px 30px 0 rgba(0,0,0,0.2);
+  z-index: 2;
+}
+
+.elmsln-system-badge .elmsln-badge-inner {
+  position: absolute;
+  z-index: 3;
+  width: 5rem;
+  height: 5rem;
+  margin: .25rem .25rem;
+}
+.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-top {
+  width: 0;
+  border-bottom-width: 1.2rem;
+  border-bottom-style: solid;
+  border-left: 2rem solid transparent;
+  border-right: 2rem solid transparent;
+}
+.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-middle {
+  width: 4rem;
+  height: 2.4rem;
+  position: relative;
+  z-index: 10;
+}
+.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-bottom {
+  width: 0;
+  border-top-width: 1.2rem;
+  border-top-style: solid;
+  border-left: 2rem solid transparent;
+  border-right: 2rem solid transparent;
+  position: relative;
+}
+
+.elmsln-system-badge .elmsln-badge-outer {
+  position: absolute;
+  z-index: 2;
+}
+.elmsln-system-badge .elmsln-badge-outer .elmsln-badge-top {
+  width: 0;
+  border-bottom-width: 1.35rem;
+  border-bottom-style: solid;
+  border-left: 2.25rem solid transparent;
+  border-right: 2.25rem solid transparent;
+  position: relative;
+}
+.elmsln-system-badge .elmsln-badge-outer .elmsln-badge-middle {
+  width: 4.5rem;
+  height: 2.7rem;
+  box-shadow: 0 20px 30px 0 rgba(0,0,0,0.2),0 0px 30px 0 rgba(0,0,0,0.4);
+}
+.elmsln-system-badge .elmsln-badge-outer .elmsln-badge-bottom {
+  width: 0;
+  border-top-width: 1.35rem;
+  border-top-style: solid;
+  border-left: 2.25rem solid transparent;
+  border-right: 2.25rem solid transparent;
+}
+
+
+/* etb / app.css conflcting with materialize menu */
+ul.dropdown-content ul {
+  margin: 0;
+}
+.dropdown-content li {
+  min-height: initial;
+}
+ul.dropdown-content li:not(.has-form) a:not(.button) {
+  color: #333333;
+}
+ul.dropdown-content li a {
+  background-color: transparent;
+  line-height: 2.25rem;
+  padding: .5rem !important;
+  display: block;
+  font-weight: normal;
+}
+ul.dropdown-content.book-sibling-children {
+  max-height: 20rem;
+  min-width: 12rem;
+}
+ul.dropdown-content .button-group > li {
+  display: block;
+  margin: 0;
+}
+.top-bar-section ul li > a {
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.dropdown-content li span.cis_accessibility_check {
+  margin:0;
+  padding: 0;
+}
+
+/* materialize dropdown modifications */
+ul.dropdown-content {
+  display: none;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* materialize paralax modifications */
+.parallax-container {
+  height: 10rem;
+}
+
+/* header banner image falling under the content */
+.header-image-container {
+  width: 100%;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  height: 8rem;
+  min-height: 8rem;
+}
+.header-image-container img {
+  display: block;
+  top:-1rem;
+  min-height: 8rem;
+}
+
+/* tab support */
+.tabs .tab {
+  min-width: 100px;
+}
+
+/* Materialize Waves additional colors */
+.waves-effect.waves-blue .waves-ripple {
+  /* The alpha value allows the text and background color of the button to still show through. */
+  background-color: rgba(187, 222, 251, 0.65);
+}
+.waves-effect.waves-amber .waves-ripple {
+  background-color: rgba(255, 236, 179, 0.65);
+}
+.waves-effect.waves-lime .waves-ripple {
+  background-color: rgba(240, 244, 195, 0.65);
+}
+.waves-effect.waves-deep-orange .waves-ripple {
+  background-color: rgba(255, 204, 188, 0.65);
+}
+.waves-effect.waves-light-blue .waves-ripple {
+  background-color: rgba(179, 229, 252, 0.65);
+}
+.waves-effect.waves-pink .waves-ripple {
+  background-color: rgba(248, 187, 208, 0.65);
+}
+.waves-effect.waves-light-green .waves-ripple {
+  background-color: rgba(220, 237, 200, 0.65);
+}
+
+/* consistend focus state presentation */
+a:focus,
+button:focus,
+i:focus,
+li:focus {
+  outline: solid .1rem #0078a0;
+}
+/* Materialize Outline classes */
+.blue-outline {
+  outline-color: #2962ff !important;
+}
+.amber-outline {
+  outline-color: #ffab00 !important;
+}
+.teal-outline {
+  outline-color: #00bfa5 !important;
+}
+.yellow-outline {
+  outline-color: #ffd600 !important;
+}
+.grey-outline {
+  outline-color: #212121 !important;
+}
+.cyan-outline {
+  outline-color: #00b8d4 !important;
+}
+.orange-outline {
+  outline-color: #ff6d00 !important;
+}
+.red-outline {
+  outline-color: #d50000 !important;
+}
+.deep-orange-outline {
+  outline-color: #dd2c00 !important;
+}
+.lime-outline {
+  outline-color: #aeea00 !important;
+}
+.pink-outline {
+  outline-color: #c51162 !important;
+}
+.purple-outline {
+  outline-color: #aa00ff !important;
+}
+.light-green-outline {
+  outline-color: #64dd17 !important;
+}
+.light-blue-outline {
+  outline-color: #01579b !important;
+}
+.white-outline {
+  outline-color: #ffffff !important;
+}
+
+/* Materialize Border classes */
+.blue-border {
+  border-color: #2196F3;
+}
+.amber-border {
+  border-color: #ffc107;
+}
+.teal-border {
+  border-color: #009688;
+}
+.yellow-border {
+  border-color: #ffeb3b;
+}
+.grey-border {
+  border-color: #9e9e9e;
+}
+.cyan-border {
+  border-color: #00bcd4;
+}
+.orange-border {
+  border-color: #ff9800;
+}
+.red-border {
+  border-color: #f44336;
+}
+.deep-orange-border {
+  border-color: #ff5722;
+}
+.lime-border {
+  border-color: #cddc39;
+}
+.pink-border {
+  border-color: #e91e63;
+}
+.purple-border {
+  border-color: #9c27b0;
+}
+.light-green-border {
+  border-color: #8bc34a;
+}
+.light-blue-border {
+  border-color: #03a9f4;
+}
+.white-border {
+  border-color: #ffffff;
+}
+/* Materialize accessible text variants */
+.accessible-blue-text {
+  color: #085390 !important;
+}
+.accessible-deep-orange-text {
+  color: #a72700 !important;
+}
+.accessible-red-text {
+  color: #a41309 !important;
+}
+.accessible-amber-text {
+  color: #833900 !important;
+}
+.accessible-teal-text {
+  color: #00554d !important;
+}
+.accessible-orange-text {
+  color: #653c00 !important;
+}
+.accessible-yellow-text {
+  color: #463f00 !important;
+}
+.accessible-lime-text {
+  color: #474d0e !important;
+}
+.accessible-light-blue-text {
+  color: #025277 !important;
+}
+.accessible-light-green-text {
+  color: #3c571d !important;
+}
+.accessible-pink-text {
+  color: #9d0f3f !important;
+}
+
+/* form override for core and materialize */
+.container-inline div, .container-inline label {
+  display: block;
+}
+.input-field label {
+  color:#515151;
+}
+
+/* top bar profile divider */
+.divider-right {
+  border-right: 0.0625rem solid #ccc;
+}
+
+/* CIS filter / submit widget */
+.cis-filter-activity-item .material-icons {
+  font-size:3rem;
+  margin-top:1rem;
+  opacity:.8;
+}
+
+/* tweaks to side-nav padding / structure */
+.side-nav a.btn-flat {
+   padding: 10px 15px;
+   margin: 0;
+   line-height: 2rem;
+}
+
+.side-nav li>a>i, .side-nav li>a>[class^="mdi-"], .side-nav li>a>[class*="mdi-"], .side-nav li>a>i.material-icons {
+  line-height: 2.75rem;
+}
+
+.side-nav a span {
+  line-height: 3rem;
+  height: 3rem;
+  padding: 0;
+  margin:0;
+}
+
+.side-nav .divider {
+  margin: 0;
+}
+.side-nav .userView {
+  padding: 2rem;
+}
+.side-nav .userView a {
+  height: 1rem;
+}
+
+.collapsible-header-trigger {
+
+}
+.collapsible-header-trigger:hover {
+  background-color: initial;
+}
+
+.collapsible-body p{
+  padding: 0;
+}
+
+.collapsible-body .elmsln-collapsible-body {
+  padding: 2rem;
+}
+
+.collapsible-body .elmsln-collapsible-body .a11y-textsize-controls a {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+.form-item .description {
+  margin: 0;
+  padding: 0;
+  font-size: .8rem;
+  line-height: 1rem;
+}
+
+/* Page tweaks to undo our app.css stuff */
+ul.pagination li {
+  float: none;
+  display: inline-block;
+  height: 2rem;
+  width: 2rem;
+}
+ul.pagination li a {
+  height: 2rem;
+  width: 2rem;
+}
+
+/* Admin menu tweaks to get things at the right height in the document */
+#admin-menu, #admin-menu .dropdown {
+  z-index: 100000;
+}
+.sticky-wrapper.is-sticky {
+  z-index: 9988 !important;
+}
+
+/* ELMSLN app.css conflicts w/ menu items */
+.etb-modal-icons {
+  height: 3rem;
+}
+#block-cis-lmsless-cis-lmsless-network-nav-modal .etb-modal-icons {
+  margin-top: .5rem;
+  margin-right: 1rem;
+}
+
+/* ELMSLN Materialize modal tweaks */
+.elmsln-modal-title-wrapper {
+  height: 2.5rem;
+  padding: 2rem 0;
+  border-bottom-style: solid;
+  border-bottom-width: .2rem;
+}
+.elmsln-modal-title {
+  margin: 0;
+  width: 100%;
+}
+.elmsln-modal-content {
+  margin-top: 2rem;
+}
+.elmsln-modal .close-reveal-modal {
+  color: #4c4c4c;
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  padding: 2rem 0.25rem;
+}
+
+.elmsln-modal .close-reveal-side-nav {
+  color: #4c4c4c;
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  padding: 2rem 0.25rem;
+}
+
+.elmsln-modal.side-nav {
+  z-index: 10001;
+}
+.elmsln-modal.modal {
+  z-index: 10002 !important;
+  padding: 2rem 4rem;
+}
+.elmsln-modal-hidden {
+  display: none;
+}
+
+/* Materialize scrollspy */
+#scrollspy-nav {
+  display: none;
+}
+#scrollspy-nav li.scrollspy-depth-1 {
+}
+#scrollspy-nav li.scrollspy-depth-2 {
+  padding-left:.75rem;
+}
+#scrollspy-nav li.scrollspy-depth-3 {
+  padding-left:1.5rem;
+}
+#scrollspy-nav li.scrollspy-depth-4 {
+  padding-left:2.25rem;
+}
+
+#scrollspy-nav .scrollspy-link.active {
+  border-left: unset;
+  border-left-style: solid;
+  border-left-width: .2rem;
+}
+.table-of-contents a.active {
+  color:unset;
+}
+ul.scrollspy-toc.table-of-contents {
+  margin-left: 0;
+}
+@media screen and (min-width: 80rem) {
+  #scrollspy-nav {
+    position: absolute !important;
+    left: 100%;
+    width: calc(50vw - 52%);
+    max-width: 30em;
+    display: block;
+  }
+}
+
+/* fix for Drupal checkboxes that don't have a label in material */
+div.form-type-checkbox :last-child {
+  position: relative;
+  opacity:1;
+  left:auto;
+}
+
+#block-cis-shortcodes-cis-shortcodes-block-nav-modal {
+  bottom:10%;
+}
+#block-speedreader-speedreader-block-nav-modal {
+  top:25% !important;
+  left: 25%;
+  width: 50%;
+  height: 50%;
+}
+
+#block-speedreader-speedreader-block-nav-modal .words {
+  margin: 1rem auto;
+}
+a[data-reveal-id="block-speedreader-speedreader-block-nav-modal"] {
+  font-size: 1.5rem;
+}
+.spritz-word {
+  font-size: 5rem;
+  line-height: 9.5rem;
+  height: 50%;
+}
+.a11y-invert .etb-modal-icons,
+.a11y-invert .etb-icons {
+  background-color: #FFFF00 !important;
+}
+.a11y-invert .f-dropdown--classic li a {
+  color: #FFFFFF !important;
+}
+
+/* ELMSLN Materialize action button tweaks */
+.elmsln-fixed-action-btn {
+  z-index: 10000;
+}
+.elmsln-fixed-action-btn ul {
+  left: initial;
+}
+.elmsln-fixed-action-btn ul li {
+  margin-bottom: 0.5rem;
+}
+
+.elmsln-btn-floating {
+  display: inline-block;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  width: 5.25rem;
+  height: 2rem;
+  line-height: 2rem;
+  padding: 0 0 0 0.25rem;
+  background-color: #26a69a;
+  border-radius: .25rem;
+  transition: .3s;
+  cursor: pointer;
+  vertical-align: middle;
+  font-size: .5rem;
+}
+
+a.elmsln-btn-floating:hover {
+  color:#ffee58;
+}
+
+.elmsln-btn-floating i {
+  width: initial;
+  font-size: 1rem;
+  line-height: 2rem;
+}
+
+.elmsln-btn-floating i.left {
+  margin-right:0;
+}
+
+/* left and right minor drop shadows to reflect direction */
+.page-previous.elmsln-z-depth-0 {
+  box-shadow: -1px 1px 1px 0px rgba(0,0,0,0.12);
+}
+.page-next.elmsln-z-depth-0 {
+  box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.12);
+}
+
 /* Sticky footer from MaterializeCSS */
 body {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
+}
+/* ensure iframes still resize correctly */
+body.entity-iframe-theme {
+  display: block;
 }
 
 main {
@@ -10,11 +679,11 @@ main {
 }
 
 footer.page-footer{
-  background-color: #3e3e3e;
+  background-color: #f5f5f5;
   padding-top: 1rem;
   text-align: center; }
   footer.page-footer p {
-    color: #999;
+    color: #222222;
     font-size: 0.8rem; }
 
 /* undo core error message conflict */
@@ -105,15 +774,6 @@ div.error {
 height: 400px;
 }
 
-#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
-  display: block;
-  width: 100%;
-}
-
-#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li:hover {
-  background-color: #dddddd;
-}
-
 /* chosen select support */
 select.chosen {
   display: initial;
@@ -128,6 +788,7 @@ select.chosen {
   opacity: .8;
   width: 2.25rem;
   line-height: 2.25rem;
+  margin-top: .25rem;
 }
 
 .imagelightbox__close {
@@ -136,10 +797,6 @@ select.chosen {
 }
 
 .image__cite, .image--lightboxed__cite {
-  color:#4c4c4c;
-}
-
-.reveal-modal .close-reveal-modal {
   color:#4c4c4c;
 }
 
@@ -165,10 +822,6 @@ div.read-time-wrapper div.chip i {
   }
 }
 
-/* improve shortcode modal usability */
-#block-cis-shortcodes-cis-shortcodes-block-nav-modal {
-  bottom:10%;
-}
 #page-accessibility-menu {
   bottom:10%;
 }
@@ -204,15 +857,11 @@ div.read-time-wrapper div.chip i {
 } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
 
 .elmsln-scroll-bar::-webkit-scrollbar {
-      width: 1rem;
-      height: 1rem;
+      width: .5rem;
+      height: .5rem;
 } /* this targets the default scrollbar (compulsory) */
 
 /* end scroll bar styling */
-
-.parallax-container {
-  height: 150px;
-}
 
 #edit-body .cke_chrome {
   border-top: 0;
@@ -223,6 +872,9 @@ div.read-time-wrapper div.chip i {
   z-index: 1;
 }
 
+article.node-view-mode-full {
+  margin-top: 2rem;
+}
 /* ELMSLN bullets */
 article.node div.body ul li {
   list-style-type: initial;
@@ -245,32 +897,6 @@ input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] inp
   background-color: initial;
 }
 
-/* Materialize scrollspy */
-
-#scrollspy-nav {
-  display: none;
-}
-#scrollspy-nav li.scrollspy-depth-1 {
-}
-#scrollspy-nav li.scrollspy-depth-2 {
-  padding-left:.75rem;
-}
-#scrollspy-nav li.scrollspy-depth-3 {
-  padding-left:1.5rem;
-}
-#scrollspy-nav li.scrollspy-depth-4 {
-  padding-left:2.25rem;
-}
-@media screen and (min-width: 80rem) {
-  #scrollspy-nav {
-    position: absolute !important;
-    left: 100%;
-    width: calc(50vw - 52%);
-    max-width: 30em;
-    display: block;
-  }
-}
-
 #etb-course-nav nav {
   box-shadow:none;
 }
@@ -283,12 +909,6 @@ input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] inp
   opacity: .4 !important;
 }
 
-/* fix for Drupal checkboxes that don't have a label in material */
-div.form-type-checkbox :last-child {
-  position: relative;
-  opacity:1;
-  left:auto;
-}
 #od_popup table input[type="radio"]:not(:checked), #od_popup table input[type="radio"]:checked {
   position: relative;
   opacity:1;
@@ -315,14 +935,6 @@ div.form-type-checkbox :last-child {
   width: inherit;
 }
 
-.a11y-invert .etb-modal-icons,
-.a11y-invert .etb-icons {
-  background-color: #FFFF00 !important;
-}
-.a11y-invert .f-dropdown--classic li a {
-  color: #FFFFFF !important;
-}
-
 a.add-menu-drop {
   float: left;
   margin-right: 2rem !important;
@@ -342,10 +954,14 @@ a.add-menu-drop {
 
 #etb-course-nav {
   margin: 0;
+  border-bottom: none;
+  border-top-width: .2rem;
+  border-top-style: solid;
 }
 #etb-course-nav span.course-title,
 #etb-course-nav span.course-abrv {
   justify-content: flex-end;
+  color:#424242;
 }
 
 .ferpa-privacy-blur {
@@ -382,73 +998,15 @@ a.add-menu-drop {
   opacity: 0.1;
 }
 
-#block-mooc-nav-block-mooc-nav-nav {
-  border:1px solid #cccccc;
-  border-radius: 1rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-#block-mooc-nav-block-mooc-nav-nav ul{
-  margin: 0;
-  list-style: none;
-}
-
-#block-mooc-nav-block-mooc-nav-nav li {
-  clear: both;
-  padding: .25rem;
-}
-
-#block-mooc-nav-block-mooc-nav-nav li.active-trail {
-  background-color: #eeeeee;
-}
-
-.mooc-nav-block-left {
-  float: left;
-  margin-right: 1rem;
-}
-.mooc-nav-block-right {
-  float: right;
-  margin-left: 1rem;
-}
-
 #backtotop {
   background: url(../img/backtotop.png) no-repeat center center;
-  right:0px;
-  bottom: 0px;
+  right: 1rem;
+  bottom: 1rem;
   z-index: 1000;
+  width: 2rem;
+  height: 2rem;
 }
 
-@media (-webkit-min-device-pixel-ratio: 2),
-(min-resolution: 192dpi) {
-  #backtotop {
-    background: url(../img/backtotop2x.png) no-repeat center center;
-    background-size: 70px 70px;
-  }
-}
-
-.elmsln-home-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-.elmsln-home-button-link {
-  padding: 0;
-  margin: 0 1rem 0;
-  font-size: 1rem;
-  line-height: 2.5rem;
-}
-@media all and (max-width: 720px) {
-  .elmsln-home-button-link span {
-    position: absolute;
-    left:-9999999;
-    opacity: 0;
-  }
-}
-
-.cis-lmsless-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-}
 ul.header-menu-options {
   padding: 0;
   max-width: 100%;
@@ -525,27 +1083,6 @@ ul.header-menu-options li.active-trail {
   border-radius: 10px;
 }
 
-#block-speedreader-speedreader-block-nav-modal {
-  top:25% !important;
-  left: 25%;
-  width: 50%;
-  height: 50%;
-}
-
-#block-speedreader-speedreader-block-nav-modal .words {
-  margin: 1rem auto;
-}
-
-a[data-reveal-id="block-speedreader-speedreader-block-nav-modal"] {
-  font-size: 1.5rem;
-}
-
-.spritz-word {
-  font-size: 5rem;
-  line-height: 9.5rem;
-  height: 50%;
-}
-
 .entity_iframe_tool_icor {
   border: 2px solid #eeeeee;
  }
@@ -567,27 +1104,43 @@ a[data-reveal-id="block-speedreader-speedreader-block-nav-modal"] {
 }
 
 h1#page-title {
-  font-size: 2.75rem;
-  line-height: 2.75rem;
-  padding: 0rem 0 .5rem;
+  color: #222222;
+  font-size: 2.5rem;
+  line-height: 2.25rem;
+  padding: 0;
+  margin-bottom:.5rem;
+  text-align: left;
+  text-transform: none;
+}
+
+.read-time {
+  float: right;
+  margin-top:-4.5rem;
 }
 
 .etb-book h2 {
   font-size: 2.25rem;
   font-weight: bold;
   padding: 0;
+  color: #222222;
 }
 
 .etb-book h3 {
   font-size: 1.75rem;
   font-weight: bold;
   padding: 0;
+  color: #222222;
 }
 
 .etb-book h4 {
   font-size: 1.25rem;
   font-weight: bold;
   padding: 0;
+  color: #222222;
+}
+
+.etb-book li {
+  line-height: 2.25rem;
 }
 
 /* inline flex support in browsers that don't support it currently */
@@ -642,7 +1195,7 @@ table th {
 }
 
 tr.even:hover, tr.odd:hover {
-  background: #FFF9C4;
+  background: #cfd8dc;
 }
 
 .marker,
@@ -775,7 +1328,7 @@ fieldset {
 }
 
 legend + .fieldset-wrapper {
-    padding-top: 2.5rem;
+    padding-top: 4rem;
 }
 
 fieldset.bef-select-as-radios-fieldset.collapsed legend,
@@ -785,18 +1338,17 @@ fieldset.bef-select-as-checkboxes-fieldset.collapsed legend
 }
 
 .fieldset-description {
-  padding-top: 28px;
-  padding-bottom: 20px;
+  padding: 1rem 0;
   color: #222222;
 }
 
 .text-format-wrapper fieldset.filter-wrapper {
   box-shadow: none;
-  border: 1px solid #DDD;
+  border: none;
   border-top: 0;
   border-radius: 0;
-  margin: -1.6rem 0 0 0;
-  padding: .25rem;
+  margin: 0;
+  padding: 0;
 }
 
 .horizontal-tabs-panes fieldset.horizontal-tabs-pane {
@@ -826,7 +1378,7 @@ table th {
 
 table tr.add-new,
 table tr.add-new:hover {
-  background-color: #E8F5E9;
+  background-color: #cfd8dc;
 }
 
 table tbody td a {
@@ -847,7 +1399,7 @@ button.form-submit,
 a.button,
 div.exposed-filters button#edit-submit {
   cursor: pointer;
-  background: #BBBBBB;
+  background: #145650;
   border: none;
   color: #fff;
   text-align: center;
@@ -858,33 +1410,9 @@ div.exposed-filters button#edit-submit {
   transition: all, 0.3s;
 }
 
-button[type="submit"]:hover,
-button.form-submit:hover,
-a.button:hover,
-div.exposed-filters button#edit-submit:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,.2);
-}
-
-button[type="submit"]:active,
-button.form-submit:active,
-a.button:active,
-div.exposed-filters button#edit-submit:active {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-button[type="submit"]:focus,
-button.form-submit:focus,
-a.button:focus,
-div.exposed-filters button#edit-submit:focus {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-
 /* Green Button */
 i.zmdi-save {
- color: #0E9C57;
+ color: #225c35;
 }
 button[type="submit"][id^="edit-submit"],
 button#edit-actions-submit,
@@ -899,46 +1427,11 @@ button#edit-actions-save {
   text-align: center;
   font-weight: normal;
   font-size: 1.077em;
-  background: #0E9C57;
+  background: #225c35;
   color: #fff;
   font-weight: 500;
   text-transform: uppercase;
   border-radius: 0.2rem;
-}
-
-button[type="submit"][id^="edit-submit"]:hover,
-button#edit-actions-submit:hover,
-button[id^="save-continue"]:hover,
-button[type="submit"][id^="edit-save"]:hover,
-button#edit-save:hover,
-button#edit-submit:hover,
-button#edit-addanother:hover,
-button#edit-actions-save:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,.3);
-}
-
-button[type="submit"][id^="edit-submit"]:active,
-button#edit-actions-submit:active,
-button[id^="save-continue"]:active,
-button[type="submit"][id^="edit-save"]:active,
-button#edit-save:active,
-button#edit-submit:active,
-button#edit-addanother:active,
-button#edit-actions-save:active {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-button[type="submit"][id^="edit-submit"]:focus,
-button#edit-actions-submit:focus,
-button[id^="save-continue"]:focus,
-button[type="submit"][id^="edit-save"]:focus,
-button#edit-save:focus,
-button#edit-submit:focus,
-button#edit-addanother:focus,
-button#edit-actions-save:focus {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
 }
 
 /* Red Button */
@@ -962,36 +1455,6 @@ button[id*="remove-button"],
   transition: all, 0.3s;
 }
 
-button#edit-delete:hover,
-button#remove-button:hover,
-button#edit-remove:hover,
-button#edit-clear:hover,
-a.button.remove:hover,
-button[id*="remove-button"]:hover,
-.page-node-delete button#edit-submit:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,.3);
-}
-
-button#edit-delete:active,
-button#remove-button:active,
-button#edit-remove:active,
-button#edit-clear:active,
-button[id*="remove-button"]:active,
-.page-node-delete button#edit-submit:active {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-button#edit-delete:focus,
-button#remove-button:focus,
-button#edit-remove:focus,
-button#edit-clear:focus,
-button[id*="remove-button"]:focus,
-.page-node-delete button#edit-submit:focus {
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
 /* Blue Button */
 button#edit-preview-changes,
 button#edit-next,
@@ -1008,33 +1471,6 @@ button[type="submit"][id^="edit-return"] {
   text-transform: uppercase;
   border-radius: 0.2rem;
   transition: all, 0.3s;
-}
-
-button#edit-preview-changes:hover,
-button#edit-next:hover,
-button#preview-submit:hover,
-button[type="submit"][id^="edit-return"]:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,.3);
-}
-
-button#edit-preview-changes:active,
-button#edit-next:active,
-button#preview-submit:active,
-button[type="submit"][id^="edit-return"]:active {
-  border: none;
-  color: #fff;
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
-}
-
-button#edit-preview-changes:focus,
-button#edit-next:focus,
-button#preview-submit:focus,
-button[type="submit"][id^="edit-return"]:focus {
-  border: none;
-  color: #fff;
-  outline: none;
-  box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
 }
 
 div.horizontal-tabs ul li.horizontal-tab-button strong {

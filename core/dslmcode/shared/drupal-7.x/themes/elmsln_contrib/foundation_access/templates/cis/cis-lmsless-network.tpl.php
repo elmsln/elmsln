@@ -3,34 +3,25 @@
    * CIS LMS-less Network block template.
    */
 ?>
-  <h1><?php print $site_name; ?></h1>
-  <?php if (isset($service_option_link)) : ?>
-    <div class="minimal-edit-buttons in-modal">
-    <a class="off-canvas-toolbar-item toolbar-menu-icon" href="#" data-dropdown="eco-services-edit-menu-1" aria-controls="offcanvas-admin-menu" aria-expanded="false">
-      <span class="element-invisible"><?php print t('Additional network operations'); ?></span>
-      <div class="icon-chevron-down-black off-canvas-toolbar-item-icon"></div>
-    </a>
-  </div>
-  <!-- Menu Item Dropdowns -->
-  <div id="eco-services-edit-menu-1" data-dropdown-content class="f-dropdown content" aria-hidden="true" tabindex="-1">
-    <ul class="button-group">
-      <li><?php print l(t('Add services'), $service_option_link); ?></li>
-      <li><?php print l(t('Edit this list'), 'admin/config/user-interface/cis-lmsless-nav'); ?></li>
-    </ul>
-  </div>
-  <?php endif; ?>
+  <li class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background cis-lmsless-border"><h1 class="flow-text valign elmsln-modal-title"><?php print $site_name; ?></h1></li>
   <!-- End Menu Item Dropdowns -->
   <?php foreach ($services as $title => $items) : ?>
-    <hr/>
-    <h2><?php print t('@title', array('@title' => $title)); ?></h2>
-    <?php foreach ($items as $service) : ?>
-      <a href="<?php print $service['url']; ?>" class=" etb-modal-icon <?php print $service['machine_name']; ?>-icon row"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>">
+    <li><div class="divider"></div></li>
+    <li><a class="subheader"><?php print t('@title', array('@title' => $title)); ?></a></li>
+    <?php
+      foreach ($items as $service) :
+        $activetool = '';
+        if ($service['machine_name'] == $active['machine_name']) {
+          $activetool = 'active ';
+        }
+    ?>
+      <li><a href="<?php print $service['url']; ?>" class="waves-effect cis-lmsless-waves etb-modal-icon <?php print $activetool . $service['machine_name']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>">
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <div class="etb-modal-icons etb-modal-material-icons"><i class="zmdi zmdi-<?php print $service['machine_name']; ?>"></i></div>
       <?php else: ?>
         <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
       <?php endif; ?>
         <span class=""><?php print $service['title']; ?></span>
-      </a>
+      </a></li>
     <?php endforeach ?>
   <?php endforeach ?>

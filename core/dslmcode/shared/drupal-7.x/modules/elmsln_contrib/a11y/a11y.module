@@ -45,23 +45,32 @@ function a11y_block_view($delta = '') {
 /**
  * Renders the default a11y block.
  */
-function a11y_a11y_block() {
+function a11y_a11y_block($render = TRUE) {
   // apply the css / js as selected
   a11y_apply_a11y();
-  $output = '';
+  if ($render) {
+    $output = '';
+  }
+  else {
+    $output = array();
+  }
   // assemble the user alterations to the interface
   $alters = array(
     '#type' => 'fieldset',
-    '#title' => t('Alter interface'),
+    '#title' => t('Interface'),
     '#description' => t('Adjust the interface to make it easier to use for different conditions.'),
     '#collapsed' => TRUE,
     '#collapsible' => TRUE,
-    '#weight' => 9,
+    '#weight' => -10,
     '#attributes' => array(
       'class' => array(
         'collapsible',
         'form-wrapper',
       ),
+    ),
+    '#materialize' => array(
+      'type' => 'collapsible',
+      'icon' => 'brightness_medium',
     ),
   );
   // textsize default state
@@ -69,19 +78,61 @@ function a11y_a11y_block() {
     $icon_path = base_path() . drupal_get_path('module', 'a11y') . '/plugins/icons/';
     $alters['textsize'] = array(
       '#markup' => '
-      <div class="a11y-textsize-controls"><span>' . t('Interface Size') . '</span><a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
-      <span>Smaller</span>
-      <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" />
-      </a>
-      <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
-        <span>Larger</span>
-        <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" />
-      </a>
-      <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
-        <span>Reset</span>
-        <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" />
-      </a>
-      </div>'
+      <div class="a11y-textsize-controls">
+        <div class="a11y-textsize-controls-label">' . t('Interface Size') . '</div>
+        <div class="a11y-textsize-controls-body row">
+          <div class="col s4">
+            <a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
+              <span>Smaller</span>
+              <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" />
+            </a>
+          </div>
+          <div class="col s4">
+            <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
+              <span>Larger</span>
+              <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" />
+            </a>
+          </div>
+          <div class="col s4">
+            <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
+              <span>Reset</span>
+              <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" />
+            </a>
+          </div>
+        </div>
+      </div>',
+      '#weight' => -10,
+    );
+  }
+  // support contrast settings
+  if (variable_get('a11y_contrast', 1)) {
+    $alters['contrast'] = array(
+      '#type' => 'checkbox',
+      '#id' => 'a11y_contrast_checkbox',
+      '#title' => t('High contrast mode'),
+      '#default_value' => 0,
+      '#description' => t('This renders the document in high contrast mode.'),
+      '#weight' => -9,
+    );
+    $alters['invert'] = array(
+      '#type' => 'checkbox',
+      '#id' => 'a11y_invert_checkbox',
+      '#title' => t('Invert colors'),
+      '#default_value' => 0,
+      '#description' => t('This renders the document as white on black'),
+      '#weight' => -8,
+    );
+  }
+  // support animation disabling
+  if (variable_get('a11y_animation', 1)) {
+    // animation default state
+    $alters['animation'] = array(
+      '#type' => 'checkbox',
+      '#id' => 'a11y_animation_checkbox',
+      '#title' => t('Disable interface animations'),
+      '#default_value' => 0,
+      '#description' => t('This can help those with trouble processing rapid screen movements.'),
+      '#weight' => -7,
     );
   }
   // open dyslexic font
@@ -92,36 +143,16 @@ function a11y_a11y_block() {
       '#title' => t('Optimize fonts for dyslexia'),
       '#default_value' => 0,
       '#description' => t('This loads a font easier to read for people with dyslexia.'),
+      '#weight' => -6,
     );
   }
-  if (variable_get('a11y_contrast', 1)) {
-    $alters['contrast'] = array(
-      '#type' => 'checkbox',
-      '#id' => 'a11y_contrast_checkbox',
-      '#title' => t('High contrast mode'),
-      '#default_value' => 0,
-      '#description' => t('This renders the document in high contrast mode.'),
-    );
-    $alters['invert'] = array(
-      '#type' => 'checkbox',
-      '#id' => 'a11y_invert_checkbox',
-      '#title' => t('Invert colors'),
-      '#default_value' => 0,
-      '#description' => t('This renders the document as white on black'),
-    );
+  if ($render) {
+    // render any aleration array items we have
+    $output .= drupal_render($alters);
   }
-  if (variable_get('a11y_animation', 1)) {
-    // animation default state
-    $alters['animation'] = array(
-      '#type' => 'checkbox',
-      '#id' => 'a11y_animation_checkbox',
-      '#title' => t('Disable interface animations'),
-      '#default_value' => 0,
-      '#description' => t('This can help those with trouble processing rapid screen movements.'),
-    );
+  else {
+    $output['alters'] = $alters;
   }
-  // render any aleration array items we have
-  $output .= drupal_render($alters);
   // add in the simulations if they are allowed to see them
   if (user_access('view a11y simulations')) {
     $sim = array(
@@ -130,7 +161,7 @@ function a11y_a11y_block() {
       '#description' => t('Simulate different accessibility conditions. This is useful to see how your site would possibly be viewed by people with different conditions.'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
-      '#weight' => 15,
+      '#weight' => -9,
       '#attributes' => array(
         'class' => array(
           'collapsible',
@@ -138,7 +169,12 @@ function a11y_a11y_block() {
           'collapsed',
         ),
       ),
+      '#materialize' => array(
+        'type' => 'collapsible',
+        'icon' => 'videogame_asset',
+      ),
     );
+    // support for dyslexia simulator
     if (variable_get('a11y_sim_dyslexia', 1)) {
       $sim['dyslexia'] = array(
         '#type' => 'checkbox',
@@ -146,9 +182,16 @@ function a11y_a11y_block() {
         '#title' => t('Dyslexia'),
         '#default_value' => 0,
         '#description' => t('This will simulate how a dyslexic might view your material.'),
+        '#weight' => -10,
       );
     }
-    $output .= drupal_render($sim);
+    if ($render) {
+      // render any aleration array items we have
+      $output .= drupal_render($sim);
+    }
+    else {
+      $output['sim'] = $sim;
+    }
   }
   return $output;
 }
@@ -283,10 +326,5 @@ function a11y_apply_a11y() {
  * Returns the accessibility block to foundation access.
  */
 function a11y_fa_a11y() {
-  return array(
-    'a11y_block' => array(
-      '#title' => t('a11y block'),
-      '#markup' => a11y_a11y_block(),
-    ),
-  );
+  return a11y_a11y_block(FALSE);
 }

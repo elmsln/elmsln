@@ -34,10 +34,13 @@ body.entity-iframe-theme.modal-rendered h1#page-title{
   font-size: 1.5rem;
   line-height: 1.5rem;
   margin: 0;
-  padding: .1rem;
   position: fixed;
   background-color: #EEEEEE;
   z-index: 1000;
+  height: 2.5rem;
+  padding: 2rem 0;
+  border-bottom-style: solid;
+  border-bottom-width: .2rem;
 }
 
 html { height: auto !important; }

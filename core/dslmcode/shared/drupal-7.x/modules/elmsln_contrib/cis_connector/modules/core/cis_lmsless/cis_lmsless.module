@@ -142,31 +142,30 @@ function _cis_lmsless_assemble_user() {
     }
     // set a login link if we don't have a user name
     if ($vars['username'] == '') {
-      $vars['userlink'] = l(t('login'), 'user', array('attributes' => array('class' => array('account-logout'))));
+      $vars['userlink'] = l('<i class="material-icons black-text">power_settings_new</i>' . t('Login'), 'user', array('html' => TRUE, 'attributes' => array('class' => array('account-logout', 'waves-effect', 'waves-light', 'btn-flat'))));
     }
     else {
-      $vars['userlink'] = l(t('log out'), 'user/logout', array('attributes' => array('class' => array('account-logout'))));
-      $vars['userprofile'] = l('profile', 'user/' . $GLOBALS['user']->uid);
+      $vars['userlink'] = l('<i class="material-icons black-text">power_settings_new</i>' . t('Log out'), 'user/logout', array('html' => TRUE, 'attributes' => array('class' => array('account-logout', 'waves-effect', 'waves-light', 'btn-flat'))));
+      $vars['userprofile'] = l('<i class="material-icons black-text">account_circle</i>' . t('Profile'), 'user/' . $GLOBALS['user']->uid, array('html' => TRUE, 'attributes' => array('class' => array('waves-effect', 'waves-light', 'btn-flat'))));
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       // account for systems without sections (like authorities)
       if ($section) {
-        $vars['user_section'] = '<span>' . filter_xss($section) . '</span>';
         // ensure they can see the section switcher link
         if (user_access('switch section context')) {
-          $vars['user_section'] .= '<span><a href="#" data-reveal-id="block-cis-service-connection-section-context-changer-nav-modal" class="admin-alert">' . t('change') . '</a></span>';
+          $vars['user_section'] = '<a href="#block-cis-service-connection-section-context-changer-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn-flat"><i class="material-icons black-text">perm_identity</i>' . t('Change section') . '</span></a>';
         }
       }
       // render differently if the user is already masquerading
       if (isset($_SESSION['masquerading'])) {
         $tmptext = '<span><div>' . filter_xss($GLOBALS['user']->name) . '</div></span>';
-        $vars['masquerade'] = $tmptext . '<div>' . l(t('revert'), 'masquerade/unswitch', array('attributes' => array('class' => 'admin-alert'), 'query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '</div>';
+        $vars['masquerade'] = $tmptext . '<div>' . l('<i class="material-icons black-text">supervisor_account</i>' . t('revert'), 'masquerade/unswitch', array('attributes' => array('class' => array('waves-effect', 'waves-light', 'btn-flat')), 'html' => TRUE, 'query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '</div>';
       }
       else {
-        $vars['masquerade'] = '<a href="#" data-reveal-id="block-masquerade-masquerade-nav-modal" class="admin-alert">' . t('impersonate account') . '</a>';
+        $vars['masquerade'] = '<a href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn-flat"><i class="material-icons black-text">supervisor_account</i>' . t('impersonate account') . '</a>';
       }
       // support for the FERPA filter block
-      $vars['ferpa_flter'] = '<a href="#" data-reveal-id="block-cis-service-connection-ferpa-filter-nav-modal" class="admin-alert">' . t('Privacy settings') . '</a>';
+      $vars['ferpa_flter'] = '<a href="#block-cis-service-connection-ferpa-filter-nav-modal" class="elmsln-modal-trigger waves-effect waves-light btn-flat"><i class="material-icons black-text">visibility</i>' . t('Privacy settings') . '</a>';
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
       unset($tmproles[1]);
@@ -244,7 +243,7 @@ function _cis_lmsless_assemble_network() {
     if (user_access('view lmsless administration links') && is_array($reg)) {
       foreach ($reg as $key => $value) {
         $addr = explode('.', $value['address']);
-        if (isset($value['instance']) && !$value['instance'] && $addr[0] != $vars['active']['machine_name']) {
+        if (isset($value['instance']) && !$value['instance']) {
           $list[$administrative][$addr[0]] = array(
             'title' => $reg[$key]['default_title'],
             'url' => url(_cis_connector_format_address($reg[$key],  '/' . $course_context, 'front')),
@@ -327,13 +326,16 @@ function _cis_lmsless_theme_vars() {
   // ensure this doesn't load when it doesn't have to
   $vars = &drupal_static(__FUNCTION__);
   if (!isset($vars)) {
+    $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
     $vars = array(
       'front_page' => variable_get('site_frontpage','node'),
       'site_name' => variable_get('site_name', t('Service')),
       'slogan' => variable_get('site_slogan', ''),
       'distro' => variable_get('install_profile', 'standard'),
+      'lmsless_classes' => $lmsless_classes,
     );
-    $vars['home'] = l('<div class="' . $vars['distro'] . '-home elmsln-home-icon icon-' . $vars['distro'] . '-black etb-modal-icons"></div><span>' . t('Home') . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('class' => array($vars['distro'] . '-home-button'))));
+    // push this into variables on the page for usage
+    drupal_add_js(array('cis_lmsless' => $lmsless_classes), array('type' => 'setting'));
     // build in section context if we have one we can pull
     if ($section = _cis_connector_section_context()) {
       $vars['section'] = $section;
@@ -382,7 +384,7 @@ function _cis_lmsless_theme_vars() {
         'height' => '26',
         'alt' => t('Picture of @name', array('@name' => $vars['username'])),
         'attributes' => array(
-          'class' => 'circle cis-lmsless-avatar etb-icons ferpa-protect',
+          'class' => 'circle cis-lmsless-avatar ferpa-protect',
         )
       );
       $vars['userpicture'] = theme_image_style($image);
@@ -440,7 +442,7 @@ function cis_lmsless_theme() {
         'tour' => url('guided_tour'),
         'username' => t('Account'),
         'userlink' => '',
-        'userpicturebig' => '<div class="ferpa-protect icon-user-black etb-icons svg"></div>',
+        'userpicturebig' => '<div class="ferpa-protect icon-user-black svg"></div>',
         'masquerade' => '',
         'ferpa_flter' => '',
         'user_roles' => '',
@@ -477,10 +479,140 @@ function cis_lmsless_theme() {
         'resources' => array(),
         'tech_support' => array(),
         'elmsln_main_menu' => '',
+        'lmsless_classes' => array(),
         'bar_elements' => array('network' => TRUE, 'user' => TRUE, 'help' => TRUE, 'resources' => TRUE, 'syllabus' => TRUE),
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',
     ),
   );
+}
+
+/**
+ * Returns a color association for a distribution / tool in the network
+ */
+function _cis_lmsless_get_distro_classes($distro = NULL) {
+  // establish an empty series of classes
+  $empty = array(
+    'dark'   => 'darken-4',
+    'light'  => 'lighten-4',
+    'color' => '',
+    'text' => '',
+  );
+  // statically cache future calls
+  $map = &drupal_static(__FUNCTION__);
+  if (!isset($map)) {
+    $map = array(
+      'mooc' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'blue',
+        'text' => 'accessible-blue-text',
+        'outline' => 'blue-outline',
+      ),
+      'cle' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'amber',
+        'text' => 'accessible-amber-text',
+        'outline' => 'amber-outline',
+      ),
+      'discuss' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'teal',
+        'text' => 'accessible-teal-text',
+        'outline' => 'teal-outline',
+      ),
+      'ulmus' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'grey',
+        'text' => 'grey-text',
+        'outline' => 'grey-outline',
+      ),
+      'editorial' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'cyan',
+        'text' => 'cyan-text',
+        'outline' => 'cyan-outline',
+      ),
+      'inbox' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'orange',
+        'text' => 'accessible-orange-text',
+        'outline' => 'orange-outline',
+      ),
+      'elmsmedia' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'red',
+        'text' => 'accessible-red-text',
+        'outline' => 'red-outline',
+      ),
+      'icor' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'yellow',
+        'text' => 'accessible-yellow-text',
+        'outline' => 'blue-outline',
+      ),
+      'cpr' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'deep-orange',
+        'text' => 'accessible-deep-orange-text',
+        'outline' => 'deep-orange-outline',
+      ),
+      'ecd' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'lime',
+        'text' => 'accessible-lime-text',
+        'outline' => 'lime-outline',
+      ),
+      'cis' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color' => 'pink',
+        'text' => 'accessible-pink-text',
+        'outline' => 'pink-outline',
+      ),
+      'lor' => array(
+        'dark'   => 'darken-4',
+        'light'  => 'lighten-4',
+        'color'  => 'purple',
+        'text'   => 'purple-text',
+        'outline' => 'purple-outline',
+      ),
+      'lq' => array(
+        'dark'   => 'darken-3',
+        'light'  => 'lighten-3',
+        'color' => 'light-green',
+        'text' => 'accessible-light-green-text',
+        'outline' => 'light-green-outline',
+      ),
+      'assessment' => array(
+        'dark'   => 'darken-3',
+        'light'  => 'lighten-3',
+        'color' => 'light-blue',
+        'text' => 'accessible-light-blue-text',
+        'outline' => 'light-blue-outline',
+      ),
+    );
+    // allow others to modify core color associations
+    drupal_alter('cis_lmsless_color', $map);
+  }
+  // see if we should return anything
+  if (isset($distro)) {
+    // if we don't know about this then return nothing
+    if (isset($map[$distro])) {
+      return $map[$distro];
+    }
+    return $empty;
+  }
+  // return everything
+  return $map;
 }

@@ -60,7 +60,7 @@
         <span class="truncate elmsln-card-title">
           <?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'orange-text')));?>
         </span>
-        <i class="material-icons right">more_vert</i>
+        <i class="material-icons right" tabindex="0" role="button">more_vert</i>
       </span>
     </div>
     <div class="card-action">

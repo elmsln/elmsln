@@ -27,7 +27,7 @@
   attach: function (context, settings) {
     $('.close-reveal-modal').on("click", function () {
       $("body").removeClass("scroll-disabled");
-      if ( typeof Drupal.settings.entity_iframe.autoClose !== "undefined") {
+      if (typeof Drupal.settings.entity_iframe !== "undefined" && typeof Drupal.settings.entity_iframe.autoClose !== "undefined") {
         location.reload();
       }
     });
@@ -49,7 +49,7 @@
     $(document).bind('keydown', function(event) {
       if (event.keyCode == 27) {
         $("body").removeClass("scroll-disabled")
-        if ( typeof Drupal.settings.entity_iframe.autoClose !== "undefined") {
+        if ( typeof Drupal.settings.entity_iframe !== "undefined" && typeof Drupal.settings.entity_iframe.autoClose !== "undefined") {
           location.reload();
         }
         return false;
