@@ -89,9 +89,6 @@ function hidden_nodes_node_update($node) {
       ->execute();
     }
   }
-  if (isset($node->propagate)) {
-    # code...
-  }
 }
 
 /**
