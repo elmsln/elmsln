@@ -188,6 +188,12 @@ ul.dropdown-content ul {
 .dropdown-content li {
   min-height: initial;
 }
+.dropdown-content li > a,
+.dropdown-content li > span {
+    font-size: 1rem;
+    line-height: 1rem;
+    padding: .5rem;
+}
 ul.dropdown-content li:not(.has-form) a:not(.button) {
   color: #333333;
 }

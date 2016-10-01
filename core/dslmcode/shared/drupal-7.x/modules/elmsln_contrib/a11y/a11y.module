@@ -84,19 +84,19 @@ function a11y_a11y_block($render = TRUE) {
           <div class="col s4">
             <a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
               <span>Smaller</span>
-              <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" />
+              <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" width="24px" height="24px" />
             </a>
           </div>
           <div class="col s4">
             <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
               <span>Larger</span>
-              <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" />
+              <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" width="24px" height="24px" />
             </a>
           </div>
           <div class="col s4">
             <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
               <span>Reset</span>
-              <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" />
+              <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" width="24px" height="24px" />
             </a>
           </div>
         </div>
