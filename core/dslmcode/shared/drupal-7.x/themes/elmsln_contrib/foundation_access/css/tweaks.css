@@ -12,6 +12,9 @@
 }
 
 /* Materialize tab modifications */
+.tabs .tab a {
+  line-height: 3rem;
+}
 .tabs .tab a:hover {
   border-bottom-style: solid;
   border-bottom-width: .2rem;
