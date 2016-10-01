@@ -6,7 +6,7 @@
  *
  */
 function foundation_access_preprocess_html(&$variables) {
-  // find the name
+  // find the name of the install profile
   $variables['install_profile'] = variable_get('install_profile', 'standard');
   $settings = _cis_connector_build_registry($variables['install_profile']);
   switch ($variables['install_profile']) {

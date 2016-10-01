@@ -17,6 +17,11 @@
         <div class="page-scroll progress <?php print $cis_lmsless['lmsless_classes']['color'] . ' ' . $cis_lmsless['lmsless_classes']['light'];?>">
           <span class="meter <?php print $cis_lmsless['lmsless_classes']['color'];?>" style="width: 0%"></span>
         </div>
+        <?php if (!empty($messages)): ?>
+        <div class="region-messeges">
+          <?php print $messages; ?>
+        </div>
+        <?php endif; ?>
         <section class="main-section etb-book">
           <div class="r-header row">
             <div class="r-header__left">
@@ -97,12 +102,6 @@
                     </div>
                   <?php endif; ?>
 
-                  <?php if (!empty($messages)): ?>
-                    <div class="region-messeges row">
-                      <?php print $messages; ?>
-                    </div>
-                  <?php endif; ?>
-
                   <?php if ($breadcrumb) : ?>
                     <div class="breadcrumb-wrapper">
                     <?php print $breadcrumb; ?>
@@ -129,7 +128,7 @@
                     </div>
                   <?php endif; ?>
                   <a id="main-content"></a>
-                  <?php if ($title): ?>
+                  <?php if ($title && arg(2) != 'edit'): ?>
                     <?php print render($title_prefix); ?>
                       <h1 id="page-title" class="title"><?php print $title; ?></h1>
                     <?php print render($title_suffix); ?>
@@ -140,7 +139,6 @@
             </div>
           </div>
         </section>
-
       <a class="exit-off-canvas"></a>
       </div>
     </main>

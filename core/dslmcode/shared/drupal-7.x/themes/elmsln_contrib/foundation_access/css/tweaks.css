@@ -1029,11 +1029,20 @@ input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] inp
   position: fixed;
 }
 
-.alert-box.success {
-  background-color:#65c689;
-  color:#282828;
+.alert-box {
+  border-style: solid;
+  border-width: .2rem;
+  margin: 0;
+  padding: .5rem;
+  line-height: 1.5rem;
+  border-radius: 0;
 }
 
+.alert-box.success {
+  background-color:#65c689;
+  color:#222222;
+  border-color: #00843b;
+}
 .alert-box.success a {
   color:#282828;
 }
