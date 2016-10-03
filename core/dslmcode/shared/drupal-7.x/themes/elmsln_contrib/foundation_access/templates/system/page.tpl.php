@@ -143,41 +143,42 @@
       </div>
     </main>
     <footer class="page-footer <?php print $cis_lmsless['lmsless_classes']['color'] . ' ' . $cis_lmsless['lmsless_classes']['light'];?>">
-    <div class="container">
-      <div class="row">
-        <div class="s12 push-m1 m-10 col">
-          <?php if (!empty($page['footer'])): ?>
-          <?php print render($page['footer']); ?>
-          <?php endif; ?>
-        </div>
-        <?php if (!empty($page['footer_firstcolumn']) || !empty($page['footer_secondcolumn'])): ?>
-        <hr/>
+      <div class="container">
         <div class="row">
-          <?php if (!empty($page['footer_firstcolumn'])): ?>
-          <div class="l6 col">
-            <?php print render($page['footer_firstcolumn']); ?>
+          <div class="s12 push-m1 m-10 col">
+            <?php if (!empty($page['footer'])): ?>
+            <?php print render($page['footer']); ?>
+            <?php endif; ?>
           </div>
-          <?php endif; ?>
-          <?php if (!empty($page['footer_secondcolumn'])): ?>
-          <div class="l6 col">
-            <?php print render($page['footer_secondcolumn']); ?>
+          <?php if (!empty($page['footer_firstcolumn']) || !empty($page['footer_secondcolumn'])): ?>
+          <hr/>
+          <div class="row">
+            <?php if (!empty($page['footer_firstcolumn'])): ?>
+            <div class="l6 col">
+              <?php print render($page['footer_firstcolumn']); ?>
+            </div>
+            <?php endif; ?>
+            <?php if (!empty($page['footer_secondcolumn'])): ?>
+            <div class="l6 col">
+              <?php print render($page['footer_secondcolumn']); ?>
+            </div>
+            <?php endif; ?>
           </div>
           <?php endif; ?>
         </div>
-        <?php endif; ?>
       </div>
     </footer>
-<!-- generic container for other off canvas modals -->
-<?php print render($page['cis_lmsless_modal']); ?>
-<!-- Accessibility side nav -->
-<?php if (!empty($a11y)) : ?>
-<div id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
-    <div class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background cis-lmsless-border"><h1 class="flow-text valign elmsln-modal-title"><?php print t('Accessibility'); ?></h1>
-      <a href="#" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>
+    <!-- generic container for other off canvas modals -->
+    <?php print render($page['cis_lmsless_modal']); ?>
+    <!-- Accessibility side nav -->
+    <?php if (!empty($a11y)) : ?>
+    <div id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
+        <div class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background cis-lmsless-border"><h1 class="flow-text valign elmsln-modal-title"><?php print t('Accessibility'); ?></h1>
+          <a href="#" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>
+        </div>
+        <div class="elmsln-modal-content">
+          <?php print $a11y; ?>
+        </div>
     </div>
-    <div class="elmsln-modal-content">
-      <?php print $a11y; ?>
-    </div>
-</div>
-<?php endif; ?>
-<!-- /Accessibility side nav -->
+    <?php endif; ?>
+    <!-- /Accessibility side nav -->
