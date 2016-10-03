@@ -1,3 +1,11 @@
+/* basic gallery style */
+.elmsln-basic-gallery-list .col {
+  margin:2rem auto;
+}
+.elmsln-gallery-image-link {
+  padding: 0.25rem 0;
+}
+
 /* in page nav */
 .r-header__left {
   width: 100%;

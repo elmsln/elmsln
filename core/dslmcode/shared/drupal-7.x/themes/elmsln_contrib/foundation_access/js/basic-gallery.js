@@ -1,6 +1,7 @@
 (function($) {
   $(document).ready(function(){
     $('.elmsln-basic-gallery a').click(function(){
+      // trigger the currently related featured image / text
       var img = $(this).children('img');
       var trigger = $(this).attr('data-elmsln-triggers');
       $('#' + trigger).attr('href', $(this).attr('data-elmsln-lightbox'));
