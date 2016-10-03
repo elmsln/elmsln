@@ -58,34 +58,34 @@
     <div class="card-content">
       <span class="card-title activator grey-text text-darken-4">
         <span class="truncate elmsln-card-title">
-          <?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'orange-text')));?>
+          <?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'accessible-amber-text')));?>
         </span>
-        <i class="material-icons right" tabindex="0" role="button">more_vert</i>
+        <i class="material-icons right accessible-amber-text" tabindex="0" role="button">more_vert</i>
       </span>
     </div>
     <div class="card-action">
-      <?php print l('Comment', 'node/' . $row->nid);?>
+      <?php print l('Comment', 'node/' . $row->nid, array('attributes' => array('class' => 'accessible-orange-text')));?>
       <?php if (isset($row->node_new_comments) && $row->node_new_comments > 0) : ?>
-      <span class="new badge blue lighten-5"><?php print $row->node_new_comments;?></span>
+      <span class="new badge amber lighten-5"><?php print $row->node_new_comments;?></span>
     <?php endif;?>
     </div>
     <div class="card-reveal">
-      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'orange-text')));?></span><i class="material-icons right"><?php print t('close');?></i></span>
+      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'accessible-amber-text')));?></span><i class="material-icons right accessible-amber-text"><?php print t('close');?></i></span>
       <ul class="collection">
         <li class="collection-item">
           <span><?php print $row->users_node_name?></span>
-          <span class="secondary-content"><i class="tiny material-icons orange-text">assignment_ind</i></span>
+          <span class="secondary-content"><i class="tiny material-icons accessible-amber-text">assignment_ind</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $row->node_field_data_field_assignment_title;?></span>
-          <span class="secondary-content"><i class="tiny material-icons orange-text">assignment</i></span>
+          <span class="secondary-content"><i class="tiny material-icons accessible-amber-text">assignment</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $fields['changed']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons orange-text">schedule</i></span>
+          <span class="secondary-content"><i class="tiny material-icons accessible-amber-text">schedule</i></span>
         </li>
         <li class="collection-item">
-          <span class="secondary-content"><i class="tiny material-icons orange-text">comment</i></span>
+          <span class="secondary-content"><i class="tiny material-icons accessible-amber-text">comment</i></span>
           <span class="comments-count"><?php print format_plural($row->node_comment_statistics_comment_count, '@num comment', '@num commments', array('@num' => $row->node_comment_statistics_comment_count)) ;?></span>
         </li>
       </ul>

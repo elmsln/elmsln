@@ -491,9 +491,9 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
                   $submitted_text = t('View your submission for @name', array('@name' => $item['title']));
                 }
                 $vars['icon'] = '<i class="material-icons black-text">assignment_turned_in</i>';
-                $vars['links'] = ctools_modal_text_button($submitted_text, $link, t('Click this link to view @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll btn-flat waves-effect cis-lmsless-waves');
-                $vars['links'] .= ctools_modal_text_button(t('Edit'), $link . '/edit', t('Edit your submission @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll btn-flat waves-effect cis-lmsless-waves');
-                $vars['links'] .= l(t('Go to @tool', array('@tool' => $settings['default_title'])), _cis_connector_format_address($settings, $instance, 'front'), array('attributes' => array('class' => 'btn-flat waves-effect cis-lmsless-waves')));
+                $vars['links'] = ctools_modal_text_button($submitted_text, $link, t('Click this link to view @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll btn-flat waves-effect cis-lmsless-waves cis-lmsless-text');
+                $vars['links'] .= ctools_modal_text_button(t('Edit'), $link . '/edit', t('Edit your submission @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll btn-flat waves-effect cis-lmsless-waves cis-lmsless-text');
+                $vars['links'] .= l(t('Go to @tool', array('@tool' => $settings['default_title'])), _cis_connector_format_address($settings, $instance, 'front'), array('attributes' => array('class' => 'btn-flat waves-effect cis-lmsless-waves cis-lmsless-text')));
                 $vars['class'] .= ' elmsln-action-finished';
                 $vars['content'] = '<span class="subheader">' . t('Assignment name') . ':</span> <span>' . $item['title'] . '</span>';
               }
@@ -516,7 +516,7 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
                 $vars['content'] = '<span class="subheader">' . t('Assignment name') . ':</span> <span>' . $item['title'] . '</span>';
                 // present a modal for them to submit this thin
                 $vars['icon'] = '<i class="material-icons black-text">assignment_late</i>';
-                $vars['links'] = ctools_modal_text_button($text, $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll btn-flat waves-effect cis-lmsless-waves');
+                $vars['links'] = ctools_modal_text_button($text, $link, t('Click this link to submit @name', array('@name' => html_entity_decode($item['title']))), 'ctools-modal-cis-filter-modal disable-scroll btn-flat waves-effect cis-lmsless-waves cis-lmsless-text');
                 $vars['class'] .= ' elmsln-action-unfinished';
               }
             }
