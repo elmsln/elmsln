@@ -658,6 +658,13 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
     if (isset($variables['image']['#item']['filemime']) && $variables['image']['#item']['filemime'] == 'image/gif') {
       $variables['image']['#image_style'] = '';
     }
+    // alt/title info
+    if (empty($variables['image']['#item']['alt'])) {
+      $variables['image']['#item']['alt'] = $variables['elements']['#node']->title;
+    }
+    if (empty($variables['image']['#item']['title'])) {
+      $variables['image']['#item']['title'] = $variables['elements']['#node']->title;
+    }
     $variables['image']['#item']['attributes']['class'][] = 'image__img';
     $variables['image']['#item']['attributes']['class'][] = 'responsive-img';
   }
@@ -711,6 +718,7 @@ function foundation_access_preprocess_node__inherit__image_gallery(&$variables) 
 
   // Assign Image
   if (isset($variables['elements']['field_images'])) {
+    $variables['featured_image_id'] = 'elmsln-featured-image-' . rand(0, 300);
     $tmpimages = $variables['elements']['field_images']['#items'];
     // append classes to images for rendering
     foreach ($tmpimages as $key => $image) {
@@ -719,7 +727,20 @@ function foundation_access_preprocess_node__inherit__image_gallery(&$variables) 
         '#item' => $tmpimages[$key]['entity']->field_image[LANGUAGE_NONE][0],
         '#image_style' => 'image_gallery_square',
         '#path' => '',
+        'entity' => $tmpimages[$key]['entity'],
       );
+      // alt/title info
+      if (empty($variables['images'][$key]['#item']['alt'])) {
+        $variables['images'][$key]['#item']['alt'] = $image['entity']->title;
+      }
+      if (empty($variables['images'][$key]['#item']['title'])) {
+        $variables['images'][$key]['#item']['title'] = $image['entity']->title;
+      }
+      // special class applied to the image itself to make it a circle
+      if (strpos($variables['view_mode'], 'circle')) {
+        $variables['images'][$key]['#item']['attributes']['class'][] = 'circle';
+      }
+      $variables['image_lightbox_url'][$key] = image_style_url('image_lightboxed', $tmpimages[$key]['entity']->field_image[LANGUAGE_NONE][0]['uri']);
     }
   }
   $tmp = explode('__', $variables['view_mode']);
@@ -755,6 +776,13 @@ function foundation_access_preprocess_node__inherit__image_gallery__image(&$vari
         '#image_style' => 'image_gallery_square',
         '#path' => '',
       );
+      // alt/title info
+      if (empty($variables['images'][$key]['#item']['alt'])) {
+        $variables['images'][$key]['#item']['alt'] = $image['entity']->title;
+      }
+      if (empty($variables['images'][$key]['#item']['title'])) {
+        $variables['images'][$key]['#item']['title'] = $image['entity']->title;
+      }
       $variables['images'][$key]['#item']['attributes']['class'][] = 'image__img';
       $variables['images'][$key]['#item']['attributes']['class'][] = 'responsive-img';
       // special class applied to the image itself to make it a circle
@@ -1257,24 +1285,24 @@ function foundation_access_pager($variables) {
   // End of generation loop preparation.
 
   $li_first = theme('pager_first', array(
-    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">first_page</i><span class="element-invisible">' . t('First page') . '</span>'),
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons black-text">first_page</i><span class="element-invisible">' . t('First page') . '</span>'),
     'element' => $element,
     'parameters' => $parameters,
   ));
   $li_previous = theme('pager_previous', array(
-    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">chevron_left</i><span class="element-invisible">' . t('Previous page') . '</span>'),
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons black-text">chevron_left</i><span class="element-invisible">' . t('Previous page') . '</span>'),
     'element' => $element,
     'interval' => 1,
     'parameters' => $parameters,
   ));
   $li_next = theme('pager_next', array(
-    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">chevron_right</i><span class="element-invisible">' . t('Next page') . '</span>'),
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons black-text">chevron_right</i><span class="element-invisible">' . t('Next page') . '</span>'),
     'element' => $element,
     'interval' => 1,
     'parameters' => $parameters,
   ));
   $li_last = theme('pager_last', array(
-    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">last_page</i><span class="element-invisible">' . t('Last page') . '</span>'),
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons black-text">last_page</i><span class="element-invisible">' . t('Last page') . '</span>'),
     'element' => $element,
     'parameters' => $parameters,
   ));
@@ -1298,7 +1326,7 @@ function foundation_access_pager($variables) {
       if ($i > 1) {
         $items[] = array(
           'class' => array('unavailable'),
-          'data' => '<a href="">&hellip;</a>',
+          'data' => '<a class="black-text" href="">&hellip;</a>',
         );
       }
       // Now generate the actual pager piece.
@@ -1311,13 +1339,13 @@ function foundation_access_pager($variables) {
               'interval' => ($pager_current - $i),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves'),
+            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
         if ($i == $pager_current) {
           $items[] = array(
             'class' => array('active'),
-            'data' => '<a href="">' . $i . '</a>',
+            'data' => '<a class="black-text" href="">' . $i . '</a>',
           );
         }
         if ($i > $pager_current) {
@@ -1328,14 +1356,14 @@ function foundation_access_pager($variables) {
               'interval' => ($i - $pager_current),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves'),
+            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
       }
       if ($i < $pager_max) {
         $items[] = array(
           'class' => array('unavailable'),
-          'data' => '<a href="">&hellip;</a>',
+          'data' => '<a class="black-text" href="">&hellip;</a>',
         );
       }
     }
@@ -1454,6 +1482,7 @@ function foundation_access_pager_link($variables) {
         t('last »') => t('Go to last page'),
       );
     }
+    $attributes['class'] = 'black-text';
     if (isset($titles[$text])) {
       $attributes['title'] = $titles[$text];
     }

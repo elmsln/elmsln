@@ -4,12 +4,19 @@
   // apply all the materialize javascript
   Drupal.behaviors.materializeJS = {
     attach: function(context) {
+      // select lists but not the chosen ones
       $('select').not('.chosen').not('.cke_dialog_body select').material_select();
+      // enable parallax
       $('.parallax').parallax();
+      // normal carousel
       $('.carousel').not('.carousel-slider').carousel();
+      // full size slider carousel
+      $('.carousel-slider').carousel({full_width: true});
+      // collapsible sets
       $('.collapsible').collapsible({
         accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
       });
+      // dropdown items
       $('.elmsln-dropdown-button').dropdown({
         inDuration: 150,
         outDuration: 50,
@@ -19,7 +26,7 @@
         belowOrigin: true,
         alignment: 'left'
       });
-      $('.carousel-slider').carousel({full_width: true});
+      // side triggers
       $('.elmsln-right-side-nav-trigger').bind('click', function() {
           $('#' + $(this).attr('data-activates')).removeClass('elmsln-modal-hidden').focus();
           Drupal.settings.activeSideNav = $(this).attr('data-activates');
@@ -36,6 +43,7 @@
         edge: 'left', // Choose the horizontal origin
         closeOnClick: false // Closes side-nav on <a> clicks, useful for Angular/Meteor
       });
+      // modal items
       $('.elmsln-modal-trigger').bind('click', function() {
         // hide all currently visible modals
         $('.close-reveal-modal:visible').trigger('click');
@@ -48,11 +56,12 @@
         ending_top: '8rem', // Ending top style attribute
         ready: function() { $('.close-reveal-modal:visible').parents().focus(); }, // Callback for Modal open
       });
-      // close x's
+      // close x's for modals
       $('.close-reveal-modal').click(function(){
         $('#' + $(this).parents().parents().attr('id')).closeModal();
         $('[href=#' + $(this).parents().attr('id') + ']').focus();
       });
+      // close x's for the side-nav items
       $('.close-reveal-side-nav').click(function(){
         $('[data-activates=' + Drupal.settings.activeSideNav + ']').focus().sideNav('hide');
         setTimeout(function() {

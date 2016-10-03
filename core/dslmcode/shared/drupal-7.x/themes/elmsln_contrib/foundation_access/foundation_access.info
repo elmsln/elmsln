@@ -52,6 +52,7 @@ scripts[] = libraries/imagelightbox/imagelightbox.js
 scripts[] = js/dist/app.js
 scripts[] = js/materialize/materialize.js
 scripts[] = js/comparison.js
+scripts[] = js/basic-gallery.js
 scripts[] = js/tweaks.js
 
 ; This section lists the regions defined in the page.tpl.php. The name in

@@ -33,7 +33,7 @@
     $preview = $fields['field_document_file']->content;
   }
   elseif (isset($fields['field_image'])) {
-    $preview = $fields['field_image']->content;
+    $preview = str_replace('<img', '<img alt="' . t('View @title', array('@title' => $row->node_title)) . '"', $fields['field_image']->content);
   }
   elseif (isset($fields['field_images'])) {
     $images = '';
@@ -42,6 +42,10 @@
       $build_image = array(
         'style_name' => 'image_card_medium',
         'path' => $image_array['raw']['entity']->field_image['und'][0]['uri'],
+        'attributes' => array(
+          'alt' => $image_array['raw']['entity']->title,
+          'title' => $image_array['raw']['entity']->title,
+        ),
       );
       // create the image
       $image = theme('image_style', $build_image);
@@ -53,7 +57,7 @@
     $preview = $fields['field_external_media']->content;
   }
   elseif (isset($fields['field_svg'])) {
-    $preview = $fields['field_svg']->content;
+    $preview = '<span class="element-invisible">' . t('View @title', array('@title' => $row->node_title)) . '</span>' . $fields['field_svg']->content;
   }
   elseif ($type == 'h5p_content') {
     $h5ptype = str_replace('.', '', str_replace(' ', '', strtolower($fields['title_1']->content)));
@@ -83,21 +87,21 @@
       case 'questionset':
       case 'appearinforchatandtalk':
       case 'interactivevideo':
-        $preview = '<img src="' . base_path() . drupal_get_path('module', 'elmsmedia_h5p') . '/images/' . $h5ptype . '.png" />';
+        $preview = '<img src="' . base_path() . drupal_get_path('module', 'elmsmedia_h5p') . '/images/' . $h5ptype . '.png" alt="' . $row->node_title . '" title="' . $row->node_title . '" />';
       break;
       // h5p types we don't have an icon for at least present a title on a blank card
       default:
-        $preview = '<div class="elmsln-no-preview-item  light-blue lighten-2">' . $fields['title_1']->content . '</div>';
+        $preview = '<div class="elmsln-no-preview-item  light-blue lighten-5 accessible-red-text">' . $fields['title_1']->content . '</div>';
       break;
     }
-    $preview .= '<img src="' . base_path() . drupal_get_path('module', 'elmsmedia_h5p') . '/images/h5p.png" class="h5p-overlay-icon" />';
+    $preview .= '<img src="' . base_path() . drupal_get_path('module', 'elmsmedia_h5p') . '/images/h5p.png" class="h5p-overlay-icon" alt="" title="" />';
   }
   elseif ($type == 'figurelabel') {
     $noderender = node_view($row->_field_data['nid']['entity'], 'figurelabel');
     $preview = render($noderender);
   }
   else {
-    $preview = '<div class="elmsln-no-preview-item  light-blue lighten-5">' . $fields['type']->content . '</div>';
+    $preview = '<div class="elmsln-no-preview-item  light-blue lighten-5 accessible-red-text">' . $fields['type']->content . '</div>';
   }
 
   // course
@@ -115,33 +119,33 @@
     </div>
     <div class="card-content">
       <span class="card-title activator grey-text text-darken-4">
-        <span class="truncate elmsln-card-title orange-text">
-          <?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'orange-text')));?>
+        <span class="truncate elmsln-card-title accessible-red-text">
+          <?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'accessible-red-text')));?>
         </span>
-        <i class="material-icons right" tabindex="0" role="button">more_vert</i>
+        <i class="material-icons right accessible-red-text" tabindex="0" role="button">more_vert</i>
       </span>
     </div>
     <div class="card-action">
-      <?php print l('view', 'node/' . $row->nid . '/view_modes');?>
-      <?php print l('edit', 'node/' . $row->nid . '/edit');?>
+      <?php print l('view', 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'accessible-red-text')));?>
+      <?php print l('edit', 'node/' . $row->nid . '/edit', array('attributes' => array('class' => 'accessible-red-text')));?>
     </div>
     <div class="card-reveal">
-      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'orange-text')));?></span><i class="material-icons right" tabindex="0" role="button"><?php print t('close');?></i></span>
+      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'accessible-red-text')));?></span><i class="material-icons right accessible-red-text" tabindex="0" role="button"><?php print t('close');?></i></span>
       <ul class="collection">
         <li class="collection-item">
           <span><?php print $fields['type']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons orange-text">info_outline</i></span>
+          <span class="secondary-content"><i class="tiny material-icons accessible-red-text">info_outline</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $course;?></span>
-          <span class="secondary-content"><i class="tiny material-icons orange-text">library_books</i></span>
+          <span class="secondary-content"><i class="tiny material-icons accessible-red-text">library_books</i></span>
         </li>
         <li class="collection-item">
           <span><?php print $fields['changed']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons orange-text">schedule</i></span>
+          <span class="secondary-content"><i class="tiny material-icons accessible-red-text">schedule</i></span>
         </li>
         <li class="collection-item">
-          <span class="secondary-content"><i class="tiny material-icons orange-text">label</i></span>
+          <span class="secondary-content"><i class="tiny material-icons accessible-red-text">label</i></span>
           <span class="tags"><?php print $fields['field_tagging']->content;?></span>
         </li>
       </ul>

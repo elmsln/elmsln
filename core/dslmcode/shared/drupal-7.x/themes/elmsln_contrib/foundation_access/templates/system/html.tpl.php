@@ -97,7 +97,6 @@
       <?php print $logo_img; ?>
     </div>
   <?php endif; ?>
-  <a href="<?php print base_path();?>" tabindex="-1">
     <div class="elmsln-system-badge">
       <div class="icon-<?php print $system_icon;?>-black elmsln-badge"></div>
       <div class="elmsln-badge-inner">
@@ -110,9 +109,13 @@
         <div class="elmsln-badge-middle <?php print $lmsless_classes['color'];?>"></div>
         <div class="elmsln-badge-bottom <?php print $lmsless_classes['color'];?>-border"></div>
       </div>
-      <div class="elmsln-badge-middle-name white <?php print $lmsless_classes['color'];?>-border"><a href="<?php print base_path();?>" class="<?php print $lmsless_classes['text'];?> <?php print $lmsless_classes['color'];?>-outline"><?php print $system_title;?></a></div>
+      <div class="elmsln-badge-middle-name white <?php print $lmsless_classes['color'];?>-border">
+        <a href="<?php print base_path();?>" class="<?php print $lmsless_classes['text'];?> <?php print $lmsless_classes['color'];?>-outline">
+          <span class="element-invisible"><?php print t('Home');?></span>
+          <?php print $system_title;?>
+        </a>
+      </div>
     </div>
-  </a>
   <?php print $page_top; ?>
   <?php print $page; ?>
   <?php print $page_bottom; ?>
