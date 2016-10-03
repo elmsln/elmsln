@@ -1,3 +1,8 @@
+/* Materialize header */
+.subheader {
+  font-size: 1.5rem;
+}
+
 /* basic gallery style */
 .elmsln-basic-gallery-list .col {
   margin:2rem auto;
@@ -507,9 +512,11 @@ input[type=file]:focus,
 
 /* CIS filter / submit widget */
 .cis-filter-activity-item .material-icons {
-  font-size:3rem;
-  margin-top:1rem;
-  opacity:.8;
+  font-size:2rem;
+  padding:.25rem;
+}
+.horizontal .card-image {
+  min-width: 25%;
 }
 
 /* tweaks to side-nav padding / structure */
@@ -900,6 +907,9 @@ div.error {
 }
 .elmsln-gallery-image {
   margin-top: 1rem;
+}
+.elmsln-gallery-image a {
+  float: left;
 }
 .image--parallax {
   align-items: initial;
