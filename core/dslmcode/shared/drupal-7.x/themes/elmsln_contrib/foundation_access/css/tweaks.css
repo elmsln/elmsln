@@ -1045,6 +1045,7 @@ input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] inp
   padding: .5rem;
   line-height: 1.5rem;
   border-radius: 0;
+  height: auto;
 }
 
 .alert-box.success {
@@ -1071,6 +1072,9 @@ a.add-menu-drop {
 .filter-guidelines,
 .filter-help {
   display:none;
+}
+#help p {
+  font-size: 13px;
 }
 
 .horizontal-tabs ul.horizontal-tabs-list a {
@@ -1342,30 +1346,27 @@ tr.odd {
     background: #FFF;
 }
 
-.messages ul {
+.region-messeges ul {
   list-style-type: none;
 }
 
-div.messages ul li {
-  font-size: 14px;
+div.region-messeges ul li {
+  font-size: 1rem;
   padding-bottom: 0.5em;
+  height: auto;
 }
 
-div.messages ul li:last-of-type {
-  padding-bottom: 0;
-}
-
-#help p {
-  font-size: 13px;
-}
-
-div.messages ul.krumo-node {
+div.region-messeges ul.krumo-node {
   margin : 0;
 }
 
-div.messages ul.krumo-node li.krumo-child {
-  font-size: 12px;
+div.region-messeges ul.krumo-node li {
+  font-size: .8rem;
   padding-bottom: 0;
+}
+
+div.region-messeges ul li .krumo-nest {
+  margin-left: 1rem;
 }
 
 div.warning {
