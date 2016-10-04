@@ -23,6 +23,7 @@ yes | yum -y install git uuid curl nano vim && git clone https://github.com/elms
 yes | yum groupinstall 'Development Tools'
 # remove brad's test file
 yes | rm /etc/httpd/conf.sites.d/test.conf
+echo 'ProxyTimeout 1800' >> /etc/httpd/conf/httpd.conf
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 # stop mysql, initial commands tee this up to ensure that it is running
