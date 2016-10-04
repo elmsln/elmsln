@@ -390,3 +390,22 @@ function _elmsmedia_helper_restws_deep_load(&$response) {
     }
   }
 }
+
+/**
+ * Implements threeplaymedia_apicall_alter().
+ */
+function elmsmedia_helper_threeplaymedia_apicall_alter(&$data, $call) {
+  // call to send_file
+  if ($call == 'send_file') {
+    $media = node_load($data['video_id']);
+    // see if course id is set, load it if it is
+    // this helps with organizing batches on the other side
+    if (!empty($media->field_cis_course_ref) && isset($media->field_cis_course_ref['und'][0]['target_id'])) {
+      $course = node_load($media->field_cis_course_ref['und'][0]['target_id']);
+      $data['batch_name'] = $course->field_course_machine_name['und'][0]['safe_value'];
+    }
+    else {
+      $data['batch_name'] = t('no_course');
+    }
+  }
+}
