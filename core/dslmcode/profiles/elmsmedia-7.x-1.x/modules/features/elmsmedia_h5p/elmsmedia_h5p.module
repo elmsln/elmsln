@@ -27,6 +27,7 @@ function elmsmedia_h5p_page_build(&$page) {
         'nid' => arg(2),
         'token' => drupal_get_token(),
         'relayUrl' => base_path() . H5P_TINCAN_BRIDGE__RELAY_URL,
+        'reduceStatements' => H5P_TINCAN_BRIDGE__REDUCE_STATEMENTS,
       )
     );
     drupal_add_js($data, 'setting');
@@ -95,5 +96,13 @@ function elmsmedia_h5p_tincanapi_ajax_data_alter($module_name, &$data, $context)
       'https://www.elmsln.org/x-api/elmsln-role' => $role,
       'https://www.elmsln.org/x-api/elmsln-research-hypothesis' => $hypothesis,
     );
+    // ensure that choice ids are strings to match data model
+    if (isset($data['object']['definition']['choices'])) {
+      foreach ($data['object']['definition']['choices'] as $key => $choice) {
+        if (is_int($data['object']['definition']['choices'][$key]['id'])) {
+          $data['object']['definition']['choices'][$key]['id'] = (string)$data['object']['definition']['choices'][$key]['id'];
+        }
+      }
+    }
   }
 }
