@@ -67,7 +67,7 @@ ns.Textarea.prototype.validate = function () {
   var value = H5P.trim(this.$input.val());
 
   if ((this.field.optional === undefined || !this.field.optional) && !value.length) {
-    this.$errors.append(ns.createError(ns.t('core', 'requiredProperty', {':property': 'text field'})));
+    this.$errors.append(ns.createError(ns.t('core', 'requiredProperty', {':property': ns.t('core', 'textField')})));
   }
   else if (value.length > this.field.maxLength) {
     this.$errors.append(ns.createError(ns.t('core', 'tooLong', {':max': this.field.maxLength})));

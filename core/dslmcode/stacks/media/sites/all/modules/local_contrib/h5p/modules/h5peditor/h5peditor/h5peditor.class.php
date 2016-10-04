@@ -78,11 +78,13 @@ class H5peditor {
 
     if ($this->h5p->development_mode & H5PDevelopment::MODE_LIBRARY) {
       $devLibs = $this->h5p->h5pD->getLibraries();
+    }
 
-      // Replace libraries with devlibs
-      for ($i = 0, $s = count($libraries); $i < $s; $i++) {
+    for ($i = 0, $s = count($libraries); $i < $s; $i++) {
+      if (!empty($devLibs)) {
         $lid = $libraries[$i]->name . ' ' . $libraries[$i]->majorVersion . '.' . $libraries[$i]->minorVersion;
         if (isset($devLibs[$lid])) {
+          // Replace library with devlib
           $libraries[$i] = (object) array(
             'uberName' => $lid,
             'name' => $devLibs[$lid]['machineName'],
@@ -95,6 +97,12 @@ class H5peditor {
             'isOld' => $libraries[$i]->isOld
           );
         }
+      }
+      
+      // Some libraries rely on an LRS to work and must be enabled manually
+      if ($libraries[$i]->name === 'H5P.Questionnaire' &&
+          !$this->h5p->h5pF->getOption('enable_lrs_content_types')) {
+        $libraries[$i]->restricted = TRUE;
       }
     }
 

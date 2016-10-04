@@ -458,7 +458,7 @@ ns.Html.prototype.validate = function () {
   if (!this.field.optional && !textValue.length) {
     // We can accept empty text, if there's an image instead.
     if (! (this.inTags("img") && $value.find('img').length > 0)) {
-      this.$errors.append(ns.createError(this.field.label + ' is required and must have some text or at least an image in it.'));
+      this.$errors.append(ns.createError(ns.t('core', 'requiredProperty', {':property': ns.t('core', 'textField')})));
     }
   }
 
