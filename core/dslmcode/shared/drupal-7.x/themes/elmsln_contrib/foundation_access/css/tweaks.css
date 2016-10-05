@@ -215,8 +215,9 @@ ul.dropdown-content li:not(.has-form) a:not(.button) {
 }
 ul.dropdown-content li a {
   background-color: transparent;
-  line-height: 1.25rem;
-  padding: .5rem !important;
+  line-height: 2.5rem;
+  height: 2.5rem;
+  padding: 0 !important;
   display: block;
   font-weight: normal;
 }
@@ -259,11 +260,14 @@ ul.dropdown-content {
   overflow: hidden;
   height: 8rem;
   min-height: 8rem;
+  z-index: 2;
 }
 .header-image-container img {
   display: block;
-  top:-1rem;
+  top:0;
   min-height: 8rem;
+  position: fixed;
+  z-index: 1
 }
 
 /* Materialize Waves additional colors */
@@ -813,10 +817,9 @@ main {
   flex: 1 0 auto;
 }
 
-main li,
 main li a {
-  height: 2.25rem;
-  line-height: 1.5rem;
+  height: 2.5rem;
+  line-height: 2.5rem;
 }
 
 footer.page-footer{
@@ -1460,12 +1463,6 @@ ul.post-links a:hover {
 
 legend + .fieldset-wrapper {
   padding: 1rem;
-}
-
-fieldset.bef-select-as-radios-fieldset.collapsed legend,
-fieldset.bef-select-as-checkboxes-fieldset.collapsed legend
-{
-    position: absolute;
 }
 
 .fieldset-description {
