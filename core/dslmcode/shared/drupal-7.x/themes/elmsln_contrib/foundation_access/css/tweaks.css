@@ -821,6 +821,10 @@ main li a {
   height: 2.5rem;
   line-height: 2.5rem;
 }
+.vertical-tabs ul.vertical-tabs-list li a {
+  height: auto;
+  line-height: auto;
+}
 
 footer.page-footer{
   background-color: #f5f5f5;
