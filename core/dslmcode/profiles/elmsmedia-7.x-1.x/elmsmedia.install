@@ -16,7 +16,7 @@ function elmsmedia_install() {
   // standard clean up
   _elmsln_installer_post_install_cleanup();
   // front-page for media is the media path
-  variable_set('site_frontpage', 'media-overview');
+  variable_set('site_frontpage', 'elmsmedia');
   // we don't need these on authority systems
   variable_set('cis_help_page', '');
   variable_set('cis_resource_page', '');
