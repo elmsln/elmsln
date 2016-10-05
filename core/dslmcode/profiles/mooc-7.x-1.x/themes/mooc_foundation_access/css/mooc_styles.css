@@ -1,6 +1,7 @@
 .outline-nav-icon {
   opacity: .8;
   width: 2.5rem;
+  height: 2.5rem;
   line-height: 2.5rem;
   margin: 0;
 }
@@ -53,11 +54,17 @@
   list-style-type: none;
 }
 
-.page-mooc-book-toc ul.menu li,
 .page-mooc-book-toc ul.menu a {
   width:100%;
+  float: left;
+  color: #222222;
+  border: .1rem solid #eeeeee;
+  font-weight: normal;
 }
 
+.page-mooc-book-toc ul.menu a.has-children {
+  background-color: #eeeeee;
+  font-weight: bold;
 }
 
 a.mooc-helper-toc {
@@ -239,13 +246,12 @@ ul.book-navigation-wrapper {
   overflow: scroll;
 }
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a {
-  border: 1px solid #eceff1;
-  line-height: 150%;
+  border: .1rem solid #eceff1;
   font-size: 1rem;
   color: #222222;
   padding: 0 .5rem;
-  line-height: inherit;
-  height: 2.2rem;
+  line-height: 2.5rem;
+  height: 2.5rem;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
