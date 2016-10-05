@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Default theme implementation to display the basic html structure of a single
@@ -51,11 +50,6 @@
 <head>
   <?php print $head; ?>
   <title><?php print $head_title; ?></title>
-  <?php print $styles; ?>
-  <?php print $scripts; ?>
-  <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
   <!--cross platform favicons and tweaks-->
   <link rel="shortcut icon" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
   <link rel="icon" sizes="16x16 32x32 64x64" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
@@ -87,6 +81,11 @@
   <!-- Chrome, Firefox OS and Opera -->
   <meta name="theme-color" content="#eeeeee">
   <!--/end cross platform favicons and tweaks-->
+  <?php print $styles; ?>
+  <?php print $scripts; ?>
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
 </head>
 <body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?>>
   <div class="skip-link">
