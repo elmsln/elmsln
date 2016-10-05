@@ -126,7 +126,10 @@ function cle_dashboard_preprocess_cle_dashboard(&$variables) {
       }
       $my_critiques[$result->nid] = $result;
       if (isset($result->field_field_assignment[0])) {
+        // tell the assignment that it has been critiqued
         $assignments[$result->field_field_assignment[0]['raw']['target_id']]->critique->completed = TRUE;
+        // tell the assignment what critique it was
+        $assignments[$result->field_field_assignment[0]['raw']['target_id']]->critique->nid = $result->nid;
       }
     }
   }

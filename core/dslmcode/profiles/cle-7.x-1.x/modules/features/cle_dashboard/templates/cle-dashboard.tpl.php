@@ -17,13 +17,13 @@
           </div>
         </div>
       </a>
-      <a class="cle-dashboard__critique" href="{{assignment.critique.url}}" ng-if="assignment.critique" ng-if="assignment.nid" ng-cloak>
+      <a class="cle-dashboard__critique" ng-href="{{ (assignment.critique.completed) ? 'node/' + assignment.critique.nid : assignment.critique.url }}" ng-if="assignment.critique" ng-if="assignment.nid" ng-cloak>
         <div class="collapsible-header">
           <i class="material-icons">subdirectory_arrow_right</i>
           <b>{{assignment.node_title}} Peer Review</b>
           <i class="material-icons right-align">comment</i>
           <div class="secondary-content">
-            <span class="chip completed" ng-if="assignment.critique.completed"> <i class="material-icons">check</i> Done </span>
+            <span class="chip completed" ng-if="assignment.critique.completed"> Done <i class="material-icons">check</i> </span>
           </div>
           <div class="meta-content">
           </div>
