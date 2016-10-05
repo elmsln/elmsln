@@ -33,6 +33,7 @@ error_reporting = E_ALL & ~E_DEPRECATED
 ; increase max file upload size from defaults
 upload_max_filesize = 2000M
 post_max_size = 2000M
+max_file_size = 2000M
 
 ; Recommendation from @mcarper
 realpath_cache_size = 1M
