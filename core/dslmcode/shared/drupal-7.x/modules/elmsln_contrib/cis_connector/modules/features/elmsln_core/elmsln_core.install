@@ -106,3 +106,13 @@ function elmsln_core_update_7008(&$sandbox) {
 function elmsln_core_update_7009(&$sandbox) {
   module_enable(array('pathcache'));
 }
+
+/**
+ * User profile permission for all users now and fixed
+ * weird issue with masquerade where staff couldn't
+ * masquerade as people who didn't have overlapping
+ * roles due to the way we had defined "admin" accounts.
+ */
+function elmsln_core_update_7010(&$sandbox) {
+  features_revert_module('elmsln_core');
+}
