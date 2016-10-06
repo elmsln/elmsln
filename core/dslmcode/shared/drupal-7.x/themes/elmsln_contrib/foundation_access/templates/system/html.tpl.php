@@ -42,13 +42,9 @@
  */
 ?>
 <!DOCTYPE html>
-<!-- Sorry no IE7 support! -->
-
-<!--[if IE 8]><html class="no-js lt-ie9" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <![endif]-->
-<!--[if gt IE 8]><!-->
 <html class="no-js" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <!--<![endif]-->
 <head>
-  <?php print $head; ?>
+  <?php print preg_replace('~>\s+<~', '><', $head); ?>
   <title><?php print $head_title; ?></title>
   <!--cross platform favicons and tweaks-->
   <link rel="shortcut icon" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
@@ -81,11 +77,8 @@
   <!-- Chrome, Firefox OS and Opera -->
   <meta name="theme-color" content="#eeeeee">
   <!--/end cross platform favicons and tweaks-->
-  <?php print $styles; ?>
-  <?php print $scripts; ?>
-  <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
+  <?php print preg_replace('~>\s+<~', '><', $styles); ?>
+  <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
 </head>
 <body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?>>
 <?php ob_flush(); flush(); ?>
@@ -116,8 +109,6 @@
         </a>
       </div>
     </div>
-  <?php print $page_top; ?>
-  <?php print $page; ?>
-  <?php print $page_bottom; ?>
+  <?php print preg_replace('~>\s+<~', '><', $page_top . $page . $page_bottom); ?>
   </body>
 </html>
