@@ -6,3 +6,10 @@
 function cis_displays_update_7000(&$sandbox) {
   features_revert(array('cis_displays' => array('views')));
 }
+
+/**
+* Content based views updated for CIS
+*/
+function cis_displays_update_7001(&$sandbox) {
+  features_revert(array('cis_displays' => array('views')));
+}
