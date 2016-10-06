@@ -117,3 +117,10 @@ function elmsmedia_update_7007(&$sandbox) {
   features_revert_module('elmsmedia_feature');
   variable_set('site_frontpage', 'elmsmedia');
 }
+
+/**
+ * H5P special types visible.
+ */
+function elmsmedia_update_7008(&$sandbox) {
+  features_revert_module('elmsmedia_h5p');
+}
