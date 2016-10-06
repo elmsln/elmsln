@@ -551,7 +551,7 @@ function _elmsln_core_icon_map() {
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
-      'event' => array(
+      'calendar_event' => array(
         'color' => 'green',
         'icon' => 'event',
       ),
@@ -596,8 +596,16 @@ function _elmsln_core_icon_map() {
         'icon' => 'content_copy',
       ),
       'child_page' => array(
-        'color' => 'red',
+        'color' => 'teal',
         'icon' => 'insert_drive_file',
+      ),
+      'thread' => array(
+        'color' => 'blue',
+        'icon' => 'forumn',
+      ),
+      'assignment' => array(
+        'color' => 'green',
+        'icon' => 'assignment',
       ),
     );
     // allow others to modify core associations
