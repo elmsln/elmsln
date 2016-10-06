@@ -607,6 +607,10 @@ function _elmsln_core_icon_map() {
         'color' => 'green',
         'icon' => 'assignment',
       ),
+      'quiz' => array(
+        'color' => 'orange',
+        'icon' => 'assessment',
+      ),
     );
     // allow others to modify core associations
     drupal_alter('elmsln_core_icon_map', $map);
