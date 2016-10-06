@@ -174,19 +174,8 @@ ul.book-navigation-wrapper {
   line-height: 1.5rem;
 }
 
-.book-sibling-parent-pagination a {
-  border: 1px solid #aaaaaa;
-  border-radius: .25rem;
-  line-height: 1.5rem;
-  font-size: 1rem;
-  color: #222222;
-  text-align: center;
-  padding: .25rem 1rem;
-}
-
-.book-sibling-parent-pagination a:hover {
-  border: 1px solid #cfd8dc;
-  background-color: #eceff1;
+a.book-sibling-parent-pagination {
+  padding: 0 .5rem;
 }
 
 .book-sibling-spacer {
@@ -342,9 +331,6 @@ ul.book-navigation-wrapper {
 }
 
 @media all and (max-width: 720px) {
-  .book-navigation-header .book-sibling-parent-pagination {
-    display: none;
-  }
 
   .book-sibling-parent-icon {
     float: none;
