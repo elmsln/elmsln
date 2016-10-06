@@ -48,6 +48,41 @@ function mooc_cis_ux_menu_default_menu_links() {
     'weight' => 0,
     'customized' => 1,
   );
+  // Exported menu link: menu-elmsln-add_duplicate-outline:menutoken/57f673a80b41d.
+  $menu_links['menu-elmsln-add_duplicate-outline:menutoken/57f673a80b41d'] = array(
+    'menu_name' => 'menu-elmsln-add',
+    'link_path' => 'menutoken/57f673a80b41d',
+    'router_path' => 'menutoken/%',
+    'link_title' => 'Duplicate outline',
+    'options' => array(
+      'alter' => TRUE,
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'menu_token_link_path' => 'node/[node:nid]/outline/copy',
+      'menu_token_data' => array(
+        'node' => array(
+          'type' => 'node',
+          'plugin' => 'node_context',
+          'options' => array(),
+        ),
+      ),
+      'menu_token_options' => array(
+        'clear' => 1,
+      ),
+      'identifier' => 'menu-elmsln-add_duplicate-outline:menutoken/57f673a80b41d',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => 0,
+    'customized' => 1,
+  );
   // Exported menu link: menu-elmsln-settings_content-tools:<nolink>.
   $menu_links['menu-elmsln-settings_content-tools:<nolink>'] = array(
     'menu_name' => 'menu-elmsln-settings',
@@ -127,6 +162,7 @@ function mooc_cis_ux_menu_default_menu_links() {
   // Included for use with string extractors like potx.
   t('Child page');
   t('Content Tools');
+  t('Duplicate outline');
   t('Import content outline');
   t('Outline Designer');
 

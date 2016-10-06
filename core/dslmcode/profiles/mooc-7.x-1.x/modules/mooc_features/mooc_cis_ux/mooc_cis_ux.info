@@ -28,6 +28,7 @@ features[features_api][] = api:2
 features[field_base][] = field_instructional_outlines
 features[field_instance][] = node-section-field_instructional_outlines
 features[menu_links][] = menu-elmsln-add_child-page:node/add/page
+features[menu_links][] = menu-elmsln-add_duplicate-outline:menutoken/57f673a80b41d
 features[menu_links][] = menu-elmsln-settings_content-tools:<nolink>
 features[menu_links][] = menu-elmsln-settings_import-content-outline:import/feeds_node_helper_book_import
 features[menu_links][] = menu-elmsln-settings_outline-designer:admin/content/book
