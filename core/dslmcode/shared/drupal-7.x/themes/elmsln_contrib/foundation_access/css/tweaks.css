@@ -811,6 +811,7 @@ body {
 /* ensure iframes still resize correctly */
 body.entity-iframe-theme {
   display: block;
+  min-height: initial;
 }
 
 main {
