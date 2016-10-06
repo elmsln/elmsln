@@ -9,7 +9,7 @@
 ?>
   <li class="ferpa-protect">
     <div class="userView">
-      <img class="background" src="http://materializecss.com/images/office.jpg" alt="">
+      <?php print $userbackground; ?>
       <?php if (isset($userpicturebig)) { print $userpicturebig; } ?>
       <?php if (!empty($username)) : ?>
         <a><span class="white-text name"><?php print "$username"; ?></span></a>

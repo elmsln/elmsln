@@ -140,6 +140,12 @@ function _cis_lmsless_assemble_user() {
       );
       $vars['userpicturebig'] = theme_image_style($image);
     }
+    // load libraries to get materialize path
+    $libraries = libraries_get_libraries();
+    // @todo read off profile value from distributed profile in the future
+    if (isset($libraries['materialize'])) {
+      $vars['userbackground'] = '<img class="background" src="' .  base_path() . $libraries['materialize'] . '/images/office.jpg" alt="">';
+    }
     // set a login link if we don't have a user name
     if ($vars['username'] == '') {
       $vars['userlink'] = l('<i class="material-icons black-text">power_settings_new</i>' . t('Login'), 'user', array('html' => TRUE, 'attributes' => array('class' => array('account-logout', 'waves-effect', 'waves-light', 'btn-flat'))));
@@ -444,6 +450,7 @@ function cis_lmsless_theme() {
         'username' => t('Account'),
         'userlink' => '',
         'userpicturebig' => '<div class="ferpa-protect icon-user-black svg"></div>',
+        'userbackground' => '<img class="background" src="http://materializecss.com/images/office.jpg" alt="">',
         'masquerade' => '',
         'ferpa_flter' => '',
         'user_roles' => '',
