@@ -23,8 +23,10 @@
  *
  * @ingroup views_templates
  */
-
-  $type = $fields['type_1']->content;
+  $type = '';
+  if (isset($fields['type_1']) && isset($fields['type_1']->content)) {
+    $type = $fields['type_1']->content;
+  }
   // assemble preview
   if (isset($fields['field_poster'])) {
     $preview = $fields['field_poster']->content;
