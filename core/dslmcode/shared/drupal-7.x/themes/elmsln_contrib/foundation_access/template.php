@@ -12,6 +12,7 @@ function foundation_access_preprocess_html(&$variables) {
   switch ($variables['install_profile']) {
     case 'lq':
     case 'lor':
+    case 'ulmus':
       $variables['system_icon'] = 'beaker';
     break;
     default:

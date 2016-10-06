@@ -591,6 +591,14 @@ function _elmsln_core_icon_map() {
         'color' => 'purple',
         'icon' => 'ondemand_video',
       ),
+      'duplicate_outline' => array(
+        'color' => 'green',
+        'icon' => 'content_copy',
+      ),
+      'child_page' => array(
+        'color' => 'red',
+        'icon' => 'insert_drive_file',
+      ),
     );
     // allow others to modify core associations
     drupal_alter('elmsln_core_icon_map', $map);
