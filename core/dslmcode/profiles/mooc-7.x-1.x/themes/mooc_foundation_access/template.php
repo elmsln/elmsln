@@ -57,6 +57,7 @@ function mooc_foundation_access_breadcrumb($variables) {
  * Default theme function for video.
  */
 function mooc_foundation_access_read_time($variables) {
+  $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
   $defaults = read_time_defaults();
   $node = $variables['node'];
   // add in the children element to all totals if they exist
@@ -109,7 +110,7 @@ function mooc_foundation_access_read_time($variables) {
       switch ($key) {
         case 'words':
           $label = t('Reading');
-          $icon = '<i class="tiny material-icons">library_books</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_books</i>';
         break;
         case 'audio':
           $label = t('Audio');
@@ -137,20 +138,20 @@ function mooc_foundation_access_read_time($variables) {
               $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
             }
           }
-          $icon = '<i class="tiny material-icons">library_music</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_music</i>';
         break;
         case 'iframe':
-          $icon = '<i class="tiny material-icons">launch</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">launch</i>';
         break;
         case 'img':
           $label = t('Image');
           $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
-          $icon = '<i class="tiny material-icons">perm_media</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">perm_media</i>';
         break;
         case 'svg':
           $label = t('Multimedia');
           $value = $value . ' ' . $label;
-          $icon = '<i class="tiny material-icons">assessment</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">assessment</i>';
         break;
         case 'video':
           $label = t('Video');
@@ -178,7 +179,7 @@ function mooc_foundation_access_read_time($variables) {
               $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
             }
           }
-          $icon = '<i class="tiny material-icons">video_library</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">video_library</i>';
         break;
         default:
           $icon = '';
@@ -187,7 +188,7 @@ function mooc_foundation_access_read_time($variables) {
       }
       // make sure there's something to render
       if (!empty($value)) {
-        $output .= '<div class="chip">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
+        $output .= '<div class="chip ' . $lmsless_classes['color'] . ' ' . $lmsless_classes['light'] . '">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
       }
     }
   }

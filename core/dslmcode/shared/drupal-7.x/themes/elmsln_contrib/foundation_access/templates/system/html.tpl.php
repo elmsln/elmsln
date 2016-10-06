@@ -86,9 +86,9 @@
     <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
   </div>
   <?php if (!empty($logo_img)) : ?>
-    <div class="header-image-container">
-      <?php print $logo_img; ?>
-    </div>
+  <div class="header-image-container">
+    <?php print $logo_img; ?>
+  </div>
   <?php endif; ?>
     <div class="elmsln-system-badge">
       <div class="icon-<?php print $system_icon;?>-black elmsln-badge"></div>

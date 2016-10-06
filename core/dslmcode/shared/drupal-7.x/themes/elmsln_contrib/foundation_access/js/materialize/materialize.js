@@ -93,7 +93,7 @@
     // color text icons that want it
     $('i.cis-lmsless-text').addClass('text-' + Drupal.settings.cis_lmsless['dark']);
     // apply waves to things that want its color
-    $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' waves-light');
     // apply background to things that want our background
     $('.cis-lmsless-background').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
 
@@ -102,8 +102,6 @@
     $('.cis-lmsless-border, .tabs li.tab a').addClass(Drupal.settings.cis_lmsless['color'] + '-border');
     // color chips
     $('.chip,ul li a.active, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
-    // color chip colors
-    $('.chip i').addClass(Drupal.settings.cis_lmsless['text'] + ' text-' + Drupal.settings.cis_lmsless['dark']);
     // color back to top item
     $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
 
