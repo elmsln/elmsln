@@ -2,3 +2,15 @@ dwsync.xml
 _notes
 _notes/
 .DS_Store
+stacks
+stacks/*
+private_files
+private_files/*
+jobs
+jobs/*
+_nondrupal/piwik
+_nondrupal/piwik/*
+shared/drupal-7.x/modules/_elmsln_scripted/
+stacks/*/sites/*/files
+stacks/*/sites/*/*/files
+sftp-config.json
