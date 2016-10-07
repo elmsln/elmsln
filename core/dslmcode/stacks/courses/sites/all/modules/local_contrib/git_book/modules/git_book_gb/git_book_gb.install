@@ -1,0 +1,50 @@
+<?php
+/**
+ * @file
+ * Install file for svg_sanitizer module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function git_book_gb_install() {
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function git_book_gb_uninstall() {
+
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function git_book_gb_requirements($phase) {
+  if ($phase == 'runtime') {
+    $library = libraries_load('parsedown');
+    $t = get_t();
+
+    if (empty($library['loaded'])) {
+      return array(
+        'phpexcel' => array(
+          'title' => $t('Parsedown'),
+          'value' => $t('Not Installed'),
+          'description' => $t('Please install the library %url. And place it in the libraries directory under parsedown.', array('%url' => PARSEDOWN_URL)),
+          'severity' => REQUIREMENT_ERROR,
+        ),
+      );
+    }
+    else {
+      return array(
+        'phpexcel' => array(
+          'title' => $t('Parsedown'),
+          'value' => $t('Parsedown installed.'),
+          'severity' => REQUIREMENT_OK,
+        ),
+      );
+    }
+  }
+  return array();
+}
