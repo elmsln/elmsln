@@ -3,7 +3,31 @@
  * @file
  * Code for the Git book: Read the Docs.
  */
-require_once 'lib/Parsedown.php';
+
+// parsedown global variables
+define('PARSEDOWN_URL', 'https://github.com/erusev/parsedown');
+/**
+ * Impliments hook_libraries_info
+ *
+ * Defines the parsedown library as well as loading the php files.
+ */
+function git_book_gb_libraries_info() {
+  $libraries['parsedown'] = array(
+    'name' => 'Parsedown',
+    'vendor url' => PARSEDOWN_URL,
+    'download url' => PARSEDOWN_URL,
+    // manually setting the version because the library handles versioning
+    // via git tags.
+    'version' => '0.x',
+    'files' => array(
+      'php' => array(
+        'Parsedown.php',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
 
 /**
  * Implements hook_git_book_parser().
@@ -65,6 +89,7 @@ function git_book_gb_construct_path($path, $node) {
 function git_book_gb_git_book_parse($path, $node) {
 	// Get the contents of what is in the summary file in repo.
   $summary = file_get_contents($path . '/SUMMARY.md');
+  libraries_load('parsedown');
   // Use the Parsedown library to parse the file.
   $Parsedown = new Parsedown();
   // Create a variable with the text from that file in HTML.
