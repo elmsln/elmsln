@@ -1,37 +1,14 @@
 <?php
 /**
  * @file
- * elmsmedia_perms.features.defaultconfig.inc
+ * elmsmedia_perms.features.user_permission.inc
  */
 
 /**
- * Implements hook_defaultconfig_features().
+ * Implements hook_user_default_permissions().
  */
-function elmsmedia_perms_defaultconfig_features() {
-  return array(
-    'elmsmedia_perms' => array(
-      'user_default_permissions' => 'user_default_permissions',
-    ),
-  );
-}
-
-/**
- * Implements hook_defaultconfig_user_default_permissions().
- */
-function elmsmedia_perms_defaultconfig_user_default_permissions() {
+function elmsmedia_perms_user_default_permissions() {
   $permissions = array();
-
-  // Exported permission: 'access content'.
-  $permissions['access content'] = array(
-    'name' => 'access content',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'anonymous user' => 'anonymous user',
-      'authenticated user' => 'authenticated user',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
 
   // Exported permission: 'create audio content'.
   $permissions['create audio content'] = array(
@@ -72,6 +49,66 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
   // Exported permission: 'create external_video content'.
   $permissions['create external_video content'] = array(
     'name' => 'create external_video content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'create figurelabel content'.
+  $permissions['create figurelabel content'] = array(
+    'name' => 'create figurelabel content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'create h5p_content content'.
+  $permissions['create h5p_content content'] = array(
+    'name' => 'create h5p_content content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'create image_gallery content'.
+  $permissions['create image_gallery content'] = array(
+    'name' => 'create image_gallery content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'create static_content content'.
+  $permissions['create static_content content'] = array(
+    'name' => 'create static_content content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'create svg content'.
+  $permissions['create svg content'] = array(
+    'name' => 'create svg content',
     'roles' => array(
       'administrator' => 'administrator',
       'instructor' => 'instructor',
@@ -126,6 +163,56 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
   // Exported permission: 'delete any external_video content'.
   $permissions['delete any external_video content'] = array(
     'name' => 'delete any external_video content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete any figurelabel content'.
+  $permissions['delete any figurelabel content'] = array(
+    'name' => 'delete any figurelabel content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete any h5p_content content'.
+  $permissions['delete any h5p_content content'] = array(
+    'name' => 'delete any h5p_content content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete any image_gallery content'.
+  $permissions['delete any image_gallery content'] = array(
+    'name' => 'delete any image_gallery content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete any static_content content'.
+  $permissions['delete any static_content content'] = array(
+    'name' => 'delete any static_content content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete any svg content'.
+  $permissions['delete any svg content'] = array(
+    'name' => 'delete any svg content',
     'roles' => array(
       'administrator' => 'administrator',
       'staff' => 'staff',
@@ -191,6 +278,66 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'delete own figurelabel content'.
+  $permissions['delete own figurelabel content'] = array(
+    'name' => 'delete own figurelabel content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete own h5p_content content'.
+  $permissions['delete own h5p_content content'] = array(
+    'name' => 'delete own h5p_content content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete own image_gallery content'.
+  $permissions['delete own image_gallery content'] = array(
+    'name' => 'delete own image_gallery content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete own static_content content'.
+  $permissions['delete own static_content content'] = array(
+    'name' => 'delete own static_content content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete own svg content'.
+  $permissions['delete own svg content'] = array(
+    'name' => 'delete own svg content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'delete own video content'.
   $permissions['delete own video content'] = array(
     'name' => 'delete own video content',
@@ -239,6 +386,60 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
   // Exported permission: 'edit any external_video content'.
   $permissions['edit any external_video content'] = array(
     'name' => 'edit any external_video content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any figurelabel content'.
+  $permissions['edit any figurelabel content'] = array(
+    'name' => 'edit any figurelabel content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any h5p_content content'.
+  $permissions['edit any h5p_content content'] = array(
+    'name' => 'edit any h5p_content content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any image_gallery content'.
+  $permissions['edit any image_gallery content'] = array(
+    'name' => 'edit any image_gallery content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any static_content content'.
+  $permissions['edit any static_content content'] = array(
+    'name' => 'edit any static_content content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any svg content'.
+  $permissions['edit any svg content'] = array(
+    'name' => 'edit any svg content',
     'roles' => array(
       'administrator' => 'administrator',
       'instructor' => 'instructor',
@@ -306,9 +507,9 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'edit own video content'.
-  $permissions['edit own video content'] = array(
-    'name' => 'edit own video content',
+  // Exported permission: 'edit own figurelabel content'.
+  $permissions['edit own figurelabel content'] = array(
+    'name' => 'edit own figurelabel content',
     'roles' => array(
       'administrator' => 'administrator',
       'instructor' => 'instructor',
@@ -318,24 +519,62 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'use add another'.
-  $permissions['use add another'] = array(
-    'name' => 'use add another',
+  // Exported permission: 'edit own h5p_content content'.
+  $permissions['edit own h5p_content content'] = array(
+    'name' => 'edit own h5p_content content',
     'roles' => array(
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
-    'module' => 'addanother',
+    'module' => 'node',
   );
 
-  // Exported permission: 'view own unpublished content'.
-  $permissions['view own unpublished content'] = array(
-    'name' => 'view own unpublished content',
+  // Exported permission: 'edit own image_gallery content'.
+  $permissions['edit own image_gallery content'] = array(
+    'name' => 'edit own image_gallery content',
     'roles' => array(
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit own static_content content'.
+  $permissions['edit own static_content content'] = array(
+    'name' => 'edit own static_content content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit own svg content'.
+  $permissions['edit own svg content'] = array(
+    'name' => 'edit own svg content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit own video content'.
+  $permissions['edit own video content'] = array(
+    'name' => 'edit own video content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
   );

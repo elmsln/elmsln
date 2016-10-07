@@ -58,7 +58,10 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
       '__basic_gallery' => array(
         '__circle' => array(),
       ),
-    )
+    ),
+    'accessible_fallback' => array(
+      '' => array(),
+    ),
   );
   // calculate all styles possible from arrays above
   // this is nuts

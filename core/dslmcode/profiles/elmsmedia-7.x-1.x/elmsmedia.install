@@ -124,3 +124,21 @@ function elmsmedia_update_7007(&$sandbox) {
 function elmsmedia_update_7008(&$sandbox) {
   features_revert_module('elmsmedia_h5p');
 }
+
+/**
+ * Updates for accessible fallback methodology and related types
+ */
+function elmsmedia_update_7009(&$sandbox) {
+  module_enable(array('elmsmedia_static_content'));
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+  features_revert_module('elmsmedia_view_mode_tabs');
+  features_revert_module('elmsmedia_cis_ux');
+  features_revert_module('elmsmedia_feature');
+}

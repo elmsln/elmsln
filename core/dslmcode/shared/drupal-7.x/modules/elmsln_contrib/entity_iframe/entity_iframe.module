@@ -31,7 +31,7 @@ function entity_iframe_permission() {
 function entity_iframe_menu() {
   $items['entity_iframe/%/%'] = array(
     'page callback' => 'entity_iframe_output',
-    'page arguments' => array(1, 2),
+    'page arguments' => array(1, 2, 3),
     'access callback' => '_entity_iframe_view_iframe',
     'access arguments' => array(1, 2),
     'type' => MENU_CALLBACK,

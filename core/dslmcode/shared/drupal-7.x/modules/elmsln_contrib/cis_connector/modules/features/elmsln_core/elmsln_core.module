@@ -576,12 +576,16 @@ function _elmsln_core_icon_map() {
         'icon' => 'local_activity',
       ),
       'image' => array(
-        'color' => 'teal',
+        'color' => 'amber',
         'icon' => 'photo',
       ),
       'image_gallery' => array(
-        'color' => 'blue',
+        'color' => 'teal',
         'icon' => 'collections',
+      ),
+      'static_content' => array(
+        'color' => 'blue',
+        'icon' => 'insert_drive_file',
       ),
       'svg' => array(
         'color' => 'indigo',

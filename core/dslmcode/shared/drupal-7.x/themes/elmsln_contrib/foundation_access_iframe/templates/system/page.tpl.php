@@ -8,8 +8,13 @@
  * @see template_process()
  */
 ?>
-<main id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
+<main id="etb-tool-nav">
   <div class="inner-wrap">
+    <?php if (!empty($messages)): ?>
+    <div class="region-messeges">
+      <?php print $messages; ?>
+    </div>
+  <?php endif; ?>
     <section class="main-section etb-book">
     <a id="main-content"></a>
     <?php if ($title && arg(2) != 'edit'): ?>

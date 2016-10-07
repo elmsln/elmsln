@@ -1,3 +1,6 @@
+<?php if (isset($content['field_figurelabel_ref'])): ?>
+  <?php print render($content['field_figurelabel_ref'][0]); ?>
+<?php endif; ?>
 <div class="row">
   <div class="col s12 m10 push-m1 l8 push-l2 center-align card-panel hoverable">
     <h4><?php print render($title);?></h4>

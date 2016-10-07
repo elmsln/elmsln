@@ -60,19 +60,13 @@
     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
     // if we observe this happening do something
     var iframeObserver = new MutationObserver(function(mutations, observer) {
-      // fired when a mutation occurs of any kind this ensures that even if the content dynamically
-      // resizes that we're noticing the change in real time and passing forward the new dimensions to set
-      setTimeout(function() {
-        window.onresize = false;
-        window.onresize = function() {
-          // looks weird but this helps ensure we don't resize
-          if (resizeTimeout) {
-            clearTimeout(resizeTimeout);
-          }
-          resizeTimeout = setTimeout(function() {
-            fireResize(true);
-          }, 500);
-        };
+      // mutators fire when anything changes. This helps prevent a flood of changes by only bubbling up
+      // a resize frame event .5 a second after it occurs
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      resizeTimeout = setTimeout(function() {
+        fireResize(true);
       }, 500);
     });
     // define what element should be observed by the observer and what types of mutations trigger the callback

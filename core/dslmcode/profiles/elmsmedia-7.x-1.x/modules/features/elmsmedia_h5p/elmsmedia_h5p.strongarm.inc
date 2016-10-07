@@ -156,38 +156,131 @@ function elmsmedia_h5p_strongarm() {
       'revision' => array(
         'custom_settings' => FALSE,
       ),
+      'image__left__circle' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__left__circle__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right__circle' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right__circle__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__circle' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__circle__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed__large' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed__large' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__parallax' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__parallax__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'h5p' => array(
+        'custom_settings' => FALSE,
+      ),
+      'h5p__card' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__carousel' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__carousel__slider' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__comparison' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__basic_gallery' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__basic_gallery__circle' => array(
+        'custom_settings' => FALSE,
+      ),
+      'accessible_fallback' => array(
+        'custom_settings' => TRUE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
         'h5p' => array(
-          'weight' => '5',
-        ),
-        'h5p_type' => array(
-          'weight' => '3',
-        ),
-        'h5p_editor' => array(
-          'weight' => '6',
-        ),
-        'title' => array(
           'weight' => '2',
         ),
+        'h5p_type' => array(
+          'weight' => '1',
+        ),
+        'h5p_editor' => array(
+          'weight' => '3',
+        ),
+        'title' => array(
+          'weight' => '0',
+        ),
         'path' => array(
-          'weight' => '7',
-        ),
-        'hidden_nodes' => array(
-          'weight' => '8',
-        ),
-        'book' => array(
-          'weight' => '11',
-        ),
-        'options' => array(
-          'weight' => '12',
-        ),
-        'author' => array(
           'weight' => '9',
         ),
-        'revision_information' => array(
+        'hidden_nodes' => array(
           'weight' => '10',
+        ),
+        'book' => array(
+          'weight' => '13',
+        ),
+        'options' => array(
+          'weight' => '14',
+        ),
+        'author' => array(
+          'weight' => '11',
+        ),
+        'revision_information' => array(
+          'weight' => '12',
         ),
       ),
       'display' => array(
@@ -201,8 +294,12 @@ function elmsmedia_h5p_strongarm() {
             'visible' => TRUE,
           ),
           'iframe' => array(
-            'weight' => '0',
+            'weight' => '2',
             'visible' => TRUE,
+          ),
+          'accessible_fallback' => array(
+            'weight' => '2',
+            'visible' => FALSE,
           ),
         ),
       ),

@@ -768,7 +768,7 @@ div.form-type-checkbox :last-child {
   position: relative;
   overflow: hidden;
   z-index: 1;
-  width: 5.25rem;
+  width: 6rem;
   height: 2rem;
   line-height: 2rem;
   padding: 0 0 0 0.25rem;
@@ -1115,6 +1115,9 @@ a.add-menu-drop {
   border-bottom: none;
   border-top-width: .2rem;
   border-top-style: solid;
+  z-index: 2;
+}
+#etb-tool-nav {
   z-index: 2;
 }
 #etb-course-nav span.course-title,
