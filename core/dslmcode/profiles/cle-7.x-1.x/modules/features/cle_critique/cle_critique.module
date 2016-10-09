@@ -49,9 +49,15 @@ function _cle_critique_page_random_form($arg, &$form_state) {
     // load up the node form pages
     module_load_include('inc', 'node', 'node.pages');
     drupal_add_css(drupal_get_path('module', 'cle_critique') .'/css/cle_critique.css');
-    // find out if there is a specific submission to render or if we should
-    // find a random submission
-    if ($submission_id) {
+
+    // see if we already were handed input so we don't mess ourselves up by
+    // randomizing on save... like we once did. ugh.
+    if (isset($form_state['input']) && isset($form_state['input']['field_cle_crit_sub_ref'])) {
+      $submission = node_load($form_state['input']['field_cle_crit_sub_ref']['und']);
+    }
+    elseif ($submission_id) {
+      // find out if there is a specific submission to render or if we should
+      // find a random submission
       $submission = node_load($submission_id);
     }
     else {
@@ -197,10 +203,13 @@ function _cle_critique_random($anid) {
     // loop through and check if these exist as options
     foreach ($nids as $nid) {
       // see if anyone else has critiqued this already
-      $critiques = _cis_connector_assemble_entity_list('node', 'cle_critique', 'nid', 'nid', array('field_cle_crit_sub_ref' => array('target_id', $nid, '=')));
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node');
+      $query->fieldCondition('field_cle_crit_sub_ref', 'target_id', $nid);
+      $result = $query->execute();
       // if this wasn't set then we know we can return this submission
       // for rendering on the critique viewer
-      if (!isset($critiques[$nid])) {
+      if (!isset($result['node'])) {
         $submission = node_load($nid);
         return $submission;
       }
