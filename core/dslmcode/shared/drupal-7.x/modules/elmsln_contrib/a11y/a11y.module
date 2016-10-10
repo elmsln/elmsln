@@ -185,6 +185,23 @@ function a11y_a11y_block($render = TRUE) {
         '#weight' => -10,
       );
     }
+    // support for field-loss simulator
+    if (variable_get('a11y_sim_field_loss', 1)) {
+      $sim['field_loss'] = array(
+        '#type' => 'select',
+        '#id' => 'a11y_sim_field_loss_select',
+        '#title' => t('Field loss'),
+        '#default_value' => '',
+        '#options' => array(
+          '' => '',
+          'central' => t('Central loss'),
+          'peripheral' => t('Peripheral loss'),
+        ),
+        '#description' => t('This will simulate how someone with vision field loss might view your material.'),
+        '#weight' => -10,
+      );
+      drupal_add_css(drupal_get_path('module', 'a11y') . '/simulations/field-loss/field-loss.css');
+    }
     if ($render) {
       // render any aleration array items we have
       $output .= drupal_render($sim);
@@ -228,6 +245,13 @@ function a11y_admin_settings($form, &$form_state) {
     '#title' => t('Allow dyslexia simulator'),
     '#default_value' => variable_get('a11y_sim_dyslexia', 1),
     '#description' => t('This produces an effect to content that attempts to simulate the affects of dyslexia'),
+    '#required' => FALSE,
+  );
+  $form['sim']['a11y_sim_field_loss'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow field loss simulator'),
+    '#default_value' => variable_get('a11y_sim_field_loss', 1),
+    '#description' => t('This produces an effect to content that attempts to simulate the affects of field loss'),
     '#required' => FALSE,
   );
   $form['config'] = array(
@@ -317,6 +341,10 @@ function a11y_apply_a11y() {
   if (variable_get('a11y_sim_dyslexia', 1)) {
     $js_variables['a11y']['sim']['dyslexia'] = 1;
     drupal_add_js($sim_path . 'dyslexia/dyslexia.js', $plugin_js_opts);
+  }
+  if (variable_get('a11y_sim_field_loss', 1)) {
+    $js_variables['a11y']['sim']['field_loss'] = 1;
+    drupal_add_js($sim_path . 'field-loss/field-loss.js', $plugin_js_opts);
   }
   drupal_add_js($js_variables, array('type' => 'setting', 'scope' => 'footer'));
 }
