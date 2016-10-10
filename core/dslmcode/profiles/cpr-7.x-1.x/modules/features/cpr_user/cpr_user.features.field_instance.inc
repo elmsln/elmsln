@@ -10,7 +10,7 @@
 function cpr_user_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'user-user-field_accessibility_preference'
+  // Exported field_instance: 'user-user-field_accessibility_preference'.
   $field_instances['user-user-field_accessibility_preference'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -55,7 +55,67 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_bio'
+  // Exported field_instance: 'user-user-field_banner_pic'.
+  $field_instances['user-user-field_banner_pic'] = array(
+    'bundle' => 'user',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 11,
+      ),
+    ),
+    'entity_type' => 'user',
+    'field_name' => 'field_banner_pic',
+    'label' => 'Banner Pic',
+    'required' => 0,
+    'settings' => array(
+      'alt_field' => 1,
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'default_image' => 0,
+      'file_directory' => '',
+      'file_extensions' => 'png gif jpg jpeg',
+      'focus' => 0,
+      'focus_lock_ratio' => 0,
+      'focus_min_size' => '',
+      'max_filesize' => '',
+      'max_resolution' => '',
+      'min_resolution' => '',
+      'title_field' => 0,
+      'user_register_form' => 0,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'image',
+      'settings' => array(
+        'preview_image_style' => 'thumbnail',
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'image_image',
+      'weight' => 51,
+    ),
+  );
+
+  // Exported field_instance: 'user-user-field_bio'.
   $field_instances['user-user-field_bio'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -111,7 +171,7 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_display_name'
+  // Exported field_instance: 'user-user-field_display_name'.
   $field_instances['user-user-field_display_name'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -180,7 +240,7 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_first_name'
+  // Exported field_instance: 'user-user-field_first_name'.
   $field_instances['user-user-field_first_name'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -236,7 +296,7 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_last_name'
+  // Exported field_instance: 'user-user-field_last_name'.
   $field_instances['user-user-field_last_name'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -292,7 +352,7 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_media_preference'
+  // Exported field_instance: 'user-user-field_media_preference'.
   $field_instances['user-user-field_media_preference'] = array(
     'bundle' => 'user',
     'default_value' => array(
@@ -341,7 +401,7 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_photo'
+  // Exported field_instance: 'user-user-field_photo'.
   $field_instances['user-user-field_photo'] = array(
     'bundle' => 'user',
     'deleted' => 0,
@@ -384,13 +444,14 @@ function cpr_user_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 13,
+      'weight' => 53,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Accessibility Preference');
+  t('Banner Pic');
   t('Bio');
   t('Display name');
   t('First name');
