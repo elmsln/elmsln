@@ -11,6 +11,8 @@ pages:
     - Outline designer: enduser/courses/outline-designer.md
   - Media asset management:
     - Interactive H5P content: enduser/media/h5p.md
+  - Accessibility:
+    - H5P: accessibility/h5p.md
 - Information architecture:
   - Index: ia/ia-index.md
   - System: ia/System.md
