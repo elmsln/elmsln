@@ -112,7 +112,7 @@ function mooc_cis_ux_menu_default_menu_links() {
     'menu_name' => 'menu-elmsln-settings',
     'link_path' => 'import/feeds_node_helper_book_import',
     'router_path' => 'import/%',
-    'link_title' => 'Import content outline',
+    'link_title' => 'Import course outline',
     'options' => array(
       'attributes' => array(),
       'item_attributes' => array(
@@ -137,7 +137,7 @@ function mooc_cis_ux_menu_default_menu_links() {
     'menu_name' => 'menu-elmsln-settings',
     'link_path' => 'admin/content/book',
     'router_path' => 'admin/content/book',
-    'link_title' => 'Outline Designer',
+    'link_title' => 'Course outline designer',
     'options' => array(
       'attributes' => array(),
       'item_attributes' => array(
@@ -163,8 +163,8 @@ function mooc_cis_ux_menu_default_menu_links() {
   t('Child page');
   t('Content Tools');
   t('Duplicate outline');
-  t('Import content outline');
-  t('Outline Designer');
+  t('Import course outline');
+  t('Course outline designer');
 
   return $menu_links;
 }
