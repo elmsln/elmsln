@@ -61,25 +61,7 @@ function _git_book_gb_summary($path, $node, $pages = array()) {
  * Callback to modify path for git_book_gb_git_book_parser.
  */
 function git_book_gb_construct_path($path, $node) {
-  $tmp = $node;
-  $title_path = '';
-  // keep walking backwards adding parents for path
-  // until we hit the book root then stop
-  while ($tmp->nid != $node->book['bid']) {
-    if ($node->title != $tmp->title) {
-      $title_path = $tmp->title . '/' . $title_path;
-    }
-    // load parent
-    $plid = menu_link_load($tmp->book['plid']);
-    // get nid from path
-    $nid = str_replace('node/', '', $plid['link_path']);
-    // load for the next run
-    $tmp = node_load($nid);
-  }
-  // rebuild the yaml file page structure based on outline
-  $pages = _git_book_tree($node->book['bid']);
-  _git_book_gb_make_yml($path, $node, $pages);
-  return $path . '/docs/' . $title_path;
+  return '';
 }
 
 
