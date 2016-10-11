@@ -476,6 +476,11 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
               // so we should provide a link to the resource they submitted
               // if we don't then that means we need to present a for the submission modal
               _cis_filter_attach_modal();
+              // cancel saving this page to authcache as a result of having a highly contextual widget
+              // loaded in the page
+              if (function_exists('authcache_cancel')) {
+                authcache_cancel(t('CIS Filter applied with submit widget which needs to be user specific.'));
+              }
               if (isset($response['list'][0])) {
                 if ($code['submit_type'] == 'harmony_post') {
                   $link = 'cis/service/render/1/' . $code['tool'] . '/thread/' . $item[$code['entity_key']] . '#' . $code['submit_endpoint'] . '-' . $response['list'][0]['id'];
