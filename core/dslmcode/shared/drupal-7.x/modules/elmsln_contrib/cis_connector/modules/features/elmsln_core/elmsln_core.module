@@ -6,6 +6,27 @@
 
 include_once 'elmsln_core.features.inc';
 
+// elmsln file stream wrapper
+include_once 'includes/elmsln_stream_wrappers.inc';
+
+/**
+ * Implements hook_stream_wrappers().
+ */
+function elmsln_core_stream_wrappers() {
+  return array(
+    'elmslnauthority' => array(
+      'name' => t('ELMSLN authority files'),
+      'class' => 'ELMSLNAuthorityStreamWrapper',
+      'description' => t('ELMSLN Authority file delivery wrapper that uses the application pattern to find files.'),
+    ),
+    'elmslnservice' => array(
+      'name' => t('ELMSLN service files'),
+      'class' => 'ELMSLNServiceStreamWrapper',
+      'description' => t('ELMSLN Service file delivery wrapper that uses the application pattern to find files.'),
+    ),
+  );
+}
+
 /**
  * Implements hook_menu().
  */
