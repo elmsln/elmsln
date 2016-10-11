@@ -3,7 +3,7 @@ name = "MOOC"
 description = "Massively Open Online Course is a set of tools for building an online course"
 exclusive = "1"
 core = "7.x"
-elmslndefaulttitle = "Content outline"
+elmslndefaulttitle = "Course outline"
 elmslntype = "service"
 ; ----------
 ; ELMSLN Core Dependencies
