@@ -44,6 +44,8 @@ echo "ulmus ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ulmus
 chmod 440 /etc/sudoers.d/ulmus
 # replicate the .composer directory for this user since composer doesn't like sudo -i
 cp -R $HOME/.composer /home/ulmus/
+# alternate location for composer
+cp -R $HOME/.config /home/ulmus/
 chown -R ulmus:elmsln /home/ulmus/
 # this user can just run drush commands and is used much more often
 # now run this as the user we just made so it has the drush plugins
@@ -63,6 +65,8 @@ echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd restart" >> /etc/sudoer
 chmod 440 /etc/sudoers.d/ulmusdrush
 # replicate the .composer directory for this user since composer doesn't like sudo -i
 cp -R $HOME/.composer /home/ulmusdrush/
+# alternate location for composer
+cp -R $HOME/.config /home/ulmusdrush/
 chown -R ulmusdrush:elmsln /home/ulmusdrush/
 
 # this user can just run drush commands and is used much more often
