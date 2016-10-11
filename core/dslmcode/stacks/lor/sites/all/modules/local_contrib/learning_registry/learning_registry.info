@@ -4,15 +4,15 @@ core = 7.x
 dependencies[] = field
 
 ; Information added by  packaging script on 2013-11-15
-version = "7.x-1.x-dev"
+version = "7.x-1.2-beta1"
 core = "7.x"
 project = "learning_registry"
 datestamp = "1384492105"
 
 
-; Information added by Drupal.org packaging script on 2015-02-26
-version = "7.x-1.1-beta1"
+; Information added by Drupal.org packaging script on 2016-03-25
+version = "7.x-1.2-beta1"
 core = "7.x"
 project = "learning_registry"
-datestamp = "1424914382"
+datestamp = "1458923944"
 

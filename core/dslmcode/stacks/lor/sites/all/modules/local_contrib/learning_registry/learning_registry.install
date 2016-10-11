@@ -133,7 +133,7 @@ function learning_registry_requirements($phase) {
   }
   else {
     $requirements['oauth']['value'] = $t('Not installed');
-    $requirements['oauth']['description'] = $t('Learning Registry authentication requires OAuth Library');
+    $requirements['oauth']['description'] = $t('Learning Registry authentication requires PHP OAuth Library');
     $requirements['oauth']['severity'] = REQUIREMENT_ERROR;
   }
 
@@ -144,7 +144,7 @@ function learning_registry_requirements($phase) {
   }
   else {
     $requirements['mcrypt']['value'] = $t('Not installed');
-    $requirements['mcrypt']['description'] = $t('Learning Registry authentication requires mcrypt Library');
+    $requirements['mcrypt']['description'] = $t('Learning Registry authentication requires PHP mcrypt Library');
     $requirements['mcrypt']['severity'] = REQUIREMENT_ERROR;
   }
 

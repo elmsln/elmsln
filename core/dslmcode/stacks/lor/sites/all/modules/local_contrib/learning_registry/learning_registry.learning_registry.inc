@@ -27,7 +27,7 @@ function _learning_registry_publish(&$node, $headless = FALSE, $op = LEARNING_RE
 		"submission_TOS" => "http://www.learningregistry.org/tos/cc0/v0-5/",
 	);
 	$content_info['documents'][0]['payload_placement'] = "none";
-	$content_info['documents'][0]['update_timestamp'] = format_date(time(), 'custom', 'Y-m-d\TG:i:s.Z\Z');
+	$content_info['documents'][0]['update_timestamp'] = gmdate('Y-m-d\TH:i:s.u\Z');
 	unset($content_info['documents'][0]['resource_data']);
   }
   $resource_post_payload = drupal_json_encode($content_info);
@@ -56,12 +56,13 @@ function _learning_registry_get_content_info(&$node) {
 	);
   $content_info['resource_data_type'] = 'metadata';
   $content_info['payload_placement']  = "inline";
-  $content_info['payload_schema'] = array("schema.org", "lrmi");
+  $content_info['payload_schema'] = array("schema.org", "lrmi", "json-ld");
   $content_info['active'] = TRUE;
   $content_info['doc_type'] = "resource_data";
   $content_info['doc_version'] = LEARNING_REGISTRY_DOC_VERSION;
-  $content_info['create_timestamp'] = format_date($node->created, 'custom', 'Y-m-d\TG:i:s.Z\Z');
-  $content_info['update_timestamp'] = format_date($node->changed, 'custom', 'Y-m-d\TG:i:s.Z\Z');
+  $content_info['create_timestamp'] = gmdate('Y-m-d\TH:i:s.u\Z', $node->created);
+  $content_info['update_timestamp'] = gmdate('Y-m-d\TH:i:s.u\Z', $node->changed);
+  
   $content_info['identity'] = array(
 	"owner" => variable_get('learning_registry_submitter', NULL),
   );
@@ -268,7 +269,7 @@ function _learning_registry_parse_result($result, $code) {
 function _learning_registry_queue_node($nid) {
 
   // Check if this record exists in submission table.
-  $submission_check_result = db_select('learning_registry','l');
+  $q = db_select('learning_registry','l');
 		$q->condition('l.nid',$nid,'=');
 		$q->fields('l',array('docid'));
 		$result = $q->execute();
@@ -317,11 +318,77 @@ function _learning_registry_get_resource_data(&$node) {
   // Set the identifier to the absolute URL of the node.
   $identifier = _learning_registry_get_node_url($node);
 
-  // Set the creator to the Drupal username.
-  $creator = $author_user->name;
+  // Set the submitter.
+  $submitter = variable_get('learning_registry_submitter', null);
+  $keywords = learning_registry_extract_keywords($node); 
+  $educational_alignment = array(); 
+  if(variable_get('learning_registry_standarts-select', "none") == 0){
+	$vocab_st = variable_get('learning_registry_standarts-term-select', null) ? taxonomy_vocabulary_load(variable_get('learning_registry_standarts-term-select', null)) : "";
+	$target_name_st = is_object($vocab_st) ? $vocab_st->name : "";
+	$educational_alignment[] = array(
+				"type" => "http://schema.org/CreativeWork",
+				"properties" => array(
+					"alignmentType" => "teaches",
+					"educationalFramework" => variable_get('learning_registry_standarts-framework', ""),
+					"targetName" => $target_name_st,
+				),
+	); 
+  }
+  else if(variable_get('learning_registry_standarts-select', "none") == 1){
+	$educational_alignment[] = array(
+				"type" => "http://schema.org/CreativeWork",
+				"properties" => array(
+					"alignmentType" => "teaches",
+					"targetName" => variable_get('learning_registry_standarts-variable', ""),
+				),
+	);
+  }
+  if(variable_get('learning_registry_levels-select', "none") == 0){
+	$vocab_lev = variable_get('learning_registry_levels-term-select', null) ? taxonomy_vocabulary_load(variable_get('learning_registry_levels-term-select', null)) : "";
+	$target_name_lev = is_object($vocab_lev) ? $vocab_lev->name : "";
+	$educational_alignment[] = array(
+				"type" => "http://schema.org/CreativeWork",
+				"properties" => array(
+					"alignmentType" => "teaches",
+					"educationalFramework" => variable_get('learning_registry_levels-framework', ""),
+					"targetName" => $target_name_lev,
+				),
+	); 
+  }
+  else if(variable_get('learning_registry_levels-select', "none") == 1){
+	$educational_alignment[] = array(
+				"type" => "http://schema.org/CreativeWork",
+				"properties" => array(
+					"alignmentType" => "teaches",
+					"targetName" => variable_get('learning_registry_levels-variable', ""),
+				),
+	); 
+  }
   
-  $keywords = learning_registry_extract_keywords($node);
-
+  $subjects = array();
+  if(variable_get('learning_registry_subjects-select', "none") == 0){
+	$vocab_subj = variable_get('learning_registry_subjects-term-select', null) ? taxonomy_vocabulary_load(variable_get('learning_registry_subjects-term-select', null)) : "";
+	$terms = taxonomy_get_tree($vocab_subj->vid);
+	foreach($terms as $term){
+		$subjects[] = $term->name;
+	}
+  }
+  else if(variable_get('learning_registry_subjects-select', "none") == 1){
+	$subjects[] = variable_get('learning_registry_subjects-variable', "");
+  }
+  
+  $resourse_type = array();
+  if(variable_get('learning_registry_type-select', "none") == 0){
+	$vocab_type = variable_get('learning_registry_type-term-select', null) ? taxonomy_vocabulary_load(variable_get('learning_registry_type-term-select', null)) : "";
+	$terms = taxonomy_get_tree($vocab_type->vid);
+	foreach($terms as $term){
+		$resourse_type[] = $term->name;
+	}
+  }
+  else if(variable_get('learning_registry_type-select', "none") == 1){
+	$resourse_type[] = variable_get('learning_registry_type-variable', "");
+  }
+  
   $resource_data = array(
 	"items"  =>  array(
 		"type" => "http://schema.org/CreativeWork",
@@ -330,20 +397,23 @@ function _learning_registry_get_resource_data(&$node) {
 			"publisher"  => array(
 				"type"  => "http://schema.org/" . variable_get('learning_registry_submitter_type'),
 				"properties"  => array(
-					"name" => $creator,
+					"name" => $submitter,
 				),
 			),
 			"name" => $title,
 			"author" => array(
 				"type" => "http://schema.org/" . variable_get('learning_registry_submitter_type'),
 				"properties" => array(
-					"name" => "Chicago STEM Pathways Cooperative",
+					"name" => $submitter,
 				),
 			),
 			"url" => $identifier,
 			"dateCreated" => $date_created,
 			"keywords" => $keywords,
 			"description" => $description,
+			"educationalAlignment" => $educational_alignment,
+			"subjects" => $subjects,
+			"learningResourceType" => $resourse_type,
 		),
 	),
   );

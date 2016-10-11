@@ -35,7 +35,6 @@ define('LEARNING_REGISTRY_URL_ALIAS', 1);
 define('LEARNING_REGISTRY_DOC_TYPE', 'resource_data');
 define('LEARNING_REGISTRY_DOC_VERSION', '0.49.0');
 define('LEARNING_REGISTRY_SUBMITTER_TYPE', 'organization');
-define('LEARNING_REGISTRY_PUBLISH_TAXONOMY_TAGS', 'true');
 
 /**
  * The following constants represent modes of publishing to the Learning Registry.
@@ -174,12 +173,15 @@ function learning_registry_node_delete($node) {
 function learning_registry_cron() {
   module_load_include('inc', 'learning_registry', 'learning_registry.learning_registry');
   // Pull node IDs of records queued for processing.
-  $records = db_query('SELECT nid FROM {learning_registry} WHERE queued = :queued LIMIT 0, 50', array(':queued' => 1));
-
-  foreach ($records as $record) {
-    $node = node_load($record->nid, NULL, TRUE);
-    _learning_registry_publish($node, TRUE);
-  }
+  $q = db_select('learning_registry','l');
+		$q->condition('l.queued',1,'=');
+		$q->fields('l',array('nid'));
+		$result = $q->execute();
+		$result = $q->range(0, 50)->execute();
+		while($record =$result ->fetchAssoc()){
+			$node = node_load($record['nid'], NULL, TRUE);
+			_learning_registry_publish($node, TRUE);
+		}
 }
 
 /**
@@ -273,6 +275,11 @@ function _learning_registry_bulk_operations_delete($nids) {
  *   An array of the term names
  */
 function learning_registry_extract_keywords($node) {
+	$vocabularies = array();
+	$vocab_st = variable_get('learning_registry_standarts-term-select', null) ? taxonomy_vocabulary_load(variable_get('learning_registry_standarts-term-select', "")) : "";
+	$vocabularies[] = is_object($vocab_st) ? $vocab_st->vid : "";
+	$vocab_lev = variable_get('learning_registry_levels-term-select', null) ? taxonomy_vocabulary_load(variable_get('learning_registry_levels-term-select', "")) : "";
+	$vocabularies[] = is_object($vocab_lev) ? $vocab_lev->vid : "";
   $keys = array();
   foreach (field_info_instances('node', $node->type) as $instance) {
     $field_name = $instance['field_name'];
@@ -304,7 +311,19 @@ function learning_registry_extract_keywords($node) {
       }
     }
   }
-  return $keys;
+  $result = array();
+  foreach($vocabularies as $vid){
+	if(is_int($vid)){
+	    $terms = taxonomy_get_tree($vid);
+		foreach($terms as $term){
+		 if(in_array($term->name, $keys)){
+			$result[] = $term->name;
+		 }
+		}
+	}
+  }
+  $keywords = array_unique($result);
+  return $keywords;
 }
 
 /**

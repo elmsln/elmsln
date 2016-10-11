@@ -63,14 +63,16 @@ function _learning_registry_slice($result_array) {
     if ($row['resource_data_description']['doc_type'] == 'resource_data') {
       $payload_schema = (isset($row['resource_data_description']['payload_schema'])) ? $row['resource_data_description']['payload_schema'] : "";
       $url = (isset($row['resource_data_description']['resource_locator'])) ? $row['resource_data_description']['resource_locator'] : "";
-      $create_date = ($row['resource_data_description']['create_timestamp']) ? $row['resource_data_description']['create_timestamp'] : "";
+      $lr_url = variable_get('learning_registry_node_url', NULL);
+	  $doc_id = $row['resource_data_description']['doc_ID'];
+	  $lr_url = $lr_url."/harvest/getrecord?request_ID=".$doc_id."&by_doc_ID=true";
+	  $create_date = ($row['resource_data_description']['create_timestamp']) ? $row['resource_data_description']['create_timestamp'] : "";
       $create_date = drupal_substr($create_date, 0, 10);
 	  $update_date = ($row['resource_data_description']['update_timestamp']) ? $row['resource_data_description']['update_timestamp'] : "";
       $update_date = drupal_substr($update_date, 0, 10);
 	  $delete_date = ($row['resource_data_description']['payload_placement'] == "none") ? $update_date : "";
 	  $update_date = ($delete_date != "") ? "" : $update_date;
       $delete_date = drupal_substr($delete_date, 0, 10);
-	  $doc_id = $row['resource_data_description']['doc_ID'];
 	  $q = db_select('learning_registry','l');
 		$q->condition('l.docid',$doc_id,'=');
 		$q->fields('l',array('nid', 'queued'));
@@ -85,8 +87,10 @@ function _learning_registry_slice($result_array) {
           if (drupal_strlen($title) == 0) {
             $title = "[not provided]";
           }
-          $title = check_plain($title);
-          $link = l($doc_id, $url, array('attributes' => array('target' => '_blank')));
+		  else{
+			$title = l($title, $url, array('attributes' => array('target' => '_blank')));
+		  }
+          $link = l($doc_id, $lr_url, array('attributes' => array('target' => '_blank')));
           $create_date = check_plain($create_date);
           $response_rows[] = array($nid, $title, $link, $create_date, $update_date, $delete_date, $queued);
        }
