@@ -130,19 +130,19 @@ function git_book_gb_git_book_parse($path, $node) {
  */
 function _git_book_gb_parse(&$gb, $path, $parent, $weight = -15) {
 
-foreach ($gb as $nodes) {
-  if (array_key_exists('title', $nodes) && array_key_exists('link', $nodes)) {
-    $body = '';
+  foreach ($gb as $nodes) {
+    if (array_key_exists('title', $nodes) && array_key_exists('link', $nodes)) {
+      $body = '';
 
-    // ensure this file exists
-    if (file_exists($path . DIRECTORY_SEPARATOR .$nodes['link'])) {
-     $body = file_get_contents($path . DIRECTORY_SEPARATOR .$nodes['link']);
+      // ensure this file exists
+      if (file_exists($path . DIRECTORY_SEPARATOR .$nodes['link'])) {
+       $body = file_get_contents($path . DIRECTORY_SEPARATOR .$nodes['link']);
+      }
+
+      $new_parent = _git_book_make_node($nodes['title'], $body, $parent, ++$weight);
     }
-
-    $new_parent = _git_book_make_node($nodes['title'], $body, $parent, ++$weight);
-  }
     foreach ($nodes as $node) {
-      if(!is_array($node)) {
+      if (!is_array($node)) {
         continue;
       }
       elseif (array_key_exists('title', $node) && array_key_exists('link', $node)) {
