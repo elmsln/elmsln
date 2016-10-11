@@ -48,6 +48,8 @@ echo "alias leafy='bash /var/www/elmsln/scripts/elmsln.sh'" >> $homedir/.bashrc
 
 # setup drush
 sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $homedir/.bashrc
+sed -i '1i export PATH="$HOME/.config/composer/vendor/bin:$PATH"' $homedir/.bashrc
+
 source $homedir/.bashrc
 php /usr/local/bin/composer self-update
 php /usr/local/bin/composer global require drush/drush:6.*
