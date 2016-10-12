@@ -8,8 +8,9 @@ body.devel-show .devel-querylog {
 }
 .dev-query {
   cursor: pointer;
-  padding: 2rem 2rem 6rem;
+  padding: .5rem .25rem 7rem;
   line-height: 1rem;
+  z-index: 0;
 }
 .dev-query:hover {
   outline-width: .2rem;
