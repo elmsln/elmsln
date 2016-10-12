@@ -835,6 +835,8 @@ body.entity-iframe-theme {
 
 main {
   flex: 1 0 auto;
+  background-color: #ffffff;
+  z-index: 1;
 }
 
 main li a {
