@@ -1,3 +1,21 @@
+/* Devel debug things */
+body .devel-querylog {
+  display: none;
+}
+body.devel-show .devel-querylog {
+  display: block;
+  overflow: visible;
+}
+.dev-query {
+  cursor: pointer;
+  padding: 2rem 2rem 6rem;
+  line-height: 1rem;
+}
+.dev-query:hover {
+  outline-width: .2rem;
+  outline-style: solid;
+}
+
 /* Materialize header */
 .subheader {
   font-size: 1.5rem;

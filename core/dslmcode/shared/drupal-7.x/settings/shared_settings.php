@@ -1,4 +1,4 @@
-<?php 
+<?php
 // these settings are dictated by the elmsln project team
 // you can override them in your config version of shared_settings
 // but it is highly recommended against for system stability
