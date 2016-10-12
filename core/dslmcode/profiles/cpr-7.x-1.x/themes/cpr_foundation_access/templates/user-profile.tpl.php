@@ -35,14 +35,10 @@
  */
 ?>
 
-        <?php print render($user_profile['field_photo']);?>
-
-
-          <?php print render($user_profile['field_first_name']);?>
-      <?php print render($user_profile['field_last_name']);?>
-
-
-      <?php print render($user_profile['field_bio']);?>
+<?php print render($user_profile['field_photo']);?>
+<?php print render($user_profile['field_first_name']);?>
+<?php print render($user_profile['field_last_name']);?>
+<?php print render($user_profile['field_bio']);?>
 
 
 
