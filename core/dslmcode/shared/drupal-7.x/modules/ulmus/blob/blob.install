@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Provides installation functions.
+ *
+ * @author Jimmy Berry ("boombatower", http://drupal.org/user/214218)
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function blob_field_schema($field) {
+  $columns = array(
+    'blob' => array(
+      'value' => array(
+        'type' => 'blob',
+        'size' => 'normal',
+        'not null' => FALSE,
+      ),
+    ),
+    'blob_long' => array(
+      'value' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+    ),
+  );
+  return array(
+    'columns' => $columns[$field['type']],
+  );
+}

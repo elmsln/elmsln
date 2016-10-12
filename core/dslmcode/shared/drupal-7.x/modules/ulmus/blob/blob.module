@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Provides primary Drupal hook implementations.
+ *
+ * @author Jimmy Berry ("boombatower", http://drupal.org/user/214218)
+ */
+
+/**
+ * Implements hook_field_info().
+ */
+function blob_field_info() {
+  return array(
+    'blob' => array(
+      'label' => t('Blob'),
+      'description' => t('This field stores blob in the database.'),
+      'default_widget' => 'blob_widget_none',
+      'default_formatter' => 'blob_default',
+    ),
+    'blob_long' => array(
+      'label' => t('Long blob'),
+      'description' => t('This field stores long blob in the database.'),
+      'default_widget' => 'blob_widget_none',
+      'default_formatter' => 'blob_default',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function blob_field_is_empty($item, $field) {
+  if (!isset($item['value']) || $item['value'] === '') {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function blob_field_formatter_info() {
+  return array(
+    'blob_default' => array(
+      'label' => t('Default'),
+      'description' => t('/dev/null'),
+      'field types' => array('blob', 'blob_long'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function blob_field_widget_info() {
+  return array(
+    'blob_widget_none' => array(
+      'label' => t('/dev/null'),
+      'field types' => array('blob', 'blob_long'),
+    ),
+  );
+}
