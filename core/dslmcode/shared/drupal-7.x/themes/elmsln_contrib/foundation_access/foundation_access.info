@@ -27,13 +27,15 @@ engine = phptemplate
 ; CSS3 media queries: http://www.w3.org/TR/css3-mediaqueries/
 
 ; For CSS users, load the app.css file:
-stylesheets[all][] = icons/faccess-icons/output/icons.data.svg.css
-stylesheets[all][] = css/system.base.css
-stylesheets[all][] = css/app.css
-stylesheets[all][] = css/fonts.css
-stylesheets[all][] = css/normalize.css
-stylesheets[all][] = css/comparison.css
+stylesheets[all][] = legacy/icons/faccess-icons/output/icons.data.svg.css
+stylesheets[all][] = legacy/css/system.base.css
+stylesheets[all][] = legacy/css/app.css
+stylesheets[all][] = legacy/css/fonts.css
+stylesheets[all][] = legacy/css/normalize.css
+stylesheets[all][] = legacy/css/comparison.css
+stylesheets[all][] = app/dist/css/styles.css
 stylesheets[all][] = css/tweaks.css
+
 
 ; For CSS users, load the app.css file:
 stylesheets[print][] = css/print.css
@@ -43,17 +45,17 @@ stylesheets[print][] = css/print.css
 ;scripts[] = js/libs.min.js
 ; Theme scripts.
 ; This file is empty, just uncomment this line and start editing!
-scripts[] = js/jquery.sticky.js
+scripts[] = legacy/js/jquery.sticky.js
 
 ; Add libraries from styleguide
-scripts[] = libraries/imagelightbox/imagelightbox.js
+scripts[] = legacy/libraries/imagelightbox/imagelightbox.js
 
 ; Our themes custom scripts compiled by Browserify
-scripts[] = js/dist/app.js
-scripts[] = js/materialize/materialize.js
-scripts[] = js/comparison.js
-scripts[] = js/basic-gallery.js
-scripts[] = js/tweaks.js
+scripts[] = legacy/js/dist/app.js
+scripts[] = legacy/js/materialize/materialize.js
+scripts[] = legacy/js/comparison.js
+scripts[] = legacy/js/basic-gallery.js
+scripts[] = legacy/js/tweaks.js
 
 ; This section lists the regions defined in the page.tpl.php. The name in
 ; brackets is the machine name of the region. The text after the equals sign is
