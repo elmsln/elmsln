@@ -1,3 +1,31 @@
+/* tweak for materializeCSS progress bar to better support text in it */
+.progress .determinate {
+  line-height: 1.5rem;
+  text-align: right;
+  padding-right: 1rem;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Devel debug things */
+body .devel-querylog {
+ display: none;
+}
+body.devel-show .devel-querylog {
+ display: block;
+ overflow: visible;
+}
+.dev-query {
+ cursor: pointer;
+ padding: .5rem .25rem 7rem
+ line-height: 1rem;
+ z-index: 0;
+}
+.dev-query:hover {
+ outline-width: .2rem;
+ outline-style: solid;
+}
+
 /* Materialize header */
 .subheader {
   font-size: 1.5rem;
@@ -817,6 +845,8 @@ body.entity-iframe-theme {
 
 main {
   flex: 1 0 auto;
+  background-color: #ffffff;
+  z-index: 1;
 }
 
 main li a {
