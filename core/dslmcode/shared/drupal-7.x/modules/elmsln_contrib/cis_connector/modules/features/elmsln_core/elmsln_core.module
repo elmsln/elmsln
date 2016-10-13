@@ -4,6 +4,10 @@
  * Code for the ELMSLN Core feature.
  */
 
+define ('ELMSLN_CORE_LRS_KEYCHAIN', '_lrs');
+define ('ELMSLN_XAPI_DEFAULT_ICON', 'storage');
+define ('ELMSLN_XAPI_DEFAULT_COLOR', 'red');
+
 include_once 'elmsln_core.features.inc';
 
 // elmsln file stream wrapper
@@ -31,6 +35,28 @@ function elmsln_core_stream_wrappers() {
  * Implements hook_menu().
  */
 function elmsln_core_menu() {
+  $items['node/%node/data'] = array(
+    'title' => 'Related Data',
+    'page callback' => '_elmsln_core_data_page',
+    'page arguments' => array('node', 1),
+    'access callback' => '_elmsln_core_data_access',
+    'access arguments' => array('node', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'elmsln_core.pages.inc',
+  );
+  $items['user/%user/data'] = array(
+    'title' => 'Related Data',
+    'page callback' => '_elmsln_core_data_page',
+    'page arguments' => array('user', 1),
+    'access callback' => '_elmsln_core_data_access',
+    'access arguments' => array('user', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'elmsln_core.pages.inc',
+  );
   $items['elmsln/redirect/%/%/%'] = array(
     'title' => 'view asset',
     'page callback' => '_elmsln_core_remote_redirect',
@@ -62,6 +88,18 @@ function elmsln_core_menu() {
   return $items;
 }
 
+/**
+ * Access callback for _elmsln_core_data_page.
+ */
+function _elmsln_core_data_access($etype, $entity) {
+  // make sure they can view LRS data as well as view this entity
+  // This should take into account LRS permission + OG / section
+  // or any other permissions related to users, files, etc
+  if (user_access('view elmsln lrs data') && entity_access('view', $etype, $entity)) {
+    return TRUE;
+  }
+  return FALSE;
+}
 
 /**
  * Implementation of hook_node_view().
@@ -311,6 +349,10 @@ function elmsln_core_permission() {
     'access elmsln administration areas' =>  array(
       'title' => t('Administer ELMSLN configuration'),
       'description' => t('Grants access to administrative areas of ELMSLN like network configuration and settings pages.'),
+    ),
+    'view elmsln lrs data' =>  array(
+      'title' => t('View LRS data'),
+      'description' => t('Grants access to pages that display elmsln\'s core LRS integration / support.'),
     ),
   );
 }
@@ -640,9 +682,117 @@ function _elmsln_core_icon_map() {
         'color' => 'orange',
         'icon' => 'assessment',
       ),
+      // xAPI verbs
+      'viewed' => array(
+        'color' => 'blue',
+        'icon' => 'remove_red_eye',
+      ),
+      'started' => array(
+        'color' => 'red',
+        'icon' => 'flag',
+      ),
+      'finished' => array(
+        'color' => 'green',
+        'icon' => 'golf_course',
+      ),
     );
     // allow others to modify core associations
     drupal_alter('elmsln_core_icon_map', $map);
   }
   return $map;
+}
+
+
+/**
+ * Implements hook_cis_service_registry().
+ *
+ * Core support for mapping the core supported LRS
+ * to our registry. Then we can utilize our lrs variations
+ * of request calls more easily to get data from the LRS.
+ */
+function elmsln_core_cis_service_registry() {
+  // see if the most obvious variable isset
+  if (!empty(variable_get('tincanapi_endpoint', ''))) {
+    // calculate the protocol and address from the endpoint variable
+    $tmp = explode('://', variable_get('tincanapi_endpoint', ''));
+    $protocol = array_shift($tmp);
+    $tmp = explode('/', $tmp[0]);
+    $address = array_shift($tmp);
+    // build our standard connection keychain item for this new bucket
+    return array(
+      ELMSLN_CORE_LRS_KEYCHAIN => array(
+        'protocol' => $protocol,
+        'service_address' => $address,
+        'address' => $address,
+        'user' => variable_get('tincanapi_auth_user', ''),
+        'pass' => variable_get('tincanapi_auth_password', ''),
+        'instance' => FALSE,
+        'default_title' => 'Learning record store',
+        'ignore' => TRUE,
+      ),
+    );
+  }
+}
+
+/**
+ * Structured data call against the LRS backend. Typically for querying.
+ * @param  $query  array   following syntax of backend; usually mongodb
+ * @param  $cached boolean whether to use a cached response / store result
+ * @return   [<description>]
+ */
+function _elmsln_core_lrs_query($query, $cached = FALSE) {
+  // options
+  $options = array('method' => 'GET');
+  // while core support is for learning locker, there's not a lot of reason
+  // other then the end points and it being FOSS / PHP universe
+  $drivers = module_invoke_all('elmsln_lrs_drivers');
+  // allow for modification, only used if we have multiple backends
+  drupal_alter('elmsln_lrs_drivers', $drivers);
+  // magic variable which could be manually set in a config shared_settings.php
+  // to switch between LRS backends if that was ever desirable down the road
+  $driver = $drivers[variable_get('elmsln_lrs_platform', 'learninglocker-1.x')];
+  // same as above, you could ignore / override / swap out buckets to use for
+  // connecting. This opens the door for multiple dedicated LRSs based on the type
+  // of data they have or doing an LRS migration contextually down the road
+  $bucket = variable_get('elmsln_lrs_bucket', ELMSLN_CORE_LRS_KEYCHAIN);
+  // last minute to jump in and modify
+  drupal_alter('elmsln_lrs_query', $query);
+  // build the call to make which will go against the lrs bucket
+  $call = $driver['query'] . '?' . str_replace('\/', '/', urldecode(http_build_query($query)));
+  // generate the well structured request
+  $response = _cis_connector_request($call, $options, $bucket, $cached);
+  // ensure a response to connect in the first place
+  $data = FALSE;
+  if ($response) {
+    $data = drupal_json_decode($response->data);
+  }
+  return $data;
+}
+
+/**
+ * Implements hook_elmsln_lrs_drivers().
+ */
+function elmsln_core_elmsln_lrs_drivers() {
+  return array(
+    'learninglocker-1.x' => array(
+      'query' => 'api/v1/statements/aggregate',
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function elmsln_core_theme($existing, $type, $theme, $path) {
+  return array(
+    'elmsln_core_lrs_data' => array(
+      'variables' => array(
+        'datatitle' => t('LRS data'),
+        'data' => array(),
+        'aggregates' => array(),
+      ),
+      'render element' => 'element',
+      'template' => 'templates/elmsln-core-lrs-data',
+    ),
+  );
 }
