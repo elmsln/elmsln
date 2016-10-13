@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="svg-source" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="32px" height="32px" viewBox="121 13 32 32" enable-background="new 121 13 32 32" xml:space="preserve">
+<g id="map_1_">
+	<path id="water" fill="#26A6D1" d="M121,13l8,3l8-3l8,3l8-3v29l-8,3l-8-3l-8,3l-8-3V13L121,13z"/>
+	<polygon id="crease-1" fill="#2295BC" points="129,45 137,42 137,42 137,13 129,16 	"/>
+	<polygon id="crease-2" fill="#2295BC" points="145,16 145,45 153,42 153,13 	"/>
+	<path id="path-bright" fill="#EFC75E" d="M145,16l-8-3l-3.1,1.1c-5.2,6-3.2,11,3.6,17.2c5.8,5.2,11.8,8.3,15.5,5.7V13L145,16z"/>
+	<path id="land" fill="#3DB39E" d="M153,13l-8,3l-8-3l0,0c-7.1,6-3.6,9.5,2.6,15.2c5,4.6,9.1,7.3,13.4,4.8C153,31,153,13,153,13z"/>
+	<path id="path-shadow" fill="#D7B354" d="M145,16v20.7c3.1,1.5,5.9,1.9,8,0.3V13L145,16z"/>
+	<path id="path-shadow2" fill="#D7B354" d="M137,13l-1.7,0.6l-1.4,0.5c-5,5.8-3.3,10.7,3.1,16.7L137,13z"/>
+	<path id="land-crease" fill="#37A18E" d="M153,13l-8,3v16.5c2.7,1.6,5.3,2.1,8,0.5C153,31,153,13,153,13z"/>
+	<path id="land-shadow" fill="#37A18E" d="M137,13L137,13L137,13c-6.1,5.1-4.4,8.4,0,12.8V13z"/>
+</g>
+</svg>

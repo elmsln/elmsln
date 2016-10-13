@@ -1,0 +1,83 @@
+<!doctype HTML>
+<html>
+	<head>
+		<title>Test for link[rel=preload]</title>
+		<meta charset="utf-8">
+
+
+
+		<link rel="preload" href="http://scottjehl.com/css-temp/slow.php" as="stylesheet" id="asyncCSS" onload="this.rel='stylesheet'">
+
+		<script id="loadCSS">
+
+			// link rel=preload support test via https://lists.w3.org/Archives/Public/public-whatwg-archive/2015Apr/0013.html
+			function preloadSupported() {
+				var link = document.createElement('link');
+				link.rel = 'PRELOAD';
+				return link.rel == 'preload';
+			}
+
+			/*!
+			loadCSS: load a CSS file asynchronously. (Used for cases where rel=preload is not supported)
+			[c]2014 @scottjehl, Filament Group, Inc.
+			Licensed MIT
+			*/
+
+			/* exported loadCSS */
+			function loadCSS( href, before, media, callback ){
+				"use strict";
+				// Arguments explained:
+				// `href` REQUIRED. The URL for your CSS file.
+				// `before` REQUIRED. The element to use as a reference for injecting the <link>.
+				// `media` OPTIONAL. Media type or query for the stylesheet. (Will be "all" if not defined)
+				// `callback` OPTIONAL. DEPRECATED. A callback bound to the stylesheet's onload handler. Use onloadcssdefined on return object of loadCSS instead.
+				var ss = window.document.createElement( "link" );
+				var ref = before;
+				var sheets = window.document.styleSheets;
+				ss.rel = "stylesheet";
+				ss.href = href;
+				// temporarily, set media to something non-matching to ensure it'll fetch without blocking render
+				ss.media = "only x";
+				if( callback ) {
+					ss.onload = callback;
+				}
+
+				// inject link
+				ref.parentNode.insertBefore( ss, ref );
+				// This function sets the link's media back to `all` so that the stylesheet applies once it loads
+				// It is designed to poll until document.styleSheets includes the new sheet.
+				ss.onloadcssdefined = function( cb ){
+					var defined;
+					for( var i = 0; i < sheets.length; i++ ){
+						if( sheets[ i ].href && sheets[ i ].href === ss.href ){
+							defined = true;
+						}
+					}
+					if( defined ){
+						cb();
+					} else {
+						setTimeout(function() {
+							ss.onloadcssdefined( cb );
+						});
+					}
+				};
+				ss.onloadcssdefined(function() {
+					ss.media = media || "all";
+				});
+				return ss;
+			}
+
+			// if link[rel=preload] is not supported, we must fetch the CSS manually using loadCSS
+			if( !preloadSupported() ){
+				loadCSS( asyncCSS.href, document.getElementById( "loadCSS" ) );
+			}
+
+		</script>
+	</head>
+	<body>
+		<p>This is a test page that references a stylesheet with <code>link[rel=prefetch]</code>, and fetches the CSS manually using <code>loadCSS</code> in browsers that do not understand <code>link[rel=prefetch]</code> yet (read: all browsers at time of writing)</p>
+
+		<p>The CSS file  has a 5 second delay built into its server response time. If it is loaded in a non-blocking manner as desired, you should be able to read this text before the page is styled as white text on green background.</p>
+
+</body>
+</html>
