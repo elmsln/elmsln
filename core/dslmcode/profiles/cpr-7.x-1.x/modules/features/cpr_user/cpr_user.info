@@ -43,3 +43,4 @@ features[field_instance][] = user-user-field_media_preference
 features[field_instance][] = user-user-field_photo
 features[image][] = people_user_profile
 features[variable][] = user_picture_default
+features[variable][] = user_pictures

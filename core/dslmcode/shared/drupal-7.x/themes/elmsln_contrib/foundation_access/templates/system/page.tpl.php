@@ -128,7 +128,7 @@
                     </div>
                   <?php endif; ?>
                   <a id="main-content"></a>
-                  <?php if ($title && arg(2) != 'edit'): ?>
+                  <?php if ($title && arg(2) != 'edit' && arg(0) != 'users' && arg(0) != 'user'): ?>
                     <?php print render($title_prefix); ?>
                       <h1 id="page-title" class="title"><?php print $title; ?></h1>
                     <?php print render($title_suffix); ?>

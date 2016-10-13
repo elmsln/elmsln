@@ -16,4 +16,3 @@ features[variable][] = user_picture_dimensions
 features[variable][] = user_picture_file_size
 features[variable][] = user_picture_path
 features[variable][] = user_picture_style
-features[variable][] = user_pictures

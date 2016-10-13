@@ -1649,3 +1649,33 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
     white-space: nowrap;
   }
 }
+
+.page-user .field-name-field-photo {
+  float: left;
+  margin-right: 20px;
+}
+.page-user .field-name-field-photo img {
+  border-radius: 50%;
+  width: 120px;
+}
+.page-user .field-name-field-first-name {
+  text-transform: uppercase;
+  display: inline-block;
+  padding: 10px;
+  font-size: 5vw;
+  font-weight: 100;
+  float: left;
+}
+.page-user .field-name-field-last-name {
+  text-transform: uppercase;
+  display: inline-block;
+  padding: 10px;
+  font-size: 5vw;
+  font-weight: 100;
+  float: left;
+  font-family: inherit
+}
+.field-name-field-bio {
+  clear:  both;
+  padding: 30px;
+}
