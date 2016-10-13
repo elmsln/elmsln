@@ -307,7 +307,7 @@ if [[ -n "$phpini" ]]; then
   cat /var/www/elmsln/scripts/server/php.txt >> $phpini
 fi
 if [[ -n "$phpfpmini" ]]; then
-  cat /var/www/elmsln/scripts/server/php.txt >> $phpini
+  cat /var/www/elmsln/scripts/server/php.txt >> $phpfpmini
 fi
 if [[ -n "$mycnf" ]]; then
   cat /var/www/elmsln/scripts/server/my.txt > $mycnf
