@@ -1,9 +1,0 @@
-{
-	"name": "loadcss",
-	"main": [
-		"loadCSS.js"
-	],
-	"ignore": [
-		"**/.*"
-	]
-}
