@@ -33,7 +33,8 @@ stylesheets[all][] = legacy/css/app.css
 stylesheets[all][] = legacy/css/fonts.css
 stylesheets[all][] = legacy/css/normalize.css
 stylesheets[all][] = legacy/css/comparison.css
-stylesheets[all][] = legacy/css/tweaks.css
+stylesheets[all][] = app/dist/css/styles.css
+stylesheets[all][] = css/tweaks.css
 
 
 ; For CSS users, load the app.css file:
