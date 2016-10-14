@@ -6,6 +6,53 @@
 
 include_once 'cle_submission.features.inc';
 
+
+/**
+ * Impliments hook_menu()
+ */
+function cle_submission_menu() {
+  $items['cle/submission/clone/%node/%node'] = array(
+    'page callback' => 'cle_submission_clone_page_callback',
+    'page arguments' => array(3, 4),
+    'access callback' => cle_submission_clone_access_callback,
+    'access arguments' => array(3),
+  );
+  return $items;
+}
+
+/**
+ * Page Callback for cle/submission/clone/%node/%node
+ */
+function cle_submission_clone_page_callback($submission, $assignment) {
+  // create a clone
+  $new_submission = replicate_entity('node', $submission);
+  $ns_wrapper = entity_metadata_wrapper('node', $new_submission);
+  // set the assignment to the new child assignment
+  $ns_wrapper->field_assignment->set($assignment->nid);
+  // set the submission state back to submission_in_progress
+  $ns_wrapper->field_submission_state->set('submission_in_progress');
+  $ns_wrapper->save();
+
+  drupal_goto($ns_wrapper->url->value());
+}
+
+function cle_submission_clone_access_callback($submission) {
+  global $user;
+  $access = FALSE;
+
+  // if the user has content admin rights then grant access and leave
+  if (user_access('administer cle content', $account)) {
+    return TRUE;
+  }
+
+  // if the user is the author of the original submission
+  if ($submission->uid == $user->uid) {
+    $access = TRUE;
+  }
+
+  return $access;
+}
+
 /**
  * Implements hook_form_FORM_ID_alter().
  */
@@ -71,7 +118,6 @@ function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state
       }
     }
   }
-
 }
 
 /**
@@ -94,7 +140,9 @@ function cle_submission_form_cle_submission_node_form_validate($form, &$form_sta
 function cle_submission_page_build(&$page) {
   $file = FALSE;
   $path = drupal_get_path('module', 'cle_submission') . '/';
-  if ($node = menu_get_object('node')) {
+  $node = menu_get_object();
+
+  if ($node) {
     if ($node->type == 'cle_submission') {
       // add custom css
       $file = 'submission';
@@ -112,6 +160,50 @@ function cle_submission_page_build(&$page) {
       break;
     }
   }
+
+  if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
+    $assignment_submitable = _cle_assignment_is_submittable($node->nid);
+    if ($assignment_submitable) {
+      $submissions = _cle_submission_user_submitted_assignment($node->nid);
+      $output = '';
+      if ($submissions) {
+        $output .= '<h3>' . t('My Submissions') . '</h3>';
+        $output .= '<ul class="collection">';
+        foreach ($submissions as $submission) {
+          $output .= l($submission->title, 'node/' . $submission->nid, array('attributes' => array('class' => array('collection-item'))));
+        }
+        $output .= '</ul>';
+      }
+      if (empty($output)) {
+        $url_query = array();
+        // add field_assignment
+        $url_query['field_assignment'] = $node->nid;
+        $output .= l(t('Submit assignment'),'node/add/cle-submission',
+          array(
+            'query' => $url_query,
+            'attributes' => array('class' => array('cle__submission-link', 'waves-effect waves-light btn-large')),
+          )
+        );
+
+        // add submission copy if turned on
+        if (isset($node->field_parent_assignment_ref['und'][0]['target_id']) && $node->field_submission_copy['und'][0]['value']) {
+          $parent_assignment_submission = _cle_submission_user_submitted_assignment($node->field_parent_assignment_ref['und'][0]['target_id']);
+          $parent_assignment_submission = array_shift($parent_assignment_submission);
+          $url_query = array();
+          $output .= l(t('Clone submission: !title', array('!title' => $parent_assignment_submission->title)),'cle/submission/clone/'. $parent_assignment_submission->nid .'/'. $node->nid,
+            array(
+              'attributes' => array('class' => array('cle__submission-link', 'waves-effect waves-light btn-large')),
+            )
+          );
+        }
+      }
+      $page['content']['assignment_submission'] = array(
+        '#markup' => $output,
+        '#weight' => 100,
+      );
+    }
+  }
+
 }
 
 /**

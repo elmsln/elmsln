@@ -21,40 +21,6 @@ function cle_assignment_init() {
 }
 
 /**
- * Implements hook_page_build().
- */
-function cle_assignment_page_build(&$page) {
-  $node = menu_get_object();
-  if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
-    $assignment_submitable = _cle_assignment_is_submittable($node->nid);
-    if ($assignment_submitable) {
-      $submissions = _cle_submission_user_submitted_assignment($node->nid);
-      $output = '';
-      if ($submissions) {
-        $output .= '<h3>' . t('My Submissions') . '</h3>';
-        $output .= '<ul class="collection">';
-        foreach ($submissions as $submission) {
-          $output .= l($submission->title, 'node/' . $submission->nid, array('attributes' => array('class' => array('collection-item'))));
-        }
-        $output .= '</ul>';
-      }
-      if (empty($output)) {
-        $output = l(t('Submit assignment'),'node/add/cle-submission',
-          array(
-            'query' => array('field_assignment' => $node->nid),
-            'attributes' => array('class' => array('cle__submission-link', 'waves-effect waves-light btn-large')),
-          )
-        );
-      }
-      $page['content']['assignment_submission'] = array(
-        '#markup' => $output,
-        '#weight' => 100,
-      );
-    }
-  }
-}
-
-/**
  * Implements hook_node_insert().
  */
 function cle_assignment_node_insert($node) {
