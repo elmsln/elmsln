@@ -121,6 +121,7 @@ elif [ $os == '2' ]; then
     elmslnecho "apc.ini automatically set to ${apcini}"
   fi
   phpini="/etc/php5/apache2/php.ini"
+  phpfpmini="/etc/php5/fpm/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
   mycnf="/etc/php5/mods-available/mysql.ini"
   elmslnecho "my.cnf automatically set to ${mycnf}"
@@ -305,6 +306,9 @@ fi
 if [[ -n "$phpini" ]]; then
   cat /var/www/elmsln/scripts/server/php.txt >> $phpini
 fi
+if [[ -n "$phpfpmini" ]]; then
+  cat /var/www/elmsln/scripts/server/php.txt >> $phpfpmini
+fi
 if [[ -n "$mycnf" ]]; then
   cat /var/www/elmsln/scripts/server/my.txt > $mycnf
 fi
@@ -421,12 +425,15 @@ php /usr/local/bin/composer install
 if [[ $os == '1' ]]; then
   /etc/init.d/httpd restart
   /etc/init.d/mysqld restart
+  /etc/init.d/php-fpm restart
 elif [ $os == '2' ]; then
   service apache2 restart
   service mysql restart
+  service php5-fpm restart
 else
   service httpd restart
   service mysql restart
+  service php-fpm restart
 fi
 # source one last time before hooking crontab up
 source $HOME/.bashrc
