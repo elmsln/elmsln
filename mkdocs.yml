@@ -65,6 +65,7 @@ pages:
   - Front end:
     - Style guide: development/front-end/Styleguide.md
     - Front end workflow: development/front-end/Front-End-Development-Workflow.md
+    - Vagrant gulp setup: development/front-end/vagrant-gulp-setup.md
   - Debug:
     - General debugging: development/debug.md
     - Reversing commits: development/Reverse-Commit-And-Push.md
