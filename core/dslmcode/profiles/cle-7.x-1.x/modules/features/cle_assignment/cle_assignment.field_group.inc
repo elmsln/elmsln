@@ -21,7 +21,7 @@ function cle_assignment_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Advanced',
-    'weight' => '5',
+    'weight' => '4',
     'children' => array(
       0 => 'og_group_ref',
     ),
@@ -107,7 +107,7 @@ function cle_assignment_field_group_info() {
   $field_group->parent_name = 'group_admin';
   $field_group->data = array(
     'label' => 'Critique',
-    'weight' => '34',
+    'weight' => '35',
     'children' => array(
       0 => 'field_critique_date',
       1 => 'field_cle_crit_criteria',
@@ -173,7 +173,6 @@ function cle_assignment_field_group_info() {
     'weight' => '0',
     'children' => array(
       0 => 'field_due_date',
-      1 => 'og_group_ref',
     ),
     'format_type' => 'div',
     'format_settings' => array(
@@ -203,7 +202,7 @@ function cle_assignment_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Logistics',
-    'weight' => '3',
+    'weight' => '2',
     'children' => array(
       0 => 'field_cle_sub_type',
       1 => 'field_due_date',
@@ -221,6 +220,34 @@ function cle_assignment_field_group_info() {
   );
   $field_groups['group_logistics|node|cle_assignment|form'] = $field_group;
 
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_parent_assignment|node|cle_assignment|form';
+  $field_group->group_name = 'group_parent_assignment';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'cle_assignment';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Parent Assignment',
+    'weight' => '6',
+    'children' => array(
+      0 => 'field_parent_assignment',
+      1 => 'field_submission_copy',
+    ),
+    'format_type' => 'tab',
+    'format_settings' => array(
+      'formatter' => 'closed',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-parent-assignment field-group-tab',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $field_groups['group_parent_assignment|node|cle_assignment|form'] = $field_group;
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Advanced');
@@ -229,6 +256,7 @@ function cle_assignment_field_group_info() {
   t('Extras');
   t('Information');
   t('Logistics');
+  t('Parent Assignment');
   t('Requirements');
 
   return $field_groups;

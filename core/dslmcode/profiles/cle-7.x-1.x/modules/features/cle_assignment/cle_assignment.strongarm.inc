@@ -139,11 +139,35 @@ function cle_assignment_strongarm() {
         'title' => array(
           'weight' => '0',
         ),
+        'path' => array(
+          'weight' => '9',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '8',
+        ),
+        'book' => array(
+          'weight' => '10',
+        ),
+        'options' => array(
+          'weight' => '11',
+        ),
+        'author' => array(
+          'weight' => '12',
+        ),
+        'revision_information' => array(
+          'weight' => '7',
+        ),
       ),
       'display' => array(
         'cle_administrative_dashboard_entity_view_1' => array(
           'default' => array(
-            'weight' => '10',
+            'weight' => '3',
+            'visible' => TRUE,
+          ),
+        ),
+        'cle_administrative_dashboard_entity_view_2' => array(
+          'default' => array(
+            'weight' => '4',
             'visible' => TRUE,
           ),
         ),

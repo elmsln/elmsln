@@ -142,7 +142,7 @@ function cle_assignment_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 7,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -203,7 +203,7 @@ function cle_assignment_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 9,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -242,7 +242,7 @@ function cle_assignment_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 33,
+        'weight' => 32,
       ),
       'gradebook_viewer' => array(
         'label' => 'above',
@@ -675,6 +675,49 @@ Page',
     ),
   );
 
+  // Exported field_instance: 'node-cle_assignment-field_parent_assignment'.
+  $field_instances['node-cle_assignment-field_parent_assignment'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'default_value_function' => '',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 33,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_parent_assignment',
+    'label' => 'Parent Assignment',
+    'required' => 0,
+    'settings' => array(
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 23,
+    ),
+  );
+
   // Exported field_instance: 'node-cle_assignment-field_sub_number'.
   $field_instances['node-cle_assignment-field_sub_number'] = array(
     'bundle' => 'cle_assignment',
@@ -686,7 +729,7 @@ Page',
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 10,
       ),
       'full' => array(
         'label' => 'inline',
@@ -774,6 +817,43 @@ Drawing Exercise',
     ),
   );
 
+  // Exported field_instance: 'node-cle_assignment-field_submission_copy'.
+  $field_instances['node-cle_assignment-field_submission_copy'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'Allow students to create a copy of the parent assignment submission as a starting point for this assignment.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 34,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_submission_copy',
+    'label' => 'Submission Copy',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 24,
+    ),
+  );
+
   // Exported field_instance: 'node-cle_assignment-field_visibility'.
   $field_instances['node-cle_assignment-field_visibility'] = array(
     'bundle' => 'cle_assignment',
@@ -789,7 +869,7 @@ Drawing Exercise',
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 11,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -838,12 +918,9 @@ Drawing Exercise',
     'display' => array(
       'default' => array(
         'label' => 'inline',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 10,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 12,
       ),
     ),
     'entity_type' => 'node',
@@ -892,6 +969,7 @@ Drawing Exercise',
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Allow students to create a copy of the parent assignment submission as a starting point for this assignment.');
   t('Body');
   t('Classify this type of submission. For example, is this a practice, activity, exercise, final assignment? This can then be filtered in lists to group submissions together.');
   t('Color');
@@ -901,9 +979,11 @@ Drawing Exercise',
   t('Media Requirements');
   t('Number');
   t('Order');
+  t('Parent Assignment');
   t('Public Assignments will be visible to everyone in the class.  This is useful when the assignment requires open critique and response.  Private Assignments will only be visible by you, the student submitting the work, and any support staff / TAs.');
   t('Section');
   t('Sub-number');
+  t('Submission Copy');
   t('Submission type');
   t('Tag');
   t('The order that this assignment is in relative to others. Use this if number / sub-number connotations aren\'t useful.');
