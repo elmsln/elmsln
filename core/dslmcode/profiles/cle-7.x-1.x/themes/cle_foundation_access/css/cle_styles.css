@@ -30,6 +30,14 @@
 
 .cle__submission-link {
   margin-top: 1em;
+  max-width: 30em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cle__submission-link + .cle__submission-link {
+  margin-left: 1em;
 }
 
 .cle__submission-link:hover {
