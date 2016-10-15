@@ -188,13 +188,16 @@ function cle_submission_page_build(&$page) {
         // add submission copy if turned on
         if (isset($node->field_parent_assignment[LANGUAGE_NONE][0]['target_id']) && $node->field_submission_copy[LANGUAGE_NONE][0]['value']) {
           $parent_assignment_submission = _cle_submission_user_submitted_assignment($node->field_parent_assignment[LANGUAGE_NONE][0]['target_id']);
-          $parent_assignment_submission = array_shift($parent_assignment_submission);
-          $url_query = array();
-          $output .= l(t('Clone submission: !title', array('!title' => $parent_assignment_submission->title)),'cle/submission/clone/'. $parent_assignment_submission->nid .'/'. $node->nid,
-            array(
-              'attributes' => array('class' => array('cle__submission-link', 'waves-effect waves-light btn-large')),
-            )
-          );
+
+          if ($parent_assignment_submission) {
+            $parent_assignment_submission = array_shift($parent_assignment_submission);
+            $url_query = array();
+            $output .= l(t('Clone submission: !title', array('!title' => $parent_assignment_submission->title)),'cle/submission/clone/'. $parent_assignment_submission->nid .'/'. $node->nid,
+              array(
+                'attributes' => array('class' => array('cle__submission-link', 'waves-effect waves-light btn-large')),
+              )
+            );
+          }
         }
       }
       $page['content']['assignment_submission'] = array(
