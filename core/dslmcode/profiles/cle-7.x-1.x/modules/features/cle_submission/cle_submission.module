@@ -41,7 +41,7 @@ function cle_submission_clone_access_callback($submission) {
   $access = FALSE;
 
   // if the user has content admin rights then grant access and leave
-  if (user_access('administer cle content', $account)) {
+  if (user_access('administer cle content', $user)) {
     return TRUE;
   }
 
@@ -181,13 +181,13 @@ function cle_submission_page_build(&$page) {
         $output .= l(t('Submit assignment'),'node/add/cle-submission',
           array(
             'query' => $url_query,
-            'attributes' => array('class' => array('cle__submission-link', 'waves-effect waves-light btn-large')),
+            'attributes' => array('class' => array('cle__submission-link', 'cle__submission-link--copy', 'waves-effect waves-light btn-large')),
           )
         );
 
         // add submission copy if turned on
-        if (isset($node->field_parent_assignment_ref['und'][0]['target_id']) && $node->field_submission_copy['und'][0]['value']) {
-          $parent_assignment_submission = _cle_submission_user_submitted_assignment($node->field_parent_assignment_ref['und'][0]['target_id']);
+        if (isset($node->field_parent_assignment[LANGUAGE_NONE][0]['target_id']) && $node->field_submission_copy[LANGUAGE_NONE][0]['value']) {
+          $parent_assignment_submission = _cle_submission_user_submitted_assignment($node->field_parent_assignment[LANGUAGE_NONE][0]['target_id']);
           $parent_assignment_submission = array_shift($parent_assignment_submission);
           $url_query = array();
           $output .= l(t('Clone submission: !title', array('!title' => $parent_assignment_submission->title)),'cle/submission/clone/'. $parent_assignment_submission->nid .'/'. $node->nid,
