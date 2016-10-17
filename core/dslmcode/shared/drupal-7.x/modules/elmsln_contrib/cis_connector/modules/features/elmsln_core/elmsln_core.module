@@ -796,3 +796,118 @@ function elmsln_core_theme($existing, $type, $theme, $path) {
     ),
   );
 }
+
+/**
+ * Implements hook_tincanapi_ajax_data_alter().
+ */
+function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
+  $settings = array();
+  // regardless of module see if our contextual settings are here
+  // and this way we can ship down elmslnCore's scope variables
+  // which will make our data-sets more meaningful for searching in LRSs later
+  if (isset($context['tincanapiSettings']['elmslnCore'])) {
+    // look for our ELMSLNCore settings
+    $settings = $context['tincanapiSettings']['elmslnCore'];
+  }
+  // check for items that came across, if we don't have them
+  // then attempt to inject them though that's probably not going to work
+  if (isset($settings['course'])) {
+    $course = filter_xss($settings['course']);
+  }
+  else {
+    $course = _cis_connector_course_context();
+  }
+  if (isset($settings['section'])) {
+    $section = filter_xss($settings['section']);
+  }
+  else {
+    $section = _cis_connector_section_context();
+  }
+  $title = '';
+  if (isset($settings['title'])) {
+    $title = filter_xss($settings['title']);
+  }
+  else {
+    $title = drupal_get_title();
+  }
+  $url = '';
+  if (isset($settings['url'])) {
+    $url = filter_xss($settings['url']);
+  }
+  else {
+    $url = url(current_path(), array('absolute' => TRUE));
+  }
+  $role = '';
+  if (isset($settings['role'])) {
+    $role = filter_xss($settings['role']);
+  }
+  else {
+    if (_cis_connector_role_grouping('active learner')) {
+      $role = 'student';
+    }
+    elseif (_cis_connector_role_grouping('staff')) {
+      $role = 'staff';
+    }
+    elseif (_cis_connector_role_grouping('teacher')) {
+      $role = 'teacher';
+    }
+    else {
+      $role = 'other';
+    }
+  }
+  $hypothesis = '';
+  if (isset($settings['hypothesis'])) {
+    $hypothesis = filter_xss($settings['hypothesis']);
+  }
+
+  $data['context']['extensions'] = array(
+    'https://www.elmsln.org/x-api/elmsln-section' => $section,
+    'https://www.elmsln.org/x-api/elmsln-course' => $course,
+    'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
+    'https://www.elmsln.org/x-api/elmsln-url' => $url,
+    'https://www.elmsln.org/x-api/elmsln-role' => $role,
+    'https://www.elmsln.org/x-api/elmsln-research-hypothesis' => $hypothesis,
+  );
+
+  // ensure that choice ids are strings to match data model
+  if (isset($data['object']['definition']['choices'])) {
+    foreach ($data['object']['definition']['choices'] as $key => $choice) {
+      if (is_int($data['object']['definition']['choices'][$key]['id'])) {
+        $data['object']['definition']['choices'][$key]['id'] = (string)$data['object']['definition']['choices'][$key]['id'];
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_tincanapi_data_alter().
+ */
+function elmsln_core_tincanapi_data_alter($module_name, &$data) {
+  // ensure we aren't double altering our statements
+  if (!isset($data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-section'])) {
+    $course = _cis_connector_course_context();
+    $section = _cis_connector_section_context();
+    $title = drupal_get_title();
+    $url = url(current_path(), array('absolute' => TRUE));
+    if (_cis_connector_role_grouping('active learner')) {
+      $role = 'student';
+    }
+    elseif (_cis_connector_role_grouping('staff')) {
+      $role = 'staff';
+    }
+    elseif (_cis_connector_role_grouping('teacher')) {
+      $role = 'teacher';
+    }
+    else {
+      $role = 'other';
+    }
+
+    $data['context']['extensions'] = array(
+      'https://www.elmsln.org/x-api/elmsln-section' => $section,
+      'https://www.elmsln.org/x-api/elmsln-course' => $course,
+      'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
+      'https://www.elmsln.org/x-api/elmsln-url' => $url,
+      'https://www.elmsln.org/x-api/elmsln-role' => $role,
+    );
+  }
+}
