@@ -414,7 +414,7 @@ function elmsln_core_page_build(&$page) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
   }
   // devel usability improvement
-  if (module_exists('devel') &&  user_access('access devel information')) {
+  if (module_exists('devel') &&  !path_is_admin(current_path()) && user_access('access devel information')) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-devel.js', array('weight' => -1000));
   }
   // get the configuration so we can set domain from here to enable
