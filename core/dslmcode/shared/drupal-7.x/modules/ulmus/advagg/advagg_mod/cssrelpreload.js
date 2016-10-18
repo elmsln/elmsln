@@ -4,6 +4,7 @@
  */
 
 /* @codingStandardsIgnoreFile */
+/* eslint-disable */
 
 /*! CSS rel=preload polyfill. Depends on loadCSS function. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT  */
 (function( w ){
