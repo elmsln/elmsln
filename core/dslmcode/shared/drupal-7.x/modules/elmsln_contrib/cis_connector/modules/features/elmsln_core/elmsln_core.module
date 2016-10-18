@@ -84,8 +84,25 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['elmsln/form-as-json/%'] = array(
+    'title' => 'form as json',
+    'page callback' => '_elmsln_core_form_as_json',
+    'access arguments' => array('view form as json'),
+    'page arguments' => array(2),
+  );
 
   return $items;
+}
+
+/**
+ * Callback to return form ID as json array
+ * @param  string $form_id id of a form to load
+ * @return json          json representation of render array
+ */
+function _elmsln_core_form_as_json($form_id) {
+  $form = drupal_get_form($form_id);
+  drupal_json_output($form);
+  drupal_exit();
 }
 
 /**
@@ -353,6 +370,11 @@ function elmsln_core_permission() {
     'view elmsln lrs data' =>  array(
       'title' => t('View LRS data'),
       'description' => t('Grants access to pages that display elmsln\'s core LRS integration / support.'),
+    ),
+    'view form as json' =>  array(
+      'title' => t('View form as JSON'),
+      'description' => t('Return any form as a JSON array'),
+      'restrict access' => TRUE,
     ),
   );
 }
