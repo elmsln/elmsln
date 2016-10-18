@@ -19,10 +19,9 @@ function advagg_js_compress_requirements($phase) {
   }
 
   // Make sure a compressor is being used.
-  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-  if (   variable_get('advagg_js_compressor', ADVAGG_JS_COMPRESSOR) == 0
-      && variable_get('advagg_js_compress_inline', ADVAGG_JS_COMPRESS_INLINE) == 0
-      ) {
+  if (variable_get('advagg_js_compressor', ADVAGG_JS_COMPRESSOR) == 0
+    && variable_get('advagg_js_compress_inline', ADVAGG_JS_COMPRESS_INLINE) == 0
+  ) {
     // Check all files.
     $file_settings = variable_get('advagg_js_compressor_file_settings', array());
     $compression_used = FALSE;

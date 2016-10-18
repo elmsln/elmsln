@@ -36,6 +36,8 @@ function advagg_test_remove_sniffer_comments($input) {
 class AdvAggCascadingStylesheetsTestCase extends DrupalWebTestCase {
   /**
    * Store configured value for CSS preprocessing.
+   *
+   * @var bool
    */
   protected $preprocessCss = NULL;
 
@@ -560,6 +562,8 @@ class AdvAggCascadingStylesheetsTestCase extends DrupalWebTestCase {
 class AdvAggJavaScriptTestCase extends DrupalWebTestCase {
   /**
    * Store configured value for JavaScript preprocessing.
+   *
+   * @var bool
    */
   protected $preprocessJs = NULL;
 
@@ -1141,7 +1145,11 @@ class AdvAggJavaScriptTestCase extends DrupalWebTestCase {
     //
     // Adds a language and checks that the JavaScript translation files are
     // properly created and rebuilt on deletion.
-    $user = $this->drupalCreateUser(array('translate interface', 'administer languages', 'access administration pages'));
+    $user = $this->drupalCreateUser(array(
+      'translate interface',
+      'administer languages',
+      'access administration pages',
+    ));
     $this->drupalLogin($user);
 
     $langcode = 'xx';
@@ -1174,7 +1182,7 @@ class AdvAggJavaScriptTestCase extends DrupalWebTestCase {
       ->condition('l.textgroup', 'default')
       ->execute();
     $url = 'admin/config/regional/translate/edit/' . $result->fetchObject()->lid;
-    $edit = array('translations['. $langcode .']' => $this->randomName());
+    $edit = array('translations[' . $langcode . ']' => $this->randomName());
     $this->drupalPost($url, $edit, t('Save translations'));
 
     // Trigger JavaScript translation parsing and building.

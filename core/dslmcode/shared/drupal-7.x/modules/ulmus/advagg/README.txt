@@ -166,8 +166,8 @@ the Smart Cache Flush. There are no configuration options here.
       session. It acts almost the same as adding `?advagg=0` to every URL.
 
  - Cron Maintenance Tasks
-   - Remove All Stale Files: Scan all files in the `advagg_css/js` directories and
-     remove the ones that have not been accessed in the last 30 days.
+   - Remove All Stale Files: Scan all files in the `advagg_css/js` directories
+     and remove the ones that have not been accessed in the last 30 days.
    - Clear Missing Files From the Database: Scan for missing files and remove
      the associated entries in the database.
    - Delete Unused Aggregates from Database: Delete aggregates that have not
@@ -263,6 +263,10 @@ current defaults are shown.
     // hash doesn't match.
     $conf['advagg_file_read_failure_timeout'] = 3600;
 
+    // If FALSE mtime of files will only trigger a change if they are in the
+    // future.
+    $conf['advagg_strict_mtime_check'] = TRUE;
+
 
 ADDITIONAL OPTIONS FOR DRUPAL_ADD_CSS/JS FUNCTIONS
 --------------------------------------------------
@@ -337,10 +341,16 @@ TECHNICAL DETAILS & HOOKS
  - Aggressive Cache Setting: This will fully cache the rendered html generated
    by AdvAgg. The cache ID is set by this code:
 
+        // CSS.
         $hooks_hash = advagg_get_current_hooks_hash();
-        $css_cache_id_full = 'advagg:css:full:' . $hooks_hash . ':' . drupal_hash_base64(serialize($full_css));
+        $css_cache_id_full =
+          'advagg:css:full:' . $hooks_hash . ':' .
+          drupal_hash_base64(serialize($full_css));
+        // JS.
         $hooks_hash = advagg_get_current_hooks_hash();
-        $js_cache_id_full = 'advagg:js:full:' . $hooks_hash . ':' . drupal_hash_base64(serialize($js_scope_array));
+        $js_cache_id_full =
+          'advagg:js:full:' . $hooks_hash . ':' .
+          drupal_hash_base64(serialize($js_scope_array));
 
    The second and final hash value in this cache id is the css/js_hash value.
    This takes the input from `drupal_add_css/js()` and creates a hash value from
@@ -382,7 +392,8 @@ Modify file names and aggregate bundles:
 
  - `advagg_current_hooks_hash_array_alter`. Add in your own settings and hooks
    allowing one to modify the 3rd base64 hash in a filename.
- - `advagg_build_aggregate_plans_alter`. Regroup files into different aggregates.
+ - `advagg_build_aggregate_plans_alter`. Regroup files into different
+   aggregates.
  - `advagg_css_groups_alter`. Allow other modules to modify `$css_groups` right
    before it is processed.
  - `advagg_js_groups_alter`. Allow other modules to modify `$js_groups` right
@@ -423,7 +434,8 @@ Install AdvAgg Modifier if not enabled and go to
 
  - Under "Move JS to the footer" Select "All"
  - set "Enable preprocess on all JS/CSS"
- - set "Move JavaScript added by `drupal_add_html_head()` into `drupal_add_js()`"
+ - set "Move JavaScript added by `drupal_add_html_head()`
+   into `drupal_add_js()`"
  - set "Move CSS added by `drupal_add_html_head()` into `drupal_add_css()`"
  - Enable every checkbox under "Optimize JavaScript/CSS Ordering"
 
@@ -564,7 +576,7 @@ some tips to hopefully get it working. For Apache enable `mod_rewrite`,
 `mod_headers`, and `mod_expires`. Add the following code to the bottom of
 Drupal's core .htaccess file (located at the webroot level).
 
-    <FilesMatch "^(css|js)__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.(css|js)(\.gz)?">
+    <FilesMatch "^(css|js)__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.(css|js)(\.gz|\.br)?">
       # No mod_headers. Apache module headers is not enabled.
       <IfModule !mod_headers.c>
         # No mod_expires. Apache module expires is not enabled.
@@ -598,7 +610,7 @@ Drupal's core .htaccess file (located at the webroot level).
       </IfModule>
     </FilesMatch>
     # Force advagg .js file to have the type of application/javascript.
-    <FilesMatch "^js__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.js(\.gz)?">
+    <FilesMatch "^js__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.js(\.gz|\.br)?">
       ForceType application/javascript
     </FilesMatch>
 
@@ -651,3 +663,31 @@ try to redirect all http traffic to be https.
     RewriteCond %{HTTPS} off
     RewriteCond %{HTTP:X-Forwarded-Proto} !https
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+
+If brotli compression is not working and you are using Apache here are some tips
+to hopefully get it working. For Apache enable `mod_rewrite`, `mod_headers`, and
+`mod_expires`. Add the following code right above this line `# Rules to
+correctly serve gzip compressed CSS and JS files.`
+
+      <IfModule mod_headers.c>
+        # Serve brotli compressed CSS if they exist and the client accepts br.
+        RewriteCond %{HTTP:Accept-encoding} br
+        RewriteCond %{REQUEST_FILENAME}\.br -s
+        RewriteRule ^(.*)\.css $1\.css\.br [QSA]
+        RewriteRule \.css\.br$ - [T=text/css,E=no-gzip:1]
+
+        # Serve brotli compressed JS if they exist and the client accepts br.
+        RewriteCond %{HTTP:Accept-encoding} br
+        RewriteCond %{REQUEST_FILENAME}\.br -s
+        RewriteRule ^(.*)\.js $1\.js\.br [QSA]
+        RewriteRule \.js\.br$ - [T=application/javascript,E=no-gzip:1]
+
+        <FilesMatch "(\.js\.br|\.css\.br)$">
+          # Serve correct encoding type.
+          Header set Content-Encoding br
+          # Force proxies to cache compressed and non-compressed css/js files
+          # separately.
+          Header append Vary Accept-Encoding
+        </FilesMatch>
+      </IfModule>
