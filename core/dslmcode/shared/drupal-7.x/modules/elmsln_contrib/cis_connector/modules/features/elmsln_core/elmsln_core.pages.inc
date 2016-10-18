@@ -57,6 +57,8 @@ function _elmsln_core_data_page($etype, $entity) {
     $aggregates['users'][$verb][$record['statement']['actor']['name']] = $record['statement']['actor']['name'];
     $aggregates['user_list'][$record['statement']['actor']['name']] = $record['statement']['actor']['name'];
   }
+  // order from biggest to smallest xAPI counts
+  uasort($aggregates['counts'], '_elmsln_uasortcmp');
   // load in the icon associations
   $icons = _elmsln_core_icon_map();
   foreach ($aggregates['verbs'] as $verb) {
@@ -84,4 +86,14 @@ function _elmsln_core_data_page($etype, $entity) {
     $output = theme('read_time', array('node' => $entity));
   }
   return $output . theme('elmsln_core_lrs_data', $vars);
+}
+
+/**
+ * callback for uasort comparison of array values
+ */
+function _elmsln_uasortcmp($a, $b) {
+    if ($a == $b) {
+        return 0;
+    }
+    return ($a > $b) ? -1 : 1;
 }
