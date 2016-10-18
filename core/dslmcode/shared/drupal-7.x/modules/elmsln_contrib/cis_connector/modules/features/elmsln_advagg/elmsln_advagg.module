@@ -1,5 +1,7 @@
 <?php
 /**
  * @file
- * Drupal needs this blank file.
+ * Code for the ELMSLN Advagg feature.
  */
+
+include_once 'elmsln_advagg.features.inc';

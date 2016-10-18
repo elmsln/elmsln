@@ -23,7 +23,6 @@ function advagg_sri_install() {
   }
 }
 
-
 /**
  * Implements hook_uninstall().
  */

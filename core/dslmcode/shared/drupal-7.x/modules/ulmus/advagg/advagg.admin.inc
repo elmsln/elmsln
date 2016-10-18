@@ -46,17 +46,6 @@ function advagg_admin_settings_form($form, $form_state) {
     '#disabled' => module_exists('httprl') ? FALSE : TRUE,
     '#description' => t('If <a href="@link">HTTPRL</a> is installed, advagg will use it to generate aggregates on the fly in a background parallel process.', array('@link' => 'http://drupal.org/project/httprl')),
   );
-  $form['global']['advagg_browser_dns_prefetch'] = array(
-    '#type' => 'radios',
-    '#title' => t('Use DNS Prefetch for external CSS/JS.'),
-    '#default_value' => variable_get('advagg_browser_dns_prefetch', ADVAGG_BROWSER_DNS_PREFETCH),
-    '#description' => t('Start the DNS lookup for external CSS and JavaScript files as soon as possible. If you have css and/or js files being loaded right after the "charset=utf-8" meta tag, you need to use the "above charset=utf-8" option in order for dns-prefetch to work; Optimizely is an example that would need this other option.'),
-    '#options' => array(
-      0 => t('Disabled'),
-      1 => t('Enabled, below charset=utf-8 (recommended)'),
-      2 => t('Enabled, above charset=utf-8'),
-    ),
-  );
 
   $aggressive_cache_conflicts = advagg_aggressive_cache_conflicts();
   if (empty($aggressive_cache_conflicts)) {
@@ -131,6 +120,57 @@ function advagg_admin_settings_form($form, $form_state) {
     }
   }
 
+  $form['global']['resource_hints'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Resource Hints'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Preemptively get resources (CSS/JS & sub requests).'),
+  );
+  $form['global']['resource_hints']['advagg_resource_hints_dns_prefetch'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('DNS Prefetch.'),
+    '#default_value' => variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH),
+    '#disabled' => '',
+    '#description' => t('Start the DNS lookup for external CSS and JavaScript files as soon as possible.'),
+  );
+  $form['global']['resource_hints']['advagg_resource_hints_preconnect'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Preconnect.'),
+    '#default_value' => variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT),
+    '#disabled' => '',
+    '#description' => t('Start the connection to external resources before an HTTP request is actually sent to the server.'),
+  );
+  $form['global']['resource_hints']['advagg_resource_hints_location'] = array(
+    '#type' => 'radios',
+    '#title' => t('Location of resource hints.'),
+    '#default_value' => variable_get('advagg_resource_hints_location', ADVAGG_RESOURCE_HINTS_LOCATION),
+    '#description' => t('If you have css and/or js files being loaded right after the "charset=utf-8" meta tag, you need to use the "above charset=utf-8" option in order for some of the resource hints to work; Optimizely is an example that would need this other option. Link headers are not supported in every browser.'),
+    '#options' => array(
+      1 => t('Below charset=utf-8 (recommended)'),
+      3 => t('Above charset=utf-8'),
+    ),
+    '#states' => array(
+      'disabled' => array(
+        '#edit-advagg-resource-hints-dns-prefetch' => array('checked' => FALSE),
+        '#edit-advagg-resource-hints-preconnect' => array('checked' => FALSE),
+      ),
+    ),
+  );
+//   $form['global']['resource_hints']['expert'] = array(
+//     '#type' => 'fieldset',
+//     '#title' => t('Experimental Settings'),
+//     '#collapsible' => TRUE,
+//     '#collapsed' => !variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD),
+//   );
+//   $form['global']['resource_hints']['expert']['advagg_resource_hints_preload'] = array(
+//     '#type' => 'checkbox',
+//     '#title' => t('Preload link http headers.'),
+//     '#default_value' => variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD),
+//     '#disabled' => '',
+//     '#description' => t('Use link http headers, allowing for HTTP 2 servers to push all CSS, JavaScript, and Fonts files out to the client. If your webserver supports this it will push every asset to the browser on every request, ignoring the browser cache (not a good thing for repeat vists). More complex rules in htaccess will be needed to make this efficient.'),
+//   );
+
   $form['global']['cron'] = array(
     '#type' => 'fieldset',
     '#title' => t('Cron Options'),
@@ -138,7 +178,7 @@ function advagg_admin_settings_form($form, $form_state) {
     '#collapsed' => TRUE,
     '#description' => t('Unless you have a good reason to adjust these values you should leave them alone.'),
   );
-  // @ignore sniffer_squiz_commenting_poststatementcomment_found:27
+  // @codingStandardsIgnoreStart
   $short_times = drupal_map_assoc(array(
     60 * 15, // 15 min.
     60 * 30, // 30 min.
@@ -167,6 +207,7 @@ function advagg_admin_settings_form($form, $form_state) {
     60 * 60 * 24 * 45, // 1 month 2 weeks.
     60 * 60 * 24 * 60, // 2 months.
   ), 'format_interval');
+  // @codingStandardsIgnoreEnd
   $last_ran = variable_get('advagg_cron_timestamp', 0);
   if (!empty($last_ran)) {
     $last_ran = t('@time ago', array('@time' => format_interval(REQUEST_TIME - $last_ran)));
@@ -221,6 +262,15 @@ function advagg_admin_settings_form($form, $form_state) {
     '#description' => t('All aggregated files can be pre-compressed into a .gz file and
    served from Apache. This is faster then gzipping the file on each request.'),
   );
+  if (function_exists('brotli_compress') && defined('BROTLI_TEXT')) {
+    $form['global']['obscure']['advagg_brotli'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Create .br files'),
+      '#default_value' => variable_get('advagg_brotli', ADVAGG_BROTLI),
+      '#description' => t('All aggregated files can be pre-compressed into a .br file and
+    served from Apache. This is faster then brotli compressing the file on each request.'),
+    );
+  }
   $form['global']['obscure']['advagg_ajax_render_alter'] = array(
     '#type' => 'checkbox',
     '#title' => t('Run advagg_ajax_render_alter()'),
@@ -542,6 +592,30 @@ function advagg_admin_operations_form($form, $form_state) {
     '#type' => 'submit',
     '#value' => t('Increment Global Counter'),
     '#submit' => array('advagg_admin_increment_global_counter'),
+  );
+  $form['drastic_measures']['rescan_files'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Rescan all files'),
+    '#description' => t('Force rescan all files and clear the cache. Useful if a css/js change from a deployment did not work.'),
+  );
+  $form['drastic_measures']['rescan_files']['reset_mtime'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reset All mtime Values'),
+    '#submit' => array('advagg_admin_reset_mtime'),
+  );
+  $form['drastic_measures']['reset_advagg_files'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Reset the AdvAgg Files table'),
+    '#description' => t('Truncate the advagg_files table and delete the javascript_parsed variable. This may cause some 404s for CSS/JS assets for a short amount of time (seconds). Useful if you really want to reset some stuff. Might be best to put the site into maintenance mode before doing this.'),
+  );
+  $form['drastic_measures']['reset_advagg_files']['truncate_advagg_files'] = array(
+    '#type' => 'submit',
+    '#value' => t('Truncate advagg_files'),
+    '#submit' => array('advagg_admin_truncate_advagg_files'),
   );
 
   return $form;
@@ -976,10 +1050,11 @@ function advagg_admin_flush_cache_button() {
         continue;
       }
       $ext = pathinfo($filename, PATHINFO_EXTENSION);
-      drupal_set_message(t('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
+      drupal_set_message(t('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins. Trigger: <code>@changes</code>', array(
         '%filename' => $filename,
         '%db_usage' => $data[0],
         '%db_count' => $data[1],
+        '@changes' => print_r($data[2], TRUE),
         '%type' => $ext,
       )));
     }
@@ -1063,6 +1138,38 @@ function advagg_admin_increment_global_counter() {
   module_load_include('inc', 'advagg', 'advagg.cache');
   $new_value = advagg_increment_global_counter();
   drupal_set_message(t('Global counter is now set to %new_value', array('%new_value' => $new_value)));
+}
+
+/**
+ * Clear out all advagg cache bins and increment the counter.
+ */
+function advagg_admin_reset_mtime() {
+  // Reset mtime.
+  db_update('advagg_files')
+    ->fields(array(
+      'mtime' => 0,
+    ))
+    ->execute();
+  drupal_set_message(t('All files have been rescanned.'));
+
+  // Smart cache clear.
+  advagg_admin_flush_cache_button();
+
+  // Clear out the cache.
+  advagg_admin_clear_all_caches_button();
+}
+
+/**
+ * Clear out all advagg cache bins and increment the counter.
+ */
+function advagg_admin_truncate_advagg_files() {
+  // Truncate advagg_files table.
+  db_truncate('advagg_files')->execute();
+  variable_del('javascript_parsed');
+  drupal_set_message(t('All files from the advagg_files table have been removed.'));
+
+  // Clear out the cache.
+  advagg_admin_clear_all_caches_button();
 }
 
 /**

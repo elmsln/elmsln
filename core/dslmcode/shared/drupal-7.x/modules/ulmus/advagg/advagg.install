@@ -450,7 +450,7 @@ function advagg_update_7204(&$sandbox) {
 function advagg_update_7205(&$sandbox) {
   return t('First pattern results: !first Second pattern results: !second', array(
     '!first' => advagg_install_update_htaccess('ForceType text/css .js'),
-    '!second' => advagg_install_update_htaccess('ForceType application/javascript .js')
+    '!second' => advagg_install_update_htaccess('ForceType application/javascript .js'),
   ));
 }
 
@@ -532,7 +532,6 @@ function advagg_update_7208(&$sandbox) {
   return t('Nothing needed to be done.');
 }
 
-
 /**
  * Implements hook_update_N().
  *
@@ -589,15 +588,32 @@ function advagg_update_7210() {
  *
  * Populate the filesize_processed field in the advagg_files table.
  */
-function advagg_update_7211() {
+function advagg_update_7211(&$sandbox) {
   drupal_load('module', 'advagg');
   module_load_include('inc', 'advagg', 'advagg');
   $types = array('css', 'js');
+
+  // If first run of this update function then set progress variables.
+  if (!isset($sandbox['progress'])) {
+    $count = db_select('advagg_files', 'af')
+      ->fields('af')
+      ->condition('filesize_processed', 0)
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+    $sandbox['progress'] = 0;
+    $sandbox['max'] = $count;
+  }
+
+  // How many items should be processed per pass.
+  $limit = 20;
+
   foreach ($types as $type) {
     $query = db_select('advagg_files', 'af')
       ->fields('af')
       ->condition('filesize_processed', 0)
       ->condition('filetype', $type)
+      ->range($sandbox['progress'], $limit)
       ->execute();
     foreach ($query as $row) {
       $row->filesize_processed = (int) advagg_generate_filesize_processed($row->filename, $type);
@@ -612,7 +628,15 @@ function advagg_update_7211() {
       }
     }
   }
-  return t('The filesize_processed field has been populated inside the advagg_files table.');
+
+  // Update our progress information.
+  $sandbox['progress'] += $limit;
+  // Set the value for finished.
+  $sandbox['#finished'] = ($sandbox['progress'] >= $sandbox['max']) ? TRUE : ($sandbox['progress'] / $sandbox['max']);
+
+  if ($sandbox['#finished']) {
+    return t('The filesize_processed field has been populated inside the advagg_files table.');
+  }
 }
 
 /**
@@ -641,12 +665,29 @@ function advagg_update_7212() {
  *
  * Populate the use_strict field in the advagg_files table.
  */
-function advagg_update_7213() {
+function advagg_update_7213(&$sandbox) {
   drupal_load('module', 'advagg');
   module_load_include('inc', 'advagg', 'advagg');
+
+  // If first run of this update function then set progress variables.
+  if (!isset($sandbox['progress'])) {
+    $count = db_select('advagg_files', 'af')
+      ->fields('af')
+      ->condition('filetype', 'js')
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+    $sandbox['progress'] = 0;
+    $sandbox['max'] = $count;
+  }
+
+  // How many items should be processed per pass.
+  $limit = 10;
+
   $query = db_select('advagg_files', 'af')
     ->fields('af')
     ->condition('filetype', 'js')
+    ->range($sandbox['progress'], $limit)
     ->execute();
   foreach ($query as $row) {
     $row->use_strict = (int) advagg_does_js_start_with_use_strict($row->filename);
@@ -660,7 +701,80 @@ function advagg_update_7213() {
         ->execute();
     }
   }
-  return t('The use_strict field has been populated inside the advagg_files table.');
+
+  // Update our progress information.
+  $sandbox['progress'] += $limit;
+  // Set the value for finished.
+  $sandbox['#finished'] = ($sandbox['progress'] >= $sandbox['max']) ? TRUE : ($sandbox['progress'] / $sandbox['max']);
+
+  if ($sandbox['#finished']) {
+    return t('The use_strict field has been populated inside the advagg_files table.');
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Update the .htaccess file in the advagg directories in order to support
+ * brotli compression (br).
+ */
+function advagg_update_7214(&$sandbox) {
+  return advagg_install_update_htaccess('', 'brotli');
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Update the .htaccess file in the advagg directories in order to support
+ * brotli compression (br).
+ */
+function advagg_update_7215(&$sandbox) {
+  return advagg_install_update_htaccess('', '%{HTTP:Accept-encoding} gzip');
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Update the .htaccess file in the advagg directories in order to support
+ * brotli compression (br).
+ */
+function advagg_update_7216(&$sandbox) {
+  if ($GLOBALS['base_path'] !== '/') {
+    return advagg_install_update_htaccess('', 'ErrorDocument 404');
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Update migrate the advagg_browser_dns_prefetch variable.
+ */
+function advagg_update_7217(&$sandbox) {
+  $advagg_browser_dns_prefetch = variable_get('advagg_browser_dns_prefetch', NULL);
+  $advagg_resource_hints_dns_prefetch = variable_get('advagg_resource_hints_dns_prefetch', NULL);
+  $advagg_resource_hints_location = variable_get('advagg_resource_hints_location', NULL);
+  variable_del('advagg_browser_dns_prefetch');
+  if (empty($advagg_browser_dns_prefetch)
+    || !is_null($advagg_resource_hints_dns_prefetch)
+    || !is_null($advagg_resource_hints_location)
+  ) {
+    return t('Nothing needed to be done.');
+  }
+  drupal_load('module', 'advagg');
+  $config_path = advagg_admin_config_root_path();
+
+  if ($advagg_browser_dns_prefetch == 1) {
+    variable_set('advagg_resource_hints_location', 1);
+    variable_set('advagg_resource_hints_dns_prefetch', TRUE);
+  }
+  elseif($advagg_browser_dns_prefetch == 2) {
+    variable_set('advagg_resource_hints_location', 3);
+    variable_set('advagg_resource_hints_dns_prefetch', TRUE);
+  }
+  else {
+    return t('Nothing happened.');
+  }
+  return t('Old DNS Prefetch variable transfered to the new variable. Other options are under Resource Hints on the <a href="@url">configuration page</a>', array('@url' => url($config_path . '/advagg', array('fragment' => 'edit-resource-hints'))));
 }
 
 /**
@@ -707,7 +821,7 @@ function advagg_install_change_table_collation($table_name, array $fields, $coll
 
     // $schema_fields[$row->Field]['default'] can be NULL, so we explicitly
     // check for the key here.
-    if ( isset($schema_fields[$row->Field])
+    if (isset($schema_fields[$row->Field])
       && is_array($schema_fields[$row->Field])
       && array_key_exists('default', $schema_fields[$row->Field])
     ) {
@@ -974,7 +1088,7 @@ function advagg_requirements($phase) {
         'title' => $t('Adv CSS/JS Agg - Core Variables'),
         'severity' => REQUIREMENT_ERROR,
         'value' => $t('Core CSS and/or JS aggregation is disabled.'),
-        'description' => $t('"Optimize CSS files" and "Optimize JavaScript files" on the <a href="@performance">performance page</a> should be enabled.', array('@performance' => url('admin/config/development/performance'))),
+        'description' => $t('"Optimize CSS files" and "Optimize JavaScript files" on the <a href="@performance">performance page</a> should be enabled.', array('@performance' => url('admin/config/development/performance', array('fragment' => 'edit-bandwidth-optimization')))),
       );
     }
   }
@@ -982,7 +1096,7 @@ function advagg_requirements($phase) {
   // Check that the menu router handler is working.
   $item_css = menu_get_item($css_path[1] . '/test.css');
   $item_js = menu_get_item($js_path[1] . '/test.js');
-  if ( empty($item_css['page_callback'])
+  if (empty($item_css['page_callback'])
     || strpos($item_css['page_callback'], 'advagg') === FALSE
     || empty($item_js['page_callback'])
     || strpos($item_js['page_callback'], 'advagg') === FALSE
@@ -1000,8 +1114,7 @@ function advagg_requirements($phase) {
   // Make hook_element_info_alter worked.
   $styles_info = element_info('styles');
   $scripts_info = element_info('scripts');
-  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-  if ( empty($styles_info['#pre_render'])
+  if (empty($styles_info['#pre_render'])
     || !is_array($styles_info['#pre_render'])
     || !in_array('advagg_modify_css_pre_render', $styles_info['#pre_render'])
     || empty($scripts_info['#pre_render'])
@@ -1042,10 +1155,9 @@ function advagg_requirements($phase) {
   }
 
   // Adjust some modules settings.
-  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
   $search404_ignore_query = variable_get('search404_ignore_query', 'gif jpg jpeg bmp png');
-  if ( module_exists('search404') &&
-    (  strpos($search404_ignore_query, 'css') === FALSE
+  if (module_exists('search404') &&
+    (strpos($search404_ignore_query, 'css') === FALSE
     || strpos($search404_ignore_query, 'js') === FALSE
     )
   ) {
@@ -1070,9 +1182,8 @@ function advagg_requirements($phase) {
   }
 
   // Check that https is correct.
-  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:2
-  if ( empty($GLOBALS['is_https']) &&
-    (  (isset($_SERVER['HTTPS']) &&  strtolower($_SERVER['HTTPS']) === 'on')
+  if (empty($GLOBALS['is_https']) &&
+      ((isset($_SERVER['HTTPS']) &&  strtolower($_SERVER['HTTPS']) === 'on')
     || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
     || (isset($_SERVER['HTTP_HTTPS']) && $_SERVER['HTTP_HTTPS'] === 'on')
     )
@@ -1082,7 +1193,7 @@ function advagg_requirements($phase) {
       'severity' => REQUIREMENT_WARNING,
       'value' => $t('The core global $is_https is not TRUE.'),
       'description' => $t('You need to add in this logic near the top your settings.php file: <pre>@code</pre>', array(
-        '@code' => 'if ( (isset($_SERVER[\'HTTPS\']) && strtolower($_SERVER[\'HTTPS\']) == \'on\')
+        '@code' => 'if ((isset($_SERVER[\'HTTPS\']) && strtolower($_SERVER[\'HTTPS\']) == \'on\')
   || (isset($_SERVER[\'HTTP_X_FORWARDED_PROTO\']) && $_SERVER[\'HTTP_X_FORWARDED_PROTO\'] == \'https\')
   || (isset($_SERVER[\'HTTP_HTTPS\']) && $_SERVER[\'HTTP_HTTPS\'] == \'on\')
 ) {
@@ -1144,7 +1255,7 @@ $base_url = str_replace("http://", "https://", $base_url);
       $description .= ' ' . $t('Advanced CSS/JS aggregation is disabled. Go to the Advanced CSS/JS aggregation <a href="@settings">settings page</a> and enable it.', array('@settings' => url($config_path . '/advagg')));
     }
     if (!variable_get('preprocess_css', FALSE) || !variable_get('preprocess_js', FALSE)) {
-      $description .= ' ' . $t('Core CSS and/or JS aggregation is disabled. "Optimize CSS files" and "Optimize JavaScript files" on the <a href="@performance">performance page</a> should be enabled.', array('@performance' => url('admin/config/development/performance')));
+      $description .= ' ' . $t('Core CSS and/or JS aggregation is disabled. "Optimize CSS files" and "Optimize JavaScript files" on the <a href="@performance">performance page</a> should be enabled.', array('@performance' => url('admin/config/development/performance', array('fragment' => 'edit-bandwidth-optimization'))));
     }
 
     if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
@@ -1263,11 +1374,11 @@ function advagg_install_check_via_http(array &$requirements) {
       //  No data returned OR
       //   Headers do not contain "x-advagg" AND
       //   Body does not contain "advagg_missing_fast404".
-      if ( $request->code != 404
+      if ($request->code != 404
         || empty($request->data)
-        || ( empty($request->headers['x-advagg'])
+        || (empty($request->headers['x-advagg'])
           && strpos($request->data, '<!-- advagg_missing_fast404 -->') === FALSE
-          )
+        )
       ) {
         // Fast 404 check.
         $url_path_404 = parse_url($url, PHP_URL_PATH);
@@ -1275,7 +1386,7 @@ function advagg_install_check_via_http(array &$requirements) {
         $fast_404_html = variable_get('404_fast_html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>');
         // Replace @path in the variable with the page path.
         $fast_404_html = trim(strtr($fast_404_html, array('@path' => check_plain($url_path_404))));
-        if ( !empty($request->data)
+        if (!empty($request->data)
           && $fast_404_html == trim($request->data)
           && !empty($exclude_paths)
           && strpos($exclude_paths, 'advagg_') === FALSE
@@ -1311,8 +1422,7 @@ function advagg_install_check_via_http(array &$requirements) {
             'description' => $t('If you have fast 404 enabled in your settings.php file, you need to change the <code>404_fast_paths_exclude</code> setting so advagg will work.') . ' ' . $description,
           );
         }
-        // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-        elseif ( module_exists('fast_404')
+        elseif (module_exists('fast_404')
               && defined('FAST_404_EXT_CHECKED')
               && !in_array('/advagg_', variable_get('fast_404_string_whitelisting', array()))
               && strpos(variable_get('fast_404_exts', '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i'), $type) !== FALSE
@@ -1325,8 +1435,7 @@ function advagg_install_check_via_http(array &$requirements) {
               array('@code' => '$conf[\'fast_404_string_whitelisting\'][] = \'/advagg_\';')),
           );
         }
-        // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-        elseif ( module_exists('stage_file_proxy')
+        elseif (module_exists('stage_file_proxy')
               && variable_get('stage_file_proxy_origin', NULL)
               && strpos(file_get_contents(drupal_get_path('module', 'stage_file_proxy') . '/stage_file_proxy.module'), 'advagg') === FALSE
         ) {
@@ -1466,6 +1575,7 @@ location ~* files/advagg_(?:css|js)/ {
         'Accept-Encoding' => 'gzip, deflate',
       ),
       'version' => '1.0',
+      '#advagg_path' => "{$file_path}/{$filename}",
     );
     // Test http 1.0.
     $old_requirements = $requirements;
@@ -1484,6 +1594,37 @@ location ~* files/advagg_(?:css|js)/ {
       advagg_install_chk_urls($requirements, $urls, $options, $mod_url, $type, $url_path, $file_path, $filename);
 
       $GLOBALS['conf']['drupal_http_request_function'] = $old;
+    }
+
+    if (function_exists('brotli_compress')
+      && defined('BROTLI_TEXT')
+      && variable_get('advagg_brotli', ADVAGG_BROTLI)
+    ) {
+      // Set arguments for drupal_http_request().
+      $options = array(
+        'headers' => array(
+          'Accept-Encoding' => 'br',
+        ),
+        'version' => '1.0',
+      );
+      // Test http 1.0.
+      $old_requirements = $requirements;
+      advagg_install_chk_urls($requirements, $urls, $options, $mod_url, $type, $url_path, $file_path, $filename);
+
+      // Test http 1.1
+      // If Drupal version is >= 7.22 and httprl_override_core exists.
+      if (defined('VERSION') && floatval(VERSION) >= 7.22 && is_callable('httprl_override_core')) {
+        $old = variable_get('drupal_http_request_function', FALSE);
+        $GLOBALS['conf']['drupal_http_request_function'] = 'httprl_override_core';
+
+        // Only test 1.1; 1.0 is rarely used these days.
+        $requirements = $old_requirements;
+
+        $options['version'] = '1.1';
+        advagg_install_chk_urls($requirements, $urls, $options, $mod_url, $type, $url_path, $file_path, $filename);
+
+        $GLOBALS['conf']['drupal_http_request_function'] = $old;
+      }
     }
   }
 }
@@ -1535,23 +1676,28 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
     // Send request.
     advagg_install_url_mod($url, $options, $mod_url);
     $request = drupal_http_request($url, $options);
+    $encoding_type = 'gzip';
+    if (!empty($request->options['headers']['Accept-Encoding']) && strpos($request->options['headers']['Accept-Encoding'], 'br') !== FALSE) {
+      $encoding_type = 'br';
+    }
 
     if (!variable_get('advagg_skip_gzip_check', ADVAGG_SKIP_GZIP_CHECK)) {
-      // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
       // Check response. Report an error if
       //  Not a 200.
       //  Headers do not contain "content-encoding".
-      //  content-encoding is not gzip or deflate.
-      // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-      if ( $request->code != 200
+      //  content-encoding is not gzip, deflate or br.
+      if ($request->code != 200
         || empty($request->headers['content-encoding'])
-        || ( $request->headers['content-encoding'] !== 'gzip'
+        || ($request->headers['content-encoding'] !== 'gzip'
           && $request->headers['content-encoding'] !== 'deflate'
+          && $request->headers['content-encoding'] !== 'br'
         )
       ) {
         $config_path = advagg_admin_config_root_path();
         // Gzip failed.
-        if (!variable_get('advagg_gzip', ADVAGG_GZIP)) {
+        if (!variable_get('advagg_gzip', ADVAGG_GZIP)
+          && $encoding_type === 'gzip'
+        ) {
           // Recommend that gzip be turned on.
           $requirements['advagg_' . $type . '_gzip' . $key] = array(
             'title' => $t('Adv CSS/JS Agg - gzip'),
@@ -1563,25 +1709,46 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
             )),
           );
         }
+        elseif (function_exists('brotli_compress')
+              && defined('BROTLI_TEXT')
+              && !variable_get('advagg_brotli', ADVAGG_BROTLI)
+              && $encoding_type === 'br'
+        ) {
+          // Recommend that br be turned on.
+          $requirements['advagg_' . $type . '_br' . $key] = array(
+            'title' => $t('Adv CSS/JS Agg - brotli'),
+            'severity' => REQUIREMENT_WARNING,
+            'value' => $t('Brotli is failing for %type files.', array('%type' => $type)),
+            'description' => $t('Try enabling on the "Create .br files" setting on the <a href="@advagg">Advanced CSS/JS Aggregation Configuration page</a>', array(
+              '@advagg' => url($config_path . '/advagg'),
+              '%type' => $type,
+            )),
+          );
+        }
         else {
           // If not apache skip this.
           $apache_module_missing = FALSE;
           if ($is_apache) {
             if ($mod_headers === FALSE || $mod_rewrite === FALSE) {
               $apache_module_missing = TRUE;
-
               if ($mod_headers === FALSE) {
-                $requirements['advagg_mod_headers' . $key] = array(
+                $requirements['advagg_mod_headers' . $key . '_' . $encoding_type] = array(
                   'title'       => $t('Adv CSS/JS Agg - Apache'),
-                  'description' => $t('The Apache module "mod_headers" is not available. Enable <a href="!link">mod_headers</a> for Apache if at all possible. This is causing gzip to fail.', array('!link' => 'http://httpd.apache.org/docs/current/mod/mod_headers.html')),
+                  'description' => $t('The Apache module "mod_headers" is not available. Enable <a href="!link">mod_headers</a> for Apache if at all possible. This is causing @encoding to fail.', array(
+                    '!link' => 'http://httpd.apache.org/docs/current/mod/mod_headers.html',
+                    '@encoding' => $encoding_type,
+                  )),
                   'severity'    => REQUIREMENT_WARNING,
                   'value'       => $t('Apache module "mod_headers" is not installed.'),
                 );
               }
               if ($mod_rewrite === FALSE) {
-                $requirements['advagg_mod_rewrite' . $key] = array(
+                $requirements['advagg_mod_rewrite' . $key . '_' . $encoding_type] = array(
                   'title'       => $t('Adv CSS/JS Agg - Apache'),
-                  'description' => $t('The Apache module "mod_rewrite" is not available.  You must enable <a href="!link">mod_rewrite</a> for Apache. This is causing gzip to fail.', array('!link' => 'http://httpd.apache.org/docs/current/mod/mod_rewrite.html')),
+                  'description' => $t('The Apache module "mod_rewrite" is not available.  You must enable <a href="!link">mod_rewrite</a> for Apache. This is causing @encoding to fail.', array(
+                    '!link' => 'http://httpd.apache.org/docs/current/mod/mod_rewrite.html',
+                    '@encoding' => $encoding_type,
+                  )),
                   'severity'    => REQUIREMENT_ERROR,
                   'value'       => $t('Apache module "mod_rewrite" is not installed.'),
                 );
@@ -1591,25 +1758,37 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
           if (!$apache_module_missing) {
             // No data returned.
             if (empty($request->data)) {
-              $requirements['advagg_' . $type . '_gzip' . $key . $options['version']] = array(
-                'title' => $t('Adv CSS/JS Agg - gzip'),
+              $url = 'http://checkgzipcompression.com/?url=' . urlencode($url);
+              if ($encoding_type === 'br') {
+                $url = 'https://tools.keycdn.com/brotli-test';
+              }
+              $requirements['advagg_' . $type . $encoding_type . $key . $options['version']] = array(
+                'title' => $t('Adv CSS/JS Agg - @encoding', array('@encoding' => $encoding_type)),
                 'severity' => REQUIREMENT_WARNING,
-                'value' => $t('Gzip is failing for %type files.', array('%type' => $type)),
-                'description' => $t('No data was returned from your server; this gzip test can not be done locally. Error: @error - @message You can manually test if gzip is working by <a href="@url">going here</a> and seeing if gzip is enabled. You can turn this warning off by adding this to your settings.php file: <code>@skipcode</code>', array(
+                'value' => $t('@encoding is failing for %type files.', array(
+                  '%type' => $type,
+                  '@encoding' => $encoding_type,
+                )),
+                'description' => $t('No data was returned from your server; this @encoding test can not be done locally. Error: @error - @message You can manually test if @encoding is working by <a href="@urlGZ">going here</a> and seeing if @encoding is enabled. You can turn this warning off by adding this to your settings.php file: <code>@skipcode</code>', array(
                   '@error' => $request->code,
                   '@message' => isset($request->error) ? $request->error : '',
-                  '@url' => 'http://checkgzipcompression.com/?url=' . urlencode($url),
+                  '@url' => $url,
                   '@skipcode' => '$conf[\'advagg_skip_gzip_check\'] = TRUE;',
+                  '@encoding' => $encoding_type,
                 )),
               );
             }
             elseif ($request->code != 200) {
-              $requirements['advagg_' . $type . '_gzip' . $key . $options['version']] = array(
-                'title' => $t('Adv CSS/JS Agg - gzip'),
+              $requirements['advagg_' . $type . $encoding_type . $key . $options['version']] = array(
+                'title' => $t('Adv CSS/JS Agg - @encoding', array('@encoding' => $encoding_type)),
                 'severity' => REQUIREMENT_WARNING,
-                'value' => $t('Gzip is failing for %type files.', array('%type' => $type)),
-                'description' => $t('The web server is not returning a 200, instead a @code is being returned. Gzip can not be tested. Raw request info: <pre>@request</pre>', array(
+                'value' => $t('@encoding is failing for %type files.', array(
+                  '%type' => $type,
+                  '@encoding' => $encoding_type,
+                )),
+                'description' => $t('The web server is not returning a 200, instead a @code is being returned. @encoding can not be tested. Raw request info: <pre>@request</pre>', array(
                   '@code' => $request->code,
+                  '@encoding' => $encoding_type,
                   '@request' => print_r($request, TRUE),
                 )),
               );
@@ -1617,19 +1796,94 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
             else {
               // Recommend servers configuration be adjusted.
               $request->data = '...';
-              $requirements['advagg_' . $type . '_gzip' . $key . $options['version']] = array(
-                'title' => $t('Adv CSS/JS Agg - gzip'),
+              $requirements['advagg_' . $type . $encoding_type . $key . $options['version']] = array(
+                'title' => $t('Adv CSS/JS Agg - @encoding', array('@encoding' => $encoding_type)),
                 'severity' => REQUIREMENT_WARNING,
-                'value' => $t('Gzip is failing for %type files.', array('%type' => $type)),
-                'description' => $t('The web servers configuration will need to be adjusted. In most cases make sure that the webroots .htaccess file still contains this section "Rules to correctly serve gzip compressed CSS and JS files". Certain default web server configurations (<a href="!nginx">nginx</a>) do not gzip HTTP/1.0 requests. If you are using cloudfront you will have to <a href="!cloudfront">add metadata</a> to the .gz files. There are some other options if using <a href="!so">cloudfront</a>. Raw request info: <pre>@request</pre>', array(
+                'value' => $t('@encoding is failing for %type files.', array(
+                  '%type' => $type,
+                  '@encoding' => $encoding_type,
+                )),
+                'description' => $t('The web servers configuration will need to be adjusted. In most cases make sure that the webroots .htaccess file still contains this section "Rules to correctly serve gzip compressed CSS and JS files". Also check in the <a href="@readme">readme</a>, under Troubleshooting. Certain default web server configurations (<a href="!nginx">nginx</a>) do not gzip HTTP/1.0 requests. If you are using cloudfront you will have to <a href="!cloudfront">add metadata</a> to the .gz files. There are some other options if using <a href="!so">cloudfront</a>. Raw request info: <pre>@request</pre>', array(
                   '!nginx' => 'http://www.cdnplanet.com/blog/gzip-nginx-cloudfront/',
                   '@request' => print_r($request, TRUE),
                   '!cloudfront' => 'http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3',
                   '!so' => 'http://stackoverflow.com/questions/5442011/serving-gzipped-css-and-javascript-from-amazon-cloudfront-via-s3',
+                  '@readme' => url(drupal_get_path('module', 'advagg') . '/README.txt'),
                 )),
               );
             }
           }
+        }
+      }
+      elseif ($request->code == 200
+        && !empty($request->headers['content-encoding'])
+        && !empty($request->data)
+        && ($request->headers['content-encoding'] === 'gzip'
+          || $request->headers['content-encoding'] === 'deflate'
+          || $request->headers['content-encoding'] === 'br'
+        )) {
+        // Do the first level of decoding if not already done.
+        if (!isset($request->chunk_size)) {
+          if ($request->headers['content-encoding'] === 'gzip') {
+            $request->data = @gzinflate(substr($request->data, 10));
+          }
+          elseif ($request->headers['content-encoding'] === 'deflate') {
+            $request->data = @gzinflate($request->data);
+          }
+          elseif ($request->headers['content-encoding'] === 'br' && is_callable('brotli_uncompress')) {
+            $request->data = @brotli_uncompress($request->data);
+          }
+        }
+        // Check for double gzip compression.
+        if (@gzinflate(substr($request->data, 10)) !== FALSE || @gzinflate($request->data) !== FALSE) {
+          $config_path = advagg_admin_config_root_path();
+          $description = '';
+          if (variable_get('advagg_gzip', ADVAGG_GZIP)) {
+            $description .= $t('Go to the Advanced CSS/JS aggregation <a href="@settings">settings page</a>, under Obsucre Options uncheck the Create .gz files setting.', array(
+              '@settings' => url($config_path . '/advagg', array('fragment' => 'edit-obscure')),
+            ));
+          }
+          else {
+            $description .= $t('Your webserver configuration needs to be changed so that %type files are not being double compressed.', array(
+              '%type' => $type,
+            ));
+            if (isset($request->headers['content-type'])) {
+              $description .= ' ' . $t('The content type is: %type.', array(
+                '%type' => $request->headers['content-type'],
+              ));
+            }
+          }
+          $requirements['advagg_' . $type . '_gzip' . $key . $options['version']] = array(
+            'title' => $t('Adv CSS/JS Agg - gzip'),
+            'severity' => REQUIREMENT_ERROR,
+            'value' => $t('Double gzip encoding detected for %type files.', array('%type' => $type)),
+            'description' => $description,
+          );
+        }
+        if (is_callable('brotli_uncompress') && @brotli_uncompress($request->data) !== FALSE) {
+          $config_path = advagg_admin_config_root_path();
+          $description = '';
+          if (variable_get('advagg_brotli', ADVAGG_BROTLI)) {
+            $description .= $t('Go to the Advanced CSS/JS aggregation <a href="@settings">settings page</a>, under Obsucre Options uncheck the Create .br files setting.', array(
+              '@settings' => url($config_path . '/advagg', array('fragment' => 'edit-obscure')),
+            ));
+          }
+          else {
+            $description .= $t('Your webserver configuration needs to be changed so that %type files are not being double compressed.', array(
+              '%type' => $type,
+            ));
+            if (isset($request->headers['content-type'])) {
+              $description .= ' ' . $t('The content type is: %type.', array(
+                '%type' => $request->headers['content-type'],
+              ));
+            }
+          }
+          $requirements['advagg_' . $type . '_br' . $key . $options['version']] = array(
+            'title' => $t('Adv CSS/JS Agg - br'),
+            'severity' => REQUIREMENT_ERROR,
+            'value' => $t('Double br encoding detected for %type files.', array('%type' => $type)),
+            'description' => $description,
+          );
         }
       }
     }
@@ -1640,8 +1894,7 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
 
     if ($request->code == 200) {
       $matches = array();
-      // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-      if ( !empty($request->headers['x-advagg'])
+      if (!empty($request->headers['x-advagg'])
         && preg_match('/Generated file at (\\d+)/is', $request->headers['x-advagg'], $matches)
         && $matches[1] + 30 > REQUEST_TIME
       ) {
@@ -1663,10 +1916,10 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
         }
       }
 
-      if ( $type === 'css'
-        && ( empty($request->headers['content-type'])
+      if ($type === 'css'
+        && (empty($request->headers['content-type'])
           || strpos($request->headers['content-type'], 'text/' . $content_type) === FALSE
-          )
+        )
       ) {
         // Recommend servers configuration be adjusted.
         $requirements['advagg_' . $type . '_type' . $key] = array(
@@ -1680,12 +1933,12 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
         );
       }
 
-      if ( $type === 'js'
-        && ( empty($request->headers['content-type'])
-          || ( strpos($request->headers['content-type'], 'application/' . $content_type) === FALSE
+      if ($type === 'js'
+        && (empty($request->headers['content-type'])
+          || (strpos($request->headers['content-type'], 'application/' . $content_type) === FALSE
             && strpos($request->headers['content-type'], 'application/x-' . $content_type) === FALSE
-            )
           )
+        )
       ) {
         // Recommend servers configuration be adjusted.
         $requirements['advagg_' . $type . '_type' . $key] = array(
@@ -1705,7 +1958,7 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
       if (!variable_get('advagg_skip_far_future_check', ADVAGG_SKIP_FAR_FUTURE_CHECK)) {
         // Make sure the expires header is at least set to 1 month
         // (2628000 seconds) in the future.
-        if ( !empty($request->headers['expires'])
+        if (!empty($request->headers['expires'])
           && strtotime($request->headers['expires']) < time() + 2628000
         ) {
           // Recommend servers configuration be adjusted.
@@ -1728,8 +1981,8 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
         // Make sure the cache-control header max age value is at least set to
         // 1 month (2628000 seconds) in the future.
         $matches = array();
-        if ( empty($request->headers['cache-control'])
-          || !preg_match('/max-age=(\\d+)/is', $request->headers['cache-control'], $matches)
+        if (empty($request->headers['cache-control'])
+          || !preg_match('/\s*max-age\s*=\s*(\\d+)\s*/is', $request->headers['cache-control'], $matches)
           || $matches[1] < 2628000
         ) {
           // Recommend servers configuration be adjusted.
@@ -1775,9 +2028,12 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
         $url = file_create_url($url_path . '/' . $filename);
         $if_modified_options = $options;
         $if_modified_options['headers'] = array(
-          'Accept-Encoding' => 'gzip, deflate',
+          'Accept-Encoding' => 'gzip, deflate, br',
           'If-None-Match' => $request->headers['etag'],
         );
+        if (!empty($request->options['headers']['Accept-Encoding'])) {
+          $if_modified_options['headers']['Accept-Encoding'] = $request->options['headers']['Accept-Encoding'];
+        }
 
         // Send request.
         advagg_install_url_mod($url, $if_modified_options, $mod_url);
@@ -1803,9 +2059,12 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
         $url = file_create_url($url_path . '/' . $filename);
         $if_modified_options = $options;
         $if_modified_options['headers'] = array(
-          'Accept-Encoding' => 'gzip, deflate',
+          'Accept-Encoding' => 'gzip, deflate, br',
           'If-Modified-Since' => $request->headers['last-modified'],
         );
+        if (!empty($request->options['headers']['Accept-Encoding'])) {
+          $if_modified_options['headers']['Accept-Encoding'] = $request->options['headers']['Accept-Encoding'];
+        }
 
         // Send request.
         advagg_install_url_mod($url, $if_modified_options, $mod_url);
@@ -1924,6 +2183,24 @@ function advagg_install_get_first_advagg_file($directory, $type) {
     }
 
     $gzip_filename = $scanned_directory[$key + 1];
+    $br_filename = $scanned_directory[$key + 1];
+    if (function_exists('brotli_compress')
+      && defined('BROTLI_TEXT')
+      && variable_get('advagg_brotli', ADVAGG_BROTLI)
+    ) {
+      $gzip_filename = $scanned_directory[$key + 2];
+      // Skip if the next file is not a .br file.
+      if (strcmp($filename . '.br', $br_filename) !== 0) {
+        continue;
+      }
+    }
+    else {
+      // Skip if the next file is a .br file.
+      if (strcmp($filename . '.br', $br_filename) === 0) {
+        continue;
+      }
+    }
+
     if (variable_get('advagg_gzip', ADVAGG_GZIP)) {
       // Skip if the next file is not a .gz file.
       if (strcmp($filename . '.gz', $gzip_filename) !== 0) {
@@ -1999,20 +2276,20 @@ function advagg_install_url_mod(&$url, array &$options, $mod_url = FALSE) {
     $parts['user'] = variable_get('shield_user', '');
     $parts['pass'] = variable_get('shield_pass', '');
   }
-  elseif ( isset($_SERVER['AUTH_TYPE'])
+  elseif (isset($_SERVER['AUTH_TYPE'])
         && $_SERVER['AUTH_TYPE'] == 'Basic'
   ) {
     $parts['user'] = $_SERVER['PHP_AUTH_USER'];
     $parts['pass'] = $_SERVER['PHP_AUTH_PW'];
   }
-  elseif ( isset($_SERVER['HTTP_AUTHORIZATION'])
+  elseif (isset($_SERVER['HTTP_AUTHORIZATION'])
         && strpos($_SERVER['HTTP_AUTHORIZATION'], 'Basic ') === 0
   ) {
     $user_pass = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 5)));
     $parts['user'] = $user_pass[0];
     $parts['pass'] = $user_pass[1];
   }
-  elseif ( isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])
+  elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])
         && strpos($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 'Basic ') === 0
   ) {
     $user_pass = explode(':', base64_decode(substr($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 5)));
@@ -2086,7 +2363,6 @@ function advagg_install_generate_advagg_filename_from_db($type) {
     return $type . ADVAGG_SPACE . $row->aggregate_filenames_hash . ADVAGG_SPACE . $row->aggregate_contents_hash . ADVAGG_SPACE . $hooks_hash . '.' . $type;
   }
 }
-
 
 /**
  * Checks to see if an apache module is enabled.
