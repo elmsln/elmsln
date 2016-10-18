@@ -30,9 +30,12 @@ status report page `admin/reports/status`. Works with MySQL only at this point.
 
 Below is what you'll typically need to add to your settings.php file.
 
-    $databases['default']['default']['init_commands']['isolation'] = "SET SESSION tx_isolation='READ-COMMITTED'";
-    $databases['default']['default']['init_commands']['lock_wait_timeout'] = "SET SESSION innodb_lock_wait_timeout = 20";
-    $databases['default']['default']['init_commands']['wait_timeout'] = "SET SESSION wait_timeout = 600";
+    $databases['default']['default']['init_commands']['isolation'] =
+      "SET SESSION tx_isolation='READ-COMMITTED'";
+    $databases['default']['default']['init_commands']['lock_wait_timeout'] =
+      "SET SESSION innodb_lock_wait_timeout = 20";
+    $databases['default']['default']['init_commands']['wait_timeout'] =
+      "SET SESSION wait_timeout = 600";
     $conf['cache_backends'][] = 'sites/all/modules/apdqc/apdqc.cache.inc';
     $conf['cache_default_class'] = 'APDQCache';
     $conf['lock_inc'] = 'sites/all/modules/apdqc/apdqc.lock.inc';

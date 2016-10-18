@@ -76,6 +76,10 @@ define('APDQC_SESSIONS_SCHEMA', FALSE);
  */
 define('APDQC_SEMAPHORE_SCHEMA', FALSE);
 
+/**
+ * TRUE if APDQC will skip NULL entity loads.
+ */
+define('APDQC_ENTITY_LOAD_SKIP_NULL', FALSE);
 
 /**
  * Implements hook_menu().
@@ -294,7 +298,7 @@ function apdqc_module_implements_alter(&$implementations, $hook) {
 function _apdqc_dblog_watchdog(array $log_entry) {
   // Pass through if apdqc_dblog_watchdog is disabled.
   // Or if apdqc_run_prefetch_array is not defined; apdqc.cache.inc not loaded.
-  if ( !variable_get('apdqc_dblog_watchdog', APDQC_DBLOG_WATCHDOG)
+  if (!variable_get('apdqc_dblog_watchdog', APDQC_DBLOG_WATCHDOG)
     || !function_exists('apdqc_run_prefetch_array')
     || !function_exists('apdqc_escape_string')
   ) {
@@ -527,7 +531,7 @@ function apdqc_after_entity_info_alter(&$entity_info) {
   $entity_controller_class_info = &drupal_static('apdqc_entity_info_alter');
 
   foreach ($entity_info as $type => $info) {
-    if ( isset($info['fieldable'])
+    if (isset($info['fieldable'])
       && !empty($entity_controller_class_info[$type])
       && $entity_controller_class_info[$type] === $info['controller class']
       ) {
@@ -603,6 +607,18 @@ class ApdqcPrefetchDrupalDefaultEntityController {
         }
       }
     }
+    if ($name == 'load'
+      && !empty($arguments[0])
+      && is_array($arguments[0])
+      && count($arguments[0]) == 1
+      && variable_get('apdqc_entity_load_skip_null', APDQC_ENTITY_LOAD_SKIP_NULL)
+    ) {
+      $test = reset($arguments[0]);
+      if (empty($test) && is_null($test)) {
+        return array();
+      }
+    }
+
     $return = call_user_func_array(array($this->originalBaseClass, $name), $arguments);
     return $return;
   }
@@ -641,7 +657,13 @@ function apdqc_menu_get_item_alter($router_item, $path, $original_map) {
         $run_once['views'] = TRUE;
         $table_keys_cache_prefetch = apdqc_views_get_unpack_options();
       }
-      $args = unserialize($router_item['page_arguments']);
+
+      $args = $router_item['page_arguments'];
+      $data = @unserialize($router_item['page_arguments']);
+      if ($router_item['page_arguments'] === 'b:0;' || $data !== FALSE) {
+        $args = $data;
+      }
+
       $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:' . apdqc_escape_string($args[0]);
       if ($args[0] === 'project_issue_project_searchapi') {
         $lang_shorthand = apdqc_get_lang();
@@ -658,7 +680,13 @@ function apdqc_menu_get_item_alter($router_item, $path, $original_map) {
   }
   if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
     if ($router_item['page_callback'] === 'theme') {
-      $args = unserialize($router_item['page_arguments']);
+
+      $args = $router_item['page_arguments'];
+      $data = @unserialize($router_item['page_arguments']);
+      if ($router_item['page_arguments'] === 'b:0;' || $data !== FALSE) {
+        $args = $data;
+      }
+
       if ($args[0] === 'drupalorg_download') {
         $table_keys_cache_prefetch = apdqc_views_get_unpack_options();
         $table_keys_cache_prefetch['cache_views'][] = 'ctools_export:views_view:project_index';
@@ -1157,10 +1185,19 @@ function apdqc_boot() {
     $page = apdqc_escape_string($_GET['q']);
     $bin = 'cache_field';
     $query = " SELECT '$bin' AS bin, $bin.cid, $bin.data, $bin.created, $bin.expire, $bin.serialized FROM " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table($bin) . '}') . " AS $bin ";
-    $query .= " LEFT JOIN " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('url_alias') . '}') . " AS url_alias ON (url_alias.alias = '$page' AND url_alias.source LIKE 'node/%')";
-    $query .= " LEFT JOIN " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('node') . '}') . " AS node_a ON node_a.nid = SUBSTRING(url_alias.source, 6)";
-    $query .= " LEFT JOIN " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('node') . '}') . " AS node_b ON node_b.nid = " . substr($page, 5);
-    $query .= " WHERE cid = CONCAT('field_info:bundle:node:', node_a.type) OR cid = CONCAT('field_info:bundle:node:', node_b.type)";
+    // Get node type.
+    $matches = array();
+    if (preg_match("/node\\/(\\d+)/i", $page, $matches)) {
+      // If page starts with node/NID.
+      $nid = apdqc_escape_string($matches[1]);
+      $query .= " INNER JOIN " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('node') . '}') . " AS node ON node.nid = $nid";
+    }
+    else {
+      // Page might be an alias to a node.
+      $query .= " INNER JOIN " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('url_alias') . '}') . " AS url_alias ON (url_alias.alias = '$page' AND SUBSTRING(url_alias.source, 1, 5) = 'node/')";
+      $query .= " INNER JOIN " . apdqc_fast_prefix_tables('{' . apdqc_fast_escape_table('node') . '}') . " AS node ON node.nid = SUBSTRING(url_alias.source, 6)";
+    }
+    $query .= " WHERE cid LIKE 'field_info:bundle:node:%' AND cid = CONCAT('field_info:bundle:node:', node.type)";
     apdqc_query(array('cache_field'), array('field_info:bundle:node:%'), $query, array('async' => TRUE));
   }
 
@@ -1363,7 +1400,7 @@ function apdqc_init() {
     if (!empty($item) && !empty($item['page_callback']) && $item['page_callback'] === 'project_solr_browse_page') {
       if (apdqc_get_bin_class_name('cache_views') === 'APDQCache') {
         $table_keys_cache_prefetch += apdqc_views_get_unpack_options();
-        if ( !empty($item['path'])
+        if (!empty($item['path'])
           && ($item['path'] === 'project/project_module'
           || $item['path'] === 'project/project_distribution'
           || $item['path'] === 'project/project_theme')
@@ -1389,7 +1426,7 @@ function apdqc_init() {
       }
     }
 
-    if ( !empty($item)
+    if (!empty($item)
       && !empty($item['page_arguments'][0]->type)
       && ($item['page_arguments'][0]->type === 'project_module'
       || $item['page_arguments'][0]->type === 'project_distribution'
@@ -1412,7 +1449,7 @@ function apdqc_init() {
       $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:organization";
     }
 
-    if ( !empty($item)
+    if (!empty($item)
       && !empty($item['page_arguments'][0])
       && is_string($item['page_arguments'][0])
       && $item['page_arguments'][0] === 'project_issue_project_searchapi'
@@ -1426,7 +1463,7 @@ function apdqc_init() {
       $table_keys_cache_prefetch['cache_field'][] = "field_info:bundle:node:changenotice";
     }
 
-    if ( !empty($item)
+    if (!empty($item)
       && !empty($item['page_arguments'][0])
       && is_object($item['page_arguments'][0])
       && !empty($item['page_arguments'][0]->type)
@@ -1470,10 +1507,13 @@ function apdqc_init() {
 
           if (!empty($item['page_arguments'][0]) && is_object($item['page_arguments'][0])) {
             $prefetch = apdqc_async_data(FALSE, 'cache_field', array('field_info:field_map'));
+
             $parameters = array();
             if (!empty($prefetch['field_info:field_map']['data'])) {
-              $parameters = unserialize($prefetch['field_info:field_map']['data']);
+              apdqc_inflate_unserialize($prefetch['field_info:field_map']);
+              $parameters = $prefetch['field_info:field_map']['data'];
             }
+
             foreach ($parameters as $key => $values) {
               if ($values['type'] === 'field_collection' && !empty($item['page_arguments'][0]->{$key}[LANGUAGE_NONE])) {
                 $table_keys_cache_prefetch['cache_field'][] = 'field_info:bundle:field_collection_item:' . apdqc_escape_string($key);
@@ -1572,7 +1612,9 @@ function apdqc_init() {
           continue;
         }
         $menu_name = substr($cid, 6, strpos($cid, ':', 6) - 6);
-        $parameters = unserialize($cache['data']);
+        apdqc_inflate_unserialize($cache);
+        $parameters = $cache['data'];
+
         if (isset($parameters['expanded'])) {
           sort($parameters['expanded']);
         }
