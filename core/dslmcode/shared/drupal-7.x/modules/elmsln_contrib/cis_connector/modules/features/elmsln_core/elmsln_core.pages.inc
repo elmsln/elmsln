@@ -78,5 +78,10 @@ function _elmsln_core_data_page($etype, $entity) {
     'data' => $data,
     'aggregates' => $aggregates,
   );
-  return theme('elmsln_core_lrs_data', $vars);
+  $output = '';
+  // load up read time if it exists
+  if ($etype == 'node' && module_exists('read_time')) {
+    $output = theme('read_time', array('node' => $entity));
+  }
+  return $output . theme('elmsln_core_lrs_data', $vars);
 }
