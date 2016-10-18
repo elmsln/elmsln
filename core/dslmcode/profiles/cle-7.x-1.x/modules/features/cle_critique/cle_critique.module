@@ -68,7 +68,14 @@ function _cle_critique_page_random_form($arg, &$form_state) {
     module_load_include('inc', 'node', 'node.pages');
     drupal_add_css(drupal_get_path('module', 'cle_critique') .'/css/cle_critique.css');
     // render their work
-    $submission = _cle_critique_random($arg);
+    // see if we already were handed input so we don't mess ourselves up by
+    // randomizing on save... like we once did. ugh.
+    if (isset($form_state['input']) && isset($form_state['input']['field_cle_crit_sub_ref'])) {
+      $submission = node_load($form_state['input']['field_cle_crit_sub_ref']['und']);
+    }
+    else {
+      $submission = _cle_critique_random($arg);
+    }
     if (!is_null($submission)) {
       // render the student submission for later
       $rendersubmission = node_view($submission, 'critique');

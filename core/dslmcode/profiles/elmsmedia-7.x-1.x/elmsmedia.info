@@ -161,6 +161,7 @@ dependencies[] = elmsmedia_feature
 dependencies[] = elmsmedia_h5p
 dependencies[] = elmsmedia_image
 dependencies[] = elmsmedia_image_gallery
+dependencies[] = elmsmedia_static_content
 dependencies[] = elmsmedia_svg
 dependencies[] = elmsmedia_video
 dependencies[] = elmsmedia_view_mode_tabs

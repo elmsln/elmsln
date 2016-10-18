@@ -11,7 +11,8 @@
       if (!Drupal.settings.tincanapi) {
         return;
       }
-
+      // append settings which we can use for context sending
+      data.tincanapiSettings = Drupal.settings.tincanapi;
       data.token = Drupal.settings.tincanapi.token;
 
       $.ajax({

@@ -115,6 +115,13 @@ function h5p_admin_settings($form, &$form_state) {
     '#description' => t("In seconds, how often do you wish the user to auto save their progress. Increasee this number if you're having issues with many ajax request."),
   );
 
+  $form['h5p_enable_lrs_content_types'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable LRS dependent content types'),
+    '#default_value' => variable_get('h5p_enable_lrs_content_types', 0),
+    '#description' => t('Makes it possible to use content types that rely upon a Learning Record Store to function properly, like the Questionnaire content type.'),
+  );
+
   // Make changes to the settings before passing them off to
   // system_settings_form_submit().
   $form['#submit'][] = 'h5p_admin_settings_submit';

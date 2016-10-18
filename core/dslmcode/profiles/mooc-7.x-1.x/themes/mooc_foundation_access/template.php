@@ -30,8 +30,6 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   if ($node && !empty($node->book) && (user_access('add content to books') || user_access('administer book outlines')) && node_access('create', $child_type) && $node->status == 1 && isset($node->book['depth']) && $node->book['depth'] < MENU_MAX_DEPTH) {
     $variables['tabs_extras'][200][] = '<div class="divider"></div>';
     $variables['tabs_extras'][200][] = '<span class="nolink cis-lmsless-text">' . t('Operations') . '</strong>';
-    $variables['tabs_extras'][200][] = l(t('Add child page'), 'node/add/' . str_replace('_', '-', $child_type), array('query' => array('parent' => $node->book['mlid'])));
-    $variables['tabs_extras'][200][] = l(t('Duplicate outline'), 'node/' . $node->nid . '/outline/copy', array('query' => array('destination' => 'node/' . $node->nid)));
     $variables['tabs_extras'][200][] = l(t('Edit child outline'), 'node/' . $node->book['nid'] . '/outline/children');
     $variables['tabs_extras'][200][] = l(t('Edit course outline'), 'admin/content/book/' . $node->book['bid']);
 
@@ -59,6 +57,7 @@ function mooc_foundation_access_breadcrumb($variables) {
  * Default theme function for video.
  */
 function mooc_foundation_access_read_time($variables) {
+  $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
   $defaults = read_time_defaults();
   $node = $variables['node'];
   // add in the children element to all totals if they exist
@@ -111,7 +110,7 @@ function mooc_foundation_access_read_time($variables) {
       switch ($key) {
         case 'words':
           $label = t('Reading');
-          $icon = '<i class="tiny material-icons">library_books</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_books</i>';
         break;
         case 'audio':
           $label = t('Audio');
@@ -139,20 +138,20 @@ function mooc_foundation_access_read_time($variables) {
               $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
             }
           }
-          $icon = '<i class="tiny material-icons">library_music</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_music</i>';
         break;
         case 'iframe':
-          $icon = '<i class="tiny material-icons">launch</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">launch</i>';
         break;
         case 'img':
           $label = t('Image');
           $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
-          $icon = '<i class="tiny material-icons">perm_media</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">perm_media</i>';
         break;
         case 'svg':
           $label = t('Multimedia');
           $value = $value . ' ' . $label;
-          $icon = '<i class="tiny material-icons">assessment</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">assessment</i>';
         break;
         case 'video':
           $label = t('Video');
@@ -180,7 +179,7 @@ function mooc_foundation_access_read_time($variables) {
               $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
             }
           }
-          $icon = '<i class="tiny material-icons">video_library</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">video_library</i>';
         break;
         default:
           $icon = '';
@@ -189,7 +188,7 @@ function mooc_foundation_access_read_time($variables) {
       }
       // make sure there's something to render
       if (!empty($value)) {
-        $output .= '<div class="chip">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
+        $output .= '<div class="chip ' . $lmsless_classes['color'] . ' ' . $lmsless_classes['light'] . '">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
       }
     }
   }

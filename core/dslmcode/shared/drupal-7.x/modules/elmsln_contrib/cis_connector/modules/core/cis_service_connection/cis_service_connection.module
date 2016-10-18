@@ -165,7 +165,7 @@ function cis_service_connection_block_view($delta = '') {
       $block['content'] = cis_service_connection_get_footer_language();
     break;
     case 'ferpa_filter':
-      $block['subject'] = '<none>';
+      $block['subject'] = t('FERPA compliance');
       $block['content'] = _cis_service_connection_ferpa_filter();
     break;
   }

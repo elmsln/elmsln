@@ -5,9 +5,12 @@
  */
 
 /**
- * Callback for entity_iframe/%/% menu path item.
+ * Callback for entity_iframe/%/%/% menu path item.
  */
-function entity_iframe_output($type, $etid) {
+function entity_iframe_output($type, $etid, $view_mode) {
+  if (empty($view_mode)) {
+    $view_mode = 'iframe';
+  }
   // load information about the entity type
   $type_info = entity_get_info($type);
   // make sure this is a valid item and they have access
@@ -20,7 +23,7 @@ function entity_iframe_output($type, $etid) {
     // verify we have a valid entity, type and that they have access to it
     if (is_object($entity) && entity_access('view', $type, $entity)) {
       // build the output display based on iframe format
-      $build = entity_view($type, array($entity), 'iframe');
+      $build = entity_view($type, array($entity), $view_mode);
       // unset theme and contextual links if set
       if (isset($build[$type][$etid]['#theme'])) {
         unset($build[$type][$etid]['#theme']);

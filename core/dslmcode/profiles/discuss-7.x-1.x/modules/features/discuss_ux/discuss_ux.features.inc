@@ -1,5 +1,3 @@
 <?php
-/**
- * @file
- * discuss_ux.features.inc
- */
+
+// This file is deprecated and can be removed.

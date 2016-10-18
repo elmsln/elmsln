@@ -197,6 +197,34 @@ function advagg_bundler_analysis($filename = '', $force = FALSE, $safesql = FALS
 /**
  * Run the analysis query and return the analysis array.
  *
+ * "Magic Query"; only needs to run once. Results are cached.
+ * This is what the raw SQL looks like:
+ *
+ * @code
+ *  SELECT
+ *    af.filename AS filename,
+ *    af.filesize AS filesize,
+ *    af.mtime AS mtime,
+ *    af.changes AS changes,
+ *    af.linecount AS linecount,
+ *    af.filename_hash AS filename_hash,
+ *    aa.counter AS counter,
+ *    aa.hashlist AS hashlist
+ *   FROM advagg_files af
+ *   INNER JOIN (
+ *    SELECT
+ *     aa.filename_hash AS filename_hash,
+ *     LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0') AS counter,
+ *     HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC))) AS hashlist
+ *    FROM advagg_aggregates aa
+ *    INNER JOIN advagg_aggregates_versions aav
+ *     ON aav.aggregate_filenames_hash = aa.aggregate_filenames_hash
+ *     AND aav.root = 1
+ *     AND aav.atime > (UNIX_TIMESTAMP() - 1209600)
+ *    GROUP BY aa.filename_hash
+ *   ) aa ON af.filename_hash = aa.filename_hash
+ * @endcode
+ *
  * @param bool $safesql
  *   Turn off SQL language that might cause errors.
  *
@@ -204,33 +232,6 @@ function advagg_bundler_analysis($filename = '', $force = FALSE, $safesql = FALS
  *   The analysis array.
  */
 function advagg_bundler_analyisis_query($safesql) {
-  // "Magic Query"; only needs to run once. Results are cached.
-  //
-  // This is what the raw SQL looks like:
-  //
-  // SELECT
-  //  af.filename AS filename,
-  //  af.filesize AS filesize,
-  //  af.mtime AS mtime,
-  //  af.changes AS changes,
-  //  af.linecount AS linecount,
-  //  af.filename_hash AS filename_hash,
-  //  aa.counter AS counter,
-  //  aa.hashlist AS hashlist
-  // FROM advagg_files af
-  // INNER JOIN (
-  //  SELECT
-  //   aa.filename_hash AS filename_hash,
-  //   LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0') AS counter,
-  //   HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC))) AS hashlist
-  //  FROM advagg_aggregates aa
-  //  INNER JOIN advagg_aggregates_versions aav
-  //   ON aav.aggregate_filenames_hash = aa.aggregate_filenames_hash
-  //   AND aav.root = 1
-  //   AND aav.atime > (UNIX_TIMESTAMP() - 1209600)
-  //  GROUP BY aa.filename_hash
-  // ) aa ON af.filename_hash = aa.filename_hash
-  //
   // Return a count of how many root bundles all files are used in. Count is
   // padded with eight zeros so the count can be key sorted as a string
   // without worrying about it getting put in the wrong order.

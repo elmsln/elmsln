@@ -537,9 +537,13 @@ function cis_shortcodes_preprocess_view_mode_tab_display(&$variables) {
         'tool' => variable_get('install_profile', ''),
         'item' => $variables['node']->nid,
         'entity_type' => 'node',
-        'render' => 'display_mode',
-        'display_mode' => $name,
       );
+      // iframe display mode is implied and screws with default entity iframe
+      // processing so make sure we apply display_mode render to everything else
+      if ($name != 'iframe') {
+        $properties['render'] = 'display_mode';
+        $properties['display_mode'] = $name;
+      }
       // clipboard settings.
       $clipboard_vars = array(
         'text' => _cis_shortcodes_build_code($properties),

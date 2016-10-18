@@ -84,19 +84,19 @@ function a11y_a11y_block($render = TRUE) {
           <div class="col s4">
             <a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
               <span>Smaller</span>
-              <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" />
+              <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" width="24px" height="24px" />
             </a>
           </div>
           <div class="col s4">
             <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
               <span>Larger</span>
-              <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" />
+              <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" width="24px" height="24px" />
             </a>
           </div>
           <div class="col s4">
             <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
               <span>Reset</span>
-              <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" />
+              <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" width="24px" height="24px" />
             </a>
           </div>
         </div>
@@ -184,6 +184,61 @@ function a11y_a11y_block($render = TRUE) {
         '#description' => t('This will simulate how a dyslexic might view your material.'),
         '#weight' => -10,
       );
+      drupal_add_js(drupal_get_path('module', 'a11y') . '/simulations/dyslexia/dyslexia.js');
+    }
+    // support for field-loss simulator
+    if (variable_get('a11y_sim_field_loss', 1)) {
+      $sim['field_loss'] = array(
+        '#type' => 'select',
+        '#id' => 'a11y_sim_field_loss_select',
+        '#title' => t('Field loss'),
+        '#default_value' => '',
+        '#options' => array(
+          '' => '',
+          'central' => t('Central loss'),
+          'peripheral' => t('Peripheral loss'),
+        ),
+        '#description' => t('This will simulate how someone with vision field loss might view your material.'),
+        '#weight' => -10,
+      );
+      drupal_add_js(drupal_get_path('module', 'a11y') . '/simulations/field-loss/field-loss.js');
+      drupal_add_css(drupal_get_path('module', 'a11y') . '/simulations/field-loss/field-loss.css');
+    }
+    // support for colorblind simulator
+    if (variable_get('a11y_sim_colorblind', 1)) {
+      $options = array(
+        '' => '',
+        'achromatopsia' => t('Achromatopsia'),
+        'achromatomaly' => t('Achromatomaly'),
+        'deuteranopia' => t('Deuteranopia'),
+        'deuteranomaly' => t('Deuteranomaly'),
+        'protanopia' => t('Protanopia'),
+        'protanomaly' => t('Protanomaly'),
+        'tritanopia' => t('Tritanopia'),
+        'tritanomaly' => t('Tritanomaly'),
+      );
+      $sim['colorblind'] = array(
+        '#type' => 'select',
+        '#id' => 'a11y_sim_colorblind_select',
+        '#title' => t('Color blind'),
+        '#default_value' => '',
+        '#options' => $options,
+        '#description' => t('This will simulate different variations of color blindness.'),
+        '#weight' => -11,
+      );
+      // add in the JS
+      drupal_add_js(drupal_get_path('module', 'a11y') . '/simulations/colorblind/colorblind.js');
+      // seems weird but we need to build the CSS dynamically
+      $filterpath = url(drupal_get_path('module', 'a11y') . '/simulations/colorblind/filters.svg', array('absolute' => TRUE));
+      $colorblindcss = '';
+      array_shift($options);
+      foreach ($options as $option => $name) {
+        $colorblindcss .= '.' . $option .' {
+          -webkit-filter: url("' . $filterpath . '#' . $option .'");
+          filter: url("' . $filterpath . '#' . $option .'"); }';
+      }
+      // kick it out inline
+      drupal_add_css($colorblindcss, array('type' => 'inline'));
     }
     if ($render) {
       // render any aleration array items we have
@@ -227,7 +282,21 @@ function a11y_admin_settings($form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Allow dyslexia simulator'),
     '#default_value' => variable_get('a11y_sim_dyslexia', 1),
-    '#description' => t('This produces an effect to content that attempts to simulate the affects of dyslexia'),
+    '#description' => t('This produces an effect to content that attempts to simulate the affects of dyslexia.'),
+    '#required' => FALSE,
+  );
+  $form['sim']['a11y_sim_field_loss'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow field loss simulator'),
+    '#default_value' => variable_get('a11y_sim_field_loss', 1),
+    '#description' => t('This produces an effect to content that attempts to simulate the affects of field loss.'),
+    '#required' => FALSE,
+  );
+  $form['sim']['a11y_sim_colorblind'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow color blind simulator'),
+    '#default_value' => variable_get('a11y_sim_colorblind', 1),
+    '#description' => t('Manipulates content to filter it through different types of color blindness.'),
     '#required' => FALSE,
   );
   $form['config'] = array(
@@ -316,7 +385,12 @@ function a11y_apply_a11y() {
   }
   if (variable_get('a11y_sim_dyslexia', 1)) {
     $js_variables['a11y']['sim']['dyslexia'] = 1;
-    drupal_add_js($sim_path . 'dyslexia/dyslexia.js', $plugin_js_opts);
+  }
+  if (variable_get('a11y_sim_field_loss', 1)) {
+    $js_variables['a11y']['sim']['field_loss'] = 1;
+  }
+  if (variable_get('a11y_sim_colorblind', 1)) {
+    $js_variables['a11y']['sim']['colorblind'] = 1;
   }
   drupal_add_js($js_variables, array('type' => 'setting', 'scope' => 'footer'));
 }

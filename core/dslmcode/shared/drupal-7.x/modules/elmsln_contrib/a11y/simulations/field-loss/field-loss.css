@@ -1,0 +1,63 @@
+#a11y-sim-field-loss-area {
+  display: none;
+}
+body.a11y-sim-field-loss #a11y-sim-field-loss-area {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #000000;
+  z-index: 1000000000;
+  position: fixed;
+  opacity: 0.8;
+  pointer-events: none;
+  display: block !important;
+}
+
+body.a11y-sim-field-loss-central #a11y-sim-field-loss-area {
+  -moz-border-radius: 100px;
+  -webkit-border-radius: 100px;
+  border-radius: 100px;
+  top: 25%;
+  left: 25%;
+  right: 25%;
+  bottom: 25%;
+  -webkit-filter: blur(1rem);
+  -moz-filter: blur(1rem);
+  -o-filter: blur(1rem);
+  -ms-filter: blur(1rem);
+  filter: blur(1rem);
+}
+body.a11y-sim-field-loss-peripheral #a11y-sim-field-loss-area {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  border-color: #242424;
+  border-style: solid;
+  border-width: 6rem;
+  -webkit-filter: blur(1rem);
+  -moz-filter: blur(1rem);
+  -o-filter: blur(1rem);
+  -ms-filter: blur(1rem);
+  filter: blur(1rem);
+}
+
+#a11y-sim-field-loss-close {
+  display: none;
+}
+body.a11y-sim-field-loss #a11y-sim-field-loss-close {
+  z-index: 1000000001;
+  bottom: 0;
+  position: fixed;
+  color: #242424;
+  background-color: #eeeeee;
+  font-size: 1.5rem;
+  padding: .5rem;
+  margin: 0 auto;
+  text-align: center;
+  right: 35%;
+  left: 35%;
+  display: block !important;
+}

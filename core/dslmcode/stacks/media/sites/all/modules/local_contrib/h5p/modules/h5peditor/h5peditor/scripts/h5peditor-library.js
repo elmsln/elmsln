@@ -222,7 +222,7 @@ ns.Library.prototype.change = function (callback) {
  * @returns {boolean}
  */
 ns.Library.prototype.validate = function () {
-  if (this.params.library === undefined) {
+  if (this.params.library === undefined || (this.libraries && this.libraries.length === 1)) {
     return (this.field.optional === true);
   }
 

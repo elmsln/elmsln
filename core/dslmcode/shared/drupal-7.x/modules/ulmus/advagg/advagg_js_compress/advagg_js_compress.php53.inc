@@ -5,6 +5,9 @@
  * Advanced CSS/JS aggregation js compression php 5.3+ functions.
  */
 
+use JShrink\Minifier;
+use Patchwork\JSqueeze;
+
 /**
  * Compress a JS string using jshrink.
  *
@@ -27,7 +30,7 @@ function advagg_js_compress_jshrink(&$contents, $log_errors = TRUE) {
   ob_start();
   try {
     // JShrink the contents of the aggregated file.
-    $contents = JShrink\Minifier::minify($contents, array('flaggedComments' => FALSE));
+    $contents = Minifier::minify($contents, array('flaggedComments' => FALSE));
 
     // Capture any output from JShrink.
     $error = trim(ob_get_contents());
@@ -77,7 +80,7 @@ function advagg_js_compress_jsqueeze(&$contents, $log_errors = TRUE, array $aggr
       $keep_important_comments = TRUE;
     }
     // Minify the contents of the aggregated file.
-    $jz = new Patchwork\JSqueeze();
+    $jz = new JSqueeze();
     $contents = $jz->squeeze(
       $contents,
       TRUE,

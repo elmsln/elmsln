@@ -6,12 +6,13 @@
  *
  */
 function foundation_access_preprocess_html(&$variables) {
-  // find the name
+  // find the name of the install profile
   $variables['install_profile'] = variable_get('install_profile', 'standard');
   $settings = _cis_connector_build_registry($variables['install_profile']);
   switch ($variables['install_profile']) {
     case 'lq':
     case 'lor':
+    case 'ulmus':
       $variables['system_icon'] = 'beaker';
     break;
     default:
@@ -52,7 +53,7 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
-  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css', array('group' => CSS_THEME, 'weight' => 1001));
+  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css', array('group' => CSS_THEME, 'weight' => 1001));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   // bring in materialize
@@ -142,7 +143,7 @@ function foundation_access_fieldset($variables) {
             <div class="elmsln-collapsible-body">
               ' . $body . '
             </div>
-            <div class="divider"></div>
+            <div class="divider cis-lmsless-background"></div>
           </div>
         </li>';
       break;
@@ -274,6 +275,25 @@ function foundation_access_preprocess_page(&$variables) {
 }
 
 /**
+ * Implements hook_preprocess_block().
+ */
+function foundation_access_preprocess_block(&$variables) {
+  // Convenience variable for block headers.
+  $title_class = &$variables['title_attributes_array']['class'];
+
+  // Generic block header class.
+  $title_class[] = 'block-title';
+
+  // In the header region visually hide block titles.
+  if ($variables['block']->region == 'header') {
+    $title_class[] = 'element-invisible';
+  }
+
+  // Add a unique class for each block for styling.
+  $variables['classes_array'][] = $variables['block_html_id'];
+}
+
+/**
  * Implementation of hook_preprocess_node().
  */
 function foundation_access_preprocess_node(&$variables) {
@@ -338,10 +358,10 @@ function foundation_access_file($variables) {
   $element = $variables['element'];
   $element['#attributes']['type'] = 'file';
   element_set_attributes($element, array('id', 'name', 'size'));
-  _form_set_class($element, array('form-file'));
+  _form_set_class($element, array('form-file', 'elmsln-file-input'));
   // apply classes and wrappers needed for materializecss
   return '<div class="col s12 m8 file-field input-field">
-      <div class="btn">
+      <div class="elmsln-file-btn-trigger btn">
         <span>' . $element['#title'] . '</span>
         <input' . drupal_attributes($element['#attributes']) . ' />
       </div>
@@ -357,7 +377,7 @@ function foundation_access_file($variables) {
 function foundation_access_css_alter(&$css) {
   // Remove Drupal core CSS except system base
   foreach ($css as $path => $values) {
-    if (strpos($path, 'modules/') === 0 && !in_array($path, array('modules/contextual/contextual.css', 'modules/system/system.base.css'))) {
+    if (strpos($path, 'modules/') === 0 && !in_array($path, array('modules/contextual/contextual.css'))) {
       unset($css[$path]);
     }
   }
@@ -639,6 +659,13 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
     if (isset($variables['image']['#item']['filemime']) && $variables['image']['#item']['filemime'] == 'image/gif') {
       $variables['image']['#image_style'] = '';
     }
+    // alt/title info
+    if (empty($variables['image']['#item']['alt'])) {
+      $variables['image']['#item']['alt'] = $variables['elements']['#node']->title;
+    }
+    if (empty($variables['image']['#item']['title'])) {
+      $variables['image']['#item']['title'] = $variables['elements']['#node']->title;
+    }
     $variables['image']['#item']['attributes']['class'][] = 'image__img';
     $variables['image']['#item']['attributes']['class'][] = 'responsive-img';
   }
@@ -692,6 +719,7 @@ function foundation_access_preprocess_node__inherit__image_gallery(&$variables) 
 
   // Assign Image
   if (isset($variables['elements']['field_images'])) {
+    $variables['featured_image_id'] = 'elmsln-featured-image-' . rand(0, 300);
     $tmpimages = $variables['elements']['field_images']['#items'];
     // append classes to images for rendering
     foreach ($tmpimages as $key => $image) {
@@ -700,7 +728,20 @@ function foundation_access_preprocess_node__inherit__image_gallery(&$variables) 
         '#item' => $tmpimages[$key]['entity']->field_image[LANGUAGE_NONE][0],
         '#image_style' => 'image_gallery_square',
         '#path' => '',
+        'entity' => $tmpimages[$key]['entity'],
       );
+      // alt/title info
+      if (empty($variables['images'][$key]['#item']['alt'])) {
+        $variables['images'][$key]['#item']['alt'] = $image['entity']->title;
+      }
+      if (empty($variables['images'][$key]['#item']['title'])) {
+        $variables['images'][$key]['#item']['title'] = $image['entity']->title;
+      }
+      // special class applied to the image itself to make it a circle
+      if (strpos($variables['view_mode'], 'circle')) {
+        $variables['images'][$key]['#item']['attributes']['class'][] = 'circle';
+      }
+      $variables['image_lightbox_url'][$key] = image_style_url('image_lightboxed', $tmpimages[$key]['entity']->field_image[LANGUAGE_NONE][0]['uri']);
     }
   }
   $tmp = explode('__', $variables['view_mode']);
@@ -736,6 +777,13 @@ function foundation_access_preprocess_node__inherit__image_gallery__image(&$vari
         '#image_style' => 'image_gallery_square',
         '#path' => '',
       );
+      // alt/title info
+      if (empty($variables['images'][$key]['#item']['alt'])) {
+        $variables['images'][$key]['#item']['alt'] = $image['entity']->title;
+      }
+      if (empty($variables['images'][$key]['#item']['title'])) {
+        $variables['images'][$key]['#item']['title'] = $image['entity']->title;
+      }
       $variables['images'][$key]['#item']['attributes']['class'][] = 'image__img';
       $variables['images'][$key]['#item']['attributes']['class'][] = 'responsive-img';
       // special class applied to the image itself to make it a circle
@@ -911,7 +959,9 @@ function foundation_access_menu_link(&$variables) {
   }
   // @todo apply tabs here when we get the targetting / style figured out
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
-    $element['#localized_options']['attributes']['class'][] = 'tab';
+    $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+    $element['#attributes']['class'][] = 'tab';
+    $element['#localized_options']['attributes']['class'][] = $lmsless_classes['text'];
     $element['#localized_options']['attributes']['target'] = '_self';
   }
   $output = l($title, $element['#href'], $element['#localized_options']);
@@ -929,7 +979,7 @@ function foundation_access_menu_tree__menu_elmsln_settings($variables) {
  * Implements menu_tree__menu_elmsln_navigation.
  */
 function foundation_access_menu_tree__menu_elmsln_navigation($variables) {
-  return '<ul class="tabs">' . $variables['tree'] . '</ul>';
+  return '<ul class="elmsln-tabs tabs">' . $variables['tree'] . '</ul>';
 }
 
 /**
@@ -986,7 +1036,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
   if ($element['#below']) {
     $sub_menu = drupal_render($element['#below']);
   }
-  $id = 'zfa-menu-panel-' . $element['#original_link']['mlid'];
+  $id = 'menu-panel-' . $element['#original_link']['mlid'];
   // account for no link'ed items
   if ($element['#href'] == '<nolink>') {
     $output = '<a href="#">' . $title . '</a>';
@@ -1119,7 +1169,7 @@ function foundation_access_html_head_alter(&$head_elements) {
       '#attributes' => array(
         'type' => 'text/css',
         'rel' => 'stylesheet',
-        'href' => base_path() . drupal_get_path('theme', 'foundation_access') . '/css/app.css',
+        'href' => base_path() . drupal_get_path('theme', 'foundation_access') . '/legacy/css/app.css',
       ),
     );
   }
@@ -1162,7 +1212,7 @@ function foundation_access_preprocess_cis_dashbord(&$variables, $hook) {
  * Implements hook_form_alter().
  */
 function foundation_access_form_alter(&$form, &$form_state, $form_id) {
-  // drop zurb core class stuff
+  // drop core class stuff
   if (!empty($form['actions']) && !empty($form['actions']['submit'])) {
     unset($form['actions']['submit']['#attributes']['class']);
   }
@@ -1195,7 +1245,7 @@ function foundation_access_form_page_node_form_alter(&$form, &$form_state) {
   // support for images in significance dropdown
   $form['field_instructional_significance']['und']['#materialize'] = array(
     'class' => 'left',
-    'icon_path' => drupal_get_path('theme', 'foundation_access') . '/icons/pedagogy/',
+    'icon_path' => drupal_get_path('theme', 'foundation_access') . '/legacy/icons/pedagogy/',
   );
 }
 
@@ -1236,24 +1286,24 @@ function foundation_access_pager($variables) {
   // End of generation loop preparation.
 
   $li_first = theme('pager_first', array(
-    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">first_page</i><span class="element-invisible">' . t('First page') . '</span>'),
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons black-text">first_page</i><span class="element-invisible">' . t('First page') . '</span>'),
     'element' => $element,
     'parameters' => $parameters,
   ));
   $li_previous = theme('pager_previous', array(
-    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">chevron_left</i><span class="element-invisible">' . t('Previous page') . '</span>'),
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons black-text">chevron_left</i><span class="element-invisible">' . t('Previous page') . '</span>'),
     'element' => $element,
     'interval' => 1,
     'parameters' => $parameters,
   ));
   $li_next = theme('pager_next', array(
-    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">chevron_right</i><span class="element-invisible">' . t('Next page') . '</span>'),
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons black-text">chevron_right</i><span class="element-invisible">' . t('Next page') . '</span>'),
     'element' => $element,
     'interval' => 1,
     'parameters' => $parameters,
   ));
   $li_last = theme('pager_last', array(
-    'text' => array('html' => TRUE, 'text' => '<i class="material-icons">last_page</i><span class="element-invisible">' . t('Last page') . '</span>'),
+    'text' => array('html' => TRUE, 'text' => '<i class="material-icons black-text">last_page</i><span class="element-invisible">' . t('Last page') . '</span>'),
     'element' => $element,
     'parameters' => $parameters,
   ));
@@ -1277,7 +1327,7 @@ function foundation_access_pager($variables) {
       if ($i > 1) {
         $items[] = array(
           'class' => array('unavailable'),
-          'data' => '<a href="">&hellip;</a>',
+          'data' => '<a class="black-text" href="">&hellip;</a>',
         );
       }
       // Now generate the actual pager piece.
@@ -1290,13 +1340,13 @@ function foundation_access_pager($variables) {
               'interval' => ($pager_current - $i),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves'),
+            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
         if ($i == $pager_current) {
           $items[] = array(
             'class' => array('active'),
-            'data' => '<a href="">' . $i . '</a>',
+            'data' => '<a class="black-text" href="">' . $i . '</a>',
           );
         }
         if ($i > $pager_current) {
@@ -1307,14 +1357,14 @@ function foundation_access_pager($variables) {
               'interval' => ($i - $pager_current),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves'),
+            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
       }
       if ($i < $pager_max) {
         $items[] = array(
           'class' => array('unavailable'),
-          'data' => '<a href="">&hellip;</a>',
+          'data' => '<a class="black-text" href="">&hellip;</a>',
         );
       }
     }
@@ -1343,6 +1393,53 @@ function foundation_access_pager($variables) {
     $pager_links = drupal_render($pager_links);
     return '<h2 class="element-invisible">' . t('Pages') . '</h2>' . $pager_links;
   }
+}
+
+/**
+ *  Themes status messages
+ */
+function foundation_access_status_messages($variables) {
+  $display = $variables['display'];
+  $output = '';
+
+  $status_heading = array(
+    'error' => t('Error message'),
+    'status' => t('Status message'),
+    'warning' => t('Warning message'),
+  );
+
+  $status_mapping = array(
+    'error' => 'alert',
+    'status' => 'success',
+    'warning' => 'secondary'
+  );
+
+  foreach (drupal_get_messages($display) as $type => $messages) {
+    if (isset($status_mapping[$type])) {
+      $output .= "<div data-alert class=\"alert-box $status_mapping[$type]\">\n";
+    }
+    else {
+      $output .= "<div data-alert class=\"alert-box\">\n";
+    }
+
+    if (!empty($status_heading[$type])) {
+      $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
+    }
+    if (count($messages) > 1) {
+      $output .= " <ul class=\"no-bullet\">\n";
+      foreach ($messages as $message) {
+        $output .= '  <li>' . $message . "</li>\n";
+      }
+      $output .= " </ul>\n";
+    }
+    else {
+      $output .= $messages[0];
+    }
+    $output .= '<a href="#" class="close">&times;</a>';
+    $output .= "</div>\n";
+  }
+
+  return $output;
 }
 
 /**
@@ -1386,6 +1483,7 @@ function foundation_access_pager_link($variables) {
         t('last »') => t('Go to last page'),
       );
     }
+    $attributes['class'] = 'black-text';
     if (isset($titles[$text])) {
       $attributes['title'] = $titles[$text];
     }

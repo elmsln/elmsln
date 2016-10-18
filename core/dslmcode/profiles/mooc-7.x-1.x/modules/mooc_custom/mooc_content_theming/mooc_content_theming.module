@@ -245,7 +245,7 @@ function mooc_content_theming_foundation_access_ux_menu_item_icon_alter(&$icon, 
 function mooc_content_theming_foundation_access_colors_alter(&$color, $current) {
   $node = menu_get_object('node');
   // allow pages to pass their styling down
-  if (isset($node) && $node->type == 'page' && isset($node->{'field_fa_' . $current . '_color'})) {
+  if (isset($node) && $node->type == 'page' && isset($node->book['depth']) && isset($node->{'field_fa_' . $current . '_color'})) {
     $cid = 'content-theming-colors';
     for ($i = 0; $i< $node->book['depth']; $i++) {
       if ($node->book['p' . ($i+1)] != 0) {

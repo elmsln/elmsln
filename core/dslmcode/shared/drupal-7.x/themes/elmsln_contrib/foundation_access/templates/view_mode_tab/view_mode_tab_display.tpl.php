@@ -5,7 +5,7 @@
   <div class="clipboard__wrapper">
 	  <?php if (isset($data['view_mode']['#prefix'])): ?>
 	  <div class="clipboard clipboard--button-only">
-	  	<?php 
+	  	<?php
 	  		print $data['view_mode']['#prefix'];
 	  		unset($data['view_mode']['#prefix']);
 	  	 ?>

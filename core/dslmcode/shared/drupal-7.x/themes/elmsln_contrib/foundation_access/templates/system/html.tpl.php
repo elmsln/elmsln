@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Default theme implementation to display the basic html structure of a single
@@ -43,19 +42,10 @@
  */
 ?>
 <!DOCTYPE html>
-<!-- Sorry no IE7 support! -->
-
-<!--[if IE 8]><html class="no-js lt-ie9" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <![endif]-->
-<!--[if gt IE 8]><!-->
 <html class="no-js" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <!--<![endif]-->
 <head>
-  <?php print $head; ?>
+  <?php print preg_replace('~>\s+<~', '><', $head); ?>
   <title><?php print $head_title; ?></title>
-  <?php print $styles; ?>
-  <?php print $scripts; ?>
-  <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
   <!--cross platform favicons and tweaks-->
   <link rel="shortcut icon" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
   <link rel="icon" sizes="16x16 32x32 64x64" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
@@ -87,17 +77,19 @@
   <!-- Chrome, Firefox OS and Opera -->
   <meta name="theme-color" content="#eeeeee">
   <!--/end cross platform favicons and tweaks-->
+  <?php print preg_replace('~>\s+<~', '><', $styles); ?>
+  <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
 </head>
-<body class="<?php print $classes; ?>" <?php print $attributes;?>>
+<body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?>>
+<?php ob_flush(); flush(); ?>
   <div class="skip-link">
     <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
   </div>
   <?php if (!empty($logo_img)) : ?>
-    <div class="header-image-container">
-      <?php print $logo_img; ?>
-    </div>
+  <div class="header-image-container">
+    <?php print $logo_img; ?>
+  </div>
   <?php endif; ?>
-  <a href="<?php print base_path();?>" tabindex="-1">
     <div class="elmsln-system-badge">
       <div class="icon-<?php print $system_icon;?>-black elmsln-badge"></div>
       <div class="elmsln-badge-inner">
@@ -110,11 +102,13 @@
         <div class="elmsln-badge-middle <?php print $lmsless_classes['color'];?>"></div>
         <div class="elmsln-badge-bottom <?php print $lmsless_classes['color'];?>-border"></div>
       </div>
-      <div class="elmsln-badge-middle-name white <?php print $lmsless_classes['color'];?>-border"><a href="<?php print base_path();?>" class="<?php print $lmsless_classes['text'];?> <?php print $lmsless_classes['color'];?>-outline"><?php print $system_title;?></a></div>
+      <div class="elmsln-badge-middle-name white <?php print $lmsless_classes['color'];?>-border">
+        <a href="<?php print base_path();?>" class="<?php print $lmsless_classes['text'];?> <?php print $lmsless_classes['color'];?>-outline">
+          <span class="element-invisible"><?php print t('Home');?></span>
+          <?php print $system_title;?>
+        </a>
+      </div>
     </div>
-  </a>
-  <?php print $page_top; ?>
-  <?php print $page; ?>
-  <?php print $page_bottom; ?>
+  <?php print preg_replace('~>\s+<~', '><', $page_top . $page . $page_bottom); ?>
   </body>
 </html>

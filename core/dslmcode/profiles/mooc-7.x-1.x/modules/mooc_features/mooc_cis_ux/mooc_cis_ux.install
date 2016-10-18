@@ -3,6 +3,17 @@
  * @file
  * mooc_cis_ux.install
  */
+
+/**
+ * Establish the right views.
+ */
 function mooc_cis_ux_update_7000(&$sandbox) {
   features_revert(array('mooc_cis_ux' => array('views')));
+}
+
+/**
+ * Start to add Add menu links
+ */
+function mooc_cis_ux_update_7001(&$sandbox) {
+  features_revert_module('mooc_cis_ux');
 }

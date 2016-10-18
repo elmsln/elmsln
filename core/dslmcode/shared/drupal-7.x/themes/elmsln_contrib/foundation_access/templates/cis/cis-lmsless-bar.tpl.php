@@ -24,7 +24,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
           <li class="elmsln-user-profile-menu-item ferpa-protect">
-            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect cis-lmsless-waves divider-right" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
+            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect cis-lmsless-waves divider-right <?php print $lmsless_classes['color'];?>-border" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="hide-on-med-and-down truncate"><?php print $username; ?></span>
             </a>

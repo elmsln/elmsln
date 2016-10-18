@@ -4,6 +4,7 @@
  */
 
 /* @codingStandardsIgnoreFile */
+/* eslint-disable */
 
 /*! loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
 (function(w){

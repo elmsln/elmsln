@@ -10,7 +10,7 @@
 function cpr_user_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_accessibility_preference'
+  // Exported field_base: 'field_accessibility_preference'.
   $field_bases['field_accessibility_preference'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -40,7 +40,31 @@ function cpr_user_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_bio'
+  // Exported field_base: 'field_banner_pic'.
+  $field_bases['field_banner_pic'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_banner_pic',
+    'indexes' => array(
+      'fid' => array(
+        0 => 'fid',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'image',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'default_image' => 0,
+      'uri_scheme' => 'public',
+    ),
+    'translatable' => 0,
+    'type' => 'image',
+  );
+
+  // Exported field_base: 'field_bio'.
   $field_bases['field_bio'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -62,7 +86,7 @@ function cpr_user_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_display_name'
+  // Exported field_base: 'field_display_name'.
   $field_bases['field_display_name'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -85,7 +109,7 @@ function cpr_user_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_first_name'
+  // Exported field_base: 'field_first_name'.
   $field_bases['field_first_name'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -108,7 +132,7 @@ function cpr_user_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_last_name'
+  // Exported field_base: 'field_last_name'.
   $field_bases['field_last_name'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -131,7 +155,7 @@ function cpr_user_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_media_preference'
+  // Exported field_base: 'field_media_preference'.
   $field_bases['field_media_preference'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -158,7 +182,7 @@ function cpr_user_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_photo'
+  // Exported field_base: 'field_photo'.
   $field_bases['field_photo'] = array(
     'active' => 1,
     'cardinality' => 1,

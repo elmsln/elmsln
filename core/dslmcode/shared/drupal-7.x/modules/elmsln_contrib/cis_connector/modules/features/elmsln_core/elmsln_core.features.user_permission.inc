@@ -74,6 +74,23 @@ function elmsln_core_user_default_permissions() {
     'module' => 'entity_iframe',
   );
 
+  // Exported permission: 'access user profiles'.
+  $permissions['access user profiles'] = array(
+    'name' => 'access user profiles',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'activation code holder' => 'activation code holder',
+      'administrator' => 'administrator',
+      'guest' => 'guest',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'user',
+  );
+
   // Exported permission: 'administer cis lms-less nav'.
   $permissions['administer cis lms-less nav'] = array(
     'name' => 'administer cis lms-less nav',

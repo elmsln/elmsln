@@ -18,6 +18,7 @@ features[menu_links][] = menu-elmsln-add_figure-label:node/add/figurelabel
 features[menu_links][] = menu-elmsln-add_h5p:node/add/h5p-content
 features[menu_links][] = menu-elmsln-add_image-gallery:node/add/image-gallery
 features[menu_links][] = menu-elmsln-add_image:node/add/elmsmedia-image
+features[menu_links][] = menu-elmsln-add_static-content:node/add/static-content
 features[menu_links][] = menu-elmsln-add_svg:node/add/svg
 features[menu_links][] = menu-elmsln-add_video:node/add/video
 features[variable][] = jammer_author_options

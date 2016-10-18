@@ -14,9 +14,14 @@
     <main id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
       <div class="inner-wrap">
         <!-- progress bar -->
-        <div class="page-scroll progress">
-          <span class="meter" style="width: 0%"></span>
+        <div class="page-scroll progress <?php print $cis_lmsless['lmsless_classes']['color'] . ' ' . $cis_lmsless['lmsless_classes']['light'];?>">
+          <span class="meter <?php print $cis_lmsless['lmsless_classes']['color'];?>" style="width: 0%"></span>
         </div>
+        <?php if (!empty($messages)): ?>
+        <div class="region-messeges">
+          <?php print $messages; ?>
+        </div>
+        <?php endif; ?>
         <section class="main-section etb-book">
           <div class="r-header row">
             <div class="r-header__left">
@@ -97,12 +102,6 @@
                     </div>
                   <?php endif; ?>
 
-                  <?php if (!empty($messages)): ?>
-                    <div class="region-messeges row">
-                      <?php print $messages; ?>
-                    </div>
-                  <?php endif; ?>
-
                   <?php if ($breadcrumb) : ?>
                     <div class="breadcrumb-wrapper">
                     <?php print $breadcrumb; ?>
@@ -114,18 +113,22 @@
                       <?php print render($page['help']); ?>
                     </div>
                   <?php endif; ?>
-                  <?php if (!empty($page['local_header'])): ?>
-                  <div class="r-local-header row">
-                    <?php print render($page['local_header']); ?>
-                  </div>
-                  <?php endif; ?>
-                  <?php if (!empty($page['local_subheader'])): ?>
-                  <div class="r-local-subheader row">
-                    <?php print render($page['local_subheader']); ?>
-                  </div>
+                  <?php if (!empty($page['local_header']) || !empty($page['local_subheader'])): ?>
+                    <div class="r-local-header-wrapper row">
+                      <?php if (!empty($page['local_header'])): ?>
+                      <div class="r-local-header row">
+                        <?php print render($page['local_header']); ?>
+                      </div>
+                      <?php endif; ?>
+                      <?php if (!empty($page['local_subheader'])): ?>
+                      <div class="r-local-subheader row">
+                        <?php print render($page['local_subheader']); ?>
+                      </div>
+                      <?php endif; ?>
+                    </div>
                   <?php endif; ?>
                   <a id="main-content"></a>
-                  <?php if ($title): ?>
+                  <?php if ($title && arg(2) != 'edit' && arg(0) != 'users' && arg(0) != 'user'): ?>
                     <?php print render($title_prefix); ?>
                       <h1 id="page-title" class="title"><?php print $title; ?></h1>
                     <?php print render($title_suffix); ?>
@@ -136,46 +139,46 @@
             </div>
           </div>
         </section>
-
       <a class="exit-off-canvas"></a>
       </div>
     </main>
     <footer class="page-footer <?php print $cis_lmsless['lmsless_classes']['color'] . ' ' . $cis_lmsless['lmsless_classes']['light'];?>">
-    <div class="container">
-      <div class="row">
-        <div class="s12 push-m1 m-10 col">
-          <?php if (!empty($page['footer'])): ?>
-          <?php print render($page['footer']); ?>
-          <?php endif; ?>
-        </div>
-        <?php if (!empty($page['footer_firstcolumn']) || !empty($page['footer_secondcolumn'])): ?>
-        <hr/>
+      <div class="container">
         <div class="row">
-          <?php if (!empty($page['footer_firstcolumn'])): ?>
-          <div class="l6 col">
-            <?php print render($page['footer_firstcolumn']); ?>
+          <div class="s12 push-m1 m-10 col">
+            <?php if (!empty($page['footer'])): ?>
+            <?php print render($page['footer']); ?>
+            <?php endif; ?>
           </div>
-          <?php endif; ?>
-          <?php if (!empty($page['footer_secondcolumn'])): ?>
-          <div class="l6 col">
-            <?php print render($page['footer_secondcolumn']); ?>
+          <?php if (!empty($page['footer_firstcolumn']) || !empty($page['footer_secondcolumn'])): ?>
+          <hr/>
+          <div class="row">
+            <?php if (!empty($page['footer_firstcolumn'])): ?>
+            <div class="l6 col">
+              <?php print render($page['footer_firstcolumn']); ?>
+            </div>
+            <?php endif; ?>
+            <?php if (!empty($page['footer_secondcolumn'])): ?>
+            <div class="l6 col">
+              <?php print render($page['footer_secondcolumn']); ?>
+            </div>
+            <?php endif; ?>
           </div>
           <?php endif; ?>
         </div>
-        <?php endif; ?>
       </div>
     </footer>
-<!-- generic container for other off canvas modals -->
-<?php print render($page['cis_lmsless_modal']); ?>
-<!-- Accessibility side nav -->
-<?php if (!empty($a11y)) : ?>
-<div id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
-    <div class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background cis-lmsless-border"><h1 class="flow-text valign elmsln-modal-title"><?php print t('Accessibility'); ?></h1>
-      <a href="#" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>
+    <!-- generic container for other off canvas modals -->
+    <?php print render($page['cis_lmsless_modal']); ?>
+    <!-- Accessibility side nav -->
+    <?php if (!empty($a11y)) : ?>
+    <div id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
+        <div class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background cis-lmsless-border"><h1 class="flow-text valign elmsln-modal-title"><?php print t('Accessibility'); ?></h1>
+          <a href="#" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>
+        </div>
+        <div class="elmsln-modal-content">
+          <?php print $a11y; ?>
+        </div>
     </div>
-    <div class="elmsln-modal-content">
-      <?php print $a11y; ?>
-    </div>
-</div>
-<?php endif; ?>
-<!-- /Accessibility side nav -->
+    <?php endif; ?>
+    <!-- /Accessibility side nav -->

@@ -1,0 +1,19 @@
+{
+  "name": "drupal/advagg",
+  "description": "Improved aggregation of CSS/JS files to speed up page load times and prevent 404s.",
+  "type": "drupal-module",
+  "license": "GPL-2.0+",
+  "homepage": "https://drupal.org/project/advagg",
+  "authors": [
+    {
+      "name": "Mike Carper (mikeytown2)",
+      "homepage": "https://www.drupal.org/u/mikeytown2",
+      "role": "Creator, Maintainer"
+    }
+  ],
+  "support": {
+    "issues": "https://drupal.org/project/issues/advagg",
+    "irc": "irc://irc.freenode.org/drupal-contribute",
+    "source": "https://cgit.drupalcode.org/advagg"
+  }
+}

@@ -4,12 +4,59 @@
  * Code for the ELMSLN Core feature.
  */
 
+define ('ELMSLN_CORE_LRS_KEYCHAIN', '_lrs');
+define ('ELMSLN_XAPI_DEFAULT_ICON', 'storage');
+define ('ELMSLN_XAPI_DEFAULT_COLOR', 'red');
+
 include_once 'elmsln_core.features.inc';
+
+// elmsln file stream wrapper
+include_once 'includes/elmsln_stream_wrappers.inc';
+
+/**
+ * Implements hook_stream_wrappers().
+ */
+function elmsln_core_stream_wrappers() {
+  return array(
+    'elmslnauthority' => array(
+      'name' => t('ELMSLN authority files'),
+      'class' => 'ELMSLNAuthorityStreamWrapper',
+      'description' => t('ELMSLN Authority file delivery wrapper that uses the application pattern to find files.'),
+    ),
+    'elmslnservice' => array(
+      'name' => t('ELMSLN service files'),
+      'class' => 'ELMSLNServiceStreamWrapper',
+      'description' => t('ELMSLN Service file delivery wrapper that uses the application pattern to find files.'),
+    ),
+  );
+}
 
 /**
  * Implements hook_menu().
  */
 function elmsln_core_menu() {
+  $items['node/%node/data'] = array(
+    'title' => 'Related Data',
+    'page callback' => '_elmsln_core_data_page',
+    'page arguments' => array('node', 1),
+    'access callback' => '_elmsln_core_data_access',
+    'access arguments' => array('node', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'elmsln_core.pages.inc',
+  );
+  $items['user/%user/data'] = array(
+    'title' => 'Related Data',
+    'page callback' => '_elmsln_core_data_page',
+    'page arguments' => array('user', 1),
+    'access callback' => '_elmsln_core_data_access',
+    'access arguments' => array('user', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'elmsln_core.pages.inc',
+  );
   $items['elmsln/redirect/%/%/%'] = array(
     'title' => 'view asset',
     'page callback' => '_elmsln_core_remote_redirect',
@@ -37,10 +84,39 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['elmsln/form-as-json/%'] = array(
+    'title' => 'form as json',
+    'page callback' => '_elmsln_core_form_as_json',
+    'access arguments' => array('view form as json'),
+    'page arguments' => array(2),
+  );
 
   return $items;
 }
 
+/**
+ * Callback to return form ID as json array
+ * @param  string $form_id id of a form to load
+ * @return json          json representation of render array
+ */
+function _elmsln_core_form_as_json($form_id) {
+  $form = drupal_get_form($form_id);
+  drupal_json_output($form);
+  drupal_exit();
+}
+
+/**
+ * Access callback for _elmsln_core_data_page.
+ */
+function _elmsln_core_data_access($etype, $entity) {
+  // make sure they can view LRS data as well as view this entity
+  // This should take into account LRS permission + OG / section
+  // or any other permissions related to users, files, etc
+  if (user_access('view elmsln lrs data') && entity_access('view', $etype, $entity)) {
+    return TRUE;
+  }
+  return FALSE;
+}
 
 /**
  * Implementation of hook_node_view().
@@ -72,6 +148,15 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/js/materialize/scrollspy/materialize-scrollspy.js');
       }
     }
+  }
+}
+
+/**
+ * Implements hook_node_validate().
+ */
+function elmsln_core_node_validate($node, $form, &$form_state) {
+  if (isset($node->nid) && (node_last_changed($node->nid) > $node->changed)) {
+    form_set_error('elmsln_core_changed', t('To prevent this error, don\'t hit refresh or use the back button once you start editing content. Instead, click the address bar and press return to reload the latest content.'));
   }
 }
 
@@ -291,16 +376,16 @@ function elmsln_core_permission() {
       'title' => t('Administer ELMSLN configuration'),
       'description' => t('Grants access to administrative areas of ELMSLN like network configuration and settings pages.'),
     ),
+    'view elmsln lrs data' =>  array(
+      'title' => t('View LRS data'),
+      'description' => t('Grants access to pages that display elmsln\'s core LRS integration / support.'),
+    ),
+    'view form as json' =>  array(
+      'title' => t('View form as JSON'),
+      'description' => t('Return any form as a JSON array'),
+      'restrict access' => TRUE,
+    ),
   );
-}
-
-/**
- * Implements hook_node_prepare().
- */
-function elmsln_core_node_prepare($node) {
-  if (!isset($node->nid)) {
-    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/field-focus.js');
-  }
 }
 
 /**
@@ -325,7 +410,13 @@ function elmsln_core_page_build(&$page) {
   // jwerty / voice support
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
   // xapi context iframe sniffer
-  drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
+  if (module_exists('tincanapi')) {
+    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
+  }
+  // devel usability improvement
+  if (module_exists('devel') &&  !path_is_admin(current_path()) && user_access('access devel information')) {
+    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-devel.js', array('weight' => -1000));
+  }
   // get the configuration so we can set domain from here to enable
   // secure and policy compliant access to sub-domain cookies on
   // the client side. This clears up MULTIPLE issues at once and is
@@ -560,7 +651,7 @@ function _elmsln_core_icon_map() {
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
-      'event' => array(
+      'calendar_event' => array(
         'color' => 'green',
         'icon' => 'event',
       ),
@@ -585,12 +676,16 @@ function _elmsln_core_icon_map() {
         'icon' => 'local_activity',
       ),
       'image' => array(
-        'color' => 'teal',
+        'color' => 'amber',
         'icon' => 'photo',
       ),
       'image_gallery' => array(
-        'color' => 'blue',
+        'color' => 'teal',
         'icon' => 'collections',
+      ),
+      'static_content' => array(
+        'color' => 'blue',
+        'icon' => 'insert_drive_file',
       ),
       'svg' => array(
         'color' => 'indigo',
@@ -600,9 +695,252 @@ function _elmsln_core_icon_map() {
         'color' => 'purple',
         'icon' => 'ondemand_video',
       ),
+      'duplicate_outline' => array(
+        'color' => 'green',
+        'icon' => 'content_copy',
+      ),
+      'child_page' => array(
+        'color' => 'teal',
+        'icon' => 'insert_drive_file',
+      ),
+      'thread' => array(
+        'color' => 'blue',
+        'icon' => 'forumn',
+      ),
+      'assignment' => array(
+        'color' => 'green',
+        'icon' => 'assignment',
+      ),
+      'quiz' => array(
+        'color' => 'orange',
+        'icon' => 'assessment',
+      ),
+      // xAPI verbs
+      'viewed' => array(
+        'color' => 'blue',
+        'icon' => 'remove_red_eye',
+      ),
+      'started' => array(
+        'color' => 'red',
+        'icon' => 'flag',
+      ),
+      'finished' => array(
+        'color' => 'green',
+        'icon' => 'golf_course',
+      ),
     );
     // allow others to modify core associations
     drupal_alter('elmsln_core_icon_map', $map);
   }
   return $map;
+}
+
+
+/**
+ * Implements hook_cis_service_registry().
+ *
+ * Core support for mapping the core supported LRS
+ * to our registry. Then we can utilize our lrs variations
+ * of request calls more easily to get data from the LRS.
+ */
+function elmsln_core_cis_service_registry() {
+  // see if the most obvious variable isset
+  if (!empty(variable_get('tincanapi_endpoint', ''))) {
+    // calculate the protocol and address from the endpoint variable
+    $tmp = explode('://', variable_get('tincanapi_endpoint', ''));
+    $protocol = array_shift($tmp);
+    $tmp = explode('/', $tmp[0]);
+    $address = array_shift($tmp);
+    // build our standard connection keychain item for this new bucket
+    return array(
+      ELMSLN_CORE_LRS_KEYCHAIN => array(
+        'protocol' => $protocol,
+        'service_address' => $address,
+        'address' => $address,
+        'user' => variable_get('tincanapi_auth_user', ''),
+        'pass' => variable_get('tincanapi_auth_password', ''),
+        'instance' => FALSE,
+        'default_title' => 'Learning record store',
+        'ignore' => TRUE,
+      ),
+    );
+  }
+}
+
+/**
+ * Structured data call against the LRS backend. Typically for querying.
+ * @param  $query  array   following syntax of backend; usually mongodb
+ * @param  $cached boolean whether to use a cached response / store result
+ * @return   [<description>]
+ */
+function _elmsln_core_lrs_query($query, $cached = FALSE) {
+  // options
+  $options = array('method' => 'GET');
+  // while core support is for learning locker, there's not a lot of reason
+  // other then the end points and it being FOSS / PHP universe
+  $drivers = module_invoke_all('elmsln_lrs_drivers');
+  // allow for modification, only used if we have multiple backends
+  drupal_alter('elmsln_lrs_drivers', $drivers);
+  // magic variable which could be manually set in a config shared_settings.php
+  // to switch between LRS backends if that was ever desirable down the road
+  $driver = $drivers[variable_get('elmsln_lrs_platform', 'learninglocker-1.x')];
+  // same as above, you could ignore / override / swap out buckets to use for
+  // connecting. This opens the door for multiple dedicated LRSs based on the type
+  // of data they have or doing an LRS migration contextually down the road
+  $bucket = variable_get('elmsln_lrs_bucket', ELMSLN_CORE_LRS_KEYCHAIN);
+  // last minute to jump in and modify
+  drupal_alter('elmsln_lrs_query', $query);
+  // build the call to make which will go against the lrs bucket
+  $call = $driver['query'] . '?' . str_replace('\/', '/', urldecode(http_build_query($query)));
+  // generate the well structured request
+  $response = _cis_connector_request($call, $options, $bucket, $cached);
+  // ensure a response to connect in the first place
+  $data = FALSE;
+  if ($response) {
+    $data = drupal_json_decode($response->data);
+  }
+  return $data;
+}
+
+/**
+ * Implements hook_elmsln_lrs_drivers().
+ */
+function elmsln_core_elmsln_lrs_drivers() {
+  return array(
+    'learninglocker-1.x' => array(
+      'query' => 'api/v1/statements/aggregate',
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function elmsln_core_theme($existing, $type, $theme, $path) {
+  return array(
+    'elmsln_core_lrs_data' => array(
+      'variables' => array(
+        'datatitle' => t('LRS data'),
+        'data' => array(),
+        'aggregates' => array(),
+      ),
+      'render element' => 'element',
+      'template' => 'templates/elmsln-core-lrs-data',
+    ),
+  );
+}
+
+/**
+ * Implements hook_tincanapi_ajax_data_alter().
+ */
+function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
+  $settings = array();
+  // regardless of module see if our contextual settings are here
+  // and this way we can ship down elmslnCore's scope variables
+  // which will make our data-sets more meaningful for searching in LRSs later
+  if (isset($context['tincanapiSettings']['elmslnCore'])) {
+    // look for our ELMSLNCore settings
+    $settings = $context['tincanapiSettings']['elmslnCore'];
+  }
+  // check for items that came across, if we don't have them
+  // then attempt to inject them though that's probably not going to work
+  if (isset($settings['course'])) {
+    $course = filter_xss($settings['course']);
+  }
+  else {
+    $course = _cis_connector_course_context();
+  }
+  if (isset($settings['section'])) {
+    $section = filter_xss($settings['section']);
+  }
+  else {
+    $section = _cis_connector_section_context();
+  }
+  $title = '';
+  if (isset($settings['title'])) {
+    $title = filter_xss($settings['title']);
+  }
+  else {
+    $title = drupal_get_title();
+  }
+  $url = '';
+  if (isset($settings['url'])) {
+    $url = filter_xss($settings['url']);
+  }
+  else {
+    $url = url(current_path(), array('absolute' => TRUE));
+  }
+  $role = '';
+  if (isset($settings['role'])) {
+    $role = filter_xss($settings['role']);
+  }
+  else {
+    if (_cis_connector_role_grouping('active learner')) {
+      $role = 'student';
+    }
+    elseif (_cis_connector_role_grouping('staff')) {
+      $role = 'staff';
+    }
+    elseif (_cis_connector_role_grouping('teacher')) {
+      $role = 'teacher';
+    }
+    else {
+      $role = 'other';
+    }
+  }
+  $hypothesis = '';
+  if (isset($settings['hypothesis'])) {
+    $hypothesis = filter_xss($settings['hypothesis']);
+  }
+
+  $data['context']['extensions'] = array(
+    'https://www.elmsln.org/x-api/elmsln-section' => $section,
+    'https://www.elmsln.org/x-api/elmsln-course' => $course,
+    'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
+    'https://www.elmsln.org/x-api/elmsln-url' => $url,
+    'https://www.elmsln.org/x-api/elmsln-role' => $role,
+    'https://www.elmsln.org/x-api/elmsln-research-hypothesis' => $hypothesis,
+  );
+
+  // ensure that choice ids are strings to match data model
+  if (isset($data['object']['definition']['choices'])) {
+    foreach ($data['object']['definition']['choices'] as $key => $choice) {
+      if (is_int($data['object']['definition']['choices'][$key]['id'])) {
+        $data['object']['definition']['choices'][$key]['id'] = (string)$data['object']['definition']['choices'][$key]['id'];
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_tincanapi_data_alter().
+ */
+function elmsln_core_tincanapi_data_alter($module_name, &$data) {
+  // ensure we aren't double altering our statements
+  if (!isset($data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-section'])) {
+    $course = _cis_connector_course_context();
+    $section = _cis_connector_section_context();
+    $title = drupal_get_title();
+    $url = url(current_path(), array('absolute' => TRUE));
+    if (_cis_connector_role_grouping('active learner')) {
+      $role = 'student';
+    }
+    elseif (_cis_connector_role_grouping('staff')) {
+      $role = 'staff';
+    }
+    elseif (_cis_connector_role_grouping('teacher')) {
+      $role = 'teacher';
+    }
+    else {
+      $role = 'other';
+    }
+
+    $data['context']['extensions'] = array(
+      'https://www.elmsln.org/x-api/elmsln-section' => $section,
+      'https://www.elmsln.org/x-api/elmsln-course' => $course,
+      'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
+      'https://www.elmsln.org/x-api/elmsln-url' => $url,
+      'https://www.elmsln.org/x-api/elmsln-role' => $role,
+    );
+  }
 }

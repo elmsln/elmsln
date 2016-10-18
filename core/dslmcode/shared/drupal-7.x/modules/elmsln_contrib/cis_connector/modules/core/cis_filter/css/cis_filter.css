@@ -1,9 +1,7 @@
 .cis-filter-activity-item {
-  float: none;
-  margin: auto;
-  font-size: 1rem;
-  line-height: 4.75em;
-  border: 1px solid rgba(0, 0, 0, 0.52);
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 #modal-content .modal-iframe-container {
@@ -42,15 +40,4 @@ div.ctools-modal-content .popups-close {
 
 .cis_filter_modal_frame {
   border:none;
-}
-
-.cis-filter-activity-item ul.submit-widget-links {
-  margin: 0;
-  padding: .5rem;
-  font-size: 1rem;
-}
-.cis-filter-activity-item ul.submit-widget-links li{
-  display: inline-block;
-  padding: .1rem 1rem;
-  margin: 0 .5rem;
 }

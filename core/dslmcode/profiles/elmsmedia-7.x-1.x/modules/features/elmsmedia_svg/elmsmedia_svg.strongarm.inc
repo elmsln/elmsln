@@ -156,9 +156,124 @@ function elmsmedia_svg_strongarm() {
       'revision' => array(
         'custom_settings' => FALSE,
       ),
+      'accessible_fallback' => array(
+        'custom_settings' => TRUE,
+      ),
+      'image__left__circle' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__left__circle__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right__circle' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__right__circle__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__circle' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__circle__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed__large' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed__large' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__parallax' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__parallax__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'h5p' => array(
+        'custom_settings' => FALSE,
+      ),
+      'h5p__card' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__carousel' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__carousel__slider' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__comparison' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__basic_gallery' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image_gallery__basic_gallery__circle' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
-      'form' => array(),
+      'form' => array(
+        'title' => array(
+          'weight' => '0',
+        ),
+        'path' => array(
+          'weight' => '11',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '12',
+        ),
+        'book' => array(
+          'weight' => '13',
+        ),
+        'options' => array(
+          'weight' => '10',
+        ),
+        'author' => array(
+          'weight' => '8',
+        ),
+        'revision_information' => array(
+          'weight' => '9',
+        ),
+      ),
       'display' => array(),
     ),
   );

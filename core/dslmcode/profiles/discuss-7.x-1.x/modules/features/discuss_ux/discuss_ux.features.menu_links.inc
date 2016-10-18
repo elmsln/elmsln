@@ -10,12 +10,12 @@
 function discuss_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-elmsln-add_create-new-thread:thread/add
-  $menu_links['menu-elmsln-add_create-new-thread:thread/add'] = array(
+  // Exported menu link: menu-elmsln-add_thread:thread/add.
+  $menu_links['menu-elmsln-add_thread:thread/add'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'thread/add',
     'router_path' => 'thread/add',
-    'link_title' => 'Create new thread',
+    'link_title' => 'Thread',
     'options' => array(
       'attributes' => array(),
       'item_attributes' => array(
@@ -23,20 +23,20 @@ function discuss_ux_menu_default_menu_links() {
         'class' => '',
         'style' => '',
       ),
-      'identifier' => 'menu-elmsln-add_create-new-thread:thread/add',
+      'identifier' => 'menu-elmsln-add_thread:thread/add',
     ),
-    'module' => 'system',
+    'module' => 'menu',
     'hidden' => 0,
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -50,
+    'weight' => 0,
     'customized' => 1,
   );
+
   // Translatables
   // Included for use with string extractors like potx.
-  t('Create new thread');
-
+  t('Thread');
 
   return $menu_links;
 }

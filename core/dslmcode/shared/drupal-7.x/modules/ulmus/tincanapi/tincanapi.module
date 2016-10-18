@@ -92,11 +92,11 @@ function tincanapi_ajax_track() {
       $function = $module . '_' . $hook;
       $function($module_name, $data, $context);
     }
-
+    // unset the js globals that were sent along
+    unset($data['tincanapiSettings']);
     // Check to see if the data array is empty without the storage array.
     $storage = $data['storage'];
     unset($data['storage']);
-
     if (!empty($data)) {
       $data['storage'] = $storage;
       tincanapi_track_data($module_name, $data);
@@ -295,7 +295,6 @@ function tincanapi_track_data($module_name, $data = array(), $user = NULL, $cron
   }
 
   unset($data['storage']);
-
   if (!empty($data)) {
 
     // Simplify the data IDs to http version.

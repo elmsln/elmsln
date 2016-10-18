@@ -375,7 +375,7 @@ function h5p_form_validate($form, &$form_state) {
     $_SESSION['h5p_upload'] = $form_state['values']['h5p'] = drupal_realpath($file->uri);
     $_SESSION['h5p_upload_folder'] = drupal_realpath($temporary_file_path);
   }
-  elseif (!isset($form['#node']->nid) && empty($form_state['values']['h5p']) && empty($_SESSION['h5p_upload'])) {
+  elseif (empty($form['#node']->main_library_id) && empty($form_state['values']['h5p']) && empty($_SESSION['h5p_upload'])) {
     form_set_error('h5p', t('You must upload a h5p file.'));
   }
 }
@@ -483,22 +483,9 @@ function h5p_update($node) {
  * Implements hook_delete().
  */
 function h5p_delete($node) {
-  $h5p_core = _h5p_get_instance('storage');
-  $h5p_export = _h5p_get_instance('export');
-
   $res = db_query("SELECT content_id AS id, slug FROM {h5p_nodes} WHERE nid = :nid", array(':nid' => $node->nid));
-  while($content = $res->fetchAssoc()) {
-    $h5p_core->deletePackage($content);
-
-    // Remove content points
-    db_delete('h5p_points')
-      ->condition('content_id', $content['id'])
-      ->execute();
-
-    // Remove content user data
-    db_delete('h5p_content_user_data')
-      ->condition('content_main_id', $content['id'])
-      ->execute();
+  while ($content = $res->fetchAssoc()) {
+    h5p_delete_h5p_content($content);
   }
 
   if (isset($node->main_library)) {
@@ -510,6 +497,37 @@ function h5p_delete($node) {
       $node->main_library['majorVersion'] . '.' . $node->main_library['minorVersion']
     );
   }
+}
+
+/**
+ * Implements hook_node_revision_delete().
+ */
+function h5p_node_revision_delete($node) {
+  if (variable_get('h5p_revisioning', 1)) {
+    h5p_delete_h5p_content(array(
+      'id' => $node->vid,
+      'slug' => $node->h5p_slug
+    ));
+  }
+}
+
+/**
+ * Delete all data related to H5P content.
+ * @param array $content
+ */
+function h5p_delete_h5p_content($content) {
+  $h5p_core = _h5p_get_instance('storage');
+  $h5p_core->deletePackage($content);
+
+  // Remove content points
+  db_delete('h5p_points')
+    ->condition('content_id', $content['id'])
+    ->execute();
+
+  // Remove content user data
+  db_delete('h5p_content_user_data')
+    ->condition('content_main_id', $content['id'])
+    ->execute();
 }
 
 /**

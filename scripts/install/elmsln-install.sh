@@ -282,14 +282,6 @@ for tool in "${authoritylist[@]}"
 done
 
 # perform some clean up tasks
-# check for tmp directory in config area
-if [ ! -d $elmsln/config/_nondrupal/piwik/tmp ];
-then
-  sudo mkdir $elmsln/config/_nondrupal/piwik/tmp
-  sudo chown -R $wwwuser:$webgroup $elmsln/config/_nondrupal/piwik/tmp
-fi
-sudo chown -R $wwwuser:$wwwuser $elmsln/config/_nondrupal/piwik
-sudo chmod -R 0755 $elmsln/config/_nondrupal/piwik
 # jobs file directory
 sudo chown -R $wwwuser:$webgroup $elmsln/config/jobs
 sudo chmod -R 755 $elmsln/config/jobs

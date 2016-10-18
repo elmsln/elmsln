@@ -16,8 +16,7 @@ function advagg_mod_advagg_get_info_on_files_alter(&$return, $cached_data, $bypa
       continue;
     }
     // New or updated data or no advagg_js_compress data.
-    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-    if ( empty($cached_data[$info['cache_id']])
+    if (empty($cached_data[$info['cache_id']])
       || empty($info['advagg_mod'])
       || $info['content_hash'] != $cached_data[$info['cache_id']]['content_hash']
     ) {

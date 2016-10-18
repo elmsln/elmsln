@@ -10,3 +10,18 @@ function foundation_access_iframe_process_page(&$variables) {
     unset($variables['page']['header'][$keyname]['#prefix']);
   }
 }
+
+/**
+ * Implements template_field__field_accessible_fallback.
+ */
+function foundation_access_iframe_field__field_accessible_fallback(&$variables) {
+  if (isset($variables['element']['#object']->nid)) {
+    if ($variables['element']['#formatter'] == 'entityreference_entity_id') {
+      return l(t('Enable more accessible form of this media.'), 'entity_iframe/node/' . $variables['element']['#object']->nid . '/accessible_fallback');
+    }
+    else {
+      print l(t('Switch to more interactive form of this media.'), 'entity_iframe/node/' . $variables['element']['#object']->nid);
+    }
+  }
+}
+

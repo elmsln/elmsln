@@ -64,6 +64,7 @@ echo "opcache.enable_cli=1" >> /etc/php.d/10-opcache.ini
 
 # Make sure apache knows what you are tyring to do with host files.
 echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
+echo 'ProxyTimeout 1800' >> /etc/httpd/conf/httpd.conf
 
 
 # make an admin group

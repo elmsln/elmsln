@@ -1,0 +1,119 @@
+<?php
+/**
+ * ELMSLNLocalStreamWrapper
+ */
+abstract class ELMSLNLocalStreamWrapper extends DrupalLocalStreamWrapper {
+  /**
+   * Get the path for the elmsln configuration file
+   */
+  public function getELMSLNConfigPath() {
+    // load configuration file
+    $cfg = _cis_connector_get_cfg();
+    return $cfg['configsdir'];
+  }
+
+  /**
+   * Get the path for the elmsln configuration file
+   */
+  public function getELMSLNHost() {
+    // load configuration file
+    $cfg = _cis_connector_get_cfg();
+    return $cfg['host'];
+  }
+}
+
+/**
+ * ELMSLN Authority public (elmslnauthority://) stream wrapper class.
+ *
+ * Provides support for storing and retrieving files based on
+ * the patterned file structure of elmsln.
+ *
+ * elmslnauthority://cpr/user/abc123.jpg => /var/www/elmsln/domains/people/sites/people/{part}/files/user/abc123.jpg
+ */
+class ELMSLNAuthorityStreamWrapper extends ELMSLNLocalStreamWrapper {
+  /**
+   * Implements abstract public function getDirectoryPath()
+   */
+  public function getDirectoryPath() {
+    // convert target into array
+    $fileparts =  explode('/', str_replace('\\', '/', $this->getTarget()));
+    // shift front off into tool name
+    $tool = array_shift($fileparts);
+    // convert back to file you are looking for
+    $filepath = implode('/', $fileparts);
+    // build full path to return
+    $path = self::getELMSLNConfigPath() . '/stacks/' . $tool . '/sites/' . $tool . '/' . self::getELMSLNHost() . '/files/' . $filepath;
+    return $path;
+  }
+
+  /**
+   * Overrides getExternalUrl().
+   *
+   * Return the HTML URI of a public file.
+   */
+  function getExternalUrl() {
+    // convert target into array
+    $fileparts =  explode('/', str_replace('\\', '/', $this->getTarget()));
+    // shift front off into tool name
+    $tool = array_shift($fileparts);
+    // convert back to file you are looking for
+    $filepath = implode('/', $fileparts);
+    // load settings so we can build an appropriate address
+    $settings = _cis_connector_build_registry($tool);
+    // build address from registry
+    $address = _cis_connector_format_address($settings, '', 'front');
+    $tmp = explode('.', $settings['address']);
+    $stack = array_shift($tmp);
+    return $address . '/sites/' . $stack . '/' . self::getELMSLNHost() . '/files/' . drupal_encode_path($filepath);
+  }
+}
+
+/**
+ * ELMSLN Service public (elmslnservice://) stream wrapper class.
+ *
+ * Provides support for storing and retrieving files based on
+ * the patterned file structure of elmsln.
+ * This allos for things like:
+ * elmslnservice://mooc/sing100/images/things.jpg => /var/www/elmsln/domains/courses/sites/courses/{part}/sing100/files/images/things.jpg
+ */
+class ELMSLNServiceStreamWrapper extends ELMSLNLocalStreamWrapper {
+  /**
+   * Implements abstract public function getDirectoryPath()
+   */
+  public function getDirectoryPath() {
+    // convert target into array
+    $fileparts =  explode('/', str_replace('\\', '/', $this->getTarget()));
+    // shift front off into tool name
+    $tool = array_shift($fileparts);
+    // shift front off into tool name
+    $course = array_shift($fileparts);
+    // convert back to file you are looking for
+    $filepath = implode('/', $fileparts);
+    // build full path to return
+    $path = self::getELMSLNConfigPath() . '/stacks/' . $tool . '/sites/' . $tool . '/' . self::getELMSLNHost() . '/' . $course . '/files/' . $filepath;
+    return $path;
+  }
+
+  /**
+   * Overrides getExternalUrl().
+   *
+   * Return the HTML URI of a public file.
+   */
+  function getExternalUrl() {
+    // convert target into array
+    $fileparts =  explode('/', str_replace('\\', '/', $this->getTarget()));
+    // shift front off into tool name
+    $tool = array_shift($fileparts);
+    // shift front off into tool name
+    $course = array_shift($fileparts);
+    // convert back to file you are looking for
+    $filepath = implode('/', $fileparts);
+    // load settings so we can build an appropriate address
+    $settings = _cis_connector_build_registry($tool);
+    // build address from registry
+    $address = _cis_connector_format_address($settings, '/' . $course, 'front');
+    $tmp = explode('.', $settings['address']);
+    $stack = array_shift($tmp);
+    return $address . '/sites/' . $stack . '/' . self::getELMSLNHost() . '/' . $course . '/files/' . drupal_encode_path($filepath);
+  }
+}

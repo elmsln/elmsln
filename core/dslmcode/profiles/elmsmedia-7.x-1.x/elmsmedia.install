@@ -16,7 +16,7 @@ function elmsmedia_install() {
   // standard clean up
   _elmsln_installer_post_install_cleanup();
   // front-page for media is the media path
-  variable_set('site_frontpage', 'media-overview');
+  variable_set('site_frontpage', 'elmsmedia');
   // we don't need these on authority systems
   variable_set('cis_help_page', '');
   variable_set('cis_resource_page', '');
@@ -116,4 +116,29 @@ function elmsmedia_update_7007(&$sandbox) {
   features_revert_module('elmsmedia_cis_ux');
   features_revert_module('elmsmedia_feature');
   variable_set('site_frontpage', 'elmsmedia');
+}
+
+/**
+ * H5P special types visible.
+ */
+function elmsmedia_update_7008(&$sandbox) {
+  features_revert_module('elmsmedia_h5p');
+}
+
+/**
+ * Updates for accessible fallback methodology and related types
+ */
+function elmsmedia_update_7009(&$sandbox) {
+  module_enable(array('elmsmedia_static_content'));
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+  features_revert_module('elmsmedia_view_mode_tabs');
+  features_revert_module('elmsmedia_cis_ux');
+  features_revert_module('elmsmedia_feature');
 }

@@ -52,13 +52,11 @@ function advagg_js_cdn_js_alter(&$javascript) {
   $add_in_ui = FALSE;
 
   foreach ($javascript as $name => $values) {
-    // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
-    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
     // Only modify if
     // advagg_js_cdn_jquery is enabled,
     // name is misc/jquery.js,
     // and type is file.
-    if ( variable_get('advagg_js_cdn_jquery', ADVAGG_JS_CDN_JQUERY)
+    if (variable_get('advagg_js_cdn_jquery', ADVAGG_JS_CDN_JQUERY)
       && $name === 'misc/jquery.js'
       && $javascript[$name]['type'] === 'file'
     ) {
@@ -73,13 +71,11 @@ function advagg_js_cdn_js_alter(&$javascript) {
       $javascript[$name]['type'] = 'external';
     }
 
-    // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
-    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
     // Only modify if
     // advagg_js_cdn_jquery_ui is enabled,
     // name is in the $ui_mapping array.
     // and type is file.
-    if ( variable_get('advagg_js_cdn_jquery_ui', ADVAGG_JS_CDN_JQUERY_UI)
+    if (variable_get('advagg_js_cdn_jquery_ui', ADVAGG_JS_CDN_JQUERY_UI)
       && array_key_exists($name, $ui_mapping)
       && $javascript[$name]['type'] === 'file'
     ) {
