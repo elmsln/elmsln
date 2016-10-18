@@ -28,7 +28,6 @@ function _elmsln_core_data_page($etype, $entity) {
   // show query data specific to the entity type in question
   switch ($etype) {
     case 'user':
-      $entity->name = 'bto108';
       $query['pipeline'][0]['$match']['statement.actor.name'] = $entity->name;
     break;
     case 'node':
