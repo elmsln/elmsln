@@ -34,7 +34,7 @@ function _elmsln_core_data_page($etype, $entity) {
       $query['pipeline'][0]['$match']['$or'][]['statement.context.contextActivities.parent.id'] = $url;
       $query['pipeline'][0]['$match']['$or'][]['statement.object.id'] = $url;
       // @todo figure out the encoding issue so that we can query anything that's in scope; probably bypassing the other two entirely
-      $query['pipeline'][0]['$match']['$or'][]['statement.context.extensions.https://www.elmsln.org/x-api/elmsln-url'] = $url;
+      $query['pipeline'][0]['$match']['$or'][]['statement.context.extensions.https://www%252646;elmsln%252646;org/x-api/elmsln-url'] = $url;
     break;
   }
   $query['pipeline'] = json_encode($query['pipeline']);
