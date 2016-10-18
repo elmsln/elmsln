@@ -436,6 +436,7 @@ function elmsln_core_page_build(&$page) {
   else {
     $role = 'other';
   }
+
   // pass variables to js
   $js_variables = array(
     'elmslnCore' => array(
@@ -445,6 +446,7 @@ function elmsln_core_page_build(&$page) {
       'title' => drupal_get_title(),
       'url' => url(current_path(), array('absolute' => TRUE)),
       'role' => $role,
+      'xapisession' => drupal_get_token($GLOBALS['user']->uuid),
     ),
   );
   drupal_add_js($js_variables, 'setting');
@@ -888,9 +890,13 @@ function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
       $role = 'other';
     }
   }
-  $hypothesis = '';
-  if (isset($settings['hypothesis'])) {
-    $hypothesis = filter_xss($settings['hypothesis']);
+
+  // session set
+  if (isset($settings['session'])) {
+    $session = filter_xss($settings['session']);
+  }
+  else {
+    $session = drupal_get_token($GLOBALS['user']->uuid);
   }
 
   $data['context']['extensions'] = array(
@@ -899,8 +905,19 @@ function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
     'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
     'https://www.elmsln.org/x-api/elmsln-url' => $url,
     'https://www.elmsln.org/x-api/elmsln-role' => $role,
-    'https://www.elmsln.org/x-api/elmsln-research-hypothesis' => $hypothesis,
+    'https://www.elmsln.org/x-api/elmsln-session' => $session,
   );
+
+  // hypothesis if its set
+  if (isset($settings['hypothesis'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-research-hypothesis'] = filter_xss($settings['hypothesis']);
+  }
+
+  // duration if its set
+  if (isset($settings['duration'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-duration'] = filter_xss($settings['duration']);
+  }
+
 
   // ensure that choice ids are strings to match data model
   if (isset($data['object']['definition']['choices'])) {
@@ -934,6 +951,7 @@ function elmsln_core_tincanapi_data_alter($module_name, &$data) {
     else {
       $role = 'other';
     }
+    $session = drupal_get_token($GLOBALS['user']->uuid);
 
     $data['context']['extensions'] = array(
       'https://www.elmsln.org/x-api/elmsln-section' => $section,
@@ -941,6 +959,7 @@ function elmsln_core_tincanapi_data_alter($module_name, &$data) {
       'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
       'https://www.elmsln.org/x-api/elmsln-url' => $url,
       'https://www.elmsln.org/x-api/elmsln-role' => $role,
+      'https://www.elmsln.org/x-api/elmsln-session' => $session,
     );
   }
 }
