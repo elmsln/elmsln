@@ -152,6 +152,15 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
 }
 
 /**
+ * Implements hook_node_validate().
+ */
+function elmsln_core_node_validate($node, $form, &$form_state) {
+  if (isset($node->nid) && (node_last_changed($node->nid) > $node->changed)) {
+    form_set_error('elmsln_core_changed', t('To prevent this error, don\'t hit refresh or use the back button once you start editing content. Instead, click the address bar and press return to reload the latest content.'));
+  }
+}
+
+/**
  * Implements /**
   * Implements hook_field_extra_fields_alter().
   */
