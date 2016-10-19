@@ -1,9 +1,9 @@
 (function ($) {
   Drupal.prettyJson = {
    replacer: function(match, pIndent, pKey, pVal, pEnd) {
-      var key = '<span class="json-key">';
-      var val = '<span class="json-value>"';
-      var str = '<span class="json-string">';
+      var key = '<span class="json-key blue-text text-darken-4">';
+      var val = '<span class="json-value green-text text-darken-4">';
+      var str = '<span class="json-string red-text text-darken-4">';
       var r = pIndent || '';
       if (pKey)
          r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
