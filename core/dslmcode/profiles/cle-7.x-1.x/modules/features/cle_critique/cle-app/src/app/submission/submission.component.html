@@ -1,0 +1,95 @@
+<div class="submission" *ngIf="submission">
+
+  <div class="submission__info" *ngIf="submission.field_assignment">
+    <a class="submission__assignment" routerLink="/assignments/{{submission.field_assignment.id}}"><i class="material-icons">assignment</i> View Assignment</a>
+    <div class="submission__author" *ngIf="submission.author">
+      Author: {{ submission.author.id }}
+    </div>
+    <div class="submission__postdate">
+      Date: {{ submission.created }}
+    </div>
+  </div>
+
+  <div class="card-title center-align"><h2 class="thin blue-text">Direct Response</h2></div>
+  <div class="divider"></div>
+  <div class="col s12">
+  </div>
+  <div class="divider"></div>
+
+  <div class="row">
+    <div class="col s12 m6">
+
+      <h1 class="submission__title">{{ submission.title }}</h1>
+      <div class="submission__body" [innerHTML]="submission.body.value">{{ submission.body.value }}</div>
+
+    </div>
+    <div class="col s12 m6">
+      
+      <md-tab-group>
+        <md-tab>
+          <template md-tab-label> Give Feedback </template>
+          <template md-tab-content>
+            <ul materialize="collapsible" class="collapsible z-depth-0" data-collapsible="accordion">
+              <li>
+                <div class="collapsible-header"><i class="material-icons">info_outline</i>Directions</div>
+                <div class="collapsible-body">
+                  <ol>
+                    <li>Step 1. Describe</li>
+                    <li>Step 2. Analyze</li>
+                    <li>Step 3. Interpret</li>
+                    <li>Step 4. Judge</li>
+                  </ol>
+                </div>
+              </li>
+              <li>
+                <div class="collapsible-header active"><i class="material-icons">comment</i>Feedback</div>
+                <div class="collapsible-body">
+                  <div class="input-field col s12">
+                    <i class="material-icons prefix">mode_edit</i>
+                    <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
+                    <label for="icon_prefix2">Write</label>
+                  </div>
+                  <a class="waves-effect btn-large btn-flat black white-text"><i class="right material-icons">send</i>Submit</a>
+                </div>
+              </li>
+            </ul>
+          </template>
+        </md-tab>
+
+        <md-tab>
+          <template md-tab-label> All Feedback </template>
+          <template md-tab-content>
+            <ul class="collection">
+                <li class="collection-item avatar">
+                  <img src="https://unsplash.it/50?image=230" alt="" class="circle">
+                  <!-- <span class="title">Title</span> -->
+                  <p>It should be added that the reductive quality of the purity of line visually and conceptually activates the remarkable handling of ljght.</p>
+                  <a href="#!" class="secondary-content"><i class="material-icons blue-text">thumb_up</i></a>
+                </li>
+                <li class="collection-item avatar">
+                  <img src="https://unsplash.it/50?image=400" alt="" class="circle">
+                <!--  <span class="title">Title</span> -->
+                  <p>Although I am not a painter, I think that the reductive quality of the Egyptian motifs contextualize a participation in the critical dialogue of the 90s.</p>
+                  <a href="#!" class="secondary-content"><i class="material-icons grey-text">thumb_up</i></a>
+                </li>
+                <li class="collection-item avatar">
+                  <img src="https://unsplash.it/50?image=500" alt="" class="circle">
+                  <!-- <span class="title">Title</span> -->
+                  <p>I'm troubled by how the metaphorical resonance of the purity of line notates the essentially transitional quality.</p>
+                  <a href="#!" class="secondary-content"><i class="material-icons grey-text">thumb_up</i></a>
+                </li>
+                <li class="collection-item avatar">
+                  <img src="https://unsplash.it/50?image=100" alt="" class="circle">
+                  <!-- <span class="title">Title</span> -->
+                  <p>Although I am not a painter, I think that the iconicity of the purity of line visually and conceptually activates the distinctive formal juxtapositions.</p>
+                  <a href="#!" class="secondary-content"><i class="material-icons grey-text">thumb_up</i></a>
+                </li>
+              </ul>
+          </template>
+        </md-tab>
+      </md-tab-group>
+
+    </div>
+  </div>
+
+</div>

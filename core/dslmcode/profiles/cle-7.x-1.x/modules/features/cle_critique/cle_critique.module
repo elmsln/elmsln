@@ -7,9 +7,53 @@
 include_once 'cle_critique.features.inc';
 
 /**
+ * Impliments hook_page_init.
+ */
+function cle_critique_init() {
+  drupal_add_css('https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css', array('type' => 'external'));
+  drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js', array('type' => 'external', 'scope' => 'footer'));
+  drupal_add_js(drupal_get_path('module', 'cle_critique') . '/cle-app/dist/inline.js', array('scope' => 'footer'));
+  drupal_add_js(drupal_get_path('module', 'cle_critique') . '/cle-app/dist/styles.bundle.js', array('scope' => 'footer'));
+  drupal_add_js(drupal_get_path('module', 'cle_critique') . '/cle-app/dist/main.bundle.js', array('scope' => 'footer'));
+}
+
+/*
+ * Preprocesses the wrapping HTML.
+ *
+ * @param array &$variables
+ *   Template variables.
+ */
+function cle_critique_preprocess_html(&$vars) {
+  global $base_url;
+  $current_path = current_path();
+
+  // if we are on the cle critique app route then we need to add a base tag to
+  // ensure that angular works properly.
+  if (preg_match('/^cle\/critique\/app/', $current_path)) {
+    // Setup IE meta tag to force IE rendering mode
+    $base_tag = array(
+      '#type' => 'html_tag',
+      '#tag' => 'base',
+      '#attributes' => array(
+        'href' =>  $base_url . '/cle/critique/app',
+      )
+    );
+
+    // Add header meta tag for IE to head
+    drupal_add_html_head($base_tag, 'base_tag');
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function cle_critique_menu() {
+  $items['cle/critique/app'] = array(
+    'title' => 'Critique',
+    'page callback' => '_cle_critique_page_critique_app',
+    'access arguments' => true,
+    'type' => MENU_NORMAL_ITEM,
+  );
   $items['cle/critique/critique-peer'] = array(
     'title' => 'Give Feedback',
     'page callback' => 'drupal_get_form',
@@ -33,6 +77,10 @@ function cle_critique_menu() {
   return $items;
 }
 
+function _cle_critique_page_critique_app() {
+  return '<app-root>loading...</app-root>';
+}
+
 /**
  * Critique interface
  * @param  string $arg         string for the argument
@@ -40,6 +88,7 @@ function cle_critique_menu() {
  * @return array               form render array
  */
 function _cle_critique_page_random_form($arg, &$form_state) {
+
   // present a select list if a node hasn't been passed in
   $assignment_id = arg(3);
   $url_params = drupal_get_query_parameters();
