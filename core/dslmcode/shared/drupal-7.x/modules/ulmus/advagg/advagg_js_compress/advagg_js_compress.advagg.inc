@@ -175,7 +175,6 @@ function advagg_js_compress_advagg_save_aggregate_alter(&$files_to_save, $aggreg
     }
   }
 
-
   // Use packer on non gzip JS data.
   $aggregate_settings['variables']['advagg_js_compressor'] = $compressor;
   advagg_js_compress_prep($data, $uri, $aggregate_settings, FALSE);
@@ -357,7 +356,6 @@ function advagg_js_compress_prep(&$contents, $filename, array $aggregate_setting
       // ; or } not found, add in ; to the end of $contents.
       $contents = trim($contents) . ';';
     }
-
 
     if (empty($info['#no_cache'])) {
       // Cache minified data for 1 week.

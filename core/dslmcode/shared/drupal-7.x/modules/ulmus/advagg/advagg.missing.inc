@@ -1227,9 +1227,9 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
   // Normalize path.
   $dir = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $dir);
   $path = substr($temporary_file, 0, strpos($temporary_file, 'advagg_file_'));
+
   // Move temp file into the dest dir, if not in there.
   // Add the extension on as well.
-
   $rename = FALSE;
   $temporary_file_fixed = $temporary_file;
   if (stripos(strrev($temporary_file), strrev($extension)) !== 0) {
