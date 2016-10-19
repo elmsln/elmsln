@@ -99,8 +99,14 @@ function elmsln_core_menu() {
  * Send user to the CPR to edit the global profile.
  */
 function elmsln_core_menu_alter(&$items) {
-  // Override the user edit handler for our purpose.
-  $items['user/%user/edit']['page callback'] = '_elmsln_people_user_edit_page';
+
+  //setup default user profile repository so it can be overriden by a global conf variable.
+  $elmsln_global_profile = variable_get('elmsln_global_profile', $default = 'cpr');
+
+  if(variable_get('install_profile') != $elmsln_global_profile) {
+    // Override the user edit handler for our purpose.
+    $items['user/%user/edit']['page callback'] = '_elmsln_people_user_edit_page';
+  }
 }
 
 /**
