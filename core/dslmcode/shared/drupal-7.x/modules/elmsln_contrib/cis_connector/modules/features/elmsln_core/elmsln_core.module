@@ -148,7 +148,7 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         $node->content['scrollspy'] = array(
           '#markup' => $scrollspy,
         );
-        drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/js/materialize/scrollspy/materialize-scrollspy.js');
+        drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/legacy/js/materialize/scrollspy/materialize-scrollspy.js');
       }
     }
   }
