@@ -95,6 +95,29 @@ function elmsln_core_menu() {
 }
 
 /**
+ * Implements hook_menu_alter.
+ * Send user to the CPR to edit the global profile.
+ */
+function elmsln_core_menu_alter(&$items) {
+  // Override the user edit handler for our purpose.
+  $items['user/%user/edit']['page callback'] = '_elmsln_people_user_edit_page';
+}
+
+/**
+ * Access callback for _elmsln_people_user_edit_page.
+ */
+function _elmsln_people_user_edit_page() {
+  global $user;
+  $account = $user;
+
+  //setup default user profile repository so it can be overriden by a global conf variable.
+  $elmsln_global_profile = variable_get('elmsln_global_profile', $default = 'cpr');
+
+  // send user to the cpr we just defined and redirect them back to where they were.
+  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $account->uid, 'edit?destination=elmsln/redirect/'.variable_get('install_profile').'/user/1');
+}
+
+/**
  * Callback to return form ID as json array
  * @param  string $form_id id of a form to load
  * @return json          json representation of render array
