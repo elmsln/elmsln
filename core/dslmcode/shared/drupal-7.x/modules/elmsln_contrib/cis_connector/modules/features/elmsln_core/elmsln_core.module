@@ -38,7 +38,7 @@ function elmsln_core_menu() {
   $items['node/%node/data'] = array(
     'title' => 'Related Data',
     'page callback' => '_elmsln_core_data_page',
-    'page arguments' => array('node', 1),
+    'page arguments' => array('node', 1, 3, 4, 5),
     'access callback' => '_elmsln_core_data_access',
     'access arguments' => array('node', 1),
     'weight' => 0,
@@ -49,7 +49,7 @@ function elmsln_core_menu() {
   $items['user/%user/data'] = array(
     'title' => 'Related Data',
     'page callback' => '_elmsln_core_data_page',
-    'page arguments' => array('user', 1),
+    'page arguments' => array('user', 1, 3, 4, 5),
     'access callback' => '_elmsln_core_data_access',
     'access arguments' => array('user', 1),
     'weight' => 0,
@@ -84,8 +84,25 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['elmsln/form-as-json/%'] = array(
+    'title' => 'form as json',
+    'page callback' => '_elmsln_core_form_as_json',
+    'access arguments' => array('view form as json'),
+    'page arguments' => array(2),
+  );
 
   return $items;
+}
+
+/**
+ * Callback to return form ID as json array
+ * @param  string $form_id id of a form to load
+ * @return json          json representation of render array
+ */
+function _elmsln_core_form_as_json($form_id) {
+  $form = drupal_get_form($form_id);
+  drupal_json_output($form);
+  drupal_exit();
 }
 
 /**
@@ -96,6 +113,9 @@ function _elmsln_core_data_access($etype, $entity) {
   // This should take into account LRS permission + OG / section
   // or any other permissions related to users, files, etc
   if (user_access('view elmsln lrs data') && entity_access('view', $etype, $entity)) {
+    return TRUE;
+  }
+  elseif (user_access('view own elmsln lrs data') && $etype == 'user' && $entity->uid == $GLOBALS['user']->uid) {
     return TRUE;
   }
   return FALSE;
@@ -128,9 +148,18 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         $node->content['scrollspy'] = array(
           '#markup' => $scrollspy,
         );
-        drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/js/materialize/scrollspy/materialize-scrollspy.js');
+        drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/legacy/js/materialize/scrollspy/materialize-scrollspy.js');
       }
     }
+  }
+}
+
+/**
+ * Implements hook_node_validate().
+ */
+function elmsln_core_node_validate($node, $form, &$form_state) {
+  if (isset($node->nid) && (node_last_changed($node->nid) > $node->changed)) {
+    form_set_error('elmsln_core_changed', t('To prevent this error, don\'t hit refresh or use the back button once you start editing content. Instead, click the address bar and press return to reload the latest content.'));
   }
 }
 
@@ -353,6 +382,16 @@ function elmsln_core_permission() {
     'view elmsln lrs data' =>  array(
       'title' => t('View LRS data'),
       'description' => t('Grants access to pages that display elmsln\'s core LRS integration / support.'),
+      'restrict access' => TRUE,
+    ),
+    'view own elmsln lrs data' =>  array(
+      'title' => t('View own LRS data'),
+      'description' => t('Grants access to the user\'s own set of data being collected.'),
+    ),
+    'view form as json' =>  array(
+      'title' => t('View form as JSON'),
+      'description' => t('Return any form as a JSON array'),
+      'restrict access' => TRUE,
     ),
   );
 }
@@ -379,9 +418,11 @@ function elmsln_core_page_build(&$page) {
   // jwerty / voice support
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
   // xapi context iframe sniffer
-  drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
+  if (module_exists('tincanapi')) {
+    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
+  }
   // devel usability improvement
-  if (module_exists('devel') &&  user_access('access devel information')) {
+  if (module_exists('devel') &&  !path_is_admin(current_path()) && user_access('access devel information')) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-devel.js', array('weight' => -1000));
   }
   // get the configuration so we can set domain from here to enable
@@ -403,6 +444,7 @@ function elmsln_core_page_build(&$page) {
   else {
     $role = 'other';
   }
+
   // pass variables to js
   $js_variables = array(
     'elmslnCore' => array(
@@ -412,6 +454,7 @@ function elmsln_core_page_build(&$page) {
       'title' => drupal_get_title(),
       'url' => url(current_path(), array('absolute' => TRUE)),
       'role' => $role,
+      'xapisession' => drupal_get_token($GLOBALS['user']->uuid),
     ),
   );
   drupal_add_js($js_variables, 'setting');
@@ -795,4 +838,136 @@ function elmsln_core_theme($existing, $type, $theme, $path) {
       'template' => 'templates/elmsln-core-lrs-data',
     ),
   );
+}
+
+/**
+ * Implements hook_tincanapi_ajax_data_alter().
+ */
+function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
+  $settings = array();
+  // regardless of module see if our contextual settings are here
+  // and this way we can ship down elmslnCore's scope variables
+  // which will make our data-sets more meaningful for searching in LRSs later
+  if (isset($context['tincanapiSettings']['elmslnCore'])) {
+    // look for our ELMSLNCore settings
+    $settings = $context['tincanapiSettings']['elmslnCore'];
+  }
+  // check for items that came across, if we don't have them
+  // then attempt to inject them though that's probably not going to work
+  if (isset($settings['course'])) {
+    $course = filter_xss($settings['course']);
+  }
+  else {
+    $course = _cis_connector_course_context();
+  }
+  if (isset($settings['section'])) {
+    $section = filter_xss($settings['section']);
+  }
+  else {
+    $section = _cis_connector_section_context();
+  }
+  $title = '';
+  if (isset($settings['title'])) {
+    $title = filter_xss($settings['title']);
+  }
+  else {
+    $title = drupal_get_title();
+  }
+  $url = '';
+  if (isset($settings['url'])) {
+    $url = filter_xss($settings['url']);
+  }
+  else {
+    $url = url(current_path(), array('absolute' => TRUE));
+  }
+  $role = '';
+  if (isset($settings['role'])) {
+    $role = filter_xss($settings['role']);
+  }
+  else {
+    if (_cis_connector_role_grouping('active learner')) {
+      $role = 'student';
+    }
+    elseif (_cis_connector_role_grouping('staff')) {
+      $role = 'staff';
+    }
+    elseif (_cis_connector_role_grouping('teacher')) {
+      $role = 'teacher';
+    }
+    else {
+      $role = 'other';
+    }
+  }
+
+  // session set
+  if (isset($settings['session'])) {
+    $session = filter_xss($settings['session']);
+  }
+  else {
+    $session = drupal_get_token($GLOBALS['user']->uuid);
+  }
+
+  $data['context']['extensions'] = array(
+    'https://www.elmsln.org/x-api/elmsln-section' => $section,
+    'https://www.elmsln.org/x-api/elmsln-course' => $course,
+    'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
+    'https://www.elmsln.org/x-api/elmsln-url' => $url,
+    'https://www.elmsln.org/x-api/elmsln-role' => $role,
+    'https://www.elmsln.org/x-api/elmsln-session' => $session,
+  );
+
+  // hypothesis if its set
+  if (isset($settings['hypothesis'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-research-hypothesis'] = filter_xss($settings['hypothesis']);
+  }
+
+  // duration if its set
+  if (isset($settings['duration'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-duration'] = filter_xss($settings['duration']);
+  }
+
+
+  // ensure that choice ids are strings to match data model
+  if (isset($data['object']['definition']['choices'])) {
+    foreach ($data['object']['definition']['choices'] as $key => $choice) {
+      if (is_int($data['object']['definition']['choices'][$key]['id'])) {
+        $data['object']['definition']['choices'][$key]['id'] = (string)$data['object']['definition']['choices'][$key]['id'];
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_tincanapi_data_alter().
+ */
+function elmsln_core_tincanapi_data_alter($module_name, &$data) {
+  // ensure we aren't double altering our statements
+  if (!isset($data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-section'])) {
+    $course = _cis_connector_course_context();
+    $section = _cis_connector_section_context();
+    $title = drupal_get_title();
+    $url = url(current_path(), array('absolute' => TRUE));
+    if (_cis_connector_role_grouping('active learner')) {
+      $role = 'student';
+    }
+    elseif (_cis_connector_role_grouping('staff')) {
+      $role = 'staff';
+    }
+    elseif (_cis_connector_role_grouping('teacher')) {
+      $role = 'teacher';
+    }
+    else {
+      $role = 'other';
+    }
+    $session = drupal_get_token($GLOBALS['user']->uuid);
+
+    $data['context']['extensions'] = array(
+      'https://www.elmsln.org/x-api/elmsln-section' => $section,
+      'https://www.elmsln.org/x-api/elmsln-course' => $course,
+      'https://www.elmsln.org/x-api/elmsln-url-title' => $title,
+      'https://www.elmsln.org/x-api/elmsln-url' => $url,
+      'https://www.elmsln.org/x-api/elmsln-role' => $role,
+      'https://www.elmsln.org/x-api/elmsln-session' => $session,
+    );
+  }
 }
