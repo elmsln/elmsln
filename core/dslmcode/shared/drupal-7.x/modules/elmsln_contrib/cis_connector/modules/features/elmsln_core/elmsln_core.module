@@ -114,7 +114,7 @@ function _elmsln_people_user_edit_page() {
   $elmsln_global_profile = variable_get('elmsln_global_profile', $default = 'cpr');
 
   // send user to the cpr we just defined and redirect them back to where they were.
-  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $account->uid, 'edit?destination=elmsln/redirect/'.variable_get('install_profile').'/user/1');
+  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $account->uid, 'edit?destination=elmsln/redirect/'.variable_get('install_profile').'/user/'. $account->uid);
 }
 
 /**
