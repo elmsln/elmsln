@@ -19,12 +19,12 @@
       // mix in this xAPI data if we are allowed
       if (allowed) {
         var data = e.data;
-        Drupal.settings.h5pTincanBridge.course = data.course;
-        Drupal.settings.h5pTincanBridge.section = data.section;
-        Drupal.settings.h5pTincanBridge.title = data.title;
-        Drupal.settings.h5pTincanBridge.url = data.url;
-        Drupal.settings.h5pTincanBridge.role = data.role;
-        Drupal.settings.h5pTincanBridge.hypothesis = data.hypothesis;
+        Drupal.settings.tincanapi.elmslnCore.course = data.course;
+        Drupal.settings.tincanapi.elmslnCore.section = data.section;
+        Drupal.settings.tincanapi.elmslnCore.title = data.title;
+        Drupal.settings.tincanapi.elmslnCore.url = data.url;
+        Drupal.settings.tincanapi.elmslnCore.role = data.role;
+        Drupal.settings.tincanapi.elmslnCore.hypothesis = data.hypothesis;
       }
     }
   };

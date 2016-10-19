@@ -30,13 +30,11 @@ function advagg_css_cdn_css_alter(&$css) {
   $ui_mapping = advagg_css_cdn_get_ui_mapping();
 
   foreach ($css as $name => $values) {
-    // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
-    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
     // Only modify if
     // advagg_css_cdn_jquery_ui is enabled,
     // name is in the $ui_mapping array.
     // and type is file.
-    if ( variable_get('advagg_css_cdn_jquery_ui', ADVAGG_CSS_CDN_JQUERY_UI)
+    if (variable_get('advagg_css_cdn_jquery_ui', ADVAGG_CSS_CDN_JQUERY_UI)
       && array_key_exists($name, $ui_mapping)
       && $css[$name]['type'] === 'file'
     ) {
@@ -117,8 +115,7 @@ function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
     }
     else {
       $diff = array_merge(array_diff_assoc($group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $group['browsers']));
-      // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
-      if ( $group['type'] != $target['type']
+      if ($group['type'] != $target['type']
         || $group['group'] != $target['group']
         || $group['every_page'] != $target['every_page']
         || $group['media'] != $target['media']
@@ -128,8 +125,7 @@ function advagg_css_cdn_advagg_css_groups_alter(&$css_groups, $preprocess_css) {
       ) {
         if (!empty($last_group)) {
           $diff = array_merge(array_diff_assoc($last_group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $last_group['browsers']));
-          // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:8
-          if ( $last_group['type'] != $target['type']
+          if ($last_group['type'] != $target['type']
             || $last_group['group'] != $target['group']
             || $last_group['every_page'] != $target['every_page']
             || $last_group['media'] != $target['media']

@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file
+ * Handles AdvAgg mod installation and upgrade tasks.
+ */
+
+/**
+ * Merge advagg_mod_css_defer_rel_preload into advagg_mod_css_defer.
+ *
+ * Implements hook_update_N().
+ */
+function advagg_mod_update_7201(&$sandbox) {
+  // Merge advagg_mod_css_defer_rel_preload into advagg_mod_css_defer.
+  $advagg_mod_css_defer = variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER);
+  $advagg_mod_css_defer_rel_preload = variable_get('advagg_mod_css_defer_rel_preload', ADVAGG_MOD_CSS_DEFER_REL_PRELOAD);
+  variable_del('advagg_mod_css_defer_rel_preload');
+  if (!empty($advagg_mod_css_defer) && !empty($advagg_mod_css_defer_rel_preload)) {
+    variable_set('advagg_mod_css_defer', 4);
+    return t('The advagg_mod_css_defer_rel_preload variable has been deleted. The advagg_mod_css_defer variable has been set to a value of 4 (All in head, use link rel="preload"). You can adjust this value on the <a href="@url">AdvAgg Modifications page</a>', array('@url' => url('admin/config/development/performance/advagg/mod', array('fragment' => 'edit-advagg-mod-css-defer'))));
+  }
+  else {
+    return t('The advagg_mod_css_defer_rel_preload variable has been deleted.');
+  }
+}
+
+/**
+ * Move advagg_mod_js_get_external_dns to advagg_mod_js_inline_resource_hints.
+ *
+ * Implements hook_update_N().
+ */
+function advagg_mod_update_7202(&$sandbox) {
+  $advagg_mod_js_inline_resource_hints = variable_get('advagg_mod_js_inline_resource_hints', NULL);
+  $advagg_mod_js_get_external_dns = variable_get('advagg_mod_js_get_external_dns', NULL);
+
+  if (is_null($advagg_mod_js_get_external_dns)) {
+    return t('Nothing needed to happen.');
+  }
+  variable_del('advagg_mod_js_get_external_dns');
+  if (!is_null($advagg_mod_js_inline_resource_hints) || empty($advagg_mod_js_inline_resource_hints)) {
+    return t('Nothing needed to happen.');
+  }
+  variable_set('advagg_mod_js_inline_resource_hints', $advagg_mod_js_inline_resource_hints);
+  return t('Variable has been moved.');
+}

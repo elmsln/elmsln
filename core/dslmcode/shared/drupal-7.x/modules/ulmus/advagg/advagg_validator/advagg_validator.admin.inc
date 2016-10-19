@@ -254,7 +254,6 @@ function advagg_validator_admin_form_generator($type, $run_client_side) {
   return $form;
 }
 
-
 // Submit callbacks.
 /**
  * Display file info in a drupal message.

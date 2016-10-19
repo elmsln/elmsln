@@ -152,7 +152,6 @@
       };
 
       var verb = event2verb[event];
-
       var data = {
         module: 'video',
         verb: verb,

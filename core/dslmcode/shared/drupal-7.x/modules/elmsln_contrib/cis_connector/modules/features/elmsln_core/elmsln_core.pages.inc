@@ -4,7 +4,7 @@
  * Callback to return all data about the current entity from
  * our xAPI / LRS data we can drum up that's meaningful.
  */
-function _elmsln_core_data_page($etype, $entity, $context = FALSE) {
+function _elmsln_core_data_page($etype, $entity, $filter_verb, $display, $debug) {
   $aggregates = array(
     'verbs' => array(),
     'users' => array(),
@@ -22,43 +22,69 @@ function _elmsln_core_data_page($etype, $entity, $context = FALSE) {
       ),
     )
   );
+  $output = '';
   $uri = entity_uri($etype, $entity);
   $url = url($uri['path'], array('absolute' => TRUE));
   // show query data specific to the entity type in question
   switch ($etype) {
     case 'user':
-      $entity->name = 'bto108';
       $query['pipeline'][0]['$match']['statement.actor.name'] = $entity->name;
     break;
     case 'node':
-      if ($context) {
-        $query['pipeline'][0]['$match']['statement.context.contextActivities.parent.id'] = $url;
-      }
-      else {
-        $query['pipeline'][0]['$match']['statement.object.id'] = $url;
-      }
+      $query['pipeline'][0]['$match']['$or'][]['statement.context.contextActivities.parent.id'] = $url;
+      $query['pipeline'][0]['$match']['$or'][]['statement.object.id'] = $url;
+      $query['pipeline'][0]['$match']['$or'][]['statement.context.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-url'] = $url;
+      $query['pipeline'][0]['$match']['$or'][]['statement.object.definition.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-url'] = $url;
     break;
   }
+  // only show student results
+  // @todo need a more graceful way of doing this; probably via select / checkbox widget
+  if ($etype != 'user' && empty($debug)) {
+    //$query['pipeline'][0]['$match']['statement.context.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-role'] = 'student';
+  }
+  // allow for verb filtering
+  if (!empty($filter_verb)) {
+    $query['pipeline'][0]['$match']['statement.verb.display.en-US'] = $filter_verb;
+    $output = l(t('Reset filters'), $uri['path'] . '/data');
+  }
   $query['pipeline'] = json_encode($query['pipeline']);
-  $result = _elmsln_core_lrs_query($query, TRUE);
+  $result = _elmsln_core_lrs_query($query, FALSE);
   // start cleaning up the data to make it more useful downstream
   $data = $result['result'];
   foreach ($data as $key => $record) {
-    // make our own custom area for more data
-    $data[$key]['_elmsln'] = array();
     // engineer verb agnostic of language
-    $verb = array_pop($record['statement']['verb']['display']);
-    $verb = t($verb);
-    $data[$key]['_elmsln']['verb'] = $verb;
+    $verb = t($record['statement']['verb']['display']['en-US']);
     $aggregates['verbs'][$record['statement']['verb']['id']] = $verb;
+    if (!url_is_external(str_replace($GLOBALS['base_url'], '', $record['statement']['object']['id']))) {
+      $item_link = $record['statement']['object']['id'];
+    }
+    elseif (isset($record['statement']['context']['contextActivities']['parent'][0]['id'])) {
+      $item_link = $record['statement']['context']['contextActivities']['parent'][0]['id'];
+    }
+    elseif (isset($record['statement']['context']['extensions']['https://www.elmsln.org/x-api/elmsln-url'])) {
+      $item_link = $record['statement']['context']['extensions']['https://www.elmsln.org/x-api/elmsln-url'];
+    }
+    elseif (isset($record['statement']['object']['definition']['extensions']['https://www.elmsln.org/x-api/elmsln-url'])) {
+      $item_link = $record['statement']['object']['definition']['extensions']['https://www.elmsln.org/x-api/elmsln-url'];
+    }
+    else {
+      $item_link = NULL;
+    }
+    $record['_item_link'] = $item_link;
+    $aggregates['statements'][$verb][] = $record;
     // count verbs
     if (!isset($aggregates['counts'][$verb])) {
       $aggregates['counts'][$verb] = 0;
     }
     $aggregates['counts'][$verb]++;
-    $aggregates['users'][$verb][$record['statement']['actor']['name']] = $record['statement']['actor']['name'];
-    $aggregates['user_list'][$record['statement']['actor']['name']] = $record['statement']['actor']['name'];
+    if (!isset($aggregates['users'][$verb][$record['statement']['actor']['name']])) {
+      $aggregates['users'][$verb][$record['statement']['actor']['name']] = 0;
+    }
+    $aggregates['users'][$verb][$record['statement']['actor']['name']]++;
+    $aggregates['user_list'][$record['statement']['actor']['name']] = NULL;
   }
+  // order from biggest to smallest xAPI counts
+  uasort($aggregates['counts'], '_elmsln_uasortcmp');
   // load in the icon associations
   $icons = _elmsln_core_icon_map();
   foreach ($aggregates['verbs'] as $verb) {
@@ -70,24 +96,43 @@ function _elmsln_core_data_page($etype, $entity, $context = FALSE) {
       $aggregates['colors'][$verb] = ELMSLN_XAPI_DEFAULT_COLOR;
       $aggregates['icons'][$verb] = ELMSLN_XAPI_DEFAULT_ICON;
     }
+    $aggregates['verb_data_links'][$verb] = $uri['path'] . '/data/' . $verb;
     $aggregates['percent_used'][$verb] = 100 * round(count($aggregates['users'][$verb]) / count($aggregates['user_list']), 2);
   }
+  foreach ($aggregates['user_list'] as $tmpname => $val) {
+    // try loading a user by name
+    if ($tmpuser = user_load_by_name($tmpname)) {
+      $aggregates['user_list'][$tmpname] = $tmpuser->uid;
+    }
+  }
+
   // make a decent title
-  if (!$context) {
-    $datatitle = t('@statements Direct statements generated by @users users.', array('@statements' => count($data), '@users' => count($aggregates['user_list'])));
-  }
-  else {
-    $datatitle = t('@statements Contextual statements generated by @users users.', array('@statements' => count($data), '@users' => count($aggregates['user_list'])));
-  }
+  $datatitle = t('@statements statements generated by @users users.', array('@statements' => count($data), '@users' => count($aggregates['user_list'])));
   // send off for theming
   $vars = array(
     'datatitle' => $datatitle,
     'data' => $data,
     'aggregates' => $aggregates,
   );
-  $output = '';
-  if (!$context) {
-    $output = _elmsln_core_data_page($etype, $entity, TRUE);
+  // kick out as table
+  if ($display == 'table' || empty($display)) {
+    // load up read time if it exists
+    if ($etype == 'node' && module_exists('read_time')) {
+      $output .= theme('read_time', array('node' => $entity));
+    }
+    $output .= theme('elmsln_core_lrs_data', $vars);
+    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-lrs-data-display.js');
   }
-  return theme('elmsln_core_lrs_data', $vars) . $output;
+  // @todo support other methods of visualizing data
+  return $output;
+}
+
+/**
+ * callback for uasort comparison of array values
+ */
+function _elmsln_uasortcmp($a, $b) {
+    if ($a == $b) {
+        return 0;
+    }
+    return ($a > $b) ? -1 : 1;
 }

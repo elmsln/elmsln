@@ -344,7 +344,7 @@ function hook_advagg_css_groups_alter(array &$css_groups, $preprocess_css) {
     else {
       $diff = array_merge(array_diff_assoc($group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $group['browsers']));
       // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-      if ( $group['type'] != $target['type']
+      if ($group['type'] != $target['type']
         || $group['group'] != $target['group']
         || $group['every_page'] != $target['every_page']
         || $group['media'] != $target['media']
@@ -355,7 +355,7 @@ function hook_advagg_css_groups_alter(array &$css_groups, $preprocess_css) {
         if (!empty($last_group)) {
           $diff = array_merge(array_diff_assoc($last_group['browsers'], $target['browsers']), array_diff_assoc($target['browsers'], $last_group['browsers']));
           // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-          if ( $last_group['type'] != $target['type']
+          if ($last_group['type'] != $target['type']
             || $last_group['group'] != $target['group']
             || $last_group['every_page'] != $target['every_page']
             || $last_group['media'] != $target['media']

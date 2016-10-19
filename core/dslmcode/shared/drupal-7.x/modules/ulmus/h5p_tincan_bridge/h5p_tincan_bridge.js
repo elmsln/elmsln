@@ -29,7 +29,7 @@
                     token: moduleSettings.token,
                     statement: JSON.stringify(subevent.data.statement),
                     nid: moduleSettings.nid,
-                    settings: moduleSettings
+                    tincanapiSettings: Drupal.settings.tincanapi
                   };
                   $.post(moduleSettings.relayUrl, delayeddata);
                   xapi_events = new Array();
@@ -39,7 +39,7 @@
                   token: moduleSettings.token,
                   statement: JSON.stringify(event.data.statement),
                   nid: moduleSettings.nid,
-                  settings: moduleSettings
+                  tincanapiSettings: Drupal.settings.tincanapi
                 };
                 $.post(moduleSettings.relayUrl, data);
               }
@@ -50,7 +50,7 @@
                 token: moduleSettings.token,
                 statement: JSON.stringify(event.data.statement),
                 nid: moduleSettings.nid,
-                settings: moduleSettings
+                tincanapiSettings: Drupal.settings.tincanapi
               };
               $.post(moduleSettings.relayUrl, data);
             }

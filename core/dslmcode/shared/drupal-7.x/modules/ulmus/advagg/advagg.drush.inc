@@ -231,10 +231,11 @@ function drush_advagg_smart_cache_flush() {
         continue;
       }
       $ext = pathinfo($filename, PATHINFO_EXTENSION);
-      drush_log(dt('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
+      drush_log(dt('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins. Trigger: @changes', array(
         '%filename' => $filename,
         '%db_usage' => $data[0],
         '%db_count' => $data[1],
+        '@changes' => print_r($data[2], TRUE),
         '%type' => $ext,
       )), 'ok');
     }
