@@ -12,9 +12,9 @@ pre {
   overflow: auto;
 }
 
-/* collection with accordian stacked in it */
-.collection .collapsible,
-.collection .collapsible li {
+/* collection with accordian stacked in it in lrs display */
+.elmsln-core-lrs-data-display .collection .collapsible,
+.elmsln-core-lrs-data-display .collection .collapsible li {
   margin-left: 0;
 }
 /* link support in collapsible headers */
@@ -1336,7 +1336,10 @@ h1#page-title {
   float: right;
   margin-top:-4.5rem;
 }
-
+.collapsible-body .read-time {
+  float: none;
+  margin-top: 0;
+}
 .etb-book h2 {
   font-size: 2.25rem;
   font-weight: bold;
