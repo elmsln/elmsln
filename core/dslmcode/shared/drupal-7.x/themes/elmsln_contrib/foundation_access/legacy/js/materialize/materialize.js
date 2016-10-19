@@ -96,7 +96,7 @@
     // apply border to things that want our background
     $('.cis-lmsless-border, .tabs li.tab a').addClass(Drupal.settings.cis_lmsless['color'] + '-border');
     // color chips
-    $('.chip,ul li a.active, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    $('.chip, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
     // color back to top item
     $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
 
