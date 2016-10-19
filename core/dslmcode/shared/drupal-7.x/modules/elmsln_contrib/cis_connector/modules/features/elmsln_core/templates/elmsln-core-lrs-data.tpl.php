@@ -1,3 +1,4 @@
+<div class="elmsln-core-lrs-data-display">
 <h2><?php print $datatitle;?></h2>
 <ul class="collection">
 <?php foreach ($aggregates['counts'] as $verb => $count) : ?>
@@ -18,7 +19,7 @@
               <ul class="collapsible" data-collapsible="accordion">
               <?php foreach ($aggregates['statements'][$verb] as $index => $statement) : ?>
                 <li>
-                  <div class="collapsible-header">
+                  <div class="collapsible-header xapi-statement-raw">
                     <?php
                       if (empty($statement['statement']['object']['definition']['name'])) {
                         $title = $statement['statement']['object']['objectType'];
@@ -76,3 +77,4 @@
   </li>
 <?php endforeach; ?>
 </ul>
+</div>

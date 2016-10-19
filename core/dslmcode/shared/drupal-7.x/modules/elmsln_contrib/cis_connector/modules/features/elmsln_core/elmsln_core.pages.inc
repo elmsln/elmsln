@@ -121,6 +121,7 @@ function _elmsln_core_data_page($etype, $entity, $filter_verb, $display, $debug)
       $output .= theme('read_time', array('node' => $entity));
     }
     $output .= theme('elmsln_core_lrs_data', $vars);
+    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-lrs-data-display.js');
   }
   // @todo support other methods of visualizing data
   return $output;
