@@ -123,3 +123,11 @@ function elmsln_core_update_7010(&$sandbox) {
 function elmsln_core_update_7011(&$sandbox) {
   module_enable(array('pathcache'));
 }
+
+/**
+ * LRS permissions now set for user roles as well new
+ * form as json.
+ */
+function elmsln_core_update_7012(&$sandbox) {
+  features_revert_module('elmsln_core');
+}

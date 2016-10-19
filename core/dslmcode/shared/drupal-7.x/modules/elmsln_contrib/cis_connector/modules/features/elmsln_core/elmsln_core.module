@@ -38,7 +38,7 @@ function elmsln_core_menu() {
   $items['node/%node/data'] = array(
     'title' => 'Related Data',
     'page callback' => '_elmsln_core_data_page',
-    'page arguments' => array('node', 1),
+    'page arguments' => array('node', 1, 3, 4, 5),
     'access callback' => '_elmsln_core_data_access',
     'access arguments' => array('node', 1),
     'weight' => 0,
@@ -49,7 +49,7 @@ function elmsln_core_menu() {
   $items['user/%user/data'] = array(
     'title' => 'Related Data',
     'page callback' => '_elmsln_core_data_page',
-    'page arguments' => array('user', 1),
+    'page arguments' => array('user', 1, 3, 4, 5),
     'access callback' => '_elmsln_core_data_access',
     'access arguments' => array('user', 1),
     'weight' => 0,
@@ -113,6 +113,9 @@ function _elmsln_core_data_access($etype, $entity) {
   // This should take into account LRS permission + OG / section
   // or any other permissions related to users, files, etc
   if (user_access('view elmsln lrs data') && entity_access('view', $etype, $entity)) {
+    return TRUE;
+  }
+  elseif (user_access('view own elmsln lrs data') && $etype == 'user' && $entity->uid == $GLOBALS['user']->uid) {
     return TRUE;
   }
   return FALSE;
@@ -379,6 +382,11 @@ function elmsln_core_permission() {
     'view elmsln lrs data' =>  array(
       'title' => t('View LRS data'),
       'description' => t('Grants access to pages that display elmsln\'s core LRS integration / support.'),
+      'restrict access' => TRUE,
+    ),
+    'view own elmsln lrs data' =>  array(
+      'title' => t('View own LRS data'),
+      'description' => t('Grants access to the user\'s own set of data being collected.'),
     ),
     'view form as json' =>  array(
       'title' => t('View form as JSON'),
