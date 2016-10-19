@@ -49,7 +49,7 @@ function advagg_advagg_save_aggregate_alter(array &$files_to_save, array $aggreg
   }
 
   foreach ($file_types as $ext => $settings) {
-    // See if a .gz file already exists.
+    // See if a file already exists with this extension.
     $ext_exists = FALSE;
     foreach ($files_to_save as $uri => $contents) {
       // See if this uri contains $ext near the end of it.
@@ -63,7 +63,7 @@ function advagg_advagg_save_aggregate_alter(array &$files_to_save, array $aggreg
         $len = strlen($uri);
         // $ext file exists, exit loop.
         if ($pos == $len - 3) {
-          $gzip_exists = TRUE;
+          $ext_exists = TRUE;
           break;
         }
       }

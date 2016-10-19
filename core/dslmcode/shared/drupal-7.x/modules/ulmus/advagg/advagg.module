@@ -1973,7 +1973,7 @@ function _advagg_process_html(&$variables) {
       unset($scripts_array);
 
       // Clear drupal settings so cache is smaller.
-      foreach ($js_cache as $location => &$string) {
+      foreach ($js_cache as &$string) {
         $string = advagg_replace_drupal_settings_string($string, '{}');
       }
       unset($string);

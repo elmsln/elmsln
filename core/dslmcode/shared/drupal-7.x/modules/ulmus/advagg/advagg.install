@@ -767,7 +767,7 @@ function advagg_update_7217(&$sandbox) {
     variable_set('advagg_resource_hints_location', 1);
     variable_set('advagg_resource_hints_dns_prefetch', TRUE);
   }
-  elseif($advagg_browser_dns_prefetch == 2) {
+  elseif ($advagg_browser_dns_prefetch == 2) {
     variable_set('advagg_resource_hints_location', 3);
     variable_set('advagg_resource_hints_dns_prefetch', TRUE);
   }

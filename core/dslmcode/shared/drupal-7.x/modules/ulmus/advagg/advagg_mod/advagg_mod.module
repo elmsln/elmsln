@@ -235,7 +235,7 @@ function advagg_mod_init() {
     $local_counter = advagg_get_global_counter();
     if (!file_exists($counter_filename)) {
       module_load_include('inc', 'advagg', 'advagg.missing');
-      $errors = advagg_save_data($counter_filename, $local_counter);
+      advagg_save_data($counter_filename, $local_counter);
     }
     else {
       $shared_counter = (int) file_get_contents($counter_filename);
@@ -246,7 +246,7 @@ function advagg_mod_init() {
       elseif ($shared_counter < $local_counter) {
         // Local counter is higher, update saved file and return.
         module_load_include('inc', 'advagg', 'advagg.missing');
-        $errors = advagg_save_data($counter_filename, $local_counter, TRUE);
+        advagg_save_data($counter_filename, $local_counter, TRUE);
       }
       elseif ($shared_counter > $local_counter) {
         // Shared counter is higher, update local copy and return.
@@ -261,10 +261,10 @@ function advagg_mod_init() {
   if (module_exists('imce')) {
     $args = arg();
     if ($args[0] === 'imce' && empty($args[1])) {
-      if (!empty(variable_get('advagg_mod_js_footer', ADVAGG_MOD_JS_FOOTER))) {
+      if (variable_get('advagg_mod_js_footer', ADVAGG_MOD_JS_FOOTER)) {
         $GLOBALS['conf']['advagg_mod_js_footer'] = 0;
       }
-      if (!empty(variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER))) {
+      if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
         $GLOBALS['conf']['advagg_mod_js_defer'] = 0;
       }
     }
@@ -554,7 +554,7 @@ function advagg_mod_theme_registry_alter(&$theme_registry) {
 function advagg_mod_process_move_js(array &$variables) {
   // Return if settings are disabled.
   if (!variable_get('advagg_mod_js_footer_inline_alter', ADVAGG_MOD_JS_FOOTER_INLINE_ALTER)
-    && !variable_get('advagg_mod_js_get_external_dns', ADVAGG_MOD_JS_GET_EXTERNAL_DNS)
+    && !variable_get('advagg_mod_js_inline_resource_hints', ADVAGG_MOD_JS_INLINE_RESOURCE_HINTS)
   ) {
     return;
   }
@@ -2465,7 +2465,7 @@ function advagg_remove_js_if_not_used(array &$js) {
  */
 function advagg_mod_js_inline_processor(&$html) {
   // Add src script to dns-prefetch.
-  if (variable_get('advagg_mod_js_get_external_dns', ADVAGG_MOD_JS_GET_EXTERNAL_DNS)) {
+  if (variable_get('advagg_mod_js_inline_resource_hints', ADVAGG_MOD_JS_INLINE_RESOURCE_HINTS)) {
     advagg_mod_xpath_script_external_dns($html);
   }
 
