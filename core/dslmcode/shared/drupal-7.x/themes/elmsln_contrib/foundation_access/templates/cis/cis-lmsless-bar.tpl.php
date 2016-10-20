@@ -17,7 +17,7 @@
           <?php if ($bar_elements['network']) : ?>
           <li class="elmsln-network-menu-item">
             <a href="#" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger  black-text waves-effect cis-lmsless-waves" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
-              <div class="cis-lmsless-network icon-apps-black svg"></div>
+              <div class="cis-lmsless-network elmsln-icon icon-network"></div>
               <span class="hide-on-med-and-down truncate"><?php print t('Network'); ?></span>
             </a>
           </li>
