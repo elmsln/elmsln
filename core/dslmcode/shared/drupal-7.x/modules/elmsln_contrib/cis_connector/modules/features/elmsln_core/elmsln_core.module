@@ -110,12 +110,11 @@ function elmsln_core_menu_alter(&$items) {
  * Access callback for _elmsln_people_user_edit_page.
  */
 function _elmsln_people_user_edit_page() {
-  global $user;
-  $account = $user;
+
   // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
   $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
   // send user to the cpr we just defined and redirect them back to where they were.
-  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $account->uid, 'edit?destination=elmsln/redirect/' . variable_get('install_profile') . '/user/' . $account->uid);
+  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $GLOBALS['user']->uid, 'edit?destination=elmsln/redirect/' . variable_get('install_profile') . '/user/' . $GLOBALS['user']->uid);
 }
 
 /**
