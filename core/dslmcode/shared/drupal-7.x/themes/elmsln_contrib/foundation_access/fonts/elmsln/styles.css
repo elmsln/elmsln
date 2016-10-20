@@ -20,7 +20,6 @@
   font-variant: normal !important;
   text-transform: none !important;
   speak: none;
-  line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -33,9 +32,14 @@
   font-variant: normal !important;
   text-transform: none !important;
   speak: none;
-  line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* elmsln-icon defaults */
+.elmsln-icon {
+  font-size: 2rem;
+  line-height: 3rem;
 }
 
 .elmsln-icon:before,
