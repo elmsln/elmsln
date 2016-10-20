@@ -1,7 +1,9 @@
-/* elmsln-icon defaults */
-.elmsln-icon {
-  font-size: 2rem;
-  line-height: 1rem;
+/* Network flyout spacing */
+.elmsln-network-label {
+  margin-left: .75rem;
+}
+.elmsln-network-icon {
+  padding: 0 .25rem;
 }
 
 /* format pre tags */
@@ -175,11 +177,13 @@ nav ul.left-nav-section a img {
 }
 
 .elmsln-system-badge .elmsln-badge {
-  height: 3rem;
-  width: 3rem;
+  height: 2rem;
+  width: 2rem;
   position: absolute;
-  margin: 1.25rem .75rem;
+  margin: 1.75rem 1rem;
   z-index: 4;
+  font-size: 2.5rem;
+  line-height: 2rem;
 }
 .elmsln-system-badge .elmsln-badge-middle-name {
   position: absolute;
@@ -495,6 +499,15 @@ input[type=file]:focus,
 .accessible-pink-text {
   color: #9d0f3f !important;
 }
+/* Special class to highjack accessible varients on hover */
+.hover-white-text,
+.elmsln-network-icon.hover-white-text {
+  color: #FFFFFF !important;
+}
+.hover-black-text,
+.elmsln-network-icon.hover-black-text {
+  color: #222222 !important;
+}
 /* Materialize Selecton classes */
 .blue-selection ::selection {
   background: #e3f2fd;
@@ -572,10 +585,6 @@ input[type=file]:focus,
 }
 
 /* CIS filter / submit widget */
-.cis-filter-activity-item .material-icons {
-  font-size:2rem;
-  padding:.25rem;
-}
 .horizontal .card-image {
   min-width: 25%;
 }
@@ -591,11 +600,20 @@ input[type=file]:focus,
   line-height: 2rem;
 }
 
+.side-nav a {
+  color: #222222;
+  display: block;
+  font-size: .9rem;
+  font-weight: normal;
+  height: 3rem;
+  line-height: 3rem;
+  padding: 0 .5rem 0 1rem;
+}
+
 .side-nav a span {
   line-height: 3rem;
   height: 3rem;
   padding: 0;
-  margin:0;
 }
 
 .side-nav .divider {

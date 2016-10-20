@@ -101,11 +101,31 @@
     $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
 
     // hover state for tables to match styling
-    $('tr.even, tr.odd, ul.menu li a').not('.active,.elmsln-fixed-action-btn a').hover(
+    $('tr.even, tr.odd, ul.menu li a, [data-elmsln-hover]').not('.active,.active-system,.elmsln-fixed-action-btn a').hover(
       function() {
-        $(this).addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+        var attr = $(this).attr('data-elmsln-hover');
+        if (typeof attr !== typeof undefined && attr !== false) {
+          $(this).addClass(attr);
+          var attr2 = $(this).attr('data-elmsln-icon-hover');
+          if (typeof attr2 !== typeof undefined && attr2 !== false) {
+            $(this).children('.elmsln-icon').addClass(attr2);
+          }
+        }
+        else {
+          $(this).addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+        }
       }, function() {
-        $(this).removeClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+        var attr = $(this).attr('data-elmsln-hover');
+        if (typeof attr !== typeof undefined && attr !== false) {
+          $(this).removeClass(attr);
+          var attr2 = $(this).attr('data-elmsln-icon-hover');
+          if (typeof attr2 !== typeof undefined && attr2 !== false) {
+            $(this).children('.elmsln-icon').removeClass(attr2);
+          }
+        }
+        else {
+          $(this).removeClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+        }
       }
     );
     // tab slide effect
