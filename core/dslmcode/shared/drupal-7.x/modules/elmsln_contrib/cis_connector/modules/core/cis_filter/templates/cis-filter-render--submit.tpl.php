@@ -7,15 +7,15 @@
 ?>
 <div class="col s12 m12 l12">
   <div class="card horizontal">
-    <div class="card-image elmsln-icon icon-<?php print $tool . ' ' . $lmsless_classes['text'];?>"></div>
+    <div class="card-image elmsln-card-submit-image elmsln-icon icon-<?php print $tool . ' ' . $lmsless_classes['text'];?>"></div>
     <div class="card-stacked">
       <div class="card-content">
         <div class="<?php print $class; ?>">
           <?php print $icon; ?>
         </div>
-      <?php print $content; ?>
+      <?php print $content;?>
       </div>
-      <div class="card-action">
+      <div class="card-action <?php print $lmsless_classes['text'];?>">
         <?php print $links; ?>
       </div>
     </div>
