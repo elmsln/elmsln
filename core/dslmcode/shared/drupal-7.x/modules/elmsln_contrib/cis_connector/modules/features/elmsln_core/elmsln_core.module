@@ -58,7 +58,7 @@ function elmsln_core_menu() {
     'file' => 'elmsln_core.pages.inc',
   );
   $items['elmsln/redirect/%/%/%'] = array(
-    'title' => 'view asset',
+    'title' => 'view',
     'page callback' => '_elmsln_core_remote_redirect',
     'access arguments' => array('view cis shortcode'),
     'page arguments' => array(2, 3, 4, 'view'),
@@ -66,21 +66,30 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['elmsln/redirect/%/%/%/edit'] = array(
+    'title' => 'edit',
+    'page callback' => '_elmsln_core_remote_redirect',
+    'page arguments' => array(2, 3, 4, 5),
+    'access arguments' => array('view cis shortcode'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
   $items['elmsln/redirect/%/%/%/view'] = array(
-    'title' => 'view asset',
+    'title' => 'view',
     'page callback' => '_elmsln_core_remote_redirect',
     'access arguments' => array('view cis shortcode'),
     'page arguments' => array(2, 3, 4, 5),
-    'weight' => 0,
+    'weight' => 1,
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-  $items['elmsln/redirect/%/%/%/edit'] = array(
-    'title' => 'edit asset',
+  $items['elmsln/redirect/%/%/%/data'] = array(
+    'title' => 'data',
     'page callback' => '_elmsln_core_remote_redirect',
     'page arguments' => array(2, 3, 4, 5),
     'access arguments' => array('view cis shortcode'),
-    'weight' => 0,
+    'weight' => 2,
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
