@@ -278,6 +278,8 @@ function foundation_access_preprocess_page(&$variables) {
  * Implements hook_preprocess_block().
  */
 function foundation_access_preprocess_block(&$variables) {
+  // get color classes
+  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
   // Convenience variable for block headers.
   $title_class = &$variables['title_attributes_array']['class'];
 
