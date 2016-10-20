@@ -1,3 +1,9 @@
+/* elmsln-icon defaults */
+.elmsln-icon {
+  font-size: 2rem;
+  line-height: 1rem;
+}
+
 /* format pre tags */
 pre {
   display: block;
@@ -121,11 +127,6 @@ nav ul.left-nav-section a i,
 nav ul.left-nav-section a div,
 nav ul.left-nav-section a img {
   margin: auto;
-}
-.cis-lmsless-avatar,
-.cis-lmsless-network {
-  height: 2.5rem;
-  width: 2.5rem;
 }
 
 /* Avoid .progress conflict with materialize */
@@ -587,7 +588,7 @@ input[type=file]:focus,
 }
 
 .side-nav li>a>i, .side-nav li>a>[class^="mdi-"], .side-nav li>a>[class*="mdi-"], .side-nav li>a>i.material-icons {
-  line-height: 2.75rem;
+  line-height: 2rem;
 }
 
 .side-nav a span {
