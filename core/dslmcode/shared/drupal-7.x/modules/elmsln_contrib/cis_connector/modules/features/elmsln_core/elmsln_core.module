@@ -5,7 +5,6 @@
  */
 
 define ('ELMSLN_CORE_LRS_KEYCHAIN', '_lrs');
-define ('ELMSLN_CORE_PIWIK_KEYCHAIN', '_piwik');
 define ('ELMSLN_XAPI_DEFAULT_ICON', 'storage');
 define ('ELMSLN_XAPI_DEFAULT_COLOR', 'red');
 
@@ -38,8 +37,8 @@ function elmsln_core_stream_wrappers() {
 function elmsln_core_menu() {
   $items['node/%node/data'] = array(
     'title' => 'Related Data',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('elmsln_core_data_form'),
+    'page callback' => '_elmsln_core_data_page',
+    'page arguments' => array('node', 1, 3, 4, 5),
     'access callback' => '_elmsln_core_data_access',
     'access arguments' => array('node', 1),
     'weight' => 0,
@@ -49,8 +48,8 @@ function elmsln_core_menu() {
   );
   $items['user/%user/data'] = array(
     'title' => 'Related Data',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('elmsln_core_data_form'),
+    'page callback' => '_elmsln_core_data_page',
+    'page arguments' => array('user', 1, 3, 4, 5),
     'access callback' => '_elmsln_core_data_access',
     'access arguments' => array('user', 1),
     'weight' => 0,
@@ -59,7 +58,7 @@ function elmsln_core_menu() {
     'file' => 'elmsln_core.pages.inc',
   );
   $items['elmsln/redirect/%/%/%'] = array(
-    'title' => 'view',
+    'title' => 'view asset',
     'page callback' => '_elmsln_core_remote_redirect',
     'access arguments' => array('view cis shortcode'),
     'page arguments' => array(2, 3, 4, 'view'),
@@ -67,30 +66,21 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['elmsln/redirect/%/%/%/view'] = array(
+    'title' => 'view asset',
+    'page callback' => '_elmsln_core_remote_redirect',
+    'access arguments' => array('view cis shortcode'),
+    'page arguments' => array(2, 3, 4, 5),
+    'weight' => 0,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
   $items['elmsln/redirect/%/%/%/edit'] = array(
-    'title' => 'edit',
+    'title' => 'edit asset',
     'page callback' => '_elmsln_core_remote_redirect',
     'page arguments' => array(2, 3, 4, 5),
     'access arguments' => array('view cis shortcode'),
     'weight' => 0,
-    'type' => MENU_LOCAL_TASK,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-  );
-  $items['elmsln/redirect/%/%/%/view'] = array(
-    'title' => 'view',
-    'page callback' => '_elmsln_core_remote_redirect',
-    'access arguments' => array('view cis shortcode'),
-    'page arguments' => array(2, 3, 4, 5),
-    'weight' => 1,
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-  );
-  $items['elmsln/redirect/%/%/%/data'] = array(
-    'title' => 'data',
-    'page callback' => '_elmsln_core_remote_redirect',
-    'page arguments' => array(2, 3, 4, 5),
-    'access arguments' => array('view cis shortcode'),
-    'weight' => 2,
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
@@ -103,6 +93,56 @@ function elmsln_core_menu() {
 
   return $items;
 }
+
+/**
+ * Implements hook_menu_alter.
+ * Send user to the CPR to edit the global profile.
+ */
+function elmsln_core_menu_alter(&$items) {
+
+  if(variable_get('install_profile') != 'cpr') {
+    // Override the user edit handler for our purpose.
+    $items['user/%user/edit']['page callback'] = '_elmsln_people_user_edit_page';
+  }
+}
+
+/**
+ * Access callback for _elmsln_people_user_edit_page.
+ */
+function _elmsln_people_user_edit_page() {
+
+  // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
+  $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+  // send user to the cpr we just defined and redirect them back to where they were.
+  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $GLOBALS['user']->uid, 'edit?destination=elmsln/redirect/' . variable_get('install_profile', 'standard') . '/user/' . $GLOBALS['user']->uid);
+}
+
+/**
+ * The user's account information is being displayed.
+ *
+ * The module should format its custom additions for display and add them to the
+ * $account->content array.
+ *
+ * @param $account
+ *   The user object on which the operation is being performed.
+ * @param $view_mode
+ *   View mode, e.g. 'full'.
+ * @param $langcode
+ *   The language code used for rendering.
+ *
+ * @see hook_user_view_alter()
+ * @see hook_entity_view()
+ */
+function elmsln_core_user_view($account, $view_mode, $langcode) {
+  $account = _cis_connection_object($GLOBALS['user']->uid, $entity_type = 'user', $format = 'json', $method = 'GET', $data = NULL, variable_get('elmsln_global_profile', 'cpr'), $instance = '', $cache = TRUE, $extra = '', $call_options = NULL);
+
+  $url = parse_url($account['url']);
+  dpm($url['path']);
+  $account = _cis_connector_request($url['path'], $options = array(), $bucket = 'cpr', $cached = TRUE);
+  dpm($account);
+}
+
+
 
 /**
  * Callback to return form ID as json array
@@ -163,6 +203,8 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
     }
   }
 }
+
+
 
 /**
  * Implements hook_node_validate().
@@ -421,9 +463,6 @@ function elmsln_core_preprocess(&$variables, $hook) {
  * Implements hook_page_build().
  */
 function elmsln_core_page_build(&$page) {
-  // obscure what powers this for security reasons
-  drupal_add_http_header('Server', 'something', FALSE);
-  drupal_add_http_header('X-Powered-By', 'something', FALSE);
   // enable jquery cookie for all pages since we store a bunch of stuff local to the user account
   drupal_add_library('system', 'jquery.cookie');
   // resizable library
@@ -844,7 +883,6 @@ function elmsln_core_theme($existing, $type, $theme, $path) {
     'elmsln_core_lrs_data' => array(
       'variables' => array(
         'datatitle' => t('LRS data'),
-        'filtertitle' => t('Filters applied:'),
         'data' => array(),
         'aggregates' => array(),
       ),
