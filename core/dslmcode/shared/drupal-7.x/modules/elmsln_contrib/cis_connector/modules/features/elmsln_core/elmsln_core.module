@@ -114,8 +114,35 @@ function _elmsln_people_user_edit_page() {
   // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
   $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
   // send user to the cpr we just defined and redirect them back to where they were.
-  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $GLOBALS['user']->uid, 'edit?destination=elmsln/redirect/' . variable_get('install_profile') . '/user/' . $GLOBALS['user']->uid);
+  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $GLOBALS['user']->uid, 'edit?destination=elmsln/redirect/' . variable_get('install_profile', 'standard') . '/user/' . $GLOBALS['user']->uid);
 }
+
+/**
+ * The user's account information is being displayed.
+ *
+ * The module should format its custom additions for display and add them to the
+ * $account->content array.
+ *
+ * @param $account
+ *   The user object on which the operation is being performed.
+ * @param $view_mode
+ *   View mode, e.g. 'full'.
+ * @param $langcode
+ *   The language code used for rendering.
+ *
+ * @see hook_user_view_alter()
+ * @see hook_entity_view()
+ */
+function elmsln_core_user_view($account, $view_mode, $langcode) {
+  $account = _cis_connection_object($GLOBALS['user']->uid, $entity_type = 'user', $format = 'json', $method = 'GET', $data = NULL, variable_get('elmsln_global_profile', 'cpr'), $instance = '', $cache = TRUE, $extra = '', $call_options = NULL);
+
+  $url = parse_url($account['url']);
+  dpm($url['path']);
+  $account = _cis_connector_request($url['path'], $options = array(), $bucket = 'cpr', $cached = TRUE);
+  dpm($account);
+}
+
+
 
 /**
  * Callback to return form ID as json array
@@ -176,6 +203,8 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
     }
   }
 }
+
+
 
 /**
  * Implements hook_node_validate().
