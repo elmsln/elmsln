@@ -421,6 +421,9 @@ function elmsln_core_preprocess(&$variables, $hook) {
  * Implements hook_page_build().
  */
 function elmsln_core_page_build(&$page) {
+  // obscure what powers this for security reasons
+  drupal_add_http_header('Server', 'something', FALSE);
+  drupal_add_http_header('X-Powered-By', 'something', FALSE);
   // enable jquery cookie for all pages since we store a bunch of stuff local to the user account
   drupal_add_library('system', 'jquery.cookie');
   // resizable library
