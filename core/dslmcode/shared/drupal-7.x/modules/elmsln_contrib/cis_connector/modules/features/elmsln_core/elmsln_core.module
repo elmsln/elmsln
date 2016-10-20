@@ -5,6 +5,7 @@
  */
 
 define ('ELMSLN_CORE_LRS_KEYCHAIN', '_lrs');
+define ('ELMSLN_CORE_PIWIK_KEYCHAIN', '_piwik');
 define ('ELMSLN_XAPI_DEFAULT_ICON', 'storage');
 define ('ELMSLN_XAPI_DEFAULT_COLOR', 'red');
 
