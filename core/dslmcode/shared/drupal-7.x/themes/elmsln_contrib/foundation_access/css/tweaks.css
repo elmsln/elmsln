@@ -651,6 +651,9 @@ ul.pagination li a {
 #admin-menu, #admin-menu .dropdown {
   z-index: 100000;
 }
+#admin-menu .dropdown a {
+  color: #ffffff;
+}
 .sticky-wrapper.is-sticky {
   z-index: 9988 !important;
 }
