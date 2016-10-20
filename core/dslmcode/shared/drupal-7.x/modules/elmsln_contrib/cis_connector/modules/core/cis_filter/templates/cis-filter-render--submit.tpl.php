@@ -7,8 +7,7 @@
 ?>
 <div class="col s12 m12 l12">
   <div class="card horizontal">
-    <div class="card-image icon-<?php print $tool; ?>-black">
-    </div>
+    <div class="card-image elmsln-icon icon-<?php print $tool . ' ' . $lmsless_classes['text'];?>"></div>
     <div class="card-stacked">
       <div class="card-content">
         <div class="<?php print $class; ?>">
