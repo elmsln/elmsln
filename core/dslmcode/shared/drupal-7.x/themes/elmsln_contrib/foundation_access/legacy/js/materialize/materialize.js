@@ -84,21 +84,21 @@
       }, 150);
     });
     // apply color styling for this tool to accent the interface
-    $('.cis-lmsless-text, .dropdown-content .nolink').addClass(Drupal.settings.cis_lmsless['text']);
+    $('.cis-lmsless-text, .dropdown-content .nolink').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['text']);
     // color text icons that want it
-    $('i.cis-lmsless-text').addClass('text-' + Drupal.settings.cis_lmsless['dark']);
+    $('i.cis-lmsless-text').addClass('text-' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['dark']);
     // apply waves to things that want its color
-    $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' waves-light');
+    $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' waves-light');
     // apply background to things that want our background
-    $('.cis-lmsless-background').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    $('.cis-lmsless-background').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
 
-    $('.cis-lmsless-color').addClass(Drupal.settings.cis_lmsless['color']);
+    $('.cis-lmsless-color').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color']);
     // apply border to things that want our background
-    $('.cis-lmsless-border, .tabs li.tab a').addClass(Drupal.settings.cis_lmsless['color'] + '-border');
+    $('.cis-lmsless-border, .tabs li.tab a').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + '-border');
     // color chips
-    $('.chip, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+    $('.chip, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
     // color back to top item
-    $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['dark']);
+    $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['dark']);
 
     // hover state for tables to match styling
     $('tr.even, tr.odd, ul.menu li a, [data-elmsln-hover]').not('.active,.active-system,.elmsln-fixed-action-btn a').hover(
@@ -112,7 +112,7 @@
           }
         }
         else {
-          $(this).addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+          $(this).addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
         }
       }, function() {
         var attr = $(this).attr('data-elmsln-hover');
@@ -124,23 +124,23 @@
           }
         }
         else {
-          $(this).removeClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+          $(this).removeClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
         }
       }
     );
     // tab slide effect
     $('.tabs li.tab a').hover(
       function() {
-        $(this).addClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+        $(this).addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
       }, function() {
-        $(this).removeClass(Drupal.settings.cis_lmsless['color'] + ' ' + Drupal.settings.cis_lmsless['light']);
+        $(this).removeClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
       }
     );
     // focus event
     $('a,i,button,li').not('li.expanded, .scrollspy-toc li').on('focusin', function() {
-      $(this).addClass(Drupal.settings.cis_lmsless['outline']);
+      $(this).addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['outline']);
     }).on('focusout', function() {
-      $(this).removeClass(Drupal.settings.cis_lmsless['outline']);
+      $(this).removeClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['outline']);
     });
     // remove tab index from lightbox link
     $('[href="javascript:;"]').attr('tabindex','-1');

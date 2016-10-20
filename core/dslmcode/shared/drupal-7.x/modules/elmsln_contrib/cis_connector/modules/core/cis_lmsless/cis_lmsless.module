@@ -354,7 +354,7 @@ function _cis_lmsless_theme_vars() {
       'lmsless_classes' => $lmsless_classes,
     );
     // push this into variables on the page for usage
-    drupal_add_js(array('cis_lmsless' => $lmsless_classes), array('type' => 'setting'));
+    drupal_add_js(array('cis_lmsless' => $lmsless_classes, 'distro' => variable_get('install_profile', 'standard')), array('type' => 'setting'));
     // build in section context if we have one we can pull
     if ($section = _cis_connector_section_context()) {
       $vars['section'] = $section;
