@@ -5,6 +5,7 @@
  */
 
 define ('ELMSLN_CORE_LRS_KEYCHAIN', '_lrs');
+define ('ELMSLN_CORE_PIWIK_KEYCHAIN', '_piwik');
 define ('ELMSLN_XAPI_DEFAULT_ICON', 'storage');
 define ('ELMSLN_XAPI_DEFAULT_COLOR', 'red');
 
@@ -37,8 +38,8 @@ function elmsln_core_stream_wrappers() {
 function elmsln_core_menu() {
   $items['node/%node/data'] = array(
     'title' => 'Related Data',
-    'page callback' => '_elmsln_core_data_page',
-    'page arguments' => array('node', 1, 3, 4, 5),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('elmsln_core_data_form'),
     'access callback' => '_elmsln_core_data_access',
     'access arguments' => array('node', 1),
     'weight' => 0,
@@ -48,8 +49,8 @@ function elmsln_core_menu() {
   );
   $items['user/%user/data'] = array(
     'title' => 'Related Data',
-    'page callback' => '_elmsln_core_data_page',
-    'page arguments' => array('user', 1, 3, 4, 5),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('elmsln_core_data_form'),
     'access callback' => '_elmsln_core_data_access',
     'access arguments' => array('user', 1),
     'weight' => 0,
@@ -58,7 +59,7 @@ function elmsln_core_menu() {
     'file' => 'elmsln_core.pages.inc',
   );
   $items['elmsln/redirect/%/%/%'] = array(
-    'title' => 'view asset',
+    'title' => 'view',
     'page callback' => '_elmsln_core_remote_redirect',
     'access arguments' => array('view cis shortcode'),
     'page arguments' => array(2, 3, 4, 'view'),
@@ -66,21 +67,30 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['elmsln/redirect/%/%/%/edit'] = array(
+    'title' => 'edit',
+    'page callback' => '_elmsln_core_remote_redirect',
+    'page arguments' => array(2, 3, 4, 5),
+    'access arguments' => array('view cis shortcode'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
   $items['elmsln/redirect/%/%/%/view'] = array(
-    'title' => 'view asset',
+    'title' => 'view',
     'page callback' => '_elmsln_core_remote_redirect',
     'access arguments' => array('view cis shortcode'),
     'page arguments' => array(2, 3, 4, 5),
-    'weight' => 0,
+    'weight' => 1,
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-  $items['elmsln/redirect/%/%/%/edit'] = array(
-    'title' => 'edit asset',
+  $items['elmsln/redirect/%/%/%/data'] = array(
+    'title' => 'data',
     'page callback' => '_elmsln_core_remote_redirect',
     'page arguments' => array(2, 3, 4, 5),
     'access arguments' => array('view cis shortcode'),
-    'weight' => 0,
+    'weight' => 2,
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
@@ -463,6 +473,9 @@ function elmsln_core_preprocess(&$variables, $hook) {
  * Implements hook_page_build().
  */
 function elmsln_core_page_build(&$page) {
+  // obscure what powers this for security reasons
+  drupal_add_http_header('Server', 'something', FALSE);
+  drupal_add_http_header('X-Powered-By', 'something', FALSE);
   // enable jquery cookie for all pages since we store a bunch of stuff local to the user account
   drupal_add_library('system', 'jquery.cookie');
   // resizable library
@@ -883,6 +896,7 @@ function elmsln_core_theme($existing, $type, $theme, $path) {
     'elmsln_core_lrs_data' => array(
       'variables' => array(
         'datatitle' => t('LRS data'),
+        'filtertitle' => t('Filters applied:'),
         'data' => array(),
         'aggregates' => array(),
       ),

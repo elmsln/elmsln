@@ -1,3 +1,9 @@
+/* elmsln-icon defaults */
+.elmsln-icon {
+  font-size: 2rem;
+  line-height: 1rem;
+}
+
 /* format pre tags */
 pre {
   display: block;
@@ -12,9 +18,9 @@ pre {
   overflow: auto;
 }
 
-/* collection with accordian stacked in it */
-.collection .collapsible,
-.collection .collapsible li {
+/* collection with accordian stacked in it in lrs display */
+.elmsln-core-lrs-data-display .collection .collapsible,
+.elmsln-core-lrs-data-display .collection .collapsible li {
   margin-left: 0;
 }
 /* link support in collapsible headers */
@@ -121,11 +127,6 @@ nav ul.left-nav-section a i,
 nav ul.left-nav-section a div,
 nav ul.left-nav-section a img {
   margin: auto;
-}
-.cis-lmsless-avatar,
-.cis-lmsless-network {
-  height: 2.5rem;
-  width: 2.5rem;
 }
 
 /* Avoid .progress conflict with materialize */
@@ -587,7 +588,7 @@ input[type=file]:focus,
 }
 
 .side-nav li>a>i, .side-nav li>a>[class^="mdi-"], .side-nav li>a>[class*="mdi-"], .side-nav li>a>i.material-icons {
-  line-height: 2.75rem;
+  line-height: 2rem;
 }
 
 .side-nav a span {
@@ -650,6 +651,9 @@ ul.pagination li a {
 /* Admin menu tweaks to get things at the right height in the document */
 #admin-menu, #admin-menu .dropdown {
   z-index: 100000;
+}
+#admin-menu .dropdown a {
+  color: #ffffff;
 }
 .sticky-wrapper.is-sticky {
   z-index: 9988 !important;
@@ -1336,7 +1340,10 @@ h1#page-title {
   float: right;
   margin-top:-4.5rem;
 }
-
+.collapsible-body .read-time {
+  float: none;
+  margin-top: 0;
+}
 .etb-book h2 {
   font-size: 2.25rem;
   font-weight: bold;

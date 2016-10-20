@@ -54,6 +54,7 @@ function foundation_access_preprocess_html(&$variables) {
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
   drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css', array('group' => CSS_THEME, 'weight' => 1001));
+  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/fonts/elmsln/styles.css', array('group' => CSS_THEME, 'weight' => 1002));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   // bring in materialize
@@ -278,6 +279,8 @@ function foundation_access_preprocess_page(&$variables) {
  * Implements hook_preprocess_block().
  */
 function foundation_access_preprocess_block(&$variables) {
+  // get color classes
+  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
   // Convenience variable for block headers.
   $title_class = &$variables['title_attributes_array']['class'];
 
@@ -934,8 +937,11 @@ function foundation_access_menu_link(&$variables) {
       $icon = $element['#localized_options']['fa_icon'];
     }
     // prefix node based titles with an icon
-    if (isset($icon)) {
-      $title = '<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $title;
+    if (isset($icon) && !empty($icon)) {
+      $title = '<div class="elmsln-icon icon-' . $icon . ' outline-nav-icon"></div>' . $title;
+    }
+    else {
+      $title = '<div class="outline-nav-icon"></div>' . $title;
     }
   }
   // support for add menu to get floating classes
@@ -1020,7 +1026,7 @@ function _foundation_access_single_menu_link($element) {
   if (isset($options['fa_icon'])) {
     $icon = $options['fa_icon'];
   }
-  return '<li>' . l('<div class="icon-' . $icon . '-black outline-nav-icon"></div>' . $title, $element['#href'], $options) . '</li>';
+  return '<li>' . l('<div class="elmsln-icon icon-' . $icon . ' outline-nav-icon"></div>' . $title, $element['#href'], $options) . '</li>';
 }
 
 /**
@@ -1087,7 +1093,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       $counter++;
     }
     else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="icon-content-black outline-nav-icon"></div><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
+      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="elmsln-icon icon-content outline-nav-icon"></div><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       '<div>'  . "\n";
       $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
@@ -1159,6 +1165,7 @@ function foundation_access_menu_local_task(&$variables) {
  * Implements hook_html_head_alter()
  */
 function foundation_access_html_head_alter(&$head_elements) {
+  unset($head_elements['system_meta_generator']);
   $args = arg();
   // account for print module and book print out
   if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {

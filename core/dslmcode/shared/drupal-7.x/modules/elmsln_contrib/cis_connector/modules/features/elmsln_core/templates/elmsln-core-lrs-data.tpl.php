@@ -1,11 +1,12 @@
 <div class="elmsln-core-lrs-data-display">
 <h2><?php print $datatitle;?></h2>
+<div><?php print $filtertitle;?></div>
 <ul class="collection">
 <?php foreach ($aggregates['counts'] as $verb => $count) : ?>
  <li class="collection-item avatar">
     <p>
       <i class="material-icons circle <?php print $aggregates['colors'][$verb];?>">
-      <?php print $aggregates['icons'][$verb];?></i><?php print l($verb, $aggregates['verb_data_links'][$verb]);?>
+      <?php print $aggregates['icons'][$verb];?></i><?php print l($verb, $aggregates['verb_data_links'][$verb], array('query' => array('verb' => $verb)));?>
       <div class="progress <?php print $aggregates['colors'][$verb];?> lighten-4">
         <div class="determinate <?php print $aggregates['colors'][$verb];?> darken-2 white-text" style="width: <?php print $aggregates['percent_used'][$verb]; ?>%">
           <?php print t('@amount of @total users', array('@amount' => count($aggregates['users'][$verb]), '@total' => count($aggregates['user_list'])));?>
@@ -27,18 +28,18 @@
                       else {
                         $title = $statement['statement']['object']['definition']['name']['en-US'];
                       }
-                      print ($index+1) . '. ' . $title . ' ' . t('by') . ' ' . $statement['statement']['actor']['name'];
+                      print ($index+1) . '. ' . $title . ' ' . t('by') . ' <span class="ferpa-protect">' . $statement['statement']['actor']['name'] . '</span>';
                       if (!is_null($aggregates['user_list'][$statement['statement']['actor']['name']])) {
-                        print '<span class="collapsible-action-link">' . l(t('user'), 'user/' . $aggregates['user_list'][$statement['statement']['actor']['name']] . '/data/' . $verb, array('attributes' => array('class' => array('red-text', 'text-darken-4')))) . '</span>';
+                        print '<span class="collapsible-action-link">' . l(t('user'), 'user/' . $aggregates['user_list'][$statement['statement']['actor']['name']] . '/data', array('query' => array('verb' => $verb), 'attributes' => array('class' => array('red-text', 'text-darken-4')))) . '</span>';
                       }
                       if (!is_null($statement['_item_link'])) {
-                        print '<span class="collapsible-action-link">' . l(t('data'), $statement['_item_link'] . '/data/' . $verb, array('attributes' => array('class' => array('green-text', 'text-darken-4')))) . '</span>';
+                        print '<span class="collapsible-action-link">' . l(t('data'), $statement['_item_link'] . '/data', array('query' => array('verb' => $verb), 'attributes' => array('class' => array('green-text', 'text-darken-4')))) . '</span>';
                       }
                     ?>
                     <span class="collapsible-action-link"><?php print l(t('view content'), $statement['statement']['object']['id'], array('attributes' => array('class' => array('blue-text', 'text-darken-4'))));?></span>
                   </div>
                   <div class="collapsible-body">
-                    <p><pre><?php print json_encode($statement, JSON_PRETTY_PRINT);?></pre></p>
+                    <pre class="ferpa-protect"><?php print json_encode($statement, JSON_PRETTY_PRINT);?></pre>
                   </div>
                 </li>
               <?php endforeach; ?>
@@ -53,7 +54,7 @@
             <?php foreach ($aggregates['users'][$verb] as $username => $ucount) : ?>
               <li>
                 <div class="collapsible-header">
-                  <?php print $username;?>
+                  <span class="ferpa-protect"><?php print $username;?></span>
                 </div>
                 <div class="collapsible-body">
                   <p>
@@ -61,7 +62,7 @@
                       <li class="collection-item"><?php print t('@count statements', array('@count' => $ucount)); ?></li>
                       <?php
                         if (!is_null($aggregates['user_list'][$username])) {
-                          print l(t('view user data'), 'user/' . $aggregates['user_list'][$username] . '/data/' . $verb, array('attributes' => array('class' => array('collection-item'))));
+                          print l(t('view user data'), 'user/' . $aggregates['user_list'][$username] . '/data', array('query' => array('verb' => $verb), 'attributes' => array('class' => array('collection-item'))));
                         }
                       ?>
                     </ul>

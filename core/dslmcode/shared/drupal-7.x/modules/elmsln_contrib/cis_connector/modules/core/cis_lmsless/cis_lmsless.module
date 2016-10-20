@@ -255,9 +255,15 @@ function _cis_lmsless_assemble_network() {
       foreach ($reg as $key => $value) {
         $addr = explode('.', $value['address']);
         if (isset($value['instance']) && !$value['instance'] && $key != 'inbox') {
+          // LRSs are outside network scope and don't have a context
+          // neither does piwik if we see that
+          $tmppath = '/';
+          if (strpos($key, '_') !== 0) {
+            $tmppath .= $course_context;
+          }
           $list[$administrative][$addr[0]] = array(
             'title' => $reg[$key]['default_title'],
-            'url' => url(_cis_connector_format_address($reg[$key],  '/' . $course_context, 'front')),
+            'url' => url(_cis_connector_format_address($reg[$key], $tmppath, 'front')),
             'machine_name' => $addr[0],
           );
         }
@@ -449,7 +455,7 @@ function cis_lmsless_theme() {
         'tour' => url('guided_tour'),
         'username' => t('Account'),
         'userlink' => '',
-        'userpicturebig' => '<div class="ferpa-protect icon-user-black svg"></div>',
+        'userpicturebig' => '<div class="ferpa-protect elmsln-icon icon-user"></div>',
         'userbackground' => '<img class="background" src="http://materializecss.com/images/office.jpg" alt="">',
         'masquerade' => '',
         'ferpa_flter' => '',
@@ -483,7 +489,7 @@ function cis_lmsless_theme() {
         'resources_link' => url('resources'),
         'syllabus_link' => url('syllabus'),
         'username' => t('Account'),
-        'userpicture' => '<div class="ferpa-protect icon-user-black etb-icons svg"></div>',
+        'userpicture' => '<div class="ferpa-protect elmsln-icon icon-user"></div>',
         'resources' => array(),
         'tech_support' => array(),
         'elmsln_main_menu' => '',

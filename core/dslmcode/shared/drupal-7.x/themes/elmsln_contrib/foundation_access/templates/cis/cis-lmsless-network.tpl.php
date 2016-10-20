@@ -21,7 +21,7 @@
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <div class="etb-modal-icons etb-modal-material-icons"><i class="zmdi zmdi-<?php print $service['machine_name']; ?>"></i></div>
       <?php else: ?>
-        <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
+        <div class="elmsln-icon icon-<?php print $service['machine_name']; ?> etb-modal-icons"></div>
       <?php endif; ?>
         <span class=""><?php print $service['title']; ?></span>
       </a></li>
