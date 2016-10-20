@@ -227,9 +227,9 @@ function cis_service_connection_ux_form($form, $form_state) {
     $form['theme']['#title'] = t('Theme / Style settings');
     $form['theme']['#collapsed'] = '1';
     // add in the favicon / logo areas
-    $form['theme']['favicon']  = $tmp['zurb_foundation']['general']['favicon'];
+    $form['theme']['favicon']  = $tmp['favicon'];
     $form['theme']['favicon']['#weight'] = 11;
-    $form['theme']['logo'] = $tmp['zurb_foundation']['general']['logo'];
+    $form['theme']['logo'] = $tmp['logo'];
     $form['theme']['logo']['#weight'] = 10;
     // unset some of the standard theme settings
     foreach ($form['theme'] as &$value) {
