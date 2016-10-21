@@ -85,9 +85,9 @@
   <div class="skip-link">
     <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
   </div>
-  <?php if (!empty($logo_img)) : ?>
+  <?php if (!empty($banner_image)) : ?>
   <div class="header-image-container">
-    <?php print $logo_img; ?>
+    <?php print $banner_image; ?>
   </div>
   <?php endif; ?>
     <div class="elmsln-system-badge">
