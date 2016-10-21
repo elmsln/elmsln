@@ -48,14 +48,13 @@ function cis_update_7002(&$sandbox) {
   // set home page to courses now that we know what we're doing
   variable_set('site_frontpage', 'courses');
   // CIS needs to be handled this way til we kill off support for 1.x
-  features_revert('cis_types');
-  features_revert('cis_displays');
-  features_revert('cis_users');
-  features_revert('cis_ux');
+  features_revert_module('cis_types');
+  features_revert_module('cis_displays');
+  features_revert_module('cis_users');
+  features_revert_module('cis_ux');
 }
 
 /**
- * Implements hook_update_N().
  * Authority systems don't have resource, syllabus elements
  * unless stated specifically by something post install.
  */
@@ -66,12 +65,11 @@ function cis_update_7003(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
  * Better menu item placement
  */
 function cis_update_7004(&$sandbox) {
   // try and place menu items corectly
-  features_revert('cis_displays');
+  features_revert_module('cis_displays');
   menu_cache_clear('navigation');
   menu_cache_clear('menu-elmsln-navigation');
   menu_cache_clear('menu-elmsln-add');
@@ -79,31 +77,35 @@ function cis_update_7004(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- * AJAX refresh cis_displays for self refreshing listing of
- * services as they build.
+ * AJAX refresh cis_displays for self refreshing listing of services as they build.
  */
 function cis_update_7005(&$sandbox) {
   // enable module then revert dis_displays
   module_enable(array('views_autorefresh'));
-  features_revert('cis_displays');
+  features_revert_module('cis_displays');
 }
 
 /**
- * Implements hook_update_N().
- * revert cis displays so we have the better courses page
+ * Revert cis displays so we have the better courses page
  */
 function cis_update_7006(&$sandbox) {
-  features_revert('cis_displays');
-  features_revert('cis_types');
+  features_revert_module('cis_displays');
+  features_revert_module('cis_types');
 }
 
 /**
- * Implements hook_update_N().
  * Clean up the content type forms
  */
 function cis_update_7007(&$sandbox) {
   module_enable(array('ds_forms'));
-  features_revert('cis_ux');
-  features_revert('cis_types');
+  features_revert_module('cis_ux');
+  features_revert_module('cis_types');
+}
+
+/**
+ * Clean up the content type forms and implement banner pervasively
+ */
+function cis_update_7008(&$sandbox) {
+  module_enable(array('filefield_paths'));
+  features_revert_module('cis_types');
 }

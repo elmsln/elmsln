@@ -255,10 +255,25 @@ function cis_types_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '36',
+          'weight' => '45',
         ),
         'path' => array(
           'weight' => '3',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '6',
+        ),
+        'book' => array(
+          'weight' => '8',
+        ),
+        'options' => array(
+          'weight' => '9',
+        ),
+        'author' => array(
+          'weight' => '7',
+        ),
+        'revision_information' => array(
+          'weight' => '5',
         ),
       ),
       'display' => array(),

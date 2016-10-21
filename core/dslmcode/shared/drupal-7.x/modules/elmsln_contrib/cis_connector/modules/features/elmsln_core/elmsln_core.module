@@ -33,6 +33,27 @@ function elmsln_core_stream_wrappers() {
 }
 
 /**
+ * Fallback for drupal_realpath() because it doesn't like us currently.
+ */
+function _elmsln_core_realpath($uri) {
+  // convert target into array
+  $fileparts =  explode('/', str_replace('\\', '/', $uri));
+  array_shift($fileparts);
+  array_shift($fileparts);
+  // shift front off into tool name
+  $tool = array_shift($fileparts);
+  // convert back to file you are looking for
+  $filepath = implode('/', $fileparts);
+  // build full path to return
+  $cfg = _cis_connector_get_cfg();
+  if ($settings = _cis_connector_build_registry($tool)) {
+    $adr = explode('.', $settings['address']);
+    $domain = array_shift($adr);
+  }
+  return $cfg['configsdir'] . '/stacks/' . $domain . '/sites/' . $domain . '/' . $cfg['host'] . '/files/' . $filepath;
+}
+
+/**
  * Implements hook_menu().
  */
 function elmsln_core_menu() {

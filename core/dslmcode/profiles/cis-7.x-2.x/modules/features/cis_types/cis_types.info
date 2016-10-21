@@ -13,6 +13,7 @@ dependencies[] = field_group
 dependencies[] = field_hidden
 dependencies[] = field_redirection
 dependencies[] = file
+dependencies[] = filefield_paths
 dependencies[] = image
 dependencies[] = jquery_colorpicker
 dependencies[] = link
