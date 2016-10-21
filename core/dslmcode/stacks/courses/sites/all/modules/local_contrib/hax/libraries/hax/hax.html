@@ -4,10 +4,12 @@
       <!--Import Google Icon Font-->
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       <!--Import materialize.css-->
-      <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css"  media="screen,projection"/>
+      <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css"  media="screen,projection"/>
       <link href="css/hax.css" rel="stylesheet">
       <link href="css/hax-toolbar.css" rel="stylesheet">
       <link href="css/voice.css" rel="stylesheet">
+      <link href="js/rainbow/themes/css/blackboard.css" rel="stylesheet" type="text/css" media="screen">
+
       <!--Let browser know website is optimized for mobile-->
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
@@ -16,22 +18,49 @@
 
       <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+      <script src="https://rawgit.com/bergie/create/gh-pages/js/deps/modernizr.custom.80485.js"></script>
+      <script src="https://rawgit.com/bergie/create/gh-pages/js/deps/underscore-min.js"></script>
+      <script src="https://rawgit.com/bergie/create/gh-pages/js/deps/backbone-min.js"></script>
+      <script src="https://rawgit.com/bergie/create/gh-pages/js/deps/vie-min.js"></script>
+
+      <script type="text/javascript" src="https://rawgit.com/bergie/create/gh-pages/js/create.js"></script>
 
        <script src="js/annyang/annyang.min.js"></script>
+       <script src="js/rainbow/rainbow-custom.min.js"></script>
 
       <script type="text/javascript" src="js/yaml/yaml.min.js"></script>
+      <script src="https://rawgit.com/yabwe/medium-editor/master/dist/js/medium-editor.min.js"></script>
     </head>
 
     <body>
       <input type="hidden" id="edit-hax-body"/>
       <div class="hax-body"></div>
       <div id="voicecommander-drawer" class="voicecommander-drawer-wrapper">
-      <div class="voicecommander-command-drawer">
-        <h3 class="voicecommander-drawer-label">Conversation log</h3>
-        <div class="jarvis-conversation"></div>
+        <a class="waves-effect waves-light btn modal-trigger" href="#modal1" data-voicecommand="Voice log">Voice Log</a>
+        <a class="waves-effect waves-light btn html-modal-trigger" href="#modal2" data-voicecommand="Get html">Give me HTML</a>
         <div class="hax-toolbar"></div>
       </div>
-    </div>
+      <!-- Modal Structure -->
+      <div id="modal1" class="modal bottom-sheet">
+        <div class="modal-content">
+            <h3 class="voicecommander-drawer-label">Conversation log</h3>
+            <div class="jarvis-conversation"></div>
+        </div>
+      </div>
+          <!-- Modal Structure -->
+      <div id="modal2" class="modal">
+        <div class="modal-content">
+          <h4>Source code</h4>
+          <pre>
+            <code class="source-code" data-language="html">
+              Nothing yet... make some stuff!
+            </code>
+          </pre>
+        </div>
+        <div class="modal-footer">
+          <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+        </div>
+      </div>
       <script>
       var haxTemplates = {};
       (function ($) {
@@ -61,6 +90,29 @@
           return tmp;
         }
         $(document).ready(function(){
+          jQuery('.hax-body').midgardCreate({
+            url: function () {
+              return 'javascript:false;';
+            },
+          });
+        // Fake Backbone.sync since there is no server to communicate with
+        Backbone.sync = function(method, model, options) {
+          if (console && console.log) {
+            console.log('Model contents', model.toJSONLD());
+          }
+          options.success(model);
+        };
+          // materialize components
+          $('.modal-trigger').leanModal();
+          $('.html-modal-trigger').leanModal({
+            dismissible: true, // Modal can be dismissed by clicking outside of the modal
+            opacity: .5, // Opacity of modal background
+            ready: function() {
+              $('.source-code').html($('#edit-hax-body').attr('value').replace(new RegExp('&', 'g'), '&amp;').replace(new RegExp('<', 'g'), '&lt;').replace(new RegExp('>', 'g'), '&gt;'));
+            }, // Callback for Modal open
+          }
+        );
+          // yaml loader
           YAML.load('templates/manifest.yml', function(manifest) {
             var templateManifest = loadManifest(manifest);
             // now we can loop through and load these yaml files into existance and do the same thing
