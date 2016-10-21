@@ -47,33 +47,33 @@
   <?php print preg_replace('~>\s+<~', '><', $head); ?>
   <title><?php print $head_title; ?></title>
   <!--cross platform favicons and tweaks-->
-  <link rel="shortcut icon" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
-  <link rel="icon" sizes="16x16 32x32 64x64" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
-  <link rel="icon" type="image/png" sizes="310x310" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-310.png">
-  <link rel="icon" type="image/png" sizes="196x196" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-192.png">
-  <link rel="icon" type="image/png" sizes="160x160" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-160.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-96.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-64.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-16.png">
+  <link rel="shortcut icon" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln.ico">
+  <link rel="icon" sizes="16x16 32x32 64x64" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln.ico">
+  <link rel="icon" type="image/png" sizes="310x310" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-310.png">
+  <link rel="icon" type="image/png" sizes="196x196" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-192.png">
+  <link rel="icon" type="image/png" sizes="160x160" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-160.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-96.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-16.png">
   <!-- iOS Safari -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-57.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-114.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-72.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-144.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-60.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-120.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-76.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-180.png">
-  <link rel="apple-touch-startup-image"  href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-320x480.png">
+  <link rel="apple-touch-icon" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-57.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-114.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-72.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-144.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-60.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-120.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-76.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-180.png">
+  <link rel="apple-touch-startup-image"  href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-320x480.png">
   <!-- Windows Phone -->
   <meta name="msapplication-navbutton-color" content="#eeeeee">
   <meta name="msapplication-TileColor" content="#eeeeee">
-  <meta name="msapplication-TileImage" content="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-144.png">
-  <meta name="msapplication-config" content="<?php print $theme_path . '/icons/elmsicons';?>/browserconfig.xml">
+  <meta name="msapplication-TileImage" content="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-144.png">
+  <meta name="msapplication-config" content="<?php print $theme_path . '/legacy/icons/elmsicons';?>/browserconfig.xml">
   <!-- Chrome, Firefox OS and Opera -->
   <meta name="theme-color" content="#eeeeee">
   <!--/end cross platform favicons and tweaks-->
@@ -91,7 +91,7 @@
   </div>
   <?php endif; ?>
     <div class="elmsln-system-badge">
-      <div class="icon-<?php print $system_icon;?>-black elmsln-badge"></div>
+      <div class="elmsln-icon icon-<?php print $system_icon . ' ' . $lmsless_classes['text'];?> elmsln-badge"></div>
       <div class="elmsln-badge-inner">
         <div class="elmsln-badge-top white-border"></div>
         <div class="elmsln-badge-middle white"></div>

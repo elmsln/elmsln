@@ -501,7 +501,12 @@ function elmsln_core_page_build(&$page) {
   else {
     $role = 'other';
   }
-
+  if (isset($GLOBALS['user']->uuid)) {
+    $uuid = $GLOBALS['user']->uuid;
+  }
+  else {
+    $uuid = $GLOBALS['user']->uid;
+  }
   // pass variables to js
   $js_variables = array(
     'elmslnCore' => array(
@@ -511,7 +516,7 @@ function elmsln_core_page_build(&$page) {
       'title' => drupal_get_title(),
       'url' => url(current_path(), array('absolute' => TRUE)),
       'role' => $role,
-      'xapisession' => drupal_get_token($GLOBALS['user']->uuid),
+      'xapisession' => drupal_get_token($uuid),
     ),
   );
   drupal_add_js($js_variables, 'setting');
