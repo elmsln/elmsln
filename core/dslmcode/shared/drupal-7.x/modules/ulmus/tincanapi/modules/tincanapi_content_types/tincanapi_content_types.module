@@ -52,7 +52,7 @@ function tincanapi_content_types_node_view($node, $view_mode, $langcode) {
   $content_types = array_filter(variable_get('tincanapi_content_types', array()));
   $view_modes = array_filter(variable_get('tincanapi_content_types_view_modes', array()));
 
-  if (in_array($node->type, $content_types) && in_array($view_mode, $view_modes)) {
+  if (in_array($node->type, $content_types) && in_array($view_mode, $view_modes) && !isset($_GET['no-track'])) {
     $data = tincanapi_content_types_data_from_node($node, $view_mode);
     tincanapi_track_data('content_types', $data);
   }

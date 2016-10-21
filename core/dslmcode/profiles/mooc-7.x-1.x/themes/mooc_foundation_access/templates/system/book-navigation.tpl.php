@@ -38,7 +38,7 @@
       </div>
       <div class="col s6">
       <?php if ($next_url): ?>
-          <a href="<?php print $next_url; ?>" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next waves-effect cis-lmsless-waves btn black-text white elmsln-z-depth-0" title="<?php print t('Go to next page'); ?>" data-voicecommand="next" data-jwerty-key="→"><i class="material-icons right">navigate_next</i><?php print t('next'); ?></a>
+          <a href="<?php print $next_url; ?>" data-prefetch-scrollfire="true" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next waves-effect cis-lmsless-waves btn black-text white elmsln-z-depth-0" title="<?php print t('Go to next page'); ?>" data-voicecommand="next" data-jwerty-key="→"><i class="material-icons right">navigate_next</i><?php print t('next'); ?></a>
       <?php endif; ?>
       </div>
     <?php endif; ?>
