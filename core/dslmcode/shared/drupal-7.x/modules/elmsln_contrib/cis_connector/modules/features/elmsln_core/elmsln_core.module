@@ -136,15 +136,20 @@ function elmsln_core_user_view($account, $view_mode, $langcode) {
   // If we are not already on the central person repository.
   if(variable_get('install_profile') != 'cpr') {
     // Grab the user data from the central person repository.
-    $user_data = _cis_connector_request('user.json?name=' . $account->name . '&display_mode=full', $options = array(), $bucket = 'cpr', $cached = TRUE);
+    $user_data_name = _cis_connector_request('user.json?name=' . $account->name, $options = array(), $bucket = 'cpr', $cached = TRUE);
+
+    $user_data_name = json_decode($user_data_name->data);
+
+    $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', $options = array(), $bucket = 'cpr', $cached = TRUE);
 
     // Decode the data that comes in from the user object.
-    $user_data = json_decode($user_data->data);
+    $user_data = json_decode($user_data_uid->data);
+
     // Add a new section to the User profile page.
     $account->content['summary']['profile'] = array(
       '#type' => 'user_profile_item',
       '#title' => '',
-      '#markup' => $user_data->list[0]->rendered,
+      '#markup' => $user_data->rendered,
     );
   }
 }
