@@ -1,9 +1,22 @@
+/* elmsln card image size for submit widget */
+.elmsln-icon.elmsln-card-submit-image {
+  font-size: 10rem;
+  padding: 2rem;
+  line-height: 10rem;
+  border-right: 1px solid rgba(160, 160, 160, 0.2);
+}
+
 .cis-filter-activity-item {
   position: absolute;
   top: 0;
   right: 0;
+  font-size: 4rem;
 }
 
+.cis-filter-activity-item .material-icons {
+  font-size:4rem;
+  padding:1.25rem;
+}
 #modal-content .modal-iframe-container {
   padding-top: 90%;
   width: 100%;
@@ -26,12 +39,12 @@ div.ctools-modal-content .popups-close {
   z-index: 100;
 }
 
-.elmsln-action-finished {
-  background-color: #bbffbb;
+.elmsln-action-finished i {
+  color: #004b00;
 }
 
-.elmsln-action-unfinished {
-  background-color: #ffbbbb;
+.elmsln-action-unfinished i {
+  color: #a70000;
 }
 
 .elmsln-action-required {

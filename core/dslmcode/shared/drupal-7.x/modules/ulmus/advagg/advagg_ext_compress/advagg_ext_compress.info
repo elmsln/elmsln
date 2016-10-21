@@ -7,8 +7,8 @@ dependencies[] = advagg
 configure = admin/config/development/performance/advagg/ext-compress
 
 ; Information added by Drupal.org packaging script on 2016-10-18
-version = "7.x-2.18+56-dev"
+version = "7.x-2.18+59-dev"
 core = "7.x"
 project = "advagg"
-datestamp = "1476757443"
+datestamp = "1476817743"
 

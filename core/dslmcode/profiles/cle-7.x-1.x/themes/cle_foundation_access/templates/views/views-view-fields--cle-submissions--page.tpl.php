@@ -45,7 +45,7 @@
     );
     // create the image
     $image = l(theme('image_style', $build_image), file_create_url($image_array['rendered']['#item']['uri']), $link_ary);
-    $images .= '<div class="carousel-item">' . $image . '</div>';
+    $images .= '<div class="carousel-item ferpa-protect">' . $image . '</div>';
   }
 ?>
 <div class="col s12 m6 l4 elmsln-card">
@@ -73,7 +73,7 @@
       <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'cis-lmsless-text')));?></span><i class="material-icons right cis-lmsless-text"><?php print t('close');?></i></span>
       <ul class="collection">
         <li class="collection-item">
-          <span><?php print $row->users_node_name?></span>
+          <span class="ferpa-protect"><?php print $row->users_node_name?></span>
           <span class="secondary-content"><i class="tiny material-icons cis-lmsless-text">assignment_ind</i></span>
         </li>
         <li class="collection-item">

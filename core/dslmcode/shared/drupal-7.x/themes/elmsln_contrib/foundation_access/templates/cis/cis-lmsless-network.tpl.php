@@ -3,27 +3,29 @@
    * CIS LMS-less Network block template.
    */
 ?>
-  <li class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-background cis-lmsless-border"><h1 class="flow-text valign elmsln-modal-title"><?php print $site_name; ?></h1></li>
+  <li class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['light'] . ' ' . $lmsless_classes[$distro]['color'];?>-border"><h1 class="flow-text valign elmsln-modal-title"><?php print $site_name; ?></h1></li>
   <!-- End Menu Item Dropdowns -->
   <?php foreach ($services as $title => $items) : ?>
     <li>
       <a class="subheader"><?php print t('@title', array('@title' => $title)); ?></a>
-      <div class="divider cis-lmsless-background"></div>
+      <div class="divider <?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['light'];?>"></div>
     </li>
     <?php
       foreach ($items as $service) :
         $activetool = '';
+        $iconcolor = $lmsless_classes[$service['distro']]['color'] . '-text text-darken-4';
         if ($service['machine_name'] == $active['machine_name']) {
-          $activetool = 'active ';
+          $activetool = $lmsless_classes[$service['distro']]['color'] . ' ' . $lmsless_classes[$service['distro']]['light'] . ' active-system ';
+          $iconcolor = $lmsless_classes[$service['distro']]['color'] . ' black-text';
         }
     ?>
-      <li><a href="<?php print $service['url']; ?>" class="waves-effect cis-lmsless-waves etb-modal-icon <?php print $activetool . $service['machine_name']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>">
+      <li><a href="<?php print $service['url']; ?>" class="waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['machine_name']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'] . ' ' . $lmsless_classes[$service['distro']]['light'];?>" data-elmsln-icon-hover="<?php print $lmsless_classes[$service['distro']]['color'] . ' hover-black-text';?>">
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
-        <div class="etb-modal-icons etb-modal-material-icons"><i class="zmdi zmdi-<?php print $service['machine_name']; ?>"></i></div>
+        <div class="left etb-modal-material-icons"><i class="elmsln-icon zmdi zmdi-<?php print $service['machine_name']; ?> <?php print $iconcolor;?>"></i></div>
       <?php else: ?>
-        <div class="icon-<?php print $service['machine_name']; ?>-black etb-modal-icons"></div>
+        <div class="elmsln-network-icon left elmsln-icon icon-<?php print $service['machine_name'] . ' ' . $iconcolor;?>"></div>
       <?php endif; ?>
-        <span class=""><?php print $service['title']; ?></span>
+        <span class="elmsln-network-label"><?php print $service['title']; ?></span>
       </a></li>
     <?php endforeach ?>
   <?php endforeach ?>
