@@ -134,12 +134,17 @@ function _elmsln_people_user_edit_page() {
  * @see hook_entity_view()
  */
 function elmsln_core_user_view($account, $view_mode, $langcode) {
-  $account = _cis_connection_object($GLOBALS['user']->uid, $entity_type = 'user', $format = 'json', $method = 'GET', $data = NULL, variable_get('elmsln_global_profile', 'cpr'), $instance = '', $cache = TRUE, $extra = '', $call_options = NULL);
-
-  $url = parse_url($account['url']);
-  dpm($url['path']);
-  $account = _cis_connector_request($url['path'], $options = array(), $bucket = 'cpr', $cached = TRUE);
+  $account = _cis_connector_request('/user.json?name=admin&display_mode=full', $options = array(), $bucket = 'cpr', $cached = TRUE);
   dpm($account);
+  $data = json_decode($account->data);
+  dpm($data);
+  $account->content['body'] = array(
+      '#type' => 'user_profile_item',
+      '#title' => t('User'),
+      '#markup' => $data->list[0]->rendered,
+      '#attributes' => array('class' => array('profile')),
+    );
+    dpm($account);
 }
 
 
