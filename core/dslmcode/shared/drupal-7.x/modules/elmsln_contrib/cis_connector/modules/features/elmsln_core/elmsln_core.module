@@ -105,6 +105,75 @@ function elmsln_core_menu() {
 }
 
 /**
+ * Implements hook_menu_alter.
+ * Send user to the CPR to edit the global profile.
+ */
+function elmsln_core_menu_alter(&$items) {
+
+  if(variable_get('install_profile') != 'cpr') {
+    // Override the user edit handler for our purpose.
+    $items['user/%user/edit']['page callback'] = '_elmsln_people_user_edit_page';
+  }
+}
+
+/**
+ * Access callback for _elmsln_people_user_edit_page.
+ */
+function _elmsln_people_user_edit_page() {
+  // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
+  $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+  // send user to the cpr we just defined and redirect them back to where they were.
+  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $GLOBALS['user']->uid, 'edit?destination=elmsln/redirect/' . variable_get('install_profile', 'standard') . '/user/' . $GLOBALS['user']->uid . '&elmsln_course=' . _cis_connector_course_context());
+}
+
+/**
+ * The user's account information is being displayed.
+ *
+ * The module should format its custom additions for display and add them to the
+ * $account->content array.
+ *
+ * @param $account
+ *   The user object on which the operation is being performed.
+ * @param $view_mode
+ *   View mode, e.g. 'full'.
+ * @param $langcode
+ *   The language code used for rendering.
+ *
+ * @see hook_user_view_alter()
+ * @see hook_entity_view()
+ */
+function elmsln_core_user_view($account, $view_mode, $langcode) {
+  // If we are not already on the central person repository.
+  if(variable_get('install_profile') != 'cpr') {
+    // Grab the user data from the central person repository.
+    $user_data_name = _cis_connector_request('user.json?name=' . $account->name, $options = array(), $bucket = 'cpr', $cached = TRUE);
+
+    $user_data_name = json_decode($user_data_name->data);
+
+    $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', $options = array(), $bucket = 'cpr', $cached = TRUE);
+
+    // Decode the data that comes in from the user object.
+    $user_data = json_decode($user_data_uid->data);
+
+    // Add a new section to the User profile page.
+    $account->content['summary']['profile'] = array(
+      '#type' => 'user_profile_item',
+      '#title' => '',
+      '#markup' => $user_data->rendered,
+    );
+  }
+}
+
+/**
+ * Implements hook_user_view_alter().
+ */
+function elmsln_core_user_view_alter(&$build) {
+  // Remove default user history etc...
+  $build['summary']['#title'] = '';
+  $build['summary']['member_for'] = '';
+}
+
+/**
  * Callback to return form ID as json array
  * @param  string $form_id id of a form to load
  * @return json          json representation of render array
