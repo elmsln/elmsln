@@ -37,6 +37,15 @@ function tincanapi_admin_form(array $form, array &$form_state) {
     '#default_value' => variable_get('tincanapi_auth_user', ''),
     '#required' => TRUE,
   );
+  $tincanapisend = module_invoke_all('tincan_request_fuction');
+  $form['api']['tincanapi_function'] = array(
+    '#type' => 'select',
+    '#title' => t('Function'),
+    '#description' => t('The function to use for calling xapi'),
+    '#default_value' => variable_get('tincanapi_function', 'tincanapi_send'),
+    '#required' => TRUE,
+    '#options' => $tincanapisend,
+  );
 
   $form['api']['tincanapi_auth_password'] = array(
     '#type' => 'textfield',

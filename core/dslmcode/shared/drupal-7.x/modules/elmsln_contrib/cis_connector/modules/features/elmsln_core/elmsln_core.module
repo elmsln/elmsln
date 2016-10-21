@@ -431,7 +431,7 @@ function elmsln_core_page_build(&$page) {
   // jwerty / voice support
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
   // xapi context iframe sniffer
-  if (module_exists('tincanapi')) {
+  if (module_exists('tincanapi') && !path_is_admin(current_path())) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
   }
   // devel usability improvement
@@ -988,5 +988,108 @@ function elmsln_core_tincanapi_data_alter($module_name, &$data) {
       'https://www.elmsln.org/x-api/elmsln-role' => $role,
       'https://www.elmsln.org/x-api/elmsln-session' => $session,
     );
+  }
+}
+
+/**
+ * Implements hook_tincan_request_fuction().
+ */
+function elmsln_core_tincan_request_fuction() {
+  return array('elmsln_core_tincanapi_send' => t('elmsln (nonblocking option)'));
+}
+
+/**
+ * Send the data collection to the LRS; forked from core send method
+ *
+ * @param string $action
+ *   The name of the action to submit.
+ * @param string $method
+ *   The HTTP method.
+ * @param array $data
+ *
+ * @see  tincanapi_send
+ *   An associative array that conforms to the API specification.
+ */
+function elmsln_core_tincanapi_send($action, $method, array $data) {
+  // ensure registry is correct
+  if ($settings = _cis_connector_build_registry('_lrs')) {
+    // options
+    $options = array(
+      'method' => $method,
+      'headers' => array(
+        'Content-Type' => 'application/json',
+        'X-Experience-API-Version' => '1.0.0',
+      ),
+    );
+    if ($method == "POST" || $method == "PUT") {
+      $json = json_encode($data);
+      $options['data'] = json_encode($data);
+      $options['headers']['Content-Length'] = strlen($json);
+      // all this work so we can use non-blocking calls!
+      $options['blocking'] = FALSE;
+    }
+    $end_point = variable_get('tincanapi_endpoint');
+    // same as above, you could ignore / override / swap out buckets to use for
+    // connecting. This opens the door for multiple dedicated LRSs based on the type
+    // of data they have or doing an LRS migration contextually down the road
+    $bucket = variable_get('elmsln_lrs_bucket', ELMSLN_CORE_LRS_KEYCHAIN);
+    // build the call to make which will go against the lrs bucket
+    // Sanitize endpoint.
+    $end_point = trim($end_point);
+    // split off protocol
+    $tmp = explode('://', $end_point);
+    $end_point = $tmp[1];
+    // split domain off from path for the request
+    $tmp = explode('/', $end_point);
+    array_shift($tmp);
+    $end_point = implode('/', $tmp);
+    if (substr($end_point, -1) == "/") {
+      $end_point = substr($end_point, 0, -1);
+    }
+    // Sanitize action.
+    $action = trim($action);
+    if (substr($end_point, 0, 1) == "/") {
+      $action = substr($end_point, 1);
+    }
+
+    if ($method == "GET" || $method == "DELETE") {
+      $action .= "?" . http_build_query($data, '', '&');
+    }
+
+    // Init call.
+    $call = $end_point . '/' . $action;
+    // generate the well structured request
+    $response = _cis_connector_request($call, $options, $bucket, FALSE);
+    // Check for connection errors.
+    if ($response === FALSE || $response === NULL) {
+      if (variable_get('tincanapi_watchdog') && $response['options']['blocking']) {
+        watchdog('tincanapi', curl_error($ch), array(), WATCHDOG_DEBUG);
+      }
+
+      return FALSE;
+    }
+
+    $response = json_decode($response->data, TRUE);
+    $error = isset($response["error"]) && $response["error"];
+
+    // Log the response.
+    if ((variable_get('tincanapi_watchdog') || $error) && $response['options']['blocking']) {
+      $debug = array(
+        "request" => array(
+          "url" => $end_point,
+          "post" => $data,
+        ),
+        "response" => array(
+          "txt" => $response,
+        ),
+      );
+
+      $severity = $error ? WATCHDOG_ERROR : WATCHDOG_DEBUG;
+      watchdog('tincanapi', json_encode($debug), array(), $severity);
+    }
+    return $response;
+  }
+  else {
+    return tincanapi_send($action, $method, $data);
   }
 }
