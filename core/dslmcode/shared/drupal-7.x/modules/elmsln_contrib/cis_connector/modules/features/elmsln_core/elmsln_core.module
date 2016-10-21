@@ -136,7 +136,7 @@ function elmsln_core_user_view($account, $view_mode, $langcode) {
   // If we are not already on the central person repository.
   if(variable_get('install_profile') != 'cpr') {
     // Grab the user data from the central person repository.
-    $user_data = _cis_connector_request('/user.json?name=' . $account->name . '&display_mode=full', $options = array(), $bucket = 'cpr', $cached = TRUE);
+    $user_data = _cis_connector_request('user.json?name=' . $account->name . '&display_mode=full', $options = array(), $bucket = 'cpr', $cached = TRUE);
 
     // Decode the data that comes in from the user object.
     $user_data = json_decode($user_data->data);
