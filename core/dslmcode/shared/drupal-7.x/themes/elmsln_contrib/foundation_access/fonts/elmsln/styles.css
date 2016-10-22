@@ -91,12 +91,6 @@
 .icon-comment:before {
   content: "\75";
 }
-.icon-comply:before {
-  content: "\76";
-}
-.icon-content:before {
-  content: "\77";
-}
 .icon-content-outline:before {
   content: "\78";
 }
@@ -129,9 +123,6 @@
 }
 .icon-grades:before {
   content: "\4c";
-}
-.icon-help:before {
-  content: "\4d";
 }
 .icon-hidden:before {
   content: "\4e";
@@ -216,4 +207,16 @@
 }
 .icon-ulmus:before {
   content: "\6f";
+}
+.icon-comply:before {
+  content: "\70";
+}
+.icon-content:before {
+  content: "\76";
+}
+.icon-help:before {
+  content: "\77";
+}
+.icon-dinosunglasses:before {
+  content: "\46";
 }
