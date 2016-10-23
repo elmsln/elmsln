@@ -265,8 +265,9 @@ function cis_filter_preprocess_cis_filter_render__display_mode(&$vars) {
   $code = $vars['settings']['code'];
   // get response from loading the object
   $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, TRUE, 'display_mode=' . $code['display_mode']);
-  // @todo might want to preg_match this badboy
+  // ensure addresses are correct / more CDN-esk instead of local render
   $response['rendered'] = str_replace('/services/', '/', str_replace($settings['service_address'], $settings['address'], $response['rendered']));
+  $response['rendered'] = preg_replace('<img(.*?)src="\/(.*?)"(.*?)\/>', 'img${1}src="' . $settings['protocol'] . '://' . $settings['address'] . '/${2}"${3}/', $response['rendered']);
   // rendered property will have the assessed output
   $vars['content'] = $response['rendered'];
   // include full response in case its needed for theming

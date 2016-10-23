@@ -142,3 +142,11 @@ function elmsmedia_update_7009(&$sandbox) {
   features_revert_module('elmsmedia_cis_ux');
   features_revert_module('elmsmedia_feature');
 }
+
+/**
+ * Fix for document view modes.
+ */
+function elmsmedia_update_7010(&$sandbox) {
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_view_mode_tabs');
+}
