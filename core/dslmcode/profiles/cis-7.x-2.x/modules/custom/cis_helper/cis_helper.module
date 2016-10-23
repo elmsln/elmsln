@@ -619,6 +619,7 @@ function cis_helper_entity_insert($entity, $type) {
         'elmsln_module' => 'elmsln_api',
         'elmsln_callback' => 'clear_cache_bin',
         'bin' => 'cis_connector',
+        'cid' => 'elmsln:cis:field_collection_item',
       ),
     );
     // ship these requests across the network
@@ -667,6 +668,7 @@ function cis_helper_entity_update($entity, $type) {
         'elmsln_module' => 'elmsln_api',
         'elmsln_callback' => 'clear_cache_bin',
         'bin' => 'cis_connector',
+        'cid' => 'elmsln:cis:field_collection_item',
       ),
     );
     // ship these requests across the network
