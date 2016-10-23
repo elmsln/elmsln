@@ -17,12 +17,9 @@ function mooc_nav_block_context_default_contexts() {
   $context->description = 'Navigation block placement';
   $context->tag = 'Content';
   $context->conditions = array(
-    'node' => array(
+    'path' => array(
       'values' => array(
-        'page' => 'page',
-      ),
-      'options' => array(
-        'node_form' => '1',
+        'node/*' => 'node/*',
       ),
     ),
   );
