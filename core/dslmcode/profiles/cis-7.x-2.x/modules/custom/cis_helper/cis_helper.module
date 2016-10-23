@@ -452,17 +452,21 @@ function cis_helper_form_field_collection_item_form_alter(&$form, &$form_state, 
     // return all service instances this section will have access to
     $service_instances = _cis_helper_derive_service_instances($form['#entity']->item_id, $form['#entity']->HostEntity()->HostEntity());
     // we need to replace the service options based on those that exist
-    $service_options = array('_none' => t('- None -'));
+    $service_options = array('' => t('- None -'));
     // load each service related to the instances found
     if (is_array($service_instances)) {
       foreach ($service_instances as $instance) {
         $service = node_load($instance->field_services[LANGUAGE_NONE][0]['target_id']);
         // collect array of known services available to this course via instances
         $service_options[$service->nid] = $service->title;
+        $defaults[] = $service->nid;
       }
     }
     // set the allowed options to those found above
     $form['field_services'][LANGUAGE_NONE]['#options'] = $service_options;
+    if (empty($form['field_services'][LANGUAGE_NONE]['#default_value'])) {
+      $form['field_services'][LANGUAGE_NONE]['#default_value'] = $defaults;
+    }
   }
 }
 
@@ -566,6 +570,18 @@ function cis_helper_entity_presave($entity, $type) {
     // load the course node
     $course_node = node_load($entity->field_course[LANGUAGE_NONE][0]['target_id']);
     $entity->title = $course_node->field_machine_name[LANGUAGE_NONE][0]['value'] . ' - ' . $serv_node->field_machine_name[LANGUAGE_NONE][0]['value'];
+  }
+  elseif ($type == 'field_collection_item' && $entity->field_name == 'field_sections' && !empty($entity->HostEntity())) {
+    $course = $entity->HostEntity()->HostEntity();
+    // account for sections that don't have targets yet should, let's just set them to all
+    if (!isset($entity->field_services['und']) || $entity->field_services['und'][0]['target_id'] == 0) {
+      $entity->field_services['und'] = array();
+      $service_instances = _cis_helper_derive_service_instances(NULL, $entity->HostEntity()->HostEntity());
+      foreach ($service_instances as $instance) {
+        $service = node_load($instance->field_services[LANGUAGE_NONE][0]['target_id']);
+        $entity->field_services[LANGUAGE_NONE][] = array('target_id' => $service->nid);
+      }
+    }
   }
   // account for anything with a machine name field as these are textfields
   if (isset($entity->field_machine_name)) {
