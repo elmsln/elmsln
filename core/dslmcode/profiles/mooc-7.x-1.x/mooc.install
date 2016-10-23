@@ -135,3 +135,11 @@ function mooc_update_7006(&$sandbox) {
 function mooc_update_7007(&$sandbox) {
   features_revert_module('mooc_page');
 }
+
+/**
+ * Improvements to nav_block.
+ */
+function mooc_update_7008(&$sandbox) {
+  features_revert_module('mooc_page');
+  features_revert_module('mooc_nav_block');
+}
