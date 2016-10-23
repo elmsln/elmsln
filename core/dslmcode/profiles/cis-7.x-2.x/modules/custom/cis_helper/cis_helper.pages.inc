@@ -802,6 +802,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
         'elmsln_module' => 'elmsln_api',
         'elmsln_callback' => 'clear_cache_bin',
         'bin' => 'cis_connector',
+        'cid' => 'elmsln:cis:field_collection_item',
       ),
     )
   );
@@ -812,8 +813,10 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
       'elmsln_module' => 'elmsln_api',
       'elmsln_callback' => 'clear_cache_bin',
       'bin' => 'cis_connector',
+      'cid' => 'elmsln:cis:field_collection_item',
     )
   );
+  _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name['und'][0]['value'] . '/');
   // sync section system wide if set
   if (isset($section)) {
     // force session context to be course that's being created
