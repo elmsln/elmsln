@@ -75,7 +75,12 @@ function mooc_foundation_access_read_time($variables) {
   $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
 
   // convert words into time
-  $time = round(($node->read_time['words'] / $wpm), 3);
+  if (isset($node->read_time['words'])) {
+    $time = round(($node->read_time['words'] / $wpm), 3);
+  }
+  else {
+    $time = 0;
+  }
   // Format read time.
   if (in_array($format, array('hour_short', 'hour_long'))) {
     $hours = floor($time / 60);
