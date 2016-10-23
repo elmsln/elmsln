@@ -191,7 +191,7 @@ function _read_time_evaluate($node, $criterion = NULL) {
  */
 function read_time_node_update($node) {
   // see if there's currently a value for this, there should be
-  if ($read_time_old = _read_time_get_read_time($node->nid)) {
+  if ($read_time_old = _read_time_get_read_time($node->nid) && !isset($node->_block_read_time_update)) {
     // compare it to the new one if we fresh calculate if
     $read_time = _read_time_evaluate($node);
     // only change the value if its different upon calculation
