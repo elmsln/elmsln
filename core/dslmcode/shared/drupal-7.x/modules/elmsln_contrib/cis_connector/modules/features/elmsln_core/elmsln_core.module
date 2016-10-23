@@ -563,8 +563,9 @@ function elmsln_core_page_build(&$page) {
       'url' => url(current_path(), array('absolute' => TRUE)),
       'role' => $role,
       'xapisession' => drupal_get_token($uuid),
-    ),
+    )
   );
+  $js_variables['tincanapi'] = $js_variables;
   drupal_add_js($js_variables, 'setting');
 }
 

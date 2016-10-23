@@ -1,16 +1,6 @@
 (function ($) {
   $(document).ready(function(){
     Drupal.settings.startTime = new Date().getTime();
-    // set xapi additional data for send outs locally
-    // this helps provide the same context to all statements
-    // sent local to the current site
-    Drupal.settings.tincanapi.elmslnCore = {};
-    Drupal.settings.tincanapi.elmslnCore.course = Drupal.settings.elmslnCore.course;
-    Drupal.settings.tincanapi.elmslnCore.section = Drupal.settings.elmslnCore.section;
-    Drupal.settings.tincanapi.elmslnCore.url = Drupal.settings.elmslnCore.url;
-    Drupal.settings.tincanapi.elmslnCore.title = Drupal.settings.elmslnCore.title;
-    Drupal.settings.tincanapi.elmslnCore.role = Drupal.settings.elmslnCore.role;
-    Drupal.settings.tincanapi.elmslnCore.xapisession = Drupal.settings.elmslnCore.xapisession;
     // attempt to spit xapi context into all iframes
     $('iframe.entity_iframe').load(function(e){
       var data = {
