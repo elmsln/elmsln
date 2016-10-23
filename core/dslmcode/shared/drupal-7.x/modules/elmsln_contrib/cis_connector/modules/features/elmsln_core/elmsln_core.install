@@ -138,3 +138,10 @@ function elmsln_core_update_7012(&$sandbox) {
 function elmsln_core_update_7013(&$sandbox) {
   variable_set('tincanapi_function', 'elmsln_core_tincanapi_send');
 }
+
+/**
+ * Fix ckeditor link blank
+ */
+function elmsln_core_update_7014(&$sandbox) {
+  features_revert_module('textbook_editor');
+}
