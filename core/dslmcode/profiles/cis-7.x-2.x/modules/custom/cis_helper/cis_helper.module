@@ -472,19 +472,76 @@ function cis_helper_form_field_collection_item_form_alter(&$form, &$form_state, 
 function cis_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
   // courses overview view / display
   if (arg(0) == 'courses' && $form_state['view']->name == 'courses_overview') {
+    $form['filterwrapper'] = array(
+      '#weight' => 0,
+      '#type' => 'fieldset',
+      '#materialize' => array(
+        'type' => 'collapsible_wrapper'
+      ),
+      '#attributes' => array(
+        'class' => array('collapsible'),
+        'data-collapsible' => 'accordion',
+      )
+    );
     // add nice html5 placeholders
     $form['title']['#placeholder'] = t('Find a course');
+    // course_num container
+    $form['filterwrapper']['titlewrapper'] = array(
+      '#materialize' => array(
+        'type' => 'collapsible',
+      ),
+      '#attributes' => array(
+        'class' => array('active'),
+      ),
+      '#type' => 'fieldset',
+      '#title' => t('Course name'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+      '#weight' => 0,
+    );
+    $form['filterwrapper']['titlewrapper']['title'] = $form['title'];
+    unset($form['title']);
+    $form['#info'] = array();
     $form['title_1']['#placeholder'] = t('Enter a number');
     // course_num container
-    $form['course_num'] = array(
+    $form['filterwrapper']['course_num'] = array(
+      '#materialize' => array(
+        'type' => 'collapsible',
+      ),
+      '#type' => 'fieldset',
+      '#title' => t('Course number'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => 1,
+    );
+    $form['filterwrapper']['course_num']['title_1'] = $form['title_1'];
+    unset($form['title_1']);
+    // field_academic_home_target_id container
+    $form['filterwrapper']['academic_home'] = array(
+      '#materialize' => array(
+        'type' => 'collapsible',
+      ),
+      '#type' => 'fieldset',
+      '#title' => t('Academic home'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => 2,
+    );
+    $form['filterwrapper']['academic_home']['field_academic_home_target_id'] = $form['field_academic_home_target_id'];
+    unset($form['field_academic_home_target_id']);
+    // field_program_classification_target_id container
+    $form['filterwrapper']['program'] = array(
+      '#materialize' => array(
+        'type' => 'collapsible',
+      ),
       '#type' => 'fieldset',
       '#title' => t('Course number'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#weight' => 3,
     );
-    $form['course_num']['title_1'] = $form['title_1'];
-    unset($form['title_1']);
+    $form['filterwrapper']['program']['field_program_classification_target_id'] = $form['field_program_classification_target_id'];
+    unset($form['field_program_classification_target_id']);
   }
   // faculty overview view / display
   if (arg(0) == 'faculty' && $form_state['view']->name == 'cis_faculty') {
