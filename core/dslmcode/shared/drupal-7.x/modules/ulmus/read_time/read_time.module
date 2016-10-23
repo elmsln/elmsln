@@ -212,6 +212,9 @@ function read_time_node_update($node) {
       $node->read_time_changed = FALSE;
     }
   }
+  elseif (isset($node->_block_read_time_update)) {
+    drupal_set_message(t('Read time was prevented from being updated automatically. This means the current read time may be slightly off from what it actually is.'), 'warning', FALSE);
+  }
 }
 
 /**
