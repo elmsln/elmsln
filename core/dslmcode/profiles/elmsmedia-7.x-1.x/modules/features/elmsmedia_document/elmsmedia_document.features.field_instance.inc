@@ -23,6 +23,12 @@ function elmsmedia_document_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 1,
       ),
+      'document' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
       'full' => array(
         'label' => 'above',
         'module' => 'entityreference',
@@ -65,6 +71,13 @@ function elmsmedia_document_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
+        'label' => 'hidden',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 0,
+      ),
+      'document' => array(
         'label' => 'hidden',
         'module' => 'file',
         'settings' => array(),
@@ -115,6 +128,12 @@ function elmsmedia_document_field_default_field_instances() {
     'description' => 'Tagging media can make it easier to find after the fact. This is used for searching and filtering.',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+      'document' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -180,6 +199,12 @@ function elmsmedia_document_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
+      ),
+      'document' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',

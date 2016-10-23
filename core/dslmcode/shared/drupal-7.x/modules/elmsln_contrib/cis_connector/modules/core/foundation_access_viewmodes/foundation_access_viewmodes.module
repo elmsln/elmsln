@@ -62,6 +62,9 @@ function foundation_access_viewmodes_entity_info_alter(&$entity_info) {
     'accessible_fallback' => array(
       '' => array(),
     ),
+    'document' => array(
+      '' => array(),
+    ),
   );
   // calculate all styles possible from arrays above
   // this is nuts
