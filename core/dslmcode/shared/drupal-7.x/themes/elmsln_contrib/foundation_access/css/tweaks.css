@@ -1,3 +1,46 @@
+/* CKEditor template page */
+.cke_tpl_list {
+  height: 25rem !important;
+}
+.ck-tpl-item-button {
+  height: 10rem !important;
+  position: relative;
+  text-decoration: none !important;
+}
+.cke_tpl_item_wrapper {
+  height: 10rem !important;
+  background-color: #eeeeee !important;
+  border:1px solid #222222 !important;
+  overflow: hidden;
+}
+.cke_tpl_item_wrapper:hover {
+  background-color: #ccccff !important;
+  border:1px solid #ffa !important;
+}
+.cke_tpl_item_wrapper * {
+  position: relative;
+  white-space: normal !important;
+}
+.ck-tpl-item-button * {
+  text-align: center;
+}
+
+.cke_tpl_preview {
+  width: initial;
+  position: relative;
+}
+
+/* fix for ckeditor templates in firefox */
+img.cke_tpl_preview_img {
+  width: 150px;
+}
+.cke_dialog_ui_vbox_child {
+  height: 10rem;
+}
+.cke_dialog_contents {
+  width: 100%;
+}
+
 /* Network flyout spacing */
 .elmsln-network-label {
   margin-left: .75rem;
@@ -986,10 +1029,6 @@ div.error {
   margin:0;
 }
 
-/* fix for ckeditor templates in firefox */
-.cke_tpl_preview_img img {
-  width: 100px;
-}
 /* media elements */
 .elmsln-image-gallery-wrapper {
   margin: 1rem 0 1.5rem;
