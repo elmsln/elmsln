@@ -102,9 +102,14 @@ function _cis_lmsless_assemble_user() {
     // pull in the instructor contact info block
     $vars['contact_block'] = cis_service_connection_block_instructor_contact();
     // pull list of resources as an array
-    $query = array('field_access_string' => $section, 'archived' => 0);
-    // request the section of the user
-    $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+    if (!empty($section)) {
+      $query = array('field_access_string' => $section, 'archived' => 0);
+      // request the section of the user
+      $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+    }
+    else {
+      $cis_section_item = array();
+    }
     // make sure it got data
     $resources = array();
     if (!empty($cis_section_item) && !empty($cis_section_item['list'])) {
@@ -370,9 +375,14 @@ function _cis_lmsless_theme_vars() {
     // pull in the instructor contact info block
     $vars['contact_block'] = cis_service_connection_block_instructor_contact();
     // pull list of resources as an array
-    $query = array('field_access_string' => $section, 'archived' => 0);
-    // request the section of the user
-    $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+    if (!empty($section)) {
+      $query = array('field_access_string' => $section, 'archived' => 0);
+      // request the section of the user
+      $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+    }
+    else {
+      $cis_section_item = array();
+    }
     // make sure it got data
     $resources = array();
     if (!empty($cis_section_item) && !empty($cis_section_item['list'])) {
