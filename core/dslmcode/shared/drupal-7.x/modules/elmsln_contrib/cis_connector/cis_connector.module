@@ -660,6 +660,9 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
   // grab section context of the user
   if (is_null($section)) {
     $section = _cis_connector_section_context();
+    if (empty($section)) {
+      return array();
+    }
   }
   // account for FAKE master sections that have been auto generated
   if (_cis_connector_is_master($section)) {
