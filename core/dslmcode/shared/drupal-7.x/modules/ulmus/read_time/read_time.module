@@ -343,6 +343,9 @@ function read_time_node_load($nodes, $types) {
  */
 function read_time_node_view($node, $view_mode, $langcode) {
   if (user_access('view read time') && arg(2) != 'edit' && arg(1) != 'add') {
+    if (user_access('administer read time') && read_time_needs_rebuild()) {
+      drupal_set_message(t('Read time may be out of date' . l(t('Rebuild read time now'), 'read_time/rebuild')), 'warning', FALSE);
+    }
     // Get read time field settings.
     $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
     $settings = $display_settings['read_time'];
