@@ -1362,3 +1362,153 @@ class CISXmlDomConstructor extends DOMDocument {
     }
   }
 }
+
+
+/**
+ * Implements hook_file_update().
+ */
+function cis_helper_file_update($new_file) {
+  // make sure our uploaded course banners maintain a unified name
+  if (!strpos($new_file->uri, '/banners/')) {
+   return NULL;
+  }
+
+
+  if (!$new_file->fid) {
+    // Nothing to do if no file ID.
+    return NULL;
+  }
+
+  // Check scheme to not interfere with external files.
+  $scheme = file_uri_scheme($new_file->uri);
+  if (!($scheme == 'public' || $scheme == 'private')) {
+    // Return if $scheme is not public or private because
+    // then it is some other scheme like youtube or S3 etc.
+    return NULL;
+  }
+
+  $desired_destination = preg_replace('/_[0-9]+\.(.*)$/', '.$1', $new_file->uri);
+
+  $db_path = db_select('file_managed', 'f')
+    ->fields('f', array('uri'))
+    ->condition('fid', $new_file->fid)
+    ->execute()
+    ->fetchAssoc();
+
+  if ($db_path['uri'] != $new_file->uri) {
+
+    // This happens when a revision is being reverted.
+    $next_good_uri = file_destination($desired_destination, FILE_EXISTS_RENAME);
+    db_update('file_managed')
+      ->fields(array('uri' => $next_good_uri))
+      ->condition('fid', $new_file->fid)
+      ->execute();
+
+    $new_file->uri = $desired_destination;
+  }
+  else {
+
+    // If the filename has been modified by adding a _X value, or on certain
+    // situations the URI will not match the URI in the DB, such as when
+    // reverting a revision. When reverting a revision change the filename as
+    // well.
+    if (!strpos($new_file->uri, $new_file->filename)) {
+
+      $is_blocked = FALSE;
+      $blocking_file = NULL;
+      $tmp_destination = '';
+
+      // The filename is not in the URI, so Drupal must have added a "_X" before
+      // the extension. Find the file that is blocking this file from keeping
+      // the correct path.
+      $result = db_select('file_managed', 'f')
+        ->fields('f')
+        ->condition('uri', $desired_destination)
+        ->execute();
+      // @todo Only one result is handled, should allow for multiple results.
+      foreach ($result as $file) {
+        $is_blocked = TRUE;
+        $blocking_file = $file;
+        $tmp_destination = file_directory_temp() . "/test_-" . $blocking_file->fid . "_-" . $blocking_file->filename;
+      }
+
+      $old_destination = $db_path['uri'];
+
+      $t_message = 'The file %old could not be moved to %new';
+
+      // Swap the files.
+      if ($is_blocked) {
+        // Move the blocking file to a temporary location.
+        if (!file_unmanaged_move($desired_destination, $tmp_destination)) {
+          drupal_set_message(t($t_message, array('%old' => $desired_destination, '%new' => $tmp_destination)), 'error');
+          return NULL;
+        }
+
+        // Move blocking file was successful, update the DB.
+        db_update('file_managed')
+          ->fields(array('uri' => $tmp_destination))
+          ->condition('fid', $blocking_file->fid)
+          ->execute();
+      }
+
+      // Move the new file to the preferred location.
+      if (!file_unmanaged_move($old_destination, $desired_destination)) {
+        drupal_set_message(t($t_message, array('%old' => $old_destination, '%new' => $desired_destination)), 'error');
+        return NULL;
+      }
+
+      // Move new file was successful, update the DB.
+      db_update('file_managed')
+        ->fields(array('uri' => $desired_destination))
+        ->condition('fid', $new_file->fid)
+        ->execute();
+
+      // Set the new file's path to the correct path.
+      $new_file->uri = $desired_destination;
+
+      if ($is_blocked) {
+
+        // Move the older file from temp to the new _X location
+        if (!file_unmanaged_move($tmp_destination, $old_destination)) {
+          drupal_set_message(t($t_message, array('%old' => $tmp_destination, '%new' => $old_destination)), 'error');
+          return NULL;
+        }
+
+        // Move blocking file was successful, update the DB with the actual
+        // location after file copy, so we use tmp_destination as it was
+        // updated during the move.
+        db_update('file_managed')
+          ->fields(array('uri' => $old_destination))
+          ->condition('fid', $blocking_file->fid)
+          ->execute();
+        // @todo Refactor to use file_save() so we don't need this.
+        entity_get_controller('file')->resetCache(array($blocking_file->fid));
+      }
+    }
+  }
+
+  // Clear the generated image styles for this file.
+  $query = "SELECT DISTINCT uri FROM {file_managed} WHERE fid=:fid";
+  $uri = db_query($query, array(':fid' => $new_file->fid))->fetchField();
+  image_path_flush($uri);
+  if (isset($old_destination)) {
+    image_path_flush($old_destination);
+  }
+
+  // @todo Refactor to use file_save() so we don't need this.
+  entity_get_controller('file')->resetCache(array($new_file->fid));
+}
+
+/**
+ * Implements hook_file_delete().
+ *
+ * Update the URI in the file object before deleting as we may have altered it
+ * above.
+ */
+function cis_helper_file_delete($file) {
+  $file->uri = db_select('file_managed', 'f')
+    ->fields('f', array('uri'))
+    ->condition('f.fid', $file->fid)
+    ->execute()
+    ->fetchField();
+}
