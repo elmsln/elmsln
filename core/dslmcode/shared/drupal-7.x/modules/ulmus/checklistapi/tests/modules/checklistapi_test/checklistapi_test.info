@@ -1,0 +1,14 @@
+name = Checklist API test module
+description = Provides an implementation of the Checklist API for testing.
+package = Testing
+version = VERSION
+core = 7.x
+dependencies[] = checklistapi
+hidden = TRUE
+
+; Information added by Drupal.org packaging script on 2014-08-25
+version = "7.x-1.2"
+core = "7.x"
+project = "checklistapi"
+datestamp = "1409004834"
+

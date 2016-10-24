@@ -1,0 +1,13 @@
+name = Checklist API example
+description = Provides an example implementation of the Checklist API.
+core = 7.x
+package = Example modules
+dependencies[] = checklistapi
+configure = admin/config/development/checklistapi-example
+
+; Information added by Drupal.org packaging script on 2014-08-25
+version = "7.x-1.2"
+core = "7.x"
+project = "checklistapi"
+datestamp = "1409004834"
+
