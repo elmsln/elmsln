@@ -660,17 +660,28 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
   // grab section context of the user
   if (is_null($section)) {
     $section = _cis_connector_section_context();
-    if (empty($section)) {
+    // bail early unless it's a request for viewing all services
+    if (empty($section) && $request != 'other_services') {
       return array();
     }
   }
   // account for FAKE master sections that have been auto generated
-  if (_cis_connector_is_master($section)) {
-    if ($request != 'other_services') {
-      // return an empty array. this is what happened when there is a query for
-      // a section that doesn't exist. this avoids it throwing an error
-      if (in_array($request, array('help', 'resources', 'welcome_page', 'welcome_letter', 'syllabus'))) {
-        drupal_set_message(t('This page is blank because you are currently viewing the Master section.'), 'status', FALSE);
+  if (_cis_connector_is_master($section) && $request != 'other_services') {
+    // return an empty array. this is what happened when there is a query for
+    // a section that doesn't exist. this avoids it throwing an error
+    if (in_array($request, array('help', 'resources', 'welcome_page', 'welcome_letter', 'syllabus'))) {
+      if ($settings = _cis_connector_build_registry('cis')) {
+        $coursename = _cis_connector_course_context();
+        if (!empty($coursename)) {
+          $cispath = '/' . $coursename . '/offerings';
+          $cisaddress = _cis_connector_format_address($settings, $cispath, 'front');
+          drupal_set_message(t('This page is blank because you are currently viewing the Master section. To update these values per section please access the Course information system\'s <a href="@url" class="accessible-red-text">offerings page for @course</a>.', array('@course' => $coursename, '@url' => $cisaddress)), 'status', FALSE);
+        }
+        else {
+          $cispath = '/';
+          $cisaddress = _cis_connector_format_address($settings, $cispath, 'front');
+          drupal_set_message(t('This page is blank because you are currently viewing the Master section. To update these values per course section please access the <a href="@url" class="accessible-red-text">Course information system</a>.', array('@url' => $cisaddress)), 'status', FALSE);
+        }
       }
       return array();
     }
