@@ -873,8 +873,8 @@ function cis_helper_cis_service_instance_job_file_alter(&$content, $course, $ser
   // as well as alters table coalation to be fast as well
   if (module_exists('apdqc')) {
     $content .= 'drush apdqc' . "\n";
-    $content .= 'drush apdqc' . "\n";
     $content .= 'drush cc all' . "\n";
+    $content .= 'drush apdqc' . "\n";
   }
   // preseed node caches after any potential caching projects are on
   $content .= 'drush ecl node' . "\n";
