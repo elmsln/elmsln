@@ -16,59 +16,59 @@ function cpr_user_ds_layout_settings_info() {
   $ds_layout->entity_type = 'user';
   $ds_layout->bundle = 'user';
   $ds_layout->view_mode = 'form';
-  $ds_layout->layout = 'zf_2col_stacked';
+  $ds_layout->layout = 'ds_2col_stacked';
   $ds_layout->settings = array(
     'regions' => array(
-      'left' => array(
-        0 => 'group_account_details',
-        3 => 'group_profile_admin',
-        4 => 'og_user_node',
-        5 => 'timezone',
-        7 => 'account',
-        9 => 'wysiwyg',
-        10 => 'masquerade',
+      'header' => array(
+        0 => 'account',
+        1 => 'group_account_details',
       ),
-      'right' => array(
-        1 => 'group_personal',
-        2 => 'group_preferences',
-        6 => 'field_accessibility_preference',
-        8 => 'field_media_preference',
+      'left' => array(
+        2 => 'group_personal',
         11 => 'field_display_name',
-        12 => 'field_first_name',
-        13 => 'group_profile_name',
+        12 => 'group_profile_name',
+        13 => 'field_first_name',
         14 => 'field_last_name',
         15 => 'group_profile_photo',
         16 => 'group_bio',
         17 => 'field_photo',
-        18 => 'picture',
-        19 => 'field_bio',
+        18 => 'field_bio',
+      ),
+      'right' => array(
+        3 => 'group_preferences',
+        7 => 'field_accessibility_preference',
+      ),
+      'footer' => array(
+        4 => 'group_profile_admin',
+        6 => 'wysiwyg',
+        8 => 'timezone',
+        9 => 'masquerade',
+        10 => 'og_user_node1',
       ),
       'hidden' => array(
-        20 => '_add_existing_field',
+        5 => '_add_existing_field',
       ),
     ),
     'fields' => array(
-      'group_account_details' => 'left',
-      'group_personal' => 'right',
+      'account' => 'header',
+      'group_account_details' => 'header',
+      'group_personal' => 'left',
       'group_preferences' => 'right',
-      'group_profile_admin' => 'left',
-      'og_user_node' => 'left',
-      'timezone' => 'left',
-      'field_accessibility_preference' => 'right',
-      'account' => 'left',
-      'field_media_preference' => 'right',
-      'wysiwyg' => 'left',
-      'masquerade' => 'left',
-      'field_display_name' => 'right',
-      'field_first_name' => 'right',
-      'group_profile_name' => 'right',
-      'field_last_name' => 'right',
-      'group_profile_photo' => 'right',
-      'group_bio' => 'right',
-      'field_photo' => 'right',
-      'picture' => 'right',
-      'field_bio' => 'right',
+      'group_profile_admin' => 'footer',
       '_add_existing_field' => 'hidden',
+      'wysiwyg' => 'footer',
+      'field_accessibility_preference' => 'right',
+      'timezone' => 'footer',
+      'masquerade' => 'footer',
+      'og_user_node1' => 'footer',
+      'field_display_name' => 'left',
+      'group_profile_name' => 'left',
+      'field_first_name' => 'left',
+      'field_last_name' => 'left',
+      'group_profile_photo' => 'left',
+      'group_bio' => 'left',
+      'field_photo' => 'left',
+      'field_bio' => 'left',
     ),
     'classes' => array(),
     'wrappers' => array(
@@ -82,6 +82,7 @@ function cpr_user_ds_layout_settings_info() {
     'layout_attributes_merge' => 1,
     'layout_link_attribute' => '',
     'layout_link_custom' => '',
+    'layout_disable_css' => 0,
   );
   $export['user|user|form'] = $ds_layout;
 
