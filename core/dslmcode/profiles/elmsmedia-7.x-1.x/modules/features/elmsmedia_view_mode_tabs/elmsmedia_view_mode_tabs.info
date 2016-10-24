@@ -19,5 +19,6 @@ features[variable][] = view_mode_tab_settings__elmsmedia_image
 features[variable][] = view_mode_tab_settings__external_video
 features[variable][] = view_mode_tab_settings__figurelabel
 features[variable][] = view_mode_tab_settings__h5p_content
+features[variable][] = view_mode_tab_settings__image_gallery
 features[variable][] = view_mode_tab_settings__svg
 features[variable][] = view_mode_tab_settings__video
