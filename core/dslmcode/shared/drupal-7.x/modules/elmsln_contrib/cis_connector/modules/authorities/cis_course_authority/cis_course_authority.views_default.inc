@@ -25,11 +25,33 @@ function cis_course_authority_views_default_views() {
   $handler->display->display_options['title'] = 'Course list';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'time';
-  $handler->display->display_options['cache']['results_lifespan'] = '3600';
-  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
-  $handler->display->display_options['cache']['output_lifespan'] = '3600';
-  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'cis_course' => 'cis_course',
+      'audio' => 0,
+      'section' => 0,
+      'document' => 0,
+      'external_video' => 0,
+      'figurelabel' => 0,
+      'elmsmedia_image' => 0,
+      'h5p_content' => 0,
+      'svg' => 0,
+      'static_content' => 0,
+      'video' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+    'og' => array(
+      'current' => 0,
+      'user' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';

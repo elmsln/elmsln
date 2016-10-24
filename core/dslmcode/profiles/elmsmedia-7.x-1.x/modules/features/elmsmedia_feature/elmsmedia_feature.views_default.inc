@@ -287,7 +287,33 @@ function elmsmedia_feature_views_default_views() {
   $handler = $view->new_display('page', 'Table', 'page');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['defaults']['cache'] = FALSE;
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'audio' => 0,
+      'cis_course' => 0,
+      'section' => 0,
+      'document' => 0,
+      'external_video' => 0,
+      'figurelabel' => 0,
+      'elmsmedia_image' => 0,
+      'h5p_content' => 0,
+      'svg' => 0,
+      'static_content' => 0,
+      'video' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 'node_changed',
+    ),
+    'og' => array(
+      'current' => 0,
+      'user' => 0,
+    ),
+  );
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Bulk operations: Content */
   $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
@@ -495,7 +521,7 @@ function elmsmedia_feature_views_default_views() {
     'image_style' => 'image_card_medium',
     'image_link' => '',
   );
-  /* Field: Content: Images */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
   $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
   $handler->display->display_options['fields']['field_images']['field'] = 'field_images';
@@ -503,14 +529,6 @@ function elmsmedia_feature_views_default_views() {
   $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_images']['hide_empty'] = TRUE;
   $handler->display->display_options['fields']['field_images']['empty_zero'] = TRUE;
-  $handler->display->display_options['fields']['field_images']['type'] = 'entityreference_entity_view';
-  $handler->display->display_options['fields']['field_images']['settings'] = array(
-    'view_mode' => 'image__circle',
-    'links' => 0,
-  );
-  $handler->display->display_options['fields']['field_images']['delta_limit'] = '4';
-  $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
-  $handler->display->display_options['fields']['field_images']['separator'] = '';
   /* Field: Content: Poster */
   $handler->display->display_options['fields']['field_poster']['id'] = 'field_poster';
   $handler->display->display_options['fields']['field_poster']['table'] = 'field_data_field_poster';
@@ -764,7 +782,7 @@ function elmsmedia_feature_views_default_views() {
     'image_style' => 'image_card_medium',
     'image_link' => '',
   );
-  /* Field: Content: Images */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_images']['id'] = 'field_images';
   $handler->display->display_options['fields']['field_images']['table'] = 'field_data_field_images';
   $handler->display->display_options['fields']['field_images']['field'] = 'field_images';
@@ -772,14 +790,6 @@ function elmsmedia_feature_views_default_views() {
   $handler->display->display_options['fields']['field_images']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_images']['hide_empty'] = TRUE;
   $handler->display->display_options['fields']['field_images']['empty_zero'] = TRUE;
-  $handler->display->display_options['fields']['field_images']['type'] = 'entityreference_entity_view';
-  $handler->display->display_options['fields']['field_images']['settings'] = array(
-    'view_mode' => 'image__circle',
-    'links' => 0,
-  );
-  $handler->display->display_options['fields']['field_images']['delta_limit'] = '4';
-  $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
-  $handler->display->display_options['fields']['field_images']['separator'] = '';
   /* Field: Content: Poster */
   $handler->display->display_options['fields']['field_poster']['id'] = 'field_poster';
   $handler->display->display_options['fields']['field_poster']['table'] = 'field_data_field_poster';

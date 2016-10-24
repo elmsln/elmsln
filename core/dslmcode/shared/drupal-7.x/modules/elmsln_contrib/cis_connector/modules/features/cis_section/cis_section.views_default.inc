@@ -9,7 +9,7 @@
  */
 function cis_section_views_default_views() {
   $export = array();
-  
+
   $view = new view();
   $view->name = 'cis_section_list';
   $view->description = 'Administration fo all sections';
@@ -33,14 +33,22 @@ function cis_section_views_default_views() {
   );
   $handler->display->display_options['cache']['type'] = 'views_content_cache';
   $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
-  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '21600';
   $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
-  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '21600';
   $handler->display->display_options['cache']['keys'] = array(
     'node' => array(
       'section' => 'section',
-      'mooc_container' => 0,
-      'page' => 0,
+      'audio' => 0,
+      'cis_course' => 0,
+      'document' => 0,
+      'external_video' => 0,
+      'figurelabel' => 0,
+      'elmsmedia_image' => 0,
+      'h5p_content' => 0,
+      'svg' => 0,
+      'static_content' => 0,
+      'video' => 0,
     ),
     'node_only' => array(
       'node_changed' => 0,
@@ -153,14 +161,6 @@ function cis_section_views_default_views() {
   $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['label'] = '';
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
-  /* Field: Content: Instructional outlines */
-  $handler->display->display_options['fields']['field_instructional_outlines']['id'] = 'field_instructional_outlines';
-  $handler->display->display_options['fields']['field_instructional_outlines']['table'] = 'field_data_field_instructional_outlines';
-  $handler->display->display_options['fields']['field_instructional_outlines']['field'] = 'field_instructional_outlines';
-  $handler->display->display_options['fields']['field_instructional_outlines']['label'] = 'Outline';
-  $handler->display->display_options['fields']['field_instructional_outlines']['settings'] = array(
-    'link' => 1,
-  );
   /* Sort criterion: Content: Section id (field_section_id) */
   $handler->display->display_options['sorts']['field_section_id_value']['id'] = 'field_section_id_value';
   $handler->display->display_options['sorts']['field_section_id_value']['table'] = 'field_data_field_section_id';

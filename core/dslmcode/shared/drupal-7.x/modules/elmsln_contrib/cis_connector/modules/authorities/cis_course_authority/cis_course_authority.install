@@ -30,3 +30,10 @@ function cis_course_authority_update_7002(&$sandbox) {
 function cis_course_authority_update_7003(&$sandbox) {
   features_revert(array('cis_course_authority' => array('views')));
 }
+/**
+ * Implements hook_update_N().
+ * Content-based caching enabled for cis_course_authority
+ */
+function cis_course_authority_update_7004(&$sandbox) {
+  features_revert(array('cis_course_authority' => array('views')));
+}
