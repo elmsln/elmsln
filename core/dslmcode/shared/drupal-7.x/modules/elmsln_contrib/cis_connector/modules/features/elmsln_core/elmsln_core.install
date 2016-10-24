@@ -145,3 +145,11 @@ function elmsln_core_update_7013(&$sandbox) {
 function elmsln_core_update_7014(&$sandbox) {
   features_revert_module('textbook_editor');
 }
+
+/**
+ * APDQC. This is a biggy for performance
+ */
+function elmsln_core_update_7015(&$sandbox) {
+  module_enable(array('apdqc'));
+}
+

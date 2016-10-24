@@ -37,6 +37,7 @@ dependencies[] = textbook_editor
 dependencies[] = pathcache
 dependencies[] = user
 dependencies[] = uuid
+dependencies[] = apdqc
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[user_permission][] = access admin theme
