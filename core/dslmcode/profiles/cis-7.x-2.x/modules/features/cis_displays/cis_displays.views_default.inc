@@ -2785,24 +2785,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'edit any course content';
-  $handler->display->display_options['cache']['type'] = 'views_content_cache';
-  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
-  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
-  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
-  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
-  $handler->display->display_options['cache']['keys'] = array(
-    'node' => array(
-      'service_instance' => 'service_instance',
-      'academic_unit' => 0,
-      'course' => 0,
-      'resource' => 0,
-      'program' => 0,
-      'service' => 0,
-    ),
-    'node_only' => array(
-      'node_changed' => 0,
-    ),
-  );
+  $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'none';
