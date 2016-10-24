@@ -97,14 +97,18 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'name' => 'lorem_ipsum',
     'content_types' => array(),
   );
-  $templates['magellan_navigation'] = array(
-    'title' => 'Magellan navigation item',
-    'description' => 'If you have magellan navigation active this is the way to define a heading in the page.',
-    'weight' => 10,
+  $templates['materialize_card'] = array(
+    'title' => 'Materialize Card',
+    'description' => 'Design element to present information as a card',
+    'weight' => 0,
     'fid' => 0,
-    'body' => '<a name="machinename"></a><h2 data-magellan-destination="machinename">Title</h2>',
-    'format' => 'plain_text',
-    'name' => 'magellan_navigation',
+    'body' => '<div class="materialize-card-wrapper col s4"><div class="card"><div class="card-image waves-effect waves-block waves-light"><img class="activator" src="//materializecss.com/images/office.jpg"></div>
+<div class="card-content"><span class="card-title activator grey-text text-darken-4">Card Title<i class="material-icons right">more_vert</i></span>
+<p><a href="#">This is a link</a></p></div>
+<div class="card-reveal"><span class="card-title grey-text text-darken-4">Card Title<i class="material-icons right">close</i></span>
+<p>Here is some more information about this product that is only revealed once clicked on.</p></div></div></div>',
+    'format' => 'textbook_editor',
+    'name' => 'materialize_card',
     'content_types' => array(),
   );
   $templates['quote'] = array(

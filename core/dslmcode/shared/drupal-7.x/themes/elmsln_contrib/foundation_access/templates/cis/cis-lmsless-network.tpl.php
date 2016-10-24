@@ -19,7 +19,7 @@
           $iconcolor = $lmsless_classes[$service['distro']]['color'] . ' black-text';
         }
     ?>
-      <li><a href="<?php print $service['url']; ?>" class="waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['machine_name']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'] . ' ' . $lmsless_classes[$service['distro']]['light'];?>" data-elmsln-icon-hover="<?php print $lmsless_classes[$service['distro']]['color'] . ' hover-black-text';?>">
+      <li><a data-prefetch-hover="true" href="<?php print $service['url']; ?>" class="waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['machine_name']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'] . ' ' . $lmsless_classes[$service['distro']]['light'];?>" data-elmsln-icon-hover="<?php print $lmsless_classes[$service['distro']]['color'] . ' hover-black-text';?>">
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <div class="left etb-modal-material-icons"><i class="elmsln-icon zmdi zmdi-<?php print $service['machine_name']; ?> <?php print $iconcolor;?>"></i></div>
       <?php else: ?>

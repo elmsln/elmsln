@@ -73,10 +73,21 @@ function foundation_access_preprocess_html(&$variables) {
   // add page level variables into scope for the html tpl file
   $variables['site_name'] = check_plain(variable_get('site_name', 'ELMSLN'));
   $variables['logo'] = theme_get_setting('logo');
-  $variables['logo_img'] = '';
+  $variables['banner_image'] = '';
+  // build the remote banner URI, this is the best solution for an image
+  $uri = 'elmslnauthority://cis/banners/' . _cis_connector_course_context() .'.jpg';
+  if (file_exists(_elmsln_core_realpath($uri))) {
+    $variables['banner_image'] = theme('image', array(
+      'path' => $uri,
+      'alt' => '',
+      'attributes' => array(
+        'class' => array('logo__img'),
+      ),
+    ));
+  }
   // make sure we have a logo before trying to render a real one to screen
-  if (!empty($variables['logo'])) {
-    $variables['logo_img'] = theme('image', array(
+  elseif (!empty($variables['logo'])) {
+    $variables['banner_image'] = theme('image', array(
       'path' => $variables['logo'],
       'alt' => '',
       'attributes' => array(

@@ -138,7 +138,17 @@ function _mooc_helper_toc() {
     }
     else {
       $tree = $tree['below'];
-      return menu_tree_output($tree);
+      $output['menu_tree'] = array('#weight' => 1);
+      $output['menu_tree'][] = menu_tree_output($tree);
+      // support displaying of read_time stats here too
+      if (module_exists('read_time')) {
+        $output['read_time'] = array(
+          '#type' => 'markup',
+          '#weight' => 0,
+          '#markup' => theme('read_time', array('node' => $active))
+        );
+      }
+      return $output;
     }
   }
   return t('<a href="@url">Create a new course outline to get started!</a>', array('@url' => url('node/add/page', array('query' => array('parent' => 'new', 'destination' => $_GET['q'])))));

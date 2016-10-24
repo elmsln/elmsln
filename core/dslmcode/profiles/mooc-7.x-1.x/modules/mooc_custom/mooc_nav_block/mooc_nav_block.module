@@ -38,7 +38,10 @@ function mooc_nav_block_block_view($delta = '') {
 
   switch ($delta) {
     case 'mooc_nav':
-      $block = _mooc_nav_block_mooc_nav_block();
+      $node = menu_get_object('node');
+      if (isset($node) && isset($node->book) && !empty($node->book)) {
+        $block = _mooc_nav_block_mooc_nav_block($node);
+      }
     break;
   }
   return $block;
@@ -48,66 +51,64 @@ function mooc_nav_block_block_view($delta = '') {
  * Assemble the nav block.
  * @return array
  */
-function _mooc_nav_block_mooc_nav_block() {
+function _mooc_nav_block_mooc_nav_block($node) {
   $block = array();
   $output = '';
-  $node = menu_get_object('node');
   // make sure nav isset at all
-  if ($nav = _mooc_nav_block_get_nav($node)) {
-    // default config that nav options will modify
-    $config = array(
-      'active_trail' => array($nav['parent'], $node->book['mlid']),
-      'conditions' => array('plid' => $nav['parent']),
-    );
-    // process $nav array modifying the config for building the
-    switch ($nav['type']) {
-      case 'content-outline':
+  $nav = _mooc_nav_block_get_nav($node);
+  // default config that nav options will modify
+  $config = array(
+    'active_trail' => array($nav['parent'], $node->book['mlid']),
+    'conditions' => array('plid' => $nav['parent']),
+  );
+  // process $nav array modifying the config for building the
+  switch ($nav['type']) {
+    case 'content-outline':
+      $config['conditions'] = array('plid' => $node->book['mlid']);
+      $config['min_depth'] = $node->book['depth'];
+      $config['max_depth'] = 9;
+    break;
+    case 'content-outline-active-current':
+      if ($nav['display'] == 'here-below' && $node->book['mlid'] == $nav['parent']) {
         $config['conditions'] = array('plid' => $node->book['mlid']);
-        $config['min_depth'] = $node->book['depth'];
-        $config['max_depth'] = 9;
-      break;
-      case 'content-outline-active-current':
-        if ($nav['display'] == 'here-below' && $node->book['mlid'] == $nav['parent']) {
-          $config['conditions'] = array('plid' => $node->book['mlid']);
-          $config['min_depth'] = $node->book['depth']+1;
-          $config['max_depth'] = $node->book['depth']+1;
-        }
-        else {
-          $config['min_depth'] = $node->book['depth'];
-          $config['max_depth'] = $node->book['depth'];
-        }
-      break;
-      case 'content-outline-active-below':
         $config['min_depth'] = $node->book['depth']+1;
         $config['max_depth'] = $node->book['depth']+1;
-        // do nothing else if here and below is set and we are the page setting it
-        if ($nav['display'] == 'here-below' && $node->book['mlid'] == $nav['parent']) {
+      }
+      else {
+        $config['min_depth'] = $node->book['depth'];
+        $config['max_depth'] = $node->book['depth'];
+      }
+    break;
+    case 'content-outline-active-below':
+      $config['min_depth'] = $node->book['depth']+1;
+      $config['max_depth'] = $node->book['depth']+1;
+      // do nothing else if here and below is set and we are the page setting it
+      if ($nav['display'] == 'here-below' && $node->book['mlid'] == $nav['parent']) {
 
-        }
-        // if we are here only but NOT the page setting it we need to render nothing
-        elseif ($nav['display'] == 'here' && $node->book['mlid'] != $nav['parent']) {
-          return;
-        }
-        // if we are something else (here and below but NOT on the parent itself probably)
-        // then we need to render things from the current page down since it is active below
-        // 1 level
-        else {
-          $config['conditions'] = array('plid' => $node->book['mlid']);
-        }
-      break;
-    }
-    // menu tree as needed
-    $children = menu_build_tree($node->book['menu_name'], $config);
-    if (!empty($nav['custom_text'])) {
-      $output = $nav['custom_text'];
-    }
-    $tree = menu_tree_output($children);
-    // @todo may need to hijack the theme suggestion here
-    $output .= drupal_render($tree);
-    $block['subject'] = $nav['label'];
-    $block['content'] = $output;
-    $block['mooc_nav'] = $nav;
+      }
+      // if we are here only but NOT the page setting it we need to render nothing
+      elseif ($nav['display'] == 'here' && $node->book['mlid'] != $nav['parent']) {
+        return array();
+      }
+      // if we are something else (here and below but NOT on the parent itself probably)
+      // then we need to render things from the current page down since it is active below
+      // 1 level
+      else {
+        $config['conditions'] = array('plid' => $node->book['mlid']);
+      }
+    break;
   }
+  // menu tree as needed
+  $children = menu_build_tree($node->book['menu_name'], $config);
+  if (!empty($nav['custom_text'])) {
+    $output = $nav['custom_text'];
+  }
+  $tree = menu_tree_output($children);
+  // @todo may need to hijack the theme suggestion here
+  $output .= drupal_render($tree);
+  $block['subject'] = $nav['label'];
+  $block['content'] = $output;
+  $block['mooc_nav'] = $nav;
 
   return $block;
 }
@@ -117,45 +118,19 @@ function _mooc_nav_block_mooc_nav_block() {
  * @return array the properties of nav
  */
 function _mooc_nav_block_get_nav($node) {
-  // allow pages to pass their styling down
-  if (isset($node) && $node->type == 'page' && isset($node->book)) {
-    // easiest case, this item says to display stuff
-    if (!empty($node->field_mooc_nav_display) && $node->field_mooc_nav_display[LANGUAGE_NONE][0]['value'] != 'below') {
-      $nav = array(
-        'parent' => $node->book['mlid'],
-        'display' => $node->field_mooc_nav_display[LANGUAGE_NONE][0]['value'],
-        'style' => (isset($node->field_mooc_nav_style[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_style[LANGUAGE_NONE][0]['value'] : ''),
-        'type' => (isset($node->field_mooc_nav_type[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_type[LANGUAGE_NONE][0]['value'] : ''),
-        'label' => (isset($node->field_mooc_nav_label[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_label[LANGUAGE_NONE][0]['value'] : ''),
-        'custom_text' => (isset($node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value'] : ''),
-      );
-      return $nav;
-    }
-    else {
-      // spider back up through parents til we find a match
-      $plid = $node->book['plid'];
-      while ($plid != 0) {
-        $pmenu = book_link_load($plid);
-        $parent = node_load($pmenu['nid']);
-        // check that it has the image field set
-        if (isset($node->field_mooc_nav_display) && empty($parent->field_mooc_nav_display)) {
-          // keep going
-          $plid = $parent->book['plid'];
-        }
-        else {
-          // use this one, we always use the closest parent we find
-          $nav = array(
-            'parent' => $node->book['plid'],
-            'display' => $parent->field_mooc_nav_display[LANGUAGE_NONE][0]['value'],
-            'style' => (isset($parent->field_mooc_nav_style[LANGUAGE_NONE][0]['value']) ? $parent->field_mooc_nav_style[LANGUAGE_NONE][0]['value'] : ''),
-            'type' => (isset($parent->field_mooc_nav_type[LANGUAGE_NONE][0]['value']) ? $parent->field_mooc_nav_type[LANGUAGE_NONE][0]['value'] : ''),
-            'label' => (isset($parent->field_mooc_nav_label[LANGUAGE_NONE][0]['value']) ? $parent->field_mooc_nav_label[LANGUAGE_NONE][0]['value'] : ''),
-            'custom_text' => (isset($parent->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value']) ? $parent->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value'] : ''),
-          );
-          return $nav;
-        }
-      }
-    }
+  // set default
+  $nav = array(
+    'parent' => $node->book['mlid'],
+    'display' => 'here-below',
+    'style' => 'block-left',
+    'type' => 'content-outline-active-below',
+    'label' => (isset($node->field_mooc_nav_label[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_label[LANGUAGE_NONE][0]['value'] : t('Contents')),
+    'custom_text' => (isset($node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value'] : ''),
+  );
+  if (!$node->book['has_children']) {
+    $nav['type'] = 'content-outline-active-current';
+    $nav['display'] = 'here';
+    $nav['parent'] = $node->book['plid'];
   }
-  return FALSE;
+  return $nav;
 }

@@ -25,7 +25,7 @@ function textbook_templates_wysiwyg_templates_load_alter(&$templates) {
     'table_of_terms',
     'table_style_1',
     'table_style_2',
-    'magellan_navigation'
+    'materialize_card',
   );
   foreach ($templates as $key => $template) {
     // see if the template matches one in the textbook definition

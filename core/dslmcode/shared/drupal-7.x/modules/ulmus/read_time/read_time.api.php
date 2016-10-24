@@ -2,6 +2,10 @@
 /**
  * @file
  * API functions for read_time module
+ *
+ * Setting $node->_block_read_time_update on the node object
+ * prior to / early in the save process can prevent read_time
+ * from automatically updating like it normally does.
  */
 
 /**

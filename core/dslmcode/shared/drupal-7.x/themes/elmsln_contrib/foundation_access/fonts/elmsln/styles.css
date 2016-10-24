@@ -1,19 +1,19 @@
 @charset "UTF-8";
 
 @font-face {
-  font-family: "elmsln-font-3";
-  src:url("fonts/elmsln-font-3.eot");
-  src:url("fonts/elmsln-font-3.eot?#iefix") format("embedded-opentype"),
-    url("fonts/elmsln-font-3.woff") format("woff"),
-    url("fonts/elmsln-font-3.ttf") format("truetype"),
-    url("fonts/elmsln-font-3.svg#elmsln-font-3") format("svg");
+  font-family: "elmsln";
+  src:url("fonts/elmsln.eot");
+  src:url("fonts/elmsln.eot?#iefix") format("embedded-opentype"),
+    url("fonts/elmsln.woff") format("woff"),
+    url("fonts/elmsln.ttf") format("truetype"),
+    url("fonts/elmsln.svg#elmsln") format("svg");
   font-weight: normal;
   font-style: normal;
 
 }
 
 [data-icon]:before {
-  font-family: "elmsln-font-3" !important;
+  font-family: "elmsln" !important;
   content: attr(data-icon);
   font-style: normal !important;
   font-weight: normal !important;
@@ -26,7 +26,7 @@
 
 [class^="icon-"]:before,
 [class*=" icon-"]:before {
-  font-family: "elmsln-font-3" !important;
+  font-family: "elmsln" !important;
   font-style: normal !important;
   font-weight: normal !important;
   font-variant: normal !important;
@@ -91,12 +91,6 @@
 .icon-comment:before {
   content: "\75";
 }
-.icon-comply:before {
-  content: "\76";
-}
-.icon-content:before {
-  content: "\77";
-}
 .icon-content-outline:before {
   content: "\78";
 }
@@ -129,9 +123,6 @@
 }
 .icon-grades:before {
   content: "\4c";
-}
-.icon-help:before {
-  content: "\4d";
 }
 .icon-hidden:before {
   content: "\4e";
@@ -216,4 +207,34 @@
 }
 .icon-ulmus:before {
   content: "\6f";
+}
+.icon-comply:before {
+  content: "\70";
+}
+.icon-content:before {
+  content: "\76";
+}
+.icon-help:before {
+  content: "\77";
+}
+.icon-dinosunglasses:before {
+  content: "\46";
+}
+.icon-hax-icons:before {
+  content: "\47";
+}
+.icon-hax-icons-1:before {
+  content: "\4a";
+}
+.icon-hax-icons-2:before {
+  content: "\4b";
+}
+.icon-hax-icons-3:before {
+  content: "\4d";
+}
+.icon-hax-icons-4:before {
+  content: "\39";
+}
+.icon-hax-icons-5:before {
+  content: "\22";
 }

@@ -21,14 +21,12 @@
   };
   // loop through each list and then jump from one color through the bottom
   $(document).ready(function(){
-    $('input#edit-elmsln-share-section,input.cis_shortcodes_embed').focus(function() { $(this).select() });
-    $('input#edit-elmsln-share-section,input.cis_shortcodes_embed').mouseup(function(e){
-      e.preventDefault();
-    });
+    // hide accessibility button
     if ($('.cis_accessibility_check a').length == 0) {
       $('.accessibility-content-toggle a').appendTo('.cis_accessibility_check');
     }
     $('.accessibility-content-toggle').hide();
+    // color luminance
     $('.list-colorluminance[data-colorluminance]').each(function(){
       var color=$(this).attr('data-colorluminance');
       var count = $(this).children('li').length;
@@ -41,6 +39,31 @@
         $("<style type='text/css'> li.luminance-" + luminance.replace('#', '') + ":before { border-color:" + luminance + " !important; background:" + luminance + " !important;}</style>").appendTo("head");
         $(this).addClass('luminance-' + luminance.replace('#', ''));
       });
+    });
+    // load the next page if there is one and we see it on our screen
+    $('[data-prefetch-scrollfire="true"]:visible').each(function(){
+      var options = [
+        {selector: '[href="' + $(this).attr('href') + '"]', offset: 0, callback: function(el) {
+          $('head').append('<link rel="prefetch" href="' + $(el).attr('href')  + '?no-track">');
+        }}
+      ];
+      Materialize.scrollFire(options);
+    });
+    // allow for prefetch on hover to prime the request
+    $('[data-prefetch-hover="true"]').one('mouseenter', function(){
+      var href = $(this).attr('href');
+      if ($(this).attr('href').indexOf('?') == -1) {
+        href += '?no-track';
+      }
+      else {
+        href += '&no-track';
+      }
+      $('head').append('<link rel="prefetch" href="' + href + '"">');
+    });
+    // shortcode embed focus idea
+    $('input#edit-elmsln-share-section,input.cis_shortcodes_embed').focus(function() { $(this).select() });
+    $('input#edit-elmsln-share-section,input.cis_shortcodes_embed').mouseup(function(e){
+      e.preventDefault();
     });
   });
   // remove alerts when they are clicked on

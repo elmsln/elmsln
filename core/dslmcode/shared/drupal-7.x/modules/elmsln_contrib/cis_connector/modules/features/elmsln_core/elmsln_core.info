@@ -34,6 +34,7 @@ dependencies[] = node
 dependencies[] = strongarm
 dependencies[] = system
 dependencies[] = textbook_editor
+dependencies[] = views_content_cache
 dependencies[] = pathcache
 dependencies[] = user
 dependencies[] = uuid

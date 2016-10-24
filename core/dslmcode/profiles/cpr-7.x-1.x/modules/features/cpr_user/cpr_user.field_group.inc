@@ -113,7 +113,6 @@ function cpr_user_field_group_info() {
     'weight' => '2',
     'children' => array(
       0 => 'field_accessibility_preference',
-      1 => 'field_media_preference',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -142,9 +141,10 @@ function cpr_user_field_group_info() {
     'label' => 'Admin',
     'weight' => '3',
     'children' => array(
-      0 => 'masquerade',
-      1 => 'timezone',
-      2 => 'wysiwyg',
+      0 => 'og_user_node1',
+      1 => 'masquerade',
+      2 => 'timezone',
+      3 => 'wysiwyg',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -205,8 +205,6 @@ function cpr_user_field_group_info() {
     'weight' => '11',
     'children' => array(
       0 => 'field_photo',
-      1 => 'field_banner_pic',
-      2 => 'picture',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

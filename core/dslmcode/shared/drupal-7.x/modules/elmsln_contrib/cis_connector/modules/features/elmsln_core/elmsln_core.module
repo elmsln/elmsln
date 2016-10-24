@@ -33,6 +33,27 @@ function elmsln_core_stream_wrappers() {
 }
 
 /**
+ * Fallback for drupal_realpath() because it doesn't like us currently.
+ */
+function _elmsln_core_realpath($uri) {
+  // convert target into array
+  $fileparts =  explode('/', str_replace('\\', '/', $uri));
+  array_shift($fileparts);
+  array_shift($fileparts);
+  // shift front off into tool name
+  $tool = array_shift($fileparts);
+  // convert back to file you are looking for
+  $filepath = implode('/', $fileparts);
+  // build full path to return
+  $cfg = _cis_connector_get_cfg();
+  if ($settings = _cis_connector_build_registry($tool)) {
+    $adr = explode('.', $settings['address']);
+    $domain = array_shift($adr);
+  }
+  return $cfg['configsdir'] . '/stacks/' . $domain . '/sites/' . $domain . '/' . $cfg['host'] . '/files/' . $filepath;
+}
+
+/**
  * Implements hook_menu().
  */
 function elmsln_core_menu() {
@@ -102,6 +123,75 @@ function elmsln_core_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter.
+ * Send user to the CPR to edit the global profile.
+ */
+function elmsln_core_menu_alter(&$items) {
+
+  if(variable_get('install_profile') != 'cpr') {
+    // Override the user edit handler for our purpose.
+    $items['user/%user/edit']['page callback'] = '_elmsln_people_user_edit_page';
+  }
+}
+
+/**
+ * Access callback for _elmsln_people_user_edit_page.
+ */
+function _elmsln_people_user_edit_page() {
+  // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
+  $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+  // send user to the cpr we just defined and redirect them back to where they were.
+  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $GLOBALS['user']->uid, 'edit?destination=elmsln/redirect/' . variable_get('install_profile', 'standard') . '/user/' . $GLOBALS['user']->uid . '&elmsln_course=' . _cis_connector_course_context());
+}
+
+/**
+ * The user's account information is being displayed.
+ *
+ * The module should format its custom additions for display and add them to the
+ * $account->content array.
+ *
+ * @param $account
+ *   The user object on which the operation is being performed.
+ * @param $view_mode
+ *   View mode, e.g. 'full'.
+ * @param $langcode
+ *   The language code used for rendering.
+ *
+ * @see hook_user_view_alter()
+ * @see hook_entity_view()
+ */
+function elmsln_core_user_view($account, $view_mode, $langcode) {
+  // If we are not already on the central person repository.
+  if(variable_get('install_profile') != 'cpr') {
+    // Grab the user data from the central person repository.
+    $user_data_name = _cis_connector_request('user.json?name=' . $account->name, $options = array(), $bucket = 'cpr', $cached = TRUE);
+
+    $user_data_name = json_decode($user_data_name->data);
+
+    $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', $options = array(), $bucket = 'cpr', $cached = TRUE);
+
+    // Decode the data that comes in from the user object.
+    $user_data = json_decode($user_data_uid->data);
+
+    // Add a new section to the User profile page.
+    $account->content['summary']['profile'] = array(
+      '#type' => 'user_profile_item',
+      '#title' => '',
+      '#markup' => $user_data->rendered,
+    );
+  }
+}
+
+/**
+ * Implements hook_user_view_alter().
+ */
+function elmsln_core_user_view_alter(&$build) {
+  // Remove default user history etc...
+  $build['summary']['#title'] = '';
+  $build['summary']['member_for'] = '';
 }
 
 /**
@@ -431,7 +521,7 @@ function elmsln_core_page_build(&$page) {
   // jwerty / voice support
   drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
   // xapi context iframe sniffer
-  if (module_exists('tincanapi')) {
+  if (module_exists('tincanapi') && !path_is_admin(current_path())) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
   }
   // devel usability improvement
@@ -473,8 +563,9 @@ function elmsln_core_page_build(&$page) {
       'url' => url(current_path(), array('absolute' => TRUE)),
       'role' => $role,
       'xapisession' => drupal_get_token($uuid),
-    ),
+    )
   );
+  $js_variables['tincanapi'] = $js_variables;
   drupal_add_js($js_variables, 'setting');
 }
 
@@ -988,5 +1079,108 @@ function elmsln_core_tincanapi_data_alter($module_name, &$data) {
       'https://www.elmsln.org/x-api/elmsln-role' => $role,
       'https://www.elmsln.org/x-api/elmsln-session' => $session,
     );
+  }
+}
+
+/**
+ * Implements hook_tincan_request_fuction().
+ */
+function elmsln_core_tincan_request_fuction() {
+  return array('elmsln_core_tincanapi_send' => t('elmsln (nonblocking option)'));
+}
+
+/**
+ * Send the data collection to the LRS; forked from core send method
+ *
+ * @param string $action
+ *   The name of the action to submit.
+ * @param string $method
+ *   The HTTP method.
+ * @param array $data
+ *
+ * @see  tincanapi_send
+ *   An associative array that conforms to the API specification.
+ */
+function elmsln_core_tincanapi_send($action, $method, array $data) {
+  // ensure registry is correct
+  if ($settings = _cis_connector_build_registry('_lrs')) {
+    // options
+    $options = array(
+      'method' => $method,
+      'headers' => array(
+        'Content-Type' => 'application/json',
+        'X-Experience-API-Version' => '1.0.0',
+      ),
+    );
+    if ($method == "POST" || $method == "PUT") {
+      $json = json_encode($data);
+      $options['data'] = json_encode($data);
+      $options['headers']['Content-Length'] = strlen($json);
+      // all this work so we can use non-blocking calls!
+      $options['blocking'] = FALSE;
+    }
+    $end_point = variable_get('tincanapi_endpoint');
+    // same as above, you could ignore / override / swap out buckets to use for
+    // connecting. This opens the door for multiple dedicated LRSs based on the type
+    // of data they have or doing an LRS migration contextually down the road
+    $bucket = variable_get('elmsln_lrs_bucket', ELMSLN_CORE_LRS_KEYCHAIN);
+    // build the call to make which will go against the lrs bucket
+    // Sanitize endpoint.
+    $end_point = trim($end_point);
+    // split off protocol
+    $tmp = explode('://', $end_point);
+    $end_point = $tmp[1];
+    // split domain off from path for the request
+    $tmp = explode('/', $end_point);
+    array_shift($tmp);
+    $end_point = implode('/', $tmp);
+    if (substr($end_point, -1) == "/") {
+      $end_point = substr($end_point, 0, -1);
+    }
+    // Sanitize action.
+    $action = trim($action);
+    if (substr($end_point, 0, 1) == "/") {
+      $action = substr($end_point, 1);
+    }
+
+    if ($method == "GET" || $method == "DELETE") {
+      $action .= "?" . http_build_query($data, '', '&');
+    }
+
+    // Init call.
+    $call = $end_point . '/' . $action;
+    // generate the well structured request
+    $response = _cis_connector_request($call, $options, $bucket, FALSE);
+    // Check for connection errors.
+    if ($response === FALSE || $response === NULL) {
+      if (variable_get('tincanapi_watchdog') && $response['options']['blocking']) {
+        watchdog('tincanapi', curl_error($ch), array(), WATCHDOG_DEBUG);
+      }
+
+      return FALSE;
+    }
+
+    $response = json_decode($response->data, TRUE);
+    $error = isset($response["error"]) && $response["error"];
+
+    // Log the response.
+    if ((variable_get('tincanapi_watchdog') || $error) && $response['options']['blocking']) {
+      $debug = array(
+        "request" => array(
+          "url" => $end_point,
+          "post" => $data,
+        ),
+        "response" => array(
+          "txt" => $response,
+        ),
+      );
+
+      $severity = $error ? WATCHDOG_ERROR : WATCHDOG_DEBUG;
+      watchdog('tincanapi', json_encode($debug), array(), $severity);
+    }
+    return $response;
+  }
+  else {
+    return tincanapi_send($action, $method, $data);
   }
 }

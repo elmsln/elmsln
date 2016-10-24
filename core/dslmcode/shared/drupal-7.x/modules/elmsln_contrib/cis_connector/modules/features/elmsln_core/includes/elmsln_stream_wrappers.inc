@@ -20,6 +20,18 @@ abstract class ELMSLNLocalStreamWrapper extends DrupalLocalStreamWrapper {
     $cfg = _cis_connector_get_cfg();
     return $cfg['host'];
   }
+
+  /**
+   * Get the path for the elmsln configuration file
+   */
+  public function getELMSLNDomain($tool) {
+    // load configuration file
+    if ($settings = _cis_connector_build_registry($tool)) {
+      $adr = explode('.', $settings['address']);
+      $domain = array_shift($adr);
+    }
+    return $domain;
+  }
 }
 
 /**
@@ -42,7 +54,7 @@ class ELMSLNAuthorityStreamWrapper extends ELMSLNLocalStreamWrapper {
     // convert back to file you are looking for
     $filepath = implode('/', $fileparts);
     // build full path to return
-    $path = self::getELMSLNConfigPath() . '/stacks/' . $tool . '/sites/' . $tool . '/' . self::getELMSLNHost() . '/files/' . $filepath;
+    $path = self::getELMSLNConfigPath() . '/stacks/' . self::getELMSLNDomain($tool) . '/sites/' . self::getELMSLNDomain($tool) . '/' . self::getELMSLNHost() . '/files/' . $filepath;
     return $path;
   }
 
@@ -62,9 +74,7 @@ class ELMSLNAuthorityStreamWrapper extends ELMSLNLocalStreamWrapper {
     $settings = _cis_connector_build_registry($tool);
     // build address from registry
     $address = _cis_connector_format_address($settings, '', 'front');
-    $tmp = explode('.', $settings['address']);
-    $stack = array_shift($tmp);
-    return $address . '/sites/' . $stack . '/' . self::getELMSLNHost() . '/files/' . drupal_encode_path($filepath);
+    return $address . '/sites/' . self::getELMSLNDomain($tool) . '/' . self::getELMSLNHost() . '/files/' . drupal_encode_path($filepath);
   }
 }
 
@@ -90,7 +100,7 @@ class ELMSLNServiceStreamWrapper extends ELMSLNLocalStreamWrapper {
     // convert back to file you are looking for
     $filepath = implode('/', $fileparts);
     // build full path to return
-    $path = self::getELMSLNConfigPath() . '/stacks/' . $tool . '/sites/' . $tool . '/' . self::getELMSLNHost() . '/' . $course . '/files/' . $filepath;
+    $path = self::getELMSLNConfigPath() . '/stacks/' . self::getELMSLNDomain($tool) . '/sites/' . self::getELMSLNDomain($tool) . '/' . self::getELMSLNHost() . '/' . $course . '/files/' . $filepath;
     return $path;
   }
 
@@ -112,8 +122,6 @@ class ELMSLNServiceStreamWrapper extends ELMSLNLocalStreamWrapper {
     $settings = _cis_connector_build_registry($tool);
     // build address from registry
     $address = _cis_connector_format_address($settings, '/' . $course, 'front');
-    $tmp = explode('.', $settings['address']);
-    $stack = array_shift($tmp);
-    return $address . '/sites/' . $stack . '/' . self::getELMSLNHost() . '/' . $course . '/files/' . drupal_encode_path($filepath);
+    return $address . '/sites/' . self::getELMSLNDomain($tool) . '/' . self::getELMSLNHost() . '/' . $course . '/files/' . drupal_encode_path($filepath);
   }
 }

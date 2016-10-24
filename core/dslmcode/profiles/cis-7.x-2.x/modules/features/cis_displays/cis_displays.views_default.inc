@@ -1365,7 +1365,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_section_number_editable']['widget_type'] = '0';
   $handler->display->display_options['fields']['field_section_number_editable']['suppress_label'] = 1;
   $handler->display->display_options['fields']['field_section_number_editable']['suppress_description'] = 1;
-  /* Field: Field: Service (editable) */
+  /* Field: Field: Services in use (editable) */
   $handler->display->display_options['fields']['field_services_editable']['id'] = 'field_services_editable';
   $handler->display->display_options['fields']['field_services_editable']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services_editable']['field'] = 'field_services_editable';
@@ -2662,7 +2662,7 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['fields']['field_course_1']['settings'] = array(
     'link' => 1,
   );
-  /* Field: Field: Service */
+  /* Field: Field: Services in use */
   $handler->display->display_options['fields']['field_services']['id'] = 'field_services';
   $handler->display->display_options['fields']['field_services']['table'] = 'field_data_field_services';
   $handler->display->display_options['fields']['field_services']['field'] = 'field_services';
@@ -2735,7 +2735,7 @@ function cis_displays_views_default_views() {
     3 => 0,
     13 => 0,
   );
-  /* Filter criterion: Field: Service (field_services) */
+  /* Filter criterion: Field: Services in use (field_services) */
   $handler->display->display_options['filters']['field_services_target_id']['id'] = 'field_services_target_id';
   $handler->display->display_options['filters']['field_services_target_id']['table'] = 'field_data_field_services';
   $handler->display->display_options['filters']['field_services_target_id']['field'] = 'field_services_target_id';
@@ -2975,8 +2975,10 @@ function cis_displays_views_default_views() {
       'filter_rewrite_values' => NULL,
     ),
     'title' => array(
+      'bef_format' => 'default',
       'more_options' => array(
         'is_secondary' => 0,
+        'any_label' => '',
         'bef_filter_description' => '',
         'tokens' => array(
           'available' => array(
@@ -2997,11 +2999,19 @@ function cis_displays_views_default_views() {
           'any_label' => NULL,
           'filter_rewrite_values' => NULL,
         ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+          'secondary_label' => NULL,
+          'collapsible_label' => NULL,
+          'combine_rewrite' => NULL,
+          'reset_label' => NULL,
+          'bef_filter_description' => NULL,
+          'any_label' => NULL,
+        ),
         'secondary_label' => NULL,
         'collapsible_label' => NULL,
         'combine_rewrite' => NULL,
         'reset_label' => NULL,
-        'any_label' => NULL,
         'filter_rewrite_values' => NULL,
       ),
       'secondary_label' => NULL,
@@ -3016,8 +3026,9 @@ function cis_displays_views_default_views() {
       'bef_format' => 'bef',
       'more_options' => array(
         'bef_select_all_none' => 0,
-        'bef_collapsible' => 1,
+        'bef_collapsible' => 0,
         'is_secondary' => 0,
+        'any_label' => '',
         'bef_filter_description' => '',
         'tokens' => array(
           'available' => array(
@@ -3038,11 +3049,19 @@ function cis_displays_views_default_views() {
           'any_label' => NULL,
           'filter_rewrite_values' => NULL,
         ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+          'secondary_label' => NULL,
+          'collapsible_label' => NULL,
+          'combine_rewrite' => NULL,
+          'reset_label' => NULL,
+          'bef_filter_description' => NULL,
+          'any_label' => NULL,
+        ),
         'secondary_label' => NULL,
         'collapsible_label' => NULL,
         'combine_rewrite' => NULL,
         'reset_label' => NULL,
-        'any_label' => NULL,
         'filter_rewrite_values' => NULL,
       ),
       'secondary_label' => NULL,
@@ -3057,8 +3076,9 @@ function cis_displays_views_default_views() {
       'bef_format' => 'bef',
       'more_options' => array(
         'bef_select_all_none' => 0,
-        'bef_collapsible' => 1,
+        'bef_collapsible' => 0,
         'is_secondary' => 0,
+        'any_label' => '',
         'bef_filter_description' => '',
         'tokens' => array(
           'available' => array(
@@ -3079,11 +3099,19 @@ function cis_displays_views_default_views() {
           'any_label' => NULL,
           'filter_rewrite_values' => NULL,
         ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+          'secondary_label' => NULL,
+          'collapsible_label' => NULL,
+          'combine_rewrite' => NULL,
+          'reset_label' => NULL,
+          'bef_filter_description' => NULL,
+          'any_label' => NULL,
+        ),
         'secondary_label' => NULL,
         'collapsible_label' => NULL,
         'combine_rewrite' => NULL,
         'reset_label' => NULL,
-        'any_label' => NULL,
         'filter_rewrite_values' => NULL,
       ),
       'secondary_label' => NULL,
@@ -3095,8 +3123,10 @@ function cis_displays_views_default_views() {
       'filter_rewrite_values' => NULL,
     ),
     'title_1' => array(
+      'bef_format' => 'default',
       'more_options' => array(
-        'is_secondary' => 1,
+        'is_secondary' => 0,
+        'any_label' => '',
         'bef_filter_description' => '',
         'tokens' => array(
           'available' => array(
@@ -3117,11 +3147,19 @@ function cis_displays_views_default_views() {
           'any_label' => NULL,
           'filter_rewrite_values' => NULL,
         ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+          'secondary_label' => NULL,
+          'collapsible_label' => NULL,
+          'combine_rewrite' => NULL,
+          'reset_label' => NULL,
+          'bef_filter_description' => NULL,
+          'any_label' => NULL,
+        ),
         'secondary_label' => NULL,
         'collapsible_label' => NULL,
         'combine_rewrite' => NULL,
         'reset_label' => NULL,
-        'any_label' => NULL,
         'filter_rewrite_values' => NULL,
       ),
       'secondary_label' => NULL,
@@ -3140,6 +3178,8 @@ function cis_displays_views_default_views() {
     'any_label' => NULL,
     'filter_rewrite_values' => NULL,
   );
+  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
+  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'textbook_editor';
   $handler->display->display_options['pager']['type'] = 'none';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'table';

@@ -309,8 +309,7 @@ function tincanapi_track_data($module_name, $data = array(), $user = NULL, $cron
         $data["context"]["contextActivities"]["parent"][0]["id"] = str_replace(array("http://www.", "https://www.", "https://", "https://"), "http://", $data["context"]["contextActivities"]["parent"][0]["id"]);
       }
     }
-
-    tincanapi_send("statements", "POST", $data);
+    call_user_func_array(variable_get('tincanapi_function', 'tincanapi_send'), array("statements", "POST", $data));
   }
 }
 
@@ -452,4 +451,11 @@ function tincanapi_format_iso8601_duration($timestamp) {
   }
 
   return $output;
+}
+
+/**
+ * Implements hook_tincan_request_fuction().
+ */
+function tincanapi_tincan_request_fuction() {
+  return array('tincanapi_send' => t('tincanapi (default)'));
 }
