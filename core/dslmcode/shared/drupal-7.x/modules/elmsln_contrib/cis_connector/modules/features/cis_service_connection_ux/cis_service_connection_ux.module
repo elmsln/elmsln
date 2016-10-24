@@ -157,19 +157,6 @@ function cis_service_connection_ux_form($form, $form_state) {
     '#title' => t('Tool details'),
     '#weight' => '0',
   );
-  // name fields
-  $form['elmsln_api_sync'] = array(
-    '#default_value' => variable_get('elmsln_api_sync', 1),
-    '#weight' => '-1000',
-    '#description' => t('How should this system be kept in sync with its network?'),
-    '#options' => array(
-      0 => t("Don't sync"),
-      1 => t("Sync everything"),
-      2 => t("Sync everything but the banner"),
-    ),
-    '#type' => 'select',
-    '#title' => t('Sync'),
-  );
   $form['site_information_name']['site_name'] = array(
     '#description' => t('A short name for the Course'),
     '#default_value' => variable_get('site_name', ''),
@@ -226,11 +213,6 @@ function cis_service_connection_ux_form($form, $form_state) {
     $form['theme'] = $tmp['zurb_foundation']['foundation_access'];
     $form['theme']['#title'] = t('Theme / Style settings');
     $form['theme']['#collapsed'] = '1';
-    // add in the favicon / logo areas
-    $form['theme']['favicon']  = $tmp['favicon'];
-    $form['theme']['favicon']['#weight'] = 11;
-    $form['theme']['logo'] = $tmp['logo'];
-    $form['theme']['logo']['#weight'] = 10;
     // unset some of the standard theme settings
     foreach ($form['theme'] as &$value) {
       if (is_array($value) && isset($value['#value'])) {
@@ -238,89 +220,9 @@ function cis_service_connection_ux_form($form, $form_state) {
       }
     }
     // submit handlers
-    $form['#validate'][] = 'cis_service_connection_ux_form_validate';
     $form['#submit'][] = 'cis_service_connection_ux_form_submit';
   }
   return system_settings_form($form);
-}
-
-/**
- * Form validation for cis_service_connection_ux_form.
- */
-function cis_service_connection_ux_form_validate($form, &$form_state) {
-  // Handle file uploads.
-  $validators = array('file_validate_is_image' => array());
-  // Check for a new uploaded logo.
-  $file = file_save_upload('logo_upload', $validators);
-  if (isset($file)) {
-    // File upload was attempted.
-    if ($file) {
-      // Put the temporary file in form_values so we can save it on submit.
-      $form_state['values']['logo_upload'] = $file;
-    }
-    else {
-      // File upload failed.
-      form_set_error('logo_upload', t('The logo could not be uploaded.'));
-    }
-  }
-
-  $validators = array('file_validate_extensions' => array('ico png gif jpg jpeg apng svg'));
-
-  // Check for a new uploaded favicon.
-  $file = file_save_upload('favicon_upload', $validators);
-  if (isset($file)) {
-    // File upload was attempted.
-    if ($file) {
-      // Put the temporary file in form_values so we can save it on submit.
-      $form_state['values']['favicon_upload'] = $file;
-    }
-    else {
-      // File upload failed.
-      form_set_error('favicon_upload', t('The favicon could not be uploaded.'));
-    }
-  }
-
-  // If the user provided a path for a logo or favicon file, make sure a file
-  // exists at that path.
-  if (!empty($form_state['values']['logo_path'])) {
-    $path = _cis_service_connection_ux_validate_path($form_state['values']['logo_path']);
-    if (!$path) {
-      form_set_error('logo_path', t('The custom logo path is invalid.'));
-    }
-  }
-  if (!empty($form_state['values']['favicon_path'])) {
-    $path = _cis_service_connection_ux_validate_path($form_state['values']['favicon_path']);
-    if (!$path) {
-      form_set_error('favicon_path', t('The custom favicon path is invalid.'));
-    }
-  }
-}
-
-/**
- * Callback to validate that this is a path we accept for images in theme settings.
- * @param  string $path path to file, could be local, remote, URI, or URL
- * @return mixed       path if valid or FALSE if not
- */
-function _cis_service_connection_ux_validate_path($path) {
-  // Absolute local file paths are invalid.
-  if (drupal_realpath($path) == $path) {
-    return FALSE;
-  }
-  // A path relative to the Drupal root or a fully qualified URI is valid.
-  if (is_file($path)) {
-    return $path;
-  }
-  // Prepend 'public://' for relative file paths within public filesystem.
-  if (file_uri_scheme($path) === FALSE) {
-    $path = 'public://' . $path;
-  }
-  if (is_file($path)) {
-    return $path;
-  }
-  if (valid_url($path)) {
-    return $path;
-  }
-  return FALSE;
 }
 
 /**
@@ -330,101 +232,17 @@ function cis_service_connection_ux_form_submit($form, &$form_state) {
   module_load_include('inc', 'system', 'system.admin');
   // Exclude unnecessary elements before saving.
   form_state_values_clean($form_state);
-  $values = $form_state['values'];
-  // see if we have foundation access settings in here
-  if (isset($form_state['groups']['foundation_access'])) {
-    // load the current settings array we'd get on the theme settings page
-    $vars = variable_get('theme_' . variable_get('theme_default', '') . '_settings', array());
-    foreach ($form_state['values'] as $key => $val) {
-      // if the name of the variable includes FA, overwrite the current one
-      if (strpos($key, 'foundation_access') !== FALSE || in_array($key, array('default_favicon', 'favicon_path', 'favicon_upload', 'default_logo', 'logo_path', 'logo_upload'))) {
-        $vars[$key] = $val;
-        // unset so we don't get these stored in the database as stand alones
-        unset($form_state['values'][$key]);
-      }
-    }
-    // If the user uploaded a new logo or favicon, save it to a permanent location
-    // and use it in place of the default theme-provided file.
-    if (!empty($values['logo_upload']) && $values['logo_upload']) {
-      $file = $values['logo_upload'];
-      unset($vars['logo_upload']);
-      $filename = file_unmanaged_copy($file->uri);
-      $vars['default_logo'] = 0;
-      $vars['logo_path'] = $filename;
-      $vars['toggle_logo'] = 1;
-    }
-    if (!empty($values['favicon_upload']) && $values['favicon_upload']) {
-      $file = $values['favicon_upload'];
-      unset($vars['favicon_upload']);
-      $filename = file_unmanaged_copy($file->uri);
-      $vars['default_favicon'] = 0;
-      $vars['favicon_path'] = $filename;
-      $vars['toggle_favicon'] = 1;
-    }
-
-    // If the user entered a path relative to the system files directory for
-    // a logo or favicon, store a public:// URI so the theme system can handle it.
-    if (!empty($vars['logo_path'])) {
-      $vars['logo_path'] = _cis_service_connection_ux_validate_path($vars['logo_path']);
-    }
-    if (!empty($vars['favicon_path'])) {
-      $vars['favicon_path'] = _cis_service_connection_ux_validate_path($vars['favicon_path']);
-    }
-
-    if (empty($vars['default_favicon']) && !empty($vars['favicon_path'])) {
-      $vars['favicon_mimetype'] = file_get_mimetype($vars['favicon_path']);
-    }
-    // set the variables for the theme
-    variable_set('theme_' . variable_get('theme_default', '') . '_settings', $vars);
+  // ensure that course name is changed globally if updated anywhere
+  $properties = array();
+  if (variable_get('site_name', '') != $form_state['values']['site_name']) {
+    $properties['title'] = $form_state['values']['site_name'];
   }
-  // see if we should elmsln_api_sync things
-  if (!($form_state['values']['elmsln_api_sync'] === 0)) {
-    // load the settings
-    $vars = array(
-      'default_favicon',
-      'favicon_path',
-      'toggle_favicon',
-      'foundation_access_primary_color',
-      'foundation_access_secondary_color',
-      'foundation_access_required_color',
-      'foundation_access_optional_color',
-    );
-    // account for sync mode with option to not sync banner
-    if (variable_get('elmsln_api_sync', 1) == 1) {
-      $vars[] = 'default_logo';
-      $vars[] = 'logo_path';
-      $vars[] = 'toggle_logo';
-    }
-    $values = array();
-    // get the theme variables
-    foreach ($vars as $var) {
-      $values[$var] = theme_get_setting($var, variable_get('theme_default', 'foundation_access'));
-      if ($var == 'logo_path') {
-        $values[$var] = file_create_url($values[$var]);
-      }
-    }
-    // prepare requests to kick off settings
-    $requests = array(
-       array(
-        'elmsln_module' => 'elmsln_api',
-        'elmsln_callback' => 'theme_settings',
-        'values' => $values,
-      ),
-    );
-    // rebuild these requests for the active network
-    _elmsln_api_network_request($requests, '1', TRUE);
-    // ensure that course name is changed globally if updated anywhere
-    $properties = array();
-    if (variable_get('site_name', '') != $form_state['values']['site_name']) {
-      $properties['title'] = $form_state['values']['site_name'];
-    }
-    if (variable_get('site_slogan', '') != $form_state['values']['site_slogan']) {
-      $properties['slogan'] = $form_state['values']['site_slogan'];
-    }
-    // if anything changed let's ship this off everywhere
-    if (!empty($properties)) {
-      _elmsln_api_course_sync($properties, '1', TRUE);
-    }
+  if (variable_get('site_slogan', '') != $form_state['values']['site_slogan']) {
+    $properties['slogan'] = $form_state['values']['site_slogan'];
+  }
+  // if anything changed let's ship this off everywhere
+  if (!empty($properties)) {
+    _elmsln_api_course_sync($properties, '1', TRUE);
   }
 }
 
