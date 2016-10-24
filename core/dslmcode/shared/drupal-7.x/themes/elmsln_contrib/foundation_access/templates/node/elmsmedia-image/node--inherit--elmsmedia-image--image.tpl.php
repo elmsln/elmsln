@@ -11,6 +11,9 @@
   <?php else: ?>
     <div class="image__img">
       <?php print render($image); ?>
+      <?php if (isset($is_gif) && $is_gif) : ?>
+      <?php print $gif_buttons; ?>
+      <?php endif; ?>
     </div>
   <?php endif; ?>
 

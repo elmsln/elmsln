@@ -47,6 +47,14 @@ function foundation_access_preprocess_html(&$variables) {
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
+  // gifs need to be done as a player for accessibility reasons
+  $libraries = libraries_get_libraries();
+  if (isset($libraries['freezeframe.js'])) {
+    drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
+    drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
+    drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/freezeframe-enable.js');
+  }
   // bring in materialize
   $libraries = libraries_get_libraries();
   // see if we have it locally before serviing CDN
@@ -662,6 +670,10 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
     // so that it doesn't break the animation
     if (isset($variables['image']['#item']['filemime']) && $variables['image']['#item']['filemime'] == 'image/gif') {
       $variables['image']['#image_style'] = '';
+      $variables['image']['#item']['attributes']['class'][] = 'animatedgif';
+      $variables['image']['#item']['attributes']['class'][] = 'freezeframe-responsive';
+      $variables['is_gif'] = TRUE;
+      $variables['gif_buttons'] = '<div><button class="start">' . t('start') . '</button><button class="stop">' . t('stop') . '</button></div>';
     }
     // alt/title info
     if (empty($variables['image']['#item']['alt'])) {
