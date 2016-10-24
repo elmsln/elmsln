@@ -1,0 +1,26 @@
+{
+  "name": "ELMSLN global upgrade 1477329107",
+  "drush_recipes_api": "1.0",
+  "weight": "0",
+  "core": "7",
+  "recipe": [
+    {
+      "command": "apdqc",
+      "arguments": [
+        "--y"
+      ]
+    },
+    {
+      "command": "apdqc",
+      "arguments": [
+        "--y"
+      ]
+    }
+  ],
+  "metadata": {
+    "type": "upgrade",
+    "description": "APDQC table conversion",
+    "version": "1477329107",
+    "author": "btopro"
+  }
+}
