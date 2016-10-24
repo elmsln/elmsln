@@ -22,3 +22,11 @@ function cpr_install() {
   variable_set('cis_resource_page', '');
   variable_set('cis_syllabus_page', '');
 }
+
+
+/**
+ * Remove media preference field, we'll do this another way.
+ */
+function cpr_update_7001(&$sandbox) {
+  features_revert_module('cpr_user');
+}
