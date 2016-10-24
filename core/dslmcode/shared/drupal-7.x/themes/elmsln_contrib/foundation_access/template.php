@@ -1,5 +1,6 @@
 <?php
-
+// global cdn materialize version
+define('FOUNDATION_ACCESS_MATERIALIZE_VERSION', '0.97.7');
 /**
  * Adds CSS classes based on user roles
  * Implements template_preprocess_html().
@@ -44,8 +45,6 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
-  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css', array('group' => CSS_THEME, 'weight' => 1001));
-  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/fonts/elmsln/styles.css', array('group' => CSS_THEME, 'weight' => 1002));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   // bring in materialize
@@ -57,8 +56,8 @@ function foundation_access_preprocess_html(&$variables) {
     drupal_add_js($libraries['materialize'] .'/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
   }
   else {
-    drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
-    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
+    drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
+    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
   }
   // theme path shorthand should be handled here
   foreach($variables['user']->roles as $role){
@@ -1755,4 +1754,31 @@ function _foundation_access_video_url($video_url) {
   }
   // didn't know what to do or it was already well formed
   return $video_url;
+}
+
+/**
+ * Implementation of hook_wysiwyg_editor_settings_alter().
+ */
+function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
+  // google font / icons from google
+  $settings['contentsCss'][] = '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)';
+  // bring in materialize
+  $libraries = libraries_get_libraries();
+  // see if we have it locally before serviing CDN
+  // This allows EASY CDN module to switch to CDN later if that's the intention
+  if (isset($libraries['materialize'])) {
+    $settings['contentsCss'][] = base_path() . $libraries['materialize'] .'/css/materialize.css';
+  }
+  else {
+    $settings['contentsCss'][] = '//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css';
+  }
+  $settings['bodyClass'] .= ' html logged-in';
+  // @todo figure out how to make ckeditor wrap this in w/ content editiable to be more accurate CSS application
+  /* cke_editable cke_editable_themed cke_contents_ltr cke_show_borders"><div class="etb-tool-nav" class="off-canvas-wrap">
+  <div class="inner-wrap">
+      <main class="main-section etb-book">
+      <div class="row content-element-region-wrapper">
+            <div class="content-element-region">
+            <div contenteditable="true" class="cke_editable_themed';
+  */
 }
