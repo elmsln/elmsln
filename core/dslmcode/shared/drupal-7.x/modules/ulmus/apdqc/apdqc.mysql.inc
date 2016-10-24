@@ -114,7 +114,7 @@ function apdqc_async_data($mysqli_result = FALSE, $table = FALSE, $cids = array(
     // No session cookie.
     // The cache is enabled.
     // This page is cacheable.
-    if ( $get_count == 1
+    if ($get_count == 1
       && !isset($_COOKIE[session_name()])
       && variable_get('cache')
       && drupal_page_is_cacheable()
@@ -230,7 +230,7 @@ function apdqc_get_db_object(array $tables = array(), array $cids = array(), arr
 
   // Bail out if not mysql that is async capable.
   $mysqli = FALSE;
-  if ( !function_exists('mysqli_init')
+  if (!function_exists('mysqli_init')
     || !defined('MYSQLI_ASYNC')
     ) {
     return $mysqli;

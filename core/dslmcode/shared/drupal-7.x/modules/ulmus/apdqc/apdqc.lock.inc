@@ -22,7 +22,7 @@ if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300 || function_exists('loc
 else {
   $lock_file_included = FALSE;
   // Memcache.
-  if ( !$lock_file_included
+  if (!$lock_file_included
     && file_exists($base_lock_dir . '/dmemcache.inc')
     && strpos($base_lock_location, '/memcache/memcache-lock.inc') !== FALSE
   ) {
@@ -35,7 +35,7 @@ else {
     }
   }
   // Memcache storage.
-  if ( !$lock_file_included
+  if (!$lock_file_included
     && strpos($base_lock_location, '/memcache_storage/includes/lock.inc') !== FALSE
   ) {
     // Use memcache storage locking if memcache storage is available.
@@ -45,7 +45,7 @@ else {
     }
   }
   // APCu.
-  if ( !$lock_file_included
+  if (!$lock_file_included
     && strpos($base_lock_location, '/apc/drupal_apc_lock.inc') !== FALSE
   ) {
     // Use apc locking if apc_fetch && apc_store are available.
@@ -55,7 +55,7 @@ else {
     }
   }
   // Redis.
-  if ( !$lock_file_included
+  if (!$lock_file_included
     && file_exists($base_lock_dir . '/redis.autoload.inc')
     && strpos($base_lock_location, '/redis/redis.lock.inc') !== FALSE
   ) {
@@ -391,4 +391,5 @@ else {
       return lock_release($name);
     }
   }
+
 }
