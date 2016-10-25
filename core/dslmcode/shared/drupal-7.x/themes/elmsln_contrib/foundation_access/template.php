@@ -673,7 +673,11 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
       $variables['image']['#item']['attributes']['class'][] = 'animatedgif';
       $variables['image']['#item']['attributes']['class'][] = 'freezeframe-responsive';
       $variables['is_gif'] = TRUE;
-      $variables['gif_buttons'] = '<div><button class="start">' . t('start') . '</button><button class="stop">' . t('stop') . '</button></div>';
+      $variables['gif_buttons'] = '
+      <div class="container">
+        <button class="start waves-effect waves-light btn col s3 blue push-s2"><i class="material-icons left">play_arrow</i>' . t('start') . '</button>
+        <button class="stop waves-effect waves-light btn col s3 red pull-s2 right"><i class="material-icons left">stop</i>' . t('stop') . '</button>
+      </div>';
     }
     // alt/title info
     if (empty($variables['image']['#item']['alt'])) {
