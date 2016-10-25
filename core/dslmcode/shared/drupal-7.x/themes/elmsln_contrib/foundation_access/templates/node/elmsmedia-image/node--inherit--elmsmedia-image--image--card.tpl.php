@@ -18,6 +18,11 @@
       <p><?php print render($image_caption); ?></p>
       <?php endif; ?>
     </div>
+    <?php if (isset($is_gif) && $is_gif) : ?>
+    <div class="card-action">
+      <?php print $gif_buttons; ?>
+    </div>
+    <?php endif; ?>
     <?php if (!empty($image_cite)) : ?>
     <div class="card-reveal">
       <span class="card-title grey-text text-darken-4"><?php print $title; ?><i class="material-icons right"><?php print t('close');?></i></span>

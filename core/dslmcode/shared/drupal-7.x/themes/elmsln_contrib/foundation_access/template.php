@@ -711,7 +711,12 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
   }
   // If the viewmode contains "lightbox" then enable the lightbox option
   if (strpos($variables['view_mode'], 'lightboxed')) {
-    $variables['image_lightbox_url'] = image_style_url('image_lightboxed', $variables['image']['#item']['uri']);
+    if (isset($variables['image']['#item']['filemime']) && $variables['image']['#item']['filemime'] == 'image/gif') {
+      $variables['image_lightbox_url'] = file_create_url($variables['image']['#item']['uri']);
+    }
+    else {
+      $variables['image_lightbox_url'] = image_style_url('image_lightboxed', $variables['image']['#item']['uri']);
+    }
   }
   // account for card size
   if (strpos($variables['view_mode'], 'card')) {
