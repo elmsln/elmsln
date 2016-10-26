@@ -344,6 +344,12 @@ do
       ecl)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
+      apdqc)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
+      ddt)
+      drushcommand=`echo "$drush" | cut -f 2- -d ' '`
+      ;;
       cis-sck)
       drushcommand=`echo "$drush" | cut -f 2- -d ' '`
       ;;
