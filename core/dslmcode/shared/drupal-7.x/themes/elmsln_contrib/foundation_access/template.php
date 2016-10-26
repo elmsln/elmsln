@@ -8,7 +8,7 @@ define('FOUNDATION_ACCESS_MATERIALIZE_VERSION', '0.97.7');
  */
 function foundation_access_preprocess_html(&$variables) {
   // find the name of the install profile
-  $variables['install_profile'] = variable_get('install_profile', 'standard');
+  $variables['install_profile'] = elmsln_core_get_profile_key();
   $settings = _cis_connector_build_registry($variables['install_profile']);
   $address = explode('.', $settings['address']);
   $variables['system_icon'] = array_shift($address);
@@ -76,7 +76,7 @@ function foundation_access_preprocess_html(&$variables) {
     $variables['classes_array'][] = 'modal-rendered';
   }
   // pull in the lmsless classes / colors
-  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   // add page level variables into scope for the html tpl file
   $variables['site_name'] = check_plain(variable_get('site_name', 'ELMSLN'));
   $variables['logo'] = theme_get_setting('logo');
@@ -204,7 +204,7 @@ function foundation_access_preprocess_page(&$variables) {
     $block = module_invoke('views', 'block_view', $bid);
     $variables['page']['local_subheader'][$bid] = $block['content'];
   }
-  $variables['distro'] = variable_get('install_profile', 'standard');
+  $variables['distro'] = elmsln_core_get_profile_key();
   // make sure we have lmsless enabled so we don't WSOD
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
   // support for lmsless since we don't require it
@@ -289,7 +289,7 @@ function foundation_access_preprocess_page(&$variables) {
  */
 function foundation_access_preprocess_block(&$variables) {
   // get color classes
-  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   // Convenience variable for block headers.
   $title_class = &$variables['title_attributes_array']['class'];
 
@@ -319,7 +319,7 @@ function foundation_access_preprocess_node(&$variables) {
   }
   // hook on the iframe mode stuff
   if (module_exists('cis_connector') && module_exists('entity_iframe')) {
-    $settings = _cis_connector_build_registry(variable_get('install_profile', 'standard'));
+    $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
     $variables['iframe_path'] = _cis_connector_format_address($settings, '/', 'front') . 'entity_iframe/node/' . $variables['nid'];
   }
 
@@ -979,7 +979,7 @@ function foundation_access_menu_link(&$variables) {
       $element['#localized_options']['html'] = TRUE;
     }
     else {
-      $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+      $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
       $element['#localized_options']['attributes']['class'][] = $lmsless_classes['color'];
       $element['#localized_options']['attributes']['class'][] = 'black-text';
       $element['#localized_options']['attributes']['class'][] = $lmsless_classes['light'];
@@ -987,7 +987,7 @@ function foundation_access_menu_link(&$variables) {
   }
   // @todo apply tabs here when we get the targetting / style figured out
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
-    $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+    $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
     $element['#attributes']['class'][] = 'tab';
     $element['#localized_options']['attributes']['class'][] = $lmsless_classes['text'];
     $element['#localized_options']['attributes']['target'] = '_self';

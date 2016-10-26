@@ -53,6 +53,12 @@ function _cis_connector_build_registry($bucket = NULL) {
     if (isset($settings[$bucket])) {
       return $settings[$bucket];
     }
+    // support for alternate version profiles as fallback
+    $tmp = explode('__', $bucket . '__2');
+    $buckettmp = array_shift($tmp);
+    if (isset($settings[$buckettmp])) {
+      return $settings[$buckettmp];
+    }
     return FALSE;
   }
   // validate settings were found

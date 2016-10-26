@@ -201,7 +201,7 @@ function _cis_lmsless_assemble_network() {
   if (!isset($vars)) {
     $vars = _cis_lmsless_theme_vars();
     $vars['site_name'] = variable_get('site_name', t('Service'));
-    $distro = variable_get('install_profile', 'standard');
+    $distro = elmsln_core_get_profile_key();
     $reg = _cis_connector_build_registry();
     // make sure this is in the registry
     if (isset($reg[$distro])) {
@@ -355,11 +355,11 @@ function _cis_lmsless_theme_vars() {
       'front_page' => variable_get('site_frontpage','node'),
       'site_name' => variable_get('site_name', t('Service')),
       'slogan' => variable_get('site_slogan', ''),
-      'distro' => variable_get('install_profile', 'standard'),
+      'distro' => elmsln_core_get_profile_key(),
       'lmsless_classes' => $lmsless_classes,
     );
     // push this into variables on the page for usage
-    drupal_add_js(array('cis_lmsless' => $lmsless_classes, 'distro' => variable_get('install_profile', 'standard')), array('type' => 'setting'));
+    drupal_add_js(array('cis_lmsless' => $lmsless_classes, 'distro' => elmsln_core_get_profile_key()), array('type' => 'setting'));
     // build in section context if we have one we can pull
     if ($section = _cis_connector_section_context()) {
       $vars['section'] = $section;

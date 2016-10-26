@@ -1196,3 +1196,25 @@ function elmsln_core_tincanapi_send($action, $method, array $data) {
     return tincanapi_send($action, $method, $data);
   }
 }
+
+/**
+ * Return the correct key from the given profile or
+ * active profile if none supplied. Typically this is
+ * just the name of the profile BUT it helps support
+ * versioned profile name spaces in the same space like
+ * cle__2 and cle existing side by side yet loading
+ * the same series of internal settings.
+ *
+ * @return string key related to this distribution
+ */
+function elmsln_core_get_profile_key($profile = null) {
+  if (empty($profile)) {
+    $profile = variable_get('install_profile', 'standard');
+  }
+  // support for alternate version profiles
+  if (strpos($profile, '__')) {
+    $tmp = explode('__', $profile);
+    $profile = array_shift($tmp);
+  }
+  return $profile;
+}
