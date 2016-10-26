@@ -62,7 +62,7 @@ do
   cd $elmsln/core/dslmcode/stacks
   cd "${stack}/profiles"
   # pull the name of the profile in this stack by ignoring core ones
-  profile=$(find . -maxdepth 1 -type l \( ! -iname "testing" ! -iname "minimal" ! -iname "README.txt" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
+  profile=$(find . -maxdepth 1 -type l \( ! -iname "cle__2" ! -iname "testing" ! -iname "minimal" ! -iname "README.txt" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
   # add distros to our list
   distros+=($profile)
   cd $profile
