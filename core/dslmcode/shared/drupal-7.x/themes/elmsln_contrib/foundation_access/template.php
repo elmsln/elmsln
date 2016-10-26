@@ -1793,7 +1793,12 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   else {
     $settings['contentsCss'][] = '//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css';
   }
-  $settings['bodyClass'] .= ' html logged-in';
+  if (isset($settings['bodyClass'])) {
+    $settings['bodyClass'] .= ' html logged-in';
+  }
+  else {
+    $settings['bodyClass'] = ' html logged-in';
+  }
   // @todo figure out how to make ckeditor wrap this in w/ content editiable to be more accurate CSS application
   /* cke_editable cke_editable_themed cke_contents_ltr cke_show_borders"><div class="etb-tool-nav" class="off-canvas-wrap">
   <div class="inner-wrap">
