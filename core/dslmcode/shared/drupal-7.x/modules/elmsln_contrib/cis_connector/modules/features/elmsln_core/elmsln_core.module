@@ -131,7 +131,7 @@ function elmsln_core_menu() {
  */
 function elmsln_core_menu_alter(&$items) {
   $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
-  if (variable_get('install_profile', 'standard') != $elmsln_global_profile) {
+  if (elmsln_core_get_profile_key() != $elmsln_global_profile) {
     // Override the user edit handler for our purpose.
     $items['user/%user/edit']['page arguments'] = array('_elmsln_people_user_edit_page', 1);
   }
@@ -150,7 +150,7 @@ function _elmsln_people_user_edit_page($form, &$form_state, $account, $category 
     // Decode the data that comes in from the user object.
     $user_data = json_decode($user_data->data);
     // send user to the cpr we just defined and redirect them back to where they were.
-    _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $user_data->uid, 'edit?destination=elmsln/redirect/' . variable_get('install_profile', 'standard') . '/user/' . $account->uid . '&elmsln_course=' . _cis_connector_course_context());
+    _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $user_data->uid, 'edit?destination=elmsln/redirect/' . elmsln_core_get_profile_key() . '/user/' . $account->uid . '&elmsln_course=' . _cis_connector_course_context());
   }
   else {
     module_load_include('inc', 'user', 'user.pages');
@@ -177,7 +177,7 @@ function _elmsln_people_user_edit_page($form, &$form_state, $account, $category 
 function elmsln_core_user_view($account, $view_mode, $langcode) {
   // If we are not already on the central person repository.
   $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
-  if (variable_get('install_profile', 'standard') != $elmsln_global_profile) {
+  if (elmsln_core_get_profile_key() != $elmsln_global_profile) {
     // Grab the user data from the central person repository.
     $user_data_name = _cis_connector_request('user.json?name=' . $account->name, array(), $elmsln_global_profile, TRUE);
 
@@ -437,7 +437,7 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     // as the user gets there so they end up repopulating caches with
     // the data they just changed, always ensuring its fresh!
     if (isset($_GET['elmsln_cid_target'])) {
-      $cid = 'elmsln:' . variable_get('install_profile', 'standard') . ':';
+      $cid = 'elmsln:' . elmsln_core_get_profile_key() . ':';
       $path = explode('/', $_GET['elmsln_cid_target']);
       if (count($path) > 1) {
         $cid .= $path[0] . ':' . $path[1] . ':';
@@ -1209,7 +1209,7 @@ function elmsln_core_tincanapi_send($action, $method, array $data) {
  */
 function elmsln_core_get_profile_key($profile = null) {
   if (empty($profile)) {
-    $profile = variable_get('install_profile', 'standard');
+    $profile = elmsln_core_get_profile_key();
   }
   // support for alternate version profiles
   if (strpos($profile, '__')) {

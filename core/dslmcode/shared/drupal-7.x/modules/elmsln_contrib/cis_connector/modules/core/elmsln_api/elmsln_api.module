@@ -355,7 +355,7 @@ function elmsln_api_basic_auth() {
     }
     else {
       drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-      $distro = variable_get('install_profile', 'standard');
+      $distro = elmsln_core_get_profile_key();
       $settings = _cis_connector_build_registry($distro);
     }
     // if the username and password match we're golden
@@ -578,7 +578,7 @@ function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
   );
   _elmsln_api_authority_request($request, $nonblocking, array('cis'));
   // ensure this isn't CIS so we don't get an infinite loop!
-  if (variable_get('install_profile', 'standard') != 'cis') {
+  if (elmsln_core_get_profile_key() != 'cis') {
     // hit CIS with the same update
     $query = array(
       'entityCondition' => array(
@@ -788,7 +788,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
       // loop through each service
       foreach ($services as $service) {
         // make sure they don't match the existing one
-        if ($service['field_distribution'] != variable_get('install_profile', 'standard')) {
+        if ($service['field_distribution'] != elmsln_core_get_profile_key()) {
           $request = array(
             'method' => 'POST',
             'api' => $api,
@@ -884,7 +884,7 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
   // sniff out all other authorities
   $authorities = array();
   foreach ($settings as $bucket => $service) {
-    if (_cis_connector_system_type($bucket) == 'authority' && $bucket != variable_get('install_profile', 'standard') && !in_array($bucket, $ignored_buckets)) {
+    if (_cis_connector_system_type($bucket) == 'authority' && $bucket != elmsln_core_get_profile_key() && !in_array($bucket, $ignored_buckets)) {
       $authorities[$bucket] = $service;
     }
   }

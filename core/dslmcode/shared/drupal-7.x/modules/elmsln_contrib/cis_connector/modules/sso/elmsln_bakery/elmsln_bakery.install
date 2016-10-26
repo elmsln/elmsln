@@ -31,7 +31,7 @@ function elmsln_bakery_install() {
   // set the domain which things can respond to
   variable_set('bakery_domain', '.' . $cfg['address']);
   // need to look at current site for it being the 'people' domain
-  if (variable_get('install_profile', 'standard') == $bakery_authority) {
+  if (elmsln_core_get_profile_key() == $bakery_authority) {
     $children = array();
     // build out the children that this can respond to
     foreach ($settings as $key => $system) {

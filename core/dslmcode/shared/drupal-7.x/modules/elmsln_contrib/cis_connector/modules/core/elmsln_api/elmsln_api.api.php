@@ -22,7 +22,7 @@ function _example_module_to_snake_a_call() {
   // grab the registry keys
   $settings = _cis_connector_build_registry();
   // remove the current item
-  unset($settings[variable_get('install_profile', 'standard')]);
+  unset($settings[elmsln_core_get_profile_key()]);
   // build the snake off the keys
   $snake = array_keys($settings);
   // abstract the first bucket to call our snake
