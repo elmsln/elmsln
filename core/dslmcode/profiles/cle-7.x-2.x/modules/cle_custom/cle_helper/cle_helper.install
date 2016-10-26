@@ -1,0 +1,19 @@
+<?php
+/**
+ * @file
+ * Installation routine for CLE helper.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function cle_helper_install() {
+  // Make sure that the cle_helper runs late.
+  db_update('system')
+  ->fields(array(
+    'weight' => 1000,
+  ))
+  ->condition('name', 'cle_helper')
+  ->condition('type', 'module')
+  ->execute();
+}

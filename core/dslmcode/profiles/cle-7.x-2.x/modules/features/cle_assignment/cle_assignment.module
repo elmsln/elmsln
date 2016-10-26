@@ -1,0 +1,68 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Assignment feature.
+ */
+// default assignment color for new ones
+define('CLE_ASSIGNMENT_DEFAULT_COLOR', 'aac');
+
+include_once 'cle_assignment.features.inc';
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state, $form_id) {
+  unset($form['body']['und'][0]['summary']);
+}
+
+/**
+ * Implements hook_init().
+ */
+function cle_assignment_init() {
+  if (arg(0) == 'node' && arg(2) == 'assignment_bulk') {
+    $file = 'assignment_bulk';
+    $path = drupal_get_path('module', 'cle_assignment') . '/';
+    drupal_add_js($path . 'js/' . $file . '.js');
+    drupal_add_css($path . 'css/' . $file . '.css');
+  }
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function cle_assignment_page_build(&$page) {
+  $node = menu_get_object();
+  if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
+    $field_conditions = array('field_assignment' => array('target_id', array($node->nid), 'IN'));
+    $submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
+    $output = '';
+    foreach ($submission as $nid => $title) {
+      $output .= l($title, 'node/' . $nid) . ' ';
+    }
+    if (empty($output)) {
+      $output = l(t('Submit assignment'),'node/add/cle-submission', array('query' => array('field_assignment' => $node->nid)));
+    }
+    $page['content']['assignment_submission'] = array(
+      '#markup' => $output,
+      '#weight' => 100,
+    );
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function cle_assignment_node_insert($node) {
+  // make sure there's an outline associated to this
+  // but only if we have at least 1 to do so with
+  if ($node->type == 'cle_assignment') {
+    // add this assignment to the master section assignment list automatically
+    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER)) {
+      // this case can be triggered if the dates get updated downstream in CIS
+      // or if we create something ahead of the semester
+      $section = node_load($gid);
+      $section->field_cle_assignments['und'][] = array('target_id' => $node->nid);
+      node_save($section);
+    }
+  }
+}

@@ -1,0 +1,258 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Critique feature.
+ */
+
+include_once 'cle_critique.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function cle_critique_menu() {
+  $items['cle/critique/critique-peer'] = array(
+    'title' => 'Give Feedback',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_cle_critique_page_random_form'),
+    'access callback' => 'node_access',
+    'access arguments' => array('create', 'cle_critique'),
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => -8,
+  );
+  $items['cle/critique/critique-peer/%node'] = array(
+    'title' => 'Peer critique',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_cle_critique_page_random_form'),
+    'access callback' => 'node_access',
+    'access arguments' => array('create', 'cle_critique'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'node.pages.inc',
+    'file path' => drupal_get_path('module', 'node'),
+  );
+
+  return $items;
+}
+
+/**
+ * Critique interface
+ * @param  string $arg         string for the argument
+ * @param  array &$form_state  form state so its passed through
+ * @return array               form render array
+ */
+function _cle_critique_page_random_form($arg, &$form_state) {
+  // present a select list if a node hasn't been passed in
+  $arg = arg(3);
+  if (empty($arg)) {
+    // pull in the list of assignments
+    $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array('field_cle_crit_type' => array('value', 'none', '<>')), array(), array('field_cle_order' => 'value'));
+    $form = array();
+    // @todo list the critiques they've already done
+    $form['assignment'] = array(
+      '#title' => t('Assignment'),
+      '#options' => array(0 => '') + $assignments,
+      '#type' => 'select',
+      '#required' => '1',
+      '#multiple' => '0',
+      '#chosen' => TRUE,
+    );
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+      '#submit' => array('_cle_critique_page_random_form_submit'),
+    );
+    $form['#validate'] = array('_cle_critique_page_random_form_validate');
+    return $form;
+  }
+  else {
+    // load up the node form pages
+    module_load_include('inc', 'node', 'node.pages');
+    drupal_add_css(drupal_get_path('module', 'cle_critique') .'/css/cle_critique.css');
+    // render their work
+    // see if we already were handed input so we don't mess ourselves up by
+    // randomizing on save... like we once did. ugh.
+    if (isset($form_state['input']) && isset($form_state['input']['field_cle_crit_sub_ref'])) {
+      $submission = node_load($form_state['input']['field_cle_crit_sub_ref']['und']);
+    }
+    else {
+      $submission = _cle_critique_random($arg);
+    }
+    if (!is_null($submission)) {
+      // render the student submission for later
+      $rendersubmission = node_view($submission, 'critique');
+      // load up the assignment node
+      $assignmentnode = node_load($arg);
+      // prepopulate the critique node
+      $critnode = (object) array(
+        'uid' => $GLOBALS['user']->uid,
+        'nid' => NULL,
+        'name' => (isset($GLOBALS['user']->name) ? $GLOBALS['user']->name : ''),
+        'type' => 'cle_critique',
+        'language' => LANGUAGE_NONE,
+        'field_cle_crit_sub_ref' => array('und' => array(0 => array('target_id' => $submission->nid))),
+      );
+      // set a title based on which type of critique
+      switch ($assignmentnode->field_cle_crit_type['und'][0]['value']) {
+        case 'blind':
+        case 'open':
+          $critnode->title = t('Critique by @name', array('@name' => $GLOBALS['user']->name));
+        break;
+        case 'doubleblind':
+          $critnode->title = t('Critique by a classmate');
+        break;
+      }
+      // set the default feedback if there is an outline to guide the student
+      if (isset($assignmentnode->field_cle_crit_outline['und'][0])) {
+        $critnode->field_cle_crit_feedback = array('und' => array(0 => $assignmentnode->field_cle_crit_outline['und'][0]));
+      }
+      // set the page title
+      drupal_set_title(t('Critique @name', array('@name' => $submission->title)), PASS_THROUGH);
+      // prep the node object filling out other defaults
+      node_object_prepare($critnode);
+      // render the form with our defaults passed in
+      $form = drupal_get_form('cle_critique_node_form', $critnode);
+      $form['work-to-critique'] = array(
+        '#markup' => '<div class="zf-2col-bricks"><div class="row"><div class="group-above-left m6 col">' . render($rendersubmission) . '</div><div class="group-above-right m6 col">',
+        '#weight' => -100,
+      );
+      // need to emulate what node_form does by setting both of these
+      $form_state['node'] = $critnode;
+      $form['#node'] = $critnode;
+      // hide stuff we don't need to show them but need populated
+      $form['field_cle_crit_sub_ref']['#attributes']['class'] = array('cle-hide-item');
+      // render text to help them understand what to do
+      if (isset($assignmentnode->field_cle_crit_criteria['und'][0])) {
+        $form['#prefix'] = check_markup($assignmentnode->field_cle_crit_criteria['und'][0]['value'], $assignmentnode->field_cle_crit_criteria['und'][0]['format']);
+      }
+      $form['#suffix'] = '</div></div></div>';
+      // disable the token for submitting this form
+      // we are a walled garden and drupal is getting ticked that we are
+      // prepopulating values that aren't actually in the
+      // default values since we do it dynamically
+      $form['#token'] = FALSE;
+      return $form;
+    }
+    else {
+      drupal_set_message(t('Currently no one else has submitted work for you to critique. Stop back soon once some other members of the class have made submissions!'), 'status');
+      $form['too-fast'] = array(
+        '#markup' => '<strong>¯\(o_o)/¯</strong></br>' . t('Currently no one else has submitted work for you to critique. Stop back soon once some other members of the class have made submissions!'),
+        '#weight' => -100,
+      );
+      return $form;
+    }
+  }
+}
+
+/**
+ * Implements hook_form_validate().
+ */
+function _cle_critique_page_random_form_validate($form, &$form_state) {
+  // ensure they select a value, we don't pick by default to force them to do so
+  if ($form_state['values']['assignment'] === 0) {
+    form_set_error('assignment', t('You must select an assignment to create a critique about.'));
+  }
+}
+
+/**
+ * Implementation of hook_form_submit().
+ */
+function _cle_critique_page_random_form_submit($form, $form_state) {
+  if (isset($form_state['values']['assignment']) && is_numeric($form_state['values']['assignment'])) {
+    $gid = _cis_section_load_section_by_id(_cis_connector_section_context());
+    drupal_goto('cle/critique/critique-peer/' . $form_state['values']['assignment'], array('query' => array('og_group_ref' => $gid)));
+  }
+}
+
+/**
+ * Get a random submission node based on assignment
+ * @param  id $anid assignment node id
+ * @return object             student's submission node for critique
+ */
+function _cle_critique_random($anid) {
+  // find all the critiques on current submissions they have access to
+  // make sure these submissions are filtered out below
+  // select submissions
+  $query = new EntityFieldQuery();
+  // pull all nodes
+  $query->entityCondition('entity_type', 'node')
+  // that are sections
+  ->entityCondition('bundle', 'cle_submission')
+  // that are published
+  ->propertyCondition('status', 1)
+  // that are NOT by the currently logged in user
+  ->propertyCondition('uid', $GLOBALS['user']->uid, '<>')
+  // only allow for pulling the submissions the could have access to
+  ->fieldCondition('field_assignment', 'target_id', $anid)
+  // add a random query tag so we can randomize the response
+  ->addTag('random')
+  // only return 200 items in case this is a MOOC or something
+  ->range(0, 200);
+  // store results
+  $result = $query->execute();
+  // ensure we have results
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    // loop through and check if these exist as options
+    foreach ($nids as $nid) {
+      // see if anyone else has critiqued this already
+      $critiques = _cis_connector_assemble_entity_list('node', 'cle_critique', 'nid', 'nid', array('field_cle_crit_sub_ref' => array('target_id', $nid, '=')));
+      // if this wasn't set then we know we can return this submission
+      // for rendering on the critique viewer
+      if (!isset($critiques[$nid])) {
+        $submission = node_load($nid);
+        return $submission;
+      }
+    }
+    // if we got here, it means all our random items were already selected
+    $nid = array_pop($nids);
+    $submission = node_load($nid);
+    return $submission;
+  }
+  // there aren't any that exists
+  return NULL;
+}
+
+/**
+ * Implementation of hook_query_TAG_alter().
+ */
+function cle_critique_query_random_alter($query){
+  $query->orderRandom();
+}
+
+/**
+ * Implements hook_cis_shortcode_render_alter().
+ */
+function cle_critique_cis_shortcode_render_alter(&$field, $entity, $type) {
+  // cle_assignment special submission type for critiques
+  if ($type == 'node' && $entity->type == 'cle_assignment') {
+    $properties = array(
+      'rev' => CIS_SHORTCODES_API_REV,
+      'tool' => variable_get('install_profile', ''),
+      'render' => 'submit',
+      'link' => 'cle/critique/critique-peer/' . $entity->nid . '?entity_iframe=true',
+      'text' => t('Submit critique'),
+      'modal' => 1,
+    );
+    // buid the direct link
+    $field['cis_shortcodes']['advanced']['cis_shortcodes_cle_critique'] = array(
+      '#title' => t('@title - Submit critique', array('@title' => $entity->title)),
+      '#attributes' => array('class' => array('cis_shortcodes_embed')),
+      '#value' => _cis_shortcodes_build_code($properties),
+      '#type' => 'textfield',
+      '#weight' => 0,
+    );
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function cle_critique_node_view($node, $view_mode, $langcode) {
+  if ($node->type == 'cle_critique') {
+    $submission = node_load($node->field_cle_crit_sub_ref['und'][0]['target_id']);
+    $assignment = node_load($submission->field_assignment['und'][0]['target_id']);
+    // support for doubleblind
+    if ($assignment->field_cle_crit_type['und'][0]['value'] == 'doubleblind') {
+      drupal_set_title('Critique by classmate');
+    }
+  }
+}
