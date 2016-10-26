@@ -315,6 +315,9 @@ drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --st
 # revert everything as some last minute clean up
 elmslnecho "Global feature revert as clean up"
 drush @elmsln fr-all --concurrency=${concurrent} --strict=0 --v --y
+# APDQC cache bin to memory shift
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --v --y
 # seed entity caches
 elmslnecho "Seed some initial caches on all sites"
 drush @elmsln ecl --concurrency=${concurrent} --strict=0 --v --y
