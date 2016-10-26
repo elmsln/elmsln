@@ -1115,7 +1115,7 @@ function elmsln_core_tincan_request_fuction() {
  */
 function elmsln_core_tincanapi_send($action, $method, array $data) {
   // ensure registry is correct
-  if ($settings = _cis_connector_build_registry('_lrs')) {
+  if ($settings = _cis_connector_build_registry(ELMSLN_CORE_LRS_KEYCHAIN)) {
     // options
     $options = array(
       'method' => $method,
