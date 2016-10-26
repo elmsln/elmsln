@@ -20,9 +20,9 @@
  */
 function advagg_sri_advagg_save_aggregate_alter(array &$files_to_save, array $aggregate_settings, array $other_parameters) {
   foreach ($files_to_save as $uri => $contents) {
-    // Skip gzip files.
+    // Skip gzip/brotli files.
     $ext = pathinfo($uri, PATHINFO_EXTENSION);
-    if ($ext === 'gz') {
+    if ($ext === 'gz' || $ext === 'br') {
       continue;
     }
 
@@ -113,9 +113,9 @@ function advagg_sri_advagg_removed_aggregates($kill_list) {
       unset($uri);
       $uri = $temp;
     }
-    // Skip gzip files.
+    // Skip gzip/brotli files.
     $ext = pathinfo($uri, PATHINFO_EXTENSION);
-    if ($ext === 'gz') {
+    if ($ext === 'gz' || $ext === 'br') {
       continue;
     }
     $filename = basename($uri);
@@ -188,7 +188,7 @@ function advagg_sri_get_filenames_hashes($filenames) {
   foreach ($not_in_db as $file) {
     $filepath = array_search($file, $filenames);
     if (is_readable($filepath)) {
-      $contents = file_get_contents($filepath);
+      $contents = (string) @file_get_contents($filepath);
       if (!empty($contents)) {
         $hashes[$file] = advagg_sri_compute_hashes($contents);
         advagg_sri_set_filename_hashes($file, $hashes[$file]);

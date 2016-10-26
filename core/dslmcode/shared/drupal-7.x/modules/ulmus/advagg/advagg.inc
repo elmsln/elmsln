@@ -292,8 +292,7 @@ function advagg_generate_filesize_processed($filename, $type) {
       list($contents) = advagg_get_js_aggregate_contents($file_aggregate, $aggregate_settings);
     }
     if (!empty($contents)) {
-      $compressed = gzencode($contents, 9, FORCE_GZIP);
-      $files[$type][$filename] = strlen($compressed);
+      $files[$type][$filename] = strlen(gzencode($contents, 9, FORCE_GZIP));
     }
     else {
       $files[$type][$filename] = 0;
@@ -351,7 +350,8 @@ function advagg_does_js_start_with_use_strict($filename) {
             }
           }
           // Jsminplus strips all comments.
-          advagg_js_compress_jsminplus($contents, FALSE);
+          // Supress any errors; only js fragments are being processed.
+          @advagg_js_compress_jsminplus($contents, FALSE);
           $use_strict = stripos($contents, '"use strict";');
           if ($use_strict === FALSE) {
             $use_strict = stripos($contents, "'use strict';");
@@ -433,6 +433,11 @@ function advagg_get_aggregate_info_from_files($type, array $files_with_meta_data
   $files_info = advagg_get_info_on_files($files_info_filenames);
 
   foreach ($files_with_meta_data as $info) {
+    // Skip if not a string or key doesn't exist.
+    if (!is_string($info['data']) || !array_key_exists($info['data'], $files_info)) {
+      continue;
+    }
+
     $filename = $info['data'];
     $info += $files_info[$filename];
     // Skip if file doesn't exist.
@@ -914,7 +919,11 @@ function advagg_generate_groups(array $files_to_aggregate, $type) {
           $scope = '';
         }
 
-        if (variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)) {
+        if (variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)
+          && array_key_exists('data', $file_info)
+          && is_string($file_info['data'])
+          && array_key_exists($file_info['data'], $files_info)
+        ) {
           $file_info += $files_info[$file_info['data']];
           // Prevent CSS rules exceeding 4095 due to limits with IE9 and below.
           if ($ext === 'css') {
@@ -999,7 +1008,7 @@ function advagg_split_css_file(array $file_info) {
   module_load_include('inc', 'advagg', 'advagg.missing');
 
   // Get the CSS file and break up by media queries.
-  $file_contents = file_get_contents($file_info['data']);
+  $file_contents = (string) @file_get_contents($file_info['data']);
   $media_blocks = advagg_parse_media_blocks($file_contents);
 
   // Get 98% of the advagg_ie_css_selector_limiter_value; usually 4013.

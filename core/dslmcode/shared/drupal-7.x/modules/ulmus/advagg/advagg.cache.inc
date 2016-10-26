@@ -201,7 +201,7 @@ function advagg_get_aggregates_using_file($filename_hash, $cid_only = FALSE) {
  */
 function advagg_get_all_files(array $options = array()) {
   list($css_path, $js_path) = advagg_get_root_files_dir();
-  $options += array('nomask' => '/(\.\.?|CVS|\.gz)$/');
+  $options += array('nomask' => '/(\.\.?|CVS|\.gz|\.br)$/');
 
   // Get a list of files.
   $css_files = file_scan_directory($css_path[0], '/.*/', $options);
@@ -251,6 +251,9 @@ function advagg_delete_files_if_stale(array $files) {
       if (file_exists($uri . '.gz')) {
         file_unmanaged_delete($uri . '.gz');
       }
+      if (file_exists($uri . '.br')) {
+        file_unmanaged_delete($uri . '.br');
+      }
       $kill_list[] = $uri;
       continue;
     }
@@ -262,6 +265,9 @@ function advagg_delete_files_if_stale(array $files) {
       if (file_exists($uri . '.gz')) {
         file_unmanaged_delete($uri . '.gz');
       }
+      if (file_exists($uri . '.br')) {
+        file_unmanaged_delete($uri . '.br');
+      }
       $kill_list[] = $uri;
       continue;
     }
@@ -271,6 +277,9 @@ function advagg_delete_files_if_stale(array $files) {
       file_unmanaged_delete($uri);
       if (file_exists($uri . '.gz')) {
         file_unmanaged_delete($uri . '.gz');
+      }
+      if (file_exists($uri . '.br')) {
+        file_unmanaged_delete($uri . '.br');
       }
       $kill_list[] = $uri;
     }
@@ -535,6 +544,9 @@ function advagg_delete_files_if_orphaned(array $files) {
         file_unmanaged_delete($uri);
         if (file_exists($uri . '.gz')) {
           file_unmanaged_delete($uri . '.gz');
+        }
+        if (file_exists($uri . '.br')) {
+          file_unmanaged_delete($uri . '.br');
         }
       }
     }
@@ -847,7 +859,7 @@ function advagg_detect_subfile_changes($filename, array $subfiles, $keyname, $sa
     // Get the current info on the file.
     if (file_exists($subfile)) {
       $current_file_info = array(
-        'hash' => drupal_hash_base64(file_get_contents($subfile)),
+        'hash' => drupal_hash_base64((string) @file_get_contents($subfile)),
         'size' => filesize($subfile),
         'mtime' => filemtime($subfile),
       );

@@ -774,7 +774,7 @@ function advagg_update_7217(&$sandbox) {
   else {
     return t('Nothing happened.');
   }
-  return t('Old DNS Prefetch variable transfered to the new variable. Other options are under Resource Hints on the <a href="@url">configuration page</a>', array('@url' => url($config_path . '/advagg', array('fragment' => 'edit-resource-hints'))));
+  return t('Old DNS Prefetch variable transferred to the new variable. Other options are under Resource Hints on the <a href="@url">configuration page</a>', array('@url' => url($config_path . '/advagg', array('fragment' => 'edit-resource-hints'))));
 }
 
 /**
@@ -1179,6 +1179,39 @@ function advagg_requirements($phase) {
         '@new' => trim($search404_ignore_query) . ' ' . implode(' ', $added_ext),
       )),
     );
+  }
+
+  if (module_exists('securepages') && variable_get('securepages_enable', 0) && function_exists('securepages_match')) {
+    $test_css = securepages_match($css_path[1] . '/test.css');
+    $test_js = securepages_match($js_path[1] . '/test.js');
+    if ($test_css === 0 || $test_js === 0) {
+      $added_paths = array();
+      $securepages_ignore = variable_get('securepages_ignore', '');
+      if (strpos($securepages_ignore, $css_path[1]) === FALSE) {
+        $added_paths[] = $css_path[1] . '/*';
+      }
+      if (strpos($securepages_ignore, $js_path[1]) === FALSE) {
+        $added_paths[] = $js_path[1] . '/*';
+      }
+      $requirements['advagg_securepages_module'] = array(
+        'title' => $t('Adv CSS/JS Agg - Secure Pages Settings'),
+        'severity' => REQUIREMENT_ERROR,
+        'value' => $t('Requests to advagg for css/js files may be getting redirected to http on a https page.'),
+      );
+      if (!empty($securepages_ignore)) {
+        $requirements['advagg_securepages_module']['description'] = $t('The Secure Pages module is enabled. You need to change the <code>securepages_ignore</code> setting, also known as "Ignore pages" so advagg will work. Go to the <a href="@config">Secure Pages settings</a> page and under the "Ignore pages" setting add <p><code>!code</code></p> to the string that looks like this: <p><code>@old</code></p> so it will then look like this: <p><code>@old<br>!code</code></p>', array(
+          '@config' => url('admin/config/system/securepages', array('fragment' => 'edit-securepages-ignore')),
+          '!code' => implode("\n<br>", $added_paths),
+          '@old' => trim($securepages_ignore),
+        ));
+      }
+      else {
+        $requirements['advagg_securepages_module']['description'] = $t('The Secure Pages module is enabled. You need to change the <code>securepages_ignore</code> setting, also known as "Ignore pages" so advagg will work. Go to the <a href="@config">Secure Pages settings</a> page and under the "Ignore pages" setting add <p><code>!code</code></p> to that section.', array(
+          '@config' => url('admin/config/system/securepages', array('fragment' => 'edit-securepages-ignore')),
+          '!code' => implode("\n<br>", $added_paths),
+        ));
+      }
+    }
   }
 
   // Check that https is correct.

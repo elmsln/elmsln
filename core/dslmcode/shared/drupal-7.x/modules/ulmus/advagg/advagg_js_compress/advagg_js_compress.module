@@ -176,7 +176,7 @@ function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elem
  *   Array showing the results of the compression tests.
  */
 function advagg_js_compress_test_file($filename, array $compressors, $cache_id) {
-  $contents = file_get_contents($filename);
+  $contents = (string) @file_get_contents($filename);
   // Get the JS string length before the compression operation.
   $contents_before = $contents;
   $before = strlen($contents);

@@ -120,24 +120,27 @@ function advagg_admin_settings_form($form, $form_state) {
     }
   }
 
+  $advagg_resource_hints_dns_prefetch = variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH);
+  $advagg_resource_hints_preconnect = variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT);
+  $advagg_resource_hints_preload = variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD);
   $form['global']['resource_hints'] = array(
     '#type' => 'fieldset',
     '#title' => t('Resource Hints'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
+    '#collapsed' => ($advagg_resource_hints_dns_prefetch || $advagg_resource_hints_preconnect || $advagg_resource_hints_preload) ? FALSE : TRUE,
     '#description' => t('Preemptively get resources (CSS/JS & sub requests).'),
   );
   $form['global']['resource_hints']['advagg_resource_hints_dns_prefetch'] = array(
     '#type' => 'checkbox',
     '#title' => t('DNS Prefetch.'),
-    '#default_value' => variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH),
+    '#default_value' => $advagg_resource_hints_dns_prefetch,
     '#disabled' => '',
     '#description' => t('Start the DNS lookup for external CSS and JavaScript files as soon as possible.'),
   );
   $form['global']['resource_hints']['advagg_resource_hints_preconnect'] = array(
     '#type' => 'checkbox',
     '#title' => t('Preconnect.'),
-    '#default_value' => variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT),
+    '#default_value' => $advagg_resource_hints_preconnect,
     '#disabled' => '',
     '#description' => t('Start the connection to external resources before an HTTP request is actually sent to the server.'),
   );
@@ -157,19 +160,142 @@ function advagg_admin_settings_form($form, $form_state) {
       ),
     ),
   );
-//   $form['global']['resource_hints']['expert'] = array(
-//     '#type' => 'fieldset',
-//     '#title' => t('Experimental Settings'),
-//     '#collapsible' => TRUE,
-//     '#collapsed' => !variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD),
-//   );
-//   $form['global']['resource_hints']['expert']['advagg_resource_hints_preload'] = array(
-//     '#type' => 'checkbox',
-//     '#title' => t('Preload link http headers.'),
-//     '#default_value' => variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD),
-//     '#disabled' => '',
-//     '#description' => t('Use link http headers, allowing for HTTP 2 servers to push all CSS, JavaScript, and Fonts files out to the client. If your webserver supports this it will push every asset to the browser on every request, ignoring the browser cache (not a good thing for repeat vists). More complex rules in htaccess will be needed to make this efficient.'),
-//   );
+
+  // Preload Section.
+  $form['global']['resource_hints']['preload']['advagg_resource_hints_preload'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Preload link http headers.'),
+    '#default_value' => $advagg_resource_hints_preload,
+    '#disabled' => '',
+    '#description' => t('Use link http headers to send out preload hints for local and external resources.'),
+  );
+  $advagg_resource_hints_preload_settings = advagg_get_resource_hints_preload_settings();
+  $form['global']['resource_hints']['preload']['advagg_resource_hints_preload_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Preload Ordering and Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Change the order of what preload items get sent first. Can also control what will be sent and if HTTP/2 push should be used (if your server supports it). If your webserver supports HTTP/2 Push, and it is enabled, the server will send every asset flagged to be pushed to the browser on every request, ignoring the browser cache (not a good thing for repeat vists). More complex server configuration will be needed to make this efficient; no sollutions are currently available.'),
+    '#states' => array(
+      'invisible' => array(
+        '#edit-advagg-resource-hints-preload' => array('checked' => FALSE),
+      ),
+    ),
+  );
+  // Build the rows.
+  foreach ($advagg_resource_hints_preload_settings as $id => $entry) {
+    // Build the table rows.
+    $rows[$id] = array(
+      'data' => array(
+        // Cell for the cross drag and drop element.
+        array('class' => array('entry-cross')),
+        // Weight item for the tabledrag.
+        array(
+          'data' => array(
+            '#type' => 'weight',
+            '#title' => t('Weight'),
+            '#title_display' => 'invisible',
+            '#default_value' => $entry['#weight'],
+            '#parents' => array(
+              'advagg_resource_hints_preload_settings',
+              $id,
+              'weight',
+            ),
+            '#attributes' => array(
+              'class' => array('entry-order-weight'),
+            ),
+          ),
+        ),
+        check_plain($entry['title']),
+        array(
+          'data' => array(
+            '#type' => 'checkbox',
+            '#title' => t('Enable'),
+            '#title_display' => 'invisible',
+            '#default_value' => $entry['enabled'],
+            '#parents' => array(
+              'advagg_resource_hints_preload_settings',
+              $id,
+              'enabled',
+            ),
+          ),
+        ),
+        array(
+          'data' => array(
+            '#type' => 'checkbox',
+            '#title' => t('HTTP/2 Push'),
+            '#title_display' => 'invisible',
+            '#default_value' => $entry['push'],
+            '#parents' => array(
+              'advagg_resource_hints_preload_settings',
+              $id,
+              'push',
+            ),
+          ),
+        ),
+        array(
+          'data' => array(
+            '#type' => 'checkbox',
+            '#title' => t('Local'),
+            '#title_display' => 'invisible',
+            '#default_value' => $entry['local'],
+            '#parents' => array(
+              'advagg_resource_hints_preload_settings',
+              $id,
+              'local',
+            ),
+          ),
+        ),
+        array(
+          'data' => array(
+            '#type' => 'checkbox',
+            '#title' => t('External'),
+            '#title_display' => 'invisible',
+            '#default_value' => $entry['external'],
+            '#parents' => array(
+              'advagg_resource_hints_preload_settings',
+              $id,
+              'external',
+            ),
+          ),
+        ),
+      ),
+      'class' => array('draggable'),
+    );
+    // Build rows of the form elements in the table.
+    $row_elements[$id] = array(
+      'weight' => &$rows[$id]['data'][1]['data'],
+      'enabled' => &$rows[$id]['data'][3]['data'],
+      'push' => &$rows[$id]['data'][4]['data'],
+      'local' => &$rows[$id]['data'][5]['data'],
+      'external' => &$rows[$id]['data'][6]['data'],
+    );
+  }
+
+  // Add the table to the form.
+  $form['global']['resource_hints']['preload']['advagg_resource_hints_preload_settings']['advagg_table'] = array(
+    '#theme' => 'table',
+    // The row form elements need to be processed and build,
+    // therefore pass them as element children.
+    'elements' => $row_elements,
+    '#header' => array(
+      // We need two empty columns for the weigth field and the cross.
+      array('data' => NULL, 'colspan' => 2),
+      t('Name'),
+      t('Enabled'),
+      t('HTTP/2 Push'),
+      t('Local'),
+      t('External'),
+    ),
+    '#rows' => $rows,
+    '#attributes' => array('id' => 'entry-order'),
+  );
+  drupal_add_tabledrag('entry-order', 'order', 'sibling', 'entry-order-weight');
+  $form['global']['resource_hints']['preload']['advagg_resource_hints_preload_settings']['advagg_resource_hints_preload_reset'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reset'),
+    '#submit' => array('advagg_admin_resource_hints_preload_reset'),
+  );
 
   $form['global']['cron'] = array(
     '#type' => 'fieldset',
@@ -605,6 +731,18 @@ function advagg_admin_operations_form($form, $form_state) {
     '#value' => t('Reset All mtime Values'),
     '#submit' => array('advagg_admin_reset_mtime'),
   );
+  $form['drastic_measures']['remove_empty_advagg_files'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Remove deleted files in the advagg_files table'),
+    '#description' => t('Remove entries in the advagg_files table that have a filesize of 0 and delete the javascript_parsed variable. This gets around the grace period that the cron cleanup does.'),
+  );
+  $form['drastic_measures']['remove_empty_advagg_files']['advagg_admin_remove_empty_advagg_files'] = array(
+    '#type' => 'submit',
+    '#value' => t('Remove deleted files from advagg_files'),
+    '#submit' => array('advagg_admin_remove_empty_advagg_files'),
+  );
   $form['drastic_measures']['reset_advagg_files'] = array(
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
@@ -855,6 +993,16 @@ function advagg_admin_system_performance_settings_form(&$form, $form_state) {
  * Clear out the advagg cache bin when the save configuration button is pressed.
  */
 function advagg_admin_settings_form_submit($form, &$form_state) {
+  // Sort and fix values before saving to the db.
+  foreach ($form_state['values']['advagg_resource_hints_preload_settings'] as &$entry) {
+    if (isset($entry['weight'])) {
+      $entry['#weight'] = $entry['weight'];
+      unset($entry['weight']);
+    }
+    ksort($entry);
+  }
+  uasort($form_state['values']['advagg_resource_hints_preload_settings'], 'element_sort');
+
   // Clear caches.
   advagg_cache_clear_admin_submit();
 }
@@ -1019,6 +1167,13 @@ function advagg_admin_get_file_info($filename) {
 }
 
 /**
+ * Reset the advagg_resource_hints_preload_settings variable.
+ */
+function advagg_admin_resource_hints_preload_reset() {
+  variable_del('advagg_resource_hints_preload_settings');
+}
+
+/**
  * Perform a smart flush.
  */
 function advagg_admin_flush_cache_button() {
@@ -1160,7 +1315,22 @@ function advagg_admin_reset_mtime() {
 }
 
 /**
- * Clear out all advagg cache bins and increment the counter.
+ * Remove filesize zero files from the advagg_files table and clear caches.
+ */
+function advagg_admin_remove_empty_advagg_files() {
+  // Remove dead files from the advagg_files table.
+  db_delete('advagg_files')
+    ->condition('filesize', 0)
+    ->execute();
+  variable_del('javascript_parsed');
+  drupal_set_message(t('All empty files in the advagg_files table have been removed.'));
+
+  // Clear out the cache.
+  advagg_admin_clear_all_caches_button();
+}
+
+/**
+ * Truncate the advagg_files table and clear caches.
  */
 function advagg_admin_truncate_advagg_files() {
   // Truncate advagg_files table.

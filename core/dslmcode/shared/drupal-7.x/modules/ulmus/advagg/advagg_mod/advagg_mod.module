@@ -2084,7 +2084,7 @@ function advagg_mod_inline_js(array &$js) {
     }
     $filename = $values['data'];
     if (file_exists($filename)) {
-      $contents = file_get_contents($filename);
+      $contents = (string) @file_get_contents($filename);
     }
     // Allow other modules to modify this files contents.
     // Call hook_advagg_get_js_file_contents_alter().
@@ -2218,7 +2218,7 @@ function advagg_mod_js_contains_jquery_drupal($filename, $type = '') {
       }
     }
     elseif (file_exists($filename)) {
-      $contents = file_get_contents($filename);
+      $contents = (string) @file_get_contents($filename);
     }
   }
 

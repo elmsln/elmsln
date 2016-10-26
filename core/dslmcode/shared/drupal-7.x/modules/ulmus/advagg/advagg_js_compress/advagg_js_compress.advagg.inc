@@ -139,10 +139,10 @@ function advagg_js_compress_advagg_get_js_file_contents_alter(&$contents, $filen
 function advagg_js_compress_advagg_save_aggregate_alter(&$files_to_save, $aggregate_settings, $other_parameters) {
   list($files, $type) = $other_parameters;
 
-  // Return if gzip is disabled.
+  // Return if gzip and brotli are disabled.
   // Return if packer is disabled.
   // Return if type is not js.
-  if (empty($aggregate_settings['variables']['advagg_gzip'])
+  if ((empty($aggregate_settings['variables']['advagg_gzip']) && empty($aggregate_settings['variables']['advagg_brotli']))
     || empty($aggregate_settings['variables']['advagg_js_compress_packer'])
     || $type !== 'js'
   ) {
@@ -152,7 +152,7 @@ function advagg_js_compress_advagg_save_aggregate_alter(&$files_to_save, $aggreg
   // Use the first file in the array.
   $data = reset($files_to_save);
   $uri = key($files_to_save);
-  // Use packer on non gzip js files.
+  // Use packer on non gzip/brotli js files.
   $compressor = 2;
 
   module_load_include('inc', 'advagg', 'advagg');
@@ -175,7 +175,7 @@ function advagg_js_compress_advagg_save_aggregate_alter(&$files_to_save, $aggreg
     }
   }
 
-  // Use packer on non gzip JS data.
+  // Use packer on non gzip/brotli JS data.
   $aggregate_settings['variables']['advagg_js_compressor'] = $compressor;
   advagg_js_compress_prep($data, $uri, $aggregate_settings, FALSE);
   $files_to_save[$uri] = $data;
