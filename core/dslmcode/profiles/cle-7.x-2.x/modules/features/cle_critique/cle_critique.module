@@ -226,7 +226,7 @@ function cle_critique_cis_shortcode_render_alter(&$field, $entity, $type) {
   if ($type == 'node' && $entity->type == 'cle_assignment') {
     $properties = array(
       'rev' => CIS_SHORTCODES_API_REV,
-      'tool' => variable_get('install_profile', ''),
+      'tool' => elmsln_core_get_profile_key(),
       'render' => 'submit',
       'link' => 'cle/critique/critique-peer/' . $entity->nid . '?entity_iframe=true',
       'text' => t('Submit critique'),

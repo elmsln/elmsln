@@ -57,7 +57,7 @@ function mooc_foundation_access_breadcrumb($variables) {
  * Default theme function for video.
  */
 function mooc_foundation_access_read_time($variables) {
-  $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+  $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $defaults = read_time_defaults();
   $node = $variables['node'];
   // add in the children element to all totals if they exist
