@@ -38,3 +38,10 @@ function elmsln_advagg_update_7001() {
 function elmsln_advagg_update_7002() {
   features_revert_module('elmsln_advagg');
 }
+
+/**
+ * All but footer (previous default) causes issues
+ */
+function elmsln_advagg_update_7003() {
+  variable_set('advagg_mod_js_footer', 1);
+}
