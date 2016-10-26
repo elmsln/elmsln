@@ -1209,7 +1209,7 @@ function elmsln_core_tincanapi_send($action, $method, array $data) {
  */
 function elmsln_core_get_profile_key($profile = null) {
   if (empty($profile)) {
-    $profile = elmsln_core_get_profile_key();
+    $profile = variable_get('install_profile', 'standard');
   }
   // support for alternate version profiles
   if (strpos($profile, '__')) {
