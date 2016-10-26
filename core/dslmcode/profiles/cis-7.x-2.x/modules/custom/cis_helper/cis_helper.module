@@ -781,7 +781,13 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   // email / user requesting account
   $content .= $account->mail . "\n";
   // add distribution to create
-  $content .= $service->field_distribution[LANGUAGE_NONE][0]['value'] . "\n";
+  if (isset($options['field_distribution'])) {
+    $content .= $options['field_distribution'] . "\n";
+    unset($options['field_distribution']);
+  }
+  else {
+    $content .= $service->field_distribution[LANGUAGE_NONE][0]['value'] . "\n";
+  }
   // process potential drush operation lists
   $fr = '';
   $un = '';
