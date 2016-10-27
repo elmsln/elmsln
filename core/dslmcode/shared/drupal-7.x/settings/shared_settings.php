@@ -31,10 +31,10 @@ $conf['cache_class_cache_form'] = 'APDQCache';
 
 // database tweaks known to be better then core default
 // from apdqc testing
-$databases['default']['default']['init_commands']['isolation'] = "SET SESSION tx_isolation='READ-COMMITTED'";
-$databases['default']['default']['init_commands']['wait_timeout'] = "SET SESSION wait_timeout = 600";
-$databases['default']['default']['init_commands']['innodb_lock_wait_timeout'] = "SET SESSION innodb_lock_wait_timeout = 25";
-$databases['default']['default']['init_commands']['join_buffer_size'] = "SET SESSION join_buffer_size = 8388608";
+//$databases['default']['default']['init_commands']['isolation'] = "SET SESSION tx_isolation='READ-COMMITTED'";
+//$databases['default']['default']['init_commands']['wait_timeout'] = "SET SESSION wait_timeout = 600";
+//$databases['default']['default']['init_commands']['innodb_lock_wait_timeout'] = "SET SESSION innodb_lock_wait_timeout = 25";
+//$databases['default']['default']['init_commands']['join_buffer_size'] = "SET SESSION join_buffer_size = 8388608";
 
 // pathcache settings
 $conf['path_inc'] = 'sites/all/modules/ulmus/pathcache/path.inc';
