@@ -2,21 +2,21 @@
 
 /**
  * @file
- *   Tests for the Asynchronous Prefetch Database Query Cache module.
+ * Tests for the Asynchronous Prefetch Database Query Cache module.
  */
 
 /**
  * Add new functionality to DrupalWebTestCase.
  */
 class ApdqcCacheTestCase extends DrupalWebTestCase {
-  protected $default_bin = 'cache';
-  protected $default_cid = 'test_temporary';
-  protected $default_value = 'CacheTest';
+  protected $defaultBin = 'cache';
+  protected $defaultCid = 'test_temporary';
+  protected $defaultValue = 'CacheTest';
 
   /**
    * Setup for tests.
    */
-  function setUp() {
+  public function setUp() {
     parent::setUp(func_get_args());
     $cache_backends = variable_get('cache_backends', array());
     $file_path = drupal_get_path('module', 'apdqc');
@@ -28,18 +28,19 @@ class ApdqcCacheTestCase extends DrupalWebTestCase {
   /**
    * Check whether or not a cache entry exists.
    *
-   * @param $cid
+   * @param string $cid
    *   The cache id.
-   * @param $var
+   * @param mixed $var
    *   The variable the cache should contain.
-   * @param $bin
+   * @param string $bin
    *   The bin the cache item was stored in.
-   * @return
+   *
+   * @return bool
    *   TRUE on pass, FALSE on fail.
    */
   protected function checkCacheExists($cid, $var, $bin = NULL) {
     if ($bin == NULL) {
-      $bin = $this->default_bin;
+      $bin = $this->defaultBin;
     }
 
     $cache = new APDQCache($bin);
@@ -51,24 +52,24 @@ class ApdqcCacheTestCase extends DrupalWebTestCase {
   /**
    * Assert that a cache entry exists.
    *
-   * @param $message
+   * @param string $message
    *   Message to display.
-   * @param $var
+   * @param mixed $var
    *   The variable the cache should contain.
-   * @param $cid
+   * @param string $cid
    *   The cache id.
-   * @param $bin
+   * @param string $bin
    *   The bin the cache item was stored in.
    */
   protected function assertCacheExists($message, $var = NULL, $cid = NULL, $bin = NULL) {
     if ($bin == NULL) {
-      $bin = $this->default_bin;
+      $bin = $this->defaultBin;
     }
     if ($cid == NULL) {
-      $cid = $this->default_cid;
+      $cid = $this->defaultCid;
     }
     if ($var == NULL) {
-      $var = $this->default_value;
+      $var = $this->defaultValue;
     }
 
     $this->assertTrue($this->checkCacheExists($cid, $var, $bin), $message);
@@ -77,19 +78,19 @@ class ApdqcCacheTestCase extends DrupalWebTestCase {
   /**
    * Assert that a cache entry has been removed.
    *
-   * @param $message
+   * @param string $message
    *   Message to display.
-   * @param $cid
+   * @param string $cid
    *   The cache id.
-   * @param $bin
+   * @param string $bin
    *   The bin the cache item was stored in.
    */
-  function assertCacheRemoved($message, $cid = NULL, $bin = NULL) {
+  public function assertCacheRemoved($message, $cid = NULL, $bin = NULL) {
     if ($bin == NULL) {
-      $bin = $this->default_bin;
+      $bin = $this->defaultBin;
     }
     if ($cid == NULL) {
-      $cid = $this->default_cid;
+      $cid = $this->defaultCid;
     }
 
     $cache = new APDQCache($bin);
@@ -100,12 +101,12 @@ class ApdqcCacheTestCase extends DrupalWebTestCase {
   /**
    * Perform the general wipe.
    *
-   * @param $bin
+   * @param string $bin
    *   The bin to perform the wipe on.
    */
   protected function generalWipe($bin = NULL) {
     if ($bin == NULL) {
-      $bin = $this->default_bin;
+      $bin = $this->defaultBin;
     }
 
     $cache = new APDQCache($bin);
@@ -115,19 +116,21 @@ class ApdqcCacheTestCase extends DrupalWebTestCase {
   /**
    * Setup minimum lifetime settings for caching.
    *
-   * @param $time
+   * @param int $time
    *   The minimum time in seconds the cache should live.
    */
   protected function setupLifetime($time) {
     variable_set('cache_lifetime', $time);
     variable_set('cache_flush', 0);
   }
+
 }
 
 /**
  * Test cache clearing methods for APDQC.
  */
 class ApdqcCacheClearCase extends ApdqcCacheTestCase {
+
   /**
    * Provide information to the UI for this test.
    */
@@ -143,10 +146,10 @@ class ApdqcCacheClearCase extends ApdqcCacheTestCase {
    * Install the apdqc module and setup the cache.
    */
   public function setUp() {
-    $this->default_bin = 'cache_page';
-    $this->default_value = $this->randomName(10);
-
     parent::setUp('apdqc');
+    $this->defaultBin = 'cache_page';
+    $this->defaultValue = $this->randomName(10);
+
     $cache_backends = variable_get('cache_backends', array());
     $file_path = drupal_get_path('module', 'apdqc');
     $cache_backends[] = "${file_path}/apdqc.cache.inc";
@@ -157,32 +160,32 @@ class ApdqcCacheClearCase extends ApdqcCacheTestCase {
   /**
    * Tests CACHE_TEMPORARY behavior.
    */
-  function testCacheTemporary() {
-    $cache = new APDQCache($this->default_bin);
+  public function testCacheTemporary() {
+    $cache = new APDQCache($this->defaultBin);
     // Set a permanent and temporary cache item.
-    $cache->set('test_cache_temporary', $this->default_value, CACHE_TEMPORARY);
-    $cache->set('test_cache_permanent', $this->default_value);
+    $cache->set('test_cache_temporary', $this->defaultValue, CACHE_TEMPORARY);
+    $cache->set('test_cache_permanent', $this->defaultValue);
     // Also set expired and yet to expire cache items.
-    $cache->set('test_cache_expired', $this->default_value, REQUEST_TIME - 1000);
-    $cache->set('test_cache_not_expired', $this->default_value, REQUEST_TIME + 1000);
+    $cache->set('test_cache_expired', $this->defaultValue, REQUEST_TIME - 1000);
+    $cache->set('test_cache_not_expired', $this->defaultValue, REQUEST_TIME + 1000);
     // Run Tests.
-    $this->assertTrue($this->checkCacheExists('test_cache_expired', $this->default_value), 'cache_expired set');
-    $this->assertTrue($this->checkCacheExists('test_cache_temporary', $this->default_value), 'cache_temporary set');
-    $this->assertTrue($this->checkCacheExists('test_cache_permanent', $this->default_value), 'cache_permanent set');
-    $this->assertTrue($this->checkCacheExists('test_cache_not_expired', $this->default_value), 'cache_not_expired set');
+    $this->assertTrue($this->checkCacheExists('test_cache_expired', $this->defaultValue), 'cache_expired set');
+    $this->assertTrue($this->checkCacheExists('test_cache_temporary', $this->defaultValue), 'cache_temporary set');
+    $this->assertTrue($this->checkCacheExists('test_cache_permanent', $this->defaultValue), 'cache_permanent set');
+    $this->assertTrue($this->checkCacheExists('test_cache_not_expired', $this->defaultValue), 'cache_not_expired set');
 
     // Clear all items in the bin. Only the temporary and expired items should
     // be removed.
     $cache->clear();
     // Run Tests.
-    $this->assertFalse($this->checkCacheExists('test_cache_expired', $this->default_value), 'cache_expired removed after a clear');
-    $this->assertFalse($this->checkCacheExists('test_cache_temporary', $this->default_value), 'cache_temporary removed after a clear');
-    $this->assertTrue($this->checkCacheExists('test_cache_permanent', $this->default_value), 'cache_permanent still set after a clear');
-    $this->assertTrue($this->checkCacheExists('test_cache_not_expired', $this->default_value), 'cache_not_expired still set after a clear');
+    $this->assertFalse($this->checkCacheExists('test_cache_expired', $this->defaultValue), 'cache_expired removed after a clear');
+    $this->assertFalse($this->checkCacheExists('test_cache_temporary', $this->defaultValue), 'cache_temporary removed after a clear');
+    $this->assertTrue($this->checkCacheExists('test_cache_permanent', $this->defaultValue), 'cache_permanent still set after a clear');
+    $this->assertTrue($this->checkCacheExists('test_cache_not_expired', $this->defaultValue), 'cache_not_expired still set after a clear');
 
     // Re-add the items we just cleared.
-    $cache->set('test_cache_temporary', $this->default_value, CACHE_TEMPORARY);
-    $cache->set('test_cache_expired', $this->default_value, REQUEST_TIME - 1000);
+    $cache->set('test_cache_temporary', $this->defaultValue, CACHE_TEMPORARY);
+    $cache->set('test_cache_expired', $this->defaultValue, REQUEST_TIME - 1000);
 
     // Set a minimum cache lifetime.
     $this->setupLifetime(300);
@@ -190,54 +193,54 @@ class ApdqcCacheClearCase extends ApdqcCacheTestCase {
     // Now after clearing the bin, only the expired item should be removed.
     $cache->clear();
     // Run Tests.
-    $this->assertFalse($this->checkCacheExists('test_cache_expired', $this->default_value), 'cache_expired removed after a clear with min lifetime');
-    $this->assertTrue($this->checkCacheExists('test_cache_temporary', $this->default_value), 'cache_temporary still set after a clear with min lifetime');
-    $this->assertTrue($this->checkCacheExists('test_cache_permanent', $this->default_value), 'cache_permanent still set after a clear with min lifetime');
-    $this->assertTrue($this->checkCacheExists('test_cache_not_expired', $this->default_value), 'cache_not_expired still set after a clear with min lifetime');
+    $this->assertFalse($this->checkCacheExists('test_cache_expired', $this->defaultValue), 'cache_expired removed after a clear with min lifetime');
+    $this->assertTrue($this->checkCacheExists('test_cache_temporary', $this->defaultValue), 'cache_temporary still set after a clear with min lifetime');
+    $this->assertTrue($this->checkCacheExists('test_cache_permanent', $this->defaultValue), 'cache_permanent still set after a clear with min lifetime');
+    $this->assertTrue($this->checkCacheExists('test_cache_not_expired', $this->defaultValue), 'cache_not_expired still set after a clear with min lifetime');
   }
 
   /**
    * Test clearing using an array.
    */
-  function testClearArray() {
-    $cache = new APDQCache($this->default_bin);
+  public function testClearArray() {
+    $cache = new APDQCache($this->defaultBin);
 
     // Create three cache entries.
-    $cache->set('test_cid_clear1', $this->default_value);
-    $cache->set('test_cid_clear2', $this->default_value);
-    $cache->set('test_cid_clear3', $this->default_value);
-    $this->assertTrue($this->checkCacheExists('test_cid_clear1', $this->default_value)
-                      && $this->checkCacheExists('test_cid_clear2', $this->default_value)
-                      && $this->checkCacheExists('test_cid_clear3', $this->default_value),
+    $cache->set('test_cid_clear1', $this->defaultValue);
+    $cache->set('test_cid_clear2', $this->defaultValue);
+    $cache->set('test_cid_clear3', $this->defaultValue);
+    $this->assertTrue($this->checkCacheExists('test_cid_clear1', $this->defaultValue)
+                      && $this->checkCacheExists('test_cid_clear2', $this->defaultValue)
+                      && $this->checkCacheExists('test_cid_clear3', $this->defaultValue),
                       'Three cache entries were created.');
 
     // Clear two entries using an array.
     $cache->clear(array('test_cid_clear1', 'test_cid_clear2'));
-    $this->assertFalse($this->checkCacheExists('test_cid_clear1', $this->default_value)
-                       || $this->checkCacheExists('test_cid_clear2', $this->default_value),
+    $this->assertFalse($this->checkCacheExists('test_cid_clear1', $this->defaultValue)
+                       || $this->checkCacheExists('test_cid_clear2', $this->defaultValue),
                        'Two cache entries removed after clearing with an array.');
     // Make sure the 3rd entry still exists.
-    $this->assertTrue($this->checkCacheExists('test_cid_clear3', $this->default_value),
+    $this->assertTrue($this->checkCacheExists('test_cid_clear3', $this->defaultValue),
                       'Entry was not cleared from the cache');
 
     // Create two cache entries.
-    $cache->set('test_cid_clear1', $this->default_value);
-    $cache->set('test_cid_clear2', $this->default_value);
-    $this->assertTrue($this->checkCacheExists('test_cid_clear1', $this->default_value)
-                      && $this->checkCacheExists('test_cid_clear2', $this->default_value),
+    $cache->set('test_cid_clear1', $this->defaultValue);
+    $cache->set('test_cid_clear2', $this->defaultValue);
+    $this->assertTrue($this->checkCacheExists('test_cid_clear1', $this->defaultValue)
+                      && $this->checkCacheExists('test_cid_clear2', $this->defaultValue),
                       'Two cache entries were created.');
     // Clear all three entries using an array.
     $cache->clear(array('test_cid_clear1', 'test_cid_clear2', 'test_cid_clear3'));
-    $this->assertFalse($this->checkCacheExists('test_cid_clear1', $this->default_value)
-                       || $this->checkCacheExists('test_cid_clear2', $this->default_value)
-                       || $this->checkCacheExists('test_cid_clear3', $this->default_value),
+    $this->assertFalse($this->checkCacheExists('test_cid_clear1', $this->defaultValue)
+                       || $this->checkCacheExists('test_cid_clear2', $this->defaultValue)
+                       || $this->checkCacheExists('test_cid_clear3', $this->defaultValue),
                        'All cache entries removed when the array exceeded the cache clear threshold.');
   }
 
   /**
    * Test minimum cache lifetime.
    */
-  function testMinimumCacheLifetime() {
+  public function testMinimumCacheLifetime() {
     // Set a minimum/maximum cache lifetime.
     $this->setupLifetime(300);
     // Login as a newly-created user.
@@ -269,12 +272,14 @@ class ApdqcCacheClearCase extends ApdqcCacheTestCase {
     $cached = $cache_page->get($data);
     $this->assertFalse($cached, 'Cached item was invalidated');
   }
+
 }
 
 /**
  * Test isEmpty() function.
  */
 class ApdqcCacheIsEmptyCase extends ApdqcCacheTestCase {
+
   /**
    * Provide information to the UI for this test.
    */
@@ -282,52 +287,55 @@ class ApdqcCacheIsEmptyCase extends ApdqcCacheTestCase {
     return array(
       'name' => 'APDQC Cache emptiness test',
       'description' => 'Check if a cache bin is empty after performing clear operations.',
-      'group' => 'APDQC'
+      'group' => 'APDQC',
     );
   }
 
   /**
    * Install the apdqc module and setup the cache.
    */
-  function setUp() {
-    $this->default_bin = 'cache_page';
-    $this->default_value = $this->randomName(10);
-
+  public function setUp() {
     parent::setUp('apdqc');
+    $this->defaultBin = 'cache_page';
+    $this->defaultValue = $this->randomName(10);
+
     $cache_backends = variable_get('cache_backends', array());
     $file_path = drupal_get_path('module', 'apdqc');
     $cache_backends[] = "${file_path}/apdqc.cache.inc";
     variable_set('cache_backends', $cache_backends);
+
   }
 
   /**
    * Test clearing using a cid.
    */
-  function testIsEmpty() {
-    $cache = new APDQCache($this->default_bin);
+  public function testIsEmpty() {
+    $cache = new APDQCache($this->defaultBin);
     // Clear the cache bin.
     $cache->clear('*', TRUE);
     // Run the test.
     $this->assertTrue($cache->isEmpty(), 'The cache bin is empty');
 
     // Add some data to the cache bin.
-    $cache->set($this->default_cid, $this->default_value, CACHE_PERMANENT);
-    $this->assertCacheExists(t('Cache was set.'), $this->default_value, $this->default_cid);
+    $cache->set($this->defaultCid, $this->defaultValue, CACHE_PERMANENT);
+    $this->assertCacheExists(t('Cache was set.'), $this->defaultValue, $this->defaultCid);
     // Run the test.
     $this->assertFalse($cache->isEmpty(), 'The cache bin is not empty');
 
     // Remove the cached data.
-    $cache->clear($this->default_cid, FALSE);
+    $cache->clear($this->defaultCid, FALSE);
     // Run the test.
-    $this->assertCacheRemoved(t('Cache was removed.'), $this->default_cid);
+    $this->assertCacheRemoved(t('Cache was removed.'), $this->defaultCid);
     $this->assertTrue($cache->isEmpty(), 'The cache bin is empty');
   }
+
 }
 
 /**
  * Tests for the lock system.
  */
 class ApdqcLockFunctionalTest extends DrupalWebTestCase {
+
   /**
    * Provide information to the UI for this test.
    */
@@ -342,7 +350,7 @@ class ApdqcLockFunctionalTest extends DrupalWebTestCase {
   /**
    * Install system_test and apdqc module.
    */
-  function setUp() {
+  public function setUp() {
     parent::setUp(array(
       'system_test',
       'apdqc',
@@ -354,7 +362,7 @@ class ApdqcLockFunctionalTest extends DrupalWebTestCase {
   /**
    * Confirm that we can acquire and release locks in two parallel requests.
    */
-  function testLockAcquire() {
+  public function testLockAcquire() {
     module_load_include('apdqc.lock.db.inc', 'apdqc');
     $lock_acquired = 'TRUE: Lock successfully acquired in system_test_lock_acquire()';
     $lock_not_acquired = 'FALSE: Lock not acquired in system_test_lock_acquire()';
@@ -383,15 +391,18 @@ class ApdqcLockFunctionalTest extends DrupalWebTestCase {
 
     // Check the shut-down function.
     $lock_acquired_exit = 'TRUE: Lock successfully acquired in system_test_lock_exit()';
-    $lock_not_acquired_exit = 'FALSE: Lock not acquired in system_test_lock_exit()';
     $this->drupalGet('system-test/lock-exit');
     $this->assertText($lock_acquired_exit, 'Lock acquired by the other request before exit.', 'Lock');
     $this->assertTrue(lock_acquire('system_test_lock_exit'), 'Lock acquired by this request after the other request exits.', 'Lock');
   }
+
 }
 
-
+/**
+ * Tests for the session system.
+ */
 class ApdqcSessionTestCase extends DrupalWebTestCase {
+
   /**
    * Provide information to the UI for this test.
    */
@@ -399,14 +410,14 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
     return array(
       'name' => 'APDQC Session tests',
       'description' => 'Drupal session handling tests.',
-      'group' => 'APDQC'
+      'group' => 'APDQC',
     );
   }
 
   /**
    * Install session_test and apdqc module.
    */
-  function setUp() {
+  public function setUp() {
     parent::setUp(array(
       'session_test',
       'apdqc',
@@ -420,7 +431,7 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
   /**
    * Tests for drupal_save_session() and drupal_session_regenerate().
    */
-  function testSessionSaveRegenerate() {
+  public function testSessionSaveRegenerate() {
     $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
     $this->assertFalse(drupal_save_session(), 'drupal_save_session() correctly returns FALSE (inside of testing framework) when initially called with no arguments.', 'Session');
     $this->assertFalse(drupal_save_session(FALSE), 'drupal_save_session() correctly returns FALSE when called with FALSE.', 'Session');
@@ -446,14 +457,14 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
     $this->drupalGet('session-test/id');
     $matches = array();
     preg_match('/\s*session_id:(.*)\n/', $this->drupalGetContent(), $matches);
-    $this->assertTrue(!empty($matches[1]) , 'Found session ID before logging in.');
+    $this->assertTrue(!empty($matches[1]), 'Found session ID before logging in.');
     $original_session = $matches[1];
 
     // We cannot use $this->drupalLogin($user); because we exit in
     // session_test_user_login() which breaks a normal assertion.
     $edit = array(
       'name' => $user->name,
-      'pass' => $user->pass_raw
+      'pass' => $user->pass_raw,
     );
     $this->drupalPost('user', $edit, t('Log in'));
     $this->drupalGet('user');
@@ -463,14 +474,14 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
     $this->drupalGet('session-test/id');
     $matches = array();
     preg_match('/\s*session_id:(.*)\n/', $this->drupalGetContent(), $matches);
-    $this->assertTrue(!empty($matches[1]) , 'Found session ID after logging in.');
+    $this->assertTrue(!empty($matches[1]), 'Found session ID after logging in.');
     $this->assertTrue($matches[1] != $original_session, 'Session ID changed after login.');
   }
 
   /**
    * Test data persistence via the session_test module callbacks.
    */
-  function testDataPersistence() {
+  public function testDataPersistence() {
     $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
     $user = $this->drupalCreateUser(array('access content'));
     // Enable sessions.
@@ -532,7 +543,7 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
   /**
    * Test that empty anonymous sessions are destroyed.
    */
-  function testEmptyAnonymousSession() {
+  public function testEmptyAnonymousSession() {
     $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
     // Verify that no session is automatically created for anonymous user.
     $this->drupalGet('');
@@ -568,7 +579,8 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
     $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
     $this->assertFalse($this->drupalGetHeader('Set-Cookie'), 'New session was not started.');
 
-    // Verify that no session is created if drupal_save_session(FALSE) is called.
+    // Verify that no session is created if drupal_save_session(FALSE) is
+    // called.
     $this->drupalGet('session-test/set-message-but-dont-save');
     $this->assertSessionCookie(FALSE);
     $this->assertSessionEmpty(TRUE);
@@ -583,7 +595,7 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
   /**
    * Test that sessions are only saved when necessary.
    */
-  function testSessionWrite() {
+  public function testSessionWrite() {
     $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
     $user = $this->drupalCreateUser(array('access content'));
     $this->drupalLogin($user);
@@ -593,7 +605,6 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
 
     // Before every request we sleep one second to make sure that if the session
     // is saved, its timestamp will change.
-
     // Modify the session.
     sleep(1);
     $this->drupalGet('session-test/set/foo');
@@ -626,7 +637,7 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
   /**
    * Test that empty session IDs are not allowed.
    */
-  function testEmptySessionID() {
+  public function testEmptySessionId() {
     $GLOBALS['conf']['page_cache_invoke_hooks'] = TRUE;
     $user = $this->drupalCreateUser(array('access content'));
     $this->drupalLogin($user);
@@ -635,7 +646,10 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
 
     // Reset the sid in {sessions} to a blank string. This may exist in the
     // wild in some cases, although we normally prevent it from happening.
-    db_query("UPDATE {sessions} SET sid = '' WHERE uid = :uid", array(':uid' => $user->uid));
+    db_update('sessions')
+      ->fields(array('sid' => ''))
+      ->condition('uid', $user->uid)
+      ->execute();
     // Send a blank sid in the session cookie, and the session should no longer
     // be valid. Closing the curl handler will stop the previous session ID
     // from persisting.
@@ -651,9 +665,10 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
   /**
    * Reset the cookie file so that it refers to the specified user.
    *
-   * @param $uid User id to set as the active session.
+   * @param int $uid
+   *   User id to set as the active session.
    */
-  function sessionReset($uid = 0) {
+  public function sessionReset($uid = 0) {
     // Close the internal browser.
     $this->curlClose();
     $this->loggedInUser = FALSE;
@@ -669,7 +684,7 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
   /**
    * Assert whether the SimpleTest browser sent a session cookie.
    */
-  function assertSessionCookie($sent) {
+  public function assertSessionCookie($sent) {
     if ($sent) {
       $this->assertNotNull($this->session_id, 'Session cookie was sent.');
     }
@@ -681,7 +696,7 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
   /**
    * Assert whether $_SESSION is empty at the beginning of the request.
    */
-  function assertSessionEmpty($empty) {
+  public function assertSessionEmpty($empty) {
     $headers = $this->drupalGetHeaders();
     if (!isset($headers['x-session-empty']) && !isset($headers['X-Session-Empty'])) {
       $this->pass('X-Session-Empty header not found.');
@@ -695,12 +710,14 @@ class ApdqcSessionTestCase extends DrupalWebTestCase {
       }
     }
   }
+
 }
 
 /**
  * Ensure that when running under HTTPS two session cookies are generated.
  */
 class ApdqcSessionHttpsTestCase extends DrupalWebTestCase {
+
   /**
    * Provide information to the UI for this test.
    */
@@ -708,14 +725,14 @@ class ApdqcSessionHttpsTestCase extends DrupalWebTestCase {
     return array(
       'name' => 'APDQC Session HTTPS handling',
       'description' => 'Ensure that when running under HTTPS two session cookies are generated.',
-      'group' => 'APDQC'
+      'group' => 'APDQC',
     );
   }
 
   /**
    * Install session_test and apdqc module.
    */
-  function setUp() {
+  public function setUp() {
     parent::setUp(array(
       'session_test',
       'apdqc',
@@ -724,6 +741,9 @@ class ApdqcSessionHttpsTestCase extends DrupalWebTestCase {
     variable_set('session_inc', "${file_path}/apdqc.session.inc");
   }
 
+  /**
+   * Test HTTPS sessions.
+   */
   protected function testHttpsSession() {
     global $is_https;
 
@@ -921,7 +941,7 @@ class ApdqcSessionHttpsTestCase extends DrupalWebTestCase {
     // special http.php URLs.
     $edit = array(
       'name' => $admin_user->name,
-      'pass' => $admin_user->pass_raw
+      'pass' => $admin_user->pass_raw,
     );
     $this->drupalGet('user');
     $form = $this->xpath('//form[@id="user-login"]');
@@ -933,7 +953,7 @@ class ApdqcSessionHttpsTestCase extends DrupalWebTestCase {
     // Now start a session for the standard user on HTTPS.
     $edit = array(
       'name' => $standard_user->name,
-      'pass' => $standard_user->pass_raw
+      'pass' => $standard_user->pass_raw,
     );
     $this->drupalGet('user');
     $form = $this->xpath('//form[@id="user-login"]');
@@ -950,14 +970,14 @@ class ApdqcSessionHttpsTestCase extends DrupalWebTestCase {
   /**
    * Test that there exists a session with two specific session IDs.
    *
-   * @param $sid
+   * @param string $sid
    *   The insecure session ID to search for.
-   * @param $ssid
+   * @param string $ssid
    *   The secure session ID to search for.
-   * @param $assertion_text
+   * @param string $assertion_text
    *   The text to display when we perform the assertion.
    *
-   * @return
+   * @return bool
    *   The result of assertTrue() that there's a session in the system that
    *   has the given insecure and secure session IDs.
    */
@@ -972,10 +992,10 @@ class ApdqcSessionHttpsTestCase extends DrupalWebTestCase {
   /**
    * Builds a URL for submitting a mock HTTPS request to HTTP test environments.
    *
-   * @param $url
+   * @param string $url
    *   A Drupal path such as 'user'.
    *
-   * @return
+   * @return string
    *   An absolute URL.
    */
   protected function httpsUrl($url) {
@@ -986,14 +1006,15 @@ class ApdqcSessionHttpsTestCase extends DrupalWebTestCase {
   /**
    * Builds a URL for submitting a mock HTTP request to HTTPS test environments.
    *
-   * @param $url
+   * @param string $url
    *   A Drupal path such as 'user'.
    *
-   * @return
+   * @return string
    *   An absolute URL.
    */
   protected function httpUrl($url) {
     global $base_url;
     return $base_url . '/modules/simpletest/tests/http.php?q=' . $url;
   }
+
 }

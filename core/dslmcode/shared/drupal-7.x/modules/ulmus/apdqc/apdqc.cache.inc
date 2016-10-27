@@ -30,6 +30,11 @@ define('APDQC_CALL_HOOK_ON_CLEAR', FALSE);
 define('APDQC_USE_UNION_QUERY', FALSE);
 
 /**
+ * Cache bins will be compressed. 1 serialized data, 2 all data.
+ */
+define('APDQC_CACHE_DEFAULT_COMPRESS', 0);
+
+/**
  * Prefetch data from a cache table.
  *
  * @param array $table_keys_cache_prefetch
@@ -213,6 +218,33 @@ function apdqc_get_bin_class_name($bin) {
   return $cache_objects[$bin];
 }
 
+function apdqc_inflate_unserialize(&$cache) {
+  $converted = FALSE;
+  if (is_array($cache)) {
+    $cache = (object) $cache;
+    $converted = TRUE;
+  }
+  // If the data is compressed, uncompress it.
+  if ($cache->serialized > 1) {
+    $inflate = @gzinflate($cache->data);
+    if ($inflate !== FALSE && $cache->data !== FALSE) {
+      $cache->data = $inflate;
+    }
+    $cache->serialized -= 2;
+  }
+  // If the data is permanent or not subject to a minimum cache lifetime,
+  // unserialize and return the cached data.
+  if ($cache->serialized) {
+    $data = @unserialize($cache->data);
+    if ($cache->data === 'b:0;' || $data !== FALSE) {
+      $cache->data = $data;
+    }
+  }
+  if ($converted) {
+    $cache = (array) $cache;
+  }
+}
+
 /**
  * A pretty darn quick cache implementation of Drupal's default cache backend.
  *
@@ -222,6 +254,8 @@ function apdqc_get_bin_class_name($bin) {
  * @see http://drupal.org/node/891600
  */
 class APDQCache extends DrupalDatabaseCache {
+
+  protected $compressed;
 
   /**
    * Constructs a DrupalDatabaseCache object.
@@ -236,7 +270,26 @@ class APDQCache extends DrupalDatabaseCache {
     if ($db_type === 'mysql' && defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50300) {
       require_once 'apdqc.mysql.inc';
     }
+
+    $this->compressed = $this->apdqcCacheCompressBin($bin);
     parent::__construct($bin);
+  }
+
+  /**
+   * Checks if this cache bin is compressed or not.
+   *
+   * @param string $bin
+   *   The cache bin name.
+   *
+   * @return bool
+   *   TRUE if this cache bin is compressed.
+   */
+  protected function apdqcCacheCompressBin($bin) {
+    $compress = variable_get('apdqc_cache_compress_' . $bin);
+    if (!isset($compress)) {
+      $compress = variable_get('apdqc_cache_default_compress', APDQC_CACHE_DEFAULT_COMPRESS);
+    }
+    return $compress;
   }
 
   /**
@@ -329,6 +382,41 @@ class APDQCache extends DrupalDatabaseCache {
       // return FALSE in order to allow exception handling to occur.
       return array();
     }
+  }
+
+  /**
+   * Prepares a cached item.
+   *
+   * Checks that items are either permanent or did not expire, and unserializes
+   * data as appropriate.
+   *
+   * @param object $cache
+   *   An item loaded from cache_get() or cache_get_multiple().
+   *
+   * @return mixed
+   *   The item with data unserialized as appropriate or FALSE if there is no
+   *   valid item to load.
+   */
+  protected function prepareItem($cache) {
+    if (!isset($cache->data)) {
+      return FALSE;
+    }
+    // If the cached data is temporary and subject to a per-user minimum
+    // lifetime, compare the cache entry timestamp with the user session
+    // cache_expiration timestamp. If the cache entry is too old, ignore it.
+    if ($cache->expire != CACHE_PERMANENT
+      && variable_get('cache_lifetime', 0)
+      && isset($_SESSION['cache_expiration'][$this->bin])
+      && $_SESSION['cache_expiration'][$this->bin] > $cache->created
+    ) {
+      // Ignore cache data that is too old and thus not valid for this user.
+      return FALSE;
+    }
+
+    // Inflate and unserialize data.
+    apdqc_inflate_unserialize($cache);
+
+    return $cache;
   }
 
   /**
@@ -429,7 +517,6 @@ class APDQCache extends DrupalDatabaseCache {
     }
   }
 
-
   /**
    * Cleans up the per-session cache expiration data.
    */
@@ -470,6 +557,15 @@ class APDQCache extends DrupalDatabaseCache {
     else {
       $fields['data'] = $data;
       $fields['serialized'] = 0;
+    }
+    if ($this->compressed > 1
+      || ($this->compressed && $fields['serialized'])
+    ) {
+      $deflate = gzdeflate($fields['data'], 9);
+      if (strlen($deflate) < strlen($fields['data'])) {
+        $fields['data'] = $deflate;
+        $fields['serialized'] += 2;
+      }
     }
 
     try {

@@ -20,6 +20,7 @@
 require_once 'apdqc.mysql.inc';
 
 if (!function_exists('_drupal_session_open')) {
+
   /**
    * Session handler assigned by session_set_save_handler().
    *
@@ -204,7 +205,10 @@ if (!function_exists('_drupal_session_open')) {
     if ($user && $user->uid > 0 && $user->status == 1) {
       if (!isset($user->roles)) {
         // This is done to unserialize the data member of $user.
-        $user->data = unserialize($user->data);
+        $data = @unserialize($user->data);
+        if ($user->data === 'b:0;' || $data !== FALSE) {
+          $user->data = $data;
+        }
 
         // Add roles element to $user.
         $user->roles = array();
@@ -692,7 +696,7 @@ if (!function_exists('_drupal_session_open')) {
     // to '1814400'. At that value, only after a user doesn't log in after
     // three weeks (1814400 seconds) will his/her session be removed.
     $query = \Database::getConnection()->prefixTables("DELETE FROM {sessions}");
-    $query .= " WHERE timestamp = '" . apdqc_escape_string(REQUEST_TIME - $lifetime) . "'";
+    $query .= " WHERE timestamp < '" . apdqc_escape_string(REQUEST_TIME - $lifetime) . "'";
     // Run Query.
     $results = apdqc_query(array('sessions'), array('*'), $query, array('async' => TRUE));
     if ($results === 'NO DB') {
@@ -728,4 +732,5 @@ if (!function_exists('_drupal_session_open')) {
     }
     return $save_session;
   }
+
 }
