@@ -1,3 +1,7 @@
+h1,h2,h3,h4,h5,h6,p, #etb-course-nav span.course-title, .alert-box, #etb-tool-nav .tab-bar span, ul.off-canvas-list li a, .etb-nav-modal ul li a, a.etb-nav_item_service_btn span, a.etb-modal-icon span, a.modal-img-link span, .etb-nav-modal h2, #admin-menu .dropdown li li a, .admin-status-bar span.course-section-label, .admin-status-bar span.user-role-label, .admin-status-bar span.current-user-id-label, h2, a, p.txtbk-intro, p.txtbk-intro a, .section-id, .accordion .accordion-navigation > a, .accordion dd > a, .sub-tier-1 h2, .sub-tier-1 h3, footer p, .admin-status-bar span.course-section, .admin-status-bar span.user-role, .admin-status-bar span.current-user-id, h1, .image-media h3, h4.testimonial-name, #etb-course-nav span.course-abrv, .etb-nav-modal h1 {
+  font-family: "Roboto", sans-serif;
+  font-weight: normal;
+}
 /* CKEditor template page */
 .cke_tpl_list {
   height: 25rem !important;
@@ -334,7 +338,6 @@ ul.dropdown-content .button-group > li {
   margin: 0;
 }
 .top-bar-section ul li > a {
-  font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
   font-size: 1rem;
   font-weight: normal;
 }
@@ -1774,7 +1777,6 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
   font-size: 5vw;
   font-weight: 100;
   float: left;
-  font-family: inherit
 }
 .field-name-field-bio {
   clear:  both;

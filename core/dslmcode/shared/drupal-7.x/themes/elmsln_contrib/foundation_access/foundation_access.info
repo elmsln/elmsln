@@ -32,7 +32,6 @@ stylesheets[all][] = legacy/bower_components/material-design-iconic-font/dist/cs
 stylesheets[all][] = fonts/elmsln/elmsln-font-styles.css
 stylesheets[all][] = legacy/css/system.base.css
 stylesheets[all][] = legacy/css/app.css
-stylesheets[all][] = legacy/css/fonts.css
 stylesheets[all][] = legacy/css/normalize.css
 stylesheets[all][] = legacy/css/comparison.css
 stylesheets[all][] = app/dist/css/styles.css
