@@ -61,6 +61,11 @@ pecl install uploadprogress
 touch /etc/php/7.0/mods-available/uploadprogress.ini
 echo extension=uploadprogress.so > /etc/php/7.0/mods-available/uploadprogress.ini
 
+# Sanity Logs
+echo slowlog = /var/log/php-fpm/www-slow.log >> /etc/php/7.0/fpm/pool.d/www.conf
+echo request_slowlog_timeout = 2s >> /etc/php/7.0/fpm/pool.d/www.conf
+echo php_admin_value[error_log] = /var/log/php-fpm/www-error.log >> /etc/php/7.0/fpm/pool.d/www.conf
+
 # restart fpm so we have access to these things
 service php7.0-fpm restart
 
