@@ -186,19 +186,20 @@ function elmsln_core_user_view($account, $view_mode, $langcode) {
   if (elmsln_core_get_profile_key() != $elmsln_global_profile) {
     // Grab the user data from the central person repository.
     $user_data_name = _cis_connector_request('user.json?name=' . $account->name, array(), $elmsln_global_profile, TRUE);
+    if (!empty($user_data_name)) {
+      $user_data_name = json_decode($user_data_name->data);
+      if (!empty($user_data_name->list)) {
+        $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
+        // Decode the data that comes in from the user object.
+        $user_data = json_decode($user_data_uid->data);
 
-    $user_data_name = json_decode($user_data_name->data);
-    if (!empty($user_data_name->list)) {
-      $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
-      // Decode the data that comes in from the user object.
-      $user_data = json_decode($user_data_uid->data);
-
-      // Add a new section to the User profile page.
-      $account->content['summary']['profile'] = array(
-        '#type' => 'user_profile_item',
-        '#title' => '',
-        '#markup' => $user_data->rendered,
-      );
+        // Add a new section to the User profile page.
+        $account->content['summary']['profile'] = array(
+          '#type' => 'user_profile_item',
+          '#title' => '',
+          '#markup' => $user_data->rendered,
+        );
+      }
     }
   }
 }
