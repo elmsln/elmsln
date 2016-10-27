@@ -39,9 +39,9 @@ $databases['default']['default']['init_commands']['join_buffer_size'] = "SET SES
 // pathcache settings
 $conf['path_inc'] = 'sites/all/modules/ulmus/pathcache/path.inc';
 // apdqc lock file
-$conf['lock_inc'] = 'sites/all/modules/ulmus/apdqc/apdqc.lock.inc';
+//$conf['lock_inc'] = 'sites/all/modules/ulmus/apdqc/apdqc.lock.inc';
 // apdqc session file
-$conf['session_inc'] = 'sites/all/modules/ulmus/apdqc/apdqc.session.inc';
+//$conf['session_inc'] = 'sites/all/modules/ulmus/apdqc/apdqc.session.inc';
 
 // allow user deployment settings to always take priority
 include_once "/var/www/elmsln/config/shared/drupal-7.x/settings/shared_settings.php";
