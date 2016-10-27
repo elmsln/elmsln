@@ -259,11 +259,17 @@ function template_preprocess_views_data_export_txt_body(&$vars) {
   _views_data_export_body_shared_preprocess($vars);
 }
 
+/**
+ * Implements hook_preprocess_views_data_export_doc_body().
+ */
 function template_preprocess_views_data_export_doc_body(&$vars) {
   // Pass through the generic MS Office preprocess.
   template_preprocess_views_data_export_msoffice_body($vars);
 }
 
+/**
+ * Implements hook_preprocess_views_data_export_xls_body().
+ */
 function template_preprocess_views_data_export_xls_body(&$vars) {
   // Pass through the generic MS Office preprocess.
   template_preprocess_views_data_export_msoffice_body($vars);
@@ -272,6 +278,25 @@ function template_preprocess_views_data_export_xls_body(&$vars) {
 function template_preprocess_views_data_export_msoffice_body(&$vars) {
   _views_data_export_header_shared_preprocess($vars);
   _views_data_export_body_shared_preprocess($vars);
+}
+
+/**
+ * Implements hook_process_views_data_export_doc_body().
+ */
+function template_process_views_data_export_doc_body(&$vars) {
+  // Pass through the generic MS Office process.
+  template_process_views_data_export_msoffice_body($vars);
+}
+
+/**
+ * Implements hook_process_views_data_export_xls_body().
+ */
+function template_process_views_data_export_xls_body(&$vars) {
+  // Pass through the generic MS Office process.
+  template_process_views_data_export_msoffice_body($vars);
+}
+
+function template_process_views_data_export_msoffice_body(&$vars) {
 
   $output = '';
 

@@ -1,0 +1,187 @@
+<?php
+
+/**
+ * Test class for garbage collection of VDE export data.
+ */
+class ViewsDataExportGarbageCollectionTest extends ViewsDataExportBaseTest {
+
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Garbage collection',
+      'description' => 'Checks garbage collection of batched exports',
+      'group' => 'Views Data Export',
+    );
+  }
+
+  /**
+   * Test that VDE export can only be downloaded by the user that created them.
+   */
+  public function testExportedGarbageCollection() {
+    // Run a batched export.
+    $path = 'vde_test/' . $this->randomName();
+    list($view, $expected) = $this->getExportView($path);
+    $display = &$view->display['vde_test']->handler;
+    // Set this view to be batched.
+    $display->override_option('use_batch', 'batch');
+    // Save this view so we can hit the path.
+    $view->save();
+    // Ensure that the menu router system is rebuilt on the next page load.
+    variable_set('menu_rebuild_needed', TRUE);
+    $exports = $this->getNumberOfStoredExports();
+    $files = $this->getNumberOfFiles();
+    $this->assertBatchedExportEqual($path, $expected, 'Batched access export matched expected output.');
+    // We should have created a new export and file.
+    $this->assertEqual($this->getNumberOfStoredExports(), $exports + 1, 'A single new batched export was created');
+    $this->assertEqual($this->getNumberOfFiles(), $files + 1, 'A single new temporary file was created');
+
+    $middle_timestamp = time();
+    sleep(1);
+    $this->assertBatchedExportEqual($path, $expected, 'Batched access export matched expected output.');
+    // We should have created a new export and file.
+    $this->assertEqual($this->getNumberOfStoredExports(), $exports + 2, 'A single new batched export was created');
+    $this->assertEqual($this->getNumberOfFiles(), $files + 2, 'A single new temporary file was created');
+
+    // Garbage collect the first export only.
+    views_data_export_garbage_collect(REQUEST_TIME - $middle_timestamp);
+    $this->assertEqual($this->getNumberOfStoredExports(), $exports + 1, 'Garbage collection removed 1 old export');
+    $this->assertEqual($this->getNumberOfFiles(), $files + 1, 'Garbage collection removed 1 old temporary file');
+  }
+
+  protected function getNumberOfStoredExports() {
+    return (int) db_select('views_data_export')->countQuery()->execute()->fetchField();
+  }
+
+  protected function getNumberOfFiles() {
+    return (int) db_select('file_managed')->countQuery()->execute()->fetchField();
+  }
+
+
+  /**
+   * Build and return a basic view of the views_test table.
+   *
+   * @return view
+   */
+  protected function getBasicExportView() {
+    views_include('view');
+
+    // Create the basic view.
+    $view = new view();
+    $view->vid = 'new';
+    $view->base_table = 'views_test';
+
+    // Set up the fields we need.
+    $display = $view->new_display('default', 'Master', 'default');
+
+    $display->override_option('fields', array(
+      'id' => array(
+        'id' => 'id',
+        'table' => 'views_test',
+        'field' => 'id',
+        'relationship' => 'none',
+      ),
+      'name' => array(
+        'id' => 'name',
+        'table' => 'views_test',
+        'field' => 'name',
+        'relationship' => 'none',
+      ),
+      'age' => array(
+        'id' => 'age',
+        'table' => 'views_test',
+        'field' => 'age',
+        'relationship' => 'none',
+      ),
+    ));
+
+    // Set up the sort order.
+    $display->override_option('sorts', array(
+      'id' => array(
+        'order' => 'ASC',
+        'id' => 'id',
+        'table' => 'views_test',
+        'field' => 'id',
+        'relationship' => 'none',
+      ),
+    ));
+
+    // Set up the pager.
+    $display->override_option('pager', array(
+      'type' => 'none',
+      'options' => array('offset' => 0),
+    ));
+
+    return $view;
+  }
+
+  protected function getStylePluginName() {
+    return 'views_data_export_txt';
+  }
+
+  protected function getExportView($path = 'vde_test') {
+    // Create the basic view.
+    $view = $this->getBasicExportView();
+
+    $display = $view->new_display('views_data_export', 'Data export', 'vde_test');
+    $display->override_option('style_plugin', $this->getStylePluginName());
+    $display->override_option('path', $path);
+
+    $expected = '[ID]
+
+1
+[Name]
+
+John
+[Age]
+
+25
+----------------------------------------
+
+[ID]
+
+2
+[Name]
+
+George
+[Age]
+
+27
+----------------------------------------
+
+[ID]
+
+3
+[Name]
+
+Ringo
+[Age]
+
+28
+----------------------------------------
+
+[ID]
+
+4
+[Name]
+
+Paul
+[Age]
+
+26
+----------------------------------------
+
+[ID]
+
+5
+[Name]
+
+Meredith
+[Age]
+
+30
+----------------------------------------';
+
+    return array(&$view, $expected);
+  }
+}
