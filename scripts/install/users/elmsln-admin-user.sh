@@ -52,7 +52,7 @@ sed -i '1i export PATH="$HOME/.config/composer/vendor/bin:$PATH"' $homedir/.bash
 
 source $homedir/.bashrc
 php /usr/local/bin/composer self-update
-php /usr/local/bin/composer global require drush/drush:6.*
+php /usr/local/bin/composer global require drush/drush:7.*
 
 # copy in the elmsln server stuff as the baseline for .drush
 if [ ! -d $homedir/.drush ]; then
