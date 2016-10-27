@@ -455,12 +455,16 @@ php /usr/local/bin/composer install
 if [[ $os == '1' ]]; then
   /etc/init.d/httpd restart
   /etc/init.d/mysqld restart
+  /etc/init.d/php-fpm restart
 elif [ $os == '2' ]; then
   service apache2 restart
   service mysql restart
+  service php5-fpm restart
+  service php7.0-fpm restart
 else
   service httpd restart
   service mysql restart
+  service php-fpm restart
 fi
 # source one last time before hooking crontab up
 source $HOME/.bashrc
