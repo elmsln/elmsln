@@ -148,7 +148,7 @@ elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
   fi
   phpini="/etc/php/7.0/fpm/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
-  mycnf="/etc/php/7.0/mods-available/mysql.ini"
+  mycnf="/etc/mysql/conf.d/mariadb.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
@@ -360,6 +360,8 @@ if [[ -n "$domains" ]]; then
       service apache2 restart
       service php5-fpm restart
       service php7.0-fpm restart
+    elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]
+      echo binlog_format=row >> $mycnf
     else
       service httpd restart		   
       service mysql restart
