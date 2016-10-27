@@ -1,7 +1,5 @@
-name = Cron Queue test
-description = 'Support module for the cron queue runner.'
-package = Testing
-version = VERSION
+name = Update test admin theme
+description = Test theme which is used as admin theme.
 core = 7.x
 hidden = TRUE
 

@@ -5,8 +5,8 @@ package = Core
 core = 7.x
 files[] = openid.test
 
-; Information added by Drupal.org packaging script on 2016-07-07
-version = "7.50"
+; Information added by Drupal.org packaging script on 2016-10-05
+version = "7.51"
 project = "drupal"
-datestamp = "1467918493"
+datestamp = "1475694174"
 
