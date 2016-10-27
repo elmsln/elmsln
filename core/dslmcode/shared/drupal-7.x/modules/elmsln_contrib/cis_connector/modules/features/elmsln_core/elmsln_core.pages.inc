@@ -72,37 +72,39 @@ function elmsln_core_data_form() {
   $result = _elmsln_core_lrs_query($query, FALSE);
   // start cleaning up the data to make it more useful downstream
   $data = $result['result'];
-  foreach ($data as $key => $record) {
-    // engineer verb agnostic of language
-    $verb = t($record['statement']['verb']['display']['en-US']);
-    $aggregates['verbs'][$verb] = $verb;
-    if (!url_is_external(str_replace($GLOBALS['base_url'], '', $record['statement']['object']['id']))) {
-      $item_link = $record['statement']['object']['id'];
+  if (!empty($data)) {
+    foreach ($data as $key => $record) {
+      // engineer verb agnostic of language
+      $verb = t($record['statement']['verb']['display']['en-US']);
+      $aggregates['verbs'][$verb] = $verb;
+      if (!url_is_external(str_replace($GLOBALS['base_url'], '', $record['statement']['object']['id']))) {
+        $item_link = $record['statement']['object']['id'];
+      }
+      elseif (isset($record['statement']['context']['contextActivities']['parent'][0]['id'])) {
+        $item_link = $record['statement']['context']['contextActivities']['parent'][0]['id'];
+      }
+      elseif (isset($record['statement']['context']['extensions']['https://www.elmsln.org/x-api/elmsln-url'])) {
+        $item_link = $record['statement']['context']['extensions']['https://www.elmsln.org/x-api/elmsln-url'];
+      }
+      elseif (isset($record['statement']['object']['definition']['extensions']['https://www.elmsln.org/x-api/elmsln-url'])) {
+        $item_link = $record['statement']['object']['definition']['extensions']['https://www.elmsln.org/x-api/elmsln-url'];
+      }
+      else {
+        $item_link = NULL;
+      }
+      $record['_item_link'] = $item_link;
+      $aggregates['statements'][$verb][] = $record;
+      // count verbs
+      if (!isset($aggregates['counts'][$verb])) {
+        $aggregates['counts'][$verb] = 0;
+      }
+      $aggregates['counts'][$verb]++;
+      if (!isset($aggregates['users'][$verb][$record['statement']['actor']['name']])) {
+        $aggregates['users'][$verb][$record['statement']['actor']['name']] = 0;
+      }
+      $aggregates['users'][$verb][$record['statement']['actor']['name']]++;
+      $aggregates['user_list'][$record['statement']['actor']['name']] = NULL;
     }
-    elseif (isset($record['statement']['context']['contextActivities']['parent'][0]['id'])) {
-      $item_link = $record['statement']['context']['contextActivities']['parent'][0]['id'];
-    }
-    elseif (isset($record['statement']['context']['extensions']['https://www.elmsln.org/x-api/elmsln-url'])) {
-      $item_link = $record['statement']['context']['extensions']['https://www.elmsln.org/x-api/elmsln-url'];
-    }
-    elseif (isset($record['statement']['object']['definition']['extensions']['https://www.elmsln.org/x-api/elmsln-url'])) {
-      $item_link = $record['statement']['object']['definition']['extensions']['https://www.elmsln.org/x-api/elmsln-url'];
-    }
-    else {
-      $item_link = NULL;
-    }
-    $record['_item_link'] = $item_link;
-    $aggregates['statements'][$verb][] = $record;
-    // count verbs
-    if (!isset($aggregates['counts'][$verb])) {
-      $aggregates['counts'][$verb] = 0;
-    }
-    $aggregates['counts'][$verb]++;
-    if (!isset($aggregates['users'][$verb][$record['statement']['actor']['name']])) {
-      $aggregates['users'][$verb][$record['statement']['actor']['name']] = 0;
-    }
-    $aggregates['users'][$verb][$record['statement']['actor']['name']]++;
-    $aggregates['user_list'][$record['statement']['actor']['name']] = NULL;
   }
   // order from biggest to smallest xAPI counts
   uasort($aggregates['counts'], '_elmsln_uasortcmp');
