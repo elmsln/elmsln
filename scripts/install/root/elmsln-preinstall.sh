@@ -360,7 +360,7 @@ if [[ -n "$domains" ]]; then
       service apache2 restart
       service php5-fpm restart
       service php7.0-fpm restart
-    elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]
+    elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
       echo binlog_format=row >> $mycnf
     else
       service httpd restart		   
