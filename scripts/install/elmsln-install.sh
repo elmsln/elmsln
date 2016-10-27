@@ -265,6 +265,7 @@ for tool in "${authoritylist[@]}"
         echo "" >> $sitedir/$tool/services/$host/settings.php
         echo "" >> $sitedir/$tool/services/$host/settings.php
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/$tool/services/$host/settings.php
+        echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/$tool/services/$host/settings.php
       fi
   fi
 
