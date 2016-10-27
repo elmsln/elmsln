@@ -74,8 +74,8 @@ interface RestWSResourceControllerInterface {
    *
    * @param string $op
    *   Either 'create', 'view' (= read), 'update' or 'delete'.
-   * @param int|string $id
-   *   The id of the resource.
+   * @param int|string|object $id
+   *   The id (or EntityDrupalWrapper in case of 'create') of the resource.
    *
    * @see entity_access()
    */
@@ -167,8 +167,16 @@ class RestWSEntityResourceController implements RestWSQueryResourceControllerInt
 
     try {
       $wrapper = entity_property_values_create_entity($this->entityType, $values);
-      // Get the ID and bundle property names.
-      $entity_keys = array_intersect_key($entity_info['entity keys'], array('id' => 1, 'bundle' => 1));
+
+      // Check that the user is allowed to create this entity. We could not do
+      // it earlier as an entity object is required.
+      if (!$this->access('create', $wrapper)) {
+        watchdog('access denied', check_plain($_GET['q']), NULL, WATCHDOG_WARNING);
+        throw new RestWSException(t('Not authorized to create the entity.'), 403);
+      }
+
+      // Get the entity keys properties.
+      $entity_keys = array_merge($entity_info['entity keys'], ['status' => 'status']);
 
       foreach (array_keys($values) as $name) {
         // Don't check access on entity keys for new entities. Otherwise,
@@ -198,11 +206,10 @@ class RestWSEntityResourceController implements RestWSQueryResourceControllerInt
   public function update($id, array $values) {
     $wrapper = $this->wrapper($id);
     $entity_info = $wrapper->entityInfo();
-    // Get the ID and bundle property names.
-    $entity_keys = array_intersect_key($entity_info['entity keys'], array('id' => 1, 'bundle' => 1));
+
     try {
       foreach ($values as $name => $value) {
-        if (in_array($name, $entity_keys)) {
+        if (in_array($name, array("id", "bundle"))) {
           // We don't allow changing the entity ID or bundle.
           if ($wrapper->{$name}->value() != $value) {
             throw new RestWSException('Unable to change ' . $name, 422);
@@ -210,7 +217,8 @@ class RestWSEntityResourceController implements RestWSQueryResourceControllerInt
         }
         else {
           $wrapper->{$name}->set($value);
-          if (!$this->checkPropertyAccess($wrapper, $name, $wrapper->{$name})) {
+          if (!$wrapper->entityAccess('update')
+            && !$this->checkPropertyAccess($wrapper, $name, $wrapper->{$name})) {
             throw new RestWSException(t('Not authorized to set property @p', array('@p' => $name)), 403);
           }
         }
@@ -332,6 +340,11 @@ class RestWSEntityResourceController implements RestWSQueryResourceControllerInt
   }
 
   public function access($op, $id) {
+    // The "create" operation requires an existing entity to check access.
+    // See https://www.drupal.org/node/1780646
+    if ($op == 'create' && empty($id)) {
+      return TRUE;
+    }
     return entity_access($op, $this->entityType, isset($id) ? $this->wrapper($id)->value() : NULL);
   }
 
