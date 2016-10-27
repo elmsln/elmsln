@@ -31,6 +31,25 @@ function views_data_export_views_api() {
 }
 
 /**
+/**
+ * Checks whether the passed URI identifies an export file.
+ *
+ * @param string $uri
+ *   A file URI.
+ *
+ * @return bool
+ *   TRUE if the URI identifies an export file, FALSE otherwise.
+ */
+function views_data_export_is_export_file($uri) {
+  foreach (entity_load('file', FALSE, array('uri' => $uri)) as $file) {
+    // See if this is an export file.
+    $usages = file_usage_list($file);
+    return !empty($usages['views_data_export']['eid']);
+  }
+  return FALSE;
+}
+
+/**
  * Implementation of hook_theme().
  */
 function views_data_export_theme() {
@@ -114,9 +133,10 @@ function views_data_export_garbage_collect($expires = NULL, $chunk = NULL) {
     }
 
     // We do two things to exports we want to garbage collect
-    // 1. Delete the index table for it, if it is still around
-    // 2. Delete the row from the exports table
-    // 3. Delete the view from the object_cache
+    // 1. Delete the index table for it, if it is still around.
+    // 2. Delete the files used during the export.
+    // 3. Delete the row from the exports table.
+    // 4. Delete the view from the object_cache.
     if (count($eids_to_clear)) {
       foreach ($eids_to_clear as $eid) {
         // 1. Delete index table, if it is still around for some reason
@@ -124,19 +144,43 @@ function views_data_export_garbage_collect($expires = NULL, $chunk = NULL) {
         if (db_table_exists($table)) {
           db_drop_table($table);
         }
+
+        // 2. Delete the files used during the export.
+        foreach (views_data_export_export_list_files($eid) as $file) {
+          file_delete($file, TRUE);
+        }
       }
 
-      // 2. Delete the entries in the exports table.
+      // 3. Delete the entries in the exports table.
       db_delete('views_data_export')
         ->condition('eid', $eids_to_clear, 'IN')
         ->execute();
 
-      // 3. Clear the cached views
+      // 4. Clear the cached views
       views_data_export_view_clear($eids_to_clear);
     }
 
     lock_release('views_data_export_gc');
   }
+}
+
+/**
+ * Determines where a file is used.
+ *
+ * @param $eid
+ *   The ID of a Views Data Export.
+ *
+ * @return array
+ *   An array of loaded files objects used by the specified export.
+ */
+function views_data_export_export_list_files($eid) {
+  $result = db_select('file_usage', 'f')
+    ->fields('f', array('fid'))
+    ->condition('id', $eid)
+    ->condition('type', 'eid')
+    ->condition('module', 'views_data_export')
+    ->execute();
+  return file_load_multiple($result->fetchCol());
 }
 
 
@@ -267,16 +311,4 @@ function views_data_export_view_clear($export_id) {
   db_delete('views_data_export_object_cache')
     ->condition('eid', $export_id)
     ->execute();
-}
-
-/**
- * Implements hook_file_presave().
- */
-function views_data_export_file_presave($file) {
-  // Ensure temporary files really are temporary.
-  // @see: https://drupal.org/node/2198399
-  if (strpos($file->filename, 'views_data_export') === 0) {
-    // There is no FILE_STATUS_TEMPORARY.
-    $file->status = 0;
-  }
 }
