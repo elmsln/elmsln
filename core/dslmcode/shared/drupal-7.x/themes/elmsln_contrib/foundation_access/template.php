@@ -47,9 +47,13 @@ function foundation_access_preprocess_html(&$variables) {
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
-  // gifs need to be done as a player for accessibility reasons
   $libraries = libraries_get_libraries();
-  if (isset($libraries['freezeframe.js'])) {
+  if (isset($libraries['jquery.vibrate.js'])) {
+    drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/vibrate-enable.js');
+  }
+  // gifs need to be done as a player for accessibility reasons
+  if (isset($libraries['jquery.vibrate.js'])) {
     drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
     drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
     drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
