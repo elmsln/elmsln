@@ -144,13 +144,19 @@ function _elmsln_people_user_edit_page($form, &$form_state, $account, $category 
   // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
   $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
   $user_data_name = _cis_connector_request('user.json?name=' . $account->name, array(), $elmsln_global_profile, TRUE);
-  $user_data_name = json_decode($user_data_name->data);
-  if (!empty($user_data_name->list)) {
-    $user_data = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
-    // Decode the data that comes in from the user object.
-    $user_data = json_decode($user_data->data);
-    // send user to the cpr we just defined and redirect them back to where they were.
-    _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $user_data->uid, 'edit?destination=elmsln/redirect/' . elmsln_core_get_profile_key() . '/user/' . $account->uid . '&elmsln_course=' . _cis_connector_course_context());
+  if (!empty($user_data_name)) {
+    $user_data_name = json_decode($user_data_name->data);
+    if (!empty($user_data_name->list)) {
+      $user_data = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
+      // Decode the data that comes in from the user object.
+      $user_data = json_decode($user_data->data);
+      // send user to the cpr we just defined and redirect them back to where they were.
+      _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $user_data->uid, 'edit?destination=elmsln/redirect/' . elmsln_core_get_profile_key() . '/user/' . $account->uid . '&elmsln_course=' . _cis_connector_course_context());
+    }
+    else {
+      module_load_include('inc', 'user', 'user.pages');
+      return user_profile_form($form, $form_state, $account, $category);
+    }
   }
   else {
     module_load_include('inc', 'user', 'user.pages');

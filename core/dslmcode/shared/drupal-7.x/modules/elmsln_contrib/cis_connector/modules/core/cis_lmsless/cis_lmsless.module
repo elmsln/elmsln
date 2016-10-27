@@ -286,13 +286,15 @@ function _cis_lmsless_assemble_network() {
         $vars['service_option_link'] = _cis_connector_format_address($reg['cis'],  '/' . $course_context, 'front') . '/service-instances';
       }
     }
-    // sort by title so that network icons are in alphabetical order
-    foreach ($list as &$order) {
-      usort($order, function($a, $b) {
-        return strcmp($a['title'], $b['title']);
-      });
+    if (!empty($list)) {
+      // sort by title so that network icons are in alphabetical order
+      foreach ($list as &$order) {
+        usort($order, function($a, $b) {
+          return strcmp($a['title'], $b['title']);
+        });
+      }
+      $vars['services'] = $list;
     }
-    $vars['services'] = $list;
   }
   return $vars;
 }
