@@ -47,6 +47,8 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
+  // elmsln icons
+  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/fonts/elmsln/elmsln-font-styles.css', array('group' => CSS_THEME, 'weight' => -1000));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
