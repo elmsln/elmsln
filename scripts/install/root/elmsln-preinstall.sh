@@ -103,7 +103,7 @@ if [ $os == '1' ]; then
   elmslnecho "php.ini automatically set to ${phpini}"
   mycnf="/etc/my.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
-  crontab="/etc/crontab"
+  crontab="/var/spool/cron/"
   elmslnecho "crontab automatically set to ${crontab}"
   domains="/etc/httpd/conf.d/"
   elmslnecho "domains automatically set to ${domains}"
@@ -127,7 +127,7 @@ elif [[ $os == '2' && $dist != *"DISTRIB_RELEASE=16"* ]]; then
   elmslnecho "php.ini automatically set to ${phpini}"
   mycnf="/etc/php5/mods-available/mysql.ini"
   elmslnecho "my.cnf automatically set to ${mycnf}"
-  crontab="/etc/crontab"
+  crontab="/var/spool/cron/crontabs/"
   elmslnecho "crontab automatically set to ${crontab}"
   domains="/etc/apache2/sites-available/"
   elmslnecho "domains automatically set to ${domains}"
@@ -150,7 +150,7 @@ elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
   elmslnecho "php.ini automatically set to ${phpini}"
   mycnf="/etc/mysql/conf.d/mariadb_elmsln.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
-  crontab="/etc/crontab"
+  crontab="/var/spool/cron/crontabs/"
   elmslnecho "crontab automatically set to ${crontab}"
   domains="/etc/apache2/sites-available/"
   elmslnecho "domains automatically set to ${domains}"
@@ -169,7 +169,7 @@ elif [ $os == '3' ]; then
   # our install sets this up ahead of time
   mycnf="/etc/my.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
-  crontab="/etc/crontab"
+  crontab="/var/spool/cron/"
   elmslnecho "crontab automatically set to ${crontab}"
   mkdir -p /etc/httpd/conf.sites.d
   domains="/etc/httpd/conf.sites.d/"
@@ -472,10 +472,15 @@ else
   service mysqld restart
   service php-fpm restart
 fi
+
 # source one last time before hooking crontab up
 source $HOME/.bashrc
-if [[ -n "$crontab" ]]; then
-  cat /var/www/elmsln/scripts/server/crontab.txt >> $crontab
+ulmuscrontab=ulmus
+ulmusdrushcrontab=ulmusdrush
+
+if [[ -d "$crontab" ]]; then
+  cat /var/www/elmsln/scripts/server/ulmus_crontab.txt >> $crontab$ulmuscrontab
+  cat /var/www/elmsln/scripts/server/ulmusdrush_crontab.txt >> $crontab$ulmusdrushcrontab
 fi
 
 elmslnecho "Everything should be in place, now you can log out and run the following commands:"
