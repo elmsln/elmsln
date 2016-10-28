@@ -23,12 +23,14 @@
  *
  * @ingroup views_templates
  */
+  $noimages = FALSE;
   // ensure we have images, otherwise we can't show a preview at this time
   if (isset($row->field_field_images) && count($row->field_field_images) > 0) {
     $images = '';
   }
   else {
     $images = '<div class="elmsln-no-preview-item  light-blue lighten-5">' . t('no preview') . '</div>';
+    $noimages = TRUE;
   }
   // build the images out as a row
   foreach ($row->field_field_images as $image_array) {
@@ -51,9 +53,13 @@
 <div class="col s12 m6 l4 elmsln-card">
   <div class="card small sticky-action">
     <div class="card-image waves-effect waves-block waves-light">
+    <?php if ($noimages): ?>
+      <?php print $images; ?>
+    <?php else: ?>
        <div class="carousel carousel-slider center" data-indicators="true">
          <?php print $images; ?>
       </div>
+    <?php endif; ?>
     </div>
     <div class="card-content">
       <span class="card-title activator grey-text text-darken-4">
