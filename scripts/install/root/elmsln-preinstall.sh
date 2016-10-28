@@ -338,6 +338,11 @@ if [[ -n "$mycnf" ]]; then
   cat /var/www/elmsln/scripts/server/my.txt > $mycnf
 fi
 
+# Add on our last bit of conf for our new Ubuntu Stuff.
+if [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
+  cat /var/www/elmsln/scripts/server/my_ubunut16.txt >> $mycnf
+fi
+
 if [[ -n "$domains" ]]; then
   # try to automatically author the domains file(s)
   # @todo replace this part with the ability to split each domain off into its own conf file
@@ -360,8 +365,6 @@ if [[ -n "$domains" ]]; then
       service apache2 restart
       service php5-fpm restart
       service php7.0-fpm restart
-    elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
-      echo binlog_format=row >> $mycnf
     else
       service httpd restart		   
       service mysqld restart
@@ -400,6 +403,7 @@ if [[ -n "$zzz_performance" ]]; then
     ln -s $zzz_performance /etc/apache2/sites-enabled/zzz_performance.conf
   fi
 fi
+
 
 # setup infrastructure tools
 ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
