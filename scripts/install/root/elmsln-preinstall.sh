@@ -479,8 +479,14 @@ ulmuscrontab=ulmus
 ulmusdrushcrontab=ulmusdrush
 
 if [[ -d "$crontab" ]]; then
+  touch $crontab$ulmuscrontab
+  touch $crontab$ulmusdrushcrontab
   cat /var/www/elmsln/scripts/server/ulmus_crontab.txt >> $crontab$ulmuscrontab
   cat /var/www/elmsln/scripts/server/ulmusdrush_crontab.txt >> $crontab$ulmusdrushcrontab
+  chmod 600 $crontab$ulmuscrontab
+  chmod 600 $crontab$ulmusdrushcrontab
+  chown ulmus:crontab $crontab$ulmuscrontab
+  chown ulmusdrush:crontab $crontab$ulmusdrushcrontab
 fi
 
 elmslnecho "Everything should be in place, now you can log out and run the following commands:"
