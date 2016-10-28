@@ -148,6 +148,8 @@ elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
   fi
   phpini="/etc/php/7.0/fpm/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
+  opcacheini="/etc/php/7.0/mods-available/opcache.ini"
+  elmslnecho "opcache.ini automatically set to ${opcacheini}"
   mycnf="/etc/mysql/conf.d/mariadb_elmsln.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/var/spool/cron/crontabs/"
@@ -336,6 +338,9 @@ if [[ -n "$phpfpmini" ]]; then
 fi
 if [[ -n "$mycnf" ]]; then
   cat /var/www/elmsln/scripts/server/my.txt > $mycnf
+fi
+if [[ -n "$opcacheini" ]]; then
+  cat /var/www/elmsln/scripts/server/opcache.txt >> $opcacheini
 fi
 
 # Add on our last bit of conf for our new Ubuntu Stuff.
