@@ -148,7 +148,7 @@ elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
   fi
   phpini="/etc/php/7.0/fpm/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
-  mycnf="/etc/mysql/conf.d/mariadb.cnf"
+  mycnf="/etc/mysql/conf.d/mariadb_elmsln.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/etc/crontab"
   elmslnecho "crontab automatically set to ${crontab}"
@@ -364,7 +364,7 @@ if [[ -n "$domains" ]]; then
       echo binlog_format=row >> $mycnf
     else
       service httpd restart		   
-      service mysql restart
+      service mysqld restart
       service php-fpm restart
     fi
     cd $HOME
@@ -460,12 +460,12 @@ if [[ $os == '1' ]]; then
   /etc/init.d/php-fpm restart
 elif [ $os == '2' ]; then
   service apache2 restart
-  service mysql restart
+  service mysqld restart
   service php5-fpm restart
   service php7.0-fpm restart
 else
   service httpd restart
-  service mysql restart
+  service mysqld restart
   service php-fpm restart
 fi
 # source one last time before hooking crontab up
