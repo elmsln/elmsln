@@ -1,0 +1,3 @@
+MAILTO=""
+0 4 * * *  /var/www/elmsln/scripts/crontab/nightly-routine.sh
+* * * * * /usr/local/bin/drush-command-job/drush-command-job >> /var/www/elmsln/config/logs/drush-command-job.log
