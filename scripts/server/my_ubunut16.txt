@@ -1,0 +1,17 @@
+;Ubuntu 16 Stuffs
+transaction-isolation = READ-COMMITTED
+innodb_autoinc_lock_mode = 2
+innodb_checksum_algorithm = crc32
+innodb_read_io_threads = 16
+innodb_spin_wait_delay = 24
+innodb_sync_spin_loops = 200
+innodb_write_io_threads = 16
+metadata_locks_hash_instances = 256
+mrr_buffer_size = 8M
+innodb_flush_log_at_trx_commit = 2
+innodb_lock_wait_timeout = 25
+innodb_log_file_size = 512M
+innodb_lock_wait_timeout = 25
+wait_timeout = 600
+join-buffer-size         = 8388608
+binlog-format            = ROW
