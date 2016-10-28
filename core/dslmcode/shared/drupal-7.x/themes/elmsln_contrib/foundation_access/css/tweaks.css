@@ -625,9 +625,14 @@ input[type=file]:focus,
 }
 
 /* top bar profile divider */
-.divider-right {
-  border-right-width: 0.0625rem;
+.left-nav-section li.divider-right {
+  border-right-width: 0.2rem;
   border-right-style:solid;
+  padding: 0;
+  min-width: 0;
+  margin: 0.2rem 0;
+  width: 0.2rem;
+  height: auto;
 }
 
 /* CIS filter / submit widget */

@@ -11,6 +11,8 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['install_profile'] = elmsln_core_get_profile_key();
   $settings = _cis_connector_build_registry($variables['install_profile']);
   $address = explode('.', $settings['address']);
+  $variables['iconsizes'] = array('16', '32', '64', '96', '160', '192', '310');
+  $variables['appleiconsizes'] = array('60', '72', '76', '114', '120', '144', '152', '180');
   $variables['system_icon'] = array_shift($address);
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   // loop through our system specific colors

@@ -8,8 +8,8 @@
   }
 ?>
 <!-- Ecosystem Top Nav -->
-<div id="etb-course-nav" class="row full collapse <?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['light'] . ' ' . $lmsless_classes[$distro]['color'];?>-border">
-  <div class="s12 m6 col">
+<div id="etb-course-nav" class="row full collapse <?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['light'] . ' ' . $lmsless_classes[$distro]['color'];?>-border z-depth-1">
+  <div class="s12 m7 col">
     <nav class="top-bar etb-nav middle-align-wrap etb-nav--center--parent" data-options="is_hover: false" data-topbar role="navigation">
      <section>
         <!-- Left Nav Section -->
@@ -24,12 +24,13 @@
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
           <li class="elmsln-user-profile-menu-item ferpa-protect">
-            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light divider-right <?php print $lmsless_classes[$distro]['color'];?>-border" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
+            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="hide-on-med-and-down truncate"><?php print $username; ?></span>
             </a>
           </li>
           <?php endif; ?>
+          <li class="divider-right <?php print $lmsless_classes[$distro]['color'];?>-border"></li>
           <?php if ($bar_elements['help']) : ?>
           <li>
             <a href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-jwerty-key="h" data-voicecommand="help">
@@ -58,7 +59,7 @@
       </section>
     </nav>
   </div>
-    <div class="etb-title s12 m6 col">
+    <div class="etb-title s12 m5 col">
       <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar role="navigation">
        <section class="top-bar-section title-link">
         <ul class="menu right clearfix">

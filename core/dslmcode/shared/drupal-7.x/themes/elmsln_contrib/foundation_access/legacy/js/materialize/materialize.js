@@ -99,7 +99,8 @@
     $('.chip, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
     // color back to top item
     $('#backtotop').addClass('circle').addClass('waves-' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['dark']);
-
+    // meta property names so mobile reflects system color
+    $('meta[name="theme-color"],meta[name="msapplication-TileColor"],meta[name="msapplication-navbutton-color"]').attr('content', $('.cis-lmsless-color').css('backgroundColor'));
     // hover state for tables to match styling
     $('tr.even, tr.odd, ul.menu li a, [data-elmsln-hover]').not('.active,.active-system,.elmsln-fixed-action-btn a').hover(
       function() {
