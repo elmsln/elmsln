@@ -20,7 +20,7 @@ function cis_restws_install() {
   ->execute();
 
   // create user acocunt to match registry file if exists
-  $distro = variable_get('install_profile', FALSE);
+  $distro = elmsln_core_get_profile_key();
   $registry = _cis_connector_build_registry($distro);
   // ensure that user and pass are set
   if (isset($registry['user']) && isset($registry['pass'])) {
@@ -69,7 +69,7 @@ function cis_restws_install() {
  * of operations that do the permissions checks ahead of time.
  */
 function cis_restws_update_7001(&$sandbox) {
-  $distro = variable_get('install_profile', FALSE);
+  $distro = elmsln_core_get_profile_key();
   $registry = _cis_connector_build_registry($distro);
   // ensure that user and pass are set
   if (isset($registry['user'])) {

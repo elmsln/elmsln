@@ -74,7 +74,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
       continue;
     }
 
-    $file_contents = file_get_contents($filename);
+    $file_contents = (string) @file_get_contents($filename);
     $lines = file($filename);
     $filename_hash = drupal_hash_base64($filename);
     $content_hash = drupal_hash_base64($file_contents);
@@ -155,7 +155,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
  */
 function advagg_validator_test_css_file_w3c($filename, &$validator_options = array()) {
   // Get CSS files contents.
-  $validator_options['text'] = file_get_contents($filename);
+  $validator_options['text'] = (string) @file_get_contents($filename);
 
   // Add in defaults.
   $validator_options += array(

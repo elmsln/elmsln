@@ -62,7 +62,7 @@ do
   cd $elmsln/core/dslmcode/stacks
   cd "${stack}/profiles"
   # pull the name of the profile in this stack by ignoring core ones
-  profile=$(find . -maxdepth 1 -type l \( ! -iname "testing" ! -iname "minimal" ! -iname "README.txt" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
+  profile=$(find . -maxdepth 1 -type l \( ! -iname "cle__2" ! -iname "testing" ! -iname "minimal" ! -iname "README.txt" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
   # add distros to our list
   distros+=($profile)
   cd $profile
@@ -265,6 +265,7 @@ for tool in "${authoritylist[@]}"
         echo "" >> $sitedir/$tool/services/$host/settings.php
         echo "" >> $sitedir/$tool/services/$host/settings.php
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $sitedir/$tool/services/$host/settings.php
+        echo "require_once DRUPAL_ROOT . '/../../shared/drupal-7.x/settings/shared_settings.php';" >> $sitedir/$tool/services/$host/settings.php
       fi
   fi
 
@@ -315,6 +316,9 @@ drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --st
 # revert everything as some last minute clean up
 elmslnecho "Global feature revert as clean up"
 drush @elmsln fr-all --concurrency=${concurrent} --strict=0 --v --y
+# APDQC cache bin to memory shift
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --v --y
 # seed entity caches
 elmslnecho "Seed some initial caches on all sites"
 drush @elmsln ecl --concurrency=${concurrent} --strict=0 --v --y

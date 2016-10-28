@@ -216,16 +216,28 @@ function advagg_missing_send_saved_file(array $files_to_save, $uri, $created, $f
     exit();
   }
 
+  $return_compressed_br = FALSE;
+  $return_compressed_gz = FALSE;
   // Negotiate whether to use gzip compression.
-  $return_compressed = isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE;
+  if (!empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+    if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'br') !== FALSE) {
+      $return_compressed_br = TRUE;
+    }
+    if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE) {
+      $return_compressed_gz = TRUE;
+    }
+  }
   header('Vary: Accept-Encoding', FALSE);
 
   if (!empty($created)) {
-    if ($return_compressed && file_exists($uri . '.gz') && filesize($uri . '.gz') > 0) {
+    if ($return_compressed_br && file_exists($uri . '.br') && filesize($uri . '.br') > 0) {
+      $uri .= '.br';
+    }
+    elseif ($return_compressed_gz && file_exists($uri . '.gz') && filesize($uri . '.gz') > 0) {
       $uri .= '.gz';
     }
     if (!isset($files_to_save[$uri]) && file_exists($uri) && filesize($uri)) {
-      $files_to_save[$uri] = file_get_contents($uri);
+      $files_to_save[$uri] = (string) @file_get_contents($uri);
     }
   }
 
@@ -239,8 +251,19 @@ function advagg_missing_send_saved_file(array $files_to_save, $uri, $created, $f
   // Set generic far future headers.
   advagg_missing_set_farfuture_headers();
   // Return compressed content if we can.
-  if ($return_compressed) {
+  if ($return_compressed_br || $return_compressed_gz) {
     foreach ($files_to_save as $uri => $data) {
+      // See if this uri contains .br near the end of it.
+      $pos = strripos($uri, '.br', 91 + strlen(ADVAGG_SPACE) * 3);
+      if (!empty($pos)) {
+        $len = strlen($uri);
+        if ($pos == $len - 3) {
+          // .br file exists, send it out.
+          header('Content-Encoding: br');
+          break;
+        }
+      }
+
       // See if this uri contains .gz near the end of it.
       $pos = strripos($uri, '.gz', 91 + strlen(ADVAGG_SPACE) * 3);
       if (!empty($pos)) {
@@ -1046,7 +1069,7 @@ function advagg_save_aggregate($filename, array $files, $type, array $aggregate_
     $uri => $contents,
   );
 
-  // Allow other modules to alter the contents and add new files to save (.gz).
+  // Allow other modules to alter the contents and add new files to save.
   // Call hook_advagg_save_aggregate_alter().
   $other_parameters = array($files, $type);
   if (empty($aggregate_settings['settings']['no_alters'])) {
@@ -1156,7 +1179,7 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
   // name. Preserves the mime type in different stream wrapper implementations.
   $parts = pathinfo($uri);
   $extension = '.' . $parts['extension'];
-  if ($extension === '.gz') {
+  if ($extension === '.gz' || $extension === '.br') {
     $parts = pathinfo($parts['filename']);
     $extension = '.' . $parts['extension'] . $extension;
   }

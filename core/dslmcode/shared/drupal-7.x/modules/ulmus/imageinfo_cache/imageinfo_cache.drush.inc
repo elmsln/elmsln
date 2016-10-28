@@ -216,7 +216,7 @@ if (!class_exists('ApachesolrAttachmentsEntityFieldQuery') && class_exists('Enti
      * @return array
      *   See EntityFieldQuery::execute().
      */
-    public function finishQuery(SelectQuery $select_query, $id_key = 'entity_id') {
+    public function finishQuery($select_query, $id_key = 'entity_id') {
       foreach ($this->tags as $tag) {
         $select_query->addTag($tag);
       }

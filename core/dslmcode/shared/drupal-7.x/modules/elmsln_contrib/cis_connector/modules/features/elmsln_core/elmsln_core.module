@@ -130,21 +130,38 @@ function elmsln_core_menu() {
  * Send user to the CPR to edit the global profile.
  */
 function elmsln_core_menu_alter(&$items) {
-
-  if(variable_get('install_profile') != 'cpr') {
+  $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+  if (elmsln_core_get_profile_key() != $elmsln_global_profile) {
     // Override the user edit handler for our purpose.
-    $items['user/%user/edit']['page callback'] = '_elmsln_people_user_edit_page';
+    $items['user/%user/edit']['page arguments'] = array('_elmsln_people_user_edit_page', 1);
   }
 }
 
 /**
  * Access callback for _elmsln_people_user_edit_page.
  */
-function _elmsln_people_user_edit_page() {
+function _elmsln_people_user_edit_page($form, &$form_state, $account, $category = 'account') {
   // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
   $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
-  // send user to the cpr we just defined and redirect them back to where they were.
-  _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $GLOBALS['user']->uid, 'edit?destination=elmsln/redirect/' . variable_get('install_profile', 'standard') . '/user/' . $GLOBALS['user']->uid . '&elmsln_course=' . _cis_connector_course_context());
+  $user_data_name = _cis_connector_request('user.json?name=' . $account->name, array(), $elmsln_global_profile, TRUE);
+  if (!empty($user_data_name)) {
+    $user_data_name = json_decode($user_data_name->data);
+    if (!empty($user_data_name->list)) {
+      $user_data = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
+      // Decode the data that comes in from the user object.
+      $user_data = json_decode($user_data->data);
+      // send user to the cpr we just defined and redirect them back to where they were.
+      _elmsln_core_remote_redirect($elmsln_global_profile, 'user', $user_data->uid, 'edit?destination=elmsln/redirect/' . elmsln_core_get_profile_key() . '/user/' . $account->uid . '&elmsln_course=' . _cis_connector_course_context());
+    }
+    else {
+      module_load_include('inc', 'user', 'user.pages');
+      return user_profile_form($form, $form_state, $account, $category);
+    }
+  }
+  else {
+    module_load_include('inc', 'user', 'user.pages');
+    return user_profile_form($form, $form_state, $account, $category);
+  }
 }
 
 /**
@@ -165,23 +182,25 @@ function _elmsln_people_user_edit_page() {
  */
 function elmsln_core_user_view($account, $view_mode, $langcode) {
   // If we are not already on the central person repository.
-  if(variable_get('install_profile') != 'cpr') {
+  $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+  if (elmsln_core_get_profile_key() != $elmsln_global_profile) {
     // Grab the user data from the central person repository.
-    $user_data_name = _cis_connector_request('user.json?name=' . $account->name, $options = array(), $bucket = 'cpr', $cached = TRUE);
+    $user_data_name = _cis_connector_request('user.json?name=' . $account->name, array(), $elmsln_global_profile, TRUE);
+    if (!empty($user_data_name)) {
+      $user_data_name = json_decode($user_data_name->data);
+      if (!empty($user_data_name->list)) {
+        $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
+        // Decode the data that comes in from the user object.
+        $user_data = json_decode($user_data_uid->data);
 
-    $user_data_name = json_decode($user_data_name->data);
-
-    $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', $options = array(), $bucket = 'cpr', $cached = TRUE);
-
-    // Decode the data that comes in from the user object.
-    $user_data = json_decode($user_data_uid->data);
-
-    // Add a new section to the User profile page.
-    $account->content['summary']['profile'] = array(
-      '#type' => 'user_profile_item',
-      '#title' => '',
-      '#markup' => $user_data->rendered,
-    );
+        // Add a new section to the User profile page.
+        $account->content['summary']['profile'] = array(
+          '#type' => 'user_profile_item',
+          '#title' => '',
+          '#markup' => $user_data->rendered,
+        );
+      }
+    }
   }
 }
 
@@ -251,15 +270,6 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/legacy/js/materialize/scrollspy/materialize-scrollspy.js');
       }
     }
-  }
-}
-
-/**
- * Implements hook_node_validate().
- */
-function elmsln_core_node_validate($node, $form, &$form_state) {
-  if (isset($node->nid) && (node_last_changed($node->nid) > $node->changed)) {
-    form_set_error('elmsln_core_changed', t('To prevent this error, don\'t hit refresh or use the back button once you start editing content. Instead, click the address bar and press return to reload the latest content.'));
   }
 }
 
@@ -425,7 +435,7 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     // as the user gets there so they end up repopulating caches with
     // the data they just changed, always ensuring its fresh!
     if (isset($_GET['elmsln_cid_target'])) {
-      $cid = 'elmsln:' . variable_get('install_profile', 'standard') . ':';
+      $cid = 'elmsln:' . elmsln_core_get_profile_key() . ':';
       $path = explode('/', $_GET['elmsln_cid_target']);
       if (count($path) > 1) {
         $cid .= $path[0] . ':' . $path[1] . ':';
@@ -1103,7 +1113,7 @@ function elmsln_core_tincan_request_fuction() {
  */
 function elmsln_core_tincanapi_send($action, $method, array $data) {
   // ensure registry is correct
-  if ($settings = _cis_connector_build_registry('_lrs')) {
+  if ($settings = _cis_connector_build_registry(ELMSLN_CORE_LRS_KEYCHAIN)) {
     // options
     $options = array(
       'method' => $method,
@@ -1183,4 +1193,26 @@ function elmsln_core_tincanapi_send($action, $method, array $data) {
   else {
     return tincanapi_send($action, $method, $data);
   }
+}
+
+/**
+ * Return the correct key from the given profile or
+ * active profile if none supplied. Typically this is
+ * just the name of the profile BUT it helps support
+ * versioned profile name spaces in the same space like
+ * cle__2 and cle existing side by side yet loading
+ * the same series of internal settings.
+ *
+ * @return string key related to this distribution
+ */
+function elmsln_core_get_profile_key($profile = null) {
+  if (empty($profile)) {
+    $profile = variable_get('install_profile', 'standard');
+  }
+  // support for alternate version profiles
+  if (strpos($profile, '__')) {
+    $tmp = explode('__', $profile);
+    $profile = array_shift($tmp);
+  }
+  return $profile;
 }

@@ -8,7 +8,7 @@ function foundation_access_form_system_theme_settings_alter(&$form, &$form_state
     '#title' => t('Foundation Access'),
   );
   // system label
-  $distro = variable_get('install_profile', 'standard');
+  $distro = elmsln_core_get_profile_key();
   $reg = _cis_connector_build_registry($distro);
   $system = theme_get_setting('foundation_access_system_label');
   $form['zurb_foundation']['foundation_access']['foundation_access_system_label'] = array(

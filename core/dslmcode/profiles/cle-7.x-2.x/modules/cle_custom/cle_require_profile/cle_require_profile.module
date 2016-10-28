@@ -1,0 +1,108 @@
+<?php
+/**
+ * @file
+ * Code to Require Profiles be filled out by users after logging in.
+ */
+
+/**
+ * Implements hook_user_login().
+ */
+function cle_require_profile_user_login(&$edit, $account) {
+  // ensure drush and services don't get stuck on this
+  if (!drupal_is_cli() && !_cis_connector_role_groupings(array('admin', 'staff', 'webservice'), $account)) {
+    // first time access save when they first logged in to compare
+    if (_cle_require_profile_filled_out($account)) {
+      // test if they filled it out
+      _cle_require_profile_apply_required($account);
+    }
+    else {
+      // edge case where they have a profile photo but this variable wasn't set
+      drupal_set_message(t('Welcome to the Studio! Please submit a photo to represent yourself to your fellow classmates.'), 'status');
+      drupal_goto('user/' . $account->uid . '/edit', array('query' => ''));
+    }
+  }
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function cle_require_profile_user_update(&$edit, $account, $category) {
+  global $user;
+  // ensure drush doesn't get stuck on this
+  if (!drupal_is_cli() && $user->uid == $account->uid && !_cis_connector_role_groupings(array('admin', 'staff', 'webservice'), $account)) {
+    // see if they actually filled out the values needed
+    if (_cle_require_profile_filled_out($account)) {
+      _cle_require_profile_apply_required($account);
+      $tmp = drupal_get_destination();
+      // make sure it doesn't keep redirecting to /edit cause that's stupid
+      if ($tmp['destination'] == 'user/' . $account->uid . '/edit') {
+        drupal_set_message(t('Studio profile updated!'), 'status');
+        drupal_goto('user', array('query'=> ''));
+      }
+    }
+    else {
+      _cle_require_profile_apply_required($account, FALSE);
+      drupal_set_message(t('Welcome to the Studio! Please submit a photo to represent yourself to your fellow classmates.'), 'warning');
+      drupal_goto('user/' . $account->uid . '/edit', array('query' => ''));
+    }
+  }
+}
+
+/**
+ * Test that the account has filled out a profile by our definition.
+ * @param  object $account user account we are testing
+ * @return bool   if they have filled out all the required fields
+ */
+function _cle_require_profile_filled_out($account) {
+  $status = TRUE;
+  // allow projects to determine if something is required or not
+  // its on them to actually indicate what needs filled out though
+  drupal_alter('cle_require_profile_filled_out', $status, $account);
+  return $status;
+}
+
+/**
+ * Sets or unsets the required state for the profile filled out.
+ */
+function _cle_require_profile_apply_required($account, $unset = FALSE) {
+  if (isset($account->data)) {
+    $new_data = $account->data;
+  }
+  else {
+    $new_data = array();
+  }
+  // ensure we have an array for new_data
+  if (!is_array($new_data)) {
+    // try to unserialize what's in there
+    $new_data = unserialize($new_data);
+  }
+  // support destroying the property in the event they removed their photo
+  // they will be required to have SOME photo of some kind
+  if ($unset) {
+    // remove the property if set, if not we're good
+    if (isset($new_data['cle_profile_required'])) {
+      unset($new_data['cle_profile_required']);
+    }
+  }
+  else {
+    $new_data['cle_profile_required'] = TRUE;
+  }
+  // need to set this variable directly into the user object
+  db_update('users')->fields(array('data' => serialize($new_data)))->condition('uid', $account->uid)->execute();
+}
+
+/**
+ * Implements hook_cle_require_profile_filled_out_alter().
+ * @param  bool &$status if they have met requirements
+ * @param  object $account user account object
+ */
+function cle_require_profile_cle_require_profile_filled_out_alter(&$status, $account) {
+  // they need to have a picture set
+  if (!isset($account->picture) || empty($account->picture)) {
+    $status = FALSE;
+  }
+  // allow drush to pass through without issue
+  if (drupal_is_cli()) {
+    $status = TRUE;
+  }
+}

@@ -1,5 +1,19 @@
 (function ($) {
   $(document).ready(function(){
+    // fieldloss functionality
+    Drupal.a11y.simulatefieldLoss = function(fieldloss){
+      $("body").removeClass('a11y-sim-field-loss a11y-sim-field-loss-central a11y-sim-field-loss-peripheral');
+      switch (fieldloss) {
+        case '':
+        break;
+        case 'central':
+          $("body").addClass('a11y-sim-field-loss a11y-sim-field-loss-central');
+        break;
+        case 'peripheral':
+          $("body").addClass('a11y-sim-field-loss a11y-sim-field-loss-peripheral');
+        break;
+      }
+    };
     // on select list change simulate field loss when the state changes
     $('#a11y_sim_field_loss_select').change(function(){
       Drupal.a11y.simulatefieldLoss(this.value);
@@ -12,18 +26,4 @@
       Drupal.a11y.simulatefieldLoss('');
     });
   });
-  // fieldloss functionality
-  Drupal.a11y.simulatefieldLoss = function(fieldloss){
-    $("body").removeClass('a11y-sim-field-loss a11y-sim-field-loss-central a11y-sim-field-loss-peripheral');
-    switch (fieldloss) {
-      case '':
-      break;
-      case 'central':
-        $("body").addClass('a11y-sim-field-loss a11y-sim-field-loss-central');
-      break;
-      case 'peripheral':
-        $("body").addClass('a11y-sim-field-loss a11y-sim-field-loss-peripheral');
-      break;
-    }
-  };
 })(jQuery);

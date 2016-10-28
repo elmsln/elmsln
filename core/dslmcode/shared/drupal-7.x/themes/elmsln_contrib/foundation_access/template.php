@@ -1,5 +1,6 @@
 <?php
-
+// global cdn materialize version
+define('FOUNDATION_ACCESS_MATERIALIZE_VERSION', '0.97.7');
 /**
  * Adds CSS classes based on user roles
  * Implements template_preprocess_html().
@@ -7,7 +8,7 @@
  */
 function foundation_access_preprocess_html(&$variables) {
   // find the name of the install profile
-  $variables['install_profile'] = variable_get('install_profile', 'standard');
+  $variables['install_profile'] = elmsln_core_get_profile_key();
   $settings = _cis_connector_build_registry($variables['install_profile']);
   $address = explode('.', $settings['address']);
   $variables['system_icon'] = array_shift($address);
@@ -44,10 +45,20 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
-  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css', array('group' => CSS_THEME, 'weight' => 1001));
-  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/fonts/elmsln/styles.css', array('group' => CSS_THEME, 'weight' => 1002));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
+  $libraries = libraries_get_libraries();
+  if (isset($libraries['jquery.vibrate.js'])) {
+    drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/vibrate-enable.js');
+  }
+  // gifs need to be done as a player for accessibility reasons
+  if (isset($libraries['jquery.vibrate.js'])) {
+    drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
+    drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
+    drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/freezeframe-enable.js');
+  }
   // bring in materialize
   $libraries = libraries_get_libraries();
   // see if we have it locally before serviing CDN
@@ -57,8 +68,8 @@ function foundation_access_preprocess_html(&$variables) {
     drupal_add_js($libraries['materialize'] .'/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
   }
   else {
-    drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
-    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
+    drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
+    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
   }
   // theme path shorthand should be handled here
   foreach($variables['user']->roles as $role){
@@ -69,7 +80,7 @@ function foundation_access_preprocess_html(&$variables) {
     $variables['classes_array'][] = 'modal-rendered';
   }
   // pull in the lmsless classes / colors
-  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   // add page level variables into scope for the html tpl file
   $variables['site_name'] = check_plain(variable_get('site_name', 'ELMSLN'));
   $variables['logo'] = theme_get_setting('logo');
@@ -197,7 +208,7 @@ function foundation_access_preprocess_page(&$variables) {
     $block = module_invoke('views', 'block_view', $bid);
     $variables['page']['local_subheader'][$bid] = $block['content'];
   }
-  $variables['distro'] = variable_get('install_profile', 'standard');
+  $variables['distro'] = elmsln_core_get_profile_key();
   // make sure we have lmsless enabled so we don't WSOD
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
   // support for lmsless since we don't require it
@@ -282,7 +293,7 @@ function foundation_access_preprocess_page(&$variables) {
  */
 function foundation_access_preprocess_block(&$variables) {
   // get color classes
-  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   // Convenience variable for block headers.
   $title_class = &$variables['title_attributes_array']['class'];
 
@@ -312,7 +323,7 @@ function foundation_access_preprocess_node(&$variables) {
   }
   // hook on the iframe mode stuff
   if (module_exists('cis_connector') && module_exists('entity_iframe')) {
-    $settings = _cis_connector_build_registry(variable_get('install_profile', 'standard'));
+    $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
     $variables['iframe_path'] = _cis_connector_format_address($settings, '/', 'front') . 'entity_iframe/node/' . $variables['nid'];
   }
 
@@ -663,6 +674,14 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
     // so that it doesn't break the animation
     if (isset($variables['image']['#item']['filemime']) && $variables['image']['#item']['filemime'] == 'image/gif') {
       $variables['image']['#image_style'] = '';
+      $variables['image']['#item']['attributes']['class'][] = 'animatedgif';
+      $variables['image']['#item']['attributes']['class'][] = 'freezeframe-responsive';
+      $variables['is_gif'] = TRUE;
+      $variables['gif_buttons'] = '
+      <div class="container">
+        <button class="start waves-effect waves-light btn col s3 blue push-s2"><i class="material-icons left">play_arrow</i>' . t('start') . '</button>
+        <button class="stop waves-effect waves-light btn col s3 red pull-s2 right"><i class="material-icons left">stop</i>' . t('stop') . '</button>
+      </div>';
     }
     // alt/title info
     if (empty($variables['image']['#item']['alt'])) {
@@ -696,7 +715,12 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
   }
   // If the viewmode contains "lightbox" then enable the lightbox option
   if (strpos($variables['view_mode'], 'lightboxed')) {
-    $variables['image_lightbox_url'] = image_style_url('image_lightboxed', $variables['image']['#item']['uri']);
+    if (isset($variables['image']['#item']['filemime']) && $variables['image']['#item']['filemime'] == 'image/gif') {
+      $variables['image_lightbox_url'] = file_create_url($variables['image']['#item']['uri']);
+    }
+    else {
+      $variables['image_lightbox_url'] = image_style_url('image_lightboxed', $variables['image']['#item']['uri']);
+    }
   }
   // account for card size
   if (strpos($variables['view_mode'], 'card')) {
@@ -959,7 +983,7 @@ function foundation_access_menu_link(&$variables) {
       $element['#localized_options']['html'] = TRUE;
     }
     else {
-      $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+      $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
       $element['#localized_options']['attributes']['class'][] = $lmsless_classes['color'];
       $element['#localized_options']['attributes']['class'][] = 'black-text';
       $element['#localized_options']['attributes']['class'][] = $lmsless_classes['light'];
@@ -967,7 +991,7 @@ function foundation_access_menu_link(&$variables) {
   }
   // @todo apply tabs here when we get the targetting / style figured out
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
-    $lmsless_classes = _cis_lmsless_get_distro_classes(variable_get('install_profile', 'standard'));
+    $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
     $element['#attributes']['class'][] = 'tab';
     $element['#localized_options']['attributes']['class'][] = $lmsless_classes['text'];
     $element['#localized_options']['attributes']['target'] = '_self';
@@ -1755,4 +1779,36 @@ function _foundation_access_video_url($video_url) {
   }
   // didn't know what to do or it was already well formed
   return $video_url;
+}
+
+/**
+ * Implementation of hook_wysiwyg_editor_settings_alter().
+ */
+function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
+  // google font / icons from google
+  $settings['contentsCss'][] = '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)';
+  // bring in materialize
+  $libraries = libraries_get_libraries();
+  // see if we have it locally before serviing CDN
+  // This allows EASY CDN module to switch to CDN later if that's the intention
+  if (isset($libraries['materialize'])) {
+    $settings['contentsCss'][] = base_path() . $libraries['materialize'] .'/css/materialize.css';
+  }
+  else {
+    $settings['contentsCss'][] = '//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css';
+  }
+  if (isset($settings['bodyClass'])) {
+    $settings['bodyClass'] .= ' html logged-in';
+  }
+  else {
+    $settings['bodyClass'] = ' html logged-in';
+  }
+  // @todo figure out how to make ckeditor wrap this in w/ content editiable to be more accurate CSS application
+  /* cke_editable cke_editable_themed cke_contents_ltr cke_show_borders"><div class="etb-tool-nav" class="off-canvas-wrap">
+  <div class="inner-wrap">
+      <main class="main-section etb-book">
+      <div class="row content-element-region-wrapper">
+            <div class="content-element-region">
+            <div contenteditable="true" class="cke_editable_themed';
+  */
 }

@@ -1,0 +1,24 @@
+name = CLE - Foundation Access
+description = CLE sub-theme based Foundation Access.
+
+core = 7.x
+engine = phptemplate
+base theme = foundation_access
+
+stylesheets[all][]   = css/cle_styles.css
+
+; CIS specific regions
+regions[cis_lmsless_modal]     = CIS LMSLess Modal
+; Foundation Access navigation levels
+regions[local_header]         = Local Header
+regions[local_subheader]      = Local Sub-header
+; general theme regions
+regions[header]               = Header
+regions[help]                 = Help
+regions[highlighted]          = Highlighted
+regions[content]              = Content
+regions[sidebar_first]        = Left Sidebar
+regions[sidebar_second]       = Right Sidebar
+regions[footer]               = Footer
+regions[footer_firstcolumn]   = Footer one
+regions[footer_secondcolumn]  = Footer two

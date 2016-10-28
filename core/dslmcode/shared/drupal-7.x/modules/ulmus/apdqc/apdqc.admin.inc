@@ -634,10 +634,9 @@ function apdqc_admin_convert_innodb_tables_to_files($show_msg = TRUE) {
     ':dbname' => $db['database'],
   ))->fetchAllAssoc('table_name');
   foreach ($innodb_tables as $row) {
-    $table_name = $row->table_name;
-    db_query("ALTER TABLE $table_name DISABLE KEYS;");
-    db_query("ALTER TABLE $table_name ENGINE = InnoDB;");
-    db_query("ALTER TABLE $table_name ENABLE KEYS;");
+    db_query("ALTER TABLE `{$row->table_name}` DISABLE KEYS;");
+    db_query("ALTER TABLE `{$row->table_name}` ENGINE = InnoDB;");
+    db_query("ALTER TABLE `{$row->table_name}` ENABLE KEYS;");
   }
   // Let user know it worked.
   if ($show_msg !== FALSE) {
@@ -865,7 +864,7 @@ function apdqc_admin_change_table_collation_queries($table_name, $collation, $pe
 
       // $schema_fields[$row->Field]['default'] can be NULL, so we explicitly
       // check for the key here.
-      if ( isset($schema_fields[$row->Field])
+      if (isset($schema_fields[$row->Field])
         && is_array($schema_fields[$row->Field])
         && array_key_exists('default', $schema_fields[$row->Field])
       ) {
@@ -1000,39 +999,49 @@ function apdqc_admin_sessions_table_update_schema($show_msg = TRUE, $reverse = F
  */
 function apdqc_admin_semaphore_table_update_schema($show_msg = TRUE, $reverse = FALSE) {
   $changed = FALSE;
+  $table = 'semaphore';
+  $table_name = Database::getConnection()->prefixTables('{' . db_escape_table($table) . '}');
+  $field = 'value';
+
   if ($reverse === TRUE) {
     variable_del('apdqc_semaphore_schema');
 
     // Unmodify semaphore table.
-    $schema = drupal_get_schema_unprocessed('system', 'semaphore');
-    $table = 'semaphore';
-    $field = 'value';
+    $schema = drupal_get_schema_unprocessed('system', $table);
     db_change_field($table, $field, $field, $schema['fields'][$field]);
 
-    $table_name = Database::getConnection()->prefixTables('{' . db_escape_table('semaphore') . '}');
     $results = db_query("SHOW KEYS FROM $table_name WHERE Key_name = 'PRIMARY'")->fetchAllAssoc('Column_name');
     if (count($results) == 3) {
-      db_query('LOCK TABLES {semaphore} WRITE');
-      db_drop_primary_key('semaphore');
-      db_add_primary_key('semaphore', array('name'));
+      // Lock table and alter primary key.
+      db_query("LOCK TABLES $table_name WRITE");
+      db_query("ALTER TABLE $table_name DROP PRIMARY KEY, ADD PRIMARY KEY (name)");
+
+      // Verify.
+      $results = db_query("SHOW KEYS FROM $table_name WHERE Key_name = 'PRIMARY'")->fetchAllAssoc('Column_name');
+      if (empty($results) || empty($results['name'])) {
+        db_drop_primary_key($table);
+        db_add_primary_key($table, array('name'));
+      }
+
+      // Unlock tables.
       db_query('UNLOCK TABLES');
     }
 
-    apdqc_admin_change_table_collation_queries('semaphore', 'utf8_general_ci', TRUE, array('name', 'value'));
+    apdqc_admin_change_table_collation_queries($table, 'utf8_general_ci', TRUE, array('name', 'value'));
     variable_del('apdqc_semaphore_schema');
     $changed = TRUE;
   }
   else {
+
     // Remove old junk.
-    $results = db_delete('semaphore')
+    $results = db_delete($table)
       ->condition('expire', REQUEST_TIME - 600, '<')
       ->execute();
 
     // Modify semaphore table.
-    $results = db_query("SELECT LENGTH(value) AS max_length FROM {semaphore} ORDER BY LENGTH(value) DESC LIMIT 1")->fetchAssoc();
+    $results = db_query("SELECT LENGTH(value) AS max_length FROM $table_name ORDER BY LENGTH(value) DESC LIMIT 1")->fetchAssoc();
     $schema = apdqc_get_full_schema();
-    $table = 'semaphore';
-    $field = 'value';
+
     if ($results['max_length'] <= 20) {
       db_change_field($table, $field, $field, $schema[$table]['fields'][$field]);
       $changed = TRUE;
@@ -1043,17 +1052,29 @@ function apdqc_admin_semaphore_table_update_schema($show_msg = TRUE, $reverse = 
       $changed = TRUE;
     }
 
-    $table_name = Database::getConnection()->prefixTables('{' . db_escape_table('semaphore') . '}');
     $results = db_query("SHOW KEYS FROM $table_name WHERE Key_name = 'PRIMARY'")->fetchAllAssoc('Column_name');
     if (count($results) != 3) {
-      db_query('LOCK TABLES {semaphore} WRITE');
-      db_drop_primary_key('semaphore');
-      db_add_primary_key('semaphore', array('name', 'value', 'expire'));
+      // Lock table and alter primary key.
+      db_query("LOCK TABLES $table_name WRITE");
+      db_query("ALTER TABLE $table_name DROP PRIMARY KEY, ADD PRIMARY KEY (name, value, expire)");
+
+      // Verify.
+      $results = db_query("SHOW KEYS FROM $table_name WHERE Key_name = 'PRIMARY'")->fetchAllAssoc('Column_name');
+      if (empty($results)
+        || empty($results['name'])
+        || empty($results['value'])
+        || empty($results['expire'])
+      ) {
+        db_drop_primary_key($table);
+        db_add_primary_key($table, array('name', 'value', 'expire'));
+      }
+
+      // Unlock tables.
       db_query('UNLOCK TABLES');
       $changed = TRUE;
     }
 
-    $collation_changed = apdqc_admin_change_table_collation_queries('semaphore', 'ascii_bin', TRUE, array('name', 'value'));
+    $collation_changed = apdqc_admin_change_table_collation_queries($table, 'ascii_bin', TRUE, array('name', 'value'));
     if ($collation_changed) {
       $changed = TRUE;
     }
@@ -1125,7 +1146,14 @@ function apdqc_admin_sessions_table_duplicates($perform_alter = FALSE, $reverse 
     }
     foreach ($values['fields'] as $column => $attributes) {
       // See if the schema looks very simalr to sessions table.
-      if (($column === 'sid' || $column === 'ssid') && !empty($attributes['length']) && $attributes['length'] >= 43 && stripos($attributes['type'], 'char') !== FALSE && stripos($attributes['description'], 'session') !== FALSE) {
+      if (($column === 'sid' || $column === 'ssid')
+        && !empty($attributes['length'])
+        && $attributes['length'] >= 43
+        && !empty($attributes['type'])
+        && stripos($attributes['type'], 'char') !== FALSE
+        && !empty($attributes['description'])
+        && stripos($attributes['description'], 'session') !== FALSE
+      ) {
         $table_name = Database::getConnection()->prefixTables('{' . db_escape_table($table) . '}');
         $results = db_query("SHOW FULL FIELDS FROM $table_name WHERE Field = :column", array(':column' => $column))->fetchAllAssoc('Field');
         // If yes see if the Collation is not the target collation.

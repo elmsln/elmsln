@@ -1,0 +1,6 @@
+name = CLE Achievements
+description = Achievements integration for community gamification
+core = 7.x
+package = CLE
+dependencies[] = achievements
+dependencies[] = cle_submission

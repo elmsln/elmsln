@@ -1,0 +1,141 @@
+<?php
+
+/**
+ * @file
+ * Tests for Checklist API module.
+ */
+
+/**
+ * Unit tests for Checklist API.
+ */
+class ChecklistapiUnitTestCase extends DrupalUnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Unit tests',
+      'description' => 'Test Checklist API classes and functions.',
+      'group' => 'Checklist API',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    drupal_load('module', 'checklistapi');
+    drupal_load('module', 'checklistapi_test');
+    parent::setUp();
+  }
+
+  /**
+   * Test checklistapi_sort_array().
+   */
+  public function testChecklistapiSortArray() {
+    $checklistapi_test_definition = checklistapi_test_checklistapi_checklist_info();
+    $input = array_pop($checklistapi_test_definition);
+    $output = checklistapi_sort_array($input);
+    $this->assertEqual($output['group_two']['#weight'], 0, 'Supplied a default for omitted element weight.');
+    $this->assertEqual($output['group_three']['#weight'], 0, 'Supplied a default in place of invalid element weight.');
+    $this->assertEqual($output['group_one']['#weight'], -1, 'Retained a valid element weight.');
+    $this->assertEqual(
+      element_children($output),
+      array('group_one', 'group_two', 'group_three', 'group_four'),
+      'Sorted elements by weight.'
+    );
+    $this->assertEqual(
+      element_children($output['group_one']['item_one']),
+      array('link_one', 'link_two', 'link_three'),
+      'Recursed through element descendants.'
+    );
+  }
+
+  /**
+   * Test checklistapi_strtolowercamel().
+   */
+  public function testChecklistapiStrtolowercamel() {
+    $this->assertEqual(checklistapi_strtolowercamel('Abc def_ghi'), 'abcDefGhi', 'Converted string to lowerCamel case.');
+  }
+
+}
+
+/**
+ * Functional tests for Checklist API.
+ *
+ * @todo Add tests for vertical tabs progress indicators.
+ * @todo Add tests for saving and retrieving checklist progress.
+ * @todo Add tests for clearing saved progress.
+ */
+class ChecklistapiWebTestCase extends DrupalWebTestCase {
+  protected $privilegedUser;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Functional tests',
+      'description' => 'Test the functionality of Checklist API.',
+      'group' => 'Checklist API',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('checklistapi_example');
+    $permissions = array('edit any checklistapi checklist', 'view checklistapi checklists report');
+    $this->privilegedUser = $this->drupalCreateUser($permissions);
+    $this->drupalLogin($this->privilegedUser);
+  }
+
+  /**
+   * Test checklist access.
+   */
+  public function testAccessChecklist() {
+    $this->drupalGet('admin/config/development/checklistapi-example');
+    $this->assertResponse(200, 'Granted access to user with "edit any checklistapi checklist" permission.');
+
+    $permissions = array('edit example_checklist checklistapi checklist');
+    $semi_privileged_user = $this->drupalCreateUser($permissions);
+    $this->drupalLogin($semi_privileged_user);
+    $this->drupalGet('admin/config/development/checklistapi-example');
+    $this->assertResponse(200, 'Granted access to user with checklist-specific permission.');
+
+    $this->drupalLogout();
+    $this->drupalGet('admin/config/development/checklistapi-example');
+    $this->assertResponse(403, 'Denied access to nonprivileged user.');
+  }
+
+  /**
+   * Test report access.
+   */
+  public function testAccessReport() {
+    $report_path = 'admin/reports/checklistapi';
+
+    $this->drupalGet($report_path);
+    $this->assertResponse(200, 'Granted access to user with "view checklistapi checklists report" permission.');
+
+    $this->drupalLogout();
+    $this->drupalGet($report_path);
+    $this->assertResponse(403, 'Denied access to nonprivileged user.');
+  }
+
+  /**
+   * Test checklist composition.
+   */
+  public function testChecklistComposition() {
+    $menu_item = menu_get_item('admin/config/development/checklistapi-example');
+    $this->assertEqual($menu_item['path'], 'admin/config/development/checklistapi-example', 'Created per-checklist menu item.');
+
+    $permissions = array('edit example_checklist checklistapi checklist');
+    $this->assertTrue($this->checkPermissions($permissions), 'Created per-checklist permission.');
+
+    $this->drupalGet('admin/config/development/checklistapi-example');
+    $this->assertRaw('id="block-system-help"', 'Created per-checklist help block.');
+  }
+
+}

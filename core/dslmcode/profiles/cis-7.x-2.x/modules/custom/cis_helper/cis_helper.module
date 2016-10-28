@@ -781,7 +781,13 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   // email / user requesting account
   $content .= $account->mail . "\n";
   // add distribution to create
-  $content .= $service->field_distribution[LANGUAGE_NONE][0]['value'] . "\n";
+  if (isset($options['field_distribution'])) {
+    $content .= $options['field_distribution'] . "\n";
+    unset($options['field_distribution']);
+  }
+  else {
+    $content .= $service->field_distribution[LANGUAGE_NONE][0]['value'] . "\n";
+  }
   // process potential drush operation lists
   $fr = '';
   $un = '';
@@ -868,28 +874,16 @@ function cis_helper_cis_service_instance_job_file_alter(&$content, $course, $ser
   $content .= 'drush cis-sck' . "\n";
   // run cron to return our cron key / do some clean up
   $content .= 'drush cron' . "\n";
-  // if any major performance / caching modules are enabled
-  // add them last so that if they error out there's no issue in the site
-  // building since these can be silly at times
-  $advanced_caching = FALSE;
-  if (module_exists('memcache')) {
-    $content .= 'drush en memcache' . "\n";
-    $advanced_caching = TRUE;
-  }
-  if (module_exists('filecache')) {
-    $content .= 'drush en filecache' . "\n";
-    $advanced_caching = TRUE;
-  }
-  if (module_exists('apc')) {
-    $content .= 'drush en apc' . "\n";
-    $advanced_caching = TRUE;
-  }
-  // kill all caches if any of the above were enabled
-  if ($advanced_caching) {
+  // support apdqc table conversion at run time
+  // this makes our tables run out of memory bin and be super fast
+  // as well as alters table coalation to be fast as well
+  if (module_exists('apdqc')) {
+    $content .= 'drush apdqc' . "\n";
     $content .= 'drush cc all' . "\n";
+    $content .= 'drush apdqc' . "\n";
   }
-  // preseed all entity caches after any potential caching projects are on
-  $content .= 'drush ecl' . "\n";
+  // preseed node caches after any potential caching projects are on
+  $content .= 'drush ecl node' . "\n";
 }
 
 /**

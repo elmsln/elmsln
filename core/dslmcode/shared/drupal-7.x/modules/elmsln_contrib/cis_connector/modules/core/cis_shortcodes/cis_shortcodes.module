@@ -104,7 +104,7 @@ function _cis_shortcode_render_codes($entity, $type) {
   );
   $properties = array(
     'rev' => CIS_SHORTCODES_API_REV,
-    'tool' => variable_get('install_profile', ''),
+    'tool' => elmsln_core_get_profile_key(),
     'render' => 'submit',
     'link' => current_path(),
     'text' => drupal_get_title(),
@@ -160,7 +160,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     // build properties array for rendering
     $properties = array(
       'rev' => CIS_SHORTCODES_API_REV,
-      'tool' => variable_get('install_profile', ''),
+      'tool' => elmsln_core_get_profile_key(),
       'item' => $entity->{$type_info['entity keys']['id']},
       'entity_type' => $type,
       'render' => 'display_mode',
@@ -194,7 +194,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     // tee back up for direct link rendering
     $properties = array(
       'rev' => CIS_SHORTCODES_API_REV,
-      'tool' => variable_get('install_profile', ''),
+      'tool' => elmsln_core_get_profile_key(),
       'item' => $entity->{$type_info['entity keys']['id']},
       'entity_type' => $type,
     );
@@ -324,7 +324,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       // reset property array
       $properties = array(
         'rev' => CIS_SHORTCODES_API_REV,
-        'tool' => variable_get('install_profile', ''),
+        'tool' => elmsln_core_get_profile_key(),
         'item' => $entity->{$type_info['entity keys']['id']},
       );
       // only append type for non-node entities
@@ -386,7 +386,7 @@ function _cis_shortcode_render_codes($entity, $type) {
               }
               $properties = array(
                 'rev' => CIS_SHORTCODES_API_REV,
-                'tool' => variable_get('install_profile', ''),
+                'tool' => elmsln_core_get_profile_key(),
                 'render' => 'submit',
                 // the thing to check for if we've submitted in reference to
                 'item' => $entity->{$type_info['entity keys']['id']},
@@ -534,7 +534,7 @@ function cis_shortcodes_preprocess_view_mode_tab_display(&$variables) {
       // token generation properties
       $properties = array(
         'rev' => CIS_SHORTCODES_API_REV,
-        'tool' => variable_get('install_profile', ''),
+        'tool' => elmsln_core_get_profile_key(),
         'item' => $variables['node']->nid,
         'entity_type' => 'node',
       );

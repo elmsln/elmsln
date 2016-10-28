@@ -1,0 +1,10 @@
+name = Update test admin theme
+description = Test theme which is used as admin theme.
+core = 7.x
+hidden = TRUE
+
+; Information added by Drupal.org packaging script on 2016-10-05
+version = "7.51"
+project = "drupal"
+datestamp = "1475694174"
+

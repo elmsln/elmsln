@@ -105,7 +105,7 @@ function advagg_font_admin_settings_form() {
       continue;
     }
     // Get the file contents.
-    $file_contents = file_get_contents($row['filename']);
+    $file_contents = (string) @file_get_contents($row['filename']);
     // Get font names.
     $replacements = advagg_font_get_replacements_array($file_contents);
     if (!empty($replacements)) {

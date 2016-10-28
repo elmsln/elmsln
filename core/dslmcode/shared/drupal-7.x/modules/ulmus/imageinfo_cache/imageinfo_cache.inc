@@ -237,7 +237,7 @@ function imageinfo_cache_get_image_styles_in_views($field_name, $view_links = FA
 
   // Lookup info.
   if (!isset($image_styles_in_views)) {
-    $cache = cache_get('__FUNCTION__');
+    $cache = cache_get('imageinfo_cache_get_image_styles_in_views');
     if (!empty($cache->data) && $use_cache) {
       $image_styles_in_views = $cache->data;
     }
@@ -328,7 +328,7 @@ function imageinfo_cache_get_image_styles_in_views($field_name, $view_links = FA
         $b = imageinfo_cache_array_diff_assoc_recursive($image_styles_in_views, $cache->data);
       }
       if (empty($cache->data) || !empty($a) || !empty($b)) {
-        cache_set('__FUNCTION__', $image_styles_in_views, 'cache', CACHE_TEMPORARY);
+        cache_set('imageinfo_cache_get_image_styles_in_views', $image_styles_in_views, 'cache', CACHE_TEMPORARY);
       }
     }
   }

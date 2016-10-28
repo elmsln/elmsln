@@ -269,11 +269,13 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
     }
     unset($info);
   }
-  // Capture hosts for DNS prefetching.
+
+  // Capture resource_hints.
   if (variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH)
     || variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT)
     || variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD)
   ) {
+    $aggregate_settings = advagg_current_hooks_hash_array();
     foreach ($return as &$info) {
       // Skip if not a css file.
       if (empty($info['fileext']) || $info['fileext'] !== 'css') {
@@ -282,36 +284,50 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
       // Get the file contents.
       $file_contents = (string) @file_get_contents($info['data']);
 
-      // Get domain names in this css file.
+      // Get domain names and external assets in this css file.
+      $hosts = array();
+      $urls = array();
       $matches = array();
       $pattern = '%url\(\s*+[\'"]?+(http:\/\/|https:\/\/|\/\/)([^\'"()\s]++)[\'"]?+\s*+\)%i';
       preg_match_all($pattern, $file_contents, $matches);
-      $hosts = array();
-      $urls = array();
       if (!empty($matches[1])) {
         foreach ($matches[1] as $key => $match) {
           $url = $match . $matches[2][$key];
-          $urls[$url] = $url;
           $parse = @parse_url($url);
-          if (!empty($parse['host']) && empty($hosts[$parse['host']])) {
+          if (!empty($parse['host'])) {
             $hosts[$parse['host']] = $match . $parse['host'] . '/';
+            $urls[$url] = $url;
           }
         }
       }
-      if (!empty($hosts)
-        && (variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH)
-        || variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT))
-      ) {
+      if (!empty($hosts) && (variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH)
+        || variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT)
+      )) {
         $info['dns_prefetch'] = array_values($hosts);
       }
-      if (!empty($urls)
-        && variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD)) {
-        $info['preload'] = array_values($urls);
+
+      // Get local files to preload in this css file.
+      if (variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD)) {
+        $file_contents = advagg_load_css_stylesheet($info['data'], FALSE, $aggregate_settings, $file_contents);
+        $matches = array();
+        $pattern = '/url\(\s*+[\'"]?(.*?)[\'"\s]?+\)/i';
+        preg_match_all($pattern, $file_contents, $matches);
+        if (!empty($matches[1])) {
+          foreach ($matches[1] as $key => $match) {
+            $url = advagg_convert_abs_to_rel($match);
+            $parse = @parse_url($url);
+            if (empty($parse['host'])) {
+              $urls[$url] = $url;
+            }
+          }
+        }
+        if (!empty($urls)) {
+          $info['preload'] = array_values($urls);
+        }
       }
     }
     unset($info);
   }
-
 }
 
 /**

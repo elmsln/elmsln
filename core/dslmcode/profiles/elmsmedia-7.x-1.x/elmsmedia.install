@@ -150,3 +150,11 @@ function elmsmedia_update_7010(&$sandbox) {
   features_revert_module('elmsmedia_document');
   features_revert_module('elmsmedia_view_mode_tabs');
 }
+
+/**
+ * Fix for image gallery view mode options
+ */
+function elmsmedia_update_7011(&$sandbox) {
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_view_mode_tabs');
+}

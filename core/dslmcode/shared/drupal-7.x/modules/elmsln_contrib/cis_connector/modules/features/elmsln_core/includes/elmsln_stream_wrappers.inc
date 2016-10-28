@@ -25,6 +25,7 @@ abstract class ELMSLNLocalStreamWrapper extends DrupalLocalStreamWrapper {
    * Get the path for the elmsln configuration file
    */
   public function getELMSLNDomain($tool) {
+    $domain = '';
     // load configuration file
     if ($settings = _cis_connector_build_registry($tool)) {
       $adr = explode('.', $settings['address']);
