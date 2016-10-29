@@ -83,3 +83,12 @@ function cis_service_restws_update_7001(&$sandbox) {
     }
   }
 }
+
+/**
+ * Adds permission for other users to access the restful node endpoint.
+ * This works with node / entity access still so it only allows for
+ * submitting against it, useful for building out headless integrations.
+ */
+function cis_service_restws_update_7002(&$sandbox) {
+  features_revert_module('cis_service_restws');
+}
