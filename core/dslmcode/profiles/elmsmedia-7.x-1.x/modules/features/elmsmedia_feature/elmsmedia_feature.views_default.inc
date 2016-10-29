@@ -287,7 +287,34 @@ function elmsmedia_feature_views_default_views() {
   $handler = $view->new_display('page', 'Table', 'page');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['defaults']['cache'] = FALSE;
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'audio' => 0,
+      'cis_course' => 0,
+      'section' => 0,
+      'document' => 0,
+      'external_video' => 0,
+      'figurelabel' => 0,
+      'elmsmedia_image' => 0,
+      'image_gallery' => 0,
+      'h5p_content' => 0,
+      'svg' => 0,
+      'static_content' => 0,
+      'video' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 'node_changed',
+    ),
+    'og' => array(
+      'current' => 0,
+      'user' => 0,
+    ),
+  );
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Bulk operations: Content */
   $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
