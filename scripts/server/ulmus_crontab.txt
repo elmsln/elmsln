@@ -1,0 +1,2 @@
+MAILTO=""
+* * * * * /usr/local/bin/drush-create-site/drush-create-site >> /var/www/elmsln/config/logs/drush-create-site.log
