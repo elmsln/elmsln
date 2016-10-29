@@ -70,14 +70,13 @@ do
   error=0
   sitename=`sed -n '5p' $coursefile`
   slogan=`sed -n '6p' $coursefile`
-  requester=`sed -n '7p' $coursefile`
-  insprofile=`sed -n '8p' $coursefile`
-  options=`sed -n '9p' $coursefile`
+  requesterid=`sed -n '7p' $coursefile`
+  requester=`sed -n '8p' $coursefile`
+  insprofile=`sed -n '9p' $coursefile`
+  options=`sed -n '10p' $coursefile`
 
   #makeshift progress indicator start
   echo "1" > $fileloc/$course.$service.progress
-
-  #chartest=`sed -n '1,6' $coursefile`
 
   ##Error catching here.
   #testing for bad characters. if found any in the course file we exit
@@ -262,7 +261,6 @@ do
       echo "requester equals admin"
     else
       requesterpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
-      requesterid=`echo $requester | cut -d@ -f1`
       drush -y --root=$drupalroot --uri=$protocol://$hostname.$course user-create $requesterid --mail="$requester"
       drush -y --root=$drupalroot --uri=$protocol://$hostname.$course user-password $requesterid --password="$requesterpw"
       if [[ $send_requester_pw ]]; then
