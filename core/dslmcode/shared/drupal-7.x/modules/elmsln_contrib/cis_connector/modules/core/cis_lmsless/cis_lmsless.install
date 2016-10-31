@@ -83,3 +83,10 @@ function cis_lmsless_update_7001(&$sandbox) {
     }
   }
 }
+
+/**
+ * New image style for background.
+ */
+function cis_lmsless_update_7002(&$sandbox) {
+  features_revert_module('cis_lmsless');
+}
