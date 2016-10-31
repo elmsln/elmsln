@@ -35,8 +35,14 @@
  */
 ?>
 <div class ="user-profile--wrapper">
-<?php print render($user_profile['field_user_banner']);?>
-<?php print render($user_profile['field_user_photo']);?>
+  <div class ="user-profile--banner">
+    <?php print render($banner);?>
+  </div>
+  <div class ="user-profile--photo--wrapper">
+    <div class ="user-profile--photo circle">
+      <?php print $photo; ?>
+    </div>
+  </div>
   <div class="user-profile--name">
     <?php print $displayname; ?>
   </div>

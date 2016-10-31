@@ -1,3 +1,33 @@
+/* user profile */
+.user-profile--wrapper {
+  width: 100%;
+}
+.user-profile--banner {
+  width: 100%;
+  max-height: 20rem;
+  overflow: hidden;
+}
+.user-profile--banner img {
+  width: 100%;
+}
+.user-profile--photo--wrapper {
+  margin: -8rem auto 1rem;
+  text-align: center;
+}
+.user-profile--photo {
+  margin: 0 auto;
+  width: 20%;
+}
+.user-profile--photo img {
+  background-color: #FFFFFF;
+  padding: .5rem;
+}
+.user-profile--name {
+  text-align: center;
+  font-size: 1rem;
+}
+
+/* Font normalization */
 h1,h2,h3,h4,h5,h6,p, #etb-course-nav span.course-title, .alert-box, #etb-tool-nav .tab-bar span, ul.off-canvas-list li a, .etb-nav-modal ul li a, a.etb-nav_item_service_btn span, a.etb-modal-icon span, a.modal-img-link span, .etb-nav-modal h2, #admin-menu .dropdown li li a, .admin-status-bar span.course-section-label, .admin-status-bar span.user-role-label, .admin-status-bar span.current-user-id-label, h2, a, p.txtbk-intro, p.txtbk-intro a, .section-id, .accordion .accordion-navigation > a, .accordion dd > a, .sub-tier-1 h2, .sub-tier-1 h3, footer p, .admin-status-bar span.course-section, .admin-status-bar span.user-role, .admin-status-bar span.current-user-id, h1, .image-media h3, h4.testimonial-name, #etb-course-nav span.course-abrv, .etb-nav-modal h1 {
   font-family: "Roboto", sans-serif;
   font-weight: normal;
@@ -1569,12 +1599,15 @@ div.warning {
 .header-menu-options ul li {
   text-transform: uppercase;
 }
+.breadcrumb-wrapper {
+  margin-bottom: 0;
+}
 
-div.breadcrumb a {
+.breadcrumb a {
   color: #A3A3A3;
 }
 
-div.breadcrumb a:hover {
+.breadcrumb a:hover {
   color: #fff;
 }
 
