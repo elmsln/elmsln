@@ -554,7 +554,7 @@ function lti_tool_provider_get_extra_columns() {
   $schema = drupal_get_schema('lti_tool_provider_consumer');
   $fields = $schema['fields'];
   foreach ($fields as $field => $value) {
-    if ($field != 'lti_tool_provider_consumer_id' && $field != 'lti_tool_provider_consumer_key' && $field != 'lti_tool_provider_consumer_secret' && $field != 'lti_tool_provider_consumer_consumer' && $field != 'lti_tool_provider_consumer_domain' && $field != 'lti_tool_provider_consumer_dummy_pref' && $field != 'date_joined') {
+    if ($field != 'lti_tool_provider_consumer_id' && $field != 'lti_tool_provider_consumer_key' && $field != 'lti_tool_provider_consumer_secret' && $field != 'lti_tool_provider_consumer_consumer' && $field != 'lti_tool_provider_consumer_domain' && $field != 'lti_tool_provider_consumer_dummy_pref' && $field != 'date_joined' && $field != 'lti_tool_provider_consumer_alternative_user_id_field' && $field != 'lti_tool_provider_consumer_alternative_email_field') {
       $extra_col[] = $field;
     }
   }
@@ -667,8 +667,8 @@ function lti_tool_provider_create_account($lti_user, $lti_info) {
   $userinfo = array(
     'name' => $lti_user,
     'pass' => user_password(20),
-    'init' => $lti_info['lis_person_contact_email_primary'],
-    'mail' => $lti_info['lis_person_contact_email_primary'],
+    'init' => $lti_user,
+    'mail' => $lti_user,
     'picture' => $picture,
     'status' => 1,
     'access' => REQUEST_TIME,
@@ -720,6 +720,18 @@ function lti_tool_provider_entity_property_info() {
     'type' => 'integer',
     'description' => t("Preference as to use as dummy account"),
     'schema field' => 'lti_tool_provider_consumer_dummy_pref',
+  );
+  $properties['lti_tool_provider_consumer_alternative_user_id_field'] = array(
+       'label' => t("Alt. User ID field"),
+       'type' => 'text',
+       'description' => t("Alt. User ID field"),
+       'schema field' => 'lti_tool_provider_consumer_alternative_user_id_field',
+  );
+  $properties['lti_tool_provider_consumer_alternative_email_field'] = array(
+       'label' => t("Alt. Email Field"),
+       'type' => 'text',
+       'description' => t("Alt. Email Field"),
+       'schema field' => 'lti_tool_provider_consumer_alternative_email_field',
   );
   $properties['date_joined'] = array(
     'label' => t("Date joined"),

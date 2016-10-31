@@ -14,8 +14,8 @@
     <main id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
       <div class="inner-wrap">
         <!-- progress bar -->
-        <div class="page-scroll progress <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['light'];?>">
-          <span class="meter <?php print $cis_lmsless['lmsless_classes'][$distro]['color'];?>" style="width: 0%"></span>
+        <div class="page-scroll progress <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['light']; ?>">
+          <span class="meter <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' .$cis_lmsless['lmsless_classes'][$distro]['dark'];?>" style="width: 0%"></span>
         </div>
         <?php if (!empty($messages)): ?>
         <div class="region-messeges">

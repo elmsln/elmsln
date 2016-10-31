@@ -30,3 +30,10 @@ function cpr_install() {
 function cpr_update_7001(&$sandbox) {
   features_revert_module('cpr_user');
 }
+
+/**
+ * Fields added for banner and photo.
+ */
+function cpr_update_7002(&$sandbox) {
+  features_revert_module('cpr_user');
+}

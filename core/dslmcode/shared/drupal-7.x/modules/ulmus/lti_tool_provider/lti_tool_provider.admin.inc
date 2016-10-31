@@ -214,6 +214,8 @@ function lti_tool_provider_consumers_admin() {
       t('Secret'),
       t('Domain'),
       t('Dummy Account'),
+      t('Alt. User'),
+      t('Alt. Email'),
       t('Date Joined'),
       t('Operations'),
     ),
@@ -221,6 +223,7 @@ function lti_tool_provider_consumers_admin() {
   $destination = drupal_get_destination();
   $loop_counter = 0;
   foreach ($consumers as $key => $consumer) {
+
     // Create tabular rows for our entities.
     $id = $consumer->lti_tool_provider_consumer_id;
     // This statement can create url to view individual keys.
@@ -234,6 +237,8 @@ function lti_tool_provider_consumers_admin() {
     $secret = $consumer->lti_tool_provider_consumer_secret;
     $domain = $consumer->lti_tool_provider_consumer_domain;
     $dummy_pref = lti_tool_provider_trans_bool($consumer->lti_tool_provider_consumer_dummy_pref);
+    $alt_user_id = $consumer->lti_tool_provider_consumer_alternative_user_id_field;
+    $alt_email = $consumer->lti_tool_provider_consumer_alternative_email_field;
     $date_joined = format_date($consumer->date_joined);
     // Build a list of all the operations for the current consumer.
     $operations = array(
@@ -258,6 +263,8 @@ function lti_tool_provider_consumers_admin() {
       'Secret' => &$secret,
       'Domain' => &$domain,
       'Dummy_Pref' => &$dummy_pref,
+      'alternative_user_id_field' => &$alt_user_id,
+      'alternative_email_field' => &$alt_email,
       'Date Joined' => &$date_joined,
       'operations' => &$operations,
     );
@@ -268,6 +275,8 @@ function lti_tool_provider_consumers_admin() {
       array('data' => &$secret),
       array('data' => &$domain),
       array('data' => &$dummy_pref),
+      array('data' => &$alt_user_id),
+      array('data' => &$alt_email),
       array('data' => &$date_joined),
       array('data' => &$operations),
     );
@@ -277,6 +286,8 @@ function lti_tool_provider_consumers_admin() {
     unset($secret);
     unset($domain);
     unset($dummy_pref);
+    unset($alt_user_id);
+    unset($alt_email);
     unset($date_joined);
     unset($operations);
   }
@@ -311,6 +322,7 @@ function lti_tool_provider_consumer_add() {
  *   The form array.
  */
 function lti_tool_provider_consumer_form($form, &$form_state, $consumer) {
+
   if (!isset($form_state['#consumer'])) {
     $form_state['#consumer'] = $consumer;
   }
@@ -343,6 +355,18 @@ function lti_tool_provider_consumer_form($form, &$form_state, $consumer) {
     '#title' => t('Use a dummy account for unidentified users'),
     '#default_value' => $consumer->lti_tool_provider_consumer_dummy_pref,
   );
+  $form['lti_tool_provider_consumer_alternative_user_id_field'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Alternative User ID Field'),
+    '#description' => t('The LTI field to get the users ID from if you dont want to use the "user_id" field. You can determine the proper field to use by viewing the LTI Info. Some examples are: "lis_person_sourcedid", "custom_canvas_user_login_id", "lis_person_contact_email_primary" '),
+    '#default_value' => $consumer->lti_tool_provider_consumer_alternative_user_id_field,
+  );
+  $form['lti_tool_provider_consumer_alternative_email_field'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Alternative Email Field'),
+      '#description' => t('The LTI field to get the users email from if you dont want to use the "primary_email" field. This is useful if the primary email may not be your schools email. Some examples are: "lis_person_sourcedid", "custom_canvas_user_login_id" '),
+      '#default_value' => $consumer->lti_tool_provider_consumer_alternative_email_field,
+  );
   $form['lti_tool_provider_consumer_id'] = array(
     '#type' => 'value',
     '#value' => $consumer->lti_tool_provider_consumer_id,
@@ -365,6 +389,7 @@ function lti_tool_provider_consumer_form($form, &$form_state, $consumer) {
       '#weight' => 200,
     );
   }
+
   return $form;
 }
 
@@ -456,12 +481,15 @@ function lti_tool_provider_consumer_form_validate($form, &$form_state) {
  *   The form state.
  */
 function lti_tool_provider_consumer_form_submit($form, &$form_state) {
+
   $entity = $form_state['values']['lti_tool_provider_consumer'];
   $entity->lti_tool_provider_consumer_key = $form_state['values']['lti_tool_provider_consumer_key'];
   $entity->lti_tool_provider_consumer_secret = $form_state['values']['lti_tool_provider_consumer_secret'];
   $entity->lti_tool_provider_consumer_consumer = $form_state['values']['lti_tool_provider_consumer_consumer'];
   $entity->lti_tool_provider_consumer_domain = $form_state['values']['lti_tool_provider_consumer_domain'];
   $entity->lti_tool_provider_consumer_dummy_pref = $form_state['values']['lti_tool_provider_consumer_dummy_pref'];
+  $entity->lti_tool_provider_consumer_alternative_user_id_field = $form_state['values']['lti_tool_provider_consumer_alternative_user_id_field'];
+  $entity->lti_tool_provider_consumer_alternative_email_field = $form_state['values']['lti_tool_provider_consumer_alternative_email_field'];
   if ($form_state['values']['lti_tool_provider_consumer_dummy_pref'] && $form['lti_tool_provider_consumer_dummy_pref']['#default_value'] == 0) {
     lti_tool_provider_create_dummy_account($form_state['values']['lti_tool_provider_consumer_domain']);
     drupal_set_message(t('Dummy user has been created.'));
@@ -473,6 +501,7 @@ function lti_tool_provider_consumer_form_submit($form, &$form_state) {
     }
   }
   field_attach_submit('lti_tool_provider_consumer', $entity, $form, $form_state);
+
   $entity = lti_tool_provider_consumer_save($entity);
   drupal_set_message(t('Configurations saved.'));
   $form_state['redirect'] = 'admin/config/lti-tool-provider/lti-tool-consumers';
@@ -506,6 +535,8 @@ function lti_tool_provider_consumer_edit_delete($form, &$form_state) {
   drupal_set_message(t('The entity %lti_tool_provider_consumer_consumer (ID %lti_tool_provider_consumer_id) has been deleted.', array(
   '%lti_tool_provider_consumer_consumer' => $entity->lti_tool_provider_consumer_consumer,
   '%lti_tool_provider_consumer_id' => $entity->lti_tool_provider_consumer_id,
+  '%lti_tool_provider_consumer_alternative_user_id_field' => $entity->lti_tool_provider_consumer_alternative_user_id_field,
+  '%lti_tool_provider_consumer_alternative_email_field' => $entity->lti_tool_provider_consumer_alternative_email_field,
   )));
   $form_state['redirect'] = 'admin/config/lti-tool-provider/lti-tool-consumers';
 }
@@ -553,6 +584,16 @@ function lti_tool_provider_consumer_view($entity, $view_mode = 'tweaky') {
     '#type' => 'item',
     '#title' => t('Activate Dummy Account'),
     '#markup' => lti_tool_provider_trans_bool($entity->lti_tool_provider_consumer_dummy_pref),
+  );
+  $entity->content['lti_tool_provider_consumer_alternative_user_id_field'] = array(
+      '#type' => 'item',
+      '#title' => t('Alternative user_id Field'),
+      '#markup' => $entity->lti_tool_provider_consumer_alternative_user_id_field,
+  );
+  $entity->content['lti_tool_provider_consumer_alternative_email_field'] = array(
+      '#type' => 'item',
+      '#title' => t('Alternative email Field'),
+      '#markup' => $entity->lti_tool_provider_consumer_alternative_email_field,
   );
   $entity->content['date_joined'] = array(
     '#type' => 'item',

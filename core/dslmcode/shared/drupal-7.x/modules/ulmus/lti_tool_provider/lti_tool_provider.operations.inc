@@ -68,6 +68,7 @@ function lti_tool_provider_launch() {
   }
   // Collect the launch information for later storage in the session.
   $launch_info = $request->get_parameters();
+
   /*if (empty($launch_info['context_id'])) {
     if (isset($launch_info['launch_presentation_return_url'])) {
       lti_tool_provider_goto(url($launch_info['launch_presentation_return_url'], array('query' => array('lti_errormsg' => t('Error: Invalid context, No context Id.')))));
@@ -79,12 +80,19 @@ function lti_tool_provider_launch() {
   $consumer = lti_tool_provider_get_consumer_by_key($oauth_consumer_key);
   $launch_info['consumer_id'] = $consumer->lti_tool_provider_consumer_id;
   $launch_info['consumer_domain'] = $consumer->lti_tool_provider_consumer_domain;
-  if (!empty($launch_info['user_id'])) {
+
+  if(!empty($consumer->lti_tool_provider_consumer_alternative_user_id_field))
+  {
+    //Here we use the alternate user ID field for the user.
+    $lti_user = $launch_info[$consumer->lti_tool_provider_consumer_alternative_user_id_field];
+  }
+  else if (!empty($launch_info['user_id'])) {
     $lti_user = $launch_info['user_id'] . $launch_info['consumer_domain'];
   }
   else {
     $lti_user = 'lti_user' . $launch_info['consumer_domain'];
   }
+
   // Revalidate incoming user.
   if ($user->uid > 0 && $user->name != $lti_user) {
     // Log out prior user and clear session, retaining lti session variables.
@@ -96,17 +104,23 @@ function lti_tool_provider_launch() {
     drupal_set_message(t('Logged current user out.'), 'info');
   }
   if ($user->uid == 0) {
+    $email = '';
+    if(!empty($consumer->lti_tool_provider_consumer_alternative_email_field)){
+        $email = $launch_info[$consumer->lti_tool_provider_consumer_alternative_email_field];
+    }else{
+        $email = $launch_info['lis_person_contact_email_primary'];
+    }
     // If no mail address given, Form a dummy mail address.
-    if (empty($launch_info['lis_person_contact_email_primary'])) {
+    if (empty($email)) {
       if ($launch_info['consumer_domain'] == '') {
-        $launch_info['lis_person_contact_email_primary'] = $lti_user . '@invalid';
+          $email = $lti_user . '@invalid';
       }
       else {
-        $launch_info['lis_person_contact_email_primary'] = $lti_user . '.invalid';
+          $email = $lti_user . '.invalid';
       }
     }
     // Unauthenticated so create user if necessary.
-    if (($account = user_load_by_name($lti_user)) || ($account = user_load_by_mail($launch_info['lis_person_contact_email_primary']))) {
+    if (($account = user_load_by_name($lti_user)) || ($account = user_load_by_mail($email))) {
       // User exists by name or mail.
       if ($account->uid == 1) {
         // User 1 must use drupal authentication.

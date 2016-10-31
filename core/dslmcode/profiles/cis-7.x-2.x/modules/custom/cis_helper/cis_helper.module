@@ -779,6 +779,8 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   // add slogan
   $content .= $course_title . "\n";
   // email / user requesting account
+  $content .= $account->name . "\n";
+  // email / user requesting account
   $content .= $account->mail . "\n";
   // add distribution to create
   if (isset($options['field_distribution'])) {

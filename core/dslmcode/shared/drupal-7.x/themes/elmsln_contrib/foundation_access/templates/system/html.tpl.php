@@ -44,37 +44,34 @@
 <!DOCTYPE html>
 <html class="no-js" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <!--<![endif]-->
 <head>
-  <?php print preg_replace('~>\s+<~', '><', $head); ?>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <?php print $head; ?>
   <title><?php print $head_title; ?></title>
+  <!-- tell IE versions to render as high as possible -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <!--cross platform favicons and tweaks-->
   <link rel="shortcut icon" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln.ico">
   <link rel="icon" sizes="16x16 32x32 64x64" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln.ico">
-  <link rel="icon" type="image/png" sizes="310x310" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-310.png">
-  <link rel="icon" type="image/png" sizes="196x196" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-192.png">
-  <link rel="icon" type="image/png" sizes="160x160" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-160.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-96.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-64.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-16.png">
+<?php foreach ($iconsizes as $iconsize) : ?>
+  <link rel="icon" type="image/png" sizes="<?php print $iconsize; ?>x<?php print $iconsize; ?>" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-<?php print $iconsize; ?>.png">
+<?php endforeach; ?>
   <!-- iOS Safari -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-57.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-114.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-72.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-144.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-60.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-120.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-76.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-180.png">
+<?php foreach ($appleiconsizes as $appleiconsize) : ?>
+  <link rel="apple-touch-icon" sizes="<?php print $iconsize; ?>x<?php print $iconsize; ?>" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-<?php print $iconsize; ?>.png">
+<?php endforeach; ?>
+  <link rel="apple-touch-icon-precomposed" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-152.png">
   <link rel="apple-touch-startup-image"  href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-320x480.png">
   <!-- Windows Phone -->
-  <meta name="msapplication-navbutton-color" content="#eeeeee">
-  <meta name="msapplication-TileColor" content="#eeeeee">
   <meta name="msapplication-TileImage" content="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-144.png">
   <meta name="msapplication-config" content="<?php print $theme_path . '/legacy/icons/elmsicons';?>/browserconfig.xml">
+  <meta name="msapplication-tap-highlight" content="no">
   <!-- Chrome, Firefox OS and Opera -->
+  <meta name="msapplication-navbutton-color" content="#eeeeee">
+  <meta name="msapplication-TileColor" content="#eeeeee">
   <meta name="theme-color" content="#eeeeee">
   <!--/end cross platform favicons and tweaks-->
   <?php print preg_replace('~>\s+<~', '><', $styles); ?>
@@ -82,6 +79,7 @@
 </head>
 <body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?>>
 <?php ob_flush(); flush(); ?>
+  <span class="cis-lmsless-color"></span>
   <div class="skip-link">
     <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
   </div>

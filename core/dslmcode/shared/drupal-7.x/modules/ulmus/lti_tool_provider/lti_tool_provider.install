@@ -137,6 +137,18 @@ function lti_tool_provider_schema() {
         'type' => 'int',
         'not null' => TRUE,
       ),
+      'lti_tool_provider_consumer_alternative_user_id_field' => array(
+          'description' => 'Alt User ID field',
+          'type' => 'varchar',
+          'length' => 512,
+          'not null' => FALSE,
+      ),
+      'lti_tool_provider_consumer_alternative_email_field' => array(
+          'description' => 'Alt Email field',
+          'type' => 'varchar',
+          'length' => 512,
+          'not null' => FALSE,
+      ),
     ),
     'primary key' => array('lti_tool_provider_consumer_id'),
   );
@@ -149,4 +161,26 @@ function lti_tool_provider_schema() {
 function lti_tool_provider_uninstall() {
   variable_del('lti_tool_provider_global_role_array');
   variable_del('lti_tool_provider_user_attribute_mapping');
+}
+
+
+/**
+ * Add alt user ID and alt email fields to lti_tool_provider_consumer table.
+ */
+function lti_tool_provider_update_7100() {
+    $spec_user_id = array(
+        'type' => 'varchar',
+        'description' => "Alt User ID field",
+        'length' => 512,
+        'not null' => FALSE,
+    );
+
+    $spec_email = array(
+        'type' => 'varchar',
+        'description' => "Alt email field",
+        'length' => 512,
+        'not null' => FALSE,
+    );
+    db_add_field( 'lti_tool_provider_consumer', 'lti_tool_provider_consumer_alternative_user_id_field', $spec_user_id);
+    db_add_field( 'lti_tool_provider_consumer', 'lti_tool_provider_consumer_alternative_email_field', $spec_email);
 }

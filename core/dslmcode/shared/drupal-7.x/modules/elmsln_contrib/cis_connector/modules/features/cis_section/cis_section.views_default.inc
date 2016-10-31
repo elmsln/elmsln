@@ -9,10 +9,10 @@
  */
 function cis_section_views_default_views() {
   $export = array();
-  
+
   $view = new view();
   $view->name = 'cis_section_list';
-  $view->description = 'Administration fo all sections';
+  $view->description = 'Administration for all sections';
   $view->tag = 'default';
   $view->base_table = 'node';
   $view->human_name = 'CIS Section list';

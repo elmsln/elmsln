@@ -34,12 +34,18 @@
  * @ingroup themeable
  */
 ?>
-
+<div class ="user-profile--wrapper">
+<?php print render($user_profile['field_user_banner']);?>
 <?php print render($user_profile['field_photo']);?>
-<?php print render($user_profile['field_first_name']);?>
-<?php print render($user_profile['field_last_name']);?>
-<?php print render($user_profile['field_bio']);?>
-
+  <div class="user-profile--name">
+    <?php print $field_first_name[0]['safe_value'] . ' ' . $field_last_name[0]['safe_value'] . ' | ' . $field_display_name[0]['safe_value']; ?>
+  </div>
+<?php if (isset($field_bio)) : ?>
+  <div class="user-profile--about">
+    <?php print render($user_profile['field_bio']);?>
+  </div>
+<?php endif; ?>
+</div>
 
 
 

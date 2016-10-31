@@ -17,5 +17,5 @@ cd $HOME && source .bashrc
 # ln: 2 letter to represent organizational unit
 # elmsln.dev: domain to use as the base for the network
 # http: protocol; http or https for all communications
-# email@elmsln.dev: admin email address
+# admin@elmsln.dev: admin email address
 # yes: report to our anonymous analytics program when we start it yes/no
