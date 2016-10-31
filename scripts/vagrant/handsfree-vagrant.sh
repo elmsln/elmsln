@@ -57,6 +57,8 @@ echo 'if [[ $phpfpm == *"inactive (dead)"* ]]' >> /etc/profile.d/chkon.sh
 echo 'then' >> /etc/profile.d/chkon.sh
 echo '  sudo /sbin/service php-fpm restart' >> /etc/profile.d/chkon.sh
 echo 'fi' >> /etc/profile.d/chkon.sh
+# restart network in the VM to prevent common networking issues w/ Cent7
+echo 'sudo /sbin/service network restart' >> /etc/profile.d/chkon.sh
 
 # vagrant specific stuff
 # seckit causes isses, especially locally
