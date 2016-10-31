@@ -34,4 +34,7 @@ function cpr_foundation_access_preprocess_user_profile(&$vars) {
   else {
     $vars['banner'] = '<img class="background" src="http://materializecss.com/images/office.jpg" alt="">';
   }
+  // load up related user data
+  $blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
+  $vars['user_data'] = _block_get_renderable_array(_block_render_blocks(array($blockObject)));
 }

@@ -126,6 +126,50 @@ function elmsln_core_menu() {
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function elmsln_core_block_info() {
+  $blocks['elmsln_core_user_xapi_data'] = array(
+    'info' => t('User xAPI Data'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function elmsln_core_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'elmsln_core_user_xapi_data':
+    // ensure they have access to see this account based on placement
+    if (arg(0) == 'user') {
+      $account = user_load(arg(1));
+    }
+    else {
+      $account = $GLOBALS['user'];
+    }
+    if (_elmsln_core_data_access('user', $account)) {
+      $block['subject'] = '';
+      $block['content'] = _elmsln_core_user_xapi_data();
+      break;
+    }
+  }
+  return $block;
+}
+
+/**
+ * Load user xapi data.
+ */
+function _elmsln_core_user_xapi_data() {
+  module_load_include('inc', 'elmsln_core', 'elmsln_core.pages');
+  return drupal_get_form('elmsln_core_data_form');
+}
+
+/**
  * Implements hook_menu_alter.
  * Send user to the CPR to edit the global profile.
  */

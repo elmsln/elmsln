@@ -46,11 +46,24 @@
   <div class="user-profile--name">
     <?php print $displayname; ?>
   </div>
-<?php if (isset($field_bio)) : ?>
-  <div class="user-profile--about">
-    <?php print render($user_profile['field_bio']);?>
+<div class="row">
+    <div class="col s12">
+      <ul class="tabs">
+        <li class="tab col s3"><a href="#user__bio"><?php print t('About');?></a></li>
+        <li class="tab col s3"><a href="#user__data"><?php print t('Related Data');?></a></li>
+      </ul>
+    </div>
+    <div id="user__bio" class="user-profile--about col s12">
+    <?php if (isset($field_bio)) : ?>
+      <?php print render($user_profile['field_bio']);?>
+    <?php endif; ?>
+    </div>
+    <div id="user__data" class="user-profile--data col s12">
+    <?php if (isset($user_data)) : ?>
+      <?php print render($user_data);?>
+    <?php endif; ?>
+    </div>
   </div>
-<?php endif; ?>
 </div>
 
 
