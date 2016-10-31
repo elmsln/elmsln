@@ -817,6 +817,9 @@ ul.pagination li a {
   line-height: 2.25rem;
   height: 2.25rem;
   width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .table-of-contents a.active {
   color:unset;
@@ -1403,12 +1406,15 @@ ul.header-menu-options li.active-trail {
 
 h1#page-title {
   color: #222222;
-  font-size: 2.5rem;
-  line-height: 2.25rem;
+  font-size: 2.25rem;
+  line-height: 2.5rem;
   padding: 0;
   margin-bottom:.5rem;
   text-align: left;
   text-transform: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80%;
 }
 
 .read-time {

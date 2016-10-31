@@ -92,8 +92,6 @@
               </ul>
             </div>
           </div>
-          <div class="row content-element-region-wrapper">
-            <div class="content-element-region s12 m12 l12 col">
               <div class="row">
                 <div class="s12 m12 push-l1 l10 col" role="content">
                   <?php if (!empty($page['highlighted'])): ?>
@@ -136,8 +134,6 @@
                   <?php print render($page['content']); ?>
                 </div>
               </div>
-            </div>
-          </div>
         </section>
       <a class="exit-off-canvas"></a>
       </div>

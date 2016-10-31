@@ -18,6 +18,9 @@
   display: block;
   width: 100%;
   line-height: 2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #block-mooc-nav-block-mooc-nav-nav {
