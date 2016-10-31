@@ -205,6 +205,7 @@ function cpr_user_field_group_info() {
     'weight' => '11',
     'children' => array(
       0 => 'field_photo',
+      1 => 'field_user_banner',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
