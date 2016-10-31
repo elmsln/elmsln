@@ -191,6 +191,7 @@ function foundation_access_fieldset($variables) {
  * Implements template_preprocess_page.
  */
 function foundation_access_preprocess_page(&$variables) {
+  $variables['contentwrappers'] = _elmsln_core_path_is_wrapped(current_path());
   $menu_item = menu_get_item();
   // allow modules to supply accessibility enhancements to the menu
   $a11y = module_invoke_all('fa_a11y');

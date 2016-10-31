@@ -92,48 +92,53 @@
               </ul>
             </div>
           </div>
-              <div class="row">
-                <div class="s12 m12 push-l1 l10 col" role="content">
-                  <?php if (!empty($page['highlighted'])): ?>
-                    <div class="highlight panel callout">
-                      <?php print render($page['highlighted']); ?>
-                    </div>
-                  <?php endif; ?>
-
-                  <?php if ($breadcrumb) : ?>
-                    <div class="breadcrumb-wrapper">
-                    <?php print $breadcrumb; ?>
-                    </div>
-                  <?php endif; ?>
-
-                  <?php if (!empty($page['help'])): ?>
-                    <div class="region-help row">
-                      <?php print render($page['help']); ?>
-                    </div>
-                  <?php endif; ?>
-                  <?php if (!empty($page['local_header']) || !empty($page['local_subheader'])): ?>
-                    <div class="r-local-header-wrapper row">
-                      <?php if (!empty($page['local_header'])): ?>
-                      <div class="r-local-header row">
-                        <?php print render($page['local_header']); ?>
-                      </div>
-                      <?php endif; ?>
-                      <?php if (!empty($page['local_subheader'])): ?>
-                      <div class="r-local-subheader row">
-                        <?php print render($page['local_subheader']); ?>
-                      </div>
-                      <?php endif; ?>
-                    </div>
-                  <?php endif; ?>
-                  <a id="main-content"></a>
-                  <?php if ($title && arg(2) != 'edit' && arg(0) != 'users' && arg(0) != 'user'): ?>
-                    <?php print render($title_prefix); ?>
-                      <h1 id="page-title" class="title"><?php print $title; ?></h1>
-                    <?php print render($title_suffix); ?>
-                  <?php endif; ?>
-                  <?php print render($page['content']); ?>
+          <?php if ($contentwrappers): ?>
+          <div class="row">
+            <div class="s12 m12 push-l1 l10 col" role="content">
+          <?php else : ?>
+          <div>
+            <div role="content">
+          <?php endif; ?>
+              <?php if (!empty($page['highlighted'])): ?>
+                <div class="highlight panel callout">
+                  <?php print render($page['highlighted']); ?>
                 </div>
-              </div>
+              <?php endif; ?>
+
+              <?php if ($breadcrumb) : ?>
+                <div class="breadcrumb-wrapper">
+                <?php print $breadcrumb; ?>
+                </div>
+              <?php endif; ?>
+
+              <?php if (!empty($page['help'])): ?>
+                <div class="region-help row">
+                  <?php print render($page['help']); ?>
+                </div>
+              <?php endif; ?>
+              <?php if (!empty($page['local_header']) || !empty($page['local_subheader'])): ?>
+                <div class="r-local-header-wrapper row">
+                  <?php if (!empty($page['local_header'])): ?>
+                  <div class="r-local-header row">
+                    <?php print render($page['local_header']); ?>
+                  </div>
+                  <?php endif; ?>
+                  <?php if (!empty($page['local_subheader'])): ?>
+                  <div class="r-local-subheader row">
+                    <?php print render($page['local_subheader']); ?>
+                  </div>
+                  <?php endif; ?>
+                </div>
+              <?php endif; ?>
+              <a id="main-content"></a>
+              <?php if ($title && arg(2) != 'edit' && arg(0) != 'users' && arg(0) != 'user'): ?>
+                <?php print render($title_prefix); ?>
+                  <h1 id="page-title" class="title"><?php print $title; ?></h1>
+                <?php print render($title_suffix); ?>
+              <?php endif; ?>
+              <?php print render($page['content']); ?>
+            </div>
+          </div>
         </section>
       <a class="exit-off-canvas"></a>
       </div>

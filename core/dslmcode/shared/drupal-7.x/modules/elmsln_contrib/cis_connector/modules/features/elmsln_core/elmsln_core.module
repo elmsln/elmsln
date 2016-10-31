@@ -1216,3 +1216,58 @@ function elmsln_core_get_profile_key($profile = null) {
   }
   return $profile;
 }
+
+/**
+ * Assemble listing of paths to apply content wrappers.
+ * @return array   array of paths that should / shouldn't be wrapped
+ */
+function _elmsln_core_get_wrapped_paths() {
+  $patterns = &drupal_static(__FUNCTION__);
+  if (!isset($patterns)) {
+    $paths = module_invoke_all('wrapped_paths');
+    drupal_alter('wrapped_paths', $paths);
+    // Combine all wrapped paths into one array, and likewise for non-wrapped paths,
+    // for easier handling.
+    $patterns = array();
+    $patterns['wrapped'] = array();
+    $patterns['non_wrapped'] = array();
+    foreach ($paths as $path => $enabled) {
+      if ($enabled) {
+        $patterns['wrapped'][] = $path;
+      }
+      else {
+        $patterns['non_wrapped'][] = $path;
+      }
+    }
+    $patterns['wrapped'] = implode("\n", $patterns['wrapped']);
+    $patterns['non_wrapped'] = implode("\n", $patterns['non_wrapped']);
+  }
+  return $patterns;
+}
+
+/**
+ * See if current path should have content wrappers.
+ * @param  string $path drupal relative path like user/5
+ * @return boolean       if the path should have content wrappers applied or not.
+ */
+function _elmsln_core_path_is_wrapped($path) {
+  $path_map = &drupal_static(__FUNCTION__);
+  if (!isset($path_map['wrapped'][$path])) {
+    $patterns = _elmsln_core_get_wrapped_paths();
+    $path_map['wrapped'][$path] = drupal_match_path($path, $patterns['wrapped']);
+    $path_map['non_wrapped'][$path] = drupal_match_path($path, $patterns['non_wrapped']);
+  }
+  return $path_map['wrapped'][$path] && !$path_map['non_wrapped'][$path];
+}
+
+/**
+ * Implements hook_wrapped_paths().
+ */
+function elmsln_core_wrapped_paths() {
+  $paths = array(
+    '*' => TRUE,
+    'user/*' => FALSE,
+    'user/*/*' => FALSE,
+  );
+  return $paths;
+}
