@@ -922,20 +922,22 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
         }
         // validate buckets are all alive before queueing this up
         _elmsln_api_is_alive($nonblock);
-        // queue up the
-        $bucket = array_pop($nonblock);
-        $request['data']['__snake_stack'] = $nonblock;
-        // leave a flag for debug purposes if it's nonblocking
-        $request['_httprl'] = TRUE;
-        $options = array(
-          'method' => $request['method'],
-          'data' => http_build_query($request['data']),
-          'timeout' => 1,
-          'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
-          'blocking' => FALSE,
-        );
-        httprl_request($addresses[$bucket], $options);
-        $tmp = httprl_send_request();
+        if (!empty($nonblock)) {
+          // queue up the
+          $bucket = array_pop($nonblock);
+          $request['data']['__snake_stack'] = $nonblock;
+          // leave a flag for debug purposes if it's nonblocking
+          $request['_httprl'] = TRUE;
+          $options = array(
+            'method' => $request['method'],
+            'data' => http_build_query($request['data']),
+            'timeout' => 1,
+            'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+            'blocking' => FALSE,
+          );
+          httprl_request($addresses[$bucket], $options);
+          $tmp = httprl_send_request();
+        }
       }
     }
     if (!empty($returned_data)) {
