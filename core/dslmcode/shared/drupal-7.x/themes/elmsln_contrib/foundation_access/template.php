@@ -290,16 +290,6 @@ function foundation_access_preprocess_page(&$variables) {
       }
     }
   }
-  // Remove title from a page when a gitbook markdown filter is present.
-  if(isset($variables['page']['content']['system_main']['nodes'])) {
-    foreach($variables['page']['content']['system_main']['nodes'] as $node) {
-      if(isset($node['body']['#object'])) {
-        if($node['body']['#object']->body['und'][0]['format'] == "git_book_markdown") {
-          $variables['title'] = "";
-        }
-      }
-    }
-  }
 }
 
 /**
