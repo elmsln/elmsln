@@ -47,6 +47,12 @@ config_version=$(cat "$elmsln/config/SYSTEM_VERSION.txt")
 courses=$(drush @online efq node course --count)
 seviceinstance=$(drush @online efq node service_instance --count)
 sections=$(drush @online efq field_collection_item field_sections --count)
+# get the latest version
+wget -O- "https://raw.githubusercontent.com/elmsln/elmsln/master/VERSION.txt" > "$elmsln/config/tmp/LATEST.txt"
+latestversion=$(cat "$elmsln/config/tmp/LATEST.txt")
+if [[ $latestversion != $version ]]; then
+  elmslnwarn "An upgrade to elmsln (${latestversion}) is available! Use the options below to upgrade the code or type: cd /var/www/elmsln && git pull origin master"
+fi
 if [[ $config_version != $version ]]; then
   elmslnwarn "Config version different from code version! It is recommended that you select apply server level upgrades from the below list."
 fi
