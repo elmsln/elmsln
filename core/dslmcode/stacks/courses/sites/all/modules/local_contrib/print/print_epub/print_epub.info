@@ -5,9 +5,9 @@ package = "Printer, email and PDF versions"
 dependencies[] = print
 configure = admin/config/user-interface/print/epub
 
-; Information added by Drupal.org packaging script on 2014-04-02
-version = "7.x-2.0"
+; Information added by Drupal.org packaging script on 2016-06-09
+version = "7.x-2.0+1-dev"
 core = "7.x"
 project = "print"
-datestamp = "1396426766"
+datestamp = "1465500557"
 
