@@ -741,15 +741,14 @@ function mooc_helper_admin_paths() {
  * Provides speedreader clickable link for accessibility menu.
  */
 function mooc_helper_fa_a11y() {
-  if (module_exists('speedreader')) {
-    return array(
-      'tools' => array(
+  $a11y = array(
+    'formats' => array(
       '#type' => 'fieldset',
-      '#title' => t('Tools'),
-      '#description' => t('Use these accessibility tools to navigate content more easily.'),
+      '#title' => t('Alternate formats'),
+      '#description' => t('Get this content in an alternate format.'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
-      '#weight' => -8,
+      '#weight' => -10,
       '#attributes' => array(
         'class' => array(
           'collapsible',
@@ -759,14 +758,22 @@ function mooc_helper_fa_a11y() {
       ),
       '#materialize' => array(
         'type' => 'collapsible',
-        'icon' => 'view_module',
+        'icon' => 'view_carousel',
       ),
       'speedreader' => array(
-        '#markup' => '<a class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">chrome_reader_mode</i>' . t('Speed reader') . '</a>'
-        ),
+        '#markup' => '<a class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">chrome_reader_mode</i>' . t('Speed reader') . '</a>',
+        '#weight' => 10,
       ),
+    ),
+  );
+  // support print / book printing
+  if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access printer-friendly version')) {
+    $a11y['formats']['print'] = array(
+      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">print</i>' . t('Print page') . '</a>',
+      '#weight' => -10,
     );
   }
+  return $a11y;
 }
 
 /**
