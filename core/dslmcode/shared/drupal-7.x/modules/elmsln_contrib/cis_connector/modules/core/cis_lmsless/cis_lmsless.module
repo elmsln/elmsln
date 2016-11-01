@@ -132,7 +132,7 @@ function _cis_lmsless_assemble_user() {
     // throw in username
     $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
     $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
-    $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/photos/' . check_plain($GLOBALS['user']->name) .'.jpg';
+    $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/photos/' . $vars['username'] .'.jpg';
     // load in the user picture if it exists
     if (file_exists(_elmsln_core_realpath($uri))) {
       $image = theme('image', array(
@@ -148,7 +148,7 @@ function _cis_lmsless_assemble_user() {
       $vars['userpicturebig'] = $image;
     }
     // support user banner
-    $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/banners/' . check_plain($GLOBALS['user']->name) .'.jpg';
+    $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/banners/' . $vars['username'] .'.jpg';
     // load in the user picture if it exists
     if (file_exists(_elmsln_core_realpath($uri))) {
       $image = theme('image', array(
@@ -428,7 +428,7 @@ function _cis_lmsless_theme_vars() {
     $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
     // build the remote banner URI, this is the best solution for an image
     $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
-    $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/photos/' . check_plain($GLOBALS['user']->name) .'.jpg';
+    $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/photos/' . $vars['username'] .'.jpg';
     // load in the user picture if it exists
     if (file_exists(_elmsln_core_realpath($uri))) {
       $image = theme('image', array(
