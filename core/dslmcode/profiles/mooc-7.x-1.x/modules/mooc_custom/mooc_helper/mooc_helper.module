@@ -773,6 +773,13 @@ function mooc_helper_fa_a11y() {
       '#weight' => -10,
     );
   }
+  // print to pdf
+  if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access PDF version')) {
+    $a11y['formats']['pdf'] = array(
+      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">picture_as_pdf</i>' . t('PDF page') . '</a>',
+      '#weight' => -9,
+    );
+  }
   return $a11y;
 }
 

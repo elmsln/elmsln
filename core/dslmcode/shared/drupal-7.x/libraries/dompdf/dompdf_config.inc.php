@@ -309,7 +309,7 @@ def("DOMPDF_ENABLE_CSS_FLOAT", false);
  *
  * @var bool
  */
-def("DOMPDF_ENABLE_AUTOLOAD", FALSE);
+def("DOMPDF_ENABLE_AUTOLOAD", true);
 
 /**
  * Prepend the DOMPDF autoload function to the spl_autoload stack
@@ -331,7 +331,7 @@ require_once(DOMPDF_LIB_DIR . "/html5lib/Parser.php");
  */
 if (DOMPDF_ENABLE_AUTOLOAD) {
   require_once(DOMPDF_INC_DIR . "/autoload.inc.php");
-  require_once(DOMPDF_LIB_DIR . "/php-font-lib/classes/Font.php");
+  require_once(DOMPDF_LIB_DIR . "/fonts/Font.php");
 }
 
 /**
