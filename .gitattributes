@@ -60,4 +60,5 @@
 *.ogg     -text diff
 *.mp3     -text diff
 *.mp4     -text diff
-
+wkhtmltopdf --text diff
+wkhtmltoimage --text diff
