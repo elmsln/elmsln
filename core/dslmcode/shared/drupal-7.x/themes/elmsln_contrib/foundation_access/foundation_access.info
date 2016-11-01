@@ -26,7 +26,7 @@ engine = phptemplate
 ; CSS2.1 media types: http://www.w3.org/TR/CSS21/media.html#media-types
 ; CSS3 media queries: http://www.w3.org/TR/css3-mediaqueries/
 
-; For CSS users, load the app.css file:
+; CSS
 stylesheets[all][] = legacy/icons/faccess-icons/output/icons.data.svg.css
 stylesheets[all][] = legacy/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css
 stylesheets[all][] = legacy/css/system.base.css
@@ -37,7 +37,7 @@ stylesheets[all][] = app/dist/css/styles.css
 stylesheets[all][] = css/tweaks.css
 
 
-; For CSS users, load the app.css file:
+; Print as null
 stylesheets[print][] = css/print.css
 
 ; Modernizr acts as a shim for HTML5 elements for older browsers
