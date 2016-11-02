@@ -19,13 +19,10 @@ function icor_mapping_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 0,
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
       ),
       'entityreference_view_widget' => array(
         'label' => 'above',
@@ -74,7 +71,7 @@ function icor_mapping_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 101,
+      'weight' => 1,
     ),
   );
 
@@ -86,12 +83,59 @@ function icor_mapping_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'geofield',
+        'label' => 'hidden',
+        'module' => 'leaflet',
         'settings' => array(
-          'data' => 'full',
+          'height' => 400,
+          'icon' => array(
+            'html' => '',
+            'htmlClass' => '',
+            'iconAnchor' => array(
+              'x' => '',
+              'y' => '',
+            ),
+            'iconImageStyle' => '',
+            'iconSize' => array(
+              'x' => '',
+              'y' => '',
+            ),
+            'iconType' => 'marker',
+            'iconUrl' => '',
+            'popupAnchor' => array(
+              'x' => '',
+              'y' => '',
+            ),
+            'shadowAnchor' => array(
+              'x' => '',
+              'y' => '',
+            ),
+            'shadowUrl' => '',
+          ),
+          'leaflet_map' => 'OSM Mapnik',
+          'popup' => array(
+            'show' => 0,
+            'text' => '',
+          ),
+          'vector_display' => array(
+            'clickable' => 0,
+            'color' => '',
+            'dashArray' => '',
+            'fill' => 0,
+            'fillColor' => '',
+            'fillOpacity' => '',
+            'opacity' => '',
+            'stroke' => 0,
+            'stroke_override' => 0,
+            'weight' => '',
+          ),
+          'zoom' => array(
+            'initialZoom' => -1,
+            'maxZoom' => -1,
+            'minZoom' => 1,
+            'scrollWheelZoom' => 1,
+          ),
         ),
-        'type' => 'geofield_wkt',
+        'type' => 'geofield_leaflet',
         'weight' => 0,
       ),
       'entityreference_view_widget' => array(
@@ -110,7 +154,7 @@ function icor_mapping_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'field_location',
     'label' => 'Location',
-    'required' => 0,
+    'required' => 1,
     'settings' => array(
       'authcache' => array(
         'clients' => array(
@@ -136,17 +180,17 @@ function icor_mapping_field_default_field_instances() {
           'handler' => 'json',
         ),
         'map' => array(
-          'auto_center' => 1,
+          'auto_center' => 0,
           'base_url' => '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           'center' => array(
-            'lat' => 0,
-            'lng' => 0,
+            'lat' => 40.80443,
+            'lng' => -77.86057,
           ),
-          'zoom' => 10,
+          'zoom' => 12,
         ),
       ),
       'type' => 'leaflet_widget_widget',
-      'weight' => 101,
+      'weight' => 2,
     ),
   );
 
@@ -158,7 +202,7 @@ function icor_mapping_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
@@ -213,7 +257,7 @@ function icor_mapping_field_default_field_instances() {
           ),
         ),
       ),
-      'text_processing' => 0,
+      'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -223,7 +267,7 @@ function icor_mapping_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 102,
+      'weight' => 1,
     ),
   );
 

@@ -15,32 +15,64 @@ function icor_mapping_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'field_bundle_settings_node__map';
   $strongarm->value = array(
-    'view_modes' => array(),
+    'view_modes' => array(
+      'teaser' => array(
+        'custom_settings' => TRUE,
+      ),
+      'entityreference_view_widget' => array(
+        'custom_settings' => TRUE,
+      ),
+      'full' => array(
+        'custom_settings' => FALSE,
+      ),
+      'rss' => array(
+        'custom_settings' => FALSE,
+      ),
+      'diff_standard' => array(
+        'custom_settings' => FALSE,
+      ),
+      'iframe' => array(
+        'custom_settings' => FALSE,
+      ),
+      'token' => array(
+        'custom_settings' => FALSE,
+      ),
+      'revision' => array(
+        'custom_settings' => FALSE,
+      ),
+    ),
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '-5',
+          'weight' => '0',
         ),
         'path' => array(
-          'weight' => '100',
+          'weight' => '7',
         ),
         'hidden_nodes' => array(
-          'weight' => '100',
+          'weight' => '5',
         ),
         'book' => array(
-          'weight' => '100',
+          'weight' => '2',
         ),
         'options' => array(
-          'weight' => '100',
+          'weight' => '6',
         ),
         'author' => array(
-          'weight' => '100',
+          'weight' => '3',
         ),
         'revision_information' => array(
-          'weight' => '100',
+          'weight' => '4',
         ),
       ),
-      'display' => array(),
+      'display' => array(
+        'elmsln_mapping_entity_view_1' => array(
+          'default' => array(
+            'weight' => '0',
+            'visible' => TRUE,
+          ),
+        ),
+      ),
     ),
   );
   $export['field_bundle_settings_node__map'] = $strongarm;
@@ -50,29 +82,54 @@ function icor_mapping_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'field_bundle_settings_node__map_point';
   $strongarm->value = array(
-    'view_modes' => array(),
+    'view_modes' => array(
+      'teaser' => array(
+        'custom_settings' => TRUE,
+      ),
+      'entityreference_view_widget' => array(
+        'custom_settings' => TRUE,
+      ),
+      'full' => array(
+        'custom_settings' => FALSE,
+      ),
+      'rss' => array(
+        'custom_settings' => FALSE,
+      ),
+      'diff_standard' => array(
+        'custom_settings' => FALSE,
+      ),
+      'iframe' => array(
+        'custom_settings' => FALSE,
+      ),
+      'token' => array(
+        'custom_settings' => FALSE,
+      ),
+      'revision' => array(
+        'custom_settings' => FALSE,
+      ),
+    ),
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '-5',
+          'weight' => '0',
         ),
         'path' => array(
-          'weight' => '100',
+          'weight' => '9',
         ),
         'hidden_nodes' => array(
-          'weight' => '100',
+          'weight' => '8',
         ),
         'book' => array(
-          'weight' => '100',
+          'weight' => '6',
         ),
         'options' => array(
-          'weight' => '100',
+          'weight' => '5',
         ),
         'author' => array(
-          'weight' => '100',
+          'weight' => '4',
         ),
         'revision_information' => array(
-          'weight' => '100',
+          'weight' => '7',
         ),
       ),
       'display' => array(),

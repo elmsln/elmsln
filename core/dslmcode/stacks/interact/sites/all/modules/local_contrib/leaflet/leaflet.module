@@ -48,7 +48,7 @@ function leaflet_libraries_info() {
         // For AdvAgg module. See [#2294639] This runs after leaflet.js.
         'leaflet_imagepath' => array(
           'type' => 'inline',
-          'data' => 'L.Icon.Default.imagePath = "' . base_path() . libraries_get_path('leaflet') . '/images";',
+          'data' => 'L.Icon.Default.imagePath = "' . base_path() . libraries_get_path('leaflet') . '/images/";',
         ),
       ),
       'css' => array(
