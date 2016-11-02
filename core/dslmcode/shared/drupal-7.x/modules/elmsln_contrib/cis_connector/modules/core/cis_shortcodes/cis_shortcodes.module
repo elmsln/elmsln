@@ -235,7 +235,7 @@ function _cis_shortcode_render_codes($entity, $type) {
         'icon' => 'pageview',
         'render' => 'side_nav',
       );
-      $direct['cis_shortcodes_modal'] = array(
+      $direct['cis_shortcodes_side_nav'] = array(
         '#title' => t('Side nav embed'),
         '#attributes' => array('class' => array('cis_shortcodes_embed', 'cis_shortcodes_side_nav')),
         '#value' => _cis_shortcodes_build_code($properties),
