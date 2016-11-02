@@ -1,3 +1,8 @@
+/* hide attribution on map since it has a link that could confuse students easily */
+.leaflet-control-attribution {
+  display:none;
+}
+
 /* user profile */
 .user-profile--wrapper {
   width: 100%;
