@@ -35,6 +35,7 @@ function easycdn_admin_general_settings_form($form, &$form_state) {
         'CDN_NONE' => t('Local'),
         'CDN_JSDELIVR' => t('jsDelivr (Supported in China)'),
         'CDN_CDNJS' => t('CDNJS (Limited China Support)'),
+        'RAWGIT' => t('RawGit'),
         ),
       '#default_value' => variable_get('easycdn_cdn_' . $machine_name, ''),
     );
@@ -54,6 +55,11 @@ function easycdn_admin_general_settings_form($form, &$form_state) {
         array_push($cdnjs_format_versions, $versions[$version]['version']);
       }
       $form['easycdn'][$machine_name]['easycdn_version_' . $machine_name]['#options'] = $cdnjs_format_versions;
+    }
+    elseif (variable_get('easycdn_cdn_' . $libraries[$machine_name]['machine name']) === 'RAWGIT'){
+      //version logic for file loading...it'll be ELMS:LN version specific (for now)
+      array_push($versions, $libraries[$machine_name]['version'] . ' =  local version');
+      $form['easycdn'][$machine_name]['easycdn_version_' . $machine_name]['#options'] = $versions;
     }
     else {
       array_push($versions, $libraries[$machine_name]['version'] . ' =  local version');
