@@ -187,6 +187,7 @@ function elmsln_core_menu_alter(&$items) {
 function _elmsln_people_user_edit_page($form, &$form_state, $account, $category = 'account') {
   // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
   $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+  // @todo it would be nice to do this in one request instead of two
   $user_data_name = _cis_connector_request('user.json?name=' . $account->name, array(), $elmsln_global_profile, TRUE);
   if (!empty($user_data_name)) {
     $user_data_name = json_decode($user_data_name->data);
