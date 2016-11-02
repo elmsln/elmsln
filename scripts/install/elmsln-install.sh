@@ -4,23 +4,27 @@
 # Only user this to initially setup the system as it will add in jobs
 # that would fail after the fact.
 
-# provide messaging colors for output to console
-txtbld=$(tput bold)             # Bold
-bldgrn=$(tput setaf 2) #  green
-bldred=${txtbld}$(tput setaf 1) #  red
-txtreset=$(tput sgr0)
-elmslnecho(){
-  echo "${bldgrn}$1${txtreset}"
-}
-elmslnwarn(){
-  echo "${bldred}$1${txtreset}"
-}
-
 # where am i? move to where I am. This ensures source is properly sourced
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 # include our config settings
 source ../../config/scripts/drush-create-site/config.cfg
+
+# provide messaging colors for output to console
+txtbld=$(tput bold)             # Bold
+bldgrn=$(tput setaf 2) #  green
+bldred=${txtbld}$(tput setaf 1) #  red
+txtreset=$(tput sgr0)
+installlog="${elmsln}/config/tmp/INSTALL-LOG.txt"
+steplog="${elmsln}/config/tmp/STEP-LOG.txt"
+elmslnecho(){
+  echo "${bldgrn}$1${txtreset}"
+  echo "$1" >> $installlog
+}
+elmslnwarn(){
+  echo "${bldred}$1${txtreset}"
+  echo "$1" >> $installlog
+}
 
 #test for empty vars. if empty required var -- exit
 if [ -z $fileloc ]; then
@@ -39,7 +43,7 @@ if [ -z $webdir ]; then
   elmslnwarn "please update your config.cfg file, webdir variable missing"
   exit 1
 fi
-
+echo '1' >> $steplog
 # FIGURE OUT WHATS GOING TO BE BUILT
 # this is an ultra generic process of analyzing what the system says we can
 # build and then actually doing it. When we wrap in the request form and
@@ -154,7 +158,7 @@ if [ ! -d ${moduledir}/${university}/${cissettings} ];
   # add the function to include this in build outs automatically
   echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n  \$options['en'][] = 'elmsln_bakery';\n}\n" >> $modulefile
 fi
-
+echo '2' >> $steplog
 # make sure drush is happy before we begin drush calls
 drush cc drush
 sudo chown -R $USER $HOME/.drush
@@ -177,7 +181,7 @@ for build in "${buildlist[@]}"
   elmslnecho "drush installing service placeholder: $build"
   drush site-install -q -y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
-
+echo '3' >> $steplog
 COUNTER=0
 # install authority distributions like online, media, comply
 for tool in "${authoritylist[@]}"
@@ -281,7 +285,7 @@ for tool in "${authoritylist[@]}"
 
   COUNTER=$COUNTER+1
 done
-
+echo '4' >> $steplog
 # perform some clean up tasks
 # jobs file directory
 sudo chown -R $wwwuser:$webgroup $elmsln/config/jobs
@@ -298,7 +302,7 @@ if [ -f  $hooksdir/post-install.sh ]; then
   # invoke this hook cause we found a file matching the name we need
   bash $hooksdir/post-install.sh
 fi
-
+echo '5' >> $steplog
 # set concurrency to help speed up install
 concurrent=2
 # make sure user password is admin as a fallback
@@ -322,22 +326,31 @@ drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --v --y
 # seed entity caches
 elmslnecho "Seed some initial caches on all sites"
 drush @elmsln ecl --concurrency=${concurrent} --strict=0 --v --y
+echo '6' >> $steplog
 
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
+elmslnecho "║                               ✻                               ║"
+elmslnecho "║                         ✻     ║     ✻                         ║"
+elmslnecho "║                            ║  ║  ║                            ║"
+elmslnecho "║                               ✻                               ║"
+elmslnecho "║                            ║  ║  ║                            ║"
+elmslnecho "║                         ✻     ║     ✻                         ║"
+elmslnecho "║                               ✻                               ║"
+elmslnecho "║                                                               ║"
 elmslnecho "║                Welcome to                                     ║"
 elmslnecho "║                                                               ║"
 elmslnecho "║   EEEEEEE  LL       MM    MM   SSSSS      LL       NN   NN    ║"
-elmslnecho "║   EE       LL       MMM  MMM  SS          LL       NNN  NN    ║"
+elmslnecho "║   EE       LL       MMM  MMM  SS       ✻  LL       NNN  NN    ║"
 elmslnecho "║   EEEEE    LL       MM MM MM   SSSSS      LL       NN N NN    ║"
-elmslnecho "║   EE       LL       MM    MM       SS     LL       NN  NNN    ║"
+elmslnecho "║   EE       LL       MM    MM       SS  ✻  LL       NN  NNN    ║"
 elmslnecho "║   EEEEEEE  LLLLLLL  MM    MM   SSSSS      LLLLLLL  NN   NN    ║"
 elmslnecho "║                                                               ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
 elmslnecho "║ If you have issues, submit them to                            ║"
 elmslnecho "║   http://github.com/elmsln/elmsln/issues                      ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
-elmslnecho "║ NOTES                                                         ║"
+elmslnecho "║ ✻NOTES✻                                                       ║"
 elmslnecho "║ There is a module that was authored during installation at    ║"
 elmslnecho "║ config/shared/drupal-7.x/modules/_elmsln_scripted             ║"
 elmslnecho "║ You may want to open this up and review it but it is your     ║"
@@ -348,5 +361,5 @@ elmslnecho "║ Use this link to get started:                                 �
 elmslnecho "║   $protocol://$site_domain                                     "
 elmslnecho "║                                                               ║"
 elmslnecho "║Welcome to the Singularity, edtech.. don't compete, eliminate  ║"
-elmslnecho "║Ex Uno Plures                                                  ║"
+elmslnecho "║✻Ex Uno Plures✻                                                ║"
 elmslnecho "╚───────────────────────────────────────────────────────────────╝"
