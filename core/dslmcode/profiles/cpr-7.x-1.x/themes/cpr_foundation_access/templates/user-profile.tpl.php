@@ -35,16 +35,35 @@
  */
 ?>
 <div class ="user-profile--wrapper">
-<?php print render($user_profile['field_user_banner']);?>
-<?php print render($user_profile['field_photo']);?>
+  <div class ="user-profile--banner">
+    <?php print render($banner);?>
+  </div>
+  <div class ="user-profile--photo--wrapper">
+    <div class ="user-profile--photo circle">
+      <?php print $photo; ?>
+    </div>
+  </div>
   <div class="user-profile--name">
-    <?php print $field_first_name[0]['safe_value'] . ' ' . $field_last_name[0]['safe_value'] . ' | ' . $field_display_name[0]['safe_value']; ?>
+    <?php print $displayname; ?>
   </div>
-<?php if (isset($field_bio)) : ?>
-  <div class="user-profile--about">
-    <?php print render($user_profile['field_bio']);?>
+<div class="row">
+    <div class="col s12">
+      <ul class="tabs">
+        <li class="tab col s3"><a href="#user__bio"><?php print t('About');?></a></li>
+        <li class="tab col s3"><a href="#user__data"><?php print t('Related Data');?></a></li>
+      </ul>
+    </div>
+    <div id="user__bio" class="user-profile--about col s12">
+    <?php if (isset($field_bio)) : ?>
+      <?php print render($user_profile['field_bio']);?>
+    <?php endif; ?>
+    </div>
+    <div id="user__data" class="user-profile--data col s12">
+    <?php if (isset($user_data)) : ?>
+      <?php print render($user_data);?>
+    <?php endif; ?>
+    </div>
   </div>
-<?php endif; ?>
 </div>
 
 

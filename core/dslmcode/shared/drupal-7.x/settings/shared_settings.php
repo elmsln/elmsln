@@ -5,7 +5,8 @@
 
 // fix for core change in 7.50
 $conf['x_frame_options'] = '';
-
+// allow image cache derivatives without itok token
+$conf['image_allow_insecure_derivatives'] = TRUE;
 // Allow RestWS calls to pass through on bakery installs, otherwise webservices
 // reroute looking for the bakery login cookie and fail.
 // If bakery isn't installed this does nothing and can be ignored.

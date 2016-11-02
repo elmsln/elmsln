@@ -131,13 +131,13 @@ function cpr_user_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_photo'.
-  $field_bases['field_photo'] = array(
+  // Exported field_base: 'field_user_banner'.
+  $field_bases['field_user_banner'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_photo',
+    'field_name' => 'field_user_banner',
     'indexes' => array(
       'fid' => array(
         0 => 'fid',
@@ -155,13 +155,13 @@ function cpr_user_field_default_field_bases() {
     'type' => 'image',
   );
 
-  // Exported field_base: 'field_user_banner'.
-  $field_bases['field_user_banner'] = array(
+  // Exported field_base: 'field_user_photo'.
+  $field_bases['field_user_photo'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_user_banner',
+    'field_name' => 'field_user_photo',
     'indexes' => array(
       'fid' => array(
         0 => 'fid',

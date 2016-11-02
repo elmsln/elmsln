@@ -14,7 +14,6 @@ features[ctools][] = ds:ds:1
 features[ctools][] = strongarm:strongarm:1
 features[ds_layout_settings][] = node|poll|form
 features[features_api][] = api:2
-features[menu_links][] = menu-elmsln-add_poll:node/add/poll
 features[user_permission][] = cancel own vote
 features[user_permission][] = create poll content
 features[user_permission][] = delete any poll content

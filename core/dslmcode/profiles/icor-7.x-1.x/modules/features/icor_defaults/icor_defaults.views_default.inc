@@ -135,12 +135,10 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['operator'] = 'not in';
   $handler->display->display_options['filters']['type']['value'] = array(
-    'icor_interactive_player' => 'icor_interactive_player',
-    'jmol' => 'jmol',
-    'poll' => 'poll',
-    'timeline' => 'timeline',
-    'timeline_date' => 'timeline_date',
+    'cis_course' => 'cis_course',
+    'section' => 'section',
   );
   /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type_1']['id'] = 'type_1';
@@ -148,7 +146,9 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['filters']['type_1']['field'] = 'type';
   $handler->display->display_options['filters']['type_1']['value'] = array(
     'icor_interactive_player' => 'icor_interactive_player',
-    'h5p_content' => 'h5p_content',
+    'jmol' => 'jmol',
+    'map' => 'map',
+    'map_point' => 'map_point',
     'poll' => 'poll',
     'timeline' => 'timeline',
     'timeline_date' => 'timeline_date',
@@ -161,14 +161,14 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['filters']['type_1']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    5 => 0,
-    3 => 0,
-    7 => 0,
-    8 => 0,
-    4 => 0,
-    9 => 0,
-    6 => 0,
-    10 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
   );
   $handler->display->display_options['filters']['type_1']['expose']['reduce'] = TRUE;
 
@@ -206,7 +206,6 @@ function icor_defaults_views_default_views() {
   $handler->display->display_options['bundles'] = array(
     0 => 'cis_course',
   );
-
   $export['icor_object_lists'] = $view;
 
   return $export;

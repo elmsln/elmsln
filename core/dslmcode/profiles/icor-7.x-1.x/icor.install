@@ -67,3 +67,14 @@ function icor_update_7003(&$sandbox) {
 function icor_update_7004(&$sandbox) {
   module_enable(array('elmsln_ecd'));
 }
+
+/**
+ * Enable mapping functionality for ICOR.
+ */
+function icor_update_7005(&$sandbox) {
+  module_enable(array('icor_mapping'));
+  features_revert_module('icor_defaults');
+  features_revert_module('icor_jmol');
+  features_revert_module('icor_poll');
+  features_revert_module('icor_ux');
+}

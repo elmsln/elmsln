@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Install functions for leaflet_views.
+ */
+
+/**
+ * Add the Entity API module as a dependency.
+ */
+function leaflet_views_update_7000() {
+  // Enable entity.
+  if (!module_enable(array('entity'))) {
+    throw new DrupalUpdateException('This version of Leaflet Views requires Entity API (entity), but it could not be enabled.');
+  }
+}

@@ -73,7 +73,14 @@ function foundation_access_preprocess_html(&$variables) {
   }
   else {
     drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
-    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
+    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/js/materialize.min.js', array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
+  }
+  // support for our legacy; adding in css/js for foundation; this requires a forcible override in shared_settings.php
+  if (variable_get('foundation_access_legacy', FALSE)) {
+    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/css/foundation.min.css', array('weight' => -1000));
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/modernizr.js', array('scope' => 'footer', 'weight' => 1000));
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/foundation.min.js', array('scope' => 'footer', 'weight' => 1001));
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/enable-foundation.js', array('scope' => 'footer', 'weight' => 2000));
   }
   // theme path shorthand should be handled here
   foreach($variables['user']->roles as $role){
@@ -191,6 +198,7 @@ function foundation_access_fieldset($variables) {
  * Implements template_preprocess_page.
  */
 function foundation_access_preprocess_page(&$variables) {
+  $variables['contentwrappers'] = _elmsln_core_path_is_wrapped(current_path());
   $menu_item = menu_get_item();
   // allow modules to supply accessibility enhancements to the menu
   $a11y = module_invoke_all('fa_a11y');
@@ -1199,16 +1207,41 @@ function foundation_access_html_head_alter(&$head_elements) {
   $args = arg();
   // account for print module and book print out
   if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
-    // parse returned locations array and manually add to html head
-    $head_elements['fa_print'] = array(
-      '#type' => 'html_tag',
-      '#tag' => 'link',
-      '#attributes' => array(
-        'type' => 'text/css',
-        'rel' => 'stylesheet',
-        'href' => base_path() . drupal_get_path('theme', 'foundation_access') . '/legacy/css/app.css',
-      ),
+    $path = base_path() . drupal_get_path('theme', 'foundation_access') . '/';
+    $css = array(
+      $path . 'legacy/icons/faccess-icons/output/icons.data.svg.css',
+      $path . 'legacy/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css',
+      $path . 'legacy/css/system.base.css',
+      $path . 'legacy/css/app.css',
+      $path . 'legacy/css/normalize.css',
+      $path . 'legacy/css/comparison.css',
+      $path . 'app/dist/css/styles.css',
+      $path . 'css/tweaks.css',
+      $path . 'fonts/elmsln/elmsln-font-styles.css',
+      '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)',
+
     );
+    $libraries = libraries_get_libraries();
+    // see if we have it locally before serviing CDN
+    // This allows EASY CDN module to switch to CDN later if that's the intention
+    if (isset($libraries['materialize'])) {
+      $css[] = base_path() . $libraries['materialize'] . '/css/materialize.css';
+    }
+    else {
+      $css[] = '//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css';
+    }
+    // parse returned locations array and manually add to html head
+    foreach ($css as $key => $file) {
+      $head_elements['fa_print_' . $key] = array(
+        '#type' => 'html_tag',
+        '#tag' => 'link',
+        '#attributes' => array(
+          'type' => 'text/css',
+          'rel' => 'stylesheet',
+          'href' => $file,
+        ),
+      );
+    }
   }
 }
 

@@ -20,7 +20,6 @@ features[features_api][] = api:2
 features[field_base][] = field_jmol_file
 features[field_instance][] = node-jmol-field_cis_course_ref
 features[field_instance][] = node-jmol-field_jmol_file
-features[menu_links][] = menu-elmsln-add_jmol:node/add/jmol
 features[node][] = jmol
 features[user_permission][] = create jmol content
 features[user_permission][] = delete any jmol content

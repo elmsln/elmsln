@@ -143,3 +143,11 @@ function mooc_update_7008(&$sandbox) {
   features_revert_module('mooc_page');
   features_revert_module('mooc_nav_block');
 }
+
+/**
+ * PDF printing capabilities via DOMpdf library print module.
+ */
+function mooc_update_7009(&$sandbox) {
+  features_revert_module('mooc_ux_defaults');
+  features_revert_module('mooc_perms');
+}

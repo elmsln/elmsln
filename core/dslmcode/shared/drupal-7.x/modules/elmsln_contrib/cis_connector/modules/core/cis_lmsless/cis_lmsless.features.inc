@@ -53,5 +53,22 @@ function cis_lmsless_image_default_styles() {
     ),
   );
 
+  // Exported image style: foundation_access_user_bg.
+  $styles['foundation_access_user_bg'] = array(
+    'label' => 'Foundation access user bg',
+    'effects' => array(
+      3 => array(
+        'name' => 'smartcrop_scale_and_crop',
+        'data' => array(
+          'width' => 280,
+          'height' => 210,
+          'upscale' => 0,
+          '#imageinfo_cache_effect_callback' => 'smartcrop_scale_effect',
+        ),
+        'weight' => 1,
+      ),
+    ),
+  );
+
   return $styles;
 }

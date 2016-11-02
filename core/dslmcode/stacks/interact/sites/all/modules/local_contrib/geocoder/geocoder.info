@@ -1,0 +1,14 @@
+name = Geocoder
+description = An API and widget to geocode various known data into other GIS data types.
+core = 7.x
+dependencies[] = geophp
+dependencies[] = ctools
+
+configure = admin/config/content/geocoder
+
+; Information added by Drupal.org packaging script on 2016-01-31
+version = "7.x-1.3"
+core = "7.x"
+project = "geocoder"
+datestamp = "1454270340"
+

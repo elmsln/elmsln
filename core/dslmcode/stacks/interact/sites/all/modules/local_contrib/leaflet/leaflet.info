@@ -1,0 +1,15 @@
+name = Leaflet
+description = Integration with the Leaflet map scripting library.
+core = 7.x
+
+dependencies[] = image
+dependencies[] = libraries
+
+files[] = leaflet.formatters.inc
+
+; Information added by Drupal.org packaging script on 2016-03-03
+version = "7.x-1.3+2-dev"
+core = "7.x"
+project = "leaflet"
+datestamp = "1457041140"
+

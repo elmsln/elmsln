@@ -20,13 +20,8 @@ function mooc_foundation_access_preprocess_page(&$variables) {
       unset($variables['tabs']['#secondary']);
     }
   }
-  // support for add child page shortcut
-  $node = menu_get_object();
-  if ($node && user_access('access printer-friendly version')) {
-    $variables['tabs_extras'][200][] = '<div class="divider"></div>';
-    $variables['tabs_extras'][200][] = l(t('Print'), 'book/export/html/' . arg(1));
-  }
   $child_type = variable_get('book_child_type', 'book');
+  $node = menu_get_object();
   if ($node && !empty($node->book) && (user_access('add content to books') || user_access('administer book outlines')) && node_access('create', $child_type) && $node->status == 1 && isset($node->book['depth']) && $node->book['depth'] < MENU_MAX_DEPTH) {
     $variables['tabs_extras'][200][] = '<div class="divider"></div>';
     $variables['tabs_extras'][200][] = '<span class="nolink cis-lmsless-text">' . t('Operations') . '</strong>';
@@ -44,6 +39,17 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   $keys = array_keys($variables['page']['header']);
   $keyname = array_shift($keys);
   unset($variables['page']['header'][$keyname]['#prefix']);
+
+  // Remove title from a page when a gitbook markdown filter is present.
+  if(isset($variables['page']['content']['system_main']['nodes'])) {
+    foreach($variables['page']['content']['system_main']['nodes'] as $node) {
+      if(isset($node['body']['#object'])) {
+        if($node['body']['#object']->body['und'][0]['format'] == "git_book_markdown") {
+          $variables['title'] = "";
+        }
+      }
+    }
+  }
 }
 
 /**
