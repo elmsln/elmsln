@@ -189,6 +189,40 @@ function cis_filter_theme() {
       ),
       'template' => 'templates/cis-filter-render--submit',
     ),
+    'cis_filter_render__modal' => array(
+      'variables' => array(
+        'code' => array(),
+        'settings' => array(),
+        'instance' => '',
+        'content' => '',
+        'width' => '100%',
+        'height' => '400',
+        'response' => array(),
+        'hypothesis' => '',
+        'link' => '',
+        'id' => '',
+        'class' => 'cis-filter-modal-item',
+        'lmsless_classes' => array(),
+      ),
+      'template' => 'templates/cis-filter-render--modal',
+    ),
+    'cis_filter_render__side_nav' => array(
+      'variables' => array(
+        'code' => array(),
+        'settings' => array(),
+        'instance' => '',
+        'content' => '',
+        'width' => '100%',
+        'height' => '400',
+        'response' => array(),
+        'hypothesis' => '',
+        'link' => '',
+        'id' => '',
+        'class' => 'cis-filter-side-nav-item',
+        'lmsless_classes' => array(),
+      ),
+      'template' => 'templates/cis-filter-render--side-nav',
+    ),
     'cis_filter_render__iframe' => array(
       'variables' => array(
         'code' => array(),
@@ -546,6 +580,124 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
   if (!$target_found) {
     $vars['content'] = '';
     drupal_set_message(t('Submission target doesn\'t exist in remote tool. Make sure this section is allowed to use this item.'), 'error', FALSE);
+  }
+}
+
+/**
+ * Implements cis_filter_preprocess_cis_filter_render__modal().
+ * @param  [array] &$vars theme array
+ */
+function cis_filter_preprocess_cis_filter_render__modal(&$vars) {
+  ctools_add_js('cis_filter', 'cis_filter');
+  // allow for simplest use-case of a direct link
+  // this is usful if the target is figuring itself out
+  $vars['content'] = '';
+  $vars['lmsless_classes'] = _cis_lmsless_get_distro_classes();
+    // pull in settings from code processing
+  $settings = $vars['settings']['settings'];
+  // see if this is an instance to call
+  $instance = $vars['settings']['instance'];
+  // pull in the original code as an array
+  $code = $vars['settings']['code'];
+  $vars['tool'] = $code['tool'];
+  if (isset($code['icon'])) {
+    $vars['icon'] = '<i class="material-icons black-text left">' . $code['icon'] . '</i>';
+  }
+  else {
+    $vars['icon'] = '<i class="material-icons black-text left">pageview</i>';
+  }
+  $vars['trigger'] = uniqid();
+  $vars['class'] = 'cis-filter-modal-item';
+  // support for a modal rendering of an iframe
+  // format an address call but to the front end
+  $vars['link'] = _cis_connector_format_address($settings, $instance, 'front');
+  // ensure width and height are set
+  if (isset($code['width'])) {
+    $vars['width'] = $code['width'];
+  }
+  if (isset($code['height'])) {
+    $vars['height'] = $code['height'];
+  }
+  if (isset($code['hypothesis'])) {
+    $vars['hypothesis'] = $code['hypothesis'];
+  }
+  $vars['title'] = '';
+  if (isset($code['title'])) {
+    $vars['title'] = $code['title'];
+  }
+  $vars['label'] = $vars['title'];
+  if (isset($code['label'])) {
+    $vars['label'] = $code['label'];
+  }
+  // check for a specific id we can reference
+  if ($code['item_type'] == 'id') {
+     $vars['response'] = _cis_filter_filtered_request_object($code, $instance);
+     $vars['id'] = $code['entity_type'] . '_' . $code['item'];
+     // form a class that has a lot of info about this item encoded in it
+     $vars['class'] .=' entity_iframe_' . $code['entity_type'] . ' entity_iframe_tool_' . $code['tool'] . ' ' . $code['tool'] . '_' . $vars['response']['type'];
+     $vars['link'] .= 'entity_iframe/' . $code['entity_type'] . '/' . $code['item'];
+  }
+  else {
+    $vars['link'] .= $link . 'cis-find-tag/' . $code['entity_type'] . '/' . $code['item'];
+  }
+}
+
+/**
+ * Implements cis_filter_preprocess_cis_filter_render__side_nav().
+ * @param  [array] &$vars theme array
+ */
+function cis_filter_preprocess_cis_filter_render__side_nav(&$vars) {
+  ctools_add_js('cis_filter', 'cis_filter');
+  // allow for simplest use-case of a direct link
+  // this is usful if the target is figuring itself out
+  $vars['content'] = '';
+  $vars['lmsless_classes'] = _cis_lmsless_get_distro_classes();
+    // pull in settings from code processing
+  $settings = $vars['settings']['settings'];
+  // see if this is an instance to call
+  $instance = $vars['settings']['instance'];
+  // pull in the original code as an array
+  $code = $vars['settings']['code'];
+  $vars['tool'] = $code['tool'];
+  if (isset($code['icon'])) {
+    $vars['icon'] = '<i class="material-icons black-text left">' . $code['icon'] . '</i>';
+  }
+  else {
+    $vars['icon'] = '<i class="material-icons black-text left">pageview</i>';
+  }
+  $vars['trigger'] = uniqid();
+  $vars['class'] = 'cis-filter-side-nav-item';
+  // support for a modal rendering of an iframe
+  // format an address call but to the front end
+  $vars['link'] = _cis_connector_format_address($settings, $instance, 'front');
+  // ensure width and height are set
+  if (isset($code['width'])) {
+    $vars['width'] = $code['width'];
+  }
+  if (isset($code['height'])) {
+    $vars['height'] = $code['height'];
+  }
+  if (isset($code['hypothesis'])) {
+    $vars['hypothesis'] = $code['hypothesis'];
+  }
+  $vars['title'] = '';
+  if (isset($code['title'])) {
+    $vars['title'] = $code['title'];
+  }
+  $vars['label'] = $vars['title'];
+  if (isset($code['label'])) {
+    $vars['label'] = $code['label'];
+  }
+  // check for a specific id we can reference
+  if ($code['item_type'] == 'id') {
+     $vars['response'] = _cis_filter_filtered_request_object($code, $instance);
+     $vars['id'] = $code['entity_type'] . '_' . $code['item'];
+     // form a class that has a lot of info about this item encoded in it
+     $vars['class'] .=' entity_iframe_' . $code['entity_type'] . ' entity_iframe_tool_' . $code['tool'] . ' ' . $code['tool'] . '_' . $vars['response']['type'];
+     $vars['link'] .= 'entity_iframe/' . $code['entity_type'] . '/' . $code['item'];
+  }
+  else {
+    $vars['link'] .= $link . 'cis-find-tag/' . $code['entity_type'] . '/' . $code['item'];
   }
 }
 

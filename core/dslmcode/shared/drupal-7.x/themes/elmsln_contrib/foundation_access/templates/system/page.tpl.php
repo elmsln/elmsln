@@ -170,7 +170,9 @@
       </div>
     </footer>
     <!-- generic container for other off canvas modals -->
-    <?php print render($page['cis_lmsless_modal']); ?>
+    <div class="elmsln-modal-container">
+      <?php print render($page['cis_lmsless_modal']); ?>
+    </div>
     <!-- Accessibility side nav -->
     <?php if (!empty($a11y)) : ?>
     <div id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Accessibility'); ?>" aria-hidden="true" role="dialog" tabindex="-1">

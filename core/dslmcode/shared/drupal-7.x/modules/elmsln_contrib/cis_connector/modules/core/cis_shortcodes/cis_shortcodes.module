@@ -209,6 +209,40 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#weight' => 1,
         '#id' => 'cis-shortcodes-embed',
       );
+      $properties = array(
+        'rev' => CIS_SHORTCODES_API_REV,
+        'tool' => elmsln_core_get_profile_key(),
+        'item' => $entity->{$type_info['entity keys']['id']},
+        'title' => $title,
+        'entity_type' => $type,
+        'icon' => 'pageview',
+        'render' => 'modal',
+      );
+      $direct['cis_shortcodes_modal'] = array(
+        '#title' => t('Modal embed'),
+        '#attributes' => array('class' => array('cis_shortcodes_embed', 'cis_shortcodes_modal')),
+        '#value' => _cis_shortcodes_build_code($properties),
+        '#type' => 'textfield',
+        '#weight' => 2,
+        '#id' => 'cis-shortcodes-embed',
+      );
+      $properties = array(
+        'rev' => CIS_SHORTCODES_API_REV,
+        'tool' => elmsln_core_get_profile_key(),
+        'item' => $entity->{$type_info['entity keys']['id']},
+        'title' => $title,
+        'entity_type' => $type,
+        'icon' => 'pageview',
+        'render' => 'side_nav',
+      );
+      $direct['cis_shortcodes_modal'] = array(
+        '#title' => t('Side nav embed'),
+        '#attributes' => array('class' => array('cis_shortcodes_embed', 'cis_shortcodes_side_nav')),
+        '#value' => _cis_shortcodes_build_code($properties),
+        '#type' => 'textfield',
+        '#weight' => 2,
+        '#id' => 'cis-shortcodes-embed',
+      );
       // add in the entity iframe items if they make sense
       $direct_frames = _entity_iframe_render_codes($entity, $type, 'block');
       if (isset($direct_frames['entity_iframe']['entity_iframe_embed'])) {

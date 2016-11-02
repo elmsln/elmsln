@@ -38,6 +38,12 @@
   };
   // bind these events only once
   $(document).ready(function(){
+    // append items wanting to be appended to the bottom of the document, this allows the
+    // build process to inject modals whenever they feel like with the correct env-variables
+    // but then apply to the bottom like the normal container method which allows for the correct
+    // accessibility page order and visibility
+    $('.elmsln-modal-append-container').appendTo('.elmsln-modal-container');
+
     $('.ctools-modal-cis-filter-modal.disable-scroll').on("click", function () {
       $("body").addClass("scroll-disabled");
     });
