@@ -298,8 +298,13 @@ class leaflet_views_plugin_style extends views_plugin_style {
             if (!empty($result->{$this->entity_info['entity keys']['id']})) {
               $entity_id = $result->{$this->entity_info['entity keys']['id']};
             }
-            elseif ($result->entity) {
+            elseif (isset($result->entity)) {
               $entity_id = $result->entity;
+            }
+            elseif (isset($result->_field_data)) {
+              $tmp = $result->_field_data;
+              $tmp = array_pop($tmp);
+              $entity_id = $tmp['entity']->{$this->entity_info['entity keys']['id']};
             }
             $entity = entity_load_single($this->entity_type, $entity_id);
             if ($this->options['description_field'] === '#rendered_entity') {
