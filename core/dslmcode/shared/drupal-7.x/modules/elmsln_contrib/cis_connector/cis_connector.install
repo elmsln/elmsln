@@ -46,13 +46,18 @@ function cis_connector_requirements($phase) {
     if (file_exists($config_version)) {
       $config = preg_replace('/\s+/', ' ', file_get_contents($config_version));
     }
+    // latest version if available
+    $latest_version = '/var/www/elmsln/config/tmp/LATEST.txt';
+    if (file_exists($latest_version)) {
+      $latest = preg_replace('/\s+/', ' ', file_get_contents($latest_version));
+    }
     // make sure we have a code version or there's a big issue
     if (!isset($code)) {
       $requirements['elmsln_version'] = array(
         'title' => $t('ELMSLN version'),
         'value' => 'NO VERSION',
         'severity' => REQUIREMENT_WARNING,
-        'description' => $t('There is not a reported version of the code base, that\'s kind of a big deal.'),
+        'description' => $t('There is not a reported version of the code base, that\'s kind of a big deal. We recommend using git to manage the repository. You can run it without git but it\'s highly recommended you do so you know the version you are on.'),
         'weight' => -99,
       );
     }
@@ -74,7 +79,12 @@ function cis_connector_requirements($phase) {
       // see if the versions are equal
       if (version_compare($code, $config, '==')) {
         $requirements['elmsln_version']['severity'] = REQUIREMENT_OK;
-        $requirements['elmsln_version']['description'] = $t('Code and configuration match.');
+        if (isset($latest) && !version_compare($code, $latest, '==')) {
+          $requirements['elmsln_version']['description'] = $t('Code and configuration match but there is a new release of the platform marked stable! You can upgrade via `leafy` on the commandline if you are ready or go to <a href="https://github.com/elmsln/elmsln/">the github repo</a> to check it out.');
+        }
+        else {
+          $requirements['elmsln_version']['description'] = $t('Code and configuration match.');
+        }
       }
       elseif (version_compare($code, $config, '>')) {
         $requirements['elmsln_version']['severity'] = REQUIREMENT_WARNING;
