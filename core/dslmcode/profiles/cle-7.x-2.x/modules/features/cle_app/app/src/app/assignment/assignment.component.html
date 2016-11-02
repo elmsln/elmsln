@@ -1,0 +1,4 @@
+<div class="assignment" *ngIf="assignment">
+  <h1 class="assignment__title">{{ assignment.title }}</h1>
+  <div class="assignment__body" [innerHTML]="assignment.body.value"> {{ assignment.body.value}}</div>
+</div>
