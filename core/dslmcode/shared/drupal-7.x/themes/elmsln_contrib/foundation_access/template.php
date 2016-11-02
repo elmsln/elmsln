@@ -77,10 +77,10 @@ function foundation_access_preprocess_html(&$variables) {
   }
   // support for our legacy; adding in css/js for foundation; this requires a forcible override in shared_settings.php
   if (variable_get('foundation_access_legacy', FALSE)) {
-    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/css/normalize.css', array('weight' => -1001));
     drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/css/foundation.min.css', array('weight' => -1000));
     drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/modernizr.js', array('scope' => 'footer', 'weight' => 1000));
     drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/foundation.min.js', array('scope' => 'footer', 'weight' => 1001));
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/enable-foundation.js', array('scope' => 'footer', 'weight' => 2000));
   }
   // theme path shorthand should be handled here
   foreach($variables['user']->roles as $role){
