@@ -73,7 +73,14 @@ function foundation_access_preprocess_html(&$variables) {
   }
   else {
     drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
-    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/js/materialize.min.js',array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
+    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/js/materialize.min.js', array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
+  }
+  // support for our legacy; adding in css/js for foundation; this requires a forcible override in shared_settings.php
+  if (variable_get('foundation_access_legacy', FALSE)) {
+    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/css/normalize.css', array('weight' => -1001));
+    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/css/foundation.min.css', array('weight' => -1000));
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/modernizr.js', array('scope' => 'footer', 'weight' => 1000));
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/foundation.min.js', array('scope' => 'footer', 'weight' => 1001));
   }
   // theme path shorthand should be handled here
   foreach($variables['user']->roles as $role){
