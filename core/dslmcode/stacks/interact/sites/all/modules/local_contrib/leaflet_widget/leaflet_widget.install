@@ -1,0 +1,62 @@
+<?php
+/**
+ * @file
+ * leaflet_widget.install
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function leaflet_widget_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  switch ($phase) {
+    case 'runtime':
+      $leaflet_widget = libraries_get_path('Leaflet.widget');
+      if (!$leaflet_widget) {
+        $requirements['leaflet_widget_js'] = array(
+          'title' => $t('Leaflet Widget JavaScript file'),
+          'severity' => REQUIREMENT_ERROR,
+          'description' => $t(
+            'You need to download the !leaflet_widget_js and extract the entire contents of the archive into the %path directory on your server.',
+            array(
+              '!leaflet_widget_js' => l($t('Leaflet Widget JavaScript file'), 'https://tnightingale.github.com/Leaflet.widget'),
+              '%path' => 'sites/all/libraries',
+            )
+          ),
+          'value' => $t('Not Installed'),
+        );
+      }
+      else {
+        $requirements['leaflet_widget_js'] = array(
+          'title' => $t('Leaflet Widget JavaScript file'),
+          'severity' => REQUIREMENT_OK,
+          'value' => $t('Installed'),
+        );
+      }
+      $leaflet_draw = libraries_get_path('Leaflet.draw');
+      if (!$leaflet_draw) {
+        $requirements['leaflet_draw_js'] = array(
+          'title' => $t('Leaflet Draw JavaScript file'),
+          'severity' => REQUIREMENT_ERROR,
+          'description' => $t(
+            'You need to download the !leaflet_draw_js and extract the entire contents of the archive into the %path directory on your server.',
+            array(
+              '!leaflet_draw_js' => l($t('Leaflet Draw JavaScript file'), 'https://github.com/Leaflet/Leaflet.draw'),
+              '%path' => 'sites/all/libraries',
+            )
+          ),
+          'value' => $t('Not Installed'),
+        );
+      }
+      else {
+        $requirements['leaflet_draw_js'] = array(
+          'title' => $t('Leaflet Draw JavaScript file'),
+          'severity' => REQUIREMENT_OK,
+          'value' => $t('Installed'),
+        );
+      }
+      break;
+  }
+  return $requirements;
+}

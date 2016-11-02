@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ICOR Mapping feature.
+ */
+
+include_once 'icor_mapping.features.inc';

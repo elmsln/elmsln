@@ -1,0 +1,395 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the geofield module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function geofield_field_schema($field) {
+
+  $schema_callback = '';
+  ctools_include('plugins');
+  if (isset($field['settings']['backend'])) {
+    $backend = ctools_get_plugins('geofield', 'geofield_backend', $field['settings']['backend']);
+
+  }
+  else {
+    $backend = ctools_get_plugins('geofield', 'geofield_backend', 'default');
+  }
+
+  if (!empty($backend['schema'])) {
+    $schema_callback = $backend['schema'];
+  } else {
+    /**
+     * Edge case, during an update between 7.x-1.x and 7.x-2.x, if ctools is enabled,
+     * ctools will not see the geofield plugin without manually truncating the cache 
+     * tables. To bypass, we manually seed the $backend array directly if 
+     * $backend['schema'] still isn't declared.
+     **/
+    module_load_include('inc', 'geofield', 'includes/geofield_backend/default');
+    $schema_callback = 'geofield_backend_default_schema';
+  }
+
+  $geom_schema = $schema_callback($field);
+
+  return array(
+    'columns' => array(
+      'geom' => $geom_schema, // Defined by the backend plugin
+      'geo_type' => array(
+        'type' => 'varchar',
+        'default' => '',
+        'length' => 64,
+      ),
+      'lat' => array(
+        'type' => 'numeric',
+        'precision' => 18,
+        'scale' => 12,
+        'not null' => FALSE,
+      ),
+      'lon' => array(
+        'type' => 'numeric',
+        'precision' => 18,
+        'scale' => 12,
+        'not null' => FALSE,
+      ),
+      'left' => array(
+        'type' => 'numeric',
+        'precision' => 18,
+        'scale' => 12,
+        'not null' => FALSE,
+      ),
+      'top' => array(
+        'type' => 'numeric',
+        'precision' => 18,
+        'scale' => 12,
+        'not null' => FALSE,
+      ),
+      'right' => array(
+        'type' => 'numeric',
+        'precision' => 18,
+        'scale' => 12,
+        'not null' => FALSE,
+      ),
+      'bottom' => array(
+        'type' => 'numeric',
+        'precision' => 18,
+        'scale' => 12,
+        'not null' => FALSE,
+      ),
+      'geohash' => array(
+        'type' => 'varchar',
+        'length' => GEOFIELD_GEOHASH_LENGTH,
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      //'geo_type' => array('geo_type'),
+      'lat' => array('lat'),
+      'lon' => array('lon'),
+      'top' => array('top'),
+      'bottom' => array('bottom'),
+      'left' => array('left'),
+      'right' => array('right'),
+      'geohash' => array('geohash'),
+      'centroid' => array('lat','lon'),
+      'bbox' => array('top','bottom','left','right'),
+    ),
+  );
+}
+
+/**
+ * Changing srid from int to text
+ */
+function geofield_update_7100() {
+  $fields = field_info_fields();
+  foreach ($fields as $field_name => $field) {
+    if ($field['type'] == 'geofield' && $field['storage']['type'] == 'field_sql_storage') {
+      
+      $srid_schema = array(
+        'type' => 'text',
+        'not null' => FALSE,
+      );
+
+      foreach ($field['storage']['details']['sql'] as $type => $table_info) {
+        foreach ($table_info as $table_name => $columns) {
+          $column_name = _field_sql_storage_columnname($field_name, 'srid');
+          // Get srid int values
+          $values = db_select($table_name, 'f')
+            ->fields('f', array($column_name, 'entity_type', 'bundle', 'entity_id'))
+            ->execute()
+            ->fetchAssoc();
+          db_change_field($table_name, $column_name, $column_name, $srid_schema);
+          if (!empty($values)) {
+            // Put the values back as text
+            foreach ($values as $value) {
+              if ($value->{$column_name}) {
+                $new_value = 'EPSG:'.$value->{$column_name};
+                db_update($table_name)
+                  ->fields(array(
+                    $column_name => $new_value
+                  ))
+                  ->condition('entity_type', $value->entity_type)
+                  ->condition('bundle', $value->bundle)
+                  ->condition('entity_id', $value->entity_id)
+                  ->execute();
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  field_cache_clear();
+}
+
+/**
+ * Change geofield lat, lon, left, top, right and bottom from floats to numeric
+ * fields with precision of 18 and scale of 12.
+ */
+function geofield_update_7200() {
+  if (!module_exists('field_sql_storage')) {
+    return;
+  }
+
+  $field_keys = array('lat', 'lon', 'left', 'top', 'right', 'bottom');
+
+  foreach (field_info_fields() as $field_name => $field) {
+    if ($field['type'] != 'geofield') {
+      // Not a geofield field.
+      continue;
+    }
+
+    if ($field['storage']['type'] !== 'field_sql_storage') {
+      // Field doesn't use SQL storage, we cannot modify the schema.
+      continue;
+    }
+
+    $table_name = _field_sql_storage_tablename($field);
+    $revision_table_name = _field_sql_storage_revision_tablename($field);
+
+    foreach ($field_keys as $field_key) {
+      db_change_field($table_name, $field_name . '_' . $field_key, $field_name . '_' . $field_key, array(
+        'type' => 'numeric',
+        'precision' => 18,
+        'scale' => 12,
+        'not null' => FALSE,
+      ));
+
+      db_change_field($revision_table_name, $field_name . '_' . $field_key, $field_name . '_' . $field_key, array(
+        'type' => 'numeric',
+        'precision' => 18,
+        'scale' => 12,
+        'not null' => FALSE,
+      ));
+    }
+  }
+}
+
+/**
+ * Converts the wkt field into a geom field. Converts already existing data from wkt storage to wkb.
+ *
+ * Much inspiration for this implementation comes from taxonomy_update_7005.
+ */
+
+function geofield_update_7201(&$sandbox) {
+  // $sandbox contents:
+  // - total: The total number of geofield wkt rows to migrate.
+  // - count: The number of geofield wkt rows that have been
+  //   migrated so far.
+  // - batch_count: The number of rows processed in this batch.
+  // - last: The db_query_range() offset to use when querying
+  //   an individual table.
+  // - geofield_tables: An array of tables with the following keys
+  //    - table_name: Name of the table
+  //    - field_name: Name of the field
+  //    - count: Number of rows in this particular table
+  // - current_table_index: The row in geofield_tables that we're
+  //   currently processing.
+
+  $max_batch_count = 1000;
+  geophp_load();
+
+  if (!isset($sandbox['total'])) {
+    // First pass. Find all the geofields in the db, add _geom field. Create
+    // helper variables that we'll need to potentially process thousands
+    // of entries.
+    $total = 0;
+    $tables = array();
+    foreach (field_info_fields() as $field_name => $field) {
+      if ($field['type'] != 'geofield') {
+        // Not a geofield field.
+        continue;
+      }
+
+      $table_name = _field_sql_storage_tablename($field);
+      $revision_table_name = _field_sql_storage_revision_tablename($field);
+
+      db_add_field($table_name, $field_name . '_geom', array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+      ));
+
+      db_add_field($revision_table_name, $field_name . '_geom', array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+      ));
+
+      // Primary field table
+      $table_count = db_query('SELECT COUNT(*) FROM {' . $table_name . '};')->fetchField();
+      $tables[] = array(
+        'table_name' => $table_name,
+        'field_name' => $field_name,
+        'count' => $table_count,
+      );
+      $total += $table_count;
+
+      // Revision field table
+      $table_count = db_query('SELECT COUNT(*) FROM {' . $revision_table_name . '};')->fetchField();
+      $tables[] = array(
+        'table_name' => $revision_table_name,
+        'field_name' => $field_name,
+        'count' => $table_count,
+      );
+      $total += $table_count;
+    }
+
+    $sandbox['total'] = $total;
+    $sandbox['count'] = 0;
+    $sandbox['last'] = 0;
+    $sandbox['current_table_index'] = 0;
+
+    if (!empty($tables)) {
+      $sandbox['geofield_tables'] = $tables;
+    }
+  }
+
+  $sandbox['batch_count'] = 0;
+  $sandbox['#finished'] = TRUE; // sensible default
+
+  // Primary loop. Run through each table and transfer data from _wkt field
+  // to the _geom field. A conversion (via geoPHP) is required to go from
+  // wkt to wkb.
+  while ($sandbox['count'] < $sandbox['total'] && $sandbox['batch_count'] < $max_batch_count) {
+    $i = $sandbox['current_table_index'];
+
+    if (!empty($sandbox['geofield_tables'][$i])) {
+      $query = 'SELECT ' . $sandbox['geofield_tables'][$i]['field_name'] . '_wkt AS wkt, entity_id, revision_id, delta FROM {' . $sandbox['geofield_tables'][$i]['table_name'] . '}';
+      $result = db_query_range($query, $sandbox['last'], $max_batch_count - $sandbox['batch_count']);
+      $query_total = $result->rowCount();
+
+      foreach ($result as $record) {
+        if ($record->wkt) {
+          $geom = geoPHP::load($record->wkt, 'wkt');
+          db_update($sandbox['geofield_tables'][$i]['table_name'])
+            ->fields(array(
+              $sandbox['geofield_tables'][$i]['field_name'] . '_geom' => $geom->out('wkb'),
+            ))
+            ->condition('entity_id', $record->entity_id)
+            ->condition('revision_id', $record->revision_id)
+            ->condition('delta', $record->delta)
+            ->execute();
+        }
+
+        $sandbox['batch_count']++;
+        $sandbox['count']++;
+      }
+
+      // Check to see if we've updated all the rows associated with this field.
+      if ($sandbox['last'] + $query_total < $sandbox['geofield_tables'][$i]['count']) {
+        $sandbox['last'] += $query_total;
+      }
+      else {
+        $sandbox['current_table_index']++;
+        $sandbox['last'] = 0;
+      }
+
+      // Let the queue system know if we're done or not with this migration.
+      $sandbox['#finished'] = ($sandbox['count'] < $sandbox['total']) ? FALSE : TRUE;
+    }
+  }
+
+  // Field cleanup. If we're done, get rid of _wkt field.
+  if ($sandbox['#finished'] == TRUE) {
+    foreach($sandbox['geofield_tables'] as $table) {
+      db_drop_field($table['table_name'], $table['field_name'] . '_wkt');
+    }
+  }
+}
+
+/**
+ * Drops unused table fields srid, accuracy and source, adds 
+ * geohash field, populates it.
+ */
+
+function geofield_update_7202(&$sandbox) {
+  foreach (field_info_fields() as $field_name => $field) {
+    if ($field['type'] != 'geofield') {
+      // Not a geofield field.
+      continue;
+    }
+
+    $table_name = _field_sql_storage_tablename($field);
+    $revision_table_name = _field_sql_storage_revision_tablename($field);
+
+    db_add_field($table_name, $field_name . '_geohash', array(
+      'type' => 'varchar',
+      'length' => 16,
+      'not null' => FALSE,
+    ));
+
+    db_add_field($revision_table_name, $field_name . '_geohash', array(
+      'type' => 'varchar',
+      'length' => 16,
+      'not null' => FALSE,
+    ));
+
+    // Populate geohash column.
+    geophp_load();
+    $results = db_query('SELECT ' . $field_name . '_geom AS geom, entity_id, revision_id, delta FROM {' . $table_name . '}');
+
+    foreach ($results as $record) {
+      if (!empty($record->geom)) {
+        $geom = geoPHP::load($record->geom);
+				// Truncate geohash to max length.
+        $geohash_truncated = substr($geom->out('geohash'), 0, GEOFIELD_GEOHASH_LENGTH);
+        db_update($table_name)
+          ->fields(array(
+            $field_name . '_geohash' => $geohash_truncated,
+          ))
+          ->condition('entity_id', $record->entity_id)
+          ->condition('revision_id', $record->revision_id)
+          ->condition('delta', $record->delta)
+          ->execute();
+      }
+    }
+
+    $results = db_query('SELECT ' . $field_name . '_geom AS geom, entity_id, revision_id, delta FROM {' . $revision_table_name . '}');
+
+    foreach ($results as $record) {
+      if (!empty($record->geom)) {
+        $geom = geoPHP::load($record->geom);
+				// Truncate geohash to max length.
+        $geohash_truncated = substr($geom->out('geohash'), 0, GEOFIELD_GEOHASH_LENGTH);
+        db_update($revision_table_name)
+          ->fields(array(
+            $field_name . '_geohash' => $geohash_truncated
+          ))
+          ->condition('entity_id', $record->entity_id)
+          ->condition('revision_id', $record->revision_id)
+          ->condition('delta', $record->delta)
+          ->execute();
+      }
+    }
+
+    $deleted_columns = array('srid', 'accuracy', 'source');
+    foreach ($deleted_columns as $column) {
+      db_drop_field($table_name, $field_name . '_' . $column);
+      db_drop_field($revision_table_name, $field_name . '_' . $column);
+    }
+  }
+}

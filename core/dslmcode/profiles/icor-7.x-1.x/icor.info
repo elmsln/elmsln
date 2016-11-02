@@ -165,4 +165,5 @@ dependencies[] = icor_ux
 dependencies[] = icor_poll
 dependencies[] = icor_defaults
 dependencies[] = icor_jmol
+dependencies[] = icor_mapping
 dependencies[] = icor_perms

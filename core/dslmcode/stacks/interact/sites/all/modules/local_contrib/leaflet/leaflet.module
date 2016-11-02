@@ -1,0 +1,242 @@
+<?php
+
+/**
+ * @file
+ * Provide Leaflet API integration and field formatters.
+ */
+
+module_load_include('inc', 'leaflet', 'leaflet.formatters');
+
+/**
+ * Implements hook_theme().
+ */
+function leaflet_theme($existing, $type, $theme, $path) {
+  return array(
+    'leaflet_map' => array(
+      'arguments' => array('map_id' => NULL, 'height' => '400px'),
+      'template' => 'leaflet_map',
+    ),
+  );
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function leaflet_libraries_info() {
+  $libraries['leaflet'] = array(
+    // Only used in administrative UI of Libraries API.
+    'name' => 'Leaflet JavaScript Library',
+    'vendor url' => 'http://leafletjs.com/',
+    'download url' => 'http://cdn.leafletjs.com/downloads/leaflet-0.7.5.zip',
+    'version arguments' => array(
+      'file' => 'leaflet.js',
+      // Handle things like  version:"1.0.0-beta.2"
+      'pattern' => '/version[=: ]*[\'"]([\d+\.]+[\-a-z\.\d]*)[\'"]/',
+    ),
+    'files' => array(
+      'js' => array(
+        // This setting is needed in order to properly render market images.
+        'leaflet_root_url' => array(
+          'type' => 'inline',
+          'data' => 'L_ROOT_URL = "' . base_path() . libraries_get_path('leaflet') . '/";',
+          'group' => JS_LIBRARY,
+        ),
+        'leaflet.js' => array(
+          'type' => 'file',
+          'group' => JS_LIBRARY,
+        ),
+        // For AdvAgg module. See [#2294639] This runs after leaflet.js.
+        'leaflet_imagepath' => array(
+          'type' => 'inline',
+          'data' => 'L.Icon.Default.imagePath = "' . base_path() . libraries_get_path('leaflet') . '/images";',
+        ),
+      ),
+      'css' => array(
+        'leaflet.css' => array(
+          'type' => 'file',
+          'media' => 'all',
+        ),
+        'leaflet.ie.css' => array(
+          'browsers' => array(
+            'IE' => 'lte IE 8',
+            '!IE' => FALSE,
+          ),
+        ),
+      ),
+    ),
+    'integration files' => array(
+      'leaflet' => array(
+        'js' => array('leaflet.drupal.js'),
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Attach Leaflet-required client files and return renderable array for a map.
+ *
+ * @param array $map
+ *   Map definition as returned my leaflet_map_get_info();
+ * @param array $features
+ *   Associative array of map features.
+ * @param string $height
+ *   The height of the map.
+ *
+ * @return array
+ *   A renderable array.
+ */
+function leaflet_build_map($map, $features = array(), $height = '400px') {
+  $map_id = drupal_html_id('leaflet_map');
+  $build = array(
+    '#theme' => 'html_tag',
+    '#tag' => 'div',
+    '#value' => '',
+    '#attributes' => array(
+      'id' => $map_id,
+      'style' => 'height: ' . $height,
+    ),
+  );
+
+  // Allow map definitions to provide a default icon:
+  if (isset($map['icon']['iconUrl'])) {
+    foreach ($features as &$feature) {
+      if (!isset($feature['icon'])) {
+        $feature['icon'] = $map['icon'];
+      }
+    }
+  }
+
+  $settings = array(
+    'mapId' => $map_id,
+    'map' => $map,
+    'features' => $features,
+  );
+  drupal_alter('leaflet_map_prebuild', $settings);
+
+  $build['#attached']['js'][] = array(
+    'data' => array('leaflet' => array($settings)),
+    'type' => 'setting',
+  );
+  $build['#attached']['css'][] = array(
+    'data' => drupal_get_path('module', 'leaflet') . '/leaflet_extras.css',
+  );
+
+  // Load the leaflet library, which includes integration files.
+  // libraries_load('leaflet');
+  // See [2460643]
+  $build['#attached']['libraries_load'][] = array('leaflet');
+
+  // Let other modules properly attach libraries as well [#2567387]
+  drupal_alter('leaflet_build_map', $build);
+
+  return $build;
+}
+
+/**
+ * DEPRECATED. Use leaflet_build_map() instead.
+ *
+ * Load all Leaflet required client files and return markup for a map.
+ *
+ * @param array $map
+ *   Map definition as returned my leaflet_map_get_info();
+ * @param array $features
+ *   Associative array of map features.
+ * @param string $height
+ *   The height of the map.
+ *
+ * @return string
+ *   map markup
+ */
+function leaflet_render_map($map, $features = array(), $height = '400px') {
+  $build = leaflet_build_map($map, $features, $height);
+  return render($build);
+}
+
+/**
+ * Get all available Leaflet map definitions.
+ *
+ * @string $map
+ *   The name of the map defined in hook_leaflet_map_get_info().
+ */
+function leaflet_map_get_info($map = NULL) {
+  static $drupal_static_fast;
+  if (!isset($drupal_static_fast)) {
+    $drupal_static_fast['leaflet_map_info'] = &drupal_static(__FUNCTION__);
+  }
+  $map_info = &$drupal_static_fast['leaflet_map_info'];
+
+  if (empty($map_info)) {
+    if ($cache = cache_get("leaflet_map_info")) {
+      $map_info = $cache->data;
+    }
+    else {
+      $map_info = module_invoke_all('leaflet_map_info');
+
+      // Let other modules alter the map info.
+      drupal_alter('leaflet_map_info', $map_info);
+
+      cache_set("leaflet_map_info", $map_info);
+    }
+  }
+
+  if (empty($map)) {
+    return $map_info;
+  }
+  elseif (isset($map_info[$map])) {
+    return $map_info[$map];
+  }
+}
+
+/**
+ * Implements hook_leaflet_map_info().
+ *
+ * Return a default map for the module.
+ */
+function leaflet_leaflet_map_info() {
+  return array(
+    'OSM Mapnik' =>
+      array(
+        'label' => 'OSM Mapnik',
+        'description' => t('Leaflet default map.'),
+        // 'center' is used when map contains no features, or every time the map
+        // is loaded if "force" is TRUE. Otherwise, the map will center itself
+        // intelligently based on the features in the map.
+        // RdB: bad things happen when 'center' is specified and Leaflet
+        // MarkerCluster is used, see https://drupal.org/node/2144935
+        // Also, a hard-coded center is not a great idea.
+        //'center' => array(
+        //  'lat' => 45.526513,
+        //  'lon' => -122.674833,
+        //  'force' => FALSE,
+        //),
+        'settings' => array(
+          // Setting "zoom" forces a zoom level on every map load.
+          //'zoom' => 17,
+          // The "zoomDefault" is only used when no features are present.
+          'zoomDefault' => 10,
+          'minZoom' => 0,
+          'maxZoom' => 18,
+          'dragging' => TRUE,
+          'touchZoom' => TRUE,
+          'scrollWheelZoom' => TRUE,
+          'doubleClickZoom' => TRUE,
+          'zoomControl' => TRUE,
+          'attributionControl' => TRUE,
+          'trackResize' => TRUE,
+          'fadeAnimation' => TRUE,
+          'zoomAnimation' => TRUE,
+          'closePopupOnClick' => TRUE,
+        ),
+        'layers' => array(
+          'earth' => array(
+            'urlTemplate' => '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'options' => array(
+              'attribution' => 'OSM Mapnik',
+            ),
+          ),
+        ),
+      ),
+  );
+}

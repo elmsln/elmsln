@@ -10,7 +10,7 @@
 function icor_ux_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-poll-field_cis_course_ref'
+  // Exported field_instance: 'node-poll-field_cis_course_ref'.
   $field_instances['node-poll-field_cis_course_ref'] = array(
     'bundle' => 'poll',
     'default_value' => NULL,
@@ -84,7 +84,7 @@ function icor_ux_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-timeline-field_cis_course_ref'
+  // Exported field_instance: 'node-timeline-field_cis_course_ref'.
   $field_instances['node-timeline-field_cis_course_ref'] = array(
     'bundle' => 'timeline',
     'default_value' => NULL,

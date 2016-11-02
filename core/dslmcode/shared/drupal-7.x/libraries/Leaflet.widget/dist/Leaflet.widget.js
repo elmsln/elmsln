@@ -1,6 +1,7 @@
 /*! Leaflet.widget - v0.1.0 - 2012-11-02
 * Copyright (c) 2012 Affinity Bridge - Tom Nightingale <tom@affinitybridge.com> (http://affinitybridge.com)
 * Licensed BSD */
+(function ($) {
 
 L.GeoJSONUtil = {
     featureCollection: function (features) {
@@ -559,3 +560,5 @@ L.Map.addInitHook(function () {
         this.widget = new L.Handler.Widget(this, options);
     }
 });
+
+})(jQuery);
