@@ -1,0 +1,61 @@
+<?php
+/**
+ * @file
+ * Code for the CLE App module.
+ */
+
+ include_once 'cle_app.features.inc';
+
+/**
+ * Impliments hook_page_init.
+ */
+function cle_critique_init() {
+  drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/inline.js', array('scope' => 'footer'));
+  drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/styles.bundle.js', array('scope' => 'footer'));
+  drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/main.bundle.js', array('scope' => 'footer'));
+}
+
+/*
+ * Preprocesses the wrapping HTML.
+ *
+ * @param array &$variables
+ *   Template variables.
+ */
+function cle_app_preprocess_html(&$vars) {
+  global $base_url;
+  $current_path = current_path();
+
+  // if we are on the cle critique app route then we need to add a base tag to
+  // ensure that angular works properly.
+  if (preg_match('/^cle\/app/', $current_path)) {
+    // Setup IE meta tag to force IE rendering mode
+    $base_tag = array(
+      '#type' => 'html_tag',
+      '#tag' => 'base',
+      '#attributes' => array(
+        'href' =>  $base_url . '/cle/app',
+      )
+    );
+
+    // Add header meta tag for IE to head
+    drupal_add_html_head($base_tag, 'base_tag');
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cle_app_menu() {
+  $items['cle/app'] = array(
+    'title' => 'Studio',
+    'page callback' => '_cle_app_page_critique_app',
+    'access arguments' => true,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+function _cle_app_page_critique_app() {
+  return '<app-root> <div class="progress"> <div class="indeterminate"></div> </div></app-root>';
+}

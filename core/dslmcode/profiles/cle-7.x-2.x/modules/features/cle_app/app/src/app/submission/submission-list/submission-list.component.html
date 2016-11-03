@@ -1,0 +1,13 @@
+<div class="row">
+  <div *ngFor="let submission of submissions" class="col s12 m4">
+    <div class="card">
+      <div class="card-content">
+        <div class="card-title">{{ submission.title }}</div>
+        <div class="submission__body" [innerHTML]="submission.body.value">
+      </div>
+      <div class="card-action">
+        <a routerLink="/submissions/{{submission.nid}}">View submission</a>
+      </div>
+    </div>
+  </div>
+</div>
