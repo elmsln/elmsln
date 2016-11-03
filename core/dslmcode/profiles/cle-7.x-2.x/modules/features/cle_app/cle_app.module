@@ -7,9 +7,9 @@
  include_once 'cle_app.features.inc';
 
 /**
- * Impliments hook_page_init.
+ * Implements hook_page_build().
  */
-function cle_critique_init() {
+function cle_app_page_build(&$page) {
   drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/inline.js', array('scope' => 'footer'));
   drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/styles.bundle.js', array('scope' => 'footer'));
   drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/main.bundle.js', array('scope' => 'footer'));
@@ -49,13 +49,15 @@ function cle_app_menu() {
   $items['cle/app'] = array(
     'title' => 'Studio',
     'page callback' => '_cle_app_page_critique_app',
-    'access arguments' => true,
+    'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
   );
-
   return $items;
 }
 
+/**
+ * Page callback for cle/app
+ */
 function _cle_app_page_critique_app() {
   return '<app-root> <div class="progress"> <div class="indeterminate"></div> </div></app-root>';
 }
