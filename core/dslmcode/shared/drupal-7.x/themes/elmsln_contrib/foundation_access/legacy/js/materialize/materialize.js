@@ -46,6 +46,14 @@
         Drupal.settings.activeSideNav = $(this).attr('data-activates');
       }).sideNav({
       menuWidth: 400, // Default is 240
+      edge: 'right',
+      closeOnClick: false
+    });
+    $('.elmsln-right-side-nav-widget-trigger').bind('click', function() {
+        $('#' + $(this).attr('data-activates')).removeClass('elmsln-modal-hidden').focus();
+        Drupal.settings.activeSideNav = $(this).attr('data-activates');
+      }).sideNav({
+      menuWidth: '50%',
       edge: 'right', // Choose the horizontal origin
       closeOnClick: false // Closes side-nav on <a> clicks, useful for Angular/Meteor
     });

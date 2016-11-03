@@ -5,8 +5,6 @@ core = 7.x
 engine = phptemplate
 base theme = foundation_access
 
-stylesheets[all][]   = css/discuss_styles.css
-
 ; CIS specific regions
 regions[cis_lmsless_modal]     = CIS LMSLess Modal
 ; Foundation Access navigation levels
