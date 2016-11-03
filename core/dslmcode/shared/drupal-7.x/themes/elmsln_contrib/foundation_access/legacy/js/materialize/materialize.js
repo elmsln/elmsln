@@ -69,7 +69,7 @@
     $('.elmsln-modal-trigger').bind('click', function() {
       // hide all currently visible modals
       $('.close-reveal-modal:visible').trigger('click');
-    }).leanModal({
+    }).modal({
       dismissible: true, // Modal can be dismissed by clicking outside of the modal
       opacity: .5, // Opacity of modal background
       in_duration: 150, // Transition in duration
