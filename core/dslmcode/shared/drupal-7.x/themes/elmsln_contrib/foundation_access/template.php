@@ -1,6 +1,6 @@
 <?php
 // global cdn materialize version
-define('FOUNDATION_ACCESS_MATERIALIZE_VERSION', '0.97.7');
+define('FOUNDATION_ACCESS_MATERIALIZE_VERSION', '0.97.8');
 /**
  * Adds CSS classes based on user roles
  * Implements template_preprocess_html().
