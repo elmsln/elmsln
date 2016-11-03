@@ -1313,6 +1313,7 @@ function elmsln_core_wrapped_paths() {
     '*' => TRUE,
     'user/*' => FALSE,
     'user/*/*' => FALSE,
+    'cle/*' => FALSE,
   );
   return $paths;
 }
