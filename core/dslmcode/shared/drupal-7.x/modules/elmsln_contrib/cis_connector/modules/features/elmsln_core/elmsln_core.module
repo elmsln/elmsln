@@ -83,7 +83,7 @@ function elmsln_core_menu() {
     'title' => 'view',
     'page callback' => '_elmsln_core_remote_redirect',
     'access arguments' => array('view cis shortcode'),
-    'page arguments' => array(2, 3, 4, 'view'),
+    'page arguments' => array(2, 3, 4, 5),
     'weight' => 0,
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
@@ -483,6 +483,9 @@ function elmsln_core_libraries_info() {
  * @return                   nothing returned, should redirect to remote space
  */
 function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
+  if (empty($op)) {
+    $op = 'view';
+  }
   if ($settings = _cis_connector_build_registry($tool)) {
     $instance = '/';
     if (isset($settings['instance']) && $settings['instance']) {
@@ -496,14 +499,21 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     if (isset($_GET['elmsln_course'])) {
       $address .= '&elmsln_course=' . $_GET['elmsln_course'];
     }
+    // figure out the redirect path as dictated by forms
+    if (isset($_GET['redirectPath'])) {
+      $tmp = explode('/', $_GET['redirectPath']);
+    }
+    // fallback for CID target
+    elseif (isset($_GET['elmsln_cid_target'])) {
+      $tmp = explode('/', $_GET['elmsln_cid_target']);
+    }
+    // double redirect which later triggers a redirect
+    // this is inception level stuff
+    if (isset($_GET['addHash']) && !isset($tmp)) {
+      $address .= '&addHash=' . $_GET['addHash'];
+    }
     // support hash redirect
-    if (isset($_GET['addHash'])) {
-      if (isset($_GET['redirectPath'])) {
-        $tmp = explode('/', $_GET['redirectPath']);
-      }
-      else {
-        $tmp = explode('/', $_GET['elmsln_cid_target']);
-      }
+    if (isset($_GET['addHash']) && isset($tmp)) {
       if (count($tmp) > 1) {
         $tmp_entity_type = $tmp[0];
         $tmp_item = $tmp[1];

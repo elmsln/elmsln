@@ -990,6 +990,9 @@ function foundation_access_menu_link(&$variables) {
     $icon_map = _elmsln_core_icon_map();
     $icon = str_replace(' ', '_', drupal_strtolower($title));
     if (isset($icon_map[$icon])) {
+      if (strpos($element['#href'], 'elmsln/redirect') === 0) {
+        $element['#localized_options']['attributes']['class'][] = 'elmsln-core-external-context-apply';
+      }
       $element['#localized_options']['attributes']['class'][] = $icon_map[$icon]['color'];
       $title = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
       $element['#localized_options']['html'] = TRUE;
