@@ -48792,11 +48792,11 @@ var SubmissionService = (function () {
     }
     SubmissionService.prototype.getSubmissions = function () {
         // return Observable.from(this.array);
-        return this.http.get('http://studio.elmsln.local/math033/node.json?type=cle_submission')
+        return this.http.get(Drupal.settings.basePath + 'node.json?type=cle_submission')
             .map(function (res) { return res.json().list; });
     };
     SubmissionService.prototype.getSubmission = function (submissionID) {
-        return this.http.get('http://studio.elmsln.local/math033/node/' + submissionID + '.json?deep-load-refs=node,user')
+        return this.http.get(Drupal.settings.basePath + 'node/' + submissionID + '.json?deep-load-refs=node,user')
             .map(function (res) { return res.json(); });
     };
     SubmissionService = __decorate([
