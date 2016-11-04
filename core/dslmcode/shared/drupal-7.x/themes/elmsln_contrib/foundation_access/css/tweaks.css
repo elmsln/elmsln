@@ -377,8 +377,11 @@ ul.dropdown-content ul {
 ul.dropdown-content li:not(.has-form) a:not(.button) {
   color: #333333;
 }
+ul.dropdown-content li a:hover {
+  background-color: #eeeeee;
+}
 ul.dropdown-content li a {
-  background-color: transparent;
+  background-color: #ffffff;
   line-height: 2.5rem;
   height: 2.5rem;
   padding: 0 !important;
@@ -408,6 +411,7 @@ ul.dropdown-content {
   display: none;
   margin: 0;
   overflow-x: hidden;
+  border: .1rem solid #eeeeee;
 }
 
 /* materialize paralax modifications */
@@ -728,6 +732,8 @@ input[type=file]:focus,
 }
 .side-nav .userView {
   padding: 2rem;
+  margin: 0;
+  overflow: hidden;
 }
 .side-nav .userView a {
   height: 1rem;

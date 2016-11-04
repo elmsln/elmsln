@@ -35,7 +35,7 @@
  */
 ?>
 <div class ="user-profile--wrapper">
-  <div class ="user-profile--banner">
+  <div class ="user-profile--banner ferpa-protect">
     <?php print render($banner);?>
   </div>
   <div class ="user-profile--photo--wrapper">
@@ -43,7 +43,7 @@
       <?php print $photo; ?>
     </div>
   </div>
-  <div class="user-profile--name">
+  <div class="user-profile--name ferpa-protect">
     <?php print $displayname; ?>
   </div>
 <div class="row">
@@ -53,7 +53,7 @@
         <li class="tab col s3"><a href="#user__data"><?php print t('Related Data');?></a></li>
       </ul>
     </div>
-    <div id="user__bio" class="user-profile--about col s12">
+    <div id="user__bio" class="user-profile--about col s12 ferpa-protect">
     <?php if (isset($field_bio)) : ?>
       <?php print render($user_profile['field_bio']);?>
     <?php endif; ?>
