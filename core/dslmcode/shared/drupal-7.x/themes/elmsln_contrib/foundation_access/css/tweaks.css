@@ -1,3 +1,16 @@
+/* save form state */
+#autosave-status {
+  width: 100%;
+  height: 5em;
+  background-color: #0074BD;
+}
+#autosave-status #status {
+  margin-left: 1rem;
+  width: 100%;
+  height: 5rem;
+  line-height: 5rem;
+}
+
 /* Core in context items */
 .elmsln-core-in-context-hover {
   border-right-style: solid;
