@@ -46,9 +46,21 @@ function mooc_helper_menu_contextual_links_alter(&$links, $router_item, $root_pa
 function mooc_helper_menu() {
   $items = array();
   // load a page with the active outline's table of contents displayed
-  $items['mooc/book-toc'] = array(
-    'title' => 'Table of Contents',
+  $items['mooc/course-home'] = array(
+    'title' => 'Course outline',
     'page callback' => '_mooc_helper_toc',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+  $items['mooc/book-toc'] = array(
+    'title' => 'Course outline',
+    'page callback' => '_mooc_helper_book_outline',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+  $items['mooc/learning-pathway'] = array(
+    'title' => 'Learning pathway',
+    'page callback' => '_mooc_helper_learning_pathway',
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
   );
@@ -96,7 +108,7 @@ function mooc_helper_block_view($delta = '') {
 
   switch ($delta) {
     case 'mooc_helper_toc':
-      $block['subject'] = t('Table of Contents');
+      $block['subject'] = t('Course outline');
       $block['content'] = _mooc_helper_toc();
     break;
     case 'active_outline':
@@ -116,7 +128,24 @@ function mooc_helper_block_view($delta = '') {
  * Callback for mooc/book-toc to deliver the table of contents
  * @return string  rendered table of contents for the active outline.
  */
-function _mooc_helper_toc() {
+function _mooc_helper_toc($type = NULL) {
+  if (is_null($type)) {
+    $type = variable_get('mooc_navigation_style', 'book_outline');
+  }
+  switch ($type) {
+    case 'book_outline':
+      return _mooc_helper_book_outline();
+    break;
+    case 'learning_pathway':
+      return _mooc_helper_learning_pathway();
+    break;
+  }
+}
+
+/**
+ * Book outline presentation for the course.
+ */
+function _mooc_helper_book_outline() {
   $tree = array();
   $node = _mooc_helper_active_outline();
   // load the active outline
@@ -149,6 +178,38 @@ function _mooc_helper_toc() {
         );
       }
       return $output;
+    }
+  }
+  return t('<a href="@url">Create a new course outline to get started!</a>', array('@url' => url('node/add/page', array('query' => array('parent' => 'new', 'destination' => $_GET['q'])))));
+}
+
+/**
+ * Callback for mooc/book-toc to deliver the table of contents
+ * @return string  rendered table of contents for the active outline.
+ */
+function _mooc_helper_learning_pathway() {
+  $tree = array();
+  $node = _mooc_helper_active_outline();
+  // load the active outline
+  $active = menu_get_object();
+  // test for not being on a node as well as global setting overriding
+  // outline to use
+  if (!isset($active->book) || (isset($node->book) && $active->book['menu_name'] != $node->book['menu_name'])) {
+    $active = $node;
+  }
+  // only show the block if the user has view access for the top-level node.
+  if (isset($active->book) && entity_access('view', 'node', $active)) {
+    // load everything the tree below as well as the active trail
+    $tree = _mooc_helper_menu_tree_all_data($active->book['menu_name'], $active->book);
+    // dump the highest book node, we don't need this "page"
+    $tree = array_pop($tree);
+    // ensure we have something to render below us
+    if (empty($tree['below'])) {
+      return t('This content outline is empty, why not start with adding some content <a href="@url">add a page of content</a>', array('@url' => url('node/add/page', array('query' => array('parent' => $tree['link']['mlid'], 'destination' => $_GET['q'])))));
+    }
+    else {
+      $tree = $tree['below'];
+      return theme('learning_pathway', array('tree' => $tree, 'lmsless_classes' => _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key())));
     }
   }
   return t('<a href="@url">Create a new course outline to get started!</a>', array('@url' => url('node/add/page', array('query' => array('parent' => 'new', 'destination' => $_GET['q'])))));
@@ -850,3 +911,20 @@ function mooc_helper_read_time_evaluate_alter(&$read_time, $node, $field_data) {
 function mooc_helper_ecd_asset_type_alter(&$type, $node) {
   $type = 'content';
 }
+
+/**
+ * Implements hook_theme().
+ */
+function mooc_helper_theme($existing, $type, $theme, $path) {
+  return array(
+    'learning_pathway' => array(
+      'render element' => 'element',
+      'template' => 'templates/learning-pathway',
+      'variables' => array(
+        'tree' => array(),
+        'lmsless_classes' => array(),
+      ),
+    ),
+  );
+}
+

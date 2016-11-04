@@ -1,3 +1,31 @@
+.elmsln-learning-pathway-wrapper {
+  margin-top: 4rem;
+  padding: 2rem;
+}
+
+.elmsln-learning-pathway-badge-wrapper {
+  height: 9rem;
+}
+.elmsln-system-badge.elmsln-learning-pathway-badge {
+ position: relative;
+ top: unset;
+ right: unset !important;
+ height: 5.5rem;
+ width: 4.5rem;
+ transform: scale(2, 2) rotate(-30deg) rotateX(30deg);
+ z-index: 1;
+}
+.elmsln-system-badge.elmsln-learning-pathway-badge:hover {
+ transform: scale(2.25, 2.25);
+ z-index: 100;
+}
+.elmsln-learning-pathway-badge .elmsln-badge {
+  width: 2.5rem;
+}
+.elmsln-learning-pathway-badge .elmsln-badge-inner {
+  width: 4rem;
+}
+
 .outline-nav-icon {
   opacity: .8;
   width: 2.5rem;
