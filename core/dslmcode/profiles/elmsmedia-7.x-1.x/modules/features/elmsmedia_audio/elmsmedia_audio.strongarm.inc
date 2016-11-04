@@ -158,7 +158,29 @@ function elmsmedia_audio_strongarm() {
       ),
     ),
     'extra_fields' => array(
-      'form' => array(),
+      'form' => array(
+        'title' => array(
+          'weight' => '1',
+        ),
+        'path' => array(
+          'weight' => '5',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '9',
+        ),
+        'book' => array(
+          'weight' => '10',
+        ),
+        'options' => array(
+          'weight' => '7',
+        ),
+        'author' => array(
+          'weight' => '8',
+        ),
+        'revision_information' => array(
+          'weight' => '6',
+        ),
+      ),
       'display' => array(),
     ),
   );

@@ -158,7 +158,29 @@ function elmsmedia_figure_label_strongarm() {
       ),
     ),
     'extra_fields' => array(
-      'form' => array(),
+      'form' => array(
+        'title' => array(
+          'weight' => '-5',
+        ),
+        'path' => array(
+          'weight' => '100',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '100',
+        ),
+        'book' => array(
+          'weight' => '100',
+        ),
+        'options' => array(
+          'weight' => '100',
+        ),
+        'author' => array(
+          'weight' => '100',
+        ),
+        'revision_information' => array(
+          'weight' => '100',
+        ),
+      ),
       'display' => array(),
     ),
   );

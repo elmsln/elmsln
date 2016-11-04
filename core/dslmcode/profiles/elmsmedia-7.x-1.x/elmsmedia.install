@@ -158,3 +158,19 @@ function elmsmedia_update_7011(&$sandbox) {
   features_revert_module('elmsmedia_image');
   features_revert_module('elmsmedia_view_mode_tabs');
 }
+
+/**
+ * Some fields and minor styling on input forms.
+ */
+function elmsmedia_update_7012(&$sandbox) {
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_image_gallery');
+  features_revert_module('elmsmedia_static_content');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+}

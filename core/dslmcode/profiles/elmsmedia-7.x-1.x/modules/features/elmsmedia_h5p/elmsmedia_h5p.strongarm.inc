@@ -253,16 +253,16 @@ function elmsmedia_h5p_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'h5p' => array(
-          'weight' => '2',
-        ),
-        'h5p_type' => array(
-          'weight' => '1',
-        ),
-        'h5p_editor' => array(
           'weight' => '3',
         ),
+        'h5p_type' => array(
+          'weight' => '2',
+        ),
+        'h5p_editor' => array(
+          'weight' => '4',
+        ),
         'title' => array(
-          'weight' => '0',
+          'weight' => '1',
         ),
         'path' => array(
           'weight' => '9',

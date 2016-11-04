@@ -91,7 +91,7 @@ function elmsmedia_h5p_field_default_field_instances() {
         ),
       ),
       'type' => 'inline_entity_form',
-      'weight' => 5,
+      'weight' => 6,
     ),
   );
 
@@ -169,7 +169,7 @@ function elmsmedia_h5p_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 6,
+      'weight' => 0,
     ),
   );
 
@@ -269,7 +269,7 @@ function elmsmedia_h5p_field_default_field_instances() {
         ),
       ),
       'type' => 'inline_entity_form',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 

@@ -158,7 +158,29 @@ function elmsmedia_video_strongarm() {
       ),
     ),
     'extra_fields' => array(
-      'form' => array(),
+      'form' => array(
+        'title' => array(
+          'weight' => '1',
+        ),
+        'path' => array(
+          'weight' => '13',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '12',
+        ),
+        'book' => array(
+          'weight' => '11',
+        ),
+        'options' => array(
+          'weight' => '10',
+        ),
+        'author' => array(
+          'weight' => '8',
+        ),
+        'revision_information' => array(
+          'weight' => '9',
+        ),
+      ),
       'display' => array(),
     ),
   );

@@ -93,7 +93,7 @@ function elmsmedia_svg_field_default_field_instances() {
         ),
       ),
       'type' => 'inline_entity_form',
-      'weight' => 5,
+      'weight' => 4,
     ),
   );
 
@@ -171,7 +171,7 @@ function elmsmedia_svg_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 1,
+      'weight' => 0,
     ),
   );
 
@@ -269,7 +269,7 @@ function elmsmedia_svg_field_default_field_instances() {
         ),
       ),
       'type' => 'inline_entity_form',
-      'weight' => 4,
+      'weight' => 6,
     ),
   );
 
@@ -508,7 +508,7 @@ function elmsmedia_svg_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'autocomplete_deluxe_taxonomy',
-      'weight' => 6,
+      'weight' => 5,
     ),
   );
 
