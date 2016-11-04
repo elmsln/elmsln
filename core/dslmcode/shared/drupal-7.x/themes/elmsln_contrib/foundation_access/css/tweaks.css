@@ -1,3 +1,7 @@
+.etb-book dl {
+ margin: 0;
+}
+
 /* flyout sizing */
 input.cis_shortcodes_embed,
 .entity_iframe_embed {
