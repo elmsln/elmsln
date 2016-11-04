@@ -377,11 +377,15 @@ ul.dropdown-content ul {
 ul.dropdown-content li:not(.has-form) a:not(.button) {
   color: #333333;
 }
-ul.dropdown-content li a:hover {
+.dropdown-content li:hover,
+#etb-course-nav .top-bar-section.title-link ul li ul li.leaf:hover {
   background-color: #eeeeee;
 }
-ul.dropdown-content li a {
+.dropdown-content li {
   background-color: #ffffff;
+}
+.dropdown-content li a {
+  background-color: transparent;
   line-height: 2.5rem;
   height: 2.5rem;
   padding: 0 !important;
