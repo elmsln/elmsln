@@ -13,8 +13,8 @@
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li:hover {
   background-color: #ffffff;
   border-style: solid;
-  border-width: 0.1rem;
-  margin: -0.1rem 0;
+  border-width: 1px;
+  margin: -1px;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
@@ -25,10 +25,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a.active {
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.active-trail {
   background-color: #ffffff;
   border-style: solid;
-  border-width: 0.1rem;
+  border-width: 1px;
+  margin: -1px;
+}
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav h3 {
+  border-bottom: .1rem solid #cccccc;
+  text-align: center;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.5rem;
+  height: 2.5rem;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {
@@ -107,6 +116,7 @@ a.mooc-helper-toc span {
 }
 .mooc-home-button i {
   margin: 0 .5rem;
+  line-height: 2.5rem;
 }
 
 #block-mooc-helper-mooc-helper-toc-nav-modal h2 {
