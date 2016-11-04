@@ -14,16 +14,27 @@
   width: 100%;
 }
 .user-profile--banner {
-  width: 100%;
-  max-height: 20rem;
-  overflow: hidden;
+    width: 100%;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+    height: 10rem;
+    max-height: 12rem;
+    z-index: 1;
 }
 .user-profile--banner img {
+  display: block;
+  top: 0;
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
   width: 100%;
 }
 .user-profile--photo--wrapper {
   margin: -8rem auto 1rem;
   text-align: center;
+  z-index: 2;
+  position: relative;
 }
 .user-profile--photo {
   margin: 0 auto;
@@ -32,6 +43,8 @@
 .user-profile--photo img {
   background-color: #FFFFFF;
   padding: .5rem;
+  height: 12.5rem;
+  width: 12.5rem;
 }
 .user-profile--name {
   text-align: center;
