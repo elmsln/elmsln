@@ -69,18 +69,21 @@
     $('.elmsln-modal-trigger').bind('click', function() {
       // hide all currently visible modals
       $('.close-reveal-modal:visible').trigger('click');
-    }).modal({
+    });
+    $('.elmsln-modal').modal({
       dismissible: true, // Modal can be dismissed by clicking outside of the modal
       opacity: .5, // Opacity of modal background
       in_duration: 150, // Transition in duration
       out_duration: 50, // Transition out duration
       starting_top: '8rem', // Starting top style attribute
       ending_top: '8rem', // Ending top style attribute
-      ready: function() { $('.close-reveal-modal:visible').parents().focus(); }, // Callback for Modal open
+      ready: function(modal, trigger) {
+        $('.close-reveal-modal:visible').parents().focus();
+      }, // Callback for Modal open
     });
     // close x's for modals
     $('.close-reveal-modal').click(function(){
-      $('#' + $(this).parents().parents().attr('id')).closeModal();
+      $('#' + $(this).parents().parents().attr('id')).modal('close');
       $('[href=#' + $(this).parents().attr('id') + ']').focus();
     });
     // close x's for the side-nav items
@@ -110,7 +113,7 @@
     // meta property names so mobile reflects system color
     $('meta[name="theme-color"],meta[name="msapplication-TileColor"],meta[name="msapplication-navbutton-color"]').attr('content', $('.cis-lmsless-color').css('backgroundColor'));
     // hover state for tables to match styling
-    $('tr.even, tr.odd, ul.menu li a, [data-elmsln-hover]').not('.active,.active-system,.elmsln-fixed-action-btn a').hover(
+    $('tr.even, tr.odd, [data-elmsln-hover]').not('.active,.active-system,.elmsln-fixed-action-btn a').hover(
       function() {
         var attr = $(this).attr('data-elmsln-hover');
         if (typeof attr !== typeof undefined && attr !== false) {
