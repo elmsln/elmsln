@@ -1,3 +1,21 @@
+/* flyout sizing */
+input.cis_shortcodes_embed,
+.entity_iframe_embed {
+  font-size: .6rem;
+  line-height: 1rem;
+}
+
+/* elmsln-icon padding to right of font icon */
+.elmsln-icon.left {
+  margin-right: .4rem;
+}
+/* in context modal buttons */
+.elmsln-filter-tpl-modal,
+.elmsln-filter-tpl-side-nav {
+  height: 2.5rem;
+  line-height: 2.5rem;
+}
+
 /* save form state */
 #autosave-status {
   width: 100%;
@@ -725,7 +743,10 @@ input[type=file]:focus,
 }
 
 .side-nav li>a>i, .side-nav li>a>[class^="mdi-"], .side-nav li>a>[class*="mdi-"], .side-nav li>a>i.material-icons {
-  line-height: 2rem;
+  height: 3rem;
+  line-height: 3rem;
+  margin: 0 2rem 0 0;
+  width: 1.5rem;
 }
 
 .side-nav a {
