@@ -1254,7 +1254,7 @@ function foundation_access_html_head_alter(&$head_elements) {
  * Print breadcrumbs as a list, with separators.
  */
 function foundation_access_breadcrumb($variables) {
-  $breadcrumb = $variables['breadcrumb'];
+  /*$breadcrumb = $variables['breadcrumb'];
 
   if (!empty($breadcrumb)) {
     // Provide a navigational heading to give context for breadcrumb links to
@@ -1271,7 +1271,7 @@ function foundation_access_breadcrumb($variables) {
     $breadcrumbs .= '</ul>';
 
     return $breadcrumbs;
-  }
+  }*/
 }
 
 /**
