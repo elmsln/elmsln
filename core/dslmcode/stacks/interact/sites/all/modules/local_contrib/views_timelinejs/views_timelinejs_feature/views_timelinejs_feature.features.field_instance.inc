@@ -10,7 +10,7 @@
 function views_timelinejs_feature_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-timeline_date-body'
+  // Exported field_instance: 'node-timeline_date-body'.
   $field_instances['node-timeline_date-body'] = array(
     'bundle' => 'timeline_date',
     'default_value' => NULL,
@@ -54,11 +54,11 @@ function views_timelinejs_feature_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
-  // Exported field_instance: 'node-timeline_date-field_timeline_caption_text'
+  // Exported field_instance: 'node-timeline_date-field_timeline_caption_text'.
   $field_instances['node-timeline_date-field_timeline_caption_text'] = array(
     'bundle' => 'timeline_date',
     'default_value' => NULL,
@@ -100,11 +100,11 @@ function views_timelinejs_feature_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 6,
+      'weight' => 3,
     ),
   );
 
-  // Exported field_instance: 'node-timeline_date-field_timeline_credit_text'
+  // Exported field_instance: 'node-timeline_date-field_timeline_credit_text'.
   $field_instances['node-timeline_date-field_timeline_credit_text'] = array(
     'bundle' => 'timeline_date',
     'default_value' => NULL,
@@ -146,11 +146,11 @@ function views_timelinejs_feature_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 5,
+      'weight' => 4,
     ),
   );
 
-  // Exported field_instance: 'node-timeline_date-field_timeline_dates'
+  // Exported field_instance: 'node-timeline_date-field_timeline_dates'.
   $field_instances['node-timeline_date-field_timeline_dates'] = array(
     'bundle' => 'timeline_date',
     'deleted' => 0,
@@ -209,7 +209,7 @@ function views_timelinejs_feature_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-timeline_date-field_timeline_media_image'
+  // Exported field_instance: 'node-timeline_date-field_timeline_media_image'.
   $field_instances['node-timeline_date-field_timeline_media_image'] = array(
     'bundle' => 'timeline_date',
     'deleted' => 0,
@@ -261,11 +261,11 @@ function views_timelinejs_feature_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 3,
+      'weight' => 6,
     ),
   );
 
-  // Exported field_instance: 'node-timeline_date-field_timeline_media_link'
+  // Exported field_instance: 'node-timeline_date-field_timeline_media_link'.
   $field_instances['node-timeline_date-field_timeline_media_link'] = array(
     'bundle' => 'timeline_date',
     'default_value' => NULL,
@@ -322,7 +322,7 @@ function views_timelinejs_feature_field_default_field_instances() {
       'module' => 'link',
       'settings' => array(),
       'type' => 'link_field',
-      'weight' => 2,
+      'weight' => 5,
     ),
   );
 

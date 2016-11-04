@@ -10,7 +10,7 @@
 function views_timelinejs_feature_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_timeline_caption_text'
+  // Exported field_base: 'field_timeline_caption_text'.
   $field_bases['field_timeline_caption_text'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -33,7 +33,7 @@ function views_timelinejs_feature_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_timeline_credit_text'
+  // Exported field_base: 'field_timeline_credit_text'.
   $field_bases['field_timeline_credit_text'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -56,7 +56,7 @@ function views_timelinejs_feature_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_timeline_dates'
+  // Exported field_base: 'field_timeline_dates'.
   $field_bases['field_timeline_dates'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -87,7 +87,7 @@ function views_timelinejs_feature_field_default_field_bases() {
     'type' => 'datetime',
   );
 
-  // Exported field_base: 'field_timeline_media_image'
+  // Exported field_base: 'field_timeline_media_image'.
   $field_bases['field_timeline_media_image'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -111,7 +111,7 @@ function views_timelinejs_feature_field_default_field_bases() {
     'type' => 'image',
   );
 
-  // Exported field_base: 'field_timeline_media_link'
+  // Exported field_base: 'field_timeline_media_link'.
   $field_bases['field_timeline_media_link'] = array(
     'active' => 1,
     'cardinality' => 1,

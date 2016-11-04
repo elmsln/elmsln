@@ -40,6 +40,21 @@ function views_timelinejs_extras_strongarm() {
         'path' => array(
           'weight' => '3',
         ),
+        'hidden_nodes' => array(
+          'weight' => '100',
+        ),
+        'book' => array(
+          'weight' => '100',
+        ),
+        'options' => array(
+          'weight' => '100',
+        ),
+        'author' => array(
+          'weight' => '100',
+        ),
+        'revision_information' => array(
+          'weight' => '100',
+        ),
       ),
       'display' => array(
         'timeline_content_type_entity_view_1' => array(

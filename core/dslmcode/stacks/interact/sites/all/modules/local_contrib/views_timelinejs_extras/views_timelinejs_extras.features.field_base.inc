@@ -10,7 +10,7 @@
 function views_timelinejs_extras_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_time_points'
+  // Exported field_base: 'field_time_points'.
   $field_bases['field_time_points'] = array(
     'active' => 1,
     'cardinality' => -1,

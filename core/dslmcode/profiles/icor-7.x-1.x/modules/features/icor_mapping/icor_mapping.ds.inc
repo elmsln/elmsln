@@ -19,38 +19,36 @@ function icor_mapping_ds_layout_settings_info() {
   $ds_layout->layout = 'ds_2col_stacked';
   $ds_layout->settings = array(
     'regions' => array(
-      'left' => array(
+      'header' => array(
         0 => 'title',
         1 => 'field_location_description',
-      ),
-      'right' => array(
         2 => 'field_location',
       ),
       'footer' => array(
         3 => 'group_admin',
         4 => 'author',
-        5 => 'options',
-        6 => 'book',
-        7 => 'revision_information',
-        8 => 'hidden_nodes',
-        9 => 'path',
+        6 => 'options',
+        7 => 'book',
+        8 => 'revision_information',
+        9 => 'hidden_nodes',
+        10 => 'path',
       ),
       'hidden' => array(
-        10 => '_add_existing_field',
+        5 => '_add_existing_field',
       ),
     ),
     'fields' => array(
-      'title' => 'left',
-      'field_location_description' => 'left',
-      'field_location' => 'right',
+      'title' => 'header',
+      'field_location_description' => 'header',
+      'field_location' => 'header',
       'group_admin' => 'footer',
       'author' => 'footer',
+      '_add_existing_field' => 'hidden',
       'options' => 'footer',
       'book' => 'footer',
       'revision_information' => 'footer',
       'hidden_nodes' => 'footer',
       'path' => 'footer',
-      '_add_existing_field' => 'hidden',
     ),
     'classes' => array(),
     'wrappers' => array(

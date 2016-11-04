@@ -16,38 +16,46 @@ function views_timelinejs_feature_ds_layout_settings_info() {
   $ds_layout->entity_type = 'node';
   $ds_layout->bundle = 'timeline_date';
   $ds_layout->view_mode = 'form';
-  $ds_layout->layout = 'zf_2col_stacked';
+  $ds_layout->layout = 'ds_2col_stacked';
   $ds_layout->settings = array(
     'regions' => array(
       'header' => array(
         0 => 'title',
+        1 => 'field_timeline_dates',
       ),
       'left' => array(
-        1 => 'field_timeline_dates',
-        2 => 'field_timeline_media_link',
-        3 => 'field_timeline_media_image',
+        2 => 'body',
+        3 => 'field_timeline_caption_text',
+        4 => 'field_timeline_credit_text',
       ),
       'right' => array(
-        4 => 'body',
-        5 => 'field_timeline_credit_text',
-        6 => 'field_timeline_caption_text',
-      ),
-      'footer' => array(
-        7 => 'path',
+        5 => 'field_timeline_media_link',
+        6 => 'field_timeline_media_image',
       ),
       'hidden' => array(
-        8 => '_add_existing_field',
+        7 => 'path',
+        8 => 'revision_information',
+        9 => 'options',
+        10 => 'author',
+        11 => 'hidden_nodes',
+        12 => 'book',
+        13 => '_add_existing_field',
       ),
     ),
     'fields' => array(
       'title' => 'header',
-      'field_timeline_dates' => 'left',
-      'field_timeline_media_link' => 'left',
-      'field_timeline_media_image' => 'left',
-      'body' => 'right',
-      'field_timeline_credit_text' => 'right',
-      'field_timeline_caption_text' => 'right',
-      'path' => 'footer',
+      'field_timeline_dates' => 'header',
+      'body' => 'left',
+      'field_timeline_caption_text' => 'left',
+      'field_timeline_credit_text' => 'left',
+      'field_timeline_media_link' => 'right',
+      'field_timeline_media_image' => 'right',
+      'path' => 'hidden',
+      'revision_information' => 'hidden',
+      'options' => 'hidden',
+      'author' => 'hidden',
+      'hidden_nodes' => 'hidden',
+      'book' => 'hidden',
       '_add_existing_field' => 'hidden',
     ),
     'classes' => array(),
@@ -62,6 +70,7 @@ function views_timelinejs_feature_ds_layout_settings_info() {
     'layout_attributes_merge' => 1,
     'layout_link_attribute' => '',
     'layout_link_custom' => '',
+    'layout_disable_css' => 0,
   );
   $export['node|timeline_date|form'] = $ds_layout;
 

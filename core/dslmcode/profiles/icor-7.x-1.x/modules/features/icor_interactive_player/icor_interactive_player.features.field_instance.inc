@@ -10,7 +10,7 @@
 function icor_interactive_player_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-icor_interactive_player-body'
+  // Exported field_instance: 'node-icor_interactive_player-body'.
   $field_instances['node-icor_interactive_player-body'] = array(
     'bundle' => 'icor_interactive_player',
     'default_value' => NULL,
@@ -68,7 +68,7 @@ function icor_interactive_player_field_default_field_instances() {
   );
 
   // Exported field_instance:
-  // 'node-icor_interactive_player-field_cis_course_ref'
+  // 'node-icor_interactive_player-field_cis_course_ref'.
   $field_instances['node-icor_interactive_player-field_cis_course_ref'] = array(
     'bundle' => 'icor_interactive_player',
     'default_value' => NULL,
@@ -148,7 +148,7 @@ function icor_interactive_player_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-icor_interactive_player-field_items'
+  // Exported field_instance: 'node-icor_interactive_player-field_items'.
   $field_instances['node-icor_interactive_player-field_items'] = array(
     'bundle' => 'icor_interactive_player',
     'deleted' => 0,

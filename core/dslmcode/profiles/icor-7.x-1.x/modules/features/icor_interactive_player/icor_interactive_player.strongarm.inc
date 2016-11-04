@@ -40,6 +40,21 @@ function icor_interactive_player_strongarm() {
         'path' => array(
           'weight' => '4',
         ),
+        'hidden_nodes' => array(
+          'weight' => '8',
+        ),
+        'book' => array(
+          'weight' => '9',
+        ),
+        'options' => array(
+          'weight' => '6',
+        ),
+        'author' => array(
+          'weight' => '7',
+        ),
+        'revision_information' => array(
+          'weight' => '5',
+        ),
       ),
       'display' => array(
         'icor_player_eva_entity_view_1' => array(

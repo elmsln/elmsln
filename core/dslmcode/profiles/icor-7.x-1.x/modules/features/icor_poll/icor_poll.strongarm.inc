@@ -81,10 +81,25 @@ function icor_poll_strongarm() {
           'weight' => '4',
         ),
         'choice_wrapper' => array(
-          'weight' => '3',
+          'weight' => '2',
         ),
         'settings' => array(
-          'weight' => '2',
+          'weight' => '3',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '8',
+        ),
+        'book' => array(
+          'weight' => '9',
+        ),
+        'options' => array(
+          'weight' => '6',
+        ),
+        'author' => array(
+          'weight' => '7',
+        ),
+        'revision_information' => array(
+          'weight' => '5',
         ),
       ),
       'display' => array(),
