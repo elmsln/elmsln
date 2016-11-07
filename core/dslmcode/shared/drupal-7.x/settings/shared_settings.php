@@ -9,13 +9,17 @@ $conf['x_frame_options'] = '';
 $conf['image_allow_insecure_derivatives'] = TRUE;
 // prevent bakery from giving weird messges
 $conf['bakery_status_messages'] = FALSE;
+
+// use this to debug restws issues
+#$conf['restws_debug_log'] = '/var/www/elmsln/config/tmp/rest.debug';
+
 // Allow RestWS calls to pass through on bakery installs, otherwise webservices
 // reroute looking for the bakery login cookie and fail.
 // If bakery isn't installed this does nothing and can be ignored.
 if (isset($conf['restws_basic_auth_user_regex'])) {
   $conf['bakery_is_master'] = TRUE;
 }
-
+$conf['restws_basic_auth_user_regex'] = '/.*/';
 // httprl setting to avoid really long timeouts
 $conf['httprl_install_lock_time'] = 1;
 // make authcache happy with the safer controller if we're using it

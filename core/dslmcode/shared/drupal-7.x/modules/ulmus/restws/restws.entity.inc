@@ -342,7 +342,7 @@ class RestWSEntityResourceController implements RestWSQueryResourceControllerInt
   public function access($op, $id) {
     // The "create" operation requires an existing entity to check access.
     // See https://www.drupal.org/node/1780646
-    if ($op == 'create' && empty($id)) {
+    if ($op == 'create' && (empty($id) || empty($this->wrapper($id)->value()))) {
       return TRUE;
     }
     return entity_access($op, $this->entityType, isset($id) ? $this->wrapper($id)->value() : NULL);
