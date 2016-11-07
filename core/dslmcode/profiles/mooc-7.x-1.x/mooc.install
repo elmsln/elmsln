@@ -151,3 +151,10 @@ function mooc_update_7009(&$sandbox) {
   features_revert_module('mooc_ux_defaults');
   features_revert_module('mooc_perms');
 }
+
+/**
+ * Tincan API integration support.
+ */
+function mooc_update_7010(&$sandbox) {
+  module_enable(array('elmsln_lrs'));
+}

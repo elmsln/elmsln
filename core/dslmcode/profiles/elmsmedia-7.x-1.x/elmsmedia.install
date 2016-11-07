@@ -174,3 +174,10 @@ function elmsmedia_update_7012(&$sandbox) {
   features_revert_module('elmsmedia_svg');
   features_revert_module('elmsmedia_video');
 }
+
+/**
+ * Tincan API integration support.
+ */
+function elmsmedia_update_7013(&$sandbox) {
+  module_enable(array('elmsln_lrs'));
+}

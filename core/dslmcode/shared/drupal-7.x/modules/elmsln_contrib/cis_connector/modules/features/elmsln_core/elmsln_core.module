@@ -1009,7 +1009,7 @@ function _elmsln_core_icon_map() {
  */
 function elmsln_core_cis_service_registry() {
   // see if the most obvious variable isset
-  if (!empty(variable_get('tincanapi_endpoint', ''))) {
+  if (!empty(variable_get('tincanapi_endpoint', '')) && valid_url(variable_get('tincanapi_endpoint', ''), TRUE)) {
     // calculate the protocol and address from the endpoint variable
     $tmp = explode('://', variable_get('tincanapi_endpoint', ''));
     $protocol = array_shift($tmp);

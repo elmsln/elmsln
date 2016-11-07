@@ -142,6 +142,7 @@ dependencies[] = video_embed_field
 dependencies[] = h5p
 dependencies[] = h5p_tincan_bridge
 dependencies[] = tincanapi
+dependencies[] = elmsln_lrs
 dependencies[] = elmsmedia_helper
 dependencies[] = elmsln_ecd
 dependencies[] = imagefield_focus

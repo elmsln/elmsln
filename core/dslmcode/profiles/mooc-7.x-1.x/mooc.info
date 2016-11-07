@@ -156,6 +156,7 @@ dependencies[] = tipsy
 dependencies[] = read_time
 dependencies[] = read_time_media
 dependencies[] = read_time_book
+dependencies[] = elmsln_lrs
 ; Outline Designer
 dependencies[] = outline_designer
 dependencies[] = outline_designer_book
