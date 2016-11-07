@@ -48,7 +48,31 @@ function elmsln_api_menu() {
     'access arguments' => array(array('administrator', 'instructor', 'staff')),
     'type' => MENU_CALLBACK,
   );
+  // tee-up our application
+  $items['api/v1/elmsln/user'] = array(
+    'page callback' => '_elmsln_api_user_request',
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
   return $items;
+}
+/**
+ * Page callback: returns information to establish a headless application
+ * to connect to the site. This assumes a user session already exists.
+ */
+function _elmsln_api_user_request() {
+  drupal_add_http_header('Content-Type', 'application/json');
+  $vars = array(
+    'site' => array(
+      'base-url' => $GLOBALS['base_url'],
+    ),
+    'user' => array(
+      'uid' => $GLOBALS['user']->uid,
+      'csrf-token' => drupal_get_token('restws'),
+    ),
+  );
+  print drupal_json_output($vars);
+  drupal_exit();
 }
 
 /**
