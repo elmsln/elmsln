@@ -5,9 +5,16 @@
  * our xAPI / LRS data we can drum up that's meaningful.
  */
 function elmsln_core_data_form() {
+  // add in chartjs
+  $libraries = libraries_get_libraries();
+  if (isset($libraries['chartjs'])) {
+    drupal_add_js(base_path() . $libraries['chartjs'] . '/Chart.min.js');
+  }
   $etype = arg(0);
   $etid = arg(1);
-  $entity = entity_load_single($etype, $etid);
+  if (is_numeric($etid)) {
+    $entity = entity_load_single($etype, $etid);
+  }
   $filtered_verb = (isset($_GET['verb']) ? filter_xss(check_plain($_GET['verb'])) : '');
   $display = arg(3);
   $debug = (isset($_GET['debug']) ? true : false);
@@ -38,21 +45,31 @@ function elmsln_core_data_form() {
   );
   $output = '';
   $filtertitle = '';
-  $uri = entity_uri($etype, $entity);
-  $url = url($uri['path'], array('absolute' => TRUE));
-  // show query data specific to the entity type in question
-  switch ($etype) {
-    case 'user':
-      $query['pipeline'][0]['$match']['statement.actor.name'] = $entity->name;
-      $filtertitle .= '<span class="chip">' . t('user: @user', array('@user' => $entity->name)) . '</span>';
-    break;
-    case 'node':
-      $query['pipeline'][0]['$match']['$or'][]['statement.context.contextActivities.parent.id'] = $url;
-      $query['pipeline'][0]['$match']['$or'][]['statement.object.id'] = $url;
-      $query['pipeline'][0]['$match']['$or'][]['statement.context.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-url'] = $url;
-      $query['pipeline'][0]['$match']['$or'][]['statement.object.definition.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-url'] = $url;
-      $filtertitle .= '<span class="chip">' . t('content: @content', array('@content' => drupal_get_title())) . '</span>';
-    break;
+  if (isset($entity)) {
+    $uri = entity_uri($etype, $entity);
+    $url = url($uri['path'], array('absolute' => TRUE));
+    // show query data specific to the entity type in question
+    switch ($etype) {
+      case 'user':
+        $query['pipeline'][0]['$match']['statement.actor.name'] = $entity->name;
+        $filtertitle .= '<span class="chip">' . t('user: @user', array('@user' => $entity->name)) . '</span>';
+      break;
+      case 'node':
+        $query['pipeline'][0]['$match']['$or'][]['statement.context.contextActivities.parent.id'] = $url;
+        $query['pipeline'][0]['$match']['$or'][]['statement.object.id'] = $url;
+        $query['pipeline'][0]['$match']['$or'][]['statement.context.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-url'] = $url;
+        $query['pipeline'][0]['$match']['$or'][]['statement.object.definition.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-url'] = $url;
+        $filtertitle .= '<span class="chip">' . t('content: @content', array('@content' => drupal_get_title())) . '</span>';
+      break;
+    }
+  }
+  else {
+    // just filter to this course
+    $query['pipeline'][0]['$match']['$or'][]['statement.context.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-course'] = _cis_connector_course_context();
+    $query['pipeline'][0]['$match']['$or'][]['statement.object.definition.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-course'] = _cis_connector_course_context();
+    $uri = array(
+      'path' => current_path(),
+    );
   }
   // statement filtering by verb
   if (!empty($filtered_verb)) {
