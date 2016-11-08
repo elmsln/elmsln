@@ -191,7 +191,7 @@ function elmsln_core_data_form() {
 
   $filters['visualizations'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Visualize data'),
+    '#title' => t('Visualizations'),
     '#collapsed' => TRUE,
     '#collapsible' => TRUE,
     '#weight' => -10,
@@ -209,15 +209,6 @@ function elmsln_core_data_form() {
     'datacontainer' => array(
       '#type' => 'markup',
       '#markup' => '<div class="elmsln-data-container"><canvas id="lrs-data-chart" width="400" height="400"></canvas></div>',
-    ),
-    'chart_style' => array(
-      '#type' => 'select',
-      '#title' => t('Chart style'),
-      '#default_value' => $chart_style,
-      '#options' => array(
-        'bar' => t('Bar'),
-        'pie' => t('Pie'),
-      ),
     ),
   );
   // build simple visuals
@@ -258,7 +249,7 @@ function elmsln_core_data_form() {
         'style' => array(
           'type' => $chart_style,
           'borderWidth' => 1,
-          'label' => t('Statements overview'),
+          'label' => t('xAPI statements'),
           'colors' => $colors,
         ),
       ),
@@ -268,7 +259,7 @@ function elmsln_core_data_form() {
 
   $filters['filter_data'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Filter data'),
+    '#title' => t('Filters'),
     '#collapsed' => TRUE,
     '#collapsible' => TRUE,
     '#weight' => -9,
@@ -293,11 +284,20 @@ function elmsln_core_data_form() {
       '#options' => $roles,
     );
   }
+  $filters['filter_data']['chart_style'] = array(
+    '#type' => 'select',
+    '#title' => t('Chart style'),
+    '#default_value' => $chart_style,
+    '#options' => array(
+      'pie' => t('Pie'),
+      'bar' => t('Bar'),
+    ),
+  );
   $filters['filter_data']['verb'] = array(
     '#type' => 'select',
     '#title' => t('Verb'),
     '#default_value' => $filtered_verb,
-    '#options' => $aggregates['verbs'],
+    '#options' => array('' => t('All')) + $aggregates['verbs'],
   );
   $filters['filter_data']['actions']['#type'] = 'actions';
   $filters['filter_data']['actions']['submit'] = array(
