@@ -28,6 +28,30 @@
         $(this).siblings('.collapsible-body').children('pre').html(Drupal.prettyJson.prettyPrint(json));
       }
     });
+    // tee up the chart data
+    var ctx = document.getElementById("lrs-data-chart");
+    var myChart = new Chart(ctx, {
+      type: Drupal.settings.elmslnCore.chart.style.type,
+      data: {
+        labels: Drupal.settings.elmslnCore.chart.data.labels,
+        datasets: [{
+          label: Drupal.settings.elmslnCore.chart.style.label,
+          data: Drupal.settings.elmslnCore.chart.data.values,
+          borderWidth: Drupal.settings.elmslnCore.chart.style.borderWidth,
+          borderColor: Drupal.settings.elmslnCore.chart.style.colors,
+          backgroundColor: Drupal.settings.elmslnCore.chart.style.colors
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero:true
+            }
+          }]
+        }
+      }
+    });
   });
 })(jQuery);
 

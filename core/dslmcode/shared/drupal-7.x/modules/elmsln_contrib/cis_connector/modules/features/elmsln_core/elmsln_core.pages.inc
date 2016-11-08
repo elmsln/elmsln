@@ -16,6 +16,7 @@ function elmsln_core_data_form() {
     $entity = entity_load_single($etype, $etid);
   }
   $filtered_verb = (isset($_GET['verb']) ? filter_xss(check_plain($_GET['verb'])) : '');
+  $chart_style = (isset($_GET['chart_style']) ? filter_xss(check_plain($_GET['chart_style'])) : 'pie');
   $display = arg(3);
   $debug = (isset($_GET['debug']) ? true : false);
   $roles = array(
@@ -172,7 +173,7 @@ function elmsln_core_data_form() {
       '#title' => t('Read time stats'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
-      '#weight' => -10,
+      '#weight' => -15,
       '#attributes' => array(
         'class' => array(
           'collapsible',
@@ -187,6 +188,83 @@ function elmsln_core_data_form() {
       '#markup' => theme('read_time', array('node' => $entity)),
     );
   }
+
+  $filters['visualizations'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Visualize data'),
+    '#collapsed' => TRUE,
+    '#collapsible' => TRUE,
+    '#weight' => -10,
+    '#attributes' => array(
+      'class' => array(
+        'collapsible',
+        'form-wrapper',
+        'collapsed',
+      ),
+    ),
+    '#materialize' => array(
+      'type' => 'collapsible',
+      'icon' => 'show_chart',
+    ),
+    'datacontainer' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="elmsln-data-container"><canvas id="lrs-data-chart" width="400" height="400"></canvas></div>',
+    ),
+    'chart_style' => array(
+      '#type' => 'select',
+      '#title' => t('Chart style'),
+      '#default_value' => $chart_style,
+      '#options' => array(
+        'bar' => t('Bar'),
+        'pie' => t('Pie'),
+      ),
+    ),
+  );
+  // build simple visuals
+  $values = $labels = $colors = array();
+  $colorlist = array(
+    '#f44336',
+    '#e91e63',
+    '#9c27b0',
+    '#673ab7',
+    '#3f51b5',
+    '#2196f3',
+    '#03a9f4',
+    '#00bcd4',
+    '#009688',
+    '#4caf50',
+    '#8bc34a',
+    '#cddc39',
+    '#ffeb3b',
+    '#ffc107',
+    '#ff9800',
+    '#ff5722',
+    '#795548',
+    '#607d8b',
+  );
+  shuffle($colorlist);
+  foreach ($aggregates['counts'] as $label => $count) {
+    $values[] = $count;
+    $labels[] = $label;
+    $colors[] = array_pop($colorlist);
+  }
+  $datajs = array(
+    'elmslnCore' => array(
+      'chart' => array(
+        'data' => array(
+          'values' => $values,
+          'labels' => $labels,
+        ),
+        'style' => array(
+          'type' => $chart_style,
+          'borderWidth' => 1,
+          'label' => t('Statements overview'),
+          'colors' => $colors,
+        ),
+      ),
+    ),
+  );
+  drupal_add_js($datajs, array('type' => 'setting'));
 
   $filters['filter_data'] = array(
     '#type' => 'fieldset',
@@ -266,6 +344,9 @@ function elmsln_core_data_form_submit($form, &$form_state) {
     );
     if (isset($form_state['values']['role'])) {
       $filters['role'] = $form_state['values']['role'];
+    }
+    if (isset($form_state['values']['chart_style'])) {
+      $filters['chart_style'] = $form_state['values']['chart_style'];
     }
     drupal_goto(current_path(), array('query' => $filters));
   }
