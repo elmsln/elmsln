@@ -15,3 +15,123 @@ function assessment_helper_elmsln_api_info() {
   );
   return $callbacks;
 }
+
+/**
+ * Implements hook_permission().
+ */
+function assessment_helper_permission() {
+  return array(
+    'export quiz results' => array(
+      'title' => t('Export quiz results'),
+      'description' => t('To download quiz results to csv.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function assessment_helper_menu() {
+  $items = array();
+  $items['node/%/exportresults'] = array(
+    'title' => 'Export results',
+    'description' => 'Export quiz results',
+    'page callback' => '_assessment_helper_make_file',
+    'page arguments' => array(1),
+    'access arguments' => array('export quiz results'),
+    'type' => MENU_CALLBACK,
+    'weight' => 1,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_quiz_results_manage_results_form_alter().
+ */
+function assessment_helper_form_quiz_results_manage_results_form_alter(&$form, &$form_state) {
+  if ($node = menu_get_object()) {
+    $form['update']['download link'] = array('#markup' => l(t('Download All Results'), 'node/' . $node->nid . '/exportresults'));
+  }
+}
+
+/**
+ * Get records from the database and generate csv file.
+ */
+function _assessment_helper_make_file($nid) {
+  $node = node_load($nid);
+
+  module_load_include('inc', 'quiz', 'quiz.admin');
+
+  $browser = array(
+    array('data' => t('Username'), 'field' => 'u.uid'),
+    array('data' => t('Started'), 'field' => 'started'),
+    array('data' => t('Finished'), 'field' => 'finished'),
+    array('data' => t('Score'), 'field' => 'score'),
+    array('data' => t('Evaluated'), 'field' => 'evaluated'),
+  );
+
+  // Get records from the DB.
+  $res = _quiz_results_mr_data_provider($browser, $node);
+
+  $filename = "report-" . date("F-j-Y-g-i-a") . ".csv";
+  $now = gmdate("D, d M Y H:i:s");
+  drupal_add_http_header("Expires", "Tue, 03 Jul 2001 06:00:00 GMT");
+  drupal_add_http_header("Cache-Control", "max-age=0, no-cache, must-revalidate, proxy-revalidate");
+  drupal_add_http_header("Last-Modified", "{$now} GMT");
+
+  // Force download.
+  drupal_add_http_header("Content-Type", "application/force-download");
+  drupal_add_http_header("Content-Type", "application/octet-stream");
+  drupal_add_http_header("Content-Type", "application/download");
+
+  // Disposition / encoding on response body.
+  drupal_add_http_header("Content-Disposition", "attachment;filename={$filename}");
+  drupal_add_http_header("Content-Transfer-Encoding", "binary");
+
+  ob_start();
+  $df = fopen("php://output", "w");
+  // Put the headers for the csv.
+  fputcsv($df, array(t("UID"),
+              t("USERNAME"),
+              t("SCORE"),
+              t("EVALUATED"),
+              t("STARTED"),
+              t("FINISHED"),
+              t("DURATION"),
+              ));
+
+  // Iterating and adding records to csv.
+  foreach ($res as $record) {
+    if (empty($record->name)) {
+      if ($record->uid == '0') {
+        $username = variable_get('anonymous', 'Anonymous');
+      }
+      else {
+        $username = "ORPHAN " . $record->uid;
+      }
+    }
+    else {
+      $username = $record->name;
+    }
+
+    // Formating data before writing it into the csv file.
+    $started = format_date($record->started, 'short');
+    $finished = ($record->finished == 0) ? t('In progress') : format_date($record->finished, 'short');
+    $duration = ($record->finished == 0) ? t('In progress') : _quiz_format_duration($record->duration);
+    $score = ($record->finished) == 0 ? t('In progress') : check_plain($record->score);
+    $evaluated = ($record->evaluated == 0) ? 'No' : 'Yes';
+
+    // Writing data to csv.
+    fputcsv($df, array($record->uid,
+                $username,
+                $score,
+                $evaluated,
+                $started,
+                $finished,
+                $duration,
+                ));
+  }
+  fclose($df);
+  echo ob_get_clean();
+  drupal_exit();
+}

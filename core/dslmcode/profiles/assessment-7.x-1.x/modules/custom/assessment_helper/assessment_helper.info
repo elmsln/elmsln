@@ -3,3 +3,4 @@ description = "Gradebook glue code"
 core = 7.x
 files[] = ecd_helper.module
 package = Assessment
+dependencies[] = quiz
