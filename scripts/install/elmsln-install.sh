@@ -239,7 +239,7 @@ for tool in "${authoritylist[@]}"
   drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
   # distro specific additional install routine
-  drush -y --uri=$protocol://$site_domain cook elmsln_$dist
+  drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet
   # clean up tasks per distro here
   if [ $dist == 'cis' ];
     then
@@ -279,9 +279,9 @@ for tool in "${authoritylist[@]}"
   # forcibly apply 1st ELMSLN global update since it isn't fixed tools
   # this makes it so that we don't REQUIRE multi-sites to run tools (stupid)
   # while still fixing the issue with httprl when used in multisites
-  drush -y --uri=$protocol://$site_domain cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global
+  drush -y --uri=$protocol://$site_domain cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global --quiet
   # ELMSLN clean up for authority distributions (single point)
-  drush -y --uri=$protocol://$site_domain cook elmsln_authority_setup
+  drush -y --uri=$protocol://$site_domain cook elmsln_authority_setup --quiet
 
   COUNTER=$COUNTER+1
 done
@@ -307,25 +307,25 @@ echo '5' >> $steplog
 concurrent=2
 # make sure user password is admin as a fallback
 elmslnecho "Set admin account everywhere"
-drush @elmsln upwd admin --password=admin --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln upwd admin --password=admin --concurrency=${concurrent} --strict=0 --y
 # enable bakery everywhere by default
 elmslnecho "Enable bakery for unified logins"
-drush @elmsln en elmsln_bakery --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln en elmsln_bakery --concurrency=${concurrent} --strict=0 --y
 # run all the existing crons so that they hit the CIS data and get sing100 for example
 elmslnecho "Run Cron to do some clean up"
-drush @elmsln cron --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln cron --concurrency=${concurrent} --strict=0 --y
 # node access rebuild which will also clear caches
 elmslnecho "Rebuild node access permissions"
-drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --y
 # revert everything as some last minute clean up
 elmslnecho "Global feature revert as clean up"
-drush @elmsln fr-all --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln fr-all --concurrency=${concurrent} --strict=0 --y
 # APDQC cache bin to memory shift
-drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --v --y
-drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --y
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --y
 # seed entity caches
 elmslnecho "Seed some initial caches on all sites"
-drush @elmsln ecl --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln ecl --concurrency=${concurrent} --strict=0 --y
 echo '6' >> $steplog
 
 # a message so you know where our head is at. you get candy if you reference this
