@@ -49,6 +49,21 @@ function icor_jmol_strongarm() {
         'path' => array(
           'weight' => '3',
         ),
+        'hidden_nodes' => array(
+          'weight' => '7',
+        ),
+        'book' => array(
+          'weight' => '8',
+        ),
+        'options' => array(
+          'weight' => '5',
+        ),
+        'author' => array(
+          'weight' => '6',
+        ),
+        'revision_information' => array(
+          'weight' => '4',
+        ),
       ),
       'display' => array(),
     ),

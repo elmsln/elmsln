@@ -11,6 +11,8 @@ pages:
     - Outline designer: enduser/courses/outline-designer.md
   - Media asset management:
     - Interactive H5P content: enduser/media/h5p.md
+  - Accessibility:
+    - H5P: accessibility/h5p.md
 - Information architecture:
   - Index: ia/ia-index.md
   - System: ia/System.md
@@ -62,7 +64,9 @@ pages:
     - Vagrant: development/Vagrant-Step-by-Step-setup.md
   - Front end:
     - Style guide: development/front-end/Styleguide.md
+    - Fonts: development/front-end/Fonts.md
     - Front end workflow: development/front-end/Front-End-Development-Workflow.md
+    - Vagrant gulp setup: development/front-end/vagrant-gulp-setup.md
   - Debug:
     - General debugging: development/debug.md
     - Reversing commits: development/Reverse-Commit-And-Push.md

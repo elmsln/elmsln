@@ -16,42 +16,46 @@ function elmsmedia_h5p_ds_layout_settings_info() {
   $ds_layout->entity_type = 'node';
   $ds_layout->bundle = 'h5p_content';
   $ds_layout->view_mode = 'form';
-  $ds_layout->layout = 'zf_2col_stacked';
+  $ds_layout->layout = 'ds_2col_stacked';
   $ds_layout->settings = array(
     'regions' => array(
       'header' => array(
         0 => 'field_cis_course_ref',
-        1 => 'og_group_ref',
-      ),
-      'left' => array(
-        2 => 'title',
-        3 => 'h5p_type',
+        1 => 'title',
+        2 => 'h5p_type',
+        3 => 'h5p',
+        4 => 'h5p_editor',
       ),
       'right' => array(
-        4 => 'field_tagging',
+        5 => 'field_figurelabel_ref',
+        8 => 'field_tagging',
+      ),
+      'left' => array(
+        6 => 'field_accessible_fallback',
       ),
       'footer' => array(
-        5 => 'h5p',
-        6 => 'h5p_editor',
+        7 => 'og_group_ref',
       ),
       'hidden' => array(
-        7 => 'path',
-        8 => 'hidden_nodes',
-        9 => 'author',
-        10 => 'revision_information',
-        11 => 'book',
-        12 => 'options',
-        13 => '_add_existing_field',
+        9 => 'path',
+        10 => 'hidden_nodes',
+        11 => 'author',
+        12 => 'revision_information',
+        13 => 'book',
+        14 => 'options',
+        15 => '_add_existing_field',
       ),
     ),
     'fields' => array(
       'field_cis_course_ref' => 'header',
-      'og_group_ref' => 'header',
-      'title' => 'left',
-      'h5p_type' => 'left',
+      'title' => 'header',
+      'h5p_type' => 'header',
+      'h5p' => 'header',
+      'h5p_editor' => 'header',
+      'field_figurelabel_ref' => 'right',
+      'field_accessible_fallback' => 'left',
+      'og_group_ref' => 'footer',
       'field_tagging' => 'right',
-      'h5p' => 'footer',
-      'h5p_editor' => 'footer',
       'path' => 'hidden',
       'hidden_nodes' => 'hidden',
       'author' => 'hidden',
@@ -72,6 +76,7 @@ function elmsmedia_h5p_ds_layout_settings_info() {
     'layout_attributes_merge' => 1,
     'layout_link_attribute' => '',
     'layout_link_custom' => '',
+    'layout_disable_css' => 0,
   );
   $export['node|h5p_content|form'] = $ds_layout;
 

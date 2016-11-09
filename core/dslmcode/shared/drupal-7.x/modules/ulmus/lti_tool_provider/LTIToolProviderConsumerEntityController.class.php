@@ -46,6 +46,8 @@ implements LTIToolProviderConsumerEntityControllerInterface {
     $entity->lti_tool_provider_consumer_secret = '';
     $entity->lti_tool_provider_consumer_consumer = '';
     $entity->lti_tool_provider_consumer_domain = '';
+    $entity->lti_tool_provider_consumer_alternative_user_id_field = '';
+    $entity->lti_tool_provider_consumer_alternative_email_field = '';
     $entity->lti_tool_provider_consumer_dummy_pref = FALSE;
     $extra_cols = lti_tool_provider_get_extra_columns();
     foreach ($extra_cols as $col) {
@@ -66,7 +68,7 @@ implements LTIToolProviderConsumerEntityControllerInterface {
   public function save($entity) {
     $transaction = db_transaction();
     try {
-      $entity->is_new = empty($enity->lti_tool_provider_consumer_id);
+      $entity->is_new = empty($entity->lti_tool_provider_consumer_id);
       if (empty($entity->date_joined)) {
         $entity->date_joined = REQUEST_TIME;
       }

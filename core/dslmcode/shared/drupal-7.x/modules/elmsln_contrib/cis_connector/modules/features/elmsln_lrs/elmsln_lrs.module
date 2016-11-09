@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ELMSLN LRS feature.
+ */
+
+include_once 'elmsln_lrs.features.inc';

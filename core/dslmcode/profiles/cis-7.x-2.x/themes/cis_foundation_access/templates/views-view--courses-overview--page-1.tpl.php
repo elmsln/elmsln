@@ -38,7 +38,7 @@
       <?php print $header; ?>
     </div>
   <?php endif; ?>
-  <div class="large-3 columns courses-overview-filters">
+  <div class="s12 m3 l3 col courses-overview-filters">
   <?php if ($exposed): ?>
     <div class="view-filters">
       <?php print $exposed; ?>
@@ -51,10 +51,10 @@
     </div>
   <?php endif; ?>
   <?php if ($rows): ?>
-    <div class="large-9 columns view-content">
+    <div class="s12 m9 l9 col view-content">
       <?php print $rows; ?>
     </div>
-    
+
   <?php elseif ($empty): ?>
     <div class="view-empty">
       <?php print $empty; ?>

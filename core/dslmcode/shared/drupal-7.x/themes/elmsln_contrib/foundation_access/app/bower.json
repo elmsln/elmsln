@@ -1,0 +1,22 @@
+{
+  "name": "heyMP",
+  "version": "0.0.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+    "compass-breakpoint": "breakpoint-sass#~2.6.1",
+    "susy": "~2.2.6"
+  },
+  "overrides": {
+    "jquery": {
+      "ignore": "true"
+    }
+  }
+}

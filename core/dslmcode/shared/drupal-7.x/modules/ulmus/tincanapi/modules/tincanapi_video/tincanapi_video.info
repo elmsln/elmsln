@@ -1,0 +1,9 @@
+name = Tin Can API (Video)
+description = Tin Can API reporting for Vimeo/Youtube videos anywhere in content.
+package = Tin Can API
+
+dependencies[] = tincanapi_media
+
+scripts[] = js/tincanapi_video.js
+
+core = 7.x

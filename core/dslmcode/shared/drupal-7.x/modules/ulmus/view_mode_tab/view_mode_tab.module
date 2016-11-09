@@ -120,7 +120,20 @@ function view_mode_tab_node_type_form_submit($form, &$form_state) {
     else {
       $settings[$view_mode] = 1;
     }
+    // unset so we don't get variable spam in the database
+    if (isset($form_state['values']['view_mode_tab_settings__' . $type . '__' . $view_mode])) {
+      unset($form_state['values']['view_mode_tab_settings__' . $type . '__' . $view_mode]);
+    }
   }
 
   variable_set('view_mode_tab_settings__' . $type, $settings);
+}
+
+/**
+ * Implements hook_node_type_delete().
+ */
+function view_mode_tab_node_type_delete($info) {
+  // delete associated settings tab variable
+  variable_del('view_mode_tab_settings__' . $info->type);
+  cache_clear_all('variables', 'cache_bootstrap');
 }

@@ -17,12 +17,12 @@ function views_data_export_drush_command() {
       'output_file' => 'The file to write the results to - will be overwritten if it already exists',
     ),
     'options' => array (
-      '--arguments' => 'Comma separated list of arguments to be passed to the view.',
-      '--format' => 'csv,doc,txt,xls or xml. These options are ignored if the display_id passed is a "views_data_export" display.',
-      '--separator' => 'csv only: What character separates the fields (default:,)',
-      '--trim-whitespace' => 'csv only: Trim whitespace from either side of fields (default:1)',
-      '--header-row' => 'csv only: Make the first row a row of headers (default:1)',
-      '--quote-values' => 'csv only: Surround each field in quotes (default:1)',
+      'arguments' => 'Comma separated list of arguments to be passed to the view.',
+      'format' => 'csv,doc,txt,xls or xml. These options are ignored if the display_id passed is a "views_data_export" display.',
+      'separator' => 'csv only: What character separates the fields (default:,)',
+      'trim-whitespace' => 'csv only: Trim whitespace from either side of fields (default:1)',
+      'header-row' => 'csv only: Make the first row a row of headers (default:1)',
+      'quote-values' => 'csv only: Surround each field in quotes (default:1)',
     ),
     'examples' => array (
       'drush views-data-export myviewname views_data_export_1 output.csv' => 'Export myviewname:views_data_export_1 and write the output to output.csv in the current directory',
@@ -168,19 +168,19 @@ function drush_views_data_export($view_name, $display_id, $output_file) {
     $options['output_file'] = realpath(drush_get_context('DRUSH_OLDCWD', getcwd())) . '/' . $output_file;
   }
 
+  $arguments = drush_get_option('arguments', '');
+  $arguments = explode(',', $arguments);
 
   if ($view->display_handler->is_batched()) {
     // This is a batched export, and needs to be handled as such.
     _drush_views_data_export_override_batch($view_name, $display_id, $options);
 
-    $arguments = drush_get_option('arguments', '');
-    $arguments = explode(',', $arguments);
     $view->execute_display($display_id, $arguments);
   }
   else {
     // This export isn't batched.
     ob_start();
-    $view->execute_display($display_id);
+    $view->execute_display($display_id, $arguments);
     // Get the results, and clean the output buffer.
     $result = ob_get_contents();
     // Clean the buffer.

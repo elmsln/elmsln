@@ -10,7 +10,7 @@
 function cpr_user_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_accessibility_preference'
+  // Exported field_base: 'field_accessibility_preference'.
   $field_bases['field_accessibility_preference'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -40,7 +40,7 @@ function cpr_user_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_bio'
+  // Exported field_base: 'field_bio'.
   $field_bases['field_bio'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -62,7 +62,7 @@ function cpr_user_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_display_name'
+  // Exported field_base: 'field_display_name'.
   $field_bases['field_display_name'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -85,7 +85,7 @@ function cpr_user_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_first_name'
+  // Exported field_base: 'field_first_name'.
   $field_bases['field_first_name'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -108,7 +108,7 @@ function cpr_user_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_last_name'
+  // Exported field_base: 'field_last_name'.
   $field_bases['field_last_name'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -131,40 +131,37 @@ function cpr_user_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_media_preference'
-  $field_bases['field_media_preference'] = array(
+  // Exported field_base: 'field_user_banner'.
+  $field_bases['field_user_banner'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_media_preference',
+    'field_name' => 'field_user_banner',
     'indexes' => array(
-      'value' => array(
-        0 => 'value',
+      'fid' => array(
+        0 => 'fid',
       ),
     ),
     'locked' => 0,
-    'module' => 'list',
+    'module' => 'image',
     'settings' => array(
-      'allowed_values' => array(
-        'public' => 'Public sources (YouTube, Vimeo, etc)',
-        'local' => 'Local sources (ELMSMedia or other private media server)',
-      ),
-      'allowed_values_function' => '',
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
+      'default_image' => 0,
+      'uri_scheme' => 'public',
     ),
     'translatable' => 0,
-    'type' => 'list_text',
+    'type' => 'image',
   );
 
-  // Exported field_base: 'field_photo'
-  $field_bases['field_photo'] = array(
+  // Exported field_base: 'field_user_photo'.
+  $field_bases['field_user_photo'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_photo',
+    'field_name' => 'field_user_photo',
     'indexes' => array(
       'fid' => array(
         0 => 'fid',

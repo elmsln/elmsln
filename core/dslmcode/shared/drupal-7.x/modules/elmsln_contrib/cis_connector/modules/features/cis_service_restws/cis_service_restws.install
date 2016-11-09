@@ -19,7 +19,7 @@ function cis_service_restws_install() {
   ->execute();
 
   // create user acocunt to match registry file if exists
-  $distro = variable_get('install_profile', FALSE);
+  $distro = elmsln_core_get_profile_key();
   $registry = _cis_connector_build_registry($distro);
   // ensure that user and pass are set
   if (isset($registry['user']) && isset($registry['pass'])) {
@@ -68,7 +68,7 @@ function cis_service_restws_install() {
  * of operations that do the permissions checks ahead of time.
  */
 function cis_service_restws_update_7001(&$sandbox) {
-  $distro = variable_get('install_profile', FALSE);
+  $distro = elmsln_core_get_profile_key();
   $registry = _cis_connector_build_registry($distro);
   // ensure that user and pass are set
   if (isset($registry['user'])) {
@@ -82,4 +82,13 @@ function cis_service_restws_update_7001(&$sandbox) {
       }
     }
   }
+}
+
+/**
+ * Adds permission for other users to access the restful node endpoint.
+ * This works with node / entity access still so it only allows for
+ * submitting against it, useful for building out headless integrations.
+ */
+function cis_service_restws_update_7002(&$sandbox) {
+  features_revert_module('cis_service_restws');
 }

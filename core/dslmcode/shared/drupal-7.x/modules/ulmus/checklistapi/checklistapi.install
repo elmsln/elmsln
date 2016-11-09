@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Checklist API module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function checklistapi_uninstall() {
+  // Delete all Checklist API persistent variables.
+  db_delete('variable')
+    ->condition('name', db_like('checklistapi_') . '%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}

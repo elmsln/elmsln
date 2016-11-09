@@ -14,6 +14,7 @@
  */
 function advagg_mod_admin_settings_form() {
   drupal_set_title(t('AdvAgg: Modifications'));
+  $config_path = advagg_admin_config_root_path();
 
   $form = array();
   $form['js'] = array(
@@ -38,12 +39,16 @@ function advagg_mod_admin_settings_form() {
     '#default_value' => variable_get('advagg_mod_js_no_ajaxpagestate', ADVAGG_MOD_JS_NO_AJAXPAGESTATE),
     '#description' => t('This assumes that the only thing that uses Drupal.settings.ajaxPageState.css and Drupal.settings.ajaxPageState.js is ajax.js.'),
   );
-  $form['js']['advagg_mod_js_get_external_dns'] = array(
+  $form['js']['advagg_mod_js_inline_resource_hints'] = array(
     '#type' => 'checkbox',
-    '#title' => t('DNS prefetch src attributes found in the HTML content'),
-    '#default_value' => variable_get('advagg_mod_js_get_external_dns', ADVAGG_MOD_JS_GET_EXTERNAL_DNS),
-    '#description' => t('Scan any JavaScript that was added to the content part of the page incorrectly for a src attribute; if found prefetch that DNS entry.'),
+    '#title' => t('Resource hint src attributes found in the HTML content'),
+    '#default_value' => variable_get('advagg_mod_js_inline_resource_hints', ADVAGG_MOD_JS_INLINE_RESOURCE_HINTS),
+    '#description' => t('Scan any JavaScript that was added to the content part of the page incorrectly for a src attribute; if found use the advagg <a href="@url">resource hints settings</a> for faster loading.', array('@url' => url($config_path . '/advagg', array('fragment' => 'edit-resource-hints')))),
+    '#disabled' => !variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH) && !variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT) && !variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD),
   );
+  if ($form['js']['advagg_mod_js_inline_resource_hints']['#disabled']) {
+    $form['js']['advagg_mod_js_inline_resource_hints']['#description'] .= ' ' . t('Currently disabled; to enable check the desired checkboxes under Resource Hints on the <a href="@url">configuration page</a>', array('@url' => url($config_path . '/advagg', array('fragment' => 'edit-resource-hints'))));
+  }
   // Optimize JavaScript Ordering.
   $form['js']['adjust_sort'] = array(
     '#type' => 'fieldset',
@@ -90,7 +95,10 @@ function advagg_mod_admin_settings_form() {
       '#type' => 'checkbox',
       '#title' => t('Prefetch stats.g.doubleclick.net/robots.txt'),
       '#default_value' => variable_get('advagg_mod_prefetch', ADVAGG_MOD_PREFETCH),
-      '#description' => t('Opens a connection to stats.g.doubleclick.net in order to speed up the round trip time.'),
+      '#description' => t('Opens a connection to stats.g.doubleclick.net in order to speed up the round trip time. If the browser supports preconnect and under Resource Hints on the <a href="@url">configuration page</a>, preconnect is enabled (currently %state), then it will use preconnect instead of this robots.txt hack.', array(
+        '@url' => url($config_path . '/advagg', array('fragment' => 'edit-resource-hints')),
+        '%state' => variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT) ? t('enabled') : t('disabled'),
+      )),
     );
   }
 
@@ -244,7 +252,6 @@ function advagg_mod_admin_settings_form() {
     '#description' => t('Rewrites all scripts in the page with an "async" attribute to an inline JavaScript loading the script asynchronously in an old browser compatible way. List of <a href="@link">supported browsers</a>. Once all commonly used browsers support the "async" attribute you can happily disable this checkbox.', array('@link' => 'http://caniuse.com/script-async')),
   );
 
-  $config_path = advagg_admin_config_root_path();
   $form['css'] = array(
     '#type' => 'fieldset',
     '#title' => t('CSS'),
@@ -325,7 +332,8 @@ function advagg_mod_admin_settings_form() {
       0 => t('Disabled'),
       1 => t('All in head, above js'),
       3 => t('All in head'),
-      5 => t('All in footer except for JS loading code (If enabled this is recommended)'),
+      4 => t('All in head, use link rel="preload" (If enabled this is recommended)'),
+      5 => t('All in footer except for JS loading code'),
       7 => t('All in footer'),
     ),
     '#description' => t('This will try to optimize CSS delivery by using JavaScript to load the CSS. This might break CSS on different browsers and will cause a flash of unstyled content (FOUC). Only enable after extensive testing! <a href="@link">More Info</a>', array(
@@ -337,6 +345,11 @@ function advagg_mod_admin_settings_form() {
     '#title' => t('Use JS to load CSS in the admin theme'),
     '#default_value' => variable_get('advagg_mod_css_defer_admin', ADVAGG_MOD_CSS_DEFER_ADMIN),
     '#description' => t('This will optimize CSS delivery with JavaScript when viewing the admin theme'),
+    '#states' => array(
+      'disabled' => array(
+        ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
+      ),
+    ),
   );
 
   // Taken from block_admin_configure().
@@ -379,12 +392,22 @@ function advagg_mod_admin_settings_form() {
       '#options' => $options,
       '#default_value' => $visibility_defer,
       '#description' => t('Apply the above CSS setting only on specific pages. On other pages it will act as being Disabled.'),
+      '#states' => array(
+        'disabled' => array(
+          ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
+        ),
+      ),
     );
     $form['css']['placement']['expert']['advagg_mod_css_defer_pages'] = array(
       '#type' => 'textarea',
       '#title' => '<span class="element-invisible">' . $title . '</span>',
       '#default_value' => $css_defer_pages,
       '#description' => $description,
+      '#states' => array(
+        'disabled' => array(
+          ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
+        ),
+      ),
     );
   }
 
@@ -400,17 +423,6 @@ function advagg_mod_admin_settings_form() {
     '#description' => t('The <a href="@link">loadCSS</a> library can be included in various ways.', array(
       '@link' => 'https://github.com/filamentgroup/loadCSS',
     )),
-    '#states' => array(
-      'disabled' => array(
-        ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
-      ),
-    ),
-  );
-  $form['css']['placement']['expert']['advagg_mod_css_defer_rel_preload'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use link rel="preload"'),
-    '#default_value' => variable_get('advagg_mod_css_defer_rel_preload', ADVAGG_MOD_CSS_DEFER_REL_PRELOAD),
-    '#description' => t('In supporting browsers, this markup will cause the browser to fetch the CSS file in an asynchronous, non-render-blocking manner, and once loaded, its onload event handler will change its rel property to "stylesheet" causing it to apply visibly in the page'),
     '#states' => array(
       'disabled' => array(
         ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
@@ -540,25 +552,36 @@ function advagg_mod_admin_settings_form() {
  * Make sure the unified multisite directory was created correctly.
  */
 function advagg_mod_admin_settings_form_validate($form, &$form_state) {
+  // Unified Mmultisite.
   $multisite_dir = rtrim($form_state['values']['advagg_mod_unified_multisite_dir'], '/');
-  // Return if unified_multisite_dir is not set.
-  if (empty($multisite_dir)) {
-    return;
+  if (!empty($multisite_dir)) {
+    // Prepare directory.
+    $css_dir = $multisite_dir . '/advagg_css';
+    $js_dir = $multisite_dir . '/advagg_js';
+    if (!file_prepare_directory($css_dir, FILE_CREATE_DIRECTORY)
+      || !file_prepare_directory($js_dir, FILE_CREATE_DIRECTORY)
+    ) {
+      if (!is_dir($multisite_dir) || !is_writable($multisite_dir)) {
+        form_set_error('advagg_mod_unified_multisite_dir', t('%dir is not a directory or can not be written to. The shared directory needs to have the same permissions as the "Public file system path" found on the <a href="@file_system_link">File System configuration page</a>.', array(
+          '%dir' => $multisite_dir,
+          '@file_system_link' => url('admin/config/media/file-system'),
+        )));
+        return;
+      }
+    }
   }
 
-  // Prepare directory.
-  $css_dir = $multisite_dir . '/advagg_css';
-  $js_dir = $multisite_dir . '/advagg_js';
-  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-  if ( !file_prepare_directory($css_dir, FILE_CREATE_DIRECTORY)
-    || !file_prepare_directory($js_dir, FILE_CREATE_DIRECTORY)
-  ) {
-    if (!is_dir($multisite_dir) || !is_writable($multisite_dir)) {
-      form_set_error('advagg_mod_unified_multisite_dir', t('%dir is not a directory or can not be written to. The shared directory needs to have the same permissions as the "Public file system path" found on the <a href="@file_system_link">File System configuration page</a>.', array(
-        '%dir' => $multisite_dir,
-        '@file_system_link' => url('admin/config/media/file-system'),
-      )));
-      return;
+  // Use JS to load CSS.
+  if ($form_state['values']['advagg_mod_css_defer']) {
+    if ($form_state['values']['advagg_mod_css_defer_visibility'] == ADVAGG_MOD_VISIBILITY_LISTED
+      && empty($form_state['values']['advagg_mod_css_defer_pages'])
+    ) {
+      form_set_error('advagg_mod_css_defer_pages', t('The Deferred CSS Execution setting will run only on specific pages. On other pages it will act as being Disabled. Please input what pages you wish to have the CSS be deferred. Currently none are selected.'));
+    }
+    if ($form_state['values']['advagg_mod_css_defer_visibility'] == ADVAGG_MOD_VISIBILITY_NOTLISTED
+      && $form_state['values']['advagg_mod_css_defer_pages'] === '*'
+    ) {
+      form_set_error('advagg_mod_css_defer_pages', t('The Deferred CSS Execution setting will run only on specific pages. On other pages it will act as being Disabled. Please input what pages you wish to have the CSS not be deferred. Currently all pages are disabled (*).'));
     }
   }
 }
@@ -612,7 +635,7 @@ function advagg_mod_admin_test_css_files() {
       continue;
     }
     // Load CSS file.
-    $file_contents = advagg_load_stylesheet_content(file_get_contents($filename), TRUE);
+    $file_contents = advagg_load_stylesheet_content((string) @file_get_contents($filename), TRUE);
 
     // Code taken from drupal_load_stylesheet_content().
     // Regexp to match double quoted strings.

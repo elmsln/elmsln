@@ -1,0 +1,33 @@
+name = Geofield
+description = Stores geographic and location data (points, lines, and polygons).
+core = 7.x
+dependencies[] = geophp (>=1.7)
+dependencies[] = ctools
+package = Fields
+files[] = geofield.module
+files[] = geofield.install
+files[] = geofield.elements.inc
+files[] = geofield.widgets.inc
+files[] = geofield.formatters.inc
+files[] = geofield.openlayers.inc
+files[] = geofield.feeds.inc
+files[] = tests/geofield.test
+files[] = views/geofield.views.inc
+files[] = views/handlers/geofield_handler_sort.inc
+files[] = views/handlers/geofield_handler_field.inc
+files[] = views/handlers/geofield_handler_filter.inc
+files[] = views/handlers/geofield_handler_argument_proximity.inc
+files[] = views/proximity_plugins/geofieldProximityBase.inc
+files[] = views/proximity_plugins/geofieldProximityManual.inc
+files[] = views/proximity_plugins/geofieldProximityGeocoder.inc
+files[] = views/proximity_plugins/geofieldProximityEntityURL.inc
+files[] = views/proximity_plugins/geofieldProximityOtherGeofield.inc
+files[] = views/proximity_plugins/geofieldProximityCurrentUser.inc
+files[] = views/proximity_plugins/geofieldProximityExposedFilter.inc
+files[] = views/proximity_plugins/geofieldProximityContextualFilter.inc
+; Information added by Drupal.org packaging script on 2014-09-21
+version = "7.x-2.3+0-dev"
+core = "7.x"
+project = "geofield"
+datestamp = "1411337633"
+

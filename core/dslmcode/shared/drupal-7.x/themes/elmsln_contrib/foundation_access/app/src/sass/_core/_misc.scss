@@ -1,0 +1,90 @@
+/**
+ * Misc
+ */
+
+
+@mixin clearfix() {
+  &:before,
+  &:after {
+    content: " ";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+}
+.clearfix,
+%clearfix {
+  @include clearfix;
+}
+
+@mixin margin-fixer() {
+  > *:first-child {
+    margin-top: 0;
+  }
+  > *:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@mixin owl($spacing: NULL) {
+  > * + * {
+    @if $spacing == NULL {
+      margin-top: 1em;
+    }
+    @else {
+      margin-top: $spacing;
+    }
+  }
+}
+
+@mixin vertical-center {
+  position: relative;
+  height: 50%;
+  transform: translateY(-50%);
+}
+
+@mixin container {
+  @include clearfix;
+  max-width: $container-max-width;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@mixin full-width {
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+}
+
+@mixin object-fit {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+@mixin overlay($color) {
+  content: '';
+  display: block;
+  background: $color;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.responsive-iframe {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-top: 65%;
+
+  > iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

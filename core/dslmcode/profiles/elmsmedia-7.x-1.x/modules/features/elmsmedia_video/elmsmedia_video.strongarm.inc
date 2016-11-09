@@ -42,7 +42,7 @@ function elmsmedia_video_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_video';
-  $strongarm->value = 'edit-wysiwyg-template';
+  $strongarm->value = 'edit-view-mode-tab';
   $export['additional_settings__active_tab_video'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -158,7 +158,29 @@ function elmsmedia_video_strongarm() {
       ),
     ),
     'extra_fields' => array(
-      'form' => array(),
+      'form' => array(
+        'title' => array(
+          'weight' => '1',
+        ),
+        'path' => array(
+          'weight' => '13',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '12',
+        ),
+        'book' => array(
+          'weight' => '11',
+        ),
+        'options' => array(
+          'weight' => '10',
+        ),
+        'author' => array(
+          'weight' => '8',
+        ),
+        'revision_information' => array(
+          'weight' => '9',
+        ),
+      ),
       'display' => array(),
     ),
   );

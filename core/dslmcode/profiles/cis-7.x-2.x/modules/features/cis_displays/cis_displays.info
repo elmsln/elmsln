@@ -10,6 +10,7 @@ dependencies[] = entityreference
 dependencies[] = replicate_ui
 dependencies[] = views
 dependencies[] = views_autorefresh
+dependencies[] = views_content_cache
 dependencies[] = views_data_export
 dependencies[] = views_field_calc
 dependencies[] = views_fluid_grid

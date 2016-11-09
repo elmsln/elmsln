@@ -10,17 +10,26 @@
 function mooc_cis_ux_user_default_permissions() {
   $permissions = array();
 
-  // Exported permission: 'switch section context'.
-  $permissions['switch section context'] = array(
-    'name' => 'switch section context',
+  // Exported permission: 'administer read time'.
+  $permissions['administer read time'] = array(
+    'name' => 'administer read time',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
-      'guest' => 'guest',
       'instructor' => 'instructor',
       'staff' => 'staff',
-      'teaching assistant' => 'teaching assistant',
     ),
-    'module' => 'cis_service_connection',
+    'module' => 'read_time',
+  );
+
+  // Exported permission: 'view read time'.
+  $permissions['view read time'] = array(
+    'name' => 'view read time',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'read_time',
   );
 
   return $permissions;

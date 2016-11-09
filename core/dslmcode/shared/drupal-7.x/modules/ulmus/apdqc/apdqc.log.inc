@@ -65,7 +65,7 @@ class ApdqcFakeDatabaseStatement extends DatabaseStatementEmpty {
     $stack = debug_backtrace();
     $stack_count = count($stack);
     for ($i = 0; $i < $stack_count; ++$i) {
-      if ( !empty($stack[$i]['file'])
+      if (!empty($stack[$i]['file'])
         && strpos($stack[$i]['file'], 'includes' . DIRECTORY_SEPARATOR . 'database') === FALSE
         && strpos($stack[$i]['file'], 'includes' . DIRECTORY_SEPARATOR . 'cache') === FALSE
         && strpos($stack[$i]['file'], 'apdqc.cache.inc') === FALSE
@@ -102,6 +102,7 @@ class ApdqcFakeDatabaseStatement extends DatabaseStatementEmpty {
  * Fake DatabaseConnection handler.
  */
 class ApdqcFakeDbh {
+
   /**
    * Returns the target this connection is associated with.
    *

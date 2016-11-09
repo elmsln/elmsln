@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Test module for Checklist API.
+ */
+
+/**
+ * Implements hook_checklistapi_checklist_info().
+ */
+function checklistapi_test_checklistapi_checklist_info() {
+  $definitions = array();
+  $definitions['test_checklist'] = array(
+    '#title' => t('Checklist API test'),
+    '#path' => 'admin/config/development/checklistapi-test',
+    '#description' => t('A test checklist.'),
+    '#help' => t('<p>This is a test checklist.</p>'),
+    'group_two' => array(
+      '#title' => t('Group two'),
+    ),
+    'group_one' => array(
+      '#title' => t('Group one'),
+      '#description' => t('<p>Group one description.</p>'),
+      '#weight' => -1,
+      'item_three' => array(
+        '#title' => t('Item three'),
+        '#weight' => 1,
+      ),
+      'item_one' => array(
+        '#title' => t('Item one'),
+        '#description' => t('Item one description'),
+        '#weight' => -1,
+        'link_three' => array(
+          '#text' => t('Link three'),
+          '#path' => 'http://example.com/three',
+          '#weight' => 3,
+        ),
+        'link_two' => array(
+          '#text' => t('Link two'),
+          '#path' => 'http://example.com/two',
+          '#weight' => 2,
+        ),
+        'link_one' => array(
+          '#text' => t('Link one'),
+          '#path' => 'http://example.com/one',
+          '#weight' => 1,
+        ),
+      ),
+      'item_two' => array(
+        '#title' => t('Item two'),
+      ),
+    ),
+    'group_four' => array(
+      '#title' => t('Group four'),
+      '#weight' => 1,
+    ),
+    'group_three' => array(
+      '#title' => t('Group three'),
+      '#weight' => 'invalid',
+    ),
+  );
+  return $definitions;
+}

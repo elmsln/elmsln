@@ -292,8 +292,7 @@ function advagg_generate_filesize_processed($filename, $type) {
       list($contents) = advagg_get_js_aggregate_contents($file_aggregate, $aggregate_settings);
     }
     if (!empty($contents)) {
-      $compressed = gzencode($contents, 9, FORCE_GZIP);
-      $files[$type][$filename] = strlen($compressed);
+      $files[$type][$filename] = strlen(gzencode($contents, 9, FORCE_GZIP));
     }
     else {
       $files[$type][$filename] = 0;
@@ -324,6 +323,9 @@ function advagg_does_js_start_with_use_strict($filename) {
     // See if the js file starts with "use strict";.
     $use_strict = stripos(trim($contents), '"use strict";');
     $strict_js = FALSE;
+    if ($use_strict === FALSE) {
+      $use_strict = stripos(trim($contents), "'use strict';");
+    }
     if ($use_strict !== FALSE) {
       if ($use_strict == 0) {
         $strict_js = TRUE;
@@ -348,8 +350,12 @@ function advagg_does_js_start_with_use_strict($filename) {
             }
           }
           // Jsminplus strips all comments.
-          advagg_js_compress_jsminplus($contents, FALSE);
-          $use_strict = stripos($contents, '"use strict"');
+          // Supress any errors; only js fragments are being processed.
+          @advagg_js_compress_jsminplus($contents, FALSE);
+          $use_strict = stripos($contents, '"use strict";');
+          if ($use_strict === FALSE) {
+            $use_strict = stripos($contents, "'use strict';");
+          }
           $substr = substr($contents, 0, $use_strict);
           // Check if there is a function before this.
           $in_function = stripos($substr, '{');
@@ -413,13 +419,25 @@ function advagg_get_aggregate_info_from_files($type, array $files_with_meta_data
 
   $files_info_filenames = array();
   foreach ($files_with_meta_data as $info) {
-    $files_info_filenames[] = $info['data'];
+    if (!empty($info['data']) && is_string($info['data'])) {
+      $files_info_filenames[] = $info['data'];
+    }
+    else {
+      watchdog('advagg', 'Bad data key. File info: <code>@finfo</code>', array(
+        '@finfo' => var_export($info, TRUE),
+      ));
+    }
   }
 
   // Get filesystem data.
   $files_info = advagg_get_info_on_files($files_info_filenames);
 
   foreach ($files_with_meta_data as $info) {
+    // Skip if not a string or key doesn't exist.
+    if (!is_string($info['data']) || !array_key_exists($info['data'], $files_info)) {
+      continue;
+    }
+
     $filename = $info['data'];
     $info += $files_info[$filename];
     // Skip if file doesn't exist.
@@ -472,8 +490,7 @@ function &advagg_load_files_info_into_static_cache(array $files) {
   $cache_ids = array();
   foreach ($files as $file) {
     $cache_id = 'advagg:file:' . advagg_drupal_hash_base64($file);
-    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-    if ( !empty($cached_data)
+    if (!empty($cached_data)
       && !empty($cached_data[$cache_id])
     ) {
       // Make sure the cache_id is included.
@@ -550,8 +567,7 @@ function advagg_get_info_on_files(array $files, $bypass_cache = FALSE, $run_alte
     $filename_hash = advagg_drupal_hash_base64($file);
     $cache_id = 'advagg:file:' . $filename_hash;
     // If we are not bypassing the cache add cached data.
-    // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-    if ( $bypass_cache == FALSE
+    if ($bypass_cache == FALSE
       && is_array($cached_data)
       && array_key_exists($cache_id, $cached_data)
     ) {
@@ -634,8 +650,7 @@ function advagg_get_info_on_files(array $files, $bypass_cache = FALSE, $run_alte
     foreach ($return as $info) {
       // If no cache is empty add/update the cached entry.
       // Update the cache if it is new or something changed.
-      // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-      if ( empty($info['#no_cache'])
+      if (empty($info['#no_cache'])
         && !empty($info['cache_id'])
         && (empty($cached_data[$info['cache_id']]) || $info !== $cached_data[$info['cache_id']])
       ) {
@@ -756,13 +771,23 @@ function advagg_generate_groups(array $files_to_aggregate, $type) {
   // Get CSS limit value.
   $limit_value = variable_get('advagg_ie_css_selector_limiter_value', ADVAGG_IE_CSS_SELECTOR_LIMITER_VALUE);
 
-  if ( variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)
-    || variable_get('advagg_browser_dns_prefetch', ADVAGG_BROWSER_DNS_PREFETCH)
+  if (variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)
+    || variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH)
+    || variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT)
+    || variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD)
   ) {
     foreach ($files_to_aggregate as $data) {
       foreach ($data as $values) {
         foreach ($values['items'] as $file_info) {
-          $filenames[] = $file_info['data'];
+          if (!empty($file_info['data']) && is_string($file_info['data'])) {
+            $filenames[] = $file_info['data'];
+          }
+          else {
+            watchdog('advagg', 'Bad data key. File info: <code>@finfo</code> Group info: <code>@ginfo</code>', array(
+              '@finfo' => var_export($file_info, TRUE),
+              '@ginfo' => var_export($values, TRUE),
+            ));
+          }
         }
       }
     }
@@ -894,7 +919,11 @@ function advagg_generate_groups(array $files_to_aggregate, $type) {
           $scope = '';
         }
 
-        if (variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)) {
+        if (variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)
+          && array_key_exists('data', $file_info)
+          && is_string($file_info['data'])
+          && array_key_exists($file_info['data'], $files_info)
+        ) {
           $file_info += $files_info[$file_info['data']];
           // Prevent CSS rules exceeding 4095 due to limits with IE9 and below.
           if ($ext === 'css') {
@@ -912,7 +941,8 @@ function advagg_generate_groups(array $files_to_aggregate, $type) {
         }
 
         // Merge in dns_prefetch.
-        if ( variable_get('advagg_browser_dns_prefetch', ADVAGG_BROWSER_DNS_PREFETCH)
+        if ((variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH)
+          || variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT))
           && isset($files_info[$file_info['data']]['dns_prefetch'])
         ) {
           if (!isset($file_info['dns_prefetch'])) {
@@ -924,6 +954,21 @@ function advagg_generate_groups(array $files_to_aggregate, $type) {
             $file_info['dns_prefetch'] = array($temp);
           }
           $file_info['dns_prefetch'] = array_filter(array_unique(array_merge($file_info['dns_prefetch'], $files_info[$file_info['data']]['dns_prefetch'])));
+        }
+
+        // Merge in preload.
+        if (variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD)
+          && isset($files_info[$file_info['data']]['preload'])
+        ) {
+          if (!isset($file_info['preload'])) {
+            $file_info['preload'] = array();
+          }
+          if (!empty($file_info['preload']) && is_string($file_info['preload'])) {
+            $temp = $file_info['preload'];
+            unset($file_info['preload']);
+            $file_info['preload'] = array($temp);
+          }
+          $file_info['preload'] = array_filter(array_unique(array_merge($file_info['preload'], $files_info[$file_info['data']]['preload'])));
         }
 
         // If one of the above options changed, it needs to be in a different
@@ -963,7 +1008,7 @@ function advagg_split_css_file(array $file_info) {
   module_load_include('inc', 'advagg', 'advagg.missing');
 
   // Get the CSS file and break up by media queries.
-  $file_contents = file_get_contents($file_info['data']);
+  $file_contents = (string) @file_get_contents($file_info['data']);
   $media_blocks = advagg_parse_media_blocks($file_contents);
 
   // Get 98% of the advagg_ie_css_selector_limiter_value; usually 4013.
@@ -1366,10 +1411,9 @@ function advagg_create_aggregate_files(array $plans, $type) {
   }
 
   // If the httprl module exists and we want to use it.
-  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-  if ( module_exists('httprl')
+  if (module_exists('httprl')
     && variable_get('advagg_use_httprl', ADVAGG_USE_HTTPRL)
-    && ( is_callable('httprl_is_background_callback_capable')
+    && (is_callable('httprl_is_background_callback_capable')
       && httprl_is_background_callback_capable()
       || !is_callable('httprl_is_background_callback_capable')
       )
@@ -1447,7 +1491,7 @@ function advagg_load_css_stylesheet($file, $optimize = TRUE, array $aggregate_se
   $url_parts = strpos($css_base_url, $parts_path);
   // If this CSS file is actually a part of a previously split larger CSS file,
   // don't use it to construct relative paths within the CSS file for
-  // 'url( ... )' bits.
+  // 'url(...)' bits.
   if ($url_parts !== FALSE) {
     $css_base_url = substr($css_base_url, $url_parts + strlen($parts_path));
   }

@@ -10,7 +10,7 @@ function elmsln_api_elmsln_api_callback_entity_update() {
   if (isset($_elmsln['args']['entity']) && isset($_elmsln['args']['etid']) && isset($_elmsln['args']['type'])) {
     $changed = FALSE;
     // load the entity
-    $entity = entity_load($_elmsln['args']['type'], $_elmsln['args']['etid']);
+    $entity = entity_load_single($_elmsln['args']['type'], $_elmsln['args']['etid']);
     // loop through the properties of the remote entity, check against internal
     // this allows for partcial update
     foreach ($_elmsln['args']['entity'] as $key => $value) {

@@ -20,3 +20,9 @@ function discuss_helper_entity_insert($entity, $type) {
   }
 }
 
+/**
+ * Implements hook_page_build().
+ */
+function discuss_helper_page_build(&$page) {
+  drupal_add_css(drupal_get_path('module', 'discuss_helper') . '/css/discuss_styles.css');
+}

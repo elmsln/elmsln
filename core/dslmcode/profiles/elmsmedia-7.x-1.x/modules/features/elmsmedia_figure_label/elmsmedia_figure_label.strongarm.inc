@@ -42,7 +42,7 @@ function elmsmedia_figure_label_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_figurelabel';
-  $strongarm->value = 'edit-wysiwyg-template';
+  $strongarm->value = 'edit-view-mode-tab';
   $export['additional_settings__active_tab_figurelabel'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -158,7 +158,29 @@ function elmsmedia_figure_label_strongarm() {
       ),
     ),
     'extra_fields' => array(
-      'form' => array(),
+      'form' => array(
+        'title' => array(
+          'weight' => '-5',
+        ),
+        'path' => array(
+          'weight' => '100',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '100',
+        ),
+        'book' => array(
+          'weight' => '100',
+        ),
+        'options' => array(
+          'weight' => '100',
+        ),
+        'author' => array(
+          'weight' => '100',
+        ),
+        'revision_information' => array(
+          'weight' => '100',
+        ),
+      ),
       'display' => array(),
     ),
   );

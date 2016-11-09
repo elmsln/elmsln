@@ -1,0 +1,29 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the bulk_photo_nodes module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function bulk_photo_nodes_install() {
+  $style = image_style_save(array('name' => 'bulk_photo_nodes'));
+  $effect = array(
+    'name' => 'image_scale',
+    'data' => array(
+      'width' => 150,
+      'height' => 150,
+      'upscale' => TRUE,
+    ),
+    'isid' => $style['isid'],
+  );
+  image_effect_save($effect);
+}
+/**
+ * Implements hook_uninstall().
+ */
+function bulk_photo_nodes_uninstall() {
+  variable_del('bulk_photo_node_types');
+  image_style_delete(image_style_load('bulk_photo_nodes'));
+}

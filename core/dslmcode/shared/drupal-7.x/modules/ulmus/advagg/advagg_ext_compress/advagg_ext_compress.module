@@ -133,7 +133,7 @@ function advagg_ext_compress_js_compress(&$contents) {
 
   file_put_contents($new_temp_file, $contents);
   $output = advagg_ext_compress_execute_cmd($temp_file_full, 'js');
-  $contents = file_get_contents($output);
+  $contents = (string) @file_get_contents($output);
 
   // Cleanup.
   unset($new_temp_file);

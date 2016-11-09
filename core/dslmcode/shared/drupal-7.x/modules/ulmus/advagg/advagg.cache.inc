@@ -44,25 +44,30 @@ function advagg_scan_for_changes() {
         'content_hash',
         'linecount',
       );
-      $changed = FALSE;
+      $changed = array();
       foreach ($keys_to_compare as $key) {
         if ($row[$key] != $info[$key]) {
-          $changed = TRUE;
+          $changed[] = $key . ' db:' . $row[$key] . ' file:' . $info[$key];
           break;
         }
       }
       // Compare mtime if it is not zero.
-      if (!$changed && empty($info['split']) && !empty($info['mtime']) && $row['mtime'] != $info['mtime']) {
-        $changed = TRUE;
+      if (empty($info['split']) && !empty($info['mtime'])) {
+        if (variable_get('advagg_strict_mtime_check', ADVAGG_STRICT_MTIME_CHECK) && $row['mtime'] != $info['mtime']) {
+          $changed[] = 'mtime db:' . $row['mtime'] . ' file:' . $info['mtime'];
+        }
+        elseif ($row['mtime'] < $info['mtime']) {
+          $changed[] = 'mtime db:' . $row['mtime'] . ' file:' . $info['mtime'];
+        }
       }
 
-      if (!$changed) {
+      if (empty($changed)) {
         // Call hook_advagg_scan_for_changes().
         $changes_array = module_invoke_all('advagg_scan_for_changes', $row['filename']);
         if (is_array($changes_array)) {
           foreach ($changes_array as $value) {
             if (!empty($value)) {
-              $changed = TRUE;
+              $changed[] = $value;
               break;
             }
           }
@@ -70,7 +75,8 @@ function advagg_scan_for_changes() {
       }
 
       // If file has changed, add it to the array.
-      if ($changed) {
+      if (!empty($changed)) {
+        $info['changes'] = $changed;
         $files_that_have_changed[$row['filename']] = $info;
       }
     }
@@ -114,7 +120,18 @@ function advagg_push_new_changes() {
         }
       }
 
-      $results[$filename] = array(count($cache_ids), count($cache_hits));
+      $changes = array();
+      if (!empty($meta_data['changes'])) {
+        $changes = $meta_data['changes'];
+        unset($meta_data['changes']);
+      }
+
+      $results[$filename] = array(
+        count($cache_ids),
+        count($cache_hits),
+        $changes,
+      );
+
       // Update database.
       advagg_insert_update_files(array($filename => $meta_data), $ext);
     }
@@ -184,7 +201,7 @@ function advagg_get_aggregates_using_file($filename_hash, $cid_only = FALSE) {
  */
 function advagg_get_all_files(array $options = array()) {
   list($css_path, $js_path) = advagg_get_root_files_dir();
-  $options += array('nomask' => '/(\.\.?|CVS|\.gz)$/');
+  $options += array('nomask' => '/(\.\.?|CVS|\.gz|\.br)$/');
 
   // Get a list of files.
   $css_files = file_scan_directory($css_path[0], '/.*/', $options);
@@ -234,6 +251,9 @@ function advagg_delete_files_if_stale(array $files) {
       if (file_exists($uri . '.gz')) {
         file_unmanaged_delete($uri . '.gz');
       }
+      if (file_exists($uri . '.br')) {
+        file_unmanaged_delete($uri . '.br');
+      }
       $kill_list[] = $uri;
       continue;
     }
@@ -245,6 +265,9 @@ function advagg_delete_files_if_stale(array $files) {
       if (file_exists($uri . '.gz')) {
         file_unmanaged_delete($uri . '.gz');
       }
+      if (file_exists($uri . '.br')) {
+        file_unmanaged_delete($uri . '.br');
+      }
       $kill_list[] = $uri;
       continue;
     }
@@ -254,6 +277,9 @@ function advagg_delete_files_if_stale(array $files) {
       file_unmanaged_delete($uri);
       if (file_exists($uri . '.gz')) {
         file_unmanaged_delete($uri . '.gz');
+      }
+      if (file_exists($uri . '.br')) {
+        file_unmanaged_delete($uri . '.br');
       }
       $kill_list[] = $uri;
     }
@@ -406,12 +432,17 @@ function advagg_remove_missing_files_from_db() {
         ->execute();
 
       // Add info to array.
-      $types[$ext] = TRUE;
-      $deleted[$filename] = array(
-        'advagg_files' => $advagg_files_del,
-        'advagg_aggregates_versions' => $advagg_aggregates_versions_del,
-        'advagg_aggregates' => $advagg_aggregates_del,
-      );
+      if (!empty($advagg_files_del)
+        || !empty($advagg_aggregates_versions_del)
+        || !empty($advagg_aggregates_del)
+      ) {
+        $types[$ext] = TRUE;
+        $deleted[$filename] = array(
+          'advagg_files' => $advagg_files_del,
+          'advagg_aggregates_versions' => $advagg_aggregates_versions_del,
+          'advagg_aggregates' => $advagg_aggregates_del,
+        );
+      }
     }
   }
 
@@ -513,6 +544,9 @@ function advagg_delete_files_if_orphaned(array $files) {
         file_unmanaged_delete($uri);
         if (file_exists($uri . '.gz')) {
           file_unmanaged_delete($uri . '.gz');
+        }
+        if (file_exists($uri . '.br')) {
+          file_unmanaged_delete($uri . '.br');
         }
       }
     }
@@ -743,6 +777,7 @@ function advagg_refresh_all_locale_files() {
   $results = db_select('advagg_files', 'af')
     ->fields('af')
     ->condition('af.filetype', 'js')
+    ->condition('af.filesize', 0, '>')
     ->execute();
   $javascript = array();
   foreach ($results as $row) {
@@ -808,7 +843,7 @@ function advagg_detect_subfile_changes($filename, array $subfiles, $keyname, $sa
     $info[$keyname] = advagg_get_hash_settings($hash_id);
   }
 
-  $subfile_changed = FALSE;
+  $subfile_changed = array();
   // Check every subfile seeing if they have changed.
   foreach ($subfiles as $subfile) {
     $current_file_info = $defaults = array(
@@ -824,7 +859,7 @@ function advagg_detect_subfile_changes($filename, array $subfiles, $keyname, $sa
     // Get the current info on the file.
     if (file_exists($subfile)) {
       $current_file_info = array(
-        'hash' => drupal_hash_base64(file_get_contents($subfile)),
+        'hash' => drupal_hash_base64((string) @file_get_contents($subfile)),
         'size' => filesize($subfile),
         'mtime' => filemtime($subfile),
       );
@@ -836,10 +871,10 @@ function advagg_detect_subfile_changes($filename, array $subfiles, $keyname, $sa
     // Check for any differences.
     $diff = array_diff_assoc($saved_file_info, $current_file_info);
     if (!empty($diff)) {
-      $subfile_changed = TRUE;
+      $subfile_changed[$subfile] = $diff;
     }
   }
-  if ($subfile_changed && $save_changes) {
+  if (!empty($subfile_changed) && $save_changes) {
     $cache_id = 'advagg:file:' . $info['filename_hash'];
 
     // Set static cache.

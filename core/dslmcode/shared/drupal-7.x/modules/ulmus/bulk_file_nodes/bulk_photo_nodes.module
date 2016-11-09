@@ -1,0 +1,1147 @@
+<?php
+/**
+ * @file
+ * hooks and helper functions for bulk photo node.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function bulk_photo_nodes_permission() {
+  return array(
+    'create bulk photo nodes' => array(
+      'title' => t('Create bulk photo nodes'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function bulk_photo_nodes_menu() {
+  $items = array();
+
+  $bpn_var = variable_get('bulk_photo_node_types');
+  if (!empty($bpn_var)) {
+
+    // Taken from node.module
+    node_type_cache_reset();
+    foreach (node_type_get_types() as $type) {
+      if (!empty($bpn_var[$type->type]) && $bpn_var[$type->type] !== 'none') {
+        $type_url_str = str_replace('_', '-', $type->type);
+        $items['node/add/' . $type_url_str . '/bulk'] = array(
+          'title' => 'Upload Images',
+          'title callback' => 'check_plain',
+          'page callback' => 'bulk_photo_nodes_page_get',
+          'page arguments' => array($type->type),
+          'access callback' => 'user_access',
+          'access arguments' => array('create bulk photo nodes'),
+          'description' => $type->description,
+          'file' => 'node.pages.inc',
+          'file path' => drupal_get_path('module', 'node'),
+        );
+      }
+    }
+  }
+
+  return $items;
+}
+/**
+ * Implements hook_menu_alter().
+ *
+ * Replaces standard node add pages with bulk pages.
+ */
+function bulk_photo_nodes_menu_alter(&$items) {
+  $bpn_var = variable_get('bulk_photo_node_types');
+  if (!empty($bpn_var)) {
+
+    foreach (entity_get_info() as $entity_type => $entity_info) {
+      if ($entity_type !== 'node') {
+        continue;
+      }
+
+      foreach (array_keys($entity_info['bundles']) as $bundle) {
+        if (isset($bpn_var[$bundle]) && !empty($bpn_var[$bundle . '_override']) && (!empty($bpn_var[$bundle]) || $bpn_var[$bundle] !== 'none')) {
+          $node_add_path = 'node/add/' . strtr($bundle, '_', '-');
+          $items[$node_add_path]['page callback'] = 'bulk_photo_nodes_page';
+          $items[$node_add_path]['page arguments'] = array($bundle);
+          $items[$node_add_path]['access callback'] = 'user_access';
+          $items[$node_add_path]['access arguments'] = array('create bulk photo nodes');
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_node_type_form_alter().
+ */
+function bulk_photo_nodes_form_node_type_form_alter(&$form, &$form_state, $form_id) {
+  $form['bulk_photo_nodes'] = array(
+    '#tree' => TRUE,
+    '#type' => 'fieldset',
+    '#group' => 'additional_settings',
+    '#title' => 'Bulk Photo Node Settings',
+  );
+  $form['bulk_photo_nodes']['image_field'] = array(
+    '#type' => 'select',
+    '#title' => 'Choose a field for the image',
+    '#default_value' => bulk_photo_nodes_get_image_field($form['#node_type']->type),
+    '#options' => bulk_photo_nodes_get_image_fields($form['#node_type']->type),
+  );
+
+  // Build path for use in description.
+  $path = 'node/add/' . strtr($form['#node_type']->type, '_', '-') . '/bulk';
+  // Get setting node option.
+  $option = bulk_photo_nodes_get_option($form['#node_type']->type);
+  // If never set before, default to on.
+  $option = $option === 'none' ? 1 : $option;
+  $bpn_var = variable_get('bulk_photo_node_types');
+  $form['bulk_photo_nodes']['override_add_form'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Override add form'),
+    '#description' => t('By default the Bulk options will override the normal node creation form. Separate bulk path !link is always available.', array('!link' => l($path, $path))),
+    '#default_value' => $option,
+  );
+
+  $form['#submit'][] = 'bulk_photo_nodes_submit';
+}
+
+/**
+ * Form submission handler for bulk_photo_nodes_form_node_type_form_alter().
+ */
+function bulk_photo_nodes_submit($form, &$form_state) {
+  $image_field = $form_state['values']['bulk_photo_nodes']['image_field'];
+  $override_add_form = $form_state['values']['bulk_photo_nodes']['override_add_form'];
+  $node_type = $form['#node_type']->type;
+  $orig_bpn_var = variable_get('bulk_photo_node_types', array());
+  $new_bpn_var = $orig_bpn_var;
+
+  // We need $bpn_var[$node_type] to be set, as we check it later on.
+  if (!isset($bpn_var[$node_type])) {
+    $bpn_var[$node_type] = NULL;
+  }
+
+  // Always save field even if set to none.
+  if ($image_field == 'none') {
+    if (array_key_exists($node_type, $new_bpn_var)) {
+      unset($new_bpn_var[$node_type]);
+    }
+  }
+  else {
+    $new_bpn_var[$node_type] = $image_field;
+  }
+
+  // Override the form?
+  $new_bpn_var[$node_type . '_override'] = $override_add_form;
+
+  // Only save if something has changed.
+  foreach ($new_bpn_var as $key => $val) {
+    if (!array_key_exists($key, $orig_bpn_var) || $orig_bpn_var[$key] != $val) {
+      // Save as soon as anything's different.
+      variable_set('bulk_photo_node_types', $new_bpn_var);
+      menu_rebuild();
+      drupal_set_message("Bulk photo node settings saved.");
+      // No need to keep checking.
+      continue;
+    }
+  }
+}
+
+/**
+ * Returns a list of image fields for a given content type.
+ *
+ * @param string $node_type
+ *   The name of the content type
+ *
+ * @return array
+ *   An associative array where key = machine name, value = field label
+ */
+function bulk_photo_nodes_get_image_fields($node_type) {
+  $image_fields = array('none' => '- None -');
+  $fields_info = field_info_instances('node', $node_type);
+  foreach ($fields_info as $field_name => $field_value) {
+    $field_info = field_info_field($field_name);
+    $type = $field_info['type'];
+    if ($type == 'image') {
+      $image_fields[$field_name] = $field_value['label'];
+    }
+  }
+  return $image_fields;
+}
+
+/**
+ * Indicates if a given content type is being used as bulk photo nodes.
+ *
+ * @param string $node_type
+ *   The machine name of a content_type.
+ *
+ * @return string
+ *   The machine name of the image field or 'none' if the content type isn't
+ *   used.
+ */
+function bulk_photo_nodes_get_image_field($node_type) {
+  $bpn_var = variable_get('bulk_photo_node_types');
+  if (is_array($bpn_var)) {
+    return (array_key_exists($node_type, $bpn_var)) ? $bpn_var[$node_type] : 'none';
+  }
+  return 'none';
+}
+
+/**
+ * Get a named option for a given node type.
+ *
+ * Currently defaults to 'override' as this is the only available option.
+ */
+function bulk_photo_nodes_get_option($node_type, $option = 'override') {
+  $bpn_var = variable_get('bulk_photo_node_types');
+  if (is_array($bpn_var)) {
+    $key = $node_type . '_' . $option;
+    return (array_key_exists($key, $bpn_var)) ? $bpn_var[$key] : 'none';
+  }
+  return 'none';
+}
+
+/**
+ * Page callback: Displays the first step of the bulk photo node upload form.
+ *
+ * In case the user would like to see the normal node/add form, simply supply
+ * a query string of ?override=1
+ *
+ * @param string $node_type
+ *   The content type of the node, used in case of an override.
+ *
+ * @return array
+ *   A render array for the page.
+ *
+ * @see bulk_photo_nodes_menu_alter()
+ */
+function bulk_photo_nodes_page($node_type) {
+  if (bulk_photo_nodes_is_bpn_add_page($node_type)) {
+    return bulk_photo_nodes_page_get($node_type);
+  }
+  else {
+    $form = node_add($node_type);
+    return $form;
+  }
+}
+
+/**
+ * Return bulk node add form.
+ */
+function bulk_photo_nodes_page_get($node_type) {
+  drupal_add_css(drupal_get_path('module', 'bulk_photo_nodes') . '/css/bulk_photo_nodes_default.css');
+
+  $content = array();
+  $form_names = module_invoke_all('bulk_photo_nodes_method');
+  $content_forms = array();
+  $chosen_form = FALSE;
+
+  foreach ($form_names as $form_name) {
+
+    $form = drupal_get_form($form_name, $node_type);
+    $content_forms[] = $form;
+
+    if (array_key_exists('#bpn_chosen_form', $form)) {
+      $chosen_form = $form;
+      break;
+    }
+  }
+
+  // If we've chosen a form, only include that one.
+  if ($chosen_form) {
+    $content['forms'] = array($chosen_form);
+  }
+  else {
+    $content['forms'] = $content_forms;
+  }
+
+  return $content;
+}
+
+/**
+ * Determines if a given node type's add form should be displayed as a BPN form.
+ *
+ * @return bool
+ *   TRUE if the current node add form  is used by bpn, FALSE otherwise.
+ */
+function bulk_photo_nodes_is_bpn_add_page($node_type) {
+  $query = drupal_get_query_parameters();
+  if (!is_array($query) || !array_key_exists('override', $query)) {
+    $bpn_var = variable_get('bulk_photo_node_types');
+    $has_bpn_field = !empty($bpn_var) && isset($bpn_var[$node_type]) && $bpn_var[$node_type] !== 'none';
+    $is_overridden = isset($bpn_var[$node_type . '_override']) && $bpn_var[$node_type . '_override'] != 1;
+    if ($has_bpn_field && !$is_overridden) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Form constructor for final step of bpn_multistep_form().
+ *
+ * @ingroup forms
+ */
+function bulk_photo_nodes_add_form($form, &$form_state) {
+  bulk_photo_nodes_chosen_form('bulk_photo_nodes_add_form');
+  drupal_set_title(t('Add Description(s)'));
+
+  $form = array();
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'bulk_photo_nodes') . '/js/bulk_photo_nodes.js',
+  );
+  $form['#attributes'] = array(
+    'class' => array('bpn-enabled'),
+  );
+  $form['nodes'] = array(
+    '#tree' => TRUE,
+    '#type' => 'fieldset',
+    '#collapsed' => FALSE,
+    '#prefix' => '<div id="bpn-nodes">' . '<p class="bpn-inline-help"><em>' . t('To apply the same descriptions to all photos, use Batch Settings on the right') . '<p></em>',
+    '#suffix' => '</div>',
+    '#attributes' => array(
+      'class' => array('bpn-left bpn-info clearfix'),
+    ),
+  );
+
+  // Attach files to form.
+  bulk_photo_nodes_get_session_files($form_state);
+  // Generate node subforms from files.
+  bulk_photo_nodes_create_subform($form, $form_state);
+  bulk_photo_nodes_create_overrides($form, $form_state);
+
+  // Handle required/optional logic for fields in file subforms.
+  bulk_photo_nodes_required_optional($form, $form_state);
+
+  drupal_alter('bulk_photo_nodes_overrides', $form, $form_state);
+  return $form;
+}
+
+/**
+ * Generate batch override form for bulk_photo_nodes_add_form().
+ *
+ * This attaches a form that allows a user to fill out a given field one time
+ * and have it apply to all bulk_photo_nodes.
+ */
+function bulk_photo_nodes_create_overrides(&$form, &$form_state) {
+  $node = bulk_photo_nodes_create_node($form_state['node_type']);
+  $form['override_fields'] = array(
+    '#type' => 'container',
+    '#tree' => TRUE,
+    '#attributes' => array(
+      'class' => array('bpn-right clearfix'),
+    ),
+  );
+  $form['override_fields']['fields'] = array(
+    '#parents' => array(
+      'override_fields', 'fields',
+    ),
+  );
+  $form['override_fields']['fields']['title_display'] = array(
+    '#markup' => '<h2>Batch Settings</h2><p>(applies to all photos, unless overridden)</p>',
+    '#weight' => -11,
+  );
+  field_attach_form('node', $node, $form['override_fields']['fields'], $form_state);
+  $form['override_fields']['fields']['title'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Title',
+    '#required' => FALSE,
+    '#weight' => -10,
+  );
+
+  $image_field = bulk_photo_nodes_get_image_field($node->type);
+  unset($form['override_fields']['fields'][$image_field]);
+  $form['override_fields']['finish'] = array(
+    '#type' => 'submit',
+    '#value' => t('Complete Upload'),
+    '#submit' => array('bulk_photo_nodes_add_form_submit'),
+  );
+
+  // Set all batch fields as optional.
+  bulk_photo_nodes_recursive_set_optional($form['override_fields']['fields']);
+
+  // Attach AJAX handlers to all batch override form inputs.
+  bulk_photo_nodes_recursive_ajax($form['override_fields']['fields']);
+}
+
+/**
+ * Creates a dummy node to use with field_attach_form().
+ */
+function bulk_photo_nodes_create_node($bundle) {
+  $node = new stdClass();
+  $node->type = $bundle;
+  node_object_prepare($node);
+  return $node;
+}
+
+/**
+ * Generates all node subforms in bulk_photo_nodes_add_form().
+ *
+ * This iterates through all the saved files from previous steps, and creates
+ * subforms out of each file.
+ */
+function bulk_photo_nodes_create_subform(&$form, &$form_state) {
+  foreach ($form_state['saved_files'] as $key => $file) {
+    $extra_info = !empty($file['extra_info']) ? $file['extra_info'] : array();
+    $vars = array(
+      'style_name' => 'bulk_photo_nodes',
+      'path' => $file['file_object']->uri,
+      'attributes' => array('class' => 'bpn-info-node-image'),
+    );
+    $markup = theme('image_style', $vars);
+
+    $node = bulk_photo_nodes_create_node($form_state['node_type']);
+
+    $form['nodes'][$key] = array(
+      '#type' => 'fieldset',
+      '#tree' => TRUE,
+      '#collapsed' => FALSE,
+      '#attributes' => array(
+        'class' => array('bpn-info-node'),
+      ),
+    );
+    $form['nodes'][$key]['left'] = array(
+      '#type' => 'container',
+      '#collapsed' => FALSE,
+      '#attributes' => array(
+        'class' => array('bpn-info-node-left clearfix'),
+      ),
+    );
+    $form['nodes'][$key]['left']['image'] = array(
+      '#type' => 'markup',
+      '#markup' => $markup,
+    );
+    $form['nodes'][$key]['left']["delete_{$key}"] = array(
+      '#type' => 'submit',
+      '#value' => 'Delete',
+      '#name' => $key,
+      '#limit_validation_errors' => array(),
+      '#submit' => array('bulk_photo_nodes_delete_node'),
+      '#attributes' => array(
+        'class' => array('bpn-info-node-delete'),
+      ),
+    );
+    $form['nodes'][$key]['right'] = array(
+      '#type' => 'fieldset',
+      '#parents' => array(
+        'nodes', $key, 'right',
+      ),
+      '#attributes' => array(
+        'class' => array('bpn-info-node-right clearfix'),
+      ),
+    );
+    $form['nodes'][$key]['right']['node'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Edit Additional Information'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#parents' => array(
+        'nodes', $key, 'right', 'node',
+      ),
+      '#attributes' => array(
+        'class' => array('bpn-info-node-additional'),
+      ),
+      '#weight' => 10,
+    );
+    // Manually add a title form item since it's not a field.
+    $default_title = array_key_exists('title', $extra_info) ? $extra_info['title'] : _bulk_photo_nodes_title_from_filename($file['file_object']->filename);
+    $form['nodes'][$key]['right']['title'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Title',
+      '#default_value' => $default_title,
+      '#required' => (!empty($form_state['values']['override_fields']['fields']['title'])) ? FALSE : TRUE,
+      '#weight' => -10,
+      '#attributes' => array(
+        'class' => array('bpn-info-node-title'),
+      ),
+    );
+
+    // Attach all fields found in the node form.
+    field_attach_form('node', $node, $form['nodes'][$key]['right']['node'], $form_state);
+
+    // Manually attach file from plupload.
+    $image_field = bulk_photo_nodes_get_image_field($node->type);
+    unset($form['nodes'][$key]['right']['node'][$image_field]);
+    $form['nodes'][$key]['right']['node'][$image_field]['und'][0]['#type'] = 'value';
+    $form['nodes'][$key]['right']['node'][$image_field]['und'][0]['#value'] = (array) $file['file_object'];
+
+    // Move body field around to proper fieldset if body field exist.
+    if (isset($form['nodes'][$key]['right']['node']['body'])) {
+      $form['nodes'][$key]['right']['body'] = $form['nodes'][$key]['right']['node']['body'];
+      $form['nodes'][$key]['right']['node']['body']['#weight'] = 0;
+      unset($form['nodes'][$key]['right']['node']['body']);
+    }
+  }
+}
+
+/**
+ * Insert batch saved files into bulk_photo_nodes_add_form state.
+ */
+function bulk_photo_nodes_get_session_files(&$form_state) {
+  if (!empty($_SESSION['saved_files'])) {
+    $form_state['saved_files'] = $_SESSION['saved_files'];
+  }
+  if (empty($form_state['saved_files'])) {
+    drupal_goto("node/add/$form_state[node_type]");
+  }
+}
+
+/**
+ * Set required/optional bulk photo node fields.
+ */
+function bulk_photo_nodes_required_optional(&$form, &$form_state) {
+  if (empty($form_state['values']['override_fields']['fields'])) {
+    return;
+  }
+  $override_node = (object) $form_state['values']['override_fields']['fields'];
+  $override_node->type = $form_state['node_type'];
+  $parent_fields_all = element_children($form['nodes'][0]['right']);
+  $parent_fields = array_diff($parent_fields_all, array('node'));
+
+  foreach (array_keys($form_state['input']['override_fields']['fields']) as $field_name) {
+    // Check if batch field has a value.
+    $field_has_value = bulk_photo_nodes_check_field_empty($field_name, $override_node);
+    // If the batch field has a value, set the respective node subform field
+    // as optional.
+    foreach (element_children($form['nodes']) as $key) {
+      // Check for parent fields first, then fields in the collapsed fieldset.
+      // @todo Find cleaner, DRY way to do this.
+      if (in_array($field_name, $parent_fields)) {
+        if (bulk_photo_nodes_is_required($form['nodes'][$key]['right'][$field_name])) {
+          if ($field_has_value) {
+            bulk_photo_nodes_recursive_set_optional($form['nodes'][$key]['right'][$field_name]);
+          }
+          else {
+            bulk_photo_nodes_recursive_set_required($form['nodes'][$key]['right'][$field_name]);
+          }
+        }
+      }
+      else {
+        if (bulk_photo_nodes_is_required($form['nodes'][$key]['right']['node'][$field_name])) {
+          if ($field_has_value) {
+            bulk_photo_nodes_recursive_set_optional($form['nodes'][$key]['right']['node'][$field_name]);
+          }
+          else {
+            bulk_photo_nodes_recursive_set_required($form['nodes'][$key]['right']['node'][$field_name]);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * AJAX callback for bulk_photo_nodes_add_form().
+ */
+function bulk_photo_nodes_add_form_ajax(&$form, &$form_state) {
+  return $form['nodes'];
+}
+
+
+/**
+ * Form submission handler for bulk_photo_nodes_add_form().
+ */
+function bulk_photo_nodes_add_form_submit($form, &$form_state) {
+  // Convenience short aliases.
+  $node_type = $form_state['node_type'];
+  $nodes =& $form_state['values']['nodes'];
+  $node_overrides =& $form_state['values']['override_fields']['fields'];
+  $operations = array();
+  foreach (array_values($nodes) as $outer_node) {
+    $operations[] = array(
+      'bulk_photo_nodes_save_node',
+      array($node_type, $outer_node, $node_overrides),
+    );
+  }
+  $batch = array(
+    'title' => t('Saving nodes'),
+    'finished' => 'bulk_photo_nodes_batch_finished',
+    'operations' => $operations,
+  );
+  batch_set($batch);
+}
+
+/**
+ * Batch 'finished' callback used by bulk_photo_nodes_add_form_submit().
+ */
+function bulk_photo_nodes_batch_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('@count Photos saved.', array('@count' => count($results))));
+
+    // Delete old image style generated images.
+    $image_style = image_style_load('bulk_photo_nodes');
+    image_style_flush($image_style);
+  }
+  else {
+    // An error occurred.
+    // $operations contains the operations that remained unprocessed.
+    $error_operation = reset($operations);
+    drupal_set_message(t('An error occurred while processing @operation with arguments : @args', array(
+      '@operation' => $error_operation[0], '@args' => print_r($error_operation[0], TRUE),
+    )));
+  }
+}
+
+/**
+ * Deletes an individual bulk photo node.
+ */
+function bulk_photo_nodes_delete_node($form, &$form_state) {
+  $key = $form_state['triggering_element']['#name'];
+  file_delete($form_state['saved_files'][$key]['file_object']);
+  unset($form_state['saved_files'][$key]);
+  unset($form_state['values']['nodes'][$key]);
+  $form_state['removal'] = $key;
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Batch operation: Saves an individual bulk photo node.
+ *
+ * @param string $node_type
+ *   The content type of the node.
+ *
+ * @param array $node_fields
+ *   The fields of the given node.
+ *
+ * @param array $node_overrides
+ *   Fields that will override $node_fields if they are empty.
+ *
+ * @return bool
+ *   TRUE if the node was saved successfully, FALSE otherwise.
+ */
+function bulk_photo_nodes_save_node($node_type, $node_fields, $node_overrides, &$context) {
+  // Move title and body back.
+  $node_fields['right']['node']['body'] = $node_fields['right']['body'];
+  $node_fields['right']['node']['title'] = $node_fields['right']['title'];
+
+  // Update batch operation progressbar.
+  $context['message'] = t('Saving node "@title"', array('@title' => $node_fields['right']['node']['title']));
+  $context['results'][] = $node_fields['right']['node']['title'];
+
+  // Prepare a new node for saving.
+  $node = (object) $node_fields['right']['node'];
+  $node->type = $node_type;
+  $node->language = LANGUAGE_NONE;
+  node_object_prepare($node);
+
+  // Move the file from public to field-defined destination.
+  $options = bulk_photo_nodes_get_file_info($node_type);
+  $image_field_name = $options['field_name'];
+  $image_field_ref =& $node->{$image_field_name}[LANGUAGE_NONE][0];
+  $image_field = (object) $node->{$image_field_name}[LANGUAGE_NONE][0];
+  $extension = pathinfo($image_field->filename, PATHINFO_EXTENSION);
+  $query_string = "SELECT COUNT(nid) FROM {node} WHERE type = :node_type AND uid = :uid";
+  $images_count = db_query($query_string, array(
+    ':node_type' => $node_type, ':uid' => $image_field->uid,
+  ))->fetchField();
+  $images_count++;
+  drupal_alter('bulk_photo_nodes_filename', $images_count);
+  if ($options['directory'] == '/') {
+    $options['directory'] = '';
+  }
+  $destination = $options['scheme'] . $image_field->uid . '-' . $images_count . '.' . $extension;
+  $image_field->filename = $image_field->uid . '-' . $images_count . '.' . $extension;
+  $image_field_ref = (array) file_move($image_field, $destination, FILE_EXISTS_REPLACE);
+
+  // Correctly set all fields for the node.
+  $node = bulk_photo_nodes_prepare_fields($node_fields, $node, $node_overrides, $image_field_name);
+
+  drupal_alter('bulk_photo_nodes_node', $node, $node_fields, $node_overrides);
+  if (!isset($node->path)) {
+    $node->path = array();
+  }
+  $node->path['pathauto'] = TRUE;
+  node_save($node);
+  return (!empty($node->nid)) ? TRUE : FALSE;
+}
+
+/**
+ * Saves all form field values as node properties.
+ */
+function bulk_photo_nodes_prepare_fields(&$node_fields, $node, &$node_overrides, $image_field_name) {
+  foreach ($node_fields['right']['node'] as $field_name => $field_values) {
+    // Iterate through fields. Convert form values to properties of the node.
+    if ($field_name == $image_field_name) {
+      continue;
+    }
+    if ($field_name != 'title') {
+      $field_info = field_info_field($field_name);
+      // Check if field is empty.
+      $empty_function = $field_info['module'] . '_field_is_empty';
+      $is_empty = TRUE;
+      if (function_exists($empty_function)) {
+        $items = field_get_items('node', $node, $field_name);
+        if (is_array($items)) {
+          foreach ($items as $item) {
+            if (!$empty_function($item, $field_info)) {
+              $is_empty = FALSE;
+            }
+          }
+        }
+        elseif (!is_array($items) && !empty($items)) {
+          if (!$empty_function($items, $field_info)) {
+            $is_empty = FALSE;
+          }
+        }
+      }
+    }
+    else {
+      $is_empty = empty($field_values);
+    }
+    // This field is empty for this node, so populate it with batch fields if
+    // available; otherwise unset it.
+    if ($is_empty) {
+      if (is_array($node_overrides[$field_name])) {
+        // It is necessary to remove fields which have effectively empty arrays
+        // (null leaves). The empty() language construct cannot accept function
+        // return values.
+        $check_empty = _bulk_photo_nodes_array_filter($node_overrides[$field_name]);
+        if (!empty($check_empty)) {
+          if ($node_overrides[$field_name]['und'] == '_none') {
+            unset($node->$field_name);
+          } else {
+            $node->$field_name = $node_overrides[$field_name];
+          }
+        }
+        else {
+          unset($node->$field_name);
+        }
+      }
+      else {
+        if ($node_overrides[$field_name]) {
+          $node->$field_name = $node_overrides[$field_name];
+        }
+        else {
+          unset($node->$field_name);
+        }
+      }
+    }
+    else {
+      $node->$field_name = $field_values;
+    }
+  }
+  return $node;
+}
+
+/**
+ * Gets configuration options of the image field used by bulk_photo_nodes.
+ *
+ * @param string $node_type
+ *   The machine of the content type used by bulk_photo_nodes.
+ *
+ * @return array
+ *   Various configuration options for the image field used.
+ */
+function bulk_photo_nodes_get_file_info($node_type) {
+  $options = array();
+  $options['field_name'] = bulk_photo_nodes_get_image_field($node_type);
+  $options['field_info'] = field_info_field($options['field_name']);
+  $options['instance_info'] = field_info_instance('node', $options['field_name'], $node_type);
+  $options['scheme'] = $options['field_info']['settings']['uri_scheme'] . '://';
+  $options['directory'] = $options['instance_info']['settings']['file_directory'] . '/';
+  return $options;
+}
+
+/**
+ * Adds an #ajax property recursively to all elements of a form.
+ *
+ * @param array $element
+ *   The first element to recursively apply #ajax to.
+ */
+function bulk_photo_nodes_recursive_ajax(&$element) {
+  if (element_children($element)) {
+    foreach (element_children($element) as $child) {
+      bulk_photo_nodes_recursive_ajax($element[$child]);
+    }
+    if (empty($element['#ajax'])) {
+      $element['#ajax'] = array(
+        'event' => 'change',
+        'wrapper' => 'bpn-nodes',
+        'callback' => 'bulk_photo_nodes_add_form_ajax',
+        'method' => 'replace',
+        'progress' => array('type' => 'none'),
+      );
+    }
+    elseif ($element['#ajax']['callback'] == 'field_add_more_js') {
+      $element['#element_validate'] = array('bulk_photo_nodes_add_more_button_validate');
+      $element['#ajax']['callback'] = 'bulk_photo_nodes_field_add_more_js';
+    }
+    if (!empty($element['#autocomplete_path'])) {
+      $field_info = field_info_field($element['#field_name']);
+      if ($field_info['type'] == 'entityreference') {
+        $element['#element_validate'] = array('bulk_photo_nodes_entityreference_autocomplete_validate');
+      }
+    }
+    elseif (!empty($element['#type']) && $element['#type'] == 'select') {
+      // @todo: Since applying the patch at https://www.drupal.org/node/2278141#comment-9299441
+      // (commit id 3c17363b01e6b4cff64544bb85bd9418c73c7ccd) 'tid' was changed to 'target_id'
+      // here, so bulk_photo_nodes_taxonomy_validate() is now acting on entity reference
+      // fields, and NOT on taxonomy reference fields. Need to figure out which reference
+      // fields this should actually be acting on, and whether the function should be renamed.
+      // Note also that select list validation issues may be related to https://www.drupal.org/node/2454031.
+      if (!empty($element['#value_key']) && $element['#value_key'] == 'target_id') {
+        $element['#element_validate'] = array('bulk_photo_nodes_taxonomy_validate');
+      }
+      if (!empty($element['#value_key']) && $element['#value_key'] == 'nid') {
+        $element['#element_validate'] = array('bulk_photo_nodes_nodereference_validate');
+      }      
+    }
+  }
+  else {
+    if (empty($element['#ajax'])) {
+      $element['#ajax'] = array(
+        'event' => 'change',
+        'wrapper' => 'bpn-nodes',
+        'callback' => 'bulk_photo_nodes_add_form_ajax',
+        'method' => 'replace',
+        'progress' => array('type' => 'none'),
+      );
+    }
+    elseif ($element['#ajax']['callback'] == 'field_add_more_js') {
+      $element['#element_validate'] = array('bulk_photo_nodes_add_more_button_validate');
+      $element['#ajax']['callback'] = 'bulk_photo_nodes_field_add_more_js';
+    }
+    if (!empty($element['#autocomplete_path'])) {
+      // Add custom validation for autocomplete taxonomy textfields.
+      $field_info = field_info_field($element['#field_name']);
+      if ($field_info['type'] == 'entityreference') {
+        $element['#element_validate'] = array('bulk_photo_nodes_entityreference_autocomplete_validate');
+      }
+    }
+    elseif (!empty($element['#type']) && $element['#type'] == 'select') {
+      // Add custom validation for taxonomy selects.
+      if (!empty($element['#value_key']) && $element['#value_key'] == 'target_id') {
+        $element['#element_validate'] = array('bulk_photo_nodes_taxonomy_validate');
+      }
+      if (!empty($element['#value_key']) && $element['#value_key'] == 'nid') {
+        $element['#element_validate'] = array('bulk_photo_nodes_nodereference_validate');
+      }      
+    }
+  }
+}
+
+/**
+ * Sets the #required to FALSE recurvisely to all elements of a form.
+ *
+ * @param array $element
+ *   The first element to recursively set #required = FALSE.
+ */
+function bulk_photo_nodes_recursive_set_optional(&$element) {
+  if (!$element) {
+    return;
+  }
+  if (isset($element['#required'])) {
+    $element['#required'] = FALSE;
+    // @todo: Unsetting #element_validate seems to cause problems, at least
+    // for taxonomy reference fields. Is there a reason to unset it?
+    // See https://www.drupal.org/node/2446787.
+    // $element['#element_validate'] = array();
+  }
+  $children = element_children($element);
+  if ($children) {
+    foreach ($children as $child) {
+      bulk_photo_nodes_recursive_set_optional($element[$child]);
+    }
+  }
+}
+
+/**
+ * Sets the #required to FALSE recurvisely to all elements of a form.
+ *
+ * @param array $element
+ *   The first element to recursively set #required = FALSE.
+ */
+function bulk_photo_nodes_recursive_set_required(&$element) {
+  if (!$element) {
+    return;
+  }
+  if (isset($element['#required'])) {
+    $element['#required'] = TRUE;
+  }
+  $children = element_children($element);
+  if ($children) {
+    foreach ($children as $child) {
+      bulk_photo_nodes_recursive_set_required($element[$child]);
+    }
+  }
+}
+
+/**
+ * Checks if given element is required.
+ *
+ * @param array $element
+ *   The first element to recursively check for #required = TRUE.
+ */
+function bulk_photo_nodes_is_required(&$element) {
+  if (!$element) {
+    return FALSE;
+  }
+  if (isset($element['#required']) && $element['#required']) {
+    return TRUE;
+  }
+  $children = element_children($element);
+  if ($children) {
+    foreach ($children as $child) {
+      if (bulk_photo_nodes_is_required($element[$child])) {
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Validates selected taxonomy terms.
+ *
+ * @todo: Since applying the patch at https://www.drupal.org/node/2278141#comment-9299441
+ * (commit id 3c17363b01e6b4cff64544bb85bd9418c73c7ccd) 'tid' was changed to 'target_id'
+ * here, so bulk_photo_nodes_taxonomy_validate() is now acting on entity reference
+ * fields, and NOT on taxonomy reference fields. Need to figure out which reference
+ * fields this should actually be acting on, and whether the function should be renamed.
+ * See bulk_photo_nodes_recursive_ajax().
+ *
+ * Note also that select list validation issues may be related to https://www.drupal.org/node/2454031.
+ */
+function bulk_photo_nodes_taxonomy_validate(&$element, &$form_state) {
+  if ($element['#value'] !== '_none') {
+    $term = array(
+      0 => array(
+        'target_id' => is_array($element['#value']) ? reset($element['#value']) : $element['#value'],
+      ),
+    );
+    form_set_value($element, $term, $form_state);
+  }
+}
+
+/**
+ * Validates selected entityreference fields.
+ */
+function bulk_photo_nodes_entityreference_autocomplete_validate(&$element, &$form_state, $form) {
+  if (!empty($element['#value'])) {
+    $field = field_info_field($element['#field_name']);
+    $field_name = $element['#field_name'];
+
+    // Take "label (entity id)', match the id from parenthesis.
+    if (preg_match("/.+\((\d+)\)/", $element['#value'], $matches)) {
+      $value = $matches[1];
+    }
+    else {
+      // Try to get a match from the input string when the user didn't use the
+      // autocomplete but filled in a value manually.
+
+      $handler = entityreference_get_selection_handler($field);
+      $instance = field_info_instance($element['#entity_type'], $field_name, $element['#bundle']);
+      $handler = entityreference_get_selection_handler($field, $instance);
+      $value = $handler->validateAutocompleteInput($element['#value'], $element, $form_state, $form);
+    }
+
+    if ($field['settings']['target_type'] == 'taxonomy_term') {
+      $value_array = array(
+        0 => array(
+          'target_id' => $value,
+        ),
+      );
+      form_set_value($element, $value_array, $form_state);
+    }
+    else {
+      // Update the value of this element so the field can validate the product IDs.
+      form_set_value($element, $value, $form_state);
+    }
+
+  }
+}
+
+/**
+ * Removes value of Add more button
+ */
+function bulk_photo_nodes_add_more_button_validate(&$element, &$form_state, $form) {
+  $ref = &$form_state['values'];
+
+  end($element['#parents']);
+  $last_key = key($element['#parents']);
+
+  foreach ($element['#parents'] as $key => $parent) {
+    if ($key == $last_key) {
+      unset($ref[$parent]);
+    }
+    else {
+      $ref = &$ref[$parent];
+    }
+  }
+
+}
+
+/**
+ * Validates selected node reference nid.
+ */
+function bulk_photo_nodes_nodereference_validate(&$element, &$form_state) {
+  if ($element['#value'] !== '_none') {
+    $nid = array(
+      0 => array(
+        'nid' => $element['#value'],
+      ),
+    );
+  }
+  else {
+    $nid = 0;
+  }
+  form_set_value($element, $nid, $form_state);
+}
+
+/**
+ * Checks if a given field form element has a value.
+ *
+ * @param string $field_name
+ *   The name of the field to check.
+ *
+ * @param object $node
+ *   The node object to check values against.
+ *
+ * @return bool
+ *   TRUE if the field has a value, otherwise FALSE.
+ */
+function bulk_photo_nodes_check_field_empty($field_name, $node) {
+  $field_info = field_info_field($field_name);
+  $empty_function = $field_info['module'] . '_field_is_empty';
+  $field_has_value = FALSE;
+  if (function_exists($empty_function)) {
+    $field_items = field_get_items('node', $node, $field_name);
+    if (is_array($field_items)) {
+      // Multi-value field.
+      foreach ($field_items as $item) {
+        if (!$empty_function($item, $field_info)) {
+          $field_has_value = TRUE;
+        }
+      }
+    }
+    elseif (!is_array($field_items) && !empty($field_items)) {
+      // String/numeric value.
+      if (!$empty_function($field_items, $field_info)) {
+        $field_has_value = TRUE;
+      }
+      else {
+        $field_has_value = FALSE;
+      }
+    }
+  }
+  return $field_has_value;
+}
+
+/**
+ * Sets and returns the current form step form id.
+ *
+ * @param string $chosen_form
+ *   The form ID of the current step.
+ *
+ * @return string
+ *   The form ID of the current step.
+ */
+function bulk_photo_nodes_chosen_form($chosen_form = NULL) {
+  $form_id = &drupal_static(__FUNCTION__);
+  if (isset($chosen_form)) {
+    $form_id = $chosen_form;
+  }
+  return $form_id;
+}
+
+/**
+ * Recursively remove empty values from an array.
+ *
+ * Helper function for saving nodes.
+ *
+ * @param array $input
+ *   The array to filter.
+ *
+ * @return array
+ *   The filtered array.
+ */
+function _bulk_photo_nodes_array_filter($input) {
+  if (is_array($input)) {
+    foreach ($input as &$value) {
+      if (is_array($value)) {
+        $value = _bulk_photo_nodes_array_filter($value);
+      }
+    }
+    return array_filter($input, '_bulk_photo_nodes_empty_field_value');
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Check if field value is empty.
+ *
+ * '_none' is a reserved value that is used for select lists, etc. that have
+ * no selection, so should be considered empty.
+ */
+function _bulk_photo_nodes_empty_field_value($field_value) {
+  if (empty($field_value) || $field_value == '_none') {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+/**
+ * Helper function to generate a default node title from a given filename.
+ */
+function _bulk_photo_nodes_title_from_filename($filename) {
+  // Separate filename from extension/path/etc.
+  $path_parts = pathinfo($filename);
+  $title = $path_parts['filename'];
+
+  // Replace underscores, dashes, etc. with spaces.
+  $title = str_replace('-', ' ', $title);
+  $title = str_replace('_', ' ', $title);
+  $title = str_replace('.', ' ', $title);
+
+  // Replace double spaces with single space.
+  $title = preg_replace('!\s+!', ' ', $title);
+
+  // Trim spaces from front and back.
+  $title = trim($title, ' ');
+
+  // Capitalize.
+  $title = ucwords($title);
+
+  // Sanitize.
+  $title = check_plain($title);
+
+  // Return.
+  return $title;
+}
+
+/**
+ * Forked Ajax callback in response to a new empty widget being added to the form.
+ *
+ * This returns the new page content to replace the page content made obsolete
+ * by the form submission.
+ *
+ * @see field_add_more_submit()
+ */
+function bulk_photo_nodes_field_add_more_js($form, $form_state) {
+  $button = $form_state['triggering_element'];
+
+  // Go one level up in the form, to the widgets container.
+  $element = drupal_array_get_nested_value($form, array_slice($button['#array_parents'], 0, -1));
+  $field_name = $element['#field_name'];
+  $langcode = $element['#language'];
+  $parents = $element['#field_parents'];
+
+  if (empty($field_name)) {
+  	return;
+  }
+
+  $field = field_info_field($field_name);
+  if ($field['cardinality'] != FIELD_CARDINALITY_UNLIMITED) {
+    return;
+  }
+
+  // Add a DIV around the delta receiving the Ajax effect.
+  $delta = $element['#max_delta'];
+  $element[$delta]['#prefix'] = '<div class="ajax-new-content">' . (isset($element[$delta]['#prefix']) ? $element[$delta]['#prefix'] : '');
+  $element[$delta]['#suffix'] = (isset($element[$delta]['#suffix']) ? $element[$delta]['#suffix'] : '') . '</div>';
+
+  return $element;
+}

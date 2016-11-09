@@ -10,3 +10,27 @@
 .able .able-vidcap-container {
   overflow: hidden;
 }
+
+#scrollspy-nav .item-list ul li {
+  margin: 0;
+  padding: 0;
+}
+
+#scrollspy-nav ul li a {
+  font-size: .8rem;
+  font-weight: bold;
+}
+
+#scrollspy-nav ul li a:hover {
+  font-size: 1rem;
+}
+
+#scrollspy-nav ul li a:active {
+  background-color: #FFAA44;
+}
+
+.elmsln-card img.h5p-overlay-icon {
+  z-index: 100;
+  position: absolute;
+  width: 3rem;
+}

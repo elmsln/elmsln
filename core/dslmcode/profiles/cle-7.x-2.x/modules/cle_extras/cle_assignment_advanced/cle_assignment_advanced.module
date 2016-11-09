@@ -1,0 +1,167 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Assignment Advanced feature.
+ */
+
+include_once 'cle_assignment_advanced.features.inc';
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function cle_assignment_advanced_form_cle_submission_node_form_alter(&$form, &$form_state, $form_id) {
+  // test for a default value being prepopulated on node/add
+  if (isset($form['field_assignment']['und']['#default_value'][0]) && arg(1) == 'add') {
+    // load the assignment
+    $assignment = node_load($form['field_assignment']['und']['#default_value'][0]);
+    // pull out just the requirements from the assignment
+    if (isset($assignment->field_cle_assign_depend['und'])) {
+      $requirements = $assignment->field_cle_assign_depend['und'];
+      // grab a list of everything this user has submitted
+      $submitted = _cle_assignent_advanced_assignments_submitted();
+      $fail = '';
+      // compare requirements to things submitted
+      foreach ($requirements as $requirement) {
+        // if its in the array then capture this
+        if (!in_array($requirement['target_id'], $submitted)) {
+          // load required node we are missing and provide a link
+          $reqnode = node_load($requirement['target_id']);
+          $fail .= '<p>' . l($reqnode->title, 'node/' . $reqnode->nid) . '</p>';
+        }
+      }
+      if (!empty($fail)) {
+        $fail = t('You haven\'t completed the following prerequisit assignments:') . '<br/>' . $fail;
+        drupal_set_message($fail, 'warning');
+        // return to previous page automatically if this happens
+        if (isset($_REQUEST['destination'])) {
+          drupal_goto($_REQUEST['destination']);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_validate().
+ */
+function cle_assignment_advanced_node_validate($node, $form, &$form_state) {
+  // skip validation if deleting a node or if override value is set
+  if ((!empty($node->op) && !empty($node->delete) && $node->op === $node->delete)) {
+    return;
+  }
+
+  // only validate if we are looking at a submission w/ assignment
+  if ($node->type == 'cle_submission' && isset($node->field_assignment['und'][0]['target_id'])) {
+    // load the assignment related to this submission
+    $assignment = node_load($node->field_assignment['und'][0]['target_id']);
+    // pull out just the requirements from the assignment
+    if (isset($assignment->field_cle_assign_depend['und'])) {
+      $requirements = $assignment->field_cle_assign_depend['und'];
+      // grab a list of everything this user has submitted
+      $submitted = _cle_assignent_advanced_assignments_submitted();
+      $fail = '';
+      // compare requirements to things submitted
+      foreach ($requirements as $requirement) {
+        // if its in the array then capture this
+        if (!in_array($requirement['target_id'], $submitted)) {
+          // load required node we are missing and provide a link
+          $reqnode = node_load($requirement['target_id']);
+          $fail .= '<p>' . l($reqnode->title, 'node/' . $reqnode->nid) . '</p>';
+        }
+      }
+      // if we don't have an equal number of requirements vs items found
+      // then that means that we haven't met all the requirements
+      if (!empty($fail)) {
+        $fail = t('You haven\'t completed the following prerequisit assignments:') . '<br/>' . $fail;
+        form_set_error($field, $fail);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_grants().
+ */
+function cle_assignment_advanced_node_grants($account, $op) {
+  $grants = array();
+  $assignments = _cle_assignent_advanced_assignments_submitted($account);
+  // If operation is to view and that we have assignments submitted
+  if ($op == 'view' && !empty($assignments)) {
+    $grants['cle_assignment_advanced'] = array_keys($assignments);
+  }
+  return $grants;
+}
+
+/**
+ * Get an array of the assignments submitted by this user.
+ */
+function _cle_assignent_advanced_assignments_submitted($account = NULL) {
+  $assignments = array();
+  if ($account == NULL) {
+    global $user;
+    $account = $user;
+  }
+  // query for submissions by the current user
+  $query = new EntityFieldQuery();
+  // load all nodes
+  $query->entityCondition('entity_type', 'node')
+  // that are submissions
+  ->entityCondition('bundle', 'cle_submission')
+  // and are published
+  ->propertyCondition('status', 1)
+  // created by the current account
+  ->propertyCondition('uid', $account->uid)
+  // run as user 1 to avoid permission issues
+  ->addMetaData('account', user_load(1));
+  $result = $query->execute();
+  // test for results and turn those submissions into associated assignments
+  if (isset($result['node'])) {
+    $items_nids = array_keys($result['node']);
+    $items = entity_load('node', $items_nids);
+    foreach ($items as $submission) {
+      // test that this is associated to an assignment, should be required!
+      // set to array key cause we could have multiple submissions to same
+      // assignment and don't need even more bloat on this one!
+      if (isset($submission->field_assignment['und'][0]['target_id'])) {
+        $assignments[$submission->field_assignment['und'][0]['target_id']] = $submission->field_assignment['und'][0]['target_id'];
+      }
+    }
+  }
+  return $assignments;
+}
+
+/**
+ * Implements hook_node_access_records().
+ */
+function cle_assignment_advanced_node_access_records($node) {
+  $grants = array();
+  // Check if the node type is a submission
+  if ($node->type == 'cle_submission') {
+    // load the assignment node referenced
+    if (isset($node->field_assignment['und'][0]['target_id'])) {
+      $assignment = node_load($node->field_assignment['und'][0]['target_id']);
+      // Only return grants if assignemnt is told to be dependent on grants
+      if (isset($assignment->field_cle_require_submission['und'][0]['value']) && $assignment->field_cle_require_submission['und'][0]['value'] == 'yes') {
+        $grants[] = array(
+          'realm' => 'cle_assignment_advanced',
+          'gid' => $assignment->nid,
+          'grant_view' => 1,
+          'grant_update' => 0,
+          'grant_delete' => 0,
+          // Set priority very high in hopes it is always first.
+          'priority' => 1000,
+        );
+        return $grants;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_access_explain().
+ */
+function cle_assignment_advanced_node_access_explain($row) {
+  if ($row->realm == 'cle_assignment_advanced') {
+    return t('Show users other submissions only after they submit the assignment.');
+  }
+}

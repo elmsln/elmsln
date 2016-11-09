@@ -150,6 +150,7 @@ dependencies[] = video_embed_field
 ; Other
 dependencies[] = field_collection_table
 dependencies[] = file_formatters
+dependencies[] = filefield_paths
 dependencies[] = imagefield_focus
 dependencies[] = jquery_colorpicker
 dependencies[] = menu_position

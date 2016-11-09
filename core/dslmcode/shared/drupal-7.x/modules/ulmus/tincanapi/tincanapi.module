@@ -79,7 +79,7 @@ function tincanapi_permission() {
  * Menu callback for JavaScript event tracking.
  */
 function tincanapi_ajax_track() {
-  if (isset($_POST['token']) && drupal_get_token() == $_POST['token'] && isset($_POST['module'])) {
+  if (isset($_POST['token']) && drupal_valid_token($_POST['token'], '', TRUE) && isset($_POST['module'])) {
     $module_name = $_POST['module'];
     $context = $_POST;
 
@@ -92,11 +92,11 @@ function tincanapi_ajax_track() {
       $function = $module . '_' . $hook;
       $function($module_name, $data, $context);
     }
-
+    // unset the js globals that were sent along
+    unset($data['tincanapiSettings']);
     // Check to see if the data array is empty without the storage array.
     $storage = $data['storage'];
     unset($data['storage']);
-
     if (!empty($data)) {
       $data['storage'] = $storage;
       tincanapi_track_data($module_name, $data);
@@ -295,7 +295,6 @@ function tincanapi_track_data($module_name, $data = array(), $user = NULL, $cron
   }
 
   unset($data['storage']);
-
   if (!empty($data)) {
 
     // Simplify the data IDs to http version.
@@ -310,8 +309,7 @@ function tincanapi_track_data($module_name, $data = array(), $user = NULL, $cron
         $data["context"]["contextActivities"]["parent"][0]["id"] = str_replace(array("http://www.", "https://www.", "https://", "https://"), "http://", $data["context"]["contextActivities"]["parent"][0]["id"]);
       }
     }
-
-    tincanapi_send("statements", "POST", $data);
+    call_user_func_array(variable_get('tincanapi_function', 'tincanapi_send'), array("statements", "POST", $data));
   }
 }
 
@@ -453,4 +451,11 @@ function tincanapi_format_iso8601_duration($timestamp) {
   }
 
   return $output;
+}
+
+/**
+ * Implements hook_tincan_request_fuction().
+ */
+function tincanapi_tincan_request_fuction() {
+  return array('tincanapi_send' => t('tincanapi (default)'));
 }

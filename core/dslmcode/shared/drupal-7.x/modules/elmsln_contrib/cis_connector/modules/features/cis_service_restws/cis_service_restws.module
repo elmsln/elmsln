@@ -58,13 +58,28 @@ function cis_service_restws_restws_response_alter(&$response, $function, $format
       }
     }
     // allow for rendering based on a display_mode
-    // @todo need to validate display_mode
-    // @todo need to allow for a query of items
-    if (isset($_GET['display_mode']) && $function == 'viewResource') {
-      $entity_type = arg(0);
-      $entity = menu_get_object($entity_type);
-      $render_array = entity_view($entity_type, array($entity), $_GET['display_mode']);
-      $response['rendered'] = drupal_render($render_array);
+    if (isset($_GET['display_mode'])) {
+      if ($function == 'viewResource') {
+        $entity_type = arg(0);
+        $entity = menu_get_object($entity_type);
+        $render_array = entity_view($entity_type, array($entity), $_GET['display_mode']);
+        $response['rendered'] = drupal_render($render_array);
+      }
+      elseif (isset($response['list'])) {
+        $arg0 = explode('.', arg(0));
+        $entity_type = $arg0[0];
+        $info = entity_get_info($entity_type);
+        foreach ($response['list'] as &$object) {
+          if (!empty($object[$info['entity keys']['id']])) {
+            $entity = entity_load_single($entity_type, $object[$info['entity keys']['id']]);
+            $render_array = entity_view($entity_type, array($entity), $_GET['display_mode']);
+            $object['rendered'] = drupal_render($render_array);
+          }
+          else {
+            $object['rendered'] = '';
+          }
+        }
+      }
     }
     // @sillyhack to convert json object to xml quickly and deliver
     // the page prior to drupal trying to do so

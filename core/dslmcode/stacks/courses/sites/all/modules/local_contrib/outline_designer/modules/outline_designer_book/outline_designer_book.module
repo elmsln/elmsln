@@ -84,6 +84,9 @@ function outline_designer_book_form_alter(&$form, $form_state, $form_id) {
  * Helper to allow other sub-sub projects to implement this
  */
 function _outline_designer_book_admin_form_alter(&$form, $form_state, $form_id, $ajax_path) {
+  if (isset($_GET['disable-outline-designer'])) {
+    return FALSE;
+  }
   if (arg(1) != 'ajax' && arg(1) != 'ocp_ajax') {
     _outline_designer_setup($ajax_path, $form['#node']->nid);
   }
@@ -143,7 +146,7 @@ function _outline_designer_book_admin_form_alter(&$form, $form_state, $form_id, 
   else {
     $can_add = FALSE;
   }
-  $form['table']['#prefix'] = theme('outline_designer_ui_prefix', array('nid' => $form['#node']->nid, 'icon_path' => $icon_path, 'can_add' => $can_add));
+  $form['table']['#prefix'] = theme('outline_designer_ui_prefix', array('node' => $form['#node'], 'icon_path' => $icon_path, 'can_add' => $can_add));
   $form['#prefix'] = '<div id="ajax_table_replacement">';
   $form['#suffix'] = '</div>';
 }
@@ -816,6 +819,7 @@ function outline_designer_book_process_drag_drop($nid, $parent_nid, $weight) {
     $node->book['weight'] = $weight;
     $node->revision = 1;
     $node->log = t("Outline Designer -- nid:%nid parent nid changed to %parent_nid", array('%nid' => $nid, '%parent_nid' => $parent_nid));
+    $node->_block_read_time_update = TRUE;
     node_save($node);
     drupal_set_message(t("Content position has been updated (nid:%nid)", array('%nid' => $nid)));
     return 1;
@@ -836,6 +840,7 @@ function outline_designer_book_process_reweight($nid, $weight, $var3) {
     // set parent / weight
     $node->book['weight'] = $weight;
     node_save($node);
+    $node->_block_read_time_update = TRUE;
     drupal_set_message(t("Position has been updated (nid:%nid)", array('%nid' => $nid)));
     return 1;
   }
@@ -872,6 +877,10 @@ function outline_designer_book_theme_registry_alter(&$theme_registry) {
  * Theme override for book_admin_table
  */
 function theme_outline_designer_book_admin_table($variables) {
+  if (isset($_GET['disable-outline-designer'])) {
+    return l(t('Enable auto-update'), current_path(), array('query' => array())) .
+ theme_book_admin_table($variables);
+  }
   $form = $variables['form'];
   drupal_add_tabledrag('book-outline', 'match', 'parent', 'book-plid', 'book-plid', 'book-mlid', TRUE, MENU_MAX_DEPTH - 2);
   drupal_add_tabledrag('book-outline', 'order', 'sibling', 'book-weight');

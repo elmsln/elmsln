@@ -126,6 +126,38 @@
  * );
  * @endcode
  *
+ * For handling full UTF-8 in MySQL, including multi-byte characters such as
+ * emojis, Asian symbols, and mathematical symbols, you may set the collation
+ * and charset to "utf8mb4" prior to running install.php:
+ * @code
+ * $databases['default']['default'] = array(
+ *   'driver' => 'mysql',
+ *   'database' => 'databasename',
+ *   'username' => 'username',
+ *   'password' => 'password',
+ *   'host' => 'localhost',
+ *   'charset' => 'utf8mb4',
+ *   'collation' => 'utf8mb4_general_ci',
+ * );
+ * @endcode
+ * When using this setting on an existing installation, ensure that all existing
+ * tables have been converted to the utf8mb4 charset, for example by using the
+ * utf8mb4_convert contributed project available at
+ * https://www.drupal.org/project/utf8mb4_convert, so as to prevent mixing data
+ * with different charsets.
+ * Note this should only be used when all of the following conditions are met:
+ * - In order to allow for large indexes, MySQL must be set up with the
+ *   following my.cnf settings:
+ *     [mysqld]
+ *     innodb_large_prefix=true
+ *     innodb_file_format=barracuda
+ *     innodb_file_per_table=true
+ *   These settings are available as of MySQL 5.5.14, and are defaults in
+ *   MySQL 5.7.7 and up.
+ * - The PHP MySQL driver must support the utf8mb4 charset (libmysqlclient
+ *   5.5.3 and up, as well as mysqlnd 5.0.9 and up).
+ * - The MySQL server must support the utf8mb4 charset (5.5.3 and up).
+ *
  * You can optionally set prefixes for some or all database table names
  * by using the 'prefix' setting. If a prefix is specified, the table
  * name will be prepended with its value. Be sure to use valid database
@@ -584,3 +616,15 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
  * Remove the leading hash sign to enable.
  */
 # $conf['theme_debug'] = TRUE;
+
+/**
+ * CSS identifier double underscores allowance:
+ *
+ * To allow CSS identifiers to contain double underscores (.example__selector)
+ * for Drupal's BEM-style naming standards, uncomment the line below.
+ * Note that if you change this value in existing sites, existing page styles
+ * may be broken.
+ *
+ * @see drupal_clean_css_identifier()
+ */
+# $conf['allow_css_double_underscores'] = TRUE;

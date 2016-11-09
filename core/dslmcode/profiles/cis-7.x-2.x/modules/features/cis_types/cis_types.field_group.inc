@@ -82,12 +82,13 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Administrative',
-    'weight' => '0',
+    'weight' => '2',
     'children' => array(
-      0 => 'field_display_in_course_list',
-      1 => 'field_instructional_designer',
-      2 => 'field_lead_instructor',
-      3 => 'field_method_of_access',
+      0 => 'field_instructional_designer',
+      1 => 'field_lead_instructor',
+      2 => 'group_instructors',
+      3 => 'group_resources',
+      4 => 'group_tas',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -169,23 +170,27 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Details',
-    'weight' => '1',
+    'weight' => '0',
     'children' => array(
       0 => 'field_academic_home',
-      1 => 'field_course_title',
-      2 => 'field_machine_name',
-      3 => 'field_program_classification',
-      4 => 'title',
+      1 => 'field_banner',
+      2 => 'field_course_title',
+      3 => 'field_display_in_course_list',
+      4 => 'field_machine_name',
+      5 => 'field_method_of_access',
+      6 => 'field_program_classification',
+      7 => 'title',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Details',
       'instance_settings' => array(
         'required_fields' => 0,
+        'id' => '',
         'classes' => ' group-details field-group-fieldset',
         'description' => '',
       ),
-      'formatter' => 'collapsed',
+      'formatter' => 'collapsible',
     ),
   );
   $field_groups['group_details|node|course|form'] = $field_group;
@@ -284,10 +289,10 @@ function cis_types_field_group_info() {
   $field_group->entity_type = 'node';
   $field_group->bundle = 'course';
   $field_group->mode = 'form';
-  $field_group->parent_name = 'group_resources';
+  $field_group->parent_name = 'group_administrative';
   $field_group->data = array(
     'label' => 'Instructors',
-    'weight' => '13',
+    'weight' => '24',
     'children' => array(
       0 => 'field_inst_delivery_guide',
       1 => 'field_inst_design_doc',
@@ -349,7 +354,7 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Offerings',
-    'weight' => '5',
+    'weight' => '4',
     'children' => array(
       0 => 'field_offerings',
     ),
@@ -470,11 +475,11 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Promotional',
-    'weight' => '2',
+    'weight' => '1',
     'children' => array(
-      0 => 'group_screenshots',
-      1 => 'group_text_areas',
-      2 => 'group_promo_details',
+      0 => 'group_promo_details',
+      1 => 'group_screenshots',
+      2 => 'group_text_areas',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -503,8 +508,7 @@ function cis_types_field_group_info() {
     'weight' => '51',
     'children' => array(
       0 => 'field_author_video',
-      1 => 'field_banner',
-      2 => 'field_screenshot',
+      1 => 'field_screenshot',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -643,10 +647,10 @@ function cis_types_field_group_info() {
   $field_group->entity_type = 'node';
   $field_group->bundle = 'course';
   $field_group->mode = 'form';
-  $field_group->parent_name = 'group_resources';
+  $field_group->parent_name = 'group_administrative';
   $field_group->data = array(
     'label' => 'Teaching Assistants',
-    'weight' => '19',
+    'weight' => '25',
     'children' => array(
       0 => 'field_ta_documents',
       1 => 'field_ta_instructions',

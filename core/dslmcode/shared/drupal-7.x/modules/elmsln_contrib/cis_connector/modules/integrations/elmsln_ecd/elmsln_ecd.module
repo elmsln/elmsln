@@ -127,7 +127,7 @@ function _elmsln_ecd_request($node, $op) {
             'data' => array(
               'elmsln_module' => 'ecd_helper',
               'elmsln_callback' => 'asset',
-              'title' => $title,
+              'title' => substr($title, 0, 255),
               'course' => $course,
               'url' => $link,
               'uuid' => $link,

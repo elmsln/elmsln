@@ -10,6 +10,84 @@ define('READ_TIME_DEFAULT_CRITERION', 'words');
 define('READ_TIME_IMAGE', 12);
 
 /**
+ * Implements hook_menu().
+ */
+function read_time_menu() {
+  $items['read_time/rebuild'] = array(
+    'title' => 'Calculating content read time',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('read_time_rebuild_confirm'),
+    'access arguments' => array('administer read time'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function read_time_requirements($phase) {
+  $requirements = array();
+  if ($phase === 'runtime') {
+    if (!read_time_needs_rebuild()) {
+      $value = t('Accurate read times reflected');
+      $severity = REQUIREMENT_OK;
+    }
+    else {
+      $value = t('Read times need rebuilt to be accurate');
+      $severity = REQUIREMENT_WARNING;
+    }
+    $requirements['read_time'] = array(
+      'title' => t('Read time'),
+      'description' => t('Rebuilding may take some time based on how much content you have.') . ' ' . l(t('Rebuild read time'), 'read_time/rebuild'),
+      'severity' => $severity,
+      'value' => $value,
+    );
+  }
+  return $requirements;
+}
+
+/**
+ * Menu callback: confirm rebuilding of read time.
+ */
+function read_time_rebuild_confirm() {
+  return confirm_form(array(), t('Are you sure you want to rebuild read time on content?'),
+                  'admin/reports/status', t('This action recalculates read time for all content, and may be a lengthy process. This action cannot be undone.'), t('Recalculate read time'), t('Cancel'));
+}
+
+/**
+ * Handler for wipe confirmation
+ *
+ * @see node_configure_rebuild_confirm()
+ */
+function read_time_rebuild_confirm_submit($form, &$form_state) {
+  _read_time_perform_batch_process();
+  $form_state['redirect'] = '<front>';
+}
+
+/**
+ * Flags or unflags the read time for rebuilding.
+ *
+ * @param $rebuild
+ *   (Optional) The boolean value to be written.
+ *
+ * @return
+ *   The current value of the flag if no value was provided for $rebuild.
+ */
+function read_time_needs_rebuild($rebuild = NULL) {
+  if (!isset($rebuild)) {
+    return variable_get('read_time_needs_rebuild', FALSE);
+  }
+  elseif ($rebuild) {
+    variable_set('read_time_needs_rebuild', TRUE);
+  }
+  else {
+    variable_del('read_time_needs_rebuild');
+  }
+}
+
+/**
  * Implements hook_permission().
  */
 function read_time_permission() {
@@ -17,6 +95,10 @@ function read_time_permission() {
     'view read time' =>  array(
       'title' => t('View read time'),
       'description' => t('Show users the read time statistics pulled off files.'),
+    ),
+    'administer read time' =>  array(
+      'title' => t('Administer read time'),
+      'description' => t('Administer read time settings.'),
     ),
   );
 }
@@ -187,11 +269,21 @@ function _read_time_evaluate($node, $criterion = NULL) {
 }
 
 /**
+ * Implements hook_node_insert().
+ */
+function read_time_node_insert($node) {
+  if (isset($node->_block_read_time_update)) {
+    drupal_set_message(t('Read time was prevented from being updated automatically. This means the current read time may be slightly off from what it actually is. ' . l(t('Rebuild read time now'), 'read_time/rebuild')), 'warning', FALSE);
+    read_time_needs_rebuild(TRUE);
+  }
+}
+
+/**
  * Implements hook_node_update().
  */
 function read_time_node_update($node) {
   // see if there's currently a value for this, there should be
-  if ($read_time_old = _read_time_get_read_time($node->nid)) {
+  if ($read_time_old = _read_time_get_read_time($node->nid) && !isset($node->_block_read_time_update)) {
     // compare it to the new one if we fresh calculate if
     $read_time = _read_time_evaluate($node);
     // only change the value if its different upon calculation
@@ -211,6 +303,10 @@ function read_time_node_update($node) {
       // set a flag saying this hasn't changed
       $node->read_time_changed = FALSE;
     }
+  }
+  elseif (isset($node->_block_read_time_update)) {
+    drupal_set_message(t('Read time was prevented from being updated automatically. This means the current read time may be slightly off from what it actually is. ' . l(t('Rebuild read time now'), 'read_time/rebuild')), 'warning', FALSE);
+    read_time_needs_rebuild(TRUE);
   }
 }
 
@@ -247,6 +343,9 @@ function read_time_node_load($nodes, $types) {
  */
 function read_time_node_view($node, $view_mode, $langcode) {
   if (user_access('view read time') && arg(2) != 'edit' && arg(1) != 'add') {
+    if (user_access('administer read time') && read_time_needs_rebuild()) {
+      drupal_set_message(t('Read time may be out of date' . l(t('Rebuild read time now'), 'read_time/rebuild')), 'warning', FALSE);
+    }
     // Get read time field settings.
     $display_settings = field_extra_fields_get_display('node', $node->type, $view_mode);
     $settings = $display_settings['read_time'];
@@ -484,7 +583,6 @@ function read_time_node_get_properties($node, array $options, $name) {
  * Triggers the batch operation for updating nodes.
  */
 function _read_time_perform_batch_process() {
-  db_truncate('read_time');
   $batch = array(
     'title' => t('Updating existing nodes with read time data'),
     'init_message' => t('Preparing to update entities..'),
@@ -503,6 +601,7 @@ function _read_time_perform_batch_process() {
 function _read_time_perform_batch_process_complete($success, $results, $operations) {
   if ($success) {
     drupal_set_message(t('Read time node data updated @count nodes successfully.', array('@count' => count($results))));
+    read_time_needs_rebuild(FALSE);
   }
   else {
     drupal_set_message(theme('item_list', array('items' => $results['errors'])), 'error');
@@ -669,6 +768,7 @@ function read_time_token_info() {
  * Implements hook_flush_caches().
  */
 function read_time_flush_caches() {
+  db_truncate('read_time');
   // on a cache clear we might have new data
   _read_time_perform_batch_process();
   return array();

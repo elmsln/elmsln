@@ -10,7 +10,7 @@
 function mooc_cis_ux_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_instructional_outlines'
+  // Exported field_base: 'field_instructional_outlines'.
   $field_bases['field_instructional_outlines'] = array(
     'active' => 1,
     'cardinality' => -1,

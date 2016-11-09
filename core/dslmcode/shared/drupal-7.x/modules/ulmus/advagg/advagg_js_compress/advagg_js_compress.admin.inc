@@ -52,17 +52,19 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
     ),
   );
 
-  $form['advagg_js_compress_packer'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use Packer on non GZip JS Aggregates'),
-    '#default_value' => variable_get('advagg_js_compress_packer', ADVAGG_JS_COMPRESS_PACKER),
-    '#description' => t('If enabled the non gzip version of JS files will be compressed using the JS Packer. Packer works similar to gzip, thus using packer on a gzipped file does not give a big improvement in terms of bytes transferred over the wire. WARNING: This has a high chance of breaking your JS. Only Enable on production after testing the non gzipped version locally.'),
-    '#states' => array(
-      'disabled' => array(
-        ':input[name="advagg_js_compressor"]' => array('value' => "0"),
+  if (variable_get('advagg_gzip', ADVAGG_GZIP) || variable_get('advagg_brotli', ADVAGG_BROTLI)) {
+    $form['advagg_js_compress_packer'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use Packer on non gz/br JS Aggregates'),
+      '#default_value' => variable_get('advagg_js_compress_packer', ADVAGG_JS_COMPRESS_PACKER),
+      '#description' => t('If enabled the non gzip/brotli version of JS files will be compressed using the JS Packer. Packer works similar to gz/br, thus using packer on a gzip/brotli file does not give a big improvement in terms of bytes transferred over the wire. WARNING: This has a high chance of breaking your JS. Only Enable on production after testing the non gzip/brotli version locally.'),
+      '#states' => array(
+        'disabled' => array(
+          ':input[name="advagg_js_compressor"]' => array('value' => "0"),
+        ),
       ),
-    ),
-  );
+    );
+  }
   $form['advagg_js_compress_add_license'] = array(
     '#type' => 'radios',
     '#title' => t('Licensing comments'),

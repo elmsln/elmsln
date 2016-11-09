@@ -232,7 +232,7 @@ function theme_elmsmedia_helper_youtube($variables) {
   if (isset($variables['settings']['caption'])) {
     $class = 'class="col s12 m8 l8"';
   }
-  $output = ' <div class="ableplayer-video">
+  $output = ' <div class="ableplayer-video elmsln-youtube">
   <div ' . $class . '>
     <video preload="auto" ' . drupal_attributes($variables['attributes']) . ' data-able-player tabindex="-1">';
   $output .= '
@@ -246,14 +246,14 @@ function theme_elmsmedia_helper_youtube($variables) {
 }
 
 /**
- * Callback for elmsmedia_helper_youtube()
+ * Callback for elmsmedia_helper_vimeo()
  */
 function theme_elmsmedia_helper_vimeo($variables) {
   $class = '';
   if (isset($variables['settings']['caption'])) {
     $class = 'class="col s12 m8 l8"';
   }
-  $output = ' <div class="row vimeo-video">
+  $output = ' <div class="row vimeo-video elmsln-vimeo">
     <div ' . $class . '>
       <iframe ' . drupal_attributes($variables['attributes']) . '></iframe>
     </div>
@@ -359,7 +359,7 @@ function _elmsmedia_helper_restws_deep_load(&$response) {
         $val = $val['file'];
         $is_file = TRUE;
       }
-      if (in_array($val['resource'], $allowed)) {
+      if (isset($val['resource']) && in_array($val['resource'], $allowed)) {
         // load the entity
         $entity = entity_load_single($val['resource'], $val['id']);
         // ensure they can view this specific item
@@ -387,6 +387,25 @@ function _elmsmedia_helper_restws_deep_load(&$response) {
           $val = $eary;
         }
       }
+    }
+  }
+}
+
+/**
+ * Implements threeplaymedia_apicall_alter().
+ */
+function elmsmedia_helper_threeplaymedia_apicall_alter(&$data, $call) {
+  // call to send_file
+  if ($call == 'send_file') {
+    $media = node_load($data['video_id']);
+    // see if course id is set, load it if it is
+    // this helps with organizing batches on the other side
+    if (!empty($media->field_cis_course_ref) && isset($media->field_cis_course_ref['und'][0]['target_id'])) {
+      $course = node_load($media->field_cis_course_ref['und'][0]['target_id']);
+      $data['batch_name'] = $course->field_course_machine_name['und'][0]['safe_value'];
+    }
+    else {
+      $data['batch_name'] = t('no_course');
     }
   }
 }

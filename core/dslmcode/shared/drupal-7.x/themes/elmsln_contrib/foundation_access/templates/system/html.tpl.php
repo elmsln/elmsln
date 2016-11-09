@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Default theme implementation to display the basic html structure of a single
@@ -43,59 +42,71 @@
  */
 ?>
 <!DOCTYPE html>
-<!-- Sorry no IE7 support! -->
-<!-- @see http://foundation.zurb.com/docs/index.html#basicHTMLMarkup -->
-
-<!--[if IE 8]><html class="no-js lt-ie9" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <!--<![endif]-->
+<html class="no-js" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <!--<![endif]-->
 <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <?php print $head; ?>
   <title><?php print $head_title; ?></title>
-  <?php print $styles; ?>
-  <?php print $scripts; ?>
-  <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
-  <!--cross platform favicons-->
-  <link rel="shortcut icon" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
-  <link rel="icon" sizes="16x16 32x32 64x64" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln.ico">
-  <link rel="icon" type="image/png" sizes="196x196" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-192.png">
-  <link rel="icon" type="image/png" sizes="160x160" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-160.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-96.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-64.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-16.png">
-  <link rel="apple-touch-icon" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-57.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-114.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-72.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-144.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-60.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-120.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-76.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-180.png">
-  <meta name="msapplication-TileColor" content="#FFFFFF">
-  <meta name="msapplication-TileImage" content="<?php print $theme_path . '/icons/elmsicons';?>/elmsln-144.png">
-  <meta name="msapplication-config" content="<?php print $theme_path . '/icons/elmsicons';?>/browserconfig.xml">
-  <!--/end cross platform favicons-->
+  <!-- tell IE versions to render as high as possible -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--cross platform favicons and tweaks-->
+  <link rel="shortcut icon" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln.ico">
+  <link rel="icon" sizes="16x16 32x32 64x64" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln.ico">
+<?php foreach ($iconsizes as $iconsize) : ?>
+  <link rel="icon" type="image/png" sizes="<?php print $iconsize; ?>x<?php print $iconsize; ?>" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-<?php print $iconsize; ?>.png">
+<?php endforeach; ?>
+  <!-- iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-57.png">
+<?php foreach ($appleiconsizes as $appleiconsize) : ?>
+  <link rel="apple-touch-icon" sizes="<?php print $iconsize; ?>x<?php print $iconsize; ?>" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-<?php print $iconsize; ?>.png">
+<?php endforeach; ?>
+  <link rel="apple-touch-icon-precomposed" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-152.png">
+  <link rel="apple-touch-startup-image"  href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-320x480.png">
+  <!-- Windows Phone -->
+  <meta name="msapplication-TileImage" content="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-144.png">
+  <meta name="msapplication-config" content="<?php print $theme_path . '/legacy/icons/elmsicons';?>/browserconfig.xml">
+  <meta name="msapplication-tap-highlight" content="no">
+  <!-- Chrome, Firefox OS and Opera -->
+  <meta name="msapplication-navbutton-color" content="#eeeeee">
+  <meta name="msapplication-TileColor" content="#eeeeee">
+  <meta name="theme-color" content="#eeeeee">
+  <!--/end cross platform favicons and tweaks-->
+  <?php print preg_replace('~>\s+<~', '><', $styles); ?>
+  <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
 </head>
-<body class="<?php print $classes; ?>" <?php print $attributes;?>>
-  <?php if (!empty($logo_img)) : ?>
-    <div class="logo <?php print $logo_classes; ?>">
-    <?php print $logo_img; ?>
-    </div>
-  <?php endif; ?>
+<body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?>>
+<?php ob_flush(); flush(); ?>
+  <span class="cis-lmsless-color"></span>
   <div class="skip-link">
     <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
   </div>
-  <?php print $page_top; ?>
-  <?php print $page; ?>
-  <?php print $page_bottom; ?>
-  <?php print _zurb_foundation_add_reveals(); ?>
-  <script>
-    (function ($, Drupal, window, document, undefined) {
-      $(document).foundation();
-    })(jQuery, Drupal, this, this.document);
-  </script>
+  <?php if (!empty($banner_image)) : ?>
+  <div class="header-image-container">
+    <?php print $banner_image; ?>
+  </div>
+  <?php endif; ?>
+    <div class="elmsln-system-badge">
+      <div class="elmsln-icon icon-<?php print $system_icon . ' ' . $lmsless_classes['text'];?> elmsln-badge"></div>
+      <div class="elmsln-badge-inner">
+        <div class="elmsln-badge-top white-border"></div>
+        <div class="elmsln-badge-middle white"></div>
+        <div class="elmsln-badge-bottom white-border"></div>
+      </div>
+      <div class="elmsln-badge-outer">
+        <div class="elmsln-badge-top <?php print $lmsless_classes['color'];?>-border"></div>
+        <div class="elmsln-badge-middle <?php print $lmsless_classes['color'];?>"></div>
+        <div class="elmsln-badge-bottom <?php print $lmsless_classes['color'];?>-border"></div>
+      </div>
+      <div class="elmsln-badge-middle-name white <?php print $lmsless_classes['color'];?>-border">
+        <a href="<?php print base_path();?>" class="<?php print $lmsless_classes['text'];?> <?php print $lmsless_classes['color'];?>-outline">
+          <span class="element-invisible"><?php print t('Home');?></span>
+          <?php print $system_title;?>
+        </a>
+      </div>
+    </div>
+  <?php print preg_replace('~>\s+<~', '><', $page_top . $page . $page_bottom); ?>
   </body>
 </html>

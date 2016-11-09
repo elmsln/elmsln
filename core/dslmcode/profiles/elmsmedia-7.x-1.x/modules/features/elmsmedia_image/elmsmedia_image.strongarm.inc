@@ -42,8 +42,34 @@ function elmsmedia_image_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_elmsmedia_image';
-  $strongarm->value = 'edit-wysiwyg-template';
+  $strongarm->value = 'edit-view-mode-tab';
   $export['additional_settings__active_tab_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'bulk_photo_nodes_elmsmedia_image';
+  $strongarm->value = array(
+    0 => 'image_field',
+  );
+  $export['bulk_photo_nodes_elmsmedia_image'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'bulk_photo_node_types';
+  $strongarm->value = array(
+    'elmsmedia_image' => 'field_image',
+    'elmsmedia_image_override' => 0,
+    'external_video_override' => 1,
+    'audio_override' => 1,
+    '_override' => 0,
+    'static_content_override' => 1,
+    'svg_override' => 1,
+    'h5p_content_override' => 1,
+    'image_gallery_override' => 1,
+  );
+  $export['bulk_photo_node_types'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -156,9 +182,76 @@ function elmsmedia_image_strongarm() {
       'revision' => array(
         'custom_settings' => FALSE,
       ),
+      'image__card' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__card__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__left' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__left__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__right' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__boxed__right__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__parallax' => array(
+        'custom_settings' => FALSE,
+      ),
+      'image__parallax__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch__medium' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch__small' => array(
+        'custom_settings' => FALSE,
+      ),
+      'h5p' => array(
+        'custom_settings' => FALSE,
+      ),
+      'h5p__card' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
-      'form' => array(),
+      'form' => array(
+        'title' => array(
+          'weight' => '1',
+        ),
+        'path' => array(
+          'weight' => '13',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '12',
+        ),
+        'book' => array(
+          'weight' => '11',
+        ),
+        'options' => array(
+          'weight' => '10',
+        ),
+        'author' => array(
+          'weight' => '8',
+        ),
+        'revision_information' => array(
+          'weight' => '9',
+        ),
+      ),
       'display' => array(),
     ),
   );

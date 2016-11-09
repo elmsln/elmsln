@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Encyclopedia feature.
+ */
+
+include_once 'cle_encyclopedia.features.inc';

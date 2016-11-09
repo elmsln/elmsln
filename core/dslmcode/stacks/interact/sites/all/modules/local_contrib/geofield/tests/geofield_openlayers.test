@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Integration tests for geofield.module with openlayers.module
+ */
+
+class GeofieldOpenlayersTestCase extends FieldTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name'  => 'Geofield/Openlayers',
+      'description'  => "Integration tests for Openlayers",
+      'group' => 'Geofield'
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('geofield', 'field_test'));
+
+    $this->admin_user = $this->drupalCreateUser(array('administer filters'));
+    $this->web_user = $this->drupalCreateUser(array('access field_test content', 'administer field_test content', 'administer modules'));
+    $this->drupalLogin($this->web_user);
+  }
+
+  // Test fields.
+
+  /**
+   * Sample test.
+   */
+  function testSampletest() {
+    $this->assertTrue(1 == 1, "1 == 1");
+  }
+}

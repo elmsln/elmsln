@@ -10,7 +10,7 @@
 function cpr_user_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'user-user-field_accessibility_preference'
+  // Exported field_instance: 'user-user-field_accessibility_preference'.
   $field_instances['user-user-field_accessibility_preference'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -21,7 +21,7 @@ function cpr_user_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 8,
+        'weight' => 9,
       ),
     ),
     'entity_type' => 'user',
@@ -55,7 +55,7 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_bio'
+  // Exported field_instance: 'user-user-field_bio'.
   $field_instances['user-user-field_bio'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -67,7 +67,7 @@ function cpr_user_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 4,
+        'weight' => 5,
       ),
     ),
     'entity_type' => 'user',
@@ -111,7 +111,7 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_display_name'
+  // Exported field_instance: 'user-user-field_display_name'.
   $field_instances['user-user-field_display_name'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -119,11 +119,11 @@ function cpr_user_field_default_field_instances() {
     'description' => 'How you\'d like your name to be presented to you and your classmates throughout your courses.',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 10,
+        'weight' => 2,
       ),
     ),
     'entity_type' => 'user',
@@ -180,7 +180,7 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_first_name'
+  // Exported field_instance: 'user-user-field_first_name'.
   $field_instances['user-user-field_first_name'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -188,11 +188,11 @@ function cpr_user_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'inline',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 1,
+        'weight' => 3,
       ),
     ),
     'entity_type' => 'user',
@@ -236,7 +236,7 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_last_name'
+  // Exported field_instance: 'user-user-field_last_name'.
   $field_instances['user-user-field_last_name'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -244,11 +244,11 @@ function cpr_user_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'inline',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 2,
+        'weight' => 4,
       ),
     ),
     'entity_type' => 'user',
@@ -292,29 +292,29 @@ function cpr_user_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-field_media_preference'
-  $field_instances['user-user-field_media_preference'] = array(
+  // Exported field_instance: 'user-user-field_user_banner'.
+  $field_instances['user-user-field_user_banner'] = array(
     'bundle' => 'user',
-    'default_value' => array(
-      0 => array(
-        'value' => 'public',
-      ),
-    ),
     'deleted' => 0,
-    'description' => 'The default is to deliver you media via public sources like YouTube. If this is not possible in your region due to regulation or firewalls, selecting Local version will attempt to deliver video from other sources to attempt to overcome these barriers.',
+    'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 7,
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => 'people_banner_style',
+        ),
+        'type' => 'image',
+        'weight' => 0,
       ),
     ),
     'entity_type' => 'user',
-    'field_name' => 'field_media_preference',
-    'label' => 'Media Preference',
-    'required' => 1,
+    'field_name' => 'field_user_banner',
+    'label' => 'Banner',
+    'required' => 0,
     'settings' => array(
+      'alt_field' => 0,
       'authcache' => array(
         'clients' => array(
           'authcache_ajax' => array(
@@ -328,21 +328,54 @@ function cpr_user_field_default_field_instances() {
         'peruser' => 1,
         'status' => 0,
       ),
-      'user_register_form' => 1,
+      'default_image' => 0,
+      'file_directory' => '',
+      'file_extensions' => 'jpg jpeg',
+      'filefield_paths' => array(
+        'active_updating' => 0,
+        'file_name' => array(
+          'options' => array(
+            'pathauto' => 1,
+            'slashes' => 1,
+            'transliterate' => 1,
+          ),
+          'value' => '[current-user:name].jpg',
+        ),
+        'file_path' => array(
+          'options' => array(
+            'pathauto' => 1,
+            'slashes' => 1,
+            'transliterate' => 1,
+          ),
+          'value' => 'users/banners',
+        ),
+        'redirect' => FALSE,
+        'retroactive_update' => 0,
+      ),
+      'filefield_paths_enabled' => 1,
+      'focus' => 0,
+      'focus_lock_ratio' => 0,
+      'focus_min_size' => '',
+      'max_filesize' => '',
+      'max_resolution' => '',
+      'min_resolution' => '',
+      'title_field' => 0,
+      'user_register_form' => 0,
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
+      'module' => 'image',
       'settings' => array(
-        'apply_chosen' => '',
+        'preview_image_style' => 'thumbnail',
+        'progress_indicator' => 'throbber',
       ),
-      'type' => 'options_select',
-      'weight' => 7,
+      'type' => 'image_image',
+      'weight' => 16,
     ),
   );
 
-  // Exported field_instance: 'user-user-field_photo'
-  $field_instances['user-user-field_photo'] = array(
+  // Exported field_instance: 'user-user-field_user_photo'.
+  $field_instances['user-user-field_user_photo'] = array(
     'bundle' => 'user',
     'deleted' => 0,
     'description' => '',
@@ -355,18 +388,53 @@ function cpr_user_field_default_field_instances() {
           'image_style' => 'people_user_profile',
         ),
         'type' => 'image',
-        'weight' => 0,
+        'weight' => 1,
       ),
     ),
     'entity_type' => 'user',
-    'field_name' => 'field_photo',
+    'field_name' => 'field_user_photo',
     'label' => 'Photo',
     'required' => 0,
     'settings' => array(
       'alt_field' => 0,
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'default_image' => 0,
       'file_directory' => '',
-      'file_extensions' => 'png gif jpg jpeg',
+      'file_extensions' => 'jpg jpeg',
+      'filefield_paths' => array(
+        'active_updating' => 0,
+        'file_name' => array(
+          'options' => array(
+            'pathauto' => 1,
+            'slashes' => 1,
+            'transliterate' => 1,
+          ),
+          'value' => '[current-user:name].jpg',
+        ),
+        'file_path' => array(
+          'options' => array(
+            'pathauto' => 1,
+            'slashes' => 1,
+            'transliterate' => 1,
+          ),
+          'value' => 'users/photos',
+        ),
+        'redirect' => FALSE,
+        'retroactive_update' => 0,
+      ),
+      'filefield_paths_enabled' => 1,
       'focus' => 0,
       'focus_lock_ratio' => 0,
       'focus_min_size' => '',
@@ -380,25 +448,24 @@ function cpr_user_field_default_field_instances() {
       'active' => 1,
       'module' => 'image',
       'settings' => array(
-        'preview_image_style' => 'thumbnail',
+        'preview_image_style' => 'people_user_profile',
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 13,
+      'weight' => 15,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Accessibility Preference');
+  t('Banner');
   t('Bio');
   t('Display name');
   t('First name');
   t('How you\'d like your name to be presented to you and your classmates throughout your courses.');
   t('Last name');
-  t('Media Preference');
   t('Photo');
-  t('The default is to deliver you media via public sources like YouTube. If this is not possible in your region due to regulation or firewalls, selecting Local version will attempt to deliver video from other sources to attempt to overcome these barriers.');
 
   return $field_instances;
 }

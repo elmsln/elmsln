@@ -1,0 +1,496 @@
+<?php
+
+/**
+ * @file
+ * Views content cache cache.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function views_content_cache_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'views_content_cache') .'/views',
+  );
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function views_content_cache_node_insert($node) {
+  views_content_cache_update_set($node, 'node');
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function views_content_cache_node_update($node) {
+  views_content_cache_update_set($node, 'node');
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function views_content_cache_node_delete($node) {
+  views_content_cache_update_set($node, 'node');
+}
+
+/**
+ * Implements hook_node_revision_delete().
+ */
+function views_content_cache_node_revision_delete($node) {
+  views_content_cache_update_set($node, 'node');
+}
+
+/**
+ * Implements hook_comment_insert().
+ */
+function views_content_cache_comment_insert($comment) {
+  if (!empty($comment->nid) && ($node = node_load($comment->nid))) {
+    views_content_cache_update_set($comment, 'comment');
+  }
+}
+
+/**
+ * Implements hook_comment_update().
+ */
+function views_content_cache_comment_update($comment) {
+  if (!empty($comment->nid) && ($node = node_load($comment->nid))) {
+    views_content_cache_update_set($comment, 'comment');
+  }
+}
+
+/**
+ * Implements hook_comment_delete().
+ */
+function views_content_cache_comment_delete($comment) {
+  if (!empty($comment->nid) && ($node = node_load($comment->nid))) {
+    views_content_cache_update_set($comment, 'comment');
+  }
+}
+
+/**
+ * Implements hook_comment_publish().
+ */
+function views_content_cache_comment_publish($comment) {
+  if (!empty($comment->nid) && ($node = node_load($comment->nid))) {
+    views_content_cache_update_set($comment, 'comment');
+  }
+}
+
+/**
+ * Implements hook_comment_unpublish().
+ */
+function views_content_cache_comment_unpublish($comment) {
+  if (!empty($comment->nid) && ($node = node_load($comment->nid))) {
+    views_content_cache_update_set($comment, 'comment');
+  }
+}
+
+/**
+ * Implements hook_votingapi_results().
+ */
+function views_content_cache_votingapi_results($cached, $content_type, $content_id) {
+  views_content_cache_update_set($cached, 'votingapi_results');
+}
+
+/**
+ * Create one or more update records for the given object.
+ *
+ * @param object $object
+ *   The object for which the update is occurring. Example: a $node object.
+ * @param string $object_type
+ *   A string identifier that other modules can use to identify the type of
+ *   object passed to them. Example: 'node'.
+ * @param int $timestamp
+ *   A timestamp to use for the update record. Optional.
+ *
+ * @return boolean
+ *   Returns TRUE if one or more update records were written. FALSE if none
+ *   were written.
+ */
+function views_content_cache_update_set($object, $object_type, $timestamp = NULL) {
+  $update = FALSE;
+  // Important to default to time() instead of REQUEST_TIME to avoid race
+  // conditions.
+  $timestamp = isset($timestamp) ? $timestamp : time();
+  if ($cids = views_content_cache_id_generate($object, $object_type)) {
+    foreach ($cids as $cid) {
+      if (!empty($cid)) {
+        $update = TRUE;
+        $mapped = views_content_cache_id_record($cid);
+
+        // Ensure that the timestamp is recorded in the table.
+        $merge_query = db_merge('views_content_cache')
+          ->fields(array('timestamp' => $timestamp))
+          ->key($mapped)
+          ->execute();
+      }
+    }
+  }
+  return $update;
+}
+
+/**
+ * Retrieve the latest update record for a given cache id.
+ *
+ * @param array $cid
+ *   A cache id array. May contain multiple values for each key id.
+ * @param boolean $reset
+ *   Reset the internal static cache of timestamps for particular keys.
+ *
+ * @return int
+ *   Returns the timestamp of the latest update record matching the given cache
+ *   id or FALSE if none was found.
+ */
+function views_content_cache_update_get($cid, $reset = FALSE) {
+  static $cache = array();
+  $hash = md5(serialize($cid));
+  if (!isset($cache[$hash]) || $reset) {
+    $mapped = views_content_cache_id_record($cid);
+
+    // Generate the where clause from the cache id.
+    $where_query = array(
+      '#glue' => 'OR',
+      array(
+        '#glue' => 'AND',
+      ),
+    );
+    foreach ($mapped as $key_id => $key_value) {
+      if (!empty($key_value)) {
+        // Use a simpler syntax for single value wheres:
+        if (count($key_value) == 1) {
+          $where = "{$key_id} = :{$key_id}";
+        }
+        else {
+          $where= "{$key_id} IN (:{$key_id})";
+        }
+
+        // Work out where the clause should be put in the query array:
+        if ('AND' == views_content_cache_and_or_key_get($key_id)) {
+          // AND queries go to a sub array of the clause:
+          $where_query[0][] = array(
+            '#clause' => $where,
+            '#args' => array(":{$key_id}" => array_values($key_value)),
+          );
+        }
+        else {
+          // OR queries go to the base clause:
+          $where_query[] = array(
+            '#clause' => $where,
+            '#args' => array(":{$key_id}" => array_values($key_value)),
+          );
+        }
+      }
+    }
+    $built_clause = views_content_cache_query_builder($where_query);
+
+    // If there were arguments in the query, run it.
+    if (!empty($built_clause['#args'])) {
+      $cache[$hash] = db_query("SELECT timestamp FROM {views_content_cache} WHERE " . $built_clause['#clause'] . " ORDER BY timestamp DESC", $built_clause['#args'])->fetchField();
+    }
+    else {
+      $cache[$hash] = FALSE;
+    }
+  }
+  return $cache[$hash];
+}
+
+/**
+ * Determine how this cache segment should be combined with others.
+ *
+ * @param
+ *   The cache segment, should be c1 or c2, etc.
+ * @return
+ *   Either 'AND' or 'OR' depending on how this cache segment can be combined
+ *   with the others.
+ */
+function views_content_cache_and_or_key_get($cid) {
+  $map = views_content_cache_id_schema();
+  if ($key = array_search($cid, $map)) {
+    $plugin = views_content_cache_get_plugin($key);
+    return $plugin->clause_mode();
+  }
+  return 'AND';
+}
+
+/**
+ * Generate one or more cache ids for an update record.
+ *
+ * @param object $object
+ *   The object for which the update is occurring. Example: a $node object.
+ * @param string $object_type
+ *   A string identifier that other modules can use to identify the type of
+ *   object passed to them. Example: 'node'.
+ *
+ * @return array
+ *   Returns an array of cache ids.
+ */
+function views_content_cache_id_generate($object, $object_type) {
+  $cids = array(array());
+  foreach (views_content_cache_get_plugin() as $key_id => $plugin) {
+    if ($key_values = $plugin->content_key($object, $object_type)) {
+      $key_values = is_array($key_values) ? $key_values : array($key_values);
+      // If the content key is multivalue create an additional cid per value.
+      $processed = array();
+      foreach ($key_values as $key_value) {
+        foreach ($cids as $cid) {
+          $cid[$key_id] = $key_value;
+          $processed[] = $cid;
+        }
+      }
+      $cids = $processed;
+    }
+  }
+  return $cids;
+}
+
+/**
+ * Convert a cache id to an update record suitable for drupal_write_record() or
+ * use in a SELECT query.
+ *
+ * @param array $cid
+ *   An array representing a cache id where keys correspond to plugin key IDs
+ *   and values are the cache id values generated by each plugin.
+ *
+ * @return array
+ *   An array where each plugin key ID has been replaced by one of the
+ *   corresponding database columns c1 through c8.
+ */
+function views_content_cache_id_record($cid) {
+  $map = views_content_cache_id_schema();
+  $record = array();
+  foreach ($cid as $key_id => $key_value) {
+    if ($key_id === 'timestamp') {
+      $record[$key_id] = $key_value;
+    }
+    elseif (isset($map[$key_id]) && $column = $map[$key_id]) {
+      $record[$column] = $key_value;
+    }
+  }
+  return $record;
+}
+
+/**
+ * Retrieve or generate the cache id to schema mapping.
+ *
+ * We store the schema mapping in the main cache table/bin, this means that it
+ * can get invalidated quite quickly, but this will also probably coincide with
+ * the views cache being flushed, so we're are just wasting a few CPU cycles in
+ * reality.
+ *
+ * @param boolean $reset
+ *   Reset the static and DB cache for the schema mapping.
+ *
+ * @return array
+ *   An array where each key is a plugin key ID and each value is the
+ *   corresponding database column.
+ */
+function views_content_cache_id_schema($reset = FALSE) {
+  static $map;
+  if (!isset($map) || $reset) {
+    $cache = cache_get('views_content_cache_id_schema');
+    if (!$reset && !empty($cache->data)) {
+      $map = $cache->data;
+    }
+    else {
+      $cache_keys = array_keys(views_content_cache_get_plugin());
+      $i = 1;
+      foreach ($cache_keys as $key_id) {
+        // Schema is limited to 8.
+        if ($i > 8) {
+          break;
+        }
+        $map[$key_id] = "c{$i}";
+        $i++;
+      }
+      // If the newly generated map and the prior map do not match invalidate
+      // all cache update records.
+      if (empty($cache->data) || ($map != $cache->data)) {
+        db_truncate('views_content_cache')->execute();
+
+        // This is probably too aggressive. @TODO: See if we can surgically
+        // invalidate only views that use VCC.
+        views_invalidate_cache();
+      }
+      cache_set('views_content_cache_id_schema', $map, 'cache');
+    }
+  }
+  return $map;
+}
+
+/**
+ * Retrieve a plugin object.
+ *
+ * @param string $plugin
+ *   The name of the plugin class to retrieve. Optional.
+ * @param boolean $reset
+ *   Reset the static cache.
+ *
+ * @return mixed
+ *   If a specific plugin class was requested an instance of that class is
+ *   returned. Otherwise, an array of all plugins.
+ */
+function views_content_cache_get_plugin($plugin = NULL, $reset = FALSE) {
+  static $cache;
+  if (!isset($cache) || $reset) {
+    ctools_include('plugins');
+    $plugins = ctools_get_plugins('views_content_cache', 'plugins');
+
+    // This ksort is critical. This ensures that our plugins are in consistent
+    // order, especially important for views_content_cache_id_schema().
+    ksort($plugins);
+
+    foreach ($plugins as $key => $info) {
+      if (empty($info['abstract']) && $class = ctools_plugin_get_class($info, 'handler')) {
+        $cache[$key] = new $class();
+      }
+    }
+  }
+  if (isset($plugin)) {
+    return isset($cache[$plugin]) ? $cache[$plugin] : FALSE;
+  }
+  return $cache;
+}
+
+/**
+ * A simple SQL where clause builder.
+ *
+ * This function will recursively build a WHERE clause.
+ *
+ * @return
+ *   An array with two keyed, values:
+ *     - 'clause' - containing the meat of a WHERE clause.
+ *     - 'args' - An array of arguments for the db_query call.
+ */
+function views_content_cache_query_builder($query_array) {
+  // Arrays of clauses and args:
+  $clauses = array();
+  $args = array();
+
+  // First flatten this array:
+  foreach (element_children($query_array) as $key) {
+    if (is_array($query_array[$key]) && isset($query_array[$key]['#glue'])) {
+      $query_array[$key] = views_content_cache_query_builder($query_array[$key]);
+    }
+    if (isset($query_array[$key]['#clause'])) {
+      $clauses[] = $query_array[$key]['#clause'];
+      if (is_array($query_array[$key]['#args'])) {
+        $args = array_merge($args, $query_array[$key]['#args']);
+      }
+    }
+  }
+
+  $glue = isset($query_array['#glue']) ? $query_array['#glue'] : 'AND';
+
+  // If we are ORing, we need to add some brackets
+  return array(
+    '#clause' => '(' . implode(" $glue ", $clauses) . ')',
+    '#args' => $args,
+  );
+}
+
+/**
+ * CTools plugins API hooks ===================================================
+ */
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function views_content_cache_ctools_plugin_api($module, $api) {
+  if ($module == 'views_content_cache' && $api == 'plugins') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function views_content_cache_ctools_plugin_type() {
+  return array(
+    'plugins' => array(
+      'cache' => TRUE,
+      'use hooks' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function views_content_cache_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'views_content_cache') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * Implements hook_views_content_cache_plugins().
+ *
+ * This is a ctools plugins hook.
+ */
+function views_content_cache_views_content_cache_plugins() {
+  $plugins = array();
+  $plugins['base'] = array(
+    'abstract' => TRUE,
+    'handler' => array(
+      'path' => drupal_get_path('module', 'views_content_cache') . '/plugins',
+      'file' => 'base.inc',
+      'class' => 'views_content_cache_key',
+    ),
+  );
+  $plugins['node'] = array(
+    'title' => t('Node type'),
+    'description' => t('Invalidates cache by node type'),
+    'handler' => array(
+      'path' => drupal_get_path('module', 'views_content_cache') . '/plugins',
+      'file' => 'node.inc',
+      'class' => 'views_content_cache_key_node',
+      'parent' => 'base',
+    ),
+  );
+  $plugins['node_only'] = array(
+    'title' => t('Pure node updates only'),
+    'description' => t('Invalidates cache for main node operations'),
+    'handler' => array(
+      'path' => drupal_get_path('module', 'views_content_cache') . '/plugins',
+      'file' => 'node_only.inc',
+      'class' => 'views_content_cache_key_node_only',
+      'parent' => 'base',
+    ),
+  );
+  if (module_exists('comment')) {
+    $plugins['comment'] = array(
+      'title' => t('Comment'),
+      'description' => t('Invalidates cache when comments are posted or updated'),
+      'handler' => array(
+        'path' => drupal_get_path('module', 'views_content_cache') . '/plugins',
+        'file' => 'comment.inc',
+        'class' => 'views_content_cache_key_comment',
+        'parent' => 'base',
+      ),
+    );
+  }
+  if (module_exists('og')) {
+    $plugins['og'] = array(
+      'handler' => array(
+        'path' => drupal_get_path('module', 'views_content_cache') . '/plugins',
+        'file' => 'og.inc',
+        'class' => 'views_content_cache_key_og',
+        'parent' => 'base',
+      ),
+    );
+  }
+  if (module_exists('votingapi')) {
+    $plugins['votingapi'] = array(
+      'handler' => array(
+        'path' => drupal_get_path('module', 'views_content_cache') . '/plugins',
+        'file' => 'votingapi.inc',
+        'class' => 'views_content_cache_key_votingapi',
+        'parent' => 'base',
+      ),
+    );
+  }
+  return $plugins;
+}

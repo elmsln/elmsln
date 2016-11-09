@@ -1,0 +1,289 @@
+<?php
+
+/**
+ * @file
+ * An example implementation of the Checklist API.
+ */
+
+/**
+ * Implements hook_checklistapi_checklist_info().
+ *
+ * Defines a checklist based on
+ * @link http://buytaert.net/drupal-learning-curve Dries Buytaert's Drupal learning curve @endlink
+ * .
+ */
+function checklistapi_example_checklistapi_checklist_info() {
+  $definitions = array();
+  $definitions['example_checklist'] = array(
+    '#title' => t('Checklist API example'),
+    '#path' => 'admin/config/development/checklistapi-example',
+    '#description' => t('An example implementation of the Checklist API.'),
+    '#help' => t('<p>This checklist based on <a href="http://buytaert.net/drupal-learning-curve">Dries Buytaert\'s Drupal learning curve</a> is an example implementation of the <a href="http://drupal.org/project/checklistapi">Checklist API</a>.</p>'),
+    'i_suck' => array(
+      '#title' => t('I suck'),
+      '#description' => t('<p>Gain these skills to pass the <em><a href="http://headrush.typepad.com/creating_passionate_users/2005/10/getting_users_p.html">suck threshold</a></em> and start being creative with Drupal.</p>'),
+      'install_configure' => array(
+        '#title' => t('Installation and configuration of Drupal core'),
+        '#description' => t('Prepare for installation, run the installation script, and take the steps that should be done after the installation script has completed.'),
+        'handbook_page' => array(
+          '#text' => t('Installation Guide'),
+          '#path' => 'http://drupal.org/documentation/install',
+        ),
+      ),
+      'node_system' => array(
+        '#title' => t('Node system'),
+        '#description' => t('Perform a variety of operations on one or more nodes.'),
+        'handbook_page' => array(
+          '#text' => t('Manage nodes'),
+          '#path' => 'http://drupal.org/node/306808',
+        ),
+      ),
+      'block_system' => array(
+        '#title' => t('Block system'),
+        '#description' => t('Create blocks and adjust their appearance, shape, size and position.'),
+        'handbook_page' => array(
+          '#text' => t('Working with blocks (content in regions)'),
+          '#path' => 'http://drupal.org/documentation/modules/block',
+        ),
+      ),
+      'users' => array(
+        '#title' => t('Users, roles and permissions'),
+        '#description' => t('Create and manage users and access control.'),
+        'handbook_page' => array(
+          '#text' => t('Managing users'),
+          '#path' => 'http://drupal.org/node/627158',
+        ),
+      ),
+      'contrib' => array(
+        '#title' => t('Installing contributed themes and modules'),
+        '#description' => t('Customize Drupal to your tastes by adding modules and themes.'),
+        'handbook_page' => array(
+          '#text' => t('Installing modules and themes'),
+          '#path' => 'http://drupal.org/documentation/install/modules-themes',
+        ),
+      ),
+    ),
+    'i_get_by' => array(
+      '#title' => t('I get by'),
+      '#description' => t('<p>Gain these skills to pass the <em><a href="http://headrush.typepad.com/creating_passionate_users/2005/10/getting_users_p.html">passion threshold</a></em> and start kicking butt with Drupal.</p>'),
+      'upgrade_patch_monitor' => array(
+        '#title' => t('Upgrading, patching, (security) monitoring'),
+        'handbook_page_upgrading' => array(
+          '#text' => t('Upgrading from previous versions'),
+          '#path' => 'http://drupal.org/upgrade',
+        ),
+        'handbook_page_patching' => array(
+          '#text' => t('Applying patches'),
+          '#path' => 'http://drupal.org/patch/apply',
+        ),
+        'security_advisories' => array(
+          '#text' => t('Security advisories'),
+          '#path' => 'http://drupal.org/security',
+        ),
+        'handbook_page_monitoring' => array(
+          '#text' => t('Monitoring a site'),
+          '#path' => 'http://drupal.org/node/627162',
+        ),
+      ),
+      'navigation_menus_taxonomy' => array(
+        '#title' => t('Navigation, menus, taxonomy'),
+        'handbook_page_menus' => array(
+          '#text' => t('Working with Menus'),
+          '#path' => 'http://drupal.org/documentation/modules/menu',
+        ),
+        'handbook_page_taxonomy' => array(
+          '#text' => t('Organizing content with taxonomy'),
+          '#path' => 'http://drupal.org/documentation/modules/taxonomy',
+        ),
+      ),
+      'locale_i18n' => array(
+        '#title' => t('Locale and internationalization'),
+        'handbook_page' => array(
+          '#text' => t('Multilingual Guide'),
+          '#path' => 'http://drupal.org/documentation/multilingual',
+        ),
+      ),
+      'customize_front_page' => array(
+        '#title' => t('Drastically customize front page'),
+        'handbook_page' => array(
+          '#text' => t('Totally customize the LOOK of your front page'),
+          '#path' => 'http://drupal.org/node/317461',
+        ),
+      ),
+      'theme_modification' => array(
+        '#title' => t('Theme and template modifications'),
+        'handbook_page' => array(
+          '#text' => t('Theming Guide'),
+          '#path' => 'http://drupal.org/documentation/theme',
+        ),
+      ),
+    ),
+    'i_kick_butt' => array(
+      '#title' => t('I kick butt'),
+      'contribute_docs_support' => array(
+        '#title' => t('Contributing documentation and support'),
+        'handbook_page_docs' => array(
+          '#text' => t('Contribute to documentation'),
+          '#path' => 'http://drupal.org/contribute/documentation',
+        ),
+        'handbook_page_support' => array(
+          '#text' => t('Provide online support'),
+          '#path' => 'http://drupal.org/contribute/support',
+        ),
+      ),
+      'content_types_views' => array(
+        '#title' => t('Content types and views'),
+        'handbook_page_content_types' => array(
+          '#text' => t('Working with nodes, content types and fields'),
+          '#path' => 'http://drupal.org/node/717120',
+        ),
+        'handbook_page_views' => array(
+          '#text' => t('Working with Views'),
+          '#path' => 'http://drupal.org/documentation/modules/views',
+        ),
+      ),
+      'actions_workflows' => array(
+        '#title' => t('Actions and workflows'),
+        'handbook_page' => array(
+          '#text' => t('Actions and Workflows'),
+          '#path' => 'http://drupal.org/node/924538',
+        ),
+      ),
+      'development' => array(
+        '#title' => t('Theme and module development'),
+        'handbook_page_theming' => array(
+          '#text' => t('Theming Guide'),
+          '#path' => 'http://drupal.org/documentation/theme',
+        ),
+        'handbook_page_development' => array(
+          '#text' => t('Develop for Drupal'),
+          '#path' => 'http://drupal.org/documentation/develop',
+        ),
+      ),
+      'advanced_tasks' => array(
+        '#title' => t('jQuery, Form API, security audits, performance tuning'),
+        'handbook_page_jquery' => array(
+          '#text' => t('JavaScript and jQuery'),
+          '#path' => 'http://drupal.org/node/171213',
+        ),
+        'handbook_page_form_api' => array(
+          '#text' => t('Form API'),
+          '#path' => 'http://drupal.org/node/37775',
+        ),
+        'handbook_page_security' => array(
+          '#text' => t('Securing your site'),
+          '#path' => 'http://drupal.org/security/secure-configuration',
+        ),
+        'handbook_page_performance' => array(
+          '#text' => t('Managing site performance'),
+          '#path' => 'http://drupal.org/node/627252',
+        ),
+      ),
+      'contribute_code' => array(
+        '#title' => t('Contributing code, designs and patches back to Drupal'),
+        'handbook_page' => array(
+          '#text' => t('Contribute to development'),
+          '#path' => 'http://drupal.org/contribute/development',
+        ),
+      ),
+      'professional' => array(
+        '#title' => t('Drupal consultant or working for a Drupal shop'),
+      ),
+      'chx_or_unconed' => array(
+        '#title' => t(
+          "I'm a !chx or !UnConeD.",
+          array(
+            '!chx' => l(t('chx'), 'http://drupal.org/user/9446'),
+            '!UnConeD' => l(t('UnConeD'), 'http://drupal.org/user/10'),
+          )
+        ),
+      ),
+    ),
+  );
+  return $definitions;
+}
+
+/**
+ * Implements hook_checklistapi_checklist_info_alter().
+ *
+ * Alters the checklist from checklistapi_example_checklistapi_checklist_info()
+ * according to
+ * @link http://www.unleashedmind.com/files/drupal-learning-curve.png sun's modifications @endlink
+ * of
+ * @link http://buytaert.net/drupal-learning-curve Dries Buytaert's Drupal learning curve @endlink
+ * .
+ */
+function checklistapi_example_checklistapi_checklist_info_alter(&$definitions) {
+  $definitions['example_checklist']['#help'] = t('<p>This checklist based on <a href="http://www.unleashedmind.com/files/drupal-learning-curve.png">sun\'s modification</a> of <a href="http://buytaert.net/drupal-learning-curve">Dries Buytaert\'s Drupal learning curve</a> is an example implementation of the <a href="http://drupal.org/project/checklistapi">Checklist API</a>.</p>');
+  $definitions['example_checklist']['i_kick_butt']['advanced_tasks']['#title'] = t('jQuery, Form API, theme and module development');
+  $definitions['example_checklist']['i_kick_butt']['advanced_tasks'] += $definitions['example_checklist']['i_kick_butt']['development'];
+  unset($definitions['example_checklist']['i_kick_butt']['development']);
+  $definitions['example_checklist']['i_kick_butt']['contribute_code']['#title'] = t('Contributing code, designs and patches back to Drupal contrib');
+  unset($definitions['example_checklist']['i_kick_butt']['chx_or_unconed']);
+  $definitions['example_checklist']['core_contributor'] = array(
+    '#title' => t("I'm a core contributor"),
+    'contribute_core_code' => array(
+      '#title' => t('Contribute code and patches to Drupal core'),
+      'handbook_page' => array(
+        '#text' => t('Core contribution mentoring (core office hours)'),
+        '#path' => 'http://drupal.org/core-office-hours',
+      ),
+      'issue_queue' => array(
+        '#text' => t('Core issue queue'),
+        '#path' => 'http://drupal.org/project/issues/drupal',
+      ),
+    ),
+    'unit_tests' => array(
+      '#title' => t('Write unit tests to get own patch committed.'),
+      'handbook_page' => array(
+        '#text' => t('Unit Testing with Simpletest'),
+        '#path' => 'http://drupal.org/node/811254',
+      ),
+    ),
+    'review_core_patches' => array(
+      '#title' => t("Review other people's core patches, understanding coding standards."),
+      'pending_patches' => array(
+        '#text' => t('Pending patches'),
+        '#path' => 'http://drupal.org/project/issues/search/drupal?status[]=8&status[]=13&status[]=14',
+      ),
+      'handbook_page' => array(
+        '#text' => t('Coding standards'),
+        '#path' => 'http://drupal.org/coding-standards',
+      ),
+    ),
+    'security_performance' => array(
+      '#title' => t('Security audits, performance tuning.'),
+      'handbook_page_security' => $definitions['example_checklist']['i_kick_butt']['advanced_tasks']['handbook_page_security'],
+      'handbook_page_performance' => $definitions['example_checklist']['i_kick_butt']['advanced_tasks']['handbook_page_performance'],
+    ),
+  );
+  unset($definitions['example_checklist']['i_kick_butt']['advanced_tasks']['handbook_page_security']);
+  unset($definitions['example_checklist']['i_kick_butt']['advanced_tasks']['handbook_page_performance']);
+  $definitions['example_checklist']['core_maintainer'] = array(
+    '#title' => t("I'm trustworthy for core maintainership"),
+    'add_sub_system' => array(
+      '#title' => t('Rewrite or add a Drupal core sub-system.'),
+    ),
+    'sub_system_maintainer' => array(
+      '#title' => t('Sub-system maintainer.'),
+    ),
+    'core_branch_maintainer' => array(
+      '#title' => t('Core branch maintainer'),
+    ),
+  );
+  $definitions['example_checklist']['know_every_bit_of_core'] = array(
+    '#title' => t('I know every bit of core'),
+    'im_chx' => array(
+      '#title' => t(
+        "I'm !chx.",
+        array('!chx' => l(t('chx'), 'http://drupal.org/user/9446'))
+      ),
+    ),
+  );
+  $definitions['example_checklist']['understand_all_core_patch_implications'] = array(
+    '#title' => t('I understand all implications of a core patch'),
+    'im_chuck_norris' => array(
+      '#title' => t("I'm Chuck Norris."),
+    ),
+  );
+}

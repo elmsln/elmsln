@@ -48,7 +48,31 @@ function elmsln_api_menu() {
     'access arguments' => array(array('administrator', 'instructor', 'staff')),
     'type' => MENU_CALLBACK,
   );
+  // tee-up our application
+  $items['api/v1/elmsln/user'] = array(
+    'page callback' => '_elmsln_api_user_request',
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
   return $items;
+}
+/**
+ * Page callback: returns information to establish a headless application
+ * to connect to the site. This assumes a user session already exists.
+ */
+function _elmsln_api_user_request() {
+  drupal_add_http_header('Content-Type', 'application/json');
+  $vars = array(
+    'site' => array(
+      'base-url' => $GLOBALS['base_url'],
+    ),
+    'user' => array(
+      'uid' => $GLOBALS['user']->uid,
+      'csrf-token' => drupal_get_token('restws'),
+    ),
+  );
+  print drupal_json_output($vars);
+  drupal_exit();
 }
 
 /**
@@ -355,7 +379,7 @@ function elmsln_api_basic_auth() {
     }
     else {
       drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-      $distro = variable_get('install_profile', 'standard');
+      $distro = elmsln_core_get_profile_key();
       $settings = _cis_connector_build_registry($distro);
     }
     // if the username and password match we're golden
@@ -578,7 +602,7 @@ function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
   );
   _elmsln_api_authority_request($request, $nonblocking, array('cis'));
   // ensure this isn't CIS so we don't get an infinite loop!
-  if (variable_get('install_profile', 'standard') != 'cis') {
+  if (elmsln_core_get_profile_key() != 'cis') {
     // hit CIS with the same update
     $query = array(
       'entityCondition' => array(
@@ -788,7 +812,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
       // loop through each service
       foreach ($services as $service) {
         // make sure they don't match the existing one
-        if ($service['field_distribution'] != variable_get('install_profile', 'standard')) {
+        if ($service['field_distribution'] != elmsln_core_get_profile_key()) {
           $request = array(
             'method' => 'POST',
             'api' => $api,
@@ -811,7 +835,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
       // if we have nonblocking calls and a collection of them
       // then kick this off to multi-process quickly and without
       // looking back!
-      if ($nonblocking && isset($nonblock)) {
+      if (!empty($request) && $nonblocking && isset($nonblock)) {
         // prepare the query to be shipped off
         $request['data']['q'] = 'v' . $request['api'];
         if (!isset($request['data']['__course_context'])) {
@@ -884,7 +908,7 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
   // sniff out all other authorities
   $authorities = array();
   foreach ($settings as $bucket => $service) {
-    if (_cis_connector_system_type($bucket) == 'authority' && $bucket != variable_get('install_profile', 'standard') && !in_array($bucket, $ignored_buckets)) {
+    if (_cis_connector_system_type($bucket) == 'authority' && $bucket != elmsln_core_get_profile_key() && !in_array($bucket, $ignored_buckets)) {
       $authorities[$bucket] = $service;
     }
   }
@@ -922,20 +946,22 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
         }
         // validate buckets are all alive before queueing this up
         _elmsln_api_is_alive($nonblock);
-        // queue up the
-        $bucket = array_pop($nonblock);
-        $request['data']['__snake_stack'] = $nonblock;
-        // leave a flag for debug purposes if it's nonblocking
-        $request['_httprl'] = TRUE;
-        $options = array(
-          'method' => $request['method'],
-          'data' => http_build_query($request['data']),
-          'timeout' => 1,
-          'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
-          'blocking' => FALSE,
-        );
-        httprl_request($addresses[$bucket], $options);
-        $tmp = httprl_send_request();
+        if (!empty($nonblock)) {
+          // queue up the
+          $bucket = array_pop($nonblock);
+          $request['data']['__snake_stack'] = $nonblock;
+          // leave a flag for debug purposes if it's nonblocking
+          $request['_httprl'] = TRUE;
+          $options = array(
+            'method' => $request['method'],
+            'data' => http_build_query($request['data']),
+            'timeout' => 1,
+            'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+            'blocking' => FALSE,
+          );
+          httprl_request($addresses[$bucket], $options);
+          $tmp = httprl_send_request();
+        }
       }
     }
     if (!empty($returned_data)) {
@@ -1033,6 +1059,13 @@ function elmsln_api_elmsln_api_info() {
     'methods' => array('POST'),
     'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
     'file' => 'callbacks/v1/entity_sync.inc',
+  );
+
+  // remote entity update at hashed <p> location
+  $callbacks['hash_insert'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
+    'file' => 'callbacks/v1/hash_insert.inc',
   );
 
   // remote entity update

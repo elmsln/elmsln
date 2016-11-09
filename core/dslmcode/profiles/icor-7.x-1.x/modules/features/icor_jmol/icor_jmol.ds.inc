@@ -16,7 +16,7 @@ function icor_jmol_ds_layout_settings_info() {
   $ds_layout->entity_type = 'node';
   $ds_layout->bundle = 'jmol';
   $ds_layout->view_mode = 'form';
-  $ds_layout->layout = 'zf_2col_stacked';
+  $ds_layout->layout = 'ds_2col_stacked';
   $ds_layout->settings = array(
     'regions' => array(
       'header' => array(
@@ -28,18 +28,26 @@ function icor_jmol_ds_layout_settings_info() {
       'right' => array(
         2 => 'field_jmol_file',
       ),
-      'footer' => array(
-        3 => 'path',
-      ),
       'hidden' => array(
-        4 => '_add_existing_field',
+        3 => 'path',
+        4 => 'revision_information',
+        5 => 'options',
+        6 => 'author',
+        7 => 'hidden_nodes',
+        8 => 'book',
+        9 => '_add_existing_field',
       ),
     ),
     'fields' => array(
       'field_cis_course_ref' => 'header',
       'title' => 'left',
       'field_jmol_file' => 'right',
-      'path' => 'footer',
+      'path' => 'hidden',
+      'revision_information' => 'hidden',
+      'options' => 'hidden',
+      'author' => 'hidden',
+      'hidden_nodes' => 'hidden',
+      'book' => 'hidden',
       '_add_existing_field' => 'hidden',
     ),
     'classes' => array(),
@@ -54,6 +62,7 @@ function icor_jmol_ds_layout_settings_info() {
     'layout_attributes_merge' => 1,
     'layout_link_attribute' => '',
     'layout_link_custom' => '',
+    'layout_disable_css' => 0,
   );
   $export['node|jmol|form'] = $ds_layout;
 

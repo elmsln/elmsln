@@ -7,7 +7,6 @@
  * File used to store hook_advagg_* hooks.
  */
 
-// @ignore sniffer_commenting_functioncomment_hookparamdoc:11
 /**
  * Implements hook_advagg_save_aggregate_alter().
  *
@@ -21,43 +20,71 @@
  *   Array of containing $files and $type.
  */
 function advagg_advagg_save_aggregate_alter(array &$files_to_save, array $aggregate_settings, array $other_parameters) {
-  // Return if gzip is disabled.
-  if (empty($aggregate_settings['variables']['advagg_gzip'])) {
+  $file_types = array();
+  // Handle gzip.
+  if (!empty($aggregate_settings['variables']['advagg_gzip'])) {
+    // Use zopfli_encode if it exists.
+    // See https://github.com/kjdev/php-ext-zopfli
+    if (function_exists('zopfli_encode')
+      && defined('ZOPFLI_GZIP')
+      && empty($aggregate_settings['variables']['advagg_no_zopfli'])
+    ) {
+      $file_types['.gz'] = array('zopfli_encode', 15, constant('ZOPFLI_GZIP'));
+    }
+    else {
+      $file_types['.gz'] = array('gzencode', 9, FORCE_GZIP);
+    }
+  }
+  // Handle brotli.
+  // See https://github.com/kjdev/php-ext-brotli
+  if (!empty($aggregate_settings['variables']['advagg_brotli'])
+    && defined('BROTLI_TEXT')
+    && function_exists('brotli_compress')
+  ) {
+    $file_types['.br'] = array('brotli_compress', 11, constant('BROTLI_TEXT'));
+  }
+
+  if (empty($file_types)) {
     return;
   }
 
-  // See if a .gz file already exists.
-  $gzip_exists = FALSE;
-  foreach ($files_to_save as $uri => $contents) {
-    // See if this uri contains .gz near the end of it.
-    if (strlen($uri) > 91 + strlen(ADVAGG_SPACE) * 3) {
-      $pos = strripos($uri, '.gz', 91 + strlen(ADVAGG_SPACE) * 3);
+  foreach ($file_types as $ext => $settings) {
+    // See if a file already exists with this extension.
+    $ext_exists = FALSE;
+    foreach ($files_to_save as $uri => $contents) {
+      // See if this uri contains $ext near the end of it.
+      if (strlen($uri) > 91 + strlen(ADVAGG_SPACE) * 3) {
+        $pos = strripos($uri, $ext, 91 + strlen(ADVAGG_SPACE) * 3);
+      }
+      else {
+        $pos = strripos($uri, $ext);
+      }
+      if (!empty($pos)) {
+        $len = strlen($uri);
+        // $ext file exists, exit loop.
+        if ($pos == $len - 3) {
+          $ext_exists = TRUE;
+          break;
+        }
+      }
     }
-    else {
-      $pos = strripos($uri, '.gz');
-    }
-    if (!empty($pos)) {
-      $len = strlen($uri);
-      // .gz file exists, exit loop.
-      if ($pos == $len - 3) {
-        $gzip_exists = TRUE;
-        break;
+
+    // If a $ext file does not exist, create one.
+    if (!$ext_exists) {
+      // Use the first file in the array.
+      $data = reset($files_to_save);
+      $uri = key($files_to_save);
+      // Compress it and add it to the $files_to_save array.
+      $callback = $settings[0];
+      $settings[0] = $data;
+      $compressed = call_user_func_array($callback, $settings);
+      if (!empty($compressed)) {
+        $files_to_save[$uri . $ext] = $compressed;
       }
     }
   }
-
-  // If a .gz file does not exist, create one.
-  if (!$gzip_exists) {
-    // Use the first file in the array.
-    $data = reset($files_to_save);
-    $uri = key($files_to_save);
-    // Compress it and add it to the $files_to_save array.
-    $compressed = gzencode($data, 9, FORCE_GZIP);
-    $files_to_save[$uri . '.gz'] = $compressed;
-  }
 }
 
-// @ignore sniffer_commenting_functioncomment_hookparamdoc:10
 /**
  * Implements hook_advagg_build_aggregate_plans_alter().
  *
@@ -105,7 +132,6 @@ function advagg_advagg_build_aggregate_plans_alter(array &$files, &$modified, $t
   // Replace $files array with new aggregate filenames.
   $files = advagg_generate_filenames(array($temp_new_files), $type);
 }
-
 
 /**
  * Implements hook_advagg_context_alter().
@@ -243,8 +269,13 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
     }
     unset($info);
   }
-  // Capture hosts for DNS prefetching.
-  if (variable_get('advagg_browser_dns_prefetch', ADVAGG_BROWSER_DNS_PREFETCH)) {
+
+  // Capture resource_hints.
+  if (variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH)
+    || variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT)
+    || variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD)
+  ) {
+    $aggregate_settings = advagg_current_hooks_hash_array();
     foreach ($return as &$info) {
       // Skip if not a css file.
       if (empty($info['fileext']) || $info['fileext'] !== 'css') {
@@ -253,27 +284,50 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
       // Get the file contents.
       $file_contents = (string) @file_get_contents($info['data']);
 
-      // Get domain names in this css file.
+      // Get domain names and external assets in this css file.
+      $hosts = array();
+      $urls = array();
       $matches = array();
       $pattern = '%url\(\s*+[\'"]?+(http:\/\/|https:\/\/|\/\/)([^\'"()\s]++)[\'"]?+\s*+\)%i';
       preg_match_all($pattern, $file_contents, $matches);
-      $urls = array();
       if (!empty($matches[1])) {
         foreach ($matches[1] as $key => $match) {
-          $parse = @parse_url($match . $matches[2][$key]);
-          if (!empty($parse['host']) && empty($urls[$parse['host']])) {
-            $urls[$parse['host']] = $match . $parse['host'] . '/';
+          $url = $match . $matches[2][$key];
+          $parse = @parse_url($url);
+          if (!empty($parse['host'])) {
+            $hosts[$parse['host']] = $match . $parse['host'] . '/';
+            $urls[$url] = $url;
           }
         }
-        $urls = array_values($urls);
       }
-      if (!empty($urls)) {
-        $info['dns_prefetch'] = $urls;
+      if (!empty($hosts) && (variable_get('advagg_resource_hints_dns_prefetch', ADVAGG_RESOURCE_HINTS_DNS_PREFETCH)
+        || variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT)
+      )) {
+        $info['dns_prefetch'] = array_values($hosts);
+      }
+
+      // Get local files to preload in this css file.
+      if (variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD)) {
+        $file_contents = advagg_load_css_stylesheet($info['data'], FALSE, $aggregate_settings, $file_contents);
+        $matches = array();
+        $pattern = '/url\(\s*+[\'"]?(.*?)[\'"\s]?+\)/i';
+        preg_match_all($pattern, $file_contents, $matches);
+        if (!empty($matches[1])) {
+          foreach ($matches[1] as $key => $match) {
+            $url = advagg_convert_abs_to_rel($match);
+            $parse = @parse_url($url);
+            if (empty($parse['host'])) {
+              $urls[$url] = $url;
+            }
+          }
+        }
+        if (!empty($urls)) {
+          $info['preload'] = array_values($urls);
+        }
       }
     }
     unset($info);
   }
-
 }
 
 /**
@@ -490,7 +544,7 @@ function advagg_advagg_scan_for_changes($filename, $save_changes = FALSE) {
     return;
   }
 
-  $this_file_changed = FALSE;
+  $file_changed = array();
   foreach ($adaptivethemes as $theme_name => $path) {
     // Set up some paths we use to get and save files.
     $path_to_responsive_css = drupal_get_path('theme', $theme_name) . '/css/';
@@ -517,12 +571,13 @@ function advagg_advagg_scan_for_changes($filename, $save_changes = FALSE) {
     }
 
     // See if anything has changed.
-    if (advagg_detect_subfile_changes($filename, $file_map[$filename], 'adaptivetheme', $save_changes)) {
-      $this_file_changed = TRUE;
+    $changes = advagg_detect_subfile_changes($filename, $file_map[$filename], 'adaptivetheme', $save_changes);
+    if (!empty($changes)) {
+      $file_changed[$path] = $changes;
     }
   }
 
-  return $this_file_changed;
+  return $file_changed;
 }
 
 /**

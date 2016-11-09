@@ -1,43 +1,43 @@
 (function ($) {
   $(document).ready(function(){
+     // dyslexia functionality
+    Drupal.a11y.simulateDyslexia = function(dyslexia){
+      if (dyslexia == true) {
+        $("body").addClass('a11y-simulate-dyslexia');
+        var getTextNodesIn = function(el) {
+          return $(el).find(":not(iframe,script)").addBack().contents().filter(function() {
+            return this.nodeType == 3;
+          });
+        };
+        Drupal.settings.a11y.textNodes = getTextNodesIn($("p, h1, h2, h3"));
+        Drupal.settings.a11y.wordsInTextNodes = [];
+        for (var i = 0; i < Drupal.settings.a11y.textNodes.length; i++) {
+          var node = Drupal.settings.a11y.textNodes[i];
+          var words = []
+          var re = /\w+/g;
+          var match;
+          while ((match = re.exec(node.nodeValue)) != null) {
+            var word = match[0];
+            var position = match.index;
+            words.push({
+              length: word.length,
+              position: position
+            });
+          }
+          Drupal.settings.a11y.wordsInTextNodes[i] = words;
+        };
+        setInterval(messUpWords, 50);
+      }
+      else {
+        location.reload();
+        $("body").removeClass('a11y-simulate-dyslexia');
+      }
+    };
+
     $('#a11y_sim_dyslexia_checkbox').click(function(){
       Drupal.a11y.simulateDyslexia(this.checked);
     });
   });
-  // dyslexia functionality
-  Drupal.a11y.simulateDyslexia = function(dyslexia){
-    if (dyslexia == true) {
-      $("body").addClass('a11y-simulate-dyslexia');
-      var getTextNodesIn = function(el) {
-        return $(el).find(":not(iframe,script)").addBack().contents().filter(function() {
-          return this.nodeType == 3;
-        });
-      };
-      Drupal.settings.a11y.textNodes = getTextNodesIn($("p, h1, h2, h3"));
-      Drupal.settings.a11y.wordsInTextNodes = [];
-      for (var i = 0; i < Drupal.settings.a11y.textNodes.length; i++) {
-        var node = Drupal.settings.a11y.textNodes[i];
-        var words = []
-        var re = /\w+/g;
-        var match;
-        while ((match = re.exec(node.nodeValue)) != null) {
-          var word = match[0];
-          var position = match.index;
-          words.push({
-            length: word.length,
-            position: position
-          });
-        }
-        Drupal.settings.a11y.wordsInTextNodes[i] = words;
-      };
-      setInterval(messUpWords, 50);
-    }
-    else {
-      location.reload();
-      $("body").removeClass('a11y-simulate-dyslexia');
-    }
-  };
-
   function isLetter(char) {
     return /^[\d]$/.test(char);
   }

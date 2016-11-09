@@ -70,7 +70,7 @@ function git_book_node_insert($node) {
     }
   }
   // if we see a new git book page is about to be inserted
-  elseif (isset($node->book) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
+  elseif (!empty($node->book['bid']) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
     $book = node_load($node->book['bid']);
     if ($book->type == 'git_book') {
       libraries_load('gitphp');
@@ -131,7 +131,7 @@ function git_book_node_update($node) {
   // if we're in a book and the boot root's type is a repo, we want to track changes
   // also very difficult to produce but ensure we didn't just have another
   // repo function update which would trigger this
-  if ($node->type != 'git_book' && isset($node->book)  && isset($node->log) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
+  if ($node->type != 'git_book' && isset($node->book) && !empty($node->book['bid']) && isset($node->log) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
     $book = node_load($node->book['bid']);
     // make sure the root book is a git_book for this node and that
     // it is currently set to auto commit

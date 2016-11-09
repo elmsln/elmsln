@@ -78,6 +78,8 @@ fi
 
 # detect what OS this is on and make suggestions for settings
 cat /etc/*-release
+dist="$(cat /etc/*-release)"
+
 elmslnecho "The above should list information about the system this is being installed on. We currently support semi-automated install routines for RHEL, CentOS and Ubuntu. Please verify the above and select one of the following options:"
 elmslnecho "1. RHEL 6.x / CentOS 6.x"
 elmslnecho "2. Ubuntu / Debian"
@@ -101,14 +103,14 @@ if [ $os == '1' ]; then
   elmslnecho "php.ini automatically set to ${phpini}"
   mycnf="/etc/my.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
-  crontab="/etc/crontab"
+  crontab="/var/spool/cron/"
   elmslnecho "crontab automatically set to ${crontab}"
   domains="/etc/httpd/conf.d/"
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
-elif [ $os == '2' ]; then
-  elmslnecho "treating this like ubuntu"
+elif [[ $os == '2' && $dist != *"DISTRIB_RELEASE=16"* ]]; then
+  elmslnecho "treating this like ubuntu 14 or below"
   wwwuser='www-data'
   elmslnecho "www user automatically set to ${wwwuser}"
   # test for apcu which would mean we dont need to optimize apc
@@ -121,10 +123,36 @@ elif [ $os == '2' ]; then
     elmslnecho "apc.ini automatically set to ${apcini}"
   fi
   phpini="/etc/php5/apache2/php.ini"
+  phpfpmini="/etc/php5/fpm/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
   mycnf="/etc/php5/mods-available/mysql.ini"
   elmslnecho "my.cnf automatically set to ${mycnf}"
-  crontab="/etc/crontab"
+  crontab="/var/spool/cron/crontabs/"
+  elmslnecho "crontab automatically set to ${crontab}"
+  domains="/etc/apache2/sites-available/"
+  elmslnecho "domains automatically set to ${domains}"
+  zzz_performance="/etc/apache2/conf-available/zzz_performance.conf"
+  elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
+elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
+  elmslnecho "treating this like ubuntu 16+"
+  wwwuser='www-data'
+  elmslnecho "www user automatically set to ${wwwuser}"
+  # test for apcu which would mean we dont need to optimize apc
+  if [ -f /etc/php/7.0/mods-available/apcu.ini ]; then
+    apcini=""
+    apcuini="/etc/php/7.0/mods-available/apcu.ini"
+    elmslnecho "apcu.ini automatically set to ${apcuini}"
+  else
+    apcini="/etc/php/7.0/mods-available/apc.ini"
+    elmslnecho "apc.ini automatically set to ${apcini}"
+  fi
+  phpini="/etc/php/7.0/fpm/php.ini"
+  elmslnecho "php.ini automatically set to ${phpini}"
+  opcacheini="/etc/php/7.0/mods-available/opcache.ini"
+  elmslnecho "opcache.ini automatically set to ${opcacheini}"
+  mycnf="/etc/mysql/conf.d/mariadb_elmsln.cnf"
+  elmslnecho "my.cnf automatically set to ${mycnf}"
+  crontab="/var/spool/cron/crontabs/"
   elmslnecho "crontab automatically set to ${crontab}"
   domains="/etc/apache2/sites-available/"
   elmslnecho "domains automatically set to ${domains}"
@@ -141,9 +169,9 @@ elif [ $os == '3' ]; then
   phpini="/etc/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
   # our install sets this up ahead of time
-  mycnf=""
+  mycnf="/etc/my.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
-  crontab="/etc/crontab"
+  crontab="/var/spool/cron/"
   elmslnecho "crontab automatically set to ${crontab}"
   mkdir -p /etc/httpd/conf.sites.d
   domains="/etc/httpd/conf.sites.d/"
@@ -264,6 +292,7 @@ echo "# compiled drupal \"stacks\"" >> $config
 echo "stacks='/var/www/elmsln/core/dslmcode/stacks'" >> $config
 echo "# location of drupal private files" >> $config
 echo "drupal_priv='/var/www/elmsln/config/private_files'" >> $config
+echo "drupal_tmp='/var/www/elmsln/config/tmp'" >> $config
 echo "# configsdir" >> $config
 echo "configsdir='/var/www/elmsln/config'" >> $config
 # capture automatically generated values that can be used to reference this
@@ -304,8 +333,19 @@ fi
 if [[ -n "$phpini" ]]; then
   cat /var/www/elmsln/scripts/server/php.txt >> $phpini
 fi
+if [[ -n "$phpfpmini" ]]; then		
+  cat /var/www/elmsln/scripts/server/php.txt >> $phpfpmini		
+fi
 if [[ -n "$mycnf" ]]; then
   cat /var/www/elmsln/scripts/server/my.txt > $mycnf
+fi
+if [[ -n "$opcacheini" ]]; then
+  cat /var/www/elmsln/scripts/server/opcache.txt >> $opcacheini
+fi
+
+# Add on our last bit of conf for our new Ubuntu Stuff.
+if [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
+  cat /var/www/elmsln/scripts/server/my_ubunut16.txt >> $mycnf
 fi
 
 if [[ -n "$domains" ]]; then
@@ -325,10 +365,15 @@ if [[ -n "$domains" ]]; then
     # systems restart differently
     if [[ $os == '1' ]]; then
       /etc/init.d/httpd restart
+      /etc/init.d/php-fpm restart
     elif [ $os == '2' ]; then
       service apache2 restart
+      service php5-fpm restart
+      service php7.0-fpm restart
     else
-      service httpd restart
+      service httpd restart		   
+      service mysqld restart
+      service php-fpm restart
     fi
     cd $HOME
     git clone https://github.com/letsencrypt/letsencrypt
@@ -364,6 +409,7 @@ if [[ -n "$zzz_performance" ]]; then
   fi
 fi
 
+
 # setup infrastructure tools
 ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 ln -s /var/www/elmsln/scripts/drush-command-job /usr/local/bin/drush-command-job
@@ -387,7 +433,7 @@ sed -i '1i export PATH="$HOME/.config/composer/vendor/bin:$PATH"' .bashrc
 source $HOME/.bashrc
 
 # full path to execute in case root needs to log out before it picks it up
-php /usr/local/bin/composer global require drush/drush:6.*
+php /usr/local/bin/composer global require drush/drush:7.*
 # copy in the elmsln server stuff as the baseline for .drush
 if [ ! -d $HOME/.drush ]; then
   mkdir $HOME/.drush
@@ -420,17 +466,32 @@ php /usr/local/bin/composer install
 if [[ $os == '1' ]]; then
   /etc/init.d/httpd restart
   /etc/init.d/mysqld restart
+  /etc/init.d/php-fpm restart
 elif [ $os == '2' ]; then
   service apache2 restart
-  service mysql restart
+  service mysqld restart
+  service php5-fpm restart
+  service php7.0-fpm restart
 else
   service httpd restart
-  service mysql restart
+  service mysqld restart
+  service php-fpm restart
 fi
+
 # source one last time before hooking crontab up
 source $HOME/.bashrc
-if [[ -n "$crontab" ]]; then
-  cat /var/www/elmsln/scripts/server/crontab.txt >> $crontab
+ulmuscrontab=ulmus
+ulmusdrushcrontab=ulmusdrush
+
+if [[ -d "$crontab" ]]; then
+  touch $crontab$ulmuscrontab
+  touch $crontab$ulmusdrushcrontab
+  cat /var/www/elmsln/scripts/server/ulmus_crontab.txt >> $crontab$ulmuscrontab
+  cat /var/www/elmsln/scripts/server/ulmusdrush_crontab.txt >> $crontab$ulmusdrushcrontab
+  chmod 600 $crontab$ulmuscrontab
+  chmod 600 $crontab$ulmusdrushcrontab
+  chown ulmus:crontab $crontab$ulmuscrontab
+  chown ulmusdrush:crontab $crontab$ulmusdrushcrontab
 fi
 
 elmslnecho "Everything should be in place, now you can log out and run the following commands:"

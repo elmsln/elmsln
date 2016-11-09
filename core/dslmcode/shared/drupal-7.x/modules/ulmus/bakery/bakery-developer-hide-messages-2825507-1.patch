@@ -1,0 +1,35 @@
+diff --git a/bakery.module b/bakery.module
+index f3688b4..aaea0c1 100644
+--- a/bakery.module
++++ b/bakery.module
+@@ -198,17 +198,20 @@ function bakery_user_update(&$edit, $account, $category) {
+         'data' => $payload,
+       );
+       $result = drupal_http_request($slave . 'bakery/update', $options);
+-      if ($result->code != 200) {
+-        drupal_set_message(t('Error %error for site at %url', array(
+-          '%error' => $result->code . ' ' . $result->error,
+-          '%url' => $slave,
+-        )));
+-      }
+-      else {
+-        if (user_access('administer bakery')) {
+-          drupal_set_message($result->data);
++       // allow developers the option to hide all status responses
++      if (variable_get('bakery_status_messages', TRUE)) {
++        if ($result->code != 200) {
++          drupal_set_message(t('Error %error for site at %url', array(
++            '%error' => $result->code . ' ' . $result->error,
++            '%url' => $slave,
++          )));
++        }
++        else {
++          if (user_access('administer bakery')) {
++            drupal_set_message($result->data);
++          }
++          // TODO: Roll back the change.
+         }
+-        // TODO: Roll back the change.
+       }
+     }
+     if ($user->uid === $account->uid) {

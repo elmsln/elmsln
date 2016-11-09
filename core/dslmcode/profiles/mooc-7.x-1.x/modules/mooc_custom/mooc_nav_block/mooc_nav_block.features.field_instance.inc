@@ -80,57 +80,6 @@ function mooc_nav_block_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-page-field_mooc_nav_display'.
-  $field_instances['node-page-field_mooc_nav_display'] = array(
-    'bundle' => 'page',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'When should this nav block be displayed?',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 11,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_mooc_nav_display',
-    'label' => 'Display',
-    'required' => 0,
-    'settings' => array(
-      'authcache' => array(
-        'clients' => array(
-          'authcache_ajax' => array(
-            'status' => 1,
-            'weight' => 0,
-          ),
-        ),
-        'fallback' => 'cancel',
-        'lifespan' => 3600,
-        'perpage' => 0,
-        'peruser' => 1,
-        'status' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 23,
-    ),
-  );
-
   // Exported field_instance: 'node-page-field_mooc_nav_label'.
   $field_instances['node-page-field_mooc_nav_label'] = array(
     'bundle' => 'page',
@@ -201,123 +150,11 @@ function mooc_nav_block_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-page-field_mooc_nav_style'.
-  $field_instances['node-page-field_mooc_nav_style'] = array(
-    'bundle' => 'page',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'What style of navigational block would you like to create for this content?',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 10,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_mooc_nav_style',
-    'label' => 'Style',
-    'required' => 0,
-    'settings' => array(
-      'authcache' => array(
-        'clients' => array(
-          'authcache_ajax' => array(
-            'status' => 1,
-            'weight' => 0,
-          ),
-        ),
-        'fallback' => 'cancel',
-        'lifespan' => 3600,
-        'perpage' => 0,
-        'peruser' => 1,
-        'status' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 22,
-    ),
-  );
-
-  // Exported field_instance: 'node-page-field_mooc_nav_type'.
-  $field_instances['node-page-field_mooc_nav_type'] = array(
-    'bundle' => 'page',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'Full outline below current page - display all content in the outline below the current page
-Outline current level of active item - display sibling pages of the current page, useful for lowest levels of hierarchy
-Outline below current level of active item - display whatever is below current level',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 12,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_mooc_nav_type',
-    'label' => 'Type',
-    'required' => 0,
-    'settings' => array(
-      'authcache' => array(
-        'clients' => array(
-          'authcache_ajax' => array(
-            'status' => 1,
-            'weight' => 0,
-          ),
-        ),
-        'fallback' => 'cancel',
-        'lifespan' => 3600,
-        'perpage' => 0,
-        'peruser' => 1,
-        'status' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 24,
-    ),
-  );
-
   // Translatables
   // Included for use with string extractors like potx.
   t('Custom text');
-  t('Display');
   t('Enter any custom text here to add to the top of the nav block');
-  t('Full outline below current page - display all content in the outline below the current page
-Outline current level of active item - display sibling pages of the current page, useful for lowest levels of hierarchy
-Outline below current level of active item - display whatever is below current level');
   t('Label');
-  t('Style');
-  t('Type');
-  t('What style of navigational block would you like to create for this content?');
-  t('When should this nav block be displayed?');
 
   return $field_instances;
 }

@@ -20,24 +20,18 @@ function mooc_foundation_access_preprocess_page(&$variables) {
       unset($variables['tabs']['#secondary']);
     }
   }
-  // support for add child page shortcut
-  $node = menu_get_object();
-  if ($node && user_access('access printer-friendly version')) {
-    $variables['tabs_extras'][200][] = '<hr>';
-    $variables['tabs_extras'][200][] = l(t('Print'), 'book/export/html/' . arg(1));
-  }
   $child_type = variable_get('book_child_type', 'book');
+  $node = menu_get_object();
   if ($node && !empty($node->book) && (user_access('add content to books') || user_access('administer book outlines')) && node_access('create', $child_type) && $node->status == 1 && isset($node->book['depth']) && $node->book['depth'] < MENU_MAX_DEPTH) {
-    $variables['tabs_extras'][200][] = '<hr><strong>' . t('Operations') . '</strong>';
-    $variables['tabs_extras'][200][] = l(t('Add child page'), 'node/add/' . str_replace('_', '-', $child_type), array('query' => array('parent' => $node->book['mlid'])));
-    $variables['tabs_extras'][200][] = l(t('Duplicate outline'), 'node/' . $node->nid . '/outline/copy', array('query' => array('destination' => 'node/' . $node->nid)));
+    $variables['tabs_extras'][200][] = '<div class="divider"></div>';
+    $variables['tabs_extras'][200][] = '<span class="nolink cis-lmsless-text">' . t('Operations') . '</strong>';
     $variables['tabs_extras'][200][] = l(t('Edit child outline'), 'node/' . $node->book['nid'] . '/outline/children');
     $variables['tabs_extras'][200][] = l(t('Edit course outline'), 'admin/content/book/' . $node->book['bid']);
 
   }
   // support hiding the accessibility check UI which is poorly located
   if ($node && user_access('view accessibility tests')) {
-    $variables['tabs_extras'][0][] = '<li class="cis_accessibility_check"></li>';
+    $variables['tabs_extras'][200][] = '<span class="cis_accessibility_check"></span>';
   }
   // remove the prefix that provides a link to the home page
   // as MOOC is the thing that currently provides support directly for this
@@ -45,6 +39,17 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   $keys = array_keys($variables['page']['header']);
   $keyname = array_shift($keys);
   unset($variables['page']['header'][$keyname]['#prefix']);
+
+  // Remove title from a page when a gitbook markdown filter is present.
+  if(isset($variables['page']['content']['system_main']['nodes'])) {
+    foreach($variables['page']['content']['system_main']['nodes'] as $node) {
+      if(isset($node['body']['#object'])) {
+        if($node['body']['#object']->body['und'][0]['format'] == "git_book_markdown") {
+          $variables['title'] = "";
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -58,6 +63,7 @@ function mooc_foundation_access_breadcrumb($variables) {
  * Default theme function for video.
  */
 function mooc_foundation_access_read_time($variables) {
+  $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $defaults = read_time_defaults();
   $node = $variables['node'];
   // add in the children element to all totals if they exist
@@ -75,7 +81,12 @@ function mooc_foundation_access_read_time($variables) {
   $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
 
   // convert words into time
-  $time = round(($node->read_time['words'] / $wpm), 3);
+  if (isset($node->read_time['words'])) {
+    $time = round(($node->read_time['words'] / $wpm), 3);
+  }
+  else {
+    $time = 0;
+  }
   // Format read time.
   if (in_array($format, array('hour_short', 'hour_long'))) {
     $hours = floor($time / 60);
@@ -110,7 +121,7 @@ function mooc_foundation_access_read_time($variables) {
       switch ($key) {
         case 'words':
           $label = t('Reading');
-          $icon = '<i class="tiny material-icons">library_books</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_books</i>';
         break;
         case 'audio':
           $label = t('Audio');
@@ -138,20 +149,20 @@ function mooc_foundation_access_read_time($variables) {
               $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
             }
           }
-          $icon = '<i class="tiny material-icons">library_music</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_music</i>';
         break;
         case 'iframe':
-          $icon = '<i class="tiny material-icons">launch</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">launch</i>';
         break;
         case 'img':
           $label = t('Image');
           $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
-          $icon = '<i class="tiny material-icons">perm_media</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">perm_media</i>';
         break;
         case 'svg':
           $label = t('Multimedia');
           $value = $value . ' ' . $label;
-          $icon = '<i class="tiny material-icons">assessment</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">assessment</i>';
         break;
         case 'video':
           $label = t('Video');
@@ -179,7 +190,7 @@ function mooc_foundation_access_read_time($variables) {
               $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
             }
           }
-          $icon = '<i class="tiny material-icons">video_library</i>';
+          $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">video_library</i>';
         break;
         default:
           $icon = '';
@@ -188,7 +199,7 @@ function mooc_foundation_access_read_time($variables) {
       }
       // make sure there's something to render
       if (!empty($value)) {
-        $output .= '<div class="chip">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
+        $output .= '<div class="chip ' . $lmsless_classes['color'] . ' ' . $lmsless_classes['light'] . '">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
       }
     }
   }

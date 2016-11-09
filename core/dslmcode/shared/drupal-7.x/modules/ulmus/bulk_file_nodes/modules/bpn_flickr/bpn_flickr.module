@@ -1,0 +1,519 @@
+<?php
+/**
+ * @file
+ * Hooks and functions for the bpn_flickr module.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function bpn_flickr_permission() {
+  return array(
+    'use bpn_flickr module' => array(
+      'title' => t('Create public flickr bulk photo nodes'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_bpn_upload().
+ *
+ * Defines a multi-step form to use with bulk_photo_nodes.
+ */
+function bpn_flickr_bulk_photo_nodes_method() {
+  return 'bpn_flickr_form';
+}
+
+/**
+ * Form constructor for the multi-step flickr form.
+ *
+ * @param string $node_type
+ *   The content type of the node.
+ *
+ * @see bpn_flickr_form_step_1()
+ * @see bpn_flickr_form_step_2()
+ * @see bpn_flickr_form_step_3()
+ * @ingroup forms
+ */
+function bpn_flickr_form($form, &$form_state, $node_type) {
+  if (empty($form_state['step'])) {
+    $form_state['step'] = 1;
+  }
+  $form_state['node_type'] = $node_type;
+  $form_callback = 'bpn_flickr_form_step_' . $form_state['step'];
+  if (function_exists($form_callback)) {
+    return call_user_func($form_callback, $form, $form_state);
+  }
+}
+
+/**
+ * Form constrcutor for Step 1: Select flickr user.
+ *
+ * @see bpn_flickr_form()
+ * @see bpn_flickr_form_step_1_validate()
+ * @see bpn_flickr_form_step_1_submit()
+ * @ingroup forms
+ */
+function bpn_flickr_form_step_1($form, &$form_state) {
+  if (!user_access('use bpn_flickr module')) {
+    return array();
+  }
+  $form['flickr'] = array(
+    '#prefix' => '<div class="bpn-upload-option">' . t('OR') . '</div><div class="bpn-flickr">',
+    '#suffix' => '</div>',
+  );
+  $form['flickr']['header'] = array(
+    '#markup' => '<h3>' . t('Upload Public Images from Flickr') . '</h3>',
+  );
+  $form['flickr']['username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Username'),
+    '#description' => t('Enter a Flickr username to request images from.'),
+  );
+  $form['flickr']['next'] = array(
+    '#type' => 'submit',
+    '#value' => t('Next'),
+    '#suffix' => '<div class="description">' . t('Select image(s) on next page') . '</div>',
+  );
+  $form['#validate'] = array('bpn_flickr_form_step_1_validate');
+  $form['#submit'] = array('bpn_flickr_form_step_1_submit');
+
+  $form['#attributes'] = array(
+    'class' => array(
+      'clearfix',
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Form validation handler for bpn_flickr_form_step_1().
+ *
+ * @see bpn_flickr_form_step_1_submit()
+ */
+function bpn_flickr_form_step_1_validate($form, &$form_state) {
+  $flickr = bpn_flickr_get_api();
+  $user = bpn_flickr_get_user($form_state['values']['username']);
+  if (empty($user)) {
+    form_set_error('username', $flickr->getErrorMsg());
+  }
+}
+
+/**
+ * Form submission handler for bpn_flickr_form_step_1().
+ *
+ * @see bpn_flickr_form_step_1_validate()
+ */
+function bpn_flickr_form_step_1_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+  if (isset($form_state['values']['username']) && !empty($form_state['values']['username'])) {
+    $form_state['flickr_username'] = $form_state['values']['username'];
+    $form_state['step'] = 2;
+  }
+}
+
+/**
+ * Form constructor for Step 2: Pick what images to load.
+ *
+ * @see bpn_flickr_pager_prev()
+ * @see bpn_flickr_pager_next()
+ * @see bpn_flickr_photos_state()
+ * @see bpn_flickr_update_photos()
+ * @see bpn_flickr_form_step_2_submit()
+ * @ingroup forms
+ */
+function bpn_flickr_form_step_2($form, &$form_state) {
+  $form['#attached'] = array(
+    'js' => array(
+      drupal_get_path('module', 'bpn_flickr') . '/js/bpn_flickr.js',
+    ),
+    'css' => array(
+      drupal_get_path('module', 'bpn_flickr') . '/css/bpn_flickr.css',
+    ),
+  );
+  $form['#bpn_chosen_form'] = array(
+    '#type' => 'value',
+    '#value' => TRUE,
+  );
+  $form['photo_container_selector'] = array(
+    '#type' => 'fieldset',
+    '#tree' => TRUE,
+    '#weight' => -2,
+  );
+  // Flickr options.
+  $flickr = bpn_flickr_get_api();
+  $user = bpn_flickr_get_user($form_state['flickr_username']);
+
+  // Get photosets.
+  $sets = bpn_flickr_get_sets($user);
+  $photosets = array();
+  if (!empty($sets)) {
+    foreach ($sets['photoset'] as $photoset) {
+      if ($photoset['photos'] > 0) {
+        $photosets[$photoset['id']] = $photoset['title'];
+      }
+    }
+  }
+  asort($photosets);
+
+  $form['photo_container_selector']['photo_container_type'] = array(
+    '#type' => 'select',
+    '#options' => array(
+      t('Photos') => array(
+        'photostream' => 'Photostream',
+      ),
+      t('Sets') => $photosets,
+    ),
+    '#title' => t('View flickr photos from:'),
+  );
+
+  $count = (isset($form_state['num_photos_checked'])) ? intval($form_state['num_photos_checked']) : 0;
+
+  $form['photo_container_selector']['stats'] = array(
+    '#markup' => '<div class="bpn-flickr-selected-count">' . t('Photos selected:') . ' <span class="bpn-flickr-count">' . $count . '</span></div>',
+  );
+  $form['photo_container_selector']['update'] = array(
+    '#type' => 'submit',
+    '#value' => 'Update',
+    '#submit' => array('bpn_flickr_photos_state', 'bpn_flickr_update_photos'),
+  );
+  $form['photo_container_photos']['photostream'] = array(
+    '#attributes' => array(
+      'class' => array(
+        'clearfix',
+      ),
+    ),
+    '#type' => 'container',
+    '#tree' => TRUE,
+  );
+
+  $page = (empty($form_state['flickr_page'])) ? 1 : $form_state['flickr_page'];
+  $photo_set = (empty($form_state['photo_set'])) ? 'photostream' : $form_state['photo_set'];
+  if ($photo_set == 'photostream') {
+    $photos_response = bpn_flickr_get_photos($user, $page);
+    $pages = $photos_response['photos']['pages'];
+    $photos = $photos_response['photos']['photo'];
+  }
+  else {
+    $photos_response = bpn_flickr_get_set($photo_set, $page);
+    $photos = $photos_response['photoset']['photo'];
+    $pages = $photos_response['photoset']['pages'];
+  }
+
+  if (!empty($photos)) {
+    if ($pages > 1) {
+      $form['flickr_pager'] = array(
+        '#type' => 'container',
+        '#tree' => TRUE,
+        '#weight' => -1,
+      );
+      if ($page != 1) {
+        $form['flickr_pager']['flickr_prev'] = array(
+          '#type' => 'submit',
+          '#value' => 'Previous Page',
+          '#submit' => array('bpn_flickr_photos_state','bpn_flickr_pager_prev'),
+        );
+      }
+      $form['flickr_pager']['pager_text'] = array(
+        '#preix' => '<span>',
+        '#markup' => "Page $page of " . $pages,
+        '#suffix' => '</span>',
+      );
+      $form['flickr_pager']['flickr_page'] = array(
+        '#type' => 'value',
+        '#value' => $page,
+      );
+      if ($page != $pages) {
+        $form['flickr_pager']['flickr_next'] = array(
+          '#type' => 'submit',
+          '#value' => 'Next Page',
+          '#submit' => array('bpn_flickr_photos_state', 'bpn_flickr_pager_next'),
+        );
+      }
+    }
+    foreach ($photos as $key => $photo) {
+      $id = $photo['id'];
+      $has_values = !empty($form_state['checked_photos']);
+      $default_value = ($has_values && in_array($id, $form_state['checked_photos']));
+      $form['photo_container_photos']['photostream'][$id] = array(
+        '#type' => 'checkbox',
+        '#default_value' => $default_value,
+        '#prefix' => '<div class="bpn-flickr-thumbnail"><div class="inner">' . theme('image', array('path' => $photo['url_q'])),
+        '#title' => empty($photo['title']) ? t('Untitled') : $photo['title'],
+        '#suffix' => '</div></div>',
+      );
+    }
+  }
+
+  $form['submit'] = array(
+    '#prefix' => '<div class="bpn-continue">',
+    '#type' => 'submit',
+    '#value' => t('Done Adding Photos - Continue'),
+    '#suffix' => '</div>',
+  );
+  $form['#submit'] = array(
+    'bpn_flickr_photos_state', 'bpn_flickr_form_step_2_submit',
+  );
+
+  $form['#attributes'] = array(
+    'class' => array(
+      'clearfix',
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Form submission handler for bpn_flickr_form_step_2().
+ *
+ * @see bpn_flickr_pager_next()
+ * @see bpn_flickr_update_photos()
+ * @see bpn_flickr_photos_state()
+ * @see bpn_flickr_form_step_2_submit()
+ */
+function bpn_flickr_pager_prev($form, &$form_state) {
+  $form_state['flickr_page'] = $form_state['values']['flickr_pager']['flickr_page'] - 1;
+}
+
+/**
+ * Form submission handler for bpn_flickr_form_step_2().
+ *
+ * @see bpn_flickr_pager_prev()
+ * @see bpn_flickr_update_photos()
+ * @see bpn_flickr_photos_state()
+ * @see bpn_flickr_form_step_2_submit()
+ */
+function bpn_flickr_pager_next($form, &$form_state) {
+  $form_state['flickr_page'] = $form_state['values']['flickr_pager']['flickr_page'] + 1;
+}
+
+/**
+ * Form submission handler for bpn_flickr_form_step_2().
+ *
+ * @see bpn_flickr_pager_prev()
+ * @see bpn_flickr_pager_next()
+ * @see bpn_flickr_update_photos()
+ * @see bpn_flickr_form_step_2_submit()
+ */
+function bpn_flickr_photos_state($form, &$form_state) {
+  if (empty($form_state['checked_photos'])) {
+    $form_state['checked_photos'] = array_keys($form_state['values']['photostream'], 1);
+  }
+  else {
+    $currently_checked = array_keys($form_state['values']['photostream'], 1);
+    $unique_merged = array_unique(array_merge($form_state['checked_photos'], $currently_checked));
+    $form_state['checked_photos'] = $unique_merged;
+  }
+  $form_state['num_photos_checked'] = count($form_state['checked_photos']);
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Form submission handler for bpn_flickr_form_step_2().
+ *
+ * @see bpn_flickr_pager_prev()
+ * @see bpn_flickr_pager_next()
+ * @see bpn_flickr_photos_state()
+ * @see bpn_flickr_form_step_2_submit()
+ */
+function bpn_flickr_update_photos($form, &$form_state) {
+  $form_state['photo_set'] = $form_state['values']['photo_container_selector']['photo_container_type'];
+  $form_state['flickr_page'] = 1;
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Form submission handler for bpn_flickr_form_step_2().
+ *
+ * @see bpn_flickr_pager_prev()
+ * @see bpn_flickr_pager_next()
+ * @see bpn_flickr_photos_state()
+ * @see bpn_flickr_update_photos()
+ */
+function bpn_flickr_form_step_2_submit($form, &$form_state) {
+  $saved_files = array();
+  $operations = array();
+  foreach ($form_state['checked_photos'] as $key => $flickr_id) {
+    $operations[] = array(
+      'bpn_flickr_download_photos',
+      array($flickr_id),
+    );
+  }
+  $batch = array(
+    'title' => t('Importing photos from flickr.'),
+    'finished' => 'bpn_flickr_batch_finished',
+    'operations' => $operations,
+  );
+  batch_set($batch);
+  $form_state['step'] = 3;
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Batch finished callback used by bpn_flickr_form_step_2_submit().
+ */
+function bpn_flickr_batch_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('@count Photos imported.', array('@count' => count($results))));
+  }
+  else {
+    $error_operation = reset($operations);
+    drupal_set_message(t('An error occurred while processing @operation with arguments : @args', array(
+      '@operation' => $error_operation[0], '@args' => print_r($error_operation[0], TRUE),
+    )));
+  }
+  $_SESSION['saved_files'] = $results;
+}
+
+/**
+ * Batch operation: Downloads a single image from flickr.
+ *
+ * Downloads the largest image size available to the public files directory.
+ * Also fetches extra information about the image, such as size, date taken,
+ * etc.
+ *
+ * @param string $flickr_id
+ *   The flickr id of the image.
+ */
+function bpn_flickr_download_photos($flickr_id, &$context) {
+  // Set batch message.
+  $context['message'] = t('Importing image with flickr id: "@id"', array('@id' => $flickr_id));
+  // Get extra informaiton about the image from flickr.
+  $flickr_sizes = bpn_flickr_get_photo($flickr_id);
+  $extra_info = bpn_flickr_get_info($flickr_id);
+  $largest_size = count($flickr_sizes) - 1;
+  $extra_info['photo']['exif_width'] = $flickr_sizes[$largest_size]['width'];
+  $extra_info['photo']['exif_height'] = $flickr_sizes[$largest_size]['height'];
+  // Get URL to download  image from.
+  $parsed_url = parse_url($flickr_sizes[$largest_size]['source']);
+  $filename = substr($parsed_url['path'], strrpos($parsed_url['path'], '/') + 1);
+  // Request and save the image.
+  $downloaded_file = drupal_http_request($flickr_sizes[$largest_size]['source']);
+  $destination_uri = file_stream_wrapper_uri_normalize('public://' . $filename);
+  $file_uri = file_unmanaged_save_data($downloaded_file->data, $destination_uri);
+  // Convert the saved file to a file object.
+  $file_object = bpn_flickr_file_uri_to_object($file_uri);
+  file_save($file_object);
+  $context['results'][] = array(
+    'extra_info' => $extra_info['photo'],
+    'file_object' => $file_object,
+  );
+}
+
+/**
+ * Form constructor for Step 3: Add bulk info.
+ *
+ * @todo find a better way of doing this.
+ */
+function bpn_flickr_form_step_3($form, &$form_state) {
+  return bulk_photo_nodes_add_form($form, $form_state);
+}
+
+/**
+ * Returns a file object which can be passed to file_save().
+ *
+ * @param string $uri
+ *   a string containing the uri, path, or filename.
+ *
+ * @return stdClass
+ *   a file object, or false on error.
+ *
+ * @todo replace with calls to this function with file_uri_to_object() when
+ * http://drupal.org/node/685818 is fixed in core.
+ */
+function bpn_flickr_file_uri_to_object($uri) {
+  global $user;
+  $uri = file_stream_wrapper_uri_normalize($uri);
+  $wrapper = file_stream_wrapper_get_instance_by_uri($uri);
+  $file = new stdclass();
+  $file->uid = $user->uid;
+  $file->filename = basename($uri);
+  $file->uri = $uri;
+  $file->filemime = file_get_mimetype($uri);
+  // This is gagged because some uris will not support it.
+  $file->filesize = @filesize($uri);
+  $file->timestamp = REQUEST_TIME;
+  $file->status = 1;
+  return $file;
+}
+
+/**
+ * Gets the Flickr API object for use in API calls.
+ *
+ * @return object
+ *   The PHP Flickr object
+ */
+function bpn_flickr_get_api() {
+  $flickr = &drupal_static(__FUNCTION__);
+  if (!isset($flickr)) {
+    $flickr = flickrapi_phpFlickr();
+  }
+  return $flickr;
+}
+
+/**
+ * Gets the photosets for a user.
+ */
+function bpn_flickr_get_sets($user) {
+  $flickr = bpn_flickr_get_api();
+  return $flickr->photosets_getList($user['nsid']);
+}
+
+/**
+ * Wraps PHPFlickr::people_findByUsername.
+ */
+function bpn_flickr_get_user($username) {
+  $flickr = bpn_flickr_get_api();
+  return $flickr->people_findByUsername($username);
+}
+
+/**
+ * Gets photos from a user's photostream.
+ */
+function bpn_flickr_get_set($set_id, $page = 1) {
+  $flickr = bpn_flickr_get_api();
+  $options = array(
+    'photoset_id' => $set_id,
+    'extras' => 'url_q',
+    'privacy_filter' => NULL,
+    'per_page' => 9,
+    'page' => $page,
+    'media' => 'photos',
+  );
+  extract($options);
+  return $flickr->photosets_getPhotos($photoset_id, $extras, $privacy_filter, $per_page, $page, $media);
+}
+
+/**
+ * Get photos from a user's photostream.
+ */
+function bpn_flickr_get_photos($user, $page = 1) {
+  $flickr = bpn_flickr_get_api();
+  $options = array(
+    'user_id' => $user['nsid'],
+    'safe_search' => NULL,
+    'extras' => 'url_q',
+    'per_page' => 9,
+    'page' => $page,
+  );
+  extract($options);
+  return $flickr->people_getPublicPhotos($user_id, $safe_search, $extras, $per_page, $page);
+}
+
+/**
+ * Get all sizes of a photo on flickr.
+ */
+function bpn_flickr_get_photo($photo_id) {
+  $flickr = bpn_flickr_get_api();
+  return $flickr->photos_getSizes($photo_id);
+}
+
+/**
+ * Get information from a photo on flickr.
+ */
+function bpn_flickr_get_info($photo_id) {
+  $flickr = bpn_flickr_get_api();
+  return $flickr->photos_getInfo($photo_id);
+}

@@ -12,7 +12,7 @@ function cis_section_views_default_views() {
 
   $view = new view();
   $view->name = 'cis_section_list';
-  $view->description = 'Administration fo all sections';
+  $view->description = 'Administration for all sections';
   $view->tag = 'default';
   $view->base_table = 'node';
   $view->human_name = 'CIS Section list';
@@ -31,11 +31,25 @@ function cis_section_views_default_views() {
     166149871 => 166149871,
     67296478 => 67296478,
   );
-  $handler->display->display_options['cache']['type'] = 'time';
-  $handler->display->display_options['cache']['results_lifespan'] = '3600';
-  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
-  $handler->display->display_options['cache']['output_lifespan'] = '3600';
-  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'section' => 'section',
+      'mooc_container' => 0,
+      'page' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+    'og' => array(
+      'current' => 0,
+      'user' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
@@ -139,6 +153,14 @@ function cis_section_views_default_views() {
   $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['label'] = '';
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
+  /* Field: Content: Instructional outlines */
+  $handler->display->display_options['fields']['field_instructional_outlines']['id'] = 'field_instructional_outlines';
+  $handler->display->display_options['fields']['field_instructional_outlines']['table'] = 'field_data_field_instructional_outlines';
+  $handler->display->display_options['fields']['field_instructional_outlines']['field'] = 'field_instructional_outlines';
+  $handler->display->display_options['fields']['field_instructional_outlines']['label'] = 'Outline';
+  $handler->display->display_options['fields']['field_instructional_outlines']['settings'] = array(
+    'link' => 1,
+  );
   /* Sort criterion: Content: Section id (field_section_id) */
   $handler->display->display_options['sorts']['field_section_id_value']['id'] = 'field_section_id_value';
   $handler->display->display_options['sorts']['field_section_id_value']['table'] = 'field_data_field_section_id';

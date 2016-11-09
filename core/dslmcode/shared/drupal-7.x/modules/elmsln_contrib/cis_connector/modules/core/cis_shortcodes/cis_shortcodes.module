@@ -94,12 +94,17 @@ function _cis_shortcode_render_codes($entity, $type) {
     '#attributes' => array(
       'class' => array(
         'form-wrapper',
+        'collapsible',
       ),
+      'data-collapsible' => 'accordion',
+    ),
+    '#materialize' => array(
+      'type' => 'collapsible_wrapper',
     ),
   );
   $properties = array(
     'rev' => CIS_SHORTCODES_API_REV,
-    'tool' => variable_get('install_profile', ''),
+    'tool' => elmsln_core_get_profile_key(),
     'render' => 'submit',
     'link' => current_path(),
     'text' => drupal_get_title(),
@@ -155,7 +160,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     // build properties array for rendering
     $properties = array(
       'rev' => CIS_SHORTCODES_API_REV,
-      'tool' => variable_get('install_profile', ''),
+      'tool' => elmsln_core_get_profile_key(),
       'item' => $entity->{$type_info['entity keys']['id']},
       'entity_type' => $type,
       'render' => 'display_mode',
@@ -189,7 +194,7 @@ function _cis_shortcode_render_codes($entity, $type) {
     // tee back up for direct link rendering
     $properties = array(
       'rev' => CIS_SHORTCODES_API_REV,
-      'tool' => variable_get('install_profile', ''),
+      'tool' => elmsln_core_get_profile_key(),
       'item' => $entity->{$type_info['entity keys']['id']},
       'entity_type' => $type,
     );
@@ -202,6 +207,40 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#type' => 'textfield',
         '#pre_render' => array('_cis_shortcodes_add_js'),
         '#weight' => 1,
+        '#id' => 'cis-shortcodes-embed',
+      );
+      $properties = array(
+        'rev' => CIS_SHORTCODES_API_REV,
+        'tool' => elmsln_core_get_profile_key(),
+        'item' => $entity->{$type_info['entity keys']['id']},
+        'title' => $title,
+        'entity_type' => $type,
+        'icon' => 'pageview',
+        'render' => 'modal',
+      );
+      $direct['cis_shortcodes_modal'] = array(
+        '#title' => t('Modal embed'),
+        '#attributes' => array('class' => array('cis_shortcodes_embed', 'cis_shortcodes_modal')),
+        '#value' => _cis_shortcodes_build_code($properties),
+        '#type' => 'textfield',
+        '#weight' => 2,
+        '#id' => 'cis-shortcodes-embed',
+      );
+      $properties = array(
+        'rev' => CIS_SHORTCODES_API_REV,
+        'tool' => elmsln_core_get_profile_key(),
+        'item' => $entity->{$type_info['entity keys']['id']},
+        'title' => $title,
+        'entity_type' => $type,
+        'icon' => 'pageview',
+        'render' => 'side_nav',
+      );
+      $direct['cis_shortcodes_side_nav'] = array(
+        '#title' => t('Side nav embed'),
+        '#attributes' => array('class' => array('cis_shortcodes_embed', 'cis_shortcodes_side_nav')),
+        '#value' => _cis_shortcodes_build_code($properties),
+        '#type' => 'textfield',
+        '#weight' => 2,
         '#id' => 'cis-shortcodes-embed',
       );
       // add in the entity iframe items if they make sense
@@ -319,7 +358,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       // reset property array
       $properties = array(
         'rev' => CIS_SHORTCODES_API_REV,
-        'tool' => variable_get('install_profile', ''),
+        'tool' => elmsln_core_get_profile_key(),
         'item' => $entity->{$type_info['entity keys']['id']},
       );
       // only append type for non-node entities
@@ -381,7 +420,7 @@ function _cis_shortcode_render_codes($entity, $type) {
               }
               $properties = array(
                 'rev' => CIS_SHORTCODES_API_REV,
-                'tool' => variable_get('install_profile', ''),
+                'tool' => elmsln_core_get_profile_key(),
                 'render' => 'submit',
                 // the thing to check for if we've submitted in reference to
                 'item' => $entity->{$type_info['entity keys']['id']},
@@ -450,6 +489,12 @@ function _cis_shortcode_render_codes($entity, $type) {
     t('Discovers this resource through generic lookup. By embedding per tag you are given more flexibility later on when you want to reference a version of this item that may be specific to the section of the user viewing the page.'),
     t('Advanced items that provide dedicated capabilities.'),
   );
+  $icons = array(
+    'settings_system_daydream',
+    'web',
+    'compare_arrows',
+    'widgets',
+  );
   // loop through the groupings and see if we have any shortcodes for each
   foreach ($groupings as $key => $group) {
     // looks weird but this is valid
@@ -457,7 +502,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       // add the groups in
       $field['cis_shortcodes'][$group] = array(
         '#type' => 'fieldset',
-        '#collapsed' => ($key === 0 ? FALSE : TRUE),
+        '#collapsed' => TRUE,
         '#collapsible' => TRUE,
         '#attributes' => array(
           'class' => array(
@@ -469,6 +514,10 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#title' => $labels[$key],
         '#description' => $descriptions[$key],
         '#weight' => $key,
+        '#materialize' => array(
+          'type' => 'collapsible',
+          'icon' => $icons[$key],
+        ),
       );
       // merges anything founda bove into this fieldset
       $field['cis_shortcodes'][$group] += $$group;
@@ -519,12 +568,16 @@ function cis_shortcodes_preprocess_view_mode_tab_display(&$variables) {
       // token generation properties
       $properties = array(
         'rev' => CIS_SHORTCODES_API_REV,
-        'tool' => variable_get('install_profile', ''),
+        'tool' => elmsln_core_get_profile_key(),
         'item' => $variables['node']->nid,
         'entity_type' => 'node',
-        'render' => 'display_mode',
-        'display_mode' => $name,
       );
+      // iframe display mode is implied and screws with default entity iframe
+      // processing so make sure we apply display_mode render to everything else
+      if ($name != 'iframe') {
+        $properties['render'] = 'display_mode';
+        $properties['display_mode'] = $name;
+      }
       // clipboard settings.
       $clipboard_vars = array(
         'text' => _cis_shortcodes_build_code($properties),

@@ -199,11 +199,11 @@ function imageinfo_cache_entity_insert($entity, $type) {
   if (!empty($entity->type)) {
     $bundle_name = $entity->type;
   }
-  elseif (!empty($entity->field_name)) {
-    $bundle_name = $entity->field_name;
-  }
   elseif (!empty($entity->bundle)) {
     $bundle_name = $entity->bundle;
+  }
+  elseif (!empty($entity->field_name)) {
+    $bundle_name = $entity->field_name;
   }
   else {
     // Get the additional base details about this entity.
@@ -311,14 +311,22 @@ function imageinfo_cache_hook_info() {
  */
 function imageinfo_cache_image_styles_alter(&$styles) {
   // Use an effect callback router so that the correct toolkit is used.
-  foreach ($styles as &$style) {
+  foreach ($styles as $name => &$style) {
     $context_needed = FALSE;
     foreach ($style['effects'] as &$effect) {
       if (isset($effect['effect callback']) && $effect['effect callback'] !== 'imageinfo_cache_effect_router') {
         $effect['data']['#imageinfo_cache_effect_callback'] = $effect['effect callback'];
         $effect['effect callback'] = 'imageinfo_cache_effect_router';
         if (empty($context_needed)) {
-          $context_needed = imageinfo_cache_context_effect($effect, $style['name']);
+          // Use the array key if the style name is not set.
+          if (empty($style['name'])) {
+            $style_name = $name;
+          }
+          else {
+            $style_name = $style['name'];
+          }
+
+          $context_needed = imageinfo_cache_context_effect($effect, $style_name);
         }
       }
     }

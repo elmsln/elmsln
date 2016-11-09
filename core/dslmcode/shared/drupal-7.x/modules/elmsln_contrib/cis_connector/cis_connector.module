@@ -53,6 +53,12 @@ function _cis_connector_build_registry($bucket = NULL) {
     if (isset($settings[$bucket])) {
       return $settings[$bucket];
     }
+    // support for alternate version profiles as fallback
+    $tmp = explode('__', $bucket . '__2');
+    $buckettmp = array_shift($tmp);
+    if (isset($settings[$buckettmp])) {
+      return $settings[$buckettmp];
+    }
     return FALSE;
   }
   // validate settings were found
@@ -375,7 +381,7 @@ function _cis_connector_real_address($path, $bucket = 'cis') {
 function _cis_connector_system_type($bucket = NULL) {
   // if null, rely on the install profile
   if (empty($bucket)) {
-    $bucket = variable_get('install_profile', 'standard');
+    $bucket = elmsln_core_get_profile_key();
   }
   if ($settings = _cis_connector_build_registry($bucket)) {
     // program hub won't follow normal system conventions nessecarily
@@ -411,7 +417,7 @@ function _cis_connector_get_course_by_machine_name($machine_name) {
   $query
   // pull group nodes
   ->entityCondition('entity_type', 'node');
-  $bucket = variable_get('install_profile', 'standard');
+  $bucket = elmsln_core_get_profile_key();
   // ensure this is an authority
   if ($bucket == 'cis') {
     $query->entityCondition('bundle', 'course')
@@ -660,14 +666,28 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
   // grab section context of the user
   if (is_null($section)) {
     $section = _cis_connector_section_context();
+    // bail early unless it's a request for viewing all services
+    if (empty($section) && $request != 'other_services') {
+      return array();
+    }
   }
   // account for FAKE master sections that have been auto generated
-  if (_cis_connector_is_master($section)) {
-    if ($request != 'other_services') {
-      // return an empty array. this is what happened when there is a query for
-      // a section that doesn't exist. this avoids it throwing an error
-      if (in_array($request, array('help', 'resources', 'welcome_page', 'welcome_letter', 'syllabus'))) {
-        drupal_set_message(t('This page is blank because you are currently viewing the Master section.'), 'status', FALSE);
+  if (_cis_connector_is_master($section) && $request != 'other_services') {
+    // return an empty array. this is what happened when there is a query for
+    // a section that doesn't exist. this avoids it throwing an error
+    if (in_array($request, array('help', 'resources', 'welcome_page', 'welcome_letter', 'syllabus'))) {
+      if ($settings = _cis_connector_build_registry('cis')) {
+        $coursename = _cis_connector_course_context();
+        if (!empty($coursename)) {
+          $cispath = '/' . $coursename . '/offerings';
+          $cisaddress = _cis_connector_format_address($settings, $cispath, 'front');
+          drupal_set_message(t('This page is blank because you are currently viewing the Master section. To update these values per section please access the Course information system\'s <a href="@url" class="accessible-red-text">offerings page for @course</a>.', array('@course' => $coursename, '@url' => $cisaddress)), 'status', FALSE);
+        }
+        else {
+          $cispath = '/';
+          $cisaddress = _cis_connector_format_address($settings, $cispath, 'front');
+          drupal_set_message(t('This page is blank because you are currently viewing the Master section. To update these values per course section please access the <a href="@url" class="accessible-red-text">Course information system</a>.', array('@url' => $cisaddress)), 'status', FALSE);
+        }
       }
       return array();
     }
@@ -1266,7 +1286,7 @@ function cis_connector_entity_presave($entity, $type) {
     // if we have at least 1 match, add the settings, otherwise never runs
     foreach ($rem as $key => $item) {
       // make sure this isn't the current bucket we are working in
-      if (!in_array(variable_get('install_profile', 'standard'), $item['buckets'])) {
+      if (!in_array(elmsln_core_get_profile_key(), $item['buckets'])) {
         // prepare the item for shipment
         $data = _cis_connection_prepare_entity($entity);
         // execute call
@@ -1305,7 +1325,7 @@ function cis_connector_form_alter(&$form, &$form_state, $form_id) {
     // pop off the 1 we have as this is specific
     $item = array_pop($rem);
     // test for entity form and not in a bucket we write to
-    if ($form_id == $item['bundle'] . '_' . $item['type'] . '_' . 'form' && !in_array(variable_get('install_profile', 'standard'), $item['buckets'])) {
+    if ($form_id == $item['bundle'] . '_' . $item['type'] . '_' . 'form' && !in_array(elmsln_core_get_profile_key(), $item['buckets'])) {
       // search fields on external instance and modify settings when needed
       foreach ($form_state['field'] as $field_name => $field) {
         if ($field['und']['field']['settings']['cis_connector_access']) {
@@ -1797,7 +1817,7 @@ function _cis_connector_banned_drush_commands() {
 function _cis_connector_parent_domain($bucket = NULL) {
   // if null, rely on the install profile
   if (empty($bucket)) {
-    $bucket = variable_get('install_profile', 'standard');
+    $bucket = elmsln_core_get_profile_key();
   }
   // ensure we have something to bother trying to obtain domain off of
   if ($settings = _cis_connector_build_registry($bucket)) {

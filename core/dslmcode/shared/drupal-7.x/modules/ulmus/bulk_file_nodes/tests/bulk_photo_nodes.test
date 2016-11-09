@@ -1,0 +1,91 @@
+<?php
+/**
+ * @file
+ * Tests for the bulk_photo_nodes module.
+ */
+
+/**
+ * Tests the functionality of the bulk_photo_nodes module.
+ */
+class BulkPhotoNodesTestCase extends DrupalWebTestCase {
+  protected $privilegedUser;
+
+  /**
+   * Creates and logs in a user to test configuration of bulk_photo_nodes.
+   */
+  public function setUp() {
+    parent::setUp('bulk_photo_nodes', 'bpn_upload');
+    $this->privilegedUser = $this->drupalCreateUser(array(
+      'administer content types', 'administer nodes', 'bypass node access', 'create bulk photo nodes',
+    ));
+    $this->drupalLogin($this->privilegedUser);
+  }
+
+  /**
+   * Show the test on the at the tests page.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Bulk Photo Nodes functionality',
+      'description' => 'Tests bulk_photo_nodes content type form.',
+      'group' => 'BulkPhotoNodes',
+    );
+  }
+
+  /**
+   * Tests basic functionality of bulk_photo_nodes.module.
+   */
+  public function testContentTypesSave() {
+    // Ensure the content type edit form is overridden.
+    $this->drupalGet('admin/structure/types/manage/page');
+    $this->assertText('Bulk Photo Node Settings', 'Bulk Photo Nodes Settings is on content type form');
+
+    // Ensure that only the 'none' option exists for content types without an
+    // image field.
+    $options = $this->xpath("id('edit-bulk-photo-nodes')//option");
+    $this->assertTrue(count($options) === 1, "There are no image options for a content type without an image field");
+    $type = $this->drupalCreateContentType();
+    $edit = array(
+      'fields[_add_new_field][field_name]' => 'bulk_photo_nodes',
+      'fields[_add_new_field][label]' => 'bulk_photo_nodes',
+      'fields[_add_new_field][type]' => 'image',
+      'fields[_add_new_field][widget_type]' => 'image_image',
+    );
+
+    // Ensure that having an image field on a content type will surface that
+    // field in the bulk photo node settings section of the content type edit
+    // form.
+    $this->drupalPost("admin/structure/types/manage/{$type->name}/fields", $edit, t('Save'));
+    $this->drupalGet("admin/structure/types/manage/{$type->name}");
+    $options = $this->xpath("id('edit-bulk-photo-nodes')//option");
+    $this->assertTrue(count($options) === 2, "There are image options for a content type with an image field.");
+    $this->assertTrue(($options[1]['value'] == 'field_bulk_photo_nodes'), 'Only image fields will show in content type form.');
+
+    // Ensure that after saving a content type to use bulk photo nodes, the node
+    // add form is overridden.
+    $edit = array(
+      'bulk_photo_nodes[image_field]' => 'field_bulk_photo_nodes',
+      'bulk_photo_nodes[override_add_form]' => '1',
+    );
+    $this->drupalPost("admin/structure/types/manage/{$type->name}", $edit, t('Save content type'));
+    $vars = variable_get('bulk_photo_node_types');
+    $this->assertText('Bulk photo node settings saved.', 'Bulk photo node settings saved.');
+    $this->assertTrue($vars[$type->name] == 'field_bulk_photo_nodes', "System variables saved after form submission.");
+    // Normal node add form is overridden by default.
+    $this->drupalGet("node/add/{$type->name}");
+    $this->assertTrue(bulk_photo_nodes_is_bpn_add_page($type->name), 'The node add form is a Bulk Photo Nodes form.');
+    $this->assertText('Upload Images', 'Bulk Photo Nodes successfully overriding node add form.');
+    // The same form should also be available at its own path.
+    $this->drupalGet("node/add/{$type->name}/bulk");
+    $this->assertText('Upload Images', 'Bulk Photo Nodes has own path for uploads.');
+
+    // Ensure that after saving a content type without changing BPN settings,
+    // no message text displays.
+    $edit = array(
+      'bulk_photo_nodes[image_field]' => 'field_bulk_photo_nodes',
+      'bulk_photo_nodes[override_add_form]' => '1',
+    );
+    $this->drupalPost("admin/structure/types/manage/{$type->name}", $edit, t('Save content type'));
+    $this->assertNoText('Bulk photo node settings saved.', "Don't save bulk_photo_nodes settings unless changed.");
+  }
+}

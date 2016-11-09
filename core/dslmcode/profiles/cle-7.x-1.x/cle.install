@@ -54,3 +54,10 @@ function cle_update_7001(&$sandbox) {
 function cle_update_7002(&$sandbox) {
   module_enable(array('cis_course_service'));
 }
+
+/**
+ * Add link to add menu.
+ */
+function cle_update_7003(&$sandbox) {
+  features_revert_module('cle_cis_ux');
+}

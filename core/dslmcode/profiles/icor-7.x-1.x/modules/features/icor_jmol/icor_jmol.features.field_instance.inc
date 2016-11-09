@@ -10,7 +10,7 @@
 function icor_jmol_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-jmol-field_cis_course_ref'
+  // Exported field_instance: 'node-jmol-field_cis_course_ref'.
   $field_instances['node-jmol-field_cis_course_ref'] = array(
     'bundle' => 'jmol',
     'default_value' => NULL,
@@ -81,7 +81,7 @@ function icor_jmol_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-jmol-field_jmol_file'
+  // Exported field_instance: 'node-jmol-field_jmol_file'.
   $field_instances['node-jmol-field_jmol_file'] = array(
     'bundle' => 'jmol',
     'deleted' => 0,

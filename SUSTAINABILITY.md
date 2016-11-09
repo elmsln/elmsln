@@ -1,6 +1,6 @@
 #ELMSLN - Sustainability Guide
 
-This is the way that project founder btopro keeps life managable with how complex a product this is. The best way to use this and care for your ELMSLN instance is the following:
+This is the way that project founder btopro keeps life manageable with how complex a product this is. The best way to use this and care for your ELMSLN instance is the following:
 
 Use the elmsln-developer repository
 

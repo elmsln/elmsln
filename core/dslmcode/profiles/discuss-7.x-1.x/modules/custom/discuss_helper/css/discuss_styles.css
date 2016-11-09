@@ -1,0 +1,22 @@
+/* CSS Document */
+ul.post-links.inline {
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  list-style: none;
+  margin: 0;
+}
+
+ul.post-links.inline li {
+  padding: 0;
+  background-color: #eeeeee;
+  text-align: center;
+}
+
+ul.post-links.inline li:hover {
+  background-color: #cccccc;
+}
+
+.post-left-offset {
+  margin: 0;
+}

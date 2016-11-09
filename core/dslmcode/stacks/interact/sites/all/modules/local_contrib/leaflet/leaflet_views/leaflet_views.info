@@ -1,0 +1,16 @@
+name = Leaflet views
+description = Views integration for the Leaflet module.
+core = 7.x
+dependencies[] = leaflet
+dependencies[] = geofield
+dependencies[] = views
+dependencies[] = entity
+files[] = leaflet_views.views.inc
+files[] = leaflet_views_plugin_style.inc
+
+; Information added by Drupal.org packaging script on 2016-03-03
+version = "7.x-1.3+2-dev"
+core = "7.x"
+project = "leaflet"
+datestamp = "1457041140"
+

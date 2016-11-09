@@ -1,0 +1,24 @@
+{
+  "author": "Affinity Bridge - Tom Nightingale <tom@affinitybridge.com> (http://affinitybridge.com)",
+  "name": "Leaflet.widget",
+  "description": "A vector input widget for Leaflet. Uses Leaflet.draw controls.",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tnightingale/Leaflet.widget.git"
+  },
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "https://github.com/tnightingale/Leaflet.widget/blob/master/LICENSE-BSD"
+    }
+  ],
+  "engines": {
+    "node": "~0.6.17"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.3.16",
+    "grunt-css": "~0.2.1"
+  }
+}

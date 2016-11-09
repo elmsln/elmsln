@@ -16,7 +16,7 @@ function elmsmedia_install() {
   // standard clean up
   _elmsln_installer_post_install_cleanup();
   // front-page for media is the media path
-  variable_set('site_frontpage', 'media-overview');
+  variable_set('site_frontpage', 'elmsmedia');
   // we don't need these on authority systems
   variable_set('cis_help_page', '');
   variable_set('cis_resource_page', '');
@@ -24,7 +24,6 @@ function elmsmedia_install() {
   // we need to revert this at the end for whatever reason
   features_revert_module('elmsmedia_cis_ux');
 }
-
 
 /**
  * Revert UX to make the links show up
@@ -97,4 +96,88 @@ function elmsmedia_update_7006(&$sandbox) {
   features_revert_module('elmsmedia_svg');
   features_revert_module('elmsmedia_video');
   features_revert_module('elmsmedia_view_mode_tabs');
+}
+
+/**
+ * Bring back the image caption and set the display mode tabs
+ * for all the content types that we have.
+ */
+function elmsmedia_update_7007(&$sandbox) {
+  module_enable(array('getid3', 'elmsmedia_image_gallery', 'bulk_photo_nodes', 'bpn_upload', 'plupload'));
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+  features_revert_module('elmsmedia_view_mode_tabs');
+  features_revert_module('elmsmedia_cis_ux');
+  features_revert_module('elmsmedia_feature');
+  variable_set('site_frontpage', 'elmsmedia');
+}
+
+/**
+ * H5P special types visible.
+ */
+function elmsmedia_update_7008(&$sandbox) {
+  features_revert_module('elmsmedia_h5p');
+}
+
+/**
+ * Updates for accessible fallback methodology and related types
+ */
+function elmsmedia_update_7009(&$sandbox) {
+  module_enable(array('elmsmedia_static_content'));
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+  features_revert_module('elmsmedia_view_mode_tabs');
+  features_revert_module('elmsmedia_cis_ux');
+  features_revert_module('elmsmedia_feature');
+}
+
+/**
+ * Fix for document view modes.
+ */
+function elmsmedia_update_7010(&$sandbox) {
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_view_mode_tabs');
+}
+
+/**
+ * Fix for image gallery view mode options
+ */
+function elmsmedia_update_7011(&$sandbox) {
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_view_mode_tabs');
+}
+
+/**
+ * Some fields and minor styling on input forms.
+ */
+function elmsmedia_update_7012(&$sandbox) {
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_image_gallery');
+  features_revert_module('elmsmedia_static_content');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+}
+
+/**
+ * Tincan API integration support.
+ */
+function elmsmedia_update_7013(&$sandbox) {
+  module_enable(array('elmsln_lrs'));
 }

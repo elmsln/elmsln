@@ -42,7 +42,7 @@ function elmsmedia_audio_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_audio';
-  $strongarm->value = 'edit-wysiwyg-template';
+  $strongarm->value = 'edit-view-mode-tab';
   $export['additional_settings__active_tab_audio'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -158,7 +158,29 @@ function elmsmedia_audio_strongarm() {
       ),
     ),
     'extra_fields' => array(
-      'form' => array(),
+      'form' => array(
+        'title' => array(
+          'weight' => '1',
+        ),
+        'path' => array(
+          'weight' => '5',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '9',
+        ),
+        'book' => array(
+          'weight' => '10',
+        ),
+        'options' => array(
+          'weight' => '7',
+        ),
+        'author' => array(
+          'weight' => '8',
+        ),
+        'revision_information' => array(
+          'weight' => '6',
+        ),
+      ),
       'display' => array(),
     ),
   );

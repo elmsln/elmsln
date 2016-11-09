@@ -4,18 +4,38 @@
  * User page callbacks for the cis_helper module.
  */
 
-function cis_helper_sync_network_roster($node) {
-  // @todo pass in a token of some kind
-  // issue this against all remote things to tell them to sync up
-  $requests = array(
-    array(
-      'elmsln_module' => 'cis_section',
-      'elmsln_callback' => 'sync_roster',
+/**
+ * Menu callback: confirm rebuilding of read time.
+ */
+function cis_helper_sync_network_roster_confirm() {
+  $node = menu_get_object();
+  return confirm_form(array(), t('Synchronize rosters for @course?', array('@course' => $node->title)),
+                  'node/' . $node->nid, t('It will take a minute or two to complete but will happen in the background so you can keep working.'), t('Sync roster'), t('Cancel'));
+}
+
+/**
+ * Handler for wipe confirmation
+ *
+ * @see node_configure_rebuild_confirm()
+ */
+function cis_helper_sync_network_roster_confirm_submit($form, &$form_state) {
+  $node = menu_get_object();
+  // background post to ourselves which will figure out who needs to be told about this
+  // and where the data should go
+  $nonblock = array(
+    'method' => 'POST',
+    'api' => '1',
+    'bucket' => 'cis',
+    'path' => '/',
+    'data' => array(
+      'elmsln_module' => 'cis_helper',
+      'elmsln_callback' => 'populate_course_network',
+      'course' => $node->field_machine_name[LANGUAGE_NONE][0]['value'],
     ),
   );
-  _elmsln_api_network_request($requests, '1', TRUE, '/' . $node->field_machine_name['und'][0]['value'] . '/');
-  drupal_set_message(t('Course roster has been synced across all services.'), 'status', FALSE);
-  drupal_goto('node/' . $node->nid);
+  _elmsln_api_nonblocking_requests(array($nonblock));
+  drupal_set_message(t('@course rosters will be synchronized shortly!', array('@course' => $node->title)), 'info');
+  drupal_goto(arg(0) . '/' . arg(1));
 }
 
 /**
@@ -243,7 +263,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#title' => t('Course'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'column'
+        's12', 'col'
       )
     ),
   );
@@ -255,7 +275,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#title' => t('Details'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'medium-6', 'column',
+        's12', 'm6', 'col',
       )
     ),
   );
@@ -299,13 +319,18 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#title' => t('Structure'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'medium-6', 'column',
+        's12', 'm6', 'col',
       )
     ),
   );
+  $field_conditions = array();
+  // ensure only users with permission get this advanced option
+  if (!user_access('cis setup admin options')) {
+    $field_conditions = array('field_machine_name' => array('value', 'innovate', '<>'));
+  }
   // list of services
-  $service_list = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title', array(), array(), array('property' => array(array('title', 'ASC'))));
-  $service_list2 = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'field_distribution', array(), array(), array('property' => array(array('title', 'ASC'))));
+  $service_list = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title', $field_conditions, array(), array('property' => array(array('title', 'ASC'))));
+  $service_list2 = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'field_distribution', $field_conditions, array(), array('property' => array(array('title', 'ASC'))));
   $form['details']['services'] = array(
     '#multiple' => TRUE,
     '#required' => $required_new,
@@ -374,7 +399,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#title' => t('Additional settings'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'medium-12', 'column'
+        's12', 'm12', 'col'
       )
     ),
   );
@@ -467,7 +492,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#collapsible' => '1',
     '#attributes' => array(
       'class' => array(
-        'small-12', 'medium-6', 'column',
+        's12', 'm6'
       )
     ),
   );
@@ -477,7 +502,7 @@ function cis_helper_quick_setup_page($form = array(), &$form_state) {
     '#value' => t('Create course'),
     '#attributes' => array(
       'class' => array(
-        'small-12', 'column',
+        's12', 'col',
       ),
     )
   );
@@ -797,6 +822,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
         'elmsln_module' => 'elmsln_api',
         'elmsln_callback' => 'clear_cache_bin',
         'bin' => 'cis_connector',
+        'cid' => 'elmsln:cis:field_collection_item',
       ),
     )
   );
@@ -807,8 +833,10 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
       'elmsln_module' => 'elmsln_api',
       'elmsln_callback' => 'clear_cache_bin',
       'bin' => 'cis_connector',
+      'cid' => 'elmsln:cis:field_collection_item',
     )
   );
+  _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name['und'][0]['value'] . '/');
   // sync section system wide if set
   if (isset($section)) {
     // force session context to be course that's being created

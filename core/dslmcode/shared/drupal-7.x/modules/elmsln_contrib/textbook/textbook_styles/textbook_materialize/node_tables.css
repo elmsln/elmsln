@@ -1,0 +1,109 @@
+/*
+  Textbook Style Guide - Table styles
+*/
+
+table.textbook_table_1 {
+  vertical-align:middle;
+  width:98%;
+  margin-bottom:1.4em;
+  margin-top:1.4em;
+  border-collapse:separate;
+  border-spacing:0;
+  border:none;
+  border-left: 1px solid #222;
+  border-right: 1px solid #222;
+}
+table.textbook_table_1 tr {
+  border: 1px solid #222;
+}
+table.textbook_table_1 thead th {
+  text-align:center;
+  font-weight:bold;
+}
+table.textbook_table_1 caption {
+  -moz-border-radius: 1em 1em 0em 0em;
+  -webkit-border-radius:  1em 1em 0em 0em;
+  border-radius:  1em 1em 0em 0em; /* future proofing */
+  -khtml-border-radius:  1em 1em 0em 0em; /* for old Konqueror browsers */
+  background-color:#ccc;
+  font-weight:bold;
+  font-size:1.25em;
+  border-left:1px solid #222;
+  border-right:1px solid #222;
+  border-top:1px solid #222;
+}
+table.textbook_table2 td {
+  margin:2px;
+  padding:2px;
+}
+table.textbook_table_1 tbody th {
+  text-align:left;
+  font-weight:bold;
+  width:25%;
+  border:none;
+  border-bottom: 1px solid #222;
+  border-right: 1px solid #222;
+}
+table.textbook_table_1 tbody:last-child {
+  border:none;
+}
+
+/* A minimal data table */
+table.textbook_table_2{
+  border-collapse:collapse;
+  text-align:center;
+  vertical-align:middle;
+  width:98%;
+  margin-bottom:1.4em;
+  margin-top:1.4em;
+  border:none;
+  border-left:1px solid #ccc;
+  border-top:1px solid #ccc;
+  empty-cells:show;
+}
+table.textbook_table_2 th{
+  font-size:1.2em;
+  padding:10px 8px;
+  background:#eee;
+  border:1px solid #ccc;
+}
+table.textbook_table_2 tbody td{
+  padding:10px;
+  border:none;
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+}
+table.textbook_table_2 td:hover{
+  background:#e6e6e6 !important;
+}
+table.textbook_table_2 tbody tr:hover {
+background:none !important;
+}
+table.textbook_table_2 tbody tr:hover th{
+background:#eee !important;
+}
+table.textbook_table_2 tr:hover td{
+background:none;
+}
+table.textbook_table_2 tbody th{
+  border:none;
+  padding:10px;
+  border-bottom:1px solid #ccc;
+  border-right:1px solid #ccc;
+  background:#eee;
+}
+table.textbook_table_2 tbody tr:nth-child(even) {
+  background:none;
+}
+table.textbook_table_2 tbody tr:nth-child(odd) {
+  background:none;
+}
+table.textbook_table_2 tbody tr:last-child {
+  border:none;
+}
+table.textbook_table_2 caption {
+  border:1px solid #ccc;
+  border-bottom:none;
+  background:#eee;
+  padding:10px;
+}

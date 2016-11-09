@@ -10,7 +10,7 @@
 function views_timelinejs_extras_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-timeline-field_time_points'
+  // Exported field_instance: 'node-timeline-field_time_points'.
   $field_instances['node-timeline-field_time_points'] = array(
     'bundle' => 'timeline',
     'deleted' => 0,

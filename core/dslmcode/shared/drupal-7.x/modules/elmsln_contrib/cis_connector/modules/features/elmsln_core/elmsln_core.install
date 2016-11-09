@@ -92,3 +92,70 @@ function elmsln_core_update_7006(&$sandbox) {
 function elmsln_core_update_7007(&$sandbox) {
   features_revert_module('elmsln_core');
 }
+
+/**
+ * Set admin path for IMCE so it triggers admin theme.
+ */
+function elmsln_core_update_7008(&$sandbox) {
+  features_revert_module('elmsln_core');
+}
+
+/**
+ * Enable pathcache module to improve query speed
+ */
+function elmsln_core_update_7009(&$sandbox) {
+  module_enable(array('pathcache'));
+}
+
+/**
+ * User profile permission for all users now and fixed
+ * weird issue with masquerade where staff couldn't
+ * masquerade as people who didn't have overlapping
+ * roles due to the way we had defined "admin" accounts.
+ */
+function elmsln_core_update_7010(&$sandbox) {
+  features_revert_module('elmsln_core');
+}
+
+/**
+ * Enable pathcache module to improve query speed
+ */
+function elmsln_core_update_7011(&$sandbox) {
+  module_enable(array('pathcache'));
+}
+
+/**
+ * LRS permissions now set for user roles as well new
+ * form as json.
+ */
+function elmsln_core_update_7012(&$sandbox) {
+  features_revert_module('elmsln_core');
+}
+
+/**
+ * Use our LRS request function which supports non-blocking sets.
+ */
+function elmsln_core_update_7013(&$sandbox) {
+  variable_set('tincanapi_function', 'elmsln_core_tincanapi_send');
+}
+
+/**
+ * Fix ckeditor link blank
+ */
+function elmsln_core_update_7014(&$sandbox) {
+  features_revert_module('textbook_editor');
+}
+
+/**
+ * Enable views_content_cache everywhere.
+ */
+function elmsln_core_update_7015(&$sandbox) {
+  module_enable(array('views_content_cache'));
+}
+
+/**
+ * APDQC. This is a biggy for performance
+ */
+function elmsln_core_update_7016(&$sandbox) {
+  module_enable(array('apdqc'));
+}

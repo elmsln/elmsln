@@ -14,6 +14,14 @@ function cis_distro_integrations_cis_service_instance_courses_options_alter(&$op
 }
 
 /**
+ * Implements hook_cis_service_instance_TOOL_options_alter().
+ */
+function cis_distro_integrations_cis_service_instance_studio_options_alter(&$options, $course, $service) {
+  // CLE should default to our latest version as 1.x is legacy
+  $options['field_distribution'] = 'cle__2';
+}
+
+/**
  * Implements hook_cis_service_instance_TOOL_job_file_alter().
  */
 function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$content, $course, $service, $service_instance) {
@@ -22,10 +30,10 @@ function cis_distro_integrations_cis_service_instance_courses_job_file_alter(&$c
     $path = $service_instance->field_service_data[LANGUAGE_NONE][0]['value'];
     // see if we have a .git url
     if (valid_url($path) && strpos($path, '.git') !== FALSE) {
-      $content .= 'drush en git_book,git_book_rtd,mooc_markdown' . "\n";
+      $content .= 'drush en git_book,git_book_gb,mooc_markdown' . "\n";
       $content .= 'drush cc drush' . "\n";
       // @todo support other formats in the future
-      $content .= 'drush git-book-create ' . $path . " rtd master\n";
+      $content .= 'drush git-book-create ' . $path . " gb master\n";
     }
     else {
       // allow for on creation population of materials which are local to the file system

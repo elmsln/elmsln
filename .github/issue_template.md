@@ -1,20 +1,12 @@
-Replace the parts of this template where you see {{some text}}.
+Feature request:
+- What you are trying to do
 
-**Version**
-{{found in VERSION.txt or at admin/status/report of any site in elmsln}} 
+- Where you think this should go
 
-**Steps to reproduce the bug**
-1. {{step 1}}
-2. {{step 2}}
+Bug:
+- ELMSLN version/commit reported on admin/reports/status
 
-**Expected behaviour**
-{{feature}} should be {{expectedResult}} because {{reason}}.
+- What happens
 
-**Actual behaviour**
-{{feature}} is {{actualResult}}.
-
-**Additional information**
-OS: {{operatingSystem}}
-Browser: {{browser}}
-{{additionalInfo}}
+- What you expected to happen
 

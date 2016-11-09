@@ -1,0 +1,10 @@
+
+/**
+ * @file
+ * Leaflet CSS
+ */
+
+#leaflet-map .leaflet-top,
+#leafelt-map .leaflet-bottom {
+    z-index: 500;
+}

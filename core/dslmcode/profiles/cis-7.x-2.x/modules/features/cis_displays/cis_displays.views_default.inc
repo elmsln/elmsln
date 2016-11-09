@@ -29,7 +29,24 @@ function cis_displays_views_default_views() {
     30037204 => '30037204',
     166149871 => '166149871',
   );
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'course' => 'course',
+      'program' => 'program',
+      'academic_unit' => 0,
+      'resource' => 0,
+      'service_instance' => 0,
+      'service' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'none';
@@ -327,7 +344,24 @@ function cis_displays_views_default_views() {
     30037204 => 30037204,
     166149871 => 166149871,
   );
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'course' => 'course',
+      'academic_unit' => 0,
+      'resource' => 0,
+      'program' => 0,
+      'service_instance' => 0,
+      'service' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'some';
@@ -1183,7 +1217,24 @@ function cis_displays_views_default_views() {
     30037204 => '30037204',
     166149871 => '166149871',
   );
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'course' => 'course',
+      'academic_unit' => 0,
+      'resource' => 0,
+      'program' => 0,
+      'service_instance' => 0,
+      'service' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
@@ -2129,7 +2180,24 @@ function cis_displays_views_default_views() {
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'resource' => 'resource',
+      'academic_unit' => 0,
+      'course' => 0,
+      'program' => 0,
+      'service_instance' => 0,
+      'service' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
@@ -2302,7 +2370,24 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'create service_instance content';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'service' => 'service',
+      'academic_unit' => 0,
+      'course' => 0,
+      'resource' => 0,
+      'program' => 0,
+      'service_instance' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
@@ -2838,7 +2923,24 @@ function cis_displays_views_default_views() {
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '518400';
+  $handler->display->display_options['cache']['keys'] = array(
+    'node' => array(
+      'academic_unit' => 'academic_unit',
+      'course' => 'course',
+      'program' => 'program',
+      'resource' => 0,
+      'service_instance' => 0,
+      'service' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
@@ -2856,8 +2958,10 @@ function cis_displays_views_default_views() {
       'filter_rewrite_values' => NULL,
     ),
     'title' => array(
+      'bef_format' => 'default',
       'more_options' => array(
         'is_secondary' => 0,
+        'any_label' => '',
         'bef_filter_description' => '',
         'tokens' => array(
           'available' => array(
@@ -2878,11 +2982,19 @@ function cis_displays_views_default_views() {
           'any_label' => NULL,
           'filter_rewrite_values' => NULL,
         ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+          'secondary_label' => NULL,
+          'collapsible_label' => NULL,
+          'combine_rewrite' => NULL,
+          'reset_label' => NULL,
+          'bef_filter_description' => NULL,
+          'any_label' => NULL,
+        ),
         'secondary_label' => NULL,
         'collapsible_label' => NULL,
         'combine_rewrite' => NULL,
         'reset_label' => NULL,
-        'any_label' => NULL,
         'filter_rewrite_values' => NULL,
       ),
       'secondary_label' => NULL,
@@ -2897,8 +3009,9 @@ function cis_displays_views_default_views() {
       'bef_format' => 'bef',
       'more_options' => array(
         'bef_select_all_none' => 0,
-        'bef_collapsible' => 1,
+        'bef_collapsible' => 0,
         'is_secondary' => 0,
+        'any_label' => '',
         'bef_filter_description' => '',
         'tokens' => array(
           'available' => array(
@@ -2919,11 +3032,19 @@ function cis_displays_views_default_views() {
           'any_label' => NULL,
           'filter_rewrite_values' => NULL,
         ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+          'secondary_label' => NULL,
+          'collapsible_label' => NULL,
+          'combine_rewrite' => NULL,
+          'reset_label' => NULL,
+          'bef_filter_description' => NULL,
+          'any_label' => NULL,
+        ),
         'secondary_label' => NULL,
         'collapsible_label' => NULL,
         'combine_rewrite' => NULL,
         'reset_label' => NULL,
-        'any_label' => NULL,
         'filter_rewrite_values' => NULL,
       ),
       'secondary_label' => NULL,
@@ -2938,8 +3059,9 @@ function cis_displays_views_default_views() {
       'bef_format' => 'bef',
       'more_options' => array(
         'bef_select_all_none' => 0,
-        'bef_collapsible' => 1,
+        'bef_collapsible' => 0,
         'is_secondary' => 0,
+        'any_label' => '',
         'bef_filter_description' => '',
         'tokens' => array(
           'available' => array(
@@ -2960,11 +3082,19 @@ function cis_displays_views_default_views() {
           'any_label' => NULL,
           'filter_rewrite_values' => NULL,
         ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+          'secondary_label' => NULL,
+          'collapsible_label' => NULL,
+          'combine_rewrite' => NULL,
+          'reset_label' => NULL,
+          'bef_filter_description' => NULL,
+          'any_label' => NULL,
+        ),
         'secondary_label' => NULL,
         'collapsible_label' => NULL,
         'combine_rewrite' => NULL,
         'reset_label' => NULL,
-        'any_label' => NULL,
         'filter_rewrite_values' => NULL,
       ),
       'secondary_label' => NULL,
@@ -2976,8 +3106,10 @@ function cis_displays_views_default_views() {
       'filter_rewrite_values' => NULL,
     ),
     'title_1' => array(
+      'bef_format' => 'default',
       'more_options' => array(
-        'is_secondary' => 1,
+        'is_secondary' => 0,
+        'any_label' => '',
         'bef_filter_description' => '',
         'tokens' => array(
           'available' => array(
@@ -2998,11 +3130,19 @@ function cis_displays_views_default_views() {
           'any_label' => NULL,
           'filter_rewrite_values' => NULL,
         ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+          'secondary_label' => NULL,
+          'collapsible_label' => NULL,
+          'combine_rewrite' => NULL,
+          'reset_label' => NULL,
+          'bef_filter_description' => NULL,
+          'any_label' => NULL,
+        ),
         'secondary_label' => NULL,
         'collapsible_label' => NULL,
         'combine_rewrite' => NULL,
         'reset_label' => NULL,
-        'any_label' => NULL,
         'filter_rewrite_values' => NULL,
       ),
       'secondary_label' => NULL,
@@ -3021,6 +3161,8 @@ function cis_displays_views_default_views() {
     'any_label' => NULL,
     'filter_rewrite_values' => NULL,
   );
+  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
+  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'textbook_editor';
   $handler->display->display_options['pager']['type'] = 'none';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'table';

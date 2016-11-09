@@ -1,0 +1,115 @@
+#bpn-upload-form, #bpn-flickr-form, #bpn-flickr-private-form, form.bpn-enabled {
+  fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+  }
+
+  fieldset .fieldset-wrapper {
+    padding: 0;
+  }
+
+  fieldset .fieldset-legend {
+  }
+
+  .bpn-left {
+    float: left;
+    width: 68%;
+  }
+
+  .bpn-right {
+    float: right;
+    width: 30%;
+    border: 1px solid #ccc;
+    > div, > h2, > p {
+      position: relative;
+      margin: 10px 0;
+      padding: 0 10px;
+    }
+    input.form-submit {
+      margin: 10px;
+    }
+    .form-textarea {
+      padding: 0;
+    }
+    .form-text {
+      width: 230px;
+    }
+  }
+
+  .bpn-info-node {
+    position: relative;
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin-bottom: 2em;
+  }
+
+  .bpn-info-node-left {
+    float: left;
+    width: 28%;
+    .form-text {
+      width: 350px;
+    }
+  }
+
+  .bpn-info-node-right {
+    float: right;
+    width: 70%;
+  }
+
+  .bpn-info-node-image {
+    float: left;
+  }
+
+  .bpn-info-node-delete {
+    float: left;
+    clear: left;
+    margin-top: 1em;
+  }
+
+  .bpn-info-node-title {
+  }
+
+  .bpn-info-node-description {
+  }
+
+  .bpn-info-node-additional {
+    padding: 10px 0 0 0;
+    position: relative;
+    margin: 1em 0;
+  }
+
+  #edit-prev {
+  }
+
+  #edit-finish {
+  }
+
+}
+
+.bpn-flickr,
+.flickr-private {
+  background: url(../images/flickr_logo.png) no-repeat 100% 0;
+  background-color: #FFFFFF;
+  border: solid 1px #CCCCCC;
+  padding: 10px;
+}
+
+.bpn-flickr-thumbnail {
+  float: left;
+  margin: 0 2em 2em 0;
+  border: 1px solid #CCC;
+  .inner {
+    padding: 1em;
+  }
+}
+
+.bpn-upload-option {
+  font-size: 24px;
+  padding: 20px 0;
+}
+
+.bpn-info-node-additional {
+  padding: 5px;
+}

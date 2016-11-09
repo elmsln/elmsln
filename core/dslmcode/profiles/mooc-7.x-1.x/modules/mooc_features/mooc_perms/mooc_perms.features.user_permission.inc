@@ -10,6 +10,21 @@
 function mooc_perms_user_default_permissions() {
   $permissions = array();
 
+  // Exported permission: 'access PDF version'.
+  $permissions['access PDF version'] = array(
+    'name' => 'access PDF version',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'activation code holder' => 'activation code holder',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'print_pdf',
+  );
+
   // Exported permission: 'access content'.
   $permissions['access content'] = array(
     'name' => 'access content',
@@ -26,13 +41,28 @@ function mooc_perms_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'access print'.
+  $permissions['access print'] = array(
+    'name' => 'access print',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'activation code holder' => 'activation code holder',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'print',
+  );
+
   // Exported permission: 'access printer-friendly version'.
   $permissions['access printer-friendly version'] = array(
     'name' => 'access printer-friendly version',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'activation code holder' => 'activation code holder',
       'administrator' => 'administrator',
-      'guest' => 'guest',
       'instructor' => 'instructor',
       'staff' => 'staff',
       'student' => 'student',

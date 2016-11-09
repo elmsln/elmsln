@@ -1,0 +1,208 @@
+<?php
+
+/**
+ * Test class for access checks for VDE downloads.
+ *
+ * Views Data Export enforces that a previously exported file may only be
+ * re-downloaded by the user that created the export. We test for that with
+ * this class.
+ */
+class ViewsDataExportAccessTest extends ViewsDataExportBaseTest {
+
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Access to temp files',
+      'description' => 'Check access to created export files.',
+      'group' => 'Views Data Export',
+    );
+  }
+
+  /**
+   * Test that VDE export can only be downloaded by the user that created them.
+   */
+  public function testExportedTempFileAccess() {
+    $this->admin_user1 = $this->drupalCreateUser();
+    $this->admin_user2 = $this->drupalCreateUser();
+
+    // Run a batched export.
+    $path = 'vde_test/' . $this->randomName();
+    list($view, $expected) = $this->getExportView($path);
+    $display = &$view->display['vde_test']->handler;
+    // Set this view to be batched.
+    $display->override_option('use_batch', 'batch');
+    // Save this view so we can hit the path.
+    $view->save();
+    // Ensure that the menu router system is rebuilt on the next page load.
+    variable_set('menu_rebuild_needed', TRUE);
+
+    $this->drupalLogin($this->admin_user1);
+    // Catpure the session_id as the redirects in the request ditch it.
+    $session_id = $this->session_id;
+    $this->assertBatchedExportEqual($path, $expected, 'Batched access export matched expected output.');
+
+    // Remove all the test data, so future exports will be different.
+    db_truncate('views_test')->execute();
+    $this->resetAll();
+
+    // Assert that we can re-download directly when supplying the token.
+    // We rely on this being the first export in this test class.
+    // Restore the session_id from above so we can use drupalGetToken.
+    $this->session_id = $session_id;
+    $token = $this->drupalGetToken('views_data_export/1');
+    $this->drupalGet($path, array('query' => array('eid' => 1, 'download' => 1, 'token' => $token)));
+    $output = $this->drupalGetContent();
+    $this->assertEqual($this->normaliseString($output), $expected, 'Re-download of export file by original user is possible with session token.');
+
+    // Assert that we cannot re-download directly without supplying the token.
+    // We rely on this being the first export in this test class.
+    $this->drupalGet($path, array('query' => array('eid' => 1, 'download' => 1)));
+    $output = $this->drupalGetContent();
+    $this->assertEqual($this->normaliseString($output), '', 'Re-download of export file by original user is not possible.');
+
+    // Assert that someone else can't download our file.
+    // We rely on this being the first export in this test class.
+    $this->drupalLogin($this->admin_user2);
+    $this->drupalGet($path, array('query' => array('eid' => 1, 'download' => 1, 'token' => $token)));
+    $output = $this->drupalGetContent();
+    $this->assertEqual($this->normaliseString($output), '', 'Re-download of export file by different user is not possible.');
+  }
+
+  /**
+   * Overrides DrupalWebTestCase::drupalGetToken() to support the hash salt.
+   *
+   * @todo Remove when http://drupal.org/node/1555862 is fixed in core.
+   */
+  protected function drupalGetToken($value = '') {
+    $private_key = drupal_get_private_key();
+    return drupal_hmac_base64($value, $this->session_id . $private_key . drupal_get_hash_salt());
+  }
+
+  /**
+   * Build and return a basic view of the views_test table.
+   *
+   * @return view
+   */
+  protected function getBasicExportView() {
+    views_include('view');
+
+    // Create the basic view.
+    $view = new view();
+    $view->vid = 'new';
+    $view->base_table = 'views_test';
+
+    // Set up the fields we need.
+    $display = $view->new_display('default', 'Master', 'default');
+
+    $display->override_option('fields', array(
+      'id' => array(
+        'id' => 'id',
+        'table' => 'views_test',
+        'field' => 'id',
+        'relationship' => 'none',
+      ),
+      'name' => array(
+        'id' => 'name',
+        'table' => 'views_test',
+        'field' => 'name',
+        'relationship' => 'none',
+      ),
+      'age' => array(
+        'id' => 'age',
+        'table' => 'views_test',
+        'field' => 'age',
+        'relationship' => 'none',
+      ),
+    ));
+
+    // Set up the sort order.
+    $display->override_option('sorts', array(
+      'id' => array(
+        'order' => 'ASC',
+        'id' => 'id',
+        'table' => 'views_test',
+        'field' => 'id',
+        'relationship' => 'none',
+      ),
+    ));
+
+    // Set up the pager.
+    $display->override_option('pager', array(
+      'type' => 'none',
+      'options' => array('offset' => 0),
+    ));
+
+    return $view;
+  }
+
+  protected function getStylePluginName() {
+    return 'views_data_export_txt';
+  }
+
+  protected function getExportView($path = 'vde_test') {
+    // Create the basic view.
+    $view = $this->getBasicExportView();
+
+    $display = $view->new_display('views_data_export', 'Data export', 'vde_test');
+    $display->override_option('style_plugin', $this->getStylePluginName());
+    $display->override_option('path', $path);
+
+    $expected = '[ID]
+
+1
+[Name]
+
+John
+[Age]
+
+25
+----------------------------------------
+
+[ID]
+
+2
+[Name]
+
+George
+[Age]
+
+27
+----------------------------------------
+
+[ID]
+
+3
+[Name]
+
+Ringo
+[Age]
+
+28
+----------------------------------------
+
+[ID]
+
+4
+[Name]
+
+Paul
+[Age]
+
+26
+----------------------------------------
+
+[ID]
+
+5
+[Name]
+
+Meredith
+[Age]
+
+30
+----------------------------------------';
+
+    return array(&$view, $expected);
+  }
+}

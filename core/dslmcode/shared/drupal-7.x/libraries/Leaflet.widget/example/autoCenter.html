@@ -1,0 +1,63 @@
+<html>
+  <head>
+    <title>Leaflet</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4.4/leaflet.css" />
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4.4/leaflet.ie.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="http://jacobtoye.github.com/Leaflet.draw/leaflet.draw.css" />
+    <link rel="stylesheet" href="../dist/Leaflet.select.css" />
+    <link rel="stylesheet" href="../dist/Leaflet.widget.css" />
+    <!-- <link rel="stylesheet" href="../dist/Leaflet.widget.min.css" /> -->
+
+    <script src="http://cdn.leafletjs.com/leaflet-0.4.4/leaflet.js"></script>
+    <!-- <script src="http://jacobtoye.github.com/Leaflet.draw/leaflet.draw.js"></script> -->
+    <script src="../lib/Leaflet.draw/leaflet.draw.js"></script>
+    <script src="../src/util/GeoJSONUtil.js"></script>
+    <script src="../src/layer/WidgetFeatureGroup.js"></script>
+    <script src="../src/layer/Path.js"></script>
+    <script src="../src/layer/MultiPolygon.js"></script>
+    <script src="../src/layer/MultiPolyline.js"></script>
+    <script src="../src/layer/FeatureGroup.js"></script>
+    <script src="../src/layer/Polygon.js"></script>
+    <script src="../src/layer/Polyline.js"></script>
+    <script src="../src/layer/Marker.js"></script>
+    <script src="../src/Select.js"></script>
+    <script src="../src/Widget.js"></script>
+    <!-- <script src="../dist/Leaflet.widget.min.js"></script> -->
+  </head>
+  <body>
+    <div style="height: 200px" id="leaflet-widget-map-1"></div>
+    <textarea id="leaflet-widget-input-1">
+{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[102,0.5]},"properties":{}},{"type":"Feature","geometry":{"type":"LineString","coordinates":[[102,0],[103,1],[104,0],[105,1]]},"properties":{}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[100,0],[101,0],[101,1],[100,1],[100,0]]]},"properties":{}}]}
+    </textarea>
+    <div style="height: 200px" id="leaflet-widget-map-2"></div>
+    <textarea id="leaflet-widget-input-2"></textarea>
+
+    <script type='text/javascript'>
+      var classname = 'leaflet-widget',
+          map1 = L.map(classname + '-map-1', {
+            scrollWheelZoom: false,
+            center: [0, 0],
+            zoom: 5,
+            layers: [L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
+            widget: {
+              attach: L.DomUtil.get(classname + '-input-1')
+            }
+          }),
+          map2 = L.map(classname + '-map-2', {
+            scrollWheelZoom: false,
+            center: [0, 0],
+            zoom: 5,
+            layers: [L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
+            widget: {
+              attach: L.DomUtil.get(classname + '-input-2')
+            }
+          });
+
+      map1.widget.enable();
+      map2.widget.enable();
+
+    </script>
+  </body>
+</html>

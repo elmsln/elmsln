@@ -1,0 +1,41 @@
+.exposed-proximity-radius .form-type-select,
+.exposed-proximity-radius .form-type-textfield {
+  float: left;
+}
+.exposed-proximity-radius .form-type-select {
+  padding-top: 3px;
+}
+
+/****** Form Element Styling ******/
+.geofield-proximity-field-wrapper .form-item,
+.geofield-proximity-field-wrapper .geofield-proximity-origin-from {
+  float: left;
+  margin-right: 10px;
+}
+
+.geofield-proximity-field-wrapper .form-type-select {
+  padding-top: 3px;
+}
+
+/**
+ * @TODO: Css needs to be adjusted to work with FormAPI so that the element doesn't need to be named geofield-proximity.
+ */
+.geofield-proximity-field-wrapper .form-item-geofield-proximity-distance input {
+	width: 8em;
+}
+
+.geofield-proximity-field-wrapper .form-item-geofield-proximity-distance2 input {
+	width: 8em;
+}
+
+.geofield-proximity-field-wrapper .form-item-geofield-proximity-origin input {
+	width: 12em;
+}
+
+.geofield-proximity-field-wrapper .geofield-proximity-origin-from {
+  padding-top : 7px;
+}
+
+.geofield-proximity-field-wrapper .form-type-geofield-proximity-search {
+  float: none;
+}

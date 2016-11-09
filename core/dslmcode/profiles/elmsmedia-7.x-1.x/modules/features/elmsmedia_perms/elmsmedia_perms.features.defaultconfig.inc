@@ -21,17 +21,6 @@ function elmsmedia_perms_defaultconfig_features() {
 function elmsmedia_perms_defaultconfig_user_default_permissions() {
   $permissions = array();
 
-  // Exported permission: 'access admin theme'.
-  $permissions['access admin theme'] = array(
-    'name' => 'access admin theme',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'admin_theme',
-  );
-
   // Exported permission: 'access content'.
   $permissions['access content'] = array(
     'name' => 'access content',
@@ -42,17 +31,6 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'node',
-  );
-
-  // Exported permission: 'access iframe version'.
-  $permissions['access iframe version'] = array(
-    'name' => 'access iframe version',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'anonymous user' => 'anonymous user',
-      'authenticated user' => 'authenticated user',
-    ),
-    'module' => 'entity_iframe',
   );
 
   // Exported permission: 'create audio content'.
@@ -225,16 +203,6 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'delete revisions'.
-  $permissions['delete revisions'] = array(
-    'name' => 'delete revisions',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'edit any audio content'.
   $permissions['edit any audio content'] = array(
     'name' => 'edit any audio content',
@@ -350,17 +318,6 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'revert revisions'.
-  $permissions['revert revisions'] = array(
-    'name' => 'revert revisions',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
   // Exported permission: 'use add another'.
   $permissions['use add another'] = array(
     'name' => 'use add another',
@@ -372,66 +329,9 @@ function elmsmedia_perms_defaultconfig_user_default_permissions() {
     'module' => 'addanother',
   );
 
-  // Exported permission: 'use text format textbook_editor'.
-  $permissions['use text format textbook_editor'] = array(
-    'name' => 'use text format textbook_editor',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-      'teaching assistant' => 'teaching assistant',
-    ),
-    'module' => 'filter',
-  );
-
-  // Exported permission: 'view cis shortcode'.
-  $permissions['view cis shortcode'] = array(
-    'name' => 'view cis shortcode',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'cis_shortcodes',
-  );
-
-  // Exported permission: 'view iframe embed code'.
-  $permissions['view iframe embed code'] = array(
-    'name' => 'view iframe embed code',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-      'teaching assistant' => 'teaching assistant',
-    ),
-    'module' => 'entity_iframe',
-  );
-
-  // Exported permission: 'view lmsless administration links'.
-  $permissions['view lmsless administration links'] = array(
-    'name' => 'view lmsless administration links',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'cis_lmsless',
-  );
-
   // Exported permission: 'view own unpublished content'.
   $permissions['view own unpublished content'] = array(
     'name' => 'view own unpublished content',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-    ),
-    'module' => 'node',
-  );
-
-  // Exported permission: 'view revisions'.
-  $permissions['view revisions'] = array(
-    'name' => 'view revisions',
     'roles' => array(
       'administrator' => 'administrator',
       'instructor' => 'instructor',

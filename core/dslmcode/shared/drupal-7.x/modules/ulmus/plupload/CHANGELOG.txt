@@ -1,0 +1,70 @@
+CHANGELOG for Plupload integration for Drupal 7
+
+Plupload integration 7.x-1.7
+=================================
+- #2370889 by znerol: Fixed Extra margin on file list due to insufficient specificity of CSS selector.
+- #2190007 by slashrsm | hswong3i: Kill Firefox 3.6 check and entire _requirements checks section. 
+- #2241523 by K. Tadesse, si.mon: Add some more strings to i18n.js.
+- #2088143 by hswong3i, Chris Charlton | lsolesen: Add make file so dependencies are downloaded automatically.
+
+Plupload integration 7.x-1.6
+=================================
+- #2171575 by slashrsm | kreatIL: Plupload library not found (version 1.5.8).
+- #2098555 by slashrsm: Suggest using .zip instead of .tar.gz.
+
+Plupload integration 7.x-1.5
+=================================
+- by slashrsm: Update README.txt with new download links.
+- #2132373 by OnkelTem: Plupload doesn't support international file names.
+- #2098555 by slashrsm: Document library v2.0.0 incompatibility.
+
+Plupload integration 7.x-1.4
+=================================
+- #2065927 by vladan.me: Added Plupload events support.
+- #2081263 by hgneng: Fixed Check transliteration setting before apply transliteration action.
+
+Plupload integration 7.x-1.3
+=================================
+- #2063161 by mfgering | Amon_Re: Fixed Multi Upload with plupload broken when using Drupal 7.23.
+
+Plupload integration 7.x-1.2
+=================================
+- #1999264 by slashrsm: up_arrow.png and up_arrow_disabled.png are very large.
+- #1935256 by Primsi: Fixed When a form has more than one submit button plupload always submits using the first one.
+
+Plupload integration 7.x-1.1
+=================================
+- #1903818 by quicksketch, slashrsm: Fixed Double dollar signs in hook_requirements().
+- #1506642 by MrHaroldA | succinct: Fixed plupload.js issue with Internet Explorer.
+- #1814744 by slashrsm, Kevin Hankens: File URI not available to hook_file_validate() implementations.
+- #1895328 by larowlan, slashrsm: Fixed Security exploit in plupload external library examples folder.
+- #1230632 by -enzo-, slashrsm: Fixed hard-coded file size limits.
+- by slashrsm: Fix CodeSniffer errors.
+- #1827368 by Kevin Hankens: Fixed Use standard language when validating files.
+- #1565898 by slashrsm: Create docs for Plupload element usage in README.txt.
+- #1111036 by slashrsm: Blacklist script extensions if 'allow_insecure_uploads' isn't set to TRUE.
+- #1426088 by slashrsm: Anonymous User can't upload.
+
+Plupload integration 7.x-1.0
+=================================
+- #1414486 by nbucknor, slashrsm: Improvements of error handling for multiple plupload elements on a single form.
+
+Plupload integration 7.x-1.0-rc1
+==================================
+- by slashrsm: Fix 3 Coder review notices.
+- by slashrsm: Removed unnecessary popup caused by previous commit.
+- #1414486 by nbucknor, annblack: Allow for Multiple Plupload elements in a form.
+- #1461884 by atlea: File uploads larger than php post_max_size broken
+- #1445172 by Moloc: Use drupal_unlink() instead unlink()
+
+Plupload integration 7.x-1.0-beta4
+==================================
+- #1230632 by ksenzee: Hard-coded file size limits.
+- #1219992 by slashrsm, axe312, Dave Reid: Add support for Drupal native translations.
+- #1111054 by George Petsagourakis: Convert plupload_fix_temporary_filename() a private function
+- #1316438 by jcfiala, slashrsm: Plupload in AJAX call causes form.submit handler to be added multiple times
+- #1300620 by jamiecuthill, ksenzee: Update to 1.5.1.1 because uploading is broken in Firefox 7
+- #1121070 by Moloc: Warning: unlink(...) [function.unlink]: Permission denied in plupload_handle_uploads()
+- #1348892 by slashrsm, Moloc: Show library version in status report
+- #1267190 by Moloc: Plupload transliteration support for d7
+- #1240654 by Dave Reid: Use a proper namespace for file_uri_to_object().

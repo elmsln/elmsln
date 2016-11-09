@@ -46,9 +46,21 @@ function mooc_helper_menu_contextual_links_alter(&$links, $router_item, $root_pa
 function mooc_helper_menu() {
   $items = array();
   // load a page with the active outline's table of contents displayed
-  $items['mooc/book-toc'] = array(
-    'title' => 'Table of Contents',
+  $items['mooc/course-home'] = array(
+    'title' => 'Course outline',
     'page callback' => '_mooc_helper_toc',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+  $items['mooc/book-toc'] = array(
+    'title' => 'Course outline',
+    'page callback' => '_mooc_helper_book_outline',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+  $items['mooc/learning-pathway'] = array(
+    'title' => 'Learning pathway',
+    'page callback' => '_mooc_helper_learning_pathway',
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
   );
@@ -96,7 +108,7 @@ function mooc_helper_block_view($delta = '') {
 
   switch ($delta) {
     case 'mooc_helper_toc':
-      $block['subject'] = t('Table of Contents');
+      $block['subject'] = t('Course outline');
       $block['content'] = _mooc_helper_toc();
     break;
     case 'active_outline':
@@ -116,7 +128,24 @@ function mooc_helper_block_view($delta = '') {
  * Callback for mooc/book-toc to deliver the table of contents
  * @return string  rendered table of contents for the active outline.
  */
-function _mooc_helper_toc() {
+function _mooc_helper_toc($type = NULL) {
+  if (is_null($type)) {
+    $type = variable_get('mooc_navigation_style', 'book_outline');
+  }
+  switch ($type) {
+    case 'book_outline':
+      return _mooc_helper_book_outline();
+    break;
+    case 'learning_pathway':
+      return _mooc_helper_learning_pathway();
+    break;
+  }
+}
+
+/**
+ * Book outline presentation for the course.
+ */
+function _mooc_helper_book_outline() {
   $tree = array();
   $node = _mooc_helper_active_outline();
   // load the active outline
@@ -138,7 +167,49 @@ function _mooc_helper_toc() {
     }
     else {
       $tree = $tree['below'];
-      return menu_tree_output($tree);
+      $output['menu_tree'] = array('#weight' => 1);
+      $output['menu_tree'][] = menu_tree_output($tree);
+      // support displaying of read_time stats here too
+      if (module_exists('read_time')) {
+        $output['read_time'] = array(
+          '#type' => 'markup',
+          '#weight' => 0,
+          '#markup' => theme('read_time', array('node' => $active))
+        );
+      }
+      return $output;
+    }
+  }
+  return t('<a href="@url">Create a new course outline to get started!</a>', array('@url' => url('node/add/page', array('query' => array('parent' => 'new', 'destination' => $_GET['q'])))));
+}
+
+/**
+ * Callback for mooc/book-toc to deliver the table of contents
+ * @return string  rendered table of contents for the active outline.
+ */
+function _mooc_helper_learning_pathway() {
+  $tree = array();
+  $node = _mooc_helper_active_outline();
+  // load the active outline
+  $active = menu_get_object();
+  // test for not being on a node as well as global setting overriding
+  // outline to use
+  if (!isset($active->book) || (isset($node->book) && $active->book['menu_name'] != $node->book['menu_name'])) {
+    $active = $node;
+  }
+  // only show the block if the user has view access for the top-level node.
+  if (isset($active->book) && entity_access('view', 'node', $active)) {
+    // load everything the tree below as well as the active trail
+    $tree = _mooc_helper_menu_tree_all_data($active->book['menu_name'], $active->book);
+    // dump the highest book node, we don't need this "page"
+    $tree = array_pop($tree);
+    // ensure we have something to render below us
+    if (empty($tree['below'])) {
+      return t('This content outline is empty, why not start with adding some content <a href="@url">add a page of content</a>', array('@url' => url('node/add/page', array('query' => array('parent' => $tree['link']['mlid'], 'destination' => $_GET['q'])))));
+    }
+    else {
+      $tree = $tree['below'];
+      return theme('learning_pathway', array('tree' => $tree, 'lmsless_classes' => _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key())));
     }
   }
   return t('<a href="@url">Create a new course outline to get started!</a>', array('@url' => url('node/add/page', array('query' => array('parent' => 'new', 'destination' => $_GET['q'])))));
@@ -506,7 +577,7 @@ function mooc_helper_node_prepare($node) {
   // see if this item is in the active outline book
   // if not then we need to inform them so they don't
   // accidentally modify a book they aren't meaning to
-  if ($node->type != 'section' && arg(2) == 'edit' && isset($node->book) && $active_book && $node->book['bid'] != $active_book->nid) {
+  if ($node->type != 'section' && arg(2) == 'edit' && isset($node->book) && !empty($node->book['bid']) && $active_book && $node->book['bid'] != $active_book->nid) {
     $current_section = _cis_connector_section_context();
     drupal_set_message(t('This page is not part of the section you are currently working on. You can still modify this page but the change will not be visible to students in section `@section`. Click the Outline button to navigate to a page in the active outline or switch sections by clicking on your profile name.', array('@section' => $current_section)), 'warning');
   }
@@ -520,7 +591,7 @@ function mooc_helper_node_view($node, $view_mode, $langcode) {
   // see if this item is in the active outline book
   // if not then we need to inform them so they don't
   // accidentally modify a book they aren't meaning to
-  if (isset($node->book) && $active_book && $node->book['bid'] != $active_book->nid && _cis_connector_role_groupings(array('staff', 'teacher'))) {
+  if (!empty($node->book['bid']) && $active_book && $node->book['bid'] != $active_book->nid && _cis_connector_role_groupings(array('staff', 'teacher'))) {
     $current_section = _cis_connector_section_context();
     drupal_set_message(t('This page is not part of the section `@section` that you are currently viewing.', array('@section' => $current_section)), 'notice', FALSE);
   }
@@ -592,6 +663,10 @@ function mooc_helper_form_page_node_form_alter(&$form, &$form_state, $form_id) {
     $form['path']['#title'] = t('Path');
     $form['path']['#group'] = 'group_path';
     $form['path']['#type'] = 'div';
+  }
+  // drop the print options if they are there
+  if (isset($form['print'])) {
+    unset($form['print']);
   }
 }
 
@@ -731,15 +806,14 @@ function mooc_helper_admin_paths() {
  * Provides speedreader clickable link for accessibility menu.
  */
 function mooc_helper_fa_a11y() {
-  if (module_exists('speedreader')) {
-    return array(
-      'tools' => array(
+  $a11y = array(
+    'formats' => array(
       '#type' => 'fieldset',
-      '#title' => t('Tools'),
-      '#description' => t('Use these accessibility tools to navigate content more easily.'),
+      '#title' => t('Alternate formats'),
+      '#description' => t('Get this content in an alternate format.'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
-      '#weight' => 8,
+      '#weight' => -10,
       '#attributes' => array(
         'class' => array(
           'collapsible',
@@ -747,12 +821,31 @@ function mooc_helper_fa_a11y() {
           'collapsed',
         ),
       ),
-      'speedreader' => array(
-        '#markup' => '<a href="#" data-reveal-id="block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false">' . t('Speed reader') . '</a>'
-        ),
+      '#materialize' => array(
+        'type' => 'collapsible',
+        'icon' => 'view_carousel',
       ),
+      'speedreader' => array(
+        '#markup' => '<a class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">chrome_reader_mode</i>' . t('Speed reader') . '</a>',
+        '#weight' => 10,
+      ),
+    ),
+  );
+  // support print / book printing
+  if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access printer-friendly version')) {
+    $a11y['formats']['print'] = array(
+      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">print</i>' . t('Print page') . '</a>',
+      '#weight' => -10,
     );
   }
+  // print to pdf
+  if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access PDF version')) {
+    $a11y['formats']['pdf'] = array(
+      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">picture_as_pdf</i>' . t('PDF page') . '</a>',
+      '#weight' => -9,
+    );
+  }
+  return $a11y;
 }
 
 /**
@@ -822,3 +915,20 @@ function mooc_helper_read_time_evaluate_alter(&$read_time, $node, $field_data) {
 function mooc_helper_ecd_asset_type_alter(&$type, $node) {
   $type = 'content';
 }
+
+/**
+ * Implements hook_theme().
+ */
+function mooc_helper_theme($existing, $type, $theme, $path) {
+  return array(
+    'learning_pathway' => array(
+      'render element' => 'element',
+      'template' => 'templates/learning-pathway',
+      'variables' => array(
+        'tree' => array(),
+        'lmsless_classes' => array(),
+      ),
+    ),
+  );
+}
+

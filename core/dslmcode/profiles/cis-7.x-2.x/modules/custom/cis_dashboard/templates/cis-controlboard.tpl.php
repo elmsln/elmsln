@@ -1,6 +1,6 @@
 <div class="row" ng-app="Fa" ng-controller="cisDashboard">
-<div class="large-6 columns">
-  <div class="large-6 columns text-right">
+<div class="l6 col">
+  <div class="l6 col text-right">
    <ul id="sort-drop" class="f-dropdown f-open-dropdown text-left" data-dropdown-content="" style="position: absolute; left: 13.3281px; top: 1892.75px;" aria-hidden="false">
     <li>
       <a ng-click="orderCourses('+title')" href="#">Ascending</a>
@@ -23,15 +23,15 @@
    </div>
 
 <div class="row">
-<div class="small-12 columns cis--course-item" ng-repeat="course in courses.list | orderBy:courseSortDefault">
+<div class="s12 col cis--course-item" ng-repeat="course in courses.list | orderBy:courseSortDefault">
   <div class="row collapse">
-    <div class="small-12 columns">
+    <div class="s12 col">
       <div class="cis--course-item__header row">
-        <div class="small-12 medium-8 columns cis--course-item__titles">
+        <div class="s12 m8 col cis--course-item__titles">
           <h2>{{course.title}}</h2>
           <h3>{{course.field_course_title}}</h3>
         </div>
-        <div class="small-12 medium-4 columns cis--course-item__menu">
+        <div class="s12 m4 col cis--course-item__menu">
           <div class="icon-bar five-up">
             <a class="item" href="node/{{course.nid}}/edit?destination=cis-dashboard">
               <i class="material-icons">edit</i>
@@ -67,24 +67,24 @@
           <div class="tabs-content vertical" ng-repeat="offering in course.field_offerings">
             <div class="content" id="section-tab-panel-{{$index}}" ng-class="{active: isActive(offering)}">
               <div class="row collapse">
-               <div class="cis--element small-12 columns">
+               <div class="cis--element s12 col">
                  <form>
                  <div class="row collapse">
-                   <div class="large-10 columns">
+                   <div class="l10 col">
                        <input type="text" placeholder="Section Name" />
                    </div>
-                   <div class="large-2 columns">
+                   <div class="l2 col">
                      <a href="#" class="button tiny expand fi-plus">&nbsp Add</a>
                    </div>
                  </div>
                  </form>
                 </div>
-                <div class="cis--element small-12 columns">
+                <div class="cis--element s12 col">
                 <div class="row cis--element__category">
-                  <div class=" small-12 columns">
+                  <div class=" s12 col">
                     <p>{{offering.field_semester.und[0].value}} {{offering.field_year.und[0].value}}</p>
                   </div>
-                  <div class="cis--element__menu small-12 columns" ng-repeat="section in offering.field_sections.und">
+                  <div class="cis--element__menu s12 col" ng-repeat="section in offering.field_sections.und">
                     <p><a href="#">Course Section {{section.field_section_number.und[0].safe_value}}</a>
                     <ul>
                     <li ng-repeat="string in section.field_access_string.und">{{string.value}}</li>
@@ -99,9 +99,9 @@
                     <a href="#"><i class="material-icons">event</i>&nbsp;</a>
                     <a href="#"><i class="material-icons">content_copy</i>&nbsp;</a>
                     <a href="#"><i class="material-icons">delete</i>&nbsp;</a>
-                  </div> <!--END cis--element__menu small-12 columns-->
+                  </div> <!--END cis--element__menu s12 col-->
                  </div> <!--END row cis--element__category-->
-                </div> <!--END cis--element small-12 columns -->
+                </div> <!--END cis--element s12 col -->
               </div> <!--END row collapse-->
             </div> <!--END content-->
           </div> <!--END tabs-content vertical-->
@@ -114,15 +114,15 @@
           <div class="tabs-content vertical" ng-repeat="offering in course.field_offerings">
             <div class="content" id="content-tab-panel-{{$index}}" ng-class="{active: isActive(offering)}">
               <div class="row collapse">
-               <div class="cis--element small-12 columns">
+               <div class="cis--element s12 col">
                 </div>
-                <div class="cis--element small-12 columns">
+                <div class="cis--element s12 col">
                 <div class="row cis--element__category">
-                  <div class=" small-12 columns">
+                  <div class=" s12 col">
                     <p> Content {{$index}}</p>
                   </div>
                  </div> <!--END row cis--element__category-->
-                </div> <!--END cis--element small-12 columns -->
+                </div> <!--END cis--element s12 col -->
               </div> <!--END row collapse-->
             </div> <!--END content-->
           </div> <!--END tabs-content vertical-->
@@ -135,15 +135,15 @@
           <div class="tabs-content vertical" ng-repeat="offering in course.field_offerings">
             <div class="content" id="people-tab-panel-{{$index}}" ng-class="{active: isActive(offering)}">
               <div class="row collapse">
-               <div class="cis--element small-12 columns">
+               <div class="cis--element s12 col">
                 </div>
-                <div class="cis--element small-12 columns">
+                <div class="cis--element s12 col">
                 <div class="row cis--element__category">
-                  <div class=" small-12 columns">
+                  <div class=" s12 col">
                     <p> People {{$index}}</p>
                   </div>
                  </div> <!--END row cis--element__category-->
-                </div> <!--END cis--element small-12 columns -->
+                </div> <!--END cis--element s12 col -->
               </div> <!--END row collapse-->
             </div> <!--END content-->
           </div> <!--END tabs-content vertical-->
@@ -156,15 +156,15 @@
           <div class="tabs-content vertical" ng-repeat="offering in course.field_offerings">
             <div class="content" id="network-tab-panel-{{$index}}" ng-class="{active: isActive(offering)}">
               <div class="row collapse">
-               <div class="cis--element small-12 columns">
+               <div class="cis--element s12 col">
                 </div>
-                <div class="cis--element small-12 columns">
+                <div class="cis--element s12 col">
                 <div class="row cis--element__category">
-                  <div class=" small-12 columns">
+                  <div class=" s12 col">
                     <p> Network {{$index}}</p>
                   </div>
                  </div> <!--END row cis--element__category-->
-                </div> <!--END cis--element small-12 columns -->
+                </div> <!--END cis--element s12 col -->
               </div> <!--END row collapse-->
             </div> <!--END content-->
           </div> <!--END tabs-content vertical-->

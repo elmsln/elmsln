@@ -4,7 +4,7 @@ screenshot = screenshot.jpg
 
 core = 7.x
 engine = phptemplate
-base theme = zurb_foundation
+;base theme = zurb_foundation
 
 ; This section controls the CSS files for your theme. There are 3 different
 ; things you can do with a "stylesheets" line:
@@ -26,42 +26,36 @@ base theme = zurb_foundation
 ; CSS2.1 media types: http://www.w3.org/TR/CSS21/media.html#media-types
 ; CSS3 media queries: http://www.w3.org/TR/css3-mediaqueries/
 
-; For CSS users, load the app.css file:
-stylesheets[all][] = icons/faccess-icons/output/icons.data.svg.css
-stylesheets[all][] = css/app.css
-stylesheets[all][] = css/material.css
-stylesheets[all][] = css/fonts.css
-; Block loading of foundation.min.css from the base theme. This file should either
-; not exist or be blank in your subtheme. See https://drupal.org/node/263967
-stylesheets[all][] = css/normalize.css
-stylesheets[all][] = css/foundation.min.css
+; CSS
+stylesheets[all][] = legacy/icons/faccess-icons/output/icons.data.svg.css
+stylesheets[all][] = legacy/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css
+stylesheets[all][] = legacy/css/system.base.css
+stylesheets[all][] = legacy/css/app.css
+stylesheets[all][] = legacy/css/normalize.css
+stylesheets[all][] = legacy/css/comparison.css
+stylesheets[all][] = app/dist/css/styles.css
 stylesheets[all][] = css/tweaks.css
 
-; For CSS users, load the app.css file:
 
+; Print as null
 stylesheets[print][] = css/print.css
-; Foundation JavaScript.
 
 ; Modernizr acts as a shim for HTML5 elements for older browsers
 ; as well as detection for mobile devices.
-scripts[] = js/libs.min.js
-
-; Foundation framework scripts (minified).
-; If you prefer to have more control over which components are included you
-; can comment this line and uncomment the ones below you want.
-scripts[] = js/foundation.min.js
-
+;scripts[] = js/libs.min.js
 ; Theme scripts.
 ; This file is empty, just uncomment this line and start editing!
-scripts[] = js/jquery.sticky.js
+scripts[] = legacy/js/jquery.sticky.js
 
 ; Add libraries from styleguide
-scripts[] = libraries/imagelightbox/imagelightbox.js
+scripts[] = legacy/libraries/imagelightbox/imagelightbox.js
 
 ; Our themes custom scripts compiled by Browserify
-scripts[] = js/dist/app.js
-scripts[] = js/tweaks.js
-scripts[] = js/material.js
+scripts[] = legacy/js/dist/app.js
+scripts[] = legacy/js/materialize/materialize.js
+scripts[] = legacy/js/comparison.js
+scripts[] = legacy/js/basic-gallery.js
+scripts[] = legacy/js/tweaks.js
 
 ; This section lists the regions defined in the page.tpl.php. The name in
 ; brackets is the machine name of the region. The text after the equals sign is
@@ -69,10 +63,6 @@ scripts[] = js/material.js
 ;
 ; In the page.tpl.php, the contents of the region are output with a
 ; $page['MACHINE-NAME'] variable. For example, with this line in the .info
-; file:
-;   regions[header] = Header
-; You'll use this variable in page.tpl.php:
-;   <?php print render($page['header']); ?>
 
 ; CIS specific regions
 regions[cis_lmsless_modal]     = CIS LMSLess Modal
@@ -90,24 +80,8 @@ regions[footer]               = Footer
 regions[footer_firstcolumn]   = Footer one
 regions[footer_secondcolumn]  = Footer two
 
-; Various page elements output by the theme can be toggled on and off. The
-; "features" control which of these check boxes display on the
-; admin/appearance config page. This is useful for suppressing check boxes
-; for elements not used by your sub-theme. To add a check box, uncomment the
-; entry for it below. See the Drupal 7 Theme Guide for more info:
-; http://drupal.org/node/171205#features
-
-; features[] = logo
-; features[] = name
-; features[] = slogan
-; features[] = node_user_picture
-; features[] = comment_user_picture
-; features[] = favicon
-; features[] = main_menu
-; features[] = secondary_menu
-
-; hide the logo by default
-settings[toggle_logo] = 0
+; show the logo by default
+settings[toggle_logo] = 1
 
 ; Panel Layouts
 plugins[panels][layouts] = layouts
@@ -117,28 +91,3 @@ plugins[panels][layouts] = layouts
 ; Foundation Access
 settings[foundation_access_outline_labeling] = 'auto_both'
 settings[foundation_access_outline_label] = 'Lesson'
-; Top Bar.
-settings[zurb_foundation_top_bar_enable] = 1
-settings[zurb_foundation_top_bar_grid] = 0
-settings[zurb_foundation_top_bar_sticky] = 0
-settings[zurb_foundation_top_bar_menu_text] = 'Menu'
-settings[zurb_foundation_top_bar_custom_back_text] = 1
-settings[zurb_foundation_top_bar_back_text] = 'Back'
-settings[zurb_foundation_top_bar_is_hover] = 1
-settings[zurb_foundation_top_bar_scrolltop] = 1
-settings[zurb_foundation_top_bar_mobile_show_parent_link] = 1
-
-; Tooltips.
-settings[zurb_foundation_tooltip_enable] = 1
-settings[zurb_foundation_tooltip_position] = 'top'
-settings[zurb_foundation_tooltip_mode] = 'text'
-settings[zurb_foundation_tooltip_text] = 'More information?'
-settings[zurb_foundation_tooltip_touch] = 0
-
-; Styles and Scripts.
-settings[zurb_foundation_disable_core_css] = 0
-
-; Misc.
-settings[zurb_foundation_html_tags] = 1
-settings[zurb_foundation_messages_modal] = 0
-settings[zurb_foundation_pager_center] = 1

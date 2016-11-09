@@ -10,3 +10,9 @@
 function elmsmedia_feature_update_7000(&$sandbox) {
   features_revert(array('elmsmedia_feature' => array('views')));
 }
+/**
+ * Improve the cache settings to be content-based
+ */
+function elmsmedia_feature_update_7001(&$sandbox) {
+  features_revert(array('elmsmedia_feature' => array('views')));
+}

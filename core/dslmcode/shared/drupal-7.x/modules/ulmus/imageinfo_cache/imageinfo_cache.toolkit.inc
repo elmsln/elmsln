@@ -71,8 +71,8 @@ function image_imageinfo_cache_get_info($image) {
       WHERE file_managed.uri = :uri
     ", array(':uri' => $image->source))->fetchAll();
     if (!empty($results) && !empty($results[0])) {
-      $details['width'] = unserialize($results[0]->width);
-      $details['height'] = unserialize($results[0]->height);
+      $details['width'] = (int) unserialize($results[0]->width);
+      $details['height'] = (int) unserialize($results[0]->height);
       $details += (array) $results[0];
     }
   }

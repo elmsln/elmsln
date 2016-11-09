@@ -49,3 +49,10 @@ function discuss_update_7002(&$sandbox) {
 function discuss_update_7003(&$sandbox) {
   module_enable(array('cis_course_service'));
 }
+
+/**
+ * Add thread link.
+ */
+function discuss_update_7004(&$sandbox) {
+  features_revert_module('discuss_ux');
+}

@@ -14,15 +14,17 @@ files[] = plugins/views_data_export_plugin_style_export_xml.inc
 
 ; Tests
 files[] = "tests/base.test"
+files[] = "tests/access.test"
+files[] = "tests/garbagecollection.test"
 files[] = "tests/csv_export.test"
 files[] = "tests/doc_export.test"
 files[] = "tests/txt_export.test"
 files[] = "tests/xls_export.test"
 files[] = "tests/xml_export.test"
 
-; Information added by Drupal.org packaging script on 2015-10-26
-version = "7.x-3.0-beta9"
+; Information added by Drupal.org packaging script on 2016-09-20
+version = "7.x-3.1"
 core = "7.x"
 project = "views_data_export"
-datestamp = "1445842742"
+datestamp = "1474360174"
 

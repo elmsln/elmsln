@@ -48,5 +48,9 @@ H5PEditor.language.core = {
   enterVideoUrl: 'Skriv inn nettadresse til videokilde eller YouTube-lenke',
   addVideoDescription: 'H5P støtter alle eksterne videokilder på formatene mp4, webm eller ogv, slik som Vimeo Pro, og har støtte for YouTube-lenker.',
   insert: 'Sett inn',
-  cancel: 'Avbryt'
+  cancel: 'Avbryt',
+  height: 'Høyde',
+  width: 'Bredde',
+  textField: 'Tekstfelt',
+  numberField: 'Nummerfelt'
 };

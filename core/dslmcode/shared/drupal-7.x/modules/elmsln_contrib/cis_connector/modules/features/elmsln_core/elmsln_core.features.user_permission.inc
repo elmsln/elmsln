@@ -56,6 +56,7 @@ function elmsln_core_user_default_permissions() {
   $permissions['access elmsln administration areas'] = array(
     'name' => 'access elmsln administration areas',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',
@@ -72,6 +73,23 @@ function elmsln_core_user_default_permissions() {
       'authenticated user' => 'authenticated user',
     ),
     'module' => 'entity_iframe',
+  );
+
+  // Exported permission: 'access user profiles'.
+  $permissions['access user profiles'] = array(
+    'name' => 'access user profiles',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'activation code holder' => 'activation code holder',
+      'administrator' => 'administrator',
+      'guest' => 'guest',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'user',
   );
 
   // Exported permission: 'administer cis lms-less nav'.
@@ -236,6 +254,29 @@ function elmsln_core_user_default_permissions() {
     'module' => 'cis_shortcodes',
   );
 
+  // Exported permission: 'view elmsln lrs data'.
+  $permissions['view elmsln lrs data'] = array(
+    'name' => 'view elmsln lrs data',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'elmsln_core',
+  );
+
+  // Exported permission: 'view form as json'.
+  $permissions['view form as json'] = array(
+    'name' => 'view form as json',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'elmsln_core',
+  );
+
   // Exported permission: 'view iframe embed code'.
   $permissions['view iframe embed code'] = array(
     'name' => 'view iframe embed code',
@@ -269,6 +310,22 @@ function elmsln_core_user_default_permissions() {
       'authenticated user' => 'authenticated user',
     ),
     'module' => 'cis_lmsless',
+  );
+
+  // Exported permission: 'view own elmsln lrs data'.
+  $permissions['view own elmsln lrs data'] = array(
+    'name' => 'view own elmsln lrs data',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'guest' => 'guest',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'elmsln_core',
   );
 
   // Exported permission: 'view revisions'.

@@ -165,7 +165,7 @@ function cis_service_connection_block_view($delta = '') {
       $block['content'] = cis_service_connection_get_footer_language();
     break;
     case 'ferpa_filter':
-      $block['subject'] = '<none>';
+      $block['subject'] = t('FERPA compliance');
       $block['content'] = _cis_service_connection_ferpa_filter();
     break;
   }
@@ -201,7 +201,7 @@ function _cis_service_connection_edit_property($property) {
     // this gives us a pathway back to the original course that the
     // person clicked on this page from
     $options = array();
-    $distro = variable_get('install_profile', '');
+    $distro = elmsln_core_get_profile_key();
     if ($settings = _cis_connector_build_registry($distro)) {
       // these query params will allow us to bounce back here successfully
       // assuming that we actually are part of a network here

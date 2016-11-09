@@ -12,7 +12,9 @@ The branch maintainers for Drupal 7 are:
 
 - Dries Buytaert 'dries' https://www.drupal.org/u/dries
 - Angela Byron 'webchick' https://www.drupal.org/u/webchick
+- Fabian Franz 'Fabianx' https://www.drupal.org/u/fabianx
 - David Rothstein 'David_Rothstein' https://www.drupal.org/u/david_rothstein
+- Stefan Ruijsenaars 'stefan.r' https://www.drupal.org/u/stefanr-0
 
 
 Component maintainers
@@ -143,7 +145,6 @@ User experience and usability
 Node Access
 - Moshe Weitzman 'moshe weitzman' https://www.drupal.org/u/moshe-weitzman
 - Ken Rickard 'agentrickard' https://www.drupal.org/u/agentrickard
-- Jess Myrbo 'xjm' https://www.drupal.org/u/xjm
 
 
 Security team
@@ -266,7 +267,6 @@ System module
 - ?
 
 Taxonomy module
-- Jess Myrbo 'xjm' https://www.drupal.org/u/xjm
 - Nathaniel Catchpole 'catch' https://www.drupal.org/u/catch
 - Benjamin Doherty 'bangpound' https://www.drupal.org/u/bangpound
 

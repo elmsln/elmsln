@@ -9,9 +9,11 @@ templates :
   - media :
     - video : template.yml
     - image : template.yml
+  - materialize :
+    - card : template.yml
+    - collapsible : template.yml
+    - tabs : template.yml
   - prebuilt :
-    - template1 : template.yml
-    - template2 : template.yml
     - template3 : template.yml
     - template4 : template.yml
     - template5 : template.yml

@@ -28,3 +28,20 @@ function elmsln_advagg_update_7000() {
 function elmsln_advagg_update_7001() {
   variable_set('advagg_cache_level', 1);
 }
+
+/**
+ * Implements the preconnect and dns-prefetch settings
+ * which will shave an additional 200ms+ off each DOM process
+ * with no downside. Basically just primes the connections prior
+ * to making them later in the document.
+ */
+function elmsln_advagg_update_7002() {
+  features_revert_module('elmsln_advagg');
+}
+
+/**
+ * All but footer (previous default) causes issues
+ */
+function elmsln_advagg_update_7003() {
+  variable_set('advagg_mod_js_footer', 1);
+}

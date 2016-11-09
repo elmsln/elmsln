@@ -10,7 +10,7 @@
 ?>
 <div id="voicecommander-drawer" class="voicecommander-drawer-wrapper">
   <div class="voicecommander-command-drawer">
-    <h3 class="voicecommander-drawer-label"><?php print $label;?></h3>
+    <h2 class="voicecommander-drawer-label"><?php print $label;?></h2>
     <div class="jarvis-conversation"></div>
   </div>
 </div>

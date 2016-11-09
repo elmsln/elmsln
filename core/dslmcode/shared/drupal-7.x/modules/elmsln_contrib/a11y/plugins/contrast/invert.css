@@ -4,6 +4,12 @@ body * {
   border-color: #FFFFFF !important;
 }
 
-a, a * ,li,li a,li *,i {
+a, a * , li, li a, li *, i, .black-text {
   color: #FFFF00 !important;
+}
+
+.white {
+  background-color: #000000 !important;
+  border-color: #FFFFFF !important;
+  box-shadow:;
 }

@@ -5,8 +5,8 @@ version = VERSION
 core = 7.x
 files[] = rdf.test
 
-; Information added by Drupal.org packaging script on 2016-06-15
-version = "7.44"
+; Information added by Drupal.org packaging script on 2016-10-05
+version = "7.51"
 project = "drupal"
-datestamp = "1466022211"
+datestamp = "1475694174"
 

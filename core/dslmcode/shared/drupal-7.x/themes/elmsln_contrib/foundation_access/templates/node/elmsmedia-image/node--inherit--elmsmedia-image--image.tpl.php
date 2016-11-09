@@ -2,16 +2,21 @@
   <?php if (isset($content['field_figurelabel_ref'])): ?>
     <?php print render($content['field_figurelabel_ref'][0]); ?>
   <?php endif; ?>
-
   <?php if ($image_lightbox_url): ?>
     <div class="image__img">
       <a data-imagelightbox href="<?php print $image_lightbox_url; ?>">
         <?php print render($image); ?>
       </a>
+      <?php if (isset($is_gif) && $is_gif) : ?>
+      <?php print $gif_buttons; ?>
+      <?php endif; ?>
     </div>
   <?php else: ?>
     <div class="image__img">
       <?php print render($image); ?>
+      <?php if (isset($is_gif) && $is_gif) : ?>
+      <?php print $gif_buttons; ?>
+      <?php endif; ?>
     </div>
   <?php endif; ?>
 

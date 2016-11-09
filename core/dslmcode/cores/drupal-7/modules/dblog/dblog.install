@@ -155,7 +155,7 @@ function dblog_update_7002() {
 }
 
 /**
- * Account for possible legacy systems where dblog was not installed
+ * Account for possible legacy systems where dblog was not installed.
  */
 function dblog_update_7003() {
   if (!db_table_exists('watchdog')) {

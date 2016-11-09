@@ -215,9 +215,12 @@ ns.addCommonField = function (field, parent, params, ancestor) {
     ancestor.commonFields[parent.library] = {};
   }
 
-  if (ancestor.commonFields[parent.library][field.name] === undefined) {
+  ancestor.commonFields[parent.library][parent.currentLibrary] =
+    ancestor.commonFields[parent.library][parent.currentLibrary] || {};
+
+  if (ancestor.commonFields[parent.library][parent.currentLibrary][field.name] === undefined) {
     var widget = ns.getWidgetName(field);
-    ancestor.commonFields[parent.library][field.name] = {
+    ancestor.commonFields[parent.library][parent.currentLibrary][field.name] = {
       instance: new ns.widgets[widget](parent, field, params[field.name], function (field, value) {
           for (var i = 0; i < commonField.setValues.length; i++) {
             commonField.setValues[i](field, value);
@@ -228,7 +231,7 @@ ns.addCommonField = function (field, parent, params, ancestor) {
     };
   }
 
-  commonField = ancestor.commonFields[parent.library][field.name];
+  commonField = ancestor.commonFields[parent.library][parent.currentLibrary][field.name];
   commonField.parents.push(ns.findLibraryAncestor(parent));
   commonField.setValues.push(function (field, value) {
     if (value === undefined) {

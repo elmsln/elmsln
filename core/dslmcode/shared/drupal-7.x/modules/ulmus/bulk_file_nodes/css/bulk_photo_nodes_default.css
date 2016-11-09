@@ -1,0 +1,108 @@
+/* line 2, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form fieldset, #bpn-flickr-form fieldset, #bpn-flickr-private-form fieldset, form.bpn-enabled fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+/* line 9, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form fieldset .fieldset-wrapper, #bpn-flickr-form fieldset .fieldset-wrapper, #bpn-flickr-private-form fieldset .fieldset-wrapper, form.bpn-enabled fieldset .fieldset-wrapper {
+  padding: 0;
+}
+/* line 16, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-left, #bpn-flickr-form .bpn-left, #bpn-flickr-private-form .bpn-left, form.bpn-enabled .bpn-left {
+  float: left;
+  width: 68%;
+}
+/* line 21, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-right, #bpn-flickr-form .bpn-right, #bpn-flickr-private-form .bpn-right, form.bpn-enabled .bpn-right {
+  float: right;
+  width: 30%;
+  border: 1px solid #ccc;
+}
+/* line 25, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-right > div, #bpn-upload-form .bpn-right > h2, #bpn-upload-form .bpn-right > p, #bpn-flickr-form .bpn-right > div, #bpn-flickr-form .bpn-right > h2, #bpn-flickr-form .bpn-right > p, #bpn-flickr-private-form .bpn-right > div, #bpn-flickr-private-form .bpn-right > h2, #bpn-flickr-private-form .bpn-right > p, form.bpn-enabled .bpn-right > div, form.bpn-enabled .bpn-right > h2, form.bpn-enabled .bpn-right > p {
+  position: relative;
+  margin: 10px 0;
+  padding: 0 10px;
+}
+/* line 30, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-right input.form-submit, #bpn-flickr-form .bpn-right input.form-submit, #bpn-flickr-private-form .bpn-right input.form-submit, form.bpn-enabled .bpn-right input.form-submit {
+  margin: 10px;
+}
+/* line 33, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-right .form-textarea, #bpn-flickr-form .bpn-right .form-textarea, #bpn-flickr-private-form .bpn-right .form-textarea, form.bpn-enabled .bpn-right .form-textarea {
+  padding: 0;
+}
+/* line 36, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-right .form-text, #bpn-flickr-form .bpn-right .form-text, #bpn-flickr-private-form .bpn-right .form-text, form.bpn-enabled .bpn-right .form-text {
+  width: 230px;
+}
+/* line 41, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-info-node, #bpn-flickr-form .bpn-info-node, #bpn-flickr-private-form .bpn-info-node, form.bpn-enabled .bpn-info-node {
+  position: relative;
+  border: 1px solid #ccc;
+  padding: 1em;
+  margin-bottom: 2em;
+}
+/* line 48, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-info-node-left, #bpn-flickr-form .bpn-info-node-left, #bpn-flickr-private-form .bpn-info-node-left, form.bpn-enabled .bpn-info-node-left {
+  float: left;
+  width: 28%;
+}
+/* line 51, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-info-node-left .form-text, #bpn-flickr-form .bpn-info-node-left .form-text, #bpn-flickr-private-form .bpn-info-node-left .form-text, form.bpn-enabled .bpn-info-node-left .form-text {
+  width: 350px;
+}
+/* line 56, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-info-node-right, #bpn-flickr-form .bpn-info-node-right, #bpn-flickr-private-form .bpn-info-node-right, form.bpn-enabled .bpn-info-node-right {
+  float: right;
+  width: 70%;
+}
+/* line 61, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-info-node-image, #bpn-flickr-form .bpn-info-node-image, #bpn-flickr-private-form .bpn-info-node-image, form.bpn-enabled .bpn-info-node-image {
+  float: left;
+}
+/* line 65, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-info-node-delete, #bpn-flickr-form .bpn-info-node-delete, #bpn-flickr-private-form .bpn-info-node-delete, form.bpn-enabled .bpn-info-node-delete {
+  float: left;
+  clear: left;
+  margin-top: 1em;
+}
+/* line 77, ../sass/bulk_photo_nodes_default.scss */
+#bpn-upload-form .bpn-info-node-additional, #bpn-flickr-form .bpn-info-node-additional, #bpn-flickr-private-form .bpn-info-node-additional, form.bpn-enabled .bpn-info-node-additional {
+  padding: 10px 0 0 0;
+  position: relative;
+  margin: 1em 0;
+}
+
+/* line 92, ../sass/bulk_photo_nodes_default.scss */
+.bpn-flickr,
+.flickr-private {
+  background: url(../images/flickr_logo.png) no-repeat 100% 0;
+  background-color: #FFFFFF;
+  border: solid 1px #CCCCCC;
+  padding: 10px;
+}
+
+/* line 99, ../sass/bulk_photo_nodes_default.scss */
+.bpn-flickr-thumbnail {
+  float: left;
+  margin: 0 2em 2em 0;
+  border: 1px solid #CCC;
+}
+/* line 103, ../sass/bulk_photo_nodes_default.scss */
+.bpn-flickr-thumbnail .inner {
+  padding: 1em;
+}
+
+/* line 108, ../sass/bulk_photo_nodes_default.scss */
+.bpn-upload-option {
+  font-size: 24px;
+  padding: 20px 0;
+}
+
+/* line 113, ../sass/bulk_photo_nodes_default.scss */
+.bpn-info-node-additional {
+  padding: 5px;
+}

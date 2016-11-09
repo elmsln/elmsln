@@ -85,6 +85,8 @@ function h5p_uninstall() {
   variable_del('h5p_save_content_state');
   variable_del('h5p_update_available');
   variable_del('h5p_update_available_path');
+  variable_del('h5p_site_type');
+  variable_del('h5p_enable_lrs_content_types');
 
   // Intentionally not deleting variable h5p_site_uuid. If h5p module is uninstalled/installed,
   // the uuid should be the same
@@ -1177,5 +1179,37 @@ function h5p_save_content_dependencies($content) {
     ->key(array('content_id' => $content->id, 'library_id' => $dependency['library']['libraryId'], 'dependency_type' => $dependency['type']))
     ->fields(array('drop_css' => $dropCss))
     ->execute();
+  }
+}
+
+/**
+ * Clean up data from deleted revisions.
+ */
+function h5p_update_7111() {
+  if (!variable_get('h5p_revisioning', 1)) {
+    return;
+  }
+
+  $h5p_core = _h5p_get_instance('storage');
+
+  // Load them and... delete them!
+  $res = db_query("
+      SELECT hn.content_id AS id,
+             hn.slug
+        FROM {h5p_nodes} hn
+   LEFT JOIN {node_revision} nr ON nr.vid = hn.content_id
+       WHERE nr.timestamp IS NULL");
+  while ($content = $res->fetchAssoc()) {
+    $h5p_core->deletePackage($content);
+
+    // Remove content points
+    db_delete('h5p_points')
+      ->condition('content_id', $content['id'])
+      ->execute();
+
+    // Remove content user data
+    db_delete('h5p_content_user_data')
+      ->condition('content_main_id', $content['id'])
+      ->execute();
   }
 }

@@ -40,3 +40,7 @@
   background-color: #9999FF;
   cursor: pointer;
 }
+
+.hax-toolbar-tool-thumb * {
+  transform: scale(.1,.1);
+}

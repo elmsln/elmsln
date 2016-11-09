@@ -178,12 +178,15 @@ function bakery_user_update(&$edit, $account, $category) {
         'data' => $payload,
       );
       $result = drupal_http_request($slave .'bakery/update', $options);
-      if ($result->code != 200) {
-        drupal_set_message(t('Error %error for site at %url', array('%error' => $result->code .' '. $result->error, '%url' => $slave)));
-      }
-      else {
-        drupal_set_message($result->data);
-        // TODO: Roll back the change.
+      // allow developers the option to hide all status responses
+      if (variable_get('bakery_status_messages', TRUE)) {
+        if ($result->code != 200) {
+          drupal_set_message(t('Error %error for site at %url', array('%error' => $result->code .' '. $result->error, '%url' => $slave)));
+        }
+        else {
+          drupal_set_message($result->data);
+          // TODO: Roll back the change.
+        }
       }
     }
     if ($user->uid === $account->uid) {

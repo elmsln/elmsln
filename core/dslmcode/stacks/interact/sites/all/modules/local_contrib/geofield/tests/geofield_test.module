@@ -1,0 +1,173 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+
+function geofield_test_menu() {
+  $items = array();
+
+  $items['geofield-latlon-element'] = array(
+    'title' => 'Geofield native Lat/Lon element test',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('geofield_test_formapi_element_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['geofield-latlon-element/submit'] = array(
+    'title' => 'Geofield native element test - Submit page',
+    'page callback' => 'geofield_test_latlon_submit_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['geofield-bounds-element'] = array(
+    'title' => 'Geofield native Bounds element test',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('geofield_test_formapi_bounds_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['geofield-bounds-element/submit'] = array(
+    'title' => 'Geofield bounds element test - Submit page',
+    'page callback' => 'geofield_test_bounds_submit_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['geofield-proximity-element'] = array(
+    'title' => 'Geofield proximity element test',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('geofield_test_formapi_proximity_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Form API callback for geofield native formapi field.
+ */
+
+function geofield_test_formapi_element_form() {
+  variable_del('geofield_test_simple_latlon');
+  variable_del('geofield_test_verbose_latlon');
+  $form = array();
+
+  $form['geofield_latlon_simple'] = array(
+    '#type' => 'geofield_latlon',
+  );
+
+  $form['geofield_latlon_verbose'] = array(
+    '#type' => 'geofield_latlon',
+    '#title' => t('Verbose Lat/Lon'),
+    '#description' => t('This form element defines a variety of different elements.'),
+    '#default_value' => array(
+      'lat' => '41',
+      'lon' => '-86',
+    ),
+    '#geolocation' => TRUE,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+function geofield_test_formapi_element_form_submit($form, &$form_state) {
+  variable_set('geofield_test_simple_latlon', $form_state['values']['geofield_latlon_simple']);
+  variable_set('geofield_test_verbose_latlon', $form_state['values']['geofield_latlon_verbose']);
+  drupal_goto('geofield-latlon-element/submit');
+}
+
+function geofield_test_latlon_submit_page() {
+  $content = array();
+  $simple = variable_get('geofield_test_simple_latlon', FALSE);
+  $verbose = variable_get('geofield_test_verbose_latlon', FALSE);
+  if ($simple) {
+    $content['header'] = array('#markup' => '<h2>Results</h2>');
+    $content['simple'] = array('#markup' => '<p>Simple - Lat: ' . $simple['lat'] . ' Lon: ' . $simple['lon'] . '</p>');
+    $content['verbose'] = array('#markup' => '<p>Verbose - Lat: ' . $verbose['lat'] . ' Lon: ' . $verbose['lon'] . '</p>');
+  }
+  return $content;
+}
+
+/**
+ * Form API callback for geofield native formapi field.
+ */
+
+function geofield_test_formapi_bounds_form() {
+  variable_del('geofield_test_simple_bounds');
+  $form = array();
+
+  $form['geofield_bounds_simple'] = array(
+    '#type' => 'geofield_bounds',
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+function geofield_test_formapi_bounds_form_submit($form, &$form_state) {
+  variable_set('geofield_test_simple_bounds', $form_state['values']['geofield_bounds_simple']);
+  drupal_goto('geofield-bounds-element/submit');
+}
+
+function geofield_test_bounds_submit_page() {
+  $content = array();
+  $simple = variable_get('geofield_test_simple_bounds', FALSE);
+  if ($simple) {
+    $content['header'] = array('#markup' => '<h2>Results</h2>');
+    $content['simple'] = array('#markup' => '<p>Simple - Top: ' . $simple['top'] . ' Right: ' . $simple['right'] . ' Bottom: ' . $simple['bottom'] . ' Left: ' . $simple['left'] . '</p>');
+  }
+  return $content;
+}
+
+/**
+ * Form API callback for proximity formapi element.
+ */
+
+function geofield_test_formapi_proximity_form() {
+  $form = array();
+
+  $form['geofield_proximity'] = array(
+    '#type' => 'geofield_proximity',
+    '#title' => t('Proximity field - Simple'),
+    '#description' => t('Test description'),
+    '#default_value' => array(
+      'origin' => '',
+      'distance' => 0,
+      'unit' => GEOFIELD_KILOMETERS,
+    ),
+  );
+
+  $form['geofield_proximity_range'] = array(
+    '#type' => 'geofield_proximity',
+    '#title' => t('Proximity field - Range'),
+    '#description' => t('Test description'),
+    '#default_value' => array(
+      'origin' => '',
+      'distance' => 0,
+      'unit' => GEOFIELD_KILOMETERS,
+    ),
+    '#geofield_range' => TRUE,
+  );
+
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}

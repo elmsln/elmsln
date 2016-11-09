@@ -14,6 +14,9 @@ function cpr_user_ctools_plugin_api($module = NULL, $api = NULL) {
   if ($module == "field_group" && $api == "field_group") {
     return array("version" => "1");
   }
+  if ($module == "strongarm" && $api == "strongarm") {
+    return array("version" => "1");
+  }
 }
 
 /**
@@ -21,6 +24,23 @@ function cpr_user_ctools_plugin_api($module = NULL, $api = NULL) {
  */
 function cpr_user_image_default_styles() {
   $styles = array();
+
+  // Exported image style: people_banner_style.
+  $styles['people_banner_style'] = array(
+    'label' => 'people_banner_style',
+    'effects' => array(
+      2 => array(
+        'name' => 'image_scale',
+        'data' => array(
+          'width' => 1400,
+          'height' => '',
+          'upscale' => 0,
+          '#imageinfo_cache_effect_callback' => 'image_scale_effect',
+        ),
+        'weight' => 2,
+      ),
+    ),
+  );
 
   // Exported image style: people_user_profile.
   $styles['people_user_profile'] = array(

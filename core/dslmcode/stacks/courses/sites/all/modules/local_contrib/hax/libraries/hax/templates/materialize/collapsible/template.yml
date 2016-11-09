@@ -1,0 +1,8 @@
+machine_name: materialize-collapsible
+title: Collapsible
+group: Templates
+type: template
+description: Materialize collapsible template
+icon: template2.gif
+template: template2.tpl.html
+action: insert

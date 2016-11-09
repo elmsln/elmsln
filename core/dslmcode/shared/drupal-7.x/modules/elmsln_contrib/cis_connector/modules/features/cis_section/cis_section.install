@@ -63,3 +63,16 @@ function cis_section_update_7003(&$sandbox) {
 function cis_section_update_7004(&$sandbox) {
   features_revert(array('cis_section' => array('views')));
 }
+
+/**
+ * Revert views component of cis_section updated caching to content-based 
+ */
+function cis_section_update_7005(&$sandbox) {
+  features_revert(array('cis_section' => array('views')));
+}
+/**
+ * Revert views component of cis_section updated caching to content-based 
+ */
+function cis_section_update_7006(&$sandbox) {
+  features_revert(array('cis_section' => array('views')));
+}
