@@ -1034,7 +1034,7 @@ function foundation_access_menu_tree__menu_elmsln_navigation($variables) {
  * Implements menu_tree__menu_elmsln_add.
  */
 function foundation_access_menu_tree__menu_elmsln_add($variables) {
-  return '<ul role="menu" aria-hidden="false" tabindex="-1">' . $variables['tree'] . '</ul>';
+  return '<ul role="menu" aria-hidden="false" tabindex="-1" class="elmsln-add-menu-items">' . $variables['tree'] . '</ul>';
 }
 
 function foundation_access_preprocess_book_sibling_nav(&$variables) {
