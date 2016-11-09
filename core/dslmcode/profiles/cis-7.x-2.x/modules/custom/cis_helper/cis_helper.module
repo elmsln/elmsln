@@ -383,7 +383,7 @@ function cis_helper_menu() {
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
     'menu_name' => 'menu-elmsln-add',
-    'weight' => -10,
+    'weight' => 10,
   );
   // add offering form
   $items['cis-add-offering'] = array(
@@ -396,7 +396,7 @@ function cis_helper_menu() {
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
     'menu_name' => 'menu-elmsln-add',
-    'weight' => -9,
+    'weight' => 9,
   );
   // quick setup form from a string, useful with LTI prepopulation
   $items['cis-quick-setup-access-id'] = array(

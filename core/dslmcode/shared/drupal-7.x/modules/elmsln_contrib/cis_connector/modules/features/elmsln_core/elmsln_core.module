@@ -925,6 +925,14 @@ function _elmsln_core_icon_map() {
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
+      'course_offering' => array(
+        'color' => 'blue',
+        'icon' => 'people_outline',
+      ),
+      'setup_a_course' => array(
+        'color' => 'red',
+        'icon' => 'school',
+      ),
       'calendar_event' => array(
         'color' => 'green',
         'icon' => 'event',
