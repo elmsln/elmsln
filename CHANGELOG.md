@@ -1,3 +1,168 @@
+ELMSLN 0.5.0, 2016-11-08 - Pumpkin
+Another release, another big release. This update has massive performance, accessibility and usability enhancemnets. There's also built in support for mapping, xAPI visualization and tracking, read time statistical generation is now stable, PDF / Print mode printing, more refined media and testing work. The usability improvements associated with color and design now give greater context of where people are and what they are doing. MaterializeCSS has also been fully implemented, replacing our 2 year long run with Zurb Foundation / hacky / some materialize code. Materialize nets us a larger design community and really clean visualization / design patterns to start from. There's also a lot of work under the hood in stability and improvements people won't notice but that put us on better footing going forward, including Ubuntu 16 with PHP 7, MariaDB, and HTTP2 support for the fastest page delivery currently possible by web-stacks. There's also some experimental work for Angular 2.0 apps in the 2.x version of the Studio. The next release will focus more on getting this and other Angular experiments graduated to full usage. This release has the most issues stomped and functionality added since the project initially got a 0.0.0 release marker.
+
+Cut a 0.5.0 release after 1 last build #1453
+Add quiz_result_export to assessment system assessment / grades assessment / quiz #1449
+Make a pie chart off of H5P results big data Tincan / XAPI #1450
+enable elmsln LRS configuration defaults in media / mooc Tincan / XAPI #1448
+Add oh mai zsh icon AWESOME! Developer Experience #1434 
+Document patch in Bakery Developer Experience drupal related #1442 
+Dropdowns don't work in Firefox style guide / theme #1445
+Change Accessibility menu to Preferences accessibility #1447 
+Bakery gives us too much of a developer-esk message when it does profile updating User Experience #1441
+Function to do an entity injection at the paragraph level, between systems User Experience #1440
+Upgrade materialize to latest style guide / theme #1439
+Allow for off-canvas / modal shortcodes discuss / discuss style guide / theme #1264
+Bring back "ELMS Places" concept enhancement interact / icor #479
+Suggestion: Marking or Notification System for when to run leafy Developer Experience #1427
+Zurb Foundation in v0.5.0 change notice community style guide / theme #1419
+Move print buttons to accessibility menu accessibility enhancement Learner Experience #1431
+Apply CSS to print view accessibility enhancement Learner Experience #1432
+PDF Libraries community courses / mooc documentation enhancement infrastructure #280
+Add "check for updates" to leafy AWESOME! Developer Experience infrastructure #1148
+Gitbook import titles are doubled courses / mooc enhancement #1400
+user profile / dashboard inspiration people / cpr style guide / theme User Experience #1426
+Page tpl configurable wrapper to support full width enhancement style guide / theme #1428
+People next steps people / cpr User Experience #1307
+Apply LTI patch to support Canvas launches enhancement LTI #1356
+Fix RestWS create permission for non admin roles bug hard #1347
+Fix PHP 7 bombs in contrib Developer Experience easy enhancement infrastructure scale / performance #998
+apdqc recommendations scale / performance #1350
+Implement views_content_cache in media / interact scale / performance #1374
+Support Ubuntu16 (as best we can) AWESOME! Developer Experience infrastructure scale / performance vagrant #1416
+Notice: Array to string conversion bug minor #1423
+fonts style guide / theme #1415
+Latest UX not showing as responsive on mobile style guide / theme #1417
+add support for vibrate jquery plugin enhancement User Experience #1152
+upgrade hook to deal w/ authority require_once issue bug major change #1413
+Allow for breaking false content locks enhancement #1398
+Upgrade core and contrib where needed drupal related #1411
+update imageinfo_cache #1412
+Support multiple versions of the same distro name space in same version development infrastructure #1408
+set APDQC defaults for lock and session tables scale / performance #1349
+Make a CLE 2.x studio / cle #1406
+Allow admins/staff to still be able to edit user objects locally easy enhancement studio / cle #1392
+Accessibility: Create an animated gif player style accessibility easy media / elmsmedia style guide / theme #1315
+switch cis_helper_sync_network_roster to use internal mechanism for sync development easy enhancement online / CIS #944
+Add read time data to mooc/book-toc path courses / mooc enhancement #1389
+drop "media preference" field in favor of CDN auto detect fail enhancement Learner Experience media / elmsmedia people / cpr #1369
+Drop "sync" vs "non-sync" connotation for settings pages in services bug ELMSLN core Staff Experience #643
+Make ckeditor templates selection ...well... less terrible enhancement User Experience #1387
+mooc: Make left hand nav just be there courses / mooc enhancement Instructor Experience medium Staff Experience #1366
+ckeditor link needs to default to internal bug minor #1386
+export Read time pemission courses / mooc easy minor #1385
+Make Read time a button / part of page to calculate bug courses / mooc hard ready #1196
+Offering page needs to default services all selected enhancement infrastructure medium online / CIS #1164
+don't ask CIS for sections if we don't have one bug enhancement online / CIS scale / performance #1384
+CIS filefield paths needs to clear banner image on upload easy online / CIS #1383
+Try to apply materialize stuff to better filters / views filters ELMSLN core enhancement medium style guide / theme #1367
+Display mode for documents bug easy #1372
+Do update hook for tincanapi function replacement easy minor Tincan / XAPI #1379
+Add dinosaur with sunglasses icon AWESOME! #1381
+Change Icon / Banner image to be delivered from CIS enhancement online / CIS #1368
+Make a elmsln:// file schema module Developer Experience ELMSLN core enhancement infrastructure #1311
+add support for tincanapi to use non-blocking calls scale / performance #1375
+add support for prefetch to populate caches before arriving at targets AWESOME! #1376
+Implement views_content_cache across CIS / MOOC enhancement scale / performance #1256
+Make submit widget into horizontal card studio / cle #1285
+allow querying results to return rendered output enhancement infrastructure #1365
+Make an icon font of elmsln icons style guide / theme #1364
+vagrant add php-fpm reboot for dev ux Developer Experience vagrant #1362
+xapi Data path enhancements big data Instructor Experience Staff Experience Tincan / XAPI #1358
+implement domain prefetching scale / performance #1352
+Add Read time stats onto the /data page courses / mooc #1343
+Break drupal's core "conflict" connotation with node forms bug community #1245
+Make callback to return form as JSON Developer Experience medium #870
+xAPI metadata testing and applying it to all statements calls bug Tincan / XAPI #1191
+Add in the news area to elmsln.org community #1335
+Front end stack install steps documentation #1342
+add colorblindness simulation accessibility AWESOME! ELMSLN core #13463
+don't set a php-fpm specific memory limit in installers infrastructure #13377
+Wire up entity/type/data AWESOME! big data Tincan / XAPI #13402
+Add support for blob fields in field UI development enhancement #1329
+Pathcache needs enabled bug scale / performance #1325
+Devel developer experience improvement Developer Experience #1326
+Lay out vision for each distribution and future ones not started yet community documentation #1064
+su claims access denied on ubuntu 14 even when root bug easy infrastructure #492
+Ubuntu / Deb complains about not being able to email bug easy infrastructure minor #568
+During Amazon spin up. PHP Warning: Error while sending QUERY packet bug Developer Experience infrastructure medium minor testing #697
+additional testing for read time AFTER initial install big data courses / mooc enhancement media / elmsmedia #1155
+review authcache and the submit widget token bug courses / mooc #522
+Add banner picture to user profile fields list people / cpr style guide / theme #1265
+Implement W3 spec on low vision accessibility documentation easy enhancement non-coder #778
+Host a git version / mirror on elmsln.org community #1305
+Add h5p accessibility to our documentation accessibility community documentation #1299
+Produce new video for the homepage‏ community documentation enhancement #1026
+symlink in the parsedown library added for gitbook #1303
+Accessible fallback for media types accessibility enhancement media / elmsmedia #1302
+Gitbook.com Plugin for ELMS:LN enhancement #1006
+Masquerade logical flaw w/ staff accounts ELMSLN core #1295
+Users should be able to view profiles ELMSLN core #1294
+upgrade h5p drupal related #1291 
+Service Unavailable infrastructure #1289
+Icon Libraries for CIS LMS-less Links documentation easy non-coder student design project #779
+Support for Image galleries enhancement media / elmsmedia #1112
+Support for Flyouts / off-screen / related concepts discuss / discuss enhancement interact / icor Learner Experience media / elmsmedia student design project style guide / theme User Experience #480
+Hidden nodes enhancement courses / mooc drupal related easy enhancement #1017
+Remove Extra drupal_set_message Messages in mooc_helper_book_nav enhancement #1283
+do we still need open.fndtn.reveal for scroll-disable being applied? enhancement minor style guide / theme #1280
+Only show ulmus to those w. CIS admin permission‏ enhancement medium online / CIS Staff Experience #1025
+media feedback from usage User Experience #1258
+Side nav current tool highlight style guide / theme #1281
+materialize all the things hacktoberfest style guide / theme #1273
+Hexagon css AWESOME! #1278
+Tooltipped dropdown hacktoberfest style guide / theme #1275
+Heading color hacktoberfest style guide / theme #1277
+Escape key in Lightbox style applied to materialize style guide / theme #1238
+Clipboard.js namespace collision bug Instructor Experience media / elmsmedia Staff Experience #1085
+On duplicate check for internal links and rewrite them courses / mooc enhancement medium #849
+Convert Foundation grid classes to MaterializeCSS Developer Experience style guide / theme #1268
+Switch sticky footer to materialize version style guide / theme #1266
+H5P icons in Media system enhancement Instructor Experience media / elmsmedia Staff Experience #1252
+Studio: Convert submission cards to use material card style studio / cle #1250
+My Journal Labeling in Blogs blog / Editorial bug easy User Experience #1015
+Edit Section List - Options not appearing in display after save. scale / performance #1215
+capture admin/structure/types/manage/elmsmedia_image settings media / elmsmedia #1255
+Review pathcache scale / performance #1172
+Look into using views_content_cache to replace most views caching methods scale / performance #1216
+ELMSMedia enhancements media / elmsmedia #1248
+Refactor display mode tabs setting storage Developer Experience enhancement media / elmsmedia #1231
+admin pages w/ lmsless applied bug minor #1205
+Image Gifs don't animate when rendered through image viewmode bug #1220
+Include an internal shared settings file Developer Experience ELMSLN core enhancement infrastructure #1230
+Bulk upload for Images enhancement media / elmsmedia #1240
+hide accessibility button on front page bug minor #1170
+Ubuntu /tmp / temp files directory location bug infrastructure #1180
+ELMS editor // "templates" pulldown pops open new window instead bug Instructor Experience Staff Experience #1236
+Image circle style enhancement media / elmsmedia #1235
+Support parallax image style in media enhancement media / elmsmedia medium style guide / theme #1122
+Modifications to Cent7 setup routine infrastructure #1226
+Visually offset h5p questions / activities courses / mooc enhancement media / elmsmedia style guide / theme #1168
+Add exif / getid3 to media enhancement media / elmsmedia #1140
+Support for TED videos in media big data enhancement #1212
+a11y module feedback accessibility bug #1184
+Materialize CSS Components Available in 0.4.0 documentation #1187
+add Card display mode to media enhancement media / elmsmedia #1224
+Style top bar on mobile platforms style guide / theme #1213
+Make mistakes, learn from them. community #1229
+resize event clean up on safari / firefox bug ELMSLN core #1228
+drupal 7.50 upgrade drupal related easy #1010
+materialize actions needs message encoding bug minor #1223
+content not being added OOTB bug #1217
+Tincan module and .live function error bug Tincan / XAPI #1190
+rewrite tincan_xapi_bridge alter hook bug Tincan / XAPI #1207
+Course outliner script error bug courses / mooc #1195
+Nav order reversed in sidebar vs. breadcrumbs? bug courses / mooc #1206
+xAPI: Track vimeo / youtube / local videos enhancement Tincan / XAPI #1193
+EasyCDN Module Update (multiple versioning supported) #1203
+Verify offering updates are using pinprick API enhancement infrastructure online / CIS #1165
+Replace Outline Designer autosave with form save button discussion Instructor Experience Staff Experience User Experience #294
+Better pagination buttons on mobile courses / mooc style guide / theme #1201
+fix submit widget spacing after submission ELMSLN core style guide / theme #1169
+Set IMCE to be considered an admin path bug #1200
+read time stuff bug #1189
+
+
 ELMSLN 0.4.0, 2016-08-18 - Jarvis
 ------------------------
 This is our biggest enhancement yet. With massive improvements in stability, usability, accessibility and sets us on good ground going forward with futuristic capabilities. There are too manu feature additions to list but among them include automatic media / course time analytics generation, background http snaking call structures, ableplayer for the most accessible video experience anywhere, early work on quizing/testing, greater xAPI coverage with custom metadata and in-browser voice and keyboard command support.
