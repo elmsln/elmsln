@@ -925,6 +925,38 @@ function _elmsln_core_icon_map() {
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
+      'file' => array(
+        'color' => 'orange',
+        'icon' => 'attachment',
+      ),
+      'zip_file' => array(
+        'color' => 'deep-orange',
+        'icon' => 'archive',
+      ),
+      'timeline_item' => array(
+        'color' => 'pink',
+        'icon' => 'access_time',
+      ),
+      'timeline' => array(
+        'color' => 'red',
+        'icon' => 'timeline',
+      ),
+      'map_point' => array(
+        'color' => 'light-green',
+        'icon' => 'place',
+      ),
+      'map' => array(
+        'color' => 'green',
+        'icon' => 'map',
+      ),
+      'jmol' => array(
+        'color' => 'blue',
+        'icon' => 'share',
+      ),
+      'poll' => array(
+        'color' => 'light-blue',
+        'icon' => 'poll',
+      ),
       'course_offering' => array(
         'color' => 'blue',
         'icon' => 'people_outline',
