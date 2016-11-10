@@ -50,11 +50,17 @@ function _cle_critique_api_random_critique() {
       $vars['submission'] = $submission;
     }
     else {
-      $vars = 'No Submissions available';
+      $vars = array(
+        'status' => '204',
+        'detial' => 'No Submissions available'
+      );
     }
   }
   else {
-    $vars = 'No Assignment specified';
+    $vars = array(
+      'status' => '400',
+      'detial' => 'No Assignment specified'
+    );
   }
   drupal_add_http_header('Content-Type', 'application/json');
 
