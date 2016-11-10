@@ -202,6 +202,18 @@ function elmsln_core_exit($destination = NULL) {
 }
 
 /**
+ * Implements hook_init()
+ *
+ * Allow CORS OPTIONS request method to instantly return just the HTTP headers.
+ * https://www.drupal.org/node/1084144
+ */
+function elmsln_core_init() {
+  if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    drupal_exit();
+  }
+}
+
+/**
  * Implements hook_block_view().
  */
 function elmsln_core_block_view($delta = '') {
