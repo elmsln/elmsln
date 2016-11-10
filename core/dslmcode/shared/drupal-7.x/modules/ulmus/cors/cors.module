@@ -1,0 +1,161 @@
+<?php
+
+/**
+ * @file
+ * Allows Cross-origin resource sharing.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function cors_menu() {
+  $items = array();
+
+  $items['admin/config/services/cors'] = array(
+    'title' => 'CORS',
+    'description' => 'Enable Cross-origin resource sharing',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cors_admin_form'),
+    'access arguments' => array('administer site configuration'),
+  );
+
+  return $items;
+}
+
+/**
+ * CORS admin configuration form.
+ */
+function cors_admin_form($form, &$form_state) {
+  $form = array();
+
+  $cors_domains = '';
+  foreach (variable_get('cors_domains', array()) as $path => $domain) {
+    $cors_domains .= $path . '|' . $domain . "\n";
+  }
+
+  $form['cors_domains'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Domains'),
+    '#description' => t('A list of paths and corresponding domains to enable for CORS. Multiple entries should be separated by a comma. Enter one value per line separated by a pipe, in this order:
+   <ul>
+     <li>Internal path</li>
+     <li>Access-Control-Allow-Origin. Use &lt;mirror&gt; to echo back the Origin header.</li>
+     <li>Access-Control-Allow-Methods</li>
+     <li>Access-Control-Allow-Headers</li>
+     <li>Access-Control-Allow-Credentials</li>
+    </ul>
+    Examples:
+    <ul>
+      <li>*|http://example.com</li>
+      <li>api|http://example.com:8080 http://example.com</li>
+      <li>api/*|&lt;mirror&gt;,https://example.com</li>
+      <li>api/*|&lt;mirror&gt;|POST|Content-Type,Authorization|true</li>
+    </ul>'),
+    '#default_value' => $cors_domains,
+    '#rows' => 10,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+
+  return $form;
+}
+
+/**
+ * CORS admin configuration form submit.
+ */
+function cors_admin_form_submit($form, &$form_state) {
+  $domains = explode("\n", $form_state['values']['cors_domains'], 2);
+  $settings = array();
+  foreach ($domains as $domain) {
+    $domain = explode("|", $domain, 2);
+    if (count($domain) === 2) {
+      $settings[$domain[0]] = (isset($settings[$domain[0]])) ? $settings[$domain[0]] . ' ' : '';
+      $settings[$domain[0]] .= trim($domain[1]);
+    }
+  }
+
+  variable_set('cors_domains', $settings);
+}
+
+/**
+ * Implements hook_init().
+ */
+function cors_init() {
+  $domains = variable_get('cors_domains', array());
+  $current_path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+  $request_headers = getallheaders();
+  $headers = array(
+    'all' => array(
+      'Access-Control-Allow-Origin' => array(),
+      'Access-Control-Allow-Credentials' => array(),
+    ),
+    'OPTIONS' => array(
+      'Access-Control-Allow-Methods' => array(),
+      'Access-Control-Allow-Headers' => array(),
+    ),
+  );
+  foreach ($domains as $path => $settings) {
+    $settings = explode("|", $settings);
+    $page_match = drupal_match_path($current_path, $path);
+    if ($current_path != $_GET['q']) {
+      $page_match = $page_match || drupal_match_path($_GET['q'], $path);
+    }
+    if ($page_match) {
+      if (!empty($settings[0])) {
+        $origins = explode(',', trim($settings[0]));
+        foreach ($origins as $origin) {
+          if ($origin === '<mirror>') {
+            if (!empty($request_headers['Origin'])) {
+              $headers['all']['Access-Control-Allow-Origin'][] = $request_headers['Origin'];
+            }
+          }
+          else {
+            $headers['all']['Access-Control-Allow-Origin'][] = $origin;
+          }
+        }
+
+      }
+      if (!empty($settings[1])) {
+        $headers['OPTIONS']['Access-Control-Allow-Methods'] = explode(',', trim($settings[1]));
+      }
+      if (!empty($settings[2])) {
+        $headers['OPTIONS']['Access-Control-Allow-Headers'] = explode(',', trim($settings[2]));
+      }
+      if (!empty($settings[3])) {
+        $headers['all']['Access-Control-Allow-Credentials'] = explode(',', trim($settings[3]));
+      }
+    }
+  }
+
+  foreach ($headers as $method => $allowed) {
+    if ($method === 'all' || $method === $_SERVER['REQUEST_METHOD']) {
+      foreach ($allowed as $header => $values) {
+        if (!empty($values)) {
+          foreach ($values as $value) {
+            drupal_add_http_header($header, $value, TRUE);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * If running nginx, implement getallheaders ourself.
+ *
+ * Code is taken from http://php.net/manual/en/function.getallheaders.php
+ */
+if (!function_exists('getallheaders')) {
+  function getallheaders() {
+    foreach ($_SERVER as $name => $value) {
+      if (substr($name, 0, 5) == 'HTTP_') {
+        $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+      }
+    }
+    return $headers;
+  }
+}
+
