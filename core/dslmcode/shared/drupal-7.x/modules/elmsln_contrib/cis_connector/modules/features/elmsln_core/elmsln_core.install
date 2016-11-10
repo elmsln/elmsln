@@ -159,3 +159,10 @@ function elmsln_core_update_7015(&$sandbox) {
 function elmsln_core_update_7016(&$sandbox) {
   module_enable(array('apdqc'));
 }
+
+/**
+ * file temp path set. This SHOULD be set but good to get it.
+ */
+function elmsln_core_update_7017(&$sandbox) {
+  variable_set('file_temporary_path', '/var/www/elmsln/config/tmp');
+}
