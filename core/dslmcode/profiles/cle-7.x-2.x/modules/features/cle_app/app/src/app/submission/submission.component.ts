@@ -3,13 +3,14 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { SubmissionService } from '../submission.service';
 import { CritiqueFormComponent } from '../critique/critique-form/critique-form.component';
+import { CritiqueListComponent } from '../critique/critique-list/critique-list.component';
 
 
 @Component({
   selector: 'cle-submission',
   templateUrl: './submission.component.html',
   styleUrls: ['./submission.component.css'],
-  providers: [SubmissionService]
+  providers: [SubmissionService, CritiqueListComponent]
 })
 export class SubmissionComponent implements OnInit {
   submissionId: number;

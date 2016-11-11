@@ -1,8 +1,4 @@
 <form [formGroup]="form" id="critique-form" class="input-field col s12">
-  <i class="material-icons prefix">mode_edit</i>
   <textarea formControlName="body" id="critique-form-body" name="critique-form-body" class="materialize-textarea"></textarea>
-  <label for="critique-form-body">Write</label>
 </form>
-<button (click)="submitForm()" for="critique-form" type="submit" class="waves-effect btn-large btn-flat black white-text" type="submit"><i class="right material-icons">send</i>Submit</button>
-
-{{ form.value | json }}
+<button (click)="submitForm()" md-raised-button color="primary">Submit</button>

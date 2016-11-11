@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SubmissionService } from '../../submission.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'cle-submission-list',
@@ -10,7 +11,10 @@ import { SubmissionService } from '../../submission.service';
 export class SubmissionListComponent implements OnInit {
   submissions: Array<any>;
 
-  constructor(private submissionService: SubmissionService) { }
+  constructor(
+    private submissionService: SubmissionService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     this.submissionService.getSubmissions()
@@ -18,5 +22,9 @@ export class SubmissionListComponent implements OnInit {
           this.submissions = data;
           console.log(data);
         });
+  }
+
+  viewSubmission(submissionID) {
+    this.router.navigate(['/submissions/' + submissionID]);
   }
 }

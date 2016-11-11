@@ -7,6 +7,9 @@ import { routing } from './app.routing';
 
 import { MaterialModule } from '@angular/material';
 
+import { ElmslnService } from './elmsln.service';
+import { CritiqueService } from './critique.service';
+
 import { AppComponent } from './app.component';
 import { AssignmentComponent } from './assignment/assignment.component';
 import { AssignmentListComponent } from './assignment/assignment-list/assignment-list.component';
@@ -16,6 +19,9 @@ import { SubmissionListComponent } from './submission/submission-list/submission
 import { UserComponent } from './user/user.component';
 import { CritiqueComponent } from './critique/critique.component';
 import { CritiqueFormComponent } from './critique/critique-form/critique-form.component';
+import { LoginComponent } from './login/login.component';
+import { LogoutComponent } from './logout/logout.component';
+import { CritiqueListComponent } from './critique/critique-list/critique-list.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +33,10 @@ import { CritiqueFormComponent } from './critique/critique-form/critique-form.co
     SubmissionListComponent,
     UserComponent,
     CritiqueComponent,
-    CritiqueFormComponent
+    CritiqueFormComponent,
+    LoginComponent,
+    LogoutComponent,
+    CritiqueListComponent
   ],
   imports: [
     BrowserModule,
@@ -37,7 +46,10 @@ import { CritiqueFormComponent } from './critique/critique-form/critique-form.co
     routing,
     MaterialModule.forRoot()
   ],
-  providers: [],
+  providers: [
+    ElmslnService,
+    CritiqueService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
