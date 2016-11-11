@@ -8,16 +8,21 @@ import { AssignmentComponent } from './assignment/assignment.component';
 import { SubmissionListComponent } from './submission/submission-list/submission-list.component';
 import { SubmissionComponent } from './submission/submission.component';
 import { CritiqueComponent } from './critique/critique.component';
+import { LoginComponent } from './login/login.component';
+import { LogoutComponent } from './logout/logout.component';
 
 const appRoutes: Routes = [
   {
     path: '',
-    redirectTo: '/submissions',
-    pathMatch: 'full'
+    component: AppComponent
   },
   {
-    path: 'dashboard',
-    component: DashboardComponent
+    path: 'login',
+    component: LoginComponent
+  },
+  {
+    path: 'logout',
+    component: LogoutComponent
   },
   {
     path: 'assignments',

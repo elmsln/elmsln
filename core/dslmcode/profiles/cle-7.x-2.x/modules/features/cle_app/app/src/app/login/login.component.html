@@ -1,0 +1,5 @@
+<form [formGroup]="form" id="login-form" class="input-field col s12">
+  <md-input formControlName="username" id="critique-form-username" name="critique-form-username" placeholder="username"> </md-input>
+  <md-input formControlName="password" id="critique-form-password" name="critique-form-password" placeholder="password"> </md-input>
+</form>
+<button (click)="submitForm()" md-raised-button color="primary">Login</button>

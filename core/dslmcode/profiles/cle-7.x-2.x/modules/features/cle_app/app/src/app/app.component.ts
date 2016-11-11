@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from './user.service';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -8,10 +9,18 @@ import { UserService } from './user.service';
   providers: [UserService]
 })
 export class AppComponent implements OnInit {
-  constructor(private userService: UserService) {
-  } 
-
+  constructor(
+    private router: Router,
+  ) { }
   ngOnInit() {
-    this.userService.login();
+    // Find out if the user is already logged In
+    let auth = localStorage.getItem('basicAuthCredentials');
+    console.log(auth);
+    if (auth) {
+      this.router.navigate(['/submissions']);
+    }
+    else {
+      this.router.navigate(['/login']);
+    }
   }
 }

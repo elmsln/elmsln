@@ -30,7 +30,12 @@ export class CritiqueFormComponent implements OnInit {
     if (this.form.value) {
       let newCritique: Critique =  new Critique(this.form.value.body);
       newCritique.submissionId = this.submission.nid;
-      this.critiqueService.createCritique(newCritique);
+      this.critiqueService.createCritique(newCritique)
+        .subscribe(res => {
+          if (res.ok) {
+            this.form.value.body = '';
+          }
+        });
     }
     // update existing critique
     else {
