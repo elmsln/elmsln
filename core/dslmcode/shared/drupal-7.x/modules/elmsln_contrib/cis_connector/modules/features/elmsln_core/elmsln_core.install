@@ -12,6 +12,14 @@ function elmsln_core_install() {
   // ensure a11y domain is set
   $cfg = _cis_connector_get_cfg();
   variable_set('a11y_domain', '.' . $cfg['address']);
+  // Make sure that the elmsln_core module runs later then CORS for example.
+  db_update('system')
+  ->fields(array(
+    'weight' => 1,
+  ))
+  ->condition('name', 'elmsln_core')
+  ->condition('type', 'module')
+  ->execute();
 }
 
 /**
@@ -161,8 +169,22 @@ function elmsln_core_update_7016(&$sandbox) {
 }
 
 /**
- * file temp path set. This SHOULD be set but good to get it.
+ * file temp path set. This SHOULD be set but good to make sure.
  */
 function elmsln_core_update_7017(&$sandbox) {
   variable_set('file_temporary_path', '/var/www/elmsln/config/tmp');
+}
+
+/**
+ * Ensure this module's hooks run later then other things like CORS.
+ */
+function elmsln_core_update_7018(&$sandbox) {
+  // Make sure that the elmsln_core module runs later then CORS for example.
+  db_update('system')
+  ->fields(array(
+    'weight' => 1,
+  ))
+  ->condition('name', 'elmsln_core')
+  ->condition('type', 'module')
+  ->execute();
 }
