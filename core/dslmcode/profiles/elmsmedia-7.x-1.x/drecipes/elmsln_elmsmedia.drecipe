@@ -9,13 +9,7 @@
       "arguments": [
         "og_access",
         "og_context",
-        "cis_section",
-        "cis_unique_tag"
-      ]
-    },
-    {
-      "command": "en",
-      "arguments": [
+        "cis_unique_tag",
         "cis_service_restws"
       ]
     }
