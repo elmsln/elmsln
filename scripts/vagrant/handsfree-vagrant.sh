@@ -63,6 +63,8 @@ echo 'fi' >> /etc/profile.d/chkon.sh
 drush @online dis seckit --y
 # specific stuff for aiding in development
 drush @online en vagrant_cis_dev cis_example_cis --y
+# update password everywhere to be something simple
+drush @elmsln upwd admin --password=admin --y
 # restart apache to frag some caches because of the different settings that changed inside
 service httpd restart
 

@@ -305,9 +305,15 @@ fi
 echo '5' >> $steplog
 # set concurrency to help speed up install
 concurrent=2
+adminpw=''
+for k in `seq 1 8`
+do
+  let "rand=$RANDOM % 62"
+  adminpw="${adminpw}${char[$rand]}"
+done
 # make sure user password is admin as a fallback
 elmslnecho "Set admin account everywhere"
-drush @elmsln upwd admin --password=admin --concurrency=${concurrent} --strict=0 --y
+drush @elmsln upwd admin --password=${adminpw} --concurrency=${concurrent} --strict=0 --y
 # enable bakery everywhere by default
 elmslnecho "Enable bakery for unified logins"
 drush @elmsln en elmsln_bakery --concurrency=${concurrent} --strict=0 --y
@@ -357,8 +363,10 @@ elmslnecho "║ You may want to open this up and review it but it is your     �
 elmslnecho "║ connection keychain for how all the webservices talk.         ║"
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
-elmslnecho "║ Use this link to get started:                                 ║"
-elmslnecho "║   $protocol://$site_domain                                     "
+elmslnecho "║ Use  the following to get started:                            ║"
+elmslnecho "║  $protocol://$site_domain                                      "
+elmslnecho "║  username: admin                                              ║"
+elmslnecho "║  password: $adminpw                                           ║"
 elmslnecho "║                                                               ║"
 elmslnecho "║Welcome to the Singularity, edtech.. don't compete, eliminate  ║"
 elmslnecho "║✻Ex Uno Plures✻                                                ║"
