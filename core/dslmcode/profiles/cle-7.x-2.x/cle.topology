@@ -1,0 +1,3 @@
+default_title="Open studio"
+type="service"
+subdomain="studio"

@@ -1,0 +1,3 @@
+default_title="Course outline"
+type="service"
+subdomain="courses"

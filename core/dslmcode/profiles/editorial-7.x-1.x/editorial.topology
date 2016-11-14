@@ -1,0 +1,3 @@
+default_title="Blogs"
+type="service"
+subdomain="blogs"
