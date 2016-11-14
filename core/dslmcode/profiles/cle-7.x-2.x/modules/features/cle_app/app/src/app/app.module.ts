@@ -22,6 +22,7 @@ import { CritiqueFormComponent } from './critique/critique-form/critique-form.co
 import { LoginComponent } from './login/login.component';
 import { LogoutComponent } from './logout/logout.component';
 import { CritiqueListComponent } from './critique/critique-list/critique-list.component';
+import { TrumbowygComponent } from './trumbowyg/trumbowyg.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { CritiqueListComponent } from './critique/critique-list/critique-list.co
     CritiqueFormComponent,
     LoginComponent,
     LogoutComponent,
-    CritiqueListComponent
+    CritiqueListComponent,
+    TrumbowygComponent
   ],
   imports: [
     BrowserModule,
