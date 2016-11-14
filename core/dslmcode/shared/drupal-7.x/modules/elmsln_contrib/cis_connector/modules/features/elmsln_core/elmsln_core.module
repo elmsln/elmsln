@@ -1139,32 +1139,85 @@ function _elmsln_core_icon_map() {
 
 
 /**
- * Implements hook_cis_service_registry().
+ * Implements hook_cis_service_registry_alter($keychain).
  *
  * Core support for mapping the core supported LRS
  * to our registry. Then we can utilize our lrs variations
  * of request calls more easily to get data from the LRS.
  */
-function elmsln_core_cis_service_registry() {
+function elmsln_core_cis_service_registry_alter(&$keychain) {
+  // build the keychain dynamically
+  $cfg = _elmsln_core_get_cfg();
+  $directory = $cfg['elmsln'] . '/core/dslmcode/profiles/';
+  foreach (scandir($directory) as $item) {
+    // see if we found an item here
+    if (!in_array($item, array('.', '..')) && is_dir($directory . $item . '/')) {
+      $tmp = explode('-', $item);
+      $distro = $tmp[0];
+      // if we have an info file, read if the values to make it real
+      if (!isset($keychain[$distro]) && file_exists($directory . $item . '/' . $distro . '.topology')) {
+        $keychain[$distro] = array(
+          'protocol' => $cfg['protocol'],
+          'service_address' => $cfg['serviceaddress'],
+          'address' => $cfg['address'],
+          'user' => 'SERVICE_' . $distro . '_' . $cfg['host'],
+          'mail' => 'SERVICE_' . $distro . '_' . $cfg['host'] . '@' . $cfg['emailending'],
+          'pass' => drupal_substr(hash('sha512', $distro . $cfg['elmsln_uuid']), 0, 30),
+        );
+        $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
+        $lines = explode("\n", $file);
+        // read each line of the cfg file
+        foreach ($lines as $line) {
+          // make sure this line isn't a comment and has a = in it
+          if (strpos($line, '#') !== 0 && strpos($line, '=')) {
+            $tmp = explode('=', $line);
+            // ensure we have 2 settings before doing this
+            if (count($tmp) == 2) {
+              $keyname = trim($tmp[0]);
+              $value = str_replace('"', '', str_replace("'", '', trim($tmp[1])));
+              switch ($keyname) {
+                case 'default_title':
+                case 'type':
+                  $keychain[$distro][$keyname] = $value;
+                break;
+                case 'subdomain':
+                  $keychain[$distro][$keyname] = $value;
+                  $keychain[$distro]['address'] = $value . '.' . $keychain[$distro]['address'];
+                  $keychain[$distro]['service_address'] = $cfg['serviceprefix'] . $value . '.' . $keychain[$distro]['service_address'];
+                break;
+              }
+            }
+          }
+        }
+        // support meta properties for authority / services
+        if ($keychain[$distro]['type'] == 'authority') {
+          $keychain[$distro]['ignore'] = TRUE;
+          $keychain[$distro]['service'] = FALSE;
+        }
+        elseif ($keychain[$distro]['type'] == 'service') {
+          $keychain[$distro]['ignore'] = FALSE;
+          $keychain[$distro]['service'] = TRUE;
+        }
+      }
+    }
+  }
   // see if the most obvious variable isset
-  if (!empty(variable_get('tincanapi_endpoint', '')) && valid_url(variable_get('tincanapi_endpoint', ''), TRUE)) {
+  if (!isset($keychain[ELMSLN_CORE_LRS_KEYCHAIN]) && !empty(variable_get('tincanapi_endpoint', '')) && valid_url(variable_get('tincanapi_endpoint', ''), TRUE)) {
     // calculate the protocol and address from the endpoint variable
     $tmp = explode('://', variable_get('tincanapi_endpoint', ''));
     $protocol = array_shift($tmp);
     $tmp = explode('/', $tmp[0]);
     $address = array_shift($tmp);
     // build our standard connection keychain item for this new bucket
-    return array(
-      ELMSLN_CORE_LRS_KEYCHAIN => array(
-        'protocol' => $protocol,
-        'service_address' => $address,
-        'address' => $address,
-        'user' => variable_get('tincanapi_auth_user', ''),
-        'pass' => variable_get('tincanapi_auth_password', ''),
-        'instance' => FALSE,
-        'default_title' => 'Learning record store',
-        'ignore' => TRUE,
-      ),
+    $keychain[ELMSLN_CORE_LRS_KEYCHAIN] = array(
+      'protocol' => $protocol,
+      'service_address' => $address,
+      'address' => $address,
+      'user' => variable_get('tincanapi_auth_user', ''),
+      'pass' => variable_get('tincanapi_auth_password', ''),
+      'instance' => FALSE,
+      'default_title' => t('Learning record store'),
+      'ignore' => TRUE,
     );
   }
 }
