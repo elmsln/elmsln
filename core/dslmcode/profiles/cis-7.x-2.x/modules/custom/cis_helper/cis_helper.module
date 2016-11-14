@@ -374,7 +374,7 @@ function cis_helper_menu() {
   );
   // admin settings for CIS
   $items['admin/config/system/integrations'] = array(
-    'title' => 'ELMSLN integrations',
+    'title' => 'Global integrations',
     'description' => 'Integrations page for ELMS:LN',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_helper_integrations_settings'),
@@ -382,6 +382,8 @@ function cis_helper_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'cis_helper.admin.inc',
     'file path' => $path,
+    'menu_name' => 'menu-elmsln-settings',
+    'weight' => 10,
   );
   // quick setup form
   $items['cis-quick-setup'] = array(
