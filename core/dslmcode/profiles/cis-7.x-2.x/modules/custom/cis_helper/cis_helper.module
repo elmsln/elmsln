@@ -372,6 +372,17 @@ function cis_helper_menu() {
     'file' => 'cis_helper.admin.inc',
     'file path' => $path,
   );
+  // admin settings for CIS
+  $items['admin/config/system/integrations'] = array(
+    'title' => 'ELMSLN integrations',
+    'description' => 'Integrations page for ELMS:LN',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_helper_integrations_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'cis_helper.admin.inc',
+    'file path' => $path,
+  );
   // quick setup form
   $items['cis-quick-setup'] = array(
     'title' => 'Setup a course',
