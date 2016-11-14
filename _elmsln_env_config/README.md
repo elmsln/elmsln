@@ -1,6 +1,2 @@
-Use this directory to create and modify the environment in which this is deployed. Here's an example for the environment.php
-
-environment.php
-<?php
-// This is an example of how you can load in a global config.cfg overwrite at the PHP level
-//$GLOBALS['elmslncfg']['address'] = 'this.isdifferent.address.local';
+Use this directory to create and modify the environment in which this is deployed. See https://github.com/elmsln/_elmsln_env_config for examples.
+use this when creating development and quality assurance / staging environments that mirror production but need to tweak values based on the deploy.
