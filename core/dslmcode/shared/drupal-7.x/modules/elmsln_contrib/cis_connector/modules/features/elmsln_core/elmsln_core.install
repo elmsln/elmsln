@@ -188,3 +188,12 @@ function elmsln_core_update_7018(&$sandbox) {
   ->condition('type', 'module')
   ->execute();
 }
+
+/**
+ * Disable css / js aggregation.
+ */
+function elmsln_core_update_7019(&$sandbox) {
+  // it'll be faster long term NOT to aggregate, confusing, I know.
+  variable_set('preprocess_css', '0');
+  variable_set('preprocess_js', '0');
+}
