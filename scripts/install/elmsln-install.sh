@@ -102,8 +102,6 @@ do
   done
 done
 
-moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
-cissettings=${university}_${host}_settings
 # support for hook architecture in bash call outs
 hooksdir=$configsdir/scripts/hooks/elmsln-install
 
@@ -112,52 +110,6 @@ COUNTER=0
 char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
 max=${#char[*]}
 
-# generate a scripted directory
-if [ ! -d ${moduledir} ];
-  then
-  sudo mkdir -p ${moduledir}
-  sudo mkdir -p ${moduledir}/${university}
-fi
-# work on authoring the connector module automatically
-if [ ! -d ${moduledir}/${university}/${cissettings} ];
-  then
-  sudo mkdir -p ${moduledir}/${university}/${cissettings}
-  sudo chown -R $USER:$webgroup ${moduledir}
-  infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
-  modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
-  touch $infofile
-  chmod 744 $infofile
-  touch $modulefile
-  chmod 744 $modulefile
-  # write the .info file
-  echo -e "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
-  # write the .module file
-  echo -e "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
-  # write the array of connection values dynamically
-  for distro in "${distros[@]}"
-  do
-    # array built up to `word
-    echo -e "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => '${serviceprefix}${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}'," >> $modulefile
-    # generate a random 30 digit password
-    pass=''
-    for i in `seq 1 30`
-    do
-      let "rand=$RANDOM % 62"
-      pass="${pass}${char[$rand]}"
-    done
-    # write password to file
-    echo -e "      'pass' => '$pass'," >> $modulefile
-    # finish off array
-    echo -e "      'instance' => ${instances[$COUNTER]}," >> $modulefile
-    echo -e "      'default_title' => '${defaulttitle[$COUNTER]}'," >> $modulefile
-    echo -e "      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
-    COUNTER=$COUNTER+1
- done
-  # close out function and file
-  echo -e "  );\n\n  return \$items;\n}\n\n" >> $modulefile
-  # add the function to include this in build outs automatically
-  echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n  \$options['en'][] = 'elmsln_bakery';\n}\n" >> $modulefile
-fi
 echo '2' >> $steplog
 # make sure drush is happy before we begin drush calls
 drush cc drush
@@ -235,7 +187,6 @@ for tool in "${authoritylist[@]}"
   echo "\$base_url= '$protocol://$site_domain';" >> $sitedir/$tool/$host/settings.php
 
   # enable the cis_settings registry, set private path, temporary path, then execute clean up routines
-  drush -y --uri=$protocol://$site_domain en $cissettings
   drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
   # distro specific additional install routine
