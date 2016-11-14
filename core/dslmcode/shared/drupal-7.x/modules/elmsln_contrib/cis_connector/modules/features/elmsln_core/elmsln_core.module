@@ -1162,7 +1162,7 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
           'address' => $cfg['address'],
           'user' => 'SERVICE_' . $distro . '_' . $cfg['host'],
           'mail' => 'SERVICE_' . $distro . '_' . $cfg['host'] . '@' . $cfg['emailending'],
-          'pass' => drupal_substr(hash('sha512', $distro . $cfg['elmsln_uuid']), 0, 30),
+          'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
         );
         $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
         $lines = explode("\n", $file);

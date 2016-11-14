@@ -27,6 +27,11 @@ if ($cfg = file_get_contents(ELMSLN_CFG_PATH)) {
       $elmslncfg[$key] = str_replace('$elmsln', $elmslncfg['elmsln'], $value);
     }
   }
+  // generate more values that we will want to know as shortcuts
+  // sprinkle in some salt from the file system
+  if (file_exists($elmslncfg['elmsln'] . '/config/SALT.txt')) {
+    $elmslncfg['salt'] = file_get_contents($elmslncfg['elmsln'] . '/config/SALT.txt');
+  }
 }
 else {
   $elmslncfg = array();

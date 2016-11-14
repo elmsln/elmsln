@@ -309,6 +309,8 @@ echo "elmsln_installed='${installed}'" >> $config
 uuid="$(getuuid)"
 # a uuid which data can be related on
 echo "elmsln_uuid='${uuid}'" >> $config
+# echo a uuid to a salt file we can use later on
+echo "$(getuuid)" >> /var/www/elmsln/config/SALT.txt
 
 # allow for opt in participation in our impact program
 elmslnecho "Would you like to send anonymous usage statistics to http://elmsln.org for data visualization purposes? (type yes or anything else to opt out)"
@@ -333,8 +335,8 @@ fi
 if [[ -n "$phpini" ]]; then
   cat /var/www/elmsln/scripts/server/php.txt >> $phpini
 fi
-if [[ -n "$phpfpmini" ]]; then		
-  cat /var/www/elmsln/scripts/server/php.txt >> $phpfpmini		
+if [[ -n "$phpfpmini" ]]; then
+  cat /var/www/elmsln/scripts/server/php.txt >> $phpfpmini
 fi
 if [[ -n "$mycnf" ]]; then
   cat /var/www/elmsln/scripts/server/my.txt > $mycnf
@@ -371,7 +373,7 @@ if [[ -n "$domains" ]]; then
       service php5-fpm restart
       service php7.0-fpm restart
     else
-      service httpd restart		   
+      service httpd restart
       service mysqld restart
       service php-fpm restart
     fi
