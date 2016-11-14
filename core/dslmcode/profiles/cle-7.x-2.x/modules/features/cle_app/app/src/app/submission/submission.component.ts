@@ -5,17 +5,22 @@ import { SubmissionService } from '../submission.service';
 import { CritiqueFormComponent } from '../critique/critique-form/critique-form.component';
 import { CritiqueListComponent } from '../critique/critique-list/critique-list.component';
 
+import { MdTabGroup, MdTab } from '@angular/material';
 
 @Component({
   selector: 'cle-submission',
   templateUrl: './submission.component.html',
   styleUrls: ['./submission.component.css'],
-  providers: [SubmissionService, CritiqueListComponent]
+  providers: [SubmissionService, CritiqueListComponent],
 })
 export class SubmissionComponent implements OnInit {
+  /**
+   * Variables
+   */
   submissionId: number;
   submission: any;
   author: any;
+  activeTabIndex: number = 1;
 
   constructor(
     private route: ActivatedRoute,
@@ -36,12 +41,19 @@ export class SubmissionComponent implements OnInit {
         // Observable of an array. I'm pretty sure that flapMap is a hack to get
         // it to work but will come with over complications, like possibly
         // inadvertently combining streams.
-        // .flatMap(data => data)
+        // .flatMap(data => data
         // .filter((data, index) => data.nid === String(this.submissionId))
         .subscribe(data => {
           this.submission = data;
           console.log(data);
         });
     }
+  }
+
+  /**
+   * Events
+   */
+  critiqueCreated(critique) {
+    this.activeTabIndex = 0;
   }
 }

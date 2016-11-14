@@ -20,7 +20,7 @@ export class ElmslnService {
         .get(AppSettings.BASE_PATH + 'restws/session/token', {headers})
         .subscribe(data => {
           // Get the CSRF Token and set it to local storage
-          localStorage.setItem('x-csrf', data._body);
+          localStorage.setItem('x-csrf', data.json());
         });
     }
     headers.append('x-csrf-token', localStorage.getItem('x-csrf'));

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Critique } from '../../critique';
 import { CritiqueService } from '../../critique.service';
@@ -11,18 +11,24 @@ import { Submission } from '../../submission';
   providers: [CritiqueService]
 })
 export class CritiqueFormComponent implements OnInit {
-  @Input() submission;
+  @Input()
+  submission;
+
+  @Output()
+  critiqueCreated: EventEmitter<any> = new EventEmitter();
+
   form: FormGroup;
 
   constructor(
     private fb: FormBuilder,
     private critiqueService: CritiqueService
-  ) { }
-
-  ngOnInit() {
+  ) { 
     this.form = this.fb.group({
       body: ''
     });
+  }
+
+  ngOnInit() {
   }
 
   submitForm() {
@@ -33,7 +39,8 @@ export class CritiqueFormComponent implements OnInit {
       this.critiqueService.createCritique(newCritique)
         .subscribe(res => {
           if (res.ok) {
-            this.form.value.body = '';
+            this.form.reset();
+            this.critiqueCreated.emit(res.json());
           }
         });
     }

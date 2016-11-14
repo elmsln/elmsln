@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { CritiqueService } from '../../critique.service';
+import { Observable } from 'rxjs/Rx';
 
 @Component({
   selector: 'cle-critique-list',
@@ -8,7 +9,7 @@ import { CritiqueService } from '../../critique.service';
 })
 export class CritiqueListComponent implements OnInit {
   @Input() submission;
-  critiques: Array<any>;
+  critiques: Observable<Any[]>;
   
   constructor(
     private critiqueService: CritiqueService

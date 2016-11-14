@@ -25,7 +25,15 @@
     </div>
     <div class="col s12 m6">
 
-      <md-tab-group>
+      <md-tab-group [selectedIndex]="activeTabIndex">
+        
+        <md-tab>
+          <template md-tab-label> All Feedback </template>
+          <template md-tab-content>
+            <cle-critique-list [submission]="submission"></cle-critique-list>
+          </template>
+        </md-tab>
+        
         <md-tab>
           <template md-tab-label> Give Feedback </template>
           <template md-tab-content>
@@ -37,16 +45,10 @@
                 <li>Step 4. Judge</li>
               </ol>
             <h4><i class="material-icons">comment</i>Feedback</h4>
-            <cle-critique-form [submission]="submission"></cle-critique-form>
+            <cle-critique-form (critiqueCreated)="critiqueCreated($event)" [submission]="submission"></cle-critique-form>
           </template>
         </md-tab>
 
-        <md-tab>
-          <template md-tab-label> All Feedback </template>
-          <template md-tab-content>
-            <cle-critique-list [submission]="submission"></cle-critique-list>
-          </template>
-        </md-tab>
       </md-tab-group>
 
     </div>
