@@ -45,12 +45,26 @@ function _elmsln_core_realpath($uri) {
   // convert back to file you are looking for
   $filepath = implode('/', $fileparts);
   // build full path to return
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   if ($settings = _cis_connector_build_registry($tool)) {
     $adr = explode('.', $settings['address']);
     $domain = array_shift($adr);
   }
   return $cfg['configsdir'] . '/stacks/' . $domain . '/sites/' . $domain . '/' . $cfg['host'] . '/files/' . $filepath;
+}
+
+/**
+ * Pull config from the filesystem
+ * @return array sanitized config from the filesystem
+ */
+function _elmsln_core_get_cfg() {
+  // statically cache future calls
+  $config = &drupal_static(__FUNCTION__);
+  // build the whole thing
+  if (!isset($config) && $cfg = file_get_contents(ELMSLN_CFG_PATH)) {
+    $config = $GLOBALS['elmslncfg'];
+  }
+  return $config;
 }
 
 /**
@@ -686,7 +700,7 @@ function elmsln_core_page_build(&$page) {
   // secure and policy compliant access to sub-domain cookies on
   // the client side. This clears up MULTIPLE issues at once and is
   // awesome!
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   // see if this is an active learner or not, only thing we care about currently
   // @todo probably faster way of getting this info
   if (_cis_connector_role_grouping('active learner')) {
@@ -803,7 +817,7 @@ function _elmsln_core_in_context_list() {
  */
 function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
   // inject the correct value here
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   $form['a11y_domain']['#default_value'] = '.' . $cfg['address'];
 }
 

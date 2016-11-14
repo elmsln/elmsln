@@ -1896,17 +1896,3 @@ function _cis_connector_load_users_by_role($roles = array()) {
   // weird call but returns an array of the uids selected
   return array_keys($result->fetchAllAssoc('uid'));
 }
-
-/**
- * Pull config from the filesystem
- * @return array sanitized config from the filesystem
- */
-function _cis_connector_get_cfg() {
-  // statically cache future calls
-  $config = &drupal_static(__FUNCTION__);
-  // build the whole thing
-  if (!isset($config) && $cfg = file_get_contents(ELMSLN_CFG_PATH)) {
-    $config = $GLOBALS['elmslncfg'];
-  }
-  return $config;
-}

@@ -366,8 +366,9 @@ function elmsln_api_basic_auth() {
   if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
     // load CIS connector so we can quickly load via low level bootstrap
     drupal_load('module', 'cis_connector');
+    drupal_load('module', 'elmsln_core');
     // see if we can skim a module off the filesystem structure
-    if ($cfg = _cis_connector_get_cfg()) {
+    if ($cfg = _elmsln_core_get_cfg()) {
       $settingsmodule = $cfg['university'] . '_' . $cfg['host'] . '_settings';
     }
     // deeper config problem / permissions problem if these arent true
@@ -425,8 +426,9 @@ function _elmsln_api_request($request, $nonblocking = FALSE, $recursion = FALSE)
   }
   // load CIS connector so we can quickly load via low level bootstrap
   drupal_load('module', 'cis_connector');
+  drupal_load('module', 'elmsln_core');
   // see if we can skim a module off the filesystem structure
-  if ($cfg = _cis_connector_get_cfg()) {
+  if ($cfg = _elmsln_core_get_cfg()) {
     $settingsfile = $cfg['university'] . '_' . $cfg['host'] . '_settings';
     drupal_load('module', $settingsfile);
     // look for settings for this bucket
@@ -797,8 +799,9 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
   }
   // load CIS connector so we can quickly load via low level bootstrap
   drupal_load('module', 'cis_connector');
+  drupal_load('module', 'elmsln_core');
   // see if we can skim a module off the filesystem structure
-  if ($cfg = _cis_connector_get_cfg()) {
+  if ($cfg = _elmsln_core_get_cfg()) {
     $settingsfile = $cfg['university'] . '_' . $cfg['host'] . '_settings';
     drupal_load('module', $settingsfile);
   }
@@ -911,8 +914,9 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
   }
   // load CIS connector so we can quickly load via low level bootstrap
   drupal_load('module', 'cis_connector');
+  drupal_load('module', 'elmsln_core');
   // see if we can skim a module off the filesystem structure
-  if ($cfg = _cis_connector_get_cfg()) {
+  if ($cfg = _elmsln_core_get_cfg()) {
     $settingsfile = $cfg['university'] . '_' . $cfg['host'] . '_settings';
     drupal_load('module', $settingsfile);
   }

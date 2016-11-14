@@ -1,5 +1,4 @@
 <?php
-
 // hard coded would be nice if it was variable but difficult to do so
 define ('ELMSLN_CFG_PATH', '/var/www/elmsln/config/scripts/drush-create-site/config.cfg');
 define ('ELMSLN_ENV_HOST', '/var/www/elmsln/_elmsln_env_config/environment.php');

@@ -223,12 +223,10 @@ do
       # set it back safely
       sudo chmod 644 $configsdir/stacks/$service/sites/sites.php
     fi
-    sudo sed -i "/^\$sites = array/a \ \t \'$hostname.$course\' =\> \'$subdir\/$course\'\," $configsdir/stacks/$service/sites/sites.php
-  	if [[ $datahostname ]]; then
-  		sudo sed -i "/^\$sites = array/a \ \t \'$datahostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
-  	else
-  		sudo sed -i "/^\$sites = array/a \ \t \'$serviceprefix.$hostname.$course\' =\> \'$service\/services\/$college\/$course\'\," $configsdir/stacks/$service/sites/sites.php
-  	fi
+    # write the front facing path
+    sudo sed -i "/^\$sites = array/a \ \t \'${service}.' . \$GLOBALS['elmslncfg']['address'] . '.$course\' =\> \'${service}\/' . \$GLOBALS['elmslncfg']['host'] . '\/$course\'\," $configsdir/stacks/$service/sites/sites.php
+  	# write the data address path
+    sudo sed -i "/^\$sites = array/a \ \t \$GLOBALS['elmslncfg']['serviceprefix'] . '${service}.' . \$GLOBALS['elmslncfg']['serviceaddress'] . '.$course\' =\> \'$service\/services\/' . \$GLOBALS['elmslncfg']['host'] . '\/$course\'\," $configsdir/stacks/$service/sites/sites.php
   fi
 
   # add in our cache bins
@@ -246,13 +244,12 @@ do
       if [ -f $drupalroot/sites/$service/services/$college/$course/settings.php ]; then
         sudo chmod 777 $drupalroot/sites/$service/services/$college/$course/settings.php
         echo "\$conf['restws_basic_auth_user_regex'] = '/^SERVICE_.*/';" >> $drupalroot/sites/$service/services/$college/$course/settings.php
-        sudo sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$datahostname/$course';" $drupalroot/sites/$service/services/$college/$course/settings.php
+        sudo sed -i "/\# \$base_url/a \ \t \$base_url= \$GLOBALS['elmslncfg']['protocol'] . '://' . \$GLOBALS['elmslncfg']['serviceprefix'] . '${service}.' . \$GLOBALS['elmslncfg']['serviceaddress'] . '/$course';" $drupalroot/sites/$service/services/$college/$course/settings.php
         sudo chmod 444 $drupalroot/sites/$service/services/$college/$course/settings.php
       fi
   fi
   ##set base_url
-
-  sudo sed -i "/\# \$base_url/a \ \t \$base_url= '$protocol://$hostname/$course';" $drupalroot/sites/$subdir/$course/settings.php
+  sudo sed -i "/\# \$base_url/a \ \t \$base_url= \$GLOBALS['elmslncfg']['protocol'] . '://${service}.' . \$GLOBALS['elmslncfg']['address'] . '/$course';" $drupalroot/sites/$subdir/$course/settings.php
 
   cd $drupalroot
   ###options

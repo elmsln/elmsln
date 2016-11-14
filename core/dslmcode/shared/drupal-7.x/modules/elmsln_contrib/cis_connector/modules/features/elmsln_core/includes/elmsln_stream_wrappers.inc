@@ -8,7 +8,7 @@ abstract class ELMSLNLocalStreamWrapper extends DrupalLocalStreamWrapper {
    */
   public function getELMSLNConfigPath() {
     // load configuration file
-    $cfg = _cis_connector_get_cfg();
+    $cfg = _elmsln_core_get_cfg();
     return $cfg['configsdir'];
   }
 
@@ -17,7 +17,7 @@ abstract class ELMSLNLocalStreamWrapper extends DrupalLocalStreamWrapper {
    */
   public function getELMSLNHost() {
     // load configuration file
-    $cfg = _cis_connector_get_cfg();
+    $cfg = _elmsln_core_get_cfg();
     return $cfg['host'];
   }
 

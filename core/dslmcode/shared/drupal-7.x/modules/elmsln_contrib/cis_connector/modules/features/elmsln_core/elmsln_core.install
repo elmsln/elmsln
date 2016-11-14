@@ -10,7 +10,7 @@
  */
 function elmsln_core_install() {
   // ensure a11y domain is set
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   variable_set('a11y_domain', '.' . $cfg['address']);
   // Make sure that the elmsln_core module runs later then CORS for example.
   db_update('system')
@@ -36,7 +36,7 @@ function elmsln_core_update_7000(&$sandbox) {
 function elmsln_core_update_7001(&$sandbox) {
   module_enable(array('a11y'));
   // set domain
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   variable_set('a11y_domain', '.' . $cfg['address']);
 }
 
