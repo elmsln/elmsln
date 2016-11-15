@@ -1,0 +1,8 @@
+form {
+  width: 90%;
+  max-width: 900px;
+  margin: 1em;
+}
+form textarea {
+  min-height: 500px;
+}

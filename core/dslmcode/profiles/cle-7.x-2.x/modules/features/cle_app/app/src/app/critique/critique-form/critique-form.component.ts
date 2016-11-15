@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { Critique } from '../../critique';
 import { CritiqueService } from '../../critique.service';
 import { Submission } from '../../submission';
+import { Subject } from 'rxjs/Rx';
 
 @Component({
   selector: 'cle-critique-form',
@@ -11,35 +12,33 @@ import { Submission } from '../../submission';
   providers: [CritiqueService]
 })
 export class CritiqueFormComponent implements OnInit {
+  content: string;
+  private showPreview: boolean = false;
+  private initialContent: string = '';
+  update$: Subject<any> = new Subject();
+  
   @Input()
   submission;
 
   @Output()
   critiqueCreated: EventEmitter<any> = new EventEmitter();
 
-  form: FormGroup;
-
   constructor(
-    private fb: FormBuilder,
     private critiqueService: CritiqueService
-  ) { 
-    this.form = this.fb.group({
-      body: ''
-    });
-  }
+  ) { }
 
   ngOnInit() {
   }
 
-  submitForm() {
-    // save new critique
-    if (this.form.value) {
-      let newCritique: Critique =  new Critique(this.form.value.body);
+  submitForm(update$) {
+    update$.next();
+    if (this.content) {
+      let newCritique: Critique =  new Critique(this.content);
       newCritique.submissionId = this.submission.nid;
       this.critiqueService.createCritique(newCritique)
         .subscribe(res => {
           if (res.ok) {
-            this.form.reset();
+            this.content = '';
             this.critiqueCreated.emit(res.json());
           }
         });
@@ -47,5 +46,10 @@ export class CritiqueFormComponent implements OnInit {
     // update existing critique
     else {
     }
+  }
+
+
+  savedContent(event$) {
+    console.log(event$);
   }
 }

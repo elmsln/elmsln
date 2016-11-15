@@ -5,11 +5,17 @@ import { HttpModule } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { routing } from './app.routing';
 
+// material
 import { MaterialModule } from '@angular/material';
 
+// wysiwyg
+import { Trumbowyg } from 'ng2-lazy-trumbowyg';
+
+// services
 import { ElmslnService } from './elmsln.service';
 import { CritiqueService } from './critique.service';
 
+// components
 import { AppComponent } from './app.component';
 import { AssignmentComponent } from './assignment/assignment.component';
 import { AssignmentListComponent } from './assignment/assignment-list/assignment-list.component';
@@ -22,7 +28,6 @@ import { CritiqueFormComponent } from './critique/critique-form/critique-form.co
 import { LoginComponent } from './login/login.component';
 import { LogoutComponent } from './logout/logout.component';
 import { CritiqueListComponent } from './critique/critique-list/critique-list.component';
-import { TrumbowygComponent } from './trumbowyg/trumbowyg.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +43,7 @@ import { TrumbowygComponent } from './trumbowyg/trumbowyg.component';
     LoginComponent,
     LogoutComponent,
     CritiqueListComponent,
-    TrumbowygComponent
+    Trumbowyg
   ],
   imports: [
     BrowserModule,
