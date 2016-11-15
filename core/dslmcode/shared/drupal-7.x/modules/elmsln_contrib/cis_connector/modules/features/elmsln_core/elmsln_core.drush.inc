@@ -61,11 +61,53 @@ function drush_elmsln_core_elmsln_change_salt() {
 function drush_elmsln_core_elmsln_rebuild_service_password() {
   // tee up profile to look up the registry about this tool
   $tool = elmsln_core_get_profile_key();
-  $settings = _cis_connector_build_registry($tool);
+  $registry = _cis_connector_build_registry($tool);
   // load the account
-  $usr = user_load_by_name($settings['user']);
-  $tmp = $usr->pass;
-  // save this change
-  user_save($usr, array('pass' => $settings['pass']));
-  drush_print('The ELMSLN service user ' . $settings['user'] . ' password updated to match registry.');
+  $usr = user_load_by_name($registry['user']);
+  // shouldn't be possible but make service account on demand if needed
+  if (!$usr) {
+    // ensure that user and pass are set
+    if (isset($registry['user']) && isset($registry['pass'])) {
+      // make sure this account doesn't already exist to avoid an error
+      if (!user_load_by_name($registry['user'])) {
+        // we know we need to make an account, look for mail address
+        if (isset($registry['mail'])) {
+          $mail = $registry['mail'];
+        }
+        else {
+          // generate a fake address
+          $mail = $registry['user'] . '@' . $registry['user'] . '.' . $registry['user'];
+        }
+        // assemble a user object
+        $fields = array(
+          'name' => $registry['user'],
+          'mail' => $mail,
+          'pass' => $registry['pass'],
+          'status' => 1,
+          'init' => $GLOBALS['user']->name,
+          'roles' => array(
+            DRUPAL_AUTHENTICATED_RID => 'authenticated user',
+          ),
+        );
+        // load the service account role
+        $rname = 'SERVICE ACCOUNT';
+        if ($srole = user_role_load_by_name($rname)) {
+          $fields['roles'][$srole->rid] = $rname;
+        }
+        // load the administrator role to ensure webservices can get data needed
+        $aname = 'administrator';
+        if ($arole = user_role_load_by_name($aname)) {
+          $fields['roles'][$arole->rid] = $aname;
+        }
+        // the first parameter is left blank so a new user is created
+        $usr = user_save('', $fields);
+      }
+    }
+  }
+  else {
+    $tmp = $usr->pass;
+    // save this change
+    user_save($usr, array('pass' => $registry['pass']));
+  }
+  drush_print('The ELMSLN service user ' . $registry['user'] . ' password updated to match registry.');
 }
