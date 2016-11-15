@@ -499,3 +499,4 @@ fi
 elmslnecho "Everything should be in place, now you can log out and run the following commands:"
 elmslnecho "sudo chown YOURUSERNAME:${webgroup} -R /var/www/elmsln"
 elmslnecho "bash /var/www/elmsln/scripts/install/elmsln-install.sh"
+elmslnecho "If you go to your IP address you'll be able to watch the build from a cleaner interface"

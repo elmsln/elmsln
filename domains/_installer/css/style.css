@@ -1,0 +1,26 @@
+/* Custom Stylesheet */
+
+.icon-block {
+  padding: 0 15px;
+}
+.icon-block .material-icons {
+  font-size: inherit;
+}
+.header {
+	font-size: 2.5rem;
+}
+
+.brand-logo i {
+	font-size: 3rem;
+}
+
+.logarea-wrapper {
+	overflow-y: scroll;
+	height: 500px;
+	background-color: black;
+	color:green;
+}
+.logarea {
+	font-size: 1.5rem;
+	margin: 0 2rem;
+}
