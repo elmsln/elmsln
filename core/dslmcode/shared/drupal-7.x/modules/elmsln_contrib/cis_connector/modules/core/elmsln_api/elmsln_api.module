@@ -367,22 +367,11 @@ function elmsln_api_basic_auth() {
     // load CIS connector so we can quickly load via low level bootstrap
     drupal_load('module', 'cis_connector');
     drupal_load('module', 'elmsln_core');
-    // see if we can skim a module off the filesystem structure
-    if ($cfg = _elmsln_core_get_cfg()) {
-      $settingsmodule = $cfg['university'] . '_' . $cfg['host'] . '_settings';
-    }
-    // deeper config problem / permissions problem if these arent true
-    if (isset($settingsfile) && drupal_load('module', $settingsfile)) {
-      // try and pull install profile direct from the database
-      $distro = db_query('SELECT value FROM {variable} WHERE name = :name', array(':name' => 'install_profile'))->fetchField();
-      $distro = unserialize($distro);
-      $settings = _cis_connector_build_registry($distro);
-    }
-    else {
-      drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-      $distro = elmsln_core_get_profile_key();
-      $settings = _cis_connector_build_registry($distro);
-    }
+    // try and pull install profile direct from the database
+    $distro = db_query('SELECT value FROM {variable} WHERE name = :name', array(':name' => 'install_profile'))->fetchField();
+    $distro = unserialize($distro);
+    $distro = elmsln_core_get_profile_key($distro);
+    $settings = _cis_connector_build_registry($distro);
     // if the username and password match we're golden
     if (isset($settings['user']) && isset($settings['pass']) && $_SERVER['PHP_AUTH_USER'] == $settings['user'] && $_SERVER['PHP_AUTH_PW'] == $settings['pass']) {
       // WE CAN DO... ANYTHING.
@@ -427,57 +416,52 @@ function _elmsln_api_request($request, $nonblocking = FALSE, $recursion = FALSE)
   // load CIS connector so we can quickly load via low level bootstrap
   drupal_load('module', 'cis_connector');
   drupal_load('module', 'elmsln_core');
-  // see if we can skim a module off the filesystem structure
-  if ($cfg = _elmsln_core_get_cfg()) {
-    $settingsfile = $cfg['university'] . '_' . $cfg['host'] . '_settings';
-    drupal_load('module', $settingsfile);
-    // look for settings for this bucket
-    // @ignore druplart_conditional_assignment
-    if ($settings = _cis_connector_build_registry($request['bucket'])) {
-      // prepare the query to be shipped off
-      $request['data']['q'] = 'v' . $request['api'];
-      // leave a flag for debug purposes if it's nonblocking
-      if ($nonblocking) {
-        $request['_httprl'] = TRUE;
-      }
+  // look for settings for this bucket
+  // @ignore druplart_conditional_assignment
+  if ($settings = _cis_connector_build_registry($request['bucket'])) {
+    // prepare the query to be shipped off
+    $request['data']['q'] = 'v' . $request['api'];
+    // leave a flag for debug purposes if it's nonblocking
+    if ($nonblocking) {
+      $request['_httprl'] = TRUE;
+    }
+    // allow other projects to react to this if we have
+    // a high enough bootstrap; nice thing is this will
+    // just do nothing if we don't
+    drupal_alter('elmsln_api_prerequest', $request);
+    $options = array(
+      'method' => $request['method'],
+      'data' => http_build_query($request['data']),
+      'timeout' => 1,
+      'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+    );
+    // form the address to call
+    $address = _cis_connector_format_address($settings, $request['path']);
+    // allow for non-blocking calls which require httprl
+    // which requires a full bootstrap. This is why it is
+    // not the default option. The default for the variable
+    // is to wait for a response since low-level bootstraps
+    // SHOULD be very fast. In cases that kick off high-level
+    // bootstraps against many targets it might be more efficient
+    // to issue them all as non-blocking so there's only 1
+    // full bootstrap that's waited for.
+    if ($nonblocking) {
+      $options['blocking'] = FALSE;
+      drupal_load('module', 'httprl');
+      httprl_request($address . 'elmsln.php', $options);
+      $tmp = httprl_send_request();
+      // this is non-blocking so can't really be modified but
+      // could still be useful for debugging
+      return TRUE;
+    }
+    else {
+      $tmp = drupal_http_request($address . 'elmsln.php', $options);
       // allow other projects to react to this if we have
       // a high enough bootstrap; nice thing is this will
       // just do nothing if we don't
-      drupal_alter('elmsln_api_prerequest', $request);
-      $options = array(
-        'method' => $request['method'],
-        'data' => http_build_query($request['data']),
-        'timeout' => 1,
-        'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
-      );
-      // form the address to call
-      $address = _cis_connector_format_address($settings, $request['path']);
-      // allow for non-blocking calls which require httprl
-      // which requires a full bootstrap. This is why it is
-      // not the default option. The default for the variable
-      // is to wait for a response since low-level bootstraps
-      // SHOULD be very fast. In cases that kick off high-level
-      // bootstraps against many targets it might be more efficient
-      // to issue them all as non-blocking so there's only 1
-      // full bootstrap that's waited for.
-      if ($nonblocking) {
-        $options['blocking'] = FALSE;
-        drupal_load('module', 'httprl');
-        httprl_request($address . 'elmsln.php', $options);
-        $tmp = httprl_send_request();
-        // this is non-blocking so can't really be modified but
-        // could still be useful for debugging
-        return TRUE;
-      }
-      else {
-        $tmp = drupal_http_request($address . 'elmsln.php', $options);
-        // allow other projects to react to this if we have
-        // a high enough bootstrap; nice thing is this will
-        // just do nothing if we don't
-        drupal_alter('elmsln_api_postrequest', $tmp);
-        if (isset($tmp->data)) {
-          return $tmp->data;
-        }
+      drupal_alter('elmsln_api_postrequest', $tmp);
+      if (isset($tmp->data)) {
+        return $tmp->data;
       }
     }
   }
@@ -800,11 +784,6 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
   // load CIS connector so we can quickly load via low level bootstrap
   drupal_load('module', 'cis_connector');
   drupal_load('module', 'elmsln_core');
-  // see if we can skim a module off the filesystem structure
-  if ($cfg = _elmsln_core_get_cfg()) {
-    $settingsfile = $cfg['university'] . '_' . $cfg['host'] . '_settings';
-    drupal_load('module', $settingsfile);
-  }
   // build whole registry since we're calling multiple things
   $settings = _cis_connector_build_registry();
   // use course context for path unless it's been hard coded
@@ -915,11 +894,6 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
   // load CIS connector so we can quickly load via low level bootstrap
   drupal_load('module', 'cis_connector');
   drupal_load('module', 'elmsln_core');
-  // see if we can skim a module off the filesystem structure
-  if ($cfg = _elmsln_core_get_cfg()) {
-    $settingsfile = $cfg['university'] . '_' . $cfg['host'] . '_settings';
-    drupal_load('module', $settingsfile);
-  }
   // build whole registry since we're calling multiple things
   $settings = _cis_connector_build_registry();
   // sniff out all other authorities
