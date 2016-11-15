@@ -166,7 +166,7 @@ for tool in "${authoritylist[@]}"
   echo "  \$GLOBALS['elmslncfg']['serviceprefix'] . '${tool}.' . \$GLOBALS['elmslncfg']['serviceaddress'] => '$tool/services/' . \$GLOBALS['elmslncfg']['host']," >> $sitedir/sites.php
   echo ");" >> $sitedir/sites.php
   # set base_url
-  echo "\$base_url = \$GLOBALS['elmslncfg']['protocol'] . '://'${tool}.' . \$GLOBALS['elmslncfg']['address'];" >> $sitedir/$tool/$host/settings.php
+  echo "\$base_url = \$GLOBALS['elmslncfg']['protocol'] . '://${tool}.' . \$GLOBALS['elmslncfg']['address'];" >> $sitedir/$tool/$host/settings.php
   # enable the cis_settings registry, set private path, temporary path, then execute clean up routines
   drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
