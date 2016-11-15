@@ -43,7 +43,7 @@ if [ -z $webdir ]; then
   elmslnwarn "please update your config.cfg file, webdir variable missing"
   exit 1
 fi
-echo '1' >> $steplog
+echo '1' > $steplog
 # FIGURE OUT WHATS GOING TO BE BUILT
 # this is an ultra generic process of analyzing what the system says we can
 # build and then actually doing it. When we wrap in the request form and
@@ -53,10 +53,7 @@ core='7.x'
 distros=()
 buildlist=()
 authoritydistros=()
-instances=()
 authoritylist=()
-ignorelist=()
-defaulttitle=()
 # all distributions / stacks we have
 cd $elmsln/core/dslmcode/stacks
 stacklist=( $(find . -maxdepth 1 -type d | sed 's/\///' | sed 's/\.//') )
@@ -81,23 +78,9 @@ do
       if [[ $distrotype == '"authority"' ]]; then
         authoritydistros+=($profile)
         authoritylist+=($stack)
-        instances+=('FALSE')
-        ignorelist+=('TRUE')
       else
         buildlist+=($stack)
-        instances+=('TRUE')
-        # special case for program hub
-        if [[ $profile == 'eph' ]]; then
-          ignorelist+=('TRUE')
-        else
-          ignorelist+=('FALSE')
-        fi
       fi
-    fi
-    # find the default title
-    if [[ ${tmp[0]} == 'elmslndefaulttitle' ]]; then
-      IFS='"' read -a tmptitle <<< "$next"
-      defaulttitle+=(${tmptitle[1]})
     fi
   done
 done
@@ -110,7 +93,7 @@ COUNTER=0
 char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
 max=${#char[*]}
 
-echo '2' >> $steplog
+echo '2' > $steplog
 # make sure drush is happy before we begin drush calls
 drush cc drush
 sudo chown -R $USER $HOME/.drush
@@ -131,9 +114,9 @@ for build in "${buildlist[@]}"
   # install default site for associated stacks in the build list
   cd $stacks/$build
   elmslnecho "drush installing service placeholder: $build"
-  drush site-install -q minimal -y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
+  drush site-install minimal --quiet --y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
-echo '3' >> $steplog
+echo '3' > $steplog
 COUNTER=0
 # install authority distributions like online, media, comply
 for tool in "${authoritylist[@]}"
@@ -150,7 +133,7 @@ for tool in "${authoritylist[@]}"
   cd ${webdir}/${tool}
   sitedir=${webdir}/${tool}/sites
   elmslnecho "drush installing authority tool: $tool"
-  drush site-install -q ${dist} -y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
+  drush site-install ${dist}  --quiet --y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
   #move out of $tool site directory to host
   sudo mkdir -p $sitedir/$tool/$host
   sudo mkdir -p $sitedir/$tool/$host/files
@@ -177,15 +160,13 @@ for tool in "${authoritylist[@]}"
 
   # establish these values real quick so its more readable below
   site_domain="$tool.${address}"
-  site_service_domain="${serviceprefix}$tool.${serviceaddress}"
   # add site to the sites array
   echo "\$sites = array(" >> $sitedir/sites.php
-  echo "  '$site_domain' => '$tool/$host'," >> $sitedir/sites.php
-  echo "  '$site_service_domain' => '$tool/services/$host'," >> $sitedir/sites.php
+  echo "  '${tool}.' . \$GLOBALS['elmslncfg']['address'] => '$tool/' . \$GLOBALS['elmslncfg']['host']," >> $sitedir/sites.php
+  echo "  \$GLOBALS['elmslncfg']['serviceprefix'] . '${tool}.' . \$GLOBALS['elmslncfg']['serviceaddress'] => '$tool/services/' . \$GLOBALS['elmslncfg']['host']," >> $sitedir/sites.php
   echo ");" >> $sitedir/sites.php
   # set base_url
-  echo "\$base_url= '$protocol://$site_domain';" >> $sitedir/$tool/$host/settings.php
-
+  echo "\$base_url = \$GLOBALS['elmslncfg']['protocol'] . '://'${tool}.' . \$GLOBALS['elmslncfg']['address'];" >> $sitedir/$tool/$host/settings.php
   # enable the cis_settings registry, set private path, temporary path, then execute clean up routines
   drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
@@ -236,7 +217,7 @@ for tool in "${authoritylist[@]}"
 
   COUNTER=$COUNTER+1
 done
-echo '4' >> $steplog
+echo '4' > $steplog
 # perform some clean up tasks
 # jobs file directory
 sudo chown -R $wwwuser:$webgroup $elmsln/config/jobs
@@ -253,7 +234,7 @@ if [ -f  $hooksdir/post-install.sh ]; then
   # invoke this hook cause we found a file matching the name we need
   bash $hooksdir/post-install.sh
 fi
-echo '5' >> $steplog
+echo '5' > $steplog
 # set concurrency to help speed up install
 concurrent=2
 adminpw=''
@@ -264,25 +245,25 @@ do
 done
 # make sure user password is admin as a fallback
 elmslnecho "Set admin account everywhere"
-drush @elmsln upwd admin --password=${adminpw} --concurrency=${concurrent} --strict=0 --y
+drush @elmsln upwd admin --password=${adminpw} --concurrency=${concurrent} --strict=0 --y  --quiet
 # enable bakery everywhere by default
 elmslnecho "Enable bakery for unified logins"
-drush @elmsln en elmsln_bakery --concurrency=${concurrent} --strict=0 --y
+drush @elmsln en elmsln_bakery --concurrency=${concurrent} --strict=0 --y  --quiet
 # run all the existing crons so that they hit the CIS data and get sing100 for example
 elmslnecho "Run Cron to do some clean up"
-drush @elmsln cron --concurrency=${concurrent} --strict=0 --y
+drush @elmsln cron --concurrency=${concurrent} --strict=0 --y  --quiet
 # node access rebuild which will also clear caches
 elmslnecho "Rebuild node access permissions"
-drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --y
+drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --y  --quiet
 # revert everything as some last minute clean up
 elmslnecho "Global feature revert as clean up"
-drush @elmsln fr-all --concurrency=${concurrent} --strict=0 --y
+drush @elmsln fr-all --concurrency=${concurrent} --strict=0 --y  --quiet
 # APDQC cache bin to memory shift
-drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --y
-drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --y
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --y  --quiet
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --y  --quiet
 # seed entity caches
 elmslnecho "Seed some initial caches on all sites"
-drush @elmsln ecl --concurrency=${concurrent} --strict=0 --y
+drush @elmsln ecl --concurrency=${concurrent} --strict=0 --y  --quiet
 echo '6' >> $steplog
 
 # a message so you know where our head is at. you get candy if you reference this
@@ -315,7 +296,7 @@ elmslnecho "║ connection keychain for how all the webservices talk.         �
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
 elmslnecho "║ Use  the following to get started:                            ║"
-elmslnecho "║  $protocol://$site_domain                                      "
+elmslnecho "║  $protocol://online.${address}                                 "
 elmslnecho "║  username: admin                                              ║"
 elmslnecho "║  password: $adminpw                                           ║"
 elmslnecho "║                                                               ║"
