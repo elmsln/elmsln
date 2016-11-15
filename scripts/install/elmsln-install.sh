@@ -131,7 +131,7 @@ for build in "${buildlist[@]}"
   # install default site for associated stacks in the build list
   cd $stacks/$build
   elmslnecho "drush installing service placeholder: $build"
-  drush site-install -q -y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
+  drush site-install -q minimal -y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
 echo '3' >> $steplog
 COUNTER=0
