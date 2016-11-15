@@ -40,7 +40,6 @@ export class SubmissionComponent implements OnInit {
       this.submissionService.getSubmission(this.submissionId)
         .subscribe(data => {
           this.submission = data;
-          console.log(data);
         });
     }
   }
@@ -58,6 +57,5 @@ export class SubmissionComponent implements OnInit {
   // that we are keeping track of.
   tabChange(event) {
     this.activeTabIndex = event.index;
-    console.log(event);
   }
 }
