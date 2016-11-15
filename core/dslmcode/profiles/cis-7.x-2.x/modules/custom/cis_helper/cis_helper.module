@@ -266,6 +266,27 @@ function _cis_helper_run_operation($section) {
 }
 
 /**
+ * Implements hook_user_login().
+ */
+function cis_helper_user_login(&$edit, $account) {
+  // If this is user's first time log-in, kill the open log file for security
+  if ($account->uid == 1 && $account->access == 0) {
+    $cfg = _elmsln_core_get_cfg();
+    $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
+    $text = t('You have successfully logged in, congratulations!') . "\n";
+    $text .= t('If you are seeing this, then you probably want to go elsewhere since the installation is complete.') . "\n";
+    $text .= t('To login, go to any site in your network, such as:') . "\n";
+    $text .= t('<a href="@url">@url</a>', array('@url' => _cis_connector_format_address($settings, '/', 'front')));
+    $text .= "\n" . t('and login.') . "\n";
+    $text .= t('If you are locked out of your deployment, you can regain access server side by running the following:') . "\n";
+    $text .= "\n" . '         drush @online uli' . "\n";
+    $text .= t('This will generate a one time login link.');
+    file_put_contents($cfg['drupal_tmp'] . '/INSTALL-LOG.txt', $text);
+    drupal_set_message(t('Welcome to ELMS:LN! To get started, you probably want to add a course. To do this, click the plus sign at the bottom and select `Setup a Course`'), 'status');
+  }
+}
+
+/**
  * Implements hook_page_build().
  */
 function cis_helper_page_build(&$page) {
