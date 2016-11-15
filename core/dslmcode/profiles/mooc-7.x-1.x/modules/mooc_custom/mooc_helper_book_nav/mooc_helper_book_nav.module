@@ -93,9 +93,8 @@ function mooc_helper_book_nav_block_view($delta = '') {
       $prev_title = t('<');
       // load the node in scope globally at the moment and ensure we have one
       $globalnode = menu_get_object();
-      $active_book = _mooc_helper_active_outline();
       // ensure we are in the active outline before bothering to render anything
-      if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0 && $globalnode->book['bid'] == $active_book->nid) {
+      if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
         $breadcrumbs = array();
         $count = 0;
         $nav_count = 0;
