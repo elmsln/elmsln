@@ -59,6 +59,7 @@ function drush_elmsln_core_elmsln_change_salt() {
  * Drush command callback for elmsln-rebuild-service-password.
  */
 function drush_elmsln_core_elmsln_rebuild_service_password() {
+  require_once DRUPAL_ROOT . '/includes/password.inc';
   // tee up profile to look up the registry about this tool
   $tool = elmsln_core_get_profile_key();
   $registry = _cis_connector_build_registry($tool);
@@ -101,13 +102,19 @@ function drush_elmsln_core_elmsln_rebuild_service_password() {
         }
         // the first parameter is left blank so a new user is created
         $usr = user_save('', $fields);
+        $precheck = FALSE;
       }
     }
   }
   else {
-    $tmp = $usr->pass;
-    // save this change
-    user_save($usr, array('pass' => $registry['pass']));
+    $precheck = user_check_password($registry['pass'], $usr);
+    user_save($usr, array('pass' => $registry['pass'], 'init' => ''));
   }
-  drush_print('The ELMSLN service user ' . $registry['user'] . ' password updated to match registry.');
+  // see if password changed
+  if (user_check_password($registry['pass'], $usr) && $precheck) {
+    drush_print('The ELMSLN service user ' . $registry['user'] . ' loaded but no change was made.');
+  }
+  else {
+    drush_print('The ELMSLN service user ' . $registry['user'] . ' password updated to match registry.');
+  }
 }
