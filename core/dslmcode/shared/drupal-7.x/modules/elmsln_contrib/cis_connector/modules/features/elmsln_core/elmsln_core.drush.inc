@@ -60,7 +60,7 @@ function drush_elmsln_core_elmsln_change_salt() {
  */
 function drush_elmsln_core_elmsln_rebuild_service_password() {
   // tee up profile to look up the registry about this tool
-  $tool = variable_get('install_profile', 'standard');
+  $tool = elmsln_core_get_profile_key();
   $settings = _cis_connector_build_registry($tool);
   // load the account
   $usr = user_load_by_name($settings['user']);

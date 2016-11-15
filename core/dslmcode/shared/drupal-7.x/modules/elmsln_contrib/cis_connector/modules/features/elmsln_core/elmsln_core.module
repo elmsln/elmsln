@@ -1192,11 +1192,11 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
         // support meta properties for authority / services
         if ($keychain[$distro]['type'] == 'authority') {
           $keychain[$distro]['ignore'] = TRUE;
-          $keychain[$distro]['service'] = FALSE;
+          $keychain[$distro]['instance'] = FALSE;
         }
         elseif ($keychain[$distro]['type'] == 'service') {
           $keychain[$distro]['ignore'] = FALSE;
-          $keychain[$distro]['service'] = TRUE;
+          $keychain[$distro]['instance'] = TRUE;
         }
       }
     }
