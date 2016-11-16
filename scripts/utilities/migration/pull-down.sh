@@ -8,6 +8,8 @@
 # to rewrite the connection addresses
 # @todo make sure we verify A WHOLE BUNCH OF TIMES BEFORE LETTING THIS RUN :)
 source /var/www/elmsln/config/scripts/drush-create-site/config.cfg
+# load password config
+source /var/www/elmsln/config/scripts/drush-create-site/configpwd.cfg
 txtbld=$(tput bold)             # Bold
 bldgrn=$(tput setaf 2) #  green
 bldred=${txtbld}$(tput setaf 1) #  red

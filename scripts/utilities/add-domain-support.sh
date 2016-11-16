@@ -14,6 +14,8 @@ cd $DIR
 
 # load config
 source ../../config/scripts/drush-create-site/config.cfg
+# load password config
+source ../../config/scripts/drush-create-site/configpwd.cfg
 
 #provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold

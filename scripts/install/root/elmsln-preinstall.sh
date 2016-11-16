@@ -215,8 +215,9 @@ fi
 
 # work against the config file
 config='/var/www/elmsln/config/scripts/drush-create-site/config.cfg'
+configpwd='/var/www/elmsln/config/scripts/drush-create-site/configpwd.cfg'
 touch $config
-# step through creation of the config.cfg file
+# step through creation of the config file
 echo "#university / institution deploying this instance" >> $config
 elmslnecho "what is your uniersity abbreviation? (ex psu)"
 read university
@@ -257,14 +258,12 @@ read admin
 echo "admin='${admin}'" >> $config
 
 # if there's a scary part it's right in here for some I'm sure
-echo "#database superuser credentials" >> $config
-elmslnecho "database superuser credentials? (this is only stored in the config.cfg file. it is recommended you create an alternate super user other then true root. user needs full permissions including grant since this is what requests new drupal sites to be produced)"
+elmslnecho "database superuser credentials? (this is only stored in the configpwd.cfg file. it is recommended you create an alternate super user other then true root. user needs full permissions including grant since this is what requests new drupal sites to be produced)"
 read -s dbsu
-echo "dbsu='${dbsu}'" >> $config
-
+echo "dbsu='${dbsu}'" >> $configpwd
 elmslnecho "database superuser password? (same notice as above)"
 read -s dbsupw
-echo "dbsupw='${dbsupw}'" >> $config
+echo "dbsupw='${dbsupw}'" >> $configpwd
 
 # this was read in from above or automatically supplied based on the system type
 echo "#www user, what does apache run as? www-data and apache are common" >> $config
@@ -310,7 +309,8 @@ uuid="$(getuuid)"
 # a uuid which data can be related on
 echo "elmsln_uuid='${uuid}'" >> $config
 # echo a uuid to a salt file we can use later on
-echo "$(getuuid)" >> /var/www/elmsln/config/SALT.txt
+touch /var/www/elmsln/config/SALT.txt
+echo "$(getuuid)" > /var/www/elmsln/config/SALT.txt
 
 # allow for opt in participation in our impact program
 elmslnecho "Would you like to send anonymous usage statistics to http://elmsln.org for data visualization purposes? (type yes or anything else to opt out)"
