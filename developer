@@ -1,0 +1,4 @@
+# open chrome if we can, this only works on OSX
+open -a /Applications/Google\ Chrome.app http://10.0.18.55
+# bring up the VM
+vagrant up
