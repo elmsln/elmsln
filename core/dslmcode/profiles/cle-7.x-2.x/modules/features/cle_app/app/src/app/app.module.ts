@@ -8,9 +8,6 @@ import { routing } from './app.routing';
 // material
 import { MaterialModule } from '@angular/material';
 
-// wysiwyg
-import { Trumbowyg } from 'ng2-lazy-trumbowyg';
-
 // services
 import { ElmslnService } from './elmsln.service';
 import { CritiqueService } from './critique.service';
@@ -28,6 +25,7 @@ import { CritiqueFormComponent } from './critique/critique-form/critique-form.co
 import { LoginComponent } from './login/login.component';
 import { LogoutComponent } from './logout/logout.component';
 import { CritiqueListComponent } from './critique/critique-list/critique-list.component';
+import { WysiwygjsComponent } from './wysiwygjs/wysiwygjs.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +41,7 @@ import { CritiqueListComponent } from './critique/critique-list/critique-list.co
     LoginComponent,
     LogoutComponent,
     CritiqueListComponent,
-    Trumbowyg
+    WysiwygjsComponent
   ],
   imports: [
     BrowserModule,
@@ -51,7 +49,7 @@ import { CritiqueListComponent } from './critique/critique-list/critique-list.co
     ReactiveFormsModule,
     HttpModule,
     routing,
-    MaterialModule.forRoot()
+    MaterialModule.forRoot(),
   ],
   providers: [
     ElmslnService,

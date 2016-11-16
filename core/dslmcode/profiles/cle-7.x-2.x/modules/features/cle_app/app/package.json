@@ -4,9 +4,9 @@
   "license": "MIT",
   "angular-cli": {},
   "scripts": {
-    "start": "ng serve",
+    "start": "./node_modules/.bin/ng serve",
     "lint": "tslint \"src/**/*.ts\"",
-    "test": "ng test",
+    "test": "./node_modules/.bin/ng test",
     "pree2e": "webdriver-manager update",
     "e2e": "protractor"
   },
@@ -21,6 +21,9 @@
     "@angular/platform-browser": "~2.1.0",
     "@angular/platform-browser-dynamic": "~2.1.0",
     "@angular/router": "~3.1.0",
+    "@ngrx/core": "^1.2.0",
+    "@ngrx/router-store": "^1.2.5",
+    "@ngrx/store": "^2.2.1",
     "@types/jasmine": "^2.5.38",
     "@types/node": "^6.0.48",
     "core-js": "^2.4.1",
@@ -29,6 +32,8 @@
     "ng2-lazy-trumbowyg": "^1.0.5",
     "rxjs": "5.0.0-beta.12",
     "ts-helpers": "^1.1.1",
+    "typescript": "^2.0.10",
+    "wysiwyg.js": "^1.0.0",
     "zone.js": "^0.6.23"
   },
   "devDependencies": {
