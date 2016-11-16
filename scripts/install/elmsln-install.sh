@@ -264,7 +264,7 @@ drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --y  --quiet
 # seed entity caches
 elmslnecho "Seed some initial caches on all sites"
 drush @elmsln ecl --concurrency=${concurrent} --strict=0 --y  --quiet
-echo '6' >> $steplog
+echo '6' > $steplog
 
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
@@ -296,10 +296,10 @@ elmslnecho "║ connection keychain for how all the webservices talk.         �
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
 elmslnecho "║ Use  the following to get started:                            ║"
-elmslnecho "║  $protocol://online.${address}                                 "
+elmslnecho "║  <a href='$protocol://online.${address}'>$protocol://online.${address}</a>"
 elmslnecho "║  username: admin                                              ║"
 elmslnecho "║  password: $adminpw                                           ║"
-elmslnecho "║                                                               ║"
+elmslnecho "║  (if in vagrant the password is admin)                        ║"
 elmslnecho "║Welcome to the Singularity, edtech.. don't compete, eliminate  ║"
 elmslnecho "║✻Ex Uno Plures✻                                                ║"
 elmslnecho "╚───────────────────────────────────────────────────────────────╝"
