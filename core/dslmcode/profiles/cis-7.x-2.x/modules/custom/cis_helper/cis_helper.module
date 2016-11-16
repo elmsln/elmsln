@@ -270,7 +270,8 @@ function _cis_helper_run_operation($section) {
  */
 function cis_helper_user_login(&$edit, $account) {
   // If this is user's first time log-in, kill the open log file for security
-  if ($account->uid == 1 && $account->access == 0) {
+  // and present them a message about how to get started.
+  if ($account->uid == 1 && $account->access == 0 && !drupal_is_cli()) {
     $cfg = _elmsln_core_get_cfg();
     $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
     $text = t('You have successfully logged in, congratulations!') . "\n";
