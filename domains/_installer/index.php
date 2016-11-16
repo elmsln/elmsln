@@ -61,7 +61,6 @@ switch ($step) {
   </nav>
   <div class="section no-pad-bot" id="index-banner">
     <div class="">
-      <br><br>
       <h1 class="header center orange-text steptext">Step <?php print $step;?> of 6: <?php print $steptext; ?></h1>
       <div class="row">
         <div class="col s12 m8 push-m2">
@@ -115,11 +114,6 @@ switch ($step) {
           </div>
         </div>
       </div>
-
-    </div>
-    <br><br>
-
-    <div class="section">
 
     </div>
   </div>
