@@ -1,6 +1,7 @@
 <?php
 
 $step = file_get_contents('/var/www/elmsln/config/tmp/STEP-LOG.txt');
+$step = trim(preg_replace('/\s+/', ' ', $step));
 $log = file_get_contents('/var/www/elmsln/config/tmp/INSTALL-LOG.txt');
 
 switch ($step) {
