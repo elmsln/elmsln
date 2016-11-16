@@ -3,7 +3,7 @@
     $('.button-collapse').sideNav();
   }); // end of document ready
   setInterval(function(){
-  	if ($('.steptext').html() != 'Step 6 of 6: Install complete!')
+  	if ($('.steptext').text().match(/6 of 6/g) == null) {
 	    $.ajax({ url: "step.php", success: function(data){
 	        $('.steptext').html(data);
 	    }, dataType: "json"});

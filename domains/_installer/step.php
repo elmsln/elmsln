@@ -21,5 +21,5 @@
 	    $steptext = 'Install complete!';
 	  break;
 	}
-  print json_encode('Step ' . $step . ' of 6: '. $steptext);
+  print json_encode(trim(preg_replace('/\s+/', ' ', 'Step ' . $step . ' of 6: ' . $steptext)));
 ?>
