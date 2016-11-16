@@ -1,10 +1,13 @@
 <?php
-
+// tee up logging for step and install log
 $step = file_get_contents('/var/www/elmsln/config/tmp/STEP-LOG.txt');
 $step = trim(preg_replace('/\s+/', ' ', $step));
 $log = file_get_contents('/var/www/elmsln/config/tmp/INSTALL-LOG.txt');
-
+// walk through the steps to present messages
 switch ($step) {
+  case 0:
+    $steptext = 'Optimizing server for ELMS:LN';
+  break;
   case 1:
     $steptext = 'Calculating network topology';
   break;
@@ -22,6 +25,10 @@ switch ($step) {
   break;
   case 6:
     $steptext = 'Install complete!';
+  break;
+  default:
+    $step = 0;
+    $steptext = 'Installing server dependencies';
   break;
 }
 ?>

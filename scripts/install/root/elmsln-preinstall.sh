@@ -18,11 +18,15 @@ txtbld=$(tput bold)             # Bold
 bldgrn=${txtbld}$(tput setaf 2) #  green
 bldred=${txtbld}$(tput setaf 1) #  red
 txtreset=$(tput sgr0)
+installlog="/var/www/elmsln/config/tmp/INSTALL-LOG.txt"
+steplog="/var/www/elmsln/config/tmp/STEP-LOG.txt"
 elmslnecho(){
   echo "${bldgrn}$1${txtreset}"
+  echo "$1" >> $installlog
 }
 elmslnwarn(){
   echo "${bldred}$1${txtreset}"
+  echo "$1" >> $installlog
 }
 # Define seconds timestamp
 timestamp(){
@@ -55,7 +59,7 @@ cp /var/www/elmsln/VERSION.txt /var/www/elmsln/config/SYSTEM_VERSION.txt
 cd /var/www/elmsln/config
 touch /var/www/elmsln/config/logs/upgrade_history.txt
 echo "Initially installed as: ${code_version}" >> /var/www/elmsln/config/logs/upgrade_history.txt
-
+echo '0' > $steplog
 rm -rf .git
 
 # make a new repo
