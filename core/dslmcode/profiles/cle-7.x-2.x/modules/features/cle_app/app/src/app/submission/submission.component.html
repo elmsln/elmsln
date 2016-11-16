@@ -43,11 +43,11 @@
                 <li>Step 4. Judge</li>
               </ol>
             <h4><i class="material-icons">comment</i>Feedback</h4>
+            <cle-critique-form (critiqueCreated)="critiqueCreated($event)" [submission]="submission"></cle-critique-form>
           </template>
         </md-tab>
       </md-tab-group>
 
-      <cle-critique-form (critiqueCreated)="critiqueCreated($event)" [submission]="submission"></cle-critique-form>
 
     </div>
   </div>

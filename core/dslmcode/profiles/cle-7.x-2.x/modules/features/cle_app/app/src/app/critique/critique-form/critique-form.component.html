@@ -1,6 +1,4 @@
-  <trumbowyg [togglePreview]="showPreview" [initialContent]="initialContent" [update]="update$" (savedContent)="content=$event"></trumbowyg>
-  <div>
-    <p [innerHTML]="content"></p>
-  </div> 
+<wysiwygjs></wysiwygjs>
 
-  <button md-raised-button (click)="submitForm(update$)" color="primary">Submit Critique</button>
+
+<button md-raised-button (click)="submitForm(update$)" color="primary">Submit Critique</button>
