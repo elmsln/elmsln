@@ -17,9 +17,17 @@ if [ -z $3 ]; then
 else
   configrepo=$3
 fi
-git clone $repo /var/www/elmsln
+# move to directory
 cd /var/www/elmsln
-git checkout $branch
+# drop current remote in case it changes
+git remote remove origin
+# add in the one the user defined
+git remote add origin $repo
+# checkout their branch, in case its different
+git checkout -b $branch
+# hard reset to the branch in question
+git fetch --all
+git reset --hard origin/$branch
 cd $HOME
 bash /var/www/elmsln/scripts/install/handsfree/centos7/centos7-install.sh elmsln ln elmsln.local http admin@elmsln.local yes
 cd $HOME && source .bashrc
