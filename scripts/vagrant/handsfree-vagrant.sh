@@ -17,6 +17,7 @@ if [ -z $3 ]; then
 else
   configrepo=$3
 fi
+git clone $repo /var/www/elmsln
 # move to directory
 cd /var/www/elmsln
 # drop current remote in case it changes
