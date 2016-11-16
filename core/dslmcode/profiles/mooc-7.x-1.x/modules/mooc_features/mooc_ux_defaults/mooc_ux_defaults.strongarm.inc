@@ -599,6 +599,17 @@ function mooc_ux_defaults_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'tincanapi_content_types';
+  $strongarm->value = array(
+    'mooc_container' => 'mooc_container',
+    'page' => 'page',
+    'section' => 0,
+  );
+  $export['tincanapi_content_types'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'tipsy';
   $strongarm->value = array(
     'drupal_forms' => array(
