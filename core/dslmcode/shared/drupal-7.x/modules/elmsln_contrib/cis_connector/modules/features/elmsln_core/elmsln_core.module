@@ -163,13 +163,41 @@ function elmsln_core_block_info() {
 
 /**
  * Implements hook_init()
- *
- * Allow CORS OPTIONS request method to instantly return just the HTTP headers.
- * https://www.drupal.org/node/1084144
  */
 function elmsln_core_init() {
+  // Allow CORS OPTIONS request method to instantly return just the HTTP headers.
+  // https://www.drupal.org/node/1084144
   if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     drupal_exit();
+  }
+  // support for login spoofing if this is a restful webservice user
+  // this still requires that account have the right permissions to access anything
+  // of value
+  if (isset($_GET['render-as']) && in_array('SERVICE ACCOUNT', $GLOBALS['user']->roles)) {
+    global $user;
+    global $_restws_bypass_user;
+    $tmp = $user;
+    $name = filter_xss($_GET['render-as']);
+    // try and load a "render-as" name
+    if($user = user_load_by_name($name)) {
+      $_restws_bypass_user = $tmp;
+    }
+    else {
+      $user = $tmp;
+    }
+  }
+}
+
+/**
+ * Implements hook_exit().
+ */
+function elmsln_core_exit($destination = NULL) {
+  global $_restws_bypass_user;
+  // set the user back to who they were prior to the request if we were spoofing during
+  // this prevents sessions hijacking even for restful webservice users
+  if (isset($_GET['render-as']) && !empty($_restws_bypass_user) && in_array('SERVICE ACCOUNT', $_restws_bypass_user->roles)) {
+    global $user;
+    $user = $_restws_bypass_user;
   }
 }
 

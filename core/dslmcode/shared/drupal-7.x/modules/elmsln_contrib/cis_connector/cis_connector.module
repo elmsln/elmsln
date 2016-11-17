@@ -24,6 +24,7 @@ function cis_connector_restws_meta_controls_alter(&$controls) {
   $controls['role-filter'] = 'role-filter';
   $controls['count'] = 'count';
   $controls['display_mode'] = 'display_mode';
+  $controls['render-as'] = 'render-as';
 }
 
 /**
