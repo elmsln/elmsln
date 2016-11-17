@@ -1,4 +1,6 @@
 # open chrome if we can, this only works on OSX
+vagrant plugin install vagrant-vbguest
+vagrant plugin install vagrant-cachier
 open -a /Applications/Google\ Chrome.app http://10.0.18.55
 # bring up the VM
 vagrant up

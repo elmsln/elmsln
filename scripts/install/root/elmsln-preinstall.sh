@@ -366,21 +366,22 @@ if [[ -n "$domains" ]]; then
   sed -i "s/DATA./${serviceprefix}/g" ${domains}*.conf
   ls $domains
   elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
+  # systems restart differently
+  if [[ $os == '1' ]]; then
+    /etc/init.d/httpd restart
+    /etc/init.d/php-fpm restart
+    /etc/init.d/mysqld restart
+  elif [ $os == '2' ]; then
+    service apache2 restart
+    service php5-fpm restart
+    service php7.0-fpm restart
+  else
+    service httpd restart
+    service mysqld restart
+    service php-fpm restart
+  fi
   # attempt to author the https domain if they picked it, let's hope everyone does
   if [[ $protocol == 'https' ]]; then
-    # systems restart differently
-    if [[ $os == '1' ]]; then
-      /etc/init.d/httpd restart
-      /etc/init.d/php-fpm restart
-    elif [ $os == '2' ]; then
-      service apache2 restart
-      service php5-fpm restart
-      service php7.0-fpm restart
-    else
-      service httpd restart
-      service mysqld restart
-      service php-fpm restart
-    fi
     cd $HOME
     git clone https://github.com/letsencrypt/letsencrypt
     # automatically create domains
@@ -392,11 +393,6 @@ if [[ -n "$domains" ]]; then
   if [ $os == '2' ]; then
     ln -s ${domains}*.conf /etc/apache2/sites-enabled/
   fi
-fi
-
-# if this is rhel prepared the domains for varnish.
-if [ $os == '1' ] || [ $os == '3' ]; then
-  sed -i 's/:80\b/:8080/g' ${domains}*.conf
 fi
 
 if [[ -n "$zzz_performance" ]]; then
@@ -419,7 +415,7 @@ fi
 # setup infrastructure tools
 ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 ln -s /var/www/elmsln/scripts/drush-command-job /usr/local/bin/drush-command-job
-chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
+chmod 740 /usr/local/bin/drush-create-site/rm-site.sh
 
 # shortcuts for ease of use
 cd $HOME

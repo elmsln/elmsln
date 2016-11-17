@@ -24,10 +24,13 @@ yes | yum groupinstall 'Development Tools'
 # remove brad's test file
 yes | rm /etc/httpd/conf.sites.d/test.conf
 echo 'ProxyTimeout 1800' >> /etc/httpd/conf/httpd.conf
+# undo varnish
+sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 # stop mysql, initial commands tee this up to ensure that it is running
 service mysql restart
+service php-fpm restart
 service httpd restart
 # make an admin group
 groupadd admin
@@ -35,8 +38,9 @@ groupadd elmsln
 # run the handsfree installer that's the same for all deployments
 # kick off hands free deployment
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 3 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
-
 service mysql restart
+service php-fpm restart
+service httpd restart
 
 cd $HOME
 source .bashrc
