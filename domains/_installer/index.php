@@ -72,7 +72,7 @@ switch ($step) {
       <h1 class="header center orange-text steptext">Step <?php print $step;?> of 6: <?php print $steptext; ?></h1>
       <div class="row">
         <div class="col s12 m8 push-m2">
-          <div class="logarea-wrapper">
+          <div id="logid" class="logarea-wrapper">
             Log:
             <pre class="logarea"><?php print $log;?></pre>
           </div>
