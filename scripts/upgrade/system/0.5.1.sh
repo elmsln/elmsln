@@ -38,3 +38,8 @@ echo "$(getuuid)" > /var/www/elmsln/config/SALT.txt
 echo "Install successful!\nRun drush @online uli if you need to recover your login info." > /var/www/elmsln/config/tmp/INSTALL-LOG.txt
 # make permissions match correctly for our new files we've made
 bash ../../utilities/harden-security.sh
+
+# regenerate the salt value
+drush @online elmsln-salt --y
+# rebuild the passwords now that the keychain has been updated / exists in the first place
+drush @elmsln elmsln-service-pwd --y
