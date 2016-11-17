@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { Critique } from '../../critique';
 import { CritiqueService } from '../../critique.service';
 import { Submission } from '../../submission';
-import { Subject } from 'rxjs/Rx';
+import { Subject, Observable } from 'rxjs/Rx';
 
 @Component({
   selector: 'cle-critique-form',
@@ -30,8 +30,7 @@ export class CritiqueFormComponent implements OnInit {
   ngOnInit() {
   }
 
-  submitForm(update$) {
-    update$.next();
+  submitForm() {
     if (this.content) {
       let newCritique: Critique =  new Critique(this.content);
       newCritique.submissionId = this.submission.nid;
@@ -48,8 +47,14 @@ export class CritiqueFormComponent implements OnInit {
     }
   }
 
+  onFocus() {
+  }
 
-  savedContent(event$) {
-    console.log(event$);
+  // When the content changes in the wysiwyg update the content variable
+  onChange($event) {
+    this.content = $event;
+    console.log(this.content);
+  }
+  onBlur() {
   }
 }
