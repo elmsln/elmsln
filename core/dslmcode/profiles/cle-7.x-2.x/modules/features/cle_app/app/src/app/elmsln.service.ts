@@ -60,4 +60,14 @@ export class ElmslnService {
       headers: headers
     });
   }
+
+  put(url, data) {
+    let headers = new Headers();
+    this.createAuthorizationHeader(headers);
+    this.createCSRFTokenHeader(headers);
+
+    return this.http.put(url, data, {
+      headers: headers
+    })
+  }
 }
