@@ -301,13 +301,16 @@ function elmsln_core_user_view($account, $view_mode, $langcode) {
         $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
         // Decode the data that comes in from the user object.
         $user_data = json_decode($user_data_uid->data);
-        $rendered = str_replace('/services/', '/', $user_data->rendered);
-        // Add a new section to the User profile page.
-        $account->content['summary']['profile'] = array(
-          '#type' => 'user_profile_item',
-          '#title' => '',
-          '#markup' => $rendered,
-        );
+        // ensure we got good data
+        if (isset($user_data->rendered)) {
+          $rendered = str_replace('/services/', '/', $user_data->rendered);
+          // Add a new section to the User profile page.
+          $account->content['summary']['profile'] = array(
+            '#type' => 'user_profile_item',
+            '#title' => '',
+            '#markup' => $rendered,
+          );
+        }
       }
     }
   }
