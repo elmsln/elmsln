@@ -841,6 +841,16 @@ function _elmsln_core_in_context_list() {
 }
 
 /**
+ * Implements hook_admin_paths().
+ */
+function elmsln_core_admin_paths() {
+  $paths = array(
+    'imce' => TRUE,
+  );
+  return $paths;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
@@ -965,10 +975,10 @@ function _elmsln_core_icon_libraries() {
 function elmsln_core_icon_library() {
   return array(
     'foundation_access' => array(
-      'title' => t('Foundation access'),
+      'title' => t('ELMS:LN icon set'),
     ),
     'material' => array(
-      'title' => t('Material'),
+      'title' => t('Material design icon set'),
     ),
   );
 }

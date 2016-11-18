@@ -794,7 +794,7 @@ function mooc_helper_elmsln_api_info() {
 function mooc_helper_admin_paths() {
   $paths = array(
     'admin/content/book' => FALSE,
-    'admin/content/book/*' => FALSE,
+    'admin/content/book/*' => TRUE,
     'import/feeds_node_helper_book_import' => FALSE,
     'admin/content/book/sar' => FALSE,
   );

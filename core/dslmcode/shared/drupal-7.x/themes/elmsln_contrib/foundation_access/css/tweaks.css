@@ -1,3 +1,7 @@
+.material-icon.elmsln-icon:before {
+  content:"";
+}
+
 #etb-course-nav .top-bar-section.title-link li a.active-trail {
   background-color: #eeeeee;
 }

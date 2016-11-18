@@ -246,6 +246,8 @@ function _cis_lmsless_assemble_network() {
       'machine_name' => $machine_name,
       'distro' => $vars['distro'],
     );
+    // bring along anything custom added, then mix in on-demand items
+    $list = $vars['services'];
     // services label specific to course context
     $service_group = t('Network');
     // request a list of all other services that this section uses
@@ -302,6 +304,7 @@ function _cis_lmsless_assemble_network() {
       }
 
       // service creation stuff inline
+      // @todo visualize this in a way that lets us quick trigger add services directly from here based on ones missing
       if (!empty($course_context) && _cis_connector_role_grouping('staff')) {
         $vars['service_option_link'] = _cis_connector_format_address($reg['cis'],  '/' . $course_context, 'front') . '/service-instances';
       }
