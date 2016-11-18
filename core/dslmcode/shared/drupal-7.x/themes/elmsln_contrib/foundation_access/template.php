@@ -109,6 +109,15 @@ function foundation_access_preprocess_html(&$variables) {
   }
   // make sure we have a logo before trying to render a real one to screen
   elseif (!empty($variables['logo'])) {
+    $variables['banner_image'] = theme('image', array(
+      'path' => theme_get_setting('logo_path'),
+      'alt' => '',
+      'attributes' => array(
+        'class' => array('logo__img'),
+      ),
+    ));
+  }
+  else {
     $logopath = drupal_get_path('theme', 'foundation_access') . '/logo.jpg';
     $variables['banner_image'] = theme('image', array(
       'path' => $logopath,

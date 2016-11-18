@@ -36,6 +36,8 @@ mkdir -p ${elmsln}/config/tmp
 echo "$(getuuid)" > /var/www/elmsln/config/SALT.txt
 # nullify this file for security though this shouldn't be an issue
 echo "Install successful!\nRun drush @online uli if you need to recover your login info." > /var/www/elmsln/config/tmp/INSTALL-LOG.txt
+# update banners so they render pervasively
+drush @courses-all elmsln-migrate-banner --y
 # make permissions match correctly for our new files we've made
 bash ../../utilities/harden-security.sh
 

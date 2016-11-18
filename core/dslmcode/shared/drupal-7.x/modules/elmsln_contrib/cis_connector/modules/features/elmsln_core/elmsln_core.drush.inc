@@ -25,6 +25,15 @@ function elmsln_core_drush_command() {
         'Updates the service account password',
     ),
   );
+  $items['elmsln-migrate-banner'] = array(
+    'description' => dt('Clone locally uploaded banner to correct location in scope CIS'),
+    'aliases' => array('elmsln-migrate-banner'),
+    'options' => array(),
+    'examples' => array(
+      'drush elmsln-migrate-banner' =>
+        'Copies local banner to correct location in CIS',
+    ),
+  );
   return $items;
 }
 
@@ -37,6 +46,8 @@ function elmsln_core_drush_help($section) {
       return dt('Change the salt value used to secure things network wide.');
     case 'drush:elmsln-rebuild-service-password':
       return dt('Rebuild password assoicated to the service account.');
+    case 'drush:elmsln-migrate-banner':
+      return dt('Copies local banner to correct location in CIS.');
   }
 }
 
@@ -116,5 +127,41 @@ function drush_elmsln_core_elmsln_rebuild_service_password() {
   }
   else {
     drush_print('The ELMSLN service user ' . $registry['user'] . ' password updated to match registry.');
+  }
+}
+
+/**
+ * Drush command callback for elmsln-migrate-banner.
+ */
+function drush_elmsln_core_elmsln_migrate_banner() {
+  global $elmslncfg;
+  $current = theme_get_setting('logo_path');
+  // only migrate if something was set
+  if (!empty($current)) {
+    // build the remote banner URI unless it's missing
+    $uri = 'elmslnauthority://cis/banners';
+    $bannerdir = _elmsln_core_realpath($uri);
+    if (!is_dir($bannerdir)) {
+      mkdir($bannerdir);
+    }
+    $banner = $bannerdir . '/' . _cis_connector_course_context() . '.jpg';
+    if (!file_exists($banner)) {
+      $current = $elmslncfg['elmsln'] . '/config/stacks/courses/' . variable_get('file_public_path', '') . '/' . file_uri_target($current);
+      if (file_exists($current)) {
+        // copy it over cause we have both
+        copy($current, $banner);
+        @chmod($banner, 0664);
+        @chown($banner, $elmslncfg['wwwuser']);
+      }
+      else {
+        drush_print('Current banner could not be found:' . $current);
+      }
+    }
+    else {
+      drush_print('Banner already exists in CIS, no reason to migrate.');
+    }
+  }
+  else {
+    drush_print('Nothing to migrate, needs a banner to function');
   }
 }

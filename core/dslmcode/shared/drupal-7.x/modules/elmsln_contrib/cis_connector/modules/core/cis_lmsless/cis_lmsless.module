@@ -247,7 +247,9 @@ function _cis_lmsless_assemble_network() {
       'distro' => $vars['distro'],
     );
     // bring along anything custom added, then mix in on-demand items
-    $list = $vars['services'];
+    if (isset($vars['services'])) {
+      $list = $vars['services'];
+    }
     // services label specific to course context
     $service_group = t('Network');
     // request a list of all other services that this section uses
