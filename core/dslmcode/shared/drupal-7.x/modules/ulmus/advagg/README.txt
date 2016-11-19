@@ -11,6 +11,8 @@ CONTENTS OF THIS FILE
  - Configuration
  - Additional options for `drupal_add_css/js` functions
  - JSMin PHP Extension
+ - Brotli PHP Extension
+ - Zopfli PHP Extension
  - JavaScript Bookmarklet
  - Technical Details & Hooks
  - How to get a high PageSpeed score
@@ -67,6 +69,7 @@ FEATURES & BENEFITS
    - Force preprocessing for all CSS/JS.
    - Move JS to footer.
    - Add defer tag to all JS.
+   - Defer loading of CSS.
    - Inline all CSS/JS for given paths.
    - Use a shared directory for a unified multisite.
  - `advagg_validator`:
@@ -85,10 +88,6 @@ Settings page is located at:
  - Enable Advanced Aggregation: Check this to start using this module. You can
    also quickly disable the module here. For testing purposes, this has the same
    effect as placing `?advagg=-1` in the URL. Disabled by default.
- - Create .gz files: Check this by default as it will improve your performance.
-   For every Aggregated file generated, this will create a gzip version of file
-   and then only serve it out if the browser accepts gzip files compression.
-   Enabled by default.
  - Use Cores Grouping Logic: Leave this checkbox enabled until you are ready to
    begin exploring the AdvAgg Bundler sub-module which overrides Core's
    functionality. This groups files just like Core does so should just work.
@@ -106,6 +105,51 @@ Settings page is located at:
    if your inline css/js changes based off of a variable then the aggressive
    cache hit ratio will be low; if that is the case consider using
    Drupal.settings for a better cache hit ratio.
+
+
+
+**Resource Hints**
+
+Preemptively get resources (CSS/JS & sub requests). This will set tags in the
+document head telling the browser to open up connections before they are needed.
+
+ - DNS Prefetch: Start the DNS lookup for external CSS and JavaScript files as
+   soon as possible.
+ - Preconnect: Start the connection to external resources before an HTTP request
+   is actually sent to the server. On HTTPS this can have a dramatic effect.
+ - Location of resource hints: This only needs to be changed if the above
+   settings are not working.
+ - Preload link http headers: If your server supports HTTP/2 push then this
+   allows for resources to be sent before the browser knows it needs it.
+
+**Cron Options**
+
+Adjusting the frequency of how often something happens on cron.
+
+**Obscure Options**
+
+ - Create .gz files: Check this by default as it will improve your performance.
+   For every Aggregated file generated, this will create a gzip version of file
+   and then only serve it out if the browser accepts gzip files compression.
+   Enabled by default.
+ - Create .br files: Check this by default as it will improve your performance.
+   For every Aggregated file generated, this will create a brotli version of
+   file and then only serve it out if the browser accepts gzip files
+   compression. Enabled by default IF the Brotli Extension for PHP is installed.
+   See https://github.com/kjdev/php-ext-brotli
+ - Run advagg_ajax_render_alter(): Turn this off if you're having issues with
+   ajax. Also keep in mind that the max_input_vars setting can cause issues if
+   you are submitting a lot of data.
+ - Include the base_url variable in the hooks hash array: Enabled only if you
+   know you need it.
+ - Convert absolute paths to be self references: Turn on unless pages are used
+   inside of an iframe.
+ - Convert absolute paths to be protocol relative paths: Safe to use unless you
+   need to support IE6.
+ - Convert http:// to https://: Usually not needed, but here incase you do.
+ - Do not run CSS url() values through file_create_url(): Usually not needed,
+   but here incase you do.
+
 
 **CSS Options & JS Options**
 
@@ -136,6 +180,8 @@ located at `admin/config/development/performance/advagg/info`. This page
 provides debugging information. There are no configuration options here.
 
  - Hook Theme Info: Displays the `process_html` order. Used for debugging.
+ - Hook Render Info: Displays the scripts and styles render callbakcs. Used for
+   debugging.
  - CSS files: Displays how often a file has changed.
  - JS files: Displays how often a file has changed.
  - Modules implementing AdvAgg CSS/JS hooks: Lets you know what modules are
@@ -166,20 +212,35 @@ the Smart Cache Flush. There are no configuration options here.
       session. It acts almost the same as adding `?advagg=0` to every URL.
 
  - Cron Maintenance Tasks
-   - Remove All Stale Files: Scan all files in the `advagg_css/js` directories
+   - Clear All Stale Files: Scan all files in the `advagg_css/js` directories
      and remove the ones that have not been accessed in the last 30 days.
+   - Delete Orphaned Aggregates: Scan CSS/JS advagg dir and remove file if
+     there is no associated db record.
    - Clear Missing Files From the Database: Scan for missing files and remove
      the associated entries in the database.
    - Delete Unused Aggregates from Database: Delete aggregates that have not
      been accessed in the last 6 weeks.
    - Delete orphaned/expired advagg locks from the semaphore database table.
+   - Delete leftover temporary files: Delete old temporary files from the
+     filesystem.
 
  - Drastic Measures
    - Clear All Caches: Remove all data stored in the advagg cache bins.
-   - Remove All Generated Files. Remove all files in the `advagg_css/js`
-     directories.
-   - Increment Global Counter: Force the creation of all new aggregates by
-     incrementing a global counter.
+   - Clear All Files: Remove All Generated Files. Remove all files in the
+     `advagg_(css|js)` directories.
+   - Force New Aggregates: Increment Global Counter. Force the creation of all
+     new aggregates by incrementing a global counter.
+   - Rescan All Files: Force rescan all files and clear the cache. Useful if a
+     css/js change from a deployment did not work.
+   - Remove deleted files in the advagg_files table: Remove entries in the
+     advagg_files table that have a filesize of 0 and delete the
+     javascript_parsed variable. This gets around the grace period that the
+     cron cleanup does.
+   - Reset the AdvAgg Files table: Truncate the advagg_files table and delete
+     the javascript_parsed variable. This may cause some 404s for CSS/JS assets
+     for a short amount of time (seconds). Useful if you really want to reset
+     some stuff. Might be best to put the site into maintenance mode before
+     doing this.
 
 **Hidden Settings**
 
@@ -267,6 +328,12 @@ current defaults are shown.
     // future.
     $conf['advagg_strict_mtime_check'] = TRUE;
 
+    // Skip 304 check on status page.
+    $conf['advagg_skip_304_check'] = FALSE;
+
+    // Control how many bytes can be inlined.
+    $conf['advagg_mod_css_defer_inline_size_limit'] = 12288;
+
 
 ADDITIONAL OPTIONS FOR DRUPAL_ADD_CSS/JS FUNCTIONS
 --------------------------------------------------
@@ -296,6 +363,23 @@ and minimizing will be done in C instead of PHP dramatically speeding up the
 process. If using PHP 5.3.10 or higher https://github.com/sqmk/pecl-jsmin is
 recommended. If using PHP 5.3.9 or lower
 http://www.ypass.net/software/php_jsmin/ is recommended.
+
+
+BROTLI PHP EXTENSION
+--------------------
+
+The AdvAgg module can take advantage of Brotli compression. Install this
+extension to take advantage of it. Should reduce CSS/JS files by 20%.
+https://github.com/kjdev/php-ext-brotli
+
+
+ZOPFLI PHP EXTENSION
+--------------------
+
+The AdvAgg module can take advantage of the Zopfli compression algorithm.
+Install this extension to take advantage of it. This gives higher gzip
+compression ratios compared to stock PHP.
+https://github.com/kjdev/php-ext-zopfli
 
 
 JAVASCRIPT BOOKMARKLET
@@ -426,23 +510,43 @@ HOW TO GET A HIGH PAGESPEED SCORE
 
 Go to `admin/config/development/performance/advagg`
 
- - uncheck "Use cores grouping logic"
- - check "Combine CSS files by using media queries"
+ - Uncheck "Use cores grouping logic"
+ - Check DNS Prefetch and Preconnect under Resource Hints
+ - Check "Combine CSS files by using media queries"
 
 Install AdvAgg Modifier if not enabled and go to
 `admin/config/development/performance/advagg/mod`
 
- - Under "Move JS to the footer" Select "All"
- - set "Enable preprocess on all JS/CSS"
- - set "Move JavaScript added by `drupal_add_html_head()`
-   into `drupal_add_js()`"
- - set "Move CSS added by `drupal_add_html_head()` into `drupal_add_css()`"
+ - Check "Enable preprocess on all JS/CSS"
+ - Check "Resource hint src attributes found in the HTML content"
  - Enable every checkbox under "Optimize JavaScript/CSS Ordering"
+ - Under "Move JS to the footer" Select
+   "All but what is in the $all_in_footer_list"
+ - Under "Deferred JavaScript Execution: Add The defer Tag To All Script Tags"
+   Select "All but external scripts"
+ - Check "Put a wrapper around inline JS if it was added in the content section
+   incorrectly"
+ - Check "Deferred inline JavaScript Execution: Put a wrapper around inline JS
+   so it runs from a setTimeout call."
+ - Under "Deferred CSS Execution: Use JS to load CSS" select "All in head, use
+   link rel="preload" (If enabled this is recommended)"
+ - Under "Defer CSS only on specific pages" select
+   "All pages except those listed"
+ - Under "Do not defer the first css file" select
+   "Inline CSS (no more than 12K)"
 
 Install AdvAgg Compress Javascript if not enabled and go to
 `admin/config/development/performance/advagg/js-compress`
 
  - Select JSMin if available; otherwise select JSMin+
+
+Install AdvAgg Async Font Loader if not enabled and go to
+`admin/config/development/performance/advagg/font`
+
+ - Select Inline javascript (version: X.X.X). If this option is not available
+   follow the directions right below the options on how to install it.
+ - Check "Set a cookie so the flash of unstyled text (FOUT) only happens once."
+ - Check "Prevent the Flash of Unstyled Text."
 
 **Other things to consider**
 
@@ -463,6 +567,12 @@ ideally with only the css/js that is different on that page. You can select how
 many bundles to create and the bundler will do it's best to meet that goal; if
 using browser css/js conditionals (js browser conditionals backported from D8
 https://drupal.org/node/865536) then the bundler might not meet your set value.
+
+Current recommendations for the bundler:
+
+ - Under "Target Number Of CSS Bundles Per Page" select 2
+ - Under "Target Number Of JS Bundles Per Page" select 5
+ - Under "Grouping logic" select "File size"
 
 
 SETTINGS THAT DRUPAL.ORG USES

@@ -258,6 +258,11 @@ define('ADVAGG_BROTLI', TRUE);
  */
 define('ADVAGG_NO_ZOPFLI', FALSE);
 
+/**
+ * If true do test for 304 files on the status report page.
+ */
+define('ADVAGG_SKIP_304_CHECK', FALSE);
+
 // Core hook implementations.
 /**
  * Inbound URL rewrite helper.
@@ -1051,7 +1056,7 @@ function advagg_js_alter(&$js) {
       if ($value['type'] === 'external'
         && stripos($value['data'], 'http://') !== 0
         && stripos($value['data'], 'https://') !== 0
-        && stripos($value['data'], '//') !== 0
+        && strpos($value['data'], '//') !== 0
         ) {
         $value['type'] = 'file';
       }
@@ -1061,7 +1066,7 @@ function advagg_js_alter(&$js) {
       if ($value['type'] === 'file'
         && (stripos($value['data'], 'http://') === 0
         || stripos($value['data'], 'https://') === 0
-        || (stripos($value['data'], '//') === 0 && stripos($value['data'], '///') === FALSE))
+        || (strpos($value['data'], '//') === 0 && strpos($value['data'], '///') === FALSE))
         ) {
         $value['type'] = 'external';
       }
@@ -1073,7 +1078,7 @@ function advagg_js_alter(&$js) {
         && stripos($value['data'], $mod_base_url) !== FALSE
         && (stripos($value['data'], 'http://') === 0
           || stripos($value['data'], 'https://') === 0
-          || stripos($value['data'], '//') === 0
+          || strpos($value['data'], '//') === 0
           )
       ) {
         $value['type'] = 'file';
@@ -1120,7 +1125,7 @@ function advagg_css_alter(&$css) {
       if ($value['type'] === 'external'
         && stripos($value['data'], 'http://') !== 0
         && stripos($value['data'], 'https://') !== 0
-        && stripos($value['data'], '//') !== 0
+        && strpos($value['data'], '//') !== 0
         ) {
         $value['type'] = 'file';
       }
@@ -1130,8 +1135,8 @@ function advagg_css_alter(&$css) {
       if ($value['type'] === 'file'
         && (stripos($value['data'], 'http://') === 0
           || stripos($value['data'], 'https://') === 0
-          || (stripos($value['data'], '//') === 0
-            && stripos($value['data'], '///') === FALSE
+          || (strpos($value['data'], '//') === 0
+            && strpos($value['data'], '///') === FALSE
             )
           )
       ) {
@@ -1139,33 +1144,6 @@ function advagg_css_alter(&$css) {
       }
     }
     unset($value);
-  }
-}
-
-/**
- * Implements hook_admin_menu_cache_info().
- *
- * Add in a cache flush for advagg.
- */
-function advagg_admin_menu_cache_info() {
-  if (variable_get('advagg_enabled', ADVAGG_ENABLED)) {
-    $caches['advagg'] = array(
-      'title' => t('Adv CSS/JS Agg'),
-      'callback' => 'advagg_admin_flush_cache',
-    );
-    return $caches;
-  }
-}
-
-/**
- * Implements hook_admin_menu_output_alter().
- *
- * Add in a cache flush for advagg.
- */
-function advagg_admin_menu_output_alter(array &$content) {
-  if (variable_get('advagg_enabled', ADVAGG_ENABLED)) {
-    // Remove default core aggregation link.
-    unset($content['icon']['icon']['flush-cache']['assets']);
   }
 }
 
@@ -1210,6 +1188,44 @@ function advagg_preprocess_html() {
 function advagg_form_system_performance_settings_alter(&$form, &$form_state) {
   module_load_include('admin.inc', 'advagg');
   advagg_admin_system_performance_settings_form($form, $form_state);
+}
+
+// 3rd party hook implementations.
+/**
+ * Implements hook_admin_menu_cache_info().
+ *
+ * Add in a cache flush for advagg.
+ */
+function advagg_admin_menu_cache_info() {
+  if (variable_get('advagg_enabled', ADVAGG_ENABLED)) {
+    $caches['advagg'] = array(
+      'title' => t('Adv CSS/JS Agg'),
+      'callback' => 'advagg_admin_flush_cache',
+    );
+    return $caches;
+  }
+}
+
+/**
+ * Implements hook_admin_menu_output_alter().
+ *
+ * Add in a cache flush for advagg.
+ */
+function advagg_admin_menu_output_alter(array &$content) {
+  if (variable_get('advagg_enabled', ADVAGG_ENABLED)) {
+    // Remove default core aggregation link.
+    unset($content['icon']['icon']['flush-cache']['assets']);
+  }
+}
+
+/**
+ * Implements hook_anonymous_login_paths_alter().
+ */
+function advagg_anonymous_login_paths_alter(&$paths) {
+  // Exclude advagg css/js paths.
+  list($css_path, $js_path) = advagg_get_root_files_dir();
+  $paths['exclude'][] = $css_path[1] . '/*';
+  $paths['exclude'][] = $js_path[1] . '/*';
 }
 
 // Core CSS/JS override functions.
@@ -4206,16 +4222,16 @@ function advagg_group_js(array $javascript) {
       // Check for the schema or // for protocol-relative.
       elseif ((stripos($item['data'], 'http://') === 0
             || stripos($item['data'], 'https://') === 0
-            || (stripos($item['data'], '//') === 0 && stripos($item['data'], '///') === FALSE))
+            || (strpos($item['data'], '//') === 0 && strpos($item['data'], '///') === FALSE))
       ) {
         $item['type'] = 'external';
       }
       // See if the data contains a semicolon, new line, $, or quotes.
-      elseif (stripos($item['data'], ';') !== FALSE
-            || stripos($item['data'], "\n")
-            || stripos($item['data'], "$")
-            || stripos($item['data'], "'")
-            || stripos($item['data'], '"')
+      elseif (strpos($item['data'], ';') !== FALSE
+            || strpos($item['data'], "\n")
+            || strpos($item['data'], "$")
+            || strpos($item['data'], "'")
+            || strpos($item['data'], '"')
       ) {
         $item['type'] = 'inline';
       }
@@ -4524,7 +4540,7 @@ function advagg_convert_abs_to_rel($path) {
   if (strpos($path, $GLOBALS['base_url']) === 0) {
     $base_url = $GLOBALS['base_url'];
     // Add a slash if none is found.
-    if (stripos(strrev($base_url), '/') !== 0) {
+    if (strpos(strrev($base_url), '/') !== 0) {
       $base_url .= '/';
     }
     $path = str_replace($base_url, $GLOBALS['base_path'], $path);
@@ -4533,7 +4549,7 @@ function advagg_convert_abs_to_rel($path) {
     $base_url = $base_url_start = advagg_convert_abs_to_protocol($GLOBALS['base_url']);
     if (strpos($path, $base_url_start) === 0) {
       // Add a slash if none is found.
-      if (stripos(strrev($base_url), '/') !== 0) {
+      if (strpos(strrev($base_url), '/') !== 0) {
         $base_url .= '/';
       }
       $path = str_replace($base_url, $GLOBALS['base_path'], $path);

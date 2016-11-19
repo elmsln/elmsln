@@ -317,14 +317,10 @@ function advagg_mod_admin_settings_form() {
   $form['css']['placement'] = array(
     '#type' => 'fieldset',
     '#title' => t('Adjust CSS location and execution'),
-  );
-  $form['css']['placement']['expert'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Experimental Settings'),
     '#collapsible' => TRUE,
     '#collapsed' => !variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER),
   );
-  $form['css']['placement']['expert']['advagg_mod_css_defer'] = array(
+  $form['css']['placement']['advagg_mod_css_defer'] = array(
     '#type' => 'radios',
     '#title' => t('Deferred CSS Execution: Use JS to load CSS'),
     '#default_value' => variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER),
@@ -340,18 +336,6 @@ function advagg_mod_admin_settings_form() {
       '@link' => 'http://stackoverflow.com/questions/19374843/css-delivery-optimization-how-to-defer-css-loading',
     )),
   );
-  $form['css']['placement']['expert']['advagg_mod_css_defer_admin'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use JS to load CSS in the admin theme'),
-    '#default_value' => variable_get('advagg_mod_css_defer_admin', ADVAGG_MOD_CSS_DEFER_ADMIN),
-    '#description' => t('This will optimize CSS delivery with JavaScript when viewing the admin theme'),
-    '#states' => array(
-      'disabled' => array(
-        ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
-      ),
-    ),
-  );
-
   // Taken from block_admin_configure().
   $access = user_access('use PHP for settings');
   $css_defer_pages = variable_get('advagg_mod_css_defer_pages', '');
@@ -376,17 +360,17 @@ function advagg_mod_admin_settings_form() {
   }
 
   if ($visibility_defer == ADVAGG_MOD_VISIBILITY_PHP && !$access) {
-    $form['css']['placement']['expert']['visibility_all'] = array(
+    $form['css']['placement']['visibility_all'] = array(
       '#type' => 'value',
       '#value' => $visibility_defer,
     );
-    $form['css']['placement']['expert']['pages_all'] = array(
+    $form['css']['placement']['pages_all'] = array(
       '#type' => 'value',
       '#value' => $css_defer_pages,
     );
   }
   else {
-    $form['css']['placement']['expert']['advagg_mod_css_defer_visibility'] = array(
+    $form['css']['placement']['advagg_mod_css_defer_visibility'] = array(
       '#type' => 'radios',
       '#title' => t('Defer CSS only on specific pages'),
       '#options' => $options,
@@ -398,7 +382,7 @@ function advagg_mod_admin_settings_form() {
         ),
       ),
     );
-    $form['css']['placement']['expert']['advagg_mod_css_defer_pages'] = array(
+    $form['css']['placement']['advagg_mod_css_defer_pages'] = array(
       '#type' => 'textarea',
       '#title' => '<span class="element-invisible">' . $title . '</span>',
       '#default_value' => $css_defer_pages,
@@ -410,8 +394,23 @@ function advagg_mod_admin_settings_form() {
       ),
     );
   }
-
-  $form['css']['placement']['expert']['advagg_mod_css_defer_js_code'] = array(
+  $form['css']['placement']['advagg_mod_css_defer_skip_first_file'] = array(
+    '#type' => 'radios',
+    '#title' => t('Do not defer the first css file'),
+    '#default_value' => variable_get('advagg_mod_css_defer_skip_first_file', ADVAGG_MOD_CSS_DEFER_SKIP_FIRST_FILE),
+    '#description' => t('Link Stylesheet will make the first css file be blocking. Inline CSS will inline up to @size of the first CSS files.', array('@size' => advagg_mod_admin_byte2human(variable_get('advagg_mod_css_defer_inline_size_limit', ADVAGG_MOD_CSS_DEFER_INLINE_SIZE_LIMIT)))),
+    '#options' => array(
+      0 => t('Disabled'),
+      2 => t('Link Stylesheet'),
+      4 => t('Inline CSS (no more than @size)', array('@size' => advagg_mod_admin_byte2human(variable_get('advagg_mod_css_defer_inline_size_limit', ADVAGG_MOD_CSS_DEFER_INLINE_SIZE_LIMIT)))),
+    ),
+    '#states' => array(
+      'disabled' => array(
+        ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
+      ),
+    ),
+  );
+  $form['css']['placement']['advagg_mod_css_defer_js_code'] = array(
     '#type' => 'radios',
     '#title' => t('How to include the JS loading code'),
     '#default_value' => variable_get('advagg_mod_css_defer_js_code', ADVAGG_MOD_CSS_DEFER_JS_CODE),
@@ -423,6 +422,17 @@ function advagg_mod_admin_settings_form() {
     '#description' => t('The <a href="@link">loadCSS</a> library can be included in various ways.', array(
       '@link' => 'https://github.com/filamentgroup/loadCSS',
     )),
+    '#states' => array(
+      'disabled' => array(
+        ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
+      ),
+    ),
+  );
+  $form['css']['placement']['advagg_mod_css_defer_admin'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use JS to load CSS in the admin theme'),
+    '#default_value' => variable_get('advagg_mod_css_defer_admin', ADVAGG_MOD_CSS_DEFER_ADMIN),
+    '#description' => t('This will optimize CSS delivery with JavaScript when viewing the admin theme'),
     '#states' => array(
       'disabled' => array(
         ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
@@ -683,4 +693,27 @@ function advagg_mod_admin_test_css_files() {
     }
   }
   return $output;
+}
+
+/**
+ * Converts a number of bytes into human readable format.
+ *
+ * @param string $bytes
+ *   Number to convert into a more human readable format.
+ * @param int $precision
+ *   Number of decimals to output.
+ *
+ * @return string
+ *   Human readable format of the bytes.
+ */
+function advagg_mod_admin_byte2human($bytes, $precision = 0) {
+  $units = array('', 'K', 'M', 'G', 'T');
+
+  $bytes = max($bytes, 0);
+  $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+  $pow = min($pow, count($units) - 1);
+  $bytes /= (1 << (10 * $pow));
+
+  $output = ceil(round($bytes, $precision + 2) * 10) / 10;
+  return $output . '' . $units[$pow];
 }

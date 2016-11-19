@@ -176,6 +176,16 @@ define('ADVAGG_MOD_PREFETCH', FALSE);
  */
 define('ADVAGG_MOD_CSS_DEFER_REL_PRELOAD', FALSE);
 
+/**
+ * Default value to not defer the first CSS file.
+ */
+define('ADVAGG_MOD_CSS_DEFER_SKIP_FIRST_FILE', 0);
+
+/**
+ * Default value of the inlined css size.
+ */
+define('ADVAGG_MOD_CSS_DEFER_INLINE_SIZE_LIMIT', 12288);
+
 // Core hook implementations.
 /**
  * Implements hook_module_implements_alter().
@@ -213,6 +223,10 @@ function advagg_mod_library_alter(&$javascript, $module) {
  * Implements hook_init().
  */
 function advagg_mod_init() {
+  if (!module_exists('advagg') || !advagg_enabled()) {
+    return;
+  }
+
   // Adjust devel_shutdown callback.
   if (variable_get('advagg_enabled', ADVAGG_ENABLED)
   && (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)
@@ -297,7 +311,7 @@ function advagg_mod_menu() {
  * Implements hook_js_alter().
  */
 function advagg_mod_js_alter(&$js) {
-  if (module_exists('advagg') && !advagg_enabled()) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
     return;
   }
 
@@ -444,7 +458,7 @@ function advagg_mod_element_info_alter(&$type) {
  * Implements hook_css_alter().
  */
 function advagg_mod_css_alter(&$css) {
-  if (module_exists('advagg') && !advagg_enabled()) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
     return;
   }
 
@@ -469,6 +483,10 @@ function advagg_mod_css_alter(&$css) {
  * Implements hook_html_head_alter().
  */
 function advagg_mod_html_head_alter(&$head_elements) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
+    return;
+  }
+
   foreach ($head_elements as $key => $element) {
     // CSS.
     if (variable_get('advagg_mod_css_head_extract', ADVAGG_MOD_CSS_HEAD_EXTRACT)
@@ -528,6 +546,10 @@ function advagg_mod_html_head_alter(&$head_elements) {
  * Insert advagg_mod_process_move_js before _advagg_process_html.
  */
 function advagg_mod_theme_registry_alter(&$theme_registry) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
+    return;
+  }
+
   if (!isset($theme_registry['html'])) {
     return;
   }
@@ -552,6 +574,10 @@ function advagg_mod_theme_registry_alter(&$theme_registry) {
  * moved to the footer.
  */
 function advagg_mod_process_move_js(array &$variables) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
+    return;
+  }
+
   // Return if settings are disabled.
   if (!variable_get('advagg_mod_js_footer_inline_alter', ADVAGG_MOD_JS_FOOTER_INLINE_ALTER)
     && !variable_get('advagg_mod_js_inline_resource_hints', ADVAGG_MOD_JS_INLINE_RESOURCE_HINTS)
@@ -597,7 +623,7 @@ function advagg_mod_process_move_js(array &$variables) {
  * Implements hook_advagg_modify_js_pre_render_alter().
  */
 function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
-  if (module_exists('advagg') && !advagg_enabled()) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
     return;
   }
 
@@ -730,7 +756,7 @@ function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
  * Implements hook_advagg_modify_css_pre_render_alter().
  */
 function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
-  if (module_exists('advagg') && !advagg_enabled()) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
     return;
   }
 
@@ -754,6 +780,8 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
 
   $css_defer_js_code = variable_get('advagg_mod_css_defer_js_code', ADVAGG_MOD_CSS_DEFER_JS_CODE);
 
+  $defer_skip_first_file = variable_get('advagg_mod_css_defer_skip_first_file', ADVAGG_MOD_CSS_DEFER_SKIP_FIRST_FILE);
+
   // Make loadCSS() available.
   $type = 'external';
   // https://github.com/filamentgroup/loadCSS.
@@ -769,7 +797,7 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
   if ($css_defer_js_code == 0) {
     $type = 'inline';
     $data = '/*! loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
-!function(e){"use strict";var t=function(t,n,r){function o(e){return i.body?e():void setTimeout(function(){o(e)})}function a(){d.addEventListener&&d.removeEventListener("load",a),d.media=r||"all"}var l,i=e.document,d=i.createElement("link");if(n)l=n;else{var s=(i.body||i.getElementsByTagName("head")[0]).childNodes;l=s[s.length-1]}var u=i.styleSheets;d.rel="stylesheet",d.href=t,d.media="only x",o(function(){l.parentNode.insertBefore(d,n?l:l.nextSibling)});var f=function(e){for(var t=d.href,n=u.length;n--;)if(u[n].href===t)return e();setTimeout(function(){f(e)})};return d.addEventListener&&d.addEventListener("load",a),d.onloadcssdefined=f,f(a),d};"undefined"!=typeof exports?exports.loadCSS=t:e.loadCSS=t}("undefined"!=typeof global?global:this);';
+!function(e){"use strict";var n=function(n,t,o){function i(e){return a.body?e():void setTimeout(function(){i(e)})}function r(){l.addEventListener&&l.removeEventListener("load",r),l.media=o||"all"}var d,a=e.document,l=a.createElement("link");if(t)d=t;else{var s=(a.body||a.getElementsByTagName("head")[0]).childNodes;d=s[s.length-1]}var f=a.styleSheets;l.rel="stylesheet",l.href=n,l.media="only x",i(function(){d.parentNode.insertBefore(l,t?d:d.nextSibling)});var u=function(e){for(var n=l.href,t=f.length;t--;)if(f[t].href===n)return e();setTimeout(function(){u(e)})};return l.addEventListener&&l.addEventListener("load",r),l.onloadcssdefined=u,u(r),l};"undefined"!=typeof exports?exports.loadCSS=n:e.loadCSS=n}("undefined"!=typeof global?global:this);';
   }
   $options = array(
     'type' => $type,
@@ -808,7 +836,7 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
     if ($css_defer_js_code == 0) {
       $type = 'inline';
       $data = '/*! CSS rel=preload polyfill. Depends on loadCSS function. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT  */
-(window.preloadpolyfill=function(e){if(e.loadCSS){var t=loadCSS.relpreload={};if(t.support=function(){try{return e.document.createElement("link").relList.supports("preload")}catch(t){return!1}},t.poly=function(){for(var t=e.document.getElementsByTagName("link"),n=0;n<t.length;n++){var r=t[n];"preload"===r.rel&&"style"===r.getAttribute("as")&&(e.loadCSS(r.href,r),r.rel=null)}},!t.support()){t.poly();var n=e.setInterval(t.poly,300);e.addEventListener&&e.addEventListener("load",function(){e.clearInterval(n)}),e.attachEvent&&e.attachEvent("onload",function(){e.clearInterval(n)})}}})(this),document.addEventListener("DOMContentLoaded",function(){preloadpolyfill(window)},!1);';
+!function(t){if(t.loadCSS){var e=loadCSS.relpreload={};if(e.support=function(){try{return t.document.createElement("link").relList.supports("preload")}catch(e){return!1}},e.poly=function(){for(var e=t.document.getElementsByTagName("link"),n=0;n<e.length;n++){var r=e[n];"preload"===r.rel&&"style"===r.getAttribute("as")&&(t.loadCSS(r.href,r,r.getAttribute("media")),r.rel=null)}},!e.support()){e.poly();var n=t.setInterval(e.poly,300);t.addEventListener&&t.addEventListener("load",function(){e.poly();t.clearInterval(n)}),t.attachEvent&&t.attachEvent("onload",function(){t.clearInterval(n)})}}}(this);';
     }
     $options = array(
       'type' => $type,
@@ -842,11 +870,15 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
   );
   $preload_array = array();
   foreach ($children as &$values) {
-    // Do not defer inline scripts.
+    // Do not defer inline styles.
     if ($values['#tag'] === 'style') {
       continue;
     }
     if (!empty($values['#attributes']['href'])) {
+      if (empty($preload_array) && $defer_skip_first_file == 2) {
+        $preload_array[] = array();
+        continue;
+      }
       if ($css_defer == 4) {
         $copy = $values;
         $copy['#attributes']['rel'] = 'preload';
@@ -967,6 +999,10 @@ function advagg_mod_advagg_current_hooks_hash_array_alter(&$aggregate_settings) 
  *   Render array.
  */
 function advagg_mod_js_no_ajaxpagestate(array &$scripts) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
+    return;
+  }
+
   if (!variable_get('advagg_mod_js_no_ajaxpagestate', ADVAGG_MOD_JS_NO_AJAXPAGESTATE) || variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
     return;
   }
@@ -1122,6 +1158,10 @@ function advagg_mod_get_lists(array $js = array(), array $css = array()) {
       $inline_js_defer_skip_list[] = 'GA_googleAddSlot(';
       $inline_js_defer_skip_list[] = 'GA_googleFetchAds(';
       $inline_js_defer_skip_list[] = 'GA_googleFillSlot(';
+    }
+
+    if (module_exists('h5p')) {
+      $inline_js_wrap_skip_list[] = 'H5PIntegration';
     }
 
     $move_js_to_footer = variable_get('advagg_mod_js_footer', ADVAGG_MOD_JS_FOOTER);
@@ -1577,8 +1617,22 @@ function _advagg_mod_pre_render_scripts(array $elements) {
  * @see drupal_get_css()
  */
 function _advagg_mod_pre_render_styles(array $elements) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
+    return $elements;
+  }
+
   if (advagg_mod_inline_page() || advagg_mod_inline_page_css()) {
     advagg_mod_inline_css($elements['#items']);
+  }
+  elseif (variable_get('advagg_mod_css_defer_skip_first_file', ADVAGG_MOD_CSS_DEFER_SKIP_FIRST_FILE) == 4) {
+    list(, , , , , , , , , , $css_defer) = advagg_mod_get_lists(array(), $elements['#items']);
+    $css_defer_admin = variable_get('advagg_mod_css_defer_admin', ADVAGG_MOD_CSS_DEFER_ADMIN);
+    if (advagg_mod_css_defer_page()
+      && !empty($css_defer)
+      && (!empty($css_defer_admin) || !path_is_admin(current_path()))
+    ) {
+      advagg_mod_inline_css($elements['#items'], 0, variable_get('advagg_mod_css_defer_inline_size_limit', ADVAGG_MOD_CSS_DEFER_INLINE_SIZE_LIMIT));
+    }
   }
 
   return $elements;
@@ -1679,7 +1733,7 @@ function advagg_mod_xpath_script_external_dns($html) {
 function advagg_mod_defer_inline_js($input) {
   if (variable_get('advagg_mod_js_defer_jquery', ADVAGG_MOD_JS_DEFER_JQUERY)
     && (stripos($input, 'jQuery') !== FALSE
-      || stripos($input, '$(') !== FALSE
+      || strpos($input, '$(') !== FALSE
       || stripos($input, 'Drupal.') !== FALSE
     )
     ) {
@@ -2101,15 +2155,21 @@ function advagg_mod_inline_js(array &$js) {
  *
  * @param array $css
  *   CSS array.
+ * @param int $file_limit
+ *   The number of files to inline; 0 means no limit.
+ * @param int $size_limit
+ *   The number of bytes to inline; 0 means no limit.
  *
  * @see advagg_get_css_aggregate_contents()
  * @see drupal_build_css_cache()
  */
-function advagg_mod_inline_css(array &$css) {
+function advagg_mod_inline_css(array &$css, $file_limit = 0, $size_limit = 0) {
   $aggregate_settings = advagg_current_hooks_hash_array();
   $optimize = TRUE;
   module_load_include('inc', 'advagg', 'advagg');
 
+  $count = 0;
+  $size = 0;
   foreach ($css as &$values) {
     // Only process files.
     if ($values['type'] !== 'file') {
@@ -2118,6 +2178,9 @@ function advagg_mod_inline_css(array &$css) {
 
     $file = $values['data'];
     if (file_exists($file)) {
+      if (!empty($file_limit) && $count > $file_limit) {
+        break;
+      }
       $contents = advagg_load_css_stylesheet($file, $optimize, $aggregate_settings);
 
       // Allow other modules to modify this files contents.
@@ -2132,8 +2195,14 @@ function advagg_mod_inline_css(array &$css) {
       $contents = preg_replace($regexp, '', $contents);
       $contents = implode('', $matches[0]) . $contents;
 
+      $size += strlen($contents);
+      if (!empty($size_limit) && $size > $size_limit) {
+        break;
+      }
+
       $values['data'] = $contents;
       $values['type'] = 'inline';
+      $count++;
     }
   }
   unset($values);

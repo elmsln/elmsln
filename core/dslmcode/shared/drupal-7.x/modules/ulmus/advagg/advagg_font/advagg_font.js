@@ -58,7 +58,7 @@ function advagg_run_check_inner(key, value) {
   if (Drupal.settings.advagg_font_cookie == 1) {
     var expire_date = new Date(new Date().getTime() + 86400 * 1000);
     document.cookie = 'advaggfont_' + key + '=' + value
-      + '; expires=' + expire_date.toGMTString()
+      + '; expires=' + expire_date.toUTCString()
       + '; domain=.' + document.location.hostname
       + '; path=/';
   }

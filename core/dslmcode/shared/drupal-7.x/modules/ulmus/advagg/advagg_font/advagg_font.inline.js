@@ -10,14 +10,14 @@
  */
 function advagg_font_inline() {
   'use strict';
-  var fonts = document.cookie.split('advagg');
+  var fonts = document.cookie.split('advaggf');
   for (var i = 0; i < fonts.length; i++) {
     var font = fonts[i].split('=');
-    var pos = font[0].indexOf('font_');
+    var pos = font[0].indexOf('ont_');
     if (pos !== -1) {
       // Only allow alpha numeric class names.
-      window.document.documentElement.className += ' ' + font[0].substr(5).replace(/[^a-zA-Z0-9\-]/g, '');
-      alert(font[0].substr(5).replace(/[^a-zA-Z0-9\-]/g, ''));
+      window.document.documentElement.className += ' ' + font[0].substr(4).replace(/[^a-zA-Z0-9\-]/g, '');
+      alert(font[0].substr(4).replace(/[^a-zA-Z0-9\-]/g, ''));
     }
   }
 }
