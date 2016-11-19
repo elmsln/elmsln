@@ -13,7 +13,7 @@ $plugin = array(
 );
 
 function ctools_user_signature_content_type_render($subtype, $conf, $panel_args, $context) {
-  $account = isset($context->data) ? clone($context->data) : NULL;
+  $account = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'user-signature';
 

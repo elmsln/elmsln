@@ -698,7 +698,7 @@ function page_manager_page_form_menu($form, &$form_state) {
     '#title' => t('Title'),
     '#type' => 'textfield',
     '#default_value' => $menu['title'],
-    '#description' => t('If set to normal or tab, enter the text to use for the menu item.'),
+    '#description' => t('If set to normal or tab, enter the text to use for the menu item. Renaming the menu item using the Drupal menu system (admin/structure/menu) will override this, even if it is renamed again here.'),
     '#dependency' => array('radio:menu[type]' => array('normal', 'tab', 'default tab', 'action')),
   );
 

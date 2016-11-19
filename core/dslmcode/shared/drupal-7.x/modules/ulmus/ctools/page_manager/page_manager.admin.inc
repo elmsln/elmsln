@@ -1542,9 +1542,15 @@ function page_manager_handler_import_submit(&$form, &$form_state) {
  * Rearrange the order of variants.
  */
 function page_manager_handler_rearrange($form, &$form_state) {
+  ctools_include('context-task-handler');
   $page = $form_state['page'];
 
   $form['handlers'] = array('#tree' => TRUE);
+
+  // Get the number of variants to be displayed in order to set the delta
+  // to the proper value.  This fixes problems in previous versions with sorting
+  // large numbers of variants.
+  $delta = count($page->handler_info)/2 + 1;
 
   foreach ($page->handler_info as $id => $info) {
     if ($info['changed'] & PAGE_MANAGER_CHANGED_DELETED) {
@@ -1552,15 +1558,26 @@ function page_manager_handler_rearrange($form, &$form_state) {
     }
     $handler = $page->handlers[$id];
     $plugin = page_manager_get_task_handler($handler->handler);
-
+    $object = ctools_context_handler_get_task_object($page->task, $page->subtask, $handler);
+    $display = new stdClass();
+    $display->context = ctools_context_load_contexts($object, TRUE);
+    $content = page_manager_get_handler_title($plugin, $handler, $page->task, $page->subtask_id);
+    $access = ctools_access_group_summary(!empty($handler->conf['access']) ? $handler->conf['access'] : array(), $display->context);
+    if ($access) {
+      $access = t('This panel will be selected if @conditions.', array('@conditions' => $access));
+    }
+    else {
+      $access = t('This panel will always be selected.');
+    }
+    $content .= '<div>' . $access . '</div>';
     $form['handlers'][$id]['title'] = array(
-      '#markup' => page_manager_get_handler_title($plugin, $handler, $page->task, $page->subtask_id),
+      '#markup' => $content,
     );
 
     $form['handlers'][$id]['weight'] = array(
       '#type' => 'weight',
       '#default_value' => $info['weight'],
-      '#delta' => 30,
+      '#delta' => $delta,
     );
   }
 

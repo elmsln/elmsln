@@ -5,7 +5,7 @@
 
   Drupal.CTools.Stylizer.addFarbtastic = function(context) {
     // This behavior attaches by ID, so is only valid once on a page.
-    if ($('ctools_stylizer_color_scheme_form .color-form.Stylizer-processed').size()) {
+    if ($('#ctools_stylizer_color_scheme_form .color-form.Stylizer-processed').size()) {
       return;
     }
 

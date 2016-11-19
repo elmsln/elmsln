@@ -23,6 +23,22 @@ class ctools_custom_content_ui extends ctools_export_ui {
       '#title' => t('Title'),
     );
 
+    $form['title_heading'] = array(
+      '#title' => t('Title heading'),
+      '#type' => 'select',
+      '#default_value' => isset($form_state['item']->settings['title_heading']) ? $form_state['item']->settings['title_heading'] : 'h2',
+      '#options' => array(
+        'h1' => t('h1'),
+        'h2' => t('h2'),
+        'h3' => t('h3'),
+        'h4' => t('h4'),
+        'h5' => t('h5'),
+        'h6' => t('h6'),
+        'div' => t('div'),
+        'span' => t('span'),
+      ),
+    );
+
     $form['body'] = array(
       '#type' => 'text_format',
       '#title' => t('Body'),
@@ -43,6 +59,7 @@ class ctools_custom_content_ui extends ctools_export_ui {
 
     // Since items in our settings are not in the schema, we have to do these manually:
     $form_state['item']->settings['title'] = $form_state['values']['title'];
+    $form_state['item']->settings['title_heading'] = $form_state['values']['title_heading'];
     $form_state['item']->settings['body'] = $form_state['values']['body']['value'];
     $form_state['item']->settings['format'] = $form_state['values']['body']['format'];
     $form_state['item']->settings['substitute'] = $form_state['values']['substitute'];

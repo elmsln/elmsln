@@ -137,25 +137,24 @@ function ctools_entity_field_content_type_render($subtype, $conf, $panel_args, $
     $field_settings['settings'] = $conf['formatter_settings'];
   }
 
-  $all_values = field_get_items($entity_type, $entity, $field_name, $language);
-  if (!is_array($all_values)) {
-    // Do not render if the field is empty.
-    return;
-  }
-
-  // Reverse values.
-  if (isset($conf['delta_reversed']) && $conf['delta_reversed']) {
-    $all_values = array_reverse($all_values, TRUE);
-  }
-
-  if (isset($conf['delta_limit'])) {
-    $offset = intval($conf['delta_offset']);
-    $limit = !empty($conf['delta_limit']) ? $conf['delta_limit'] : NULL;
-    $all_values = array_slice($all_values, $offset, $limit, TRUE);
-  }
-
   $clone = clone $entity;
-  $clone->{$field_name}[$language] = $all_values;
+  $all_values = field_get_items($entity_type, $entity, $field_name, $language);
+
+  if (is_array($all_values)) {
+    // Reverse values.
+    if (isset($conf['delta_reversed']) && $conf['delta_reversed']) {
+      $all_values = array_reverse($all_values, TRUE);
+    }
+
+    if (isset($conf['delta_limit'])) {
+      $offset = intval($conf['delta_offset']);
+      $limit = !empty($conf['delta_limit']) ? $conf['delta_limit'] : NULL;
+      $all_values = array_slice($all_values, $offset, $limit, TRUE);
+    }
+
+    $clone->{$field_name}[$language] = $all_values;
+  }
+
   $field_output = field_view_field($entity_type, $clone, $field_name, $field_settings, $language);
 
   if (!empty($field_output) && !empty($conf['override_title'])) {
@@ -270,10 +269,7 @@ function ctools_entity_field_content_type_admin_title($subtype, $conf, $context)
     $identifier = $context->identifier;
   }
   else {
-    $type = 'ctools_entity_field_content_type_admin_title';
-    $message = t('Context is missing for field: @name', array('@name' => $subtype));
-    $variables = array($subtype, $conf, $context);
-    watchdog($type, $message, $variables, $severity = WATCHDOG_NOTICE);
+    watchdog('ctools_entity_field_content_type_admin_title', 'Context is missing for field: @name', array('@name' => $subtype), WATCHDOG_NOTICE);
     $identifier = t('Unknown');
   }
 

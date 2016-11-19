@@ -16,7 +16,7 @@
 $plugin = array(
   'title' => t('Custom content'),
   'no title override' => TRUE,
-  'defaults' => array('admin_title' => '', 'title' => '', 'body' => '', 'format' => filter_default_format(), 'substitute' => TRUE),
+  'defaults' => array('admin_title' => '', 'title' => '', 'title_heading' => 'h2', 'body' => '', 'format' => filter_default_format(), 'substitute' => TRUE),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   // Make sure the edit form is only used for some subtypes.
   'edit form' => '',
@@ -135,6 +135,7 @@ function ctools_custom_content_type_get_conf($subtype, $conf) {
         $settings = array(
           'admin_title' => t('Missing/deleted content'),
           'title' => '',
+          'title_heading' => '',
           'body' => '',
           'format' => filter_default_format(),
           'substitute' => TRUE,
@@ -180,6 +181,8 @@ function ctools_custom_content_type_render($subtype, $conf, $args, $contexts) {
   $block          = new stdClass();
   $block->subtype = ++$delta;
   $block->title   = filter_xss_admin($settings['title']);
+  $block->title_heading = isset($settings['title_heading']) ? $settings['title_heading'] : 'h2';
+
 
   // Add keyword substitutions if we were configured to do so.
   $content = $settings['body'];
@@ -277,10 +280,36 @@ function ctools_custom_content_type_edit_form($form, &$form_state) {
     '#description' => t('This title will be used administratively to identify this pane. If blank, the regular title will be used.'),
   );
 
+  // Copy over the title override settings for a title heading.
+  $form['aligner_start'] = array(
+    '#markup' => '<div class="option-text-aligner clearfix">',
+  );
+
   $form['title'] = array(
     '#type' => 'textfield',
     '#default_value' => $settings['title'],
     '#title' => t('Title'),
+    '#id' => 'override-title-textfield',
+  );
+
+  $form['title_heading'] = array(
+    '#type' => 'select',
+    '#default_value' => isset($settings['title_heading']) ? $settings['title_heading'] : 'h2',
+    '#options' => array(
+      'h1' => t('h1'),
+      'h2' => t('h2'),
+      'h3' => t('h3'),
+      'h4' => t('h4'),
+      'h5' => t('h5'),
+      'h6' => t('h6'),
+      'div' => t('div'),
+      'span' => t('span'),
+    ),
+    '#id' => 'override-title-heading',
+  );
+
+  $form['aligner_stop'] = array(
+    '#markup' => '</div>',
   );
 
   $form['body'] = array(

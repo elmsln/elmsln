@@ -21,7 +21,7 @@ if (module_exists('profile') && !(defined('MAINTENANCE_MODE') && MAINTENANCE_MOD
  * 'Render' callback for the 'profile fields' content type.
  */
 function ctools_profile_fields_content_type_render($subtype, $conf, $panel_args, $context) {
-  $account = isset($context->data) ? clone($context->data) : NULL;
+  $account = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'profile fields';
 

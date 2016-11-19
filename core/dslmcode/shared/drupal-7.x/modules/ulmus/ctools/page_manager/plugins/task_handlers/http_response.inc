@@ -3,7 +3,8 @@
 /**
  * @file
  *
- * This is the task handler plugin to handle generating 403, 404 and 301 response codes.
+ * This is the task handler plugin to handle generating 403, 404, 301 and 302
+ * response codes.
  */
 
 // Plugin definition
@@ -108,7 +109,8 @@ function page_manager_http_response_codes() {
     403 => t('403 Access denied'),
     404 => t('404 Page not found'),
     410 => t('410 Gone'),
-    301 => t('301 Redirect'),
+    301 => t('301 Permanent redirect'),
+    302 => t('302 Temporary redirect'),
   );
 }
 
@@ -256,7 +258,7 @@ function page_manager_http_response_edit_settings($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Redirect destination'),
     '#default_value' => $conf['destination'],
-    '#dependency' => array('edit-code' => array(301)),
+    '#dependency' => array('edit-code' => array(301, 302)),
     '#description' => t('Enter the path to redirect to. You may use keyword substitutions from contexts. You can use external urls (http://www.example.com/foo) or internal urls (node/1).'),
   );
 
@@ -313,7 +315,7 @@ function page_manager_http_response_render($handler, $base_contexts, $args, $tes
   }
 
   $info['response code'] = $handler->conf['code'];
-  if ($info['response code'] == 301) {
+  if ($info['response code'] == 301 || $info['response code'] == 302) {
     $path = ctools_context_keyword_substitute($handler->conf['destination'], array(), $contexts);
     $url = parse_url($path);
     if (isset($url['query'])) {

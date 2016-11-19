@@ -26,7 +26,7 @@ function ctools_comment_links_content_type_render($subtype, $conf, $panel_args, 
     return;
   }
 
-  $comment = isset($context->data) ? clone($context->data) : NULL;
+  $comment = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'comment';
   $block->delta  = $comment->cid;

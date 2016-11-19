@@ -97,7 +97,13 @@
           else {
             switch ($(trigger).attr('type')) {
               case 'checkbox':
-                var val = $(trigger).attr('checked') ? true : false;
+                // **This check determines if using a jQuery version 1.7 or newer which requires the use of the prop function instead of the attr function when not called on an attribute
+                if ($().prop) {
+                  var val = $(trigger).prop('checked') ? true : false;
+                }
+                else {
+                  var val = $(trigger).attr('checked') ? true : false;
+                }
 
                 if (val) {
                   $(trigger).siblings('label').removeClass('hidden-options').addClass('expanded-options');
@@ -148,34 +154,41 @@
                 len++;
               }
 
-              var object = $('#' + id + '-wrapper');
-              if (!object.size()) {
-                // Some elements can't use the parent() method or they can
-                // damage things. They are guaranteed to have wrappers but
-                // only if dependent.inc provided them. This check prevents
-                // problems when multiple AJAX calls cause settings to build
-                // up.
-                var $original = $('#' + id);
-                if ($original.is('fieldset') || $original.is('textarea')) {
-                  continue;
-                }
-
-                object = $('#' + id).parent();
+              var $original = $('#' + id);
+              if ($original.is('fieldset') || $original.is('textarea')) {
+                continue;
               }
+
+              var object = $original.parent();
 
               if (Drupal.settings.CTools.dependent[id].type == 'disable') {
                 if (Drupal.settings.CTools.dependent[id].num <= len) {
                   // Show if the element if criteria is matched
-                  object.attr('disabled', false);
-                  object.addClass('dependent-options');
-                  object.children().attr('disabled', false);
+                  // **This check determines if using a jQuery version 1.7 or newer which requires the use of the prop function instead of the attr function when not called on an attribute
+                  if (typeof $().prop == 'function') {
+                    object.prop('disabled', false);
+                    object.addClass('dependent-options');
+                    object.children().prop('disabled', false);
+                  }
+                  else {
+                    object.attr('disabled', false);
+                    object.addClass('dependent-options');
+                    object.children().attr('disabled', false);
+                  }
                 }
                 else {
                   // Otherwise hide. Use css rather than hide() because hide()
                   // does not work if the item is already hidden, for example,
                   // in a collapsed fieldset.
-                  object.attr('disabled', true);
-                  object.children().attr('disabled', true);
+                  // **This check determines if using a jQuery version 1.7 or newer which requires the use of the prop function instead of the attr function when not called on an attribute
+                  if (typeof $().prop == 'function') {
+                    object.prop('disabled', true);
+                    object.children().prop('disabled', true);
+                  }
+                  else {
+                    object.attr('disabled', true);
+                    object.children().attr('disabled', true);
+                  }
                 }
               }
               else {

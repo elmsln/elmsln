@@ -23,7 +23,7 @@ if (module_exists('comment')) {
  * Render the node comments.
  */
 function ctools_node_comment_wrapper_content_type_render($subtype, $conf, $panel_args, $context) {
-  $node = isset($context->data) ? clone($context->data) : NULL;
+  $node = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'comments';
   $block->delta  = $node->nid;
@@ -77,7 +77,7 @@ function ctools_node_comment_wrapper_content_type_render($subtype, $conf, $panel
 
 /**
  * Returns an edit form for the comment wrapper.
- */ 
+ */
 function ctools_node_comment_wrapper_content_type_edit_form($form, &$form_state) {
   $conf = $form_state['conf'];
   $form['mode'] = array(

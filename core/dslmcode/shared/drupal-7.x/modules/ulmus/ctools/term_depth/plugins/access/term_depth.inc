@@ -25,28 +25,22 @@ $plugin = array(
  * Settings form for the 'term depth' access plugin.
  */
 function term_depth_term_depth_ctools_access_settings($form, &$form_state, $conf) {
-  // If no configuration was saved before, set some defaults.
-  if (empty($conf)) {
-    $conf = array(
-      'vid' => 0,
-    );
-  }
-  if (!isset($conf['vid'])) {
-    $conf['vid'] = 0;
-  }
-
+  $vocabularies = taxonomy_get_vocabularies();
+  $options = array();
   // Loop over each of the configured vocabularies.
-  foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
-    $options[$vid] = $vocabulary->name;
+  foreach ($vocabularies as $vid => $vocab) {
+    $options[$vocab->machine_name] = $vocab->name;
   }
 
-  $form['settings']['vid'] = array(
+  _term_depth_convert_config_vid_to_vocabulary_name($conf);
+
+  $form['settings']['vocabulary'] = array(
     '#title' => t('Vocabulary'),
     '#type' => 'select',
     '#options' => $options,
     '#description' => t('Select the vocabulary for this form. If there exists a parent term in that vocabulary, this access check will succeed.'),
-    '#id' => 'ctools-select-vid',
-    '#default_value' => $conf['vid'],
+    '#id' => 'ctools-select-vocabulary',
+    '#default_value' => !empty($conf['vocabulary']) ? $conf['vocabulary'] : array(),
     '#required' => TRUE,
   );
 
@@ -62,14 +56,23 @@ function term_depth_term_depth_ctools_access_settings($form, &$form_state, $conf
 }
 
 /**
+ * @param $conf
+ */
+function _term_depth_convert_config_vid_to_vocabulary_name(&$conf) {
+  // Fallback on legacy 'vid', when no vocabularies are available.
+  if (empty($conf['vocabulary']) && !empty($conf['vid'])) {
+    $conf['vocabulary'] = reset(_ctools_term_vocabulary_machine_name_convert(array($conf['vid'])));
+    unset($conf['vid']);
+  }
+}
+
+/**
  * Submit function for the access plugins settings.
  *
- * We cast all settings to numbers to ensure they can be safely handled.
  */
 function term_depth_term_depth_ctools_access_settings_submit($form, $form_state) {
-  foreach (array('depth', 'vid') as $key) {
-    $form_state['conf'][$key] = (integer) $form_state['values']['settings'][$key];
-  }
+  $form_state['conf']['depth'] = (integer) $form_state['values']['settings']['depth'];
+  $form_state['conf']['vocabulary'] = array_filter($form_state['conf']['vocabulary']);
 }
 
 /**
@@ -82,10 +85,17 @@ function term_depth_term_depth_ctools_access_check($conf, $context) {
     return FALSE;
   }
 
-  // Get the $vid.
-  if (!isset($conf['vid'])) {
+  _term_depth_convert_config_vid_to_vocabulary_name($conf);
+
+  // Get the $vocabulary.
+  if (!isset($conf['vocabulary'])) {
     return FALSE;
   }
+  $vocab = taxonomy_vocabulary_machine_name_load($conf['vocabulary']);
+  if ($vocab->vid != $context->data->vid) {
+    return FALSE;
+  }
+
   $depth = _term_depth($context->data->tid);
 
   return ($depth == $conf['depth']);
@@ -95,9 +105,9 @@ function term_depth_term_depth_ctools_access_check($conf, $context) {
  * Provide a summary description based upon the checked terms.
  */
 function term_depth_term_depth_ctools_access_summary($conf, $context) {
-  $vocab = taxonomy_vocabulary_load($conf['vid']);
-
-  return t('"@term" has parent in vocabulary "@vocab" at @depth', array(
+  _term_depth_convert_config_vid_to_vocabulary_name($conf);
+  $vocab = taxonomy_vocabulary_machine_name_load($conf['vocabulary']);
+  return t('"@term" is in vocabulary "@vocab" at depth @depth', array(
     '@term' => $context->identifier,
     '@vocab' => $vocab->name,
     '@depth' => $conf['depth'],
