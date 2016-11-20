@@ -349,10 +349,7 @@ function voicecommander_voice_command() {
     ),
     'jarvis' => array(
       'commands' => array(
-        '(hey) ' . variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME) => array(
-          'callback' => 'Drupal.voicecommander.jarvis'
-        ),
-        '(hey) ' . variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME) . ' *input' => array(
+        'hey ' . variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME) => array(
           'callback' => 'Drupal.voicecommander.jarvis'
         ),
       ),

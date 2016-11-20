@@ -995,7 +995,7 @@ function elmsln_core_fa_a11y() {
     'keyboard' => array(
       '#type' => 'fieldset',
       '#title' => t('Keyboard shortcuts'),
-      '#description' => t('Use these key combinations to quickly navigate.'),
+      '#description' => t('Use these keys to navigate quickly'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
       '#weight' => -8,

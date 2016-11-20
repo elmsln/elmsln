@@ -21,5 +21,30 @@ function elmsln_voice_fa_a11y_alter(&$a11y) {
           <div class="keyboard-short__key">Alt</div>
         </div>
       </div>';
+    $a11y['voice'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Voice commands'),
+      '#description' => t('Hey ELMS'),
+      '#collapsed' => TRUE,
+      '#collapsible' => TRUE,
+      '#weight' => -8,
+      '#attributes' => array(
+        'class' => array(
+          'collapsible',
+          'form-wrapper',
+          'collapsed',
+        ),
+      ),
+      '#materialize' => array(
+        'type' => 'collapsible',
+        'icon' => 'keyboard_voice',
+      ),
+      'keys' => array(
+        '#markup' => '<ul>
+          <li><a>' . t('Show options') . '</a></li>
+          <li><a>' . t('Hide options') . '</a></li>
+          </ul>',
+      ),
+    );
   }
 }
