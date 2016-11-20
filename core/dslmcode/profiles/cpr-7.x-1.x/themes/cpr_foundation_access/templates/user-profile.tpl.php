@@ -33,10 +33,11 @@
  *
  * @ingroup themeable
  */
+
 ?>
 <div class ="user-profile--wrapper">
-  <div class ="user-profile--banner ferpa-protect">
-    <?php print render($banner);?>
+  <div class="parallax-container ferpa-protect">
+    <div class="parallax"><?php print render($banner);?></div>
   </div>
   <div class ="user-profile--photo--wrapper">
     <div class ="user-profile--photo circle">

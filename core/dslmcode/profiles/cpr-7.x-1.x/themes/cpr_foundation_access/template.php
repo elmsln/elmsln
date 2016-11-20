@@ -30,7 +30,7 @@ function cpr_foundation_access_preprocess_user_profile(&$vars) {
     $vars['photo'] = '<img src="' . $photolink . '" class="ferpa-protect circle" />';
   }
   if (!empty($vars['field_user_banner'])) {
-    $vars['banner'] = $vars['user_profile']['field_user_banner'];
+    $vars['banner'] = $vars['user_profile']['field_user_banner'][0];
   }
   else {
     $vars['banner'] = '<img class="background" src="http://materializecss.com/images/office.jpg" alt="">';
