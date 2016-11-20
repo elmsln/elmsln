@@ -5,8 +5,6 @@
  */
 
 (function ($) {
-  // extend the drupal js namespace by adding in voicecommander
-  Drupal.voicecommander = Drupal.voicecommander || { functions: {} }
   Drupal.voicecommander.say = function(text) {
     // talk to me
     Drupal.settings.voiceCommander.utter = new SpeechSynthesisUtterance(text);
@@ -128,7 +126,7 @@
   };
   $(document).ready(function() {
     // ensure our browser knows what speech is
-    if (typeof window.speechSynthesis !== "undefined") { 
+    if (typeof window.speechSynthesis !== "undefined") {
       Drupal.settings.voiceCommander.synth = window.speechSynthesis;
       Drupal.settings.voiceCommander.voices = Drupal.settings.voiceCommander.synth.getVoices();
       Drupal.settings.voiceCommander.utter;

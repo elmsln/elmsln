@@ -52,7 +52,7 @@ function voicecommander_page_build(&$page) {
     _voicecommander_apply();
     $page['page_bottom']['voicecommander'] = array(
       '#weight' => 10,
-      '#markup' => theme('voicecommander_drawer'),
+      '#markup' => theme('voicecommander_drawer', array('label' => variable_get('voicecommander_robot', VOICECOMMANDER_ROBOT_NAME))),
     );
   }
 }
@@ -132,7 +132,8 @@ function _voicecommander_apply() {
 
   // Add custom module js and css files.
   drupal_add_css(drupal_get_path('module', VOICECOMMANDER_MODULE_NAME) . '/css/voicecommander.css');
-  drupal_add_js(drupal_get_path('module', VOICECOMMANDER_MODULE_NAME) . '/js/voicecommander.js');
+  drupal_add_js(drupal_get_path('module', VOICECOMMANDER_MODULE_NAME) . '/js/voicecommander-container.js', array('type' => 'file', 'weight' => -1000));
+  drupal_add_js(drupal_get_path('module', VOICECOMMANDER_MODULE_NAME) . '/js/voicecommander.js', array('type' => 'file', 'scope' => 'footer', 'weight' => 1001));
 
   // assemble all voice commands the system supports
   $commandsets = module_invoke_all('voice_command');
@@ -348,10 +349,10 @@ function voicecommander_voice_command() {
     ),
     'jarvis' => array(
       'commands' => array(
-        '(hey) ' . variable_get('voicecommander_robot', VOICECOMMANDER_ROBOT_NAME) => array(
+        '(hey) ' . variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME) => array(
           'callback' => 'Drupal.voicecommander.jarvis'
         ),
-        '(hey) ' . variable_get('voicecommander_robot', VOICECOMMANDER_ROBOT_NAME) . ' *input' => array(
+        '(hey) ' . variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME) . ' *input' => array(
           'callback' => 'Drupal.voicecommander.jarvis'
         ),
       ),

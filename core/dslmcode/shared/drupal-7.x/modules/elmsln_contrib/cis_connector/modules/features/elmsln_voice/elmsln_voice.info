@@ -18,3 +18,4 @@ features[variable][] = voicecommander_menu
 features[variable][] = voicecommander_mobile
 features[variable][] = voicecommander_optional_prefix
 features[variable][] = voicecommander_prefix
+features[variable][] = voicecommander_robot

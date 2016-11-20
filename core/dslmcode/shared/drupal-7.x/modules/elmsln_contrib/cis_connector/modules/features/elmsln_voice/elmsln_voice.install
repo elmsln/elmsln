@@ -1,0 +1,14 @@
+<?php
+/**
+ * @file
+ * Code for the ELMSLN Voice feature.
+ */
+
+include_once 'elmsln_voice.features.inc';
+
+/**
+ * Implements hook_update_N().
+ */
+function elmsln_voice_update_7001(&$sandbox) {
+  features_revert_module('elmsln_voice');
+}
