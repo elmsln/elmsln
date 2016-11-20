@@ -5,3 +5,21 @@
  */
 
 include_once 'elmsln_voice.features.inc';
+
+
+/**
+ * Implements hook_fa_a11y().
+ * Provides keyboard shortcut button
+ */
+function elmsln_voice_fa_a11y_alter(&$a11y) {
+  if (user_access('use voice commander')) {
+    $a11y['keyboard']['keys']['#markup'] .=
+      '<div class="keyboard-short">
+        <div class="keyboard-short__group">
+          <span>' . t('See voice commands') . '</span>
+          <div class="keyboard-short__key">Ctrl</div>
+          <div class="keyboard-short__key">Alt</div>
+        </div>
+      </div>';
+  }
+}

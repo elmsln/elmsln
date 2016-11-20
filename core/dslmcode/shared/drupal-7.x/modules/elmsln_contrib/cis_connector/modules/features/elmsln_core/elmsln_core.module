@@ -994,8 +994,8 @@ function elmsln_core_fa_a11y() {
   return array(
     'keyboard' => array(
       '#type' => 'fieldset',
-      '#title' => t('Keyboard keys'),
-      '#description' => t('Use these key combinations to quickly navigate the course.'),
+      '#title' => t('Keyboard shortcuts'),
+      '#description' => t('Use these key combinations to quickly navigate.'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
       '#weight' => -8,
@@ -1013,6 +1013,11 @@ function elmsln_core_fa_a11y() {
       'keys' => array(
         '#markup' =>
         '<div class="keyboard-short">
+          <div class="keyboard-short__group">
+            <span>' . t('View options') . '</span>
+            <div class="keyboard-short__key">Alt</div>
+            <div class="keyboard-short__key">Shift</div>
+          </div>
           <div class="keyboard-short__group">
             <span>' . t('Scroll down') . '</span>
             <div class="keyboard-short__key">↓</div>
