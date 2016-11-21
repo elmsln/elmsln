@@ -1,6 +1,9 @@
 article ul:not(.browser-default) li {
 	list-style-type: disc;
 }
+#block-mooc-nav-block-mooc-nav-nav li {
+	list-style-type: none;
+}
 
 .material-icon.elmsln-icon:before {
   content:"";
