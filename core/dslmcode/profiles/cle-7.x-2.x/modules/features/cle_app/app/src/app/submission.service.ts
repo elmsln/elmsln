@@ -16,11 +16,21 @@ export class SubmissionService {
   getSubmissions() {
     // return Observable.from(this.array);
     return this.elmslnService.get(AppSettings.BASE_PATH + 'node.json?type=cle_submission')
-      .map((res) => res.json().list);
+      .map((res) => res.json().list)
   }
 
   getSubmission(submissionID: number) {
     return this.elmslnService.get(AppSettings.BASE_PATH + 'node/'+ submissionID +'.json?deep-load-refs=node,user')
-      .map((res) => res.json());
+      .map((res) => res.json())
+      .map(data => this.formatSubmission(data)) }
+
+  formatSubmission(submission) {
+    if (submission.created) {
+      submission.created = new Date(submission.created * 1000);
+      return submission;
+    }
+    else {
+      return submission;
+    }
   }
 }

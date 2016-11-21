@@ -12,6 +12,9 @@ import { MaterialModule } from '@angular/material';
 import { ElmslnService } from './elmsln.service';
 import { CritiqueService } from './critique.service';
 
+// Moment.js
+import { MomentModule } from 'angular2-moment';
+
 // components
 import { AppComponent } from './app.component';
 import { AssignmentComponent } from './assignment/assignment.component';
@@ -50,6 +53,7 @@ import { WysiwygjsComponent } from './wysiwygjs/wysiwygjs.component';
     HttpModule,
     routing,
     MaterialModule.forRoot(),
+    MomentModule
   ],
   providers: [
     ElmslnService,
