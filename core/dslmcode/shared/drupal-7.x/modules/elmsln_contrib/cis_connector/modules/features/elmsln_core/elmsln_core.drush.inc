@@ -135,7 +135,7 @@ function drush_elmsln_core_elmsln_rebuild_service_password() {
  */
 function drush_elmsln_core_elmsln_migrate_banner() {
   global $elmslncfg;
-  $current = theme_get_setting('logo_path');
+  $current = drupal_realpath(theme_get_setting('logo_path'));
   // only migrate if something was set
   if (!empty($current)) {
     // build the remote banner URI unless it's missing
@@ -146,7 +146,6 @@ function drush_elmsln_core_elmsln_migrate_banner() {
     }
     $banner = $bannerdir . '/' . _cis_connector_course_context() . '.jpg';
     if (!file_exists($banner)) {
-      $current = $elmslncfg['elmsln'] . '/config/stacks/courses/' . variable_get('file_public_path', '') . '/' . file_uri_target($current);
       if (file_exists($current)) {
         // copy it over cause we have both
         copy($current, $banner);
