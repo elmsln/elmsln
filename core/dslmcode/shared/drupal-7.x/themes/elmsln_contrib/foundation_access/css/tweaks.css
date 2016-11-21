@@ -1,3 +1,7 @@
+article ul:not(.browser-default) li {
+	list-style-type: disc;
+}
+
 .material-icon.elmsln-icon:before {
   content:"";
 }
