@@ -13,7 +13,7 @@ export class CritiqueService {
   ) { }
 
   getSubmissionCritiques(submissionId) {
-    return this.elmslnService.get(AppSettings.BASE_PATH + 'node.json?type=cle_critique&deep-load-refs=node,user&field_cle_crit_sub_ref=' + submissionId)
+    return this.elmslnService.get(AppSettings.BASE_PATH + 'node.json?status=1,type=cle_critique&deep-load-refs=node,user&field_cle_crit_sub_ref=' + submissionId)
       .map(data => data.json().list);
   }
 
@@ -21,7 +21,6 @@ export class CritiqueService {
     console.log('createCritique');
     let body = {};
     let authorId = '';
-    let basepath = AppSettings.BASE_PATH;
 
     body = {
       type: 'cle_critique',
@@ -32,9 +31,24 @@ export class CritiqueService {
       },
       field_cle_crit_sub_ref: {
         id: critique.submissionId
-      }
+      },
+      author: 4
     }
 
-    return this.elmslnService.post(basepath + 'node.json', body);
+    return this.elmslnService.post(AppSettings.BASE_PATH + 'node.json', body);
+  }
+
+  /**
+   * Instead of doing a hard delete, we are just going to set to
+   * unpublish
+   */
+  deleteCritique(critique: Critique) {
+    console.log('unpublish critique');
+    let critiqueId = critique.nid;
+    let body = {
+      "status": "0"
+    }
+
+    return this.elmslnService.put(AppSettings.BASE_PATH + 'node/'+ critiqueId +'.json', body);
   }
 }
