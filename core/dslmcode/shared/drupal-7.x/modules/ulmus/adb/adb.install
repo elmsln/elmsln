@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function adb_schema() {
+  $schema['adb'] = array(
+    'description' => 'Table that contains logs of all system events.',
+    'fields' => array(
+      'adbid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique access deneid backtrace event ID.',
+        ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The {users}.uid of the user who triggered the event.',
+        ),
+      'location'  => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'description' => 'URL of the origin of the event.',
+        ),
+      'node_access_denied' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'medium',
+        'description' => 'User permissions.',
+        ),
+      'permissions' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'medium',
+        'description' => 'User permissions.',
+        ),
+       'role_permissions' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'medium',
+        'description' => 'role permissions.',
+        ),
+      'backtrace' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'big',
+        'description' => 'Text of backtrace log execution.',
+        ),
+      'timestamp' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Unix timestamp of when event occurred.',
+        ),
+      ),
+'primary key' => array('adbid'),
+'indexes' => array(
+  'uid' => array('uid'),
+  ),
+);
+
+return $schema;
+}
+
+/**
+ * Add field permissions in table adb.
+ */
+function adb_update_7150() {
+
+  db_add_field('adb', 'permissions', array('type' => 'text', 'not null' => FALSE, 'size' => 'medium'));
+  return t('Added permissions column to adb table.');
+}
+
+/**
+ * Add fields role_permissiones and node_access_denied in table adb.
+ */
+function adb_update_7160() {
+
+  db_add_field('adb', 'role_permissions', array('type' => 'text', 'not null' => FALSE, 'size' => 'medium'));
+  db_add_field('adb', 'node_access_denied', array('type' => 'text', 'not null' => FALSE, 'size' => 'medium'));
+  return t('Added role_permissions and node_access_denied columns to adb table.');
+}

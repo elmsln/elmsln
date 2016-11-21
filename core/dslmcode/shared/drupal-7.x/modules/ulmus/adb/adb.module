@@ -1,0 +1,430 @@
+<?php
+
+define('ADB_DEVEL_MIN_TEXTAREA', 50);
+
+/**
+ * Implements hook_menu().
+ */
+function adb_menu() {
+  $items['admin/reports/access-denied/backtrace'] = array(
+    'title' => "Last access denied errors backtrace",
+    'description' => "View 'access denied' errors backtrace (403s).",
+    'page callback' => 'adb_last',
+    'access arguments' => array('access site reports'),
+  );
+
+  $items['admin/reports/event/backtrace/%'] = array(
+    'title' => 'Details',
+    'page callback' => 'adb_event',
+    'page arguments' => array(4),
+    'access arguments' => array('access site reports'),
+  );
+
+  $items['admin/config/development/access-denied-backtrace/configure'] = array(
+    'title' => 'Access denied backtrace settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('adb_settings'),
+    'access arguments' => array('administer access denied backtrace'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function adb_permission() {
+
+  return array(
+    'administer access denied backtrace' => array(
+      'title' => t('administer access denied backtrace'),
+      'description' => t('Change which roles are enabled to record access denied backtrace using the admin interface.'),
+    ),
+  );
+
+} // fontyourface_perm
+
+/**
+ * Generate a adb settings form.
+ *
+ * @ingroup forms
+ * @see filter_admin_format_form_validate()
+ * @see filter_admin_format_form_submit()
+ */
+function adb_settings($form, &$form_state) {
+
+  // Add user role access selection.
+  $form['adb_roles'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Roles'),
+    '#options' => array_map('check_plain', user_roles()),
+    '#default_value' => variable_get('adb_roles',array()),
+    '#description' => t('Configure what roles will be able to record access denied backtrace'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Menu callback; displays details about access denied backtrace log message.
+ */
+function adb_event($id) {
+  $severity = watchdog_severity_levels();
+  $result = db_query('SELECT adb.*, u.name, u.uid FROM {adb} adb INNER JOIN {users} u ON adb.uid = u.uid WHERE adb.adbid = :id', array(':id' => $id))->fetchObject();
+
+  if ($dblog = $result) {
+    $rows = array(
+      array(
+        array('data' => t('Date'), 'header' => TRUE),
+        format_date($dblog->timestamp, 'long'),
+      ),
+      array(
+        array('data' => t('User'), 'header' => TRUE),
+        theme('username', array('account' => $dblog)),
+      ),
+      array(
+        array('data' => t('Location'), 'header' => TRUE),
+        l($dblog->location, $dblog->location),
+      ),
+      array(
+        array('data' => t('User permissions'), 'header' => TRUE),
+        $dblog->permissions,
+      ),
+      array(
+        array('data' => t('User role permissions'), 'header' => TRUE),
+        $dblog->role_permissions,
+      ),
+      array(
+        array('data' => t('Node access denied'), 'header' => TRUE),
+        $dblog->node_access_denied,
+      ),
+      array(
+        array('data' => t('Backtrace'), 'header' => TRUE),
+        theme('adb_message', array('event' => $dblog)),
+      ),
+    );
+    $build['dblog_table'] = array(
+      '#theme' => 'table',
+      '#rows' => $rows,
+      '#attributes' => array('class' => array('dblog-event')),
+    );
+    return $build;
+  }
+  else {
+    return '';
+  }
+}
+/**
+ * Implements hook_theme().
+ */
+function adb_theme() {
+  return array(
+    'adb_message' => array(
+      'variables' => array('event' => NULL),
+    ),
+  );
+}
+
+/**
+ * Returns HTML for a log message.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - event: An object with at least the message and variables properties.
+ *   - link: (optional) Format message as link, event->wid is required.
+ *
+ * @ingroup themeable
+ */
+function theme_adb_message($variables) {
+  $event = $variables['event'];
+  $link = (isset($variables['link']))?$variables['link']:FALSE;
+
+  $output = $event->backtrace;
+  // Truncate message to 56 chars.
+
+  if($link) {
+    $output = truncate_utf8(filter_xss($output, array()), 56, TRUE, TRUE);
+    $output = l($output, 'admin/reports/event/backtrace/' . $event->adbid, array('html' => TRUE));
+  }
+
+  return $output;
+}
+
+/**
+ * Menu callback; generic function to display a page of the last access denied
+ * backtrace.
+ *
+ * Messages are not truncated because events from this page have no detail view.
+ *
+ */
+function adb_last() {
+  $rows = array();
+
+  $build['dblog_clear_log_form'] = drupal_get_form('adb_clear_log_form');
+
+  $header = array(
+    array('data' => t('Date'), 'field' => 'adb.adbid', 'sort' => 'desc'),
+    t('Backtrace'),
+    array('data' => t('User'), 'field' => 'u.name'),
+  );
+
+  $query = db_select('adb', 'adb')->extend('PagerDefault')->extend('TableSort');
+  $query->leftJoin('users', 'u', 'adb.uid = u.uid');
+  $query
+    ->fields('adb', array('adbid', 'uid', 'timestamp', 'backtrace'))
+    ->addField('u', 'name');
+
+  $result = $query
+    ->limit(50)
+    ->orderByHeader($header)
+    ->execute();
+
+  foreach ($result as $dblog) {
+    $rows[] = array('data' =>
+      array(
+        // Cells
+        format_date($dblog->timestamp, 'short'),
+        theme('adb_message', array('event' => $dblog, 'link' => TRUE)),
+        theme('username', array('account' => $dblog)),
+      ),
+      // Attributes for tr
+      'class' => array(drupal_html_class('adb')),
+    );
+  }
+
+  $build['dblog_table'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+    '#attributes' => array('id' => 'admin-dblog'),
+    '#empty' => t('No access denied bractrace log available.'),
+  );
+  $build['dblog_pager'] = array('#theme' => 'pager');
+
+  return $build;
+}
+
+/**
+ * Invokes a hook in all enabled modules that implement it.
+ *
+ * @param $hook
+ *   The name of the hook to invoke.
+ * @param ...
+ *   Arguments to pass to the hook.
+ *
+ * @return
+ *   An array of return values of the hook implementations. If modules return
+ *   arrays from their implementations, those are merged into one array.
+ */
+function adb_validate_module_access($node, $op, $account) {
+  $args = array($node, $op, $account);
+
+  $hook = 'node_access';
+  $return = array();
+  foreach (module_implements($hook) as $module) {
+    $function = $module . '_' . $hook;
+    if (function_exists($function)) {
+      $result = call_user_func_array($function, $args);
+      if (isset($result) && is_array($result)) {
+        foreach ($result as $subaccess) {
+          if ($subaccess == NODE_ACCESS_DENY) {
+            $return[] = $module;
+            break;
+          }
+        }
+        $return = array_merge_recursive($return, $result);
+      } elseif (isset($result) && $result == NODE_ACCESS_DENY) {
+        $return[] = $module;
+      }
+    }
+  }
+
+  return t('Modules denying') . " " . implode(',', $return);
+}
+
+/**
+ * Implements hook_watchdog().
+ *
+ * If an 'access denied' error is logged and user role is enabled for debug, the
+ * execution trace is stored to try to fix what is wrong.
+ */
+function adb_watchdog($log_entry) {
+  $account = user_load($log_entry['uid']);
+
+  $adb_roles = array_filter(variable_get('adb_roles',array()));
+  $valid_role = array_intersect_key($adb_roles,$log_entry['user']->roles);
+
+  $account_rights = '';
+  $rights = drupal_static('node_access', array());
+
+  $permissions_denied = '';
+  if (isset($rights[$log_entry['uid']])) {
+    $account_rights = $rights[$log_entry['uid']];
+
+    foreach ($account_rights as $node => $rights) {
+      foreach ($rights as $action => $access) {
+        if (!$access) {
+          $permissions_denied .= $action . ' ' . $node . ". ";
+          $permissions_denied .= adb_validate_module_access($node, $action, $log_entry['user']) . ".<br/>";
+        }
+      }
+    }
+  }
+  else {
+    // Common message for annonymous users.
+    $permissions_denied = t('There are not explicit access denied for this user');
+  }
+
+  $user_access = drupal_static('user_access', array());
+  $role_permissions = user_role_permissions($account->roles);
+
+  //Validate if entry is access denied and current user belog to enabled role to
+  //record backtrace
+  if (!empty($valid_role) && $log_entry['type'] == 'access denied' ) {
+
+    $backtrace = _ddebug_backtrace(TRUE);
+    // Pop the stack up to the drupal_access_denied() call.
+    for ($i = 0; $i < 5; ++$i) {
+      array_shift($backtrace);
+    }
+
+    $user_role_permissions = (isset($role_permissions[$log_entry['uid']])?$role_permissions[$log_entry['uid']]:array());
+    $user_access_permissions = (isset($user_access[$log_entry['uid']]))?$user_access[$log_entry['uid']]:array();
+
+
+   /* print_r($user_access[$log_entry['uid']]);
+    print_r($user_role_permissions);*/
+    Database::getConnection('default', 'default')->insert('adb')
+        ->fields(array(
+          'uid' => $log_entry['uid'],
+          'node_access_denied' => $permissions_denied,
+          'permissions' => _dprint_r($user_access_permissions, TRUE),
+          'role_permissions' => _dprint_r($user_role_permissions, TRUE),
+          'backtrace' => _dprint_r($backtrace, TRUE),
+          'location' => $log_entry['request_uri'],
+          'timestamp' => $log_entry['timestamp'],
+        ))
+        ->execute();
+  }
+}
+
+/**
+ * Return form for dblog clear button.
+ *
+ * @ingroup forms
+ * @see dblog_clear_log_submit()
+ */
+function adb_clear_log_form($form) {
+  $form['adb_clear'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Clear access denied backtraces'),
+    '#description' => t('This will permanently remove the access denied backtraces from the database.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['adb_clear']['clear'] = array(
+    '#type' => 'submit',
+    '#value' => t('Clear access denied backtraces'),
+    '#submit' => array('adb_clear_log_submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit callback: clear database with log messages.
+ */
+function adb_clear_log_submit() {
+  db_delete('adb')->execute();
+  drupal_set_message(t('Database access denied backtrace cleared.'));
+}
+
+/**
+ * Pretty-print a variable to the browser (no krumo).
+ * Displays only for users with proper permissions. If
+ * you want a string returned instead of a print, use the 2nd param.
+ * based in devel function dprint_r
+ */
+function _dprint_r($input, $return = FALSE, $name = NULL, $function = 'print_r', $check = TRUE) {
+  if ($name) {
+    $name .= ' => ';
+  }
+  if ($function == 'drupal_var_export') {
+    include_once DRUPAL_ROOT . '/includes/utility.inc';
+    $output = drupal_var_export($input);
+  } else {
+    ob_start();
+    $function($input);
+    $output = ob_get_clean();
+  }
+
+  if ($check) {
+    $output = check_plain($output);
+  }
+  if (count($input, COUNT_RECURSIVE) > ADB_DEVEL_MIN_TEXTAREA) {
+    // don't use fapi here because sometimes fapi will not be loaded
+    $printed_value = "<textarea rows=30 style=\"width: 100%;\">\n" . $name . $output . '</textarea>';
+  } else {
+    $printed_value = '<pre>' . $name . $output . '</pre>';
+  }
+
+  if ($return) {
+    return $printed_value;
+  } else {
+    print $printed_value;
+  }
+}
+
+/**
+ * Print the function call stack.
+ * copied from devel module but with access for all roles
+ */
+function _ddebug_backtrace($return = FALSE, $pop = 0) {
+
+  $backtrace = debug_backtrace();
+  while ($pop-- > 0) {
+    array_shift($backtrace);
+  }
+  $counter = count($backtrace);
+  $path = $backtrace[$counter - 1]['file'];
+  $path = substr($path, 0, strlen($path) - 10);
+  $paths[$path] = strlen($path) + 1;
+  $paths[DRUPAL_ROOT] = strlen(DRUPAL_ROOT) + 1;
+  $nbsp = "\xC2\xA0";
+
+  // Show message if error_level is ERROR_REPORTING_DISPLAY_SOME or higher.
+  // (This is Drupal's error_level, which is different from $error_level,
+  // and we purposely ignore the difference between _SOME and _ALL,
+  // see #970688!)
+  if (variable_get('error_level', 1) >= 1) {
+    while (!empty($backtrace)) {
+      $call = array();
+      if (isset($backtrace[0]['file'])) {
+        $call['file'] = $backtrace[0]['file'];
+        foreach ($paths as $path => $len) {
+          if (strpos($backtrace[0]['file'], $path) === 0) {
+            $call['file'] = substr($backtrace[0]['file'], $len);
+          }
+        }
+        $call['file'] .= ':' . $backtrace[0]['line'];
+      }
+      if (isset($backtrace[1])) {
+        if (isset($backtrace[1]['class'])) {
+          $function = $backtrace[1]['class'] . $backtrace[1]['type'] . $backtrace[1]['function'] . '()';
+        } else {
+          $function = $backtrace[1]['function'] . '()';
+        }
+        $call['args'] = $backtrace[1]['args'];
+      } else {
+        $function = 'main()';
+        $call['args'] = $_GET;
+      }
+      $nicetrace[($counter <= 10 ? $nbsp : '') . --$counter . ': ' . $function] = $call;
+      array_shift($backtrace);
+    }
+    if ($return) {
+      return $nicetrace;
+    }
+    kprint_r($nicetrace);
+  }
+}
