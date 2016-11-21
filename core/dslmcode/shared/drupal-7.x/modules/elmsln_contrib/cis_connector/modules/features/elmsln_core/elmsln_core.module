@@ -350,7 +350,7 @@ function _elmsln_core_data_access($etype, $entity) {
  * Implementation of hook_node_view().
  */
 function elmsln_core_node_view($node, $view_mode, $langcode) {
-  if ($view_mode == 'full' && $node->type == 'page') {
+  if ($view_mode == 'full' && $node->type == 'page' && module_exists('foundation_access_ux')) {
     // @todo render this list of in context items
     //$links = _elmsln_core_in_context_list();
     // only do this for nodes for now
