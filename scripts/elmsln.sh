@@ -48,6 +48,7 @@ courses=$(drush @online efq node course --count)
 seviceinstance=$(drush @online efq node service_instance --count)
 sections=$(drush @online efq field_collection_item field_sections --count)
 # get the latest version
+touch "$elmsln/config/tmp/LATEST.txt"
 wget -O- "https://raw.githubusercontent.com/elmsln/elmsln/master/VERSION.txt" > "$elmsln/config/tmp/LATEST.txt"
 latestversion=$(cat "$elmsln/config/tmp/LATEST.txt")
 if [[ $latestversion != $version ]]; then
