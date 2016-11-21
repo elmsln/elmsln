@@ -1121,14 +1121,29 @@ function advagg_requirements($phase) {
     || !is_array($scripts_info['#pre_render'])
     || !in_array('advagg_modify_js_pre_render', $scripts_info['#pre_render'])
   ) {
-    $requirements['advagg_hook_element_info_alter'] = array(
-      'title' => $t('Adv CSS/JS Agg - element_info'),
-      'severity' => REQUIREMENT_WARNING,
-      'value' => $t('Flush your caches.'),
-      'description' => $t('You need to flush your cache_bootstrap cache bin as advagg_hook_element_info_alter() is not working correctly. This can be done near the top of the <a href="@performance">performance page</a> under Clear cache.', array(
-        '@performance' => url('admin/config/development/performance'),
-      )),
-    );
+    if (!empty($scripts_info['#group_callback']) && $scripts_info['#group_callback'] === 'omega_group_js') {
+      $requirements['advagg_hook_element_info_alter_omega'] = array(
+        'title' => $t('Adv CSS/JS Agg - omega theme patch'),
+        'severity' => REQUIREMENT_WARNING,
+        'value' => $t('Omega theme needs a patch.'),
+        'description' => $t('The <a href="@patch">patch</a> can be found in <a href="@issue">this issue</a>', array(
+          '@patch' => 'https://www.drupal.org/files/issues/omega-2492461-1-smarter-element-info-alter.patch',
+          '@issue' => 'https://www.drupal.org/node/2492461',
+        )),
+      );
+    }
+    else {
+      $requirements['advagg_hook_element_info_alter'] = array(
+        'title' => $t('Adv CSS/JS Agg - element_info'),
+        'severity' => REQUIREMENT_WARNING,
+        'value' => $t('Flush your caches.'),
+        'description' => $t('You need to flush your cache_bootstrap cache bin as advagg_hook_element_info_alter() is not working correctly. This can be done near the top of the <a href="@performance">performance page</a> under Clear cache. <br>Styles: <p><code>@styles</code></p>Scripts:<p><code>@scripts</code></p>', array(
+          '@performance' => url('admin/config/development/performance'),
+          '@styles' => print_r($styles_info, TRUE),
+          '@scripts' => print_r($scripts_info, TRUE),
+        )),
+      );
+    }
   }
 
   // Make sure some modules have the correct patches installed.
@@ -1193,23 +1208,25 @@ function advagg_requirements($phase) {
       if (strpos($securepages_ignore, $js_path[1]) === FALSE) {
         $added_paths[] = $js_path[1] . '/*';
       }
-      $requirements['advagg_securepages_module'] = array(
-        'title' => $t('Adv CSS/JS Agg - Secure Pages Settings'),
-        'severity' => REQUIREMENT_ERROR,
-        'value' => $t('Requests to advagg for css/js files may be getting redirected to http on a https page.'),
-      );
-      if (!empty($securepages_ignore)) {
-        $requirements['advagg_securepages_module']['description'] = $t('The Secure Pages module is enabled. You need to change the <code>securepages_ignore</code> setting, also known as "Ignore pages" so advagg will work. Go to the <a href="@config">Secure Pages settings</a> page and under the "Ignore pages" setting add <p><code>!code</code></p> to the string that looks like this: <p><code>@old</code></p> so it will then look like this: <p><code>@old<br>!code</code></p>', array(
-          '@config' => url('admin/config/system/securepages', array('fragment' => 'edit-securepages-ignore')),
-          '!code' => implode("\n<br>", $added_paths),
-          '@old' => trim($securepages_ignore),
-        ));
-      }
-      else {
-        $requirements['advagg_securepages_module']['description'] = $t('The Secure Pages module is enabled. You need to change the <code>securepages_ignore</code> setting, also known as "Ignore pages" so advagg will work. Go to the <a href="@config">Secure Pages settings</a> page and under the "Ignore pages" setting add <p><code>!code</code></p> to that section.', array(
-          '@config' => url('admin/config/system/securepages', array('fragment' => 'edit-securepages-ignore')),
-          '!code' => implode("\n<br>", $added_paths),
-        ));
+      if (!empty($added_paths)) {
+        $requirements['advagg_securepages_module'] = array(
+          'title' => $t('Adv CSS/JS Agg - Secure Pages Settings'),
+          'severity' => REQUIREMENT_ERROR,
+          'value' => $t('Requests to advagg for css/js files may be getting redirected to http on a https page.'),
+        );
+        if (!empty($securepages_ignore)) {
+          $requirements['advagg_securepages_module']['description'] = $t('The Secure Pages module is enabled. You need to change the <code>securepages_ignore</code> setting, also known as "Ignore pages" so advagg will work. Go to the <a href="@config">Secure Pages settings</a> page and under the "Ignore pages" setting add <p><code>!code</code></p> to the string that looks like this: <p><code>@old</code></p> so it will then look like this: <p><code>@old<br>!code</code></p>', array(
+            '@config' => url('admin/config/system/securepages', array('fragment' => 'edit-securepages-ignore')),
+            '!code' => implode("\n<br>", $added_paths),
+            '@old' => trim($securepages_ignore),
+          ));
+        }
+        else {
+          $requirements['advagg_securepages_module']['description'] = $t('The Secure Pages module is enabled. You need to change the <code>securepages_ignore</code> setting, also known as "Ignore pages" so advagg will work. Go to the <a href="@config">Secure Pages settings</a> page and under the "Ignore pages" setting add <p><code>!code</code></p> to that section.', array(
+            '@config' => url('admin/config/system/securepages', array('fragment' => 'edit-securepages-ignore')),
+            '!code' => implode("\n<br>", $added_paths),
+          ));
+        }
       }
     }
   }
@@ -1988,7 +2005,9 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
 
       // Test far future headers.
       $apache_module_missing = FALSE;
-      if (!variable_get('advagg_skip_far_future_check', ADVAGG_SKIP_FAR_FUTURE_CHECK)) {
+      if (!variable_get('advagg_skip_far_future_check', ADVAGG_SKIP_FAR_FUTURE_CHECK)
+        && empty($_SERVER['PANTHEON_ENVIRONMENT'])
+      ) {
         // Make sure the expires header is at least set to 1 month
         // (2628000 seconds) in the future.
         if (!empty($request->headers['expires'])
@@ -2055,115 +2074,119 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
       }
 
       // Test 304.
-      $etag_works = FALSE;
-      if (isset($request->headers['etag'])) {
-        // Send an Etag header and see if the web server returns a 304.
-        $url = file_create_url($url_path . '/' . $filename);
-        $if_modified_options = $options;
-        $if_modified_options['headers'] = array(
-          'Accept-Encoding' => 'gzip, deflate, br',
-          'If-None-Match' => $request->headers['etag'],
-        );
-        if (!empty($request->options['headers']['Accept-Encoding'])) {
-          $if_modified_options['headers']['Accept-Encoding'] = $request->options['headers']['Accept-Encoding'];
-        }
-
-        // Send request.
-        advagg_install_url_mod($url, $if_modified_options, $mod_url);
-        $request_304 = drupal_http_request($url, $if_modified_options);
-        if ($request_304->code != 304) {
-          // Recommend servers configuration be adjusted.
-          $requirements['advagg_' . $type . '_304' . $key . '_etag'] = array(
-            'title' => $t('Adv CSS/JS Agg - Etag'),
-            'severity' => REQUIREMENT_WARNING,
-            'value' => $t('The If-None-Match (Etag) header is being ignored by your web server.'),
-            'description' => $t('The web servers configuration will need to be adjusted. The server should have responded with a 304, instead a @code was returned.', array(
-              '@code' => $request_304->code,
-            )),
+      if (!variable_get('advagg_skip_304_check', ADVAGG_SKIP_304_CHECK)
+        && empty($_SERVER['PANTHEON_ENVIRONMENT'])
+      ) {
+        $etag_works = FALSE;
+        if (isset($request->headers['etag'])) {
+          // Send an Etag header and see if the web server returns a 304.
+          $url = file_create_url($url_path . '/' . $filename);
+          $if_modified_options = $options;
+          $if_modified_options['headers'] = array(
+            'Accept-Encoding' => 'gzip, deflate, br',
+            'If-None-Match' => $request->headers['etag'],
           );
-        }
-        else {
-          $etag_works = TRUE;
-        }
-      }
-      if (isset($request->headers['last-modified'])) {
-        // Send a If-Modified-Since header and see if the web server returns a
-        // 304.
-        $url = file_create_url($url_path . '/' . $filename);
-        $if_modified_options = $options;
-        $if_modified_options['headers'] = array(
-          'Accept-Encoding' => 'gzip, deflate, br',
-          'If-Modified-Since' => $request->headers['last-modified'],
-        );
-        if (!empty($request->options['headers']['Accept-Encoding'])) {
-          $if_modified_options['headers']['Accept-Encoding'] = $request->options['headers']['Accept-Encoding'];
-        }
-
-        // Send request.
-        advagg_install_url_mod($url, $if_modified_options, $mod_url);
-        $request_304 = drupal_http_request($url, $if_modified_options);
-        if ($request_304->code != 304) {
-          // Recommend servers configuration be adjusted.
-          $requirements['advagg_' . $type . '_304' . $key . '_last_modified'] = array(
-            'title' => $t('Adv CSS/JS Agg - If-Modified-Since'),
-            'severity' => REQUIREMENT_WARNING,
-            'value' => $t('The If-Modified-Since (Last-Modified) header is being ignored by your web server.'),
-            'description' => $t('The web servers configuration will need to be adjusted. The server should have responded with a 304, instead a @code was returned.', array(
-              '@code' => $request_304->code,
-            )),
-          );
-        }
-        elseif (isset($requirements['advagg_' . $type . '_304' . $key . '_etag'])) {
-          // Last-Modified works, Etag is broken. 304s are working. Don't warn
-          // user.
-          unset($requirements['advagg_' . $type . '_304' . $key . '_etag']);
-        }
-      }
-      if ($etag_works && isset($requirements['advagg_' . $type . '_304' . $key . '_last_modified'])) {
-        // Etag works, Last-Modified is broken. 304s are working. Don't warn
-        // user.
-        unset($requirements['advagg_' . $type . '_304' . $key . '_last_modified']);
-      }
-
-      // Both the Last-Modified and Etag header are missing.
-      if (empty($request->headers['last-modified']) && empty($request->headers['etag'])) {
-        // Get path to advagg .htaccess file.
-        $files = array(
-          $file_path . '/.htaccess',
-          DRUPAL_ROOT . '/.htaccess',
-        );
-
-        // Check for bad .htaccess files.
-        $bad_config_found = FALSE;
-        foreach ($files as $count => $file) {
-          if (!file_exists($file)) {
-            continue;
+          if (!empty($request->options['headers']['Accept-Encoding'])) {
+            $if_modified_options['headers']['Accept-Encoding'] = $request->options['headers']['Accept-Encoding'];
           }
-          $contents = file_get_contents($file);
-          if (strpos($contents, 'Header unset Last-Modified') !== FALSE) {
-            $bad_config_found = TRUE;
-            $requirements['advagg_' . $type . '_last-modified_' . $key . $count] = array(
+
+          // Send request.
+          advagg_install_url_mod($url, $if_modified_options, $mod_url);
+          $request_304 = drupal_http_request($url, $if_modified_options);
+          if ($request_304->code != 304) {
+            // Recommend servers configuration be adjusted.
+            $requirements['advagg_' . $type . '_304' . $key . '_etag'] = array(
+              'title' => $t('Adv CSS/JS Agg - Etag'),
+              'severity' => REQUIREMENT_WARNING,
+              'value' => $t('The If-None-Match (Etag) header is being ignored by your web server.'),
+              'description' => $t('The web servers configuration will need to be adjusted. The server should have responded with a 304, instead a @code was returned.', array(
+                '@code' => $request_304->code,
+              )),
+            );
+          }
+          else {
+            $etag_works = TRUE;
+          }
+        }
+        if (isset($request->headers['last-modified'])) {
+          // Send a If-Modified-Since header and see if the web server returns a
+          // 304.
+          $url = file_create_url($url_path . '/' . $filename);
+          $if_modified_options = $options;
+          $if_modified_options['headers'] = array(
+            'Accept-Encoding' => 'gzip, deflate, br',
+            'If-Modified-Since' => $request->headers['last-modified'],
+          );
+          if (!empty($request->options['headers']['Accept-Encoding'])) {
+            $if_modified_options['headers']['Accept-Encoding'] = $request->options['headers']['Accept-Encoding'];
+          }
+
+          // Send request.
+          advagg_install_url_mod($url, $if_modified_options, $mod_url);
+          $request_304 = drupal_http_request($url, $if_modified_options);
+          if ($request_304->code != 304) {
+            // Recommend servers configuration be adjusted.
+            $requirements['advagg_' . $type . '_304' . $key . '_last_modified'] = array(
+              'title' => $t('Adv CSS/JS Agg - If-Modified-Since'),
+              'severity' => REQUIREMENT_WARNING,
+              'value' => $t('The If-Modified-Since (Last-Modified) header is being ignored by your web server.'),
+              'description' => $t('The web servers configuration will need to be adjusted. The server should have responded with a 304, instead a @code was returned.', array(
+                '@code' => $request_304->code,
+              )),
+            );
+          }
+          elseif (isset($requirements['advagg_' . $type . '_304' . $key . '_etag'])) {
+            // Last-Modified works, Etag is broken. 304s are working. Don't warn
+            // user.
+            unset($requirements['advagg_' . $type . '_304' . $key . '_etag']);
+          }
+        }
+        if ($etag_works && isset($requirements['advagg_' . $type . '_304' . $key . '_last_modified'])) {
+          // Etag works, Last-Modified is broken. 304s are working. Don't warn
+          // user.
+          unset($requirements['advagg_' . $type . '_304' . $key . '_last_modified']);
+        }
+
+        // Both the Last-Modified and Etag header are missing.
+        if (empty($request->headers['last-modified']) && empty($request->headers['etag'])) {
+          // Get path to advagg .htaccess file.
+          $files = array(
+            $file_path . '/.htaccess',
+            DRUPAL_ROOT . '/.htaccess',
+          );
+
+          // Check for bad .htaccess files.
+          $bad_config_found = FALSE;
+          foreach ($files as $count => $file) {
+            if (!file_exists($file)) {
+              continue;
+            }
+            $contents = file_get_contents($file);
+            if (strpos($contents, 'Header unset Last-Modified') !== FALSE) {
+              $bad_config_found = TRUE;
+              $requirements['advagg_' . $type . '_last-modified_' . $key . $count] = array(
+                'title' => $t('Adv CSS/JS Agg - Last-Modified'),
+                'severity' => REQUIREMENT_WARNING,
+                'value' => $t('The Last-Modified header is not being sent out by your web server.'),
+                'description' => $t('The web servers configuration will need to be adjusted. The server should have sent out a Last-Modified header. Remove "Header unset Last-Modified" inside this file to fix the issue: @file', array('@file' => $file)),
+              );
+            }
+          }
+
+          // Recommend servers configuration be adjusted.
+          if (!$bad_config_found) {
+            $requirements['advagg_' . $type . '_last-modified_' . $key] = array(
               'title' => $t('Adv CSS/JS Agg - Last-Modified'),
               'severity' => REQUIREMENT_WARNING,
               'value' => $t('The Last-Modified header is not being sent out by your web server.'),
-              'description' => $t('The web servers configuration will need to be adjusted. The server should have sent out a Last-Modified header. Remove "Header unset Last-Modified" inside this file to fix the issue: @file', array('@file' => $file)),
+              'description' => $t('The web servers configuration will need to be adjusted. The server should have sent out a Last-Modified header and/or an Etag header. If you can not get the Last-Modified header to work, you can try using ETags. Inside <code>@htaccess</code> right before <code>@line1</code> at the bottom of the file add in <code>@line2</code>. You will also need to remove the <code>@line3</code> line further up.', array(
+                '@htaccess' => $file_path . '/.htaccess',
+                '@line1' => '</FilesMatch>',
+                '@line2' => 'FileETag MTime Size',
+                '@line3' => 'Header unset ETag',
+              )),
             );
           }
-        }
-
-        // Recommend servers configuration be adjusted.
-        if (!$bad_config_found) {
-          $requirements['advagg_' . $type . '_last-modified_' . $key] = array(
-            'title' => $t('Adv CSS/JS Agg - Last-Modified'),
-            'severity' => REQUIREMENT_WARNING,
-            'value' => $t('The Last-Modified header is not being sent out by your web server.'),
-            'description' => $t('The web servers configuration will need to be adjusted. The server should have sent out a Last-Modified header and/or an Etag header. If you can not get the Last-Modified header to work, you can try using ETags. Inside <code>@htaccess</code> right before <code>@line1</code> at the bottom of the file add in <code>@line2</code>. You will also need to remove the <code>@line3</code> line further up.', array(
-              '@htaccess' => $file_path . '/.htaccess',
-              '@line1' => '</FilesMatch>',
-              '@line2' => 'FileETag MTime Size',
-              '@line3' => 'Header unset ETag',
-            )),
-          );
         }
       }
     }

@@ -108,7 +108,16 @@ function foundation_access_preprocess_html(&$variables) {
     ));
   }
   // make sure we have a logo before trying to render a real one to screen
-  elseif (!empty($variables['logo'])) {
+  elseif (!empty($variables['logo']) && !empty(theme_get_setting('logo_path'))) {
+    $variables['banner_image'] = theme('image', array(
+      'path' => theme_get_setting('logo_path'),
+      'alt' => '',
+      'attributes' => array(
+        'class' => array('logo__img'),
+      ),
+    ));
+  }
+  else {
     $logopath = drupal_get_path('theme', 'foundation_access') . '/logo.jpg';
     $variables['banner_image'] = theme('image', array(
       'path' => $logopath,
@@ -1034,7 +1043,7 @@ function foundation_access_menu_tree__menu_elmsln_navigation($variables) {
  * Implements menu_tree__menu_elmsln_add.
  */
 function foundation_access_menu_tree__menu_elmsln_add($variables) {
-  return '<ul role="menu" aria-hidden="false" tabindex="-1">' . $variables['tree'] . '</ul>';
+  return '<ul role="menu" aria-hidden="false" tabindex="-1" class="elmsln-add-menu-items">' . $variables['tree'] . '</ul>';
 }
 
 function foundation_access_preprocess_book_sibling_nav(&$variables) {

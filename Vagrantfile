@@ -5,13 +5,10 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-
-  # centos 6.5 - 32 bit, uncomment below if you have a 32 bit OS
-  #config.vm.box = "chef/centos-6.5-i386"
-  # centos 7.x - 64 bit
-  #config.vm.box = "geerlingguy/centos7"
-  # centos 6.7 - 64 bit
-  config.vm.box = "bradallenfisher/centos7"
+  # centos 7.2 - 64 bit
+  #config.vm.box = "bradallenfisher/centos7"
+  # primed centos 7.2 - 64 bit
+  config.vm.box = "elmsln/centos7"
   if Vagrant.has_plugin?("vagrant-cachier")
     config.cache.scope = :box
   end
@@ -44,10 +41,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["modifyvm", :id, "--memory", mem]
     v.customize ["modifyvm", :id, "--cpus", 1]
   end
-
   # run script as root
   config.vm.provision "shell",
-    args: "https://github.com/elmsln/elmsln.git master https://github.com/elmsln/elmsln-config-vagrant.git",
+    args: "https://github.com/elmsln/elmsln.git 0.6.x https://github.com/elmsln/elmsln-config-vagrant.git",
     path: "scripts/vagrant/handsfree-vagrant.sh"
 
   # run as the vagrant user

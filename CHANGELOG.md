@@ -1,3 +1,38 @@
+ELMSLN 0.6.0, 2016-11-21 - Turkey
+This release has major improvements to infrastructure deployment, migration and QA workflows. It also drops previously produced keychain requirements which had username and passwords and replaces them with a hash based methodology which can be updated and random at will. These are specific to each service account running commands on user's behalfs so it was never a serious security issue but always good to do house cleaning. Also includes many bug fixes, vastly improved developer UX in vagrant via the `sh developer` command and other PHP7 compatibility improvements.
+
+User profile borked in firefox bug style guide / theme #1446
+Support continuous operation for Voicecommander in A11y module accessibility AWESOME! #1492
+Add keyboard key shortcuts for voice / other options accessibility #1491
+WD advagg: Reading from the file system failed. This can sometimes happen durning a deployment. accessibility minor #1485
+PHP Deprecated: Methods with the same name as their class will not be constructors in a future version of PHP; ctools_context has a deprecated constructor infrastructure #1484
+Unable to change banner for CIS and Courses bug minor online / CIS #1481
+Error notices on Course Outline bug minor #1479
+remove trigger delay notices minor #1478
+notice if CPR didn't respond w/ profile bug minor #1483
+Add/Edit Network Option Removed bug User Experience #1480
+Create RestWS meta controller for render-as ELMSLN core infrastructure medium security related #812
+Update Vagrant documentation #1477
+Make elmsln{type}:// a real stream wrapper Developer Experience development ELMSLN core minor #1378
+Fork base-box for vagrant to improve spin up time Developer Experience vagrant #1470
+Extract cfg password file to new location infrastructure security related #1471
+Track page views by default in MOOC courses / mooc #1472
+First login experience community documentation question #1308
+Install screen during spin up at root ip Developer Experience infrastructure User Experience #1361
+Possible to replace keychain? infrastructure #1465
+account for email and username is job scripts bug infrastructure #1421
+System topology Developer Experience hard infrastructure scale / performance #866
+make tmp directory for older installs bug infrastructure minor #1469
+Support for environment specific alias files development drush related infrastructure #1457
+Disable aggregation for better performance scale / performance #1468
+Add all domains to sites.php infrastructure #1463
+Promote 0.5.0 release a bit community #1467
+h5p question feedback text has silly max height bug media / elmsmedia style guide / theme #1466
+Document contextual hierarchy of concepts action plan community documentation #1382
+Add better banner style guide / theme #1451
+elmsln api callback for 'what content types can this user create' infrastructure #1461
+Make upgrade hook in elmsln_core for temporary directory setting infrastructure #1459
+
 ELMSLN 0.5.0, 2016-11-08 - Pumpkin
 Another release, another big release. This update has massive performance, accessibility and usability enhancemnets. There's also built in support for mapping, xAPI visualization and tracking, read time statistical generation is now stable, PDF / Print mode printing, more refined media and testing work. The usability improvements associated with color and design now give greater context of where people are and what they are doing. MaterializeCSS has also been fully implemented, replacing our 2 year long run with Zurb Foundation / hacky / some materialize code. Materialize nets us a larger design community and really clean visualization / design patterns to start from. There's also a lot of work under the hood in stability and improvements people won't notice but that put us on better footing going forward, including Ubuntu 16 with PHP 7, MariaDB, and HTTP2 support for the fastest page delivery currently possible by web-stacks. There's also some experimental work for Angular 2.0 apps in the 2.x version of the Studio. The next release will focus more on getting this and other Angular experiments graduated to full usage. This release has the most issues stomped and functionality added since the project initially got a 0.0.0 release marker.
 

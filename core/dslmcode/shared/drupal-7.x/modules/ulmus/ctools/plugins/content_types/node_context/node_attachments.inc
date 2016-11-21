@@ -14,7 +14,7 @@ $plugin = array(
 );
 
 function ctools_node_attachments_content_type_render($subtype, $conf, $panel_args, $context) {
-  $node = isset($context->data) ? clone($context->data) : NULL;
+  $node = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'attachments';
 

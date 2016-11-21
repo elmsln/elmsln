@@ -21,6 +21,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 # include our config settings
 source ../../config/scripts/drush-create-site/config.cfg
+# load password config
+source ../../config/scripts/drush-create-site/configpwd.cfg
 
 # check that we are the root user
 if [[ $EUID -ne 0 ]]; then

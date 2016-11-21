@@ -474,7 +474,7 @@ function ctools_plugin_load_includes($info, $filename = NULL) {
         }
         else {
 
-          require_once DRUPAL_ROOT . '/' . $file->uri;
+          include_once DRUPAL_ROOT . '/' . $file->uri;
           // .inc files have a special format for the hook identifier.
           // For example, 'foo.inc' in the module 'mogul' using the plugin
           // whose hook is named 'borg_type' should have a function named (deep breath)

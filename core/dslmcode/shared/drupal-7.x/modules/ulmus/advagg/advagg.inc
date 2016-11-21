@@ -334,9 +334,9 @@ function advagg_does_js_start_with_use_strict($filename) {
         // Get all text before "use strict";.
         $substr = substr($contents, 0, $use_strict);
         // Check if there are any comments.
-        $single_line_comment = stripos($substr, '//');
-        $multi_line_comment = stripos($substr, '/*');
-        $in_function = stripos($substr, '{');
+        $single_line_comment = strpos($substr, '//');
+        $multi_line_comment = strpos($substr, '/*');
+        $in_function = strpos($substr, '{');
         if ($single_line_comment !== FALSE || $multi_line_comment !== FALSE) {
           // Include jsminplus.inc and advagg_js_compress.advagg.inc.
           if (!function_exists('advagg_js_compress_jsminplus')) {
@@ -350,7 +350,7 @@ function advagg_does_js_start_with_use_strict($filename) {
             }
           }
           // Jsminplus strips all comments.
-          // Supress any errors; only js fragments are being processed.
+          // Suppress any errors; only js fragments are being processed.
           @advagg_js_compress_jsminplus($contents, FALSE);
           $use_strict = stripos($contents, '"use strict";');
           if ($use_strict === FALSE) {
@@ -358,7 +358,7 @@ function advagg_does_js_start_with_use_strict($filename) {
           }
           $substr = substr($contents, 0, $use_strict);
           // Check if there is a function before this.
-          $in_function = stripos($substr, '{');
+          $in_function = strpos($substr, '{');
         }
         if ($in_function === FALSE) {
           $strict_js = TRUE;

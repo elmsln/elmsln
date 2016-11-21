@@ -1,9 +1,12 @@
 <?php
+require_once '/var/www/elmsln/core/dslmcode/elmsln_environment/elmsln_environment.php';
+
 /**
  * Automatically find and create drush aliases on the server.
  * @param  array $aliases  array of drush aliases
  */
 function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
+  global $elmslncfg;
   // static cache assembled aliases as this can get tripped often
   static $pulledaliases = array();
   static $pulledauthorities = array();
@@ -13,29 +16,7 @@ function _elmsln_alises_build_server(&$aliases, &$authorities = array()) {
     // assumption here is that it lives where we expect
     // change this line if that's not the case though we really don't
     // support changes to that part of the install routine
-    $cfg = file_get_contents('/var/www/elmsln/config/scripts/drush-create-site/config.cfg');
-    $lines = explode("\n", $cfg);
-    // read each line of the config file
-    foreach ($lines as $line) {
-      // make sure this line isn't a comment and has a = in it
-      if (strpos($line, '#') !== 0 && strpos($line, '=')) {
-        $tmp = explode('=', $line);
-        // ensure we have 2 settings before doing this
-        if (count($tmp) == 2) {
-          // never pass around the dbsu
-          if (!in_array($tmp[0], array('dbsu', 'dbsupw'))) {
-            // strip encapsulation if it exists
-            $config[$tmp[0]] = str_replace('"', '', str_replace("'", '', $tmp[1]));
-          }
-        }
-      }
-    }
-    // support the fact that $elmsln is used to reference in many bash vars
-    foreach ($config as $key => $value) {
-      if (strpos($value, '$elmsln') !== FALSE) {
-        $config[$key] = str_replace('$elmsln', $config['elmsln'], $value);
-      }
-    }
+    $config = $elmslncfg;
     // base address of all domains
     $address = $config['address'];
     // your web root

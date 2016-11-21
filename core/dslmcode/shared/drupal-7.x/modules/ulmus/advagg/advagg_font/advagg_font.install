@@ -33,10 +33,28 @@ function advagg_font_requirements($phase) {
   if (function_exists('libraries_info')) {
     $lib_info = libraries_detect('fontfaceobserver');
   }
+  $config_path = advagg_admin_config_root_path();
 
-  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0
-    && function_exists('libraries_info')
-    && variable_get('advagg_font_fontfaceobserver', ADVAGG_FONT_FONTFACEOBSERVER) == 6
+  // See if module is on.
+  if (variable_get('advagg_font_fontfaceobserver', ADVAGG_FONT_FONTFACEOBSERVER) == 0) {
+    $requirements['advagg_font_not_on'] = array(
+      'title' => $t('AdvAgg Font'),
+      'severity' => REQUIREMENT_WARNING,
+      'value' => $t('AdvAgg async font loading is disabled.'),
+      'description' => $t('Go to the <a href="@settings">AdvAgg Async Font Loader settings page</a> and select an option other than disabled, or go to the <a href="@modules">modules page</a> and disable the "AdvAgg Async Font Loader" module.', array(
+        '@settings' => url($config_path . '/advagg/font'),
+        '@modules' => url('admin/modules', array(
+          'fragment' => 'edit-modules-advanced-cssjs-aggregation',
+        )),
+      )),
+    );
+  }
+
+  // See if locally hosted if not in dev mode.
+  if (empty($lib_info)
+    || (variable_get('advagg_font_fontfaceobserver', ADVAGG_FONT_FONTFACEOBSERVER) == 6
+    && variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0
+    )
   ) {
     $requirements['advagg_font_rawgithub'] = array(
       'title' => $t('AdvAgg Font - Host locally'),
@@ -44,14 +62,15 @@ function advagg_font_requirements($phase) {
       'value' => $t('The fontfaceobserver.js file should be local for better performance.'),
       'description' => empty($lib_info['version']) ?
         $t('Directions on how to install it can be found on the <a href="@url">Async Font Loader</a> settings page', array(
-          '@url' => url('admin/config/development/performance/advagg/font'),
+          '@url' => url($config_path . '/advagg/font'),
         )) :
         $t('Please go to the <a href="@url">Async Font Loader</a> settings page and choose inline or local.', array(
-          '@url' => url('admin/config/development/performance/advagg/font'),
+          '@url' => url($config_path . '/advagg/font'),
         )),
     );
   }
 
+  // Check version.
   if (isset($lib_info['version'])
     && !empty($package->version)
     && version_compare($package->version, $lib_info['version']) >= 1
@@ -74,7 +93,7 @@ function advagg_font_requirements($phase) {
       'title' => $t('AdvAgg Font'),
       'severity' => REQUIREMENT_OK,
       'value' => $t('OK'),
-      'description' => empty($package->version) ? $t('The font face observer JavaScript should be working.') : $t('The font face observer JavaScript library is up to date (%version).', array('%version' => $package->version)),
+      'description' => empty($package->version) ? $t('The font face observer JavaScript should be working.') : $t('The font face observer JavaScript library is up to date (%version).', array('%version' => isset($lib_info['version']) ? $lib_info['version'] : $package->version)),
     );
   }
 

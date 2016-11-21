@@ -3,6 +3,7 @@ _notes
 _notes/
 .DS_Store
 config/**
+_elmsln_env_config/**
 .git
 .vagrant
 sftp-config.json

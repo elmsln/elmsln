@@ -18,11 +18,15 @@ txtbld=$(tput bold)             # Bold
 bldgrn=${txtbld}$(tput setaf 2) #  green
 bldred=${txtbld}$(tput setaf 1) #  red
 txtreset=$(tput sgr0)
+installlog="/var/www/elmsln/config/tmp/INSTALL-LOG.txt"
+steplog="/var/www/elmsln/config/tmp/STEP-LOG.txt"
 elmslnecho(){
   echo "${bldgrn}$1${txtreset}"
+  echo "$1" >> $installlog
 }
 elmslnwarn(){
   echo "${bldred}$1${txtreset}"
+  echo "$1" >> $installlog
 }
 # Define seconds timestamp
 timestamp(){
@@ -55,7 +59,7 @@ cp /var/www/elmsln/VERSION.txt /var/www/elmsln/config/SYSTEM_VERSION.txt
 cd /var/www/elmsln/config
 touch /var/www/elmsln/config/logs/upgrade_history.txt
 echo "Initially installed as: ${code_version}" >> /var/www/elmsln/config/logs/upgrade_history.txt
-
+echo '0' > $steplog
 rm -rf .git
 
 # make a new repo
@@ -215,8 +219,9 @@ fi
 
 # work against the config file
 config='/var/www/elmsln/config/scripts/drush-create-site/config.cfg'
+configpwd='/var/www/elmsln/config/scripts/drush-create-site/configpwd.cfg'
 touch $config
-# step through creation of the config.cfg file
+# step through creation of the config file
 echo "#university / institution deploying this instance" >> $config
 elmslnecho "what is your uniersity abbreviation? (ex psu)"
 read university
@@ -257,14 +262,12 @@ read admin
 echo "admin='${admin}'" >> $config
 
 # if there's a scary part it's right in here for some I'm sure
-echo "#database superuser credentials" >> $config
-elmslnecho "database superuser credentials? (this is only stored in the config.cfg file. it is recommended you create an alternate super user other then true root. user needs full permissions including grant since this is what requests new drupal sites to be produced)"
+elmslnecho "database superuser credentials? (this is only stored in the configpwd.cfg file. it is recommended you create an alternate super user other then true root. user needs full permissions including grant since this is what requests new drupal sites to be produced)"
 read -s dbsu
-echo "dbsu='${dbsu}'" >> $config
-
+echo "dbsu='${dbsu}'" >> $configpwd
 elmslnecho "database superuser password? (same notice as above)"
 read -s dbsupw
-echo "dbsupw='${dbsupw}'" >> $config
+echo "dbsupw='${dbsupw}'" >> $configpwd
 
 # this was read in from above or automatically supplied based on the system type
 echo "#www user, what does apache run as? www-data and apache are common" >> $config
@@ -309,6 +312,9 @@ echo "elmsln_installed='${installed}'" >> $config
 uuid="$(getuuid)"
 # a uuid which data can be related on
 echo "elmsln_uuid='${uuid}'" >> $config
+# echo a uuid to a salt file we can use later on
+touch /var/www/elmsln/config/SALT.txt
+echo "$(getuuid)" > /var/www/elmsln/config/SALT.txt
 
 # allow for opt in participation in our impact program
 elmslnecho "Would you like to send anonymous usage statistics to http://elmsln.org for data visualization purposes? (type yes or anything else to opt out)"
@@ -333,8 +339,8 @@ fi
 if [[ -n "$phpini" ]]; then
   cat /var/www/elmsln/scripts/server/php.txt >> $phpini
 fi
-if [[ -n "$phpfpmini" ]]; then		
-  cat /var/www/elmsln/scripts/server/php.txt >> $phpfpmini		
+if [[ -n "$phpfpmini" ]]; then
+  cat /var/www/elmsln/scripts/server/php.txt >> $phpfpmini
 fi
 if [[ -n "$mycnf" ]]; then
   cat /var/www/elmsln/scripts/server/my.txt > $mycnf
@@ -360,21 +366,22 @@ if [[ -n "$domains" ]]; then
   sed -i "s/DATA./${serviceprefix}/g" ${domains}*.conf
   ls $domains
   elmslnecho "${domains} was automatically generated but you may want to verify the file regardless of configtest saying everything is ok or not."
+  # systems restart differently
+  if [[ $os == '1' ]]; then
+    /etc/init.d/httpd restart
+    /etc/init.d/php-fpm restart
+    /etc/init.d/mysqld restart
+  elif [ $os == '2' ]; then
+    service apache2 restart
+    service php5-fpm restart
+    service php7.0-fpm restart
+  else
+    service httpd restart
+    service mysqld restart
+    service php-fpm restart
+  fi
   # attempt to author the https domain if they picked it, let's hope everyone does
   if [[ $protocol == 'https' ]]; then
-    # systems restart differently
-    if [[ $os == '1' ]]; then
-      /etc/init.d/httpd restart
-      /etc/init.d/php-fpm restart
-    elif [ $os == '2' ]; then
-      service apache2 restart
-      service php5-fpm restart
-      service php7.0-fpm restart
-    else
-      service httpd restart		   
-      service mysqld restart
-      service php-fpm restart
-    fi
     cd $HOME
     git clone https://github.com/letsencrypt/letsencrypt
     # automatically create domains
@@ -386,11 +393,6 @@ if [[ -n "$domains" ]]; then
   if [ $os == '2' ]; then
     ln -s ${domains}*.conf /etc/apache2/sites-enabled/
   fi
-fi
-
-# if this is rhel prepared the domains for varnish.
-if [ $os == '1' ] || [ $os == '3' ]; then
-  sed -i 's/:80\b/:8080/g' ${domains}*.conf
 fi
 
 if [[ -n "$zzz_performance" ]]; then
@@ -413,7 +415,7 @@ fi
 # setup infrastructure tools
 ln -s /var/www/elmsln/scripts/drush-create-site /usr/local/bin/drush-create-site
 ln -s /var/www/elmsln/scripts/drush-command-job /usr/local/bin/drush-command-job
-chmod 744 /usr/local/bin/drush-create-site/rm-site.sh
+chmod 740 /usr/local/bin/drush-create-site/rm-site.sh
 
 # shortcuts for ease of use
 cd $HOME
@@ -497,3 +499,4 @@ fi
 elmslnecho "Everything should be in place, now you can log out and run the following commands:"
 elmslnecho "sudo chown YOURUSERNAME:${webgroup} -R /var/www/elmsln"
 elmslnecho "bash /var/www/elmsln/scripts/install/elmsln-install.sh"
+elmslnecho "If you go to your IP address you'll be able to watch the build from a cleaner interface"

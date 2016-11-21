@@ -266,6 +266,28 @@ function _cis_helper_run_operation($section) {
 }
 
 /**
+ * Implements hook_user_login().
+ */
+function cis_helper_user_login(&$edit, $account) {
+  // If this is user's first time log-in, kill the open log file for security
+  // and present them a message about how to get started.
+  if ($account->uid == 1 && $account->access == 0 && !drupal_is_cli()) {
+    $cfg = _elmsln_core_get_cfg();
+    $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
+    $text = t('You have successfully logged in, congratulations!') . "\n";
+    $text .= t('If you are seeing this, then you probably want to go elsewhere since the installation is complete.') . "\n";
+    $text .= t('To login, go to any site in your network, such as:') . "\n";
+    $text .= t('<a href="@url">@url</a>', array('@url' => _cis_connector_format_address($settings, '/', 'front')));
+    $text .= "\n" . t('and login.') . "\n";
+    $text .= t('If you are locked out of your deployment, you can regain access server side by running the following:') . "\n";
+    $text .= "\n" . '         drush @online uli' . "\n";
+    $text .= t('This will generate a one time login link.');
+    file_put_contents($cfg['drupal_tmp'] . '/INSTALL-LOG.txt', $text);
+    drupal_set_message(t('Welcome to ELMS:LN! To get started, you probably want to add a course. To do this, click the plus sign at the bottom and select `Setup a Course`'), 'status');
+  }
+}
+
+/**
  * Implements hook_page_build().
  */
 function cis_helper_page_build(&$page) {
@@ -371,6 +393,19 @@ function cis_helper_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'cis_helper.admin.inc',
     'file path' => $path,
+  );
+  // admin settings for CIS
+  $items['admin/config/system/integrations'] = array(
+    'title' => 'Global integrations',
+    'description' => 'Integrations page for ELMS:LN',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_helper_integrations_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'cis_helper.admin.inc',
+    'file path' => $path,
+    'menu_name' => 'menu-elmsln-settings',
+    'weight' => 10,
   );
   // quick setup form
   $items['cis-quick-setup'] = array(
@@ -742,6 +777,8 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   $options['vset'][] = 'cis_service_instance_uuid ' . $service_instance->uuid;
   $options['vset'][] = 'cis_course_machine_name ' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
   $options['vset'][] = 'cis_course_uuid ' . $course->uuid;
+  // set public files path
+  $options['vset'][] = 'file_public_path sites/' . $service->field_machine_name[LANGUAGE_NONE][0]['value'] . '/' . $college . '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/files';
   // set private files to match the pattern of ELMSLN config directory
   $options['vset'][] = 'file_private_path /var/www/elmsln/config/private_files/' . $service->field_machine_name[LANGUAGE_NONE][0]['value'] . '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
   // set temporary files

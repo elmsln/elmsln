@@ -295,3 +295,24 @@ function views_content_get_pane_links_alter(&$links, $pane, $content_type) {
     );
   }
 }
+
+/**
+ * Implements hook_module_implements_alter()
+ */
+function views_content_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'views_pre_view') {
+    $group = $implementations['views_content'];
+    unset($implementations['views_content']);
+    $implementations = array('views_content' => $group) + $implementations;
+  }
+}
+
+/**
+ * Implements hook_views_pre_view()
+ */
+function views_content_views_pre_view(&$view) {
+  if (method_exists($view->display_handler, 'pane_process_conf')) {
+    // process the pane configuration to prevent loss when using ajax
+    $view->display_handler->pane_process_conf();
+  }
+}

@@ -9,7 +9,7 @@
  * must be implemented in the module file.
  */
 
-define('CTOOLS_API_VERSION', '2.0.8');
+define('CTOOLS_API_VERSION', '2.0.9');
 
 /**
  * The current working ctools version.
@@ -23,7 +23,7 @@ define('CTOOLS_API_VERSION', '2.0.8');
  *   ; Requires CTools v7.x-1.4 or newer.
  *   dependencies[] = ctools (>=1.4)
  */
-define('CTOOLS_MODULE_VERSION', '7.x-1.9');
+define('CTOOLS_MODULE_VERSION', '7.x-1.11');
 
 /**
  * Test the CTools API version.
@@ -756,6 +756,12 @@ function ctools_process(&$variables, $hook) {
   if (!empty($classes[$hook]['remove'])) {
     $remove_classes = array_map('drupal_clean_css_identifier', $classes[$hook]['remove']);
     $variables['classes_array'] = array_diff($variables['classes_array'], $remove_classes);
+  }
+
+  // Update the classes within the attributes array to match the classes array
+  if (isset($variables['attributes_array']['class'])) {
+    $variables['attributes_array']['class'] = array_unique(array_merge($variables['classes_array'], $variables['attributes_array']['class']));
+    $variables['attributes'] = $variables['attributes_array'] ? drupal_attributes($variables['attributes_array']) : '';
   }
 
   // Since this runs after template_process(), we need to re-implode the

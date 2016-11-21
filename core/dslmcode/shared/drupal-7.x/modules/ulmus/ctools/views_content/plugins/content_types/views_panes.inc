@@ -143,68 +143,11 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
     return;
   }
 
+  $conf['pane_contexts'] = $contexts;
+  $conf['panel_args'] = $panel_args;
   $view->display_handler->set_pane_conf($conf);
 
-  $args = array();
-  $arguments = $view->display_handler->get_option('arguments');
-
-  $context_keys = isset($conf['context']) ? $conf['context'] : array();
-  foreach ($view->display_handler->get_argument_input() as $id => $argument) {
-    switch ($argument['type']) {
-      case 'context':
-        $key = array_shift($context_keys);
-        if (isset($contexts[$key])) {
-          if (strpos($argument['context'], '.')) {
-            list($context, $converter) = explode('.', $argument['context'], 2);
-            $args[] = ctools_context_convert_context($contexts[$key], $converter, array('sanitize' => FALSE));
-          }
-          else {
-            $args[] = $contexts[$key]->argument;
-          }
-        }
-        else {
-          $args[] = isset($arguments[$id]['exception']['value']) ? $arguments[$id]['exception']['value'] : 'all';
-        }
-        break;
-
-      case 'fixed':
-        $args[] = $argument['fixed'];
-        break;
-
-      case 'panel':
-        $args[] = isset($panel_args[$argument['panel']]) ? $panel_args[$argument['panel']] : NULL;
-        break;
-
-      case 'user':
-        $args[] = (isset($conf['arguments'][$id])  && $conf['arguments'][$id] !== '') ? ctools_context_keyword_substitute($conf['arguments'][$id], array(), $contexts) : NULL;
-        break;
-
-     case 'wildcard':
-        // Put in the wildcard.
-       $args[] = isset($arguments[$id]['wildcard']) ? $arguments[$id]['wildcard'] : '*';
-       break;
-
-     case 'none':
-     default:
-       // Put in NULL.
-       // views.module knows what to do with NULL (or missing) arguments
-       $args[] = NULL;
-       break;
-    }
-  }
-
-  // remove any trailing NULL arguments as these are non-args:
-  while (count($args) && end($args) === NULL) {
-    array_pop($args);
-  }
-
-  $view->set_arguments($args);
-
   $allow = $view->display_handler->get_option('allow');
-
-  if (!empty($conf['path'])) {
-    $conf['path'] = ctools_context_keyword_substitute($conf['path'], array(), $contexts);
-  }
   if ($allow['path_override'] && !empty($conf['path'])) {
     $view->override_path = $conf['path'];
   }
@@ -219,67 +162,6 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
   if (($allow['link_to_view'] && !empty($conf['link_to_view'])) ||
       (!$allow['link_to_view'] && $view->display_handler->get_option('link_to_view'))) {
     $block->title_link = $view->get_url();
-  }
-
-  // more link
-  if ($allow['more_link']) {
-    if (empty($conf['more_link'])) {
-      $view->display_handler->set_option('use_more', FALSE);
-    }
-    else {
-      $view->display_handler->set_option('use_more', TRUE);
-      // make sure the view runs the count query so we know whether or not the
-      // more link applies.
-      $view->get_total_rows = TRUE;
-    }
-  }
-
-  if ($allow['items_per_page'] && isset($conf['items_per_page'])) {
-    $view->set_items_per_page($conf['items_per_page']);
-  }
-
-  if ($allow['offset']) {
-    $view->set_offset($conf['offset']);
-  }
-
-  if ($allow['use_pager']) {
-    // Only set use_pager if they differ, this way we can avoid overwriting the
-    // pager type that Views uses.
-    $pager = $view->display_handler->get_option('pager');
-    if ($conf['use_pager'] && ($pager['type'] == 'none' || $pager['type'] == 'some')) {
-      $pager['type'] = 'full';
-    }
-    elseif (!$conf['use_pager'] && $pager['type'] != 'none' && $pager['type'] != 'some') {
-      $pager['type'] = $view->get_items_per_page() || !empty($pager['options']['items_per_page']) ? 'some' : 'none';
-    }
-
-    if ($conf['use_pager']) {
-      if (!isset($pager['options']['id']) || (isset($conf['pager_id']) && $pager['options']['id'] != $conf['pager_id'])) {
-        $pager['options']['id'] = (int) $conf['pager_id'];
-      }
-    }
-
-    $view->display_handler->set_option('pager', $pager);
-  }
-
-  if ($allow['fields_override']) {
-    if ($conf['fields_override']) {
-      $fields = $view->get_items('field');
-      foreach ($fields as $field => $field_display) {
-        $fields[$field]['exclude'] = empty($conf['fields_override'][$field]);
-      }
-      $view->display_handler->set_option('fields', $fields);
-
-    }
-  }
-
-  if ($allow['exposed_form'] && !empty($conf['exposed'])) {
-    foreach ($conf['exposed'] as $filter_name => $filter_value) {
-      if (!is_array($filter_value)) {
-        $conf['exposed'][$filter_name] = ctools_context_keyword_substitute($filter_value, array(), $contexts);
-      }
-    }
-    $view->set_exposed_input($conf['exposed']);
   }
 
   $stored_feeds = drupal_add_feed();
@@ -320,6 +202,10 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
  */
 function views_content_views_panes_add_defaults(&$conf, $view) {
   $pager = $view->display_handler->get_option('pager');
+
+  if (empty($conf)) {
+    $conf = array();
+  }
 
   $conf += array(
     'link_to_view' => $view->display_handler->get_option('link_to_view'),

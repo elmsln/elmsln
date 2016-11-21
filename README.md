@@ -10,6 +10,10 @@ Version | PHP | Includes | Code Status
 ------------- | ------  | --- | -------------------------- | -----------
 [0.5.0](https://github.com/elmsln/elmsln/archive/0.5.0.zip)  | 5.4.0+ | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![Stories in Ready](https://badge.waffle.io/elmsln/elmsln.png?label=ready&title=Ready)](http://waffle.io/elmsln/elmsln)
 
+Play quickly
+==============
+Vagrant is the fastest way to get up and running quickly. See the [Vagrant installation documentation](https://elmsln.readthedocs.io/en/latest/development/Vagrant-Step-by-Step-setup/) on how to get up and running now!
+
 Issues
 ==============
 If you notice an issue or have a question please file it in our [issue queue]((https://github.com/elmsln/elmsln/issues).

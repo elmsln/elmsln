@@ -146,6 +146,18 @@ function a11y_a11y_block($render = TRUE) {
       '#weight' => -6,
     );
   }
+  // support voicecommander disabling
+  if (user_access('use voice commander')) {
+    // voicecommander default state
+    $alters['voicecommander'] = array(
+      '#type' => 'checkbox',
+      '#id' => 'a11y_voicecommander_checkbox',
+      '#title' => t('Continuously listen for voice commands'),
+      '#default_value' => 0,
+      '#description' => t('This allows for more natural speech with working with the system.'),
+      '#weight' => -5,
+    );
+  }
   if ($render) {
     // render any aleration array items we have
     $output .= drupal_render($alters);
@@ -378,6 +390,10 @@ function a11y_apply_a11y() {
   if (variable_get('a11y_animation', 1)) {
     $js_variables['a11y']['animation'] = 1;
     drupal_add_js($plugin_path . 'animation/animation.js', $plugin_js_opts);
+  }
+  if (user_access('use voice commander')) {
+    $js_variables['a11y']['voicecommander'] = 1;
+    drupal_add_js($plugin_path . 'voicecommander/voicecommander.js', $plugin_js_opts);
   }
   if (variable_get('a11y_textsize', 1)) {
     $js_variables['a11y']['textsize'] = 1;

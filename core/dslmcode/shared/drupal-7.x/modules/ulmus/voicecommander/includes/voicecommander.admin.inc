@@ -9,11 +9,18 @@
  */
 function voicecommander_settings_form($form, &$form_state) {
   $form['voicecommander_prefix'] = array(
-    '#title'         => t('Administartor command prefix'),
+    '#title'         => t('Administrator command prefix'),
     '#type'          => 'textfield',
     '#required'      => TRUE,
     '#default_value' => variable_get('voicecommander_prefix', VOICECOMMANDER_DEFAULT_VALUE_PREFIX_NAME),
     '#description'   => t('Enter command prefix. Use command for example: "Drupal home page". Where word "Drupal" is prefix.'),
+  );
+  $form['voicecommander_robot'] = array(
+    '#title'         => t('Robot name'),
+    '#type'          => 'textfield',
+    '#required'      => TRUE,
+    '#default_value' => variable_get('voicecommander_robot', VOICECOMMANDER_ROBOT_NAME),
+    '#description'   => t('Who do you want to call your site. Yea, that\'s a thing'),
   );
   $form['voicecommander_optional_prefix'] = array(
     '#title'         => t('Prefix is optional'),

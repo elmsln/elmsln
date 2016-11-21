@@ -137,7 +137,7 @@ function ctools_fields_get_field_formatter_settings_form($field, $formatter_type
  */
 function ctools_fields_get_field_formatter_info($fields) {
   $info = array();
-  $field_info = module_invoke_all('field_formatter_info');
+  $field_info = field_info_formatter_types();
   foreach ($fields as $field) {
     foreach ($field_info as $format_name => $formatter_info) {
       if (in_array($field['type'], $formatter_info['field types'])) {
@@ -145,7 +145,6 @@ function ctools_fields_get_field_formatter_info($fields) {
       }
     }
   }
-  drupal_alter('field_formatter_info', $info);
   return $info;
 }
 

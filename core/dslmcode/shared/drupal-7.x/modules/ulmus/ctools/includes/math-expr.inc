@@ -99,7 +99,7 @@ class ctools_math_expr {
         'sqrt','abs','ln','log',
         'time', 'ceil', 'floor', 'min', 'max', 'round');
 
-    function ctools_math_expr() {
+    function __construct() {
         // make the variables a little more accurate
         $this->v['pi'] = pi();
         $this->v['e'] = exp(1);

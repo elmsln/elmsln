@@ -18,8 +18,17 @@ else
   configrepo=$3
 fi
 git clone $repo /var/www/elmsln
+# move to directory
 cd /var/www/elmsln
-git checkout $branch
+# drop current remote in case it changes
+git remote remove origin
+# add in the one the user defined
+git remote add origin $repo
+# checkout their branch, in case its different
+git checkout -b $branch
+# hard reset to the branch in question
+git fetch --all
+git reset --hard origin/$branch
 cd $HOME
 bash /var/www/elmsln/scripts/install/handsfree/centos7/centos7-install.sh elmsln ln elmsln.local http admin@elmsln.local yes
 cd $HOME && source .bashrc
@@ -63,6 +72,10 @@ echo 'fi' >> /etc/profile.d/chkon.sh
 drush @online dis seckit --y
 # specific stuff for aiding in development
 drush @online en vagrant_cis_dev cis_example_cis --y
+# update password everywhere to be something simple
+drush @elmsln upwd admin --password=admin --y
+# enable devel everywhere
+drush @elmsln en devel --y
 # restart apache to frag some caches because of the different settings that changed inside
 service httpd restart
 
@@ -79,8 +92,6 @@ bash /var/www/elmsln/scripts/utilities/harden-security.sh vagrant
 # disable varnish this way when we're doing local development we don't get cached anything
 # port swap to not use varnish in local dev
 sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
-sed -i 's/8080/80/g' /etc/httpd/conf.d/*.conf
-sed -i 's/8080/80/g' /etc/httpd/conf.sites.d/*.conf
 
 service varnish stop
 service httpd restart

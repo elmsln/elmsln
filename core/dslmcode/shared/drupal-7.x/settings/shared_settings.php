@@ -45,3 +45,6 @@ $conf['session_inc'] = 'sites/all/modules/ulmus/apdqc/apdqc.session.inc';
 
 // allow user deployment settings to always take priority
 include_once "/var/www/elmsln/config/shared/drupal-7.x/settings/shared_settings.php";
+if (file_exists("/var/www/elmsln/_elmsln_env_config/shared_settings.php")) {
+  include_once "/var/www/elmsln/_elmsln_env_config/shared_settings.php";
+}

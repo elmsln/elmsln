@@ -45,12 +45,26 @@ function _elmsln_core_realpath($uri) {
   // convert back to file you are looking for
   $filepath = implode('/', $fileparts);
   // build full path to return
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   if ($settings = _cis_connector_build_registry($tool)) {
     $adr = explode('.', $settings['address']);
     $domain = array_shift($adr);
   }
   return $cfg['configsdir'] . '/stacks/' . $domain . '/sites/' . $domain . '/' . $cfg['host'] . '/files/' . $filepath;
+}
+
+/**
+ * Pull config from the filesystem
+ * @return array sanitized config from the filesystem
+ */
+function _elmsln_core_get_cfg() {
+  // statically cache future calls
+  $config = &drupal_static(__FUNCTION__);
+  // build the whole thing
+  if (!isset($config) && $cfg = file_get_contents(ELMSLN_CFG_PATH)) {
+    $config = $GLOBALS['elmslncfg'];
+  }
+  return $config;
 }
 
 /**
@@ -145,6 +159,46 @@ function elmsln_core_block_info() {
   );
 
   return $blocks;
+}
+
+/**
+ * Implements hook_init()
+ */
+function elmsln_core_init() {
+  // Allow CORS OPTIONS request method to instantly return just the HTTP headers.
+  // https://www.drupal.org/node/1084144
+  if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    drupal_exit();
+  }
+  // support for login spoofing if this is a restful webservice user
+  // this still requires that account have the right permissions to access anything
+  // of value
+  if (isset($_GET['render-as']) && in_array('SERVICE ACCOUNT', $GLOBALS['user']->roles)) {
+    global $user;
+    global $_restws_bypass_user;
+    $tmp = $user;
+    $name = filter_xss($_GET['render-as']);
+    // try and load a "render-as" name
+    if($user = user_load_by_name($name)) {
+      $_restws_bypass_user = $tmp;
+    }
+    else {
+      $user = $tmp;
+    }
+  }
+}
+
+/**
+ * Implements hook_exit().
+ */
+function elmsln_core_exit($destination = NULL) {
+  global $_restws_bypass_user;
+  // set the user back to who they were prior to the request if we were spoofing during
+  // this prevents sessions hijacking even for restful webservice users
+  if (isset($_GET['render-as']) && !empty($_restws_bypass_user) && in_array('SERVICE ACCOUNT', $_restws_bypass_user->roles)) {
+    global $user;
+    $user = $_restws_bypass_user;
+  }
 }
 
 /**
@@ -247,13 +301,16 @@ function elmsln_core_user_view($account, $view_mode, $langcode) {
         $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
         // Decode the data that comes in from the user object.
         $user_data = json_decode($user_data_uid->data);
-        $rendered = str_replace('/services/', '/', $user_data->rendered);
-        // Add a new section to the User profile page.
-        $account->content['summary']['profile'] = array(
-          '#type' => 'user_profile_item',
-          '#title' => '',
-          '#markup' => $rendered,
-        );
+        // ensure we got good data
+        if (isset($user_data->rendered)) {
+          $rendered = str_replace('/services/', '/', $user_data->rendered);
+          // Add a new section to the User profile page.
+          $account->content['summary']['profile'] = array(
+            '#type' => 'user_profile_item',
+            '#title' => '',
+            '#markup' => $rendered,
+          );
+        }
       }
     }
   }
@@ -300,6 +357,8 @@ function _elmsln_core_data_access($etype, $entity) {
  */
 function elmsln_core_node_view($node, $view_mode, $langcode) {
   if ($view_mode == 'full' && $node->type == 'page') {
+    // @todo render this list of in context items
+    //$links = _elmsln_core_in_context_list();
     // only do this for nodes for now
     if ($node && !empty($node->content['body']) && isset($node->content['body'][0]['#markup'])) {
       // add items in context
@@ -672,7 +731,7 @@ function elmsln_core_page_build(&$page) {
   // secure and policy compliant access to sub-domain cookies on
   // the client side. This clears up MULTIPLE issues at once and is
   // awesome!
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   // see if this is an active learner or not, only thing we care about currently
   // @todo probably faster way of getting this info
   if (_cis_connector_role_grouping('active learner')) {
@@ -725,11 +784,81 @@ function elmsln_core_entity_insert($entity, $type) {
 }
 
 /**
+ * Return the links that can be used to build stuff in-context
+ */
+function _elmsln_core_in_context_list() {
+  // @todo static cache this
+  // @todo query cache this, it'll basically always be the same, generally
+  $links = array();
+  $icon_map = _elmsln_core_icon_map();
+  // ask the places we know about for what this user can embed
+  $requests = array(
+    'icor' => array(
+      'method' => 'POST',
+      'api' => '1',
+      'bucket' => 'icor',
+      'path' => '/',
+      'data' => array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'available_types',
+        'username' => $GLOBALS['user']->name,
+      ),
+    ),
+    'elmsmedia' => array(
+      'method' => 'POST',
+      'api' => '1',
+      'bucket' => 'elmsmedia',
+      'path' => '/',
+      'data' => array(
+        'elmsln_module' => 'elmsln_api',
+        'elmsln_callback' => 'available_types',
+        'username' => $GLOBALS['user']->name,
+      ),
+    ),
+  );
+  $responses = _elmsln_api_requests($requests);
+  foreach ($responses as $key => $response) {
+    $tmp = json_decode($response);
+    foreach ((array) $tmp->types as $typeobj) {
+      $icon = str_replace(' ', '_', drupal_strtolower($typeobj->name));
+      if (isset($icon_map[$icon])) {
+        $color = $icon_map[$icon]['color'];
+        $icon_render = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>';
+      }
+      else {
+        $color = '';
+        $icon_render = '';
+      }
+      $options = array(
+        'html' => TRUE,
+        'attributes' => array(
+          'class' => array('elmsln-core-external-context-apply', $color),
+        ),
+      );
+      $title = $icon_render . $typeobj->name;
+      $links[] = l($title, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options);
+    }
+  }
+
+  return $links;
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function elmsln_core_admin_paths() {
+  $paths = array(
+    'imce' => TRUE,
+  );
+  return $paths;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
   // inject the correct value here
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   $form['a11y_domain']['#default_value'] = '.' . $cfg['address'];
 }
 
@@ -849,10 +978,10 @@ function _elmsln_core_icon_libraries() {
 function elmsln_core_icon_library() {
   return array(
     'foundation_access' => array(
-      'title' => t('Foundation access'),
+      'title' => t('ELMS:LN icon set'),
     ),
     'material' => array(
-      'title' => t('Material'),
+      'title' => t('Material design icon set'),
     ),
   );
 }
@@ -865,8 +994,8 @@ function elmsln_core_fa_a11y() {
   return array(
     'keyboard' => array(
       '#type' => 'fieldset',
-      '#title' => t('Keyboard keys'),
-      '#description' => t('Use these key combinations to quickly navigate the course.'),
+      '#title' => t('Keyboard shortcuts'),
+      '#description' => t('Use these keys to navigate quickly'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
       '#weight' => -8,
@@ -884,6 +1013,11 @@ function elmsln_core_fa_a11y() {
       'keys' => array(
         '#markup' =>
         '<div class="keyboard-short">
+          <div class="keyboard-short__group">
+            <span>' . t('View options') . '</span>
+            <div class="keyboard-short__key">Alt</div>
+            <div class="keyboard-short__key">Shift</div>
+          </div>
           <div class="keyboard-short__group">
             <span>' . t('Scroll down') . '</span>
             <div class="keyboard-short__key">↓</div>
@@ -925,6 +1059,38 @@ function _elmsln_core_icon_map() {
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
+      'file' => array(
+        'color' => 'orange',
+        'icon' => 'attachment',
+      ),
+      'zip_file' => array(
+        'color' => 'deep-orange',
+        'icon' => 'archive',
+      ),
+      'timeline_item' => array(
+        'color' => 'pink',
+        'icon' => 'access_time',
+      ),
+      'timeline' => array(
+        'color' => 'red',
+        'icon' => 'timeline',
+      ),
+      'map_point' => array(
+        'color' => 'light-green',
+        'icon' => 'place',
+      ),
+      'map' => array(
+        'color' => 'green',
+        'icon' => 'map',
+      ),
+      'jmol' => array(
+        'color' => 'blue',
+        'icon' => 'share',
+      ),
+      'poll' => array(
+        'color' => 'light-blue',
+        'icon' => 'poll',
+      ),
       'course_offering' => array(
         'color' => 'blue',
         'icon' => 'people_outline',
@@ -1019,32 +1185,85 @@ function _elmsln_core_icon_map() {
 
 
 /**
- * Implements hook_cis_service_registry().
+ * Implements hook_cis_service_registry_alter($keychain).
  *
  * Core support for mapping the core supported LRS
  * to our registry. Then we can utilize our lrs variations
  * of request calls more easily to get data from the LRS.
  */
-function elmsln_core_cis_service_registry() {
+function elmsln_core_cis_service_registry_alter(&$keychain) {
+  // build the keychain dynamically
+  $cfg = _elmsln_core_get_cfg();
+  $directory = $cfg['elmsln'] . '/core/dslmcode/profiles/';
+  foreach (scandir($directory) as $item) {
+    // see if we found an item here
+    if (!in_array($item, array('.', '..')) && is_dir($directory . $item . '/')) {
+      $tmp = explode('-', $item);
+      $distro = $tmp[0];
+      // if we have an info file, read if the values to make it real
+      if (!isset($keychain[$distro]) && file_exists($directory . $item . '/' . $distro . '.topology')) {
+        $keychain[$distro] = array(
+          'protocol' => $cfg['protocol'],
+          'service_address' => $cfg['serviceaddress'],
+          'address' => $cfg['address'],
+          'user' => 'SERVICE_' . $distro . '_' . $cfg['host'],
+          'mail' => 'SERVICE_' . $distro . '_' . $cfg['host'] . '@' . $cfg['emailending'],
+          'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
+        );
+        $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
+        $lines = explode("\n", $file);
+        // read each line of the cfg file
+        foreach ($lines as $line) {
+          // make sure this line isn't a comment and has a = in it
+          if (strpos($line, '#') !== 0 && strpos($line, '=')) {
+            $tmp = explode('=', $line);
+            // ensure we have 2 settings before doing this
+            if (count($tmp) == 2) {
+              $keyname = trim($tmp[0]);
+              $value = str_replace('"', '', str_replace("'", '', trim($tmp[1])));
+              switch ($keyname) {
+                case 'default_title':
+                case 'type':
+                  $keychain[$distro][$keyname] = $value;
+                break;
+                case 'subdomain':
+                  $keychain[$distro][$keyname] = $value;
+                  $keychain[$distro]['address'] = $value . '.' . $keychain[$distro]['address'];
+                  $keychain[$distro]['service_address'] = $cfg['serviceprefix'] . $value . '.' . $keychain[$distro]['service_address'];
+                break;
+              }
+            }
+          }
+        }
+        // support meta properties for authority / services
+        if ($keychain[$distro]['type'] == 'authority') {
+          $keychain[$distro]['ignore'] = TRUE;
+          $keychain[$distro]['instance'] = FALSE;
+        }
+        elseif ($keychain[$distro]['type'] == 'service') {
+          $keychain[$distro]['ignore'] = FALSE;
+          $keychain[$distro]['instance'] = TRUE;
+        }
+      }
+    }
+  }
   // see if the most obvious variable isset
-  if (!empty(variable_get('tincanapi_endpoint', '')) && valid_url(variable_get('tincanapi_endpoint', ''), TRUE)) {
+  if (!isset($keychain[ELMSLN_CORE_LRS_KEYCHAIN]) && !empty(variable_get('tincanapi_endpoint', '')) && valid_url(variable_get('tincanapi_endpoint', ''), TRUE)) {
     // calculate the protocol and address from the endpoint variable
     $tmp = explode('://', variable_get('tincanapi_endpoint', ''));
     $protocol = array_shift($tmp);
     $tmp = explode('/', $tmp[0]);
     $address = array_shift($tmp);
     // build our standard connection keychain item for this new bucket
-    return array(
-      ELMSLN_CORE_LRS_KEYCHAIN => array(
-        'protocol' => $protocol,
-        'service_address' => $address,
-        'address' => $address,
-        'user' => variable_get('tincanapi_auth_user', ''),
-        'pass' => variable_get('tincanapi_auth_password', ''),
-        'instance' => FALSE,
-        'default_title' => 'Learning record store',
-        'ignore' => TRUE,
-      ),
+    $keychain[ELMSLN_CORE_LRS_KEYCHAIN] = array(
+      'protocol' => $protocol,
+      'service_address' => $address,
+      'address' => $address,
+      'user' => variable_get('tincanapi_auth_user', ''),
+      'pass' => variable_get('tincanapi_auth_password', ''),
+      'instance' => FALSE,
+      'default_title' => t('Learning record store'),
+      'ignore' => TRUE,
     );
   }
 }

@@ -41,11 +41,21 @@ function advagg_font_admin_settings_form() {
         4 => t('Local file included in aggregate (version: @version)', array('@version' => $lib_info['version'])),
       );
     }
-    else {
+    elseif (!is_readable('sites/all/libraries/fontfaceobserver/fontfaceobserver.js')) {
       $description .= ' ' . t('To use fontfaceobserver locally fontfaceobserver needs to be placed inside the sites/all/libraries directory so sites/all/libraries/fontfaceobserver/fontfaceobserver.js and package.json can be found at that location.', array(
         '@url' => 'https://www.drupal.org/project/libraries',
       ));
     }
+    else {
+      $description .= ' ' . t('Go to the <a href="@url">library report page</a> and make sure fontfaceobserver is installed correctly.', array(
+        '@url' => url('admin/reports/libraries'),
+      ));
+    }
+  }
+  elseif (is_readable('sites/all/libraries/fontfaceobserver/fontfaceobserver.js')) {
+    $description .= ' ' . t('To use fontfaceobserver locally the <a href="@url">libraries api module</a> needs to be installed.', array(
+      '@url' => 'https://www.drupal.org/project/libraries',
+    ));
   }
   else {
     $description .= ' ' . t('To use fontfaceobserver locally the <a href="@url">libraries api module</a> needs to be installed and then fontfaceobserver needs to be placed inside the sites/all/libraries directory so sites/all/libraries/fontfaceobserver/fontfaceobserver.js and package.json can be found at that location.', array(

@@ -10,8 +10,16 @@
  */
 function elmsln_core_install() {
   // ensure a11y domain is set
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   variable_set('a11y_domain', '.' . $cfg['address']);
+  // Make sure that the elmsln_core module runs later then CORS for example.
+  db_update('system')
+  ->fields(array(
+    'weight' => 1,
+  ))
+  ->condition('name', 'elmsln_core')
+  ->condition('type', 'module')
+  ->execute();
 }
 
 /**
@@ -28,7 +36,7 @@ function elmsln_core_update_7000(&$sandbox) {
 function elmsln_core_update_7001(&$sandbox) {
   module_enable(array('a11y'));
   // set domain
-  $cfg = _cis_connector_get_cfg();
+  $cfg = _elmsln_core_get_cfg();
   variable_set('a11y_domain', '.' . $cfg['address']);
 }
 
@@ -158,4 +166,34 @@ function elmsln_core_update_7015(&$sandbox) {
  */
 function elmsln_core_update_7016(&$sandbox) {
   module_enable(array('apdqc'));
+}
+
+/**
+ * file temp path set. This SHOULD be set but good to make sure.
+ */
+function elmsln_core_update_7017(&$sandbox) {
+  variable_set('file_temporary_path', '/var/www/elmsln/config/tmp');
+}
+
+/**
+ * Ensure this module's hooks run later then other things like CORS.
+ */
+function elmsln_core_update_7018(&$sandbox) {
+  // Make sure that the elmsln_core module runs later then CORS for example.
+  db_update('system')
+  ->fields(array(
+    'weight' => 1,
+  ))
+  ->condition('name', 'elmsln_core')
+  ->condition('type', 'module')
+  ->execute();
+}
+
+/**
+ * Disable css / js aggregation.
+ */
+function elmsln_core_update_7019(&$sandbox) {
+  // it'll be faster long term NOT to aggregate, confusing, I know.
+  variable_set('preprocess_css', '0');
+  variable_set('preprocess_js', '0');
 }

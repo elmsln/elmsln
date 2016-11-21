@@ -12,12 +12,11 @@ function cis_lmsless_nav_parent_form($form_state) {
 
   // fetch the current links from the variable
   $result = variable_get('cis_lmsless_nav_links', array());
-
+  $icon_libs = _elmsln_core_icon_libraries();
   // for each link in the array create form elements
   if (!empty($result)) {
     foreach ($result as $item_key => $item) {
       // Create a form entry for this item.
-      //
       // Each entry will be an array using the the unique id for that item as
       // the array key, and an array of table row data as the value.
       $form['links'][$item_key] = array(
@@ -34,7 +33,7 @@ function cis_lmsless_nav_parent_form($form_state) {
           '#markup' => $item['machine_name'],
         ),
         'icon_library' => array(
-          '#markup' => $item['icon_library'],
+          '#markup' => $icon_libs[$item['icon_library']]['title'],
         ),
         'edit' => array(
           '#markup' => l('edit', 'admin/config/user-interface/cis-lmsless-nav/edit-link/' . $item_key),

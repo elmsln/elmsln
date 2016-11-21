@@ -52,3 +52,22 @@ function cis_helper_admin_settings() {
   );
   return system_settings_form($form);
 }
+
+/**
+ * Callback for integrations page.
+ */
+function cis_helper_integrations_settings() {
+  $settings = _cis_connector_build_registry('elmsmedia');
+  $address = _cis_connector_format_address($settings, '/', 'front');
+  $output = '
+    <ul>
+      <li>' . l(t('Download and install H5P library'), $address . 'admin/content/h5p', array('query' => array('destination' => 'elmsln/redirect/cis/admin/config/system/integrations'))) . '</li>
+      <li>' . l(t('Enable youtube integration for media'), $address . 'admin/config/media/youtube_uploader', array('query' => array('destination' => 'elmsln/redirect/cis/admin/config/system/integrations'))) . '</li>
+    </ul>
+  ';
+  $form['code_markup'] = array(
+    '#type' => 'markup',
+    '#markup' => $output,
+  );
+  return $form;
+}

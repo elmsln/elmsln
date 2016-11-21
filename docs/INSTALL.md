@@ -1,23 +1,19 @@
 #ELMSLN - Installation Guide
 
-## Minimum Requirements 
+## Minimum Requirements
 You will need at least a stand-alone server with 2 gigs of RAM.
 
 ## Hands free install
-There are some handsfree install routines (copy and paste) that you can try. This is the preferred method of installing ELMS Learning Network as it'll get you up and running with the least steps possible. You can watch @bradallenfisher [install via this method on ELMSLN](https://drupal.psu.edu/blog/post/elmsln-aws-ec2).
+There are many handsfree install routines (copy and paste) that you can try. This is the preferred method of installing ELMS Learning Network as it'll get you up and running with the least steps possible. You can watch @bradallenfisher [install via this method on ELMSLN](https://drupal.psu.edu/blog/post/elmsln-aws-ec2).
 
 [This one-line builder](https://rawgit.com/elmsln/install-builder/master/install.html) can help you generate a one-line command to copy and paste.
 
-### CentOS 6.x / RHEL 6.x
-[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos/example-deploy)
 ### CentOS 7.x / RHEL 7.x
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/centos7/example-deploy)
 ### AWS EC2 AMI
 [Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/amazon/example-deploy)
-### Ubuntu 12.x / Debian 7.x
-[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu12/example-deploy)
-### Ubuntu 14.x / Debian 8.x
-[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu14/example-deploy)
+### Ubuntu 16.x
+[Example Deployment](https://github.com/elmsln/elmsln/blob/master/scripts/install/handsfree/ubuntu16/example-deploy)
 
 Hands free has some arguments passed into it to get going but these are for installation against a fresh copy of a server. If you install with the default options provided in those (with addresses of elmsln.dev) you'll want to make sure you modify your local `/etc/hosts` file to reflect these fake addresses.
 

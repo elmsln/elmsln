@@ -9,7 +9,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 # include our config settings
 source ../../config/scripts/drush-create-site/config.cfg
-
+# load password config
+source ../../config/scripts/drush-create-site/configpwd.cfg
 # provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold
 bldgrn=$(tput setaf 2) #  green
@@ -43,7 +44,7 @@ if [ -z $webdir ]; then
   elmslnwarn "please update your config.cfg file, webdir variable missing"
   exit 1
 fi
-echo '1' >> $steplog
+echo '1' > $steplog
 # FIGURE OUT WHATS GOING TO BE BUILT
 # this is an ultra generic process of analyzing what the system says we can
 # build and then actually doing it. When we wrap in the request form and
@@ -53,10 +54,7 @@ core='7.x'
 distros=()
 buildlist=()
 authoritydistros=()
-instances=()
 authoritylist=()
-ignorelist=()
-defaulttitle=()
 # all distributions / stacks we have
 cd $elmsln/core/dslmcode/stacks
 stacklist=( $(find . -maxdepth 1 -type d | sed 's/\///' | sed 's/\.//') )
@@ -81,29 +79,13 @@ do
       if [[ $distrotype == '"authority"' ]]; then
         authoritydistros+=($profile)
         authoritylist+=($stack)
-        instances+=('FALSE')
-        ignorelist+=('TRUE')
       else
         buildlist+=($stack)
-        instances+=('TRUE')
-        # special case for program hub
-        if [[ $profile == 'eph' ]]; then
-          ignorelist+=('TRUE')
-        else
-          ignorelist+=('FALSE')
-        fi
       fi
-    fi
-    # find the default title
-    if [[ ${tmp[0]} == 'elmslndefaulttitle' ]]; then
-      IFS='"' read -a tmptitle <<< "$next"
-      defaulttitle+=(${tmptitle[1]})
     fi
   done
 done
 
-moduledir=$elmsln/config/shared/drupal-${core}/modules/_elmsln_scripted
-cissettings=${university}_${host}_settings
 # support for hook architecture in bash call outs
 hooksdir=$configsdir/scripts/hooks/elmsln-install
 
@@ -112,53 +94,7 @@ COUNTER=0
 char=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V X W Y Z)
 max=${#char[*]}
 
-# generate a scripted directory
-if [ ! -d ${moduledir} ];
-  then
-  sudo mkdir -p ${moduledir}
-  sudo mkdir -p ${moduledir}/${university}
-fi
-# work on authoring the connector module automatically
-if [ ! -d ${moduledir}/${university}/${cissettings} ];
-  then
-  sudo mkdir -p ${moduledir}/${university}/${cissettings}
-  sudo chown -R $USER:$webgroup ${moduledir}
-  infofile=${moduledir}/${university}/${cissettings}/${cissettings}.info
-  modulefile=${moduledir}/${university}/${cissettings}/${cissettings}.module
-  touch $infofile
-  chmod 744 $infofile
-  touch $modulefile
-  chmod 744 $modulefile
-  # write the .info file
-  echo -e "name = ${university} ${host} Settings\ndescription = This contains registry information for all ${host} connection details\ncore = ${core}\npackage = ${university}" >> $infofile
-  # write the .module file
-  echo -e "<?php\n\n// service module that makes this implementation specific\n\n/**\n * Implements hook_cis_service_registry().\n */\nfunction ${university}_${host}_settings_cis_service_registry() {\n  \$items = array(\n" >> $modulefile
-  # write the array of connection values dynamically
-  for distro in "${distros[@]}"
-  do
-    # array built up to `word
-    echo -e "    // ${distro} distro instance called ${stacklist[$COUNTER]}\n    '${distro}' => array(\n      'protocol' => '${protocol}',\n      'service_address' => '${serviceprefix}${stacklist[$COUNTER]}.${serviceaddress}',\n      'address' => '${stacklist[$COUNTER]}.${address}',\n      'user' => 'SERVICE_${distro}_${host}',\n      'mail' => 'SERVICE_${distro}_${host}@${emailending}'," >> $modulefile
-    # generate a random 30 digit password
-    pass=''
-    for i in `seq 1 30`
-    do
-      let "rand=$RANDOM % 62"
-      pass="${pass}${char[$rand]}"
-    done
-    # write password to file
-    echo -e "      'pass' => '$pass'," >> $modulefile
-    # finish off array
-    echo -e "      'instance' => ${instances[$COUNTER]}," >> $modulefile
-    echo -e "      'default_title' => '${defaulttitle[$COUNTER]}'," >> $modulefile
-    echo -e "      'ignore' => ${ignorelist[$COUNTER]},\n    ),\n" >> $modulefile
-    COUNTER=$COUNTER+1
- done
-  # close out function and file
-  echo -e "  );\n\n  return \$items;\n}\n\n" >> $modulefile
-  # add the function to include this in build outs automatically
-  echo -e "/**\n * Implements hook_cis_service_instance_options_alter().\n */\nfunction ${university}_${host}_settings_cis_service_instance_options_alter(&\$options, \$course, \$service) {\n  // modules we require for all builds\n  \$options['en'][] = '$cissettings';\n  \$options['en'][] = 'elmsln_bakery';\n}\n" >> $modulefile
-fi
-echo '2' >> $steplog
+echo '2' > $steplog
 # make sure drush is happy before we begin drush calls
 drush cc drush
 sudo chown -R $USER $HOME/.drush
@@ -179,9 +115,9 @@ for build in "${buildlist[@]}"
   # install default site for associated stacks in the build list
   cd $stacks/$build
   elmslnecho "drush installing service placeholder: $build"
-  drush site-install -q -y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
+  drush site-install minimal --quiet --y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su=$dbsu --db-su-pw=$dbsupw --account-mail="$admin" --site-mail="$site_email"
 done
-echo '3' >> $steplog
+echo '3' > $steplog
 COUNTER=0
 # install authority distributions like online, media, comply
 for tool in "${authoritylist[@]}"
@@ -198,7 +134,7 @@ for tool in "${authoritylist[@]}"
   cd ${webdir}/${tool}
   sitedir=${webdir}/${tool}/sites
   elmslnecho "drush installing authority tool: $tool"
-  drush site-install -q ${dist} -y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
+  drush site-install ${dist}  --quiet --y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su=$dbsu --db-su-pw=$dbsupw  --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
   #move out of $tool site directory to host
   sudo mkdir -p $sitedir/$tool/$host
   sudo mkdir -p $sitedir/$tool/$host/files
@@ -225,21 +161,18 @@ for tool in "${authoritylist[@]}"
 
   # establish these values real quick so its more readable below
   site_domain="$tool.${address}"
-  site_service_domain="${serviceprefix}$tool.${serviceaddress}"
   # add site to the sites array
   echo "\$sites = array(" >> $sitedir/sites.php
-  echo "  '$site_domain' => '$tool/$host'," >> $sitedir/sites.php
-  echo "  '$site_service_domain' => '$tool/services/$host'," >> $sitedir/sites.php
+  echo "  '${tool}.' . \$GLOBALS['elmslncfg']['address'] => '$tool/' . \$GLOBALS['elmslncfg']['host']," >> $sitedir/sites.php
+  echo "  \$GLOBALS['elmslncfg']['serviceprefix'] . '${tool}.' . \$GLOBALS['elmslncfg']['serviceaddress'] => '$tool/services/' . \$GLOBALS['elmslncfg']['host']," >> $sitedir/sites.php
   echo ");" >> $sitedir/sites.php
   # set base_url
-  echo "\$base_url= '$protocol://$site_domain';" >> $sitedir/$tool/$host/settings.php
-
+  echo "\$base_url = \$GLOBALS['elmslncfg']['protocol'] . '://${tool}.' . \$GLOBALS['elmslncfg']['address'];" >> $sitedir/$tool/$host/settings.php
   # enable the cis_settings registry, set private path, temporary path, then execute clean up routines
-  drush -y --uri=$protocol://$site_domain en $cissettings
   drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
   # distro specific additional install routine
-  drush -y --uri=$protocol://$site_domain cook elmsln_$dist
+  drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet
   # clean up tasks per distro here
   if [ $dist == 'cis' ];
     then
@@ -279,13 +212,13 @@ for tool in "${authoritylist[@]}"
   # forcibly apply 1st ELMSLN global update since it isn't fixed tools
   # this makes it so that we don't REQUIRE multi-sites to run tools (stupid)
   # while still fixing the issue with httprl when used in multisites
-  drush -y --uri=$protocol://$site_domain cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global
+  drush -y --uri=$protocol://$site_domain cook d7_elmsln_global_1413916953 --dr-locations=/var/www/elmsln/scripts/upgrade/drush_recipes/d7/global --quiet
   # ELMSLN clean up for authority distributions (single point)
-  drush -y --uri=$protocol://$site_domain cook elmsln_authority_setup
+  drush -y --uri=$protocol://$site_domain cook elmsln_authority_setup --quiet
 
   COUNTER=$COUNTER+1
 done
-echo '4' >> $steplog
+echo '4' > $steplog
 # perform some clean up tasks
 # jobs file directory
 sudo chown -R $wwwuser:$webgroup $elmsln/config/jobs
@@ -302,31 +235,37 @@ if [ -f  $hooksdir/post-install.sh ]; then
   # invoke this hook cause we found a file matching the name we need
   bash $hooksdir/post-install.sh
 fi
-echo '5' >> $steplog
+echo '5' > $steplog
 # set concurrency to help speed up install
 concurrent=2
+adminpw=''
+for k in `seq 1 8`
+do
+  let "rand=$RANDOM % 62"
+  adminpw="${adminpw}${char[$rand]}"
+done
 # make sure user password is admin as a fallback
 elmslnecho "Set admin account everywhere"
-drush @elmsln upwd admin --password=admin --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln upwd admin --password=${adminpw} --concurrency=${concurrent} --strict=0 --y  --quiet
 # enable bakery everywhere by default
 elmslnecho "Enable bakery for unified logins"
-drush @elmsln en elmsln_bakery --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln en elmsln_bakery --concurrency=${concurrent} --strict=0 --y  --quiet
 # run all the existing crons so that they hit the CIS data and get sing100 for example
 elmslnecho "Run Cron to do some clean up"
-drush @elmsln cron --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln cron --concurrency=${concurrent} --strict=0 --y  --quiet
 # node access rebuild which will also clear caches
 elmslnecho "Rebuild node access permissions"
-drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln php-eval 'node_access_rebuild();' --concurrency=${concurrent} --strict=0 --y  --quiet
 # revert everything as some last minute clean up
 elmslnecho "Global feature revert as clean up"
-drush @elmsln fr-all --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln fr-all --concurrency=${concurrent} --strict=0 --y  --quiet
 # APDQC cache bin to memory shift
-drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --v --y
-drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --v --y
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --y  --quiet
+drush @elmsln apdqc --concurrency=${concurrent} --strict=0 --y  --quiet
 # seed entity caches
 elmslnecho "Seed some initial caches on all sites"
-drush @elmsln ecl --concurrency=${concurrent} --strict=0 --v --y
-echo '6' >> $steplog
+drush @elmsln ecl --concurrency=${concurrent} --strict=0 --y  --quiet
+echo '6' > $steplog
 
 # a message so you know where our head is at. you get candy if you reference this
 elmslnecho "╔───────────────────────────────────────────────────────────────╗"
@@ -357,9 +296,11 @@ elmslnecho "║ You may want to open this up and review it but it is your     �
 elmslnecho "║ connection keychain for how all the webservices talk.         ║"
 elmslnecho "║                                                               ║"
 elmslnecho "╠───────────────────────────────────────────────────────────────╣"
-elmslnecho "║ Use this link to get started:                                 ║"
-elmslnecho "║   $protocol://$site_domain                                     "
-elmslnecho "║                                                               ║"
+elmslnecho "║ Use  the following to get started:                            ║"
+elmslnecho "║  <a href='$protocol://online.${address}'>$protocol://online.${address}</a>"
+elmslnecho "║  username: admin                                              ║"
+elmslnecho "║  password: $adminpw                                           ║"
+elmslnecho "║  (if in vagrant the password is admin)                        ║"
 elmslnecho "║Welcome to the Singularity, edtech.. don't compete, eliminate  ║"
 elmslnecho "║✻Ex Uno Plures✻                                                ║"
 elmslnecho "╚───────────────────────────────────────────────────────────────╝"

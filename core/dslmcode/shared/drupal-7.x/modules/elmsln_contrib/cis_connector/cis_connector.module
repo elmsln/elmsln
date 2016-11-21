@@ -12,7 +12,6 @@
 define ('CIS_CONNECTOR_ENTITY_BOTH', 0);
 define ('CIS_CONNECTOR_ENTITY_REMOTE_ONLY', 1);
 define ('CIS_CONNECTOR_DRUSH_TASK_RUNNER_PATH', '/var/www/elmsln/config/jobs/drush-command-job/');
-define ('ELMSLN_CFG_PATH', '/var/www/elmsln/config/scripts/drush-create-site/config.cfg');
 define ('CIS_NO_SECTION', FALSE);
 define ('CIS_SECTION_MASTER', 'master');
 
@@ -25,6 +24,7 @@ function cis_connector_restws_meta_controls_alter(&$controls) {
   $controls['role-filter'] = 'role-filter';
   $controls['count'] = 'count';
   $controls['display_mode'] = 'display_mode';
+  $controls['render-as'] = 'render-as';
 }
 
 /**
@@ -768,6 +768,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
                   'field_machine_name' => $tmp['field_machine_name']['und'][0]['value'],
                   'title' => $tmp['title'],
                   'field_location' => array('url' => $tmp['field_location']['und'][0]['url']),
+                  'field_distribution' => $tmp['field_distribution']['und'][0]['value'],
                 );
               }
             }
@@ -1896,39 +1897,4 @@ function _cis_connector_load_users_by_role($roles = array()) {
   $result = $query->execute();
   // weird call but returns an array of the uids selected
   return array_keys($result->fetchAllAssoc('uid'));
-}
-
-/**
- * Pull config from the filesystem
- * @return array sanitized config from the filesystem
- */
-function _cis_connector_get_cfg() {
-  // statically cache future calls
-  $config = &drupal_static(__FUNCTION__);
-  // build the whole thing
-  if (!isset($config) && $cfg = file_get_contents(ELMSLN_CFG_PATH)) {
-    $lines = explode("\n", $cfg);
-    // read each line of the config file
-    foreach ($lines as $line) {
-      // make sure this line isn't a comment and has a = in it
-      if (strpos($line, '#') !== 0 && strpos($line, '=')) {
-        $tmp = explode('=', $line);
-        // ensure we have 2 settings before doing this
-        if (count($tmp) == 2) {
-          // never pass around the dbsu
-          if (!in_array($tmp[0], array('dbsu', 'dbsupw'))) {
-            // strip encapsulation if it exists
-            $config[$tmp[0]] = str_replace('"', '', str_replace("'", '', $tmp[1]));
-          }
-        }
-      }
-    }
-    // support the fact that $elmsln is used to reference in many bash vars
-    foreach ($config as $key => $value) {
-      if (strpos($value, '$elmsln') !== FALSE) {
-        $config[$key] = str_replace('$elmsln', $config['elmsln'], $value);
-      }
-    }
-  }
-  return $config;
 }

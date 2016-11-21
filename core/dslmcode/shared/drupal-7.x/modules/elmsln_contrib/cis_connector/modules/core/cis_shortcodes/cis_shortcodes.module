@@ -320,9 +320,12 @@ function _cis_shortcode_render_codes($entity, $type) {
               else {
                 $properties['alt'] =  $title;
               }
-              // use image as it was uploaded for defaults
-              $properties['width'] = $item['width'];
-              $properties['height'] = $item['height'];
+              if (!empty($item['width'])) {
+                $properties['width'] = $item['width'];
+              }
+              if (!empty($item['height'])) {
+                $properties['height'] = $item['height'];
+              }
               $properties['delta'] = $item_key;
               $entityfields['cis_shortcodes_link_' . $fname . '_' . $item_key] = array(
                 '#title' => t('Render @field as image', array('@field' => $fproperties['label'])),

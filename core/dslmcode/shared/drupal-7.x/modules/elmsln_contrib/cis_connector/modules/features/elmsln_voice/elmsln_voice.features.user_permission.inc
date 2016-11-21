@@ -23,8 +23,11 @@ function elmsln_voice_user_default_permissions() {
   $permissions['use voice commander'] = array(
     'name' => 'use voice commander',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'voicecommander',
   );

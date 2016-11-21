@@ -6,6 +6,7 @@ dependencies[] = ctools
 dependencies[] = features
 dependencies[] = bakery
 dependencies[] = cis_connector
+dependencies[] = elmsln_core
 features[features_api][] = api:2
 features[user_permission][] = administer bakery
 features[user_permission][] = bypass bakery

@@ -1,3 +1,8 @@
 .h5p-flashcards .h5p-card .h5p-clue {
   margin: auto !important;
 }
+
+.h5p-multichoice .h5p-answer:last-child .h5p-feedback-text,
+.h5p-multichoice .h5p-feedback-text {
+	max-height: unset;
+}

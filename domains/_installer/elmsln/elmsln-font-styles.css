@@ -1,0 +1,239 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: "elmsln";
+  src:url("fonts/elmsln.eot");
+  src:url("fonts/elmsln.eot?#iefix") format("embedded-opentype"),
+    url("fonts/elmsln.woff") format("woff"),
+    url("fonts/elmsln.ttf") format("truetype"),
+    url("fonts/elmsln.svg#elmsln") format("svg");
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+[data-icon]:before {
+  font-family: "elmsln" !important;
+  content: attr(data-icon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  font-family: "elmsln" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* elmsln-icon defaults */
+.elmsln-icon {
+  font-size: 2rem;
+}
+
+.elmsln-icon:before,
+.icon-default:before {
+  content: "\69";
+}
+.icon-about:before {
+  content: "\61";
+}
+.icon-access:before {
+  content: "\62";
+}
+.icon-network:before {
+  content: "\64";
+}
+.icon-assignment:before {
+  content: "\67";
+}
+.icon-assignments:before {
+  content: "\68";
+}
+.icon-beaker:before {
+  content: "\69";
+}
+.icon-blog:before {
+  content: "\6a";
+}
+.icon-bookmark:before {
+  content: "\6b";
+}
+.icon-bookmark-outline:before {
+  content: "\6c";
+}
+.icon-calendar:before {
+  content: "\6d";
+}
+.icon-cis:before {
+  content: "\71";
+}
+.icon-cle:before {
+  content: "\72";
+}
+.icon-close:before {
+  content: "\73";
+}
+.icon-collab:before {
+  content: "\74";
+}
+.icon-comment:before {
+  content: "\75";
+}
+.icon-content-outline:before {
+  content: "\78";
+}
+.icon-courses:before {
+  content: "\79";
+}
+.icon-dino:before {
+  content: "\7a";
+}
+.icon-discuss:before {
+  content: "\41";
+}
+.icon-dotgrid:before {
+  content: "\42";
+}
+.icon-download:before {
+  content: "\43";
+}
+.icon-easle:before {
+  content: "\44";
+}
+.icon-ecd:before {
+  content: "\45";
+}
+.icon-editorial:before {
+  content: "\48";
+}
+.icon-elmsmedia:before {
+  content: "\49";
+}
+.icon-grades:before {
+  content: "\4c";
+}
+.icon-hidden:before {
+  content: "\4e";
+}
+.icon-icor:before {
+  content: "\4f";
+}
+.icon-inbox:before {
+  content: "\50";
+}
+.icon-info:before {
+  content: "\51";
+}
+.icon-interact:before {
+  content: "\52";
+}
+.icon-labs:before {
+  content: "\53";
+}
+.icon-media:before {
+  content: "\54";
+}
+.icon-mooc:before {
+  content: "\55";
+}
+.icon-online:before {
+  content: "\56";
+}
+.icon-page:before {
+  content: "\57";
+}
+.icon-pdf:before {
+  content: "\58";
+}
+.icon-people:before {
+  content: "\59";
+}
+.icon-plus:before {
+  content: "\5a";
+}
+.icon-quiz:before {
+  content: "\30";
+}
+.icon-speechballoons:before {
+  content: "\31";
+}
+.icon-studio:before {
+  content: "\32";
+}
+.icon-support:before {
+  content: "\33";
+}
+.icon-teacher:before {
+  content: "\34";
+}
+.icon-tour:before {
+  content: "\35";
+}
+.icon-user:before {
+  content: "\36";
+}
+.icon-view:before {
+  content: "\37";
+}
+.icon-view-off:before {
+  content: "\38";
+}
+.icon-write:before {
+  content: "\21";
+}
+.icon-innovate:before {
+  content: "\63";
+}
+.icon-lor:before {
+  content: "\65";
+}
+.icon-lq:before {
+  content: "\66";
+}
+.icon-visible:before {
+  content: "\6e";
+}
+.icon-ulmus:before {
+  content: "\6f";
+}
+.icon-comply:before {
+  content: "\70";
+}
+.icon-content:before {
+  content: "\76";
+}
+.icon-help:before {
+  content: "\77";
+}
+.icon-dinosunglasses:before {
+  content: "\46";
+}
+.icon-hax-icons:before {
+  content: "\47";
+}
+.icon-hax-icons-1:before {
+  content: "\4a";
+}
+.icon-hax-icons-2:before {
+  content: "\4b";
+}
+.icon-hax-icons-3:before {
+  content: "\4d";
+}
+.icon-hax-icons-4:before {
+  content: "\39";
+}
+.icon-hax-icons-5:before {
+  content: "\22";
+}

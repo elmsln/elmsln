@@ -42,5 +42,12 @@ function elmsln_voice_strongarm() {
   $strongarm->value = 'elms';
   $export['voicecommander_prefix'] = $strongarm;
 
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'voicecommander_robot';
+  $strongarm->value = 'ELMS';
+  $export['voicecommander_robot'] = $strongarm;
+
   return $export;
 }

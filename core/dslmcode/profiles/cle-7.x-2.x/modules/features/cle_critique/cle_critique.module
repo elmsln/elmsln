@@ -30,7 +30,42 @@ function cle_critique_menu() {
     'file path' => drupal_get_path('module', 'node'),
   );
 
+  $items['api/v1/cle/critiques/random'] = array(
+    'page callback' => '_cle_critique_api_random_critique',
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
+}
+
+function _cle_critique_api_random_critique() {
+  $vars = array();
+  // get the query params
+  $params = drupal_get_query_parameters();
+  // check if there is an assingment
+  if (isset($params['assignment'])) {
+    $submission = _cle_critique_random($params['assignment']);
+    if ($submission) {
+      $vars['submission'] = $submission;
+    }
+    else {
+      $vars = array(
+        'status' => '204',
+        'detial' => 'No Submissions available'
+      );
+    }
+  }
+  else {
+    $vars = array(
+      'status' => '400',
+      'detial' => 'No Assignment specified'
+    );
+  }
+  drupal_add_http_header('Content-Type', 'application/json');
+
+  print drupal_json_output($vars);
+  drupal_exit();
 }
 
 /**

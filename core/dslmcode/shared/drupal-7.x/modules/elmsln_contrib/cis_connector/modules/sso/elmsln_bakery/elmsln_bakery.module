@@ -51,3 +51,12 @@ function elmsln_bakery_deliver_html_page($page_callback_result) {
     drupal_deliver_html_page($page_callback_result);
   }
 }
+
+
+/**
+ * Implements hook_cis_service_instance_options_alter().
+ */
+function elmsln_bakery_cis_service_instance_options_alter(&$options, $course, $service) {
+  // Ensure that if CIS has bakery installed that everything down from it does too
+  $options['en'][] = 'elmsln_bakery';
+}

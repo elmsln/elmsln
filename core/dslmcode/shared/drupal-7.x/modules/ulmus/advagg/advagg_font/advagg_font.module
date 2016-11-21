@@ -59,7 +59,7 @@ function advagg_font_page_alter(&$page) {
   // Add inline script for reading the cookies and adding the fonts already
   // loaded to the html class.
   if (variable_get('advagg_font_cookie', ADVAGG_FONT_COOKIE)) {
-    $inline_script_min = 'var fonts=document.cookie.split("advagg");for(var key in fonts){var font=fonts[key].split("="),pos=font[0].indexOf("font_");-1!==pos&&(window.document.documentElement.className+=" "+font[0].substr(5).replace(/[^a-zA-Z0-9\-]/g,""))}';
+    $inline_script_min = 'var fonts=document.cookie.split("advaggf");for(var key in fonts){var font=fonts[key].split("="),pos=font[0].indexOf("ont_");-1!==pos&&(window.document.documentElement.className+=" "+font[0].substr(4).replace(/[^a-zA-Z0-9\-]/g,""))}';
     $page['content']['#attached']['js']['advagg_font.inline.js'] = array(
       'type' => 'inline',
       'group' => JS_LIBRARY - 1,
@@ -199,8 +199,20 @@ function advagg_font_get_replacements_array($css_string) {
   $property = 'font';
   $property_alt = 'font-family';
   $replacements = array();
+  $lower = strtolower($css_string);
 
-  while (($property_position = stripos($css_string, $property, $property_position)) !== FALSE) {
+  while (($property_position = strpos($lower, $property, $property_position)) !== FALSE) {
+    // Find the start of the values for the property.
+    $start_of_values = strpos($css_string, ':', $property_position);
+    // Get the property at this location of the css.
+    $property_in_loop = trim(substr($css_string, $property_position, ($start_of_values - $property_position)));
+
+    // Make sure this property is one of the ones we're looking for.
+    if ($property_in_loop !== $property && $property_in_loop !== $property_alt) {
+      $property_position += strlen($property);
+      continue;
+    }
+
     // Get position of the last closing bracket plus 1 (start of this section).
     $start = strrpos($css_string, '}', -($length - $property_position));
     if ($start === FALSE) {
@@ -221,40 +233,39 @@ function advagg_font_get_replacements_array($css_string) {
     }
 
     // Get closing ; in order to get the end of the declaration of the property.
-    $declaration_end = strpos($css_string, ';', $property_position);
+    $declaration_end_a = strpos($css_string, ';', $property_position);
+    $declaration_end_b = strpos($css_string, '}', $property_position);
+    if ($declaration_end_a === FALSE) {
+      $declaration_end = $declaration_end_b;
+    }
+    else {
+      $declaration_end = min($declaration_end_a, $declaration_end_b);
+    }
     if ($declaration_end > $end) {
       $declaration_end = $end;
     }
     // Add one in order to capture the } when we ge the full rule set.
     $end++;
-
-    // Find the start of the values for the property.
-    $start_of_values = strpos($css_string, ':', $property_position);
-    // Get the property at this location of the css.
-    $property_in_loop = trim(substr($css_string, $property_position, ($start_of_values - $property_position)));
-
-    // Make sure this property is one of the ones we're looking for.
-    if ($property_in_loop !== $property && $property_in_loop !== $property_alt) {
-      $property_position += strlen($property);
-      continue;
-    }
+    // Advance position for the next run of the while loop.
+    $property_position = $end;
 
     // Get values assigned to this property.
     $values_string = substr($css_string, $start_of_values + 1, $declaration_end - ($start_of_values + 1));
     // Parse values string into an array of values.
     $values_array = explode(',', $values_string);
+    // Skip if only one font is listed.
+    if (count($values_array) <= 1) {
+      continue;
+    }
     $values_array[0] = trim($values_array[0]);
-
-    // Advance position for the next run of the while loop.
-    $property_position = $end;
 
     // Values array has more than 1 value and first element is a quoted string.
     $dq = strpos($values_array[0], '"');
     $sq = strpos($values_array[0], "'");
-    $quote_pos = $sq ? $sq : $dq;
+    $quote_pos = ($sq !== FALSE) ? $sq : $dq;
 
-    // Skip if only one font is listed, or if the first font is not quoted.
-    if (count($values_array) <= 1 || $quote_pos === FALSE) {
+    // Skip if the first font is not quoted.
+    if ($quote_pos === FALSE) {
       continue;
     }
 

@@ -1,0 +1,2 @@
+Use this directory to create and modify the environment in which this is deployed. See https://github.com/elmsln/_elmsln_env_config for examples.
+use this when creating development and quality assurance / staging environments that mirror production but need to tweak values based on the deploy.

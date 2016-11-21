@@ -21,7 +21,7 @@ if (module_exists('taxonomy')) {
  * list of terms for the input vocabulary.
  */
 function ctools_vocabulary_terms_content_type_render($subtype, $conf, $panel_args, $context) {
-  $vocab = isset($context->data) ? clone($context->data) : NULL;
+  $vocab = isset($context->data) ? clone $context->data : NULL;
   $max_depth = (!empty($conf['max_depth']) ? (int)$conf['max_depth'] : NULL);
   if ($conf['tree'] == FALSE) {
     $terms = taxonomy_get_tree($vocab->vid, 0, $max_depth);

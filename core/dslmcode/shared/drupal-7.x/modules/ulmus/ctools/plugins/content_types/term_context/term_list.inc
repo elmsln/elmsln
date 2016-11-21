@@ -21,7 +21,7 @@ $plugin = array(
 );
 
 function ctools_term_list_content_type_render($subtype, $conf, $panel_args, $context) {
-  $term = isset($context->data) ? clone($context->data) : NULL;
+  $term = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'term-list';
   $path = empty($conf['path']) ? 'taxonomy/term/%tid' : $conf['path'];

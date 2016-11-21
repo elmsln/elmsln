@@ -18,6 +18,7 @@ $plugin = array(
   'context' => 'ctools_term_context',
   'default' => array('input_form' => 'tid', 'breadcrumb' => TRUE, 'transform' => FALSE),
   'settings form' => 'ctools_term_settings_form',
+  'settings form validate' => 'ctools_term_settings_form_validate',
   'placeholder form' => 'ctools_term_ctools_argument_placeholder',
   'breadcrumb' => 'ctools_term_breadcrumb',
 );
@@ -29,6 +30,16 @@ function ctools_term_context($arg = NULL, $conf = NULL, $empty = FALSE) {
   // If unset it wants a generic, unfilled context.
   if ($empty) {
     return ctools_context_create_empty('entity:taxonomy_term');
+  }
+
+  if (isset($conf['vocabularies'])) {
+    $vocabularies = $conf['vocabularies'];
+  }
+  else {
+    $vids = isset($conf['vids']) ? $conf['vids'] : array();
+
+    // Convert legacy use of vids to machine names.
+    $vocabularies = _ctools_term_vocabulary_machine_name_convert($vids);
   }
 
   if (is_object($arg)) {
@@ -50,12 +61,11 @@ function ctools_term_context($arg = NULL, $conf = NULL, $empty = FALSE) {
         }
 
         $terms = taxonomy_get_term_by_name($arg);
-
-        $conf['vids'] = is_array($conf['vids']) ? array_filter($conf['vids']) : NULL;
-        if ((count($terms) > 1) && isset($conf['vids'])) {
+        // If only one term is found, fall through to vocabulary check below.
+        if ((count($terms) > 1) && $vocabularies) {
           foreach ($terms as $potential) {
-            foreach ($conf['vids'] as $vid => $active) {
-              if ($active && $potential->vid == $vid) {
+            foreach ($vocabularies as $machine_name) {
+              if ($potential->vocabulary_machine_name == $machine_name) {
                 $term = $potential;
                 // break out of the foreaches AND the case
                 break 3;
@@ -72,7 +82,7 @@ function ctools_term_context($arg = NULL, $conf = NULL, $empty = FALSE) {
     }
   }
 
-  if (!empty($conf['vids']) && array_filter($conf['vids']) && empty($conf['vids'][$term->vid])) {
+  if ($vocabularies && !isset($vocabularies[$term->vocabulary_machine_name])) {
     return NULL;
   }
 
@@ -98,13 +108,20 @@ function ctools_term_settings_form(&$form, &$form_state, $conf) {
   $vocabularies = taxonomy_get_vocabularies();
   $options = array();
   foreach ($vocabularies as $vid => $vocab) {
-    $options[$vid] = $vocab->name;
+    $options[$vocab->machine_name] = $vocab->name;
   }
-  $form['settings']['vids'] = array(
+
+  // Fallback on legacy 'vids', when no vocabularies are available.
+  if (empty($conf['vocabularies']) && !empty($conf['vids'])) {
+    $conf['vocabularies'] = _ctools_term_vocabulary_machine_name_convert(array_filter($conf['vids']));
+    unset($conf['vids']);
+  }
+
+  $form['settings']['vocabularies'] = array(
     '#title' => t('Limit to these vocabularies'),
     '#type' => 'checkboxes',
     '#options' => $options,
-    '#default_value' => !empty($conf['vids']) ? $conf['vids'] : array(),
+    '#default_value' => !empty($conf['vocabularies']) ? $conf['vocabularies'] : array(),
     '#description' => t('If no vocabularies are checked, terms from all vocabularies will be accepted.'),
   );
 
@@ -121,6 +138,12 @@ function ctools_term_settings_form(&$form, &$form_state, $conf) {
     '#default_value' => !empty($conf['transform']),
   );
 //  return $form;
+}
+
+function ctools_term_settings_form_validate (&$form, &$form_state) {
+  // Filter the selected vocabularies to avoid storing redundant data.
+  $vocabularies = array_filter($form_state['values']['settings']['vocabularies']);
+  form_set_value($form['settings']['vocabularies'], $vocabularies, $form_state);
 }
 
 /**
@@ -160,4 +183,21 @@ function ctools_term_breadcrumb($conf, $context) {
 
   $breadcrumb = array_merge(drupal_get_breadcrumb(), array_reverse($breadcrumb));
   drupal_set_breadcrumb($breadcrumb);
+}
+
+/**
+ * Helper function to convert convert legacy vocabulary ids into machine names.
+ *
+ * @param array $vids
+ *   Array of either vids.
+ * @return array
+ *   A keyed array of machine names.
+ */
+function _ctools_term_vocabulary_machine_name_convert($vids) {
+  $vocabularies = taxonomy_vocabulary_load_multiple($vids);
+  $return = array();
+  foreach($vocabularies as $vocabulary) {
+    $return[$vocabulary->machine_name] = $vocabulary->machine_name;
+  }
+  return $return;
 }

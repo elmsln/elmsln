@@ -105,7 +105,20 @@ if [[ $domain = 'elmsln.dev' ||  $domain = 'elmsln.local' ]]; then
     echo "${ip}  ${prefix}${stack}.${datadomain}" >> /etc/hosts
   done
 fi
-
+  # systems restart differently
+  if [[ $1 == '1' ]]; then
+    /etc/init.d/httpd restart
+    /etc/init.d/php-fpm restart
+    /etc/init.d/mysqld restart
+  elif [ $1 == '2' ]; then
+    service apache2 restart
+    service php5-fpm restart
+    service php7.0-fpm restart
+  else
+    service httpd restart
+    service mysqld restart
+    service php-fpm restart
+  fi
 # install system and off we go
 bash /var/www/elmsln/scripts/install/elmsln-install.sh
 elmslnecho "If you are developing with this and don't have a valid domain yet you can copy the following into your local machine's /etc/hosts file:"
