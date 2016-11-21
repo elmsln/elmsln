@@ -1200,8 +1200,8 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
           'protocol' => $cfg['protocol'],
           'service_address' => $cfg['serviceaddress'],
           'address' => $cfg['address'],
-          'user' => 'SERVICE_' . $distro . '_' . $cfg['host'],
-          'mail' => 'SERVICE_' . $distro . '_' . $cfg['host'] . '@' . $cfg['emailending'],
+          'user' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']),
+          'mail' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']) . '@' . $cfg['emailending'],
           'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
         );
         $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
