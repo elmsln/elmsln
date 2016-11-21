@@ -376,7 +376,7 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         foreach ($results[0] as $key => $result) {
           $tmp = strip_tags(trim($results[3][$key]));
           if (!empty($tmp)) {
-            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link cis-lmsless-border cis-lmsless-text" href="#' . hash('md5', $key) . '">' . $tmp . '</a></li>';
+            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link cis-lmsless-border cis-lmsless-text" href="#' . hash('md5', 'h' . $key) . '">' . $tmp . '</a></li>';
           }
         }
         $scrollspy .= '</ul></div>';
@@ -440,7 +440,7 @@ function _elmsln_core_paragraph_replace($matches) {
   if (empty($key)) {
     $key = 0;
   }
-  return '<p class="elmsln-core-in-context" id="' . hash('md5', $key++) . '">' . $matches[1] .'</p>';
+  return '<p class="elmsln-core-in-context" id="' . hash('md5', 'p' . $key++) . '">' . $matches[1] .'</p>';
 }
 
 /**
@@ -453,7 +453,7 @@ function _elmsln_core_scrollspy_replace($matches) {
   if (empty($key)) {
     $key = 0;
   }
-  return '<h' . $matches[1] . $matches[2] .' data-scrollspy="scrollspy" id="' . hash('md5', $key++) . '">' . $matches[3] .'</h' . $matches[4] . '>';
+  return '<h' . $matches[1] . $matches[2] .' data-scrollspy="scrollspy" id="' . hash('md5', 'h' . $key++) . '">' . $matches[3] .'</h' . $matches[4] . '>';
 }
 
 /**

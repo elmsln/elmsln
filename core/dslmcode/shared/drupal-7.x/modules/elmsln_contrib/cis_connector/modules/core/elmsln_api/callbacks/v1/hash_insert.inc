@@ -47,5 +47,5 @@ function _elmsln_api_paragraph_marker($matches) {
   if (empty($key)) {
     $key = 0;
   }
-  return '<insert' . hash('md5', $key++) . '/><p>' . $matches[1] .'</p>';
+  return '<insert' . hash('md5', 'p' . $key++) . '/><p>' . $matches[1] .'</p>';
 }
