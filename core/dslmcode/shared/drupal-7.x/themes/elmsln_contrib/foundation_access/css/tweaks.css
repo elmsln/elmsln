@@ -1,7 +1,8 @@
 article ul:not(.browser-default) li {
 	list-style-type: disc;
 }
-#block-mooc-nav-block-mooc-nav-nav li {
+#block-mooc-nav-block-mooc-nav-nav li,
+article ul.table-of-contents li {
 	list-style-type: none;
 }
 
