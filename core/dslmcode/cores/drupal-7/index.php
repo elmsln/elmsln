@@ -15,7 +15,7 @@
  * Root directory of Drupal installation.
  */
 define('DRUPAL_ROOT', getcwd());
-// support environmental level overrides
+// support ELMSLN config loading globally
 require_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
 require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);

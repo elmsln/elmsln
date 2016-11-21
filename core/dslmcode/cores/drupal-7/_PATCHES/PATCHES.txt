@@ -10,3 +10,7 @@ They have been selected based on community recommendations by experts and have
 been A/B comparison tested to highlight that they are indeed speeding up Drupal
 over it’s stock version. Many of these run ahead of Pressflow D7 but my guess
 is many will be adopted into it in the future.
+
+There are 2 core patches ELMSLN makes that are specific to it alone (both are minor):
+ELMSLN_PATCH-disable-content-modified-lock - This throws away the "multiple people are editing this" content lock. This is confusing and EASILY triggered by users hitting the back button then trying to submit work which leads to pages that are impossible to submit without restarting the browser.
+ELMSLNCFG - This helps ensure the config.cfg file generated at run-time of deployment has its values available to every aspect of drupal. This drastically simplifies logic downstream to obtain this file and is a 1 line include in index.php
