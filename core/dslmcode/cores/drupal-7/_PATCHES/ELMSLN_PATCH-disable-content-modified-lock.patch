@@ -1,7 +1,7 @@
-diff --git a/core/dslmcode/cores/drupal-7/modules/node/node.module b/core/dslmcode/cores/drupal-7/modules/node/node.module
+diff --git a/modules/node/node.module b/modules/node/node.module
 index 1d88834..bdf2755 100644
---- a/core/dslmcode/cores/drupal-7/modules/node/node.module
-+++ b/core/dslmcode/cores/drupal-7/modules/node/node.module
+--- a/modules/node/node.module
++++ b/modules/node/node.module
 @@ -1009,9 +1009,9 @@ function node_object_prepare($node) {
   * Performs validation checks on the given node.
   */
