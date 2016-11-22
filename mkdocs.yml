@@ -3,6 +3,7 @@ pages:
 - Home: index.md
 - Install:
   - Installation: INSTALL.md
+  - DNS setup Example: development/DNS-Setup-Example.md
   - Learning Locker: lrs/LearningLocker.md
 - End user guide:
   - Adding a course: enduser/add-a-course.md
