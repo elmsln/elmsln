@@ -134,7 +134,7 @@ function _mooc_helper_toc($type = NULL) {
   }
   switch ($type) {
     case 'book_outline':
-      return _mooc_helper_book_outline();
+      return _mooc_helper_book_outline(TRUE);
     break;
     case 'learning_pathway':
       return _mooc_helper_learning_pathway();
@@ -145,7 +145,7 @@ function _mooc_helper_toc($type = NULL) {
 /**
  * Book outline presentation for the course.
  */
-function _mooc_helper_book_outline() {
+function _mooc_helper_book_outline($asblock = FALSE) {
   $tree = array();
   $node = _mooc_helper_active_outline();
   // load the active outline
@@ -170,7 +170,7 @@ function _mooc_helper_book_outline() {
       $output['menu_tree'] = array('#weight' => 1);
       $output['menu_tree'][] = menu_tree_output($tree);
       // support displaying of read_time stats here too
-      if (module_exists('read_time')) {
+      if (module_exists('read_time') && !$asblock) {
         $output['read_time'] = array(
           '#type' => 'markup',
           '#weight' => 0,
