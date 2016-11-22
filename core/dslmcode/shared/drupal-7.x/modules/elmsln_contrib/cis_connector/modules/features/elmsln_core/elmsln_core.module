@@ -97,6 +97,15 @@ function elmsln_core_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'elmsln_core.pages.inc',
   );
+  $items['elmsln/redirect/%/%'] = array(
+    'title' => 'view',
+    'page callback' => '_elmsln_core_remote_redirect',
+    'access arguments' => array('view cis shortcode'),
+    'page arguments' => array(2, 3, '', 'view'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
   $items['elmsln/redirect/%/%/%'] = array(
     'title' => 'view',
     'page callback' => '_elmsln_core_remote_redirect',
@@ -567,6 +576,9 @@ function elmsln_core_libraries_info() {
  * @return                   nothing returned, should redirect to remote space
  */
 function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
+  if (empty($etid)) {
+    $etid = '';
+  }
   if (empty($op)) {
     $op = 'view';
   }
@@ -575,13 +587,22 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     if (isset($settings['instance']) && $settings['instance']) {
       $instance = '/' . _cis_connector_course_context() . '/';
     }
-    $address = _cis_connector_format_address($settings, $instance, 'front') . $type . '/' . $etid . '/' . $op;
+    if ($type == 'field_sections') {
+      $type = 'field-collection/field-sections';
+    }
+    $address = _cis_connector_format_address($settings, $instance, 'front') . $type;
+    if (!empty($etid)) {
+    	$address .= '/' . $etid . '/' . $op;
+    }
     // allow for redirecting back to whatever was set
     if (isset($_GET['destination'])) {
       $address .= '?destination=' . $_GET['destination'];
+      if (isset($_GET['elmsln_course'])) {
+        $address .= '&elmsln_course=' . $_GET['elmsln_course'];
+      }
     }
-    if (isset($_GET['elmsln_course'])) {
-      $address .= '&elmsln_course=' . $_GET['elmsln_course'];
+    elseif (isset($_GET['elmsln_course'])) {
+      $address .= '?elmsln_course=' . $_GET['elmsln_course'];
     }
     // figure out the redirect path as dictated by forms
     if (isset($_GET['redirectPath'])) {
@@ -597,7 +618,7 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
       $address .= '&addHash=' . $_GET['addHash'];
     }
     // support hash redirect
-    if (isset($_GET['addHash']) && isset($tmp)) {
+    if (isset($_GET['addHash']) && isset($tmp) && !empty($etid)) {
       if (count($tmp) > 1) {
         $tmp_entity_type = $tmp[0];
         $tmp_item = $tmp[1];
