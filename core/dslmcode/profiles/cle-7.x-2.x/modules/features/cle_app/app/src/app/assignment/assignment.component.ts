@@ -28,7 +28,7 @@ export class AssignmentComponent implements OnInit {
     });
 
     if (this.assignmentId) {
-      this.assignmentService.getAssignments()
+      this.assignmentService.getAssignment(this.assignmentId)
         // turn it into a flatMap so we can analize each object
         // .flatMap((array, index) => array)
         // find out if the objects id matches the assignment_id
@@ -36,7 +36,7 @@ export class AssignmentComponent implements OnInit {
         // .filter(data => data.nid !== 'undefined')
         // .filter(data => data.nid === String(this.assignmentId))
         // assign the result to the local assignment
-        // @todo this should be handled better
+      // @todo this should be handled better
         .subscribe(data => {
           this.assignment = data;
         });

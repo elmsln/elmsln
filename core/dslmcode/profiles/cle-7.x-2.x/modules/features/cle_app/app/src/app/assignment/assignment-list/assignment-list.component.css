@@ -1,5 +1,4 @@
-.assignment__body {
-  text-overflow: ellipsis;
-  height: 8em;
-  overflow: hidden;
+.icon {
+  float: left;
+  margin-right: 1em;
 }
