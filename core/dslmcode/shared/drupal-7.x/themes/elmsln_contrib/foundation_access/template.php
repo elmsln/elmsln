@@ -95,6 +95,13 @@ function foundation_access_preprocess_html(&$variables) {
   // add page level variables into scope for the html tpl file
   $variables['site_name'] = check_plain(variable_get('site_name', 'ELMSLN'));
   $variables['logo'] = theme_get_setting('logo');
+  $variables['favicon_path'] = theme_get_setting('favicon_path');
+  if (theme_get_setting('favicon') && !empty($variables['favicon_path'])) {
+    $variables['favicon_path'] = file_create_url($variables['favicon_path']);
+  }
+  else {
+    $variables['favicon_path'] = $variables['theme_path'] . '/legacy/icons/elmsicons/elmsln.ico';
+  }
   $variables['banner_image'] = '';
   // build the remote banner URI, this is the best solution for an image
   $uri = 'elmslnauthority://cis/banners/' . _cis_connector_course_context() .'.jpg';
@@ -1216,7 +1223,14 @@ function foundation_access_menu_local_task(&$variables) {
  * Implements hook_html_head_alter()
  */
 function foundation_access_html_head_alter(&$head_elements) {
+  // remove notice that this is drupal
   unset($head_elements['system_meta_generator']);
+  // remove shortcut icon default loading
+  foreach ($head_elements as $key => $value) {
+    if (strpos($key, 'drupal_add_html_head_link:shortcut icon:') === 0) {
+      unset($head_elements[$key]);
+    }
+  }
   $args = arg();
   // account for print module and book print out
   if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
