@@ -3,14 +3,17 @@ import { Http, Headers, Response } from '@angular/http';
 import { Observable } from 'rxjs';
 import { Critique } from './critique';
 import { AppSettings } from './app-settings';
+import { ElmslnService } from './elmsln.service';
 
 @Injectable()
 export class CritiqueService {
-  constructor(private http: Http) {
-  }
+  constructor(
+    private http: Http,
+    private elmslnService: ElmslnService
+  ) { }
 
-  getCritiques() {
-    return this.http.get('app/mocks/critiques.json')
+  getSubmissionCritiques(submissionId) {
+    return this.elmslnService.get(AppSettings.BASE_PATH + 'node.json?status=1,type=cle_critique&deep-load-refs=node,user&field_cle_crit_sub_ref=' + submissionId)
       .map(data => data.json().list);
   }
 
@@ -18,11 +21,6 @@ export class CritiqueService {
     console.log('createCritique');
     let body = {};
     let authorId = '';
-    let basepath = AppSettings.BASE_PATH;
-
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-    headers.append('X-CSRF-Token', localStorage.getItem('x-csrf'));
 
     body = {
       type: 'cle_critique',
@@ -34,14 +32,23 @@ export class CritiqueService {
       field_cle_crit_sub_ref: {
         id: critique.submissionId
       },
-      author: {
-        id: 1
-      }
+      author: 4
     }
 
-    this.http.post(basepath + 'node.json', body, { headers })
-      .subscribe(res => {
-        console.log(res);
-      })
+    return this.elmslnService.post(AppSettings.BASE_PATH + 'node.json', body);
+  }
+
+  /**
+   * Instead of doing a hard delete, we are just going to set to
+   * unpublish
+   */
+  deleteCritique(critique: any) {
+    console.log('unpublish critique');
+    let critiqueId = critique.nid;
+    let body = {
+      "status": "0"
+    }
+
+    return this.elmslnService.put(AppSettings.BASE_PATH + 'node/'+ critiqueId +'.json', body);
   }
 }

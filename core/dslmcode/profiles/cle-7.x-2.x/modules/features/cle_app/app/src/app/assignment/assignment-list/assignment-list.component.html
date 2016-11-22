@@ -1,26 +1,14 @@
-
 <div class="row">
   <div *ngFor="let assignment of assignments" class="col s12 m4">
-    <div class="card">
-      <div class="card-content">
-        <div class="card-title">{{ assignment.title }}</div>
-        <div class="assignment__body" [innerHTML]="assignment.body.value">
-      </div>
-      <div class="card-action">
-        <a routerLink="/assignments/{{assignment.nid}}">View assignment</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal Trigger -->
-<a class="waves-effect waves-light btn modal-trigger" href="#modal1">JSON</a>
-
-<!-- Modal Structure -->
-<div id="modal1" class="modal">
-  <div class="modal-content">
-    <h4>Raw JSON</h4>
-    {{ assignments | json }}
+    <md-card class="card">
+      <md-icon class="icon">assignment</md-icon>
+      <md-card-title>{{assignment.title}}</md-card-title>
+      <md-card-content>
+      </md-card-content>
+      <md-card-actions>
+        <button md-button (click)="viewAssignment(assignment.nid)">View assignment</button>
+      </md-card-actions>
+      <div class="status">{{ assignment.complete }}</div>
+    </md-card>
   </div>
 </div>

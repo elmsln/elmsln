@@ -1,0 +1,23 @@
+{
+  "name": "cle-app",
+  "description": "",
+  "main": "",
+  "authors": [
+    "heyMP <mgp140@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/heyMP/elmsln",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "froala-wysiwyg-editor": "^2.3.5",
+    "trumbowyg": "^2.4.1",
+    "wysiwyg.js": "*"
+  }
+}

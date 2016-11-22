@@ -5,8 +5,17 @@ import { HttpModule } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { routing } from './app.routing';
 
+// material
 import { MaterialModule } from '@angular/material';
 
+// services
+import { ElmslnService } from './elmsln.service';
+import { CritiqueService } from './critique.service';
+
+// Moment.js
+import { MomentModule } from 'angular2-moment';
+
+// components
 import { AppComponent } from './app.component';
 import { AssignmentComponent } from './assignment/assignment.component';
 import { AssignmentListComponent } from './assignment/assignment-list/assignment-list.component';
@@ -16,6 +25,10 @@ import { SubmissionListComponent } from './submission/submission-list/submission
 import { UserComponent } from './user/user.component';
 import { CritiqueComponent } from './critique/critique.component';
 import { CritiqueFormComponent } from './critique/critique-form/critique-form.component';
+import { LoginComponent } from './login/login.component';
+import { LogoutComponent } from './logout/logout.component';
+import { CritiqueListComponent } from './critique/critique-list/critique-list.component';
+import { WysiwygjsComponent } from './wysiwygjs/wysiwygjs.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +40,11 @@ import { CritiqueFormComponent } from './critique/critique-form/critique-form.co
     SubmissionListComponent,
     UserComponent,
     CritiqueComponent,
-    CritiqueFormComponent
+    CritiqueFormComponent,
+    LoginComponent,
+    LogoutComponent,
+    CritiqueListComponent,
+    WysiwygjsComponent
   ],
   imports: [
     BrowserModule,
@@ -35,9 +52,13 @@ import { CritiqueFormComponent } from './critique/critique-form/critique-form.co
     ReactiveFormsModule,
     HttpModule,
     routing,
-    MaterialModule.forRoot()
+    MaterialModule.forRoot(),
+    MomentModule
   ],
-  providers: [],
+  providers: [
+    ElmslnService,
+    CritiqueService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

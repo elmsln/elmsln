@@ -1,0 +1,8 @@
+:host >>> .wysiwyg-editor {
+  min-height: 200px;
+}
+
+:host >>> .wysiwyg-container {
+  max-width: 900px;
+  margin: 1em;
+}
