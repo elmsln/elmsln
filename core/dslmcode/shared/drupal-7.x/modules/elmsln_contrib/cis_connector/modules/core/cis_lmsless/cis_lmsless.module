@@ -351,10 +351,11 @@ function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_i
     '#suffix' => '</div>',
     '#weight' => 11,
   );
+  // push on additional validation handler
+  array_unshift($form['#validate'], 'cis_lmsless_form_masquerade_block_1_submit');
   $form['masquerade_user_field']['#title'] = t('Account name');
   // don't do these for the master section as it makes no sense
   if ($section && !_cis_connector_is_master($section)) {
-    $form['masquerade_user_field']['#chosen'] = TRUE;
     $form['masquerade_user_field']['#type'] = 'select';
     $field_conditions = array();
     // don't assume there is a section context when masquerade is enabled
@@ -366,6 +367,21 @@ function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_i
     $form['masquerade_user_field']['#options'] = $users;
     unset($form['masquerade_user_field']['#size']);
     unset($form['masquerade_user_field']['#autocomplete_path']);
+  }
+}
+
+/**
+ * Submit handler callback for our view user button
+ */
+function cis_lmsless_form_masquerade_block_1_submit($form, $form_state) {
+  // allow for going to user profile instead of masquerade
+  if ($form_state['triggering_element']['#value'] == 'View') {
+    // try to load the account; other things validated that they could and the worse
+    // case here is they get directed to an access denied
+    if ($tmp = user_load_by_name($form_state['values']['masquerade_user_field'])) {
+      // user path which will resolve to the pathauto path
+      drupal_goto('user/' . $tmp->uid);
+    }
   }
 }
 
