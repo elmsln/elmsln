@@ -42,7 +42,7 @@ export class CritiqueService {
    * Instead of doing a hard delete, we are just going to set to
    * unpublish
    */
-  deleteCritique(critique: Critique) {
+  deleteCritique(critique: any) {
     console.log('unpublish critique');
     let critiqueId = critique.nid;
     let body = {
