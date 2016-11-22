@@ -15,9 +15,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // Find out if the user is already logged In
     let auth = localStorage.getItem('basicAuthCredentials');
-    console.log(auth);
     if (auth) {
-      this.router.navigate(['/submissions']);
+      this.router.navigate(['/assignments']);
     }
     else {
       this.router.navigate(['/login']);
