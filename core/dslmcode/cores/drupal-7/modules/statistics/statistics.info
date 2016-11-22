@@ -6,8 +6,8 @@ core = 7.x
 files[] = statistics.test
 configure = admin/config/system/statistics
 
-; Information added by Drupal.org packaging script on 2016-10-05
-version = "7.51"
+; Information added by Drupal.org packaging script on 2016-11-16
+version = "7.52"
 project = "drupal"
-datestamp = "1475694174"
+datestamp = "1479322922"
 

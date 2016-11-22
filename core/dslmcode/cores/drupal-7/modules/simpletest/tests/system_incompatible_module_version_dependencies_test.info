@@ -7,8 +7,8 @@ hidden = TRUE
 ; system_incompatible_module_version_test declares version 1.0
 dependencies[] = system_incompatible_module_version_test (>2.0)
 
-; Information added by Drupal.org packaging script on 2016-10-05
-version = "7.51"
+; Information added by Drupal.org packaging script on 2016-11-16
+version = "7.52"
 project = "drupal"
-datestamp = "1475694174"
+datestamp = "1479322922"
 
