@@ -125,7 +125,7 @@ function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_
             'cis_filter' => array('elmsln/redirect', array($code['tool'], $item_path[0], $item_path[1])),
           ),
         );
-        if(strpos($code['display_mode'], '__left') != 0) {
+        if(isset($code['display_mode']) && strpos($code['display_mode'], '__left') != 0) {
           $render_array['#classes'] = 'contextual-container-left';
         }
       }
