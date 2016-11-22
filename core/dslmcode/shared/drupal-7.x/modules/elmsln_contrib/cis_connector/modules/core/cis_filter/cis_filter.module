@@ -125,6 +125,9 @@ function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_
             'cis_filter' => array('elmsln/redirect', array($code['tool'], $item_path[0], $item_path[1])),
           ),
         );
+        if(strpos($code['display_mode'], '__left') != 0) {
+          $render_array['#classes'] = 'contextual-container-left';
+        }
       }
       $wrapper = drupal_render($render_array);
       $media[] = $wrapper;
@@ -851,6 +854,9 @@ function cis_filter_preprocess_cis_filter_contextual_links(&$variables) {
  * Implements hook_preprocess_contextual_container()
  */
 function cis_filter_preprocess_contextual_container(&$variables) {
+  if (isset($variables['element']['#classes'])) {
+    $variables['classes_array'][] = $variables['element']['#classes'];
+  }
   $variables['content'] = $variables['element']['#markup'];
 }
 

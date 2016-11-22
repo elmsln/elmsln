@@ -10,6 +10,14 @@ article ul.table-of-contents li {
   content:"";
 }
 
+.contextual-container-left div.contextual-links-wrapper {
+    position: relative;
+    margin-left: -2rem;
+}
+.contextual-container-left div.custom-contextual-links {
+	float: left;
+}
+
 #etb-course-nav .top-bar-section.title-link li a.active-trail {
   background-color: #eeeeee;
 }

@@ -4,7 +4,7 @@
    */
 ?>
 <div class="<?php print $classes; ?>" <?php print $attributes; ?>>
-  <div <?php print $content_attributes; ?>>
+  <div class="contextual-content" <?php print $content_attributes; ?>>
     <?php print $content ?>
   </div>
   <div class="custom-contextual-links">
