@@ -25,7 +25,7 @@
         <section class="main-section etb-book">
           <div class="r-header row">
             <div class="r-header__left">
-              <div class="col">
+              <div class="col s12">
                 <?php print render($page['header']); ?>
               </div>
             </div>
