@@ -51,3 +51,10 @@ function assessment_update_7003(&$sandbox) {
   variable_set('site_frontpage', 'courses');
 }
 
+/**
+ * Disable iframe provider / consumer in older deployments
+ */
+function assessment_update_7004(&$sandbox) {
+  module_disable(array('entity_iframe_provider', 'entity_iframe_consumer'));
+}
+
