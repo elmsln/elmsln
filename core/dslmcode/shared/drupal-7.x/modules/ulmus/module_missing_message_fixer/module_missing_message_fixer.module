@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * The Missing Module Message Fixer Module file.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function module_missing_message_fixer_permission() {
+  return array(
+    'administer module missing message fixer' => array(
+      'title' => t('Administer Module Missing Message Fixer'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function module_missing_message_fixer_menu() {
+  $items = array();
+
+  $items['admin/config/system/module-missing-message-fixer'] = array(
+    'title' => 'Missing Module Message Fixer',
+    'description' => 'This module display a list of missing module that appear after the Drupal 7.50 release and lets you fix the entries.',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('module_missing_message_fixer_form'),
+    'access arguments' => array('administer module missing message fixer'),
+    'file' => 'includes/module_missing_message_fixer.admin.inc',
+  );
+
+  return $items;
+}
