@@ -870,4 +870,10 @@ class H5PDrupal implements H5PFrameworkInterface {
    */
   public function deleteCachedAssets($library_id) {
   }
+
+  /**
+   * Implements afterExportCreated
+   */
+  public function afterExportCreated() {
+  }
 }

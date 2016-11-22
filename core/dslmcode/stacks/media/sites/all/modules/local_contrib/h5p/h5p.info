@@ -14,9 +14,9 @@ files[] = library/h5p-default-storage.class.php
 files[] = h5p.event.inc
 files[] = h5p.classes.inc
 
-; Information added by Drupal.org packaging script on 2016-09-23
-version = "7.x-1.18"
+; Information added by Drupal.org packaging script on 2016-11-08
+version = "7.x-1.21"
 core = "7.x"
 project = "h5p"
-datestamp = "1474617262"
+datestamp = "1478594665"
 

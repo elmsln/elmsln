@@ -27,8 +27,8 @@ ns.Textarea.prototype.appendTo = function ($wrapper) {
   var that = this;
 
   this.$item = ns.$(this.createHtml()).appendTo($wrapper);
-  this.$input = this.$item.children('label').children('textarea');
-  this.$errors = this.$item.children('.h5p-errors');
+  this.$input = this.$item.find('textarea');
+  this.$errors = this.$item.find('.h5p-errors');
 
   this.$input.change(function () {
     // Validate
@@ -55,9 +55,10 @@ ns.Textarea.prototype.createHtml = function () {
   }
   input += '</textarea>';
 
-  var label = ns.createLabel(this.field, input);
+  var label = ns.createLabel(this.field);
+  var description = ns.createDescription(this.field.description);
 
-  return ns.createItem(this.field.type, label, this.field.description);
+  return ns.createItem(this.field.type, label + description + input);
 };
 
 /**

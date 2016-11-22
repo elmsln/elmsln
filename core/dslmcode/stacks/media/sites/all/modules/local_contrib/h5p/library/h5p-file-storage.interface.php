@@ -91,6 +91,14 @@ interface H5PFileStorage {
   public function deleteExport($filename);
 
   /**
+   * Check if the given export file exists
+   *
+   * @param string $filename
+   * @return boolean
+   */
+  public function hasExport($filename);
+
+  /**
    * Will concatenate all JavaScrips and Stylesheets into two files in order
    * to improve page performance.
    *

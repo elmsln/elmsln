@@ -25,7 +25,7 @@ H5PEditor.language.core = {
   invalidFormat: 'Field value contains an invalid format or characters that are forbidden.',
   confirmChangeLibrary: 'By doing this you will lose all work done with the current content type. Are you sure you wish to change content type?',
   moreLibraries: 'Look for <a href="http://h5p.org/content-types-and-applications" target="_blank">more content types</a> on h5p.org',
-  commonFields: 'Settings and texts',
+  commonFields: 'Text overrides and translations',
   commonFieldsDescription: 'Here you can edit settings or translate texts used in this content.',
   uploading: 'Uploading, please wait...',
   noFollow: 'Cannot follow field ":path".',

@@ -132,11 +132,18 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  Path on file system to temporary export file.
    * @param string $filename
    *  Name of export file.
+   * @throws Exception Unable to save the file
    */
   public function saveExport($source, $filename) {
     $this->deleteExport($filename);
-    self::dirReady("{$this->path}/exports");
-    copy($source, "{$this->path}/exports/{$filename}");
+
+    if (!self::dirReady("{$this->path}/exports")) {
+      throw new Exception("Unable to create directory for H5P export file.");
+    }
+
+    if (!copy($source, "{$this->path}/exports/{$filename}")) {
+      throw new Exception("Unable to save H5P export file.");
+    }
   }
 
   /**
@@ -149,6 +156,17 @@ class H5PDefaultStorage implements \H5PFileStorage {
     if (file_exists($target)) {
       unlink($target);
     }
+  }
+
+  /**
+   * Check if the given export file exists
+   *
+   * @param string $filename
+   * @return boolean
+   */
+  public function hasExport($filename) {
+    $target = "{$this->path}/exports/{$filename}";
+    return file_exists($target);
   }
 
   /**

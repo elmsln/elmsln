@@ -1,8 +1,8 @@
 {
-    "name": "h5p/h5p-core",
+    "name": "h5p/h5p-editor",
     "type": "library",
-    "description": "H5P Core functionality in PHP",
-    "keywords": ["h5p","hvp","interactive","content","quiz"],
+    "description": "H5P Editor functionality in PHP",
+    "keywords": ["h5p","hvp","editor","interactive","content","quiz"],
     "homepage": "https://h5p.org",
     "license": "GPL-3.0",
     "authors": [
@@ -24,11 +24,9 @@
     },
     "autoload": {
         "files": [
-          "h5p.classes.php",
-          "h5p-development.class.php",
-          "h5p-file-storage.interface.php",
-          "h5p-default-storage.class.php",
-          "h5p-event-base.class.php"
+          "h5peditor.class.php",
+          "h5peditor-file.class.php",
+          "h5peditor-storage.interface.php"
         ]
     }
 }

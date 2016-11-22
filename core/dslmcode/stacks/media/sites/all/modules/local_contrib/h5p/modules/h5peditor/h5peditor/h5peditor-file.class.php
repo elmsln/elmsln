@@ -86,10 +86,18 @@ class H5peditorFile {
    * @return boolean
    */
   public function check($mimes) {
+    $ext = strtolower($this->extension);
     foreach ($mimes as $mime => $extension) {
-      // TODO: Either remove everything that has to do with mime types, or make it work
-      // Currently we're experiencing trouble with mime types on different servers...
-      if (/*$this->type === $mime && */strtolower($this->extension) === $extension) {
+      if (is_array($extension)) {
+        // Multiple extensions
+        if (in_array($ext, $extension)) {
+          $this->type = $mime;
+          return TRUE;
+        }
+      }
+      elseif (/*$this->type === $mime && */$ext === $extension) {
+        // TODO: Either remove everything that has to do with mime types, or make it work
+        // Currently we're experiencing trouble with mime types on different servers...
         $this->type = $mime;
         return TRUE;
       }
@@ -128,7 +136,7 @@ class H5peditorFile {
       case 'image':
         $allowed = array(
           'image/png' => 'png',
-          'image/jpeg' => 'jpg',
+          'image/jpeg' => array('jpg', 'jpeg'),
           'image/gif' => 'gif',
         );
         if (!$this->check($allowed)) {

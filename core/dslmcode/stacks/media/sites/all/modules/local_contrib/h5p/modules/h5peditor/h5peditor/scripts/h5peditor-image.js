@@ -88,13 +88,10 @@ ns.widgets.image.prototype.constructor = ns.widgets.image;
 ns.widgets.image.prototype.appendTo = function ($wrapper) {
   var self = this;
 
-  var label = '';
-  if (this.field.label !== 0) {
-    var labelString = this.field.label === undefined ? this.field.name : this.field.label;
-    label = '<span class="h5peditor-label' + (this.field.optional ? '' : ' h5peditor-required') + '">' + labelString + '</span>';
-  }
+  var label = ns.createLabel(this.field);
 
-  var htmlString = label + '<div class="file"></div>' +
+  var description = ns.createDescription(this.field.description);
+  var htmlString = label + description + '<div class="file"></div>' +
     '<div class="h5p-editor-image-buttons">' +
       '<button class="h5p-editing-image-button">' + ns.t('core', 'editImage') + '</button>' +
       '<button class="h5p-copyright-button">' + ns.t('core', 'editCopyright') + '</button>' +
@@ -103,7 +100,7 @@ ns.widgets.image.prototype.appendTo = function ($wrapper) {
       '<a href="#" class="h5p-close" title="' + ns.t('core', 'close') + '"></a>' +
     '</div>';
 
-  var html = ns.createItem(this.field.type, htmlString, this.field.description);
+  var html = ns.createItem(this.field.type, htmlString);
   var $container = ns.$(html).appendTo($wrapper);
   this.$editImage = $container.find('.h5p-editing-image-button');
   this.$copyrightButton = $container.find('.h5p-copyright-button');

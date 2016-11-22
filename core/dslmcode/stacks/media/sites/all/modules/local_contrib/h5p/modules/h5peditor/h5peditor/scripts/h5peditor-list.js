@@ -115,14 +115,6 @@ H5PEditor.List = (function ($) {
         setParameters(i === undefined ? index : i, value);
       });
 
-      if (!passReadyCallbacks) {
-        // Run collected ready callbacks
-        for (var i = 0; i < readyCallbacks.length; i++) {
-          readyCallbacks[i]();
-        }
-        readyCallbacks = []; // Reset
-      }
-
       return child;
     };
 
@@ -166,6 +158,15 @@ H5PEditor.List = (function ($) {
 
       var child = addItem(id, paramsOverride);
       self.widget.addItem(child, id);
+
+      if (!passReadyCallbacks) {
+        // Run collected ready callbacks
+        for (var i = 0; i < readyCallbacks.length; i++) {
+          readyCallbacks[i]();
+        }
+        readyCallbacks = []; // Reset
+      }
+
       return true;
     };
 

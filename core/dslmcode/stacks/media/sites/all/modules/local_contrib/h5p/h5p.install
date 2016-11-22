@@ -1213,3 +1213,16 @@ function h5p_update_7111() {
       ->execute();
   }
 }
+
+/**
+ * Fixes upgrade issue with woff and woff2 font.
+ */
+function h5p_update_7112() {
+  $whitelist = variable_get('h5p_whitelist', H5PCore::$defaultContentWhitelist);
+
+  $woff_pos = strpos($whitelist, 'woff');
+  if ($woff_pos !== false && strpos($whitelist, 'woff2') === false) {
+    $new_whitelist = substr_replace($whitelist, ' woff2', $woff_pos + 4, 0);
+    variable_set('h5p_whitelist', $new_whitelist);
+  }
+}

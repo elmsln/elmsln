@@ -737,12 +737,21 @@ a {
       display: inline-block;
     }
   }
+
+  .h5p-li > .content > .library {
+    border: 0;
+    padding: 0;
+  }
 }
 
 .h5peditor-field-description,
 .h5p-help-text {
-  font-size: 10px;
-  color: #555555;
+  font-size: 12px;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #666;
+  line-height: 15px;
+  letter-spacing: 0.2px;
 }
 
 .h5peditor-form {

@@ -398,6 +398,7 @@ ns.createError = function (message) {
  *
  * @param {String} type
  * @param {String} content
+ * @param {String} [description]
  * @returns {String}
  */
 ns.createItem = function (type, content, description) {
@@ -458,7 +459,20 @@ ns.createLabel = function (field, content) {
     html += '<span class="h5peditor-label' + (field.optional ? '' : ' h5peditor-required') + '">' + (field.label === undefined ? field.name : field.label) + '</span>';
   }
 
-  return html + content + '</label>';
+  return html + (content || '') + '</label>';
+};
+
+/**
+ * Create a description
+ * @param {String} description
+ * @returns {string}
+ */
+ns.createDescription = function (description) {
+  var html = '';
+  if (description !== undefined) {
+    html += '<div class="h5peditor-field-description">' + description + '</div>';
+  }
+  return html;
 };
 
 /**

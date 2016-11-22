@@ -27,7 +27,7 @@ ns.Text.prototype.appendTo = function ($wrapper) {
   var that = this;
 
   this.$item = ns.$(this.createHtml()).appendTo($wrapper);
-  this.$input = this.$item.children('label').children('input');
+  this.$input = this.$item.find('input');
   this.$errors = this.$item.children('.h5p-errors');
 
   this.$input.change(function () {
@@ -71,9 +71,10 @@ ns.Text.prototype.change = function (callback) {
  */
 ns.Text.prototype.createHtml = function () {
   var input = ns.createText(this.value, this.field.maxLength, this.field.placeholder);
-  var label = ns.createLabel(this.field, input);
+  var label = ns.createLabel(this.field);
+  var description = ns.createDescription(this.field.description);
 
-  return ns.createItem(this.field.type, label, this.field.description);
+  return ns.createItem(this.field.type, label + description + input);
 };
 
 /**

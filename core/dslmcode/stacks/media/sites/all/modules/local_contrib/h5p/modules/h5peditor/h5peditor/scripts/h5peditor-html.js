@@ -288,7 +288,7 @@ ns.Html.prototype.createToolbar = function () {
 ns.Html.prototype.appendTo = function ($wrapper) {
   var that = this;
 
-  this.$item = ns.$(ns.createItem(this.field.type, this.createHtml(), this.field.description)).appendTo($wrapper);
+  this.$item = ns.$(ns.createItem(this.field.type, this.createHtml())).appendTo($wrapper);
 
   this.$input = this.$item.children('.ckeditor');
   this.$errors = this.$item.children('.h5p-errors');
@@ -422,6 +422,7 @@ ns.Html.prototype.createHtml = function () {
     html += '<label class="h5peditor-label' + (this.field.optional ? '' : ' h5peditor-required') + '">' + this.field.label + '</label>';
   }
 
+  html += ns.createDescription(this.field.description);
   html += '<div class="ckeditor" tabindex="0" contenteditable="true">';
 
   if (this.value !== undefined) {

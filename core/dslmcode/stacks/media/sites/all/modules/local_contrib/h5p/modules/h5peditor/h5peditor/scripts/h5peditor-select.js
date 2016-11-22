@@ -52,9 +52,11 @@ H5PEditor.widgets.select = H5PEditor.Select = (function (E) {
       options += E.createOption(option.value, option.label, option.value === this.value);
     }
 
-    var label = E.createLabel(this.field, '<select>' + options + '</select>');
+    var select = '<select>' + options + '</select>';
+    var label = E.createLabel(this.field);
+    var description = E.createDescription(this.field.description);
 
-    return E.createItem(this.field.type, label, this.field.description);
+    return E.createItem(this.field.type, label + description + select);
   };
 
 

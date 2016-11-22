@@ -98,12 +98,18 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
   C.prototype.appendTo = function ($wrapper) {
     var self = this;
 
-    var label = '';
-    if (this.field.label !== 0) {
-      label = '<span class="h5peditor-label' + (this.field.optional ? '' : ' h5peditor-required') + '">' + (this.field.label === undefined ? this.field.name : this.field.label) + '</span>';
-    }
+    var label = H5PEditor.createLabel(this.field);
+    var description = H5PEditor.createDescription(this.field.description);
 
-    var html = H5PEditor.createItem(this.field.type, label + '<div class="file">' + C.createAdd(self.field.type) + '</div><a class="h5p-copyright-button" href="#">' + ns.t('core', 'editCopyright') + '</a><div class="h5p-editor-dialog"><a href="#" class="h5p-close" title="' + ns.t('core', 'close') + '"></a></div>', this.field.description);
+    var imageHtml =
+      '<div class="file">' + C.createAdd(self.field.type) + '</div>' +
+      '<a class="h5p-copyright-button" href="#">' + H5PEditor.t('core', 'editCopyright') + '</a>' +
+      '<div class="h5p-editor-dialog">' +
+        '<a href="#" class="h5p-close" title="' + H5PEditor.t('core', 'close') + '"></a>' +
+      '</div>';
+
+    var html = H5PEditor.createItem(this.field.type,
+      label + description + imageHtml);
 
     var $container = $(html).appendTo($wrapper);
     var $file = $container.children('.file');
