@@ -955,8 +955,21 @@ ul.pagination li a {
   border-left-style: solid;
   border-left-width: .2rem;
 }
-ul.scrollspy-toc.table-of-contents {
+/* structure in media */
+.scrollspy-toc .table-of-contents {
   margin-left: 0;
+  max-height: 45vh;
+  overflow-y: scroll;
+  width: calc(50vw - 52%);
+  max-width: 30em;
+}
+/* structure in mooc */
+.scrollspy-toc.table-of-contents {
+  margin-left: 0;
+  max-height: 45vh;
+  overflow-y: scroll;
+  width: 100%;
+  max-width: 30em;
 }
 @media screen and (min-width: 80rem) {
   #scrollspy-nav {
@@ -965,6 +978,8 @@ ul.scrollspy-toc.table-of-contents {
     width: calc(50vw - 52%);
     max-width: 30em;
     display: block;
+    max-height: 45vh;
+    overflow-y: scroll;
   }
 }
 
