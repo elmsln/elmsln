@@ -19,9 +19,12 @@ h1#page-title {
   padding: .25rem;
   z-index: 100;
 }
-
 #edit-actions button{
   margin: 0;
+}
+
+body.entity-iframe-theme:not(.modal-rendered) .form-actions.form-wrapper {
+  position:relative;
 }
 
 body.entity-iframe-theme.modal-rendered {

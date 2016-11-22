@@ -8,7 +8,7 @@
       Drupal.settings.voiceCommander.continuous = true;
     }
     // default checkbox on if we should
-    if (Drupal.settings.voiceCommander.continuous) {
+    if (typeof Drupal.settings.voiceCommander.continuous !== 'undefined' && Drupal.settings.voiceCommander.continuous == true) {
       $('#a11y_voicecommander_checkbox').checked = true
       $('#a11y_voicecommander_checkbox').attr('checked', 'checked');
     }
