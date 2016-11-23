@@ -1,5 +1,5 @@
-article ul:not(.browser-default,.dropdown-content,.table-of-contents,.menu) li {
-	list-style-type: disc;
+article ul:not(.browser-default):not(.dropdown-content):not(.table-of-contents):not(.menu) li {
+  list-style-type: disc;
 }
 
 .material-icon.elmsln-icon:before {
@@ -7,11 +7,11 @@ article ul:not(.browser-default,.dropdown-content,.table-of-contents,.menu) li {
 }
 
 .contextual-container-left div.contextual-links-wrapper {
-    position: relative;
-    margin-left: -2rem;
+  position: relative;
+  margin-left: -2rem;
 }
 .contextual-container-left div.custom-contextual-links {
-	float: left;
+  float: left;
 }
 
 #etb-course-nav .top-bar-section.title-link li a.active-trail {
@@ -19,7 +19,7 @@ article ul:not(.browser-default,.dropdown-content,.table-of-contents,.menu) li {
 }
 
 .etb-book dl {
- margin: 0;
+  margin: 0;
 }
 
 /* flyout sizing */
@@ -492,6 +492,8 @@ ul.dropdown-content {
   display: block;
   top:0;
   min-height: 8rem;
+  width: auto;
+  max-width: 100%;
   position: fixed;
   z-index: 0;
 }
@@ -966,6 +968,8 @@ ul.pagination li a {
   overflow-y: scroll;
   width: 100%;
   max-width: 30em;
+  border-bottom-width: .1rem;
+  border-bottom-style: solid;
 }
 @media screen and (min-width: 80rem) {
   #scrollspy-nav {
