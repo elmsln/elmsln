@@ -1,14 +1,12 @@
 <div class="row">
-  <div *ngFor="let assignment of assignments" class="col s12 m4">
+  <div *ngFor="let assignment of assignments" class="col s12 m4 assignment" (click)="viewAssignment(assignment.id)">
     <md-card class="card">
       <md-icon class="icon">assignment</md-icon>
       <md-card-title>{{assignment.title}}</md-card-title>
       <md-card-content>
       </md-card-content>
-      <md-card-actions>
-        <button md-button (click)="viewAssignment(assignment.nid)">View assignment</button>
-      </md-card-actions>
-      <div class="status">{{ assignment.complete }}</div>
+      <div *ngIf="assignment.complete == 1" class="status complete">Complete</div>
+      <div *ngIf="assignment.complete == 0" class="status">Incomplete</div>
     </md-card>
   </div>
 </div>

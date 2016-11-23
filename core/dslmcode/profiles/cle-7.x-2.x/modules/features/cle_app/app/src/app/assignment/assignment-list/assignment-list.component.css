@@ -2,3 +2,24 @@
   float: left;
   margin-right: 1em;
 }
+
+.assignment:hover {
+  cursor: pointer;
+}
+
+.status {
+  float: right;
+  size: .9em;
+}
+@media (min-width: 500px) {
+  .status {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 1em;
+  }
+}
+
+.status.complete {
+  color: green;
+}
