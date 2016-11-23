@@ -118,10 +118,12 @@ function mooc_foundation_access_read_time($variables) {
   foreach ($node->read_time as $key => $value) {
     if ($value != 0 && $key != 'metadata') {
       $label = '';
+      $class_key = '';
       switch ($key) {
         case 'words':
           $label = t('Reading');
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_books</i>';
+          $class_key = 'read-time-words';
         break;
         case 'audio':
           $label = t('Audio');
@@ -150,19 +152,23 @@ function mooc_foundation_access_read_time($variables) {
             }
           }
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_music</i>';
+          $class_key = 'read-time-audio';
         break;
         case 'iframe':
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">launch</i>';
+          $class_key = 'read-time-iframe';
         break;
         case 'img':
           $label = t('Image');
           $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">perm_media</i>';
+          $class_key = 'read-time-image';
         break;
         case 'svg':
           $label = t('Multimedia');
           $value = $value . ' ' . $label;
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">assessment</i>';
+          $class_key = 'read-time-svg';
         break;
         case 'video':
           $label = t('Video');
@@ -191,6 +197,7 @@ function mooc_foundation_access_read_time($variables) {
             }
           }
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">video_library</i>';
+          $class_key = 'read-time-video';
         break;
         default:
           $icon = '';
@@ -199,7 +206,7 @@ function mooc_foundation_access_read_time($variables) {
       }
       // make sure there's something to render
       if (!empty($value)) {
-        $output .= '<div class="chip ' . $lmsless_classes['color'] . ' ' . $lmsless_classes['light'] . '">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
+        $output .= '<div class="chip ' . $lmsless_classes['color'] . ' ' . $lmsless_classes['light'] . ' ' . $class_key . '">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
       }
     }
   }
