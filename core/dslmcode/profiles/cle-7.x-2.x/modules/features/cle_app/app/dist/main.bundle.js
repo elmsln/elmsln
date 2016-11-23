@@ -35260,8 +35260,8 @@ var AssignmentService = (function () {
         this.elmsln = elmsln;
     }
     AssignmentService.prototype.getAssignments = function () {
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node.json?type=cle_assignment')
-            .map(function (data) { return data.json().list; });
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/assignments')
+            .map(function (data) { return data.json(); });
     };
     AssignmentService.prototype.getAssignment = function (assignmentId) {
         return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + assignmentId + '.json?deep-load-refs=user,node')
@@ -53393,7 +53393,7 @@ var AssignmentListComponent = (function () {
         var _this = this;
         this.assignmentService.getAssignments()
             .subscribe(function (data) {
-            _this.assignments = data;
+            _this.assignments = data.data;
         });
     };
     AssignmentListComponent.prototype.viewAssignment = function (assignmentId) {
@@ -80612,7 +80612,7 @@ module.exports = ".cle-critique {\n  margin: 0 calc(-50vw + 50%);\n  padding: 1e
 /* 823 */
 /***/ function(module, exports) {
 
-module.exports = ".icon {\n  float: left;\n  margin-right: 1em;\n}"
+module.exports = ".icon {\n  float: left;\n  margin-right: 1em;\n}\n\n.assignment:hover {\n  cursor: pointer;\n}\n\n.status {\n  float: right;\n  size: .9em;\n}\n@media (min-width: 500px) {\n  .status {\n    position: absolute;\n    top: 50%;\n    transform: translateY(-50%);\n    right: 1em;\n  }\n}\n\n.status.complete {\n  color: green;\n}"
 
 /***/ },
 /* 824 */
@@ -80692,7 +80692,7 @@ module.exports = "<div class=\"cle-critique\">\n  <router-outlet></router-outlet
 /* 838 */
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"row\">\n  <div *ngFor=\"let assignment of assignments\" class=\"col s12 m4\">\n    <md-card class=\"card\">\n      <md-icon class=\"icon\">assignment</md-icon>\n      <md-card-title>{{assignment.title}}</md-card-title>\n      <md-card-content>\n      </md-card-content>\n      <md-card-actions>\n        <button md-button (click)=\"viewAssignment(assignment.nid)\">View assignment</button>\n      </md-card-actions>\n      <div class=\"status\">{{ assignment.complete }}</div>\n    </md-card>\n  </div>\n</div>"
+module.exports = "<div class=\"row\">\n  <div *ngFor=\"let assignment of assignments\" class=\"col s12 m4 assignment\" (click)=\"viewAssignment(assignment.id)\">\n    <md-card class=\"card\">\n      <md-icon class=\"icon\">assignment</md-icon>\n      <md-card-title>{{assignment.title}}</md-card-title>\n      <md-card-content>\n      </md-card-content>\n      <div *ngIf=\"assignment.complete == 1\" class=\"status complete\">Complete</div>\n      <div *ngIf=\"assignment.complete == 0\" class=\"status\">Incomplete</div>\n    </md-card>\n  </div>\n</div>"
 
 /***/ },
 /* 839 */

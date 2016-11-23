@@ -8,6 +8,150 @@ define('CLE_ASSIGNMENT_DEFAULT_COLOR', 'aac');
 
 include_once 'cle_assignment.features.inc';
 
+function cle_assignment_menu() {
+  $items = array();
+
+  $items['api/v1/cle'] = array(
+    'page callback' => '_cle_assignments_v1_cle',
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/assignments'] = array(
+    'page callback' => '_cle_assignemnts_v1_cle_assignments',
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/assignments/%'] = array(
+    'page callback' => '_cle_assignemnts_v1_cle_assignment',
+    'page arguments' => array(4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function _cle_assignments_v1_cle() {
+  $vars = array();
+  global $base_url;
+
+  // assemble the call
+  $vars['links'] = array(
+    'self' => $base_url . '/api/v1/cle/',
+    'assignments' => $base_url . '/api/v1/cle/assignments',
+  );
+
+  // output the assginments
+  drupal_add_http_header('Content-Type', 'application/json');
+  print drupal_json_output($vars);
+  drupal_exit();
+}
+
+function _cle_assignemnts_v1_cle_assignments() {
+  $vars = array();
+  // gather the list of assignments to send
+  $assignments = _cle_assignemnts_v1_get_assignments();
+
+  // assemble the call
+  $vars['links'] = array(
+    'self' => current_path()
+  );
+  // get the assignment ready for sending and place them as an array of items
+  // under the 'data' property
+  foreach ($assignments as $assignment) {
+    $_assignment = _cle_assignment_v1_assignment_output($assignment);
+    $vars['data'][] = $_assignment;
+  }
+
+  // output the assginments
+  drupal_add_http_header('Content-Type', 'application/json');
+  print drupal_json_output($vars);
+  drupal_exit();
+}
+
+function _cle_assignemnts_v1_cle_assignment($assignment_id) {
+  $vars = array();
+  // load the assignment
+  $assignment = node_load($assignment_id);
+  // get the assignment ready for sending
+  $assignment_apiformat = _cle_assignment_v1_assignment_output($assignment);
+
+  // assemble the call
+  $vars['links'] = array(
+    'self' => $base_url . '/api/v1/cle/assignments',
+  );
+  // place the formatted assignment under the 'data' property
+  $vars['data'] = $assignment_apiformat;
+
+  // output the assginment
+  drupal_add_http_header('Content-Type', 'application/json');
+  print drupal_json_output($vars);
+  drupal_exit();
+}
+
+/**
+ * Helper function that prepares an assignment for api output.
+ */
+function _cle_assignment_v1_assignment_output($assignment) {
+  // MOCK CONTENT:random date
+  $rand_date = mt_rand(1493827200,1499827200);
+
+  global $base_url;
+  // this will be our json formatted output
+  $return = array();
+
+  $return = array(
+    'type' => 'assignment',
+    'id' => (int)$assignment->nid,
+    'title' => $assignment->title,
+    'status' => (int)$assignment->status,
+    'created' => (int)$assignment->created,
+    'body' => $assignment->body[LANGUAGE_NONE][0]['safe_value'],
+    'links' => array(
+      'self' => $base_url . '/api/v1/cle/assignments/' . $assignment->nid,
+    ),
+
+    // @todo
+    // Need to replace static values below
+    'startDate' => $rand_date, //optional
+    'endDate' => $rand_date + 80000, //optional
+    'type' => _cle_random(array('open', 'closed', 'open', 'people see', 'closed', 'is private submission')),
+    'dependency' => _cle_random(array('none', 'previous', 'parent')),// default: none
+    'assets' => _cle_random(array('text', 'links', 'video', 'images', 'files'), 2), // unlimited
+    'critique' => array(
+      'method' => _cle_random(array('random', 'partner', 'open')),// default: random
+      'style' => _cle_random(array('double_blind', 'blind', 'open')),// default: double blind
+      'outline' => _cle_random(array('', 'Outline A')), //optional @todo: not sure what this is for
+      'public' => _cle_random(array('public', 'private')), // default: public
+    ),
+    'complete' => _cle_random(array(0,1)), // determines whether the assignment is complete.
+  );
+
+  return $return;
+}
+
+/**
+ * @todo
+ * Get all of the assignments for the current user
+ * - Make sure they have permission to see assignments
+ * - Make sure that they are seeing assignments for their current section
+ */
+function _cle_assignemnts_v1_get_assignments() {
+  $assignments = array();
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'cle_assignment')
+    ->propertyCondition('status', NODE_PUBLISHED);
+
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $assignment_nids = array_keys($result['node']);
+    $assignments = entity_load('node', $assignment_nids);
+  }
+
+  return $assignments;
+}
+
 /**
  * Implements hook_form_FORM_ID_alter().
  */
@@ -64,5 +208,24 @@ function cle_assignment_node_insert($node) {
       $section->field_cle_assignments['und'][] = array('target_id' => $node->nid);
       node_save($section);
     }
+  }
+}
+
+/**
+ * Helper function to randomly choose from an array. For development purposes
+ * only.
+ */
+function _cle_random($array, $amount = 1) {
+  $index = array_rand($array, $amount);
+
+  if (is_array($index)) {
+    $a = array();
+    foreach($index as $i) {
+      $a[] = $array[$i];
+    }
+    return $a;
+  }
+  else {
+    return $array[$index];
   }
 }

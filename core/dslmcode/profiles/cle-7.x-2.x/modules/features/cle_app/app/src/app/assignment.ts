@@ -1,9 +1,13 @@
 export class Assignment {
   id: number;
-  title: string;
-  critiqueStartDate: number;
-  critiqueEndDate: number;
+  type: string;
+  status: boolean;
+  created: number;
+  body: string;
+  links: Array<string>;
   startDate: number;
   endDate: number;
-  body: string;
+  dependency: string;
+  assets: Array<string>;
+  critique: Array<any>;
 }

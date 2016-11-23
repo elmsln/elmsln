@@ -13,7 +13,7 @@ import 'rxjs';
 })
 export class AssignmentComponent implements OnInit {
   assignmentId: number;
-  assignment: any;
+  assignment: Assignment;
 
   constructor(
     private route: ActivatedRoute,

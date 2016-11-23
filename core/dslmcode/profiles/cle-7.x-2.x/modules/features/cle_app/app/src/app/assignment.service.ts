@@ -11,8 +11,8 @@ export class AssignmentService {
   ) { }
 
   getAssignments() {
-    return this.elmsln.get(AppSettings.BASE_PATH + 'node.json?type=cle_assignment')
-      .map(data => data.json().list)
+    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments')
+      .map(data => data.json())
   }
 
   getAssignment(assignmentId) {
