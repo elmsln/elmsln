@@ -1,9 +1,5 @@
-article ul:not(.browser-default) li {
+article ul:not(.browser-default,.dropdown-content,.table-of-contents,.menu) li {
 	list-style-type: disc;
-}
-#block-mooc-nav-block-mooc-nav-nav li,
-article ul.table-of-contents li {
-	list-style-type: none;
 }
 
 .material-icon.elmsln-icon:before {
