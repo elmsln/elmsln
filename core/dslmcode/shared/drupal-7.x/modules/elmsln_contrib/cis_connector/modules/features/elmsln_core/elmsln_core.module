@@ -124,8 +124,8 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-  $items['elmsln/redirect/%/%/%/view'] = array(
-    'title' => 'view',
+  $items['elmsln/redirect/%/%/%/view_modes'] = array(
+    'title' => 'display options',
     'page callback' => '_elmsln_core_remote_redirect',
     'access arguments' => array('view cis shortcode'),
     'page arguments' => array(2, 3, 4, 5),
@@ -134,7 +134,7 @@ function elmsln_core_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
   $items['elmsln/redirect/%/%/%/data'] = array(
-    'title' => 'data',
+    'title' => 'related data',
     'page callback' => '_elmsln_core_remote_redirect',
     'page arguments' => array(2, 3, 4, 5),
     'access arguments' => array('view cis shortcode'),
