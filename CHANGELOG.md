@@ -1,4 +1,30 @@
-ELMSLN 0.6.0, 2016-11-21 - Turkey
+ELMSLN 0.6.1, 2016-11-22 - Gravy
+This release includes minor fixes noticed after deploying 0.6.0 in the wild on multiple servers. This is a minor release based on scope of the issues and upgrading from 0.6.0 should be minimally invasive. There is a server level upgrade to apply at this version marker but it is not critical. This also includes additional work towards the Angular version of the studio which is close to working.
+
+Thanks to these reporters & contributors to this release:
+@djfusco @rickhumphries @Deb-G @mmilutinovic1313 @btopro @bradallenfisher @heyMP
+
+Tab menu doesn't horizontally scroll on mobile bug style guide / theme #1514
+Documentation page for DNS / domain name request documentation infrastructure #1288
+Update Drupal core drupal related #1508
+Scrollspy menu links on long pages bug style guide / theme #1504
+install run and remove https://www.drupal.org/project/module_missing_message_fixer #1486
+Edit from the Welcome Page in Course Outline doesn't redirect to CIS bug #1503
+'View' link in Impersonate not working. bug #1506
+H5P errors on fresh install bug drupal related #1507
+voicecommander + a11y + entity iframe = sad #1502
+Shop Safety-Quiz Tool assessment / quiz #1476
+Icon Not Showing Up bug easy minor style guide / theme User Experience #1488
+Material Icon Link in Network List Display Error bug minor style guide / theme #1495
+Read time information sitting hidden in table of contents bug minor #1496
+Unable to change favicon bug minor #1501
+Keyboard Shortcuts don't work accessibility bug #1498
+Colour blindness simulator glitch question #1499
+Settings Cog is Inaccessible for some Shortcoded Media bug Staff Experience #1497
+List style type set to 'none' for bullet points bug style guide / theme #1500
+Scrollspy error bug #1494
+
+ELMSLN 0.6.0, 2016-11-20 - Turkey
 This release has major improvements to infrastructure deployment, migration and QA workflows. It also drops previously produced keychain requirements which had username and passwords and replaces them with a hash based methodology which can be updated and random at will. These are specific to each service account running commands on user's behalfs so it was never a serious security issue but always good to do house cleaning. Also includes many bug fixes, vastly improved developer UX in vagrant via the `sh developer` command and other PHP7 compatibility improvements.
 
 User profile borked in firefox bug style guide / theme #1446
