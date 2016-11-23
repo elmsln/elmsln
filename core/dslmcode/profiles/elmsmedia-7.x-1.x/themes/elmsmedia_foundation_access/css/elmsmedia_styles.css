@@ -11,6 +11,12 @@
   overflow: hidden;
 }
 
+#scrollspy-nav,
+#scrollspy-nav .scrollspy-toc {
+  border-bottom-style: solid;
+  border-bottom-width: .1rem;
+}
+
 #scrollspy-nav .item-list ul li {
   margin: 0;
   padding: 0;
