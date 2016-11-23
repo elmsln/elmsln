@@ -39,7 +39,7 @@ function mooc_nav_block_block_view($delta = '') {
   switch ($delta) {
     case 'mooc_nav':
       $node = menu_get_object('node');
-      if (isset($node) && isset($node->book) && !empty($node->book)) {
+      if (isset($node) && isset($node->book) && isset($node->book['depth']) && !empty($node->book['depth'])) {
         $block = _mooc_nav_block_mooc_nav_block($node);
       }
     break;
