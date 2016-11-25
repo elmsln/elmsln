@@ -1096,6 +1096,10 @@ function _elmsln_core_icon_map() {
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
+      'roster' => array(
+        'color' => 'orange',
+        'icon' => 'person_add',
+      ),
       'file' => array(
         'color' => 'orange',
         'icon' => 'attachment',

@@ -388,7 +388,15 @@ function _cis_section_create_accounts($roster) {
   // loop through sections in the overall access roster
   foreach ($roster as $section => $members) {
     // loop through the user / role combination
-    foreach ($members as $name => $role_name) {
+    foreach ($members as $name => $userdata) {
+      // support email address coming across too
+      if (is_array($userdata)) {
+        $role_name = $userdata['role'];
+        $email = $userdata['email'];
+      }
+      else {
+        $role_name = $userdata;
+      }
       // convert role name to object bc of stupid storage convention for account creation
       $role = user_role_load_by_name($role_name);
       // try and load the account first
@@ -402,6 +410,10 @@ function _cis_section_create_accounts($roster) {
             $role->rid => $role->name,
           ),
         );
+        // support email being set during roster sync too
+        if (isset($email)) {
+          $fields['mail'] = $email;
+        }
         // allow other projects to update part of the user
         drupal_alter('cis_section_user_insert', $fields);
         // the first parameter is left blank so a new user is created

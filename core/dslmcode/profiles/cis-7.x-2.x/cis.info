@@ -129,6 +129,7 @@ dependencies[] = cis_helper
 dependencies[] = cis_lti
 dependencies[] = cis_si_cleanup
 dependencies[] = cis_distro_integrations
+dependencies[] = cis_user
 ; Content
 dependencies[] = field_redirection
 ; Date/Time

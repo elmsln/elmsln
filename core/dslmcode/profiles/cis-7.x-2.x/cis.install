@@ -109,3 +109,10 @@ function cis_update_7008(&$sandbox) {
   module_enable(array('filefield_paths'));
   features_revert_module('cis_types');
 }
+
+/**
+ * User importing
+ */
+function cis_update_7009(&$sandbox) {
+  module_enable(array('cis_user'));
+}
