@@ -1,3 +1,19 @@
+.elmsln-error-page {
+  font-size: 2rem;
+  line-height: 4rem;
+}
+
+.error-page-hal9000 {
+  filter:saturate(1) invert(1);
+  transform: scale(.95, .95);
+  transition: 3s ease;
+}
+
+.error-page-hal9000.on {
+  filter:saturate(10) invert(.9);
+  transform: scale(1, 1);
+}
+
 .colorpicker {
   z-index: 10000;
 }

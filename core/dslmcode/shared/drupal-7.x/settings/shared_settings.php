@@ -3,12 +3,14 @@
 // you can override them in your config version of shared_settings
 // but it is highly recommended against for system stability
 
-// fix for core change in 7.50
+// fix for core change in 7.50+
 $conf['x_frame_options'] = '';
 // allow image cache derivatives without itok token
 $conf['image_allow_insecure_derivatives'] = TRUE;
 // prevent bakery from giving weird messges
 $conf['bakery_status_messages'] = FALSE;
+$conf['site_403'] = 'elmsln/error/403';
+$conf['site_404'] = 'elmsln/error/404';
 
 // use this to debug restws issues
 #$conf['restws_debug_log'] = '/var/www/elmsln/config/tmp/rest.debug';

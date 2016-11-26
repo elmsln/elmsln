@@ -75,6 +75,17 @@ function elmsln_core_menu() {
     'menu_name' => 'menu-elmsln-settings',
     'file' => 'elmsln_core.pages.inc',
   );
+  $items['elmsln/error/%'] = array(
+    'title' => '',
+    'title callback' => '_elmsln_core_error_title',
+    'title arguments' => array(2),
+    'page callback' => '_elmsln_core_error_page',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'weight' => 10,
+    'type' => MENU_CALLBACK,
+    'file' => 'elmsln_core.errors.inc',
+  );
   $items['node/%node/data'] = array(
     'title' => 'Related data',
     'page callback' => 'drupal_get_form',
