@@ -57,15 +57,14 @@ function cis_user_cis_helper_build_roster($section) {
         $rows = _cis_user_csv_to_array($fcontent, $header);
         foreach ($rows as $row) {
           // test for email to ship around
-          if (isset($row['email']) && !empty($row['email'])) {
-            $roster[$row['username']] = array(
-              'role' => $row['role'],
-              'email' => $row['email'],
-              'pass' => user_password(20),
-            );
-          }
-          else {
-            $roster[$row['username']] = $row['role'];
+          foreach ($row as $key => $val) {
+            switch ($key) {
+              case 'role':
+              case 'mail':
+              case 'pass':
+                $roster[$row['name']][$key] = $val;
+              break;
+            }
           }
         }
       }

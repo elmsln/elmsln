@@ -392,7 +392,7 @@ function _cis_section_create_accounts($roster) {
       // support email address coming across too
       if (is_array($userdata)) {
         $role_name = $userdata['role'];
-        $email = $userdata['email'];
+        $mail = $userdata['mail'];
         $pass = $userdata['pass'];
       }
       else {
@@ -411,9 +411,9 @@ function _cis_section_create_accounts($roster) {
             $role->rid => $role->name,
           ),
         );
-        // support email being set during roster sync too
-        if (isset($email)) {
-          $fields['mail'] = $email;
+        // support mail being set during roster sync too
+        if (isset($mail)) {
+          $fields['mail'] = $mail;
         }
         // support for uniform password
         if (isset($pass)) {
