@@ -393,6 +393,7 @@ function _cis_section_create_accounts($roster) {
       if (is_array($userdata)) {
         $role_name = $userdata['role'];
         $email = $userdata['email'];
+        $pass = $userdata['pass'];
       }
       else {
         $role_name = $userdata;
@@ -413,6 +414,10 @@ function _cis_section_create_accounts($roster) {
         // support email being set during roster sync too
         if (isset($email)) {
           $fields['mail'] = $email;
+        }
+        // support for uniform password
+        if (isset($pass)) {
+          $fields['pass'] = $pass;
         }
         // allow other projects to update part of the user
         drupal_alter('cis_section_user_insert', $fields);

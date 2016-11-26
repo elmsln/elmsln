@@ -60,7 +60,8 @@ function cis_user_cis_helper_build_roster($section) {
           if (isset($row['email']) && !empty($row['email'])) {
             $roster[$row['username']] = array(
               'role' => $row['role'],
-              'email' => $row['email']
+              'email' => $row['email'],
+              'pass' => user_password(20),
             );
           }
           else {
