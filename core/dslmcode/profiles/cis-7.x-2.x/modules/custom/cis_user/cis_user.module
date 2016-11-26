@@ -47,7 +47,8 @@ function cis_user_cis_helper_build_roster($section) {
     $files = entity_uuid_load('file', array($section));
     if (count($files) == 1) {
       $file = array_pop($files);
-      $location = drupal_realpath($file->uri);
+      // @TODO I DONT KNOW WHY BUT VARIABLES SYSTEM IS NULL HERE FOR PUBLIC FILE PATH
+      $location = str_replace('public://user_import_files', $GLOBALS['elmslncfg']['elmsln'] . '/config/stacks/online/sites/online/' . $GLOBALS['elmslncfg']['host'] . '/files/user_import_files', $file->uri);
       # header can be variable this way
       $header = NULL;
       if (!empty($location)) {
