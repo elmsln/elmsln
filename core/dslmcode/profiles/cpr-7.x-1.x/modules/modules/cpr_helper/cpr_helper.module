@@ -3,3 +3,13 @@
  * @file
  * Code for CPR helper.
  */
+
+/**
+ * Implements hook_user_presave().
+ */
+function cpr_helper_user_presave(&$edit, $account, $category) {
+  // ensure there's a default display name when set programatically
+	if (!isset($edit['field_display_name']) || empty($edit['field_display_name'])) {
+		$edit['field_display_name']['und'][0]['value'] = $edit['name'];
+	}
+}
