@@ -492,7 +492,7 @@ ul.dropdown-content {
   display: block;
   top:0;
   min-height: 8rem;
-  width: auto;
+  min-width: 1000px;
   max-width: 100%;
   position: fixed;
   z-index: 0;
