@@ -488,11 +488,41 @@ ul.dropdown-content {
   min-height: 8rem;
   z-index: 1;
 }
+@media screen and (max-width: 600px) {
+  .header-image-container {
+    height: 3rem;
+    min-height: 3rem;
+  }
+}
+@media screen and (min-width: 600px) {
+  .header-image-container {
+    height: 4rem;
+    min-height: 4rem;
+  }
+}
+@media screen and (min-width: 800px) {
+  .header-image-container {
+    height: 5rem;
+    min-height: 5rem;
+  }
+}
+@media screen and (min-width: 992px) {
+  .header-image-container {
+    height: 6rem;
+    min-height: 6rem;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .header-image-container {
+    height: 8rem;
+    min-height: 8rem;
+  }
+}
 .header-image-container img {
   display: block;
   top:0;
-  min-height: 8rem;
-  min-width: 1000px;
+  min-height: 3rem;
+  height: auto;
   max-width: 100%;
   position: fixed;
   z-index: 0;
