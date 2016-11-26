@@ -4,12 +4,10 @@
  * Callback for importing the schedule.
  */
 function cis_user_import_form($form, $form_state) {
-  // the schedule
-  //$form['markup'] = array('#markup' => t('FILE FORMAT: _ for spaces') . '<br/>');
   $course = _cis_connector_course_context();
   $form['course'] = array(
     '#required' => '1',
-    '#description' => t('The courses to establish the offering for'),
+    '#description' => t('The course and offering to add this roster to.'),
     '#type' => 'select',
     '#options' => _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title'),
     '#title' => t('Course'),
