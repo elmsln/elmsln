@@ -47,29 +47,18 @@
   <div class="user-profile--name ferpa-protect">
     <?php print $displayname; ?>
   </div>
-<div class="row">
+  <div class="row">
     <div class="col s12">
       <ul class="tabs">
-        <li class="tab col s3"><a href="#user__bio"><?php print t('About');?></a></li>
-        <li class="tab col s3"><a href="#user__data"><?php print t('Related Data');?></a></li>
+      <?php foreach ($tabs as $key => $tab) : ?>
+        <li class="tab col s3"><a href="#user__<?php print $key;?>"><?php print $tab;?></a></li>
+      <?php endforeach; ?>
       </ul>
     </div>
-    <div id="user__bio" class="user-profile--about col s12 ferpa-protect">
-    <?php if (isset($field_bio)) : ?>
-      <?php print render($user_profile['field_bio']);?>
-    <?php endif; ?>
+    <?php foreach ($tabs_content as $key => $tab_content) : ?>
+    <div id="user__<?php print $key;?>" class="user-profile--<?php print $key;?> col s12 ferpa-protect">
+      <?php print render($tab_content);?>
     </div>
-    <div id="user__data" class="user-profile--data col s12">
-    <?php if (isset($user_data)) : ?>
-      <?php print render($user_data);?>
-    <?php endif; ?>
-    </div>
+    <?php endforeach; ?>
   </div>
 </div>
-
-
-
-
-
-
-
