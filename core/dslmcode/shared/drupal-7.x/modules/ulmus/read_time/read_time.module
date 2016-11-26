@@ -18,7 +18,8 @@ function read_time_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('read_time_rebuild_confirm'),
     'access arguments' => array('administer read time'),
-    'type' => MENU_CALLBACK,
+    'weight' => 10,
+    'type' => MENU_NORMAL_ITEM,
   );
 
   return $items;

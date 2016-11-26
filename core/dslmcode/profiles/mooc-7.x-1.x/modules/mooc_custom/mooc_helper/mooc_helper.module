@@ -74,6 +74,13 @@ function mooc_helper_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function mooc_helper_menu_alter(&$items) {
+  $items['read_time/rebuild']['menu_name'] = 'menu-elmsln-settings';
+}
+
+/**
  * Implements hook_block_info().
  */
 function mooc_helper_block_info() {
