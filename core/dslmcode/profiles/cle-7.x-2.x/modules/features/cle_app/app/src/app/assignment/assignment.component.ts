@@ -42,4 +42,8 @@ export class AssignmentComponent implements OnInit {
         });
     }
   }
+
+  backButton() {
+    this.location.back();
+  }
 }
