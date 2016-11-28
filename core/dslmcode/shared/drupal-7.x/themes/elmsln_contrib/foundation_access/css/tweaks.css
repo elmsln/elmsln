@@ -1493,9 +1493,9 @@ a.add-menu-drop {
 #backtotop {
   background: url(../legacy/img/backtotop.png) no-repeat center center;
   z-index: 1000;
-  right: 2.25rem;
-  bottom: .5rem;
-  width: 2rem;
+  right: 0;
+  bottom: 0;
+  width: 3rem;
   height: 2rem;
 }
 
