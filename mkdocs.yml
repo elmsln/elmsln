@@ -47,6 +47,7 @@ pages:
     - Concept development process: development/Concept-Process.md
     - Release cycle: development/Project-Release-Cycle.md
   - General questions:
+    - Adding custom tools: development/Custom-tools.md
     - Questions: development/Developer-questions.md
     - Should I upgrade modules?: development/Should-I-update-Drupal-modules.md
     - Where can I add modules / themes?: development/Where-can-I-add-new-modules-themes.md
