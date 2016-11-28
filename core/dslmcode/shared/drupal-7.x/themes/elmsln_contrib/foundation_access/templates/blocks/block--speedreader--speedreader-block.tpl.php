@@ -22,6 +22,6 @@
         </a>
       </span>
     </div>
-    <input id="spritz_wpm" type="hidden" value="250" step="50" min="50" class="wpm"/>
+    <input id="spritz_wpm" type="hidden" value="250" class="wpm"/>
   </div>
 </div>
