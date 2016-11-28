@@ -67,6 +67,9 @@ function read_time_rebuild_confirm_submit($form, &$form_state) {
   if (module_exists('entitycache')) {
     cache_clear_all('*', 'cache_entity_node', TRUE);
   }
+  // empty the read time table to do a full rebuild
+  db_truncate('read_time')->execute();
+  // flush cache hook which does the batch api process
   read_time_flush_caches();
   $form_state['redirect'] = '<front>';
 }
@@ -772,8 +775,6 @@ function read_time_token_info() {
  * Implements hook_flush_caches().
  */
 function read_time_flush_caches() {
-  // empty the read time table
-  db_truncate('read_time')->execute();
   // on a cache clear we might have new data
   _read_time_perform_batch_process();
   return array();
