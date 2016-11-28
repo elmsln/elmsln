@@ -30,7 +30,7 @@
               </div>
             </div>
             <div class="r-header__right">
-              <h2 class="element-invisible"><? print t('Primary tabs');?></h2>
+              <h2 class="element-invisible"><?php print t('Primary tabs');?></h2>
               <ul class="r-header__edit-icons">
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>

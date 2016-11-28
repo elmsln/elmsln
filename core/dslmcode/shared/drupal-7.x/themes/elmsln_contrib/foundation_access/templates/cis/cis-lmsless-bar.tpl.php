@@ -10,8 +10,9 @@
 <!-- Ecosystem Top Nav -->
 <div id="etb-course-nav" class="row full collapse <?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['light'] . ' ' . $lmsless_classes[$distro]['color'];?>-border z-depth-1">
   <div class="s12 m7 col">
-    <nav class="top-bar etb-nav middle-align-wrap etb-nav--center--parent" data-options="is_hover: false" data-topbar role="navigation">
+    <nav class="top-bar etb-nav middle-align-wrap etb-nav--center--parent" data-options="is_hover: false" data-topbar>
      <section>
+        <h2 class="element-invisible"><?php print t('System navigation bar');?></h2>
         <!-- Left Nav Section -->
         <ul class="left-nav-section">
           <?php if ($bar_elements['network']) : ?>
@@ -60,10 +61,11 @@
     </nav>
   </div>
     <div class="etb-title s12 m5 col">
-      <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar role="navigation">
+      <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar>
        <section class="top-bar-section title-link">
+       <h2 class="element-invisible"><?php print t('Course identifier and settings');?></h2>
         <ul class="menu right clearfix">
-          <li class="first expanded menu-mlid-365">
+          <li class="first expanded">
           <?php
             // account for roles that don't have access to this
             if (!empty($elmsln_main_menu)) {?>
@@ -74,8 +76,8 @@
               </span>
               <span class="course-title-icon icon--dropdown"></span>
             </a>
-            <ul id="elmsln-tools-menu" class="dropdown-content" aria-hidden="true" aria-autoclose="true">
-              <?php print $elmsln_main_menu; ?>
+            <ul id="elmsln-tools-menu" class="dropdown-content" aria-hidden="true">
+              <li><?php print $elmsln_main_menu; ?></li>
             </ul>
             <?php
             }
