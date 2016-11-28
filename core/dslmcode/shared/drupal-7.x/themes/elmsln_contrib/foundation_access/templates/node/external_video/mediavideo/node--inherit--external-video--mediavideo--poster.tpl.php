@@ -9,7 +9,7 @@
   <?php endif; ?>
 
   <?php if ($thumbnail): ?>
-    <a href="#" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
+    <a href="#close-dialog" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
   <?php endif; ?>
 
   <div class="mediavideo__video-wrapper">
@@ -22,7 +22,7 @@
     <?php if ($poster): ?>
     <aside class="mediavideo__poster">
       <img src="<?php print $poster; ?>">
-      <a class="mediavideo__open icon-play-black" href="#" title="Click to view video."></a>
+      <a class="mediavideo__open icon-play-black" href="#play-video" title="Click to view video."></a>
     </aside>
     <?php endif; ?>
   </div>

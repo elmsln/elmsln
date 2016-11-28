@@ -147,7 +147,7 @@ function foundation_access_fieldset($variables) {
   if (isset($element['#materialize'])) {
     switch ($element['#materialize']['type']) {
       case 'collapsible_wrapper':
-        $output = '<ul' . drupal_attributes($element['#attributes']) .'>' . $element['#children'] . '</ul>';
+        $output = '<ul' . drupal_attributes($element['#attributes']) .' role="tabpanel">' . $element['#children'] . '</ul>';
       break;
       case 'collapsible':
         $collapse = '';
@@ -174,15 +174,17 @@ function foundation_access_fieldset($variables) {
         }
         // drive down into the child elements if they exist
         $body .= $element['#children'];
+        // make a nice anchor link
+        $anchor = str_replace(' ', '', drupal_strtolower(preg_replace("/[^a-zA-Z_\s]+/", "", $element['#title'])));
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a href="#" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '">' .
+          <a id="#collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '">' .
             $icon . $element['#title'] .
           '
           </a>
           <div class="collapsible-body">
-            <div class="elmsln-collapsible-body">
+            <div class="elmsln-collapsible-body" aria-labelledby="collapse-item-id-' . $anchor . '">
               ' . $body . '
             </div>
             <div class="divider cis-lmsless-background"></div>
@@ -1105,7 +1107,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
   $id = 'menu-panel-' . $element['#original_link']['mlid'];
   // account for no link'ed items
   if ($element['#href'] == '<nolink>') {
-    $output = '<a href="#">' . $title . '</a>';
+    $output = '<a href="#menu-no-link-' . hash('md5', 'mnl' . $title) . '">' . $title . '</a>';
   }
   // account for sub menu things being rendered differently
   if (empty($sub_menu)) {
@@ -1148,12 +1150,12 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
       '</div>'  . "\n" .
       '<li class="back">'  . "\n" .
-      '<a href="#" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
+      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
       $sub_menu . "\n</ul>\n</li>";
       $counter++;
     }
     else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="elmsln-icon icon-content outline-nav-icon"></div><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
+      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#elmsln-menu-sub-level-' . hash('md5', 'emsl' . $title) . '"><div class="elmsln-icon icon-content outline-nav-icon"></div><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       '<div>'  . "\n";
       $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
@@ -1163,7 +1165,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
       '</div>'  . "\n" .
       '<li class="back">'  . "\n" .
-      '<a href="#" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
+      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
       $sub_menu . "\n</ul>\n</li>";
     }
   }
@@ -1280,24 +1282,6 @@ function foundation_access_html_head_alter(&$head_elements) {
  * Print breadcrumbs as a list, with separators.
  */
 function foundation_access_breadcrumb($variables) {
-  /*$breadcrumb = $variables['breadcrumb'];
-
-  if (!empty($breadcrumb)) {
-    // Provide a navigational heading to give context for breadcrumb links to
-    // screen-reader users. Make the heading invisible with .element-invisible.
-    $breadcrumbs = '<h2 class="element-invisible">' . t('You are here') . '</h2>';
-
-    $breadcrumbs .= '<ul class="breadcrumbs">';
-    foreach ($breadcrumb as $key => $value) {
-      $breadcrumbs .= '<li>' . strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span>') . '</li>';
-    }
-
-    $title = strip_tags(drupal_get_title());
-    $breadcrumbs .= '<li class="current"><a href="#">' . $title . '</a></li>';
-    $breadcrumbs .= '</ul>';
-
-    return $breadcrumbs;
-  }*/
 }
 
 /**
@@ -1515,10 +1499,10 @@ function foundation_access_status_messages($variables) {
 
   foreach (drupal_get_messages($display) as $type => $messages) {
     if (isset($status_mapping[$type])) {
-      $output .= "<div data-alert class=\"alert-box $status_mapping[$type]\">\n";
+      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box $status_mapping[$type]\">\n";
     }
     else {
-      $output .= "<div data-alert class=\"alert-box\">\n";
+      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">\n";
     }
 
     if (!empty($status_heading[$type])) {
@@ -1534,7 +1518,7 @@ function foundation_access_status_messages($variables) {
     else {
       $output .= $messages[0];
     }
-    $output .= '<a href="#" class="close">&times;</a>';
+    $output .= '<a href="#close-dialog" class="close" aria-label="' . t('Hide messages') . '" data-voicecommand="hide messages" data-jwerty-key="Esc">&#215;</a>';
     $output .= "</div>\n";
   }
 

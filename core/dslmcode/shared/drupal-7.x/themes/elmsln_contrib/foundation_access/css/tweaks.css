@@ -1062,10 +1062,11 @@ div.form-type-checkbox :last-child {
   overflow: hidden;
 }
 .spritz {
-    font-size: 5rem;
+  font-size: 5rem;
   line-height: 10rem;
   height: 10rem;
   overflow: hidden;
+  margin: 1rem;
 }
 #spritz_progress {
   height: .5rem;

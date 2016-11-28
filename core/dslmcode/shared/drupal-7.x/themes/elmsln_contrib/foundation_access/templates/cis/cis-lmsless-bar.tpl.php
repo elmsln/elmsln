@@ -16,7 +16,7 @@
         <ul class="left-nav-section">
           <?php if ($bar_elements['network']) : ?>
           <li class="elmsln-network-menu-item">
-            <a href="#" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger  black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
+            <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger  black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
               <div class="cis-lmsless-network elmsln-icon icon-network"></div>
               <span class="hide-on-med-and-down truncate"><?php print t('Network'); ?></span>
             </a>
@@ -24,7 +24,7 @@
           <?php endif; ?>
           <?php if ($bar_elements['user']) : ?>
           <li class="elmsln-user-profile-menu-item ferpa-protect">
-            <a href="#" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
+            <a href="#user-menu-button" class="middle-align-wrap elmsln-user-button elmsln-left-side-nav-trigger black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
               <?php if (isset($userpicture)) { print $userpicture; } ?>
               <span class="hide-on-med-and-down truncate"><?php print $username; ?></span>
             </a>
@@ -67,7 +67,7 @@
           <?php
             // account for roles that don't have access to this
             if (!empty($elmsln_main_menu)) {?>
-            <a id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-dropdown-button" href="#" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
+            <a id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-dropdown-button" href="#elmsln-settings-menu" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
               <span class="course-title-group">
                 <span class="course-title"><?php print $slogan; ?></span>
                 <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>

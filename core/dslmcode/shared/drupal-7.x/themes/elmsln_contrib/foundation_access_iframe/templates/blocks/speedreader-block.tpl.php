@@ -15,12 +15,12 @@
     </div>
     <div class="controls settings-controls">
       <span class="speed">
-        <a id="spritz_slower" href="#" title="Slow Down" class="slower entypo-fast-backward"></a>
-        <a id="spritz_pause" href="#" title="Pause/Play" class="pause entypo-pause"></a>
-        <a id="spritz_faster" href="#" title="Speed Up" class="faster entypo-fast-forward"></a>
+        <a id="spritz_slower" href="#spritz-slow-down" title="Slow Down" class="slower entypo-fast-backward"></a>
+        <a id="spritz_pause" href="#spritz-play" title="Pause/Play" class="pause entypo-pause"></a>
+        <a id="spritz_faster" href="#spritz-speed-up" title="Speed Up" class="faster entypo-fast-forward"></a>
       </span>
     </div>
   </div>
   <input id="spritz_wpm" type="hidden" value="300" step="50" min="50" class="wpm"/>
-  <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+  <a href="#close-dialog" class="close-reveal-modal" aria-label="Close">&#215;</a>
 
