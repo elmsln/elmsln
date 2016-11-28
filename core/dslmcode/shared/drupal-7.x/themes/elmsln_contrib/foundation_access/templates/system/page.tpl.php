@@ -30,6 +30,7 @@
               </div>
             </div>
             <div class="r-header__right">
+              <h2 class="element-invisible"><? print t('Primary tabs');?></h2>
               <ul class="r-header__edit-icons">
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>
@@ -129,12 +130,6 @@
                   </div>
                   <?php endif; ?>
                 </div>
-              <?php endif; ?>
-              <a id="main-content"></a>
-              <?php if ($title && arg(2) != 'edit' && arg(0) != 'users' && arg(0) != 'user'): ?>
-                <?php print render($title_prefix); ?>
-                  <h1 id="page-title" class="title"><?php print $title; ?></h1>
-                <?php print render($title_suffix); ?>
               <?php endif; ?>
               <?php print render($page['content']); ?>
             </div>

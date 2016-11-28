@@ -1350,9 +1350,6 @@ div.read-time-wrapper div.chip i {
   z-index: 1;
 }
 
-article.node-view-mode-full {
-  margin-top: 2rem;
-}
 /* ELMSLN bullets */
 article.node div.body ul li {
   list-style-type: initial;
@@ -1598,12 +1595,12 @@ ul.header-menu-options li.active-trail {
   background-attachment: fixed;
 }
 
-h1#page-title {
+#page-title {
   color: #222222;
   font-size: 2.25rem;
   line-height: 2.5rem;
   padding: 0;
-  margin-bottom:.5rem;
+  margin-bottom:1rem;
   text-align: left;
   text-transform: none;
   overflow: hidden;
