@@ -63,7 +63,11 @@ function read_time_rebuild_confirm() {
  * @see node_configure_rebuild_confirm()
  */
 function read_time_rebuild_confirm_submit($form, &$form_state) {
-  _read_time_perform_batch_process();
+  // clear entity cache
+  if (module_exists('entitycache')) {
+    cache_clear_all('*', 'cache_entity_node', TRUE);
+  }
+  read_time_flush_caches();
   $form_state['redirect'] = '<front>';
 }
 
@@ -284,9 +288,10 @@ function read_time_node_insert($node) {
  */
 function read_time_node_update($node) {
   // see if there's currently a value for this, there should be
-  if ($read_time_old = _read_time_get_read_time($node->nid) && !isset($node->_block_read_time_update)) {
+  if (!isset($node->_block_read_time_update)) {
     // compare it to the new one if we fresh calculate if
     $read_time = _read_time_evaluate($node);
+    $read_time_old = _read_time_get_read_time($node->nid);
     // only change the value if its different upon calculation
     if ($read_time != $read_time_old) {
         db_merge('read_time')
@@ -460,7 +465,6 @@ function theme_read_time($variables) {
   $display = variable_get('read_time_display_' . $node->type, $defaults['display']);
   $wpm = variable_get('read_time_wpm_' . $node->type, $defaults['wpm']);
 
-  // @todo this needs to be able to evaluation more then just words
   $words = $node->read_time['words'];
   // convert words into time
   $time = round(($words / $wpm), 3);
@@ -630,7 +634,6 @@ function _read_time_analyze_existing_nodes(&$context) {
   if (!isset($sandbox['progress'])) {
     $sandbox['progress'] = 0;
     $sandbox['current_nid'] = 0;
-    // We only select files that are not in the getid3_meta table.
     $sandbox['max'] = db_query('SELECT COUNT(nid) FROM {node} n WHERE n.status=1')->fetchField();
   }
 
@@ -769,7 +772,8 @@ function read_time_token_info() {
  * Implements hook_flush_caches().
  */
 function read_time_flush_caches() {
-  db_truncate('read_time');
+  // empty the read time table
+  db_truncate('read_time')->execute();
   // on a cache clear we might have new data
   _read_time_perform_batch_process();
   return array();
