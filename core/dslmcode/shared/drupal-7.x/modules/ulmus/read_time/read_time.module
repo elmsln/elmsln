@@ -14,7 +14,7 @@ define('READ_TIME_IMAGE', 12);
  */
 function read_time_menu() {
   $items['read_time/rebuild'] = array(
-    'title' => 'Calculating content read time',
+    'title' => 'Rebuild content read time',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('read_time_rebuild_confirm'),
     'access arguments' => array('administer read time'),
