@@ -1284,6 +1284,17 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
               switch ($keyname) {
                 case 'default_title':
                 case 'type':
+                case 'group':
+                case 'color':
+                case 'color_dark':
+                case 'color_light':
+                case 'color_text':
+                case 'color_outline':
+                case 'color_code':
+                case 'icon':
+                case 'icon_library':
+                case 'show_in_network':
+                case 'weight':
                   $keychain[$distro][$keyname] = $value;
                 break;
                 case 'subdomain':
