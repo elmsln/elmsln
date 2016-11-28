@@ -13,7 +13,7 @@ function foundation_access_preprocess_html(&$variables) {
   $address = explode('.', $settings['address']);
   $variables['iconsizes'] = array('16', '32', '64', '96', '160', '192', '310');
   $variables['appleiconsizes'] = array('60', '72', '76', '114', '120', '144', '152', '180');
-  $variables['system_icon'] = array_shift($address);
+  $variables['system_icon'] = $settings['icon'];
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   // loop through our system specific colors
   $colors = array('primary', 'secondary', 'required', 'optional');

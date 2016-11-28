@@ -1243,6 +1243,17 @@ function _elmsln_core_icon_map() {
   return $map;
 }
 
+/**
+ * Implements hook_module_implements_alter().
+ */
+function elmsln_core_module_implements_alter(&$implementations, $hook) {
+  // ensure elmsln_core fires first so everything else can alter the expected list
+  if ($hook == 'cis_service_registry_alter') {
+    $tmp = array('elmsln_core' => $implementations['elmsln_core']);
+    unset($implementations['elmsln_core']);
+    $implementations = $tmp + $implementations;
+  }
+}
 
 /**
  * Implements hook_cis_service_registry_alter($keychain).
