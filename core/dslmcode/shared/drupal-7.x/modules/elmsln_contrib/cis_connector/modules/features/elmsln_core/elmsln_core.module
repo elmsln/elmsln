@@ -1093,6 +1093,11 @@ function elmsln_core_voice_command() {
   $commands["%phrase pause (video)"] =  array(
     'callback' => 'Drupal.voicecommanderControlVideo',
   );
+  if (arg(1) == 'error') {
+    $commands["open the pod bay doors"] =  array(
+      'callback' => 'Drupal.voicecommanderHal9000',
+    );
+  }
   return array(
     'elmsln_core' => array('commands' => $commands)
   );

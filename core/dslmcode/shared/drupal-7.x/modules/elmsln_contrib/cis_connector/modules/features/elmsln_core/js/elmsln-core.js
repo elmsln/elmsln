@@ -21,6 +21,10 @@
         });*/
       }
     };
+    // voice based video controls... within reason
+    Drupal.voicecommanderHal9000 = function(phrase) {
+      Drupal.voicecommander.say('I\'m sorry Dave. I\'m afraid I can\'t do that.', 0.1, .6);
+    };
     jwerty.key('↓,↓', function () {
       if (!$(document.activeElement).is(":focus")) {
         var height = $(window).height();
