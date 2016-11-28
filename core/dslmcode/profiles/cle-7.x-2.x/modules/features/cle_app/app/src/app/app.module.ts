@@ -31,6 +31,7 @@ import { LogoutComponent } from './logout/logout.component';
 import { CritiqueListComponent } from './critique/critique-list/critique-list.component';
 import { WysiwygjsComponent } from './wysiwygjs/wysiwygjs.component';
 import { DatepickerComponent } from './datepicker/datepicker.component';
+import { AssignmentFormComponent } from './assignment/assignment-form/assignment-form.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { DatepickerComponent } from './datepicker/datepicker.component';
     LogoutComponent,
     CritiqueListComponent,
     WysiwygjsComponent,
-    DatepickerComponent
+    DatepickerComponent,
+    AssignmentFormComponent
   ],
   imports: [
     BrowserModule,

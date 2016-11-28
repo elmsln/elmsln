@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AssignmentListComponent } from './assignment/assignment-list/assignment-list.component';
 import { AssignmentComponent } from './assignment/assignment.component';
+import { AssignmentFormComponent } from './assignment/assignment-form/assignment-form.component';
 import { SubmissionListComponent } from './submission/submission-list/submission-list.component';
 import { SubmissionComponent } from './submission/submission.component';
 import { CritiqueComponent } from './critique/critique.component';
@@ -27,6 +28,10 @@ const appRoutes: Routes = [
   {
     path: 'assignments',
     component: AssignmentListComponent
+  },
+  {
+    path: 'assignments/new',
+    component: AssignmentFormComponent
   },
   {
     path: 'assignments/:id',
