@@ -15,7 +15,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # private network port maping, host files point to elmsln domains
   config.vm.network "private_network", ip: "10.0.18.55"
   # forward the vm ports for database and apache to local ones
-  config.vm.network "forwarded_port", guest: 80, host: 80
+  config.vm.network "forwarded_port", guest: 80, host: 1855
   config.vm.network "forwarded_port", guest: 3306, host: 3306
 
   # automatically carve out 1/4 of RAM for this VM
