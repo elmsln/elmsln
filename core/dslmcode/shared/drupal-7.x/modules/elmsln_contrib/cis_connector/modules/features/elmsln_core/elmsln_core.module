@@ -1254,66 +1254,63 @@ function _elmsln_core_icon_map() {
 function elmsln_core_cis_service_registry_alter(&$keychain) {
   // build the keychain dynamically
   $cfg = _elmsln_core_get_cfg();
-  $directory = $cfg['elmsln'] . '/core/dslmcode/profiles/';
-  foreach (scandir($directory) as $item) {
-    // see if we found an item here
-    if (!in_array($item, array('.', '..')) && is_dir($directory . $item . '/')) {
-      $tmp = explode('-', $item);
-      $distro = $tmp[0];
-      // if we have an info file, read if the values to make it real
-      if (!isset($keychain[$distro]) && file_exists($directory . $item . '/' . $distro . '.topology')) {
-        $keychain[$distro] = array(
-          'protocol' => $cfg['protocol'],
-          'service_address' => $cfg['serviceaddress'],
-          'address' => $cfg['address'],
-          'user' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']),
-          'mail' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']) . '@' . $cfg['emailending'],
-          'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
-        );
-        $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
-        $lines = explode("\n", $file);
-        // read each line of the cfg file
-        foreach ($lines as $line) {
-          // make sure this line isn't a comment and has a = in it
-          if (strpos($line, '#') !== 0 && strpos($line, '=')) {
-            $tmp = explode('=', $line);
-            // ensure we have 2 settings before doing this
-            if (count($tmp) == 2) {
-              $keyname = trim($tmp[0]);
-              $value = str_replace('"', '', str_replace("'", '', trim($tmp[1])));
-              switch ($keyname) {
-                case 'default_title':
-                case 'type':
-                case 'group':
-                case 'color':
-                case 'color_dark':
-                case 'color_light':
-                case 'color_text':
-                case 'color_outline':
-                case 'color_code':
-                case 'icon':
-                case 'icon_library':
-                case 'show_in_network':
-                case 'weight':
-                  $keychain[$distro][$keyname] = $value;
-                break;
-                case 'subdomain':
-                  $keychain[$distro][$keyname] = $value;
-                  $keychain[$distro]['address'] = $value . '.' . $keychain[$distro]['address'];
-                  $keychain[$distro]['service_address'] = $cfg['serviceprefix'] . $value . '.' . $keychain[$distro]['service_address'];
-                break;
+  $directories = array(
+    $cfg['elmsln'] . '/core/dslmcode/profiles/',
+    $cfg['elmsln'] . '/config/shared/drupal-7.x/tools/',
+  );
+  foreach ($directories as $directory) {
+    foreach (scandir($directory) as $item) {
+      // see if we found an item here
+      if (!in_array($item, array('.', '..')) && is_dir($directory . $item . '/')) {
+        $tmp = explode('-', $item);
+        $distro = $tmp[0];
+        // if we have an info file, read if the values to make it real
+        if (!isset($keychain[$distro]) && file_exists($directory . $item . '/' . $distro . '.topology')) {
+          $keychain[$distro] = array(
+            'protocol' => $cfg['protocol'],
+            'service_address' => $cfg['serviceaddress'],
+            'address' => $cfg['address'],
+            'user' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']),
+            'mail' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']) . '@' . $cfg['emailending'],
+            'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
+          );
+          $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
+          $lines = explode("\n", $file);
+          // read each line of the cfg file
+          foreach ($lines as $line) {
+            // make sure this line isn't a comment and has a = in it
+            if (strpos($line, '#') !== 0 && strpos($line, '=')) {
+              $tmp = explode('=', $line);
+              // ensure we have 2 settings before doing this
+              if (count($tmp) == 2) {
+                $keyname = trim($tmp[0]);
+                $value = str_replace('"', '', str_replace("'", '', trim($tmp[1])));
+                switch ($keyname) {
+                  case 'subdomain':
+                    $keychain[$distro][$keyname] = $value;
+                    $keychain[$distro]['address'] = $value . '.' . $keychain[$distro]['address'];
+                    $keychain[$distro]['service_address'] = $cfg['serviceprefix'] . $value . '.' . $keychain[$distro]['service_address'];
+                  break;
+                  default:
+                    $keychain[$distro][$keyname] = $value;
+                  break;
+                }
               }
             }
           }
-        }
-        // support meta properties for authority / services
-        if ($keychain[$distro]['type'] == 'authority') {
-          $keychain[$distro]['ignore'] = TRUE;
-          $keychain[$distro]['instance'] = FALSE;
-        }
-        elseif ($keychain[$distro]['type'] == 'service') {
-          $keychain[$distro]['ignore'] = FALSE;
-          $keychain[$distro]['instance'] = TRUE;
+          // support meta properties for authority / services
+          if ($keychain[$distro]['type'] == 'authority') {
+            $keychain[$distro]['ignore'] = TRUE;
+            $keychain[$distro]['instance'] = FALSE;
+          }
+          elseif ($keychain[$distro]['type'] == 'service') {
+            $keychain[$distro]['ignore'] = FALSE;
+            $keychain[$distro]['instance'] = TRUE;
+          }
+          elseif ($keychain[$distro]['type'] == 'custom') {
+            $keychain[$distro]['ignore'] = TRUE;
+            $keychain[$distro]['instance'] = FALSE;
+          }
         }
       }
     }
@@ -1335,6 +1332,19 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
       'instance' => FALSE,
       'default_title' => t('Learning record store'),
       'ignore' => TRUE,
+      'type' => 'external',
+      'weight' => '0',
+      'group' => t('Analytics'),
+      'subdomain' => 'lrs',
+      'icon_library' => 'materialize',
+      'show_in_network' => '1',
+      'icon' => 'data_usage',
+      'color' => 'light-blue',
+      'color_dark' => 'darken-3',
+      'color_light' => 'lighten-3',
+      'color_text' => 'accessible-light-blue-text',
+      'color_outline' => 'light-blue-outline',
+      'color_code' => '#03a9f4',
     );
   }
 }
@@ -1714,4 +1724,21 @@ function elmsln_core_wrapped_paths() {
     'cle/*' => FALSE,
   );
   return $paths;
+}
+
+/**
+ * Implements hook_cis_lmsless_color_alter().
+ */
+function elmsln_core_cis_lmsless_color_alter(&$map) {
+  if ($registry = _cis_connector_build_registry()) {
+    foreach ($registry as $distro => $settings) {
+      $map[$distro] = array(
+        'dark'   => (isset($settings['color_dark']) ? $settings['color_dark'] : $map['_default_']['color_dark']),
+        'light'  => (isset($settings['color_light']) ? $settings['color_light'] : $map['_default_']['color_light']),
+        'color' => (isset($settings['color']) ? $settings['color'] : $map['_default_']['color']),
+        'text' => (isset($settings['color_text']) ? $settings['color_text'] : $map['_default_']['color_text']),
+        'outline' => (isset($settings['color_outline']) ? $settings['color_outline'] : $map['_default_']['color_outline']),
+      );
+    }
+  }
 }

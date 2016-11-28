@@ -245,22 +245,24 @@ function _cis_lmsless_assemble_network() {
       'url' => url($current_url),
       'machine_name' => $machine_name,
       'distro' => $vars['distro'],
+      'weight' => $reg[$distro]['weight'],
+      'icon' => $reg[$distro]['icon'],
     );
     // bring along anything custom added, then mix in on-demand items
     if (isset($vars['services'])) {
       $list = $vars['services'];
     }
-    // services label specific to course context
-    $service_group = t('Network');
     // request a list of all other services that this section uses
     if ($services = _cis_connector_transaction('other_services')) {
       foreach ($services as $service) {
         // ensure we don't get two of these to display
-        $list[$service_group][$service['field_machine_name']] = array(
+        $list[$reg[$service['field_distribution']]['group']][$service['field_machine_name']] = array(
           'title' => $service['title'],
           'url' => url($service['field_location']['url'] . '/' . $course_context),
           'machine_name' => $service['field_machine_name'],
           'distro' => $service['field_distribution'],
+          'weight' => $reg[$service['field_distribution']]['weight'],
+          'icon' => $reg[$service['field_distribution']]['icon'],
         );
       }
     }
@@ -269,38 +271,33 @@ function _cis_lmsless_assemble_network() {
     if (!empty($theme_override)) {
       $vars['active']['title'] = $theme_override;
     }
-    // special exception for inbox as it's not an administrative system but is authority
-    if (isset($reg['inbox'])) {
-      $addr = explode('.', $reg['inbox']['address']);
-      $list[$service_group][$addr[0]] = array(
-        'title' => $reg['inbox']['default_title'],
-        'url' => url(_cis_connector_format_address($reg['inbox'],  '/' . $course_context, 'front')),
-        'machine_name' => $addr[0],
-        'distro' => 'inbox',
-      );
-    }
     // add in links to the Authority systems if permission exists
     // @ignore druplart_conditional_assignment
-    $administrative = t('Administrative');
     if (user_access('view lmsless administration links') && is_array($reg)) {
       foreach ($reg as $key => $value) {
         $addr = explode('.', $value['address']);
-        if (isset($value['instance']) && !$value['instance'] && $key != 'inbox') {
+        if ($value['type'] != 'service') {
           // LRSs are outside network scope and don't have a context
           // neither does piwik if we see that
           $tmppath = '/';
-          if (strpos($key, '_') !== 0) {
+          if (strpos($key, '_') !== 0 && $value['type'] != 'custom' && $value['type'] != 'external') {
             $tmppath .= $course_context;
+            $url = url(_cis_connector_format_address($reg[$key], $tmppath, 'front'));
+          }
+          else {
+            $url = $reg[$key]['address'];
           }
           $distrocolor = $key;
           if (!isset($vars['lmsless_classes'][$key])) {
             $distrocolor = '_default_';
           }
-          $list[$administrative][$addr[0]] = array(
+          $list[$value['group']][$addr[0]] = array(
             'title' => $reg[$key]['default_title'],
-            'url' => url(_cis_connector_format_address($reg[$key], $tmppath, 'front')),
+            'url' => $url,
             'machine_name' => $addr[0],
             'distro' => $distrocolor,
+            'weight' => $value['weight'],
+            'icon' => $value['icon'],
           );
         }
       }
@@ -315,7 +312,12 @@ function _cis_lmsless_assemble_network() {
       // sort by title so that network icons are in alphabetical order
       foreach ($list as &$order) {
         usort($order, function($a, $b) {
-          return strcmp($a['title'], $b['title']);
+          if ($a['weight'] == $b['weight']) {
+            return strcmp($a['title'], $b['title']);
+          }
+          else {
+            return strcmp($a['weight'], $b['weight']);
+          }
         });
       }
       $vars['services'] = $list;
@@ -581,104 +583,6 @@ function _cis_lmsless_get_distro_classes($distro = NULL) {
   if (!isset($map)) {
     $map = array(
       '_default_' => $empty,
-      'mooc' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'blue',
-        'text' => 'accessible-blue-text',
-        'outline' => 'blue-outline',
-      ),
-      'cle' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'amber',
-        'text' => 'accessible-amber-text',
-        'outline' => 'amber-outline',
-      ),
-      'discuss' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'teal',
-        'text' => 'accessible-teal-text',
-        'outline' => 'teal-outline',
-      ),
-      'ulmus' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'grey',
-        'text' => 'grey-text',
-        'outline' => 'grey-outline',
-      ),
-      'editorial' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'cyan',
-        'text' => 'cyan-text',
-        'outline' => 'cyan-outline',
-      ),
-      'inbox' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'orange',
-        'text' => 'accessible-orange-text',
-        'outline' => 'orange-outline',
-      ),
-      'elmsmedia' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'red',
-        'text' => 'accessible-red-text',
-        'outline' => 'red-outline',
-      ),
-      'icor' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'yellow',
-        'text' => 'accessible-yellow-text',
-        'outline' => 'blue-outline',
-      ),
-      'cpr' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'deep-orange',
-        'text' => 'accessible-deep-orange-text',
-        'outline' => 'deep-orange-outline',
-      ),
-      'ecd' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'lime',
-        'text' => 'accessible-lime-text',
-        'outline' => 'lime-outline',
-      ),
-      'cis' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color' => 'pink',
-        'text' => 'accessible-pink-text',
-        'outline' => 'pink-outline',
-      ),
-      'lor' => array(
-        'dark'   => 'darken-4',
-        'light'  => 'lighten-4',
-        'color'  => 'purple',
-        'text'   => 'purple-text',
-        'outline' => 'purple-outline',
-      ),
-      'lq' => array(
-        'dark'   => 'darken-3',
-        'light'  => 'lighten-3',
-        'color' => 'light-green',
-        'text' => 'accessible-light-green-text',
-        'outline' => 'light-green-outline',
-      ),
-      'assessment' => array(
-        'dark'   => 'darken-3',
-        'light'  => 'lighten-3',
-        'color' => 'light-blue',
-        'text' => 'accessible-light-blue-text',
-        'outline' => 'light-blue-outline',
-      ),
     );
     // allow others to modify core color associations
     drupal_alter('cis_lmsless_color', $map);
