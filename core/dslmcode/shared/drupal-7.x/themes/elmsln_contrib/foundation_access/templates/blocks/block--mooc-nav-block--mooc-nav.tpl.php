@@ -1,6 +1,6 @@
-<div id="<?php print $block_html_id; ?>-nav" class="mooc-nav-<?php print $block->mooc_nav['style']; ?> <?php print $classes; ?>">
-<?php if (!empty($block->subject)) :?>
-  <h3><?php print check_plain($block->subject); ?></h3>
-<?php endif;?>
-<?php print $content; ?>
-</div>
+<section id="<?php print $block_html_id; ?>-nav" class="mooc-nav-<?php print $block->mooc_nav['style']; ?> <?php print $classes; ?>" aria-label="<?php print $block->subject; ?>" role="navigation">
+	<?php if (!empty($block->subject)) :?>
+    <div class="block-mooc-nav-block-mooc-title"><?php print $block->subject; ?></div>
+	<?php endif;?>
+	<?php print $content; ?>
+</section>

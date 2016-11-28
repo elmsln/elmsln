@@ -59,13 +59,15 @@
   border-width: 1px;
   margin: 0 -1px;
 }
-#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav h3 {
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav .block-mooc-nav-block-mooc-title {
   border-bottom: .1rem solid #cccccc;
   text-align: center;
   text-transform: uppercase;
   margin: 0;
-  line-height: 1.5rem;
+  line-height: 2.5rem;
   height: 2.5rem;
+  font-size: .75rem;
+  font-weight: bold;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {

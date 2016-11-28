@@ -187,7 +187,7 @@ function _cis_lmsless_assemble_user() {
           // support for the FERPA filter block
           $vars['ferpa_flter'] = '<a href="#block-cis-service-connection-ferpa-filter-nav-modal" class="elmsln-modal-trigger waves-effect waves-' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' waves-light btn-flat" data-elmsln-hover="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['light'] . '"><i class="material-icons black-text">visibility</i>' . t('Privacy settings') . '</a>';
 
-          $vars['user_section'] = '<a href="#block-cis-service-connection-section-context-changer-nav-modal" class="elmsln-modal-trigger waves-effect waves-' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' waves-light btn-flat" data-elmsln-hover="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['light'] . '"><i class="material-icons black-text">perm_identity</i>' . t('Change section') . '</span></a>';
+          $vars['user_section'] = '<a href="#block-cis-service-connection-section-context-changer-nav-modal" class="elmsln-modal-trigger waves-effect waves-' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' waves-light btn-flat" data-elmsln-hover="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['light'] . '"><i class="material-icons black-text">perm_identity</i>' . t('Change section') . '</a>';
         }
       }
       // render differently if the user is already masquerading

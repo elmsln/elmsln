@@ -207,7 +207,7 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#type' => 'textfield',
         '#pre_render' => array('_cis_shortcodes_add_js'),
         '#weight' => 1,
-        '#id' => 'cis-shortcodes-embed',
+        '#id' => 'cis-shortcodes-iframe-embed',
       );
       $properties = array(
         'rev' => CIS_SHORTCODES_API_REV,
@@ -224,7 +224,7 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#value' => _cis_shortcodes_build_code($properties),
         '#type' => 'textfield',
         '#weight' => 2,
-        '#id' => 'cis-shortcodes-embed',
+        '#id' => 'cis-shortcodes-modal',
       );
       $properties = array(
         'rev' => CIS_SHORTCODES_API_REV,
@@ -241,7 +241,7 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#value' => _cis_shortcodes_build_code($properties),
         '#type' => 'textfield',
         '#weight' => 2,
-        '#id' => 'cis-shortcodes-embed',
+        '#id' => 'cis-shortcodes-side-nav',
       );
       // add in the entity iframe items if they make sense
       $direct_frames = _entity_iframe_render_codes($entity, $type, 'block');
