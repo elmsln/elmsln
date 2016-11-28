@@ -30,6 +30,7 @@
     "core-js": "^2.4.1",
     "jquery": "^3.1.1",
     "loadjs": "^3.0.0",
+    "ng2-datetime": "^1.2.2",
     "ng2-lazy-trumbowyg": "^1.0.5",
     "rxjs": "5.0.0-beta.12",
     "ts-helpers": "^1.1.1",

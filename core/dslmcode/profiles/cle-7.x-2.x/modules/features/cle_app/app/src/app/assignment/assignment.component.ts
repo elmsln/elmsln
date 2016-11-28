@@ -14,6 +14,7 @@ import 'rxjs';
 export class AssignmentComponent implements OnInit {
   assignmentId: number;
   assignment: Assignment;
+  date: number;
 
   constructor(
     private route: ActivatedRoute,
