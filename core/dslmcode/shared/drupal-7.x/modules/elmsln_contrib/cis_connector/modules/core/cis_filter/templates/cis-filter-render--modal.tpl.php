@@ -10,7 +10,7 @@
 <!-- Modal Structure -->
 <section id="modal-<?php print $trigger;?>" class="elmsln-modal modal elmsln-modal-append-container" aria-hidden="true" role="dialog" tabindex="-1" aria-label="<?php print $title; ?>">
   <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $lmsless_classes[$tool]['color'] . ' ' . $lmsless_classes[$tool]['light'] . ' ' . $lmsless_classes[$tool]['color'];?>-border">
-    <div class="flow-text valign elmsln-modal-title"><?php print $title; ?></div>
+    <h2 class="flow-text valign elmsln-modal-title"><?php print $title; ?></h2>
     <a href="#" class="close-reveal-modal" aria-label="<?php print t('Close'); ?>" data-voicecommand="close" data-jwerty-key="Esc">&#215;</a>
   </div>
   <div class="elmsln-modal-content">

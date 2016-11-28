@@ -9,8 +9,9 @@
 <a href="#side-nav-<?php print $trigger;?>" class="elmsln-right-side-nav-widget-trigger <?php print $lmsless_classes[$tool]['text'];?> elmsln-filter-tpl-side-nav waves-effect btn waves-<?php print $lmsless_classes[$tool]['color'];?> waves-light <?php print $lmsless_classes[$tool]['color'];?> <?php print $lmsless_classes[$tool]['light'];?> <?php print $lmsless_classes[$tool]['outline'];?>" aria-controls="side-nav-<?php print $trigger;?>" aria-expanded="false" data-activates="side-nav-<?php print $trigger;?>"><?php print $icon; ?> <?php print $label; ?></a>
 <!-- Modal Structure -->
 <section role="dialog">
+  <h2 class="element-invisible"><?php print $title; ?></h2>
   <ul id="side-nav-<?php print $trigger;?>" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll elmsln-modal-append-container" aria-hidden="true" tabindex="-1" aria-label="<?php print $title; ?>">
-    <li class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $lmsless_classes[$tool]['color'] . ' ' . $lmsless_classes[$tool]['light'] . ' ' . $lmsless_classes[$tool]['color'];?>-border"><h3 class="flow-text valign elmsln-modal-title"><?php print $title; ?></h3></li>
+    <li class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $lmsless_classes[$tool]['color'] . ' ' . $lmsless_classes[$tool]['light'] . ' ' . $lmsless_classes[$tool]['color'];?>-border"><div class="flow-text valign elmsln-modal-title"><?php print $title; ?></div></li>
     <li class="elmsln-modal-content">
       <iframe id="<?php print $id; ?>" class="<?php print $class; ?>" src="<?php print $link; ?>" width="<?php print $width; ?>" height="<?php print $height; ?>" frameborder="0" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" data-xapi-hypothesis="<?php print $hypothesis; ?>"></iframe>
     </li>
