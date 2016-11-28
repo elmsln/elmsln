@@ -39,35 +39,37 @@
       <div class="book-sibling-parent-arrow icon--dropdown off-canvas-toolbar-item-icon"></div>
     </a>
 </li>
-<ul id="book-sibling-children-<?php print $parent['mlid'] ?>" class="content dropdown-content book-sibling-children elmsln-scroll-bar" aria-hidden="true" tabindex="-1">
-<?php
-  foreach ($items as $item) {
-    // look for active trail item
-    if ($parent['link_path'] == $item['link_path']) {
-      $active = 'book-menu-item-active';
-    }
-    else {
-      $active = 'book-item';
-    }
-    $pre = '';
-    if (isset($outline_count) && $outline_count && isset($item['_count'])) {
-      $pre .= $item['_count'] . '. ';
-    }
-    // check for icon, we only render these at lowest level
-    if (isset($item['_icon'])) {
-      $pre .= '<div class="book-menu-item-' . $item['mlid'] . ' icon-' . $item['_icon'] . '-black outline-nav-icon"></div>';
-    }
-    $link_title = check_plain($item['link_title']);
-    $link = '<li class="' . $active . '">' . l($pre . $link_title,
-        $item['link_path'],
-        array('html' => TRUE,
-          'attributes' => array(
-            'title' => $link_title,
-            'class' => array($active . '-link'),
+<li>
+  <ul id="book-sibling-children-<?php print $parent['mlid'] ?>" class="content dropdown-content book-sibling-children elmsln-scroll-bar" aria-hidden="true" tabindex="-1">
+  <?php
+    foreach ($items as $item) {
+      // look for active trail item
+      if ($parent['link_path'] == $item['link_path']) {
+        $active = 'book-menu-item-active';
+      }
+      else {
+        $active = 'book-item';
+      }
+      $pre = '';
+      if (isset($outline_count) && $outline_count && isset($item['_count'])) {
+        $pre .= $item['_count'] . '. ';
+      }
+      // check for icon, we only render these at lowest level
+      if (isset($item['_icon'])) {
+        $pre .= '<div class="book-menu-item-' . $item['mlid'] . ' icon-' . $item['_icon'] . '-black outline-nav-icon"></div>';
+      }
+      $link_title = check_plain($item['link_title']);
+      $link = '<li class="' . $active . '">' . l($pre . $link_title,
+          $item['link_path'],
+          array('html' => TRUE,
+            'attributes' => array(
+              'title' => $link_title,
+              'class' => array($active . '-link'),
+            )
           )
-        )
-      ) . '</li>' . "\n";
-    print $link;
-  }
-?>
-</ul>
+        ) . '</li>' . "\n";
+      print $link;
+    }
+  ?>
+  </ul>
+</li>

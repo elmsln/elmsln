@@ -219,7 +219,7 @@ function a11y_a11y_block($render = TRUE) {
     // support for colorblind simulator
     if (variable_get('a11y_sim_colorblind', 1)) {
       $options = array(
-        '' => t('No colorblindness'),
+        '' => t('No color blindness'),
         'achromatopsia' => t('Achromatopsia'),
         'achromatomaly' => t('Achromatomaly'),
         'deuteranopia' => t('Deuteranopia'),

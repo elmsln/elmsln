@@ -131,6 +131,11 @@
                   <?php endif; ?>
                 </div>
               <?php endif; ?>
+              <?php if ($title && arg(0) != 'node'): ?>
+                <?php print render($title_prefix); ?>
+                  <h2 id="page-title" class="title"><?php print $title; ?></h2>
+                <?php print render($title_suffix); ?>
+              <?php endif; ?>
               <?php print render($page['content']); ?>
             </div>
           </div>
