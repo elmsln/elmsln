@@ -115,11 +115,13 @@ function _git_book_gb_parse(&$gb, $path, $parent, $weight = -15) {
   foreach ($gb as $nodes) {
     if (array_key_exists('title', $nodes) && array_key_exists('link', $nodes)) {
       $body = '';
+      $extpath = '';
       // ensure this file exists
       if (file_exists($path . DIRECTORY_SEPARATOR . $nodes['link'])) {
        $body = file_get_contents($path . DIRECTORY_SEPARATOR . $nodes['link']);
+       $extpath = $nodes['link'];
       }
-      $new_parent = _git_book_make_node($nodes['title'], $body, $parent, ++$weight, $nodes['link']);
+      $new_parent = _git_book_make_node($nodes['title'], $body, $parent, ++$weight, $extpath);
     }
     foreach ($nodes as $node) {
       if (!is_array($node)) {
@@ -127,11 +129,13 @@ function _git_book_gb_parse(&$gb, $path, $parent, $weight = -15) {
       }
       elseif (array_key_exists('title', $node) && array_key_exists('link', $node)) {
         $body = '';
+        $extpath = '';
         // ensure this file exists
         if (file_exists($path . DIRECTORY_SEPARATOR .$node['link'])) {
           $body = file_get_contents($path . DIRECTORY_SEPARATOR . $node['link']);
+          $extpath = $node['link'];
         }
-        $new_parent = _git_book_make_node($node['title'], $body, $parent, ++$weight, $node['link']);
+        $new_parent = _git_book_make_node($node['title'], $body, $parent, ++$weight, $extpath);
         if (array_key_exists('children', $node) && is_array($node['children'])) {
           _git_book_gb_parse($node['children'], $path, $new_parent);
         }
