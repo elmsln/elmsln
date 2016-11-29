@@ -467,57 +467,63 @@ function _cis_connector_course_context() {
   // statically cache future calls
   $course = &drupal_static(__FUNCTION__);
   if (!isset($course)) {
-    // @todo we need a way of detecting course context RIGHT AFTER A FORM IS SAVED
-    // if the destination changes, we technically don't know the context at that time
-    // which is weird but true.
-    // see if this is on a node, then check if we are in an authority
-    if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
-      // we are in an authority system
-      if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
-        $course = $node->field_course_machine_name['und'][0]['value'];
+    // build active registry so we know system type
+    $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
+    switch ($settings['type']) {
+      case 'service':
+        // use the variable that's been set for the machine name
+        $course = variable_get('cis_course_machine_name', FALSE);
+        // fallback is just the base_path if variable not there
+        if (!$course) {
+          // last ditch effort for service based systems
+          $course = str_replace('/', '', base_path());
+        }
         return $course;
-      }
-      // we are in CIS
-      elseif ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
-        $course = $node->field_machine_name['und'][0]['value'];
-        return $course;
-      }
-      // see if we are on a section
-      elseif ($node->type == 'section' && isset($node->field_section_course_ref['und'][0]['entity'])) {
-        $node = $node->field_section_course_ref['und'][0]['entity'];
-        // we are in an authority system
-        if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
-          $course = $node->field_course_machine_name['und'][0]['value'];
+      break;
+      default:
+        // check for global session override
+        if (isset($_SESSION['cis_course_context'])) {
+          $course = $_SESSION['cis_course_context'];
+          unset($_SESSION['cis_course_context']);
           return $course;
         }
-      }
-      // see if we are on something that references a course
-      // if it does, run the previous test again
-      elseif (isset($node->field_cis_course_ref['und'][0]['entity'])) {
-        $node = $node->field_cis_course_ref['und'][0]['entity'];
-        // we are in an authority system
-        if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
-          $course = $node->field_course_machine_name['und'][0]['value'];
+        // check for GET in address bar
+        if (isset($_GET['elmsln_course'])) {
+          $course = $_GET['elmsln_course'];
           return $course;
         }
-      }
-    }
-    // check for global session override
-    if (isset($_SESSION['cis_course_context'])) {
-      $course = $_SESSION['cis_course_context'];
-      unset($_SESSION['cis_course_context']);
-      return $course;
-    }
-    // check for GET in address bar
-    if (isset($_GET['elmsln_course'])) {
-      $course = $_GET['elmsln_course'];
-      return $course;
-    }
-    // use the variable that's been set for the machine name
-    $course = variable_get('cis_course_machine_name', FALSE);
-    // fallback is just the base_path if variable not there
-    if (!$course) {
-      $course = str_replace('/', '', base_path());
+        // bleh case scenario, we need to start loading some nodes and what not
+        // see if this is on a node, then check if we are in an authority
+        if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
+          // test for authority course type
+          if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+            $course = $node->field_course_machine_name['und'][0]['value'];
+            return $course;
+          }
+          // we are in CIS
+          elseif ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
+            $course = $node->field_machine_name['und'][0]['value'];
+            return $course;
+          }
+          // see if we are on a section
+          elseif ($node->type == 'section' && isset($node->field_section_course_ref['und'][0]['entity'])) {
+            $node = $node->field_section_course_ref['und'][0]['entity'];
+            if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+              $course = $node->field_course_machine_name['und'][0]['value'];
+              return $course;
+            }
+          }
+          // see if we are on something that references a course
+          // if it does, run the previous test again
+          elseif (isset($node->field_cis_course_ref['und'][0]['entity'])) {
+            $node = $node->field_cis_course_ref['und'][0]['entity'];
+            if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+              $course = $node->field_course_machine_name['und'][0]['value'];
+              return $course;
+            }
+          }
+        }
+      break;
     }
   }
   return $course;
