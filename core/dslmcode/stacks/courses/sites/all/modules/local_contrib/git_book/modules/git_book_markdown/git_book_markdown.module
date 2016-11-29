@@ -36,3 +36,31 @@ function git_book_markdown_node_prepare($node) {
     }
   }
 }
+
+/**
+ * Implements hook_filter_info_alter().
+ */
+function git_book_markdown_filter_info_alter(&$info) {
+  $info['filter_markdown']['process callback'] = '_git_book_filter_markdown';
+}
+
+/**
+ * Filter process callback, fork of markdown module filter after altering this in.
+ * @see   _filter_markdown()
+ */
+function _git_book_filter_markdown($text, $format) {
+  if (!empty($text)) {
+    // fix h1-h5 to shift down the document order
+    $text = preg_replace('{
+      ^(\#{1,5})  # $1 = string of #\'s
+      [ ]*
+      (.+?)   # $2 = Header text
+      [ ]*
+      \#*     # optional closing #\'s (not counted)
+      \n+
+    }xm', '#${0}', $text);
+    return _filter_markdown($text, $format);
+  }
+
+  return $text;
+}
