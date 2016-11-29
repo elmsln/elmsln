@@ -53,6 +53,18 @@ function mooc_foundation_access_preprocess_page(&$variables) {
 }
 
 /**
+ * Implements template_preprocess_node.
+ */
+function mooc_foundation_access_preprocess_node(&$variables) {
+  // Remove title from a page when a gitbook markdown filter is present.
+  if(isset($variables['body'][0]['format'])) {
+    if($variables['body'][0]['format'] == "git_book_markdown") {
+      $variables['title'] = "";
+    }
+  }
+}
+
+/**
  * Implements theme_breadrumb().
  */
 function mooc_foundation_access_breadcrumb($variables) {
