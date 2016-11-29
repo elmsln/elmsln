@@ -75,53 +75,35 @@ function foundation_access_ux_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
+        'menu-menu-elmsln-add' => array(
+          'module' => 'menu',
+          'delta' => 'menu-elmsln-add',
+          'region' => 'cis_lmsless_modal',
+          'weight' => '-10',
+        ),
         'masquerade-masquerade' => array(
           'module' => 'masquerade',
           'delta' => 'masquerade',
           'region' => 'cis_lmsless_modal',
-          'weight' => '-10',
+          'weight' => '-9',
         ),
         'cis_lmsless-cis_lmsless_user' => array(
           'module' => 'cis_lmsless',
           'delta' => 'cis_lmsless_user',
           'region' => 'cis_lmsless_modal',
-          'weight' => '-9',
+          'weight' => '-8',
         ),
         'cis_lmsless-cis_lmsless_network' => array(
           'module' => 'cis_lmsless',
           'delta' => 'cis_lmsless_network',
           'region' => 'cis_lmsless_modal',
-          'weight' => '-8',
+          'weight' => '-7',
         ),
         'cis_shortcodes-cis_shortcodes_block' => array(
           'module' => 'cis_shortcodes',
           'delta' => 'cis_shortcodes_block',
           'region' => 'cis_lmsless_modal',
-          'weight' => '-7',
-        ),
-        'system-main' => array(
-          'module' => 'system',
-          'delta' => 'main',
-          'region' => 'content',
-          'weight' => '-10',
-        ),
-        'cis_service_connection-managed_footer' => array(
-          'module' => 'cis_service_connection',
-          'delta' => 'managed_footer',
-          'region' => 'footer',
-          'weight' => '-10',
-        ),
-        'cis_service_connection_ux-elmsln_navigation_l1' => array(
-          'module' => 'cis_service_connection_ux',
-          'delta' => 'elmsln_navigation_l1',
-          'region' => 'header',
-          'weight' => '-10',
-        ),
-        'menu-menu-elmsln-add' => array(
-          'module' => 'menu',
-          'delta' => 'menu-elmsln-add',
-          'region' => 'local_header',
-          'weight' => '-10',
+          'weight' => '-6',
         ),
         'cis_service_connection_ux-elmsln_navigation_l2' => array(
           'module' => 'cis_service_connection_ux',
@@ -133,6 +115,24 @@ function foundation_access_ux_context_default_contexts() {
           'module' => 'cis_service_connection_ux',
           'delta' => 'elmsln_navigation_l3',
           'region' => 'local_subheader',
+          'weight' => '-10',
+        ),
+        'cis_service_connection_ux-elmsln_navigation_l1' => array(
+          'module' => 'cis_service_connection_ux',
+          'delta' => 'elmsln_navigation_l1',
+          'region' => 'header',
+          'weight' => '-10',
+        ),
+        'system-main' => array(
+          'module' => 'system',
+          'delta' => 'main',
+          'region' => 'content',
+          'weight' => '-10',
+        ),
+        'cis_service_connection-managed_footer' => array(
+          'module' => 'cis_service_connection',
+          'delta' => 'managed_footer',
+          'region' => 'footer',
           'weight' => '-10',
         ),
       ),

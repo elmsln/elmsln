@@ -1186,7 +1186,8 @@ footer.page-footer{
   padding-top: 2rem;
   margin-top:2rem;
   margin-bottom: -1rem;
-  text-align: center; }
+  text-align: center;
+  z-index: 1;}
   footer.page-footer p {
     color: #222222;
     font-size: 0.8rem; }
