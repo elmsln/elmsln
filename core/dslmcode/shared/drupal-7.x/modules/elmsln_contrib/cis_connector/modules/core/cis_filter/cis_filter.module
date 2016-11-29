@@ -44,97 +44,102 @@ function _cis_filter_tips($filter, $format, $long = FALSE) {
  * Callback function to perform the content processing.
  */
 function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
-  $regex = "/\[(\<br \/\>|\s)*ciscode(\<br \/\>|\s)*(\|([a-zA-Z0-9_.\s]+=[-a-zA-Z0-9+.:&@#\/\?<>\"%=~_\s]+))*(\<br \/\>|\s)*\]/";
-  if (preg_match_all($regex, $text, $matches)) {
-    $patterns = array();
-    $media = array();
-    // Have to process multiple matches since more than one player can be on a node.
-    foreach ($matches[0] as $key => $match) {
-      $tag = $match;
-      $config = "";
-      $vars = array();
-      $tag = preg_replace("/\[(\s)*ciscode(\s)*(\||\])/", "", $tag);
-      $tag = str_replace("]", "", $tag);
-      $args = preg_split("/\|/", $tag);
-      // For the current match, process each parameter.
-      foreach ($args as $fvar) {
-        $key_val = preg_split("/=/", $fvar, 2);
-        if ($key_val[0] != "") {
-          $vars[trim($key_val[0])] = trim($key_val[1]);
+  // statically cache future calls
+  $evaluatedtext = &drupal_static(hash('md5', $text . $filter->format));
+  if (empty($evaluatedtext)) {
+    $regex = "/\[(\<br \/\>|\s)*ciscode(\<br \/\>|\s)*(\|([a-zA-Z0-9_.\s]+=[-a-zA-Z0-9+.:&@#\/\?<>\"%=~_\s]+))*(\<br \/\>|\s)*\]/";
+    if (preg_match_all($regex, $text, $matches)) {
+      $patterns = array();
+      $media = array();
+      // Have to process multiple matches since more than one player can be on a node.
+      foreach ($matches[0] as $key => $match) {
+        $tag = $match;
+        $config = "";
+        $vars = array();
+        $tag = preg_replace("/\[(\s)*ciscode(\s)*(\||\])/", "", $tag);
+        $tag = str_replace("]", "", $tag);
+        $args = preg_split("/\|/", $tag);
+        // For the current match, process each parameter.
+        foreach ($args as $fvar) {
+          $key_val = preg_split("/=/", $fvar, 2);
+          if ($key_val[0] != "") {
+            $vars[trim($key_val[0])] = trim($key_val[1]);
+          }
         }
-      }
-      $patterns[] = $regex;
-      $prefix = 'cis_filter_render__';
-      $template = '';
-      if ($vars['rev'] == 1) {
-        $code = array_merge(array(
-          'render' => 'iframe',
-          'item_type' => 'id',
-          'entity_type' => 'node',
-          'entity_bundle' => NULL,
-          'entity_unique_field' => 'item',
-        ), $vars);
-        // spec requires tool and item be set
-        if (isset($code['tool'])) {
-          // @ignore druplart_conditional_assignment
-          if ($settings = _cis_connector_build_registry($code['tool'])) {
-            $instance = '/';
-            if (isset($settings['instance']) && $settings['instance']) {
-              $instance = base_path();
-              // @todo huh!? when would this EVER fire?
-              // test for non-subdomain installation
-              $test = explode('/', $instance);
-              if (count($test) == 4) {
-                $instance = '/' . $test[2] . '/';
+        $patterns[] = $regex;
+        $prefix = 'cis_filter_render__';
+        $template = '';
+        if ($vars['rev'] == 1) {
+          $code = array_merge(array(
+            'render' => 'iframe',
+            'item_type' => 'id',
+            'entity_type' => 'node',
+            'entity_bundle' => NULL,
+            'entity_unique_field' => 'item',
+          ), $vars);
+          // spec requires tool and item be set
+          if (isset($code['tool'])) {
+            // @ignore druplart_conditional_assignment
+            if ($settings = _cis_connector_build_registry($code['tool'])) {
+              $instance = '/';
+              if (isset($settings['instance']) && $settings['instance']) {
+                $instance = base_path();
+                // @todo huh!? when would this EVER fire?
+                // test for non-subdomain installation
+                $test = explode('/', $instance);
+                if (count($test) == 4) {
+                  $instance = '/' . $test[2] . '/';
+                }
               }
             }
           }
         }
-      }
-      $render = $prefix . str_replace('-', '_', $code['render']);
-      // figure out template suggestion
-      if (isset($vars['template'])) {
-        $template = $render . '__' . $vars['template'];
-      }
+        $render = $prefix . str_replace('-', '_', $code['render']);
+        // figure out template suggestion
+        if (isset($vars['template'])) {
+          $template = $render . '__' . $vars['template'];
+        }
 
-      $ary = array(
-        'settings' => array(
-          'code' => $code,
-          'instance' => $instance,
-          'settings' => $settings,
-          'content' => '',
-        ),
-        'theme_hook_suggestion' => $template,
-      );
-      if (isset($code['item'])) {
-        $item_path = array($code['entity_type'], $code['item']);
-      }
-      else {
-        $item_path = explode('/', $code['link']);
-      }
-      $rendered = theme($render, $ary);
-      $render_array = array(
-        '#markup' => $rendered,
-      );
-      // ensure this is something we can apply the contextual link to
-      if (isset($item_path[1])) {
+        $ary = array(
+          'settings' => array(
+            'code' => $code,
+            'instance' => $instance,
+            'settings' => $settings,
+            'content' => '',
+          ),
+          'theme_hook_suggestion' => $template,
+        );
+        if (isset($code['item'])) {
+          $item_path = array($code['entity_type'], $code['item']);
+        }
+        else {
+          $item_path = explode('/', $code['link']);
+        }
+        $rendered = theme($render, $ary);
         $render_array = array(
           '#markup' => $rendered,
-          '#theme_wrappers' => array('contextual_container'),
-          '#contextual_links' => array(
-            'cis_filter' => array('elmsln/redirect', array($code['tool'], $item_path[0], $item_path[1])),
-          ),
         );
-        if(isset($code['display_mode']) && strpos($code['display_mode'], '__left') != 0) {
-          $render_array['#classes'] = 'contextual-container-left';
+        // ensure this is something we can apply the contextual link to
+        if (isset($item_path[1])) {
+          $render_array = array(
+            '#markup' => $rendered,
+            '#theme_wrappers' => array('contextual_container'),
+            '#contextual_links' => array(
+              'cis_filter' => array('elmsln/redirect', array($code['tool'], $item_path[0], $item_path[1])),
+            ),
+          );
+          if(isset($code['display_mode']) && strpos($code['display_mode'], '__left') != 0) {
+            $render_array['#classes'] = 'contextual-container-left';
+          }
         }
+        $wrapper = drupal_render($render_array);
+        $media[] = $wrapper;
       }
-      $wrapper = drupal_render($render_array);
-      $media[] = $wrapper;
+      $text = preg_replace($patterns, $media, $text, 1);
     }
-    $text = preg_replace($patterns, $media, $text, 1);
+    $evaluatedtext = $text;
   }
-  return $text;
+  return $evaluatedtext;
 }
 
 /**
