@@ -11,7 +11,7 @@
     $cis_lmsless['active']['title'] = '';
   }
 ?>
-    <main id="etb-tool-nav" class="off-canvas-wrap" data-offcanvas>
+    <main id="etb-tool-nav" data-offcanvas>
       <div class="inner-wrap">
         <!-- progress bar -->
         <div class="page-scroll progress <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['light']; ?>">
