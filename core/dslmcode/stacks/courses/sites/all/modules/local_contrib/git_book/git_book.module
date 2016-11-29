@@ -221,11 +221,14 @@ function git_book_get_parsers() {
  * Callback to generate a node that's part of a parent from
  * title and content.
  */
-function _git_book_make_node($title, $content, $parent, $weight) {
+function _git_book_make_node($title, $content, $parent, $weight, $path = '') {
   $node = new stdClass();
   $node->type = variable_get('book_child_type', 'book');
   node_object_prepare($node);
   $node->language = LANGUAGE_NONE;
+  if (!empty($path)) {
+    $node->path = array('alias' => $path);
+  }
   $node->status = 1;
   $node->promote = 0;
   $node->revision = 1;
