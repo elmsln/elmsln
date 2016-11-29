@@ -1,0 +1,15 @@
+<div [formGroup]="form">
+  <div class="start-date" *ngIf="form.value.range">
+    <label>Start Date</label>
+    <datetime formControlName="startDate"></datetime>
+  </div>
+
+  <div class="due-date">
+    <label>Due Date</label>
+    <datetime formControlName="dueDate"></datetime>
+  </div>
+
+  <md-checkbox formControlName="range">
+    Will this have a specified start date? 
+  </md-checkbox>
+</div>

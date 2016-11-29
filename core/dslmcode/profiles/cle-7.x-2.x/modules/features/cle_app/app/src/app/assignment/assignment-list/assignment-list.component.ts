@@ -27,4 +27,8 @@ export class AssignmentListComponent implements OnInit {
   viewAssignment(assignmentId) {
     this.router.navigate(['/assignments/' + assignmentId]);
   }
+
+  createAssignment() {
+    this.router.navigate(['/assignments/new']);
+  }
 }

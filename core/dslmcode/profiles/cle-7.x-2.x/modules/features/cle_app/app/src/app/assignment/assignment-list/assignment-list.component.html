@@ -1,12 +1,20 @@
+<a (click)="createAssignment()" class="waves-effect waves-light btn"><i class="material-icons">add</i></a>
+
+<div class="card-title center-align">
+  <h1 class="thin blue-text">Assignments</h1>
+</div>
+
+<div class="divider"></div>
+
 <div class="row">
-  <div *ngFor="let assignment of assignments" class="col s12 m4 assignment" (click)="viewAssignment(assignment.id)">
-    <md-card class="card">
-      <md-icon class="icon">assignment</md-icon>
-      <md-card-title>{{assignment.title}}</md-card-title>
-      <md-card-content>
-      </md-card-content>
-      <div *ngIf="assignment.complete == 1" class="status complete">Complete</div>
-      <div *ngIf="assignment.complete == 0" class="status">Incomplete</div>
-    </md-card>
-  </div>
+  <h2>Lesson 1: What is design?</h2>
+  <ul class="collapsible">
+    <li *ngFor="let assignment of assignments" (click)="viewAssignment(assignment.id)">
+      <div class="collapsible-header">
+        <i class="material-icons">assignment</i>{{ assignment.title }}
+        <span *ngIf="assignment.complete == 1" class="badge green-text">Complete</span>
+        <span *ngIf="assignment.complete == 0" class="badge red-text">Incomplete</span>
+      </div>
+    </li>
+  </ul>
 </div>

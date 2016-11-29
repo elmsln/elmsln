@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, AfterViewInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable, Subject } from 'rxjs/Rx';
 
 // non-typescript definitions

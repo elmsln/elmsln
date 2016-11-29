@@ -1,5 +1,6 @@
 export class Assignment {
   id: number;
+  title: string;
   type: string;
   status: boolean;
   created: number;
