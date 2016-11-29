@@ -1,0 +1,8 @@
+.assignment-form {
+  max-width: 55em;
+  margin: auto;
+}
+
+:host >>> .wysiwyg-editor {
+  min-height: 10em;
+}

@@ -1,4 +1,4 @@
-<form [formGroup]="form">
+<form [formGroup]="form" class="assignment-form">
   <input formControlName="title" placeholder="Title">
   <wysiwygjs (onChange)="bodyChanged($event)"></wysiwygjs>
 
@@ -12,7 +12,7 @@
     <datetime formControlName="endDate" [(ngModel)]="endDate"></datetime>
   </div>
 
-  <button (click)="submitAssignment()" md-raised-button color="primary">Create Assignment</button>
+  <a (click)="submitAssignment()" class="waves-effect waves-light btn">Create Assignment</a>
 </form>
 
 {{ form.value | json }}
