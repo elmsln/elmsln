@@ -595,8 +595,10 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
  * Implements hook_page_build().
  */
 function cis_filter_page_build(&$page) {
-  ctools_add_js('cis_filter', 'cis_filter');
-  ctools_add_css('cis_filter', 'cis_filter');
+  if (!path_is_admin(current_path())) {
+    ctools_add_js('cis_filter', 'cis_filter');
+    ctools_add_css('cis_filter', 'cis_filter');
+  }
 }
 
 /**
