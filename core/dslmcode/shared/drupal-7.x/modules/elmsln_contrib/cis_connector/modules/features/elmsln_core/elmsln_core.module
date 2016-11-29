@@ -758,6 +758,9 @@ function elmsln_core_preprocess(&$variables, $hook) {
  * Implements hook_page_build().
  */
 function elmsln_core_page_build(&$page) {
+  if (user_access('access contextual links')) {
+    drupal_add_library('contextual', 'contextual-links');
+  }
   // obscure what powers this for security reasons
   drupal_add_http_header('Server', 'something', FALSE);
   drupal_add_http_header('X-Powered-By', 'something', FALSE);

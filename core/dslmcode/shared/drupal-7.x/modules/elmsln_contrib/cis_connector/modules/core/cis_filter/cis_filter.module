@@ -592,11 +592,18 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
 }
 
 /**
+ * Implements hook_page_build().
+ */
+function cis_filter_page_build(&$page) {
+  ctools_add_js('cis_filter', 'cis_filter');
+  ctools_add_css('cis_filter', 'cis_filter');
+}
+
+/**
  * Implements cis_filter_preprocess_cis_filter_render__modal().
  * @param  [array] &$vars theme array
  */
 function cis_filter_preprocess_cis_filter_render__modal(&$vars) {
-  ctools_add_js('cis_filter', 'cis_filter');
   // allow for simplest use-case of a direct link
   // this is usful if the target is figuring itself out
   $vars['content'] = '';
@@ -655,7 +662,6 @@ function cis_filter_preprocess_cis_filter_render__modal(&$vars) {
  * @param  [array] &$vars theme array
  */
 function cis_filter_preprocess_cis_filter_render__side_nav(&$vars) {
-  ctools_add_js('cis_filter', 'cis_filter');
   // allow for simplest use-case of a direct link
   // this is usful if the target is figuring itself out
   $vars['content'] = '';
@@ -770,8 +776,6 @@ function _cis_filter_attach_modal() {
   );
   // Add the settings array defined above to Drupal 7's JS settings:
   drupal_add_js($cis_modal, 'setting');
-  ctools_add_js('cis_filter', 'cis_filter');
-  ctools_add_css('cis_filter', 'cis_filter');
 }
 
 /**
