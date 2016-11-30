@@ -1,0 +1,33 @@
+diff --git a/leaflet.module b/leaflet.module
+index 6da7358..b2b1848 100644
+--- a/leaflet.module
++++ b/leaflet.module
+@@ -48,7 +48,7 @@ function leaflet_libraries_info() {
+         // For AdvAgg module. See [#2294639] This runs after leaflet.js.
+         'leaflet_imagepath' => array(
+           'type' => 'inline',
+-          'data' => 'L.Icon.Default.imagePath = "' . base_path() . libraries_get_path('leaflet') . '/images";',
++          'data' => 'L.Icon.Default.imagePath = "' . base_path() . libraries_get_path('leaflet') . '/images/";',
+         ),
+       ),
+       'css' => array(
+diff --git a/leaflet_views/leaflet_views_plugin_style.inc b/leaflet_views/leaflet_views_plugin_style.inc
+index 0847058..a89164e 100644
+--- a/leaflet_views/leaflet_views_plugin_style.inc
++++ b/leaflet_views/leaflet_views_plugin_style.inc
+@@ -298,9 +298,14 @@ class leaflet_views_plugin_style extends views_plugin_style {
+             if (!empty($result->{$this->entity_info['entity keys']['id']})) {
+               $entity_id = $result->{$this->entity_info['entity keys']['id']};
+             }
+-            elseif ($result->entity) {
++            elseif (isset($result->entity)) {
+               $entity_id = $result->entity;
+             }
++            elseif (isset($result->_field_data)) {
++              $tmp = $result->_field_data;
++              $tmp = array_pop($tmp);
++              $entity_id = $tmp['entity']->{$this->entity_info['entity keys']['id']};
++            }
+             $entity = entity_load_single($this->entity_type, $entity_id);
+             if ($this->options['description_field'] === '#rendered_entity') {
+               $build = entity_view($this->entity_type, array($entity), $this->options['view_mode']);
