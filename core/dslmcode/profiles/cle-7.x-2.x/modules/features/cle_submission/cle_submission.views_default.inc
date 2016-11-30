@@ -100,7 +100,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['og_group_ref']['settings'] = array(
     'link' => 1,
   );
-  /* Sort criterion: Content: Order (field_cle_order) */
+  /* Sort criterion: Broken/missing handler */
   $handler->display->display_options['sorts']['field_cle_order_value']['id'] = 'field_cle_order_value';
   $handler->display->display_options['sorts']['field_cle_order_value']['table'] = 'field_data_field_cle_order';
   $handler->display->display_options['sorts']['field_cle_order_value']['field'] = 'field_cle_order_value';
@@ -1013,7 +1013,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_links']['click_sort_column'] = 'url';
   $handler->display->display_options['fields']['field_links']['group_column'] = 'url';
   $handler->display->display_options['fields']['field_links']['delta_offset'] = '0';
-  /* Field: Content: Due Date */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
@@ -1021,14 +1021,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_due_date']['label'] = '';
   $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
-    'format_type' => 'medium',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-  );
-  /* Field: Content: Media Requirements */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
@@ -1036,16 +1029,11 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
   $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
-  /* Field: Content: Body */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
   $handler->display->display_options['fields']['body']['label'] = 'text';
-  $handler->display->display_options['fields']['body']['type'] = 'text_trimmed';
-  $handler->display->display_options['fields']['body']['settings'] = array(
-    'trim_length' => '50',
-  );
   /* Field: Flags: Flag link */
   $handler->display->display_options['fields']['ops']['id'] = 'ops';
   $handler->display->display_options['fields']['ops']['table'] = 'flag_content';
@@ -1204,7 +1192,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
   $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
   $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
-  /* Field: Content: Due Date */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
@@ -1212,15 +1200,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_due_date']['label'] = '';
   $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
-    'format_type' => 'medium',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-  );
-  $handler->display->display_options['fields']['field_due_date']['group_column'] = 'entity_id';
-  /* Field: Content: Media Requirements */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
@@ -1228,8 +1208,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
   $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_media_requirements']['group_column'] = 'entity_id';
-  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
   $handler->display->display_options['defaults']['sorts'] = FALSE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
@@ -1323,7 +1301,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
   $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
   $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
-  /* Field: Content: Due Date */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
@@ -1331,15 +1309,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_due_date']['label'] = '';
   $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
-    'format_type' => 'medium',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-  );
-  $handler->display->display_options['fields']['field_due_date']['group_column'] = 'entity_id';
-  /* Field: Content: Media Requirements */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
@@ -1347,8 +1317,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
   $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_media_requirements']['group_column'] = 'entity_id';
-  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
   $handler->display->display_options['defaults']['sorts'] = FALSE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
@@ -1408,7 +1376,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_files']['field'] = 'field_files';
   $handler->display->display_options['fields']['field_files']['click_sort_column'] = 'fid';
   $handler->display->display_options['fields']['field_files']['delta_offset'] = '0';
-  /* Field: Content: Due Date */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
@@ -1416,14 +1384,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_due_date']['label'] = '';
   $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
-    'format_type' => 'medium',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-  );
-  /* Field: Content: Media Requirements */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
@@ -1431,7 +1392,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
   $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
   /* Field: Content: Post date */
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'node';
@@ -1489,15 +1449,12 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_links']['click_sort_column'] = 'url';
   $handler->display->display_options['fields']['field_links']['group_column'] = 'url';
   $handler->display->display_options['fields']['field_links']['delta_offset'] = '0';
-  /* Field: Content: Body */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
   $handler->display->display_options['fields']['body']['label'] = 'text';
-  $handler->display->display_options['fields']['body']['settings'] = array(
-    'trim_length' => '50',
-  );
-  /* Field: Content: Due Date */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
@@ -1505,14 +1462,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_due_date']['label'] = '';
   $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
-    'format_type' => 'medium',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-  );
-  /* Field: Content: Media Requirements */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
@@ -1520,7 +1470,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
   $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
   $handler->display->display_options['path'] = 'node/%/submissions/writing';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Writing';
@@ -1598,7 +1547,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
   $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
   $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
-  /* Field: Content: Due Date */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
@@ -1606,15 +1555,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_due_date']['label'] = '';
   $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
-    'format_type' => 'medium',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-  );
-  $handler->display->display_options['fields']['field_due_date']['group_column'] = 'entity_id';
-  /* Field: Content: Media Requirements */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
@@ -1622,8 +1563,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
   $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_media_requirements']['group_column'] = 'entity_id';
-  $handler->display->display_options['fields']['field_media_requirements']['delta_offset'] = '0';
   /* Field: Vote results: Value */
   $handler->display->display_options['fields']['value']['id'] = 'value';
   $handler->display->display_options['fields']['value']['table'] = 'votingapi_cache';

@@ -10,31 +10,7 @@
 function cle_assignment_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'body'
-  $field_bases['body'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(
-      0 => 'node',
-    ),
-    'field_name' => 'body',
-    'indexes' => array(
-      'format' => array(
-        0 => 'format',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'text',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'text_with_summary',
-  );
-
-  // Exported field_base: 'comment_body'
+  // Exported field_base: 'comment_body'.
   $field_bases['comment_body'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -58,36 +34,13 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_cis_tag'
-  $field_bases['field_cis_tag'] = array(
+  // Exported field_base: 'field_assignment_artifacts'.
+  $field_bases['field_assignment_artifacts'] = array(
     'active' => 1,
-    'cardinality' => 1,
+    'cardinality' => -1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_cis_tag',
-    'indexes' => array(
-      'format' => array(
-        0 => 'format',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'text',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-      'max_length' => 255,
-    ),
-    'translatable' => 0,
-    'type' => 'text',
-  );
-
-  // Exported field_base: 'field_cle_order'
-  $field_bases['field_cle_order'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_cle_order',
+    'field_name' => 'field_assignment_artifacts',
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -97,41 +50,11 @@ function cle_assignment_field_default_field_bases() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(
-        1 => 1,
-        2 => 2,
-        3 => 3,
-        4 => 4,
-        5 => 5,
-        6 => 6,
-        7 => 7,
-        8 => 8,
-        9 => 9,
-        10 => 10,
-        11 => 11,
-        12 => 12,
-        13 => 13,
-        14 => 14,
-        15 => 15,
-        16 => 16,
-        17 => 17,
-        18 => 18,
-        19 => 19,
-        20 => 20,
-        21 => 21,
-        22 => 22,
-        23 => 23,
-        24 => 24,
-        25 => 25,
-        26 => 26,
-        27 => 27,
-        28 => 28,
-        29 => 29,
-        30 => 30,
-        31 => 31,
-        32 => 32,
-        33 => 33,
-        34 => 34,
-        35 => 35,
+        'field_submission_text' => 'Text',
+        'field_images' => 'Images',
+        'field_files' => 'Files',
+        'field_links' => 'Links',
+        'field_video' => 'Video',
       ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,
@@ -141,36 +64,13 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_cle_sub_type'
-  $field_bases['field_cle_sub_type'] = array(
+  // Exported field_base: 'field_assignment_color'.
+  $field_bases['field_assignment_color'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_cle_sub_type',
-    'indexes' => array(
-      'format' => array(
-        0 => 'format',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'text',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-      'max_length' => 255,
-    ),
-    'translatable' => 0,
-    'type' => 'text',
-  );
-
-  // Exported field_base: 'field_color'
-  $field_bases['field_color'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_color',
+    'field_name' => 'field_assignment_color',
     'indexes' => array(),
     'locked' => 0,
     'module' => 'jquery_colorpicker',
@@ -182,13 +82,41 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'jquery_colorpicker',
   );
 
-  // Exported field_base: 'field_due_date'
-  $field_bases['field_due_date'] = array(
+  // Exported field_base: 'field_assignment_dependencies'.
+  $field_bases['field_assignment_dependencies'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_due_date',
+    'field_name' => 'field_assignment_dependencies',
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'none' => 'None',
+        'previous' => 'Previous assignment',
+        'parent' => 'Parent assignment',
+      ),
+      'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_assignment_due_date'.
+  $field_bases['field_assignment_due_date'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_assignment_due_date',
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -210,16 +138,16 @@ function cle_assignment_field_default_field_bases() {
       'tz_handling' => 'site',
     ),
     'translatable' => 0,
-    'type' => 'datestamp',
+    'type' => 'datetime',
   );
 
-  // Exported field_base: 'field_media_requirements'
-  $field_bases['field_media_requirements'] = array(
+  // Exported field_base: 'field_assignment_evidence'.
+  $field_bases['field_assignment_evidence'] = array(
     'active' => 1,
-    'cardinality' => -1,
+    'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_media_requirements',
+    'field_name' => 'field_assignment_evidence',
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -229,11 +157,8 @@ function cle_assignment_field_default_field_bases() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(
-        'field_images' => 'Images',
-        'field_video' => 'Video',
-        'body' => 'Text',
-        'field_links' => 'Links',
-        'field_files' => 'Files',
+        'artifacts' => 'Artifact',
+        'critque' => 'Critique',
       ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,
@@ -243,59 +168,13 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_number'
-  $field_bases['field_number'] = array(
+  // Exported field_base: 'field_assignment_feedback'.
+  $field_bases['field_assignment_feedback'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_number',
-    'indexes' => array(
-      'format' => array(
-        0 => 'format',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'text',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-      'max_length' => 255,
-    ),
-    'translatable' => 0,
-    'type' => 'text',
-  );
-
-  // Exported field_base: 'field_sub_number'
-  $field_bases['field_sub_number'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_sub_number',
-    'indexes' => array(
-      'format' => array(
-        0 => 'format',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'text',
-    'settings' => array(
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-      'max_length' => 255,
-    ),
-    'translatable' => 0,
-    'type' => 'text',
-  );
-
-  // Exported field_base: 'field_visibility'
-  $field_bases['field_visibility'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_visibility',
+    'field_name' => 'field_assignment_feedback',
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -305,8 +184,165 @@ function cle_assignment_field_default_field_bases() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(
-        0 => 'Private',
-        1 => 'Public',
+        'hierarchy' => 'Hierarchy',
+        'flat' => 'Flat',
+        'inline' => 'Inline',
+        'none' => 'No feedback',
+      ),
+      'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_assignment_image'.
+  $field_bases['field_assignment_image'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_assignment_image',
+    'indexes' => array(
+      'fid' => array(
+        0 => 'fid',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'image',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'default_image' => 0,
+      'uri_scheme' => 'public',
+    ),
+    'translatable' => 0,
+    'type' => 'image',
+  );
+
+  // Exported field_base: 'field_assignment_late_submission'.
+  $field_bases['field_assignment_late_submission'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_assignment_late_submission',
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        0 => '',
+        1 => '',
+      ),
+      'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'list_boolean',
+  );
+
+  // Exported field_base: 'field_assignment_privacy_setting'.
+  $field_bases['field_assignment_privacy_setting'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_assignment_privacy_setting',
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'open' => 'Open to the class',
+        'closed' => 'Instructor and student only',
+      ),
+      'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_critique_method'.
+  $field_bases['field_critique_method'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_critique_method',
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'random' => 'Random',
+        'partner' => 'Partner off',
+        'open' => 'Open to anyone',
+      ),
+      'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_critique_outline'.
+  $field_bases['field_critique_outline'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_critique_outline',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'text_long',
+  );
+
+  // Exported field_base: 'field_critique_privacy'.
+  $field_bases['field_critique_privacy'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_critique_privacy',
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        0 => '',
+        1 => '',
       ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,

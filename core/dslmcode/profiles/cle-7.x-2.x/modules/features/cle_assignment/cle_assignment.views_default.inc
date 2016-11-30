@@ -104,58 +104,35 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['title_editable']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['title_editable']['link_to_node'] = FALSE;
   $handler->display->display_options['fields']['title_editable']['textfield_size'] = '30';
-  /* Field: Content: Number (editable) */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_number_editable']['id'] = 'field_number_editable';
   $handler->display->display_options['fields']['field_number_editable']['table'] = 'field_data_field_number';
   $handler->display->display_options['fields']['field_number_editable']['field'] = 'field_number_editable';
   $handler->display->display_options['fields']['field_number_editable']['label'] = 'Number';
   $handler->display->display_options['fields']['field_number_editable']['element_type'] = 'span';
   $handler->display->display_options['fields']['field_number_editable']['element_wrapper_type'] = 'span';
-  $handler->display->display_options['fields']['field_number_editable']['widget_type'] = '0';
-  $handler->display->display_options['fields']['field_number_editable']['suppress_label'] = 1;
-  $handler->display->display_options['fields']['field_number_editable']['suppress_description'] = 1;
-  /* Field: Content: Sub-number (editable) */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_sub_number_editable']['id'] = 'field_sub_number_editable';
   $handler->display->display_options['fields']['field_sub_number_editable']['table'] = 'field_data_field_sub_number';
   $handler->display->display_options['fields']['field_sub_number_editable']['field'] = 'field_sub_number_editable';
   $handler->display->display_options['fields']['field_sub_number_editable']['label'] = 'Sub-number';
   $handler->display->display_options['fields']['field_sub_number_editable']['element_type'] = 'span';
   $handler->display->display_options['fields']['field_sub_number_editable']['element_wrapper_type'] = 'span';
-  $handler->display->display_options['fields']['field_sub_number_editable']['widget_type'] = '0';
-  $handler->display->display_options['fields']['field_sub_number_editable']['suppress_label'] = 1;
-  $handler->display->display_options['fields']['field_sub_number_editable']['suppress_description'] = 1;
-  /* Field: Content: Color (editable) */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_color_editable']['id'] = 'field_color_editable';
   $handler->display->display_options['fields']['field_color_editable']['table'] = 'field_data_field_color';
   $handler->display->display_options['fields']['field_color_editable']['field'] = 'field_color_editable';
   $handler->display->display_options['fields']['field_color_editable']['label'] = 'Color';
-  $handler->display->display_options['fields']['field_color_editable']['widget_type'] = '0';
-  $handler->display->display_options['fields']['field_color_editable']['suppress_label'] = 1;
-  $handler->display->display_options['fields']['field_color_editable']['suppress_description'] = 1;
-  /* Field: Content: Due Date (editable) */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_due_date_editable']['id'] = 'field_due_date_editable';
   $handler->display->display_options['fields']['field_due_date_editable']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date_editable']['field'] = 'field_due_date_editable';
   $handler->display->display_options['fields']['field_due_date_editable']['label'] = 'Due Date';
-  $handler->display->display_options['fields']['field_due_date_editable']['settings'] = array(
-    'format_type' => 'long',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-  );
-  $handler->display->display_options['fields']['field_due_date_editable']['widget_type'] = '0';
-  $handler->display->display_options['fields']['field_due_date_editable']['suppress_label'] = 1;
-  $handler->display->display_options['fields']['field_due_date_editable']['suppress_description'] = 1;
-  /* Field: Content: Media Requirements (editable) */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_media_requirements_editable']['id'] = 'field_media_requirements_editable';
   $handler->display->display_options['fields']['field_media_requirements_editable']['table'] = 'field_data_field_media_requirements';
   $handler->display->display_options['fields']['field_media_requirements_editable']['field'] = 'field_media_requirements_editable';
   $handler->display->display_options['fields']['field_media_requirements_editable']['label'] = 'Media Requirements';
-  $handler->display->display_options['fields']['field_media_requirements_editable']['delta_offset'] = '0';
-  $handler->display->display_options['fields']['field_media_requirements_editable']['widget_type'] = '0';
-  $handler->display->display_options['fields']['field_media_requirements_editable']['suppress_label'] = 1;
-  $handler->display->display_options['fields']['field_media_requirements_editable']['suppress_description'] = 1;
   /* Field: Content: Edit link */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
@@ -163,11 +140,11 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['edit_node']['label'] = 'Operations';
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['edit_node']['text'] = 'edit';
-  /* Sort criterion: Content: Number (field_number) */
+  /* Sort criterion: Broken/missing handler */
   $handler->display->display_options['sorts']['field_number_value']['id'] = 'field_number_value';
   $handler->display->display_options['sorts']['field_number_value']['table'] = 'field_data_field_number';
   $handler->display->display_options['sorts']['field_number_value']['field'] = 'field_number_value';
-  /* Sort criterion: Content: Sub-number (field_sub_number) */
+  /* Sort criterion: Broken/missing handler */
   $handler->display->display_options['sorts']['field_sub_number_value']['id'] = 'field_sub_number_value';
   $handler->display->display_options['sorts']['field_sub_number_value']['table'] = 'field_data_field_sub_number';
   $handler->display->display_options['sorts']['field_sub_number_value']['field'] = 'field_sub_number_value';
@@ -328,20 +305,20 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['nid']['label'] = '';
   $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
   $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
-  /* Field: Content: Color */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_color']['id'] = 'field_color';
   $handler->display->display_options['fields']['field_color']['table'] = 'field_data_field_color';
   $handler->display->display_options['fields']['field_color']['field'] = 'field_color';
   $handler->display->display_options['fields']['field_color']['relationship'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['fields']['field_color']['label'] = '';
   $handler->display->display_options['fields']['field_color']['element_label_colon'] = FALSE;
-  /* Field: Content: Number */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_number']['id'] = 'field_number';
   $handler->display->display_options['fields']['field_number']['table'] = 'field_data_field_number';
   $handler->display->display_options['fields']['field_number']['field'] = 'field_number';
   $handler->display->display_options['fields']['field_number']['relationship'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['fields']['field_number']['element_label_colon'] = FALSE;
-  /* Field: Content: Sub-number */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_sub_number']['id'] = 'field_sub_number';
   $handler->display->display_options['fields']['field_sub_number']['table'] = 'field_data_field_sub_number';
   $handler->display->display_options['fields']['field_sub_number']['field'] = 'field_sub_number';
@@ -355,31 +332,24 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['title']['relationship'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* Field: Content: Submission type */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_cle_sub_type']['id'] = 'field_cle_sub_type';
   $handler->display->display_options['fields']['field_cle_sub_type']['table'] = 'field_data_field_cle_sub_type';
   $handler->display->display_options['fields']['field_cle_sub_type']['field'] = 'field_cle_sub_type';
   $handler->display->display_options['fields']['field_cle_sub_type']['relationship'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['fields']['field_cle_sub_type']['label'] = 'Type';
-  /* Field: Content: Due Date */
+  /* Field: Broken/missing handler */
   $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
   $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
   $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_due_date']['settings'] = array(
-    'format_type' => 'short',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-  );
   /* Field: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = 'My submission';
-  /* Sort criterion: SUM(Content: Order (field_cle_order)) */
+  /* Sort criterion: Broken/missing handler */
   $handler->display->display_options['sorts']['field_cle_order_value']['id'] = 'field_cle_order_value';
   $handler->display->display_options['sorts']['field_cle_order_value']['table'] = 'field_data_field_cle_order';
   $handler->display->display_options['sorts']['field_cle_order_value']['field'] = 'field_cle_order_value';
