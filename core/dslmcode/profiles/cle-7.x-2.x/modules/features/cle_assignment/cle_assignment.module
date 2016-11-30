@@ -185,6 +185,9 @@ function _cle_assignemnts_v1_cle_assignment_id($assignment_id) {
 function _cle_assignment_v1_assignment_output($assignment) {
   // MOCK CONTENT:random date
   $rand_date = mt_rand(1493827200,1499827200);
+  $_startDate = Date('c', $rand_date);
+  $_endDate = Date('c', $rand_date + 300000);
+
 
   global $base_url;
   // this will be our json formatted output
@@ -203,8 +206,8 @@ function _cle_assignment_v1_assignment_output($assignment) {
 
     // @todo
     // Need to replace static values below
-    'startDate' => $rand_date, //optional
-    'endDate' => $rand_date + 80000, //optional
+    'startDate' => $_startDate, //optional
+    'endDate' => $_endDate, //optional
     'type' => _cle_random(array('open', 'closed', 'open', 'people see', 'closed', 'is private submission')),
     'dependency' => _cle_random(array('none', 'previous', 'parent')),// default: none
     'assets' => _cle_random(array('text', 'links', 'video', 'images', 'files'), 2), // unlimited

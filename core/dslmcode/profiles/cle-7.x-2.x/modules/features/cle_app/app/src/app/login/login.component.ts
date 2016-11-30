@@ -29,10 +29,8 @@ export class LoginComponent implements OnInit {
     // save new critique
     if (this.form.value.username && this.form.value.password) {
       let loggedIn = this.userService.login(this.form.value.username, this.form.value.password);
-
       
-      this.router.navigate(['/submissions']);
+      this.router.navigate(['/assignments']);
     }
   }
-
 }

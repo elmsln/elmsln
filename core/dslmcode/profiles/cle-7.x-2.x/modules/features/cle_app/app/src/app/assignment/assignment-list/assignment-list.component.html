@@ -14,6 +14,10 @@
         <i class="material-icons">assignment</i>{{ assignment.title }}
         <span *ngIf="assignment.complete == 1" class="badge green-text">Complete</span>
         <span *ngIf="assignment.complete == 0" class="badge red-text">Incomplete</span>
+        <div class="due-dates">
+          <span *ngIf="assignment.startDate">{{ assignment.startDate | amDateFormat:'MM/DD/YY' }} - </span>
+          {{ assignment.endDate | amDateFormat:'MM/DD/YY' }}
+        </div>
       </div>
     </li>
   </ul>
