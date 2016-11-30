@@ -1,0 +1,33 @@
+diff --git a/leaflet_widget.module b/leaflet_widget.module
+index baf64ae..a71de32 100644
+--- a/leaflet_widget.module
++++ b/leaflet_widget.module
+@@ -324,15 +324,13 @@ function leaflet_widget_library() {
+       "$leaflet_widget/lib/Leaflet.draw/leaflet.draw-src.js" => array(),
+     ),
+     'dependencies' => array(
+-      array('leaflet_widget', 'Leaflet'),
++      array('leaflet_widget', 'leaflet_widget_lib'),
+     ),
+   );
+ 
+-  // If available, use the same Leaflet as Leaflet module. Otherwise use the
+-  // one bundled with Leaflet.widget.
+-  $leaflet = libraries_get_path('leaflet');
+-  $leaflet = !empty($leaflet) ? $leaflet : "$leaflet_widget/lib/Leaflet/";
+-  $libraries['Leaflet'] = array(
++  // use our bundled copy of leaflet for the widget for js compatibility
++  $leaflet = "$leaflet_widget/lib/Leaflet/";
++  $libraries['leaflet_widget_lib'] = array(
+     'title' => 'Leaflet (Leaflet Widget)',
+     'version' => '0.4.5',
+     'css' => array(
+@@ -344,7 +342,7 @@ function leaflet_widget_library() {
+       0 => array(
+         'type' => 'setting',
+         'data' => array(
+-          'leaflet_widget' => array('defaultIconPath' => file_create_url($leaflet) . '/images'),
++          'leaflet_widget' => array('defaultIconPath' => file_create_url($leaflet) . '/images/'),
+         ),
+       ),
+     ),
