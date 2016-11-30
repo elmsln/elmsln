@@ -3,8 +3,6 @@ pages:
 - Home: index.md
 - Install:
   - Installation: INSTALL.md
-  - DNS setup Example: development/DNS-Setup-Example.md
-  - Learning Locker: lrs/LearningLocker.md
 - End user guide:
   - Adding a course: enduser/add-a-course.md
   - Courses outline:
@@ -40,6 +38,10 @@ pages:
     - Discuss: systems/service/discuss.md
     - Blog: systems/service/blog.md
     - Innovate: systems/developer/innovate.md
+- Production Implementation Tutorials:
+  - DNS setup Example: development/DNS-Setup-Example.md
+  - AWS Install tutorial: installation/awsinstall.md
+  - Learning Locker: lrs/LearningLocker.md
 - Developer:
   - Contributing: development/contributing/Contributing.md
   - Roadmap: Roadmap.md
