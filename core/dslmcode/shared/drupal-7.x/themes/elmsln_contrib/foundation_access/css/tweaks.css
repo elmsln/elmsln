@@ -565,6 +565,7 @@ ul.dropdown-content {
   max-width: 100%;
   position: fixed;
   z-index: 0;
+  clip: rect(auto, auto, 8rem, auto);
 }
 
 /* Materialize Waves additional colors */
