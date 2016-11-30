@@ -59,8 +59,43 @@ function _git_book_filter_markdown($text, $format) {
       \#*     # optional closing #\'s (not counted)
       \n+
     }xm', '#${0}', $text);
+    // find book root
+    $result = db_query("SELECT * FROM {book} b INNER JOIN {menu_links} ml ON b.mlid = ml.mlid WHERE b.nid=:nid", array(':nid' =>  arg(1)), array('fetch' => PDO::FETCH_ASSOC));
+    // load book root and build private file path relative to it
+    foreach ($result as $record) {
+      $bid = $record['bid'];
+      $book = node_load($bid);
+      $path = 'private://' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($book->title));
+    }
+    // build alias from current path
+    $alias = drupal_get_path_alias(current_path());
+    $tmp = explode('/', $alias);
+    // lob off the file itself in case of folder structure
+    if (count($tmp) == 1) {
+      $dir = '';
+    }
+    else {
+      array_pop($tmp);
+      $dir = implode('/', $tmp) . '/';
+    }
+    // do the messy replacement to append our full qualified URL
+    $text = preg_replace('/!\[([^\[]+)\]\(([^\)]+)\)/', '![$1](' . file_create_url($path) . '/' . $dir . '$2)', $text);
     return _filter_markdown($text, $format);
   }
-
   return $text;
+}
+
+/**
+ * Implements hook_file_download().
+ */
+function git_book_markdown_file_download($uri) {
+  // see if the file lives in private files
+  if ($uri) {
+    $file = new stdClass();
+    $file->uri = $uri;
+    $file->filename = drupal_basename($uri);
+    $file->filemime = file_get_mimetype($file->uri);
+    $file->filesize = filesize($file->uri);
+  }
+  return file_get_content_headers($file);
 }
