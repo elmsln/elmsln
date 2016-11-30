@@ -3,7 +3,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { Assignment } from '../assignment';
 import { AssignmentService } from '../assignment.service';
-import 'rxjs';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'cle-assignment',

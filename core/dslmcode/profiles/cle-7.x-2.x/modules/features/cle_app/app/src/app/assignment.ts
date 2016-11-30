@@ -6,8 +6,8 @@ export class Assignment {
   created: number;
   body: string;
   links: Array<string>;
-  startDate: number;
-  endDate: number;
+  startDate: string;
+  endDate: string;
   dependency: string;
   assets: Array<string>;
   critique: Array<any>;
