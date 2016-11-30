@@ -17,7 +17,7 @@ export class AssignmentService {
   }
 
   getAssignment(assignmentId) {
-    return this.elmsln.get(AppSettings.BASE_PATH + 'node/'+ assignmentId +'.json?deep-load-refs=user,node')
+    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments/' + assignmentId)
       .map(data => data.json())
   }
 

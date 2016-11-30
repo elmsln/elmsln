@@ -39,7 +39,7 @@ export class AssignmentComponent implements OnInit {
         // assign the result to the local assignment
       // @todo this should be handled better
         .subscribe(data => {
-          this.assignment = data;
+          this.assignment = data.data;
         });
     }
   }
