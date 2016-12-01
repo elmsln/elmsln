@@ -51,4 +51,8 @@ export class AssignmentFormComponent implements OnInit {
         console.log(data);
       })
   }
+
+  goToAssignments() {
+    this.router.navigate(['/assignments']);
+  }
 }

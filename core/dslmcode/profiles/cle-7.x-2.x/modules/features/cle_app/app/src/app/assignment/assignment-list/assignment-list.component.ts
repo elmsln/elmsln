@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 import { AssignmentService } from '../../assignment.service';
 import { Assignment } from '../../assignment';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+declare const $:JQueryStatic;
 
 @Component({
   selector: 'cle-assignment-list',
@@ -15,7 +16,8 @@ export class AssignmentListComponent implements OnInit {
 
   constructor(
     private assignmentService: AssignmentService,
-    private router: Router
+    private router: Router,
+    private el: ElementRef
   ) { }
 
 ngOnInit() {
@@ -27,7 +29,7 @@ ngOnInit() {
       this.sortAssignmentsByDate('desc');
       
       console.log(this.assignments);
-    })
+    });
 }
 
 viewAssignment(assignmentId) {

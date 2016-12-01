@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Assignment } from '../assignment';
 import { AssignmentService } from '../assignment.service';
@@ -17,6 +17,7 @@ export class AssignmentComponent implements OnInit {
   date: number;
 
   constructor(
+    private router: Router,
     private route: ActivatedRoute,
     private location: Location,
     private assignmentService: AssignmentService
@@ -46,5 +47,9 @@ export class AssignmentComponent implements OnInit {
 
   backButton() {
     this.location.back();
+  }
+
+  goToAssignments() {
+    this.router.navigate(['/assignments']);
   }
 }

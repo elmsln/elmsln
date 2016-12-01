@@ -1,3 +1,5 @@
+<a (click)="goToAssignments()" class="waves-effect waves-light btn"><i class="material-icons left">&#xE14A;</i> Assignments</a>
+
 <form [formGroup]="form" class="assignment-form">
   <input formControlName="title" placeholder="Title">
   <wysiwygjs (onChange)="bodyChanged($event)"></wysiwygjs>
