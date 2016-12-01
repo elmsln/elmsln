@@ -29,8 +29,8 @@ function mooc_nav_block_context_default_contexts() {
         'mooc_nav_block-mooc_nav' => array(
           'module' => 'mooc_nav_block',
           'delta' => 'mooc_nav',
-          'region' => 'content',
-          'weight' => '0',
+          'region' => 'highlighted',
+          'weight' => '-10',
         ),
       ),
     ),

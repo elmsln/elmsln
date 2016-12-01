@@ -101,7 +101,7 @@
             <div role="main">
           <?php endif; ?>
               <?php if (!empty($page['highlighted'])): ?>
-                <div class="highlight panel callout">
+                <div>
                   <?php print render($page['highlighted']); ?>
                 </div>
               <?php endif; ?>
