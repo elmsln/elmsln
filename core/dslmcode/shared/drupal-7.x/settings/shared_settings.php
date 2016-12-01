@@ -32,10 +32,10 @@ $conf['cache_backends'][] = 'sites/all/modules/ulmus/apdqc/apdqc.cache.inc';
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/authcache.cache.inc';
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/modules/authcache_builtin/authcache_builtin.cache.inc';
 // Default backend controller to be apdqc
-$conf['cache_default_class']    = 'APDQCache';
+$conf['cache_default_class']    = 'DrupalDatabaseCache';
 // THIS MUST BE SERVED FROM DB FOR STABILITY
-$conf['cache_class_cache_cis_connector'] = 'APDQCache';
-$conf['cache_class_cache_form'] = 'APDQCache';
+#$conf['cache_class_cache_cis_connector'] = 'APDQCache';
+#$conf['cache_class_cache_form'] = 'APDQCache';
 // look issues for books of menu items
 $conf['cache_class_cache_menu'] = 'DrupalDatabaseCache';
 
