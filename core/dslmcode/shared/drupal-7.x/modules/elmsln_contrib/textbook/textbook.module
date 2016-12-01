@@ -439,9 +439,13 @@ function _textbook_active_style() {
  */
 function _textbook_load_styles() {
   // hook in all styles
-  $styles = module_invoke_all('textbook_style');
-  // allow other projects to modify established styles
-  drupal_alter('textbook_style', $styles);
+  $styles = &drupal_static(__FUNCTION__);
+  // build the whole thing
+  if (empty($styles)) {
+    $styles = module_invoke_all('textbook_style');
+    // allow other projects to modify established styles
+    drupal_alter('textbook_style', $styles);
+  }
   return $styles;
 }
 
