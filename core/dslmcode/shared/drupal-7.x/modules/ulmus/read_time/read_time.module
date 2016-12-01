@@ -209,9 +209,7 @@ function read_time_read_time_criteria() {
 }
 
 /**
- * Implements hook_read_time_criteria().
- * Allows you to add new criteria for read time engagement.
- * This is an example of the core implementation.
+ * Invokes hook_read_time_criteria().
  * @return array  an array of criteria keys and callback functions
  */
 function read_time_get_criteria() {
