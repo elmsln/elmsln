@@ -85,29 +85,38 @@ function cle_assignment_field_default_field_bases() {
   // Exported field_base: 'field_assignment_dependencies'.
   $field_bases['field_assignment_dependencies'] = array(
     'active' => 1,
-    'cardinality' => 1,
+    'cardinality' => -1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_assignment_dependencies',
     'indexes' => array(
-      'value' => array(
-        0 => 'value',
+      'target_id' => array(
+        0 => 'target_id',
       ),
     ),
     'locked' => 0,
-    'module' => 'list',
+    'module' => 'entityreference',
     'settings' => array(
-      'allowed_values' => array(
-        'none' => 'None',
-        'previous' => 'Previous assignment',
-        'parent' => 'Parent assignment',
-      ),
-      'allowed_values_function' => '',
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
+      'handler' => 'base',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 1,
+          ),
+        ),
+        'sort' => array(
+          'type' => 'none',
+        ),
+        'target_bundles' => array(
+          'cle_assignment' => 'cle_assignment',
+        ),
+      ),
+      'target_type' => 'node',
     ),
     'translatable' => 0,
-    'type' => 'list_text',
+    'type' => 'entityreference',
   );
 
   // Exported field_base: 'field_assignment_due_date'.
@@ -350,6 +359,29 @@ function cle_assignment_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'list_boolean',
+  );
+
+  // Exported field_base: 'field_elmsln_competencies'.
+  $field_bases['field_elmsln_competencies'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_elmsln_competencies',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'max_length' => 255,
+    ),
+    'translatable' => 0,
+    'type' => 'text',
   );
 
   return $field_bases;

@@ -93,7 +93,7 @@ function cle_assignment_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_buttons',
-      'weight' => 16,
+      'weight' => 23,
     ),
   );
 
@@ -146,21 +146,24 @@ function cle_assignment_field_default_field_instances() {
   $field_instances['node-cle_assignment-field_assignment_dependencies'] = array(
     'bundle' => 'cle_assignment',
     'default_value' => NULL,
+    'default_value_function' => '',
     'deleted' => 0,
-    'description' => 'Are there dependencies for the student to submit this?',
+    'description' => '',
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'list',
-        'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 21,
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 28,
       ),
     ),
     'entity_type' => 'node',
     'field_name' => 'field_assignment_dependencies',
-    'label' => 'Dependencies',
-    'required' => 1,
+    'label' => 'Assignment dependencies',
+    'required' => 0,
     'settings' => array(
       'authcache' => array(
         'clients' => array(
@@ -175,6 +178,11 @@ function cle_assignment_field_default_field_instances() {
         'peruser' => 1,
         'status' => 0,
       ),
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -184,7 +192,7 @@ function cle_assignment_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 4,
+      'weight' => 20,
     ),
   );
 
@@ -294,7 +302,7 @@ function cle_assignment_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 15,
+      'weight' => 22,
     ),
   );
 
@@ -698,14 +706,83 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-cle_assignment-field_elmsln_competencies'.
+  $field_instances['node-cle_assignment-field_elmsln_competencies'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 29,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_elmsln_competencies',
+    'label' => 'Competencies',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'student_format' => 'student_format',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'student_format' => array(
+              'weight' => 0,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 21,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Allow late submissions');
-  t('Are there dependencies for the student to submit this?');
   t('Artifacts');
+  t('Assignment dependencies');
   t('Color');
   t('Comment');
-  t('Dependencies');
+  t('Competencies');
   t('Due date');
   t('Evidence method');
   t('How students demonstrate they have completed the assignment. Artifacts are through production like text, media, and links. Critique is through evaluation of peers.');

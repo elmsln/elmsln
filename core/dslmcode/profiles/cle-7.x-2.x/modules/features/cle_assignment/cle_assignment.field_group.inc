@@ -23,14 +23,13 @@ function cle_assignment_field_group_info() {
     'label' => 'Details',
     'weight' => '0',
     'children' => array(
-      0 => 'field_assignment_privacy_setting',
+      0 => 'field_assignment_color',
       1 => 'field_assignment_due_date',
-      2 => 'field_assignment_late_submission',
-      3 => 'field_assignment_dependencies',
-      4 => 'field_assignment_color',
-      5 => 'field_assignment_image',
-      6 => 'field_assignment_feedback',
-      7 => 'title',
+      2 => 'field_assignment_feedback',
+      3 => 'field_assignment_image',
+      4 => 'field_assignment_late_submission',
+      5 => 'field_assignment_privacy_setting',
+      6 => 'title',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -60,7 +59,8 @@ function cle_assignment_field_group_info() {
     'children' => array(
       0 => 'field_assignment_artifacts',
       1 => 'field_assignment_evidence',
-      2 => 'group_critique',
+      2 => 'field_elmsln_competencies',
+      3 => 'group_critique',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -86,7 +86,7 @@ function cle_assignment_field_group_info() {
   $field_group->parent_name = 'group_assignment_evidence';
   $field_group->data = array(
     'label' => 'Critique',
-    'weight' => '17',
+    'weight' => '24',
     'children' => array(
       0 => 'field_critique_method',
       1 => 'field_critique_outline',

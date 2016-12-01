@@ -4,6 +4,7 @@ core = 7.x
 package = CLE
 dependencies[] = ctools
 dependencies[] = date
+dependencies[] = date_popup
 dependencies[] = features
 dependencies[] = field_group
 dependencies[] = filefield_paths
