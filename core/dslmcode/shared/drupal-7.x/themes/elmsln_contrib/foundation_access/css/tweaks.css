@@ -37,6 +37,7 @@
 
 article ul:not(.browser-default):not(.dropdown-content):not(.table-of-contents):not(.menu) li {
   list-style-type: disc;
+  list-style-position: outside;
 }
 
 .material-icon.elmsln-icon:before {
@@ -482,7 +483,7 @@ ul.dropdown-content li:not(.has-form) a:not(.button) {
   background-color: transparent;
   line-height: 2.5rem;
   height: 2.5rem;
-  padding: 0 !important;
+  padding: 0 0 0 .5rem !important;
   display: block;
   font-weight: normal;
 }
