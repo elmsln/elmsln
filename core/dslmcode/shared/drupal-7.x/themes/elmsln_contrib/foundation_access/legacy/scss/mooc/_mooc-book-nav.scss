@@ -10,13 +10,6 @@
 		float: none;
 		margin-bottom: 2em;
 
-		@media screen and (min-width: 80rem) {
-			position: absolute;
-			right: 100%;
-			width: calc(50vw - 52%);
-			max-width: 30em;
-		}
-
 		h3 {
 			font-size: 1.2em;
 			padding: .5em;

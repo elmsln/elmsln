@@ -101,7 +101,7 @@
             <div role="main">
           <?php endif; ?>
               <?php if (!empty($page['highlighted'])): ?>
-                <div>
+                <div class="highlighted-block-area">
                   <?php print render($page['highlighted']); ?>
                 </div>
               <?php endif; ?>

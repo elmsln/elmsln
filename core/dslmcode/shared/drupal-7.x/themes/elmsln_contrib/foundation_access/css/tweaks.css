@@ -1,3 +1,14 @@
+/* support shifting highlighted block region off to left column on big displays */
+@media screen and (min-width: 80rem) {
+  .highlighted-block-area {
+    position: absolute;
+    right: 100%;
+    width: calc(50vw - 52%);
+    max-width: 30em;
+    top:0; }
+}
+
+
 /* Helps in the event the internet isn't there */
 .material-icons {
   font-family: 'Material Icons';
@@ -1632,6 +1643,21 @@ ul.header-menu-options li.active-trail {
 .read-time {
   float: right;
   margin-top:-3.5rem;
+}
+.read-time .chip {
+  min-width: 4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 2rem;
+  padding: 0 .75rem;
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.highlighted-block-area .read-time {
+  float: none;
+  margin: 0;
 }
 .collapsible-body .read-time {
   float: none;

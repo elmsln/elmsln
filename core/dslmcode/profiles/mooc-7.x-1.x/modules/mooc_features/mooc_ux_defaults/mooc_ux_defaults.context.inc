@@ -30,11 +30,23 @@ function mooc_ux_defaults_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
+        'mooc_nav_block-mooc_nav' => array(
+          'module' => 'mooc_nav_block',
+          'delta' => 'mooc_nav',
+          'region' => 'highlighted',
+          'weight' => '-10',
+        ),
+        'read_time-read_time' => array(
+          'module' => 'read_time',
+          'delta' => 'read_time',
+          'region' => 'highlighted',
+          'weight' => '-9',
+        ),
         'system-main' => array(
           'module' => 'system',
           'delta' => 'main',
           'region' => 'content',
-          'weight' => '-9',
+          'weight' => '-25',
         ),
       ),
     ),

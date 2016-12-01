@@ -154,13 +154,13 @@ function mooc_foundation_access_read_time($variables) {
 
             }
             elseif ($duration < 60) {
-              $value .= ' ' . t('(@duration sec)', array('@duration' => $duration));
+              $value .= ', ' . t('@duration sec', array('@duration' => $duration));
             }
             elseif ($duration < 3600) {
-              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($duration / 60), 1)));
+              $value .= ', ' . t('@duration mins', array('@duration' => round(($duration / 60), 1)));
             }
             else {
-              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
+              $value .= ', ' . t('@duration hours', array('@duration' => round(($duration / 3600), 1)));
             }
           }
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_music</i>';
@@ -199,13 +199,13 @@ function mooc_foundation_access_read_time($variables) {
 
             }
             elseif ($duration < 60) {
-              $value .= ' ' . t('(@duration sec)', array('@duration' => $duration));
+              $value .= ', ' . t('@duration sec', array('@duration' => $duration));
             }
             elseif ($duration < 3600) {
-              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($duration / 60), 1)));
+              $value .= ', ' . t('@duration mins', array('@duration' => round(($duration / 60), 1)));
             }
             else {
-              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
+              $value .= ', ' . t('@duration hours', array('@duration' => round(($duration / 3600), 1)));
             }
           }
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">video_library</i>';
