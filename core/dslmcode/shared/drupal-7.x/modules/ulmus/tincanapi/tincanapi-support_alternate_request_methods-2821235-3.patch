@@ -1,0 +1,46 @@
+diff --git a/tincanapi.admin.inc b/tincanapi.admin.inc
+index 37c867b..bd8e0ee 100644
+--- a/tincanapi.admin.inc
++++ b/tincanapi.admin.inc
+@@ -37,6 +37,15 @@ function tincanapi_admin_form(array $form, array &$form_state) {
+     '#default_value' => variable_get('tincanapi_auth_user', ''),
+     '#required' => TRUE,
+   );
++  $tincanapisend = module_invoke_all('tincan_request_fuction');
++  $form['api']['tincanapi_function'] = array(
++    '#type' => 'select',
++    '#title' => t('Function'),
++    '#description' => t('The function to use for calling xapi'),
++    '#default_value' => variable_get('tincanapi_function', 'tincanapi_send'),
++    '#required' => TRUE,
++    '#options' => $tincanapisend,
++  );
+ 
+   $form['api']['tincanapi_auth_password'] = array(
+     '#type' => 'textfield',
+diff --git a/tincanapi.module b/tincanapi.module
+index a41166e..74a07cc 100644
+--- a/tincanapi.module
++++ b/tincanapi.module
+@@ -311,7 +311,7 @@ function tincanapi_track_data($module_name, $data = array(), $user = NULL, $cron
+       }
+     }
+ 
+-    tincanapi_send("statements", "POST", $data);
++    call_user_func_array(variable_get('tincanapi_function', 'tincanapi_send'), array("statements", "POST", $data));
+   }
+ }
+ 
+@@ -454,3 +454,11 @@ function tincanapi_format_iso8601_duration($timestamp) {
+ 
+   return $output;
+ }
++
++/**
++ * Implements hook_tincan_request_fuction().
++ */
++function tincanapi_tincan_request_fuction() {
++   return array('tincanapi_send' => t('tincanapi (default)'));
++ }
++ 
+\ No newline at end of file
