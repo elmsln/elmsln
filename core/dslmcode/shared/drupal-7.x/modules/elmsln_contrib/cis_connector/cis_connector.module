@@ -1329,19 +1329,21 @@ function cis_connector_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['#entity_type']) && isset($form['#bundle'])) {
     // look for remote entities structured for this entity / bundle pair
     $rem = _cis_connector_remote_entities($form['#entity_type'], $form['#bundle']);
-    // pop off the 1 we have as this is specific
-    $item = array_pop($rem);
-    // test for entity form and not in a bucket we write to
-    if ($form_id == $item['bundle'] . '_' . $item['type'] . '_' . 'form' && !in_array(elmsln_core_get_profile_key(), $item['buckets'])) {
-      // search fields on external instance and modify settings when needed
-      foreach ($form_state['field'] as $field_name => $field) {
-        if ($field['und']['field']['settings']['cis_connector_access']) {
-          // remove access to this field entirely
-          $form[$field_name]['#access'] = FALSE;
-        }
-        if ($field['und']['field']['settings']['cis_connector_disable']) {
-          // remove ability to edit to these field instances
-          $form[$field_name]['und']['#disabled'] = TRUE;
+    if (!empty($rem)) {
+      // pop off the 1 we have as this is specific
+      $item = array_pop($rem);
+      // test for entity form and not in a bucket we write to
+      if ($form_id == $item['bundle'] . '_' . $item['type'] . '_' . 'form' && !in_array(elmsln_core_get_profile_key(), $item['buckets'])) {
+        // search fields on external instance and modify settings when needed
+        foreach ($form_state['field'] as $field_name => $field) {
+          if ($field['und']['field']['settings']['cis_connector_access']) {
+            // remove access to this field entirely
+            $form[$field_name]['#access'] = FALSE;
+          }
+          if ($field['und']['field']['settings']['cis_connector_disable']) {
+            // remove ability to edit to these field instances
+            $form[$field_name]['und']['#disabled'] = TRUE;
+          }
         }
       }
     }
@@ -1397,28 +1399,6 @@ function cis_connector_libraries_info_file_paths() {
   // this allows ELMSLN to abstract local deployment libraries from the
   // supported package while still working correctly
   return array('sites/all/libraries/_my_libraries');
-}
-
-/**
- * Implements hook_init().
- */
-function cis_connector_init() {
-  // @todo maybe do an in-bound alter for this
-  if (isset($_GET['cis-refresh']) && $_GET['cis-refresh']) {
-    drupal_set_message(t('CIS is currently refreshing its cache, reload this page in a moment to reflect any changes.'), 'status', FALSE);
-  }
-}
-
-/**
- * Implements hook_drupal_goto_alter().
- */
-function cis_connector_drupal_goto_alter(&$path, &$options, &$http_response_code) {
-  // see if we have our CIS redirect in here
-  if (isset($_GET ['cis-dest']) && $settings = _cis_connector_build_registry($_GET['cis-dest'])) {
-    $path = _cis_connector_format_address($settings, $_GET['cis-instance'], 'front');
-    $options['query']['cis-refresh'] = TRUE;
-    drupal_get_messages();
-  }
 }
 
 /**
