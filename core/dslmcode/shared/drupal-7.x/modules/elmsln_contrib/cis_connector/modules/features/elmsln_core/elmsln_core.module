@@ -604,7 +604,7 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     }
     $address = _cis_connector_format_address($settings, $instance, 'front') . $type;
     if (!empty($etid)) {
-    	$address .= '/' . $etid . '/' . $op;
+      $address .= '/' . $etid . '/' . $op;
     }
     // allow for redirecting back to whatever was set
     if (isset($_GET['destination'])) {
@@ -1273,57 +1273,59 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
     $cfg['elmsln'] . '/config/shared/drupal-7.x/tools/',
   );
   foreach ($directories as $directory) {
-    foreach (scandir($directory) as $item) {
-      // see if we found an item here
-      if (!in_array($item, array('.', '..')) && is_dir($directory . $item . '/')) {
-        $tmp = explode('-', $item);
-        $distro = $tmp[0];
-        // if we have an info file, read if the values to make it real
-        if (!isset($keychain[$distro]) && file_exists($directory . $item . '/' . $distro . '.topology')) {
-          $keychain[$distro] = array(
-            'protocol' => $cfg['protocol'],
-            'service_address' => $cfg['serviceaddress'],
-            'address' => $cfg['address'],
-            'user' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']),
-            'mail' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']) . '@' . $cfg['emailending'],
-            'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
-          );
-          $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
-          $lines = explode("\n", $file);
-          // read each line of the cfg file
-          foreach ($lines as $line) {
-            // make sure this line isn't a comment and has a = in it
-            if (strpos($line, '#') !== 0 && strpos($line, '=')) {
-              $tmp = explode('=', $line);
-              // ensure we have 2 settings before doing this
-              if (count($tmp) == 2) {
-                $keyname = trim($tmp[0]);
-                $value = str_replace('"', '', str_replace("'", '', trim($tmp[1])));
-                switch ($keyname) {
-                  case 'subdomain':
-                    $keychain[$distro][$keyname] = $value;
-                    $keychain[$distro]['address'] = $value . '.' . $keychain[$distro]['address'];
-                    $keychain[$distro]['service_address'] = $cfg['serviceprefix'] . $value . '.' . $keychain[$distro]['service_address'];
-                  break;
-                  default:
-                    $keychain[$distro][$keyname] = $value;
-                  break;
+    if (is_dir($directory)) {
+      foreach (scandir($directory) as $item) {
+        // see if we found an item here
+        if (!in_array($item, array('.', '..')) && is_dir($directory . $item . '/')) {
+          $tmp = explode('-', $item);
+          $distro = $tmp[0];
+          // if we have an info file, read if the values to make it real
+          if (!isset($keychain[$distro]) && file_exists($directory . $item . '/' . $distro . '.topology')) {
+            $keychain[$distro] = array(
+              'protocol' => $cfg['protocol'],
+              'service_address' => $cfg['serviceaddress'],
+              'address' => $cfg['address'],
+              'user' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']),
+              'mail' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']) . '@' . $cfg['emailending'],
+              'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
+            );
+            $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
+            $lines = explode("\n", $file);
+            // read each line of the cfg file
+            foreach ($lines as $line) {
+              // make sure this line isn't a comment and has a = in it
+              if (strpos($line, '#') !== 0 && strpos($line, '=')) {
+                $tmp = explode('=', $line);
+                // ensure we have 2 settings before doing this
+                if (count($tmp) == 2) {
+                  $keyname = trim($tmp[0]);
+                  $value = str_replace('"', '', str_replace("'", '', trim($tmp[1])));
+                  switch ($keyname) {
+                    case 'subdomain':
+                      $keychain[$distro][$keyname] = $value;
+                      $keychain[$distro]['address'] = $value . '.' . $keychain[$distro]['address'];
+                      $keychain[$distro]['service_address'] = $cfg['serviceprefix'] . $value . '.' . $keychain[$distro]['service_address'];
+                    break;
+                    default:
+                      $keychain[$distro][$keyname] = $value;
+                    break;
+                  }
                 }
               }
             }
-          }
-          // support meta properties for authority / services
-          if ($keychain[$distro]['type'] == 'authority') {
-            $keychain[$distro]['ignore'] = TRUE;
-            $keychain[$distro]['instance'] = FALSE;
-          }
-          elseif ($keychain[$distro]['type'] == 'service') {
-            $keychain[$distro]['ignore'] = FALSE;
-            $keychain[$distro]['instance'] = TRUE;
-          }
-          elseif ($keychain[$distro]['type'] == 'custom') {
-            $keychain[$distro]['ignore'] = TRUE;
-            $keychain[$distro]['instance'] = FALSE;
+            // support meta properties for authority / services
+            if ($keychain[$distro]['type'] == 'authority') {
+              $keychain[$distro]['ignore'] = TRUE;
+              $keychain[$distro]['instance'] = FALSE;
+            }
+            elseif ($keychain[$distro]['type'] == 'service') {
+              $keychain[$distro]['ignore'] = FALSE;
+              $keychain[$distro]['instance'] = TRUE;
+            }
+            elseif ($keychain[$distro]['type'] == 'custom') {
+              $keychain[$distro]['ignore'] = TRUE;
+              $keychain[$distro]['instance'] = FALSE;
+            }
           }
         }
       }
