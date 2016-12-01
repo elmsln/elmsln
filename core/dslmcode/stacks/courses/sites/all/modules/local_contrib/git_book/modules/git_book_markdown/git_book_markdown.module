@@ -67,19 +67,21 @@ function _git_book_filter_markdown($text, $format) {
       $book = node_load($bid);
       $path = 'private://' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($book->title));
     }
-    // build alias from current path
-    $alias = drupal_get_path_alias(current_path());
-    $tmp = explode('/', $alias);
-    // lob off the file itself in case of folder structure
-    if (count($tmp) == 1) {
-      $dir = '';
+    if (isset($book)) {
+      // build alias from current path
+      $alias = drupal_get_path_alias(current_path());
+      $tmp = explode('/', $alias);
+      // lob off the file itself in case of folder structure
+      if (count($tmp) == 1) {
+        $dir = '';
+      }
+      else {
+        array_pop($tmp);
+        $dir = implode('/', $tmp) . '/';
+      }
+      // do the messy replacement to append our full qualified URL
+      $text = preg_replace('/!\[([^\[]+)\]\(([^\)]+)\)/', '![$1](' . file_create_url($path) . '/' . $dir . '$2)', $text);
     }
-    else {
-      array_pop($tmp);
-      $dir = implode('/', $tmp) . '/';
-    }
-    // do the messy replacement to append our full qualified URL
-    $text = preg_replace('/!\[([^\[]+)\]\(([^\)]+)\)/', '![$1](' . file_create_url($path) . '/' . $dir . '$2)', $text);
     return _filter_markdown($text, $format);
   }
   return $text;
