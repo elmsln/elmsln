@@ -258,22 +258,22 @@ function cis_types_strongarm() {
           'weight' => '45',
         ),
         'path' => array(
-          'weight' => '3',
+          'weight' => '5',
         ),
         'hidden_nodes' => array(
-          'weight' => '6',
-        ),
-        'book' => array(
-          'weight' => '8',
-        ),
-        'options' => array(
-          'weight' => '9',
-        ),
-        'author' => array(
           'weight' => '7',
         ),
+        'book' => array(
+          'weight' => '9',
+        ),
+        'options' => array(
+          'weight' => '10',
+        ),
+        'author' => array(
+          'weight' => '8',
+        ),
         'revision_information' => array(
-          'weight' => '5',
+          'weight' => '6',
         ),
       ),
       'display' => array(),

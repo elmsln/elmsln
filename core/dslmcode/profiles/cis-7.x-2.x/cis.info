@@ -173,6 +173,7 @@ dependencies[] = views_autorefresh
 ; Features
 dependencies[] = cis_displays
 dependencies[] = cis_types
+dependencies[] = cis_competencies
 dependencies[] = cis_users
 dependencies[] = cis_service_roles
 dependencies[] = cis_ux
