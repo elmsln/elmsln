@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output, ViewChild, OnDestroy } from '@angular/core';
 import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
@@ -8,7 +8,7 @@ import { AssignmentListComponent } from '../../assignment/assignment-list/assign
   templateUrl: './project-item.component.html',
   styleUrls: ['./project-item.component.css']
 })
-export class ProjectItemComponent implements OnInit {
+export class ProjectItemComponent implements OnInit, OnDestroy {
   @Input() project: Project;
   @Output() delete: EventEmitter<any> = new EventEmitter();
   @ViewChild(AssignmentListComponent) assignmentListComponent:AssignmentListComponent;
@@ -24,8 +24,13 @@ export class ProjectItemComponent implements OnInit {
     (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
   }
 
+  ngOnDestroy() {
+    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('close');
+    (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip('remove');
+  }
+
   createAssignment() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('open');
+    (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).modal('open');
   }
 
   assignmentCreated($event) {
