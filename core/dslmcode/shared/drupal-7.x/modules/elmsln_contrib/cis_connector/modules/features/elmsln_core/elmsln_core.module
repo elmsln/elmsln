@@ -1523,6 +1523,11 @@ function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
     $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-research-hypothesis'] = filter_xss($settings['hypothesis']);
   }
 
+  // competency if its set
+  if (isset($settings['competency'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-course-competency'] = filter_xss($settings['competency']);
+  }
+
   // duration if its set
   if (isset($settings['duration'])) {
     $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-duration'] = filter_xss($settings['duration']);
@@ -1571,6 +1576,12 @@ function elmsln_core_tincanapi_data_alter($module_name, &$data) {
       'https://www.elmsln.org/x-api/elmsln-role' => $role,
       'https://www.elmsln.org/x-api/elmsln-session' => $session,
     );
+    // see if we can find a field related to competencies
+    if ($node = menu_get_object()) {
+      if (isset($node->field_elmsln_competency) && !empty($node->field_elmsln_competency)) {
+        $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-course-competency'] = $node->field_elmsln_competency['und'][0]['safe_value'];
+      }
+    }
   }
 }
 
