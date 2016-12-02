@@ -45,4 +45,13 @@ export class ProjectsListComponent implements OnInit {
           })
       })
   }
+
+  projectDeleted(deletedProject) {
+    let _this = this;
+    this.projects.forEach(function(project, index) {
+      if (project.id == deletedProject.id) {
+        _this.projects.splice(index, 1)
+      }
+    })
+  }
 }

@@ -72,4 +72,14 @@ export class ElmslnService {
       headers: headers
     })
   }
+
+  delete(url) {
+    let headers = new Headers();
+    this.createAuthorizationHeader(headers);
+    this.createCSRFTokenHeader(headers);
+
+    return this.http.delete(url, {
+      headers: headers
+    })
+  }
 }

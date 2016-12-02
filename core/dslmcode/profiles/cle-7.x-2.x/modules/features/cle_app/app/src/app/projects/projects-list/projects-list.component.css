@@ -13,15 +13,10 @@
 }
 
 .create-project {
-  font-size: 1.5em;
-  padding: 2em;
-  border: .2em dashed;
-  display: block;
   margin: 3em auto;
   max-width: 300px;
+  display: block;
   cursor: pointer;
-}
-.create-project .add {
 }
 
 .face {

@@ -28,7 +28,12 @@ export class ProjectService {
     // first we need to prepare the object for Drupal
     let body = this.prepareForDrupal(project);
     return this.elmsln.post(AppSettings.BASE_PATH + 'node.json', body)
-    .map(data => data.json())
+      .map(data => data.json())
+  }
+
+  deleteProject(project:Project) {
+    return this.elmsln.delete(AppSettings.BASE_PATH + 'node/' + project.id)
+      .map(data => data.json())
   }
 
 

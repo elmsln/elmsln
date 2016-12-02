@@ -1,5 +1,6 @@
-import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output } from '@angular/core';
 import { Project } from '../../project';
+import { ProjectService } from '../../project.service';
 
 @Component({
   selector: 'app-project-item',
@@ -8,9 +9,11 @@ import { Project } from '../../project';
 })
 export class ProjectItemComponent implements OnInit {
   @Input() project: Project;
+  @Output() delete: EventEmitter<any> = new EventEmitter();
   
   constructor(
-    private el: ElementRef
+    private projectService:ProjectService,
+    private el:ElementRef
   ) { 
   }
 
@@ -25,5 +28,13 @@ export class ProjectItemComponent implements OnInit {
 
   assignmentCreated($event) {
     (<any>$('#modal1')).modal('close');
+  }
+
+  deleteProject() {
+    let project = this.project;
+    this.projectService.deleteProject(project)
+      .subscribe(data => {
+        this.delete.emit();
+      });
   }
 }

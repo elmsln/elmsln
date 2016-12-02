@@ -11,6 +11,12 @@
   display: flex;
 }
 
+.project__options {
+  display: flex;
+}
+.project__options > a {
+}
+
 .project__title-container {
   width: 100%;
 }
