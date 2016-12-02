@@ -207,6 +207,7 @@ function cis_filter_theme() {
         'height' => '400',
         'response' => array(),
         'hypothesis' => '',
+        'competency' => '',
         'link' => '',
         'id' => '',
         'class' => 'cis-filter-modal-item',
@@ -224,6 +225,7 @@ function cis_filter_theme() {
         'height' => '400',
         'response' => array(),
         'hypothesis' => '',
+        'competency' => '',
         'link' => '',
         'id' => '',
         'class' => 'cis-filter-side-nav-item',
@@ -241,6 +243,7 @@ function cis_filter_theme() {
         'height' => '400',
         'response' => array(),
         'hypothesis' => '',
+        'competency' => '',
         'link' => '',
         'class' => 'entity_iframe',
         'id' => '',
@@ -404,6 +407,9 @@ function cis_filter_preprocess_cis_filter_render__iframe(&$vars) {
   }
   if (isset($code['hypothesis'])) {
     $vars['hypothesis'] = $code['hypothesis'];
+  }
+  if (isset($code['competency'])) {
+    $vars['competency'] = $code['competency'];
   }
   // check for a specific id we can reference
   if ($code['item_type'] == 'id') {
@@ -638,6 +644,9 @@ function cis_filter_preprocess_cis_filter_render__modal(&$vars) {
   if (isset($code['hypothesis'])) {
     $vars['hypothesis'] = $code['hypothesis'];
   }
+  if (isset($code['competency'])) {
+    $vars['competency'] = $code['competency'];
+  }
   $vars['title'] = '';
   if (isset($code['title'])) {
     $vars['title'] = $code['title'];
@@ -695,6 +704,9 @@ function cis_filter_preprocess_cis_filter_render__side_nav(&$vars) {
   }
   if (isset($code['hypothesis'])) {
     $vars['hypothesis'] = $code['hypothesis'];
+  }
+  if (isset($code['competency'])) {
+    $vars['competency'] = $code['competency'];
   }
   $vars['title'] = '';
   if (isset($code['title'])) {
