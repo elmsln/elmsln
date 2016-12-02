@@ -25,6 +25,7 @@
         Drupal.settings.tincanapi.elmslnCore.url = data.url;
         Drupal.settings.tincanapi.elmslnCore.role = data.role;
         Drupal.settings.tincanapi.elmslnCore.hypothesis = data.hypothesis;
+        Drupal.settings.tincanapi.elmslnCore.competency = data.competency;
       }
     }
   };

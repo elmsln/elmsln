@@ -160,25 +160,25 @@ function elmsmedia_external_video_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '1',
+          'weight' => '2',
         ),
         'path' => array(
-          'weight' => '7',
+          'weight' => '8',
         ),
         'hidden_nodes' => array(
-          'weight' => '11',
+          'weight' => '13',
         ),
         'book' => array(
-          'weight' => '12',
+          'weight' => '14',
         ),
         'options' => array(
-          'weight' => '9',
+          'weight' => '11',
         ),
         'author' => array(
-          'weight' => '10',
+          'weight' => '12',
         ),
         'revision_information' => array(
-          'weight' => '8',
+          'weight' => '10',
         ),
       ),
       'display' => array(),
