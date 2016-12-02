@@ -312,10 +312,40 @@ function foundation_access_preprocess_page(&$variables) {
   if (isset($variables['tabs']) && is_array($variables['tabs']['#primary'])) {
     $edit_path = arg(0) . '/' . arg(1) . '/edit';
     foreach ($variables['tabs']['#primary'] as $key => $tab) {
+      // edit path
       if (isset($tab['#link']['href']) && $tab['#link']['href'] == $edit_path) {
         $variables['edit_path'] = base_path() . $edit_path;
         // hide the edit tab cause our on canvas pencil does this
         unset($variables['tabs']['#primary'][$key]);
+      }
+    }
+    // duplicate these for local header if its empty
+    // do this everywhere except mooc since it has its own way of doing this
+    if (empty($variables['page']['local_header']) && elmsln_core_get_profile_key() != 'mooc') {
+      $variables['page']['local_header'] = array('#primary' => $variables['tabs']['#primary']);
+      $variables['page']['local_header']['#theme_wrappers'] = array(0 => 'menu_local_tasks');
+      foreach ($variables['page']['local_header']['#primary'] as $key => $tab) {
+        // allow for shifting less common tasks off to the ... menu
+        if (in_array($tab['#link']['path'], _foundation_access_move_tabs())) {
+          unset($variables['page']['local_header']['#primary'][$key]);
+        }
+        else {
+          unset($variables['tabs']['#primary'][$key]);
+          $variables['page']['local_header']['#primary'][$key]['#attributes']['class'][] = 'leaf';
+          $variables['page']['local_header']['#primary'][$key]['#attributes']['class'][] = 'tab';
+          $variables['page']['local_header']['#primary'][$key]['#link']['localized_options']['attributes']['class'][] = $variables['cis_lmsless']['lmsless_classes'][elmsln_core_get_profile_key()]['text'];
+          $variables['page']['local_header']['#primary'][$key]['#link']['localized_options']['attributes']['target'] = '_self';
+        }
+      }
+      $primary = array();
+      foreach ($variables['page']['local_header']['#primary'] as $key => $tab) {
+        $primary[] = $tab;
+      }
+      $variables['page']['local_header']['#primary'] = $primary;
+      // wrap this in tabs if we have things in here in the first place
+      if (count($variables['page']['local_header']['#primary']) > 0) {
+        $variables['page']['local_header']['#primary'][0]['#prefix'] = '<ul class="elmsln-tabs tabs">';
+        $variables['page']['local_header']['#primary'][count($variables['page']['local_header']['#primary'])]['#suffix'] = '</ul>';
       }
     }
   }
@@ -1019,7 +1049,6 @@ function foundation_access_menu_link(&$variables) {
       $element['#localized_options']['attributes']['class'][] = $lmsless_classes['light'];
     }
   }
-  // @todo apply tabs here when we get the targetting / style figured out
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
     $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
     $element['#attributes']['class'][] = 'tab';
@@ -1195,8 +1224,12 @@ function _foundation_access_auto_label_build($word, $number, $counter) {
 function foundation_access_menu_local_task(&$variables) {
   $link = $variables['element']['#link'];
   $link_text = check_plain($link['title']);
-  $li_class = (!empty($variables['element']['#active']) ? ' class="active"' : '');
-
+  if (!empty($variables['element']['#active'])) {
+    $variables['element']['#attributes']['class'][] = 'active';
+  }
+  if (empty($variables['element']['#attributes'])) {
+    $variables['element']['#attributes'] = array();
+  }
   if (!empty($variables['element']['#active'])) {
     // Add text to indicate active tab for non-visual users.
     $active = '<span class="element-invisible">' . t('(active tab)') . '</span>';
@@ -1209,9 +1242,7 @@ function foundation_access_menu_local_task(&$variables) {
     $link['localized_options']['html'] = TRUE;
     $link_text = t('!local-task-title!active', array('!local-task-title' => $link['title'], '!active' => $active));
   }
-
-  $output = '';
-  $output .= '<li' . $li_class . '>';
+  $output = '<li ' . drupal_attributes($variables['element']['#attributes']) . '>';
   $output .= l($link_text, $link['href'], $link['localized_options']);
   $output .= "</li>\n";
   return  $output;
@@ -1855,4 +1886,21 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
             <div class="content-element-region">
             <div contenteditable="true" class="cke_editable_themed';
   */
+}
+
+function _foundation_access_move_tabs() {
+  $tabs = array(
+    'node/%/display',
+    'node/%/replicate',
+    'node/%/addanother',
+    'node/%/revisions',
+    'node/%/devel',
+    'user/%/devel',
+    'user/%/imce',
+    'user/%/view',
+    'user/%/data',
+    'file/%/devel',
+    'file/%/delete',
+  );
+  return $tabs;
 }

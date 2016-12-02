@@ -18,7 +18,8 @@ function cis_user_menu() {
     'title' => 'Upload roster',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_user_import_form'),
-    'access arguments' => array('cis user import users'),
+    'access callback' => '_cis_helper_sync_roster_node_access',
+    'access arguments' => array('update', 1),
     'type' => MENU_LOCAL_TASK,
     'file' => 'cis_user.pages.inc',
   );

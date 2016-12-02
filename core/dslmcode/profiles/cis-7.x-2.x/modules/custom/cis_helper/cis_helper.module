@@ -376,7 +376,7 @@ function cis_helper_menu() {
     'description' => 'Sync the roster for this course',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_helper_sync_network_roster_confirm'),
-    'access callback' => 'node_access',
+    'access callback' => '_cis_helper_sync_roster_node_access',
     'access arguments' => array('update', 1),
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
@@ -446,6 +446,17 @@ function cis_helper_menu() {
   );
   return $items;
 }
+
+/**
+ * Access callback for the roster sync.
+ */
+function _cis_helper_sync_roster_node_access($op, $node) {
+  if ($node->type == 'course') {
+    return node_access($op, $node);
+  }
+  return FALSE;
+}
+
 
 /**
  * Implements hook_permission().

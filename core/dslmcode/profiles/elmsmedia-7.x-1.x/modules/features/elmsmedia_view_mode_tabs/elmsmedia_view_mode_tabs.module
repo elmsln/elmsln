@@ -18,7 +18,7 @@ function elmsmedia_view_mode_tabs_menu_alter(&$items) {
     'access callback' => 'view_mode_tab_page_access',
     'access arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 100,
+    'weight' => -10,
   );
 }
 

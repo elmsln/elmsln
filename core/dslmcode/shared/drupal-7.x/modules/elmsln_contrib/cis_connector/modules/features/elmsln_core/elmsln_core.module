@@ -278,6 +278,13 @@ function elmsln_core_menu_alter(&$items) {
     // Override the user edit handler for our purpose.
     $items['user/%user/edit']['page arguments'] = array('_elmsln_people_user_edit_page', 1);
   }
+  if (elmsln_core_get_profile_key() != 'mooc') {
+    // change "View" to Details as this makes more sense typically
+    $items['node/%node/view']['title'] = 'Details';
+  }
+  else {
+    $items['node/%node/view']['title'] = 'View content';
+  }
 }
 
 /**
