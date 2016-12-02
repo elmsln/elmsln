@@ -7,4 +7,5 @@ dependencies[] = filter
 dependencies[] = git_book_markdown
 dependencies[] = markdown
 features[features_api][] = api:2
+features[features_overrides][] = filter.git_book_markdown.filters|cis_filter
 features[user_permission][] = use text format git_book_markdown

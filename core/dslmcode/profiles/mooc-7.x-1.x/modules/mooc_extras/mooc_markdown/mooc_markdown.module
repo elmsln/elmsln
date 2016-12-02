@@ -1,5 +1,7 @@
 <?php
 /**
  * @file
- * Drupal needs this blank file.
+ * Code for the MOOC Markdown feature.
  */
+
+include_once 'mooc_markdown.features.inc';

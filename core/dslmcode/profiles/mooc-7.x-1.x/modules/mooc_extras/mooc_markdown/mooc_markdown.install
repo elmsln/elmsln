@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Support for CIS input filter.
+ */
+function mooc_markdown_update_7001(&$sandbox) {
+  features_revert_module('mooc_markdown');
+}
