@@ -198,6 +198,10 @@ function _cis_shortcode_render_codes($entity, $type) {
       'item' => $entity->{$type_info['entity keys']['id']},
       'entity_type' => $type,
     );
+    // see if this entity has our standard competency field associated to it
+    if (isset($entity->field_elmsln_competency) && !empty($entity->field_elmsln_competency)) {
+      $properties['competency'] = $entity->field_elmsln_competency['und'][0]['safe_value'];
+    }
     // support for entity iframe direct link
     if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
       $direct['cis_shortcodes_embed'] = array(
