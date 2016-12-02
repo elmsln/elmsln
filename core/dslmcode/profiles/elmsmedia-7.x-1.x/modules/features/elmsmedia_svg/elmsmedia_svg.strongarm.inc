@@ -256,22 +256,22 @@ function elmsmedia_svg_strongarm() {
           'weight' => '1',
         ),
         'path' => array(
-          'weight' => '11',
-        ),
-        'hidden_nodes' => array(
           'weight' => '12',
         ),
-        'book' => array(
+        'hidden_nodes' => array(
           'weight' => '13',
         ),
+        'book' => array(
+          'weight' => '14',
+        ),
         'options' => array(
-          'weight' => '10',
+          'weight' => '11',
         ),
         'author' => array(
-          'weight' => '8',
+          'weight' => '9',
         ),
         'revision_information' => array(
-          'weight' => '9',
+          'weight' => '10',
         ),
       ),
       'display' => array(),
