@@ -18,16 +18,16 @@ export class ProjectItemComponent implements OnInit {
   }
 
   ngOnInit() {
-    (<any>$('#modal1')).modal();
+    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal();
     (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
   }
 
   createAssignment() {
-    (<any>$('#modal1')).modal('open');
+    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('open');
   }
 
   assignmentCreated($event) {
-    (<any>$('#modal1')).modal('close');
+    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('close');
   }
 
   deleteProject() {
