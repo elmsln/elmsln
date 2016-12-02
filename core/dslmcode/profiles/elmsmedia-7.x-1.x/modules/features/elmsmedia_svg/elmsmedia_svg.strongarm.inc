@@ -249,6 +249,9 @@ function elmsmedia_svg_strongarm() {
       'image_gallery__basic_gallery__circle' => array(
         'custom_settings' => FALSE,
       ),
+      'document' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(

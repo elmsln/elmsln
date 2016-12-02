@@ -697,6 +697,10 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
   if (isset($elements['#node']->field_poster['und'][0]['uri'])) {
     $poster_image_uri = $elements['#node']->field_poster['und'][0]['uri'];
   }
+  // see if this entity has our standard competency field associated to it
+  if (isset($elements['#node']->field_elmsln_competency) && !empty($elements['#node']->field_elmsln_competency)) {
+    $variables['competency'] = $elements['#node']->field_elmsln_competency['und'][0]['safe_value'];
+  }
   // if not, attempt to use the thumbnail created by the video upload field
   elseif (isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {
     $poster_image_uri = $variables['content']['field_external_media']['#items'][0]['thumbnail_path'];
@@ -929,7 +933,6 @@ function foundation_access_preprocess_node__inherit__svg(&$variables) {
   $variables['svg_aria_hidden'] = 'false';
   $variables['svg_alttext'] = NULL;
   $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
-
   try {
     // if there is an accessbile text alternative then set the svg to aria-hidden
     if ($node_wrapper->field_svg_alttext->value()) {

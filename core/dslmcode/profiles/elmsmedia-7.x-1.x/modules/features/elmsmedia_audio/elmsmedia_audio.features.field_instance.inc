@@ -23,7 +23,7 @@ function elmsmedia_audio_field_default_field_instances() {
           'height' => 30,
         ),
         'type' => 'ableplayer_audio',
-        'weight' => 1,
+        'weight' => 0,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -86,7 +86,7 @@ function elmsmedia_audio_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 3,
+        'weight' => 2,
       ),
       'full' => array(
         'label' => 'above',
@@ -138,10 +138,9 @@ function elmsmedia_audio_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 5,
+        'type' => 'hidden',
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'above',
@@ -218,7 +217,7 @@ function elmsmedia_audio_field_default_field_instances() {
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 2,
+        'weight' => 1,
       ),
       'full' => array(
         'label' => 'above',
@@ -274,7 +273,7 @@ function elmsmedia_audio_field_default_field_instances() {
         'module' => 'og_ui',
         'settings' => array(),
         'type' => 'og_list_default',
-        'weight' => 4,
+        'weight' => 3,
       ),
       'full' => array(
         'label' => 'above',

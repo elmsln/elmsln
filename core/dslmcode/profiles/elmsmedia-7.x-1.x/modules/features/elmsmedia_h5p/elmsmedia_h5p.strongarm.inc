@@ -249,6 +249,9 @@ function elmsmedia_h5p_strongarm() {
       'accessible_fallback' => array(
         'custom_settings' => TRUE,
       ),
+      'document' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
