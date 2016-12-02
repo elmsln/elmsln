@@ -1,6 +1,7 @@
-import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
+import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
 
 @Component({
   selector: 'app-project-item',
@@ -10,6 +11,7 @@ import { ProjectService } from '../../project.service';
 export class ProjectItemComponent implements OnInit {
   @Input() project: Project;
   @Output() delete: EventEmitter<any> = new EventEmitter();
+  @ViewChild(AssignmentListComponent) assignmentListComponent:AssignmentListComponent;
   
   constructor(
     private projectService:ProjectService,
@@ -28,6 +30,7 @@ export class ProjectItemComponent implements OnInit {
 
   assignmentCreated($event) {
     (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('close');
+    this.assignmentListComponent.getAssignments();
   }
 
   deleteProject() {

@@ -24,14 +24,16 @@ export class AssignmentListComponent implements OnInit {
   ) { }
 
 ngOnInit() {
+  this.getAssignments();
+}
+
+getAssignments() {
   this.assignmentService.getAssignments(this.project.id)
     .map(data => data.data)
     .subscribe(data => {
       this.assignments = data;
       // sort the array by date
       this.sortAssignmentsByDate('desc');
-      
-      console.log(this.assignments);
     });
 }
 
