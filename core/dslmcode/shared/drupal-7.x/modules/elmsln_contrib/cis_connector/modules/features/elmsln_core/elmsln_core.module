@@ -284,6 +284,12 @@ function elmsln_core_menu_alter(&$items) {
  * Access callback for _elmsln_people_user_edit_page.
  */
 function _elmsln_people_user_edit_page($form, &$form_state, $account, $category = 'account') {
+  // escape for admin users
+  if (_cis_connector_role_grouping('admin') && $GLOBALS['user']->uid != $account->uid) {
+    drupal_set_message(t('This is the user\'s local profile. If you want to modify their global profile masquerade as them to be redirected'), 'status', FALSE);
+    module_load_include('inc', 'user', 'user.pages');
+    return user_profile_form($form, $form_state, $account, $category);
+  }
   // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
   $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
   // @todo it would be nice to do this in one request instead of two
