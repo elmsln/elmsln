@@ -18,6 +18,14 @@
     max-width: 30em;
     top:0; }
 }
+/* shift exposed filters over on REALLY big displays */
+@media screen and (min-width: 100rem) {
+  .r-local-subheader .views-exposed-form {
+    position: absolute;
+    right: 100%;
+    width: calc(50vw - 52%);
+    top:0; }
+}
 
 
 /* Helps in the event the internet isn't there */

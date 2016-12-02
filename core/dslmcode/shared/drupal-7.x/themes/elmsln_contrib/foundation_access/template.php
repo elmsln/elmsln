@@ -1901,6 +1901,8 @@ function _foundation_access_move_tabs() {
     'user/%/devel',
     'user/%/imce',
     'user/%/view',
+    'user/%/display',
+    'user/%/replicate',
     'user/%/data',
     'file/%/devel',
     'file/%/delete',
