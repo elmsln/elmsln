@@ -1,0 +1,364 @@
+<?php
+/**
+ * @file
+ * An example field using the Field Types API.
+ */
+
+/**
+ * @defgroup cle_phase Example: Field Types API
+ * @ingroup examples
+ * @{
+ * Examples using Field Types API.
+ *
+ * This is updated from Barry Jaspan's presentation at Drupalcon Paris,
+ * @link http://acquia.com/community/resources/acquia-tv/intro-field-api-module-developers Video Presentation @endlink
+ *
+ * Providing a field requires:
+ * - Defining a field:
+ *   - hook_field_info()
+ *   - hook_field_schema()
+ *   - hook_field_validate()
+ *   - hook_field_is_empty()
+ *
+ * - Defining a formatter for the field (the portion that outputs the field for
+ *   display):
+ *   - hook_field_formatter_info()
+ *   - hook_field_formatter_view()
+ *
+ * - Defining a widget for the edit form:
+ *   - hook_field_widget_info()
+ *   - hook_field_widget_form()
+ *
+ * Our module defines the field in cle_phase_field_info(),
+ * cle_phase_field_validate() and cle_phase_field_is_empty().
+ * cle_phase_field_schema() is implemented in cle_phase.install.
+ *
+ * Our module sets up a formatter in cle_phase_field_formatter_info() and
+ * cle_phase_field_formatter_view(). These are the API hooks that present
+ * formatted and themed output to the user.
+ *
+ * And finally, our module defines the widget in
+ * cle_phase_field_widget_info() and cle_phase_field_widget_form().
+ * The widget is the form element used to receive input from the user
+ * when the field is being populated.
+ *
+ * @see field_types
+ * @see field
+ */
+
+/***************************************************************
+ * Field Type API hooks
+ ***************************************************************/
+
+/**
+ * Implements hook_field_info().
+ *
+ * Provides the description of the field.
+ */
+function cle_phase_field_info() {
+  return array(
+    // We name our field as the associative name of the array.
+    'cle_phase_rgb' => array(
+      'label' => t('Example Color RGB'),
+      'description' => t('Demonstrates a field composed of an RGB color.'),
+      'default_widget' => 'cle_phase_3text',
+      'default_formatter' => 'cle_phase_simple_text',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_validate().
+ *
+ * This hook gives us a chance to validate content that's in our
+ * field. We're really only interested in the $items parameter, since
+ * it holds arrays representing content in the field we've defined.
+ * We want to verify that the items only contain RGB hex values like
+ * this: #RRGGBB. If the item validates, we do nothing. If it doesn't
+ * validate, we add our own error notification to the $errors parameter.
+ *
+ * @see cle_phase_field_widget_error()
+ */
+function cle_phase_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  foreach ($items as $delta => $item) {
+    if (!empty($item['rgb'])) {
+      if (!preg_match('@^#[0-9a-f]{6}$@', $item['rgb'])) {
+        $errors[$field['field_name']][$langcode][$delta][] = array(
+          'error' => 'cle_phase_invalid',
+          'message' => t('Color must be in the HTML format #abcdef.'),
+        );
+      }
+    }
+  }
+}
+
+
+/**
+ * Implements hook_field_is_empty().
+ *
+ * hook_field_is_empty() is where Drupal asks us if this field is empty.
+ * Return TRUE if it does not contain data, FALSE if it does. This lets
+ * the form API flag an error when required fields are empty.
+ */
+function cle_phase_field_is_empty($item, $field) {
+  return empty($item['rgb']);
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ *
+ * We need to tell Drupal that we have two different types of formatters
+ * for this field. One will change the text color, and the other will
+ * change the background color.
+ *
+ * @see cle_phase_field_formatter_view()
+ */
+function cle_phase_field_formatter_info() {
+  return array(
+    // This formatter just displays the hex value in the color indicated.
+    'cle_phase_simple_text' => array(
+      'label' => t('Simple text-based formatter'),
+      'field types' => array('cle_phase_rgb'),
+    ),
+    // This formatter changes the background color of the content region.
+    'cle_phase_color_background' => array(
+      'label' => t('Change the background of the output text'),
+      'field types' => array('cle_phase_rgb'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ *
+ * Two formatters are implemented.
+ * - cle_phase_simple_text just outputs markup indicating the color that
+ *   was entered and uses an inline style to set the text color to that value.
+ * - cle_phase_color_background does the same but also changes the
+ *   background color of div.region-content.
+ *
+ * @see cle_phase_field_formatter_info()
+ */
+function cle_phase_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    // This formatter simply outputs the field as text and with a color.
+    case 'cle_phase_simple_text':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          // We create a render array to produce the desired markup,
+          // "<p style="color: #hexcolor">The color code ... #hexcolor</p>".
+          // See theme_html_tag().
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#attributes' => array(
+            'style' => 'color: ' . $item['rgb'],
+          ),
+          '#value' => t('The color code in this field is @code', array('@code' => $item['rgb'])),
+        );
+      }
+      break;
+
+    // This formatter adds css to the page changing the '.region-content' area's
+    // background color. If there are many fields, the last one will win.
+    case 'cle_phase_color_background':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => t('The content area color has been changed to @code', array('@code' => $item['rgb'])),
+          '#attached' => array(
+            'css' => array(
+              array(
+                'data' => 'div.region-content { background-color:' . $item['rgb'] . ';}',
+                'type' => 'inline',
+              ),
+            ),
+          ),
+        );
+      }
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ *
+ * Three widgets are provided.
+ * - A simple text-only widget where the user enters the '#ffffff'.
+ * - A 3-textfield widget that gathers the red, green, and blue values
+ *   separately.
+ * - A farbtastic colorpicker widget that chooses the value graphically.
+ *
+ * These widget types will eventually show up in hook_field_widget_form,
+ * where we will have to flesh them out.
+ *
+ * @see cle_phase_field_widget_form()
+ */
+function cle_phase_field_widget_info() {
+  return array(
+    'cle_phase_text' => array(
+      'label' => t('RGB value as #ffffff'),
+      'field types' => array('cle_phase_rgb'),
+    ),
+    'cle_phase_3text' => array(
+      'label' => t('RGB text field'),
+      'field types' => array('cle_phase_rgb'),
+    ),
+    'cle_phase_colorpicker' => array(
+      'label' => t('Color Picker'),
+      'field types' => array('cle_phase_rgb'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ *
+ * hook_widget_form() is where Drupal tells us to create form elements for
+ * our field's widget.
+ *
+ * We provide one of three different forms, depending on the widget type of
+ * the Form API item provided.
+ *
+ * The 'cle_phase_colorpicker' and 'cle_phase_text' are essentially
+ * the same, but cle_phase_colorpicker adds a javascript colorpicker
+ * helper.
+ *
+ * cle_phase_3text displays three text fields, one each for red, green,
+ * and blue. However, the field type defines a single text column,
+ * rgb, which needs an HTML color spec. Define an element validate
+ * handler that converts our r, g, and b fields into a simulated single
+ * 'rgb' form element.
+ */
+function cle_phase_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $value = isset($items[$delta]['rgb']) ? $items[$delta]['rgb'] : '';
+
+  $widget = $element;
+  $widget['#delta'] = $delta;
+
+  switch ($instance['widget']['type']) {
+
+    case 'cle_phase_colorpicker':
+      $widget += array(
+        '#suffix' => '<div class="field-example-colorpicker"></div>',
+        '#attributes' => array('class' => array('edit-field-example-colorpicker')),
+        '#attached' => array(
+          // Add Farbtastic color picker.
+          'library' => array(
+            array('system', 'farbtastic'),
+          ),
+          // Add javascript to trigger the colorpicker.
+          'js' => array(drupal_get_path('module', 'cle_phase') . '/cle_phase.js'),
+        ),
+      );
+      // DELIBERATE fall-through: From here on the cle_phase_text and
+      // cle_phase_colorpicker are exactly the same.
+    case 'cle_phase_text':
+      $widget += array(
+        '#type' => 'textfield',
+        '#default_value' => $value,
+        // Allow a slightly larger size that the field length to allow for some
+        // configurations where all characters won't fit in input field.
+        '#size' => 7,
+        '#maxlength' => 7,
+      );
+      break;
+
+    case 'cle_phase_3text':
+      // Convert rgb value into r, g, and b for #default_value.
+      if (!empty($value)) {
+        preg_match_all('@..@', substr($value, 1), $match);
+      }
+      else {
+        $match = array(array());
+      }
+
+      // Make this a fieldset with the three text fields.
+      $widget += array(
+        '#type' => 'fieldset',
+        '#element_validate' => array('cle_phase_3text_validate'),
+
+        // #delta is set so that the validation function will be able
+        // to access external value information which otherwise would be
+        // unavailable.
+        '#delta' => $delta,
+
+        '#attached' => array(
+          'css' => array(drupal_get_path('module', 'cle_phase') . '/cle_phase.css'),
+        ),
+      );
+
+      // Create a textfield for saturation values for Red, Green, and Blue.
+      foreach (array('r' => t('Red'), 'g' => t('Green'), 'b' => t('Blue')) as $key => $title) {
+        $widget[$key] = array(
+          '#type' => 'textfield',
+          '#title' => $title,
+          '#size' => 2,
+          '#default_value' => array_shift($match[0]),
+          '#attributes' => array('class' => array('rgb-entry')),
+          '#description' => t('The 2-digit hexadecimal representation of @color saturation, like "a1" or "ff"', array('@color' => $title)),
+        );
+        // Since Form API doesn't allow a fieldset to be required, we
+        // have to require each field element individually.
+        if ($instance['required'] == 1) {
+          $widget[$key]['#required'] = 1;
+        }
+      }
+      break;
+
+  }
+
+  $element['rgb'] = $widget;
+  return $element;
+}
+
+
+/**
+ * Validate the individual fields and then convert to RGB string.
+ */
+function cle_phase_3text_validate($element, &$form_state) {
+  // @todo: Isn't there a better way to find out which element?
+  $delta = $element['#delta'];
+  $field = $form_state['field'][$element['#field_name']][$element['#language']]['field'];
+  $field_name = $field['field_name'];
+  if (isset($form_state['values'][$field_name][$element['#language']][$delta]['rgb'])) {
+    $values = $form_state['values'][$field_name][$element['#language']][$delta]['rgb'];
+    foreach (array('r', 'g', 'b') as $colorfield) {
+      $colorfield_value = hexdec($values[$colorfield]);
+      // If they left any empty, we'll set the value empty and quit.
+      if (strlen($values[$colorfield]) == 0) {
+        form_set_value($element, '', $form_state);
+        return;
+      }
+      // If they gave us anything that's not hex, reject it.
+      if ((strlen($values[$colorfield]) != 2) || $colorfield_value < 0 || $colorfield_value > 255) {
+        form_error($element[$colorfield], t("Saturation value must be a 2-digit hexadecimal value between 00 and ff."));
+      }
+    }
+
+    $value = sprintf('#%02s%02s%02s', $values['r'], $values['g'], $values['b']);
+    form_set_value($element, $value, $form_state);
+  }
+}
+
+/**
+ * Implements hook_field_widget_error().
+ *
+ * hook_field_widget_error() lets us figure out what to do with errors
+ * we might have generated in hook_field_validate(). Generally, we'll just
+ * call form_error().
+ *
+ * @see cle_phase_field_validate()
+ * @see form_error()
+ */
+function cle_phase_field_widget_error($element, $error, $form, &$form_state) {
+  switch ($error['error']) {
+    case 'cle_phase_invalid':
+      form_error($element, $error['message']);
+      break;
+  }
+}

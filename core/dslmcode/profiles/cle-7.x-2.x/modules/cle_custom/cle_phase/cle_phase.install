@@ -1,0 +1,70 @@
+<?php
+/**
+* @file
+*  This file contains the schema for the phase field module.
+*/
+
+/**
+* Implements hook_field_schema().
+*/
+function cle_phase_field_schema($field) {
+  return array(
+    'columns' => array(
+      'phase_id' => array(
+        'description' => 'The primary identifier for a phase.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'etid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Related entity id.',
+      ),
+      'revision_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Default revision ID.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+      'dependency' => array(
+        'type' => 'varchar',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+      'due_date_to' => array(
+        'type' => 'varchar',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+      'due_date_from' => array(
+        'type' => 'varchar',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+      'allow_late' => array(
+        'type' => 'varchar',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+      'steps_to_complete' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'phase_id' => array('phase_id'),
+    ),
+  );
+}
