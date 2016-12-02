@@ -1,3 +1,14 @@
+@media (max-width: 80rem) {
+  .btn-floating.btn-large {
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+  }
+  .btn-floating.btn-large i {
+    line-height: 2rem;
+  }
+}
+
 /* support shifting highlighted block region off to left column on big displays */
 @media screen and (min-width: 80rem) {
   .highlighted-block-area {
