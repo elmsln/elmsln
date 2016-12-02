@@ -749,14 +749,14 @@ function cis_displays_views_default_views() {
   $view->description = '';
   $view->tag = 'default';
   $view->base_table = 'field_collection_item';
-  $view->human_name = 'CIS Field Collection admin';
+  $view->human_name = 'Field Collection admin';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'CIS Field Collection admin';
+  $handler->display->display_options['title'] = 'Field Collection admin';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
@@ -1203,7 +1203,7 @@ function cis_displays_views_default_views() {
   $view->description = '';
   $view->tag = 'default';
   $view->base_table = 'field_collection_item';
-  $view->human_name = 'CIS Manage semester';
+  $view->human_name = 'Manage semester';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -2087,14 +2087,14 @@ function cis_displays_views_default_views() {
   $view->description = 'Backend list of people for administration';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS people';
+  $view->human_name = 'people';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'CIS people';
+  $handler->display->display_options['title'] = 'people';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
@@ -2171,7 +2171,7 @@ function cis_displays_views_default_views() {
   $view->description = 'List of global resources for use by course sections in the system.';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS Programs';
+  $view->human_name = 'Programs';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -2262,7 +2262,7 @@ function cis_displays_views_default_views() {
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'CIS Programs';
+  $handler->display->display_options['title'] = 'Programs';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
@@ -2361,7 +2361,7 @@ function cis_displays_views_default_views() {
   $view->description = 'List of global resources for use by course sections in the system.';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS Resources';
+  $view->human_name = 'Resources';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -2459,7 +2459,7 @@ function cis_displays_views_default_views() {
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'CIS Resources';
+  $handler->display->display_options['title'] = 'Resources';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
@@ -2550,7 +2550,7 @@ function cis_displays_views_default_views() {
   $view->description = 'List of global resources for use by course sections in the system.';
   $view->tag = 'default';
   $view->base_table = 'node';
-  $view->human_name = 'CIS Services';
+  $view->human_name = 'Services';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -2628,7 +2628,7 @@ function cis_displays_views_default_views() {
   /* Display: Service list */
   $handler = $view->new_display('page', 'Service list', 'page_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'CIS Resources';
+  $handler->display->display_options['title'] = 'Resources';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
