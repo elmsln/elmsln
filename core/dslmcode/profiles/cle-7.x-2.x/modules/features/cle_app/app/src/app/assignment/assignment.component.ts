@@ -49,7 +49,7 @@ export class AssignmentComponent implements OnInit {
     this.location.back();
   }
 
-  goToAssignments() {
-    this.router.navigate(['/assignments']);
+  gotToProjects() {
+    this.router.navigate(['/projects']);
   }
 }

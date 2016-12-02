@@ -11,4 +11,5 @@ export class Assignment {
   dependency: string;
   assets: Array<string>;
   critique: Array<any>;
+  project: number;
 }

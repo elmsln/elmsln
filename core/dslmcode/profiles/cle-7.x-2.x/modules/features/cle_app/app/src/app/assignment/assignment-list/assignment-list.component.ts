@@ -1,8 +1,9 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ElementRef, Input } from '@angular/core';
 import { AssignmentService } from '../../assignment.service';
 import { Assignment } from '../../assignment';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { Project } from '../../project';
 declare const $:JQueryStatic;
 
 @Component({
@@ -12,16 +13,18 @@ declare const $:JQueryStatic;
   providers: [AssignmentService]
 })
 export class AssignmentListComponent implements OnInit {
+  // takes in optional project id parameter which will filter assignments
+  // by the project
+  @Input() project:Project;
   assignments: Assignment[];
 
   constructor(
     private assignmentService: AssignmentService,
-    private router: Router,
-    private el: ElementRef
+    private router: Router
   ) { }
 
 ngOnInit() {
-  this.assignmentService.getAssignments()
+  this.assignmentService.getAssignments(this.project.id)
     .map(data => data.data)
     .subscribe(data => {
       this.assignments = data;

@@ -1,0 +1,21 @@
+<div class="project">
+  <div class="project__header">
+    <div class="project__title-container">
+      <h1 class="project__title">{{ project.title }}</h1>
+      <div class="project__description" [innerHTML]="project.description"></div>
+    </div>
+    <div class="project__options">
+      <a (click)="createAssignment()" class="waves-effect btn-flat tooltipped" data-tooltip="create assignment"><i class="material-icons">add</i></a>
+    </div>
+  </div>
+  <div class="project__board">
+    <cle-assignment-list [project]="project"></cle-assignment-list>
+  </div>
+</div>
+
+<!-- Modal Structure -->
+<div id="modal1" class="modal">
+  <div class="modal-content">
+    <app-assignment-form [project]="project" (assignmentCreated)="assignmentCreated($event)"></app-assignment-form>
+  </div>
+</div>

@@ -1,15 +1,3 @@
-<div class="card-title center-align">
-  <h1 class="thin blue-text">Assignments</h1>
-</div>
-
-<nav>
-  <div class="nav-wrapper">
-    <ul id="nav-mobile" class="right hide-on-med-and-down">
-      <li><a (click)="createAssignment()"><i class="material-icons left">assignment</i> Create Assignment</a></li>
-    </ul>
-  </div>
-</nav>
-
 <div class="row">
   <ul class="collapsible">
     <li *ngFor="let assignment of assignments" (click)="viewAssignment(assignment.id)">

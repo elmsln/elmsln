@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
     if (this.form.value.username && this.form.value.password) {
       let loggedIn = this.userService.login(this.form.value.username, this.form.value.password);
       
-      this.router.navigate(['/assignments']);
+      this.router.navigate(['/projects']);
     }
   }
 }

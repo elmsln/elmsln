@@ -1,0 +1,25 @@
+<div *ngIf="loading == true" class="preloader-wrapper big active">
+  <div class="spinner-layer spinner-blue-only">
+    <div class="circle-clipper left">
+      <div class="circle"></div>
+    </div><div class="gap-patch">
+      <div class="circle"></div>
+    </div><div class="circle-clipper right">
+      <div class="circle"></div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="projects.length == 0 && loading == false"> 
+  <i class="material-icons face">tag_faces</i>
+  <a (click)="createNewProject('My First Project')" class="create-project">
+    Create your first project <i class="material-icons add">add</i></a>
+</div>
+
+<div *ngIf="projects.length > 0 && loading == false"> 
+  <a (click)="createNewProject()" class="create-project"> new project <i class="material-icons add">add</i></a>
+</div>
+
+<div class="projects-container">
+  <app-project-item *ngFor="let project of projects" [project]="project"></app-project-item>
+</div>
