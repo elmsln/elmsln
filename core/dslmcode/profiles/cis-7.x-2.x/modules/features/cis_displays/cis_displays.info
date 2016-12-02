@@ -22,6 +22,7 @@ features[views_view][] = cis_course_offerings
 features[views_view][] = cis_field_collection_admin
 features[views_view][] = cis_manage_semester
 features[views_view][] = cis_people
+features[views_view][] = cis_programs
 features[views_view][] = cis_resources
 features[views_view][] = cis_services
 features[views_view][] = course_service_instances

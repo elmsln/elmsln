@@ -26,7 +26,7 @@
  */
 // sort so the items are weighted
 ?>
-<a data-dropdown="add-menu-drop" aria-controls="add-menu-drop" aria-expanded="false" href="#" class="middle-align-wrap add-menu-drop">
+<a data-dropdown="add-menu-drop" aria-controls="add-menu-drop" aria-expanded="false" href="#add-menu" class="middle-align-wrap add-menu-drop">
 <span><?php print t('Add'); ?></span>
 <div class="icon-plus-white off-canvas-toolbar-item-icon"></div></a>
 <?php if ($content): ?>

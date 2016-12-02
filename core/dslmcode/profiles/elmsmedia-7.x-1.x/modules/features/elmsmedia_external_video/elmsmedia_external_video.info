@@ -27,6 +27,7 @@ features[features_api][] = api:2
 features[field_base][] = field_external_media
 features[field_group][] = group_details|node|external_video|full
 features[field_instance][] = node-external_video-field_cis_course_ref
+features[field_instance][] = node-external_video-field_elmsln_competency
 features[field_instance][] = node-external_video-field_external_media
 features[field_instance][] = node-external_video-field_figurelabel_ref
 features[field_instance][] = node-external_video-field_poster

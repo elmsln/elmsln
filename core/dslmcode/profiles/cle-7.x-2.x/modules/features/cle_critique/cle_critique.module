@@ -4,8 +4,6 @@
  * Code for the CLE Critique feature.
  */
 
-include_once 'cle_critique.features.inc';
-
 /**
  * Implements hook_menu().
  */

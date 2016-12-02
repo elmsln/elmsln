@@ -26,6 +26,7 @@ yes | rm /etc/httpd/conf.sites.d/test.conf
 echo 'ProxyTimeout 1800' >> /etc/httpd/conf/httpd.conf
 # undo varnish
 sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
+sudo sed -i 's/8080/80/g' /etc/httpd/conf.sites.d/*.conf
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 # stop mysql, initial commands tee this up to ensure that it is running

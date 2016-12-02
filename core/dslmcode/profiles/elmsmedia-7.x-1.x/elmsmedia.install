@@ -181,3 +181,15 @@ function elmsmedia_update_7012(&$sandbox) {
 function elmsmedia_update_7013(&$sandbox) {
   module_enable(array('elmsln_lrs'));
 }
+
+/**
+ * Support for course competency field everywhere.
+ */
+function elmsmedia_update_7014(&$sandbox) {
+  features_revert_module('elmsmedia_feature');
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_h5p');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+}

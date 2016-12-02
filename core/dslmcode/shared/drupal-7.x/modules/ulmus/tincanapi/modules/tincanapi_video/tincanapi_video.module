@@ -9,29 +9,33 @@
  * Implements hook_preprocess_HOOK().
  */
 function tincanapi_video_preprocess_page(&$variables) {
-  // add youtube in if it has a selector
-  if (variable_get('tincanapi_selector_youtube', "iframe[data-mediavideo-src^='https://www.youtube.com/embed'],iframe[src^='https://www.youtube.com/embed']")) {
-    drupal_add_js(
-      array(
-        'tincanapi' => array(
-          'selector_youtube' => variable_get('tincanapi_selector_youtube', "iframe[data-mediavideo-src^='https://www.youtube.com/embed'],iframe[src^='https://www.youtube.com/embed']"),
+  // don't apply on admin pages
+  if (!path_is_admin(current_path())) {
+    drupal_add_js(drupal_get_path('module', 'tincanapi_video') . '/js/tincanapi_video.js');
+    // add youtube in if it has a selector
+    if (variable_get('tincanapi_selector_youtube', "iframe[data-mediavideo-src^='https://www.youtube.com/embed'],iframe[src^='https://www.youtube.com/embed']")) {
+      drupal_add_js(
+        array(
+          'tincanapi' => array(
+            'selector_youtube' => variable_get('tincanapi_selector_youtube', "iframe[data-mediavideo-src^='https://www.youtube.com/embed'],iframe[src^='https://www.youtube.com/embed']"),
+          ),
         ),
-      ),
-      'setting'
-    );
-  }
-  // add vimeo in if it has a selector
-  if (variable_get('tincanapi_selector_vimeo', "iframe[data-mediavideo-src^='https://player.vimeo.com/video'],iframe[src^='https://player.vimeo.com/video']")) {
-    // add in player api v2
-    drupal_add_js('https://player.vimeo.com/api/player.js', array('type' => 'external'));
-    drupal_add_js(
-      array(
-        'tincanapi' => array(
-          'selector_vimeo' => variable_get('tincanapi_selector_vimeo', "iframe[data-mediavideo-src^='https://player.vimeo.com/video'],iframe[src^='https://player.vimeo.com/video']"),
+        'setting'
+      );
+    }
+    // add vimeo in if it has a selector
+    if (variable_get('tincanapi_selector_vimeo', "iframe[data-mediavideo-src^='https://player.vimeo.com/video'],iframe[src^='https://player.vimeo.com/video']")) {
+      // add in player api v2
+      drupal_add_js('https://player.vimeo.com/api/player.js', array('type' => 'external'));
+      drupal_add_js(
+        array(
+          'tincanapi' => array(
+            'selector_vimeo' => variable_get('tincanapi_selector_vimeo', "iframe[data-mediavideo-src^='https://player.vimeo.com/video'],iframe[src^='https://player.vimeo.com/video']"),
+          ),
         ),
-      ),
-      'setting'
-    );
+        'setting'
+      );
+    }
   }
 }
 

@@ -2298,7 +2298,7 @@ function cis_types_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 23,
+      'weight' => 7,
     ),
   );
 
@@ -2380,7 +2380,7 @@ function cis_types_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 22,
+      'weight' => 6,
     ),
   );
 

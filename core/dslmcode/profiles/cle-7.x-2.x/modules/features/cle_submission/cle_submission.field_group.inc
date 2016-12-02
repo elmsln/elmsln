@@ -21,7 +21,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Admin',
-    'weight' => '5',
+    'weight' => '4',
     'children' => array(
       0 => 'field_energy',
       1 => 'field_submission_state',

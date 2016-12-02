@@ -76,12 +76,12 @@
  */
 ?>
 <article id="node-<?php print $node->nid; ?>" class="node s12 col <?php print $classes; ?>"<?php print $attributes; ?>>
-  <?php print render($title_prefix); ?>
-  <?php if (!$page): ?>
-      <h2<?php print $title_attributes; ?>>
-        <a href="<?php print $node_url; ?>"><?php print $title; ?></a></h2>
-    <?php endif; ?>
-  <?php print render($title_suffix); ?>
+  <a id="main-content"></a>
+  <?php if ($title && arg(2) != 'edit' && arg(0) != 'users' && arg(0) != 'user'): ?>
+    <?php print render($title_prefix); ?>
+      <h2 id="page-title" class="title"><?php print $title; ?></h2>
+    <?php print render($title_suffix); ?>
+  <?php endif; ?>
 
   <?php if ($display_submitted): ?>
     <div class="posted">

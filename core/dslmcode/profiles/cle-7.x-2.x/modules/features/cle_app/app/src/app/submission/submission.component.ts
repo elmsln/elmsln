@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { SubmissionService } from '../submission.service';
 import { CritiqueFormComponent } from '../critique/critique-form/critique-form.component';
@@ -23,6 +23,7 @@ export class SubmissionComponent implements OnInit {
   activeTabIndex: number = 1;
 
   constructor(
+    private router: Router,
     private route: ActivatedRoute,
     private location: Location,
     private submissionService: SubmissionService
@@ -57,5 +58,9 @@ export class SubmissionComponent implements OnInit {
   // that we are keeping track of.
   tabChange(event) {
     this.activeTabIndex = event.index;
+  }
+
+  backToAssignments() {
+    this.router.navigate(['/submissions']);
   }
 }

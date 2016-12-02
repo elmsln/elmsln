@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Project feature.
+ */
+
+include_once 'cle_project.features.inc';

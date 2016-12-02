@@ -1,1 +1,5 @@
-username,email,rolestaff,staff@elmsln.local,staffstudent,student@elmsln.local,studentinstructor,instructor@elmsln.local,instructorta,ta@elmsln.local,teaching assistant
+name,mail,role,pass
+staff,staff@elmsln.local,staff,staff
+student,student@elmsln.local,student,student
+instructor,instructor@elmsln.local,instructor,instructor
+ta,ta@elmsln.local,teaching assistant,ta

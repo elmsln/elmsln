@@ -24,7 +24,7 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   $node = menu_get_object();
   if ($node && !empty($node->book) && (user_access('add content to books') || user_access('administer book outlines')) && node_access('create', $child_type) && $node->status == 1 && isset($node->book['depth']) && $node->book['depth'] < MENU_MAX_DEPTH) {
     $variables['tabs_extras'][200][] = '<div class="divider"></div>';
-    $variables['tabs_extras'][200][] = '<span class="nolink cis-lmsless-text">' . t('Operations') . '</strong>';
+    $variables['tabs_extras'][200][] = '<span class="nolink cis-lmsless-text">' . t('Operations') . '</span>';
     $variables['tabs_extras'][200][] = l(t('Edit child outline'), 'node/' . $node->book['nid'] . '/outline/children');
     $variables['tabs_extras'][200][] = l(t('Edit course outline'), 'admin/content/book/' . $node->book['bid']);
 
@@ -48,6 +48,18 @@ function mooc_foundation_access_preprocess_page(&$variables) {
           $variables['title'] = "";
         }
       }
+    }
+  }
+}
+
+/**
+ * Implements template_preprocess_node.
+ */
+function mooc_foundation_access_preprocess_node(&$variables) {
+  // Remove title from a page when a gitbook markdown filter is present.
+  if(isset($variables['body'][0]['format'])) {
+    if($variables['body'][0]['format'] == "git_book_markdown") {
+      $variables['title'] = "";
     }
   }
 }
@@ -118,10 +130,12 @@ function mooc_foundation_access_read_time($variables) {
   foreach ($node->read_time as $key => $value) {
     if ($value != 0 && $key != 'metadata') {
       $label = '';
+      $class_key = '';
       switch ($key) {
         case 'words':
           $label = t('Reading');
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_books</i>';
+          $class_key = 'read-time-words';
         break;
         case 'audio':
           $label = t('Audio');
@@ -140,29 +154,33 @@ function mooc_foundation_access_read_time($variables) {
 
             }
             elseif ($duration < 60) {
-              $value .= ' ' . t('(@duration sec)', array('@duration' => $duration));
+              $value .= ', ' . t('@duration sec', array('@duration' => $duration));
             }
             elseif ($duration < 3600) {
-              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($duration / 60), 1)));
+              $value .= ', ' . t('@duration mins', array('@duration' => round(($duration / 60), 1)));
             }
             else {
-              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
+              $value .= ', ' . t('@duration hours', array('@duration' => round(($duration / 3600), 1)));
             }
           }
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_music</i>';
+          $class_key = 'read-time-audio';
         break;
         case 'iframe':
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">launch</i>';
+          $class_key = 'read-time-iframe';
         break;
         case 'img':
           $label = t('Image');
           $value = format_plural($value, '1 ' . $label, '@count ' . $label . 's');
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">perm_media</i>';
+          $class_key = 'read-time-image';
         break;
         case 'svg':
           $label = t('Multimedia');
           $value = $value . ' ' . $label;
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">assessment</i>';
+          $class_key = 'read-time-svg';
         break;
         case 'video':
           $label = t('Video');
@@ -181,16 +199,17 @@ function mooc_foundation_access_read_time($variables) {
 
             }
             elseif ($duration < 60) {
-              $value .= ' ' . t('(@duration sec)', array('@duration' => $duration));
+              $value .= ', ' . t('@duration sec', array('@duration' => $duration));
             }
             elseif ($duration < 3600) {
-              $value .= ' ' . t('(@duration mins)', array('@duration' => round(($duration / 60), 1)));
+              $value .= ', ' . t('@duration mins', array('@duration' => round(($duration / 60), 1)));
             }
             else {
-              $value .= ' ' . t('(@duration hours)', array('@duration' => round(($duration / 3600), 1)));
+              $value .= ', ' . t('@duration hours', array('@duration' => round(($duration / 3600), 1)));
             }
           }
           $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">video_library</i>';
+          $class_key = 'read-time-video';
         break;
         default:
           $icon = '';
@@ -199,11 +218,11 @@ function mooc_foundation_access_read_time($variables) {
       }
       // make sure there's something to render
       if (!empty($value)) {
-        $output .= '<div class="chip ' . $lmsless_classes['color'] . ' ' . $lmsless_classes['light'] . '">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
+        $output .= '<div class="chip ' . $lmsless_classes['color'] . ' ' . $lmsless_classes['light'] . ' ' . $class_key . '">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
       }
     }
   }
   $output .= '</div>';
 
-  return '<span class="read-time">' . $output . '</span>';
+  return '<div class="read-time">' . $output . '</div>';
 }

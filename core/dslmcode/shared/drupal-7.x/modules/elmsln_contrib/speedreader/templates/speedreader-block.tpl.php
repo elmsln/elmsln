@@ -22,7 +22,7 @@
       </span>
     </div>
   </div>
-  <input id="spritz_wpm" type="hidden" value="300" step="50" min="50" class="wpm"/>
+  <input id="spritz_wpm" type="hidden" value="300" class="wpm"/>
   <a class="close-reveal-modal">&#215;</a>
 </div>
 

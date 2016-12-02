@@ -7,6 +7,7 @@ import { routing } from './app.routing';
 
 // material
 import { MaterialModule } from '@angular/material';
+import { NKDatetimeModule } from 'ng2-datetime/ng2-datetime';
 
 // services
 import { ElmslnService } from './elmsln.service';
@@ -29,6 +30,8 @@ import { LoginComponent } from './login/login.component';
 import { LogoutComponent } from './logout/logout.component';
 import { CritiqueListComponent } from './critique/critique-list/critique-list.component';
 import { WysiwygjsComponent } from './wysiwygjs/wysiwygjs.component';
+import { DatepickerComponent } from './datepicker/datepicker.component';
+import { AssignmentFormComponent } from './assignment/assignment-form/assignment-form.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +47,9 @@ import { WysiwygjsComponent } from './wysiwygjs/wysiwygjs.component';
     LoginComponent,
     LogoutComponent,
     CritiqueListComponent,
-    WysiwygjsComponent
+    WysiwygjsComponent,
+    DatepickerComponent,
+    AssignmentFormComponent
   ],
   imports: [
     BrowserModule,
@@ -53,7 +58,8 @@ import { WysiwygjsComponent } from './wysiwygjs/wysiwygjs.component';
     HttpModule,
     routing,
     MaterialModule.forRoot(),
-    MomentModule
+    MomentModule,
+    NKDatetimeModule
   ],
   providers: [
     ElmslnService,

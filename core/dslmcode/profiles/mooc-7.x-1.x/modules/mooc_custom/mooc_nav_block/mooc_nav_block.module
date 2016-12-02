@@ -39,7 +39,7 @@ function mooc_nav_block_block_view($delta = '') {
   switch ($delta) {
     case 'mooc_nav':
       $node = menu_get_object('node');
-      if (isset($node) && isset($node->book) && !empty($node->book)) {
+      if (isset($node) && isset($node->book) && isset($node->book['depth']) && !empty($node->book['depth'])) {
         $block = _mooc_nav_block_mooc_nav_block($node);
       }
     break;
@@ -128,6 +128,11 @@ function _mooc_nav_block_get_nav($node) {
     'custom_text' => (isset($node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value'] : ''),
   );
   if (!$node->book['has_children']) {
+    if ($nav['label'] == t('Contents')) {
+      // load the parent of the current item
+      $cache = _book_cache_get_associations($node->book);
+      $nav['label'] = $cache['parent']['link_title'];
+    }
     $nav['type'] = 'content-outline-active-current';
     $nav['display'] = 'here';
     $nav['parent'] = $node->book['plid'];

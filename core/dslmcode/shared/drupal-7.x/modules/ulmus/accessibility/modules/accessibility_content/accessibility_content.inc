@@ -39,7 +39,7 @@ function accessibility_content_init($options = array()) {
 function _accessibility_content_field_pre_render($element) {
   $element['#prefix'] = (isset($element['#prefix'])) ? $element['#prefix'] : '';
   $element['#suffix'] = (isset($element['#suffix'])) ? $element['#suffix'] : '';
-  $element['#prefix'] = '<span class="ac-check-field">' . $element['#prefix'];
-  $element['#suffix'] .= '</span>';
+  $element['#prefix'] = '<div class="ac-check-field">' . $element['#prefix'];
+  $element['#suffix'] .= '</div>';
   return $element;
 }

@@ -75,6 +75,17 @@ function elmsln_core_menu() {
     'menu_name' => 'menu-elmsln-settings',
     'file' => 'elmsln_core.pages.inc',
   );
+  $items['elmsln/error/%'] = array(
+    'title' => '',
+    'title callback' => '_elmsln_core_error_title',
+    'title arguments' => array(2),
+    'page callback' => '_elmsln_core_error_page',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'weight' => 10,
+    'type' => MENU_CALLBACK,
+    'file' => 'elmsln_core.errors.inc',
+  );
   $items['node/%node/data'] = array(
     'title' => 'Related data',
     'page callback' => 'drupal_get_form',
@@ -124,8 +135,8 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-  $items['elmsln/redirect/%/%/%/view'] = array(
-    'title' => 'view',
+  $items['elmsln/redirect/%/%/%/view_modes'] = array(
+    'title' => 'display options',
     'page callback' => '_elmsln_core_remote_redirect',
     'access arguments' => array('view cis shortcode'),
     'page arguments' => array(2, 3, 4, 5),
@@ -134,7 +145,7 @@ function elmsln_core_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
   $items['elmsln/redirect/%/%/%/data'] = array(
-    'title' => 'data',
+    'title' => 'related data',
     'page callback' => '_elmsln_core_remote_redirect',
     'page arguments' => array(2, 3, 4, 5),
     'access arguments' => array('view cis shortcode'),
@@ -267,12 +278,25 @@ function elmsln_core_menu_alter(&$items) {
     // Override the user edit handler for our purpose.
     $items['user/%user/edit']['page arguments'] = array('_elmsln_people_user_edit_page', 1);
   }
+  if (elmsln_core_get_profile_key() != 'mooc') {
+    // change "View" to Details as this makes more sense typically
+    $items['node/%node/view']['title'] = 'Details';
+  }
+  else {
+    $items['node/%node/view']['title'] = 'View content';
+  }
 }
 
 /**
  * Access callback for _elmsln_people_user_edit_page.
  */
 function _elmsln_people_user_edit_page($form, &$form_state, $account, $category = 'account') {
+  // escape for admin users
+  if (_cis_connector_role_grouping('admin') && $GLOBALS['user']->uid != $account->uid) {
+    drupal_set_message(t('This is the user\'s local profile. If you want to modify their global profile masquerade as them to be redirected'), 'status', FALSE);
+    module_load_include('inc', 'user', 'user.pages');
+    return user_profile_form($form, $form_state, $account, $category);
+  }
   // Setup a variable that can be changed if someone doesn't want to use the CPR for global profiles.
   $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
   // @todo it would be nice to do this in one request instead of two
@@ -394,6 +418,7 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         $node->content['body'][0]['#markup'] = preg_replace_callback($search, '_elmsln_core_paragraph_replace', $node->content['body'][0]['#markup']);
         drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-in-context.js');
       }
+      $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
       // target the scrollspy template style
       $search = '/<h([1-4])(.*?)>(.*?)<\/h(.*?)>/s';
       // pregmatch the anchor and title for the heading
@@ -402,11 +427,11 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
       // ensure we have headings in the body of the document
       if (count($results) == 5 && count($results[0]) > 1) {
         // loop through items found
-        $scrollspy = '<div id="scrollspy-nav" class="hide-on-med-and-down"><h2 class="element-invisible">' . t('Page contents') . '</h2><ul class="scrollspy-toc table-of-contents">';
+        $scrollspy = '<div id="scrollspy-nav" class="hide-on-med-and-down"><h2 class="element-invisible">' . t('Page contents') . '</h2><ul class="scrollspy-toc table-of-contents ' . $lmsless_classes['color'] . '-border">';
         foreach ($results[0] as $key => $result) {
           $tmp = strip_tags(trim($results[3][$key]));
           if (!empty($tmp)) {
-            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link cis-lmsless-border cis-lmsless-text" href="#' . hash('md5', 'h' . $key) . '">' . $tmp . '</a></li>';
+            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link ' . $lmsless_classes['color'] . '-border ' . $lmsless_classes['text'] .'" href="#' . hash('md5', 'h' . $key) . '">' . $tmp . '</a></li>';
           }
         }
         $scrollspy .= '</ul></div>';
@@ -592,7 +617,7 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     }
     $address = _cis_connector_format_address($settings, $instance, 'front') . $type;
     if (!empty($etid)) {
-    	$address .= '/' . $etid . '/' . $op;
+      $address .= '/' . $etid . '/' . $op;
     }
     // allow for redirecting back to whatever was set
     if (isset($_GET['destination'])) {
@@ -746,6 +771,9 @@ function elmsln_core_preprocess(&$variables, $hook) {
  * Implements hook_page_build().
  */
 function elmsln_core_page_build(&$page) {
+  if (user_access('access contextual links')) {
+    drupal_add_library('contextual', 'contextual-links');
+  }
   // obscure what powers this for security reasons
   drupal_add_http_header('Server', 'something', FALSE);
   drupal_add_http_header('X-Powered-By', 'something', FALSE);
@@ -1081,6 +1109,14 @@ function elmsln_core_voice_command() {
   $commands["%phrase pause (video)"] =  array(
     'callback' => 'Drupal.voicecommanderControlVideo',
   );
+  if (arg(1) == 'error') {
+    $commands["open the pod bay doors"] =  array(
+      'callback' => 'Drupal.voicecommanderHal9000',
+    );
+    $commands["new grounds"] =  array(
+      'callback' => 'Drupal.voicecommanderHal9000',
+    );
+  }
   return array(
     'elmsln_core' => array('commands' => $commands)
   );
@@ -1095,6 +1131,10 @@ function _elmsln_core_icon_map() {
   $map = &drupal_static(__FUNCTION__);
   if (!isset($map)) {
     $map = array(
+      'roster' => array(
+        'color' => 'orange',
+        'icon' => 'person_add',
+      ),
       'file' => array(
         'color' => 'orange',
         'icon' => 'attachment',
@@ -1219,6 +1259,17 @@ function _elmsln_core_icon_map() {
   return $map;
 }
 
+/**
+ * Implements hook_module_implements_alter().
+ */
+function elmsln_core_module_implements_alter(&$implementations, $hook) {
+  // ensure elmsln_core fires first so everything else can alter the expected list
+  if ($hook == 'cis_service_registry_alter') {
+    $tmp = array('elmsln_core' => $implementations['elmsln_core']);
+    unset($implementations['elmsln_core']);
+    $implementations = $tmp + $implementations;
+  }
+}
 
 /**
  * Implements hook_cis_service_registry_alter($keychain).
@@ -1230,55 +1281,65 @@ function _elmsln_core_icon_map() {
 function elmsln_core_cis_service_registry_alter(&$keychain) {
   // build the keychain dynamically
   $cfg = _elmsln_core_get_cfg();
-  $directory = $cfg['elmsln'] . '/core/dslmcode/profiles/';
-  foreach (scandir($directory) as $item) {
-    // see if we found an item here
-    if (!in_array($item, array('.', '..')) && is_dir($directory . $item . '/')) {
-      $tmp = explode('-', $item);
-      $distro = $tmp[0];
-      // if we have an info file, read if the values to make it real
-      if (!isset($keychain[$distro]) && file_exists($directory . $item . '/' . $distro . '.topology')) {
-        $keychain[$distro] = array(
-          'protocol' => $cfg['protocol'],
-          'service_address' => $cfg['serviceaddress'],
-          'address' => $cfg['address'],
-          'user' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']),
-          'mail' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']) . '@' . $cfg['emailending'],
-          'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
-        );
-        $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
-        $lines = explode("\n", $file);
-        // read each line of the cfg file
-        foreach ($lines as $line) {
-          // make sure this line isn't a comment and has a = in it
-          if (strpos($line, '#') !== 0 && strpos($line, '=')) {
-            $tmp = explode('=', $line);
-            // ensure we have 2 settings before doing this
-            if (count($tmp) == 2) {
-              $keyname = trim($tmp[0]);
-              $value = str_replace('"', '', str_replace("'", '', trim($tmp[1])));
-              switch ($keyname) {
-                case 'default_title':
-                case 'type':
-                  $keychain[$distro][$keyname] = $value;
-                break;
-                case 'subdomain':
-                  $keychain[$distro][$keyname] = $value;
-                  $keychain[$distro]['address'] = $value . '.' . $keychain[$distro]['address'];
-                  $keychain[$distro]['service_address'] = $cfg['serviceprefix'] . $value . '.' . $keychain[$distro]['service_address'];
-                break;
+  $directories = array(
+    $cfg['elmsln'] . '/core/dslmcode/profiles/',
+    $cfg['elmsln'] . '/config/shared/drupal-7.x/tools/',
+  );
+  foreach ($directories as $directory) {
+    if (is_dir($directory)) {
+      foreach (scandir($directory) as $item) {
+        // see if we found an item here
+        if (!in_array($item, array('.', '..')) && is_dir($directory . $item . '/')) {
+          $tmp = explode('-', $item);
+          $distro = $tmp[0];
+          // if we have an info file, read if the values to make it real
+          if (!isset($keychain[$distro]) && file_exists($directory . $item . '/' . $distro . '.topology')) {
+            $keychain[$distro] = array(
+              'protocol' => $cfg['protocol'],
+              'service_address' => $cfg['serviceaddress'],
+              'address' => $cfg['address'],
+              'user' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']),
+              'mail' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']) . '@' . $cfg['emailending'],
+              'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
+            );
+            $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
+            $lines = explode("\n", $file);
+            // read each line of the cfg file
+            foreach ($lines as $line) {
+              // make sure this line isn't a comment and has a = in it
+              if (strpos($line, '#') !== 0 && strpos($line, '=')) {
+                $tmp = explode('=', $line);
+                // ensure we have 2 settings before doing this
+                if (count($tmp) == 2) {
+                  $keyname = trim($tmp[0]);
+                  $value = str_replace('"', '', str_replace("'", '', trim($tmp[1])));
+                  switch ($keyname) {
+                    case 'subdomain':
+                      $keychain[$distro][$keyname] = $value;
+                      $keychain[$distro]['address'] = $value . '.' . $keychain[$distro]['address'];
+                      $keychain[$distro]['service_address'] = $cfg['serviceprefix'] . $value . '.' . $keychain[$distro]['service_address'];
+                    break;
+                    default:
+                      $keychain[$distro][$keyname] = $value;
+                    break;
+                  }
+                }
               }
             }
+            // support meta properties for authority / services
+            if ($keychain[$distro]['type'] == 'authority') {
+              $keychain[$distro]['ignore'] = TRUE;
+              $keychain[$distro]['instance'] = FALSE;
+            }
+            elseif ($keychain[$distro]['type'] == 'service') {
+              $keychain[$distro]['ignore'] = FALSE;
+              $keychain[$distro]['instance'] = TRUE;
+            }
+            elseif ($keychain[$distro]['type'] == 'custom') {
+              $keychain[$distro]['ignore'] = TRUE;
+              $keychain[$distro]['instance'] = FALSE;
+            }
           }
-        }
-        // support meta properties for authority / services
-        if ($keychain[$distro]['type'] == 'authority') {
-          $keychain[$distro]['ignore'] = TRUE;
-          $keychain[$distro]['instance'] = FALSE;
-        }
-        elseif ($keychain[$distro]['type'] == 'service') {
-          $keychain[$distro]['ignore'] = FALSE;
-          $keychain[$distro]['instance'] = TRUE;
         }
       }
     }
@@ -1300,6 +1361,19 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
       'instance' => FALSE,
       'default_title' => t('Learning record store'),
       'ignore' => TRUE,
+      'type' => 'external',
+      'weight' => '0',
+      'group' => t('Analytics'),
+      'subdomain' => 'lrs',
+      'icon_library' => 'materialize',
+      'show_in_network' => '1',
+      'icon' => 'data_usage',
+      'color' => 'light-blue',
+      'color_dark' => 'darken-3',
+      'color_light' => 'lighten-3',
+      'color_text' => 'accessible-light-blue-text',
+      'color_outline' => 'light-blue-outline',
+      'color_code' => '#03a9f4',
     );
   }
 }
@@ -1449,6 +1523,11 @@ function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
     $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-research-hypothesis'] = filter_xss($settings['hypothesis']);
   }
 
+  // competency if its set
+  if (isset($settings['competency'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-course-competency'] = filter_xss($settings['competency']);
+  }
+
   // duration if its set
   if (isset($settings['duration'])) {
     $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-duration'] = filter_xss($settings['duration']);
@@ -1497,6 +1576,12 @@ function elmsln_core_tincanapi_data_alter($module_name, &$data) {
       'https://www.elmsln.org/x-api/elmsln-role' => $role,
       'https://www.elmsln.org/x-api/elmsln-session' => $session,
     );
+    // see if we can find a field related to competencies
+    if ($node = menu_get_object()) {
+      if (isset($node->field_elmsln_competency) && !empty($node->field_elmsln_competency)) {
+        $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-course-competency'] = $node->field_elmsln_competency['und'][0]['safe_value'];
+      }
+    }
   }
 }
 
@@ -1679,4 +1764,21 @@ function elmsln_core_wrapped_paths() {
     'cle/*' => FALSE,
   );
   return $paths;
+}
+
+/**
+ * Implements hook_cis_lmsless_color_alter().
+ */
+function elmsln_core_cis_lmsless_color_alter(&$map) {
+  if ($registry = _cis_connector_build_registry()) {
+    foreach ($registry as $distro => $settings) {
+      $map[$distro] = array(
+        'dark'   => (isset($settings['color_dark']) ? $settings['color_dark'] : $map['_default_']['color_dark']),
+        'light'  => (isset($settings['color_light']) ? $settings['color_light'] : $map['_default_']['color_light']),
+        'color' => (isset($settings['color']) ? $settings['color'] : $map['_default_']['color']),
+        'text' => (isset($settings['color_text']) ? $settings['color_text'] : $map['_default_']['color_text']),
+        'outline' => (isset($settings['color_outline']) ? $settings['color_outline'] : $map['_default_']['color_outline']),
+      );
+    }
+  }
 }

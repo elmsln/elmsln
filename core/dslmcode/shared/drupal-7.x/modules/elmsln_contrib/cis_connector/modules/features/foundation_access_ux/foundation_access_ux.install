@@ -69,3 +69,10 @@ function foundation_access_ux_update_7002(&$sandbox) {
 function foundation_access_ux_update_7003(&$sandbox) {
   features_revert_module('foundation_access_ux');
 }
+
+/**
+ * Tab / DOM stack order for Add menu FAB.
+ */
+function foundation_access_ux_update_7004(&$sandbox) {
+  features_revert_module('foundation_access_ux');
+}

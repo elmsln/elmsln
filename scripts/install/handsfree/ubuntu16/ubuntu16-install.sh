@@ -46,7 +46,7 @@ apt-get -y install apache2
 apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make mcrypt
 
 #install php
-apt-get -y install php php-fpm php-common php-mysql php-cgi php-pear php-xml-parser php-curl php-gd php-cli php-fpm php-apcu php-dev php-mcrypt mcrypt
+apt-get -y install php php-fpm php-common php-mysql php-ldap php-cgi php-pear php-xml-parser php-curl php-gd php-cli php-fpm php-apcu php-dev php-mcrypt mcrypt
 a2enmod proxy_fcgi setenvif
 a2enconf php7.0-fpm
 
@@ -54,12 +54,16 @@ a2enconf php7.0-fpm
 a2enmod ssl rewrite headers
 pecl channel-update pecl.php.net
 
+pecl install yaml-2.0.0 && echo "extension=yaml.so" > /etc/php/7.0/mods-available/yaml.ini
+phpenmod
+
 # install uploadprogress
 pecl install uploadprogress
 
 # adding uploadprogresss to php conf files
 touch /etc/php/7.0/mods-available/uploadprogress.ini
 echo extension=uploadprogress.so > /etc/php/7.0/mods-available/uploadprogress.ini
+phpenmod yaml
 
 # Sanity Logs
 mkdir /var/log/php-fpm/

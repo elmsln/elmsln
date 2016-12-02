@@ -1,9 +1,73 @@
-article ul:not(.browser-default) li {
-	list-style-type: disc;
+@media (max-width: 80rem) {
+  .btn-floating.btn-large {
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+  }
+  .btn-floating.btn-large i {
+    line-height: 2rem;
+  }
 }
-#block-mooc-nav-block-mooc-nav-nav li,
-article ul.table-of-contents li {
-	list-style-type: none;
+
+/* support shifting highlighted block region off to left column on big displays */
+@media screen and (min-width: 80rem) {
+  .highlighted-block-area {
+    position: absolute;
+    right: 100%;
+    width: calc(50vw - 52%);
+    max-width: 30em;
+    top:0; }
+}
+/* shift exposed filters over on REALLY big displays */
+@media screen and (min-width: 100rem) {
+  .r-local-subheader .views-exposed-form {
+    position: absolute;
+    right: 100%;
+    width: calc(50vw - 52%);
+    top:0; }
+}
+
+
+/* Helps in the event the internet isn't there */
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.elmsln-error-page {
+  font-size: 2rem;
+  line-height: 4rem;
+}
+
+.error-page-hal9000 {
+  filter:saturate(1) invert(1);
+  transform: scale(.95, .95);
+  transition: 3s ease;
+}
+
+.error-page-hal9000.on {
+  filter:saturate(10) invert(.9);
+  transform: scale(1, 1);
+}
+
+.colorpicker {
+  z-index: 10000;
+}
+
+article ul:not(.browser-default):not(.dropdown-content):not(.table-of-contents):not(.menu) li {
+  list-style-type: disc;
+  list-style-position: outside;
 }
 
 .material-icon.elmsln-icon:before {
@@ -11,11 +75,11 @@ article ul.table-of-contents li {
 }
 
 .contextual-container-left div.contextual-links-wrapper {
-    position: relative;
-    margin-left: -2rem;
+  position: relative;
+  margin-left: -2rem;
 }
 .contextual-container-left div.custom-contextual-links {
-	float: left;
+  float: left;
 }
 
 #etb-course-nav .top-bar-section.title-link li a.active-trail {
@@ -23,7 +87,7 @@ article ul.table-of-contents li {
 }
 
 .etb-book dl {
- margin: 0;
+  margin: 0;
 }
 
 /* flyout sizing */
@@ -46,15 +110,17 @@ input.cis_shortcodes_embed,
 
 /* save form state */
 #autosave-status {
-  width: 100%;
-  height: 5em;
+  width: 35%;
+  height: 4.5em;
   background-color: #0074BD;
+  padding: 1rem;
+  z-index: 100;
 }
 #autosave-status #status {
   margin-left: 1rem;
   width: 100%;
   height: 5rem;
-  line-height: 5rem;
+  line-height: 1rem;
 }
 
 /* Core in context items */
@@ -111,7 +177,7 @@ input.cis_shortcodes_embed,
 }
 
 /* Font normalization */
-h1,h2,h3,h4,h5,h6,p, #etb-course-nav span.course-title, .alert-box, #etb-tool-nav .tab-bar span, ul.off-canvas-list li a, .etb-nav-modal ul li a, a.etb-nav_item_service_btn span, a.etb-modal-icon span, a.modal-img-link span, .etb-nav-modal h2, #admin-menu .dropdown li li a, .admin-status-bar span.course-section-label, .admin-status-bar span.user-role-label, .admin-status-bar span.current-user-id-label, h2, a, p.txtbk-intro, p.txtbk-intro a, .section-id, .accordion .accordion-navigation > a, .accordion dd > a, .sub-tier-1 h2, .sub-tier-1 h3, footer p, .admin-status-bar span.course-section, .admin-status-bar span.user-role, .admin-status-bar span.current-user-id, h1, .image-media h3, h4.testimonial-name, #etb-course-nav span.course-abrv, .etb-nav-modal h1 {
+h1,h2,h3,h4,h5,h6,p, #etb-course-nav span.course-title, .alert-box, #etb-tool-nav .tab-bar span, ul.off-canvas-list li a, .etb-book ul, .etb-book ol, .etb-book dl, .etb-nav-modal ul li a, a.etb-nav_item_service_btn span, a.etb-modal-icon span, a.modal-img-link span, .etb-nav-modal h2, #admin-menu .dropdown li li a, .admin-status-bar span.course-section-label, .admin-status-bar span.user-role-label, .admin-status-bar span.current-user-id-label, h2, a, p.txtbk-intro, p.txtbk-intro a, .section-id, .accordion .accordion-navigation > a, .accordion dd > a, .sub-tier-1 h2, .sub-tier-1 h3, footer p, .admin-status-bar span.course-section, .admin-status-bar span.user-role, .admin-status-bar span.current-user-id, h1, .image-media h3, h4.testimonial-name, #etb-course-nav span.course-abrv, .etb-nav-modal h1 {
   font-family: "Roboto", sans-serif;
   font-weight: normal;
 }
@@ -447,7 +513,7 @@ ul.dropdown-content li:not(.has-form) a:not(.button) {
   background-color: transparent;
   line-height: 2.5rem;
   height: 2.5rem;
-  padding: 0 !important;
+  padding: 0 0 0 .5rem !important;
   display: block;
   font-weight: normal;
 }
@@ -492,12 +558,45 @@ ul.dropdown-content {
   min-height: 8rem;
   z-index: 1;
 }
+@media screen and (max-width: 600px) {
+  .header-image-container {
+    height: 3rem;
+    min-height: 3rem;
+  }
+}
+@media screen and (min-width: 600px) {
+  .header-image-container {
+    height: 4rem;
+    min-height: 4rem;
+  }
+}
+@media screen and (min-width: 800px) {
+  .header-image-container {
+    height: 5rem;
+    min-height: 5rem;
+  }
+}
+@media screen and (min-width: 992px) {
+  .header-image-container {
+    height: 6rem;
+    min-height: 6rem;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .header-image-container {
+    height: 8rem;
+    min-height: 8rem;
+  }
+}
 .header-image-container img {
   display: block;
   top:0;
-  min-height: 8rem;
+  min-height: 3rem;
+  height: auto;
+  max-width: 100%;
   position: fixed;
   z-index: 0;
+  clip: rect(auto, auto, 8rem, auto);
 }
 
 /* Materialize Waves additional colors */
@@ -970,6 +1069,8 @@ ul.pagination li a {
   overflow-y: scroll;
   width: 100%;
   max-width: 30em;
+  border-bottom-width: .1rem;
+  border-bottom-style: solid;
 }
 @media screen and (min-width: 80rem) {
   #scrollspy-nav {
@@ -1010,10 +1111,11 @@ div.form-type-checkbox :last-child {
   overflow: hidden;
 }
 .spritz {
-    font-size: 5rem;
+  font-size: 5rem;
   line-height: 10rem;
   height: 10rem;
   overflow: hidden;
+  margin: 1rem;
 }
 #spritz_progress {
   height: .5rem;
@@ -1097,7 +1199,7 @@ body.entity-iframe-theme {
 main {
   flex: 1 0 auto;
   -webkit-flex: 1 0 auto; /* Safari 6.1+ */
-  -ms-flex: 1 0 auto; /* IE 10 */ 
+  -ms-flex: 1 0 auto; /* IE 10 */
   background-color: #ffffff;
   z-index: 1;
 }
@@ -1113,8 +1215,10 @@ main li a {
 
 footer.page-footer{
   background-color: #f5f5f5;
-  padding-top: 1rem;
-  text-align: center; }
+  padding-top: 2rem;
+  margin-top:2rem;
+  margin-bottom: -1rem;
+  text-align: center;}
   footer.page-footer p {
     color: #222222;
     font-size: 0.8rem; }
@@ -1297,9 +1401,6 @@ div.read-time-wrapper div.chip i {
   z-index: 1;
 }
 
-article.node-view-mode-full {
-  margin-top: 2rem;
-}
 /* ELMSLN bullets */
 article.node div.body ul li {
   list-style-type: initial;
@@ -1441,9 +1542,9 @@ a.add-menu-drop {
 #backtotop {
   background: url(../legacy/img/backtotop.png) no-repeat center center;
   z-index: 1000;
-  right: 2.25rem;
-  bottom: .5rem;
-  width: 2rem;
+  right: 0;
+  bottom: 0;
+  width: 3rem;
   height: 2rem;
 }
 
@@ -1545,12 +1646,12 @@ ul.header-menu-options li.active-trail {
   background-attachment: fixed;
 }
 
-h1#page-title {
+#page-title {
   color: #222222;
   font-size: 2.25rem;
   line-height: 2.5rem;
   padding: 0;
-  margin-bottom:.5rem;
+  margin-bottom:1rem;
   text-align: left;
   text-transform: none;
   overflow: hidden;
@@ -1561,6 +1662,21 @@ h1#page-title {
 .read-time {
   float: right;
   margin-top:-3.5rem;
+}
+.read-time .chip {
+  min-width: 4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 2rem;
+  padding: 0 .75rem;
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.highlighted-block-area .read-time {
+  float: none;
+  margin: 0;
 }
 .collapsible-body .read-time {
   float: none;

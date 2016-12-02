@@ -17,3 +17,10 @@ function mooc_ux_defaults_7000(&$sandbox) {
 function mooc_ux_defaults_7001(&$sandbox) {
   features_revert('mooc_ux_defaults');
 }
+
+/**
+ * Read time and nav blocks now deliver through here.
+ */
+function mooc_ux_defaults_7002(&$sandbox) {
+  features_revert_module('mooc_ux_defaults');
+}

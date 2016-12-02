@@ -21,29 +21,31 @@ function elmsmedia_audio_ds_layout_settings_info() {
     'regions' => array(
       'header' => array(
         0 => 'field_cis_course_ref',
+        1 => 'field_elmsln_competency',
       ),
       'left' => array(
-        1 => 'title',
-        2 => 'field_tagging',
+        2 => 'title',
+        3 => 'field_tagging',
       ),
       'right' => array(
-        3 => 'field_audio',
+        4 => 'field_audio',
       ),
       'footer' => array(
-        4 => 'og_group_ref',
+        5 => 'og_group_ref',
       ),
       'hidden' => array(
-        5 => 'path',
-        6 => 'revision_information',
-        7 => 'options',
-        8 => 'author',
-        9 => 'hidden_nodes',
-        10 => 'book',
-        11 => '_add_existing_field',
+        6 => 'path',
+        7 => 'revision_information',
+        8 => 'options',
+        9 => 'author',
+        10 => 'hidden_nodes',
+        11 => 'book',
+        12 => '_add_existing_field',
       ),
     ),
     'fields' => array(
       'field_cis_course_ref' => 'header',
+      'field_elmsln_competency' => 'header',
       'title' => 'left',
       'field_tagging' => 'left',
       'field_audio' => 'right',

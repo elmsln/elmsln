@@ -198,6 +198,10 @@ function _cis_shortcode_render_codes($entity, $type) {
       'item' => $entity->{$type_info['entity keys']['id']},
       'entity_type' => $type,
     );
+    // see if this entity has our standard competency field associated to it
+    if (isset($entity->field_elmsln_competency) && !empty($entity->field_elmsln_competency)) {
+      $properties['competency'] = $entity->field_elmsln_competency['und'][0]['safe_value'];
+    }
     // support for entity iframe direct link
     if (module_exists('entity_iframe') && _entity_iframe_view_iframe($type, $entity->{$type_info['entity keys']['id']})) {
       $direct['cis_shortcodes_embed'] = array(
@@ -207,7 +211,7 @@ function _cis_shortcode_render_codes($entity, $type) {
         '#type' => 'textfield',
         '#pre_render' => array('_cis_shortcodes_add_js'),
         '#weight' => 1,
-        '#id' => 'cis-shortcodes-embed',
+        '#id' => 'cis-shortcodes-iframe-embed',
       );
       $properties = array(
         'rev' => CIS_SHORTCODES_API_REV,
@@ -218,13 +222,17 @@ function _cis_shortcode_render_codes($entity, $type) {
         'icon' => 'pageview',
         'render' => 'modal',
       );
+      // see if this entity has our standard competency field associated to it
+      if (isset($entity->field_elmsln_competency) && !empty($entity->field_elmsln_competency)) {
+        $properties['competency'] = $entity->field_elmsln_competency['und'][0]['safe_value'];
+      }
       $direct['cis_shortcodes_modal'] = array(
         '#title' => t('Modal embed'),
         '#attributes' => array('class' => array('cis_shortcodes_embed', 'cis_shortcodes_modal')),
         '#value' => _cis_shortcodes_build_code($properties),
         '#type' => 'textfield',
         '#weight' => 2,
-        '#id' => 'cis-shortcodes-embed',
+        '#id' => 'cis-shortcodes-modal',
       );
       $properties = array(
         'rev' => CIS_SHORTCODES_API_REV,
@@ -235,13 +243,17 @@ function _cis_shortcode_render_codes($entity, $type) {
         'icon' => 'pageview',
         'render' => 'side_nav',
       );
+      // see if this entity has our standard competency field associated to it
+      if (isset($entity->field_elmsln_competency) && !empty($entity->field_elmsln_competency)) {
+        $properties['competency'] = $entity->field_elmsln_competency['und'][0]['safe_value'];
+      }
       $direct['cis_shortcodes_side_nav'] = array(
         '#title' => t('Side nav embed'),
         '#attributes' => array('class' => array('cis_shortcodes_embed', 'cis_shortcodes_side_nav')),
         '#value' => _cis_shortcodes_build_code($properties),
         '#type' => 'textfield',
         '#weight' => 2,
-        '#id' => 'cis-shortcodes-embed',
+        '#id' => 'cis-shortcodes-side-nav',
       );
       // add in the entity iframe items if they make sense
       $direct_frames = _entity_iframe_render_codes($entity, $type, 'block');
@@ -364,6 +376,10 @@ function _cis_shortcode_render_codes($entity, $type) {
         'tool' => elmsln_core_get_profile_key(),
         'item' => $entity->{$type_info['entity keys']['id']},
       );
+      // see if this entity has our standard competency field associated to it
+      if (isset($entity->field_elmsln_competency) && !empty($entity->field_elmsln_competency)) {
+        $properties['competency'] = $entity->field_elmsln_competency['und'][0]['safe_value'];
+      }
       // only append type for non-node entities
       if ($type != 'node') {
         $properties['entity_type'] = $type;

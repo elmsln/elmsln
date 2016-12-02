@@ -13,7 +13,7 @@ function foundation_access_preprocess_html(&$variables) {
   $address = explode('.', $settings['address']);
   $variables['iconsizes'] = array('16', '32', '64', '96', '160', '192', '310');
   $variables['appleiconsizes'] = array('60', '72', '76', '114', '120', '144', '152', '180');
-  $variables['system_icon'] = array_shift($address);
+  $variables['system_icon'] = $settings['icon'];
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   // loop through our system specific colors
   $colors = array('primary', 'secondary', 'required', 'optional');
@@ -50,7 +50,7 @@ function foundation_access_preprocess_html(&$variables) {
   // elmsln icons
   drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/fonts/elmsln/elmsln-font-styles.css', array('group' => CSS_THEME, 'weight' => -1000));
   // google font / icons from google
-  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
+  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
   if (isset($libraries['jquery.vibrate.js'])) {
     drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
@@ -147,7 +147,7 @@ function foundation_access_fieldset($variables) {
   if (isset($element['#materialize'])) {
     switch ($element['#materialize']['type']) {
       case 'collapsible_wrapper':
-        $output = '<ul' . drupal_attributes($element['#attributes']) .'>' . $element['#children'] . '</ul>';
+        $output = '<ul' . drupal_attributes($element['#attributes']) .' role="tablist">' . $element['#children'] . '</ul>';
       break;
       case 'collapsible':
         $collapse = '';
@@ -174,15 +174,17 @@ function foundation_access_fieldset($variables) {
         }
         // drive down into the child elements if they exist
         $body .= $element['#children'];
+        // make a nice anchor link
+        $anchor = str_replace(' ', '', drupal_strtolower(preg_replace("/[^a-zA-Z_\s]+/", "", $element['#title'])));
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a href="#" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '">' .
+          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '">' .
             $icon . $element['#title'] .
           '
           </a>
           <div class="collapsible-body">
-            <div class="elmsln-collapsible-body">
+            <div class="elmsln-collapsible-body" aria-labelledby="collapse-item-id-' . $anchor . '" role="tabpanel">
               ' . $body . '
             </div>
             <div class="divider cis-lmsless-background"></div>
@@ -310,10 +312,40 @@ function foundation_access_preprocess_page(&$variables) {
   if (isset($variables['tabs']) && is_array($variables['tabs']['#primary'])) {
     $edit_path = arg(0) . '/' . arg(1) . '/edit';
     foreach ($variables['tabs']['#primary'] as $key => $tab) {
+      // edit path
       if (isset($tab['#link']['href']) && $tab['#link']['href'] == $edit_path) {
         $variables['edit_path'] = base_path() . $edit_path;
         // hide the edit tab cause our on canvas pencil does this
         unset($variables['tabs']['#primary'][$key]);
+      }
+    }
+    // duplicate these for local header if its empty
+    // do this everywhere except mooc since it has its own way of doing this
+    if (empty($variables['page']['local_header']) && elmsln_core_get_profile_key() != 'mooc') {
+      $variables['page']['local_header'] = array('#primary' => $variables['tabs']['#primary']);
+      $variables['page']['local_header']['#theme_wrappers'] = array(0 => 'menu_local_tasks');
+      foreach ($variables['page']['local_header']['#primary'] as $key => $tab) {
+        // allow for shifting less common tasks off to the ... menu
+        if (in_array($tab['#link']['path'], _foundation_access_move_tabs())) {
+          unset($variables['page']['local_header']['#primary'][$key]);
+        }
+        else {
+          unset($variables['tabs']['#primary'][$key]);
+          $variables['page']['local_header']['#primary'][$key]['#attributes']['class'][] = 'leaf';
+          $variables['page']['local_header']['#primary'][$key]['#attributes']['class'][] = 'tab';
+          $variables['page']['local_header']['#primary'][$key]['#link']['localized_options']['attributes']['class'][] = $variables['cis_lmsless']['lmsless_classes'][elmsln_core_get_profile_key()]['text'];
+          $variables['page']['local_header']['#primary'][$key]['#link']['localized_options']['attributes']['target'] = '_self';
+        }
+      }
+      $primary = array();
+      foreach ($variables['page']['local_header']['#primary'] as $key => $tab) {
+        $primary[] = $tab;
+      }
+      $variables['page']['local_header']['#primary'] = $primary;
+      // wrap this in tabs if we have things in here in the first place
+      if (count($variables['page']['local_header']['#primary']) > 0) {
+        $variables['page']['local_header']['#primary'][0]['#prefix'] = '<ul class="elmsln-tabs tabs">';
+        $variables['page']['local_header']['#primary'][count($variables['page']['local_header']['#primary'])]['#suffix'] = '</ul>';
       }
     }
   }
@@ -665,6 +697,10 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
   if (isset($elements['#node']->field_poster['und'][0]['uri'])) {
     $poster_image_uri = $elements['#node']->field_poster['und'][0]['uri'];
   }
+  // see if this entity has our standard competency field associated to it
+  if (isset($elements['#node']->field_elmsln_competency) && !empty($elements['#node']->field_elmsln_competency)) {
+    $variables['competency'] = $elements['#node']->field_elmsln_competency['und'][0]['safe_value'];
+  }
   // if not, attempt to use the thumbnail created by the video upload field
   elseif (isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {
     $poster_image_uri = $variables['content']['field_external_media']['#items'][0]['thumbnail_path'];
@@ -897,7 +933,6 @@ function foundation_access_preprocess_node__inherit__svg(&$variables) {
   $variables['svg_aria_hidden'] = 'false';
   $variables['svg_alttext'] = NULL;
   $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
-
   try {
     // if there is an accessbile text alternative then set the svg to aria-hidden
     if ($node_wrapper->field_svg_alttext->value()) {
@@ -958,15 +993,9 @@ function foundation_access_preprocess_clipboardjs(&$variables) {
 function foundation_access_menu_local_tasks(&$variables) {
   $output = '';
   if (!empty($variables['primary'])) {
-    $variables['primary']['#prefix'] = '<h2 class="element-invisible">' . t('Primary tabs') . '</h2>';
-    $variables['primary']['#prefix'] .= '<ul class="button-group">';
-    $variables['primary']['#suffix'] = '</ul>';
     $output .= drupal_render($variables['primary']);
   }
   if (!empty($variables['secondary'])) {
-    $variables['secondary']['#prefix'] = '<h2 class="element-invisible">' . t('Secondary tabs') . '</h2>';
-    $variables['secondary']['#prefix'] .= '<ul class="button-group">';
-    $variables['secondary']['#suffix'] = '</ul>';
     $output .= drupal_render($variables['secondary']);
   }
   return $output;
@@ -1023,7 +1052,6 @@ function foundation_access_menu_link(&$variables) {
       $element['#localized_options']['attributes']['class'][] = $lmsless_classes['light'];
     }
   }
-  // @todo apply tabs here when we get the targetting / style figured out
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
     $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
     $element['#attributes']['class'][] = 'tab';
@@ -1105,7 +1133,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
   $id = 'menu-panel-' . $element['#original_link']['mlid'];
   // account for no link'ed items
   if ($element['#href'] == '<nolink>') {
-    $output = '<a href="#">' . $title . '</a>';
+    $output = '<a href="#menu-no-link-' . hash('md5', 'mnl' . $title) . '">' . $title . '</a>';
   }
   // account for sub menu things being rendered differently
   if (empty($sub_menu)) {
@@ -1148,12 +1176,12 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
       '</div>'  . "\n" .
       '<li class="back">'  . "\n" .
-      '<a href="#" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
+      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
       $sub_menu . "\n</ul>\n</li>";
       $counter++;
     }
     else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#"><div class="elmsln-icon icon-content outline-nav-icon"></div><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
+      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#elmsln-menu-sub-level-' . hash('md5', 'emsl' . $title) . '"><div class="elmsln-icon icon-content outline-nav-icon"></div><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       '<div>'  . "\n";
       $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
@@ -1163,7 +1191,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
       '</div>'  . "\n" .
       '<li class="back">'  . "\n" .
-      '<a href="#" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
+      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
       $sub_menu . "\n</ul>\n</li>";
     }
   }
@@ -1199,8 +1227,12 @@ function _foundation_access_auto_label_build($word, $number, $counter) {
 function foundation_access_menu_local_task(&$variables) {
   $link = $variables['element']['#link'];
   $link_text = check_plain($link['title']);
-  $li_class = (!empty($variables['element']['#active']) ? ' class="active"' : '');
-
+  if (!empty($variables['element']['#active'])) {
+    $variables['element']['#attributes']['class'][] = 'active';
+  }
+  if (empty($variables['element']['#attributes'])) {
+    $variables['element']['#attributes'] = array();
+  }
   if (!empty($variables['element']['#active'])) {
     // Add text to indicate active tab for non-visual users.
     $active = '<span class="element-invisible">' . t('(active tab)') . '</span>';
@@ -1213,9 +1245,7 @@ function foundation_access_menu_local_task(&$variables) {
     $link['localized_options']['html'] = TRUE;
     $link_text = t('!local-task-title!active', array('!local-task-title' => $link['title'], '!active' => $active));
   }
-
-  $output = '';
-  $output .= '<li' . $li_class . '>';
+  $output = '<li ' . drupal_attributes($variables['element']['#attributes']) . '>';
   $output .= l($link_text, $link['href'], $link['localized_options']);
   $output .= "</li>\n";
   return  $output;
@@ -1280,24 +1310,6 @@ function foundation_access_html_head_alter(&$head_elements) {
  * Print breadcrumbs as a list, with separators.
  */
 function foundation_access_breadcrumb($variables) {
-  /*$breadcrumb = $variables['breadcrumb'];
-
-  if (!empty($breadcrumb)) {
-    // Provide a navigational heading to give context for breadcrumb links to
-    // screen-reader users. Make the heading invisible with .element-invisible.
-    $breadcrumbs = '<h2 class="element-invisible">' . t('You are here') . '</h2>';
-
-    $breadcrumbs .= '<ul class="breadcrumbs">';
-    foreach ($breadcrumb as $key => $value) {
-      $breadcrumbs .= '<li>' . strip_tags(htmlspecialchars_decode($value), '<br><br/><a></a><span></span>') . '</li>';
-    }
-
-    $title = strip_tags(drupal_get_title());
-    $breadcrumbs .= '<li class="current"><a href="#">' . $title . '</a></li>';
-    $breadcrumbs .= '</ul>';
-
-    return $breadcrumbs;
-  }*/
 }
 
 /**
@@ -1515,10 +1527,10 @@ function foundation_access_status_messages($variables) {
 
   foreach (drupal_get_messages($display) as $type => $messages) {
     if (isset($status_mapping[$type])) {
-      $output .= "<div data-alert class=\"alert-box $status_mapping[$type]\">\n";
+      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box $status_mapping[$type]\">\n";
     }
     else {
-      $output .= "<div data-alert class=\"alert-box\">\n";
+      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">\n";
     }
 
     if (!empty($status_heading[$type])) {
@@ -1534,7 +1546,7 @@ function foundation_access_status_messages($variables) {
     else {
       $output .= $messages[0];
     }
-    $output .= '<a href="#" class="close">&times;</a>';
+    $output .= '<a href="#close-dialog" class="close" aria-label="' . t('Hide messages') . '" data-voicecommand="hide messages" data-jwerty-key="Esc">&#215;</a>';
     $output .= "</div>\n";
   }
 
@@ -1877,4 +1889,23 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
             <div class="content-element-region">
             <div contenteditable="true" class="cke_editable_themed';
   */
+}
+
+function _foundation_access_move_tabs() {
+  $tabs = array(
+    'node/%/display',
+    'node/%/replicate',
+    'node/%/addanother',
+    'node/%/revisions',
+    'node/%/devel',
+    'user/%/devel',
+    'user/%/imce',
+    'user/%/view',
+    'user/%/display',
+    'user/%/replicate',
+    'user/%/data',
+    'file/%/devel',
+    'file/%/delete',
+  );
+  return $tabs;
 }

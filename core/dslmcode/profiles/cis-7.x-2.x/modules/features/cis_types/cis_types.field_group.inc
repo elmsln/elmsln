@@ -82,13 +82,14 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Administrative',
-    'weight' => '2',
+    'weight' => '4',
     'children' => array(
-      0 => 'field_instructional_designer',
-      1 => 'field_lead_instructor',
-      2 => 'group_instructors',
-      3 => 'group_resources',
-      4 => 'group_tas',
+      0 => 'path',
+      1 => 'hidden_nodes',
+      2 => 'book',
+      3 => 'options',
+      4 => 'author',
+      5 => 'revision_information',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -180,6 +181,7 @@ function cis_types_field_group_info() {
       5 => 'field_method_of_access',
       6 => 'field_program_classification',
       7 => 'title',
+      8 => 'group_pedagogical',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -289,7 +291,7 @@ function cis_types_field_group_info() {
   $field_group->entity_type = 'node';
   $field_group->bundle = 'course';
   $field_group->mode = 'form';
-  $field_group->parent_name = 'group_administrative';
+  $field_group->parent_name = 'group_resources';
   $field_group->data = array(
     'label' => 'Instructors',
     'weight' => '24',
@@ -312,6 +314,37 @@ function cis_types_field_group_info() {
     ),
   );
   $field_groups['group_instructors|node|course|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_internal_logistics|node|course|form';
+  $field_group->group_name = 'group_internal_logistics';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'course';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Internal logistics',
+    'weight' => '3',
+    'children' => array(
+      0 => 'field_instructional_designer',
+      1 => 'field_lead_instructor',
+      2 => 'group_resources',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'label' => 'Internal logistics',
+      'instance_settings' => array(
+        'required_fields' => 1,
+        'id' => '',
+        'classes' => 'group-internal-logistics field-group-fieldset',
+        'description' => '',
+      ),
+      'formatter' => 'collapsed',
+    ),
+  );
+  $field_groups['group_internal_logistics|node|course|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -354,7 +387,7 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Offerings',
-    'weight' => '4',
+    'weight' => '1',
     'children' => array(
       0 => 'field_offerings',
     ),
@@ -362,14 +395,44 @@ function cis_types_field_group_info() {
     'format_settings' => array(
       'label' => 'Offerings',
       'instance_settings' => array(
-        'required_fields' => 0,
+        'required_fields' => 1,
+        'id' => '',
         'classes' => ' group-offerings field-group-fieldset',
         'description' => '',
       ),
-      'formatter' => 'collapsed',
+      'formatter' => 'collapsible',
     ),
   );
   $field_groups['group_offerings|node|course|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_pedagogical|node|course|form';
+  $field_group->group_name = 'group_pedagogical';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'course';
+  $field_group->mode = 'form';
+  $field_group->parent_name = 'group_details';
+  $field_group->data = array(
+    'label' => 'Pedagogical',
+    'weight' => '52',
+    'children' => array(
+      0 => 'field_elmsln_course_competencies',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'label' => 'Pedagogical',
+      'instance_settings' => array(
+        'required_fields' => 0,
+        'id' => '',
+        'classes' => 'group-pedagogical field-group-fieldset',
+        'description' => '',
+      ),
+      'formatter' => 'collapsible',
+    ),
+  );
+  $field_groups['group_pedagogical|node|course|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -443,10 +506,10 @@ function cis_types_field_group_info() {
   $field_group->entity_type = 'node';
   $field_group->bundle = 'course';
   $field_group->mode = 'form';
-  $field_group->parent_name = '';
+  $field_group->parent_name = 'group_internal_logistics';
   $field_group->data = array(
     'label' => 'Resources',
-    'weight' => '4',
+    'weight' => '8',
     'children' => array(
       0 => 'group_instructors',
       1 => 'group_tas',
@@ -475,7 +538,7 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Promotional',
-    'weight' => '1',
+    'weight' => '2',
     'children' => array(
       0 => 'group_promo_details',
       1 => 'group_screenshots',
@@ -647,7 +710,7 @@ function cis_types_field_group_info() {
   $field_group->entity_type = 'node';
   $field_group->bundle = 'course';
   $field_group->mode = 'form';
-  $field_group->parent_name = 'group_administrative';
+  $field_group->parent_name = 'group_resources';
   $field_group->data = array(
     'label' => 'Teaching Assistants',
     'weight' => '25',
@@ -817,8 +880,10 @@ function cis_types_field_group_info() {
   t('Details');
   t('Files');
   t('Instructors');
+  t('Internal logistics');
   t('Marketing');
   t('Offerings');
+  t('Pedagogical');
   t('Personel');
   t('Promotional');
   t('Resources');

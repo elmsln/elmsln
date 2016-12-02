@@ -204,6 +204,7 @@ function ecd_helper_elmsln_api_info() {
   // asset for this item
   $callbacks['asset'] = array(
     'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
     'file' => 'callbacks/v1/asset.inc',
   );
   return $callbacks;

@@ -1,0 +1,4 @@
+name = CLE Phase
+description = This provides a field type to store phases of a project
+core = 7.x
+package = CLE

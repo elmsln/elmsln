@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AssignmentService } from '../../assignment.service';
+import { Assignment } from '../../assignment';
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,7 +10,7 @@ import { Router } from '@angular/router';
   providers: [AssignmentService]
 })
 export class AssignmentListComponent implements OnInit {
-  assignments: Array<any>;
+  assignments: Array<Assignment>;
 
   constructor(
     private assignmentService: AssignmentService,
@@ -19,11 +20,15 @@ export class AssignmentListComponent implements OnInit {
   ngOnInit() {
     this.assignmentService.getAssignments()
       .subscribe(data => { 
-        this.assignments = data
+        this.assignments = data.data
       });
   }
 
   viewAssignment(assignmentId) {
     this.router.navigate(['/assignments/' + assignmentId]);
+  }
+
+  createAssignment() {
+    this.router.navigate(['/assignments/new']);
   }
 }

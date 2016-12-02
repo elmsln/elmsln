@@ -1,4 +1,10 @@
 <div class="assignment" *ngIf="assignment">
   <h1 class="assignment__title">{{ assignment.title }}</h1>
-  <div class="assignment__body" [innerHTML]="assignment.body.value"> {{ assignment.body.value}}</div>
+  <div class="assignment__meta">
+    <div class="assignment__dates">
+      <span *ngIf="assignment.startDate">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>
+      {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}
+    </div>
+  </div>
+  <div class="assignment__body" [innerHTML]="assignment.body"> </div>
 </div>

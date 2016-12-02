@@ -13,7 +13,8 @@ import 'rxjs';
 })
 export class AssignmentComponent implements OnInit {
   assignmentId: number;
-  assignment: any;
+  assignment: Assignment;
+  date: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,8 +39,12 @@ export class AssignmentComponent implements OnInit {
         // assign the result to the local assignment
       // @todo this should be handled better
         .subscribe(data => {
-          this.assignment = data;
+          this.assignment = data.data;
         });
     }
+  }
+
+  backButton() {
+    this.location.back();
   }
 }

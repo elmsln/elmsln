@@ -77,6 +77,7 @@
   <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
 </head>
 <body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?>>
+<h1 class="element-invisible"><?php print $head_title;?></h1>
 <?php ob_flush(); flush(); ?>
   <span class="cis-lmsless-color"></span>
   <div class="skip-link">

@@ -84,19 +84,19 @@ function a11y_a11y_block($render = TRUE) {
           <div class="col s4">
             <a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
               <span>Smaller</span>
-              <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" width="24px" height="24px" />
+              <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" width="24" height="24" />
             </a>
           </div>
           <div class="col s4">
             <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
               <span>Larger</span>
-              <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" width="24px" height="24px" />
+              <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" width="24" height="24" />
             </a>
           </div>
           <div class="col s4">
             <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
               <span>Reset</span>
-              <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" width="24px" height="24px" />
+              <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" width="24" height="24" />
             </a>
           </div>
         </div>
@@ -206,7 +206,7 @@ function a11y_a11y_block($render = TRUE) {
         '#title' => t('Field loss'),
         '#default_value' => '',
         '#options' => array(
-          '' => '',
+          '' => t('No field loss'),
           'central' => t('Central loss'),
           'peripheral' => t('Peripheral loss'),
         ),
@@ -219,7 +219,7 @@ function a11y_a11y_block($render = TRUE) {
     // support for colorblind simulator
     if (variable_get('a11y_sim_colorblind', 1)) {
       $options = array(
-        '' => '',
+        '' => t('No color blindness'),
         'achromatopsia' => t('Achromatopsia'),
         'achromatomaly' => t('Achromatomaly'),
         'deuteranopia' => t('Deuteranopia'),

@@ -249,38 +249,41 @@ function elmsmedia_h5p_strongarm() {
       'accessible_fallback' => array(
         'custom_settings' => TRUE,
       ),
+      'document' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
         'h5p' => array(
-          'weight' => '3',
-        ),
-        'h5p_type' => array(
-          'weight' => '2',
-        ),
-        'h5p_editor' => array(
           'weight' => '4',
         ),
+        'h5p_type' => array(
+          'weight' => '3',
+        ),
+        'h5p_editor' => array(
+          'weight' => '5',
+        ),
         'title' => array(
-          'weight' => '1',
+          'weight' => '2',
         ),
         'path' => array(
-          'weight' => '9',
-        ),
-        'hidden_nodes' => array(
           'weight' => '10',
         ),
-        'book' => array(
-          'weight' => '13',
-        ),
-        'options' => array(
-          'weight' => '14',
-        ),
-        'author' => array(
+        'hidden_nodes' => array(
           'weight' => '11',
         ),
-        'revision_information' => array(
+        'book' => array(
+          'weight' => '14',
+        ),
+        'options' => array(
+          'weight' => '15',
+        ),
+        'author' => array(
           'weight' => '12',
+        ),
+        'revision_information' => array(
+          'weight' => '13',
         ),
       ),
       'display' => array(

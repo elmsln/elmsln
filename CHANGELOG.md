@@ -1,3 +1,9 @@
+ELMSLN 0.6.2, 2016-12-02 - Dominant
+This release includes lots of edge-case performance, edge-case stability, usability and minor bug fixes noticed after deployment of 0.6.1.
+
+To read about the changes present in this release see: https://github.com/elmsln/elmsln/milestone/15?closed=1
+
+
 ELMSLN 0.6.1, 2016-11-22 - Gravy
 This release includes minor fixes noticed after deploying 0.6.0 in the wild on multiple servers. This is a minor release based on scope of the issues and upgrading from 0.6.0 should be minimally invasive. There is a server level upgrade to apply at this version marker but it is not critical. This also includes additional work towards the Angular version of the studio which is close to working.
 

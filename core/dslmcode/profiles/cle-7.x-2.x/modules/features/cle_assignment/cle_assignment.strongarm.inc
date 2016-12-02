@@ -136,6 +136,24 @@ function cle_assignment_strongarm() {
         'title' => array(
           'weight' => '0',
         ),
+        'path' => array(
+          'weight' => '5',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '7',
+        ),
+        'book' => array(
+          'weight' => '4',
+        ),
+        'options' => array(
+          'weight' => '8',
+        ),
+        'author' => array(
+          'weight' => '6',
+        ),
+        'revision_information' => array(
+          'weight' => '3',
+        ),
       ),
       'display' => array(),
     ),

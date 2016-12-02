@@ -74,6 +74,13 @@ function mooc_helper_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function mooc_helper_menu_alter(&$items) {
+  $items['read_time/rebuild']['menu_name'] = 'menu-elmsln-settings';
+}
+
+/**
  * Implements hook_block_info().
  */
 function mooc_helper_block_info() {
@@ -826,7 +833,7 @@ function mooc_helper_fa_a11y() {
         'icon' => 'view_carousel',
       ),
       'speedreader' => array(
-        '#markup' => '<a class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">chrome_reader_mode</i>' . t('Speed reader') . '</a>',
+        '#markup' => '<a class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="block-speedreader-speedreader-block-nav-modal" aria-expanded="false"><i class="material-icons black-text left">chrome_reader_mode</i>' . t('Speed reader') . '</a>',
         '#weight' => 10,
       ),
     ),
@@ -834,14 +841,14 @@ function mooc_helper_fa_a11y() {
   // support print / book printing
   if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access printer-friendly version')) {
     $a11y['formats']['print'] = array(
-      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">print</i>' . t('Print page') . '</a>',
+      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-expanded="false"><i class="material-icons black-text left">print</i>' . t('Print page') . '</a>',
       '#weight' => -10,
     );
   }
   // print to pdf
   if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access PDF version')) {
     $a11y['formats']['pdf'] = array(
-      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-controls="accessibility-drop" aria-expanded="false"><i class="material-icons black-text left">picture_as_pdf</i>' . t('PDF page') . '</a>',
+      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-expanded="false"><i class="material-icons black-text left">picture_as_pdf</i>' . t('PDF page') . '</a>',
       '#weight' => -9,
     );
   }

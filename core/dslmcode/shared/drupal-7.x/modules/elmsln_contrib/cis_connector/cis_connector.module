@@ -467,57 +467,63 @@ function _cis_connector_course_context() {
   // statically cache future calls
   $course = &drupal_static(__FUNCTION__);
   if (!isset($course)) {
-    // @todo we need a way of detecting course context RIGHT AFTER A FORM IS SAVED
-    // if the destination changes, we technically don't know the context at that time
-    // which is weird but true.
-    // see if this is on a node, then check if we are in an authority
-    if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
-      // we are in an authority system
-      if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
-        $course = $node->field_course_machine_name['und'][0]['value'];
+    // build active registry so we know system type
+    $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
+    switch ($settings['type']) {
+      case 'service':
+        // use the variable that's been set for the machine name
+        $course = variable_get('cis_course_machine_name', FALSE);
+        // fallback is just the base_path if variable not there
+        if (!$course) {
+          // last ditch effort for service based systems
+          $course = str_replace('/', '', base_path());
+        }
         return $course;
-      }
-      // we are in CIS
-      elseif ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
-        $course = $node->field_machine_name['und'][0]['value'];
-        return $course;
-      }
-      // see if we are on a section
-      elseif ($node->type == 'section' && isset($node->field_section_course_ref['und'][0]['entity'])) {
-        $node = $node->field_section_course_ref['und'][0]['entity'];
-        // we are in an authority system
-        if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
-          $course = $node->field_course_machine_name['und'][0]['value'];
+      break;
+      default:
+        // check for global session override
+        if (isset($_SESSION['cis_course_context'])) {
+          $course = $_SESSION['cis_course_context'];
+          unset($_SESSION['cis_course_context']);
           return $course;
         }
-      }
-      // see if we are on something that references a course
-      // if it does, run the previous test again
-      elseif (isset($node->field_cis_course_ref['und'][0]['entity'])) {
-        $node = $node->field_cis_course_ref['und'][0]['entity'];
-        // we are in an authority system
-        if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
-          $course = $node->field_course_machine_name['und'][0]['value'];
+        // check for GET in address bar
+        if (isset($_GET['elmsln_course'])) {
+          $course = $_GET['elmsln_course'];
           return $course;
         }
-      }
-    }
-    // check for global session override
-    if (isset($_SESSION['cis_course_context'])) {
-      $course = $_SESSION['cis_course_context'];
-      unset($_SESSION['cis_course_context']);
-      return $course;
-    }
-    // check for GET in address bar
-    if (isset($_GET['elmsln_course'])) {
-      $course = $_GET['elmsln_course'];
-      return $course;
-    }
-    // use the variable that's been set for the machine name
-    $course = variable_get('cis_course_machine_name', FALSE);
-    // fallback is just the base_path if variable not there
-    if (!$course) {
-      $course = str_replace('/', '', base_path());
+        // bleh case scenario, we need to start loading some nodes and what not
+        // see if this is on a node, then check if we are in an authority
+        if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
+          // test for authority course type
+          if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+            $course = $node->field_course_machine_name['und'][0]['value'];
+            return $course;
+          }
+          // we are in CIS
+          elseif ($node->type == 'course' && isset($node->field_machine_name['und'][0]['value'])) {
+            $course = $node->field_machine_name['und'][0]['value'];
+            return $course;
+          }
+          // see if we are on a section
+          elseif ($node->type == 'section' && isset($node->field_section_course_ref['und'][0]['entity'])) {
+            $node = $node->field_section_course_ref['und'][0]['entity'];
+            if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+              $course = $node->field_course_machine_name['und'][0]['value'];
+              return $course;
+            }
+          }
+          // see if we are on something that references a course
+          // if it does, run the previous test again
+          elseif (isset($node->field_cis_course_ref['und'][0]['entity'])) {
+            $node = $node->field_cis_course_ref['und'][0]['entity'];
+            if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
+              $course = $node->field_course_machine_name['und'][0]['value'];
+              return $course;
+            }
+          }
+        }
+      break;
     }
   }
   return $course;
@@ -1323,19 +1329,21 @@ function cis_connector_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['#entity_type']) && isset($form['#bundle'])) {
     // look for remote entities structured for this entity / bundle pair
     $rem = _cis_connector_remote_entities($form['#entity_type'], $form['#bundle']);
-    // pop off the 1 we have as this is specific
-    $item = array_pop($rem);
-    // test for entity form and not in a bucket we write to
-    if ($form_id == $item['bundle'] . '_' . $item['type'] . '_' . 'form' && !in_array(elmsln_core_get_profile_key(), $item['buckets'])) {
-      // search fields on external instance and modify settings when needed
-      foreach ($form_state['field'] as $field_name => $field) {
-        if ($field['und']['field']['settings']['cis_connector_access']) {
-          // remove access to this field entirely
-          $form[$field_name]['#access'] = FALSE;
-        }
-        if ($field['und']['field']['settings']['cis_connector_disable']) {
-          // remove ability to edit to these field instances
-          $form[$field_name]['und']['#disabled'] = TRUE;
+    if (!empty($rem)) {
+      // pop off the 1 we have as this is specific
+      $item = array_pop($rem);
+      // test for entity form and not in a bucket we write to
+      if ($form_id == $item['bundle'] . '_' . $item['type'] . '_' . 'form' && !in_array(elmsln_core_get_profile_key(), $item['buckets'])) {
+        // search fields on external instance and modify settings when needed
+        foreach ($form_state['field'] as $field_name => $field) {
+          if ($field['und']['field']['settings']['cis_connector_access']) {
+            // remove access to this field entirely
+            $form[$field_name]['#access'] = FALSE;
+          }
+          if ($field['und']['field']['settings']['cis_connector_disable']) {
+            // remove ability to edit to these field instances
+            $form[$field_name]['und']['#disabled'] = TRUE;
+          }
         }
       }
     }
@@ -1391,28 +1399,6 @@ function cis_connector_libraries_info_file_paths() {
   // this allows ELMSLN to abstract local deployment libraries from the
   // supported package while still working correctly
   return array('sites/all/libraries/_my_libraries');
-}
-
-/**
- * Implements hook_init().
- */
-function cis_connector_init() {
-  // @todo maybe do an in-bound alter for this
-  if (isset($_GET['cis-refresh']) && $_GET['cis-refresh']) {
-    drupal_set_message(t('CIS is currently refreshing its cache, reload this page in a moment to reflect any changes.'), 'status', FALSE);
-  }
-}
-
-/**
- * Implements hook_drupal_goto_alter().
- */
-function cis_connector_drupal_goto_alter(&$path, &$options, &$http_response_code) {
-  // see if we have our CIS redirect in here
-  if (isset($_GET ['cis-dest']) && $settings = _cis_connector_build_registry($_GET['cis-dest'])) {
-    $path = _cis_connector_format_address($settings, $_GET['cis-instance'], 'front');
-    $options['query']['cis-refresh'] = TRUE;
-    drupal_get_messages();
-  }
 }
 
 /**

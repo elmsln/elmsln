@@ -39,7 +39,7 @@ function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state
       // fields that we allow to be optionally hidden
       $hidden = array('field_images', 'field_video', 'body', 'field_links', 'field_files');
       // remove things we should allow to display
-      foreach ($assignment->field_media_requirements['und'] as $field) {
+      foreach ($assignment->field_assignment_artifacts['und'] as $field) {
         unset($hidden[array_search($field['value'], $hidden)]);
       }
       // hide things that shouldn't be visible based on requirements of assignment

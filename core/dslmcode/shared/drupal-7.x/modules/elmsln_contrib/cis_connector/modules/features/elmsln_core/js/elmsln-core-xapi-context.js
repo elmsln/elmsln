@@ -16,6 +16,10 @@
       if ($(this).attr('data-xapi-hypothesis')) {
         data["hypothesis"] = $(this).attr('data-xapi-hypothesis');
       }
+      // check for core competency data attribute
+      if ($(this).attr('data-course-competency')) {
+        data["competency"] = $(this).attr('data-course-competency');
+      }
       var obj = this;
       // check frame
       var frame = $(obj).attr('src').split('://');

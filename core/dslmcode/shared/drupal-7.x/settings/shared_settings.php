@@ -3,12 +3,14 @@
 // you can override them in your config version of shared_settings
 // but it is highly recommended against for system stability
 
-// fix for core change in 7.50
+// fix for core change in 7.50+
 $conf['x_frame_options'] = '';
 // allow image cache derivatives without itok token
 $conf['image_allow_insecure_derivatives'] = TRUE;
 // prevent bakery from giving weird messges
 $conf['bakery_status_messages'] = FALSE;
+$conf['site_403'] = 'elmsln/error/403';
+$conf['site_404'] = 'elmsln/error/404';
 
 // use this to debug restws issues
 #$conf['restws_debug_log'] = '/var/www/elmsln/config/tmp/rest.debug';
@@ -29,12 +31,13 @@ $conf['authcache_p13n_frontcontroller_path'] = 'authcache.php';
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/apdqc/apdqc.cache.inc';
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/authcache.cache.inc';
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/modules/authcache_builtin/authcache_builtin.cache.inc';
-
 // Default backend controller to be apdqc
-$conf['cache_default_class']    = 'APDQCache';
+$conf['cache_default_class']    = 'DrupalDatabaseCache';
 // THIS MUST BE SERVED FROM DB FOR STABILITY
-$conf['cache_class_cache_cis_connector'] = 'APDQCache';
-$conf['cache_class_cache_form'] = 'APDQCache';
+#$conf['cache_class_cache_cis_connector'] = 'APDQCache';
+#$conf['cache_class_cache_form'] = 'APDQCache';
+// look issues for books of menu items
+$conf['cache_class_cache_menu'] = 'DrupalDatabaseCache';
 
 // pathcache settings
 $conf['path_inc'] = 'sites/all/modules/ulmus/pathcache/path.inc';

@@ -38,4 +38,17 @@ function cpr_foundation_access_preprocess_user_profile(&$vars) {
   // load up related user data
   $blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
   $vars['user_data'] = _block_get_renderable_array(_block_render_blocks(array($blockObject)));
+  // load bio in
+  $bio = '';
+  if (isset($vars['user_profile']['field_bio'])) {
+    $bio = $vars['user_profile']['field_bio'];
+  }
+  $vars['tabs'] = array(
+    'bio' => t('About'),
+    'xapidata' => t('Activity data'),
+  );
+  $vars['tabs_content'] = array(
+    'bio' => $bio,
+    'xapidata' => $vars['user_data'],
+  );
 }

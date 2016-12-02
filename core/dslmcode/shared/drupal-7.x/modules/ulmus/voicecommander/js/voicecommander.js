@@ -5,12 +5,22 @@
  */
 
 (function ($) {
-  Drupal.voicecommander.say = function(text) {
+  Drupal.voicecommander.say = function(text, pitch, rate) {
     // talk to me
     Drupal.settings.voiceCommander.utter = new SpeechSynthesisUtterance(text);
     // nothing crazy so we can understand our robot
-    Drupal.settings.voiceCommander.utter.pitch = 1;
-    Drupal.settings.voiceCommander.utter.rate = 1;
+    if (typeof pitch === 'undefined') {
+      Drupal.settings.voiceCommander.utter.pitch = 1;
+    }
+    else {
+      Drupal.settings.voiceCommander.utter.pitch = pitch;
+    }
+    if (typeof rate === 'undefined') {
+      Drupal.settings.voiceCommander.utter.rate = 1;
+    }
+    else {
+      Drupal.settings.voiceCommander.utter.rate = rate;
+    }
     Drupal.settings.voiceCommander.utter.lang = 'en-US';
     Drupal.settings.voiceCommander.utter.voice = Drupal.settings.voiceCommander.defaultVoice;
     // THOU SPEAKITH

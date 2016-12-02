@@ -6,19 +6,20 @@
  */
 function cis_user_menu() {
   $items['cis/import-users'] = array(
-    'title' => 'Import users',
+    'title' => 'Roster',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_user_import_form'),
     'access arguments' => array('cis user import users'),
     'type' => MENU_NORMAL_ITEM,
-    'menu_name' => 'menu-elmsln-settings',
+    'menu_name' => 'menu-elmsln-add',
     'file' => 'cis_user.pages.inc',
   );
   $items['node/%node/import-users'] = array(
-    'title' => 'Import users',
+    'title' => 'Upload roster',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cis_user_import_form'),
-    'access arguments' => array('cis user import users'),
+    'access callback' => '_cis_helper_sync_roster_node_access',
+    'access arguments' => array('update', 1),
     'type' => MENU_LOCAL_TASK,
     'file' => 'cis_user.pages.inc',
   );
@@ -37,12 +38,48 @@ function cis_user_permission() {
   );
 }
 
+/**
+ * Implements hook_cis_helper_build_roster().
+ */
+function cis_user_cis_helper_build_roster($section) {
+  $roster = array();
+  // try to load the section value as a file if its a valid uuid
+  if (uuid_is_valid($section)) {
+    $files = entity_uuid_load('file', array($section));
+    if (count($files) == 1) {
+      $file = array_pop($files);
+      // @TODO I DONT KNOW WHY BUT VARIABLES SYSTEM IS NULL HERE FOR PUBLIC FILE PATH
+      $location = str_replace('public://user_import_files', $GLOBALS['elmslncfg']['elmsln'] . '/config/stacks/online/sites/online/' . $GLOBALS['elmslncfg']['host'] . '/files/user_import_files', $file->uri);
+      # header can be variable this way
+      $header = NULL;
+      if (!empty($location)) {
+        $fcontent = file_get_contents($location);
+          // convert csv items to an array format
+        $rows = _cis_user_csv_to_array($fcontent, $header);
+        foreach ($rows as $row) {
+          // test for email to ship around
+          foreach ($row as $key => $val) {
+            switch ($key) {
+              case 'role':
+              case 'mail':
+              case 'pass':
+                $roster[$row['name']][$key] = $val;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  return $roster;
+}
+
 // convert csv to an associative array
 function _cis_user_csv_to_array($input, &$header, $delimiter=',') {
   $data = array();
   $csvData = str_getcsv($input, "\r\n");
   foreach($csvData as $csvLine){
-    if(is_null($header)) $header = explode($delimiter, str_replace(' ', '',strtolower($csvLine)));
+    if(is_null($header)) $header = explode($delimiter, str_replace(' ', '', strtolower($csvLine)));
     else{
       $items = explode($delimiter, $csvLine);
       for($n = 0, $m = count($header); $n < $m; $n++){

@@ -129,6 +129,7 @@ dependencies[] = cis_helper
 dependencies[] = cis_lti
 dependencies[] = cis_si_cleanup
 dependencies[] = cis_distro_integrations
+dependencies[] = cis_user
 ; Content
 dependencies[] = field_redirection
 ; Date/Time
@@ -172,6 +173,7 @@ dependencies[] = views_autorefresh
 ; Features
 dependencies[] = cis_displays
 dependencies[] = cis_types
+dependencies[] = cis_competencies
 dependencies[] = cis_users
 dependencies[] = cis_service_roles
 dependencies[] = cis_ux
