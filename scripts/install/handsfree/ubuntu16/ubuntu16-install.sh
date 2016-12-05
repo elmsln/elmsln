@@ -55,7 +55,7 @@ a2enmod ssl rewrite headers
 pecl channel-update pecl.php.net
 
 pecl install yaml-2.0.0 && echo "extension=yaml.so" > /etc/php/7.0/mods-available/yaml.ini
-phpenmod
+phpenmod yaml
 
 # install uploadprogress
 pecl install uploadprogress
@@ -63,7 +63,7 @@ pecl install uploadprogress
 # adding uploadprogresss to php conf files
 touch /etc/php/7.0/mods-available/uploadprogress.ini
 echo extension=uploadprogress.so > /etc/php/7.0/mods-available/uploadprogress.ini
-phpenmod yaml
+
 
 # Sanity Logs
 mkdir /var/log/php-fpm/
