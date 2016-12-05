@@ -25,7 +25,6 @@ features[field_base][] = field_audio
 features[field_group][] = group_details|node|audio|full
 features[field_instance][] = node-audio-field_audio
 features[field_instance][] = node-audio-field_cis_course_ref
-features[field_instance][] = node-audio-field_elmsln_competency
 features[field_instance][] = node-audio-field_tagging
 features[field_instance][] = node-audio-og_group_ref
 features[node][] = audio

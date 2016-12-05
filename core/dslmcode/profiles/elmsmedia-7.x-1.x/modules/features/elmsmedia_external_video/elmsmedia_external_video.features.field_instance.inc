@@ -14,6 +14,7 @@ function elmsmedia_external_video_field_default_field_instances() {
   $field_instances['node-external_video-field_cis_course_ref'] = array(
     'bundle' => 'external_video',
     'default_value' => NULL,
+    'default_value_function' => '',
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -21,7 +22,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 3,
       ),
       'full' => array(
         'label' => 'above',
@@ -75,56 +76,6 @@ function elmsmedia_external_video_field_default_field_instances() {
     'label' => 'Course',
     'required' => 0,
     'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 0,
-    ),
-  );
-
-  // Exported field_instance: 'node-external_video-field_elmsln_competency'.
-  $field_instances['node-external_video-field_elmsln_competency'] = array(
-    'bundle' => 'external_video',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'Does this item reflect achievement in pursuit of a course competency? Set this for critical events / learning objectives to send additional xAPI metadata for tracking student progression toward learning this competency.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 2,
-      ),
-      'full' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'iframe' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'mediavideo' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_elmsln_competency',
-    'label' => 'Competency',
-    'required' => 0,
-    'settings' => array(
       'authcache' => array(
         'clients' => array(
           'authcache_ajax' => array(
@@ -138,35 +89,21 @@ function elmsmedia_external_video_field_default_field_instances() {
         'peruser' => 1,
         'status' => 0,
       ),
-      'better_formats' => array(
-        'allowed_formats' => array(
-          'plain_text' => 'plain_text',
-          'textbook_editor' => 'textbook_editor',
-        ),
-        'allowed_formats_toggle' => 0,
-        'default_order_toggle' => 0,
-        'default_order_wrapper' => array(
-          'formats' => array(
-            'plain_text' => array(
-              'weight' => 10,
-            ),
-            'textbook_editor' => array(
-              'weight' => -10,
-            ),
-          ),
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
         ),
       ),
-      'text_processing' => 0,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'text',
+      'module' => 'options',
       'settings' => array(
-        'size' => 60,
+        'apply_chosen' => '',
       ),
-      'type' => 'text_textfield',
-      'weight' => 1,
+      'type' => 'options_select',
+      'weight' => 0,
     ),
   );
 
@@ -275,7 +212,7 @@ function elmsmedia_external_video_field_default_field_instances() {
       'module' => 'video_embed_field',
       'settings' => array(),
       'type' => 'video_embed_field_video',
-      'weight' => 3,
+      'weight' => 2,
     ),
   );
 
@@ -400,7 +337,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         ),
       ),
       'type' => 'inline_entity_form',
-      'weight' => 6,
+      'weight' => 5,
     ),
   );
 
@@ -414,7 +351,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 5,
       ),
       'full' => array(
         'label' => 'above',
@@ -498,7 +435,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 4,
+      'weight' => 3,
     ),
   );
 
@@ -513,7 +450,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'above',
@@ -592,7 +529,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'autocomplete_deluxe_taxonomy',
-      'weight' => 5,
+      'weight' => 4,
     ),
   );
 
@@ -608,7 +545,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 2,
       ),
       'full' => array(
         'label' => 'above',
@@ -716,15 +653,13 @@ function elmsmedia_external_video_field_default_field_instances() {
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 7,
+      'weight' => 6,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Competency');
   t('Course');
-  t('Does this item reflect achievement in pursuit of a course competency? Set this for critical events / learning objectives to send additional xAPI metadata for tracking student progression toward learning this competency.');
   t('External media');
   t('Figure Label');
   t('Poster');

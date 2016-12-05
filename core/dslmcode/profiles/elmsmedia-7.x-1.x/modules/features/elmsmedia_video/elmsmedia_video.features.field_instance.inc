@@ -20,7 +20,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 5,
       ),
       'full' => array(
         'label' => 'above',
@@ -92,6 +92,7 @@ function elmsmedia_video_field_default_field_instances() {
   $field_instances['node-video-field_cis_course_ref'] = array(
     'bundle' => 'video',
     'default_value' => NULL,
+    'default_value_function' => '',
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -99,7 +100,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 2,
       ),
       'full' => array(
         'label' => 'above',
@@ -153,50 +154,6 @@ function elmsmedia_video_field_default_field_instances() {
     'label' => 'Course',
     'required' => 0,
     'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 0,
-    ),
-  );
-
-  // Exported field_instance: 'node-video-field_elmsln_competency'.
-  $field_instances['node-video-field_elmsln_competency'] = array(
-    'bundle' => 'video',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'Does this item reflect achievement in pursuit of a course competency? Set this for critical events / learning objectives to send additional xAPI metadata for tracking student progression toward learning this competency.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 1,
-      ),
-      'full' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'iframe' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_elmsln_competency',
-    'label' => 'Competency',
-    'required' => 0,
-    'settings' => array(
       'authcache' => array(
         'clients' => array(
           'authcache_ajax' => array(
@@ -210,35 +167,21 @@ function elmsmedia_video_field_default_field_instances() {
         'peruser' => 1,
         'status' => 0,
       ),
-      'better_formats' => array(
-        'allowed_formats' => array(
-          'plain_text' => 'plain_text',
-          'textbook_editor' => 'textbook_editor',
-        ),
-        'allowed_formats_toggle' => 0,
-        'default_order_toggle' => 0,
-        'default_order_wrapper' => array(
-          'formats' => array(
-            'plain_text' => array(
-              'weight' => 10,
-            ),
-            'textbook_editor' => array(
-              'weight' => -10,
-            ),
-          ),
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
         ),
       ),
-      'text_processing' => 0,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'text',
+      'module' => 'options',
       'settings' => array(
-        'size' => 60,
+        'apply_chosen' => '',
       ),
-      'type' => 'text_textfield',
-      'weight' => 1,
+      'type' => 'options_select',
+      'weight' => 0,
     ),
   );
 
@@ -252,7 +195,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'above',
@@ -327,7 +270,7 @@ function elmsmedia_video_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 5,
+      'weight' => 3,
     ),
   );
 
@@ -342,7 +285,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 1,
       ),
       'full' => array(
         'label' => 'above',
@@ -420,7 +363,7 @@ function elmsmedia_video_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'autocomplete_deluxe_taxonomy',
-      'weight' => 7,
+      'weight' => 6,
     ),
   );
 
@@ -434,7 +377,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 6,
       ),
       'full' => array(
         'label' => 'above',
@@ -498,7 +441,7 @@ function elmsmedia_video_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 6,
+      'weight' => 5,
     ),
   );
 
@@ -611,7 +554,7 @@ function elmsmedia_video_field_default_field_instances() {
         'progress_indicator' => 'bar',
       ),
       'type' => 'file_generic',
-      'weight' => 3,
+      'weight' => 2,
     ),
   );
 
@@ -627,7 +570,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 3,
       ),
       'full' => array(
         'label' => 'above',
@@ -735,16 +678,14 @@ function elmsmedia_video_field_default_field_instances() {
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 8,
+      'weight' => 7,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Caption');
-  t('Competency');
   t('Course');
-  t('Does this item reflect achievement in pursuit of a course competency? Set this for critical events / learning objectives to send additional xAPI metadata for tracking student progression toward learning this competency.');
   t('Poster');
   t('Section');
   t('Tagging media can make it easier to find after the fact. This is used for searching and filtering.');
