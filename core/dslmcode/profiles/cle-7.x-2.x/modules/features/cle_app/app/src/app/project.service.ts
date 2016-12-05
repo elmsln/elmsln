@@ -31,11 +31,19 @@ export class ProjectService {
       .map(data => data.json())
   }
 
+  updateProject(project:Project) {
+    console.log('updateProject', project);
+    // first we need to prepare the object for Drupal
+    let body = this.prepareForDrupal(project);
+    console.log('updateProject: Ready to send', body);
+    return this.elmsln.put(AppSettings.BASE_PATH + 'node/'+ project.id, body)
+      .map(data => data.json())
+  }
+
   deleteProject(project:Project) {
     return this.elmsln.delete(AppSettings.BASE_PATH + 'node/' + project.id)
       .map(data => data.json())
   }
-
 
 
   private formatProjects(projects: any[]) {
@@ -73,9 +81,12 @@ export class ProjectService {
   private prepareForDrupal(project:Project) {
     let ufProject:any = {};
 
-    ufProject['title'] = project.title ? project.title : 'New Project';
+    // always specify as cle_project
     ufProject['type'] = "cle_project";
 
+    if (project.title) {
+      ufProject['title'] = project.title;
+    }
     if (project.author) {
       ufProject['author'] = project.author;
     }

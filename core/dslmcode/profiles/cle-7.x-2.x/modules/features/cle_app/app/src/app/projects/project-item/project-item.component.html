@@ -1,7 +1,9 @@
 <div class="project">
   <div class="project__header">
     <div class="project__title-container">
-      <h1 class="project__title">{{ project.title }}</h1>
+      <app-editable-field [type]="text" [content]="project.title" (contentUpdated)="updateTitle($event)">
+        <h1 class="project__title">{{ project.title }}</h1>
+      </app-editable-field>
       <div class="project__description" [innerHTML]="project.description"></div>
     </div>
     <div class="project__options">

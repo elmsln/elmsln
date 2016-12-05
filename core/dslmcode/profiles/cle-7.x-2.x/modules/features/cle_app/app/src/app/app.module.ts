@@ -37,6 +37,7 @@ import { ProjectsListComponent } from './projects/projects-list/projects-list.co
 import { DropdownComponent } from './components/dropdown/dropdown.component';
 import { ProjectCardComponent } from './projects/project-card/project-card.component';
 import { ProjectItemComponent } from './projects/project-item/project-item.component';
+import { EditableFieldComponent } from './editable-field/editable-field.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import { ProjectItemComponent } from './projects/project-item/project-item.compo
     ProjectsListComponent,
     DropdownComponent,
     ProjectCardComponent,
-    ProjectItemComponent
+    ProjectItemComponent,
+    EditableFieldComponent
   ],
   imports: [
     BrowserModule,

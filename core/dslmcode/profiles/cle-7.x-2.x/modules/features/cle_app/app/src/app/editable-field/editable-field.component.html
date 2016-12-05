@@ -1,0 +1,8 @@
+<div *ngIf="editing">
+  <form [formGroup]="form">
+    <input formControlName="content" (keyup.enter)="endEditing()" type="text" class="text-input"> 
+  </form>
+</div>
+<div *ngIf="editing == false" (click)="beginEditing()">
+  <ng-content></ng-content>
+</div>

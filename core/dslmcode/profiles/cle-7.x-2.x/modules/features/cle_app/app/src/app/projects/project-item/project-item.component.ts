@@ -3,6 +3,8 @@ import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
 
+declare const Materialize:any;
+
 @Component({
   selector: 'app-project-item',
   templateUrl: './project-item.component.html',
@@ -44,5 +46,30 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         this.delete.emit();
       });
+  }
+
+  updateTitle($event) {
+    // remember the old title in case the update fails
+    let oldTitle = this.project.title;
+    // update the project title on the page
+    this.project.title = $event;
+
+    // the project object that we are going to save
+    let newProject:Project = {
+      id: this.project.id,
+      title: this.project.title
+    }
+    // update the project in Drupal
+    this.projectService.updateProject(newProject)
+      .subscribe(
+        data => {
+          console.log(data);
+        },
+        error => {
+          // change the title back to the original
+          this.project.title = oldTitle;
+          Materialize.toast('Could not update title', 5000);
+        }
+      );
   }
 }
