@@ -32,20 +32,31 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   }
 
   createAssignment() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('open');
+    (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('open');
   }
 
   assignmentCreated($event) {
-    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('close');
+    (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('close');
+    Materialize.toast('Assignment created!', 1000);
     this.assignmentListComponent.getAssignments();
   }
 
   deleteProject() {
-    let project = this.project;
-    this.projectService.deleteProject(project)
-      .subscribe(data => {
-        this.delete.emit();
-      });
+    (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal('open');
+  }
+
+  confirmDelete(confirm:boolean) {
+    if (confirm) {
+      let project = this.project;
+      this.projectService.deleteProject(project)
+        .subscribe(data => {
+          this.delete.emit();
+          Materialize.toast('Project deleted', 1000);
+        });
+    }
+    else {
+      (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal('close');
+    }
   }
 
   updateTitle($event) {
