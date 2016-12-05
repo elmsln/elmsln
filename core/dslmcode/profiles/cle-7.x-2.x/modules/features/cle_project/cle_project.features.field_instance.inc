@@ -286,12 +286,63 @@ function cle_project_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-cle_project-field_project_phases'.
+  $field_instances['node-cle_project-field_project_phases'] = array(
+    'bundle' => 'cle_project',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'blob',
+        'settings' => array(),
+        'type' => 'blob_default',
+        'weight' => 4,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_project_phases',
+    'label' => 'Phases',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'blob',
+      'settings' => array(),
+      'type' => 'blob_widget_none',
+      'weight' => 9,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Color');
   t('Description');
   t('Due date');
   t('Image');
+  t('Phases');
 
   return $field_instances;
 }
