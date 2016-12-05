@@ -32,6 +32,12 @@ import { CritiqueListComponent } from './critique/critique-list/critique-list.co
 import { WysiwygjsComponent } from './wysiwygjs/wysiwygjs.component';
 import { DatepickerComponent } from './datepicker/datepicker.component';
 import { AssignmentFormComponent } from './assignment/assignment-form/assignment-form.component';
+import { ProjectsComponent } from './projects/projects.component';
+import { ProjectsListComponent } from './projects/projects-list/projects-list.component';
+import { DropdownComponent } from './components/dropdown/dropdown.component';
+import { ProjectCardComponent } from './projects/project-card/project-card.component';
+import { ProjectItemComponent } from './projects/project-item/project-item.component';
+import { EditableFieldComponent } from './editable-field/editable-field.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +55,13 @@ import { AssignmentFormComponent } from './assignment/assignment-form/assignment
     CritiqueListComponent,
     WysiwygjsComponent,
     DatepickerComponent,
-    AssignmentFormComponent
+    AssignmentFormComponent,
+    ProjectsComponent,
+    ProjectsListComponent,
+    DropdownComponent,
+    ProjectCardComponent,
+    ProjectItemComponent,
+    EditableFieldComponent
   ],
   imports: [
     BrowserModule,

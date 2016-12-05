@@ -86,8 +86,12 @@ function _cle_assignments_v1_cle() {
 function _cle_assignemnts_v1_cle_assignments() {
   global $base_url;
   $vars = array();
+
   // gather the list of assignments to send
-  $assignments = _cle_assignemnts_v1_get_assignments();
+  $assignments_filter = array();
+  // check the url parmas for filters
+  $assignments_filter = drupal_get_query_parameters();
+  $assignments = _cle_assignemnts_v1_get_assignments($assignments_filter);
 
   // assemble the call
   $vars['links'] = array(
@@ -229,12 +233,17 @@ function _cle_assignment_v1_assignment_output($assignment) {
  * - Make sure they have permission to see assignments
  * - Make sure that they are seeing assignments for their current section
  */
-function _cle_assignemnts_v1_get_assignments() {
+function _cle_assignemnts_v1_get_assignments($filter = array()) {
   $assignments = array();
+
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'cle_assignment')
     ->propertyCondition('status', NODE_PUBLISHED);
+  // check if the project filter was set
+  if (isset($filter['project'])) {
+    $query->fieldCondition('field_assignment_project', 'target_id', $filter['project'], '=');
+  }
 
   $result = $query->execute();
   if (isset($result['node'])) {

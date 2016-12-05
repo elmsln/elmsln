@@ -29,3 +29,11 @@
   top: 3.5em;
   right: 3em;
 }
+
+nav, nav .btn {
+  background: transparent;
+  box-shadow: none;
+}
+nav li a {
+  color: #2196F3;
+}

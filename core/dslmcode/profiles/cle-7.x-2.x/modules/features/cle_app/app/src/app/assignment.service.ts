@@ -11,8 +11,10 @@ export class AssignmentService {
     private elmsln: ElmslnService
   ) { }
 
-  getAssignments() {
-    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments')
+  getAssignments(projectId?:number) {
+    // 
+    let query = projectId ? '?project=' + projectId : '';
+    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments' + query)
       .map(data => data.json())
   }
 
@@ -30,7 +32,8 @@ export class AssignmentService {
       title: assignment.title,
       body: {
         value: assignment.body,
-      }
+      },
+      field_assignment_project: assignment.project
     }
     
     return this.elmsln.post(AppSettings.BASE_PATH + 'node.json', newAssignment)
