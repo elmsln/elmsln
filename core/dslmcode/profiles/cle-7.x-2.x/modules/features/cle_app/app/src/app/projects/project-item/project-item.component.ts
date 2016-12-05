@@ -32,7 +32,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   }
 
   createAssignment() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).modal('open');
+    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('open');
   }
 
   assignmentCreated($event) {

@@ -57,8 +57,8 @@ export class AssignmentFormComponent implements OnInit {
       .subscribe(data => {
         if (data.id) {
           this.assignmentCreated.emit();
+          this.form.reset();
         }
-        console.log(data);
       })
   }
 }
