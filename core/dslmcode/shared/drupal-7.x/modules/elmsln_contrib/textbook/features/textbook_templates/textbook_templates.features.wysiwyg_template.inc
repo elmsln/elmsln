@@ -116,10 +116,64 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'description' => 'implements materialize style collapse',
     'weight' => 17,
     'fid' => 0,
-    'body' => '<ul class="collapsible" data-collapsible="accordion"><li><div class="collapsible-header"><i class="material-icons">filter_drama</i>First</div>
-<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div></li><li><div class="collapsible-header"><i class="material-icons">place</i>Second</div>
-<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div></li><li><div class="collapsible-header"><i class="material-icons">whatshot</i>Third</div>
-<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div></li></ul>',
+    'body' => '<ul class="collapsible popout" data-collapsible="accordion"><li>
+  <div class="collapsible-header cis-lmsless-background"><i class="material-icons">photo_camera</i>1. Take a Picture
+  </div>
+  <div class="collapsible-body cis-lmsless-background">
+    <div class="elmsln-collapsible-body">
+      <p>Content
+      </p>
+    </div>
+  </div></li><li>
+  <div class="collapsible-header cis-lmsless-background"><i class="material-icons">computer</i>2. Open in Photoshop
+  </div>
+  <div class="collapsible-body cis-lmsless-background">
+    <div class="elmsln-collapsible-body">
+      <p>Content
+      </p>
+    </div>
+  </div></li><li>
+  <div class="collapsible-header cis-lmsless-background"><i class="material-icons">photo</i>3. Save a High Res Image
+  </div>
+  <div class="collapsible-body cis-lmsless-background">
+    <div class="elmsln-collapsible-body">
+      <p>Content
+      </p>
+    </div>
+  </div></li><li>
+  <div class="collapsible-header cis-lmsless-background"><i class="material-icons">photo_library</i>4. Save a Web Optimized Image
+  </div>
+  <div class="collapsible-body cis-lmsless-background">
+    <div class="elmsln-collapsible-body">
+      <p>Content
+      </p>
+    </div>
+  </div></li><li>
+  <div class="collapsible-header cis-lmsless-background"><i class="material-icons">photo_size_select_actual</i>5. Save a Super Tiny Image
+  </div>
+  <div class="collapsible-body cis-lmsless-background">
+    <div class="elmsln-collapsible-body">
+      <p>Content
+      </p>
+    </div>
+  </div></li><li>
+  <div class="collapsible-header cis-lmsless-background"><i class="material-icons">filter</i>6. Make a Glitch Images
+  </div>
+  <div class="collapsible-body cis-lmsless-background">
+    <div class="elmsln-collapsible-body">
+      <p>Content
+      </p>
+    </div>
+  </div></li><li>
+  <div class="collapsible-header cis-lmsless-background"><i class="material-icons">file_upload</i>7. Submit All Images
+  </div>
+  <div class="collapsible-body cis-lmsless-background">
+    <div class="elmsln-collapsible-body">
+      <p>Content
+      </p>
+    </div>
+  </div></li>
+</ul>',
     'format' => 'textbook_editor',
     'name' => 'materialize_collapsible',
     'content_types' => array(),

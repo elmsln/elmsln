@@ -64,8 +64,7 @@
 .colorpicker {
   z-index: 10000;
 }
-
-article ul:not(.browser-default):not(.dropdown-content):not(.table-of-contents):not(.menu) li {
+article ul:not(.collapsible):not(.browser-default):not(.dropdown-content):not(.table-of-contents):not(.menu) li {
   list-style-type: disc;
   list-style-position: outside;
 }
@@ -252,6 +251,9 @@ pre {
   margin-left: 0;
 }
 /* link support in collapsible headers */
+ul.collapsible li {
+    list-style-type: none;
+}
 .collapsible-action-link {
   padding: 0 .25rem;
   line-height: 1rem;
